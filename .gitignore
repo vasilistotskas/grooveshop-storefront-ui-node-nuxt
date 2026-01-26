@@ -38,6 +38,7 @@ coverage
 .cursorrules
 .windsurfrules
 .kiro
+.agent
 
 # Public
 public/.well-known

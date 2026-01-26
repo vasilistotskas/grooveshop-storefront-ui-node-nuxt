@@ -56,10 +56,10 @@ const pricingItems = computed(() => {
     })
   }
 
-  if (breakdown.extrasTotal) {
+  if (breakdown.paymentMethodFee) {
     items.push({
-      label: t('extras'),
-      amount: breakdown.extrasTotal,
+      label: t('payment_method_fee'),
+      amount: breakdown.paymentMethodFee,
       currency: breakdown.currency || 'EUR',
     })
   }
@@ -1083,5 +1083,6 @@ el:
   order_delivered: Παραγγελία Παραδόθηκε
   order_delivered_desc: Η παραγγελία σας παραδόθηκε επιτυχώς
   payment_pending: Εκκρεμής Πληρωμή
+  payment_method_fee: Χρέωση μεθόδου πληρωμής
   payment_pending_desc: Υπάρχει εκκρεμές ποσό {amount} για αυτή την παραγγελία
 </i18n>

@@ -86,29 +86,31 @@ const items = computed(() => {
         lg:pt-[62px]
       "
     >
-      <section class="flex w-full flex-1 flex-col">
+      <section class="flex w-full flex-1 flex-col pb-24 md:pb-20">
         <slot />
       </section>
     </UMain>
     <slot name="footer">
-      <MobileOrTabletOnly>
-        <div
-          class="
-            my-6 flex flex-wrap items-center justify-center
-            md:hidden
-          "
-        >
-          <Socials />
-        </div>
-      </MobileOrTabletOnly>
-      <LazyFooterMobile
-        v-if="isMobileOrTablet"
-        hydrate-on-visible
-      />
-      <LazyFooterDesktop
-        v-else
-        hydrate-on-visible
-      />
+      <div class="pb-16 md:pb-0">
+        <MobileOrTabletOnly>
+          <div
+            class="
+              my-6 flex flex-wrap items-center justify-center
+              md:hidden
+            "
+          >
+            <Socials />
+          </div>
+        </MobileOrTabletOnly>
+        <LazyFooterMobile
+          v-if="isMobileOrTablet"
+          hydrate-on-visible
+        />
+        <LazyFooterDesktop
+          v-else
+          hydrate-on-visible
+        />
+      </div>
     </slot>
     <MobileOrTabletOnly>
       <UNavigationMenu

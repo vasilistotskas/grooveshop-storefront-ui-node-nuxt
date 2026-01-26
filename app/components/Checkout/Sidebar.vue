@@ -97,6 +97,14 @@ defineSlots<{
               "
             >{{ t('shipping') }}</span>
             <span
+              v-if="shippingPrice === 0"
+              class="
+                font-bold text-green-600
+                dark:text-green-400
+              "
+            >{{ t('free') }}</span>
+            <span
+              v-else
               class="
                 font-bold text-primary-950
                 dark:text-primary-50
@@ -182,6 +190,7 @@ el:
   title: Ολοκλήρωση αγοράς
   items_unique: Είδη
   shipping: Μεταφορικά
+  free: Δωρεάν
   total: Σύνολο
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
   vat_included: Στις τιμές συμπεριλαμβάνεται Φ.Π.Α.

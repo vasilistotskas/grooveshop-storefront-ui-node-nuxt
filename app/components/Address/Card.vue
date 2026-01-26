@@ -95,10 +95,10 @@ const addressDetails = computed(() => {
     })
   }
 
-  if (address.value.mobilePhone) {
+  if (address.value.phone) {
     details.push({
       icon: 'i-heroicons-device-phone-mobile',
-      text: address.value.mobilePhone,
+      text: address.value.phone,
     })
   }
 

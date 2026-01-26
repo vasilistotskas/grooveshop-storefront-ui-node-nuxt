@@ -34,10 +34,8 @@ async function fetchSchema() {
   }
   catch (error) {
     console.error('❌ Error fetching schema:', error.message)
-    process.exit(1)
+    process.exitCode = 1
   }
 }
 
-fetchSchema().then(() => {
-  process.exit(0)
-})
+await fetchSchema()

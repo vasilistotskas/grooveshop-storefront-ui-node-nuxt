@@ -62,23 +62,32 @@ const totalPriceExtra = computed(() => order.value?.totalPriceExtra || 0)
 const trackingNumber = computed(() => order.value?.trackingNumber)
 const shippingCarrier = computed(() => order.value?.shippingCarrier)
 
-watchEffect(async () => {
-  if (sessionId.value && order.value && !sessionVerified.value) {
+// Verify payment session once when coming from checkout
+onMounted(async () => {
+  if (sessionId.value && order.value && !order.value.isPaid) {
     verifyingSession.value = true
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Wait a bit for webhook to process
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // Refresh order data once
       await refresh()
 
-      if (order.value?.isPaid) {
-        sessionVerified.value = true
-      }
+      // Mark as verified regardless of payment status
+      // The order status will show the actual payment state
+      sessionVerified.value = true
     }
     catch (err) {
       console.error('Failed to verify session:', err)
+      sessionVerified.value = true // Mark as verified even on error
     }
     finally {
       verifyingSession.value = false
     }
+  }
+  else if (sessionId.value && order.value?.isPaid) {
+    // Already paid, mark as verified immediately
+    sessionVerified.value = true
   }
 })
 

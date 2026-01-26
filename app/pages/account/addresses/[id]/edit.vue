@@ -145,7 +145,6 @@ const onSubmit = async (values: any) => {
       floor: values.floor === defaultSelectOptionChoose ? undefined : values.floor,
       locationType: values.locationType === defaultSelectOptionChoose ? undefined : values.locationType,
       phone: values.phone,
-      mobilePhone: values.mobilePhone,
       notes: values.notes,
       isMain: values.isMain,
       user: values.user,
@@ -325,21 +324,6 @@ const formSchema = computed(() => ({
       placeholder: t('form.phone'),
       autocomplete: 'tel',
       initialValue: address.value?.phone || '',
-      rules: z.string().optional(),
-      ui: {
-        root: 'w-full',
-      },
-    },
-    {
-      name: 'mobilePhone',
-      label: t('form.mobile_phone'),
-      as: 'input',
-      type: 'text',
-      required: false,
-      readonly: false,
-      placeholder: t('form.mobile_phone'),
-      autocomplete: 'tel',
-      initialValue: address.value?.mobilePhone || '',
       rules: z.string().optional(),
       ui: {
         root: 'w-full',
@@ -640,7 +624,6 @@ el:
     city: Πόλη
     zipcode: Ταχυδρομικός Κώδικας
     phone: Τηλέφωνο
-    mobile_phone: Κινητό τηλέφωνο
     notes: Σημειώσεις
     floor: Όροφος
     floor_options:

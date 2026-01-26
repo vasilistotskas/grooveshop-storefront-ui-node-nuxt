@@ -741,6 +741,9 @@ export type CartItem = {
     readonly id: number;
     readonly cartId: number;
     product: Product;
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
     /**
      * Weight information for shipping calculations
@@ -766,6 +769,9 @@ export type CartItem = {
 
 export type CartItemCreateRequest = {
     product: number;
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
 };
 
@@ -773,6 +779,9 @@ export type CartItemDetail = {
     readonly id: number;
     readonly cartId: number;
     product: Product;
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
     /**
      * Weight information for shipping calculations
@@ -801,6 +810,9 @@ export type CartItemDetail = {
 };
 
 export type CartItemUpdateRequest = {
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
 };
 
@@ -811,7 +823,7 @@ export type CartWriteRequest = {
 /**
  * * `MARKETING` - Marketing Campaigns
  * * `PRODUCT` - Product Updates
- * * `ACCOUNT` - Account Updates
+ * * `ACCOUNT` - Λογαριασμός Ανενεργός
  * * `SYSTEM` - System Notifications
  * * `NEWSLETTER` - Newsletter
  * * `PROMOTIONAL` - Promotional
@@ -1172,6 +1184,9 @@ export type Order = {
     street: string;
     streetNumber: string;
     payWay: number;
+    /**
+     * Κατάσταση
+     */
     status?: OrderStatus;
     readonly statusDisplay: string;
     readonly statusUpdatedAt: string | null;
@@ -1182,11 +1197,11 @@ export type Order = {
     place?: string;
     city: string;
     phone: string;
-    mobilePhone?: string;
     customerNotes?: string;
     readonly paidAmount: number;
     items: Array<OrderItemDetail>;
     readonly shippingPrice: number;
+    readonly paymentMethodFee: number;
     documentType?: DocumentTypeEnum;
     readonly createdAt: string;
     readonly updatedAt: string;
@@ -1194,11 +1209,76 @@ export type Order = {
     readonly totalPriceItems: number;
     readonly totalPriceExtra: number;
     readonly fullAddress: string;
-    paymentId?: string;
+    paymentId?: string | null;
     paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
     readonly canBeCanceled: boolean;
     readonly isPaid: boolean;
+};
+
+/**
+ * Serializer for creating orders from cart (dual-flow payment architecture).
+ *
+ * This serializer supports two payment flows:
+ * 1. Online payments (is_online_payment=True): Requires payment_intent_id
+ * 2. Offline payments (is_online_payment=False): No payment_intent_id required
+ *
+ * The order is created from an existing cart identified via X-Cart-Id header.
+ * Cart is NOT sent in request body - it's retrieved from the header using CartService.
+ */
+export type OrderCreateFromCartRequest = {
+    /**
+     * Payment method ID
+     */
+    payWayId: number;
+    /**
+     * Payment intent ID from payment provider (required for online payments)
+     */
+    paymentIntentId?: string | null;
+    /**
+     * Customer first name
+     */
+    firstName: string;
+    /**
+     * Customer last name
+     */
+    lastName: string;
+    /**
+     * Customer email address
+     */
+    email: string;
+    /**
+     * Street name
+     */
+    street: string;
+    /**
+     * Street number
+     */
+    streetNumber?: string;
+    /**
+     * City name
+     */
+    city: string;
+    /**
+     * Postal/ZIP code
+     */
+    zipcode: string;
+    /**
+     * Country alpha-2 code (e.g., 'GR', 'US')
+     */
+    countryId: string;
+    /**
+     * Region alpha code
+     */
+    regionId?: string | null;
+    /**
+     * Customer phone number
+     */
+    phone: string;
+    /**
+     * Customer notes or special instructions
+     */
+    customerNotes?: string;
 };
 
 export type OrderDetail = {
@@ -1217,6 +1297,9 @@ export type OrderDetail = {
     street: string;
     streetNumber: string;
     payWay: number;
+    /**
+     * Κατάσταση
+     */
     status?: OrderStatus;
     readonly statusDisplay: string;
     readonly statusUpdatedAt: string | null;
@@ -1227,11 +1310,11 @@ export type OrderDetail = {
     place?: string;
     city: string;
     readonly phone: string;
-    readonly mobilePhone: string;
     customerNotes?: string;
     readonly paidAmount: number;
     items: Array<OrderItemDetail>;
     readonly shippingPrice: number;
+    readonly paymentMethodFee: number;
     documentType?: DocumentTypeEnum;
     readonly createdAt: string;
     readonly updatedAt: string;
@@ -1239,7 +1322,7 @@ export type OrderDetail = {
     readonly totalPriceItems: number;
     readonly totalPriceExtra: number;
     readonly fullAddress: string;
-    paymentId?: string;
+    paymentId?: string | null;
     paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
     readonly canBeCanceled: boolean;
@@ -1259,6 +1342,7 @@ export type OrderDetail = {
     readonly pricingBreakdown: {
         itemsSubtotal?: number;
         shippingCost?: number;
+        paymentMethodFee?: number;
         extrasTotal?: number;
         grandTotal?: number;
         currency?: string;
@@ -1275,6 +1359,9 @@ export type OrderDetail = {
         estimatedDelivery?: string | null;
         trackingUrl?: string | null;
     } | null;
+    /**
+     * Αριθμός Παρακολούθησης
+     */
     trackingNumber?: string;
     shippingCarrier?: string;
     readonly customerFullName: string;
@@ -1288,6 +1375,9 @@ export type OrderItem = {
     order: number;
     product: number;
     readonly price: number;
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
     readonly isRefunded: boolean;
     readonly refundedQuantity: number;
@@ -1299,6 +1389,9 @@ export type OrderItem = {
 
 export type OrderItemCreateRequest = {
     product: number;
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
     notes?: string;
 };
@@ -1309,6 +1402,9 @@ export type OrderItemDetail = {
     order: number;
     product: Product;
     readonly price: number;
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
     readonly isRefunded: boolean;
     readonly refundedQuantity: number;
@@ -1343,6 +1439,9 @@ export type OrderItemRefundResponse = {
 export type OrderItemWriteRequest = {
     order: number;
     product: number;
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
     notes?: string;
 };
@@ -1377,6 +1476,9 @@ export type OrderWriteRequest = {
     street: string;
     streetNumber: string;
     payWay?: number | null;
+    /**
+     * Κατάσταση
+     */
     status?: OrderStatus;
     firstName: string;
     lastName: string;
@@ -1385,7 +1487,6 @@ export type OrderWriteRequest = {
     place?: string;
     city: string;
     phone: string;
-    mobilePhone?: string;
     paidAmount?: number;
     customerNotes?: string;
     items: Array<OrderItemCreateRequest>;
@@ -1393,6 +1494,9 @@ export type OrderWriteRequest = {
     paymentId?: string;
     paymentStatus?: string;
     paymentMethod?: string;
+    /**
+     * Αριθμός Παρακολούθησης
+     */
     trackingNumber?: string;
     shippingCarrier?: string;
 };
@@ -1838,6 +1942,9 @@ export type PatchedBlogTagWriteRequest = {
 };
 
 export type PatchedCartItemUpdateRequest = {
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
 };
 
@@ -1884,6 +1991,9 @@ export type PatchedNotificationUserWriteRequest = {
 export type PatchedOrderItemWriteRequest = {
     order?: number;
     product?: number;
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
     notes?: string;
 };
@@ -1906,6 +2016,9 @@ export type PatchedOrderWriteRequest = {
     street?: string;
     streetNumber?: string;
     payWay?: number | null;
+    /**
+     * Κατάσταση
+     */
     status?: OrderStatus;
     firstName?: string;
     lastName?: string;
@@ -1914,7 +2027,6 @@ export type PatchedOrderWriteRequest = {
     place?: string;
     city?: string;
     phone?: string;
-    mobilePhone?: string;
     paidAmount?: number;
     customerNotes?: string;
     items?: Array<OrderItemCreateRequest>;
@@ -1922,6 +2034,9 @@ export type PatchedOrderWriteRequest = {
     paymentId?: string;
     paymentStatus?: string;
     paymentMethod?: string;
+    /**
+     * Αριθμός Παρακολούθησης
+     */
     trackingNumber?: string;
     shippingCarrier?: string;
 };
@@ -2063,6 +2178,9 @@ export type PatchedProductImageWriteRequest = {
 export type PatchedProductReviewWriteRequest = {
     product?: number;
     rate?: RateEnum;
+    /**
+     * Κατάσταση
+     */
     status?: ReviewStatus;
     isPublished?: boolean;
     translations?: {
@@ -2164,7 +2282,7 @@ export type PatchedSubscriptionTopicWriteRequest = {
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -2226,7 +2344,6 @@ export type PatchedUserAddressWriteRequest = {
     floor?: FloorEnum | BlankEnum;
     locationType?: LocationTypeEnum | BlankEnum;
     phone?: string;
-    mobilePhone?: string;
     notes?: string;
     isMain?: boolean;
     user?: number;
@@ -2242,6 +2359,9 @@ export type PatchedUserAddressWriteRequest = {
 
 export type PatchedUserSubscriptionWriteRequest = {
     topic?: number;
+    /**
+     * Κατάσταση
+     */
     status?: SubscriptionStatus;
     /**
      * Additional subscription preferences or data
@@ -3053,6 +3173,9 @@ export type ProductReview = {
     product: Product;
     user: UserDetails;
     rate: RateEnum;
+    /**
+     * Κατάσταση
+     */
     status?: ReviewStatus;
     isPublished?: boolean;
     readonly createdAt: string;
@@ -3080,6 +3203,9 @@ export type ProductReviewDetail = {
     product: Product;
     user: UserDetails;
     rate: RateEnum;
+    /**
+     * Κατάσταση
+     */
     status?: ReviewStatus;
     isPublished?: boolean;
     readonly createdAt: string;
@@ -3105,6 +3231,9 @@ export type ProductReviewDetail = {
 export type ProductReviewWriteRequest = {
     product: number;
     rate: RateEnum;
+    /**
+     * Κατάσταση
+     */
     status?: ReviewStatus;
     isPublished?: boolean;
     translations: {
@@ -3252,6 +3381,50 @@ export type RegionWriteRequest = {
 };
 
 /**
+ * Serializer for releasing stock reservations.
+ */
+export type ReleaseReservationsRequestRequest = {
+    /**
+     * List of reservation IDs to release
+     */
+    reservationIds: Array<number>;
+};
+
+/**
+ * Serializer for release reservations response.
+ */
+export type ReleaseReservationsResponse = {
+    /**
+     * Success message
+     */
+    message: string;
+    /**
+     * Number of reservations released
+     */
+    releasedCount: number;
+    /**
+     * List of failed releases with error details
+     */
+    failedReleases?: Array<{
+        [key: string]: unknown;
+    }>;
+};
+
+/**
+ * Serializer for reserve stock response.
+ */
+export type ReserveStockResponse = {
+    /**
+     * List of created stock reservation IDs
+     */
+    reservationIds: Array<number>;
+    /**
+     * Success message
+     */
+    message: string;
+};
+
+/**
  * * `NEW` - New
  * * `TRUE` - True
  * * `FALSE` - False
@@ -3306,7 +3479,7 @@ export type SubscriptionTopic = {
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -3361,7 +3534,7 @@ export type SubscriptionTopicDetail = {
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -3416,7 +3589,7 @@ export type SubscriptionTopicRequest = {
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -3468,7 +3641,7 @@ export type SubscriptionTopicWriteRequest = {
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -3651,7 +3824,6 @@ export type UserAddress = {
     floor?: FloorEnum | BlankEnum;
     locationType?: LocationTypeEnum | BlankEnum;
     phone: string;
-    mobilePhone?: string;
     notes?: string;
     isMain?: boolean;
     readonly user: number;
@@ -3683,7 +3855,6 @@ export type UserAddressDetail = {
     floor?: FloorEnum | BlankEnum;
     locationType?: LocationTypeEnum | BlankEnum;
     phone: string;
-    mobilePhone?: string;
     notes?: string;
     isMain?: boolean;
     readonly user: number;
@@ -3714,7 +3885,6 @@ export type UserAddressWriteRequest = {
     floor?: FloorEnum | BlankEnum;
     locationType?: LocationTypeEnum | BlankEnum;
     phone: string;
-    mobilePhone?: string;
     notes?: string;
     isMain?: boolean;
     user: number;
@@ -3820,6 +3990,9 @@ export type UserSubscription = {
     readonly user: number;
     topic: number;
     topicDetails: SubscriptionTopic;
+    /**
+     * Κατάσταση
+     */
     status?: SubscriptionStatus;
     readonly subscribedAt: string;
     readonly unsubscribedAt: string | null;
@@ -3839,6 +4012,9 @@ export type UserSubscriptionDetail = {
     readonly user: number;
     topic: number;
     topicDetails: SubscriptionTopic;
+    /**
+     * Κατάσταση
+     */
     status?: SubscriptionStatus;
     readonly subscribedAt: string;
     readonly unsubscribedAt: string | null;
@@ -3856,6 +4032,9 @@ export type UserSubscriptionDetail = {
 
 export type UserSubscriptionDetailRequest = {
     topic: number;
+    /**
+     * Κατάσταση
+     */
     status?: SubscriptionStatus;
     /**
      * Additional subscription preferences or data
@@ -3865,6 +4044,9 @@ export type UserSubscriptionDetailRequest = {
 
 export type UserSubscriptionRequest = {
     topic: number;
+    /**
+     * Κατάσταση
+     */
     status?: SubscriptionStatus;
     /**
      * Additional subscription preferences or data
@@ -3874,6 +4056,9 @@ export type UserSubscriptionRequest = {
 
 export type UserSubscriptionWriteRequest = {
     topic: number;
+    /**
+     * Κατάσταση
+     */
     status?: SubscriptionStatus;
     /**
      * Additional subscription preferences or data
@@ -4174,10 +4359,16 @@ export type CartDetailWritable = {
 };
 
 export type CartItemWritable = {
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
 };
 
 export type CartItemDetailWritable = {
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
 };
 
@@ -4296,6 +4487,9 @@ export type OrderWritable = {
     street: string;
     streetNumber: string;
     payWay: number;
+    /**
+     * Κατάσταση
+     */
     status?: OrderStatus;
     firstName: string;
     lastName: string;
@@ -4304,11 +4498,10 @@ export type OrderWritable = {
     place?: string;
     city: string;
     phone: string;
-    mobilePhone?: string;
     customerNotes?: string;
     items: Array<OrderItemDetailWritable>;
     documentType?: DocumentTypeEnum;
-    paymentId?: string;
+    paymentId?: string | null;
     paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
 };
@@ -4328,6 +4521,9 @@ export type OrderDetailWritable = {
     street: string;
     streetNumber: string;
     payWay: number;
+    /**
+     * Κατάσταση
+     */
     status?: OrderStatus;
     firstName: string;
     lastName: string;
@@ -4338,9 +4534,12 @@ export type OrderDetailWritable = {
     customerNotes?: string;
     items: Array<OrderItemDetailWritable>;
     documentType?: DocumentTypeEnum;
-    paymentId?: string;
+    paymentId?: string | null;
     paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
+    /**
+     * Αριθμός Παρακολούθησης
+     */
     trackingNumber?: string;
     shippingCarrier?: string;
 };
@@ -4348,11 +4547,17 @@ export type OrderDetailWritable = {
 export type OrderItemWritable = {
     order: number;
     product: number;
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
 };
 
 export type OrderItemDetailWritable = {
     order: number;
+    /**
+     * Ποσότητα
+     */
     quantity?: number;
     notes?: string;
 };
@@ -5047,6 +5252,9 @@ export type ProductImageDetailWritable = {
  */
 export type ProductReviewWritable = {
     rate: RateEnum;
+    /**
+     * Κατάσταση
+     */
     status?: ReviewStatus;
     isPublished?: boolean;
     translations: {
@@ -5067,6 +5275,9 @@ export type ProductReviewWritable = {
  */
 export type ProductReviewDetailWritable = {
     rate: RateEnum;
+    /**
+     * Κατάσταση
+     */
     status?: ReviewStatus;
     isPublished?: boolean;
     translations: {
@@ -5159,7 +5370,7 @@ export type SubscriptionTopicWritable = {
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -5211,7 +5422,7 @@ export type SubscriptionTopicDetailWritable = {
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -5305,7 +5516,6 @@ export type UserAddressWritable = {
     floor?: FloorEnum | BlankEnum;
     locationType?: LocationTypeEnum | BlankEnum;
     phone: string;
-    mobilePhone?: string;
     notes?: string;
     isMain?: boolean;
     /**
@@ -5332,7 +5542,6 @@ export type UserAddressDetailWritable = {
     floor?: FloorEnum | BlankEnum;
     locationType?: LocationTypeEnum | BlankEnum;
     phone: string;
-    mobilePhone?: string;
     notes?: string;
     isMain?: boolean;
     /**
@@ -5380,6 +5589,9 @@ export type UserDetailsWritable = {
 
 export type UserSubscriptionWritable = {
     topic: number;
+    /**
+     * Κατάσταση
+     */
     status?: SubscriptionStatus;
     /**
      * Additional subscription preferences or data
@@ -5389,6 +5601,9 @@ export type UserSubscriptionWritable = {
 
 export type UserSubscriptionDetailWritable = {
     topic: number;
+    /**
+     * Κατάσταση
+     */
     status?: SubscriptionStatus;
     /**
      * Additional subscription preferences or data
@@ -8308,6 +8523,46 @@ export type UpdateCartResponses = {
 
 export type UpdateCartResponse = UpdateCartResponses[keyof UpdateCartResponses];
 
+export type CreateCartPaymentIntentData = {
+    body?: {
+        /**
+         * Payment method ID (must be Stripe)
+         */
+        pay_way_id: number;
+    };
+    headers?: {
+        /**
+         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         */
+        'X-Cart-Id'?: string | number;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/cart/create-payment-intent';
+};
+
+export type CreateCartPaymentIntentErrors = {
+    400: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type CreateCartPaymentIntentError = CreateCartPaymentIntentErrors[keyof CreateCartPaymentIntentErrors];
+
+export type CreateCartPaymentIntentResponses = {
+    200: {
+        /**
+         * Stripe client secret for payment confirmation
+         */
+        client_secret?: string;
+        /**
+         * Payment intent ID to include in order creation
+         */
+        payment_intent_id?: string;
+    };
+};
+
+export type CreateCartPaymentIntentResponse = CreateCartPaymentIntentResponses[keyof CreateCartPaymentIntentResponses];
+
 export type ListCartItemData = {
     body?: never;
     headers?: {
@@ -8841,6 +9096,57 @@ export type ListCartResponses = {
 };
 
 export type ListCartResponse = ListCartResponses[keyof ListCartResponses];
+
+export type ReleaseCartReservationsData = {
+    body: ReleaseReservationsRequestRequest;
+    headers?: {
+        /**
+         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         */
+        'X-Cart-Id'?: string | number;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/cart/release-reservations';
+};
+
+export type ReleaseCartReservationsErrors = {
+    400: ErrorResponse;
+};
+
+export type ReleaseCartReservationsError = ReleaseCartReservationsErrors[keyof ReleaseCartReservationsErrors];
+
+export type ReleaseCartReservationsResponses = {
+    200: ReleaseReservationsResponse;
+};
+
+export type ReleaseCartReservationsResponse = ReleaseCartReservationsResponses[keyof ReleaseCartReservationsResponses];
+
+export type ReserveCartStockData = {
+    body?: never;
+    headers?: {
+        /**
+         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         */
+        'X-Cart-Id'?: string | number;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v1/cart/reserve-stock';
+};
+
+export type ReserveCartStockErrors = {
+    400: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type ReserveCartStockError = ReserveCartStockErrors[keyof ReserveCartStockErrors];
+
+export type ReserveCartStockResponses = {
+    200: ReserveStockResponse;
+};
+
+export type ReserveCartStockResponse = ReserveCartStockResponses[keyof ReserveCartStockResponses];
 
 export type CreateContactData = {
     body: ContactWriteRequest;
@@ -9653,10 +9959,6 @@ export type ListOrderData = {
          */
         hasCustomerNotes?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter orders that have/don't have mobile phone
-         */
-        hasMobilePhone?: 'true' | 'false' | '1' | '0' | boolean;
-        /**
          * Filter orders that have/don't have payment ID
          */
         hasPaymentId?: 'true' | 'false' | '1' | '0' | boolean;
@@ -9702,11 +10004,6 @@ export type ListOrderData = {
          * Filter by location type
          */
         locationType?: string;
-        /**
-         * Filter by mobile phone number
-         */
-        mobilePhone?: string;
-        mobilePhone_Icontains?: string;
         /**
          * Filter orders that need processing
          */
@@ -9821,6 +10118,8 @@ export type ListOrderData = {
          */
         shippingPriceMin?: string | number;
         /**
+         * Κατάσταση
+         *
          * Filter by order status
          *
          * * `PENDING` - Pending
@@ -9918,7 +10217,7 @@ export type ListOrderResponses = {
 export type ListOrderResponse = ListOrderResponses[keyof ListOrderResponses];
 
 export type CreateOrderData = {
-    body: OrderWriteRequest;
+    body: OrderCreateFromCartRequest;
     path?: never;
     query?: {
         /**
@@ -10033,6 +10332,8 @@ export type ListOrderItemData = {
          */
         order_Region?: string;
         /**
+         * Κατάσταση
+         *
          * Filter by order status
          *
          * * `PENDING` - Pending
@@ -10580,10 +10881,6 @@ export type ListMyOrdersData = {
          */
         hasCustomerNotes?: 'true' | 'false' | '1' | '0' | boolean;
         /**
-         * Filter orders that have/don't have mobile phone
-         */
-        hasMobilePhone?: 'true' | 'false' | '1' | '0' | boolean;
-        /**
          * Filter orders that have/don't have payment ID
          */
         hasPaymentId?: 'true' | 'false' | '1' | '0' | boolean;
@@ -10625,11 +10922,6 @@ export type ListMyOrdersData = {
          * Filter by location type
          */
         locationType?: string;
-        /**
-         * Filter by mobile phone number
-         */
-        mobilePhone?: string;
-        mobilePhone_Icontains?: string;
         /**
          * Filter orders that need processing
          */
@@ -10736,6 +11028,8 @@ export type ListMyOrdersData = {
          */
         shippingPriceMin?: string | number;
         /**
+         * Κατάσταση
+         *
          * Filter by order status
          *
          * * `PENDING` - Pending
@@ -12472,6 +12766,8 @@ export type ListProductReviewData = {
          */
         search?: string;
         /**
+         * Κατάσταση
+         *
          * Filter by review status
          *
          * * `NEW` - New
@@ -14310,11 +14606,6 @@ export type ListUserAddressData = {
          */
         locationTypeContains?: string;
         /**
-         * Filter by mobile phone number (partial match)
-         */
-        mobilePhone?: string;
-        mobilePhone_Icontains?: string;
-        /**
          * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, city, -city, zipcode, -zipcode, isMain, -isMain
          */
         ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'city' | '-city' | 'zipcode' | '-zipcode' | 'isMain' | '-isMain';
@@ -14634,6 +14925,8 @@ export type ListUserSubscriptionData = {
          */
         search?: string;
         /**
+         * Κατάσταση
+         *
          * Filter by subscription status
          *
          * * `ACTIVE` - Active
@@ -14662,7 +14955,7 @@ export type ListUserSubscriptionData = {
          *
          * * `MARKETING` - Marketing Campaigns
          * * `PRODUCT` - Product Updates
-         * * `ACCOUNT` - Account Updates
+         * * `ACCOUNT` - Λογαριασμός Ανενεργός
          * * `SYSTEM` - System Notifications
          * * `NEWSLETTER` - Newsletter
          * * `PROMOTIONAL` - Promotional
@@ -14868,7 +15161,7 @@ export type ListSubscriptionTopicData = {
          *
          * * `MARKETING` - Marketing Campaigns
          * * `PRODUCT` - Product Updates
-         * * `ACCOUNT` - Account Updates
+         * * `ACCOUNT` - Λογαριασμός Ανενεργός
          * * `SYSTEM` - System Notifications
          * * `NEWSLETTER` - Newsletter
          * * `PROMOTIONAL` - Promotional

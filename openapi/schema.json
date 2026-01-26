@@ -11267,6 +11267,103 @@
                 }
             }
         },
+        "/api/v1/cart/create-payment-intent": {
+            "post": {
+                "operationId": "createCartPaymentIntent",
+                "description": "Create a Stripe payment intent based on cart total before order creation. This is required for online payment methods (Stripe) in the payment-first flow. Returns client_secret for frontend payment confirmation and payment_intent_id to be included in order creation request.",
+                "summary": "Create payment intent from cart",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                    }
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "pay_way_id": {
+                                        "type": "integer",
+                                        "description": "Payment method ID (must be Stripe)"
+                                    }
+                                },
+                                "required": [
+                                    "pay_way_id"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "client_secret": {
+                                            "type": "string",
+                                            "description": "Stripe client secret for payment confirmation"
+                                        },
+                                        "payment_intent_id": {
+                                            "type": "string",
+                                            "description": "Payment intent ID to include in order creation"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/cart/item": {
             "get": {
                 "operationId": "listCartItem",
@@ -13204,6 +13301,154 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/PaginatedCartList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/cart/release-reservations": {
+            "post": {
+                "operationId": "releaseCartReservations",
+                "description": "Release stock reservations when checkout is abandoned or payment fails. This makes the reserved stock available for other customers.",
+                "summary": "Release stock reservations",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                    }
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReleaseReservationsRequestRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReleaseReservationsRequestRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ReleaseReservationsRequestRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReleaseReservationsResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/cart/reserve-stock": {
+            "post": {
+                "operationId": "reserveCartStock",
+                "description": "Reserve stock for all items in the cart during checkout. Creates temporary stock reservations with 15-minute TTL. Returns list of reservation IDs to be used during order creation.",
+                "summary": "Reserve stock for cart items",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "name": "X-Cart-Id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                    }
+                ],
+                "tags": [
+                    "Cart"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReserveStockResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         },
@@ -15970,27 +16215,6 @@
                     },
                     {
                         "in": "query",
-                        "name": "hasMobilePhone",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Filter orders that have/don't have mobile phone"
-                    },
-                    {
-                        "in": "query",
                         "name": "hasPaymentId",
                         "schema": {
                             "oneOf": [
@@ -16208,21 +16432,6 @@
                             "type": "string"
                         },
                         "description": "Filter by location type"
-                    },
-                    {
-                        "in": "query",
-                        "name": "mobilePhone",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Filter by mobile phone number"
-                    },
-                    {
-                        "in": "query",
-                        "name": "mobilePhone_Icontains",
-                        "schema": {
-                            "type": "string"
-                        }
                     },
                     {
                         "in": "query",
@@ -16669,6 +16878,7 @@
                         "name": "status",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση",
                             "enum": [
                                 "CANCELED",
                                 "COMPLETED",
@@ -16952,8 +17162,8 @@
             },
             "post": {
                 "operationId": "createOrder",
-                "description": "Create a new Ταξινόμηση. Requires authentication.",
-                "summary": "Create a Ταξινόμηση",
+                "description": "Create a new Παραγγελία. Requires authentication.",
+                "summary": "Create a Παραγγελία",
                 "parameters": [
                     {
                         "in": "query",
@@ -16977,17 +17187,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderWriteRequest"
+                                "$ref": "#/components/schemas/OrderCreateFromCartRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderWriteRequest"
+                                "$ref": "#/components/schemas/OrderCreateFromCartRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/OrderWriteRequest"
+                                "$ref": "#/components/schemas/OrderCreateFromCartRequest"
                             }
                         }
                     },
@@ -17018,8 +17228,8 @@
         "/api/v1/order-items": {
             "get": {
                 "operationId": "listOrderItem",
-                "description": "Retrieve a list of Order Items with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
-                "summary": "List Order Items",
+                "description": "Retrieve a list of Προϊόντα Παραγγελίας with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
+                "summary": "List Προϊόντα Παραγγελίας",
                 "parameters": [
                     {
                         "in": "query",
@@ -17361,6 +17571,7 @@
                         "name": "order_Status",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση",
                             "enum": [
                                 "CANCELED",
                                 "COMPLETED",
@@ -18507,8 +18718,8 @@
         "/api/v1/order/{id}": {
             "get": {
                 "operationId": "retrieveOrder",
-                "description": "Get detailed information about a specific Ταξινόμηση.",
-                "summary": "Retrieve a Ταξινόμηση",
+                "description": "Get detailed information about a specific Παραγγελία.",
+                "summary": "Retrieve a Παραγγελία",
                 "parameters": [
                     {
                         "in": "path",
@@ -18567,8 +18778,8 @@
             },
             "put": {
                 "operationId": "updateOrder",
-                "description": "Update Ταξινόμηση information. Requires authentication.",
-                "summary": "Update a Ταξινόμηση",
+                "description": "Update Παραγγελία information. Requires authentication.",
+                "summary": "Update a Παραγγελία",
                 "parameters": [
                     {
                         "in": "path",
@@ -18647,8 +18858,8 @@
             },
             "patch": {
                 "operationId": "partialUpdateOrder",
-                "description": "Partially update Ταξινόμηση information. Requires authentication.",
-                "summary": "Partially update a Ταξινόμηση",
+                "description": "Partially update Παραγγελία information. Requires authentication.",
+                "summary": "Partially update a Παραγγελία",
                 "parameters": [
                     {
                         "in": "path",
@@ -18726,8 +18937,8 @@
             },
             "delete": {
                 "operationId": "destroyOrder",
-                "description": "Delete a Ταξινόμηση. Requires authentication.",
-                "summary": "Delete a Ταξινόμηση",
+                "description": "Delete a Παραγγελία. Requires authentication.",
+                "summary": "Delete a Παραγγελία",
                 "parameters": [
                     {
                         "in": "path",
@@ -19493,27 +19704,6 @@
                     },
                     {
                         "in": "query",
-                        "name": "hasMobilePhone",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "enum": [
-                                        "true",
-                                        "false",
-                                        "1",
-                                        "0"
-                                    ]
-                                },
-                                {
-                                    "type": "boolean"
-                                }
-                            ]
-                        },
-                        "description": "Filter orders that have/don't have mobile phone"
-                    },
-                    {
-                        "in": "query",
                         "name": "hasPaymentId",
                         "schema": {
                             "oneOf": [
@@ -19717,21 +19907,6 @@
                             "type": "string"
                         },
                         "description": "Filter by location type"
-                    },
-                    {
-                        "in": "query",
-                        "name": "mobilePhone",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Filter by mobile phone number"
-                    },
-                    {
-                        "in": "query",
-                        "name": "mobilePhone_Icontains",
-                        "schema": {
-                            "type": "string"
-                        }
                     },
                     {
                         "in": "query",
@@ -20152,6 +20327,7 @@
                         "name": "status",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση",
                             "enum": [
                                 "CANCELED",
                                 "COMPLETED",
@@ -22496,8 +22672,8 @@
             },
             "post": {
                 "operationId": "createProduct",
-                "description": "Create a new Product. Requires authentication.",
-                "summary": "Create a Product",
+                "description": "Create a new Προϊόν. Requires authentication.",
+                "summary": "Create a Προϊόν",
                 "parameters": [
                     {
                         "in": "query",
@@ -22563,8 +22739,8 @@
         "/api/v1/product/{id}": {
             "get": {
                 "operationId": "retrieveProduct",
-                "description": "Get detailed information about a specific Product.",
-                "summary": "Retrieve a Product",
+                "description": "Get detailed information about a specific Προϊόν.",
+                "summary": "Retrieve a Προϊόν",
                 "parameters": [
                     {
                         "in": "path",
@@ -22624,8 +22800,8 @@
             },
             "put": {
                 "operationId": "updateProduct",
-                "description": "Update Product information. Requires authentication.",
-                "summary": "Update a Product",
+                "description": "Update Προϊόν information. Requires authentication.",
+                "summary": "Update a Προϊόν",
                 "parameters": [
                     {
                         "in": "path",
@@ -22705,8 +22881,8 @@
             },
             "patch": {
                 "operationId": "partialUpdateProduct",
-                "description": "Partially update Product information. Requires authentication.",
-                "summary": "Partially update a Product",
+                "description": "Partially update Προϊόν information. Requires authentication.",
+                "summary": "Partially update a Προϊόν",
                 "parameters": [
                     {
                         "in": "path",
@@ -22785,8 +22961,8 @@
             },
             "delete": {
                 "operationId": "destroyProduct",
-                "description": "Delete a Product. Requires authentication.",
-                "summary": "Delete a Product",
+                "description": "Delete a Προϊόν. Requires authentication.",
+                "summary": "Delete a Προϊόν",
                 "parameters": [
                     {
                         "in": "path",
@@ -26613,6 +26789,7 @@
                         "name": "status",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση",
                             "enum": [
                                 "FALSE",
                                 "NEW",
@@ -33111,21 +33288,6 @@
                         "description": "Filter by location type (partial match)"
                     },
                     {
-                        "in": "query",
-                        "name": "mobilePhone",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "description": "Filter by mobile phone number (partial match)"
-                    },
-                    {
-                        "in": "query",
-                        "name": "mobilePhone_Icontains",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -34306,6 +34468,7 @@
                         "name": "status",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση",
                             "enum": [
                                 "ACTIVE",
                                 "BOUNCED",
@@ -34388,7 +34551,7 @@
                                 "SYSTEM"
                             ]
                         },
-                        "description": "Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "description": "Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     {
                         "in": "query",
@@ -35056,7 +35219,7 @@
                                 "SYSTEM"
                             ]
                         },
-                        "description": "Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "description": "Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     {
                         "in": "query",
@@ -38249,7 +38412,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": 0
+                        "minimum": 0,
+                        "title": "Ποσότητα"
                     },
                     "weightInfo": {
                         "type": "object",
@@ -38385,7 +38549,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": 0
+                        "minimum": 0,
+                        "title": "Ποσότητα"
                     }
                 },
                 "required": [
@@ -38414,7 +38579,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": 0
+                        "minimum": 0,
+                        "title": "Ποσότητα"
                     },
                     "weightInfo": {
                         "type": "object",
@@ -38556,7 +38722,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": 0
+                        "minimum": 0,
+                        "title": "Ποσότητα"
                     }
                 }
             },
@@ -38580,7 +38747,7 @@
                     "OTHER"
                 ],
                 "type": "string",
-                "description": "* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                "description": "* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
             },
             "ContactWrite": {
                 "type": "object",
@@ -39461,7 +39628,12 @@
                         "type": "integer"
                     },
                     "status": {
-                        "$ref": "#/components/schemas/OrderStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/OrderStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "statusDisplay": {
                         "type": "string",
@@ -39501,9 +39673,6 @@
                     "phone": {
                         "type": "string"
                     },
-                    "mobilePhone": {
-                        "type": "string"
-                    },
                     "customerNotes": {
                         "type": "string"
                     },
@@ -39523,6 +39692,15 @@
                         }
                     },
                     "shippingPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true
+                    },
+                    "paymentMethodFee": {
                         "type": "number",
                         "format": "double",
                         "maximum": 1000000000,
@@ -39573,6 +39751,7 @@
                     },
                     "paymentId": {
                         "type": "string",
+                        "nullable": true,
                         "maxLength": 255
                     },
                     "paymentStatus": {
@@ -39612,6 +39791,7 @@
                     "lastName",
                     "paidAmount",
                     "payWay",
+                    "paymentMethodFee",
                     "phone",
                     "region",
                     "shippingPrice",
@@ -39623,6 +39803,93 @@
                     "totalPriceItems",
                     "updatedAt",
                     "uuid",
+                    "zipcode"
+                ]
+            },
+            "OrderCreateFromCartRequest": {
+                "type": "object",
+                "description": "Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it's retrieved from the header using CartService.",
+                "properties": {
+                    "payWayId": {
+                        "type": "integer",
+                        "description": "Payment method ID"
+                    },
+                    "paymentIntentId": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Payment intent ID from payment provider (required for online payments)"
+                    },
+                    "firstName": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Customer first name",
+                        "maxLength": 150
+                    },
+                    "lastName": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Customer last name",
+                        "maxLength": 150
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1,
+                        "description": "Customer email address"
+                    },
+                    "street": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Street name",
+                        "maxLength": 255
+                    },
+                    "streetNumber": {
+                        "type": "string",
+                        "description": "Street number",
+                        "maxLength": 50
+                    },
+                    "city": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "City name",
+                        "maxLength": 100
+                    },
+                    "zipcode": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Postal/ZIP code",
+                        "maxLength": 20
+                    },
+                    "countryId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Country alpha-2 code (e.g., 'GR', 'US')"
+                    },
+                    "regionId": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Region alpha code"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Customer phone number"
+                    },
+                    "customerNotes": {
+                        "type": "string",
+                        "description": "Customer notes or special instructions",
+                        "maxLength": 500
+                    }
+                },
+                "required": [
+                    "city",
+                    "countryId",
+                    "email",
+                    "firstName",
+                    "lastName",
+                    "payWayId",
+                    "phone",
+                    "street",
                     "zipcode"
                 ]
             },
@@ -39677,7 +39944,12 @@
                         "type": "integer"
                     },
                     "status": {
-                        "$ref": "#/components/schemas/OrderStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/OrderStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "statusDisplay": {
                         "type": "string",
@@ -39718,10 +39990,6 @@
                         "type": "string",
                         "readOnly": true
                     },
-                    "mobilePhone": {
-                        "type": "string",
-                        "readOnly": true
-                    },
                     "customerNotes": {
                         "type": "string"
                     },
@@ -39741,6 +40009,15 @@
                         }
                     },
                     "shippingPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true
+                    },
+                    "paymentMethodFee": {
                         "type": "number",
                         "format": "double",
                         "maximum": 1000000000,
@@ -39791,6 +40068,7 @@
                     },
                     "paymentId": {
                         "type": "string",
+                        "nullable": true,
                         "maxLength": 255
                     },
                     "paymentStatus": {
@@ -39855,6 +40133,9 @@
                             "shippingCost": {
                                 "type": "number"
                             },
+                            "paymentMethodFee": {
+                                "type": "number"
+                            },
                             "extrasTotal": {
                                 "type": "number"
                             },
@@ -39903,6 +40184,7 @@
                     },
                     "trackingNumber": {
                         "type": "string",
+                        "title": "Αριθμός Παρακολούθησης",
                         "maxLength": 255
                     },
                     "shippingCarrier": {
@@ -39937,10 +40219,10 @@
                     "isPaid",
                     "items",
                     "lastName",
-                    "mobilePhone",
                     "orderTimeline",
                     "paidAmount",
                     "payWay",
+                    "paymentMethodFee",
                     "phone",
                     "pricingBreakdown",
                     "region",
@@ -39987,7 +40269,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": -2147483648
+                        "minimum": -2147483648,
+                        "title": "Ποσότητα"
                     },
                     "isRefunded": {
                         "type": "boolean",
@@ -40044,7 +40327,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": -2147483648
+                        "minimum": -2147483648,
+                        "title": "Ποσότητα"
                     },
                     "notes": {
                         "type": "string"
@@ -40089,7 +40373,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": -2147483648
+                        "minimum": -2147483648,
+                        "title": "Ποσότητα"
                     },
                     "isRefunded": {
                         "type": "boolean",
@@ -40223,7 +40508,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": -2147483648
+                        "minimum": -2147483648,
+                        "title": "Ποσότητα"
                     },
                     "notes": {
                         "type": "string"
@@ -40303,7 +40589,12 @@
                         "nullable": true
                     },
                     "status": {
-                        "$ref": "#/components/schemas/OrderStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/OrderStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "firstName": {
                         "type": "string",
@@ -40339,9 +40630,6 @@
                         "type": "string",
                         "minLength": 1
                     },
-                    "mobilePhone": {
-                        "type": "string"
-                    },
                     "paidAmount": {
                         "type": "number",
                         "format": "double",
@@ -40376,6 +40664,7 @@
                     },
                     "trackingNumber": {
                         "type": "string",
+                        "title": "Αριθμός Παρακολούθησης",
                         "maxLength": 255
                     },
                     "shippingCarrier": {
@@ -41976,7 +42265,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": 0
+                        "minimum": 0,
+                        "title": "Ποσότητα"
                     }
                 }
             },
@@ -42077,7 +42367,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": -2147483648
+                        "minimum": -2147483648,
+                        "title": "Ποσότητα"
                     },
                     "notes": {
                         "type": "string"
@@ -42139,7 +42430,12 @@
                         "nullable": true
                     },
                     "status": {
-                        "$ref": "#/components/schemas/OrderStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/OrderStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "firstName": {
                         "type": "string",
@@ -42175,9 +42471,6 @@
                         "type": "string",
                         "minLength": 1
                     },
-                    "mobilePhone": {
-                        "type": "string"
-                    },
                     "paidAmount": {
                         "type": "number",
                         "format": "double",
@@ -42212,6 +42505,7 @@
                     },
                     "trackingNumber": {
                         "type": "string",
+                        "title": "Αριθμός Παρακολούθησης",
                         "maxLength": 255
                     },
                     "shippingCarrier": {
@@ -42535,7 +42829,12 @@
                         "maximum": 32767
                     },
                     "status": {
-                        "$ref": "#/components/schemas/ReviewStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ReviewStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "isPublished": {
                         "type": "boolean"
@@ -42780,7 +43079,7 @@
                                 "$ref": "#/components/schemas/CategoryEnum"
                             }
                         ],
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -42917,9 +43216,6 @@
                         "type": "string",
                         "minLength": 1
                     },
-                    "mobilePhone": {
-                        "type": "string"
-                    },
                     "notes": {
                         "type": "string",
                         "maxLength": 255
@@ -42950,7 +43246,12 @@
                         "type": "integer"
                     },
                     "status": {
-                        "$ref": "#/components/schemas/SubscriptionStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SubscriptionStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "metadata": {
                         "description": "Additional subscription preferences or data"
@@ -45345,7 +45646,12 @@
                         "maximum": 32767
                     },
                     "status": {
-                        "$ref": "#/components/schemas/ReviewStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ReviewStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "isPublished": {
                         "type": "boolean"
@@ -45447,7 +45753,12 @@
                         "maximum": 32767
                     },
                     "status": {
-                        "$ref": "#/components/schemas/ReviewStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ReviewStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "isPublished": {
                         "type": "boolean"
@@ -45532,7 +45843,12 @@
                         "maximum": 32767
                     },
                     "status": {
-                        "$ref": "#/components/schemas/ReviewStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ReviewStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "isPublished": {
                         "type": "boolean"
@@ -45901,6 +46217,69 @@
                     "translations"
                 ]
             },
+            "ReleaseReservationsRequestRequest": {
+                "type": "object",
+                "description": "Serializer for releasing stock reservations.",
+                "properties": {
+                    "reservationIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "description": "List of reservation IDs to release"
+                    }
+                },
+                "required": [
+                    "reservationIds"
+                ]
+            },
+            "ReleaseReservationsResponse": {
+                "type": "object",
+                "description": "Serializer for release reservations response.",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "Success message"
+                    },
+                    "releasedCount": {
+                        "type": "integer",
+                        "description": "Number of reservations released"
+                    },
+                    "failedReleases": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": {}
+                        },
+                        "description": "List of failed releases with error details"
+                    }
+                },
+                "required": [
+                    "message",
+                    "releasedCount"
+                ]
+            },
+            "ReserveStockResponse": {
+                "type": "object",
+                "description": "Serializer for reserve stock response.",
+                "properties": {
+                    "reservationIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "description": "List of created stock reservation IDs"
+                    },
+                    "message": {
+                        "type": "string",
+                        "description": "Success message"
+                    }
+                },
+                "required": [
+                    "message",
+                    "reservationIds"
+                ]
+            },
             "ReviewStatus": {
                 "enum": [
                     "NEW",
@@ -46017,7 +46396,7 @@
                                 "$ref": "#/components/schemas/CategoryEnum"
                             }
                         ],
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -46109,7 +46488,7 @@
                                 "$ref": "#/components/schemas/CategoryEnum"
                             }
                         ],
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -46205,7 +46584,7 @@
                                 "$ref": "#/components/schemas/CategoryEnum"
                             }
                         ],
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -46282,7 +46661,7 @@
                                 "$ref": "#/components/schemas/CategoryEnum"
                             }
                         ],
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -46788,9 +47167,6 @@
                     "phone": {
                         "type": "string"
                     },
-                    "mobilePhone": {
-                        "type": "string"
-                    },
                     "notes": {
                         "type": "string",
                         "maxLength": 255
@@ -46902,9 +47278,6 @@
                         ]
                     },
                     "phone": {
-                        "type": "string"
-                    },
-                    "mobilePhone": {
                         "type": "string"
                     },
                     "notes": {
@@ -47023,9 +47396,6 @@
                     "phone": {
                         "type": "string",
                         "minLength": 1
-                    },
-                    "mobilePhone": {
-                        "type": "string"
                     },
                     "notes": {
                         "type": "string",
@@ -47264,7 +47634,12 @@
                         "readOnly": true
                     },
                     "status": {
-                        "$ref": "#/components/schemas/SubscriptionStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SubscriptionStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "subscribedAt": {
                         "type": "string",
@@ -47326,7 +47701,12 @@
                         "readOnly": true
                     },
                     "status": {
-                        "$ref": "#/components/schemas/SubscriptionStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SubscriptionStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "subscribedAt": {
                         "type": "string",
@@ -47377,7 +47757,12 @@
                         "type": "integer"
                     },
                     "status": {
-                        "$ref": "#/components/schemas/SubscriptionStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SubscriptionStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "metadata": {
                         "description": "Additional subscription preferences or data"
@@ -47394,7 +47779,12 @@
                         "type": "integer"
                     },
                     "status": {
-                        "$ref": "#/components/schemas/SubscriptionStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SubscriptionStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "metadata": {
                         "description": "Additional subscription preferences or data"
@@ -47411,7 +47801,12 @@
                         "type": "integer"
                     },
                     "status": {
-                        "$ref": "#/components/schemas/SubscriptionStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SubscriptionStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "metadata": {
                         "description": "Additional subscription preferences or data"

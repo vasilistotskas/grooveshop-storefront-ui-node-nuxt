@@ -172,7 +172,7 @@ const confirmPayment = async () => {
           billing_details: {
             name: `${props.order.firstName} ${props.order.lastName}`,
             email: props.order.email,
-            phone: props.order.mobilePhone || props.order.phone,
+            phone: props.order.phone,
           },
         },
       },

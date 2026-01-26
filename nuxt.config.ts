@@ -246,9 +246,6 @@ export default defineNuxtConfig({
     '/index': { redirect: '/' },
   },
   sourcemap: { client: true, server: false },
-  future: {
-    compatibilityVersion: 5,
-  },
   experimental: {
     typedPages: true,
     asyncContext: true,

@@ -521,7 +521,7 @@ export const zCartWriteRequest = z.object({
 /**
  * * `MARKETING` - Marketing Campaigns
  * * `PRODUCT` - Product Updates
- * * `ACCOUNT` - Account Updates
+ * * `ACCOUNT` - Λογαριασμός Ανενεργός
  * * `SYSTEM` - System Notifications
  * * `NEWSLETTER` - Newsletter
  * * `PROMOTIONAL` - Promotional
@@ -536,7 +536,7 @@ export const zCategoryEnum = z.enum([
     'PROMOTIONAL',
     'OTHER'
 ]).register(z.globalRegistry, {
-    description: '* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other'
+    description: '* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other'
 });
 
 export const zContactWrite = z.object({
@@ -907,6 +907,62 @@ export const zNotificationUserWriteRequest = z.object({
     seen: z.optional(z.boolean())
 });
 
+/**
+ * Serializer for creating orders from cart (dual-flow payment architecture).
+ *
+ * This serializer supports two payment flows:
+ * 1. Online payments (is_online_payment=True): Requires payment_intent_id
+ * 2. Offline payments (is_online_payment=False): No payment_intent_id required
+ *
+ * The order is created from an existing cart identified via X-Cart-Id header.
+ * Cart is NOT sent in request body - it's retrieved from the header using CartService.
+ */
+export const zOrderCreateFromCartRequest = z.object({
+    payWayId: z.int().register(z.globalRegistry, {
+        description: 'Payment method ID'
+    }),
+    paymentIntentId: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    firstName: z.string().min(1).max(150).register(z.globalRegistry, {
+        description: 'Customer first name'
+    }),
+    lastName: z.string().min(1).max(150).register(z.globalRegistry, {
+        description: 'Customer last name'
+    }),
+    email: z.email().min(1).register(z.globalRegistry, {
+        description: 'Customer email address'
+    }),
+    street: z.string().min(1).max(255).register(z.globalRegistry, {
+        description: 'Street name'
+    }),
+    streetNumber: z.optional(z.string().max(50).register(z.globalRegistry, {
+        description: 'Street number'
+    })),
+    city: z.string().min(1).max(100).register(z.globalRegistry, {
+        description: 'City name'
+    }),
+    zipcode: z.string().min(1).max(20).register(z.globalRegistry, {
+        description: 'Postal/ZIP code'
+    }),
+    countryId: z.string().min(1).register(z.globalRegistry, {
+        description: 'Country alpha-2 code (e.g., \'GR\', \'US\')'
+    }),
+    regionId: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    phone: z.string().min(1).register(z.globalRegistry, {
+        description: 'Customer phone number'
+    }),
+    customerNotes: z.optional(z.string().max(500).register(z.globalRegistry, {
+        description: 'Customer notes or special instructions'
+    }))
+}).register(z.globalRegistry, {
+    description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.'
+});
+
 export const zOrderItem = z.object({
     id: z.int().readonly(),
     uuid: z.uuid().readonly(),
@@ -1008,7 +1064,6 @@ export const zOrderWriteRequest = z.object({
     place: z.optional(z.string().max(255)),
     city: z.string().min(1).max(255),
     phone: z.string().min(1),
-    mobilePhone: z.optional(z.string()),
     paidAmount: z.optional(z.number().gt(-1000000000).lt(1000000000)),
     customerNotes: z.optional(z.string()),
     items: z.array(zOrderItemCreateRequest),
@@ -1372,7 +1427,6 @@ export const zPatchedOrderWriteRequest = z.object({
     place: z.optional(z.string().max(255)),
     city: z.optional(z.string().min(1).max(255)),
     phone: z.optional(z.string().min(1)),
-    mobilePhone: z.optional(z.string()),
     paidAmount: z.optional(z.number().gt(-1000000000).lt(1000000000)),
     customerNotes: z.optional(z.string()),
     items: z.optional(z.array(zOrderItemCreateRequest)),
@@ -1654,7 +1708,6 @@ export const zPatchedUserAddressWriteRequest = z.object({
         zBlankEnum
     ])),
     phone: z.optional(z.string().min(1)),
-    mobilePhone: z.optional(z.string()),
     notes: z.optional(z.string().max(255)),
     isMain: z.optional(z.boolean()).default(false),
     user: z.optional(z.int()),
@@ -2135,11 +2188,11 @@ export const zOrder = z.object({
     place: z.optional(z.string().max(255)),
     city: z.string().max(255),
     phone: z.string(),
-    mobilePhone: z.optional(z.string()),
     customerNotes: z.optional(z.string()),
     paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
     items: z.array(zOrderItemDetail),
     shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
     documentType: z.optional(zDocumentTypeEnum),
     createdAt: z.iso.datetime({ offset: true }).readonly(),
     updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -2147,7 +2200,10 @@ export const zOrder = z.object({
     totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
     totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
     fullAddress: z.string().readonly(),
-    paymentId: z.optional(z.string().max(255)),
+    paymentId: z.optional(z.union([
+        z.string().max(255),
+        z.null()
+    ])),
     paymentStatus: z.optional(z.union([
         zPaymentStatusEnum,
         zBlankEnum
@@ -2189,11 +2245,11 @@ export const zOrderDetail = z.object({
     place: z.optional(z.string().max(255)),
     city: z.string().max(255),
     phone: z.string().readonly(),
-    mobilePhone: z.string().readonly(),
     customerNotes: z.optional(z.string()),
     paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
     items: z.array(zOrderItemDetail),
     shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+    paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
     documentType: z.optional(zDocumentTypeEnum),
     createdAt: z.iso.datetime({ offset: true }).readonly(),
     updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -2201,7 +2257,10 @@ export const zOrderDetail = z.object({
     totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
     totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
     fullAddress: z.string().readonly(),
-    paymentId: z.optional(z.string().max(255)),
+    paymentId: z.optional(z.union([
+        z.string().max(255),
+        z.null()
+    ])),
     paymentStatus: z.optional(z.union([
         zPaymentStatusEnum,
         zBlankEnum
@@ -2223,6 +2282,7 @@ export const zOrderDetail = z.object({
     pricingBreakdown: z.object({
         itemsSubtotal: z.optional(z.number()),
         shippingCost: z.optional(z.number()),
+        paymentMethodFee: z.optional(z.number()),
         extrasTotal: z.optional(z.number()),
         grandTotal: z.optional(z.number()),
         currency: z.optional(z.string()),
@@ -3103,6 +3163,48 @@ export const zRegionWriteRequest = z.object({
 });
 
 /**
+ * Serializer for releasing stock reservations.
+ */
+export const zReleaseReservationsRequestRequest = z.object({
+    reservationIds: z.array(z.int()).register(z.globalRegistry, {
+        description: 'List of reservation IDs to release'
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer for releasing stock reservations.'
+});
+
+/**
+ * Serializer for release reservations response.
+ */
+export const zReleaseReservationsResponse = z.object({
+    message: z.string().register(z.globalRegistry, {
+        description: 'Success message'
+    }),
+    releasedCount: z.int().register(z.globalRegistry, {
+        description: 'Number of reservations released'
+    }),
+    failedReleases: z.optional(z.array(z.record(z.string(), z.unknown())).register(z.globalRegistry, {
+        description: 'List of failed releases with error details'
+    }))
+}).register(z.globalRegistry, {
+    description: 'Serializer for release reservations response.'
+});
+
+/**
+ * Serializer for reserve stock response.
+ */
+export const zReserveStockResponse = z.object({
+    reservationIds: z.array(z.int()).register(z.globalRegistry, {
+        description: 'List of created stock reservation IDs'
+    }),
+    message: z.string().register(z.globalRegistry, {
+        description: 'Success message'
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer for reserve stock response.'
+});
+
+/**
  * * `NEW` - New
  * * `TRUE` - True
  * * `FALSE` - False
@@ -3564,7 +3666,6 @@ export const zUserAddress = z.object({
         zBlankEnum
     ])),
     phone: z.string(),
-    mobilePhone: z.optional(z.string()),
     notes: z.optional(z.string().max(255)),
     isMain: z.optional(z.boolean()).default(false),
     user: z.int().readonly(),
@@ -3612,7 +3713,6 @@ export const zUserAddressDetail = z.object({
         zBlankEnum
     ])),
     phone: z.string(),
-    mobilePhone: z.optional(z.string()),
     notes: z.optional(z.string().max(255)),
     isMain: z.optional(z.boolean()).default(false),
     user: z.int().readonly(),
@@ -3640,7 +3740,6 @@ export const zUserAddressWriteRequest = z.object({
         zBlankEnum
     ])),
     phone: z.string().min(1),
-    mobilePhone: z.optional(z.string()),
     notes: z.optional(z.string().max(255)),
     isMain: z.optional(z.boolean()).default(false),
     user: z.int(),
@@ -4621,11 +4720,13 @@ export const zOrderWritable = z.object({
     place: z.optional(z.string().max(255)),
     city: z.string().max(255),
     phone: z.string(),
-    mobilePhone: z.optional(z.string()),
     customerNotes: z.optional(z.string()),
     items: z.array(zOrderItemDetailWritable),
     documentType: z.optional(zDocumentTypeEnum),
-    paymentId: z.optional(z.string().max(255)),
+    paymentId: z.optional(z.union([
+        z.string().max(255),
+        z.null()
+    ])),
     paymentStatus: z.optional(z.union([
         zPaymentStatusEnum,
         zBlankEnum
@@ -4661,7 +4762,10 @@ export const zOrderDetailWritable = z.object({
     customerNotes: z.optional(z.string()),
     items: z.array(zOrderItemDetailWritable),
     documentType: z.optional(zDocumentTypeEnum),
-    paymentId: z.optional(z.string().max(255)),
+    paymentId: z.optional(z.union([
+        z.string().max(255),
+        z.null()
+    ])),
     paymentStatus: z.optional(z.union([
         zPaymentStatusEnum,
         zBlankEnum
@@ -5697,7 +5801,6 @@ export const zUserAddressWritable = z.object({
         zBlankEnum
     ])),
     phone: z.string(),
-    mobilePhone: z.optional(z.string()),
     notes: z.optional(z.string().max(255)),
     isMain: z.optional(z.boolean()).default(false),
     country: z.string(),
@@ -5740,7 +5843,6 @@ export const zUserAddressDetailWritable = z.object({
         zBlankEnum
     ])),
     phone: z.string(),
-    mobilePhone: z.optional(z.string()),
     notes: z.optional(z.string().max(255)),
     isMain: z.optional(z.boolean()).default(false),
     country: z.string(),
@@ -8881,6 +8983,31 @@ export const zUpdateCartData = z.object({
 
 export const zUpdateCartResponse = zCartDetail;
 
+export const zCreateCartPaymentIntentData = z.object({
+    body: z.optional(z.object({
+        pay_way_id: z.int().register(z.globalRegistry, {
+            description: 'Payment method ID (must be Stripe)'
+        })
+    })),
+    path: z.optional(z.never()),
+    query: z.optional(z.never()),
+    headers: z.optional(z.object({
+        'X-Cart-Id': z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ]))
+    }))
+});
+
+export const zCreateCartPaymentIntentResponse = z.object({
+    client_secret: z.optional(z.string().register(z.globalRegistry, {
+        description: 'Stripe client secret for payment confirmation'
+    })),
+    payment_intent_id: z.optional(z.string().register(z.globalRegistry, {
+        description: 'Payment intent ID to include in order creation'
+    }))
+});
+
 export const zListCartItemData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
@@ -9401,6 +9528,34 @@ export const zListCartData = z.object({
 });
 
 export const zListCartResponse = zPaginatedCartList;
+
+export const zReleaseCartReservationsData = z.object({
+    body: zReleaseReservationsRequestRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never()),
+    headers: z.optional(z.object({
+        'X-Cart-Id': z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ]))
+    }))
+});
+
+export const zReleaseCartReservationsResponse = zReleaseReservationsResponse;
+
+export const zReserveCartStockData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.never()),
+    headers: z.optional(z.object({
+        'X-Cart-Id': z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ]))
+    }))
+});
+
+export const zReserveCartStockResponse = zReserveStockResponse;
 
 export const zCreateContactData = z.object({
     body: zContactWriteRequest,
@@ -10188,13 +10343,6 @@ export const zListOrderData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        hasMobilePhone: z.optional(z.union([
-            z.literal('true'),
-            z.literal('false'),
-            z.literal('1'),
-            z.literal('0'),
-            z.boolean()
-        ])),
         hasPaymentId: z.optional(z.union([
             z.literal('true'),
             z.literal('false'),
@@ -10268,10 +10416,6 @@ export const zListOrderData = z.object({
         locationType: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by location type'
         })),
-        mobilePhone: z.optional(z.string().register(z.globalRegistry, {
-            description: 'Filter by mobile phone number'
-        })),
-        mobilePhone_Icontains: z.optional(z.string()),
         needsProcessing: z.optional(z.union([
             z.literal('true'),
             z.literal('false'),
@@ -10504,7 +10648,7 @@ export const zListOrderData = z.object({
 export const zListOrderResponse = zPaginatedOrderList;
 
 export const zCreateOrderData = z.object({
-    body: zOrderWriteRequest,
+    body: zOrderCreateFromCartRequest,
     path: z.optional(z.never()),
     query: z.optional(z.object({
         languageCode: z.optional(z.enum([
@@ -11175,13 +11319,6 @@ export const zListMyOrdersData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
-        hasMobilePhone: z.optional(z.union([
-            z.literal('true'),
-            z.literal('false'),
-            z.literal('1'),
-            z.literal('0'),
-            z.boolean()
-        ])),
         hasPaymentId: z.optional(z.union([
             z.literal('true'),
             z.literal('false'),
@@ -11248,10 +11385,6 @@ export const zListMyOrdersData = z.object({
         locationType: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by location type'
         })),
-        mobilePhone: z.optional(z.string().register(z.globalRegistry, {
-            description: 'Filter by mobile phone number'
-        })),
-        mobilePhone_Icontains: z.optional(z.string()),
         needsProcessing: z.optional(z.union([
             z.literal('true'),
             z.literal('false'),
@@ -14668,10 +14801,6 @@ export const zListUserAddressData = z.object({
         locationTypeContains: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by location type (partial match)'
         })),
-        mobilePhone: z.optional(z.string().register(z.globalRegistry, {
-            description: 'Filter by mobile phone number (partial match)'
-        })),
-        mobilePhone_Icontains: z.optional(z.string()),
         ordering: z.optional(z.enum([
             'id',
             '-id',
@@ -14978,7 +15107,7 @@ export const zListUserSubscriptionData = z.object({
             'PROMOTIONAL',
             'SYSTEM'
         ]).register(z.globalRegistry, {
-            description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other'
+            description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other'
         })),
         topicDescription: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by topic description (partial match)'
@@ -15145,7 +15274,7 @@ export const zListSubscriptionTopicData = z.object({
             'PROMOTIONAL',
             'SYSTEM'
         ]).register(z.globalRegistry, {
-            description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other'
+            description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other'
         })),
         createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
             description: 'Filter items created after this date'

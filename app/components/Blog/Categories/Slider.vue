@@ -97,7 +97,4 @@ el:
   see_all: Δές τες όλες
   carousel:
     categories: Κατηγορίες
-en:
-  carousel:
-    categories: Blog categories
 </i18n>

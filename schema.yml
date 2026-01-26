@@ -6439,8 +6439,8 @@ paths:
   /api/v1/cart:
     get:
       operationId: retrieveCart
-      description: Get a cart. For guest users, include X-Cart-Id and X-Session-Key
-        headers to maintain cart session.
+      description: Get a cart. For guest users, include X-Cart-Id header to maintain
+        cart session.
       summary: Get cart
       parameters:
       - in: header
@@ -6452,12 +6452,6 @@ paths:
           - type: integer
         description: Cart ID for guest users. Used to identify and maintain guest
           cart sessions.
-      - in: header
-        name: X-Session-Key
-        schema:
-          type: string
-        description: Session key for guest users. Used to validate cart ownership
-          for anonymous sessions.
       tags:
       - Cart
       security:
@@ -6479,8 +6473,8 @@ paths:
           description: ''
     put:
       operationId: updateCart
-      description: Update a cart. For guest users, include X-Cart-Id and X-Session-Key
-        headers to maintain cart session.
+      description: Update a cart. For guest users, include X-Cart-Id header to maintain
+        cart session.
       summary: Update cart
       parameters:
       - in: header
@@ -6492,12 +6486,6 @@ paths:
           - type: integer
         description: Cart ID for guest users. Used to identify and maintain guest
           cart sessions.
-      - in: header
-        name: X-Session-Key
-        schema:
-          type: string
-        description: Session key for guest users. Used to validate cart ownership
-          for anonymous sessions.
       tags:
       - Cart
       requestBody:
@@ -6530,8 +6518,8 @@ paths:
           description: ''
     patch:
       operationId: partialUpdateCart
-      description: Update a cart. For guest users, include X-Cart-Id and X-Session-Key
-        headers to maintain cart session.
+      description: Update a cart. For guest users, include X-Cart-Id header to maintain
+        cart session.
       summary: Update cart
       parameters:
       - in: header
@@ -6543,12 +6531,6 @@ paths:
           - type: integer
         description: Cart ID for guest users. Used to identify and maintain guest
           cart sessions.
-      - in: header
-        name: X-Session-Key
-        schema:
-          type: string
-        description: Session key for guest users. Used to validate cart ownership
-          for anonymous sessions.
       tags:
       - Cart
       requestBody:
@@ -6581,8 +6563,8 @@ paths:
           description: ''
     delete:
       operationId: destroyCart
-      description: Delete a cart. For guest users, include X-Cart-Id and X-Session-Key
-        headers to maintain cart session.
+      description: Delete a cart. For guest users, include X-Cart-Id header to maintain
+        cart session.
       summary: Delete cart
       parameters:
       - in: header
@@ -6594,12 +6576,6 @@ paths:
           - type: integer
         description: Cart ID for guest users. Used to identify and maintain guest
           cart sessions.
-      - in: header
-        name: X-Session-Key
-        schema:
-          type: string
-        description: Session key for guest users. Used to validate cart ownership
-          for anonymous sessions.
       tags:
       - Cart
       security:
@@ -6625,8 +6601,7 @@ paths:
     get:
       operationId: listCartItem
       description: Retrieve a list of cart items with filtering and search capabilities.
-        For guest users, include X-Cart-Id and X-Session-Key headers to maintain cart
-        session.
+        For guest users, include X-Cart-Id header to maintain cart session.
       summary: List cart items
       parameters:
       - in: header
@@ -6638,12 +6613,6 @@ paths:
           - type: integer
         description: Cart ID for guest users. Used to identify and maintain guest
           cart sessions.
-      - in: header
-        name: X-Session-Key
-        schema:
-          type: string
-        description: Session key for guest users. Used to validate cart ownership
-          for anonymous sessions.
       - in: query
         name: cart
         schema:
@@ -6664,15 +6633,6 @@ paths:
             - '0'
           - type: boolean
         description: Filter items in guest carts
-      - in: query
-        name: cart_SessionKey
-        schema:
-          type: string
-        description: Filter by cart session key
-      - in: query
-        name: cart_SessionKey_Icontains
-        schema:
-          type: string
       - in: query
         name: cart_User
         schema:
@@ -7078,7 +7038,7 @@ paths:
     post:
       operationId: createCartItem
       description: Create a new cart item. Requires authentication. For guest users,
-        include X-Cart-Id and X-Session-Key headers to maintain cart session.
+        include X-Cart-Id header to maintain cart session.
       summary: Create a cart item
       parameters:
       - in: header
@@ -7090,12 +7050,6 @@ paths:
           - type: integer
         description: Cart ID for guest users. Used to identify and maintain guest
           cart sessions.
-      - in: header
-        name: X-Session-Key
-        schema:
-          type: string
-        description: Session key for guest users. Used to validate cart ownership
-          for anonymous sessions.
       tags:
       - Cart Items
       requestBody:
@@ -7143,7 +7097,7 @@ paths:
     get:
       operationId: retrieveCartItem
       description: Get detailed information about a specific cart item. For guest
-        users, include X-Cart-Id and X-Session-Key headers to maintain cart session.
+        users, include X-Cart-Id header to maintain cart session.
       summary: Retrieve a cart item
       parameters:
       - in: header
@@ -7155,12 +7109,6 @@ paths:
           - type: integer
         description: Cart ID for guest users. Used to identify and maintain guest
           cart sessions.
-      - in: header
-        name: X-Session-Key
-        schema:
-          type: string
-        description: Session key for guest users. Used to validate cart ownership
-          for anonymous sessions.
       - in: path
         name: id
         schema:
@@ -7213,7 +7161,7 @@ paths:
     put:
       operationId: updateCartItem
       description: Update cart item information. Requires authentication. For guest
-        users, include X-Cart-Id and X-Session-Key headers to maintain cart session.
+        users, include X-Cart-Id header to maintain cart session.
       summary: Update a cart item
       parameters:
       - in: header
@@ -7225,12 +7173,6 @@ paths:
           - type: integer
         description: Cart ID for guest users. Used to identify and maintain guest
           cart sessions.
-      - in: header
-        name: X-Session-Key
-        schema:
-          type: string
-        description: Session key for guest users. Used to validate cart ownership
-          for anonymous sessions.
       - in: path
         name: id
         schema:
@@ -7290,8 +7232,7 @@ paths:
     patch:
       operationId: partialUpdateCartItem
       description: Partially update cart item information. Requires authentication.
-        For guest users, include X-Cart-Id and X-Session-Key headers to maintain cart
-        session.
+        For guest users, include X-Cart-Id header to maintain cart session.
       summary: Partially update a cart item
       parameters:
       - in: header
@@ -7303,12 +7244,6 @@ paths:
           - type: integer
         description: Cart ID for guest users. Used to identify and maintain guest
           cart sessions.
-      - in: header
-        name: X-Session-Key
-        schema:
-          type: string
-        description: Session key for guest users. Used to validate cart ownership
-          for anonymous sessions.
       - in: path
         name: id
         schema:
@@ -7378,7 +7313,7 @@ paths:
     delete:
       operationId: destroyCartItem
       description: Delete a cart item. Requires authentication. For guest users, include
-        X-Cart-Id and X-Session-Key headers to maintain cart session.
+        X-Cart-Id header to maintain cart session.
       summary: Delete a cart item
       parameters:
       - in: header
@@ -7390,12 +7325,6 @@ paths:
           - type: integer
         description: Cart ID for guest users. Used to identify and maintain guest
           cart sessions.
-      - in: header
-        name: X-Session-Key
-        schema:
-          type: string
-        description: Session key for guest users. Used to validate cart ownership
-          for anonymous sessions.
       - in: path
         name: id
         schema:
@@ -7434,8 +7363,8 @@ paths:
   /api/v1/cart/list:
     get:
       operationId: listCart
-      description: Get a cart. For guest users, include X-Cart-Id and X-Session-Key
-        headers to maintain cart session.
+      description: Get a cart. For guest users, include X-Cart-Id header to maintain
+        cart session.
       summary: Get cart
       parameters:
       - in: header
@@ -7447,12 +7376,6 @@ paths:
           - type: integer
         description: Cart ID for guest users. Used to identify and maintain guest
           cart sessions.
-      - in: header
-        name: X-Session-Key
-        schema:
-          type: string
-        description: Session key for guest users. Used to validate cart ownership
-          for anonymous sessions.
       - in: query
         name: cartType
         schema:
@@ -7531,18 +7454,6 @@ paths:
             - '0'
           - type: boolean
         description: Filter carts that have/don't have items
-      - in: query
-        name: hasSessionKey
-        schema:
-          oneOf:
-          - type: string
-            enum:
-            - 'true'
-            - 'false'
-            - '1'
-            - '0'
-          - type: boolean
-        description: Filter carts with/without session keys
       - in: query
         name: id
         schema:
@@ -7751,24 +7662,6 @@ paths:
         schema:
           type: string
       - in: query
-        name: sessionKey
-        schema:
-          type: string
-        description: Filter by exact session key
-      - in: query
-        name: sessionKey_Icontains
-        schema:
-          type: string
-      - in: query
-        name: sessionKey_Istartswith
-        schema:
-          type: string
-      - in: query
-        name: sessionKey_Startswith
-        schema:
-          type: string
-        description: Filter by session key prefix
-      - in: query
         name: updatedAfter
         schema:
           type: string
@@ -7853,6 +7746,95 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedCartList'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/cart/release-reservations:
+    post:
+      operationId: releaseCartReservations
+      description: Release stock reservations when checkout is abandoned or payment
+        fails. This makes the reserved stock available for other customers.
+      summary: Release stock reservations
+      parameters:
+      - in: header
+        name: X-Cart-Id
+        schema:
+          oneOf:
+          - type: string
+            pattern: ^-?\d+$
+          - type: integer
+        description: Cart ID for guest users. Used to identify and maintain guest
+          cart sessions.
+      tags:
+      - Cart
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReleaseReservationsRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReleaseReservationsRequestRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReleaseReservationsRequestRequest'
+        required: true
+      security:
+      - knoxApiToken: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReleaseReservationsResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/cart/reserve-stock:
+    post:
+      operationId: reserveCartStock
+      description: Reserve stock for all items in the cart during checkout. Creates
+        temporary stock reservations with 15-minute TTL. Returns list of reservation
+        IDs to be used during order creation.
+      summary: Reserve stock for cart items
+      parameters:
+      - in: header
+        name: X-Cart-Id
+        schema:
+          oneOf:
+          - type: string
+            pattern: ^-?\d+$
+          - type: integer
+        description: Cart ID for guest users. Used to identify and maintain guest
+          cart sessions.
+      tags:
+      - Cart
+      security:
+      - knoxApiToken: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReserveStockResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
           description: ''
         '404':
           content:
@@ -8539,7 +8521,7 @@ paths:
           description: No response body
   /api/v1/health:
     get:
-      operationId: api_v1_health_retrieve
+      operationId: health_retrieve
       description: Check the health status of database, Redis, and Celery
       summary: Check the health status of database, Redis, and Celery
       tags:
@@ -9539,18 +9521,6 @@ paths:
           - type: boolean
         description: Filter orders that have/don't have customer notes
       - in: query
-        name: hasMobilePhone
-        schema:
-          oneOf:
-          - type: string
-            enum:
-            - 'true'
-            - 'false'
-            - '1'
-            - '0'
-          - type: boolean
-        description: Filter orders that have/don't have mobile phone
-      - in: query
         name: hasPaymentId
         schema:
           oneOf:
@@ -9677,15 +9647,6 @@ paths:
         schema:
           type: string
         description: Filter by location type
-      - in: query
-        name: mobilePhone
-        schema:
-          type: string
-        description: Filter by mobile phone number
-      - in: query
-        name: mobilePhone_Icontains
-        schema:
-          type: string
       - in: query
         name: needsProcessing
         schema:
@@ -9961,6 +9922,7 @@ paths:
         name: status
         schema:
           type: string
+          title: Κατάσταση
           enum:
           - CANCELED
           - COMPLETED
@@ -10143,8 +10105,8 @@ paths:
           description: ''
     post:
       operationId: createOrder
-      description: Create a new Ταξινόμηση. Requires authentication.
-      summary: Create a Ταξινόμηση
+      description: Create a new Παραγγελία. Requires authentication.
+      summary: Create a Παραγγελία
       parameters:
       - in: query
         name: languageCode
@@ -10162,13 +10124,13 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/OrderWriteRequest'
+              $ref: '#/components/schemas/OrderCreateFromCartRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/OrderWriteRequest'
+              $ref: '#/components/schemas/OrderCreateFromCartRequest'
           application/json:
             schema:
-              $ref: '#/components/schemas/OrderWriteRequest'
+              $ref: '#/components/schemas/OrderCreateFromCartRequest'
         required: true
       security:
       - knoxApiToken: []
@@ -10183,10 +10145,10 @@ paths:
   /api/v1/order-items:
     get:
       operationId: listOrderItem
-      description: 'Retrieve a list of Order Items with filtering and search capabilities.
-        Supports multiple pagination strategies: pageNumber (default), cursor, and
-        limitOffset.'
-      summary: List Order Items
+      description: 'Retrieve a list of Προϊόντα Παραγγελίας with filtering and search
+        capabilities. Supports multiple pagination strategies: pageNumber (default),
+        cursor, and limitOffset.'
+      summary: List Προϊόντα Παραγγελίας
       parameters:
       - in: query
         name: bulkItems
@@ -10401,6 +10363,7 @@ paths:
         name: order_Status
         schema:
           type: string
+          title: Κατάσταση
           enum:
           - CANCELED
           - COMPLETED
@@ -11049,8 +11012,8 @@ paths:
   /api/v1/order/{id}:
     get:
       operationId: retrieveOrder
-      description: Get detailed information about a specific Ταξινόμηση.
-      summary: Retrieve a Ταξινόμηση
+      description: Get detailed information about a specific Παραγγελία.
+      summary: Retrieve a Παραγγελία
       parameters:
       - in: path
         name: id
@@ -11084,8 +11047,8 @@ paths:
           description: ''
     put:
       operationId: updateOrder
-      description: Update Ταξινόμηση information. Requires authentication.
-      summary: Update a Ταξινόμηση
+      description: Update Παραγγελία information. Requires authentication.
+      summary: Update a Παραγγελία
       parameters:
       - in: path
         name: id
@@ -11131,8 +11094,8 @@ paths:
           description: ''
     patch:
       operationId: partialUpdateOrder
-      description: Partially update Ταξινόμηση information. Requires authentication.
-      summary: Partially update a Ταξινόμηση
+      description: Partially update Παραγγελία information. Requires authentication.
+      summary: Partially update a Παραγγελία
       parameters:
       - in: path
         name: id
@@ -11177,8 +11140,8 @@ paths:
           description: ''
     delete:
       operationId: destroyOrder
-      description: Delete a Ταξινόμηση. Requires authentication.
-      summary: Delete a Ταξινόμηση
+      description: Delete a Παραγγελία. Requires authentication.
+      summary: Delete a Παραγγελία
       parameters:
       - in: path
         name: id
@@ -11622,18 +11585,6 @@ paths:
           - type: boolean
         description: Filter orders that have/don't have customer notes
       - in: query
-        name: hasMobilePhone
-        schema:
-          oneOf:
-          - type: string
-            enum:
-            - 'true'
-            - 'false'
-            - '1'
-            - '0'
-          - type: boolean
-        description: Filter orders that have/don't have mobile phone
-      - in: query
         name: hasPaymentId
         schema:
           oneOf:
@@ -11750,15 +11701,6 @@ paths:
         schema:
           type: string
         description: Filter by location type
-      - in: query
-        name: mobilePhone
-        schema:
-          type: string
-        description: Filter by mobile phone number
-      - in: query
-        name: mobilePhone_Icontains
-        schema:
-          type: string
       - in: query
         name: needsProcessing
         schema:
@@ -12016,6 +11958,7 @@ paths:
         name: status
         schema:
           type: string
+          title: Κατάσταση
           enum:
           - CANCELED
           - COMPLETED
@@ -13377,8 +13320,8 @@ paths:
           description: ''
     post:
       operationId: createProduct
-      description: Create a new Product. Requires authentication.
-      summary: Create a Product
+      description: Create a new Προϊόν. Requires authentication.
+      summary: Create a Προϊόν
       parameters:
       - in: query
         name: languageCode
@@ -13418,8 +13361,8 @@ paths:
   /api/v1/product/{id}:
     get:
       operationId: retrieveProduct
-      description: Get detailed information about a specific Product.
-      summary: Retrieve a Product
+      description: Get detailed information about a specific Προϊόν.
+      summary: Retrieve a Προϊόν
       parameters:
       - in: path
         name: id
@@ -13454,8 +13397,8 @@ paths:
           description: ''
     put:
       operationId: updateProduct
-      description: Update Product information. Requires authentication.
-      summary: Update a Product
+      description: Update Προϊόν information. Requires authentication.
+      summary: Update a Προϊόν
       parameters:
       - in: path
         name: id
@@ -13502,8 +13445,8 @@ paths:
           description: ''
     patch:
       operationId: partialUpdateProduct
-      description: Partially update Product information. Requires authentication.
-      summary: Partially update a Product
+      description: Partially update Προϊόν information. Requires authentication.
+      summary: Partially update a Προϊόν
       parameters:
       - in: path
         name: id
@@ -13549,8 +13492,8 @@ paths:
           description: ''
     delete:
       operationId: destroyProduct
-      description: Delete a Product. Requires authentication.
-      summary: Delete a Product
+      description: Delete a Προϊόν. Requires authentication.
+      summary: Delete a Προϊόν
       parameters:
       - in: path
         name: id
@@ -15850,6 +15793,7 @@ paths:
         name: status
         schema:
           type: string
+          title: Κατάσταση
           enum:
           - 'FALSE'
           - NEW
@@ -17054,7 +16998,7 @@ paths:
           description: ''
   /api/v1/search/blog/post:
     get:
-      operationId: api_v1_search_blog_post_retrieve
+      operationId: search_blog_post_retrieve
       description: Search blog posts using MeiliSearch. Provides full-text search
         with highlighting, ranking, and faceting capabilities. Results can be filtered
         by language.
@@ -17109,7 +17053,7 @@ paths:
           description: ''
   /api/v1/search/product:
     get:
-      operationId: api_v1_search_product_retrieve
+      operationId: search_product_retrieve
       description: Search products using MeiliSearch. Provides full-text search with
         highlighting, ranking, and faceting capabilities. Results can be filtered
         by language.
@@ -17162,36 +17106,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
-  /api/v1/search/suggestions:
+  /api/v1/settings:
     get:
-      operationId: api_v1_search_suggestions_retrieve
-      description: Get search suggestions based on partial query input. Returns suggested
-        terms from both products and blog posts. For example, typing 'mob' might suggest
-        'mobile', 'mobile phone', etc.
-      summary: Get search suggestions
-      parameters:
-      - in: query
-        name: languageCode
-        schema:
-          type: string
-        description: Language code to filter results (e.g., 'en', 'el', 'de'). If
-          not provided, searches all languages.
-      - in: query
-        name: limit
-        schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Maximum number of suggestions to return
-      - in: query
-        name: query
-        schema:
-          type: string
-        description: Partial search query string
-        required: true
+      operationId: settings_list
+      description: Retrieve all settings with their names, values, and types
+      summary: List all available settings
       tags:
-      - Search
+      - Settings
       security:
       - knoxApiToken: []
       - cookieAuth: []
@@ -17201,9 +17122,48 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SearchSuggestionResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Setting'
           description: ''
-        '400':
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/settings/get:
+    get:
+      operationId: settings_get_retrieve
+      description: Retrieve a specific setting value by its key name
+      summary: Get setting by key
+      parameters:
+      - in: query
+        name: key
+        schema:
+          type: string
+        description: Setting key name (e.g., CHECKOUT_SHIPPING_PRICE)
+        required: true
+      tags:
+      - Settings
+      security:
+      - knoxApiToken: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SettingDetail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
           content:
             application/json:
               schema:
@@ -19759,15 +19719,6 @@ paths:
         schema:
           type: string
         description: Filter by location type (partial match)
-      - in: query
-        name: mobilePhone
-        schema:
-          type: string
-        description: Filter by mobile phone number (partial match)
-      - in: query
-        name: mobilePhone_Icontains
-        schema:
-          type: string
       - name: ordering
         in: query
         required: false
@@ -20488,6 +20439,7 @@ paths:
         name: status
         schema:
           type: string
+          title: Κατάσταση
           enum:
           - ACTIVE
           - BOUNCED
@@ -20552,7 +20504,7 @@ paths:
 
           * `MARKETING` - Marketing Campaigns
           * `PRODUCT` - Product Updates
-          * `ACCOUNT` - Account Updates
+          * `ACCOUNT` - Λογαριασμός Ανενεργός
           * `SYSTEM` - System Notifications
           * `NEWSLETTER` - Newsletter
           * `PROMOTIONAL` - Promotional
@@ -20961,7 +20913,7 @@ paths:
 
           * `MARKETING` - Marketing Campaigns
           * `PRODUCT` - Product Updates
-          * `ACCOUNT` - Account Updates
+          * `ACCOUNT` - Λογαριασμός Ανενεργός
           * `SYSTEM` - System Notifications
           * `NEWSLETTER` - Newsletter
           * `PROMOTIONAL` - Promotional
@@ -21826,9 +21778,17 @@ components:
           nullable: true
         postCount:
           type: integer
+          description: |-
+            Return post count from annotation if available, otherwise query.
+
+            Uses _post_count annotation from BlogCategoryManager.for_list().
           readOnly: true
         hasChildren:
           type: boolean
+          description: |-
+            Return has_children from annotation if available, otherwise query.
+
+            Uses _has_children annotation from BlogCategoryManager.for_list().
           readOnly: true
         mainImagePath:
           type: string
@@ -21899,9 +21859,17 @@ components:
           nullable: true
         postCount:
           type: integer
+          description: |-
+            Return post count from annotation if available, otherwise query.
+
+            Uses _post_count annotation from BlogCategoryManager.for_list().
           readOnly: true
         hasChildren:
           type: boolean
+          description: |-
+            Return has_children from annotation if available, otherwise query.
+
+            Uses _has_children annotation from BlogCategoryManager.for_list().
           readOnly: true
         mainImagePath:
           type: string
@@ -22966,10 +22934,6 @@ components:
         user:
           type: integer
           nullable: true
-        sessionKey:
-          type: string
-          description: Session key for guest users
-          maxLength: 40
         uuid:
           type: string
           format: uuid
@@ -23009,9 +22973,19 @@ components:
           - enum:
             - 0
             type: integer
+          description: |-
+            Return the total quantity of all items in the cart.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise calculates from items.
           readOnly: true
         totalItemsUnique:
           type: integer
+          description: |-
+            Return the number of unique items in the cart.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise queries the database.
           readOnly: true
         createdAt:
           type: string
@@ -23046,10 +23020,6 @@ components:
         user:
           type: integer
           nullable: true
-        sessionKey:
-          type: string
-          description: Session key for guest users
-          maxLength: 40
         uuid:
           type: string
           format: uuid
@@ -23089,9 +23059,19 @@ components:
           - enum:
             - 0
             type: integer
+          description: |-
+            Return the total quantity of all items in the cart.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise calculates from items.
           readOnly: true
         totalItemsUnique:
           type: integer
+          description: |-
+            Return the number of unique items in the cart.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise queries the database.
           readOnly: true
         createdAt:
           type: string
@@ -23141,6 +23121,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+          title: Ποσότητα
         weightInfo:
           type: object
           properties:
@@ -23254,6 +23235,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+          title: Ποσότητα
       required:
       - product
     CartItemDetail:
@@ -23273,6 +23255,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+          title: Ποσότητα
         weightInfo:
           type: object
           properties:
@@ -23391,16 +23374,13 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+          title: Ποσότητα
     CartWriteRequest:
       type: object
       properties:
         user:
           type: integer
           nullable: true
-        sessionKey:
-          type: string
-          description: Session key for guest users
-          maxLength: 40
     CategoryEnum:
       enum:
       - MARKETING
@@ -23414,7 +23394,7 @@ components:
       description: |-
         * `MARKETING` - Marketing Campaigns
         * `PRODUCT` - Product Updates
-        * `ACCOUNT` - Account Updates
+        * `ACCOUNT` - Λογαριασμός Ανενεργός
         * `SYSTEM` - System Notifications
         * `NEWSLETTER` - Newsletter
         * `PROMOTIONAL` - Promotional
@@ -24096,7 +24076,9 @@ components:
         payWay:
           type: integer
         status:
-          $ref: '#/components/schemas/OrderStatus'
+          allOf:
+          - $ref: '#/components/schemas/OrderStatus'
+          title: Κατάσταση
         statusDisplay:
           type: string
           readOnly: true
@@ -24125,8 +24107,6 @@ components:
           type: string
           maxLength: 255
         phone:
-          type: string
-        mobilePhone:
           type: string
         customerNotes:
           type: string
@@ -24185,6 +24165,7 @@ components:
           readOnly: true
         paymentId:
           type: string
+          nullable: true
           maxLength: 255
         paymentStatus:
           oneOf:
@@ -24225,6 +24206,86 @@ components:
       - updatedAt
       - uuid
       - zipcode
+    OrderCreateFromCartRequest:
+      type: object
+      description: |-
+        Serializer for creating orders from cart (dual-flow payment architecture).
+
+        This serializer supports two payment flows:
+        1. Online payments (is_online_payment=True): Requires payment_intent_id
+        2. Offline payments (is_online_payment=False): No payment_intent_id required
+
+        The order is created from an existing cart identified via X-Cart-Id header.
+        Cart is NOT sent in request body - it's retrieved from the header using CartService.
+      properties:
+        payWayId:
+          type: integer
+          description: Payment method ID
+        paymentIntentId:
+          type: string
+          nullable: true
+          description: Payment intent ID from payment provider (required for online
+            payments)
+        firstName:
+          type: string
+          minLength: 1
+          description: Customer first name
+          maxLength: 150
+        lastName:
+          type: string
+          minLength: 1
+          description: Customer last name
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          minLength: 1
+          description: Customer email address
+        street:
+          type: string
+          minLength: 1
+          description: Street name
+          maxLength: 255
+        streetNumber:
+          type: string
+          description: Street number
+          maxLength: 50
+        city:
+          type: string
+          minLength: 1
+          description: City name
+          maxLength: 100
+        zipcode:
+          type: string
+          minLength: 1
+          description: Postal/ZIP code
+          maxLength: 20
+        countryId:
+          type: string
+          minLength: 1
+          description: Country alpha-2 code (e.g., 'GR', 'US')
+        regionId:
+          type: string
+          nullable: true
+          description: Region alpha code
+        phone:
+          type: string
+          minLength: 1
+          description: Customer phone number
+        customerNotes:
+          type: string
+          description: Customer notes or special instructions
+          maxLength: 500
+      required:
+      - city
+      - countryId
+      - email
+      - firstName
+      - lastName
+      - payWayId
+      - phone
+      - street
+      - zipcode
     OrderDetail:
       type: object
       properties:
@@ -24257,7 +24318,9 @@ components:
         payWay:
           type: integer
         status:
-          $ref: '#/components/schemas/OrderStatus'
+          allOf:
+          - $ref: '#/components/schemas/OrderStatus'
+          title: Κατάσταση
         statusDisplay:
           type: string
           readOnly: true
@@ -24286,9 +24349,6 @@ components:
           type: string
           maxLength: 255
         phone:
-          type: string
-          readOnly: true
-        mobilePhone:
           type: string
           readOnly: true
         customerNotes:
@@ -24348,6 +24408,7 @@ components:
           readOnly: true
         paymentId:
           type: string
+          nullable: true
           maxLength: 255
         paymentStatus:
           oneOf:
@@ -24425,6 +24486,7 @@ components:
           description: Tracking and shipping details
         trackingNumber:
           type: string
+          title: Αριθμός Παρακολούθησης
           maxLength: 255
         shippingCarrier:
           type: string
@@ -24453,7 +24515,6 @@ components:
       - isPaid
       - items
       - lastName
-      - mobilePhone
       - orderTimeline
       - paidAmount
       - payWay
@@ -24497,6 +24558,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: -2147483648
+          title: Ποσότητα
         isRefunded:
           type: boolean
           readOnly: true
@@ -24543,6 +24605,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: -2147483648
+          title: Ποσότητα
         notes:
           type: string
       required:
@@ -24575,6 +24638,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: -2147483648
+          title: Ποσότητα
         isRefunded:
           type: boolean
           readOnly: true
@@ -24682,6 +24746,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: -2147483648
+          title: Ποσότητα
         notes:
           type: string
       required:
@@ -24713,6 +24778,7 @@ components:
         user:
           type: integer
           nullable: true
+          description: User ID. Leave empty for guest orders.
         country:
           type: string
           minLength: 1
@@ -24743,7 +24809,9 @@ components:
           type: integer
           nullable: true
         status:
-          $ref: '#/components/schemas/OrderStatus'
+          allOf:
+          - $ref: '#/components/schemas/OrderStatus'
+          title: Κατάσταση
         firstName:
           type: string
           minLength: 1
@@ -24771,8 +24839,6 @@ components:
         phone:
           type: string
           minLength: 1
-        mobilePhone:
-          type: string
         paidAmount:
           type: number
           format: double
@@ -24786,13 +24852,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OrderItemCreateRequest'
-        shippingPrice:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
         documentType:
           $ref: '#/components/schemas/DocumentTypeEnum'
         paymentId:
@@ -24806,6 +24865,7 @@ components:
           minLength: 1
         trackingNumber:
           type: string
+          title: Αριθμός Παρακολούθησης
           maxLength: 255
         shippingCarrier:
           type: string
@@ -24817,7 +24877,6 @@ components:
       - items
       - lastName
       - phone
-      - shippingPrice
       - street
       - streetNumber
       - zipcode
@@ -25960,16 +26019,13 @@ components:
           type: integer
           maximum: 2147483647
           minimum: 0
+          title: Ποσότητα
     PatchedCartWriteRequest:
       type: object
       properties:
         user:
           type: integer
           nullable: true
-        sessionKey:
-          type: string
-          description: Session key for guest users
-          maxLength: 40
     PatchedCountryWriteRequest:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -26035,6 +26091,7 @@ components:
           type: integer
           maximum: 2147483647
           minimum: -2147483648
+          title: Ποσότητα
         notes:
           type: string
     PatchedOrderWriteRequest:
@@ -26043,6 +26100,7 @@ components:
         user:
           type: integer
           nullable: true
+          description: User ID. Leave empty for guest orders.
         country:
           type: string
           minLength: 1
@@ -26073,7 +26131,9 @@ components:
           type: integer
           nullable: true
         status:
-          $ref: '#/components/schemas/OrderStatus'
+          allOf:
+          - $ref: '#/components/schemas/OrderStatus'
+          title: Κατάσταση
         firstName:
           type: string
           minLength: 1
@@ -26101,8 +26161,6 @@ components:
         phone:
           type: string
           minLength: 1
-        mobilePhone:
-          type: string
         paidAmount:
           type: number
           format: double
@@ -26116,13 +26174,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OrderItemCreateRequest'
-        shippingPrice:
-          type: number
-          format: double
-          maximum: 1000000000
-          minimum: -1000000000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
         documentType:
           $ref: '#/components/schemas/DocumentTypeEnum'
         paymentId:
@@ -26136,6 +26187,7 @@ components:
           minLength: 1
         trackingNumber:
           type: string
+          title: Αριθμός Παρακολούθησης
           maxLength: 255
         shippingCarrier:
           type: string
@@ -26355,7 +26407,9 @@ components:
           minimum: 0
           maximum: 32767
         status:
-          $ref: '#/components/schemas/ReviewStatus'
+          allOf:
+          - $ref: '#/components/schemas/ReviewStatus'
+          title: Κατάσταση
         isPublished:
           type: boolean
         translations:
@@ -26526,7 +26580,7 @@ components:
 
             * `MARKETING` - Marketing Campaigns
             * `PRODUCT` - Product Updates
-            * `ACCOUNT` - Account Updates
+            * `ACCOUNT` - Λογαριασμός Ανενεργός
             * `SYSTEM` - System Notifications
             * `NEWSLETTER` - Newsletter
             * `PROMOTIONAL` - Promotional
@@ -26622,8 +26676,6 @@ components:
         phone:
           type: string
           minLength: 1
-        mobilePhone:
-          type: string
         notes:
           type: string
           maxLength: 255
@@ -26646,7 +26698,9 @@ components:
         topic:
           type: integer
         status:
-          $ref: '#/components/schemas/SubscriptionStatus'
+          allOf:
+          - $ref: '#/components/schemas/SubscriptionStatus'
+          title: Κατάσταση
         metadata:
           description: Additional subscription preferences or data
     PatchedUserWriteRequest:
@@ -26811,6 +26865,9 @@ components:
           type: integer
           readOnly: true
           nullable: true
+        mainImagePath:
+          type: string
+          readOnly: true
         createdAt:
           type: string
           format: date-time
@@ -26844,6 +26901,7 @@ components:
       - freeThreshold
       - iconFilename
       - id
+      - mainImagePath
       - sortOrder
       - translations
       - updatedAt
@@ -26909,6 +26967,9 @@ components:
           type: integer
           readOnly: true
           nullable: true
+        mainImagePath:
+          type: string
+          readOnly: true
         createdAt:
           type: string
           format: date-time
@@ -26946,6 +27007,7 @@ components:
       - freeThreshold
       - iconFilename
       - id
+      - mainImagePath
       - sortOrder
       - translations
       - updatedAt
@@ -27173,12 +27235,27 @@ components:
         reviewAverage:
           type: number
           format: double
+          description: |-
+            Return the average review rating for this product.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise queries the database.
           readOnly: true
         reviewCount:
           type: integer
+          description: |-
+            Return the number of reviews for this product.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise queries the database.
           readOnly: true
         likesCount:
           type: integer
+          description: |-
+            Return the number of likes/favourites for this product.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise queries the database.
           readOnly: true
       required:
       - category
@@ -27756,12 +27833,27 @@ components:
         reviewAverage:
           type: number
           format: double
+          description: |-
+            Return the average review rating for this product.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise queries the database.
           readOnly: true
         reviewCount:
           type: integer
+          description: |-
+            Return the number of reviews for this product.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise queries the database.
           readOnly: true
         likesCount:
           type: integer
+          description: |-
+            Return the number of likes/favourites for this product.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise queries the database.
           readOnly: true
       required:
       - category
@@ -27998,12 +28090,27 @@ components:
         reviewAverage:
           type: number
           format: double
+          description: |-
+            Return the average review rating for this product.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise queries the database.
           readOnly: true
         reviewCount:
           type: integer
+          description: |-
+            Return the number of reviews for this product.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise queries the database.
           readOnly: true
         likesCount:
           type: integer
+          description: |-
+            Return the number of likes/favourites for this product.
+
+            Uses annotated value if available (from optimized queryset),
+            otherwise queries the database.
           readOnly: true
       required:
       - category
@@ -28410,7 +28517,9 @@ components:
           minimum: 0
           maximum: 32767
         status:
-          $ref: '#/components/schemas/ReviewStatus'
+          allOf:
+          - $ref: '#/components/schemas/ReviewStatus'
+          title: Κατάσταση
         isPublished:
           type: boolean
         createdAt:
@@ -28479,7 +28588,9 @@ components:
           minimum: 0
           maximum: 32767
         status:
-          $ref: '#/components/schemas/ReviewStatus'
+          allOf:
+          - $ref: '#/components/schemas/ReviewStatus'
+          title: Κατάσταση
         isPublished:
           type: boolean
         createdAt:
@@ -28539,7 +28650,9 @@ components:
           minimum: 0
           maximum: 32767
         status:
-          $ref: '#/components/schemas/ReviewStatus'
+          allOf:
+          - $ref: '#/components/schemas/ReviewStatus'
+          title: Κατάσταση
         isPublished:
           type: boolean
         translations:
@@ -28812,6 +28925,51 @@ components:
       - alpha
       - country
       - translations
+    ReleaseReservationsRequestRequest:
+      type: object
+      description: Serializer for releasing stock reservations.
+      properties:
+        reservationIds:
+          type: array
+          items:
+            type: integer
+          description: List of reservation IDs to release
+      required:
+      - reservationIds
+    ReleaseReservationsResponse:
+      type: object
+      description: Serializer for release reservations response.
+      properties:
+        message:
+          type: string
+          description: Success message
+        releasedCount:
+          type: integer
+          description: Number of reservations released
+        failedReleases:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          description: List of failed releases with error details
+      required:
+      - message
+      - releasedCount
+    ReserveStockResponse:
+      type: object
+      description: Serializer for reserve stock response.
+      properties:
+        reservationIds:
+          type: array
+          items:
+            type: integer
+          description: List of created stock reservation IDs
+        message:
+          type: string
+          description: Success message
+      required:
+      - message
+      - reservationIds
     ReviewStatus:
       enum:
       - NEW
@@ -28822,31 +28980,29 @@ components:
         * `NEW` - New
         * `TRUE` - True
         * `FALSE` - False
-    SearchSuggestion:
+    Setting:
       type: object
       properties:
-        term:
+        name:
+          type: string
+        value:
           type: string
         type:
           type: string
-        highlight:
-          type: string
       required:
-      - highlight
-      - term
+      - name
       - type
-    SearchSuggestionResponse:
+      - value
+    SettingDetail:
       type: object
       properties:
-        query:
+        name:
           type: string
-        suggestions:
-          type: array
-          items:
-            $ref: '#/components/schemas/SearchSuggestion'
+        value:
+          type: string
       required:
-      - query
-      - suggestions
+      - name
+      - value
     SubscriptionStatus:
       enum:
       - ACTIVE
@@ -28907,7 +29063,7 @@ components:
 
             * `MARKETING` - Marketing Campaigns
             * `PRODUCT` - Product Updates
-            * `ACCOUNT` - Account Updates
+            * `ACCOUNT` - Λογαριασμός Ανενεργός
             * `SYSTEM` - System Notifications
             * `NEWSLETTER` - Newsletter
             * `PROMOTIONAL` - Promotional
@@ -28980,7 +29136,7 @@ components:
 
             * `MARKETING` - Marketing Campaigns
             * `PRODUCT` - Product Updates
-            * `ACCOUNT` - Account Updates
+            * `ACCOUNT` - Λογαριασμός Ανενεργός
             * `SYSTEM` - System Notifications
             * `NEWSLETTER` - Newsletter
             * `PROMOTIONAL` - Promotional
@@ -29057,7 +29213,7 @@ components:
 
             * `MARKETING` - Marketing Campaigns
             * `PRODUCT` - Product Updates
-            * `ACCOUNT` - Account Updates
+            * `ACCOUNT` - Λογαριασμός Ανενεργός
             * `SYSTEM` - System Notifications
             * `NEWSLETTER` - Newsletter
             * `PROMOTIONAL` - Promotional
@@ -29118,7 +29274,7 @@ components:
 
             * `MARKETING` - Marketing Campaigns
             * `PRODUCT` - Product Updates
-            * `ACCOUNT` - Account Updates
+            * `ACCOUNT` - Λογαριασμός Ανενεργός
             * `SYSTEM` - System Notifications
             * `NEWSLETTER` - Newsletter
             * `PROMOTIONAL` - Promotional
@@ -29482,8 +29638,6 @@ components:
           - $ref: '#/components/schemas/BlankEnum'
         phone:
           type: string
-        mobilePhone:
-          type: string
         notes:
           type: string
           maxLength: 255
@@ -29564,8 +29718,6 @@ components:
           - $ref: '#/components/schemas/LocationTypeEnum'
           - $ref: '#/components/schemas/BlankEnum'
         phone:
-          type: string
-        mobilePhone:
           type: string
         notes:
           type: string
@@ -29653,8 +29805,6 @@ components:
         phone:
           type: string
           minLength: 1
-        mobilePhone:
-          type: string
         notes:
           type: string
           maxLength: 255
@@ -29847,7 +29997,9 @@ components:
           - $ref: '#/components/schemas/SubscriptionTopic'
           readOnly: true
         status:
-          $ref: '#/components/schemas/SubscriptionStatus'
+          allOf:
+          - $ref: '#/components/schemas/SubscriptionStatus'
+          title: Κατάσταση
         subscribedAt:
           type: string
           format: date-time
@@ -29893,7 +30045,9 @@ components:
           - $ref: '#/components/schemas/SubscriptionTopic'
           readOnly: true
         status:
-          $ref: '#/components/schemas/SubscriptionStatus'
+          allOf:
+          - $ref: '#/components/schemas/SubscriptionStatus'
+          title: Κατάσταση
         subscribedAt:
           type: string
           format: date-time
@@ -29933,7 +30087,9 @@ components:
         topic:
           type: integer
         status:
-          $ref: '#/components/schemas/SubscriptionStatus'
+          allOf:
+          - $ref: '#/components/schemas/SubscriptionStatus'
+          title: Κατάσταση
         metadata:
           description: Additional subscription preferences or data
       required:
@@ -29944,7 +30100,9 @@ components:
         topic:
           type: integer
         status:
-          $ref: '#/components/schemas/SubscriptionStatus'
+          allOf:
+          - $ref: '#/components/schemas/SubscriptionStatus'
+          title: Κατάσταση
         metadata:
           description: Additional subscription preferences or data
       required:
@@ -29955,7 +30113,9 @@ components:
         topic:
           type: integer
         status:
-          $ref: '#/components/schemas/SubscriptionStatus'
+          allOf:
+          - $ref: '#/components/schemas/SubscriptionStatus'
+          title: Κατάσταση
         metadata:
           description: Additional subscription preferences or data
       required:

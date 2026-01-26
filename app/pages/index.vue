@@ -122,7 +122,4 @@ useSeoMeta({
 el:
   carousel:
     banner: Κύριο banner
-en:
-  carousel:
-    banner: Main banner
 </i18n>
