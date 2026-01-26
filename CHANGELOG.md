@@ -1,3 +1,10 @@
+## [3.60.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.60.0...v3.60.1) (2026-01-26)
+
+
+### Bug Fixes
+
+* checkout error messages ([b6254bc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b6254bc868956eea5a987a752a645250184d00e5))
+
 # [3.60.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.59.1...v3.60.0) (2026-01-26)
 
 
