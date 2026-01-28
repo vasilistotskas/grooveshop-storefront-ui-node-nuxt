@@ -370,15 +370,6 @@ const onSubmit = async () => {
 
         // Clear any previous stock errors on success
         stockError.value = null
-
-        // Only show toast on first attempt, not during retries
-        if (retryCount.value === 0) {
-          toast.add({
-            title: t('stock_reserved'),
-            description: t('stock_reserved_description'),
-            color: 'info',
-          })
-        }
       }
       catch (error: any) {
         // Handle stock reservation errors with structured data
@@ -453,12 +444,6 @@ const handleOnlinePaymentFlow = async () => {
 
       const paymentIntent = await createPaymentIntentFromCart(cartId, formState.payWayId!)
       paymentIntentId.value = paymentIntent.paymentIntentId
-
-      toast.add({
-        title: t('payment_intent_created'),
-        description: t('payment_intent_created_description'),
-        color: 'info',
-      })
     }
 
     // Step 2: Create order with payment_intent_id
@@ -643,11 +628,6 @@ const onPaymentError = async (error: string) => {
     try {
       await releaseReservations(reservationIds.value)
       reservationIds.value = []
-      toast.add({
-        title: t('stock_released'),
-        description: t('stock_released_description'),
-        color: 'info',
-      })
     }
     catch (err) {
       console.error('Failed to release reservations:', err)
