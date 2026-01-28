@@ -1,3 +1,10 @@
+## [3.61.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.61.1...v3.61.2) (2026-01-28)
+
+
+### Bug Fixes
+
+* payment method names ([b027dee](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b027dee676ccb00203e5233ccd2d0aa03a3697dd))
+
 ## [3.61.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.61.0...v3.61.1) (2026-01-28)
 
 
