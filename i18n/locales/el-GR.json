@@ -37,6 +37,9 @@
   "orders": "Παραγγελίες",
   "reviews": "Κριτικές",
   "help": "Βοήθεια",
+  "cart": {
+    "title": "Καλάθι"
+  },
   "cancel": "Ακύρωση",
   "error_occurred": "Παρουσιάστηκε σφάλμα",
   "add_to_cart": "Αγορά",
@@ -203,5 +206,16 @@
   "youtube": "YouTube",
   "discord": "Discord",
   "ip_address": "Διεύθυνση IP",
-  "user_agent": "Πρόγραμμα περιήγησης"
+  "user_agent": "Πρόγραμμα περιήγησης",
+  "payment_methods": {
+    "CREDIT_CARD": "Πιστωτική Κάρτα",
+    "PAY_ON_DELIVERY": "Αντικαταβολή",
+    "PAY_ON_STORE": "Πληρωμή στο Κατάστημα",
+    "PAY_PAL": "PayPal",
+    "STRIPE": "Stripe",
+    "BANK_TRANSFER": "Τραπεζική Κατάθεση",
+    "APPLE_PAY": "Apple Pay",
+    "GOOGLE_PAY": "Google Pay",
+    "fee": "Προμήθεια {method}"
+  }
 }

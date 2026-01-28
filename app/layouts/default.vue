@@ -41,6 +41,11 @@ const items = computed(() => {
       to: loggedIn.value ? '/account/favourites/posts' : '/account/login',
       label: $i18n.t('favourites'),
     },
+    {
+      icon: 'i-heroicons-shopping-cart',
+      to: '/cart',
+      label: $i18n.t('cart.title'),
+    },
   ] as LinksOption[]
 
   if (!loggedIn.value) {

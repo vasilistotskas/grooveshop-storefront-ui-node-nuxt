@@ -6597,6 +6597,67 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/cart/create-payment-intent:
+    post:
+      operationId: createCartPaymentIntent
+      description: Create a Stripe payment intent based on cart total before order
+        creation. This is required for online payment methods (Stripe) in the payment-first
+        flow. Returns client_secret for frontend payment confirmation and payment_intent_id
+        to be included in order creation request.
+      summary: Create payment intent from cart
+      parameters:
+      - in: header
+        name: X-Cart-Id
+        schema:
+          oneOf:
+          - type: string
+            pattern: ^-?\d+$
+          - type: integer
+        description: Cart ID for guest users. Used to identify and maintain guest
+          cart sessions.
+      tags:
+      - Cart
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pay_way_id:
+                  type: integer
+                  description: Payment method ID (must be Stripe)
+              required:
+              - pay_way_id
+      security:
+      - knoxApiToken: []
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  client_secret:
+                    type: string
+                    description: Stripe client secret for payment confirmation
+                  payment_intent_id:
+                    type: string
+                    description: Payment intent ID to include in order creation
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/cart/item:
     get:
       operationId: listCartItem
@@ -24130,6 +24191,14 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+        paymentMethodFee:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
         documentType:
           $ref: '#/components/schemas/DocumentTypeEnum'
         createdAt:
@@ -24194,6 +24263,7 @@ components:
       - lastName
       - paidAmount
       - payWay
+      - paymentMethodFee
       - phone
       - region
       - shippingPrice
@@ -24373,6 +24443,14 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+        paymentMethodFee:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
         documentType:
           $ref: '#/components/schemas/DocumentTypeEnum'
         createdAt:
@@ -24452,6 +24530,8 @@ components:
               type: number
             shippingCost:
               type: number
+            paymentMethodFee:
+              type: number
             extrasTotal:
               type: number
             grandTotal:
@@ -24518,6 +24598,7 @@ components:
       - orderTimeline
       - paidAmount
       - payWay
+      - paymentMethodFee
       - phone
       - pricingBreakdown
       - region

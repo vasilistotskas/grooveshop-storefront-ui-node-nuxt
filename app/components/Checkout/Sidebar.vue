@@ -10,6 +10,7 @@ const { cart } = storeToRefs(cartStore)
 const payWay = useState<PayWay | null>('selectedPayWay')
 const localePath = useLocalePath()
 const { t, locale } = useI18n()
+const { getPaymentMethodName } = usePaymentMethod()
 
 const payWayCost = computed(() => {
   if (!payWay?.value || typeof payWay.value === 'number') return 0
@@ -24,9 +25,16 @@ const payWayCost = computed(() => {
   return payWay.value.cost || 0
 })
 
-const payWayName = computed(() =>
-  extractTranslated(payWay.value, 'name', locale.value) ?? t('pay_way_fee'),
-)
+const payWayName = computed(() => {
+  const name = extractTranslated(payWay.value, 'name', locale.value) ?? t('pay_way_fee')
+
+  if (name) {
+    return getPaymentMethodName(name)
+  }
+
+  // Fallback to extracting translated name from backend
+  return 'N/A'
+})
 
 const checkoutTotal = computed(() => {
   if (!cart.value) return 0

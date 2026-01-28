@@ -3,6 +3,7 @@ import * as z from 'zod'
 
 const { fetch } = useUserSession()
 const localePath = useLocalePath()
+const { getPaymentMethodName } = usePaymentMethod()
 
 const cartStore = useCartStore()
 const { cleanCartState } = cartStore
@@ -180,14 +181,10 @@ const regionOptions = computed(() => {
 
 const payWayOptions = computed(() => {
   return payWays.value?.results?.map((payWay) => {
-    const payWayName = extractTranslated(payWay, 'name', locale.value)
-    let payWayNameLocalized = payWayName // fallback to original name
+    let name = extractTranslated(payWay, 'name', locale.value)
 
-    if (payWayName === 'PAY_ON_DELIVERY') {
-      payWayNameLocalized = t('payOnDelivery')
-    }
-    else if (payWayName === 'STRIPE') {
-      payWayNameLocalized = t('cardPayment')
+    if (name) {
+      name = getPaymentMethodName(name)
     }
 
     // Calculate cost display based on free threshold
@@ -196,7 +193,7 @@ const payWayOptions = computed(() => {
     const displayCost = (threshold > 0 && cartTotal >= threshold) ? 0 : payWay.cost
 
     return {
-      label: `${payWayNameLocalized} (+${n(displayCost, 'currency')})`,
+      label: `${name} (+${n(displayCost, 'currency')})`,
       value: payWay.id,
       mainImagePath: payWay.mainImagePath,
     }
