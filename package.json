@@ -46,7 +46,7 @@
     "@nuxt/ui": "4.4.0",
     "@nuxtjs/device": "4.0.0",
     "@nuxtjs/i18n": "10.2.1",
-    "@nuxtjs/seo": "3.3.0",
+    "@nuxtjs/seo": "3.4.0",
     "@pinia/nuxt": "0.11.3",
     "@tailwindcss/typography": "0.5.19",
     "@vueuse/nuxt": "14.1.0",
@@ -56,7 +56,7 @@
     "hookable": "6.0.1",
     "magic-string": "0.30.21",
     "nuxt": "4.3.0",
-    "nuxt-auth-utils": "0.5.27",
+    "nuxt-auth-utils": "0.5.28",
     "ofetch": "1.5.1",
     "pinia": "3.0.4",
     "redis": "5.10.0",
@@ -94,7 +94,7 @@
     "@semantic-release/release-notes-generator": "14.1.0",
     "@stripe/stripe-js": "8.6.4",
     "@testing-library/jest-dom": "6.9.1",
-    "@types/node": "25.0.10",
+    "@types/node": "25.1.0",
     "@types/rss": "0.0.32",
     "@vitest/coverage-v8": "4.0.4",
     "@vitest/ui": "4.0.4",
@@ -104,14 +104,14 @@
     "@vueuse/shared": "14.1.0",
     "eslint": "9.39.2",
     "eslint-plugin-better-tailwindcss": "4.0.2",
-    "happy-dom": "20.3.9",
+    "happy-dom": "20.4.0",
     "semantic-release": "25.0.2",
     "typescript": "5.9.3",
-    "undici": "7.19.1",
+    "undici": "7.19.2",
     "vite": "7.3.1",
     "vite-plugin-eslint2": "5.0.4",
     "vitest": "4.0.4",
-    "vue-tsc": "3.2.3"
+    "vue-tsc": "3.2.4"
   },
   "publishConfig": {
     "@vasilistotskas:registry": "https://npm.pkg.github.com"
@@ -163,7 +163,7 @@
       ]
     ]
   },
-  "packageManager": "pnpm@10.28.1",
+  "packageManager": "pnpm@10.28.2",
   "pnpm": {
     "overrides": {
       "sharp": "0.33.4"
