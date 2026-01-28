@@ -1,3 +1,10 @@
+## [3.61.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.61.0...v3.61.1) (2026-01-28)
+
+
+### Bug Fixes
+
+* remove useless toasts ([fddaba5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fddaba564d721a19d5fb30c3a1c6e6c9c59ce218))
+
 # [3.61.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.60.1...v3.61.0) (2026-01-28)
 
 
