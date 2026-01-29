@@ -1,0 +1,251 @@
+{
+  "id": "ID",
+  "type": "Type",
+  "favourites": "Favorites",
+  "subscriptions": "Notifications",
+  "error": {
+    "default": "Error"
+  },
+  "subscription_notifications": {
+    "subscribe": {
+      "success_title": "Successfully subscribed",
+      "success_description": "You have successfully subscribed to the notification topic",
+      "error_title": "Subscription error",
+      "error_description": "Unable to subscribe. Please try again."
+    },
+    "unsubscribe": {
+      "success_title": "Successfully unsubscribed",
+      "success_description": "You have successfully unsubscribed from the notification topic",
+      "error_title": "Unsubscribe error",
+      "error_description": "Unable to unsubscribe. Please try again."
+    },
+    "bulk_subscribe": {
+      "success_title": "Bulk subscription successful",
+      "success_description": "You have successfully subscribed to all selected topics"
+    },
+    "bulk_unsubscribe": {
+      "success_title": "Bulk unsubscribe successful",
+      "success_description": "You have successfully unsubscribed from all selected topics"
+    },
+    "bulk_operation": {
+      "error_title": "Bulk operation error",
+      "error_description": "Unable to complete the operation. Please try again."
+    }
+  },
+  "settings": "Settings",
+  "addresses": "Addresses",
+  "orders": "Orders",
+  "reviews": "Reviews",
+  "help": "Help",
+  "cart": {
+    "title": "Cart"
+  },
+  "cancel": "Cancel",
+  "error_occurred": "An error occurred",
+  "add_to_cart": "Add to Cart",
+  "cart_empty": "Your cart is empty",
+  "submit": "Submit",
+  "share": "Share",
+  "confirm": "Confirm",
+  "entry": "Entry",
+  "loading": "Loading...",
+  "message": "Message",
+  "out_of_stock": "Out of Stock",
+  "limited_stock": "Only {stock} items available (you have {quantity} in cart)",
+  "comments": {
+    "count": "No comments | 1 comment | {count} comments"
+  },
+  "ordering": {
+    "created_at": "Date created",
+    "updated_at": "Date updated",
+    "published_at": "Date published",
+    "price": "Price",
+    "status": "Status",
+    "title": "Title"
+  },
+  "login": "Login",
+  "register": "Register",
+  "continue": "Continue",
+  "deactivate": "Deactivate",
+  "passkey": "passkey",
+  "security_key": "Security key",
+  "success": {
+    "title": "Success"
+  },
+  "empty": {
+    "title": "Empty",
+    "description": "No results found",
+    "button": "Return to Home"
+  },
+  "delete": {
+    "title": "Delete"
+  },
+  "reauthenticate": {
+    "recovery_code": "Enter a recovery code",
+    "totp": "Enter your multi-factor authentication code"
+  },
+  "authenticate": {
+    "recovery_code": "Enter a recovery code",
+    "totp": "Enter your multi-factor authentication code"
+  },
+  "activate": "Activate",
+  "generate": "Generate",
+  "view": "View",
+  "regenerate": "Regenerate",
+  "menu": "Menu",
+  "password": {
+    "title": "Password",
+    "change": "Change password",
+    "current": "Current password",
+    "new": "New password",
+    "confirm": "Confirm password",
+    "reset": {
+      "request": {
+        "success": "Password reset email has been sent"
+      },
+      "success": "Password reset completed successfully"
+    }
+  },
+  "enter_password": "Enter your password",
+  "home": "Home",
+  "account": "Account",
+  "save": "Save",
+  "actions": "Actions",
+  "results": "Results",
+  "edit": {
+    "title": "Edit"
+  },
+  "upload": "Upload",
+  "theme": "Theme",
+  "tags": "Tags",
+  "read_less": "Read less",
+  "read_more": "Read more",
+  "search": {
+    "title": "Search",
+    "clear_history": "Clear history",
+    "clear_all": "Clear all",
+    "recent": "Recent searches",
+    "products": "Search products...",
+    "categories": "Search categories..."
+  },
+  "filters": {
+    "title": "Filters",
+    "clear": "Clear",
+    "active": "Active",
+    "apply": "Apply",
+    "clear_all": "Clear All",
+    "categories": "Categories",
+    "price": "Price",
+    "price_min": "Minimum price",
+    "price_max": "Maximum price",
+    "popularity": "Popularity",
+    "view_count": "Views",
+    "min_likes": "At least {count} likes",
+    "min_views": "At least {count} views",
+    "search": "Search",
+    "sort": "Sort",
+    "remove_filter": "Remove {filter} filter"
+  },
+  "sort": {
+    "default": "Default",
+    "price_asc": "Price (Low to High)",
+    "price_desc": "Price (High to Low)",
+    "popularity": "Popular",
+    "most_viewed": "Most Viewed",
+    "newest": "Newest"
+  },
+  "products": {
+    "results_count": "{count} products",
+    "per_page": "Per page",
+    "no_results": {
+      "title": "No products found",
+      "description": "Try adjusting your filters",
+      "clear_filters": "Clear filters"
+    }
+  },
+  "categories": "Categories",
+  "load": {
+    "more": "Load more"
+  },
+  "logout": "Logout",
+  "shop": "Shop",
+  "blog": "Blog",
+  "email": {
+    "added": "Email added, but needs verification",
+    "removed": "Email removed",
+    "title": "Email",
+    "add": "Add email",
+    "mark_as_primary": "Mark as primary",
+    "remove": "Remove email",
+    "request_verification": "Request verification",
+    "verification": {
+      "requested": "Verification email has been sent",
+      "too_many_requests": "Too many verification requests",
+      "marked_as_primary": "Verification email has been sent"
+    }
+  },
+  "next": "Next",
+  "previous": "Previous",
+  "items": "Items",
+  "like": "Like",
+  "reply": "Reply",
+  "floor": "Floor",
+  "location_type": "Location type",
+  "phone": "Phone",
+  "notes": "Notes",
+  "code": "Code",
+  "disconnect": "Disconnect",
+  "add": {
+    "title": "Add",
+    "email": "Add email"
+  },
+  "used": "Used",
+  "unused": "Unused",
+  "last_used_at": "Last used",
+  "social_accounts": "Social accounts",
+  "sessions": "Sessions",
+  "two_factor": {
+    "authentication": "Two-factor authentication (2FA)",
+    "activate": "Activate 2FA",
+    "deactivate": "Deactivate 2FA",
+    "webauthn": {
+      "title": "Security keys",
+      "manage": "Manage security keys",
+      "add": {
+        "title": "Add security key"
+      }
+    },
+    "recovery_codes": {
+      "title": "Recovery codes",
+      "generate": "Generate recovery codes",
+      "view": "View recovery codes"
+    },
+    "totp": "Multi-factor authentication code"
+  },
+  "name": "Name",
+  "display": "Display",
+  "uid": "UID",
+  "reset": "Reset",
+  "back": "Back",
+  "twitter": "X",
+  "instagram": "Instagram",
+  "facebook": "Facebook",
+  "reddit": "Reddit",
+  "pinterest": "Pinterest",
+  "tiktok": "TikTok",
+  "youtube": "YouTube",
+  "discord": "Discord",
+  "ip_address": "IP Address",
+  "user_agent": "Browser",
+  "payment_methods": {
+    "CREDIT_CARD": "Credit Card",
+    "PAY_ON_DELIVERY": "Cash on Delivery",
+    "PAY_ON_STORE": "Pay at Store",
+    "PAY_PAL": "PayPal",
+    "STRIPE": "Stripe",
+    "BANK_TRANSFER": "Bank Transfer",
+    "APPLE_PAY": "Apple Pay",
+    "GOOGLE_PAY": "Google Pay",
+    "fee": "{method} fee"
+  }
+}

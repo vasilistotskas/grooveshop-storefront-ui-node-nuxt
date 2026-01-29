@@ -28880,9 +28880,25 @@
         "/api/v1/search/product": {
             "get": {
                 "operationId": "search_product_retrieve",
-                "description": "Search products using MeiliSearch. Provides full-text search with highlighting, ranking, and faceting capabilities. Results can be filtered by language.",
-                "summary": "Search products",
+                "description": "Search products using MeiliSearch with support for full-text search, price range, popularity, view count, and category filters. Returns facet distribution and statistics for dynamic filter UI.",
+                "summary": "Search products with advanced filters",
                 "parameters": [
+                    {
+                        "in": "query",
+                        "name": "categories",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Comma-separated category IDs (category IN [ids])"
+                    },
+                    {
+                        "in": "query",
+                        "name": "facets",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Comma-separated facet fields for counts and stats"
+                    },
                     {
                         "in": "query",
                         "name": "languageCode",
@@ -28890,6 +28906,22 @@
                             "type": "string"
                         },
                         "description": "Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages."
+                    },
+                    {
+                        "in": "query",
+                        "name": "likesMin",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Minimum likes filter (likes_count >= value)"
                     },
                     {
                         "in": "query",
@@ -28925,12 +28957,67 @@
                     },
                     {
                         "in": "query",
+                        "name": "priceMax",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Maximum price filter (final_price <= value)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "priceMin",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+(\\.\\d+)?$"
+                                },
+                                {
+                                    "type": "number"
+                                }
+                            ]
+                        },
+                        "description": "Minimum price filter (final_price >= value)"
+                    },
+                    {
+                        "in": "query",
                         "name": "query",
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Search query string",
-                        "required": true
+                        "description": "Full-text search query (empty for no search filter)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "sort",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Sort field (finalPrice, -finalPrice, -likesCount, -viewCount, -createdAt)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "viewsMin",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Minimum views filter (view_count >= value)"
                     }
                 ],
                 "tags": [
@@ -39243,6 +39330,39 @@
                     "detail"
                 ]
             },
+            "FacetStats": {
+                "type": "object",
+                "description": "Serializer for facet statistics (numeric facets).",
+                "properties": {
+                    "finalPrice": {
+                        "$ref": "#/components/schemas/FacetStatsItem"
+                    },
+                    "likesCount": {
+                        "$ref": "#/components/schemas/FacetStatsItem"
+                    },
+                    "viewCount": {
+                        "$ref": "#/components/schemas/FacetStatsItem"
+                    }
+                }
+            },
+            "FacetStatsItem": {
+                "type": "object",
+                "description": "Serializer for individual facet stat (min/max values).",
+                "properties": {
+                    "min": {
+                        "type": "number",
+                        "format": "double"
+                    },
+                    "max": {
+                        "type": "number",
+                        "format": "double"
+                    }
+                },
+                "required": [
+                    "max",
+                    "min"
+                ]
+            },
             "FloorEnum": {
                 "enum": [
                     "BASEMENT",
@@ -45554,6 +45674,24 @@
                         "items": {
                             "$ref": "#/components/schemas/ProductMeiliSearchResult"
                         }
+                    },
+                    "facetDistribution": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "integer"
+                            }
+                        },
+                        "description": "Facet distribution with counts per category/value"
+                    },
+                    "facetStats": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FacetStats"
+                            }
+                        ],
+                        "description": "Facet statistics with min/max values for numeric fields"
                     }
                 },
                 "required": [
@@ -45596,20 +45734,61 @@
                     "formatted": {},
                     "contentType": {
                         "type": "string"
+                    },
+                    "finalPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "discountPercent": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "stock": {
+                        "type": "integer"
+                    },
+                    "likesCount": {
+                        "type": "integer"
+                    },
+                    "viewCount": {
+                        "type": "integer"
+                    },
+                    "reviewAverage": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "vatPercent": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
                     }
                 },
                 "required": [
                     "contentType",
                     "description",
+                    "discountPercent",
+                    "finalPrice",
                     "formatted",
                     "id",
                     "languageCode",
+                    "likesCount",
                     "mainImagePath",
                     "master",
                     "matchesPosition",
                     "name",
+                    "price",
                     "rankingScore",
-                    "slug"
+                    "reviewAverage",
+                    "slug",
+                    "stock",
+                    "vatPercent",
+                    "viewCount"
                 ]
             },
             "ProductReview": {

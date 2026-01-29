@@ -1031,6 +1031,23 @@ export type ErrorResponse = {
 };
 
 /**
+ * Serializer for facet statistics (numeric facets).
+ */
+export type FacetStats = {
+    finalPrice?: FacetStatsItem;
+    likesCount?: FacetStatsItem;
+    viewCount?: FacetStatsItem;
+};
+
+/**
+ * Serializer for individual facet stat (min/max values).
+ */
+export type FacetStatsItem = {
+    min: number;
+    max: number;
+};
+
+/**
  * * `BASEMENT` - Basement
  * * `GROUND_FLOOR` - Ground Floor
  * * `FIRST_FLOOR` - First Floor
@@ -3149,6 +3166,18 @@ export type ProductMeiliSearchResponse = {
     offset: number;
     estimatedTotalHits: number;
     results: Array<ProductMeiliSearchResult>;
+    /**
+     * Facet distribution with counts per category/value
+     */
+    facetDistribution?: {
+        [key: string]: {
+            [key: string]: number;
+        };
+    };
+    /**
+     * Facet statistics with min/max values for numeric fields
+     */
+    facetStats?: FacetStats;
 };
 
 export type ProductMeiliSearchResult = {
@@ -3163,6 +3192,14 @@ export type ProductMeiliSearchResult = {
     rankingScore: number | null;
     formatted: unknown;
     contentType: string;
+    finalPrice: number | null;
+    price: number | null;
+    discountPercent: number | null;
+    stock: number;
+    likesCount: number;
+    viewCount: number;
+    reviewAverage: number | null;
+    vatPercent: number | null;
 };
 
 /**
@@ -13405,11 +13442,23 @@ export type SearchBlogPostRetrieveResponse = SearchBlogPostRetrieveResponses[key
 export type SearchProductRetrieveData = {
     body?: never;
     path?: never;
-    query: {
+    query?: {
+        /**
+         * Comma-separated category IDs (category IN [ids])
+         */
+        categories?: string;
+        /**
+         * Comma-separated facet fields for counts and stats
+         */
+        facets?: string;
         /**
          * Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages.
          */
         languageCode?: string;
+        /**
+         * Minimum likes filter (likes_count >= value)
+         */
+        likesMin?: string | number;
         /**
          * Maximum number of results to return
          */
@@ -13419,9 +13468,25 @@ export type SearchProductRetrieveData = {
          */
         offset?: string | number;
         /**
-         * Search query string
+         * Maximum price filter (final_price <= value)
          */
-        query: string;
+        priceMax?: string | number;
+        /**
+         * Minimum price filter (final_price >= value)
+         */
+        priceMin?: string | number;
+        /**
+         * Full-text search query (empty for no search filter)
+         */
+        query?: string;
+        /**
+         * Sort field (finalPrice, -finalPrice, -likesCount, -viewCount, -createdAt)
+         */
+        sort?: string;
+        /**
+         * Minimum views filter (view_count >= value)
+         */
+        viewsMin?: string | number;
     };
     url: '/api/v1/search/product';
 };

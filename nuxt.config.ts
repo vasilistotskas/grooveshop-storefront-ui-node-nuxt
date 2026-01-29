@@ -377,7 +377,7 @@ export default defineNuxtConfig({
     },
   },
   i18n: {
-    defaultLocale: DEFAULT_LOCALE,
+    defaultLocale: DEFAULT_LOCALE as any,
     debug: false,
     restructureDir: 'i18n',
     detectBrowserLanguage: {

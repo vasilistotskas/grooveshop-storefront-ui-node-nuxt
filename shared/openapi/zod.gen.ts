@@ -739,6 +739,27 @@ export const zErrorResponse = z.object({
 });
 
 /**
+ * Serializer for individual facet stat (min/max values).
+ */
+export const zFacetStatsItem = z.object({
+    min: z.number(),
+    max: z.number()
+}).register(z.globalRegistry, {
+    description: 'Serializer for individual facet stat (min/max values).'
+});
+
+/**
+ * Serializer for facet statistics (numeric facets).
+ */
+export const zFacetStats = z.object({
+    finalPrice: z.optional(zFacetStatsItem),
+    likesCount: z.optional(zFacetStatsItem),
+    viewCount: z.optional(zFacetStatsItem)
+}).register(z.globalRegistry, {
+    description: 'Serializer for facet statistics (numeric facets).'
+});
+
+/**
  * * `BASEMENT` - Basement
  * * `GROUND_FLOOR` - Ground Floor
  * * `FIRST_FLOOR` - First Floor
@@ -2990,14 +3011,41 @@ export const zProductMeiliSearchResult = z.object({
         z.null()
     ]),
     formatted: z.unknown(),
-    contentType: z.string()
+    contentType: z.string(),
+    finalPrice: z.union([
+        z.number(),
+        z.null()
+    ]),
+    price: z.union([
+        z.number(),
+        z.null()
+    ]),
+    discountPercent: z.union([
+        z.int(),
+        z.null()
+    ]),
+    stock: z.int(),
+    likesCount: z.int(),
+    viewCount: z.int(),
+    reviewAverage: z.union([
+        z.number(),
+        z.null()
+    ]),
+    vatPercent: z.union([
+        z.number(),
+        z.null()
+    ])
 });
 
 export const zProductMeiliSearchResponse = z.object({
     limit: z.int(),
     offset: z.int(),
     estimatedTotalHits: z.int(),
-    results: z.array(zProductMeiliSearchResult)
+    results: z.array(zProductMeiliSearchResult),
+    facetDistribution: z.optional(z.record(z.string(), z.record(z.string(), z.int())).register(z.globalRegistry, {
+        description: 'Facet distribution with counts per category/value'
+    })),
+    facetStats: z.optional(zFacetStats)
 });
 
 /**
@@ -13764,10 +13812,20 @@ export const zSearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse;
 export const zSearchProductRetrieveData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
-    query: z.object({
+    query: z.optional(z.object({
+        categories: z.optional(z.string().register(z.globalRegistry, {
+            description: 'Comma-separated category IDs (category IN [ids])'
+        })),
+        facets: z.optional(z.string().register(z.globalRegistry, {
+            description: 'Comma-separated facet fields for counts and stats'
+        })),
         languageCode: z.optional(z.string().register(z.globalRegistry, {
             description: 'Language code to filter results (e.g., \'en\', \'el\', \'de\'). If not provided, searches all languages.'
         })),
+        likesMin: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
         limit: z.optional(z.union([
             z.string().regex(/^-?\d+$/),
             z.int()
@@ -13776,10 +13834,25 @@ export const zSearchProductRetrieveData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
-        query: z.string().register(z.globalRegistry, {
-            description: 'Search query string'
-        })
-    })
+        priceMax: z.optional(z.union([
+            z.string().regex(/^-?\d+(\.\d+)?$/),
+            z.number()
+        ])),
+        priceMin: z.optional(z.union([
+            z.string().regex(/^-?\d+(\.\d+)?$/),
+            z.number()
+        ])),
+        query: z.optional(z.string().register(z.globalRegistry, {
+            description: 'Full-text search query (empty for no search filter)'
+        })),
+        sort: z.optional(z.string().register(z.globalRegistry, {
+            description: 'Sort field (finalPrice, -finalPrice, -likesCount, -viewCount, -createdAt)'
+        })),
+        viewsMin: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ]))
+    }))
 });
 
 export const zSearchProductRetrieveResponse = zProductMeiliSearchResponse;

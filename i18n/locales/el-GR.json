@@ -124,14 +124,44 @@
     "title": "Αναζήτηση",
     "clear_history": "Καθαρισμός ιστορικού",
     "clear_all": "Καθαρισμός όλων",
-    "recent": "Πρόσφατες αναζητήσεις"
+    "recent": "Πρόσφατες αναζητήσεις",
+    "products": "Αναζήτηση προϊόντων...",
+    "categories": "Αναζήτηση κατηγοριών..."
   },
   "filters": {
     "title": "Φίλτρα",
     "clear": "Καθαρισμός",
     "active": "Ενεργά",
     "apply": "Εφαρμογή",
-    "clear_all": "Καθαρισμός Όλων"
+    "clear_all": "Καθαρισμός Όλων",
+    "categories": "Κατηγορίες",
+    "price": "Τιμή",
+    "price_min": "Ελάχιστη τιμή",
+    "price_max": "Μέγιστη τιμή",
+    "popularity": "Δημοτικότητα",
+    "view_count": "Προβολές",
+    "min_likes": "Τουλάχιστον {count} likes",
+    "min_views": "Τουλάχιστον {count} προβολές",
+    "search": "Αναζήτηση",
+    "sort": "Ταξινόμηση",
+    "remove_filter": "Αφαίρεση φίλτρου {filter}"
+  },
+  "sort": {
+    "default": "Προεπιλογή",
+    "price_asc": "Τιμή (Χαμηλή σε Υψηλή)",
+    "price_desc": "Τιμή (Υψηλή σε Χαμηλή)",
+    "popularity": "Δημοφιλή",
+    "most_viewed": "Περισσότερες Προβολές",
+    "newest": "Νεότερα"
+  },
+  "products": {
+    "results_count": "{count} προϊόντα",
+    "per_page": "Ανά σελίδα",
+    "no_results": {
+      "title": "Δεν βρέθηκαν προϊόντα",
+      "description": "Δοκιμάστε να αλλάξετε τα φίλτρα σας",
+      "clear_filters": "Καθαρισμός φίλτρων"
+    }
   },
   "categories": "Κατηγορίες",
   "load": {

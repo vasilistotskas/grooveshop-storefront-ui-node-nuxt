@@ -37,12 +37,25 @@ const { contentShorten } = useText()
 const { product } = toRefs(props)
 
 const alt = computed(() => {
-  return extractTranslated(product?.value, 'name', locale.value)
+  // Handle both Product (with translations) and ProductMeiliSearchResult (flat structure)
+  if (product?.value) {
+    // Check if it's a search result (has name directly)
+    if ('name' in product.value && typeof product.value.name === 'string') {
+      return product.value.name
+    }
+    // Otherwise use extractTranslated for full Product objects
+    return extractTranslated(product.value, 'name', locale.value)
+  }
+  return undefined
 })
 
 const shareOptions = reactive({
-  title: extractTranslated(product.value, 'name', locale.value),
-  text: extractTranslated(product.value, 'description', locale.value) || '',
+  title: 'name' in product.value && typeof product.value.name === 'string'
+    ? product.value.name
+    : extractTranslated(product.value, 'name', locale.value) || '',
+  text: 'description' in product.value && typeof product.value.description === 'string'
+    ? product.value.description
+    : extractTranslated(product.value, 'description', locale.value) || '',
   url: import.meta.client ? productUrl(product.value.id, product.value.slug) : '',
 })
 const { share, isSupported } = useShare(shareOptions)
@@ -104,7 +117,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         </UBadge>
         <UBadge
           v-else-if="product.stock && product.stock < 10"
-          color="info"
+          color="warning"
           variant="solid"
           size="sm"
           class="w-fit"
@@ -177,20 +190,22 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             dark:text-primary-50 dark:group-hover/link:text-primary-400
           "
         >
-          {{ extractTranslated(product, 'name', locale) }}
+          {{ 'name' in product && typeof product.name === 'string' ? product.name : extractTranslated(product, 'name', locale) }}
         </h3>
       </NuxtLink>
 
       <p
         v-if="showDescription"
         class="
-          line-clamp-2 min-h-[2.5rem] text-sm leading-relaxed text-primary-700
+          line-clamp-2 min-h-10 text-sm leading-relaxed text-primary-700
           dark:text-primary-300
         "
       >
         {{
           contentShorten(
-            extractTranslated(product, 'description', locale),
+            'description' in product && typeof product.description === 'string'
+              ? product.description
+              : extractTranslated(product, 'description', locale),
             0,
             100,
           )

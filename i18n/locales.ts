@@ -2,7 +2,7 @@
  * Supported locales for the application.
  * This is used across both client and server contexts.
  */
-export const SUPPORTED_LOCALES = ['el'] as const
+export const SUPPORTED_LOCALES = ['el', 'en', 'de'] as const
 
 export type SupportedLocale = typeof SUPPORTED_LOCALES[number]
 

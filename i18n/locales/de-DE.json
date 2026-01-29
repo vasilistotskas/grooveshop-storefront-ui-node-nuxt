@@ -1,0 +1,251 @@
+{
+  "id": "ID",
+  "type": "Typ",
+  "favourites": "Favoriten",
+  "subscriptions": "Benachrichtigungen",
+  "error": {
+    "default": "Fehler"
+  },
+  "subscription_notifications": {
+    "subscribe": {
+      "success_title": "Erfolgreich abonniert",
+      "success_description": "Sie haben das Benachrichtigungsthema erfolgreich abonniert",
+      "error_title": "Abonnementfehler",
+      "error_description": "Abonnement fehlgeschlagen. Bitte versuchen Sie es erneut."
+    },
+    "unsubscribe": {
+      "success_title": "Erfolgreich abgemeldet",
+      "success_description": "Sie haben das Benachrichtigungsthema erfolgreich abgemeldet",
+      "error_title": "Abmeldefehler",
+      "error_description": "Abmeldung fehlgeschlagen. Bitte versuchen Sie es erneut."
+    },
+    "bulk_subscribe": {
+      "success_title": "Massenabonnement erfolgreich",
+      "success_description": "Sie haben alle ausgewählten Themen erfolgreich abonniert"
+    },
+    "bulk_unsubscribe": {
+      "success_title": "Massenabmeldung erfolgreich",
+      "success_description": "Sie haben sich von allen ausgewählten Themen erfolgreich abgemeldet"
+    },
+    "bulk_operation": {
+      "error_title": "Massenoperationsfehler",
+      "error_description": "Operation konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut."
+    }
+  },
+  "settings": "Einstellungen",
+  "addresses": "Adressen",
+  "orders": "Bestellungen",
+  "reviews": "Bewertungen",
+  "help": "Hilfe",
+  "cart": {
+    "title": "Warenkorb"
+  },
+  "cancel": "Abbrechen",
+  "error_occurred": "Ein Fehler ist aufgetreten",
+  "add_to_cart": "In den Warenkorb",
+  "cart_empty": "Ihr Warenkorb ist leer",
+  "submit": "Absenden",
+  "share": "Teilen",
+  "confirm": "Bestätigen",
+  "entry": "Eintrag",
+  "loading": "Lädt...",
+  "message": "Nachricht",
+  "out_of_stock": "Nicht auf Lager",
+  "limited_stock": "Nur {stock} Artikel verfügbar (Sie haben {quantity} im Warenkorb)",
+  "comments": {
+    "count": "Keine Kommentare | 1 Kommentar | {count} Kommentare"
+  },
+  "ordering": {
+    "created_at": "Erstellungsdatum",
+    "updated_at": "Aktualisierungsdatum",
+    "published_at": "Veröffentlichungsdatum",
+    "price": "Preis",
+    "status": "Status",
+    "title": "Titel"
+  },
+  "login": "Anmelden",
+  "register": "Registrieren",
+  "continue": "Fortfahren",
+  "deactivate": "Deaktivieren",
+  "passkey": "Passkey",
+  "security_key": "Sicherheitsschlüssel",
+  "success": {
+    "title": "Erfolg"
+  },
+  "empty": {
+    "title": "Leer",
+    "description": "Keine Ergebnisse gefunden",
+    "button": "Zurück zur Startseite"
+  },
+  "delete": {
+    "title": "Löschen"
+  },
+  "reauthenticate": {
+    "recovery_code": "Geben Sie einen Wiederherstellungscode ein",
+    "totp": "Geben Sie Ihren Multi-Faktor-Authentifizierungscode ein"
+  },
+  "authenticate": {
+    "recovery_code": "Geben Sie einen Wiederherstellungscode ein",
+    "totp": "Geben Sie Ihren Multi-Faktor-Authentifizierungscode ein"
+  },
+  "activate": "Aktivieren",
+  "generate": "Generieren",
+  "view": "Ansehen",
+  "regenerate": "Neu generieren",
+  "menu": "Menü",
+  "password": {
+    "title": "Passwort",
+    "change": "Passwort ändern",
+    "current": "Aktuelles Passwort",
+    "new": "Neues Passwort",
+    "confirm": "Passwort bestätigen",
+    "reset": {
+      "request": {
+        "success": "Passwort-Zurücksetzungs-E-Mail wurde gesendet"
+      },
+      "success": "Passwort erfolgreich zurückgesetzt"
+    }
+  },
+  "enter_password": "Geben Sie Ihr Passwort ein",
+  "home": "Startseite",
+  "account": "Konto",
+  "save": "Speichern",
+  "actions": "Aktionen",
+  "results": "Ergebnisse",
+  "edit": {
+    "title": "Bearbeiten"
+  },
+  "upload": "Hochladen",
+  "theme": "Design",
+  "tags": "Tags",
+  "read_less": "Weniger lesen",
+  "read_more": "Mehr lesen",
+  "search": {
+    "title": "Suche",
+    "clear_history": "Verlauf löschen",
+    "clear_all": "Alles löschen",
+    "recent": "Letzte Suchen",
+    "products": "Produkte suchen...",
+    "categories": "Kategorien suchen..."
+  },
+  "filters": {
+    "title": "Filter",
+    "clear": "Löschen",
+    "active": "Aktiv",
+    "apply": "Anwenden",
+    "clear_all": "Alle löschen",
+    "categories": "Kategorien",
+    "price": "Preis",
+    "price_min": "Mindestpreis",
+    "price_max": "Höchstpreis",
+    "popularity": "Beliebtheit",
+    "view_count": "Aufrufe",
+    "min_likes": "Mindestens {count} Likes",
+    "min_views": "Mindestens {count} Aufrufe",
+    "search": "Suche",
+    "sort": "Sortieren",
+    "remove_filter": "{filter}-Filter entfernen"
+  },
+  "sort": {
+    "default": "Standard",
+    "price_asc": "Preis (Niedrig bis Hoch)",
+    "price_desc": "Preis (Hoch bis Niedrig)",
+    "popularity": "Beliebt",
+    "most_viewed": "Meistgesehen",
+    "newest": "Neueste"
+  },
+  "products": {
+    "results_count": "{count} Produkte",
+    "per_page": "Pro Seite",
+    "no_results": {
+      "title": "Keine Produkte gefunden",
+      "description": "Versuchen Sie, Ihre Filter anzupassen",
+      "clear_filters": "Filter löschen"
+    }
+  },
+  "categories": "Kategorien",
+  "load": {
+    "more": "Mehr laden"
+  },
+  "logout": "Abmelden",
+  "shop": "Shop",
+  "blog": "Blog",
+  "email": {
+    "added": "E-Mail hinzugefügt, muss aber verifiziert werden",
+    "removed": "E-Mail entfernt",
+    "title": "E-Mail",
+    "add": "E-Mail hinzufügen",
+    "mark_as_primary": "Als primär markieren",
+    "remove": "E-Mail entfernen",
+    "request_verification": "Verifizierung anfordern",
+    "verification": {
+      "requested": "Verifizierungs-E-Mail wurde gesendet",
+      "too_many_requests": "Zu viele Verifizierungsanfragen",
+      "marked_as_primary": "Verifizierungs-E-Mail wurde gesendet"
+    }
+  },
+  "next": "Weiter",
+  "previous": "Zurück",
+  "items": "Artikel",
+  "like": "Gefällt mir",
+  "reply": "Antworten",
+  "floor": "Etage",
+  "location_type": "Standorttyp",
+  "phone": "Telefon",
+  "notes": "Notizen",
+  "code": "Code",
+  "disconnect": "Trennen",
+  "add": {
+    "title": "Hinzufügen",
+    "email": "E-Mail hinzufügen"
+  },
+  "used": "Verwendet",
+  "unused": "Unbenutzt",
+  "last_used_at": "Zuletzt verwendet",
+  "social_accounts": "Soziale Konten",
+  "sessions": "Sitzungen",
+  "two_factor": {
+    "authentication": "Zwei-Faktor-Authentifizierung (2FA)",
+    "activate": "2FA aktivieren",
+    "deactivate": "2FA deaktivieren",
+    "webauthn": {
+      "title": "Sicherheitsschlüssel",
+      "manage": "Sicherheitsschlüssel verwalten",
+      "add": {
+        "title": "Sicherheitsschlüssel hinzufügen"
+      }
+    },
+    "recovery_codes": {
+      "title": "Wiederherstellungscodes",
+      "generate": "Wiederherstellungscodes generieren",
+      "view": "Wiederherstellungscodes ansehen"
+    },
+    "totp": "Multi-Faktor-Authentifizierungscode"
+  },
+  "name": "Name",
+  "display": "Anzeige",
+  "uid": "UID",
+  "reset": "Zurücksetzen",
+  "back": "Zurück",
+  "twitter": "X",
+  "instagram": "Instagram",
+  "facebook": "Facebook",
+  "reddit": "Reddit",
+  "pinterest": "Pinterest",
+  "tiktok": "TikTok",
+  "youtube": "YouTube",
+  "discord": "Discord",
+  "ip_address": "IP-Adresse",
+  "user_agent": "Browser",
+  "payment_methods": {
+    "CREDIT_CARD": "Kreditkarte",
+    "PAY_ON_DELIVERY": "Nachnahme",
+    "PAY_ON_STORE": "Zahlung im Geschäft",
+    "PAY_PAL": "PayPal",
+    "STRIPE": "Stripe",
+    "BANK_TRANSFER": "Banküberweisung",
+    "APPLE_PAY": "Apple Pay",
+    "GOOGLE_PAY": "Google Pay",
+    "fee": "{method}-Gebühr"
+  }
+}
