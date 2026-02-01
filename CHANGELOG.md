@@ -1,3 +1,18 @@
+# [3.62.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.61.2...v3.62.0) (2026-02-01)
+
+
+### Bug Fixes
+
+* testing ([6a41ae3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6a41ae35b7d65dd143c8576ab28c711ed7ca95b2))
+* tests ([8b360dc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8b360dc87b0775a691776471a3cb2a134d4bff5f))
+* tests ([1f0cfa9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1f0cfa9ed4ca4856ceb9f744db946939ae1d077d))
+
+
+### Features
+
+* product listing filters ([0980e14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0980e1446099456a6d728056d20783608174081d))
+* search improve ([a5a93cd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a5a93cdea91a8df4850662278045f0366d28fa27))
+
 ## [3.61.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.61.1...v3.61.2) (2026-01-28)
 
 
