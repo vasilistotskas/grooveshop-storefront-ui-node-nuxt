@@ -1,7 +1,19 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { isErrorWithDetail, isAllAuthClientError } from '../../../app/utils/error'
 
+// Mock the shared utils that are auto-imported in Nuxt
+vi.stubGlobal('isBadResponseError', vi.fn().mockReturnValue(false))
+vi.stubGlobal('isNotAuthenticatedResponseError', vi.fn().mockReturnValue(false))
+vi.stubGlobal('isInvalidSessionResponseError', vi.fn().mockReturnValue(false))
+vi.stubGlobal('isForbiddenResponseError', vi.fn().mockReturnValue(false))
+vi.stubGlobal('isNotFoundResponseError', vi.fn().mockReturnValue(false))
+vi.stubGlobal('isConflictResponseError', vi.fn().mockReturnValue(false))
+
 describe('Utils - Error Client', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   describe('isErrorWithDetail', () => {
     it('should return true for error with detail', () => {
       const error = {

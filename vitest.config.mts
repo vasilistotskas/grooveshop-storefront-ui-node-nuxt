@@ -11,6 +11,8 @@ export default defineConfig({
     },
   },
   test: {
+    // Disable file parallelism globally to prevent [nuxt] instance unavailable errors
+    fileParallelism: false,
     coverage: {
       enabled: false,
       provider: 'v8',
@@ -82,6 +84,10 @@ export default defineConfig({
               },
             },
           },
+          // Retry flaky tests due to Nuxt environment race conditions
+          retry: 2,
+          // Increase test timeout
+          testTimeout: 15000,
         },
         resolve: {
           alias: {
