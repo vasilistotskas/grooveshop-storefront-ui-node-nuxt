@@ -1,14 +1,16 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
+
+// Ref to control the sidebar drawer
+const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
 
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('products'),
@@ -28,6 +30,11 @@ defineRouteRules({
 definePageMeta({
   layout: 'default',
 })
+
+// Handle filter toggle from Toolbar
+const handleToggleFilters = () => {
+  sidebarRef.value?.toggleDrawer()
+}
 </script>
 
 <template>
@@ -35,13 +42,43 @@ definePageMeta({
     class="flex flex-col"
     :class="{ 'pb-24': isMobileOrTablet }"
   >
+    <!-- Skip Links for Keyboard Navigation -->
+    <div class="sr-only focus-within:not-sr-only">
+      <a
+        href="#main-content"
+        class="
+          skip-link
+          fixed top-4 left-4 z-50
+          bg-primary text-white
+          px-4 py-2 rounded-lg
+          font-semibold
+          transition-all
+        "
+      >
+        {{ t('skip_to_content') }}
+      </a>
+      <a
+        href="#filters"
+        class="
+          skip-link
+          fixed top-4 left-32 z-50
+          bg-primary text-white
+          px-4 py-2 rounded-lg
+          font-semibold
+          transition-all
+        "
+      >
+        {{ t('skip_to_filters') }}
+      </a>
+    </div>
+
     <div class="container !p-0">
       <UBreadcrumb
         :items="items"
         :ui="{
           item: `
-            text-primary-950
-            dark:text-primary-50
+            text-neutral-950
+            dark:text-neutral-50
           `,
           root: `
             text-xs
@@ -49,21 +86,21 @@ definePageMeta({
           `,
         }"
         class="
-          mb-5
+          mb-6
           md:px-0
         "
       />
     </div>
 
     <div
-      class="flex gap-4"
+      class="flex gap-6"
       :class="{
         'flex-col': isMobileOrTablet,
         'flex-row': !isMobileOrTablet,
       }"
     >
-      <ProductsSidebar />
-      <ProductsList />
+      <ProductsSidebar id="filters" ref="sidebarRef" />
+      <ProductsList id="main-content" @toggle-filters="handleToggleFilters" />
     </div>
   </PageWrapper>
 </template>
@@ -71,8 +108,13 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Προϊόντα
+  skip_to_content: Μετάβαση στο περιεχόμενο
+  skip_to_filters: Μετάβαση στα φίλτρα
   breadcrumb:
     items:
+      index:
+        label: Αρχική
+        icon: i-heroicons-home
       products:
         label: Προϊόντα
 </i18n>

@@ -1,7 +1,16 @@
 <script setup lang="ts">
-const { t } = useI18n()
+/**
+ * View Count Filter Component
+ *
+ * Interactive filter for minimum view count using single-thumb slider.
+ * Fetches view count statistics from Meilisearch and provides debounced updates
+ * for optimal performance.
+ *
+ * @component
+ */
+
+const { t, locale } = useI18n()
 const { filters, updateFilters } = useProductFilters()
-const { locale } = useI18n()
 
 // Fetch facet stats for view count during SSR
 const { data: searchResults } = await useFetch('/api/products/search', {
@@ -13,79 +22,128 @@ const { data: searchResults } = await useFetch('/api/products/search', {
   key: `views-facets-${locale.value}`,
 })
 
-// Get views stats from facets or use defaults
+/**
+ * Get view count statistics from Meilisearch facets
+ */
 const viewsStats = computed(() => {
   const stats = searchResults.value?.facetStats as FacetStats | undefined
   return stats?.viewCount || { min: 0, max: 10000 }
 })
 
-// Check if we have valid stats
+/**
+ * Check if view count statistics are valid
+ */
 const hasValidStats = computed(() => {
   return viewsStats.value.min !== viewsStats.value.max
 })
 
-// Initialize local views minimum from filters or stats
-const localViewsMin = ref(filters.value.viewsMin ?? viewsStats.value.min)
+// Local override state - null means use computed values (SSR-safe)
+// Only set when user interacts with the slider for immediate feedback
+const localOverride = ref<number | null>(null)
 
-// Debounced update to URL (500ms for sliders)
-const debouncedUpdate = useDebounceFn((value: number) => {
+// The actual views min value - uses local override if set, otherwise derives from filters/stats
+const currentViewsMin = computed(() => {
+  if (localOverride.value !== null) {
+    return localOverride.value
+  }
+  return filters.value.viewsMin ?? viewsStats.value.min
+})
+
+/**
+ * Update URL immediately (for slider commit)
+ */
+function updateUrl(value: number) {
   updateFilters({
     viewsMin: value !== viewsStats.value.min ? value : undefined,
   })
-}, 500)
+  // Clear local override after URL is updated - let computed take over
+  localOverride.value = null
+}
 
-// Watch local changes and debounce updates
-watch(localViewsMin, (newValue) => {
-  debouncedUpdate(newValue)
-})
+/**
+ * Handle slider value changes during drag - only update local state for visual feedback
+ */
+function onSliderChange(value: number | undefined) {
+  if (value === undefined) return
+  localOverride.value = value
+}
 
-// Sync with URL changes (e.g., browser back/forward)
-watch(() => filters.value.viewsMin, (newValue) => {
-  const currentValue = newValue ?? viewsStats.value.min
-
-  if (currentValue !== localViewsMin.value) {
-    localViewsMin.value = currentValue
+/**
+ * Handle slider commit (when user releases the thumb) - trigger API call
+ */
+function onSliderCommit() {
+  if (localOverride.value !== null) {
+    updateUrl(localOverride.value)
   }
-})
+}
 
-// Update local value when stats change
-watch(viewsStats, (newStats) => {
-  if (!filters.value.viewsMin) {
-    localViewsMin.value = newStats.min
-  }
+// Sync from URL changes (e.g., browser back/forward, external navigation)
+// Clear local override when URL changes externally
+watch(
+  () => filters.value.viewsMin,
+  () => {
+    localOverride.value = null
+  },
+)
+
+// Format number with locale
+const formattedValue = computed(() => {
+  return new Intl.NumberFormat(locale.value).format(currentViewsMin.value)
 })
 </script>
 
 <template>
-  <UCollapsible :default-open="true">
-    <template #trigger>
-      <div class="flex items-center gap-2">
-        <UIcon name="i-heroicons-eye" />
-        <span>{{ $t('filters.view_count') }}</span>
+  <div v-if="hasValidStats" class="space-y-4">
+    <!-- Current value display -->
+    <div
+      class="
+        flex items-center justify-between
+        px-3 py-2 rounded-lg
+        bg-neutral-50 dark:bg-neutral-800/50
+      "
+    >
+      <span class="text-sm text-neutral-600 dark:text-neutral-400">
+        {{ t('minimum_views') }}
+      </span>
+      <div class="flex items-center gap-1.5">
+        <UIcon name="i-heroicons-eye" class="size-4 text-blue-500" />
+        <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+          {{ formattedValue }}+
+        </span>
       </div>
-    </template>
+    </div>
 
-    <template #content>
-      <div v-if="hasValidStats" class="space-y-2">
-        <USlider
-          v-model="localViewsMin"
-          :min="viewsStats.min"
-          :max="viewsStats.max"
-          :step="1"
-          :aria-label="$t('filters.view_count')"
-        />
-        <div class="text-sm text-gray-600 dark:text-gray-400">
-          {{ $t('filters.min_views', { count: localViewsMin }) }}
-        </div>
-      </div>
-      <div v-else class="text-sm text-gray-500">
-        {{ t('loading') }}
-      </div>
-    </template>
-  </UCollapsible>
+    <!-- Slider -->
+    <div class="px-1">
+      <USlider
+        :model-value="currentViewsMin"
+        :min="viewsStats.min"
+        :max="viewsStats.max"
+        :step="1"
+        :aria-label="t('view_count_slider')"
+        :aria-valuetext="t('min_views', { count: currentViewsMin })"
+        class="py-2"
+        @update:model-value="onSliderChange"
+        @change="onSliderCommit"
+      />
+    </div>
+
+    <!-- Range labels -->
+    <div class="flex justify-between text-sm text-neutral-400">
+      <span>{{ viewsStats.min }}</span>
+      <span>{{ new Intl.NumberFormat(locale).format(viewsStats.max) }}</span>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div v-else class="flex items-center gap-2 py-4">
+    <USkeleton class="h-2 w-full rounded-full" />
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
-  loading: Φόρτωση εύρους προβολών...
+  minimum_views: Ελάχιστες προβολές
+  view_count_slider: Ρυθμιστικό προβολών
+  min_views: "Τουλάχιστον {count} προβολές"
 </i18n>

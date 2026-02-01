@@ -23522,6 +23522,27 @@
                     },
                     {
                         "in": "query",
+                        "name": "id_In",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "description": "Comma-separated values"
+                                },
+                                {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            ]
+                        },
+                        "description": "Filter by multiple category IDs (comma-separated)",
+                        "explode": false,
+                        "style": "form"
+                    },
+                    {
+                        "in": "query",
                         "name": "isLeaf",
                         "schema": {
                             "oneOf": [
@@ -24286,6 +24307,40 @@
                 "responses": {
                     "204": {
                         "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/v1/product/category/all": {
+            "get": {
+                "operationId": "listAllProductCategory",
+                "description": "Retrieve all product categories without pagination. Useful for dropdowns, filters, and other UI components that need the complete list.",
+                "summary": "List all product categories (unpaginated)",
+                "tags": [
+                    "Product Categories"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ProductCategory"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Array of all product categories"
                     }
                 }
             }
@@ -28785,6 +28840,73 @@
                 }
             }
         },
+        "/api/v1/search/analytics": {
+            "get": {
+                "operationId": "search_analytics_retrieve",
+                "description": "Retrieve aggregated search analytics including top queries, zero-result queries, search volume by content type and language, average results count, average processing time, and click-through rate. Results can be filtered by date range and content type.",
+                "summary": "Get search analytics metrics",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "contentType",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Filter by content type: 'product', 'blog_post', or 'federated'. If not provided, includes all content types."
+                    },
+                    {
+                        "in": "query",
+                        "name": "endDate",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "End date for analytics range (ISO format: YYYY-MM-DD). If not provided, includes data up to current date."
+                    },
+                    {
+                        "in": "query",
+                        "name": "startDate",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Start date for analytics range (ISO format: YYYY-MM-DD). If not provided, includes all historical data."
+                    }
+                ],
+                "tags": [
+                    "Search"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/SearchAnalyticsResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/search/blog/post": {
             "get": {
                 "operationId": "search_blog_post_retrieve",
@@ -28859,6 +28981,98 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/BlogPostMeiliSearchResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/search/federated": {
+            "get": {
+                "operationId": "search_federated_retrieve",
+                "description": "Search multiple content types simultaneously using Meilisearch multi_search API with federation mode. Results are weighted and merged with products having weight 1.0 and blog posts having weight 0.7.",
+                "summary": "Federated search across products and blog posts",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages."
+                    },
+                    {
+                        "in": "query",
+                        "name": "limit",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Maximum total number of results to return"
+                    },
+                    {
+                        "in": "query",
+                        "name": "offset",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Number of results to skip"
+                    },
+                    {
+                        "in": "query",
+                        "name": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Search query string",
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Search"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/FederatedSearchResponse"
                                 }
                             }
                         },
@@ -39292,6 +39506,24 @@
                     "status"
                 ]
             },
+            "DateRange": {
+                "type": "object",
+                "description": "Serializer for date range in analytics.",
+                "properties": {
+                    "start": {
+                        "type": "string",
+                        "description": "Start date of the analytics range (ISO format or 'all')"
+                    },
+                    "end": {
+                        "type": "string",
+                        "description": "End date of the analytics range (ISO format or 'now')"
+                    }
+                },
+                "required": [
+                    "end",
+                    "start"
+                ]
+            },
             "DetailRequest": {
                 "type": "object",
                 "properties": {
@@ -39361,6 +39593,159 @@
                 "required": [
                     "max",
                     "min"
+                ]
+            },
+            "FederatedSearchResponse": {
+                "type": "object",
+                "description": "Serializer for federated search response.",
+                "properties": {
+                    "limit": {
+                        "type": "integer",
+                        "description": "Maximum number of results requested"
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "description": "Number of results skipped"
+                    },
+                    "estimatedTotalHits": {
+                        "type": "integer",
+                        "description": "Estimated total number of matching documents across all indexes"
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FederatedSearchResult"
+                        },
+                        "description": "Unified search results from products and blog posts"
+                    }
+                },
+                "required": [
+                    "estimatedTotalHits",
+                    "limit",
+                    "offset",
+                    "results"
+                ]
+            },
+            "FederatedSearchResult": {
+                "type": "object",
+                "description": "Serializer for individual federated search result.\n\nThis combines fields from both ProductTranslation and BlogPostTranslation\nwith federation metadata.",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "languageCode": {
+                        "type": "string"
+                    },
+                    "contentType": {
+                        "type": "string",
+                        "description": "Type of content: 'product' or 'blog_post'"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "mainImagePath": {
+                        "type": "string"
+                    },
+                    "matchesPosition": {},
+                    "rankingScore": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "formatted": {},
+                    "name": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "finalPrice": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "discountPercent": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "stock": {
+                        "type": "integer"
+                    },
+                    "likesCount": {
+                        "type": "integer"
+                    },
+                    "viewCount": {
+                        "type": "integer"
+                    },
+                    "reviewAverage": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "vatPercent": {
+                        "type": "number",
+                        "format": "double",
+                        "nullable": true
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "subtitle": {
+                        "type": "string"
+                    },
+                    "body": {
+                        "type": "string"
+                    },
+                    "master": {
+                        "type": "integer"
+                    },
+                    "Federation": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/FederationMetadata"
+                            }
+                        ],
+                        "title": " federation",
+                        "description": "Federation metadata from Meilisearch"
+                    }
+                },
+                "required": [
+                    "Federation",
+                    "contentType",
+                    "formatted",
+                    "id",
+                    "languageCode",
+                    "matchesPosition",
+                    "rankingScore"
+                ]
+            },
+            "FederationMetadata": {
+                "type": "object",
+                "description": "Serializer for federation metadata from Meilisearch.",
+                "properties": {
+                    "indexUid": {
+                        "type": "string",
+                        "description": "Index UID where the result originated"
+                    },
+                    "queriesPosition": {
+                        "type": "integer",
+                        "description": "Position of the query in the multi_search request"
+                    },
+                    "weightedRankingScore": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Ranking score after applying federation weight"
+                    }
+                },
+                "required": [
+                    "indexUid",
+                    "queriesPosition",
+                    "weightedRankingScore"
                 ]
             },
             "FloorEnum": {
@@ -43886,6 +44271,26 @@
                 "type": "string",
                 "description": "* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled"
             },
+            "PerformanceMetrics": {
+                "type": "object",
+                "description": "Serializer for search performance metrics.",
+                "properties": {
+                    "avgProcessingTimeMs": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Average search processing time in milliseconds"
+                    },
+                    "avgResultsCount": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Average number of results returned per search"
+                    }
+                },
+                "required": [
+                    "avgProcessingTimeMs",
+                    "avgResultsCount"
+                ]
+            },
             "Product": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -46468,6 +46873,92 @@
                 "type": "string",
                 "description": "* `NEW` - New\n* `TRUE` - True\n* `FALSE` - False"
             },
+            "SearchAnalyticsResponse": {
+                "type": "object",
+                "description": "Serializer for search analytics response.",
+                "properties": {
+                    "dateRange": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/DateRange"
+                            }
+                        ],
+                        "description": "Date range for the analytics data"
+                    },
+                    "topQueries": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TopQuery"
+                        },
+                        "description": "Top 20 queries by frequency with CTR metrics"
+                    },
+                    "zeroResultQueries": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ZeroResultQuery"
+                        },
+                        "description": "Queries that returned zero results"
+                    },
+                    "searchVolume": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SearchVolume"
+                            }
+                        ],
+                        "description": "Search volume metrics by content type and language"
+                    },
+                    "performance": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PerformanceMetrics"
+                            }
+                        ],
+                        "description": "Average performance metrics"
+                    },
+                    "clickThroughRate": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Overall click-through rate (total clicks / total searches)"
+                    }
+                },
+                "required": [
+                    "clickThroughRate",
+                    "dateRange",
+                    "performance",
+                    "searchVolume",
+                    "topQueries",
+                    "zeroResultQueries"
+                ]
+            },
+            "SearchVolume": {
+                "type": "object",
+                "description": "Serializer for search volume metrics.",
+                "properties": {
+                    "total": {
+                        "type": "integer",
+                        "description": "Total number of searches in the date range"
+                    },
+                    "byContentType": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        },
+                        "description": "Search volume breakdown by content type (product, blog_post, federated)"
+                    },
+                    "byLanguage": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "integer"
+                        },
+                        "description": "Search volume breakdown by language code"
+                    }
+                },
+                "required": [
+                    "byContentType",
+                    "byLanguage",
+                    "total"
+                ]
+            },
             "Setting": {
                 "type": "object",
                 "properties": {
@@ -47250,6 +47741,36 @@
                     "contentType",
                     "objectId",
                     "tagId"
+                ]
+            },
+            "TopQuery": {
+                "type": "object",
+                "description": "Serializer for top query analytics.",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query text"
+                    },
+                    "count": {
+                        "type": "integer",
+                        "description": "Number of times this query was searched"
+                    },
+                    "avgResults": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Average number of results returned for this query"
+                    },
+                    "clickThroughRate": {
+                        "type": "number",
+                        "format": "double",
+                        "description": "Click-through rate (clicks / searches) for this query"
+                    }
+                },
+                "required": [
+                    "avgResults",
+                    "clickThroughRate",
+                    "count",
+                    "query"
                 ]
             },
             "Unsubscribe": {
@@ -48145,6 +48666,29 @@
                 },
                 "required": [
                     "detail"
+                ]
+            },
+            "ZeroResultQuery": {
+                "type": "object",
+                "description": "Serializer for zero-result query analytics.",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The search query text that returned no results"
+                    },
+                    "count": {
+                        "type": "integer",
+                        "description": "Number of times this query returned zero results"
+                    },
+                    "languageCode": {
+                        "type": "string",
+                        "description": "Language code for the query"
+                    }
+                },
+                "required": [
+                    "count",
+                    "languageCode",
+                    "query"
                 ]
             }
         },

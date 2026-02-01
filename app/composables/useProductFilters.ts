@@ -87,8 +87,8 @@ export function useProductFilters() {
       }
     }
 
-    if (updates.priceMin !== undefined) {
-      if (updates.priceMin) {
+    if ('priceMin' in updates) {
+      if (updates.priceMin !== undefined && updates.priceMin !== null) {
         newQuery.priceMin = updates.priceMin.toString()
       }
       else {
@@ -96,8 +96,8 @@ export function useProductFilters() {
       }
     }
 
-    if (updates.priceMax !== undefined) {
-      if (updates.priceMax) {
+    if ('priceMax' in updates) {
+      if (updates.priceMax !== undefined && updates.priceMax !== null) {
         newQuery.priceMax = updates.priceMax.toString()
       }
       else {
@@ -105,8 +105,8 @@ export function useProductFilters() {
       }
     }
 
-    if (updates.likesMin !== undefined) {
-      if (updates.likesMin) {
+    if ('likesMin' in updates) {
+      if (updates.likesMin !== undefined && updates.likesMin !== null) {
         newQuery.likesMin = updates.likesMin.toString()
       }
       else {
@@ -114,8 +114,8 @@ export function useProductFilters() {
       }
     }
 
-    if (updates.viewsMin !== undefined) {
-      if (updates.viewsMin) {
+    if ('viewsMin' in updates) {
+      if (updates.viewsMin !== undefined && updates.viewsMin !== null) {
         newQuery.viewsMin = updates.viewsMin.toString()
       }
       else {
@@ -270,6 +270,18 @@ export function useProductFilters() {
    */
   const hasActiveFilters = computed(() => activeFilterCount.value > 0)
 
+  /**
+   * Count of active filters per section
+   * Used to display badges on filter section headers
+   */
+  const filterCountBySection = computed(() => ({
+    search: filters.value.search ? 1 : 0,
+    price: (filters.value.priceMin !== undefined || filters.value.priceMax !== undefined) ? 1 : 0,
+    popularity: filters.value.likesMin !== undefined ? 1 : 0,
+    viewCount: filters.value.viewsMin !== undefined ? 1 : 0,
+    categories: filters.value.categories.length,
+  }))
+
   return {
     filters,
     updateFilters,
@@ -278,5 +290,6 @@ export function useProductFilters() {
     activeFilterCount,
     activeFilterChips,
     hasActiveFilters,
+    filterCountBySection,
   }
 }

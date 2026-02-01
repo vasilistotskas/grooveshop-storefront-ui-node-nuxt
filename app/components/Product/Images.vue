@@ -211,3 +211,23 @@ el:
   selectImage: Επιλογή εικόνας {number}
   doubleTapHint: Διπλό πάτημα στη μικρογραφία για πλήρη οθόνη
 </i18n>
+
+<style scoped>
+/**
+ * Reduced motion support for Product Images
+ * Disables animations and transitions for users who prefer reduced motion
+ */
+@media (prefers-reduced-motion: reduce) {
+  :deep(.transition-all),
+  :deep(.transition-transform),
+  :deep(.transition-colors),
+  :deep(.transition-opacity) {
+    transition: none;
+  }
+
+  /* Disable hover effects */
+  :deep(.group:hover) {
+    transform: none;
+  }
+}
+</style>

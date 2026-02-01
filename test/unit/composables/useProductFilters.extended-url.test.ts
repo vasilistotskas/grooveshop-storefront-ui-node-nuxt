@@ -34,7 +34,7 @@ describe('Feature: meilisearch-product-filters - Extended URL State Tests', () =
 
     it('should handle URL-safe encoding for filter values', () => {
       const testCases = [
-        { input: 'test+product', expected: 'test+product' },
+        { input: 'test+product', expected: 'test%2Bproduct' }, // + is encoded as %2B
         { input: 'test product', expected: 'test%20product' },
         { input: 'test/product', expected: 'test%2Fproduct' },
       ]

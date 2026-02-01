@@ -141,3 +141,27 @@ el:
   all: Όλες
   see_all: Δές τες όλες
 </i18n>
+
+<style scoped>
+/**
+ * Reduced motion support for Product Categories Slider
+ * Disables animations and transitions for users who prefer reduced motion
+ */
+@media (prefers-reduced-motion: reduce) {
+  :deep(.transition-all),
+  :deep(.transition-transform),
+  :deep(.transition-colors) {
+    transition: none;
+  }
+
+  /* Disable hover scale effects */
+  .group:hover {
+    transform: none;
+    scale: 1;
+  }
+
+  :deep(.group:hover) {
+    transform: none;
+  }
+}
+</style>

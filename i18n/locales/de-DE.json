@@ -138,13 +138,22 @@
     "price": "Preis",
     "price_min": "Mindestpreis",
     "price_max": "Höchstpreis",
+    "minimum_price": "Mindestpreis",
+    "maximum_price": "Höchstpreis",
+    "selected_range": "Ausgewählter Bereich",
+    "min_placeholder": "Min",
+    "max_placeholder": "Max",
     "popularity": "Beliebtheit",
     "view_count": "Aufrufe",
     "min_likes": "Mindestens {count} Likes",
     "min_views": "Mindestens {count} Aufrufe",
     "search": "Suche",
     "sort": "Sortieren",
-    "remove_filter": "{filter}-Filter entfernen"
+    "remove_filter": "{filter}-Filter entfernen",
+    "price_range": "Preisspanne",
+    "price_range_value": "€{min} - €{max}",
+    "popularity_slider": "Mindestbeliebtheit",
+    "view_count_slider": "Mindestaufrufe"
   },
   "sort": {
     "default": "Standard",
@@ -154,13 +163,24 @@
     "most_viewed": "Meistgesehen",
     "newest": "Neueste"
   },
+  "pagination": {
+    "page_info": "Seite {current} von {total}",
+    "navigation": "Produktseiten-Navigation"
+  },
   "products": {
-    "results_count": "{count} Produkte",
+    "results_count": "keine Produkte | {count} Produkt | {count} Produkte",
     "per_page": "Pro Seite",
+    "count": "{count} Produkte",
     "no_results": {
       "title": "Keine Produkte gefunden",
       "description": "Versuchen Sie, Ihre Filter anzupassen",
-      "clear_filters": "Filter löschen"
+      "clear_filters": "Filter löschen",
+      "no_filters": "Wir konnten keine Produkte finden. Bitte schauen Sie später noch einmal vorbei oder durchsuchen Sie unsere Kategorien.",
+      "try_different_search": "Versuchen Sie andere Suchbegriffe oder überprüfen Sie Ihre Rechtschreibung.",
+      "try_broader_price": "Versuchen Sie, Ihre Preisspanne anzupassen, um mehr Produkte zu sehen.",
+      "try_different_category": "Versuchen Sie, andere Kategorien auszuwählen oder Kategoriefilter zu entfernen.",
+      "try_lower_popularity": "Versuchen Sie, die Mindestpopularität zu senken.",
+      "try_lower_views": "Versuchen Sie, die Mindestanzahl der Aufrufe zu senken."
     }
   },
   "categories": "Kategorien",

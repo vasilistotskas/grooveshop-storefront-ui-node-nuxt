@@ -79,8 +79,9 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
   <UCard
     as="li"
     class="
-      group relative h-full w-full max-w-full transition-all duration-300
-      hover:shadow-xl
+      product-card group relative h-full w-full max-w-full transition-all duration-300
+      hover:shadow-xl hover:scale-[1.02]
+      focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2
     "
     :ui="{
       root: 'w-full max-w-full',
@@ -93,10 +94,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
     <div
       class="
         relative overflow-hidden bg-white
-        dark:bg-primary-800
+        dark:bg-neutral-800
       "
     >
-      <div class="absolute top-3 left-3 z-10 flex flex-col gap-2">
+      <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
         <UBadge
           v-if="product.discountPercent && product.discountPercent > 0"
           color="error"
@@ -126,7 +127,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         </UBadge>
       </div>
 
-      <div class="absolute top-3 right-3 z-10 flex gap-2">
+      <div class="absolute top-4 right-4 z-10 flex gap-2">
         <ClientOnly>
           <UButton
             v-if="isSupported && showShareButton"
@@ -156,10 +157,10 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 
       <NuxtLink
         :to="{ path: productUrl(product.id, product.slug) }"
-        :aria-label="alt"
+        :aria-label="`${t('view_product')}: ${alt}`"
         class="block"
       >
-        <div class="aspect-square max-w-full overflow-hidden">
+        <div class="aspect-4/3 max-w-full overflow-hidden">
           <ImgWithFallback
             :loading="imgLoading"
             class="size-full max-w-full bg-white object-contain"
@@ -176,18 +177,18 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       </NuxtLink>
     </div>
 
-    <div class="flex flex-col gap-3 p-4">
+    <div class="flex flex-col gap-4 p-6">
       <NuxtLink
         :to="{ path: productUrl(product.id, product.slug) }"
         class="group/link"
+        :aria-label="`${t('view_product')}: ${'name' in product && typeof product.name === 'string' ? product.name : extractTranslated(product, 'name', locale)}`"
       >
         <h3
           class="
-            line-clamp-2 text-base leading-tight font-bold text-primary-950
+            line-clamp-2 text-lg leading-snug font-bold text-neutral-950 min-h-14
             transition-colors
             group-hover/link:text-primary-600
-            md:text-lg
-            dark:text-primary-50 dark:group-hover/link:text-primary-400
+            dark:text-neutral-50 dark:group-hover/link:text-primary-400
           "
         >
           {{ 'name' in product && typeof product.name === 'string' ? product.name : extractTranslated(product, 'name', locale) }}
@@ -197,8 +198,8 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       <p
         v-if="showDescription"
         class="
-          line-clamp-2 min-h-10 text-sm leading-relaxed text-primary-700
-          dark:text-primary-300
+          line-clamp-2 min-h-10 text-sm leading-relaxed text-neutral-700
+          dark:text-neutral-300
         "
       >
         {{
@@ -227,8 +228,8 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         </div>
         <span
           class="
-            flex items-center gap-1 text-sm text-primary-700
-            dark:text-primary-300
+            flex items-center gap-1 text-sm text-neutral-700
+            dark:text-neutral-300
           "
         >
           {{ product.reviewAverage.toFixed(1) }}
@@ -245,8 +246,8 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         >
           <span
             class="
-              text-sm text-primary-600 line-through
-              dark:text-primary-400
+              text-sm text-neutral-500 line-through
+              dark:text-neutral-400
             "
           >
             {{ $i18n.n(product.price, 'currency') }}
@@ -254,19 +255,19 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         </div>
 
         <div class="flex items-baseline justify-between">
-          <div class="flex flex-col">
+          <div class="flex flex-col gap-1">
             <span
               class="
-                text-xs text-primary-600
-                dark:text-primary-400
+                text-xs text-neutral-600
+                dark:text-neutral-400
               "
             >
               {{ t('total_price') }}
             </span>
             <span
               class="
-                text-2xl font-bold text-primary-950
-                dark:text-primary-50
+                text-2xl font-bold text-neutral-950
+                dark:text-neutral-50
               "
             >
               {{ $i18n.n(product.finalPrice, 'currency') }}
@@ -275,8 +276,8 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           <span
             v-if="showVat && product.vatPercent"
             class="
-              text-xs text-primary-600
-              dark:text-primary-400
+              text-xs text-neutral-600
+              dark:text-neutral-400
             "
           >
             {{ t('vat_included') }} {{ product.vatPercent }}%
@@ -308,4 +309,28 @@ el:
   add_to_cart: Αγορά
   out_of_stock: Εξαντλημένο
   low_stock: Τελευταία κομμάτια
+  view_product: Προβολή προϊόντος
 </i18n>
+
+<style scoped>
+/**
+ * Reduced motion support for Product Card
+ * Disables animations and transitions for users who prefer reduced motion
+ */
+@media (prefers-reduced-motion: reduce) {
+  .product-card {
+    transition: none;
+  }
+
+  .product-card:hover {
+    transform: none;
+    scale: 1;
+  }
+
+  :deep(.transition-all),
+  :deep(.transition-colors),
+  :deep(.transition-transform) {
+    transition: none;
+  }
+}
+</style>

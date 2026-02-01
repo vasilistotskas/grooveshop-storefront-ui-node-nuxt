@@ -1,11 +1,21 @@
 <script setup lang="ts">
+/**
+ * Search Input Component
+ *
+ * Debounced search input for filtering products by text query.
+ * Syncs with URL parameters for shareable search results.
+ *
+ * @component
+ */
+
+const { t } = useI18n()
 const { filters, updateFilters } = useProductFilters()
 const localSearch = ref(filters.value.search)
 
-// Debounced update to URL (500ms)
+// Debounced update to URL (300ms)
 const debouncedUpdate = useDebounceFn((value: string) => {
   updateFilters({ search: value })
-}, 500)
+}, 300)
 
 // Watch local changes and debounce updates
 watch(localSearch, (newValue) => {
@@ -29,19 +39,38 @@ const clearSearch = () => {
   <UInput
     v-model="localSearch"
     icon="i-heroicons-magnifying-glass"
-    :placeholder="$t('search.products')"
+    :placeholder="t('placeholder')"
     size="md"
-    :aria-label="$t('search.products')"
+    :aria-label="t('aria_label')"
     role="searchbox"
+    :ui="{
+      root: 'w-full',
+    }"
   >
     <template v-if="localSearch" #trailing>
       <UButton
         icon="i-heroicons-x-mark"
         variant="ghost"
-        size="xs"
-        :aria-label="$t('filters.clear')"
+        size="sm"
+        color="neutral"
+        :aria-label="t('clear')"
         @click="clearSearch"
       />
     </template>
   </UInput>
 </template>
+
+<i18n lang="yaml">
+el:
+  placeholder: Αναζήτηση προϊόντων...
+  aria_label: Αναζήτηση προϊόντων
+  clear: Καθαρισμός αναζήτησης
+en:
+  placeholder: Search products...
+  aria_label: Search products
+  clear: Clear search
+de:
+  placeholder: Produkte suchen...
+  aria_label: Produkte suchen
+  clear: Suche löschen
+</i18n>

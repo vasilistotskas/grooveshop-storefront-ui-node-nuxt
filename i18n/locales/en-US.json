@@ -138,13 +138,22 @@
     "price": "Price",
     "price_min": "Minimum price",
     "price_max": "Maximum price",
+    "minimum_price": "Minimum Price",
+    "maximum_price": "Maximum Price",
+    "selected_range": "Selected Range",
+    "min_placeholder": "Min",
+    "max_placeholder": "Max",
     "popularity": "Popularity",
     "view_count": "Views",
     "min_likes": "At least {count} likes",
     "min_views": "At least {count} views",
     "search": "Search",
     "sort": "Sort",
-    "remove_filter": "Remove {filter} filter"
+    "remove_filter": "Remove {filter} filter",
+    "price_range": "Price Range",
+    "price_range_value": "€{min} - €{max}",
+    "popularity_slider": "Minimum Popularity",
+    "view_count_slider": "Minimum Views"
   },
   "sort": {
     "default": "Default",
@@ -154,13 +163,24 @@
     "most_viewed": "Most Viewed",
     "newest": "Newest"
   },
+  "pagination": {
+    "page_info": "Page {current} of {total}",
+    "navigation": "Product pages navigation"
+  },
   "products": {
-    "results_count": "{count} products",
+    "results_count": "no products | {count} product | {count} products",
     "per_page": "Per page",
+    "count": "{count} products",
     "no_results": {
       "title": "No products found",
       "description": "Try adjusting your filters",
-      "clear_filters": "Clear filters"
+      "clear_filters": "Clear filters",
+      "no_filters": "We couldn't find any products. Please check back later or browse our categories.",
+      "try_different_search": "Try using different search terms or check your spelling.",
+      "try_broader_price": "Try adjusting your price range to see more products.",
+      "try_different_category": "Try selecting different categories or remove category filters.",
+      "try_lower_popularity": "Try lowering the minimum popularity threshold.",
+      "try_lower_views": "Try lowering the minimum view count threshold."
     }
   },
   "categories": "Categories",

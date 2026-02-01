@@ -710,6 +710,20 @@ export const zCreatePaymentIntentResponse = z.object({
     ]))
 });
 
+/**
+ * Serializer for date range in analytics.
+ */
+export const zDateRange = z.object({
+    start: z.string().register(z.globalRegistry, {
+        description: 'Start date of the analytics range (ISO format or \'all\')'
+    }),
+    end: z.string().register(z.globalRegistry, {
+        description: 'End date of the analytics range (ISO format or \'now\')'
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer for date range in analytics.'
+});
+
 export const zDetailRequest = z.object({
     detail: z.string().min(1)
 });
@@ -757,6 +771,97 @@ export const zFacetStats = z.object({
     viewCount: z.optional(zFacetStatsItem)
 }).register(z.globalRegistry, {
     description: 'Serializer for facet statistics (numeric facets).'
+});
+
+/**
+ * Serializer for federation metadata from Meilisearch.
+ */
+export const zFederationMetadata = z.object({
+    indexUid: z.string().register(z.globalRegistry, {
+        description: 'Index UID where the result originated'
+    }),
+    queriesPosition: z.int().register(z.globalRegistry, {
+        description: 'Position of the query in the multi_search request'
+    }),
+    weightedRankingScore: z.number().register(z.globalRegistry, {
+        description: 'Ranking score after applying federation weight'
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer for federation metadata from Meilisearch.'
+});
+
+/**
+ * Serializer for individual federated search result.
+ *
+ * This combines fields from both ProductTranslation and BlogPostTranslation
+ * with federation metadata.
+ */
+export const zFederatedSearchResult = z.object({
+    id: z.int(),
+    languageCode: z.string(),
+    contentType: z.string().register(z.globalRegistry, {
+        description: 'Type of content: \'product\' or \'blog_post\''
+    }),
+    slug: z.optional(z.string()),
+    mainImagePath: z.optional(z.string()),
+    matchesPosition: z.unknown(),
+    rankingScore: z.union([
+        z.number(),
+        z.null()
+    ]),
+    formatted: z.unknown(),
+    name: z.optional(z.string()),
+    description: z.optional(z.string()),
+    finalPrice: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    price: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    discountPercent: z.optional(z.union([
+        z.int(),
+        z.null()
+    ])),
+    stock: z.optional(z.int()),
+    likesCount: z.optional(z.int()),
+    viewCount: z.optional(z.int()),
+    reviewAverage: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    vatPercent: z.optional(z.union([
+        z.number(),
+        z.null()
+    ])),
+    title: z.optional(z.string()),
+    subtitle: z.optional(z.string()),
+    body: z.optional(z.string()),
+    master: z.optional(z.int()),
+    Federation: zFederationMetadata
+}).register(z.globalRegistry, {
+    description: 'Serializer for individual federated search result.\n\nThis combines fields from both ProductTranslation and BlogPostTranslation\nwith federation metadata.'
+});
+
+/**
+ * Serializer for federated search response.
+ */
+export const zFederatedSearchResponse = z.object({
+    limit: z.int().register(z.globalRegistry, {
+        description: 'Maximum number of results requested'
+    }),
+    offset: z.int().register(z.globalRegistry, {
+        description: 'Number of results skipped'
+    }),
+    estimatedTotalHits: z.int().register(z.globalRegistry, {
+        description: 'Estimated total number of matching documents across all indexes'
+    }),
+    results: z.array(zFederatedSearchResult).register(z.globalRegistry, {
+        description: 'Unified search results from products and blog posts'
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer for federated search response.'
 });
 
 /**
@@ -1986,6 +2091,20 @@ export const zPaymentStatusEnum = z.enum([
     'CANCELED'
 ]).register(z.globalRegistry, {
     description: '* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled'
+});
+
+/**
+ * Serializer for search performance metrics.
+ */
+export const zPerformanceMetrics = z.object({
+    avgProcessingTimeMs: z.number().register(z.globalRegistry, {
+        description: 'Average search processing time in milliseconds'
+    }),
+    avgResultsCount: z.number().register(z.globalRegistry, {
+        description: 'Average number of results returned per search'
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer for search performance metrics.'
 });
 
 /**
@@ -3311,6 +3430,23 @@ export const zProductReviewWriteRequest = z.object({
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
+/**
+ * Serializer for search volume metrics.
+ */
+export const zSearchVolume = z.object({
+    total: z.int().register(z.globalRegistry, {
+        description: 'Total number of searches in the date range'
+    }),
+    byContentType: z.record(z.string(), z.int()).register(z.globalRegistry, {
+        description: 'Search volume breakdown by content type (product, blog_post, federated)'
+    }),
+    byLanguage: z.record(z.string(), z.int()).register(z.globalRegistry, {
+        description: 'Search volume breakdown by language code'
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer for search volume metrics.'
+});
+
 export const zSetting = z.object({
     name: z.string(),
     value: z.string(),
@@ -3682,6 +3818,26 @@ export const zTaggedItemDetail = z.object({
 export const zTaggedItemWriteRequest = z.object({
     contentType: z.int(),
     objectId: z.int().gte(0).lte(2147483647)
+});
+
+/**
+ * Serializer for top query analytics.
+ */
+export const zTopQuery = z.object({
+    query: z.string().register(z.globalRegistry, {
+        description: 'The search query text'
+    }),
+    count: z.int().register(z.globalRegistry, {
+        description: 'Number of times this query was searched'
+    }),
+    avgResults: z.number().register(z.globalRegistry, {
+        description: 'Average number of results returned for this query'
+    }),
+    clickThroughRate: z.number().register(z.globalRegistry, {
+        description: 'Click-through rate (clicks / searches) for this query'
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer for top query analytics.'
 });
 
 export const zUnsubscribe = z.object({
@@ -4363,6 +4519,43 @@ export const zUsernameUpdateResponse = z.object({
     detail: z.string().register(z.globalRegistry, {
         description: 'Success message for username update'
     })
+});
+
+/**
+ * Serializer for zero-result query analytics.
+ */
+export const zZeroResultQuery = z.object({
+    query: z.string().register(z.globalRegistry, {
+        description: 'The search query text that returned no results'
+    }),
+    count: z.int().register(z.globalRegistry, {
+        description: 'Number of times this query returned zero results'
+    }),
+    languageCode: z.string().register(z.globalRegistry, {
+        description: 'Language code for the query'
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer for zero-result query analytics.'
+});
+
+/**
+ * Serializer for search analytics response.
+ */
+export const zSearchAnalyticsResponse = z.object({
+    dateRange: zDateRange,
+    topQueries: z.array(zTopQuery).register(z.globalRegistry, {
+        description: 'Top 20 queries by frequency with CTR metrics'
+    }),
+    zeroResultQueries: z.array(zZeroResultQuery).register(z.globalRegistry, {
+        description: 'Queries that returned zero results'
+    }),
+    searchVolume: zSearchVolume,
+    performance: zPerformanceMetrics,
+    clickThroughRate: z.number().register(z.globalRegistry, {
+        description: 'Overall click-through rate (total clicks / total searches)'
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer for search analytics response.'
 });
 
 /**
@@ -12393,6 +12586,12 @@ export const zListProductCategoryData = z.object({
             z.string().regex(/^-?\d+$/),
             z.int()
         ])),
+        id_In: z.optional(z.union([
+            z.string().register(z.globalRegistry, {
+                description: 'Comma-separated values'
+            }),
+            z.array(z.int())
+        ])),
         isLeaf: z.optional(z.union([
             z.literal('true'),
             z.literal('false'),
@@ -12619,6 +12818,19 @@ export const zUpdateProductCategoryData = z.object({
 });
 
 export const zUpdateProductCategoryResponse = zProductCategoryDetail;
+
+export const zListAllProductCategoryData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+/**
+ * Array of all product categories
+ */
+export const zListAllProductCategoryResponse = z.array(zProductCategory).register(z.globalRegistry, {
+    description: 'Array of all product categories'
+});
 
 export const zListProductCategoryImageData = z.object({
     body: z.optional(z.never()),
@@ -13786,6 +13998,24 @@ export const zListRegionsByCountryData = z.object({
 
 export const zListRegionsByCountryResponse = zPaginatedRegionList;
 
+export const zSearchAnalyticsRetrieveData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.object({
+        contentType: z.optional(z.string().register(z.globalRegistry, {
+            description: 'Filter by content type: \'product\', \'blog_post\', or \'federated\'. If not provided, includes all content types.'
+        })),
+        endDate: z.optional(z.string().register(z.globalRegistry, {
+            description: 'End date for analytics range (ISO format: YYYY-MM-DD). If not provided, includes data up to current date.'
+        })),
+        startDate: z.optional(z.string().register(z.globalRegistry, {
+            description: 'Start date for analytics range (ISO format: YYYY-MM-DD). If not provided, includes all historical data.'
+        }))
+    }))
+});
+
+export const zSearchAnalyticsRetrieveResponse = zSearchAnalyticsResponse;
+
 export const zSearchBlogPostRetrieveData = z.object({
     body: z.optional(z.never()),
     path: z.optional(z.never()),
@@ -13808,6 +14038,29 @@ export const zSearchBlogPostRetrieveData = z.object({
 });
 
 export const zSearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse;
+
+export const zSearchFederatedRetrieveData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.object({
+        languageCode: z.optional(z.string().register(z.globalRegistry, {
+            description: 'Language code to filter results (e.g., \'en\', \'el\', \'de\'). If not provided, searches all languages.'
+        })),
+        limit: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        offset: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        query: z.string().register(z.globalRegistry, {
+            description: 'Search query string'
+        })
+    })
+});
+
+export const zSearchFederatedRetrieveResponse = zFederatedSearchResponse;
 
 export const zSearchProductRetrieveData = z.object({
     body: z.optional(z.never()),

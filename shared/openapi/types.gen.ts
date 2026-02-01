@@ -1011,6 +1011,20 @@ export type CreatePaymentIntentResponse = {
     } | null;
 };
 
+/**
+ * Serializer for date range in analytics.
+ */
+export type DateRange = {
+    /**
+     * Start date of the analytics range (ISO format or 'all')
+     */
+    start: string;
+    /**
+     * End date of the analytics range (ISO format or 'now')
+     */
+    end: string;
+};
+
 export type DetailRequest = {
     detail: string;
 };
@@ -1045,6 +1059,86 @@ export type FacetStats = {
 export type FacetStatsItem = {
     min: number;
     max: number;
+};
+
+/**
+ * Serializer for federated search response.
+ */
+export type FederatedSearchResponse = {
+    /**
+     * Maximum number of results requested
+     */
+    limit: number;
+    /**
+     * Number of results skipped
+     */
+    offset: number;
+    /**
+     * Estimated total number of matching documents across all indexes
+     */
+    estimatedTotalHits: number;
+    /**
+     * Unified search results from products and blog posts
+     */
+    results: Array<FederatedSearchResult>;
+};
+
+/**
+ * Serializer for individual federated search result.
+ *
+ * This combines fields from both ProductTranslation and BlogPostTranslation
+ * with federation metadata.
+ */
+export type FederatedSearchResult = {
+    id: number;
+    languageCode: string;
+    /**
+     * Type of content: 'product' or 'blog_post'
+     */
+    contentType: string;
+    slug?: string;
+    mainImagePath?: string;
+    matchesPosition: unknown;
+    rankingScore: number | null;
+    formatted: unknown;
+    name?: string;
+    description?: string;
+    finalPrice?: number | null;
+    price?: number | null;
+    discountPercent?: number | null;
+    stock?: number;
+    likesCount?: number;
+    viewCount?: number;
+    reviewAverage?: number | null;
+    vatPercent?: number | null;
+    title?: string;
+    subtitle?: string;
+    body?: string;
+    master?: number;
+    /**
+     *  federation
+     *
+     * Federation metadata from Meilisearch
+     */
+    Federation: FederationMetadata;
+};
+
+/**
+ * Serializer for federation metadata from Meilisearch.
+ */
+export type FederationMetadata = {
+    /**
+     * Index UID where the result originated
+     */
+    indexUid: string;
+    /**
+     * Position of the query in the multi_search request
+     */
+    queriesPosition: number;
+    /**
+     * Ranking score after applying federation weight
+     */
+    weightedRankingScore: number;
 };
 
 /**
@@ -2603,6 +2697,20 @@ export type PayWayWriteRequest = {
 export type PaymentStatusEnum = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'REFUNDED' | 'PARTIALLY_REFUNDED' | 'CANCELED';
 
 /**
+ * Serializer for search performance metrics.
+ */
+export type PerformanceMetrics = {
+    /**
+     * Average search processing time in milliseconds
+     */
+    avgProcessingTimeMs: number;
+    /**
+     * Average number of results returned per search
+     */
+    avgResultsCount: number;
+};
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type Product = {
@@ -3468,6 +3576,58 @@ export type ReserveStockResponse = {
  */
 export type ReviewStatus = 'NEW' | 'TRUE' | 'FALSE';
 
+/**
+ * Serializer for search analytics response.
+ */
+export type SearchAnalyticsResponse = {
+    /**
+     * Date range for the analytics data
+     */
+    dateRange: DateRange;
+    /**
+     * Top 20 queries by frequency with CTR metrics
+     */
+    topQueries: Array<TopQuery>;
+    /**
+     * Queries that returned zero results
+     */
+    zeroResultQueries: Array<ZeroResultQuery>;
+    /**
+     * Search volume metrics by content type and language
+     */
+    searchVolume: SearchVolume;
+    /**
+     * Average performance metrics
+     */
+    performance: PerformanceMetrics;
+    /**
+     * Overall click-through rate (total clicks / total searches)
+     */
+    clickThroughRate: number;
+};
+
+/**
+ * Serializer for search volume metrics.
+ */
+export type SearchVolume = {
+    /**
+     * Total number of searches in the date range
+     */
+    total: number;
+    /**
+     * Search volume breakdown by content type (product, blog_post, federated)
+     */
+    byContentType: {
+        [key: string]: number;
+    };
+    /**
+     * Search volume breakdown by language code
+     */
+    byLanguage: {
+        [key: string]: number;
+    };
+};
+
 export type Setting = {
     name: string;
     value: string;
@@ -3834,6 +3994,28 @@ export type TaggedItemWriteRequest = {
     objectId: number;
 };
 
+/**
+ * Serializer for top query analytics.
+ */
+export type TopQuery = {
+    /**
+     * The search query text
+     */
+    query: string;
+    /**
+     * Number of times this query was searched
+     */
+    count: number;
+    /**
+     * Average number of results returned for this query
+     */
+    avgResults: number;
+    /**
+     * Click-through rate (clicks / searches) for this query
+     */
+    clickThroughRate: number;
+};
+
 export type Unsubscribe = {
     message: string;
     topic?: string;
@@ -4177,6 +4359,24 @@ export type UsernameUpdateResponse = {
      * Success message for username update
      */
     detail: string;
+};
+
+/**
+ * Serializer for zero-result query analytics.
+ */
+export type ZeroResultQuery = {
+    /**
+     * The search query text that returned no results
+     */
+    query: string;
+    /**
+     * Number of times this query returned zero results
+     */
+    count: number;
+    /**
+     * Language code for the query
+     */
+    languageCode: string;
 };
 
 /**
@@ -11889,6 +12089,10 @@ export type ListProductCategoryData = {
         hasProducts?: 'true' | 'false' | '1' | '0' | boolean;
         id?: string | number;
         /**
+         * Filter by multiple category IDs (comma-separated)
+         */
+        id_In?: string | Array<number>;
+        /**
          * Filter leaf categories (no children)
          */
         isLeaf?: 'true' | 'false' | '1' | '0' | boolean;
@@ -12089,6 +12293,22 @@ export type UpdateProductCategoryResponses = {
 };
 
 export type UpdateProductCategoryResponse = UpdateProductCategoryResponses[keyof UpdateProductCategoryResponses];
+
+export type ListAllProductCategoryData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/product/category/all';
+};
+
+export type ListAllProductCategoryResponses = {
+    /**
+     * Array of all product categories
+     */
+    200: Array<ProductCategory>;
+};
+
+export type ListAllProductCategoryResponse = ListAllProductCategoryResponses[keyof ListAllProductCategoryResponses];
 
 export type ListProductCategoryImageData = {
     body?: never;
@@ -13403,6 +13623,38 @@ export type ListRegionsByCountryResponses = {
 
 export type ListRegionsByCountryResponse = ListRegionsByCountryResponses[keyof ListRegionsByCountryResponses];
 
+export type SearchAnalyticsRetrieveData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Filter by content type: 'product', 'blog_post', or 'federated'. If not provided, includes all content types.
+         */
+        contentType?: string;
+        /**
+         * End date for analytics range (ISO format: YYYY-MM-DD). If not provided, includes data up to current date.
+         */
+        endDate?: string;
+        /**
+         * Start date for analytics range (ISO format: YYYY-MM-DD). If not provided, includes all historical data.
+         */
+        startDate?: string;
+    };
+    url: '/api/v1/search/analytics';
+};
+
+export type SearchAnalyticsRetrieveErrors = {
+    400: ErrorResponse;
+};
+
+export type SearchAnalyticsRetrieveError = SearchAnalyticsRetrieveErrors[keyof SearchAnalyticsRetrieveErrors];
+
+export type SearchAnalyticsRetrieveResponses = {
+    200: SearchAnalyticsResponse;
+};
+
+export type SearchAnalyticsRetrieveResponse = SearchAnalyticsRetrieveResponses[keyof SearchAnalyticsRetrieveResponses];
+
 export type SearchBlogPostRetrieveData = {
     body?: never;
     path?: never;
@@ -13438,6 +13690,42 @@ export type SearchBlogPostRetrieveResponses = {
 };
 
 export type SearchBlogPostRetrieveResponse = SearchBlogPostRetrieveResponses[keyof SearchBlogPostRetrieveResponses];
+
+export type SearchFederatedRetrieveData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages.
+         */
+        languageCode?: string;
+        /**
+         * Maximum total number of results to return
+         */
+        limit?: string | number;
+        /**
+         * Number of results to skip
+         */
+        offset?: string | number;
+        /**
+         * Search query string
+         */
+        query: string;
+    };
+    url: '/api/v1/search/federated';
+};
+
+export type SearchFederatedRetrieveErrors = {
+    400: ErrorResponse;
+};
+
+export type SearchFederatedRetrieveError = SearchFederatedRetrieveErrors[keyof SearchFederatedRetrieveErrors];
+
+export type SearchFederatedRetrieveResponses = {
+    200: FederatedSearchResponse;
+};
+
+export type SearchFederatedRetrieveResponse = SearchFederatedRetrieveResponses[keyof SearchFederatedRetrieveResponses];
 
 export type SearchProductRetrieveData = {
     body?: never;

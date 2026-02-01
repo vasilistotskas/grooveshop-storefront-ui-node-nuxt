@@ -87,6 +87,7 @@ const addToCartEvent = async () => {
     :color="disabled ? 'warning' : 'success'"
     variant="subtle"
     :disabled="disabled"
+    :aria-label="disabled ? t('unavailable') : text"
     :ui="{
       base: 'w-full place-content-center place-items-center',
     }"

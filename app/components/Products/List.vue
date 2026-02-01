@@ -1,12 +1,63 @@
 <script lang="ts" setup>
 const route = useRoute()
-const { locale } = useI18n()
+const { $i18n } = useNuxtApp()
+const locale = computed(() => $i18n.locale.value)
 const { loggedIn, user } = useUserSession()
 const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
-const { filters } = useProductFilters()
+const { filters, hasActiveFilters, activeFilterCount, updateFilters } = useProductFilters()
+const { isMobile } = useDevice()
 
-const limit = ref(20)
+// Ref to the product grid container for scroll-to-top functionality
+const productGridRef = ref<HTMLElement | null>(null)
+
+// Track scroll position for preservation on sort/view density changes
+const savedScrollPosition = ref<number | null>(null)
+const shouldPreserveScroll = ref(false)
+
+/**
+ * Generate contextual empty state message based on active filters
+ * Provides specific suggestions to help users find products
+ */
+const emptyStateDescription = computed(() => {
+  // No filters active - generic message
+  if (!hasActiveFilters.value) {
+    return $i18n.t('products.no_results.no_filters')
+  }
+
+  // Build contextual suggestions based on active filters
+  const suggestions: string[] = []
+
+  if (filters.value.search) {
+    suggestions.push($i18n.t('products.no_results.try_different_search'))
+  }
+
+  if (filters.value.priceMin !== undefined || filters.value.priceMax !== undefined) {
+    suggestions.push($i18n.t('products.no_results.try_broader_price'))
+  }
+
+  if (filters.value.categories.length > 0) {
+    suggestions.push($i18n.t('products.no_results.try_different_category'))
+  }
+
+  if (filters.value.likesMin !== undefined) {
+    suggestions.push($i18n.t('products.no_results.try_lower_popularity'))
+  }
+
+  if (filters.value.viewsMin !== undefined) {
+    suggestions.push($i18n.t('products.no_results.try_lower_views'))
+  }
+
+  // Return first suggestion or generic message
+  if (suggestions.length > 0) {
+    return suggestions[0]
+  }
+
+  return $i18n.t('products.no_results.description')
+})
+
+// Default items per page - matches Toolbar default
+const limit = ref(12)
 const page = ref(1)
 const offset = computed(() => (page.value - 1) * limit.value)
 
@@ -43,6 +94,21 @@ const handlePageChange = (newPage: number) => {
     replace: true, // Use replace to avoid cluttering history
   })
 }
+
+// Scroll to top of product grid when page changes (unless preserving scroll)
+watch(page, () => {
+  if (shouldPreserveScroll.value) {
+    // Don't scroll on page changes when preserving scroll position
+    return
+  }
+
+  if (productGridRef.value) {
+    productGridRef.value.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }
+})
 
 // Fetch products with filters
 const {
@@ -81,7 +147,65 @@ const shouldFetchFavouriteProducts = computed(() => {
 const totalResults = computed(() => products.value?.estimatedTotalHits || 0)
 const totalPages = computed(() => Math.ceil(totalResults.value / limit.value))
 
-// Reset page to 1 when filters change (excluding page itself)
+// Emit event to toggle filters (for mobile drawer)
+const emit = defineEmits<{
+  'toggle-filters': []
+}>()
+
+// Handle sort changes from Toolbar
+const handleSortChange = (value: string) => {
+  // Save current scroll position before sort change
+  savedScrollPosition.value = window.scrollY
+  shouldPreserveScroll.value = true
+
+  updateFilters({ sort: value })
+
+  // Restore scroll position after DOM updates (with small delta allowed)
+  nextTick(() => {
+    if (savedScrollPosition.value !== null) {
+      // Allow up to 100px delta as per requirements
+      const targetScroll = Math.max(0, savedScrollPosition.value)
+      window.scrollTo({
+        top: targetScroll,
+        behavior: 'instant', // Use instant to avoid jarring animation
+      })
+
+      // Reset flags after restoration
+      savedScrollPosition.value = null
+      shouldPreserveScroll.value = false
+    }
+  })
+}
+
+// Handle items per page changes from Toolbar
+const handleItemsPerPageChange = (value: number) => {
+  // Save current scroll position before view density change
+  savedScrollPosition.value = window.scrollY
+  shouldPreserveScroll.value = true
+
+  limit.value = value
+  // Reset to page 1 when changing items per page
+  handlePageChange(1)
+
+  // Restore scroll position after DOM updates (with small delta allowed)
+  nextTick(() => {
+    if (savedScrollPosition.value !== null) {
+      // Allow up to 100px delta as per requirements
+      const targetScroll = Math.max(0, savedScrollPosition.value)
+      window.scrollTo({
+        top: targetScroll,
+        behavior: 'instant', // Use instant to avoid jarring animation
+      })
+
+      // Reset flags after restoration
+      savedScrollPosition.value = null
+      shouldPreserveScroll.value = false
+    }
+  })
+}
+
+// Reset page to 1 when filters change (excluding page and sort)
+// Sort changes should preserve scroll position, not reset page
 // Use a ref to track previous filter values for accurate comparison
 const previousFilters = ref<string | null>(null)
 
@@ -93,7 +217,7 @@ watch(
     likesMin: filters.value.likesMin,
     viewsMin: filters.value.viewsMin,
     categories: filters.value.categories.join(','), // Convert to string for proper comparison
-    sort: filters.value.sort,
+    // Note: sort is intentionally excluded - sort changes preserve scroll position
   }),
   (newFilters) => {
     const newFiltersStr = JSON.stringify(newFilters)
@@ -141,67 +265,66 @@ if (shouldFetchFavouriteProducts.value) {
 </script>
 
 <template>
-  <div class="flex w-full flex-col gap-4">
-    <!-- Results count and sort -->
-    <div class="flex items-center justify-between flex-wrap gap-2">
-      <span class="text-sm text-gray-600 dark:text-gray-400">
-        {{ $t('products.results_count', { count: totalResults }) }}
-      </span>
-      <div class="flex items-center gap-2">
-        <ProductsFiltersSortSelect />
-      </div>
-    </div>
+  <div
+    ref="productGridRef"
+    class="flex w-full flex-col gap-6"
+  >
+    <!-- Toolbar with sort, view options, and filter toggle -->
+    <ProductsToolbar
+      :total-results="totalResults"
+      :current-sort="filters.sort"
+      :items-per-page="limit"
+      :has-active-filters="hasActiveFilters"
+      :active-filter-count="activeFilterCount"
+      @update:sort="handleSortChange"
+      @update:items-per-page="handleItemsPerPageChange"
+      @toggle-filters="emit('toggle-filters')"
+    />
 
     <!-- Loading state -->
-    <div
+    <ol
       v-if="status === 'pending' && !products"
       class="
         grid grid-cols-1 items-center justify-center gap-4
         sm:grid-cols-2
-        md:grid-cols-3
-        lg:grid-cols-3
+        lg:grid-cols-3 lg:gap-6
         xl:grid-cols-4
       "
     >
-      <USkeleton
-        v-for="i in 8"
+      <ProductCardSkeleton
+        v-for="i in limit"
         :key="i"
-        class="h-[457px] w-full"
       />
-    </div>
+    </ol>
 
     <!-- Empty state -->
-    <div v-else-if="!products?.results?.length">
-      <UCard>
-        <div class="text-center py-12">
-          <UIcon
-            name="i-heroicons-magnifying-glass-minus"
-            class="mx-auto size-16 text-gray-300 dark:text-gray-600"
-          />
-          <h3 class="mt-4 text-lg font-semibold">
-            {{ $t('products.no_results.title') }}
-          </h3>
-          <p class="mt-2 text-gray-600 dark:text-gray-400">
-            {{ $t('products.no_results.description') }}
-          </p>
-          <UButton
-            class="mt-6"
-            @click="() => useProductFilters().clearFilters()"
-          >
-            {{ $t('products.no_results.clear_filters') }}
-          </UButton>
-        </div>
-      </UCard>
-    </div>
+    <UEmpty
+      v-else-if="!products?.results?.length"
+      icon="i-heroicons-magnifying-glass-minus"
+      :title="$i18n.t('products.no_results.title')"
+      :description="emptyStateDescription"
+      :actions="hasActiveFilters ? [
+        {
+          label: $i18n.t('products.no_results.clear_filters'),
+          size: 'xl',
+          color: 'primary',
+          variant: 'solid',
+          leadingIcon: 'i-heroicons-arrow-path',
+          block: false,
+          onClick: () => useProductFilters().clearFilters(),
+        },
+      ] : undefined"
+    />
 
     <!-- Product grid -->
     <template v-else>
-      <ol
+      <TransitionGroup
+        name="product-fade"
+        tag="ol"
         class="
           grid grid-cols-1 items-center justify-center gap-4
           sm:grid-cols-2
-          md:grid-cols-3
-          lg:grid-cols-3
+          lg:grid-cols-3 lg:gap-6
           xl:grid-cols-4
         "
       >
@@ -211,37 +334,58 @@ if (shouldFetchFavouriteProducts.value) {
           :img-loading="index > 7 ? 'lazy' : 'eager'"
           :product="product as unknown as Product"
         />
-      </ol>
+      </TransitionGroup>
 
       <!-- Pagination -->
       <div
         v-if="totalPages > 1"
-        class="flex justify-center pt-6"
+        class="flex flex-col items-center gap-4 pt-8"
       >
+        <!-- Page info -->
+        <div class="text-sm text-gray-600 dark:text-gray-400">
+          {{ $i18n.t('pagination.page_info', { current: page, total: totalPages }) }}
+        </div>
+
+        <!-- Pagination controls -->
         <UPagination
           :page="page"
           :total="totalResults"
           :items-per-page="limit"
-          show-first
-          show-last
+          :show-first="!isMobile"
+          :show-last="!isMobile"
+          :size="isMobile ? 'lg' : 'md'"
+          color="neutral"
+          variant="outline"
+          active-color="primary"
+          active-variant="solid"
+          :sibling-count="isMobile ? 0 : 1"
+          :show-edges="false"
+          :aria-label="$i18n.t('pagination.navigation')"
           :ui="{
-            root: 'flex items-center gap-1',
+            root: 'flex items-center gap-2',
+            list: 'flex items-center gap-1.5',
+            item: `
+              min-h-[44px] min-w-[44px] transition-all duration-200
+              hover:scale-105
+            `,
+            first: `
+              min-h-[44px] min-w-[44px] transition-all duration-200
+              hover:scale-105
+            `,
+            prev: `
+              min-h-[44px] min-w-[44px] transition-all duration-200
+              hover:scale-105
+            `,
+            next: `
+              min-h-[44px] min-w-[44px] transition-all duration-200
+              hover:scale-105
+            `,
+            last: `
+              min-h-[44px] min-w-[44px] transition-all duration-200
+              hover:scale-105
+            `,
           }"
           @update:page="handlePageChange"
-        />
-      </div>
-
-      <!-- Items per page selector -->
-      <div class="flex items-center justify-center gap-2 text-sm">
-        <span class="text-gray-600 dark:text-gray-400">
-          {{ $t('products.per_page') }}
-        </span>
-        <USelectMenu
-          v-model="limit"
-          :options="[12, 20, 24, 48]"
-          size="sm"
-          class="w-20"
-          @update:model-value="() => handlePageChange(1)"
         />
       </div>
     </template>
@@ -253,7 +397,36 @@ if (shouldFetchFavouriteProducts.value) {
       aria-atomic="true"
       class="sr-only"
     >
-      {{ $t('products.results_count', { count: totalResults }) }}
+      {{ $i18n.t('products.results_count', { count: totalResults }) }}
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Fade-in animation for product cards */
+.product-fade-enter-active {
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.product-fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.product-fade-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .product-fade-enter-active {
+    transition: none;
+  }
+
+  .product-fade-enter-from {
+    opacity: 1;
+    transform: none;
+  }
+}
+</style>

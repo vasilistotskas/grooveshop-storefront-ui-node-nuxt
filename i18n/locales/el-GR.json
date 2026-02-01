@@ -138,13 +138,22 @@
     "price": "Τιμή",
     "price_min": "Ελάχιστη τιμή",
     "price_max": "Μέγιστη τιμή",
+    "minimum_price": "Ελάχιστη Τιμή",
+    "maximum_price": "Μέγιστη Τιμή",
+    "selected_range": "Επιλεγμένο Εύρος",
+    "min_placeholder": "Ελάχ.",
+    "max_placeholder": "Μέγ.",
     "popularity": "Δημοτικότητα",
     "view_count": "Προβολές",
     "min_likes": "Τουλάχιστον {count} likes",
     "min_views": "Τουλάχιστον {count} προβολές",
     "search": "Αναζήτηση",
     "sort": "Ταξινόμηση",
-    "remove_filter": "Αφαίρεση φίλτρου {filter}"
+    "remove_filter": "Αφαίρεση φίλτρου {filter}",
+    "price_range": "Εύρος Τιμών",
+    "price_range_value": "€{min} - €{max}",
+    "popularity_slider": "Ελάχιστη Δημοτικότητα",
+    "view_count_slider": "Ελάχιστες Προβολές"
   },
   "sort": {
     "default": "Προεπιλογή",
@@ -154,13 +163,24 @@
     "most_viewed": "Περισσότερες Προβολές",
     "newest": "Νεότερα"
   },
+  "pagination": {
+    "page_info": "Σελίδα {current} από {total}",
+    "navigation": "Πλοήγηση σελίδων προϊόντων"
+  },
   "products": {
-    "results_count": "{count} προϊόντα",
+    "results_count": "κανένα προϊόν | {count} προϊόν | {count} προϊόντα",
     "per_page": "Ανά σελίδα",
+    "count": "{count} προϊόντα",
     "no_results": {
       "title": "Δεν βρέθηκαν προϊόντα",
       "description": "Δοκιμάστε να αλλάξετε τα φίλτρα σας",
-      "clear_filters": "Καθαρισμός φίλτρων"
+      "clear_filters": "Καθαρισμός φίλτρων",
+      "no_filters": "Δεν μπορέσαμε να βρούμε προϊόντα. Παρακαλούμε ελέγξτε ξανά αργότερα ή περιηγηθείτε στις κατηγορίες μας.",
+      "try_different_search": "Δοκιμάστε διαφορετικούς όρους αναζήτησης ή ελέγξτε την ορθογραφία σας.",
+      "try_broader_price": "Δοκιμάστε να προσαρμόσετε το εύρος τιμών για να δείτε περισσότερα προϊόντα.",
+      "try_different_category": "Δοκιμάστε να επιλέξετε διαφορετικές κατηγορίες ή αφαιρέστε τα φίλτρα κατηγοριών.",
+      "try_lower_popularity": "Δοκιμάστε να μειώσετε το ελάχιστο όριο δημοτικότητας.",
+      "try_lower_views": "Δοκιμάστε να μειώσετε το ελάχιστο όριο προβολών."
     }
   },
   "categories": "Κατηγορίες",

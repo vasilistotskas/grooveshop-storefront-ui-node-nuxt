@@ -314,7 +314,6 @@ el:
   home: Αρχική
   shopping_cart: Καλάθι Αγορών
   items_in_cart: "{count} προϊόντα"
-  currency: €
   empty:
     title: Το καλάθι σου είναι άδειο
     description: Συνέχεια

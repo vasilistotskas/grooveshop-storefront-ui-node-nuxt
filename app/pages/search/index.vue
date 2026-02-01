@@ -233,17 +233,30 @@ useHead({
             </span>
           </div>
 
-          <UTabs
-            v-model="activeTab"
-            :items="tabItems"
-            color="neutral"
-          >
-            <template #default="{ item }">
-              <div class="flex cursor-pointer items-center gap-2">
-                <span>{{ item.label }}</span>
-              </div>
-            </template>
-          </UTabs>
+          <div class="flex items-center gap-4">
+            <UTabs
+              v-model="activeTab"
+              :items="tabItems"
+              color="neutral"
+            >
+              <template #default="{ item }">
+                <div class="flex cursor-pointer items-center gap-2">
+                  <span>{{ item.label }}</span>
+                </div>
+              </template>
+            </UTabs>
+
+            <UTooltip :text="t('page.federated_search_tooltip')">
+              <UButton
+                icon="i-heroicons-sparkles"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                :to="`/search/federated?q=${encodeURIComponent(query)}`"
+                :aria-label="t('page.federated_search')"
+              />
+            </UTooltip>
+          </div>
         </div>
       </UContainer>
     </div>
@@ -443,28 +456,30 @@ useHead({
 <i18n lang="yaml">
 el:
   page:
-    title: Αναζήτηση
-    search_query: Αναζήτηση {query}
-    search_placeholder: Πληκτρολογήστε για αναζήτηση...
+    title: "Αναζήτηση"
+    search_query: "Αναζήτηση {query}"
+    search_placeholder: "Πληκτρολογήστε για αναζήτηση..."
     results_count: "{count} αποτελέσματα για \"{query}\""
-    per_page: Ανά σελίδα
+    per_page: "Ανά σελίδα"
+    federated_search: "Ενοποιημένη Αναζήτηση"
+    federated_search_tooltip: "Δοκιμάστε ενοποιημένη αναζήτηση με σταθμισμένη κατάταξη"
     breadcrumb:
-      home: Αρχική
-      search: Αναζήτηση
+      home: "Αρχική"
+      search: "Αναζήτηση"
     tabs:
-      all: Όλα
-      products_label: Προϊόντα
-      blog_posts_label: Άρθρα
-      products: Προϊόντα ({count})
-      blog_posts: Άρθρα ({count})
+      all: "Όλα"
+      products_label: "Προϊόντα"
+      blog_posts_label: "Άρθρα"
+      products: "Προϊόντα ({count})"
+      blog_posts: "Άρθρα ({count})"
     empty:
-      title: Ξεκινήστε την αναζήτησή σας
-      description: Χρησιμοποιήστε το πεδίο αναζήτησης παραπάνω για να βρείτε προϊόντα και άρθρα που σας ενδιαφέρουν
+      title: "Ξεκινήστε την αναζήτησή σας"
+      description: "Χρησιμοποιήστε το πεδίο αναζήτησης παραπάνω για να βρείτε προϊόντα και άρθρα που σας ενδιαφέρουν"
     no_results:
-      title: Δεν βρέθηκαν αποτελέσματα
-      description: Δεν βρέθηκαν αποτελέσματα για "{query}". Δοκιμάστε διαφορετικούς όρους αναζήτησης
-      clear_search: Εκκαθάριση αναζήτησης
+      title: "Δεν βρέθηκαν αποτελέσματα"
+      description: "Δεν βρέθηκαν αποτελέσματα για \"{query}\". Δοκιμάστε διαφορετικούς όρους αναζήτησης"
+      clear_search: "Εκκαθάριση αναζήτησης"
     shortcuts:
-      focus_search: Εστίαση στην αναζήτηση
-      clear_search: Εκκαθάριση αναζήτησης
+      focus_search: "Εστίαση στην αναζήτηση"
+      clear_search: "Εκκαθάριση αναζήτησης"
 </i18n>
