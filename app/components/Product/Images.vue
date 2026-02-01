@@ -166,11 +166,11 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
         <ProductImage
           :key="item.id"
           :image="item"
-          :width="90"
-          :height="60"
+          :width="132"
+          :height="132"
           img-loading="lazy"
           :class="`
-            relative w-full rounded-md
+            relative w-full rounded-md object-cover
             ${selectedImageId === item.id ? `
               ring-1 ring-neutral-500 ring-offset-1
               dark:ring-neutral-100

@@ -76,7 +76,7 @@ const formattedTotal = computed(() => {
     <div class="flex flex-1 flex-col">
       <div
         class="
-          relative flex flex-col gap-2
+          md:relative flex flex-col gap-2
           sm:flex-row sm:justify-between sm:gap-0
         "
       >

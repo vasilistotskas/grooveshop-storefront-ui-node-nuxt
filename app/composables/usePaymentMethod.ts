@@ -11,7 +11,7 @@ export function usePaymentMethod() {
    */
   const getPaymentMethodName = (providerName?: string | null): string => {
     if (!providerName) {
-      return 'WTF'
+      return 'N/A'
     }
 
     // Map provider name to i18n key
