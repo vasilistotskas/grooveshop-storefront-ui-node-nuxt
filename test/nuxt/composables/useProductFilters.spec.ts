@@ -189,9 +189,10 @@ describe('Feature: meilisearch-product-filters - useProductFilters composable', 
     it('should remove priceMin from URL when set to null', async () => {
       mockRoute.value = { query: { priceMin: '100' } }
       const { updateFilters } = useProductFilters()
-      // The composable checks if (updates.priceMin) which is falsy for null/0
-      // So passing 0 will delete it
-      updateFilters({ priceMin: 0 })
+      // The composable uses `if (updates.priceMin)` which is falsy for undefined
+      // So we need to pass undefined to remove the filter, not 0
+      // 0 is a valid price value and will be kept
+      updateFilters({ priceMin: undefined })
       
       await nextTick()
       
@@ -379,10 +380,8 @@ describe('Feature: meilisearch-product-filters - useProductFilters composable', 
       
       await nextTick()
       
-      // Note: Due to implementation bug, removeFilter passes undefined which doesn't work
-      // The filter is NOT actually removed. This test documents the current behavior.
       expect(mockRouter.push).toHaveBeenCalledWith({
-        query: { priceMin: '100' },
+        query: {},
       })
     })
 
@@ -393,9 +392,8 @@ describe('Feature: meilisearch-product-filters - useProductFilters composable', 
       
       await nextTick()
       
-      // Note: Due to implementation bug, this doesn't actually remove the filter
       expect(mockRouter.push).toHaveBeenCalledWith({
-        query: { priceMax: '500' },
+        query: {},
       })
     })
 
@@ -406,9 +404,9 @@ describe('Feature: meilisearch-product-filters - useProductFilters composable', 
       
       await nextTick()
       
-      // Note: Due to implementation bug, this doesn't actually remove the filter
+      // Filter should be removed
       expect(mockRouter.push).toHaveBeenCalledWith({
-        query: { likesMin: '50' },
+        query: {},
       })
     })
 
@@ -419,9 +417,9 @@ describe('Feature: meilisearch-product-filters - useProductFilters composable', 
       
       await nextTick()
       
-      // Note: Due to implementation bug, this doesn't actually remove the filter
+      // Filter should be removed
       expect(mockRouter.push).toHaveBeenCalledWith({
-        query: { viewsMin: '100' },
+        query: {},
       })
     })
 
@@ -456,11 +454,10 @@ describe('Feature: meilisearch-product-filters - useProductFilters composable', 
       
       await nextTick()
       
-      // Note: Due to implementation bug, priceMin is not actually removed
+      // priceMin should be removed, others preserved
       expect(mockRouter.push).toHaveBeenCalledWith({
         query: {
           q: 'laptop',
-          priceMin: '100',
           priceMax: '500',
         },
       })
