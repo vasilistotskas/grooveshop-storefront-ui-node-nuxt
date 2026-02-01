@@ -1,3 +1,10 @@
+## [3.62.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.62.0...v3.62.1) (2026-02-01)
+
+
+### Bug Fixes
+
+* remove useless stuff ([f986137](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f9861374e9d122fa487a6dd9f0e33c7eae96800a))
+
 # [3.62.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.61.2...v3.62.0) (2026-02-01)
 
 
