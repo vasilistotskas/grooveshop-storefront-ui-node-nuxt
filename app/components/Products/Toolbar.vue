@@ -40,7 +40,7 @@ interface ToolbarEmits {
 // Define props with defaults
 const props = withDefaults(defineProps<ToolbarProps>(), {
   totalResults: 0,
-  currentSort: 'newest',
+  currentSort: '',
   itemsPerPage: 12,
   hasActiveFilters: false,
   activeFilterCount: 0,
@@ -59,6 +59,7 @@ const formattedCount = computed(() => {
 
 // Sort options for the dropdown - using component i18n translations
 const sortOptions = [
+  { label: t('sort.recommended'), value: 'recommended' },
   { label: t('sort.newest'), value: '-created_at' },
   { label: t('sort.priceAsc'), value: 'final_price' },
   { label: t('sort.priceDesc'), value: '-final_price' },
@@ -77,7 +78,8 @@ const itemsPerPageOptions = [
 // Handlers for user interactions
 const handleSortChange = (value: any) => {
   if (value && typeof value === 'string') {
-    emit('update:sort', value)
+    // Convert 'recommended' back to empty string for the URL
+    emit('update:sort', value === 'recommended' ? '' : value)
   }
 }
 
@@ -142,7 +144,7 @@ const handleToggleFilters = () => {
         </label>
         <USelect
           id="sort-select"
-          :model-value="currentSort"
+          :model-value="currentSort || 'recommended'"
           :items="sortOptions"
           class="min-w-[180px]"
           aria-label="Sort products"
@@ -178,6 +180,7 @@ el:
   show: 'Εμφάνιση'
   filters: 'Φίλτρα'
   sort:
+    recommended: 'Προτεινόμενα'
     newest: 'Νεότερα'
     priceAsc: 'Τιμή (Χαμηλή σε Υψηλή)'
     priceDesc: 'Τιμή (Υψηλή σε Χαμηλή)'

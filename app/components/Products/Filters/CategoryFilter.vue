@@ -20,15 +20,24 @@ const { allCategories, categoriesStatus, categoryFacets } = useProductSearchData
 // Selected categories from filters
 const selectedCategories = computed(() => filters.value.categories)
 
-// Filter categories based on search query and sort selected to top
+// Filter categories based on search query and sort by product count
 const filteredCategories = computed(() => {
   return allCategories.value
     ?.slice()
     .sort((a, b) => {
       const aIsSelected = selectedCategories.value.includes(a.id.toString())
       const bIsSelected = selectedCategories.value.includes(b.id.toString())
+
+      // Selected categories always come first
       if (aIsSelected && !bIsSelected) return -1
       if (!aIsSelected && bIsSelected) return 1
+
+      // Then sort by product count (descending)
+      const aCount = categoryFacets.value[a.id] ?? 0
+      const bCount = categoryFacets.value[b.id] ?? 0
+      if (aCount !== bCount) return bCount - aCount
+
+      // Finally, maintain tree order for categories with same count
       return 0
     })
     .filter((category) => {
