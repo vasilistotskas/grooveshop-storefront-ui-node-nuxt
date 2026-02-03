@@ -36,6 +36,16 @@ const { contentShorten } = useText()
 
 const { product } = toRefs(props)
 
+// Get the correct product ID for URLs and API calls
+// For search results (ProductMeiliSearchResult), use 'master' field
+// For regular Product objects, use 'id' field
+const productId = computed(() => {
+  if ('master' in product.value && typeof product.value.master === 'number') {
+    return product.value.master
+  }
+  return product.value.id
+})
+
 const alt = computed(() => {
   // Handle both Product (with translations) and ProductMeiliSearchResult (flat structure)
   if (product?.value) {
@@ -56,7 +66,7 @@ const shareOptions = reactive({
   text: 'description' in product.value && typeof product.value.description === 'string'
     ? product.value.description
     : extractTranslated(product.value, 'description', locale.value) || '',
-  url: import.meta.client ? productUrl(product.value.id, product.value.slug) : '',
+  url: import.meta.client ? productUrl(productId.value, product.value.slug) : '',
 })
 const { share, isSupported } = useShare(shareOptions)
 const startShare = async () => {
@@ -69,7 +79,7 @@ const startShare = async () => {
 }
 
 const favouriteId = computed(
-  () => getFavouriteIdByProductId(product.value.id),
+  () => getFavouriteIdByProductId(productId.value),
 )
 
 const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
@@ -81,7 +91,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
     class="
       product-card group relative h-full w-full max-w-full transition-all duration-300
       hover:shadow-xl hover:scale-[1.02]
-      focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2
+      focus-within:ring-1 focus-within:ring-primary focus-within:ring-offset-1
     "
     :ui="{
       root: 'w-full max-w-full',
@@ -147,7 +157,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         </ClientOnly>
         <LazyButtonProductAddToFavourite
           v-if="showAddToFavouriteButton"
-          :product-id="product.id"
+          :product-id="productId"
           :user-id="user?.id"
           :favourite-id="favouriteId"
           size="md"
@@ -156,7 +166,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       </div>
 
       <NuxtLink
-        :to="{ path: productUrl(product.id, product.slug) }"
+        :to="{ path: productUrl(productId, product.slug) }"
         :aria-label="`${t('view_product')}: ${alt}`"
         class="block"
       >
@@ -177,15 +187,15 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       </NuxtLink>
     </div>
 
-    <div class="flex flex-col gap-4 p-6">
+    <div class="flex flex-col gap-4 p-4">
       <NuxtLink
-        :to="{ path: productUrl(product.id, product.slug) }"
+        :to="{ path: productUrl(productId, product.slug) }"
         class="group/link"
         :aria-label="`${t('view_product')}: ${'name' in product && typeof product.name === 'string' ? product.name : extractTranslated(product, 'name', locale)}`"
       >
         <h3
           class="
-            line-clamp-2 text-lg leading-snug font-bold text-neutral-950 min-h-14
+            line-clamp-2 text-lg leading-snug font-bold text-neutral-950 min-h-12
             transition-colors
             group-hover/link:text-primary-600
             dark:text-neutral-50 dark:group-hover/link:text-primary-400

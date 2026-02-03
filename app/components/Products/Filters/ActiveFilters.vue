@@ -129,7 +129,7 @@ const handleRemoveFilter = (chip: FilterChip) => {
         <UBadge
           v-for="(chip, index) in activeFilterChips"
           :key="`${chip.key}-${index}`"
-          color="primary"
+          color="neutral"
           variant="soft"
           size="md"
           class="
@@ -143,7 +143,7 @@ const handleRemoveFilter = (chip: FilterChip) => {
           <div class="flex items-center gap-1.5">
             <UIcon
               :name="getFilterIcon(chip.type)"
-              class="size-3.5 opacity-60"
+              class="size-5 opacity-60"
             />
             <span class="text-sm font-medium max-w-32 truncate">
               {{ formatFilterValue(chip) }}

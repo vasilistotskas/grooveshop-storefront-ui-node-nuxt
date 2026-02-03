@@ -40,7 +40,10 @@ const handleToggleFilters = () => {
 <template>
   <PageWrapper
     class="flex flex-col"
-    :class="{ 'pb-24': isMobileOrTablet }"
+    :class="[
+      'lg:px-0 lg:max-w-375',
+      isMobileOrTablet ? 'pb-24' : '',
+    ]"
   >
     <!-- Skip Links for Keyboard Navigation -->
     <div class="sr-only focus-within:not-sr-only">

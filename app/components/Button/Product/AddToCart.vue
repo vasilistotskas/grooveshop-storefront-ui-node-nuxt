@@ -18,8 +18,18 @@ const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 
+// Get the correct product ID for URLs and API calls
+// For search results (ProductMeiliSearchResult), use 'master' field
+// For regular Product objects, use 'id' field
+const productId = computed(() => {
+  if ('master' in product.value && typeof product.value.master === 'number') {
+    return product.value.master
+  }
+  return product.value.id
+})
+
 const cartItem = computed(() => {
-  return getCartItemByProductId(product.value.id)
+  return getCartItemByProductId(productId.value)
 })
 const disabled = computed(() => {
   if (product.value.active === false) {
@@ -41,7 +51,7 @@ const label = computed(() => {
 })
 
 const addToCartEvent = async () => {
-  const existingCartItem = getCartItemByProductId(product.value.id)
+  const existingCartItem = getCartItemByProductId(productId.value)
   const wasCartEmpty = getCartTotalItems.value === 0
 
   try {
@@ -52,7 +62,7 @@ const addToCartEvent = async () => {
     }
     else {
       await createCartItem({
-        product: product.value.id,
+        product: productId.value,
         quantity: quantity.value,
       })
     }

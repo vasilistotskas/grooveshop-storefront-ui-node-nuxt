@@ -137,7 +137,14 @@ const {
 
 const productIds = computed(() => {
   if (!products.value) return []
-  return products.value.results?.map(product => product.id) || []
+  // For search results, use 'master' field (the actual product ID)
+  // For regular products, use 'id' field
+  return products.value.results?.map((product) => {
+    if ('master' in product && typeof product.master === 'number') {
+      return product.master
+    }
+    return product.id
+  }) || []
 })
 
 const shouldFetchFavouriteProducts = computed(() => {

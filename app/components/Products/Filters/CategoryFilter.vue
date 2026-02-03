@@ -106,7 +106,7 @@ const isCategoryDisabled = (categoryId: string) => {
             :key="category.id"
             type="button"
             class="
-              w-full flex items-center justify-between gap-3
+              cursor-pointer w-full flex items-center justify-between gap-3
               px-3 py-2 rounded-lg
               text-left text-sm
               transition-colors duration-150
@@ -137,7 +137,7 @@ const isCategoryDisabled = (categoryId: string) => {
                 <UIcon
                   v-if="selectedCategories.includes(category.id.toString())"
                   name="i-heroicons-check"
-                  class="size-3.5 text-white"
+                  class="size-5 text-white"
                 />
               </span>
               <span class="truncate">

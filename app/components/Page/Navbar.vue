@@ -214,6 +214,7 @@ const items = computed(() => [
                   :show-name="false"
                   :user-account="user"
                   :aria-label="t('user.profile')"
+                  class="cursor-pointer"
                 />
 
                 <template #account="{ item }">

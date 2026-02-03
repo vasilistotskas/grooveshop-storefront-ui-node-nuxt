@@ -88,6 +88,9 @@ const avatarSrc = computed(() => {
 })
 
 const avatarAlt = computed(() => {
+  if (!props.userAccount?.firstName && !props.userAccount?.lastName) {
+    return props.userAccount?.email
+  }
   return `${props.userAccount?.firstName} ${props.userAccount?.lastName}`
 })
 

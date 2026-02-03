@@ -147,7 +147,7 @@ watch(
       "
     >
       <span class="text-sm text-neutral-600 dark:text-neutral-400">
-        {{ t('selected_range') }}
+        {{ t('selected_range') }} :
       </span>
       <span class="text-sm font-semibold text-primary-600 dark:text-primary-400">
         {{ n(currentPriceRange[0] ?? 0, 'currency') }} – {{ n(currentPriceRange[1] ?? 0, 'currency') }}
@@ -229,11 +229,11 @@ watch(
 
 <i18n lang="yaml">
 el:
-  selected_range: Επιλεγμένο εύρος
+  selected_range: Εύρος
   price_range: Εύρος τιμής
   price_range_value: "{min} έως {max}"
-  minimum: Ελάχιστη
-  maximum: Μέγιστη
+  minimum: Από
+  maximum: Έως
   price_min: Ελάχιστη τιμή
   price_max: Μέγιστη τιμή
 </i18n>

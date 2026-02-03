@@ -245,17 +245,6 @@ useHead({
                 </div>
               </template>
             </UTabs>
-
-            <UTooltip :text="t('page.federated_search_tooltip')">
-              <UButton
-                icon="i-heroicons-sparkles"
-                color="neutral"
-                variant="ghost"
-                size="sm"
-                :to="`/search/federated?q=${encodeURIComponent(query)}`"
-                :aria-label="t('page.federated_search')"
-              />
-            </UTooltip>
           </div>
         </div>
       </UContainer>

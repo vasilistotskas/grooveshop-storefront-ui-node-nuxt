@@ -143,7 +143,7 @@ const formattedValue = computed(() => {
 
 <i18n lang="yaml">
 el:
-  minimum_views: Ελάχιστες προβολές
+  minimum_views: Προβολές
   view_count_slider: Ρυθμιστικό προβολών
   min_views: "Τουλάχιστον {count} προβολές"
 </i18n>

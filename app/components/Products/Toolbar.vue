@@ -174,7 +174,7 @@ const handleToggleFilters = () => {
 <i18n lang="yaml">
 el:
   resultsCount: '{count} προϊόντα'
-  sortBy: 'Ταξινόμηση κατά'
+  sortBy: 'Ταξινόμηση'
   show: 'Εμφάνιση'
   filters: 'Φίλτρα'
   sort:

@@ -53,7 +53,7 @@ export default defineAppConfig({
     },
     switch: {
       slots: {
-        base: 'data-[state=unchecked]:bg-(--ui-secondary)/25 data-[state=unchecked]:dark:bg-gray-300/25',
+        base: 'cursor-pointer data-[state=unchecked]:bg-(--ui-secondary)/25 data-[state=unchecked]:dark:bg-gray-300/25',
       },
     },
     avatar: {
@@ -64,6 +64,16 @@ export default defineAppConfig({
           '6xl': { root: 'size-24 text-4xl' },
           '7xl': { root: 'size-28 text-5xl' },
         },
+      },
+    },
+    pagination: {
+      slots: {
+        label: 'w-full',
+      },
+    },
+    tabs: {
+      slots: {
+        trigger: 'cursor-pointer',
       },
     },
   },

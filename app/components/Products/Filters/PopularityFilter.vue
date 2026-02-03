@@ -143,7 +143,7 @@ const formattedValue = computed(() => {
 
 <i18n lang="yaml">
 el:
-  minimum_likes: Ελάχιστα likes
+  minimum_likes: Likes
   popularity_slider: Ρυθμιστικό δημοτικότητας
   min_likes: "Τουλάχιστον {count} likes"
 </i18n>

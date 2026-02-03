@@ -722,7 +722,7 @@ definePageMeta({
               :product="product"
               :quantity="selectorQuantity || 1"
               :text="$i18n.t('add_to_cart')"
-              size="lg"
+              size="xl"
             />
           </div>
         </div>
