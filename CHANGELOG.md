@@ -1,3 +1,10 @@
+## [3.63.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.63.0...v3.63.1) (2026-02-03)
+
+
+### Bug Fixes
+
+* product filters ([bbb0af4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bbb0af4860d7f9d5b37beeec22b83bbdf5067e4b))
+
 # [3.63.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.62.1...v3.63.0) (2026-02-03)
 
 
