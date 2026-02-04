@@ -91,12 +91,12 @@ const items = computed(() => {
         lg:pt-[62px]
       "
     >
-      <section class="flex w-full flex-1 flex-col pb-24 md:pb-20">
+      <section class="flex w-full flex-1 flex-col">
         <slot />
       </section>
     </UMain>
     <slot name="footer">
-      <div class="pb-16 md:pb-0">
+      <div class="pb-12 md:pb-0">
         <MobileOrTabletOnly>
           <div
             class="

@@ -42,7 +42,6 @@ const handleToggleFilters = () => {
     class="flex flex-col"
     :class="[
       'lg:px-0 lg:max-w-375',
-      isMobileOrTablet ? 'pb-24' : '',
     ]"
   >
     <!-- Skip Links for Keyboard Navigation -->

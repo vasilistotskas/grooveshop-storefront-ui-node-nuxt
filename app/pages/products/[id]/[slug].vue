@@ -271,7 +271,6 @@ const productSpecifications = computed(() => {
     specs.push({
       label: t('weight'),
       value: `${product.value.weight.value} ${product.value.weight.unit || 'kg'}`,
-      icon: 'i-heroicons-scale',
     })
   }
 
@@ -281,7 +280,6 @@ const productSpecifications = computed(() => {
       specs.push({
         label: attr.attributeName,
         value: attr.value,
-        icon: 'i-heroicons-tag',
       })
     })
   }
@@ -419,13 +417,12 @@ definePageMeta({
   <PageWrapper>
     <section
       v-if="product" id="product" class="
-        mb-12
         md:mb-24
       "
     >
       <div
         class="
-          mx-auto max-w-7xl pb-6
+          mx-auto max-w-7xl md:pb-6
           sm:px-6
           lg:px-8
         "
@@ -594,7 +591,7 @@ definePageMeta({
             <UTabs :items="productTabs" class="w-full" color="neutral">
               <template #description>
                 <div
-                  class="max-w-none py-4"
+                  class="max-w-none pt-2 md:py-4"
                 >
                   <div
                     v-if="extractTranslated(product, 'description', locale)"
@@ -624,8 +621,7 @@ definePageMeta({
                         dark:border-gray-700
                       "
                     >
-                      <dt class="flex items-center gap-3">
-                        <UIcon :name="spec.icon" class="h-5 w-5 text-gray-400" />
+                      <dt class="flex items-center">
                         <span class="font-medium">{{ spec.label }}</span>
                       </dt>
                       <dd
@@ -738,8 +734,6 @@ definePageMeta({
           </div>
         </div>
       </div>
-
-      <USeparator class="my-8" />
     </section>
   </PageWrapper>
 </template>
