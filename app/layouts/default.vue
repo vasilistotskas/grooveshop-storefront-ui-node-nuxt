@@ -9,7 +9,10 @@ const { loggedIn, user } = useUserSession()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
-const { $i18n } = useNuxtApp()
+const { $i18n, $routeBaseName } = useNuxtApp()
+
+const routeName = computed(() => $routeBaseName(route))
+const isProductPage = computed(() => routeName.value === 'products-id-slug')
 
 const avatarImg = computed(() => {
   if (!user.value || !user.value?.mainImagePath) {
@@ -22,6 +25,13 @@ const avatarImg = computed(() => {
   }, {
     provider: 'mediaStream',
   })
+})
+
+const footerClass = computed(() => {
+  if (isProductPage.value) {
+    return 'pb-30 md:pb-0'
+  }
+  return 'pb-12 md:pb-0'
 })
 
 const items = computed(() => {
@@ -96,7 +106,7 @@ const items = computed(() => {
       </section>
     </UMain>
     <slot name="footer">
-      <div class="pb-12 md:pb-0">
+      <div :class="footerClass">
         <MobileOrTabletOnly>
           <div
             class="
