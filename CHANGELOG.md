@@ -1,3 +1,10 @@
+## [3.64.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.64.0...v3.64.1) (2026-02-04)
+
+
+### Bug Fixes
+
+* clearCartSession ([27ce550](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/27ce55009fa95584c4fa68b2f8df88340da09482))
+
 # [3.64.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.63.1...v3.64.0) (2026-02-04)
 
 
