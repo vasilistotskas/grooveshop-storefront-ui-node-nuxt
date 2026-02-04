@@ -62,8 +62,8 @@ export async function handleCartResponse(event: H3Event, response: any): Promise
 }
 
 export async function clearCartSession(event: H3Event): Promise<void> {
-  const session = await getSession(event)
-  await session.clear()
+  // Only clear cart-specific data, not the entire session
+  await updateCartSession(event, { cartId: undefined })
 }
 
 export const useCartSession = (event: H3Event) => {
