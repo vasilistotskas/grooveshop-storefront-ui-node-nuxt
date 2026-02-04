@@ -5,6 +5,8 @@
  * - Price statistics (min/max) for the PriceRange filter
  * - Category facets (product counts) for the CategoryFilter
  * - All categories list (shared between CategoryFilter and ActiveFilters)
+ * - Attribute definitions with values for the AttributeFilter
+ * - Attribute value facets (product counts) for the AttributeFilter
  *
  * Following Nuxt best practices:
  * - Uses `useFetch` with consistent keys for automatic deduplication
@@ -16,7 +18,7 @@
  *
  * @example
  * ```ts
- * const { priceStats, allCategories, getCategoryName } = useProductSearchData()
+ * const { priceStats, allCategories, getCategoryName, allAttributes, attributeValueFacets } = useProductSearchData()
  * ```
  */
 
@@ -128,6 +130,93 @@ export function useProductSearchData() {
     return categoryNameMap.value.get(categoryId) || categoryId
   }
 
+  // ============================================
+  // ALL ATTRIBUTES (for AttributeFilter)
+  // ============================================
+  // Fetch all attributes with their values
+  // This is needed for AttributeFilter to display available attribute options
+  // Uses server-side caching (5 minutes) since attributes don't change frequently
+  const { data: allAttributes, status: attributesStatus } = useFetch('/api/products/attributes', {
+    key: `all-attributes-${$i18n.locale.value}`,
+    query: {
+      languageCode: $i18n.locale.value,
+    },
+  })
+
+  // ============================================
+  // ATTRIBUTE VALUE FACETS (product counts per attribute value)
+  // ============================================
+  // Fetch attribute value facets based on current filters (excluding attribute values)
+  // This shows how many products match each attribute value given other filters
+  const attributeFacetQuery = computed(() => ({
+    languageCode: $i18n.locale.value,
+    query: filters.value.search || undefined,
+    priceMin: filters.value.priceMin,
+    priceMax: filters.value.priceMax,
+    likesMin: filters.value.likesMin,
+    viewsMin: filters.value.viewsMin,
+    categories: filters.value.categories.length > 0 ? filters.value.categories.join(',') : undefined,
+    sort: filters.value.sort,
+    facets: 'attribute_values',
+    limit: 1,
+  }))
+
+  // Create a unique key based on filter values (excluding attribute values)
+  const attributeFacetKey = computed(() => {
+    const params = new URLSearchParams()
+    if (filters.value.search) params.set('q', filters.value.search)
+    if (filters.value.priceMin !== undefined) params.set('priceMin', filters.value.priceMin.toString())
+    if (filters.value.priceMax !== undefined) params.set('priceMax', filters.value.priceMax.toString())
+    if (filters.value.likesMin !== undefined) params.set('likesMin', filters.value.likesMin.toString())
+    if (filters.value.viewsMin !== undefined) params.set('viewsMin', filters.value.viewsMin.toString())
+    if (filters.value.categories.length > 0) params.set('categories', filters.value.categories.join(','))
+    if (filters.value.sort) params.set('sort', filters.value.sort)
+    return `attribute-facets-${$i18n.locale.value}-${params.toString()}`
+  })
+
+  const { data: attributeFacetData } = useFetch('/api/products/search', {
+    key: attributeFacetKey,
+    query: attributeFacetQuery,
+  })
+
+  const attributeValueFacets = computed(() => {
+    const distribution = attributeFacetData.value?.facetDistribution as FacetDistribution | undefined
+    return distribution?.attributeValues || {}
+  })
+
+  // ============================================
+  // ALL ATTRIBUTE VALUES (for AttributeFilter and name lookup)
+  // ============================================
+  // Fetch all attribute values separately since they're not nested in attributes
+  const { data: allAttributeValues, status: attributeValuesStatus } = useFetch('/api/products/attributes/values', {
+    key: `all-attribute-values-${$i18n.locale.value}`,
+    query: {
+      languageCode: $i18n.locale.value,
+    },
+  })
+
+  // Computed attribute value name map - derives from allAttributeValues data
+  // This ensures the map is always in sync with the fetched data
+  const attributeValueNameMap = computed(() => {
+    const map = new Map<string, string>()
+    if (allAttributeValues.value?.results) {
+      allAttributeValues.value.results.forEach((value) => {
+        const valueName = extractTranslated(value, 'value', $i18n.locale.value)
+        if (valueName) {
+          map.set(value.id.toString(), valueName)
+        }
+      })
+    }
+    return map
+  })
+
+  /**
+   * Get attribute value name by ID
+   */
+  const getAttributeValueName = (attributeValueId: string): string => {
+    return attributeValueNameMap.value.get(attributeValueId) || attributeValueId
+  }
+
   return {
     // Price data
     priceStats,
@@ -140,5 +229,14 @@ export function useProductSearchData() {
     categoryNameMap,
     getCategoryName,
     categoryFacets,
+
+    // Attribute data
+    allAttributes,
+    attributesStatus,
+    allAttributeValues,
+    attributeValuesStatus,
+    attributeValueFacets,
+    attributeValueNameMap,
+    getAttributeValueName,
   }
 }

@@ -13,8 +13,8 @@
 const { activeFilterChips, removeFilter, clearFilters, hasActiveFilters, filters, updateFilters } = useProductFilters()
 const { t, n } = useI18n()
 
-// Use shared category name map from the centralized composable
-const { getCategoryName } = useProductSearchData()
+// Use shared category and attribute value name maps from the centralized composable
+const { getCategoryName, getAttributeValueName } = useProductSearchData()
 
 /**
  * Format filter value for display
@@ -38,6 +38,8 @@ const formatFilterValue = (chip: FilterChip): string => {
       return t('min_views', { count: chip.value })
     case 'category':
       return getCategoryName(chip.value)
+    case 'attribute':
+      return getAttributeValueName(chip.value)
     case 'search':
       return `"${chip.value}"`
     case 'sort':
@@ -72,6 +74,7 @@ const getFilterIcon = (type: string): string => {
     likes: 'i-heroicons-heart',
     views: 'i-heroicons-eye',
     category: 'i-heroicons-folder',
+    attribute: 'i-heroicons-tag',
     sort: 'i-heroicons-arrows-up-down',
   }
   return icons[type] || 'i-heroicons-funnel'
@@ -84,6 +87,10 @@ const handleRemoveFilter = (chip: FilterChip) => {
   if (chip.type === 'category') {
     const newCategories = filters.value.categories.filter(cat => cat !== chip.value)
     updateFilters({ categories: newCategories })
+  }
+  else if (chip.type === 'attribute') {
+    const newAttributeValues = filters.value.attributeValues.filter(attrVal => attrVal !== chip.value)
+    updateFilters({ attributeValues: newAttributeValues })
   }
   else if (chip.type === 'price') {
     updateFilters({ priceMin: undefined, priceMax: undefined })
@@ -131,7 +138,7 @@ const handleRemoveFilter = (chip: FilterChip) => {
           :key="`${chip.key}-${index}`"
           color="neutral"
           variant="soft"
-          size="md"
+          size="lg"
           class="
             group
             pl-2 pr-1 py-1

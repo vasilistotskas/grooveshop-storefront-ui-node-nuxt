@@ -275,6 +275,17 @@ const productSpecifications = computed(() => {
     })
   }
 
+  // Add product attributes
+  if (product.value?.attributes && product.value.attributes.length > 0) {
+    product.value.attributes.forEach((attr) => {
+      specs.push({
+        label: attr.attributeName,
+        value: attr.value,
+        icon: 'i-heroicons-tag',
+      })
+    })
+  }
+
   return specs
 })
 
@@ -603,7 +614,7 @@ definePageMeta({
 
               <template #specifications>
                 <div class="py-4">
-                  <div v-if="productSpecifications.length > 0" class="space-y-3">
+                  <dl v-if="productSpecifications.length > 0" class="space-y-3">
                     <div
                       v-for="spec in productSpecifications"
                       :key="spec.label"
@@ -613,20 +624,20 @@ definePageMeta({
                         dark:border-gray-700
                       "
                     >
-                      <div class="flex items-center gap-3">
+                      <dt class="flex items-center gap-3">
                         <UIcon :name="spec.icon" class="h-5 w-5 text-gray-400" />
                         <span class="font-medium">{{ spec.label }}</span>
-                      </div>
-                      <span
+                      </dt>
+                      <dd
                         class="
                           text-gray-600
                           dark:text-gray-400
                         "
                       >
                         {{ spec.value }}
-                      </span>
+                      </dd>
                     </div>
-                  </div>
+                  </dl>
                   <p
                     v-else
                     class="

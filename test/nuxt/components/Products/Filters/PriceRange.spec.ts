@@ -24,6 +24,7 @@ const mockFilters = ref<ProductFilters>({
   viewsMin: undefined,
   categories: [],
   sort: '',
+  attributeValues: [],
 })
 
 const mockUpdateFilters = vi.fn()
@@ -72,6 +73,7 @@ describe('Feature: meilisearch-product-filters - PriceRange component', () => {
       viewsMin: undefined,
       categories: [],
       sort: '',
+      attributeValues: [],
     }
     mockFilterCountBySection.value = { price: 0 }
   })

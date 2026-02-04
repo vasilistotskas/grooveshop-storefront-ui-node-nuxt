@@ -34,13 +34,15 @@ export interface ProductFilters {
   categories: string[]
   /** Sort field and direction */
   sort: string
+  /** Selected attribute value IDs */
+  attributeValues: string[]
 }
 
 export interface FilterChip {
   /** Filter key for removal */
   key: keyof ProductFilters
   /** Filter type for formatting */
-  type: 'search' | 'price' | 'likes' | 'views' | 'category' | 'sort'
+  type: 'search' | 'price' | 'likes' | 'views' | 'category' | 'sort' | 'attribute'
   /** Display label */
   label: string
   /** Filter value */
@@ -67,6 +69,11 @@ export function useProductFilters() {
         : [route.query.category as string]
       : [],
     sort: (route.query.sort as string) || '',
+    attributeValues: route.query.attributeValue
+      ? Array.isArray(route.query.attributeValue)
+        ? (route.query.attributeValue as string[])
+        : [route.query.attributeValue as string]
+      : [],
   }))
 
   /**
@@ -141,6 +148,17 @@ export function useProductFilters() {
       }
     }
 
+    if (updates.attributeValues !== undefined) {
+      if (updates.attributeValues.length > 0) {
+        newQuery.attributeValue = updates.attributeValues.length === 1
+          ? updates.attributeValues[0]
+          : updates.attributeValues
+      }
+      else {
+        delete newQuery.attributeValue
+      }
+    }
+
     // Navigate to updated URL
     router.push({ query: newQuery })
   }
@@ -180,6 +198,9 @@ export function useProductFilters() {
       case 'sort':
         updateFilters({ sort: '' })
         break
+      case 'attributeValues':
+        updateFilters({ attributeValues: [] })
+        break
     }
   }
 
@@ -195,6 +216,7 @@ export function useProductFilters() {
     if (filters.value.viewsMin !== undefined) count++
     if (filters.value.categories.length > 0) count++
     if (filters.value.sort) count++
+    if (filters.value.attributeValues.length > 0) count++
     return count
   })
 
@@ -253,6 +275,16 @@ export function useProductFilters() {
       })
     })
 
+    // Attribute value chips - one per attribute value
+    filters.value.attributeValues.forEach((attributeValueId) => {
+      chips.push({
+        key: 'attributeValues',
+        type: 'attribute',
+        label: $i18n.t('filters.attributes'),
+        value: attributeValueId,
+      })
+    })
+
     if (filters.value.sort) {
       chips.push({
         key: 'sort',
@@ -280,6 +312,7 @@ export function useProductFilters() {
     popularity: filters.value.likesMin !== undefined ? 1 : 0,
     viewCount: filters.value.viewsMin !== undefined ? 1 : 0,
     categories: filters.value.categories.length,
+    attributes: filters.value.attributeValues.length,
   }))
 
   return {

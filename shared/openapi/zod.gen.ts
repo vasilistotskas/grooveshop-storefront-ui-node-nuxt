@@ -15,6 +15,69 @@ export const zAddTrackingRequest = z.object({
     shippingCarrier: z.string().min(1).max(50)
 });
 
+/**
+ * Serializer for Attribute with translations.
+ */
+export const zAttribute = z.object({
+    id: z.int().readonly(),
+    uuid: z.uuid().readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            name: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            name: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            name: z.optional(z.string())
+        }))
+    }),
+    active: z.optional(z.boolean()),
+    sortOrder: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    valuesCount: z.int().readonly(),
+    usageCount: z.int().readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer for Attribute with translations.'
+});
+
+/**
+ * Serializer for AttributeValue with translations.
+ */
+export const zAttributeValue = z.object({
+    id: z.int().readonly(),
+    uuid: z.uuid().readonly(),
+    attribute: z.int(),
+    attributeName: z.string().register(z.globalRegistry, {
+        description: 'Return translated attribute name.'
+    }).readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            value: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            value: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            value: z.optional(z.string())
+        }))
+    }),
+    active: z.optional(z.boolean()),
+    sortOrder: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    usageCount: z.int().readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer for AttributeValue with translations.'
+});
+
 export const zBlankEnum = z.enum(['']);
 
 /**
@@ -285,9 +348,15 @@ export const zBlogPost = z.object({
     tags: z.array(z.int()),
     featured: z.optional(z.boolean()),
     viewCount: z.int().readonly(),
-    likesCount: z.int().readonly(),
-    commentsCount: z.int().readonly(),
-    tagsCount: z.int().readonly(),
+    likesCount: z.int().register(z.globalRegistry, {
+        description: 'Return likes count from annotation or query database.'
+    }).readonly(),
+    commentsCount: z.int().register(z.globalRegistry, {
+        description: 'Return comments count from annotation or query database.'
+    }).readonly(),
+    tagsCount: z.int().register(z.globalRegistry, {
+        description: 'Return tags count from annotation or query database.'
+    }).readonly(),
     isPublished: z.optional(z.boolean()),
     publishedAt: z.union([
         z.iso.datetime({ offset: true }).readonly(),
@@ -1201,6 +1270,44 @@ export const zOrderWriteRequest = z.object({
     shippingCarrier: z.optional(z.string().max(255))
 });
 
+export const zPaginatedAttributeList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zAttribute)
+});
+
+export const zPaginatedAttributeValueList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zAttributeValue)
+});
+
 export const zPaginatedBlogAuthorList = z.object({
     links: z.optional(z.object({
         next: z.optional(z.union([
@@ -2108,6 +2215,24 @@ export const zPerformanceMetrics = z.object({
 });
 
 /**
+ * Serializer for ProductAttribute with nested attribute and value info.
+ */
+export const zProductAttribute = z.object({
+    id: z.int().readonly(),
+    attributeId: z.int().readonly(),
+    attributeName: z.string().register(z.globalRegistry, {
+        description: 'Return translated attribute name.'
+    }).readonly(),
+    attributeValueId: z.int(),
+    value: z.string().register(z.globalRegistry, {
+        description: 'Return translated attribute value.'
+    }).readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer for ProductAttribute with nested attribute and value info.'
+});
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zProduct = z.object({
@@ -2154,14 +2279,15 @@ export const zProduct = z.object({
     finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
     mainImagePath: z.string().readonly(),
     reviewAverage: z.number().register(z.globalRegistry, {
-        description: 'Return the average review rating for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+        description: 'Return the average review rating for this product.'
     }).readonly(),
     reviewCount: z.int().register(z.globalRegistry, {
-        description: 'Return the number of reviews for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+        description: 'Return the number of reviews for this product.'
     }).readonly(),
     likesCount: z.int().register(z.globalRegistry, {
-        description: 'Return the number of likes/favourites for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
-    }).readonly()
+        description: 'Return the number of likes/favourites for this product.'
+    }).readonly(),
+    attributes: z.array(zProductAttribute).readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -2537,6 +2663,15 @@ export const zPaginatedProductList = z.object({
 });
 
 /**
+ * Serializer for ProductAttribute with nested attribute and value info.
+ */
+export const zProductAttributeRequest = z.object({
+    attributeValueId: z.int()
+}).register(z.globalRegistry, {
+    description: 'Serializer for ProductAttribute with nested attribute and value info.'
+});
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zProductCategory = z.object({
@@ -2832,14 +2967,15 @@ export const zProductDetail = z.object({
     finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
     mainImagePath: z.string().readonly(),
     reviewAverage: z.number().register(z.globalRegistry, {
-        description: 'Return the average review rating for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+        description: 'Return the average review rating for this product.'
     }).readonly(),
     reviewCount: z.int().register(z.globalRegistry, {
-        description: 'Return the number of reviews for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+        description: 'Return the number of reviews for this product.'
     }).readonly(),
     likesCount: z.int().register(z.globalRegistry, {
-        description: 'Return the number of likes/favourites for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
-    }).readonly()
+        description: 'Return the number of likes/favourites for this product.'
+    }).readonly(),
+    attributes: z.array(zProductAttribute).readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -2930,14 +3066,15 @@ export const zProductDetailResponse = z.object({
     finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
     mainImagePath: z.string().readonly(),
     reviewAverage: z.number().register(z.globalRegistry, {
-        description: 'Return the average review rating for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+        description: 'Return the average review rating for this product.'
     }).readonly(),
     reviewCount: z.int().register(z.globalRegistry, {
-        description: 'Return the number of reviews for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
+        description: 'Return the number of reviews for this product.'
     }).readonly(),
     likesCount: z.int().register(z.globalRegistry, {
-        description: 'Return the number of likes/favourites for this product.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.'
-    }).readonly()
+        description: 'Return the number of likes/favourites for this product.'
+    }).readonly(),
+    attributes: z.array(zProductAttribute).readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -4208,9 +4345,15 @@ export const zBlogPostDetail = z.object({
     tags: z.array(zBlogTagDetail).readonly(),
     featured: z.optional(z.boolean()),
     viewCount: z.int().readonly(),
-    likesCount: z.int().readonly(),
-    commentsCount: z.int().readonly(),
-    tagsCount: z.int().readonly(),
+    likesCount: z.int().register(z.globalRegistry, {
+        description: 'Return likes count from annotation or query database.'
+    }).readonly(),
+    commentsCount: z.int().register(z.globalRegistry, {
+        description: 'Return comments count from annotation or query database.'
+    }).readonly(),
+    tagsCount: z.int().register(z.globalRegistry, {
+        description: 'Return tags count from annotation or query database.'
+    }).readonly(),
     isPublished: z.optional(z.boolean()),
     publishedAt: z.union([
         z.iso.datetime({ offset: true }).readonly(),
@@ -4556,6 +4699,47 @@ export const zSearchAnalyticsResponse = z.object({
     })
 }).register(z.globalRegistry, {
     description: 'Serializer for search analytics response.'
+});
+
+/**
+ * Serializer for Attribute with translations.
+ */
+export const zAttributeWritable = z.object({
+    translations: z.object({
+        el: z.optional(z.object({
+            name: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            name: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            name: z.optional(z.string())
+        }))
+    }),
+    active: z.optional(z.boolean())
+}).register(z.globalRegistry, {
+    description: 'Serializer for Attribute with translations.'
+});
+
+/**
+ * Serializer for AttributeValue with translations.
+ */
+export const zAttributeValueWritable = z.object({
+    attribute: z.int(),
+    translations: z.object({
+        el: z.optional(z.object({
+            value: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            value: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            value: z.optional(z.string())
+        }))
+    }),
+    active: z.optional(z.boolean())
+}).register(z.globalRegistry, {
+    description: 'Serializer for AttributeValue with translations.'
 });
 
 /**
@@ -5022,6 +5206,44 @@ export const zOrderItemRefundResponseWritable = z.object({
     item: zOrderItemWritable
 });
 
+export const zPaginatedAttributeListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zAttributeWritable)
+});
+
+export const zPaginatedAttributeValueListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zAttributeValueWritable)
+});
+
 export const zPaginatedBlogAuthorListWritable = z.object({
     links: z.optional(z.object({
         next: z.optional(z.union([
@@ -5399,6 +5621,15 @@ export const zPaginatedProductListWritable = z.object({
     pageTotalResults: z.optional(z.int()),
     page: z.optional(z.int()),
     results: z.array(zProductWritable)
+});
+
+/**
+ * Serializer for ProductAttribute with nested attribute and value info.
+ */
+export const zProductAttributeWritable = z.object({
+    attributeValueId: z.int()
+}).register(z.globalRegistry, {
+    description: 'Serializer for ProductAttribute with nested attribute and value info.'
 });
 
 /**
@@ -12109,6 +12340,26 @@ export const zListProductData = z.object({
             z.literal('0'),
             z.boolean()
         ])),
+        attribute: z.optional(z.union([
+            z.string().regex(/^-?\d+(\.\d+)?$/),
+            z.number()
+        ])),
+        attribute_In: z.optional(z.union([
+            z.string().register(z.globalRegistry, {
+                description: 'Comma-separated values'
+            }),
+            z.array(z.int())
+        ])),
+        attributeValue: z.optional(z.union([
+            z.string().regex(/^-?\d+(\.\d+)?$/),
+            z.number()
+        ])),
+        attributeValue_In: z.optional(z.union([
+            z.string().register(z.globalRegistry, {
+                description: 'Comma-separated values'
+            }),
+            z.array(z.int())
+        ])),
         category: z.optional(z.string().register(z.globalRegistry, {
             description: 'Filter by category ID (supports multiple IDs separated by underscore)'
         })),
@@ -12536,6 +12787,421 @@ export const zIncrementProductViewsData = z.object({
 });
 
 export const zIncrementProductViewsResponse = zProductDetail;
+
+export const zListAttributeData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.object({
+        active: z.optional(z.union([
+            z.literal('true'),
+            z.literal('false'),
+            z.literal('1'),
+            z.literal('0'),
+            z.boolean()
+        ])),
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+            description: 'Filter items created after this date'
+        })),
+        createdAt_Date: z.optional(z.iso.date()),
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+            description: 'Filter items created before this date'
+        })),
+        cursor: z.optional(z.string().register(z.globalRegistry, {
+            description: 'Cursor for pagination'
+        })),
+        hasValues: z.optional(z.union([
+            z.literal('true'),
+            z.literal('false'),
+            z.literal('1'),
+            z.literal('0'),
+            z.boolean()
+        ])),
+        id: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        id_In: z.optional(z.union([
+            z.string().register(z.globalRegistry, {
+                description: 'Comma-separated values'
+            }),
+            z.array(z.int())
+        ])),
+        languageCode: z.optional(z.enum([
+            'de',
+            'el',
+            'en'
+        ]).register(z.globalRegistry, {
+            description: 'Language code for translations (el, en, de)'
+        })),
+        name: z.optional(z.string()),
+        ordering: z.optional(z.enum([
+            'id',
+            '-id',
+            'sortOrder',
+            '-sortOrder',
+            'createdAt',
+            '-createdAt',
+            'updatedAt',
+            '-updatedAt'
+        ]).register(z.globalRegistry, {
+            description: 'Which field to use when ordering the results. Available fields: id, -id, sortOrder, -sortOrder, createdAt, -createdAt, updatedAt, -updatedAt'
+        })),
+        page: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        pageSize: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
+            description: 'Enable or disable pagination'
+        })),
+        paginationType: z.optional(z.enum([
+            'cursor',
+            'limitOffset',
+            'pageNumber'
+        ]).register(z.globalRegistry, {
+            description: 'Pagination strategy type'
+        })),
+        search: z.optional(z.string().register(z.globalRegistry, {
+            description: 'A search term.'
+        })),
+        sortOrder: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        sortOrderMax: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        sortOrderMin: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+            description: 'Filter items updated after this date'
+        })),
+        updatedAt_Date: z.optional(z.iso.date()),
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+            description: 'Filter items updated before this date'
+        })),
+        uuid: z.optional(z.uuid())
+    }))
+});
+
+export const zListAttributeResponse = zPaginatedAttributeList;
+
+export const zCreateAttributeData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.object({
+        languageCode: z.optional(z.enum([
+            'de',
+            'el',
+            'en'
+        ]).register(z.globalRegistry, {
+            description: 'Language code for translations (el, en, de)'
+        }))
+    }))
+});
+
+export const zCreateAttributeResponse = zAttribute;
+
+export const zDestroyAttributeData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])
+    }),
+    query: z.optional(z.never())
+});
+
+/**
+ * No response body
+ */
+export const zDestroyAttributeResponse = z.void().register(z.globalRegistry, {
+    description: 'No response body'
+});
+
+export const zRetrieveAttributeData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])
+    }),
+    query: z.optional(z.object({
+        languageCode: z.optional(z.enum([
+            'de',
+            'el',
+            'en'
+        ]).register(z.globalRegistry, {
+            description: 'Language code for translations (el, en, de)'
+        }))
+    }))
+});
+
+export const zRetrieveAttributeResponse = zAttribute;
+
+export const zPartialUpdateAttributeData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])
+    }),
+    query: z.optional(z.object({
+        languageCode: z.optional(z.enum([
+            'de',
+            'el',
+            'en'
+        ]).register(z.globalRegistry, {
+            description: 'Language code for translations (el, en, de)'
+        }))
+    }))
+});
+
+export const zPartialUpdateAttributeResponse = zAttribute;
+
+export const zUpdateAttributeData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])
+    }),
+    query: z.optional(z.object({
+        languageCode: z.optional(z.enum([
+            'de',
+            'el',
+            'en'
+        ]).register(z.globalRegistry, {
+            description: 'Language code for translations (el, en, de)'
+        }))
+    }))
+});
+
+export const zUpdateAttributeResponse = zAttribute;
+
+export const zListAttributeValueData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.object({
+        active: z.optional(z.union([
+            z.literal('true'),
+            z.literal('false'),
+            z.literal('1'),
+            z.literal('0'),
+            z.boolean()
+        ])),
+        attribute: z.optional(z.union([
+            z.string().regex(/^-?\d+(\.\d+)?$/),
+            z.number()
+        ])),
+        attribute_In: z.optional(z.union([
+            z.string().register(z.globalRegistry, {
+                description: 'Comma-separated values'
+            }),
+            z.array(z.int())
+        ])),
+        createdAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+            description: 'Filter items created after this date'
+        })),
+        createdAt_Date: z.optional(z.iso.date()),
+        createdAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        createdAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        createdBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+            description: 'Filter items created before this date'
+        })),
+        cursor: z.optional(z.string().register(z.globalRegistry, {
+            description: 'Cursor for pagination'
+        })),
+        id: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        id_In: z.optional(z.union([
+            z.string().register(z.globalRegistry, {
+                description: 'Comma-separated values'
+            }),
+            z.array(z.int())
+        ])),
+        languageCode: z.optional(z.enum([
+            'de',
+            'el',
+            'en'
+        ]).register(z.globalRegistry, {
+            description: 'Language code for translations (el, en, de)'
+        })),
+        ordering: z.optional(z.enum([
+            'id',
+            '-id',
+            'attribute',
+            '-attribute',
+            'sortOrder',
+            '-sortOrder',
+            'createdAt',
+            '-createdAt',
+            'updatedAt',
+            '-updatedAt'
+        ]).register(z.globalRegistry, {
+            description: 'Which field to use when ordering the results. Available fields: id, -id, attribute, -attribute, sortOrder, -sortOrder, createdAt, -createdAt, updatedAt, -updatedAt'
+        })),
+        page: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        pageSize: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        pagination: z.optional(z.enum(['false', 'true']).register(z.globalRegistry, {
+            description: 'Enable or disable pagination'
+        })),
+        paginationType: z.optional(z.enum([
+            'cursor',
+            'limitOffset',
+            'pageNumber'
+        ]).register(z.globalRegistry, {
+            description: 'Pagination strategy type'
+        })),
+        search: z.optional(z.string().register(z.globalRegistry, {
+            description: 'A search term.'
+        })),
+        sortOrder: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        sortOrderMax: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        sortOrderMin: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        updatedAfter: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+            description: 'Filter items updated after this date'
+        })),
+        updatedAt_Date: z.optional(z.iso.date()),
+        updatedAt_Gte: z.optional(z.iso.datetime({ offset: true })),
+        updatedAt_Lte: z.optional(z.iso.datetime({ offset: true })),
+        updatedBefore: z.optional(z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+            description: 'Filter items updated before this date'
+        })),
+        uuid: z.optional(z.uuid()),
+        value: z.optional(z.string())
+    }))
+});
+
+export const zListAttributeValueResponse = zPaginatedAttributeValueList;
+
+export const zCreateAttributeValueData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.object({
+        languageCode: z.optional(z.enum([
+            'de',
+            'el',
+            'en'
+        ]).register(z.globalRegistry, {
+            description: 'Language code for translations (el, en, de)'
+        }))
+    }))
+});
+
+export const zCreateAttributeValueResponse = zAttributeValue;
+
+export const zDestroyAttributeValueData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])
+    }),
+    query: z.optional(z.never())
+});
+
+/**
+ * No response body
+ */
+export const zDestroyAttributeValueResponse = z.void().register(z.globalRegistry, {
+    description: 'No response body'
+});
+
+export const zRetrieveAttributeValueData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])
+    }),
+    query: z.optional(z.object({
+        languageCode: z.optional(z.enum([
+            'de',
+            'el',
+            'en'
+        ]).register(z.globalRegistry, {
+            description: 'Language code for translations (el, en, de)'
+        }))
+    }))
+});
+
+export const zRetrieveAttributeValueResponse = zAttributeValue;
+
+export const zPartialUpdateAttributeValueData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])
+    }),
+    query: z.optional(z.object({
+        languageCode: z.optional(z.enum([
+            'de',
+            'el',
+            'en'
+        ]).register(z.globalRegistry, {
+            description: 'Language code for translations (el, en, de)'
+        }))
+    }))
+});
+
+export const zPartialUpdateAttributeValueResponse = zAttributeValue;
+
+export const zUpdateAttributeValueData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])
+    }),
+    query: z.optional(z.object({
+        languageCode: z.optional(z.enum([
+            'de',
+            'el',
+            'en'
+        ]).register(z.globalRegistry, {
+            description: 'Language code for translations (el, en, de)'
+        }))
+    }))
+});
+
+export const zUpdateAttributeValueResponse = zAttributeValue;
 
 export const zListProductCategoryData = z.object({
     body: z.optional(z.never()),

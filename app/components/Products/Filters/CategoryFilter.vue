@@ -158,7 +158,6 @@ const isCategoryDisabled = (categoryId: string) => {
               :label="(categoryFacets[category.id] ?? 0).toString()"
               color="neutral"
               variant="soft"
-              size="sm"
               :class="{ 'opacity-50': categoryFacets[category.id] === 0 }"
             />
           </button>

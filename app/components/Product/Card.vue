@@ -249,6 +249,8 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         </span>
       </div>
 
+      <div v-else class="h-5" />
+
       <div class="flex flex-col gap-2">
         <div
           v-if="showStartPrice && product.price !== product.finalPrice"

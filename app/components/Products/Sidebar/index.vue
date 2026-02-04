@@ -59,6 +59,12 @@ const accordionItems = computed<AccordionItem[]>(() => [
     value: 'categories',
     slot: 'categories' as const,
   },
+  {
+    label: `${t('filters.attributes')}${filterCountBySection.value.attributes > 0 ? ` (${filterCountBySection.value.attributes})` : ''}`,
+    icon: 'i-heroicons-tag',
+    value: 'attributes',
+    slot: 'attributes' as const,
+  },
 ])
 
 // Default open sections
@@ -158,9 +164,14 @@ watch(slideoverOpen, (isOpen) => {
         <template #categories>
           <ProductsFiltersCategoryFilter />
         </template>
+
+        <!-- Attributes Filter -->
+        <template #attributes>
+          <ProductsFiltersAttributeFilter />
+        </template>
       </UAccordion>
 
-      <USeparator />
+      <USeparator v-if="hasActiveFilters" />
 
       <!-- Active Filters Summary -->
       <ProductsFiltersActiveFilters />
@@ -354,6 +365,7 @@ el:
     popularity: Δημοτικότητα
     view_count: Προβολές
     categories: Κατηγορίες
+    attributes: Χαρακτηριστικά
     clear: Καθαρισμός
     clear_all: Καθαρισμός όλων
     apply: Εφαρμογή

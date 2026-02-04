@@ -116,7 +116,6 @@ const handleToggleFilters = () => {
           v-if="hasActiveFilters"
           :label="activeFilterCount.toString()"
           color="primary"
-          size="sm"
           class="ml-2"
         />
       </UButton>

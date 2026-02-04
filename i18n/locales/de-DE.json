@@ -180,7 +180,8 @@
       "try_broader_price": "Versuchen Sie, Ihre Preisspanne anzupassen, um mehr Produkte zu sehen.",
       "try_different_category": "Versuchen Sie, andere Kategorien auszuwählen oder Kategoriefilter zu entfernen.",
       "try_lower_popularity": "Versuchen Sie, die Mindestpopularität zu senken.",
-      "try_lower_views": "Versuchen Sie, die Mindestanzahl der Aufrufe zu senken."
+      "try_lower_views": "Versuchen Sie, die Mindestanzahl der Aufrufe zu senken.",
+      "try_different_attributes": "Versuchen Sie, andere Attribute auszuwählen oder Attributfilter zu entfernen."
     }
   },
   "categories": "Kategorien",

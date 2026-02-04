@@ -15,6 +15,60 @@ export type AddTrackingRequest = {
     shippingCarrier: string;
 };
 
+/**
+ * Serializer for Attribute with translations.
+ */
+export type Attribute = {
+    readonly id: number;
+    readonly uuid: string;
+    translations: {
+        el?: {
+            name?: string;
+        };
+        en?: {
+            name?: string;
+        };
+        de?: {
+            name?: string;
+        };
+    };
+    active?: boolean;
+    readonly sortOrder: number | null;
+    readonly valuesCount: number;
+    readonly usageCount: number;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+};
+
+/**
+ * Serializer for AttributeValue with translations.
+ */
+export type AttributeValue = {
+    readonly id: number;
+    readonly uuid: string;
+    attribute: number;
+    /**
+     * Return translated attribute name.
+     */
+    readonly attributeName: string;
+    translations: {
+        el?: {
+            value?: string;
+        };
+        en?: {
+            value?: string;
+        };
+        de?: {
+            value?: string;
+        };
+    };
+    active?: boolean;
+    readonly sortOrder: number | null;
+    readonly usageCount: number;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+};
+
 export type BlankEnum = '';
 
 /**
@@ -427,8 +481,17 @@ export type BlogPost = {
     tags: Array<number>;
     featured?: boolean;
     readonly viewCount: number;
+    /**
+     * Return likes count from annotation or query database.
+     */
     readonly likesCount: number;
+    /**
+     * Return comments count from annotation or query database.
+     */
     readonly commentsCount: number;
+    /**
+     * Return tags count from annotation or query database.
+     */
     readonly tagsCount: number;
     isPublished?: boolean;
     readonly publishedAt: string | null;
@@ -469,8 +532,17 @@ export type BlogPostDetail = {
     readonly tags: Array<BlogTagDetail>;
     featured?: boolean;
     readonly viewCount: number;
+    /**
+     * Return likes count from annotation or query database.
+     */
     readonly likesCount: number;
+    /**
+     * Return comments count from annotation or query database.
+     */
     readonly commentsCount: number;
+    /**
+     * Return tags count from annotation or query database.
+     */
     readonly tagsCount: number;
     isPublished?: boolean;
     readonly publishedAt: string | null;
@@ -1610,6 +1682,32 @@ export type OrderWriteRequest = {
      */
     trackingNumber?: string;
     shippingCarrier?: string;
+};
+
+export type PaginatedAttributeList = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<Attribute>;
+};
+
+export type PaginatedAttributeValueList = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<AttributeValue>;
 };
 
 export type PaginatedBlogAuthorList = {
@@ -2755,25 +2853,42 @@ export type Product = {
     readonly mainImagePath: string;
     /**
      * Return the average review rating for this product.
-     *
-     * Uses annotated value if available (from optimized queryset),
-     * otherwise queries the database.
      */
     readonly reviewAverage: number;
     /**
      * Return the number of reviews for this product.
-     *
-     * Uses annotated value if available (from optimized queryset),
-     * otherwise queries the database.
      */
     readonly reviewCount: number;
     /**
      * Return the number of likes/favourites for this product.
-     *
-     * Uses annotated value if available (from optimized queryset),
-     * otherwise queries the database.
      */
     readonly likesCount: number;
+    readonly attributes: Array<ProductAttribute>;
+};
+
+/**
+ * Serializer for ProductAttribute with nested attribute and value info.
+ */
+export type ProductAttribute = {
+    readonly id: number;
+    readonly attributeId: number;
+    /**
+     * Return translated attribute name.
+     */
+    readonly attributeName: string;
+    attributeValueId: number;
+    /**
+     * Return translated attribute value.
+     */
+    readonly value: string;
+    readonly createdAt: string;
+};
+
+/**
+ * Serializer for ProductAttribute with nested attribute and value info.
+ */
+export type ProductAttributeRequest = {
+    attributeValueId: number;
 };
 
 /**
@@ -3014,25 +3129,17 @@ export type ProductDetail = {
     readonly mainImagePath: string;
     /**
      * Return the average review rating for this product.
-     *
-     * Uses annotated value if available (from optimized queryset),
-     * otherwise queries the database.
      */
     readonly reviewAverage: number;
     /**
      * Return the number of reviews for this product.
-     *
-     * Uses annotated value if available (from optimized queryset),
-     * otherwise queries the database.
      */
     readonly reviewCount: number;
     /**
      * Return the number of likes/favourites for this product.
-     *
-     * Uses annotated value if available (from optimized queryset),
-     * otherwise queries the database.
      */
     readonly likesCount: number;
+    readonly attributes: Array<ProductAttribute>;
 };
 
 /**
@@ -3114,25 +3221,17 @@ export type ProductDetailResponse = {
     readonly mainImagePath: string;
     /**
      * Return the average review rating for this product.
-     *
-     * Uses annotated value if available (from optimized queryset),
-     * otherwise queries the database.
      */
     readonly reviewAverage: number;
     /**
      * Return the number of reviews for this product.
-     *
-     * Uses annotated value if available (from optimized queryset),
-     * otherwise queries the database.
      */
     readonly reviewCount: number;
     /**
      * Return the number of likes/favourites for this product.
-     *
-     * Uses annotated value if available (from optimized queryset),
-     * otherwise queries the database.
      */
     readonly likesCount: number;
+    readonly attributes: Array<ProductAttribute>;
 };
 
 export type ProductFavourite = {
@@ -4380,6 +4479,43 @@ export type ZeroResultQuery = {
 };
 
 /**
+ * Serializer for Attribute with translations.
+ */
+export type AttributeWritable = {
+    translations: {
+        el?: {
+            name?: string;
+        };
+        en?: {
+            name?: string;
+        };
+        de?: {
+            name?: string;
+        };
+    };
+    active?: boolean;
+};
+
+/**
+ * Serializer for AttributeValue with translations.
+ */
+export type AttributeValueWritable = {
+    attribute: number;
+    translations: {
+        el?: {
+            value?: string;
+        };
+        en?: {
+            value?: string;
+        };
+        de?: {
+            value?: string;
+        };
+    };
+    active?: boolean;
+};
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type BlogAuthorWritable = {
@@ -4803,6 +4939,32 @@ export type OrderItemRefundResponseWritable = {
     detail: string;
     refundedAmount: number;
     item: OrderItemWritable;
+};
+
+export type PaginatedAttributeListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<AttributeWritable>;
+};
+
+export type PaginatedAttributeValueListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<AttributeValueWritable>;
 };
 
 export type PaginatedBlogAuthorListWritable = {
@@ -5255,6 +5417,13 @@ export type ProductWritable = {
     seoDescription?: string;
     seoKeywords?: string;
     discountPercent?: number;
+};
+
+/**
+ * Serializer for ProductAttribute with nested attribute and value info.
+ */
+export type ProductAttributeWritable = {
+    attributeValueId: number;
 };
 
 /**
@@ -11660,6 +11829,22 @@ export type ListProductData = {
     query?: {
         active?: 'true' | 'false' | '1' | '0' | boolean;
         /**
+         * Filter by attribute ID
+         */
+        attribute?: string | number;
+        /**
+         * Filter by multiple attribute IDs (comma-separated)
+         */
+        attribute_In?: string | Array<number>;
+        /**
+         * Filter by attribute value ID
+         */
+        attributeValue?: string | number;
+        /**
+         * Filter by multiple attribute value IDs (comma-separated)
+         */
+        attributeValue_In?: string | Array<number>;
+        /**
          * Filter by category ID (supports multiple IDs separated by underscore)
          */
         category?: string;
@@ -12050,6 +12235,380 @@ export type IncrementProductViewsResponses = {
 };
 
 export type IncrementProductViewsResponse = IncrementProductViewsResponses[keyof IncrementProductViewsResponses];
+
+export type ListAttributeData = {
+    body?: never;
+    path?: never;
+    query?: {
+        active?: 'true' | 'false' | '1' | '0' | boolean;
+        /**
+         * Filter items created after this date
+         */
+        createdAfter?: string;
+        createdAt_Date?: string;
+        createdAt_Gte?: string;
+        createdAt_Lte?: string;
+        /**
+         * Filter items created before this date
+         */
+        createdBefore?: string;
+        /**
+         * Cursor for pagination
+         */
+        cursor?: string;
+        hasValues?: 'true' | 'false' | '1' | '0' | boolean;
+        id?: string | number;
+        /**
+         * Filter by multiple attribute IDs (comma-separated)
+         */
+        id_In?: string | Array<number>;
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+        name?: string;
+        /**
+         * Which field to use when ordering the results. Available fields: id, -id, sortOrder, -sortOrder, createdAt, -createdAt, updatedAt, -updatedAt
+         */
+        ordering?: 'id' | '-id' | 'sortOrder' | '-sortOrder' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt';
+        /**
+         * A page number within the paginated result set.
+         */
+        page?: string | number;
+        /**
+         * Number of results to return per page
+         */
+        pageSize?: string | number;
+        /**
+         * Enable or disable pagination
+         */
+        pagination?: 'false' | 'true';
+        /**
+         * Pagination strategy type
+         */
+        paginationType?: 'cursor' | 'limitOffset' | 'pageNumber';
+        /**
+         * A search term.
+         */
+        search?: string;
+        /**
+         * Filter by exact sort order
+         */
+        sortOrder?: string | number;
+        /**
+         * Maximum sort order
+         */
+        sortOrderMax?: string | number;
+        /**
+         * Minimum sort order
+         */
+        sortOrderMin?: string | number;
+        /**
+         * Filter items updated after this date
+         */
+        updatedAfter?: string;
+        updatedAt_Date?: string;
+        updatedAt_Gte?: string;
+        updatedAt_Lte?: string;
+        /**
+         * Filter items updated before this date
+         */
+        updatedBefore?: string;
+        uuid?: string;
+    };
+    url: '/api/v1/product/attribute';
+};
+
+export type ListAttributeResponses = {
+    200: PaginatedAttributeList;
+};
+
+export type ListAttributeResponse = ListAttributeResponses[keyof ListAttributeResponses];
+
+export type CreateAttributeData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+    };
+    url: '/api/v1/product/attribute';
+};
+
+export type CreateAttributeResponses = {
+    201: Attribute;
+};
+
+export type CreateAttributeResponse = CreateAttributeResponses[keyof CreateAttributeResponses];
+
+export type DestroyAttributeData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/product/attribute/{id}';
+};
+
+export type DestroyAttributeResponses = {
+    /**
+     * No response body
+     */
+    204: void;
+};
+
+export type DestroyAttributeResponse = DestroyAttributeResponses[keyof DestroyAttributeResponses];
+
+export type RetrieveAttributeData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: {
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+    };
+    url: '/api/v1/product/attribute/{id}';
+};
+
+export type RetrieveAttributeResponses = {
+    200: Attribute;
+};
+
+export type RetrieveAttributeResponse = RetrieveAttributeResponses[keyof RetrieveAttributeResponses];
+
+export type PartialUpdateAttributeData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: {
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+    };
+    url: '/api/v1/product/attribute/{id}';
+};
+
+export type PartialUpdateAttributeResponses = {
+    200: Attribute;
+};
+
+export type PartialUpdateAttributeResponse = PartialUpdateAttributeResponses[keyof PartialUpdateAttributeResponses];
+
+export type UpdateAttributeData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: {
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+    };
+    url: '/api/v1/product/attribute/{id}';
+};
+
+export type UpdateAttributeResponses = {
+    200: Attribute;
+};
+
+export type UpdateAttributeResponse = UpdateAttributeResponses[keyof UpdateAttributeResponses];
+
+export type ListAttributeValueData = {
+    body?: never;
+    path?: never;
+    query?: {
+        active?: 'true' | 'false' | '1' | '0' | boolean;
+        attribute?: string | number;
+        /**
+         * Filter by multiple attribute IDs (comma-separated)
+         */
+        attribute_In?: string | Array<number>;
+        /**
+         * Filter items created after this date
+         */
+        createdAfter?: string;
+        createdAt_Date?: string;
+        createdAt_Gte?: string;
+        createdAt_Lte?: string;
+        /**
+         * Filter items created before this date
+         */
+        createdBefore?: string;
+        /**
+         * Cursor for pagination
+         */
+        cursor?: string;
+        id?: string | number;
+        /**
+         * Filter by multiple attribute value IDs (comma-separated)
+         */
+        id_In?: string | Array<number>;
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+        /**
+         * Which field to use when ordering the results. Available fields: id, -id, attribute, -attribute, sortOrder, -sortOrder, createdAt, -createdAt, updatedAt, -updatedAt
+         */
+        ordering?: 'id' | '-id' | 'attribute' | '-attribute' | 'sortOrder' | '-sortOrder' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt';
+        /**
+         * A page number within the paginated result set.
+         */
+        page?: string | number;
+        /**
+         * Number of results to return per page
+         */
+        pageSize?: string | number;
+        /**
+         * Enable or disable pagination
+         */
+        pagination?: 'false' | 'true';
+        /**
+         * Pagination strategy type
+         */
+        paginationType?: 'cursor' | 'limitOffset' | 'pageNumber';
+        /**
+         * A search term.
+         */
+        search?: string;
+        /**
+         * Filter by exact sort order
+         */
+        sortOrder?: string | number;
+        /**
+         * Maximum sort order
+         */
+        sortOrderMax?: string | number;
+        /**
+         * Minimum sort order
+         */
+        sortOrderMin?: string | number;
+        /**
+         * Filter items updated after this date
+         */
+        updatedAfter?: string;
+        updatedAt_Date?: string;
+        updatedAt_Gte?: string;
+        updatedAt_Lte?: string;
+        /**
+         * Filter items updated before this date
+         */
+        updatedBefore?: string;
+        uuid?: string;
+        value?: string;
+    };
+    url: '/api/v1/product/attribute/value';
+};
+
+export type ListAttributeValueResponses = {
+    200: PaginatedAttributeValueList;
+};
+
+export type ListAttributeValueResponse = ListAttributeValueResponses[keyof ListAttributeValueResponses];
+
+export type CreateAttributeValueData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+    };
+    url: '/api/v1/product/attribute/value';
+};
+
+export type CreateAttributeValueResponses = {
+    201: AttributeValue;
+};
+
+export type CreateAttributeValueResponse = CreateAttributeValueResponses[keyof CreateAttributeValueResponses];
+
+export type DestroyAttributeValueData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/product/attribute/value/{id}';
+};
+
+export type DestroyAttributeValueResponses = {
+    /**
+     * No response body
+     */
+    204: void;
+};
+
+export type DestroyAttributeValueResponse = DestroyAttributeValueResponses[keyof DestroyAttributeValueResponses];
+
+export type RetrieveAttributeValueData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: {
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+    };
+    url: '/api/v1/product/attribute/value/{id}';
+};
+
+export type RetrieveAttributeValueResponses = {
+    200: AttributeValue;
+};
+
+export type RetrieveAttributeValueResponse = RetrieveAttributeValueResponses[keyof RetrieveAttributeValueResponses];
+
+export type PartialUpdateAttributeValueData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: {
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+    };
+    url: '/api/v1/product/attribute/value/{id}';
+};
+
+export type PartialUpdateAttributeValueResponses = {
+    200: AttributeValue;
+};
+
+export type PartialUpdateAttributeValueResponse = PartialUpdateAttributeValueResponses[keyof PartialUpdateAttributeValueResponses];
+
+export type UpdateAttributeValueData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: {
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+    };
+    url: '/api/v1/product/attribute/value/{id}';
+};
+
+export type UpdateAttributeValueResponses = {
+    200: AttributeValue;
+};
+
+export type UpdateAttributeValueResponse = UpdateAttributeValueResponses[keyof UpdateAttributeValueResponses];
 
 export type ListProductCategoryData = {
     body?: never;

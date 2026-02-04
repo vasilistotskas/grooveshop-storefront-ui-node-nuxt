@@ -48,6 +48,10 @@ const emptyStateDescription = computed(() => {
     suggestions.push($i18n.t('products.no_results.try_lower_views'))
   }
 
+  if (filters.value.attributeValues.length > 0) {
+    suggestions.push($i18n.t('products.no_results.try_different_attributes'))
+  }
+
   // Return first suggestion or generic message
   if (suggestions.length > 0) {
     return suggestions[0]
@@ -124,11 +128,12 @@ const {
       likesMin: computed(() => filters.value.likesMin),
       viewsMin: computed(() => filters.value.viewsMin),
       categories: computed(() => filters.value.categories.length > 0 ? filters.value.categories.join(',') : undefined),
+      attributeValues: computed(() => filters.value.attributeValues.length > 0 ? filters.value.attributeValues.join(',') : undefined),
       sort: computed(() => filters.value.sort),
       languageCode: locale,
       limit,
       offset,
-      facets: 'category,final_price,likes_count,view_count',
+      facets: 'category,final_price,likes_count,view_count,attribute_values',
     },
     // Only watch limit and offset - query params are already reactive
     watch: [limit, offset],
@@ -224,6 +229,7 @@ watch(
     likesMin: filters.value.likesMin,
     viewsMin: filters.value.viewsMin,
     categories: filters.value.categories.join(','), // Convert to string for proper comparison
+    attributeValues: filters.value.attributeValues.join(','), // Convert to string for proper comparison
     // Note: sort is intentionally excluded - sort changes preserve scroll position
   }),
   (newFilters) => {

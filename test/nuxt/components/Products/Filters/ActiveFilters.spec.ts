@@ -24,6 +24,7 @@ const mockFilters = ref<ProductFilters>({
   viewsMin: undefined,
   categories: [],
   sort: '',
+  attributeValues: [],
 })
 
 const mockActiveFilterChips = ref<FilterChip[]>([])
@@ -52,6 +53,7 @@ describe('Feature: meilisearch-product-filters - ActiveFilters component', () =>
       viewsMin: undefined,
       categories: [],
       sort: '',
+      attributeValues: [],
     }
     mockActiveFilterChips.value = []
     mockHasActiveFilters.value = false

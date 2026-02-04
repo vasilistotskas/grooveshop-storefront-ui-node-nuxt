@@ -76,6 +76,11 @@ export default defineAppConfig({
         trigger: 'cursor-pointer',
       },
     },
+    accordion: {
+      slots: {
+        trigger: 'cursor-pointer',
+      },
+    },
   },
   icon: {
     mode: 'css',

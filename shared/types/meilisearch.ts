@@ -18,12 +18,19 @@
  *   category: {
  *     'Electronics': 45,
  *     'Clothing': 32
+ *   },
+ *   attributeValues: {
+ *     '10': 15,
+ *     '20': 8
  *   }
  * }
  */
 export interface FacetDistribution {
   category?: {
     [categoryId: string]: number
+  }
+  attributeValues?: {
+    [attributeValueId: string]: number
   }
   [facetName: string]: {
     [facetValue: string]: number
