@@ -1,3 +1,11 @@
+## [3.64.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.64.1...v3.64.2) (2026-02-04)
+
+
+### Bug Fixes
+
+* product UI ([e7c3037](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e7c3037f3cca714dc520b92040adfd0d44da11f3))
+* UI improvements ([a44f180](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a44f1803af86c4e5628ed5773b63714d804ac720))
+
 ## [3.64.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.64.0...v3.64.1) (2026-02-04)
 
 
