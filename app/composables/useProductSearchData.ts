@@ -71,6 +71,7 @@ export function useProductSearchData() {
     priceMax: filters.value.priceMax,
     likesMin: filters.value.likesMin,
     viewsMin: filters.value.viewsMin,
+    attributeValues: filters.value.attributeValues.length > 0 ? filters.value.attributeValues.join(',') : undefined,
     sort: filters.value.sort,
     facets: 'category',
     limit: 1,
@@ -84,6 +85,7 @@ export function useProductSearchData() {
     if (filters.value.priceMax !== undefined) params.set('priceMax', filters.value.priceMax.toString())
     if (filters.value.likesMin !== undefined) params.set('likesMin', filters.value.likesMin.toString())
     if (filters.value.viewsMin !== undefined) params.set('viewsMin', filters.value.viewsMin.toString())
+    if (filters.value.attributeValues.length > 0) params.set('attributeValues', filters.value.attributeValues.join(','))
     if (filters.value.sort) params.set('sort', filters.value.sort)
     return `category-facets-${$i18n.locale.value}-${params.toString()}`
   })
