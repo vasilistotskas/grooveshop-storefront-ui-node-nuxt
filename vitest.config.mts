@@ -61,6 +61,12 @@ export default defineConfig({
                 intersectionObserver: true,
                 indexedDb: true,
               },
+              overrides: {
+                // Disable manifest fetching during tests to prevent timeout errors
+                experimental: {
+                  appManifest: false,
+                },
+              },
             },
           },
         },
@@ -81,6 +87,12 @@ export default defineConfig({
               mock: {
                 intersectionObserver: true,
                 indexedDb: true,
+              },
+              overrides: {
+                // Disable manifest fetching during tests to prevent timeout errors
+                experimental: {
+                  appManifest: false,
+                },
               },
             },
           },
