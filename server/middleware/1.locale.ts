@@ -35,6 +35,6 @@ export default defineEventHandler((event) => {
   }
 
   // Store locale in event context for use in API routes
-  console.info(`[Locale] Locale Middleware Detected: ${locale}`)
+  console.debug(`[Locale] Locale Middleware Detected: ${locale}`)
   event.context.locale = locale
 })
