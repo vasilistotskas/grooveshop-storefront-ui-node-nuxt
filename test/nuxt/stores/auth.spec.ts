@@ -2,14 +2,18 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useAuthStore } from '~/stores/auth'
 
-vi.mock('#app', () => ({
-  useNuxtApp: () => ({}),
-  useRequestHeaders: () => ({}),
-  useUserSession: () => ({
-    loggedIn: { value: true },
-    clear: vi.fn(),
-  }),
-}))
+vi.mock('#app', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>()
+  return {
+    ...actual,
+    useNuxtApp: () => ({}),
+    useRequestHeaders: () => ({}),
+    useUserSession: () => ({
+      loggedIn: { value: true },
+      clear: vi.fn(),
+    }),
+  }
+})
 
 vi.mock('~/composables/useAllAuthAuthentication', () => ({
   useAllAuthAuthentication: () => ({

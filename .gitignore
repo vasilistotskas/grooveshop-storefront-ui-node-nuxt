@@ -33,6 +33,7 @@ coverage
 .eslintcache
 
 # AI
+.agents
 .claude
 .cursor
 .cursorrules

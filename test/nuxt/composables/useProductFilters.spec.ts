@@ -26,6 +26,8 @@ const mockRouter = {
     mockRoute.value = { query: to.query ? { ...to.query } : {} }
     return Promise.resolve()
   }),
+  afterEach: vi.fn(() => vi.fn()),
+  beforeEach: vi.fn(() => vi.fn()),
 }
 
 // Mock i18n

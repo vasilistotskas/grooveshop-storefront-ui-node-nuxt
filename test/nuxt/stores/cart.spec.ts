@@ -10,12 +10,16 @@ const mockI18n = {
   }),
 }
 
-vi.mock('#app', () => ({
-  useNuxtApp: () => ({
-    $i18n: mockI18n,
-  }),
-  useRequestHeaders: () => ({}),
-}))
+vi.mock('#app', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>()
+  return {
+    ...actual,
+    useNuxtApp: () => ({
+      $i18n: mockI18n,
+    }),
+    useRequestHeaders: () => ({}),
+  }
+})
 
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)

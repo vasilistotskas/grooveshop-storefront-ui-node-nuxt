@@ -557,35 +557,6 @@ export type BlogPostDetail = {
     seoKeywords?: string;
 };
 
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export type BlogPostDetailRequest = {
-    slug: string;
-    translations: {
-        el?: {
-            title?: string;
-            subtitle?: string;
-            body?: string;
-        };
-        en?: {
-            title?: string;
-            subtitle?: string;
-            body?: string;
-        };
-        de?: {
-            title?: string;
-            subtitle?: string;
-            body?: string;
-        };
-    };
-    featured?: boolean;
-    isPublished?: boolean;
-    seoTitle?: string;
-    seoDescription?: string;
-    seoKeywords?: string;
-};
-
 export type BlogPostLikedPostsRequestRequest = {
     /**
      * List of post IDs to check for likes
@@ -1097,7 +1068,7 @@ export type DateRange = {
     end: string;
 };
 
-export type DetailRequest = {
+export type Detail = {
     detail: string;
 };
 
@@ -1303,13 +1274,6 @@ export type NotificationIdsRequest = {
 };
 
 export type NotificationSuccessResponse = {
-    /**
-     * Whether the operation was successful
-     */
-    success?: boolean;
-};
-
-export type NotificationSuccessResponseRequest = {
     /**
      * Whether the operation was successful
      */
@@ -1630,14 +1594,14 @@ export type OrderItemWriteRequest = {
 };
 
 /**
- * * `PENDING` - Pending
- * * `PROCESSING` - Processing
- * * `SHIPPED` - Shipped
- * * `DELIVERED` - Delivered
- * * `COMPLETED` - Completed
- * * `CANCELED` - Canceled
- * * `RETURNED` - Returned
- * * `REFUNDED` - Refunded
+ * * `PENDING` - Εκκρεμεί
+ * * `PROCESSING` - Σε επεξεργασία
+ * * `SHIPPED` - Απεστάλη
+ * * `DELIVERED` - Παραδόθηκε
+ * * `COMPLETED` - Ολοκληρώθηκε
+ * * `CANCELED` - Ακυρώθηκε
+ * * `RETURNED` - Επιστράφηκε
+ * * `REFUNDED` - Επεστράφη
  */
 export type OrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'COMPLETED' | 'CANCELED' | 'RETURNED' | 'REFUNDED';
 
@@ -2784,13 +2748,13 @@ export type PayWayWriteRequest = {
 };
 
 /**
- * * `PENDING` - Pending
- * * `PROCESSING` - Processing
- * * `COMPLETED` - Completed
+ * * `PENDING` - Εκκρεμεί
+ * * `PROCESSING` - Σε επεξεργασία
+ * * `COMPLETED` - Ολοκληρώθηκε
  * * `FAILED` - Failed
- * * `REFUNDED` - Refunded
+ * * `REFUNDED` - Επεστράφη
  * * `PARTIALLY_REFUNDED` - Partially Refunded
- * * `CANCELED` - Canceled
+ * * `CANCELED` - Ακυρώθηκε
  */
 export type PaymentStatusEnum = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'REFUNDED' | 'PARTIALLY_REFUNDED' | 'CANCELED';
 
@@ -2882,13 +2846,6 @@ export type ProductAttribute = {
      */
     readonly value: string;
     readonly createdAt: string;
-};
-
-/**
- * Serializer for ProductAttribute with nested attribute and value info.
- */
-export type ProductAttributeRequest = {
-    attributeValueId: number;
 };
 
 /**
@@ -3145,40 +3102,6 @@ export type ProductDetail = {
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export type ProductDetailRequest = {
-    translations: {
-        el?: {
-            name?: string;
-            description?: string;
-        };
-        en?: {
-            name?: string;
-            description?: string;
-        };
-        de?: {
-            name?: string;
-            description?: string;
-        };
-    };
-    slug: string;
-    category: number;
-    price: number;
-    vat: number;
-    stock?: number;
-    active?: boolean;
-    weight?: {
-        unit?: string;
-        value?: number;
-    } | null;
-    seoTitle?: string;
-    seoDescription?: string;
-    seoKeywords?: string;
-    discountPercent?: number;
-};
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
 export type ProductDetailResponse = {
     readonly id: number;
     translations: {
@@ -3248,6 +3171,13 @@ export type ProductFavouriteByProductsRequestRequest = {
      * List of product IDs to check for favorites
      */
     productIds: Array<number>;
+};
+
+export type ProductFavouriteByProductsResponse = {
+    id: number;
+    userId: number;
+    productId: number;
+    createdAt: string;
 };
 
 export type ProductFavouriteDetail = {
@@ -3861,58 +3791,6 @@ export type SubscriptionTopicDetail = {
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export type SubscriptionTopicRequest = {
-    translations: {
-        el?: {
-            name?: string;
-            description?: string;
-        };
-        en?: {
-            name?: string;
-            description?: string;
-        };
-        de?: {
-            name?: string;
-            description?: string;
-        };
-    };
-    /**
-     * Unique identifier for the topic (e.g., 'weekly-newsletter')
-     */
-    slug: string;
-    /**
-     * Category of the subscription topic
-     *
-     * * `MARKETING` - Marketing Campaigns
-     * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
-     * * `NEWSLETTER` - Newsletter
-     * * `PROMOTIONAL` - Promotional
-     * * `OTHER` - Other
-     */
-    category?: CategoryEnum;
-    /**
-     * Active
-     *
-     * Whether this topic is currently available for subscription
-     */
-    isActive?: boolean;
-    /**
-     * Default Subscription
-     *
-     * Whether new users are automatically subscribed to this topic
-     */
-    isDefault?: boolean;
-    /**
-     * Whether subscription to this topic requires email confirmation
-     */
-    requiresConfirmation?: boolean;
-};
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
 export type SubscriptionTopicWriteRequest = {
     translations: {
         el?: {
@@ -4346,30 +4224,6 @@ export type UserSubscriptionDetail = {
      * Token for email confirmation if required
      */
     readonly confirmationToken: string;
-};
-
-export type UserSubscriptionDetailRequest = {
-    topic: number;
-    /**
-     * Κατάσταση
-     */
-    status?: SubscriptionStatus;
-    /**
-     * Additional subscription preferences or data
-     */
-    metadata?: unknown;
-};
-
-export type UserSubscriptionRequest = {
-    topic: number;
-    /**
-     * Κατάσταση
-     */
-    status?: SubscriptionStatus;
-    /**
-     * Additional subscription preferences or data
-     */
-    metadata?: unknown;
 };
 
 export type UserSubscriptionWriteRequest = {
@@ -6057,6 +5911,16 @@ export type ListBlogAuthorData = {
     url: '/api/v1/blog/author';
 };
 
+export type ListBlogAuthorErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListBlogAuthorError = ListBlogAuthorErrors[keyof ListBlogAuthorErrors];
+
 export type ListBlogAuthorResponses = {
     200: PaginatedBlogAuthorList;
 };
@@ -6075,6 +5939,16 @@ export type CreateBlogAuthorData = {
     url: '/api/v1/blog/author';
 };
 
+export type CreateBlogAuthorErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateBlogAuthorError = CreateBlogAuthorErrors[keyof CreateBlogAuthorErrors];
+
 export type CreateBlogAuthorResponses = {
     201: BlogAuthorDetail;
 };
@@ -6089,6 +5963,14 @@ export type DestroyBlogAuthorData = {
     query?: never;
     url: '/api/v1/blog/author/{id}';
 };
+
+export type DestroyBlogAuthorErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyBlogAuthorError = DestroyBlogAuthorErrors[keyof DestroyBlogAuthorErrors];
 
 export type DestroyBlogAuthorResponses = {
     /**
@@ -6113,6 +5995,15 @@ export type RetrieveBlogAuthorData = {
     url: '/api/v1/blog/author/{id}';
 };
 
+export type RetrieveBlogAuthorErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveBlogAuthorError = RetrieveBlogAuthorErrors[keyof RetrieveBlogAuthorErrors];
+
 export type RetrieveBlogAuthorResponses = {
     200: BlogAuthorDetail;
 };
@@ -6133,6 +6024,16 @@ export type PartialUpdateBlogAuthorData = {
     url: '/api/v1/blog/author/{id}';
 };
 
+export type PartialUpdateBlogAuthorErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateBlogAuthorError = PartialUpdateBlogAuthorErrors[keyof PartialUpdateBlogAuthorErrors];
+
 export type PartialUpdateBlogAuthorResponses = {
     200: BlogAuthorDetail;
 };
@@ -6152,6 +6053,16 @@ export type UpdateBlogAuthorData = {
     };
     url: '/api/v1/blog/author/{id}';
 };
+
+export type UpdateBlogAuthorErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateBlogAuthorError = UpdateBlogAuthorErrors[keyof UpdateBlogAuthorErrors];
 
 export type UpdateBlogAuthorResponses = {
     200: BlogAuthorDetail;
@@ -6186,7 +6097,11 @@ export type GetBlogAuthorPostsData = {
 };
 
 export type GetBlogAuthorPostsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetBlogAuthorPostsError = GetBlogAuthorPostsErrors[keyof GetBlogAuthorPostsErrors];
@@ -6233,6 +6148,16 @@ export type ListBlogCategoryData = {
     url: '/api/v1/blog/category';
 };
 
+export type ListBlogCategoryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListBlogCategoryError = ListBlogCategoryErrors[keyof ListBlogCategoryErrors];
+
 export type ListBlogCategoryResponses = {
     200: PaginatedBlogCategoryList;
 };
@@ -6251,6 +6176,16 @@ export type CreateBlogCategoryData = {
     url: '/api/v1/blog/category';
 };
 
+export type CreateBlogCategoryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateBlogCategoryError = CreateBlogCategoryErrors[keyof CreateBlogCategoryErrors];
+
 export type CreateBlogCategoryResponses = {
     201: BlogCategoryDetail;
 };
@@ -6265,6 +6200,14 @@ export type DestroyBlogCategoryData = {
     query?: never;
     url: '/api/v1/blog/category/{id}';
 };
+
+export type DestroyBlogCategoryErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyBlogCategoryError = DestroyBlogCategoryErrors[keyof DestroyBlogCategoryErrors];
 
 export type DestroyBlogCategoryResponses = {
     /**
@@ -6289,6 +6232,15 @@ export type RetrieveBlogCategoryData = {
     url: '/api/v1/blog/category/{id}';
 };
 
+export type RetrieveBlogCategoryErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveBlogCategoryError = RetrieveBlogCategoryErrors[keyof RetrieveBlogCategoryErrors];
+
 export type RetrieveBlogCategoryResponses = {
     200: BlogCategoryDetail;
 };
@@ -6309,6 +6261,16 @@ export type PartialUpdateBlogCategoryData = {
     url: '/api/v1/blog/category/{id}';
 };
 
+export type PartialUpdateBlogCategoryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateBlogCategoryError = PartialUpdateBlogCategoryErrors[keyof PartialUpdateBlogCategoryErrors];
+
 export type PartialUpdateBlogCategoryResponses = {
     200: BlogCategoryDetail;
 };
@@ -6328,6 +6290,16 @@ export type UpdateBlogCategoryData = {
     };
     url: '/api/v1/blog/category/{id}';
 };
+
+export type UpdateBlogCategoryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateBlogCategoryError = UpdateBlogCategoryErrors[keyof UpdateBlogCategoryErrors];
 
 export type UpdateBlogCategoryResponses = {
     200: BlogCategoryDetail;
@@ -6362,7 +6334,11 @@ export type ListBlogCategoryAncestorsData = {
 };
 
 export type ListBlogCategoryAncestorsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListBlogCategoryAncestorsError = ListBlogCategoryAncestorsErrors[keyof ListBlogCategoryAncestorsErrors];
@@ -6400,7 +6376,11 @@ export type ListBlogCategoryChildrenData = {
 };
 
 export type ListBlogCategoryChildrenErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListBlogCategoryChildrenError = ListBlogCategoryChildrenErrors[keyof ListBlogCategoryChildrenErrors];
@@ -6438,7 +6418,11 @@ export type ListBlogCategoryDescendantsData = {
 };
 
 export type ListBlogCategoryDescendantsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListBlogCategoryDescendantsError = ListBlogCategoryDescendantsErrors[keyof ListBlogCategoryDescendantsErrors];
@@ -6480,7 +6464,11 @@ export type ListBlogCategoryPostsData = {
 };
 
 export type ListBlogCategoryPostsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListBlogCategoryPostsError = ListBlogCategoryPostsErrors[keyof ListBlogCategoryPostsErrors];
@@ -6518,7 +6506,11 @@ export type ListBlogCategorySiblingsData = {
 };
 
 export type ListBlogCategorySiblingsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListBlogCategorySiblingsError = ListBlogCategorySiblingsErrors[keyof ListBlogCategorySiblingsErrors];
@@ -6539,6 +6531,9 @@ export type ReorderBlogCategoriesData = {
 export type ReorderBlogCategoriesErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ReorderBlogCategoriesError = ReorderBlogCategoriesErrors[keyof ReorderBlogCategoriesErrors];
@@ -6572,6 +6567,16 @@ export type GetBlogCategoryTreeData = {
     };
     url: '/api/v1/blog/category/tree';
 };
+
+export type GetBlogCategoryTreeErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type GetBlogCategoryTreeError = GetBlogCategoryTreeErrors[keyof GetBlogCategoryTreeErrors];
 
 export type GetBlogCategoryTreeResponses = {
     200: PaginatedBlogCategoryList;
@@ -6972,7 +6977,11 @@ export type GetBlogCommentPostData = {
 };
 
 export type GetBlogCommentPostErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetBlogCommentPostError = GetBlogCommentPostErrors[keyof GetBlogCommentPostErrors];
@@ -7194,7 +7203,11 @@ export type ListBlogCommentRepliesData = {
 };
 
 export type ListBlogCommentRepliesErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListBlogCommentRepliesError = ListBlogCommentRepliesErrors[keyof ListBlogCommentRepliesErrors];
@@ -7415,6 +7428,16 @@ export type GetBlogCommentThreadData = {
     url: '/api/v1/blog/comment/{id}/thread';
 };
 
+export type GetBlogCommentThreadErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type GetBlogCommentThreadError = GetBlogCommentThreadErrors[keyof GetBlogCommentThreadErrors];
+
 export type GetBlogCommentThreadResponses = {
     200: PaginatedBlogCommentList;
 };
@@ -7431,8 +7454,11 @@ export type ToggleBlogCommentLikeData = {
 };
 
 export type ToggleBlogCommentLikeErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ToggleBlogCommentLikeError = ToggleBlogCommentLikeErrors[keyof ToggleBlogCommentLikeErrors];
@@ -7453,6 +7479,9 @@ export type CheckBlogCommentLikesData = {
 export type CheckBlogCommentLikesErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type CheckBlogCommentLikesError = CheckBlogCommentLikesErrors[keyof CheckBlogCommentLikesErrors];
@@ -7672,7 +7701,11 @@ export type ListMyBlogCommentsData = {
 };
 
 export type ListMyBlogCommentsErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListMyBlogCommentsError = ListMyBlogCommentsErrors[keyof ListMyBlogCommentsErrors];
@@ -8021,7 +8054,11 @@ export type ListBlogPostCommentsData = {
 };
 
 export type ListBlogPostCommentsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListBlogPostCommentsError = ListBlogPostCommentsErrors[keyof ListBlogPostCommentsErrors];
@@ -8040,12 +8077,129 @@ export type ListBlogPostRelatedData = {
          */
         id: string | number;
     };
-    query?: never;
+    query?: {
+        /**
+         * Filter by author ID
+         */
+        author?: string | number;
+        /**
+         * Filter by author email (case-insensitive)
+         */
+        authorEmail?: string;
+        /**
+         * Filter by author full name (case-insensitive)
+         */
+        authorName?: string;
+        /**
+         * Filter by category ID
+         */
+        category?: string | number;
+        /**
+         * Filter by category name (case-insensitive)
+         */
+        categoryName?: string;
+        /**
+         * Filter items created after this date
+         */
+        createdAfter?: string;
+        createdAt_Date?: string;
+        createdAt_Gte?: string;
+        createdAt_Lte?: string;
+        /**
+         * Filter items created before this date
+         */
+        createdBefore?: string;
+        /**
+         * Filter items that are currently published (published_at <= now and is_published=True)
+         */
+        currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean;
+        /**
+         * Filter by featured status
+         */
+        featured?: 'true' | 'false' | '1' | '0' | boolean;
+        id?: string | number;
+        /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+        id_In?: string | Array<number>;
+        /**
+         * Filter by published status
+         */
+        isPublished?: 'true' | 'false' | '1' | '0' | boolean;
+        /**
+         * Filter by minimum number of approved comments
+         */
+        minComments?: string | number;
+        /**
+         * Filter by minimum number of likes
+         */
+        minLikes?: string | number;
+        /**
+         * Filter by minimum number of active tags
+         */
+        minTags?: string | number;
+        /**
+         * Filter by minimum number of views
+         */
+        minViewCount?: string | number;
+        /**
+         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
+         */
+        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt' | 'publishedAt' | '-publishedAt' | 'viewCount' | '-viewCount' | 'featured' | '-featured';
+        /**
+         * Filter items published after this date
+         */
+        publishedAfter?: string;
+        publishedAt_Date?: string;
+        publishedAt_Gte?: string;
+        publishedAt_Lte?: string;
+        /**
+         * Filter items published before this date
+         */
+        publishedBefore?: string;
+        /**
+         * A search term.
+         */
+        search?: string;
+        slug?: string;
+        slug_Icontains?: string;
+        /**
+         * Filter by tag label (case-insensitive)
+         */
+        tagName?: string;
+        /**
+         * Filter by tag IDs (comma-separated)
+         */
+        tags?: string | Array<number>;
+        /**
+         * Filter by title (case-insensitive)
+         */
+        title?: string;
+        /**
+         * Filter items updated after this date
+         */
+        updatedAfter?: string;
+        updatedAt_Date?: string;
+        updatedAt_Gte?: string;
+        updatedAt_Lte?: string;
+        /**
+         * Filter items updated before this date
+         */
+        updatedBefore?: string;
+        uuid?: string;
+        viewCount?: string | number;
+        viewCount_Gte?: string | number;
+        viewCount_Lte?: string | number;
+    };
     url: '/api/v1/blog/post/{id}/related_posts';
 };
 
 export type ListBlogPostRelatedErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListBlogPostRelatedError = ListBlogPostRelatedErrors[keyof ListBlogPostRelatedErrors];
@@ -8066,8 +8220,11 @@ export type ToggleBlogPostLikeData = {
 };
 
 export type ToggleBlogPostLikeErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ToggleBlogPostLikeError = ToggleBlogPostLikeErrors[keyof ToggleBlogPostLikeErrors];
@@ -8079,7 +8236,7 @@ export type ToggleBlogPostLikeResponses = {
 export type ToggleBlogPostLikeResponse = ToggleBlogPostLikeResponses[keyof ToggleBlogPostLikeResponses];
 
 export type IncrementBlogPostViewsData = {
-    body: BlogPostDetailRequest;
+    body?: never;
     path: {
         id: string | number;
     };
@@ -8088,7 +8245,11 @@ export type IncrementBlogPostViewsData = {
 };
 
 export type IncrementBlogPostViewsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type IncrementBlogPostViewsError = IncrementBlogPostViewsErrors[keyof IncrementBlogPostViewsErrors];
@@ -8227,6 +8388,16 @@ export type ListFeaturedBlogPostsData = {
     url: '/api/v1/blog/post/featured';
 };
 
+export type ListFeaturedBlogPostsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListFeaturedBlogPostsError = ListFeaturedBlogPostsErrors[keyof ListFeaturedBlogPostsErrors];
+
 export type ListFeaturedBlogPostsResponses = {
     200: PaginatedBlogPostList;
 };
@@ -8242,6 +8413,10 @@ export type CheckBlogPostLikesData = {
 
 export type CheckBlogPostLikesErrors = {
     400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type CheckBlogPostLikesError = CheckBlogPostLikesErrors[keyof CheckBlogPostLikesErrors];
@@ -8380,6 +8555,16 @@ export type ListPopularBlogPostsData = {
     url: '/api/v1/blog/post/popular';
 };
 
+export type ListPopularBlogPostsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListPopularBlogPostsError = ListPopularBlogPostsErrors[keyof ListPopularBlogPostsErrors];
+
 export type ListPopularBlogPostsResponses = {
     200: PaginatedBlogPostList;
 };
@@ -8517,6 +8702,16 @@ export type ListTrendingBlogPostsData = {
     };
     url: '/api/v1/blog/post/trending';
 };
+
+export type ListTrendingBlogPostsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListTrendingBlogPostsError = ListTrendingBlogPostsErrors[keyof ListTrendingBlogPostsErrors];
 
 export type ListTrendingBlogPostsResponses = {
     200: PaginatedBlogPostList;
@@ -8840,19 +9035,11 @@ export type DestroyCartData = {
 
 export type DestroyCartErrors = {
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
 };
 
 export type DestroyCartError = DestroyCartErrors[keyof DestroyCartErrors];
-
-export type DestroyCartResponses = {
-    /**
-     * No response body
-     */
-    204: void;
-};
-
-export type DestroyCartResponse = DestroyCartResponses[keyof DestroyCartResponses];
 
 export type RetrieveCartData = {
     body?: never;
@@ -8868,7 +9055,10 @@ export type RetrieveCartData = {
 };
 
 export type RetrieveCartErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type RetrieveCartError = RetrieveCartErrors[keyof RetrieveCartErrors];
@@ -8893,7 +9083,11 @@ export type PartialUpdateCartData = {
 };
 
 export type PartialUpdateCartErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type PartialUpdateCartError = PartialUpdateCartErrors[keyof PartialUpdateCartErrors];
@@ -8918,7 +9112,11 @@ export type UpdateCartData = {
 };
 
 export type UpdateCartErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type UpdateCartError = UpdateCartErrors[keyof UpdateCartErrors];
@@ -8930,12 +9128,7 @@ export type UpdateCartResponses = {
 export type UpdateCartResponse = UpdateCartResponses[keyof UpdateCartResponses];
 
 export type CreateCartPaymentIntentData = {
-    body?: {
-        /**
-         * Payment method ID (must be Stripe)
-         */
-        pay_way_id: number;
-    };
+    body?: never;
     headers?: {
         /**
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.
@@ -8949,25 +9142,13 @@ export type CreateCartPaymentIntentData = {
 
 export type CreateCartPaymentIntentErrors = {
     400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type CreateCartPaymentIntentError = CreateCartPaymentIntentErrors[keyof CreateCartPaymentIntentErrors];
-
-export type CreateCartPaymentIntentResponses = {
-    200: {
-        /**
-         * Stripe client secret for payment confirmation
-         */
-        client_secret?: string;
-        /**
-         * Payment intent ID to include in order creation
-         */
-        payment_intent_id?: string;
-    };
-};
-
-export type CreateCartPaymentIntentResponse = CreateCartPaymentIntentResponses[keyof CreateCartPaymentIntentResponses];
 
 export type ListCartItemData = {
     body?: never;
@@ -9158,6 +9339,7 @@ export type ListCartItemErrors = {
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListCartItemError = ListCartItemErrors[keyof ListCartItemErrors];
@@ -9185,6 +9367,8 @@ export type CreateCartItemErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
     403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type CreateCartItemError = CreateCartItemErrors[keyof CreateCartItemErrors];
@@ -9218,15 +9402,6 @@ export type DestroyCartItemErrors = {
 
 export type DestroyCartItemError = DestroyCartItemErrors[keyof DestroyCartItemErrors];
 
-export type DestroyCartItemResponses = {
-    /**
-     * No response body
-     */
-    204: void;
-};
-
-export type DestroyCartItemResponse = DestroyCartItemResponses[keyof DestroyCartItemResponses];
-
 export type RetrieveCartItemData = {
     body?: never;
     headers?: {
@@ -9251,6 +9426,7 @@ export type RetrieveCartItemErrors = {
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type RetrieveCartItemError = RetrieveCartItemErrors[keyof RetrieveCartItemErrors];
@@ -9286,6 +9462,7 @@ export type PartialUpdateCartItemErrors = {
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type PartialUpdateCartItemError = PartialUpdateCartItemErrors[keyof PartialUpdateCartItemErrors];
@@ -9316,6 +9493,7 @@ export type UpdateCartItemErrors = {
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type UpdateCartItemError = UpdateCartItemErrors[keyof UpdateCartItemErrors];
@@ -9492,7 +9670,11 @@ export type ListCartData = {
 };
 
 export type ListCartErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListCartError = ListCartErrors[keyof ListCartErrors];
@@ -9518,6 +9700,10 @@ export type ReleaseCartReservationsData = {
 
 export type ReleaseCartReservationsErrors = {
     400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ReleaseCartReservationsError = ReleaseCartReservationsErrors[keyof ReleaseCartReservationsErrors];
@@ -9543,7 +9729,10 @@ export type ReserveCartStockData = {
 
 export type ReserveCartStockErrors = {
     400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ReserveCartStockError = ReserveCartStockErrors[keyof ReserveCartStockErrors];
@@ -9753,6 +9942,16 @@ export type ListCountryData = {
     url: '/api/v1/country';
 };
 
+export type ListCountryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListCountryError = ListCountryErrors[keyof ListCountryErrors];
+
 export type ListCountryResponses = {
     200: PaginatedCountryList;
 };
@@ -9770,6 +9969,16 @@ export type CreateCountryData = {
     };
     url: '/api/v1/country';
 };
+
+export type CreateCountryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateCountryError = CreateCountryErrors[keyof CreateCountryErrors];
 
 export type CreateCountryResponses = {
     201: CountryDetail;
@@ -9790,6 +9999,14 @@ export type DestroyCountryData = {
     query?: never;
     url: '/api/v1/country/{alpha_2}';
 };
+
+export type DestroyCountryErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyCountryError = DestroyCountryErrors[keyof DestroyCountryErrors];
 
 export type DestroyCountryResponses = {
     /**
@@ -9819,6 +10036,15 @@ export type RetrieveCountryData = {
     url: '/api/v1/country/{alpha_2}';
 };
 
+export type RetrieveCountryErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveCountryError = RetrieveCountryErrors[keyof RetrieveCountryErrors];
+
 export type RetrieveCountryResponses = {
     200: CountryDetail;
 };
@@ -9844,6 +10070,16 @@ export type PartialUpdateCountryData = {
     url: '/api/v1/country/{alpha_2}';
 };
 
+export type PartialUpdateCountryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateCountryError = PartialUpdateCountryErrors[keyof PartialUpdateCountryErrors];
+
 export type PartialUpdateCountryResponses = {
     200: CountryDetail;
 };
@@ -9868,6 +10104,16 @@ export type UpdateCountryData = {
     };
     url: '/api/v1/country/{alpha_2}';
 };
+
+export type UpdateCountryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateCountryError = UpdateCountryErrors[keyof UpdateCountryErrors];
 
 export type UpdateCountryResponses = {
     200: CountryDetail;
@@ -10089,6 +10335,16 @@ export type ListNotificationUserData = {
     url: '/api/v1/notification/user';
 };
 
+export type ListNotificationUserErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListNotificationUserError = ListNotificationUserErrors[keyof ListNotificationUserErrors];
+
 export type ListNotificationUserResponses = {
     200: PaginatedNotificationUserList;
 };
@@ -10107,6 +10363,16 @@ export type CreateNotificationUserData = {
     url: '/api/v1/notification/user';
 };
 
+export type CreateNotificationUserErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateNotificationUserError = CreateNotificationUserErrors[keyof CreateNotificationUserErrors];
+
 export type CreateNotificationUserResponses = {
     201: NotificationUserDetail;
 };
@@ -10121,6 +10387,14 @@ export type DestroyNotificationUserData = {
     query?: never;
     url: '/api/v1/notification/user/{id}';
 };
+
+export type DestroyNotificationUserErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyNotificationUserError = DestroyNotificationUserErrors[keyof DestroyNotificationUserErrors];
 
 export type DestroyNotificationUserResponses = {
     /**
@@ -10145,6 +10419,15 @@ export type RetrieveNotificationUserData = {
     url: '/api/v1/notification/user/{id}';
 };
 
+export type RetrieveNotificationUserErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveNotificationUserError = RetrieveNotificationUserErrors[keyof RetrieveNotificationUserErrors];
+
 export type RetrieveNotificationUserResponses = {
     200: NotificationUserDetail;
 };
@@ -10164,6 +10447,16 @@ export type PartialUpdateNotificationUserData = {
     };
     url: '/api/v1/notification/user/{id}';
 };
+
+export type PartialUpdateNotificationUserErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateNotificationUserError = PartialUpdateNotificationUserErrors[keyof PartialUpdateNotificationUserErrors];
 
 export type PartialUpdateNotificationUserResponses = {
     200: NotificationUserDetail;
@@ -10185,6 +10478,16 @@ export type UpdateNotificationUserData = {
     url: '/api/v1/notification/user/{id}';
 };
 
+export type UpdateNotificationUserErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateNotificationUserError = UpdateNotificationUserErrors[keyof UpdateNotificationUserErrors];
+
 export type UpdateNotificationUserResponses = {
     200: NotificationUserDetail;
 };
@@ -10192,14 +10495,18 @@ export type UpdateNotificationUserResponses = {
 export type UpdateNotificationUserResponse = UpdateNotificationUserResponses[keyof UpdateNotificationUserResponses];
 
 export type MarkAllNotificationUsersAsSeenData = {
-    body?: NotificationSuccessResponseRequest;
+    body?: never;
     path?: never;
     query?: never;
     url: '/api/v1/notification/user/mark_all_as_seen';
 };
 
 export type MarkAllNotificationUsersAsSeenErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type MarkAllNotificationUsersAsSeenError = MarkAllNotificationUsersAsSeenErrors[keyof MarkAllNotificationUsersAsSeenErrors];
@@ -10211,14 +10518,18 @@ export type MarkAllNotificationUsersAsSeenResponses = {
 export type MarkAllNotificationUsersAsSeenResponse = MarkAllNotificationUsersAsSeenResponses[keyof MarkAllNotificationUsersAsSeenResponses];
 
 export type MarkAllNotificationUsersAsUnseenData = {
-    body?: NotificationSuccessResponseRequest;
+    body?: never;
     path?: never;
     query?: never;
     url: '/api/v1/notification/user/mark_all_as_unseen';
 };
 
 export type MarkAllNotificationUsersAsUnseenErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type MarkAllNotificationUsersAsUnseenError = MarkAllNotificationUsersAsUnseenErrors[keyof MarkAllNotificationUsersAsUnseenErrors];
@@ -10239,6 +10550,9 @@ export type MarkNotificationUsersAsSeenData = {
 export type MarkNotificationUsersAsSeenErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type MarkNotificationUsersAsSeenError = MarkNotificationUsersAsSeenErrors[keyof MarkNotificationUsersAsSeenErrors];
@@ -10259,6 +10573,9 @@ export type MarkNotificationUsersAsUnseenData = {
 export type MarkNotificationUsersAsUnseenErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type MarkNotificationUsersAsUnseenError = MarkNotificationUsersAsUnseenErrors[keyof MarkNotificationUsersAsUnseenErrors];
@@ -10277,7 +10594,11 @@ export type GetNotificationUserUnseenCountData = {
 };
 
 export type GetNotificationUserUnseenCountErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetNotificationUserUnseenCountError = GetNotificationUserUnseenCountErrors[keyof GetNotificationUserUnseenCountErrors];
@@ -10469,13 +10790,13 @@ export type ListOrderData = {
         /**
          * Filter by payment status
          *
-         * * `PENDING` - Pending
-         * * `PROCESSING` - Processing
-         * * `COMPLETED` - Completed
+         * * `PENDING` - Εκκρεμεί
+         * * `PROCESSING` - Σε επεξεργασία
+         * * `COMPLETED` - Ολοκληρώθηκε
          * * `FAILED` - Failed
-         * * `REFUNDED` - Refunded
+         * * `REFUNDED` - Επεστράφη
          * * `PARTIALLY_REFUNDED` - Partially Refunded
-         * * `CANCELED` - Canceled
+         * * `CANCELED` - Ακυρώθηκε
          */
         paymentStatus?: 'CANCELED' | 'COMPLETED' | 'FAILED' | 'PARTIALLY_REFUNDED' | 'PENDING' | 'PROCESSING' | 'REFUNDED';
         /**
@@ -10528,14 +10849,14 @@ export type ListOrderData = {
          *
          * Filter by order status
          *
-         * * `PENDING` - Pending
-         * * `PROCESSING` - Processing
-         * * `SHIPPED` - Shipped
-         * * `DELIVERED` - Delivered
-         * * `COMPLETED` - Completed
-         * * `CANCELED` - Canceled
-         * * `RETURNED` - Returned
-         * * `REFUNDED` - Refunded
+         * * `PENDING` - Εκκρεμεί
+         * * `PROCESSING` - Σε επεξεργασία
+         * * `SHIPPED` - Απεστάλη
+         * * `DELIVERED` - Παραδόθηκε
+         * * `COMPLETED` - Ολοκληρώθηκε
+         * * `CANCELED` - Ακυρώθηκε
+         * * `RETURNED` - Επιστράφηκε
+         * * `REFUNDED` - Επεστράφη
          */
         status?: 'CANCELED' | 'COMPLETED' | 'DELIVERED' | 'PENDING' | 'PROCESSING' | 'REFUNDED' | 'RETURNED' | 'SHIPPED';
         /**
@@ -10616,6 +10937,16 @@ export type ListOrderData = {
     url: '/api/v1/order';
 };
 
+export type ListOrderErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListOrderError = ListOrderErrors[keyof ListOrderErrors];
+
 export type ListOrderResponses = {
     200: PaginatedOrderList;
 };
@@ -10633,6 +10964,16 @@ export type CreateOrderData = {
     };
     url: '/api/v1/order';
 };
+
+export type CreateOrderErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateOrderError = CreateOrderErrors[keyof CreateOrderErrors];
 
 export type CreateOrderResponses = {
     201: OrderDetail;
@@ -10724,13 +11065,13 @@ export type ListOrderItemData = {
         /**
          * Filter by order payment status
          *
-         * * `PENDING` - Pending
-         * * `PROCESSING` - Processing
-         * * `COMPLETED` - Completed
+         * * `PENDING` - Εκκρεμεί
+         * * `PROCESSING` - Σε επεξεργασία
+         * * `COMPLETED` - Ολοκληρώθηκε
          * * `FAILED` - Failed
-         * * `REFUNDED` - Refunded
+         * * `REFUNDED` - Επεστράφη
          * * `PARTIALLY_REFUNDED` - Partially Refunded
-         * * `CANCELED` - Canceled
+         * * `CANCELED` - Ακυρώθηκε
          */
         order_PaymentStatus?: 'CANCELED' | 'COMPLETED' | 'FAILED' | 'PARTIALLY_REFUNDED' | 'PENDING' | 'PROCESSING' | 'REFUNDED';
         /**
@@ -10742,14 +11083,14 @@ export type ListOrderItemData = {
          *
          * Filter by order status
          *
-         * * `PENDING` - Pending
-         * * `PROCESSING` - Processing
-         * * `SHIPPED` - Shipped
-         * * `DELIVERED` - Delivered
-         * * `COMPLETED` - Completed
-         * * `CANCELED` - Canceled
-         * * `RETURNED` - Returned
-         * * `REFUNDED` - Refunded
+         * * `PENDING` - Εκκρεμεί
+         * * `PROCESSING` - Σε επεξεργασία
+         * * `SHIPPED` - Απεστάλη
+         * * `DELIVERED` - Παραδόθηκε
+         * * `COMPLETED` - Ολοκληρώθηκε
+         * * `CANCELED` - Ακυρώθηκε
+         * * `RETURNED` - Επιστράφηκε
+         * * `REFUNDED` - Επεστράφη
          */
         order_Status?: 'CANCELED' | 'COMPLETED' | 'DELIVERED' | 'PENDING' | 'PROCESSING' | 'REFUNDED' | 'RETURNED' | 'SHIPPED';
         /**
@@ -10895,6 +11236,16 @@ export type ListOrderItemData = {
     url: '/api/v1/order-items';
 };
 
+export type ListOrderItemErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListOrderItemError = ListOrderItemErrors[keyof ListOrderItemErrors];
+
 export type ListOrderItemResponses = {
     200: PaginatedOrderItemList;
 };
@@ -10913,6 +11264,16 @@ export type CreateOrderItemData = {
     url: '/api/v1/order-items';
 };
 
+export type CreateOrderItemErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateOrderItemError = CreateOrderItemErrors[keyof CreateOrderItemErrors];
+
 export type CreateOrderItemResponses = {
     201: OrderItemDetail;
 };
@@ -10927,6 +11288,14 @@ export type DestroyOrderItemData = {
     query?: never;
     url: '/api/v1/order-items/{id}';
 };
+
+export type DestroyOrderItemErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyOrderItemError = DestroyOrderItemErrors[keyof DestroyOrderItemErrors];
 
 export type DestroyOrderItemResponses = {
     /**
@@ -10951,6 +11320,15 @@ export type RetrieveOrderItemData = {
     url: '/api/v1/order-items/{id}';
 };
 
+export type RetrieveOrderItemErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveOrderItemError = RetrieveOrderItemErrors[keyof RetrieveOrderItemErrors];
+
 export type RetrieveOrderItemResponses = {
     200: OrderItemDetail;
 };
@@ -10970,6 +11348,16 @@ export type PartialUpdateOrderItemData = {
     };
     url: '/api/v1/order-items/{id}';
 };
+
+export type PartialUpdateOrderItemErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateOrderItemError = PartialUpdateOrderItemErrors[keyof PartialUpdateOrderItemErrors];
 
 export type PartialUpdateOrderItemResponses = {
     200: OrderItemDetail;
@@ -10991,6 +11379,16 @@ export type UpdateOrderItemData = {
     url: '/api/v1/order-items/{id}';
 };
 
+export type UpdateOrderItemErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateOrderItemError = UpdateOrderItemErrors[keyof UpdateOrderItemErrors];
+
 export type UpdateOrderItemResponses = {
     200: OrderItemDetail;
 };
@@ -11011,6 +11409,7 @@ export type RefundOrderItemErrors = {
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type RefundOrderItemError = RefundOrderItemErrors[keyof RefundOrderItemErrors];
@@ -11029,6 +11428,14 @@ export type DestroyOrderData = {
     query?: never;
     url: '/api/v1/order/{id}';
 };
+
+export type DestroyOrderErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyOrderError = DestroyOrderErrors[keyof DestroyOrderErrors];
 
 export type DestroyOrderResponses = {
     /**
@@ -11053,6 +11460,15 @@ export type RetrieveOrderData = {
     url: '/api/v1/order/{id}';
 };
 
+export type RetrieveOrderErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveOrderError = RetrieveOrderErrors[keyof RetrieveOrderErrors];
+
 export type RetrieveOrderResponses = {
     200: OrderDetail;
 };
@@ -11072,6 +11488,16 @@ export type PartialUpdateOrderData = {
     };
     url: '/api/v1/order/{id}';
 };
+
+export type PartialUpdateOrderErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateOrderError = PartialUpdateOrderErrors[keyof PartialUpdateOrderErrors];
 
 export type PartialUpdateOrderResponses = {
     200: OrderDetail;
@@ -11093,6 +11519,16 @@ export type UpdateOrderData = {
     url: '/api/v1/order/{id}';
 };
 
+export type UpdateOrderErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateOrderError = UpdateOrderErrors[keyof UpdateOrderErrors];
+
 export type UpdateOrderResponses = {
     200: OrderDetail;
 };
@@ -11111,7 +11547,9 @@ export type AddOrderTrackingData = {
 export type AddOrderTrackingErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type AddOrderTrackingError = AddOrderTrackingErrors[keyof AddOrderTrackingErrors];
@@ -11134,7 +11572,9 @@ export type CancelOrderData = {
 export type CancelOrderErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type CancelOrderError = CancelOrderErrors[keyof CancelOrderErrors];
@@ -11157,7 +11597,9 @@ export type CreateOrderCheckoutSessionData = {
 export type CreateOrderCheckoutSessionErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type CreateOrderCheckoutSessionError = CreateOrderCheckoutSessionErrors[keyof CreateOrderCheckoutSessionErrors];
@@ -11180,7 +11622,9 @@ export type CreateOrderPaymentIntentData = {
 export type CreateOrderPaymentIntentErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type CreateOrderPaymentIntentError = CreateOrderPaymentIntentErrors[keyof CreateOrderPaymentIntentErrors];
@@ -11203,7 +11647,9 @@ export type UpdateOrderStatusData = {
 export type UpdateOrderStatusErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type UpdateOrderStatusError = UpdateOrderStatusErrors[keyof UpdateOrderStatusErrors];
@@ -11379,13 +11825,13 @@ export type ListMyOrdersData = {
         /**
          * Filter by payment status
          *
-         * * `PENDING` - Pending
-         * * `PROCESSING` - Processing
-         * * `COMPLETED` - Completed
+         * * `PENDING` - Εκκρεμεί
+         * * `PROCESSING` - Σε επεξεργασία
+         * * `COMPLETED` - Ολοκληρώθηκε
          * * `FAILED` - Failed
-         * * `REFUNDED` - Refunded
+         * * `REFUNDED` - Επεστράφη
          * * `PARTIALLY_REFUNDED` - Partially Refunded
-         * * `CANCELED` - Canceled
+         * * `CANCELED` - Ακυρώθηκε
          */
         paymentStatus?: 'CANCELED' | 'COMPLETED' | 'FAILED' | 'PARTIALLY_REFUNDED' | 'PENDING' | 'PROCESSING' | 'REFUNDED';
         /**
@@ -11438,14 +11884,14 @@ export type ListMyOrdersData = {
          *
          * Filter by order status
          *
-         * * `PENDING` - Pending
-         * * `PROCESSING` - Processing
-         * * `SHIPPED` - Shipped
-         * * `DELIVERED` - Delivered
-         * * `COMPLETED` - Completed
-         * * `CANCELED` - Canceled
-         * * `RETURNED` - Returned
-         * * `REFUNDED` - Refunded
+         * * `PENDING` - Εκκρεμεί
+         * * `PROCESSING` - Σε επεξεργασία
+         * * `SHIPPED` - Απεστάλη
+         * * `DELIVERED` - Παραδόθηκε
+         * * `COMPLETED` - Ολοκληρώθηκε
+         * * `CANCELED` - Ακυρώθηκε
+         * * `RETURNED` - Επιστράφηκε
+         * * `REFUNDED` - Επεστράφη
          */
         status?: 'CANCELED' | 'COMPLETED' | 'DELIVERED' | 'PENDING' | 'PROCESSING' | 'REFUNDED' | 'RETURNED' | 'SHIPPED';
         /**
@@ -11529,7 +11975,9 @@ export type ListMyOrdersData = {
 export type ListMyOrdersErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListMyOrdersError = ListMyOrdersErrors[keyof ListMyOrdersErrors];
@@ -11552,7 +12000,9 @@ export type RetrieveOrderByUuidData = {
 export type RetrieveOrderByUuidErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type RetrieveOrderByUuidError = RetrieveOrderByUuidErrors[keyof RetrieveOrderByUuidErrors];
@@ -12013,6 +12463,16 @@ export type ListProductData = {
     url: '/api/v1/product';
 };
 
+export type ListProductErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListProductError = ListProductErrors[keyof ListProductErrors];
+
 export type ListProductResponses = {
     200: PaginatedProductList;
 };
@@ -12031,6 +12491,16 @@ export type CreateProductData = {
     url: '/api/v1/product';
 };
 
+export type CreateProductErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateProductError = CreateProductErrors[keyof CreateProductErrors];
+
 export type CreateProductResponses = {
     201: ProductDetail;
 };
@@ -12045,6 +12515,14 @@ export type DestroyProductData = {
     query?: never;
     url: '/api/v1/product/{id}';
 };
+
+export type DestroyProductErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyProductError = DestroyProductErrors[keyof DestroyProductErrors];
 
 export type DestroyProductResponses = {
     /**
@@ -12069,6 +12547,15 @@ export type RetrieveProductData = {
     url: '/api/v1/product/{id}';
 };
 
+export type RetrieveProductErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveProductError = RetrieveProductErrors[keyof RetrieveProductErrors];
+
 export type RetrieveProductResponses = {
     200: ProductDetail;
 };
@@ -12088,6 +12575,16 @@ export type PartialUpdateProductData = {
     };
     url: '/api/v1/product/{id}';
 };
+
+export type PartialUpdateProductErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateProductError = PartialUpdateProductErrors[keyof PartialUpdateProductErrors];
 
 export type PartialUpdateProductResponses = {
     200: ProductDetail;
@@ -12109,6 +12606,16 @@ export type UpdateProductData = {
     url: '/api/v1/product/{id}';
 };
 
+export type UpdateProductErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateProductError = UpdateProductErrors[keyof UpdateProductErrors];
+
 export type UpdateProductResponses = {
     200: ProductDetail;
 };
@@ -12128,12 +12635,24 @@ export type ListProductImagesData = {
          * Language code for translations (el, en, de)
          */
         languageCode?: 'de' | 'el' | 'en';
+        /**
+         * Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock
+         */
+        ordering?: 'price' | '-price' | 'createdAt' | '-createdAt' | 'active' | '-active' | 'availabilityPriority' | '-availabilityPriority' | 'viewCount' | '-viewCount' | 'stock' | '-stock';
+        /**
+         * A search term.
+         */
+        search?: string;
     };
     url: '/api/v1/product/{id}/images';
 };
 
 export type ListProductImagesErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListProductImagesError = ListProductImagesErrors[keyof ListProductImagesErrors];
@@ -12154,6 +12673,14 @@ export type ListProductReviewsData = {
     };
     query?: {
         /**
+         * Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock
+         */
+        ordering?: 'price' | '-price' | 'createdAt' | '-createdAt' | 'active' | '-active' | 'availabilityPriority' | '-availabilityPriority' | 'viewCount' | '-viewCount' | 'stock' | '-stock';
+        /**
+         * A page number within the paginated result set.
+         */
+        page?: string | number;
+        /**
          * Number of results to return per page
          */
         pageSize?: string | number;
@@ -12165,28 +12692,26 @@ export type ListProductReviewsData = {
          * Pagination strategy type
          */
         paginationType?: 'cursor' | 'limitOffset' | 'pageNumber';
+        /**
+         * A search term.
+         */
+        search?: string;
     };
     url: '/api/v1/product/{id}/reviews';
 };
 
 export type ListProductReviewsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListProductReviewsError = ListProductReviewsErrors[keyof ListProductReviewsErrors];
 
 export type ListProductReviewsResponses = {
-    200: {
-        links?: {
-            next?: string | null;
-            previous?: string | null;
-        };
-        count?: number;
-        total_pages?: number;
-        page_size?: number;
-        page_total_results?: number;
-        results?: Array<ProductReview>;
-    };
+    200: PaginatedProductReviewList;
 };
 
 export type ListProductReviewsResponse = ListProductReviewsResponses[keyof ListProductReviewsResponses];
@@ -12199,12 +12724,25 @@ export type ListProductTagsData = {
          */
         id: string | number;
     };
-    query?: never;
+    query?: {
+        /**
+         * Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock
+         */
+        ordering?: 'price' | '-price' | 'createdAt' | '-createdAt' | 'active' | '-active' | 'availabilityPriority' | '-availabilityPriority' | 'viewCount' | '-viewCount' | 'stock' | '-stock';
+        /**
+         * A search term.
+         */
+        search?: string;
+    };
     url: '/api/v1/product/{id}/tags';
 };
 
 export type ListProductTagsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListProductTagsError = ListProductTagsErrors[keyof ListProductTagsErrors];
@@ -12216,7 +12754,7 @@ export type ListProductTagsResponses = {
 export type ListProductTagsResponse = ListProductTagsResponses[keyof ListProductTagsResponses];
 
 export type IncrementProductViewsData = {
-    body: ProductDetailRequest;
+    body?: never;
     path: {
         id: string | number;
     };
@@ -12225,7 +12763,11 @@ export type IncrementProductViewsData = {
 };
 
 export type IncrementProductViewsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type IncrementProductViewsError = IncrementProductViewsErrors[keyof IncrementProductViewsErrors];
@@ -12319,6 +12861,16 @@ export type ListAttributeData = {
     url: '/api/v1/product/attribute';
 };
 
+export type ListAttributeErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListAttributeError = ListAttributeErrors[keyof ListAttributeErrors];
+
 export type ListAttributeResponses = {
     200: PaginatedAttributeList;
 };
@@ -12337,6 +12889,16 @@ export type CreateAttributeData = {
     url: '/api/v1/product/attribute';
 };
 
+export type CreateAttributeErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateAttributeError = CreateAttributeErrors[keyof CreateAttributeErrors];
+
 export type CreateAttributeResponses = {
     201: Attribute;
 };
@@ -12351,6 +12913,14 @@ export type DestroyAttributeData = {
     query?: never;
     url: '/api/v1/product/attribute/{id}';
 };
+
+export type DestroyAttributeErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyAttributeError = DestroyAttributeErrors[keyof DestroyAttributeErrors];
 
 export type DestroyAttributeResponses = {
     /**
@@ -12375,6 +12945,15 @@ export type RetrieveAttributeData = {
     url: '/api/v1/product/attribute/{id}';
 };
 
+export type RetrieveAttributeErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveAttributeError = RetrieveAttributeErrors[keyof RetrieveAttributeErrors];
+
 export type RetrieveAttributeResponses = {
     200: Attribute;
 };
@@ -12395,6 +12974,16 @@ export type PartialUpdateAttributeData = {
     url: '/api/v1/product/attribute/{id}';
 };
 
+export type PartialUpdateAttributeErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateAttributeError = PartialUpdateAttributeErrors[keyof PartialUpdateAttributeErrors];
+
 export type PartialUpdateAttributeResponses = {
     200: Attribute;
 };
@@ -12414,6 +13003,16 @@ export type UpdateAttributeData = {
     };
     url: '/api/v1/product/attribute/{id}';
 };
+
+export type UpdateAttributeErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateAttributeError = UpdateAttributeErrors[keyof UpdateAttributeErrors];
 
 export type UpdateAttributeResponses = {
     200: Attribute;
@@ -12508,6 +13107,16 @@ export type ListAttributeValueData = {
     url: '/api/v1/product/attribute/value';
 };
 
+export type ListAttributeValueErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListAttributeValueError = ListAttributeValueErrors[keyof ListAttributeValueErrors];
+
 export type ListAttributeValueResponses = {
     200: PaginatedAttributeValueList;
 };
@@ -12526,6 +13135,16 @@ export type CreateAttributeValueData = {
     url: '/api/v1/product/attribute/value';
 };
 
+export type CreateAttributeValueErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateAttributeValueError = CreateAttributeValueErrors[keyof CreateAttributeValueErrors];
+
 export type CreateAttributeValueResponses = {
     201: AttributeValue;
 };
@@ -12540,6 +13159,14 @@ export type DestroyAttributeValueData = {
     query?: never;
     url: '/api/v1/product/attribute/value/{id}';
 };
+
+export type DestroyAttributeValueErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyAttributeValueError = DestroyAttributeValueErrors[keyof DestroyAttributeValueErrors];
 
 export type DestroyAttributeValueResponses = {
     /**
@@ -12564,6 +13191,15 @@ export type RetrieveAttributeValueData = {
     url: '/api/v1/product/attribute/value/{id}';
 };
 
+export type RetrieveAttributeValueErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveAttributeValueError = RetrieveAttributeValueErrors[keyof RetrieveAttributeValueErrors];
+
 export type RetrieveAttributeValueResponses = {
     200: AttributeValue;
 };
@@ -12584,6 +13220,16 @@ export type PartialUpdateAttributeValueData = {
     url: '/api/v1/product/attribute/value/{id}';
 };
 
+export type PartialUpdateAttributeValueErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateAttributeValueError = PartialUpdateAttributeValueErrors[keyof PartialUpdateAttributeValueErrors];
+
 export type PartialUpdateAttributeValueResponses = {
     200: AttributeValue;
 };
@@ -12603,6 +13249,16 @@ export type UpdateAttributeValueData = {
     };
     url: '/api/v1/product/attribute/value/{id}';
 };
+
+export type UpdateAttributeValueErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateAttributeValueError = UpdateAttributeValueErrors[keyof UpdateAttributeValueErrors];
 
 export type UpdateAttributeValueResponses = {
     200: AttributeValue;
@@ -12751,6 +13407,16 @@ export type ListProductCategoryData = {
     url: '/api/v1/product/category';
 };
 
+export type ListProductCategoryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListProductCategoryError = ListProductCategoryErrors[keyof ListProductCategoryErrors];
+
 export type ListProductCategoryResponses = {
     200: PaginatedProductCategoryList;
 };
@@ -12769,6 +13435,16 @@ export type CreateProductCategoryData = {
     url: '/api/v1/product/category';
 };
 
+export type CreateProductCategoryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateProductCategoryError = CreateProductCategoryErrors[keyof CreateProductCategoryErrors];
+
 export type CreateProductCategoryResponses = {
     201: ProductCategoryDetail;
 };
@@ -12783,6 +13459,14 @@ export type DestroyProductCategoryData = {
     query?: never;
     url: '/api/v1/product/category/{id}';
 };
+
+export type DestroyProductCategoryErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyProductCategoryError = DestroyProductCategoryErrors[keyof DestroyProductCategoryErrors];
 
 export type DestroyProductCategoryResponses = {
     /**
@@ -12807,6 +13491,15 @@ export type RetrieveProductCategoryData = {
     url: '/api/v1/product/category/{id}';
 };
 
+export type RetrieveProductCategoryErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveProductCategoryError = RetrieveProductCategoryErrors[keyof RetrieveProductCategoryErrors];
+
 export type RetrieveProductCategoryResponses = {
     200: ProductCategoryDetail;
 };
@@ -12826,6 +13519,16 @@ export type PartialUpdateProductCategoryData = {
     };
     url: '/api/v1/product/category/{id}';
 };
+
+export type PartialUpdateProductCategoryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateProductCategoryError = PartialUpdateProductCategoryErrors[keyof PartialUpdateProductCategoryErrors];
 
 export type PartialUpdateProductCategoryResponses = {
     200: ProductCategoryDetail;
@@ -12847,6 +13550,16 @@ export type UpdateProductCategoryData = {
     url: '/api/v1/product/category/{id}';
 };
 
+export type UpdateProductCategoryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateProductCategoryError = UpdateProductCategoryErrors[keyof UpdateProductCategoryErrors];
+
 export type UpdateProductCategoryResponses = {
     200: ProductCategoryDetail;
 };
@@ -12856,14 +13569,131 @@ export type UpdateProductCategoryResponse = UpdateProductCategoryResponses[keyof
 export type ListAllProductCategoryData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        active?: 'true' | 'false' | '1' | '0' | boolean;
+        /**
+         * Filter ancestors of specified category ID
+         */
+        ancestorOf?: string | number;
+        /**
+         * Filter items created after this date
+         */
+        createdAfter?: string;
+        createdAt_Date?: string;
+        createdAt_Gte?: string;
+        createdAt_Lte?: string;
+        /**
+         * Filter items created before this date
+         */
+        createdBefore?: string;
+        /**
+         * Filter descendants of specified category ID
+         */
+        descendantOf?: string | number;
+        /**
+         * Filter categories that have children
+         */
+        hasChildren?: 'true' | 'false' | '1' | '0' | boolean;
+        /**
+         * Filter categories that have products (recursive)
+         */
+        hasProducts?: 'true' | 'false' | '1' | '0' | boolean;
+        id?: string | number;
+        /**
+         * Filter by multiple category IDs (comma-separated)
+         */
+        id_In?: string | Array<number>;
+        /**
+         * Filter leaf categories (no children)
+         */
+        isLeaf?: 'true' | 'false' | '1' | '0' | boolean;
+        /**
+         * Filter root categories (no parent)
+         */
+        isRoot?: 'true' | 'false' | '1' | '0' | boolean;
+        /**
+         * Filter by hierarchy level (0 = root)
+         */
+        level?: string | number;
+        level_Gte?: string | number;
+        level_Lte?: string | number;
+        /**
+         * Maximum hierarchy level
+         */
+        maxLevel?: string | number;
+        /**
+         * Maximum number of products (recursive)
+         */
+        maxProductCount?: string | number;
+        /**
+         * Minimum hierarchy level
+         */
+        minLevel?: string | number;
+        /**
+         * Minimum number of products (recursive)
+         */
+        minProductCount?: string | number;
+        /**
+         * Which field to use when ordering the results. Available fields: id, -id, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, createdAt, -createdAt, updatedAt, -updatedAt
+         */
+        ordering?: 'id' | '-id' | 'sortOrder' | '-sortOrder' | 'level' | '-level' | 'lft' | '-lft' | 'rght' | '-rght' | 'treeId' | '-treeId' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt';
+        /**
+         * Filter by parent category ID
+         */
+        parent?: string | number;
+        /**
+         * Filter by parent category slug
+         */
+        parentSlug?: string;
+        /**
+         * A search term.
+         */
+        search?: string;
+        /**
+         * Filter siblings of specified category ID
+         */
+        siblingOf?: string | number;
+        slug?: string;
+        slug_Icontains?: string;
+        /**
+         * Filter by exact sort order
+         */
+        sortOrder?: string | number;
+        /**
+         * Maximum sort order
+         */
+        sortOrderMax?: string | number;
+        /**
+         * Minimum sort order
+         */
+        sortOrderMin?: string | number;
+        /**
+         * Filter items updated after this date
+         */
+        updatedAfter?: string;
+        updatedAt_Date?: string;
+        updatedAt_Gte?: string;
+        updatedAt_Lte?: string;
+        /**
+         * Filter items updated before this date
+         */
+        updatedBefore?: string;
+        uuid?: string;
+    };
     url: '/api/v1/product/category/all';
 };
 
+export type ListAllProductCategoryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListAllProductCategoryError = ListAllProductCategoryErrors[keyof ListAllProductCategoryErrors];
+
 export type ListAllProductCategoryResponses = {
-    /**
-     * Array of all product categories
-     */
     200: Array<ProductCategory>;
 };
 
@@ -12925,6 +13755,16 @@ export type ListProductCategoryImageData = {
     url: '/api/v1/product/category/image';
 };
 
+export type ListProductCategoryImageErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListProductCategoryImageError = ListProductCategoryImageErrors[keyof ListProductCategoryImageErrors];
+
 export type ListProductCategoryImageResponses = {
     200: PaginatedProductCategoryImageList;
 };
@@ -12943,6 +13783,16 @@ export type CreateProductCategoryImageData = {
     url: '/api/v1/product/category/image';
 };
 
+export type CreateProductCategoryImageErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateProductCategoryImageError = CreateProductCategoryImageErrors[keyof CreateProductCategoryImageErrors];
+
 export type CreateProductCategoryImageResponses = {
     201: ProductCategoryImageDetail;
 };
@@ -12957,6 +13807,14 @@ export type DestroyProductCategoryImageData = {
     query?: never;
     url: '/api/v1/product/category/image/{id}';
 };
+
+export type DestroyProductCategoryImageErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyProductCategoryImageError = DestroyProductCategoryImageErrors[keyof DestroyProductCategoryImageErrors];
 
 export type DestroyProductCategoryImageResponses = {
     /**
@@ -12981,6 +13839,15 @@ export type RetrieveProductCategoryImageData = {
     url: '/api/v1/product/category/image/{id}';
 };
 
+export type RetrieveProductCategoryImageErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveProductCategoryImageError = RetrieveProductCategoryImageErrors[keyof RetrieveProductCategoryImageErrors];
+
 export type RetrieveProductCategoryImageResponses = {
     200: ProductCategoryImageDetail;
 };
@@ -13000,6 +13867,16 @@ export type PartialUpdateProductCategoryImageData = {
     };
     url: '/api/v1/product/category/image/{id}';
 };
+
+export type PartialUpdateProductCategoryImageErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateProductCategoryImageError = PartialUpdateProductCategoryImageErrors[keyof PartialUpdateProductCategoryImageErrors];
 
 export type PartialUpdateProductCategoryImageResponses = {
     200: ProductCategoryImageDetail;
@@ -13021,6 +13898,16 @@ export type UpdateProductCategoryImageData = {
     url: '/api/v1/product/category/image/{id}';
 };
 
+export type UpdateProductCategoryImageErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateProductCategoryImageError = UpdateProductCategoryImageErrors[keyof UpdateProductCategoryImageErrors];
+
 export type UpdateProductCategoryImageResponses = {
     200: ProductCategoryImageDetail;
 };
@@ -13037,6 +13924,9 @@ export type BulkUpdateProductCategoryImagesData = {
 export type BulkUpdateProductCategoryImagesErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type BulkUpdateProductCategoryImagesError = BulkUpdateProductCategoryImagesErrors[keyof BulkUpdateProductCategoryImagesErrors];
@@ -13050,12 +13940,41 @@ export type BulkUpdateProductCategoryImagesResponse = BulkUpdateProductCategoryI
 export type GetProductCategoryImagesByCategoryData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        active?: 'true' | 'false' | '1' | '0' | boolean;
+        category?: string | number;
+        id?: string | number;
+        /**
+         * * `MAIN` - Main Image
+         * * `BANNER` - Banner Image
+         * * `ICON` - Icon Image
+         * * `THUMBNAIL` - Thumbnail Image
+         * * `GALLERY` - Gallery Image
+         * * `BACKGROUND` - Background Image
+         * * `HERO` - Hero Image
+         * * `FEATURE` - Feature Image
+         * * `PROMOTIONAL` - Promotional Image
+         * * `SEASONAL` - Seasonal Image
+         */
+        imageType?: 'BACKGROUND' | 'BANNER' | 'FEATURE' | 'GALLERY' | 'HERO' | 'ICON' | 'MAIN' | 'PROMOTIONAL' | 'SEASONAL' | 'THUMBNAIL';
+        /**
+         * Which field to use when ordering the results. Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder
+         */
+        ordering?: 'createdAt' | '-createdAt' | 'imageType' | '-imageType' | 'sortOrder' | '-sortOrder';
+        /**
+         * A search term.
+         */
+        search?: string;
+    };
     url: '/api/v1/product/category/image/by_category';
 };
 
 export type GetProductCategoryImagesByCategoryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetProductCategoryImagesByCategoryError = GetProductCategoryImagesByCategoryErrors[keyof GetProductCategoryImagesByCategoryErrors];
@@ -13069,9 +13988,44 @@ export type GetProductCategoryImagesByCategoryResponse = GetProductCategoryImage
 export type GetProductCategoryImagesByTypeData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        active?: 'true' | 'false' | '1' | '0' | boolean;
+        category?: string | number;
+        id?: string | number;
+        /**
+         * * `MAIN` - Main Image
+         * * `BANNER` - Banner Image
+         * * `ICON` - Icon Image
+         * * `THUMBNAIL` - Thumbnail Image
+         * * `GALLERY` - Gallery Image
+         * * `BACKGROUND` - Background Image
+         * * `HERO` - Hero Image
+         * * `FEATURE` - Feature Image
+         * * `PROMOTIONAL` - Promotional Image
+         * * `SEASONAL` - Seasonal Image
+         */
+        imageType?: 'BACKGROUND' | 'BANNER' | 'FEATURE' | 'GALLERY' | 'HERO' | 'ICON' | 'MAIN' | 'PROMOTIONAL' | 'SEASONAL' | 'THUMBNAIL';
+        /**
+         * Which field to use when ordering the results. Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder
+         */
+        ordering?: 'createdAt' | '-createdAt' | 'imageType' | '-imageType' | 'sortOrder' | '-sortOrder';
+        /**
+         * A search term.
+         */
+        search?: string;
+    };
     url: '/api/v1/product/category/image/by_type';
 };
+
+export type GetProductCategoryImagesByTypeErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type GetProductCategoryImagesByTypeError = GetProductCategoryImagesByTypeErrors[keyof GetProductCategoryImagesByTypeErrors];
 
 export type GetProductCategoryImagesByTypeResponses = {
     200: Array<ProductCategoryImage>;
@@ -13141,6 +14095,16 @@ export type ListProductFavouriteData = {
     url: '/api/v1/product/favourite';
 };
 
+export type ListProductFavouriteErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListProductFavouriteError = ListProductFavouriteErrors[keyof ListProductFavouriteErrors];
+
 export type ListProductFavouriteResponses = {
     200: PaginatedProductFavouriteList;
 };
@@ -13159,6 +14123,16 @@ export type CreateProductFavouriteData = {
     url: '/api/v1/product/favourite';
 };
 
+export type CreateProductFavouriteErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateProductFavouriteError = CreateProductFavouriteErrors[keyof CreateProductFavouriteErrors];
+
 export type CreateProductFavouriteResponses = {
     201: ProductFavouriteWrite;
 };
@@ -13173,6 +14147,14 @@ export type DestroyProductFavouriteData = {
     query?: never;
     url: '/api/v1/product/favourite/{id}';
 };
+
+export type DestroyProductFavouriteErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyProductFavouriteError = DestroyProductFavouriteErrors[keyof DestroyProductFavouriteErrors];
 
 export type DestroyProductFavouriteResponses = {
     /**
@@ -13197,6 +14179,15 @@ export type RetrieveProductFavouriteData = {
     url: '/api/v1/product/favourite/{id}';
 };
 
+export type RetrieveProductFavouriteErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveProductFavouriteError = RetrieveProductFavouriteErrors[keyof RetrieveProductFavouriteErrors];
+
 export type RetrieveProductFavouriteResponses = {
     200: ProductFavouriteDetail;
 };
@@ -13216,6 +14207,16 @@ export type PartialUpdateProductFavouriteData = {
     };
     url: '/api/v1/product/favourite/{id}';
 };
+
+export type PartialUpdateProductFavouriteErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateProductFavouriteError = PartialUpdateProductFavouriteErrors[keyof PartialUpdateProductFavouriteErrors];
 
 export type PartialUpdateProductFavouriteResponses = {
     200: ProductFavouriteWrite;
@@ -13237,6 +14238,16 @@ export type UpdateProductFavouriteData = {
     url: '/api/v1/product/favourite/{id}';
 };
 
+export type UpdateProductFavouriteErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateProductFavouriteError = UpdateProductFavouriteErrors[keyof UpdateProductFavouriteErrors];
+
 export type UpdateProductFavouriteResponses = {
     200: ProductFavouriteWrite;
 };
@@ -13252,6 +14263,16 @@ export type GetProductFavouriteProductData = {
     url: '/api/v1/product/favourite/{id}/product';
 };
 
+export type GetProductFavouriteProductErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type GetProductFavouriteProductError = GetProductFavouriteProductErrors[keyof GetProductFavouriteProductErrors];
+
 export type GetProductFavouriteProductResponses = {
     200: ProductDetailResponse;
 };
@@ -13261,23 +14282,53 @@ export type GetProductFavouriteProductResponse = GetProductFavouriteProductRespo
 export type GetProductFavouritesByProductsData = {
     body: ProductFavouriteByProductsRequestRequest;
     path?: never;
-    query?: never;
+    query?: {
+        /**
+         * Filter items created after this date
+         */
+        createdAfter?: string;
+        /**
+         * Filter items created before this date
+         */
+        createdBefore?: string;
+        id?: string | number;
+        /**
+         * Which field to use when ordering the results. Available fields: id, -id, userId, -userId, productId, -productId, createdAt, -createdAt, updatedAt, -updatedAt
+         */
+        ordering?: 'id' | '-id' | 'userId' | '-userId' | 'productId' | '-productId' | 'createdAt' | '-createdAt' | 'updatedAt' | '-updatedAt';
+        product?: string | number;
+        productId?: string | number;
+        /**
+         * A search term.
+         */
+        search?: string;
+        /**
+         * Filter items updated after this date
+         */
+        updatedAfter?: string;
+        /**
+         * Filter items updated before this date
+         */
+        updatedBefore?: string;
+        user?: string | number;
+        userId?: string | number;
+        uuid?: string;
+    };
     url: '/api/v1/product/favourite/favourites_by_products';
 };
 
 export type GetProductFavouritesByProductsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetProductFavouritesByProductsError = GetProductFavouritesByProductsErrors[keyof GetProductFavouritesByProductsErrors];
 
 export type GetProductFavouritesByProductsResponses = {
-    200: Array<{
-        id: number;
-        userId: number;
-        productId: number;
-        createdAt: string;
-    }>;
+    200: Array<ProductFavouriteByProductsResponse>;
 };
 
 export type GetProductFavouritesByProductsResponse = GetProductFavouritesByProductsResponses[keyof GetProductFavouritesByProductsResponses];
@@ -13328,6 +14379,16 @@ export type ListProductImageData = {
     url: '/api/v1/product/image';
 };
 
+export type ListProductImageErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListProductImageError = ListProductImageErrors[keyof ListProductImageErrors];
+
 export type ListProductImageResponses = {
     200: PaginatedProductImageList;
 };
@@ -13346,6 +14407,16 @@ export type CreateProductImageData = {
     url: '/api/v1/product/image';
 };
 
+export type CreateProductImageErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateProductImageError = CreateProductImageErrors[keyof CreateProductImageErrors];
+
 export type CreateProductImageResponses = {
     201: ProductImageDetail;
 };
@@ -13360,6 +14431,14 @@ export type DestroyProductImageData = {
     query?: never;
     url: '/api/v1/product/image/{id}';
 };
+
+export type DestroyProductImageErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyProductImageError = DestroyProductImageErrors[keyof DestroyProductImageErrors];
 
 export type DestroyProductImageResponses = {
     /**
@@ -13384,6 +14463,15 @@ export type RetrieveProductImageData = {
     url: '/api/v1/product/image/{id}';
 };
 
+export type RetrieveProductImageErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveProductImageError = RetrieveProductImageErrors[keyof RetrieveProductImageErrors];
+
 export type RetrieveProductImageResponses = {
     200: ProductImageDetail;
 };
@@ -13404,6 +14492,16 @@ export type PartialUpdateProductImageData = {
     url: '/api/v1/product/image/{id}';
 };
 
+export type PartialUpdateProductImageErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateProductImageError = PartialUpdateProductImageErrors[keyof PartialUpdateProductImageErrors];
+
 export type PartialUpdateProductImageResponses = {
     200: ProductImageDetail;
 };
@@ -13423,6 +14521,16 @@ export type UpdateProductImageData = {
     };
     url: '/api/v1/product/image/{id}';
 };
+
+export type UpdateProductImageErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateProductImageError = UpdateProductImageErrors[keyof UpdateProductImageErrors];
 
 export type UpdateProductImageResponses = {
     200: ProductImageDetail;
@@ -13804,7 +14912,11 @@ export type GetProductReviewProductData = {
 };
 
 export type GetProductReviewProductErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetProductReviewProductError = GetProductReviewProductErrors[keyof GetProductReviewProductErrors];
@@ -13827,7 +14939,9 @@ export type GetUserProductReviewData = {
 export type GetUserProductReviewErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetUserProductReviewError = GetUserProductReviewErrors[keyof GetUserProductReviewErrors];
@@ -14171,7 +15285,11 @@ export type ListRegionsByCountryData = {
 };
 
 export type ListRegionsByCountryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ListRegionsByCountryError = ListRegionsByCountryErrors[keyof ListRegionsByCountryErrors];
@@ -14290,6 +15408,10 @@ export type SearchProductRetrieveData = {
     body?: never;
     path?: never;
     query?: {
+        /**
+         * Comma-separated attribute value IDs (attribute_values IN [ids])
+         */
+        attributeValue?: string;
         /**
          * Comma-separated category IDs (category IN [ids])
          */
@@ -15160,9 +16282,11 @@ export type GetUserAccountAddressesData = {
 };
 
 export type GetUserAccountAddressesErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetUserAccountAddressesError = GetUserAccountAddressesErrors[keyof GetUserAccountAddressesErrors];
@@ -15200,9 +16324,11 @@ export type GetUserAccountBlogPostCommentsData = {
 };
 
 export type GetUserAccountBlogPostCommentsErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetUserAccountBlogPostCommentsError = GetUserAccountBlogPostCommentsErrors[keyof GetUserAccountBlogPostCommentsErrors];
@@ -15227,6 +16353,7 @@ export type ChangeUserAccountUsernameErrors = {
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ChangeUserAccountUsernameError = ChangeUserAccountUsernameErrors[keyof ChangeUserAccountUsernameErrors];
@@ -15264,9 +16391,11 @@ export type GetUserAccountFavouriteProductsData = {
 };
 
 export type GetUserAccountFavouriteProductsErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetUserAccountFavouriteProductsError = GetUserAccountFavouriteProductsErrors[keyof GetUserAccountFavouriteProductsErrors];
@@ -15304,9 +16433,11 @@ export type GetUserAccountLikedBlogPostsData = {
 };
 
 export type GetUserAccountLikedBlogPostsErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetUserAccountLikedBlogPostsError = GetUserAccountLikedBlogPostsErrors[keyof GetUserAccountLikedBlogPostsErrors];
@@ -15344,9 +16475,11 @@ export type GetUserAccountNotificationsData = {
 };
 
 export type GetUserAccountNotificationsErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetUserAccountNotificationsError = GetUserAccountNotificationsErrors[keyof GetUserAccountNotificationsErrors];
@@ -15384,9 +16517,11 @@ export type GetUserAccountOrdersData = {
 };
 
 export type GetUserAccountOrdersErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetUserAccountOrdersError = GetUserAccountOrdersErrors[keyof GetUserAccountOrdersErrors];
@@ -15424,9 +16559,11 @@ export type GetUserAccountProductReviewsData = {
 };
 
 export type GetUserAccountProductReviewsErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetUserAccountProductReviewsError = GetUserAccountProductReviewsErrors[keyof GetUserAccountProductReviewsErrors];
@@ -15764,8 +16901,11 @@ export type SetMainUserAddressData = {
 };
 
 export type SetMainUserAddressErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type SetMainUserAddressError = SetMainUserAddressErrors[keyof SetMainUserAddressErrors];
@@ -15917,6 +17057,16 @@ export type ListUserSubscriptionData = {
     url: '/api/v1/user/subscription';
 };
 
+export type ListUserSubscriptionErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListUserSubscriptionError = ListUserSubscriptionErrors[keyof ListUserSubscriptionErrors];
+
 export type ListUserSubscriptionResponses = {
     200: PaginatedUserSubscriptionList;
 };
@@ -15935,6 +17085,16 @@ export type CreateUserSubscriptionData = {
     url: '/api/v1/user/subscription';
 };
 
+export type CreateUserSubscriptionErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateUserSubscriptionError = CreateUserSubscriptionErrors[keyof CreateUserSubscriptionErrors];
+
 export type CreateUserSubscriptionResponses = {
     201: UserSubscriptionDetail;
 };
@@ -15949,6 +17109,14 @@ export type DestroyUserSubscriptionData = {
     query?: never;
     url: '/api/v1/user/subscription/{id}';
 };
+
+export type DestroyUserSubscriptionErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyUserSubscriptionError = DestroyUserSubscriptionErrors[keyof DestroyUserSubscriptionErrors];
 
 export type DestroyUserSubscriptionResponses = {
     /**
@@ -15973,6 +17141,15 @@ export type RetrieveUserSubscriptionData = {
     url: '/api/v1/user/subscription/{id}';
 };
 
+export type RetrieveUserSubscriptionErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveUserSubscriptionError = RetrieveUserSubscriptionErrors[keyof RetrieveUserSubscriptionErrors];
+
 export type RetrieveUserSubscriptionResponses = {
     200: UserSubscriptionDetail;
 };
@@ -15992,6 +17169,16 @@ export type PartialUpdateUserSubscriptionData = {
     };
     url: '/api/v1/user/subscription/{id}';
 };
+
+export type PartialUpdateUserSubscriptionErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateUserSubscriptionError = PartialUpdateUserSubscriptionErrors[keyof PartialUpdateUserSubscriptionErrors];
 
 export type PartialUpdateUserSubscriptionResponses = {
     200: UserSubscriptionDetail;
@@ -16013,6 +17200,16 @@ export type UpdateUserSubscriptionData = {
     url: '/api/v1/user/subscription/{id}';
 };
 
+export type UpdateUserSubscriptionErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateUserSubscriptionError = UpdateUserSubscriptionErrors[keyof UpdateUserSubscriptionErrors];
+
 export type UpdateUserSubscriptionResponses = {
     200: UserSubscriptionDetail;
 };
@@ -16020,7 +17217,7 @@ export type UpdateUserSubscriptionResponses = {
 export type UpdateUserSubscriptionResponse = UpdateUserSubscriptionResponses[keyof UpdateUserSubscriptionResponses];
 
 export type ConfirmUserSubscriptionData = {
-    body: UserSubscriptionDetailRequest;
+    body?: never;
     path: {
         id: string | number;
     };
@@ -16033,6 +17230,7 @@ export type ConfirmUserSubscriptionErrors = {
     401: ErrorResponse;
     403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type ConfirmUserSubscriptionError = ConfirmUserSubscriptionErrors[keyof ConfirmUserSubscriptionErrors];
@@ -16053,6 +17251,9 @@ export type BulkUpdateUserSubscriptionsData = {
 export type BulkUpdateUserSubscriptionsErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type BulkUpdateUserSubscriptionsError = BulkUpdateUserSubscriptionsErrors[keyof BulkUpdateUserSubscriptionsErrors];
@@ -16177,6 +17378,16 @@ export type ListSubscriptionTopicData = {
     url: '/api/v1/user/subscription/topic';
 };
 
+export type ListSubscriptionTopicErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListSubscriptionTopicError = ListSubscriptionTopicErrors[keyof ListSubscriptionTopicErrors];
+
 export type ListSubscriptionTopicResponses = {
     200: PaginatedSubscriptionTopicList;
 };
@@ -16195,6 +17406,16 @@ export type CreateSubscriptionTopicData = {
     url: '/api/v1/user/subscription/topic';
 };
 
+export type CreateSubscriptionTopicErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateSubscriptionTopicError = CreateSubscriptionTopicErrors[keyof CreateSubscriptionTopicErrors];
+
 export type CreateSubscriptionTopicResponses = {
     201: SubscriptionTopicDetail;
 };
@@ -16209,6 +17430,14 @@ export type DestroySubscriptionTopicData = {
     query?: never;
     url: '/api/v1/user/subscription/topic/{id}';
 };
+
+export type DestroySubscriptionTopicErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroySubscriptionTopicError = DestroySubscriptionTopicErrors[keyof DestroySubscriptionTopicErrors];
 
 export type DestroySubscriptionTopicResponses = {
     /**
@@ -16233,6 +17462,15 @@ export type RetrieveSubscriptionTopicData = {
     url: '/api/v1/user/subscription/topic/{id}';
 };
 
+export type RetrieveSubscriptionTopicErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveSubscriptionTopicError = RetrieveSubscriptionTopicErrors[keyof RetrieveSubscriptionTopicErrors];
+
 export type RetrieveSubscriptionTopicResponses = {
     200: SubscriptionTopicDetail;
 };
@@ -16252,6 +17490,16 @@ export type PartialUpdateSubscriptionTopicData = {
     };
     url: '/api/v1/user/subscription/topic/{id}';
 };
+
+export type PartialUpdateSubscriptionTopicErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type PartialUpdateSubscriptionTopicError = PartialUpdateSubscriptionTopicErrors[keyof PartialUpdateSubscriptionTopicErrors];
 
 export type PartialUpdateSubscriptionTopicResponses = {
     200: SubscriptionTopicDetail;
@@ -16273,6 +17521,16 @@ export type UpdateSubscriptionTopicData = {
     url: '/api/v1/user/subscription/topic/{id}';
 };
 
+export type UpdateSubscriptionTopicErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type UpdateSubscriptionTopicError = UpdateSubscriptionTopicErrors[keyof UpdateSubscriptionTopicErrors];
+
 export type UpdateSubscriptionTopicResponses = {
     200: SubscriptionTopicDetail;
 };
@@ -16280,7 +17538,7 @@ export type UpdateSubscriptionTopicResponses = {
 export type UpdateSubscriptionTopicResponse = UpdateSubscriptionTopicResponses[keyof UpdateSubscriptionTopicResponses];
 
 export type SubscribeToTopicData = {
-    body: UserSubscriptionRequest;
+    body?: never;
     path: {
         id: string | number;
     };
@@ -16291,7 +17549,9 @@ export type SubscribeToTopicData = {
 export type SubscribeToTopicErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type SubscribeToTopicError = SubscribeToTopicErrors[keyof SubscribeToTopicErrors];
@@ -16304,7 +17564,7 @@ export type SubscribeToTopicResponses = {
 export type SubscribeToTopicResponse = SubscribeToTopicResponses[keyof SubscribeToTopicResponses];
 
 export type UnsubscribeFromTopicData = {
-    body: DetailRequest;
+    body?: never;
     path: {
         id: string | number;
     };
@@ -16315,17 +17575,18 @@ export type UnsubscribeFromTopicData = {
 export type UnsubscribeFromTopicErrors = {
     400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
     404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type UnsubscribeFromTopicError = UnsubscribeFromTopicErrors[keyof UnsubscribeFromTopicErrors];
 
 export type UnsubscribeFromTopicResponses = {
-    /**
-     * No response body
-     */
-    200: unknown;
+    200: Detail;
 };
+
+export type UnsubscribeFromTopicResponse = UnsubscribeFromTopicResponses[keyof UnsubscribeFromTopicResponses];
 
 export type GetMySubscriptionTopicsData = {
     body?: never;
@@ -16335,7 +17596,11 @@ export type GetMySubscriptionTopicsData = {
 };
 
 export type GetMySubscriptionTopicsErrors = {
+    400: ErrorResponse;
     401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
 };
 
 export type GetMySubscriptionTopicsError = GetMySubscriptionTopicsErrors[keyof GetMySubscriptionTopicsErrors];

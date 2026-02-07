@@ -3,13 +3,17 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useUserNotificationStore } from '~/stores/user-notification'
 
 // Mock dependencies
-vi.mock('#app', () => ({
-  useNuxtApp: () => ({}),
-  useUserSession: () => ({
-    loggedIn: { value: true },
-    user: { value: { id: 1 } },
-  }),
-}))
+vi.mock('#app', async (importOriginal) => {
+  const actual = await importOriginal<Record<string, unknown>>()
+  return {
+    ...actual,
+    useNuxtApp: () => ({}),
+    useUserSession: () => ({
+      loggedIn: { value: true },
+      user: { value: { id: 1 } },
+    }),
+  }
+})
 
 const mockGetNotifications = vi.fn()
 
