@@ -509,13 +509,19 @@ definePageMeta({
                   v-if="product.discountValue && product.discountValue > 0"
                   class="
                     text-lg text-gray-500 line-through
-                    dark:text-gray-400
+                    dark:text-gray-200
                   "
                 >
                   {{ formatProductPrice(product?.price) }}
                 </span>
               </div>
             </div>
+
+            <!-- Loyalty Points Badge -->
+            <LoyaltyPointsBadge
+              v-if="loggedIn && product?.id"
+              :product-id="product.id"
+            />
 
             <USeparator />
 
@@ -601,7 +607,7 @@ definePageMeta({
                     v-else
                     class="
                       text-gray-500
-                      dark:text-gray-400
+                      dark:text-gray-200
                     "
                   >
                     {{ t('no_description_available') }}
@@ -627,7 +633,7 @@ definePageMeta({
                       <dd
                         class="
                           text-gray-600
-                          dark:text-gray-400
+                          dark:text-gray-200
                         "
                       >
                         {{ spec.value }}
@@ -638,7 +644,7 @@ definePageMeta({
                     v-else
                     class="
                       text-gray-500
-                      dark:text-gray-400
+                      dark:text-gray-200
                     "
                   >
                     {{ t('no_specifications_available') }}

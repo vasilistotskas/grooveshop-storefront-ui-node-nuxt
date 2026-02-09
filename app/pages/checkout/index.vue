@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-const { fetch } = useUserSession()
+const { fetch, loggedIn } = useUserSession()
 const localePath = useLocalePath()
 const { getPaymentMethodName } = usePaymentMethod()
 
@@ -31,6 +31,9 @@ const reservationIds = ref<number[]>([])
 const retryCount = ref(0)
 const MAX_RETRIES = 3
 const paymentIntentId = ref<string | null>(null) // Store payment intent ID for Stripe
+
+// Loyalty discount state
+const loyaltyDiscount = ref<{ amount: number, currency: string } | null>(null)
 
 // Stock error state
 const stockError = ref<{
@@ -638,6 +641,12 @@ const backToForm = () => {
   currentStep.value = 1
 }
 
+// Handle loyalty points redemption
+const onLoyaltyRedeemed = (discount: { amount: number, currency: string }) => {
+  loyaltyDiscount.value = discount
+  console.log('Loyalty discount applied:', discount)
+}
+
 // Release reservations if user leaves checkout without completing
 onBeforeUnmount(async () => {
   if (reservationIds.value.length > 0 && !createdOrder.value) {
@@ -1091,14 +1100,25 @@ definePageMeta({
 
       <!-- Sidebar -->
       <div class="w-full lg:w-[400px]">
-        <CheckoutSidebar
-          :shipping-price="shippingPrice"
-          :show-payment-fee="currentStep === 1"
-        >
-          <template #items>
-            <CheckoutItems />
-          </template>
-        </CheckoutSidebar>
+        <div class="lg:sticky lg:top-4">
+          <CheckoutSidebar
+            :shipping-price="shippingPrice"
+            :show-payment-fee="currentStep === 1"
+          >
+            <template #items>
+              <CheckoutItems />
+            </template>
+
+            <template #loyalty>
+              <!-- Loyalty Points Redemption -->
+              <LoyaltyRedemption
+                v-if="loggedIn"
+                :currency="'EUR'"
+                @redeemed="onLoyaltyRedeemed"
+              />
+            </template>
+          </CheckoutSidebar>
+        </div>
       </div>
     </div>
   </PageWrapper>

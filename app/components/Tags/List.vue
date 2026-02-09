@@ -102,7 +102,7 @@ const filteredTags = computed(() => {
           variant="solid"
           class="flex w-full items-center"
           icon="i-heroicons-hashtag"
-          size="xs"
+          size="sm"
           :label="extractTranslated(item, 'label', locale)"
         />
       </LazyUCarousel>

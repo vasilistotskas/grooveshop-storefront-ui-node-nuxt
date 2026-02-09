@@ -10,9 +10,6 @@
  * 3. Create Stripe payment intent
  * 4. Return client_secret and payment_intent_id
  *
- * References:
- * - Requirement 7.1-7.3 (Payment Flow)
- * - Property 9 (Payment Intent Required for Online Payments)
  */
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()

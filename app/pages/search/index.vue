@@ -216,7 +216,7 @@ useHead({
           <div
             class="
               flex items-center gap-2 text-sm text-gray-600
-              dark:text-gray-400
+              dark:text-gray-200
             "
           >
             <UIcon
@@ -308,7 +308,7 @@ useHead({
         <p
           class="
             mb-6 max-w-md text-gray-600
-            dark:text-gray-400
+            dark:text-gray-200
           "
         >
           {{ t('page.empty.description') }}
@@ -365,7 +365,7 @@ useHead({
         <p
           class="
             mb-6 max-w-md text-gray-600
-            dark:text-gray-400
+            dark:text-gray-200
           "
         >
           {{ t('page.no_results.description', { query }) }}
@@ -424,7 +424,7 @@ useHead({
           <span
             class="
               text-gray-600
-              dark:text-gray-400
+              dark:text-gray-200
             "
           >
             {{ t('page.per_page') }}

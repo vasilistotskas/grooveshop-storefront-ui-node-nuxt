@@ -58,7 +58,7 @@ onUnmounted(() => {
     >
       <slot name="banner" />
     </div>
-    <div class="mx-auto max-w-(--container-main) !p-0">
+    <div class="mx-auto max-w-main p-0!">
       <div
         class="
           mx-2 flex gap-2 py-3

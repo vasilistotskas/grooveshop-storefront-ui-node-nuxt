@@ -118,7 +118,7 @@ definePageMeta({
               <p
                 class="
                   mt-1 text-sm text-gray-500
-                  dark:text-gray-400
+                  dark:text-gray-200
                 "
               >
                 {{ t('subtitle') }}
@@ -162,7 +162,7 @@ definePageMeta({
             <ul
               class="
                 space-y-2 text-sm text-gray-600
-                dark:text-gray-400
+                dark:text-gray-200
               "
             >
               <li class="flex items-start gap-2">

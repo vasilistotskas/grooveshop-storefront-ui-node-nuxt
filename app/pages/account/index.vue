@@ -652,6 +652,7 @@ el:
     menu_description:
       account-favourites-posts: Δες τις αγαπημένες σου αναρτήσεις
       account-subscriptions: Διαχειρίσου τις εγγραφές σου
+      account-loyalty: Δες τους πόντους και το ιστορικό σου
       account-settings: Ρύθμισε τις προτιμήσεις σου
       account-addresses: Διαχειρίσου τις διευθύνσεις σου
       account-orders: Δες τις παραγγελίες σου

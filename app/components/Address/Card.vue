@@ -226,7 +226,7 @@ const addressDetails = computed(() => {
         <span
           class="
             text-sm text-gray-600 italic
-            dark:text-gray-400
+            dark:text-gray-200
           "
         >
           {{ contentShorten(address.notes, 0, 50) }}

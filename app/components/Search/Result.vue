@@ -88,7 +88,7 @@ const resultUrl = (result: SearchResult) => {
       <span
         class="
           line-clamp-2 text-sm text-gray-600
-          dark:text-gray-400
+          dark:text-gray-200
         "
         v-html="displaySubtitle"
       />

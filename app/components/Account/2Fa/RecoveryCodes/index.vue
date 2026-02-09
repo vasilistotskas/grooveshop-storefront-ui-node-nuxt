@@ -157,7 +157,7 @@ onReactivated(async () => {
                 <p
                   class="
                     mt-1 text-sm text-gray-500
-                    dark:text-gray-400
+                    dark:text-gray-200
                   "
                 >
                   {{ t('subtitle') }}
@@ -190,7 +190,7 @@ onReactivated(async () => {
               <span
                 class="
                   text-gray-500
-                  dark:text-gray-400
+                  dark:text-gray-200
                 "
               >
                 {{ t('progress.remaining', unused_code_count) }}
@@ -205,7 +205,7 @@ onReactivated(async () => {
               v-if="usedCount > 0"
               class="
                 mt-2 text-xs text-gray-500
-                dark:text-gray-400
+                dark:text-gray-200
               "
             >
               {{ t('progress.used', usedCount) }}
@@ -229,7 +229,7 @@ onReactivated(async () => {
                 <span
                   class="
                     text-xs font-medium tracking-wide text-gray-500 uppercase
-                    dark:text-gray-400
+                    dark:text-gray-200
                   "
                 >
                   {{ t('stats.created') }}
@@ -256,7 +256,7 @@ onReactivated(async () => {
                 <span
                   class="
                     text-xs font-medium tracking-wide text-gray-500 uppercase
-                    dark:text-gray-400
+                    dark:text-gray-200
                   "
                 >
                   {{ t('stats.last_used') }}
@@ -367,7 +367,7 @@ onReactivated(async () => {
             <div
               class="
                 text-xs text-gray-500
-                dark:text-gray-400
+                dark:text-gray-200
               "
             >
               {{ t('footer.reminder') }}

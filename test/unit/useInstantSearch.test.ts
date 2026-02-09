@@ -4,11 +4,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
  * Feature: meilisearch-enhancements
  * Property Validation Tests for useInstantSearch Composable
  *
- * These tests validate the correctness properties for instant search:
- * - Property 17: Request cancellation during debounce
- * - Property 18: Race condition prevention
- * - Property 19: URL state synchronization
- *
  * Note: These tests validate the core behaviors and patterns used by useInstantSearch
  * without requiring full Vue/Nuxt environment setup in Node test environment.
  */
@@ -21,14 +16,7 @@ describe('Feature: meilisearch-enhancements - useInstantSearch Properties', () =
     abortedRequests = []
   })
 
-  describe('Property 17: Request cancellation during debounce', () => {
-    /**
-     * Property: For any search input, typing a new character during the
-     * debounce period should cancel the pending request using AbortController
-     *
-     * Validates: Requirements 5.3
-     */
-
+  describe('Request cancellation during debounce', () => {
     /**
      * Helper function that simulates debounced search with abort control
      * This mimics the core behavior of useInstantSearch
@@ -153,14 +141,7 @@ describe('Feature: meilisearch-enhancements - useInstantSearch Properties', () =
     )
   })
 
-  describe('Property 18: Race condition prevention', () => {
-    /**
-     * Property: For any overlapping search requests, starting a new request
-     * should abort the previous in-flight request
-     *
-     * Validates: Requirements 5.6
-     */
-
+  describe('Race condition prevention', () => {
     /**
      * Helper function that simulates search with abort control for race conditions
      * This mimics the core behavior of useInstantSearch
@@ -292,14 +273,7 @@ describe('Feature: meilisearch-enhancements - useInstantSearch Properties', () =
     )
   })
 
-  describe('Property 19: URL state synchronization', () => {
-    /**
-     * Property: For any search query, the search state should be
-     * synchronized with URL query parameters for bookmarking
-     *
-     * Validates: Requirements 5.7
-     */
-
+  describe('URL state synchronization', () => {
     /**
      * Helper function that simulates URL state synchronization
      * This mimics the core behavior of useInstantSearch

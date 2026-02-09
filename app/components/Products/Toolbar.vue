@@ -137,7 +137,7 @@ const handleToggleFilters = () => {
       <div class="flex items-center gap-2">
         <label
           for="sort-select"
-          class="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap"
+          class="text-sm text-gray-600 dark:text-gray-200 whitespace-nowrap"
         >
           {{ t('sortBy') }}:
         </label>
@@ -155,7 +155,7 @@ const handleToggleFilters = () => {
       <div class="flex items-center gap-2">
         <label
           for="items-per-page-select"
-          class="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap"
+          class="text-sm text-gray-600 dark:text-gray-200 whitespace-nowrap"
         >
           {{ t('show') }}:
         </label>

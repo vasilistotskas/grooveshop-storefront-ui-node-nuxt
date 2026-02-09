@@ -185,7 +185,7 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
       class="
         flex items-center justify-center gap-2 text-xs text-gray-500
         sm:hidden
-        dark:text-gray-400
+        dark:text-gray-200
       "
     >
       <UIcon name="i-heroicons-information-circle" class="h-4 w-4" />

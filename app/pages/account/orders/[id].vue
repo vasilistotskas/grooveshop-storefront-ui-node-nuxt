@@ -304,7 +304,7 @@ definePageMeta({
           <p
             class="
               text-sm text-gray-500
-              dark:text-gray-400
+              dark:text-gray-200
             "
           >
             {{ t('placed_on') }}:
@@ -510,7 +510,7 @@ definePageMeta({
                         class="
                           mt-2 flex flex-wrap items-center gap-x-3 gap-y-1
                           text-xs text-gray-500
-                          dark:text-gray-400
+                          dark:text-gray-200
                         "
                       >
                         <span class="font-mono">#{{ item.product.id }}</span>
@@ -527,7 +527,7 @@ definePageMeta({
                         <span
                           class="
                             text-sm text-gray-600
-                            dark:text-gray-400
+                            dark:text-gray-200
                           "
                         >
                           {{ t('unit_price') }}:
@@ -572,7 +572,7 @@ definePageMeta({
                         <div
                           class="
                             flex items-center gap-2 text-sm text-gray-600
-                            dark:text-gray-400
+                            dark:text-gray-200
                           "
                         >
                           <UIcon name="i-heroicons-archive-box" class="h-4 w-4" />
@@ -583,7 +583,7 @@ definePageMeta({
                           <div
                             class="
                               text-xs text-gray-500
-                              dark:text-gray-400
+                              dark:text-gray-200
                             "
                           >
                             {{ t('subtotal') }}
@@ -618,7 +618,7 @@ definePageMeta({
                         v-if="item.product.reviewCount > 0"
                         class="
                           mt-2 flex items-center gap-2 text-sm text-gray-600
-                          dark:text-gray-400
+                          dark:text-gray-200
                         "
                       >
                         <div class="flex items-center">
@@ -669,7 +669,7 @@ definePageMeta({
                     <span
                       class="
                         text-gray-600
-                        dark:text-gray-400
+                        dark:text-gray-200
                       "
                     >{{ item.label }}</span>
                     <span class="font-medium">{{ $i18n.n(item.amount, 'currency') }}</span>
@@ -885,7 +885,7 @@ definePageMeta({
                     <p
                       class="
                         mt-1 font-mono text-xs text-gray-600
-                        dark:text-gray-400
+                        dark:text-gray-200
                       "
                     >
                       {{ order.uuid }}
@@ -991,7 +991,7 @@ definePageMeta({
                 <span
                   class="
                     text-xs text-gray-500
-                    dark:text-gray-400
+                    dark:text-gray-200
                   "
                 >
                   {{ item.date }}
@@ -1003,7 +1003,7 @@ definePageMeta({
                   <p
                     class="
                       text-sm text-gray-600
-                      dark:text-gray-400
+                      dark:text-gray-200
                     "
                   >
                     {{ item.description }}

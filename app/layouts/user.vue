@@ -85,9 +85,9 @@ const Footer = computed(() => {
       </PageHeader>
       <div
         class="
-          grid gap-2 pt-[54px]
-          md:gap-6 md:pt-[62px]
-          lg:pt-[62px]
+          grid gap-2 pt-13.5
+          md:gap-6 md:pt-15.5
+          lg:pt-15.5
         "
       >
         <div
@@ -107,8 +107,8 @@ const Footer = computed(() => {
         </div>
         <main
           class="
-            mx-auto w-full max-w-(--container-main)
-            md:!p-0
+            mx-auto w-full max-w-main xl:max-w-300 2xl:max-w-375
+            md:p-0!
           "
         >
           <div

@@ -25,7 +25,7 @@ onMounted(() => {
     :class="[
       {
         'transition-all duration-300 ease-in-out': true,
-        'md:hidden md:h-fit lg:flex lg:w-30 xl:w-46': mode === 'normal',
+        'md:hidden md:h-fit lg:flex lg:w-48 xl:w-72': mode === 'normal',
         'relative flex w-full flex-1 flex-col': mode === 'mobile',
         'relative grid w-full': route.path === '/account',
       },

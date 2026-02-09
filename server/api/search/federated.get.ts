@@ -3,8 +3,6 @@
  *
  * Proxies federated search requests to the Django backend's /search/federated endpoint.
  * Returns unified search results from products and blog posts with federation metadata.
- *
- * Validates Requirements: 5.4, 5.5
  */
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()

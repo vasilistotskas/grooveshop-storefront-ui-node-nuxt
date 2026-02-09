@@ -152,7 +152,7 @@ async function onSubmit() {
               <p
                 class="
                   mt-1 text-sm text-gray-500
-                  dark:text-gray-400
+                  dark:text-gray-200
                 "
               >
                 {{ hasCurrentPassword ? t('change.description') : t('set.description') }}
@@ -261,7 +261,7 @@ async function onSubmit() {
                   class="flex items-center gap-2 text-xs"
                   :class="req.met ? 'text-success' : `
                     text-gray-500
-                    dark:text-gray-400
+                    dark:text-gray-200
                   `"
                 >
                   <UIcon

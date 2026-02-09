@@ -749,6 +749,14 @@ export const zCreatePaymentIntentResponse = z.object({
 });
 
 /**
+ * * `EUR` - EUR
+ * * `USD` - USD
+ */
+export const zCurrencyEnum = z.enum(['EUR', 'USD']).register(z.globalRegistry, {
+    description: '* `EUR` - EUR\n* `USD` - USD'
+});
+
+/**
  * Serializer for date range in analytics.
  */
 export const zDateRange = z.object({
@@ -991,6 +999,62 @@ export const zLocationTypeEnum = z.enum([
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
+export const zLoyaltyTier = z.object({
+    id: z.int().readonly(),
+    translations: z.object({
+        el: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        }))
+    }),
+    requiredLevel: z.int().register(z.globalRegistry, {
+        description: 'Minimum level to achieve this tier'
+    }).readonly(),
+    pointsMultiplier: z.number().gt(-1000).lt(1000).register(z.globalRegistry, {
+        description: 'Multiplier applied to earned points for users in this tier'
+    }).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * Serializer for the user's loyalty summary response.
+ *
+ * Returns computed loyalty data: balance, XP, level, tier, and progress.
+ */
+export const zLoyaltySummary = z.object({
+    pointsBalance: z.int().register(z.globalRegistry, {
+        description: 'Current spendable points balance.'
+    }).readonly(),
+    totalXp: z.int().register(z.globalRegistry, {
+        description: 'Cumulative experience points.'
+    }).readonly(),
+    level: z.int().register(z.globalRegistry, {
+        description: 'Current level computed from total_xp.'
+    }).readonly(),
+    tier: z.union([
+        zLoyaltyTier,
+        z.null()
+    ]),
+    pointsToNextTier: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer for the user\'s loyalty summary response.\n\nReturns computed loyalty data: balance, XP, level, tier, and progress.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
 export const zNotification = z.object({
     translations: z.object({
         el: z.optional(z.object({
@@ -1116,7 +1180,11 @@ export const zOrderCreateFromCartRequest = z.object({
     }),
     customerNotes: z.optional(z.string().max(500).register(z.globalRegistry, {
         description: 'Customer notes or special instructions'
-    }))
+    })),
+    loyaltyPointsToRedeem: z.optional(z.union([
+        z.int().gte(0),
+        z.null()
+    ]))
 }).register(z.globalRegistry, {
     description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.'
 });
@@ -1364,6 +1432,25 @@ export const zPaginatedCountryList = z.object({
     pageTotalResults: z.optional(z.int()),
     page: z.optional(z.int()),
     results: z.array(zCountry)
+});
+
+export const zPaginatedLoyaltyTierList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zLoyaltyTier)
 });
 
 export const zPaginatedNotificationUserList = z.object({
@@ -3227,6 +3314,23 @@ export const zProductMeiliSearchResponse = z.object({
 });
 
 /**
+ * Serializer for product points preview response.
+ */
+export const zProductPoints = z.object({
+    productId: z.int().register(z.globalRegistry, {
+        description: 'ID of the product.'
+    }).readonly(),
+    potentialPoints: z.int().register(z.globalRegistry, {
+        description: 'Points the user would earn by purchasing this product.'
+    }).readonly(),
+    tierMultiplierApplied: z.boolean().register(z.globalRegistry, {
+        description: 'Whether the user\'s tier multiplier was applied to the calculation.'
+    }).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer for product points preview response.'
+});
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zProductWriteRequest = z.object({
@@ -3290,6 +3394,42 @@ export const zRateEnum = z.union([
     z.literal(10)
 ]).register(z.globalRegistry, {
     description: '* `1` - One\n* `2` - Two\n* `3` - Three\n* `4` - Four\n* `5` - Five\n* `6` - Six\n* `7` - Seven\n* `8` - Eight\n* `9` - Nine\n* `10` - Ten'
+});
+
+/**
+ * Serializer for validating a points redemption request.
+ */
+export const zRedeemPointsRequestRequest = z.object({
+    pointsAmount: z.int().gte(1).register(z.globalRegistry, {
+        description: 'Number of points to redeem. Must be a positive integer.'
+    }),
+    currency: zCurrencyEnum,
+    orderId: z.optional(z.union([
+        z.int(),
+        z.null()
+    ]))
+}).register(z.globalRegistry, {
+    description: 'Serializer for validating a points redemption request.'
+});
+
+/**
+ * Serializer for the points redemption response.
+ */
+export const zRedeemPointsResponse = z.object({
+    discountAmount: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+        description: 'Monetary discount value in the requested currency.'
+    }).readonly(),
+    currency: z.string().register(z.globalRegistry, {
+        description: 'Currency of the discount.'
+    }).readonly(),
+    pointsRedeemed: z.int().register(z.globalRegistry, {
+        description: 'Number of points that were redeemed.'
+    }).readonly(),
+    remainingBalance: z.int().register(z.globalRegistry, {
+        description: 'User\'s points balance after redemption.'
+    }).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer for the points redemption response.'
 });
 
 /**
@@ -3862,6 +4002,61 @@ export const zTopQuery = z.object({
     })
 }).register(z.globalRegistry, {
     description: 'Serializer for top query analytics.'
+});
+
+/**
+ * * `EARN` - Earn
+ * * `REDEEM` - Redeem
+ * * `EXPIRE` - Expire
+ * * `ADJUST` - Adjust
+ * * `BONUS` - Bonus
+ */
+export const zTransactionTypeEnum = z.enum([
+    'EARN',
+    'REDEEM',
+    'EXPIRE',
+    'ADJUST',
+    'BONUS'
+]).register(z.globalRegistry, {
+    description: '* `EARN` - Earn\n* `REDEEM` - Redeem\n* `EXPIRE` - Expire\n* `ADJUST` - Adjust\n* `BONUS` - Bonus'
+});
+
+/**
+ * Serializer for points transaction history records.
+ */
+export const zPointsTransaction = z.object({
+    id: z.int().readonly(),
+    points: z.int().register(z.globalRegistry, {
+        description: 'Positive for earn/bonus, negative for redeem/expire/adjust'
+    }).readonly(),
+    transactionType: zTransactionTypeEnum,
+    referenceOrder: z.union([
+        z.int().readonly(),
+        z.null()
+    ]).readonly(),
+    description: z.string().readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer for points transaction history records.'
+});
+
+export const zPaginatedPointsTransactionList = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zPointsTransaction)
 });
 
 export const zUnsubscribe = z.object({
@@ -4934,6 +5129,37 @@ export const zCountryDetailWritable = z.object({
 });
 
 /**
+ * Serializer for the user's loyalty summary response.
+ *
+ * Returns computed loyalty data: balance, XP, level, tier, and progress.
+ */
+export const zLoyaltySummaryWritable = z.record(z.string(), z.unknown()).register(z.globalRegistry, {
+    description: 'Serializer for the user\'s loyalty summary response.\n\nReturns computed loyalty data: balance, XP, level, tier, and progress.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zLoyaltyTierWritable = z.object({
+    translations: z.object({
+        el: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        })),
+        en: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        })),
+        de: z.optional(z.object({
+            name: z.optional(z.string()),
+            description: z.optional(z.string())
+        }))
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zNotificationWritable = z.object({
@@ -5267,6 +5493,25 @@ export const zPaginatedCountryListWritable = z.object({
     results: z.array(zCountryWritable)
 });
 
+export const zPaginatedLoyaltyTierListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(zLoyaltyTierWritable)
+});
+
 export const zPaginatedNotificationUserListWritable = z.object({
     links: z.optional(z.object({
         next: z.optional(z.union([
@@ -5322,6 +5567,25 @@ export const zPaginatedOrderListWritable = z.object({
     pageTotalResults: z.optional(z.int()),
     page: z.optional(z.int()),
     results: z.array(zOrderWritable)
+});
+
+export const zPaginatedPointsTransactionListWritable = z.object({
+    links: z.optional(z.object({
+        next: z.optional(z.union([
+            z.url(),
+            z.null()
+        ])),
+        previous: z.optional(z.union([
+            z.url(),
+            z.null()
+        ]))
+    })),
+    count: z.int(),
+    totalPages: z.optional(z.int()),
+    pageSize: z.optional(z.int()),
+    pageTotalResults: z.optional(z.int()),
+    page: z.optional(z.int()),
+    results: z.array(z.unknown())
 });
 
 export const zPatchedTaggedItemWriteRequestWritable = z.object({
@@ -10353,6 +10617,75 @@ export const zHealthRetrieveData = z.object({
 });
 
 export const zHealthRetrieveResponse = zHealthCheckResponse;
+
+export const zGetProductLoyaltyPointsData = z.object({
+    body: z.optional(z.never()),
+    path: z.object({
+        id: z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])
+    }),
+    query: z.optional(z.never())
+});
+
+export const zGetProductLoyaltyPointsResponse = zProductPoints;
+
+export const zRedeemLoyaltyPointsData = z.object({
+    body: zRedeemPointsRequestRequest,
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zRedeemLoyaltyPointsResponse = zRedeemPointsResponse;
+
+export const zGetLoyaltySummaryData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.never())
+});
+
+export const zGetLoyaltySummaryResponse = zLoyaltySummary;
+
+export const zListLoyaltyTiersData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.object({
+        page: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        pageSize: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        search: z.optional(z.string().register(z.globalRegistry, {
+            description: 'A search term.'
+        }))
+    }))
+});
+
+export const zListLoyaltyTiersResponse = zPaginatedLoyaltyTierList;
+
+export const zListLoyaltyTransactionsData = z.object({
+    body: z.optional(z.never()),
+    path: z.optional(z.never()),
+    query: z.optional(z.object({
+        page: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        pageSize: z.optional(z.union([
+            z.string().regex(/^-?\d+$/),
+            z.int()
+        ])),
+        search: z.optional(z.string().register(z.globalRegistry, {
+            description: 'A search term.'
+        }))
+    }))
+});
+
+export const zListLoyaltyTransactionsResponse = zPaginatedPointsTransactionList;
 
 export const zGetNotificationsByIdsData = z.object({
     body: zNotificationIdsRequest,

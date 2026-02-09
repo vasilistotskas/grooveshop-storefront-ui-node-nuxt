@@ -2,13 +2,6 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { UEmpty } from '#components'
 
-/**
- * Tests for empty state implementation using UEmpty component
- * Validates Requirements 5.1, 5.2, 5.3, 5.4
- * 
- * These tests verify that the UEmpty component is properly configured
- * with the correct props for the products empty state.
- */
 describe('UEmpty Component - Configuration', () => {
   it('accepts icon prop correctly', () => {
     const wrapper = mount(UEmpty, {
@@ -95,12 +88,11 @@ describe('UEmpty Component - Configuration', () => {
 
 /**
  * Property Test Simulation: UEmpty Props Consistency
- * Validates Requirement 5.1, 5.5
- * 
+ *
  * For any configuration of the UEmpty component, it should accept
  * and properly handle the icon, title, description, and actions props.
  */
-describe('Property: UEmpty Props Consistency', () => {
+describe('UEmpty Props Consistency', () => {
   const testCases = [
     {
       icon: 'i-heroicons-magnifying-glass-minus',

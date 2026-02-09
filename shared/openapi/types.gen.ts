@@ -1055,6 +1055,12 @@ export type CreatePaymentIntentResponse = {
 };
 
 /**
+ * * `EUR` - EUR
+ * * `USD` - USD
+ */
+export type CurrencyEnum = 'EUR' | 'USD';
+
+/**
  * Serializer for date range in analytics.
  */
 export type DateRange = {
@@ -1231,6 +1237,63 @@ export type KindEnum = 'ERROR' | 'SUCCESS' | 'INFO' | 'WARNING' | 'DANGER';
  * * `OTHER` - Other
  */
 export type LocationTypeEnum = 'HOME' | 'OFFICE' | 'OTHER';
+
+/**
+ * Serializer for the user's loyalty summary response.
+ *
+ * Returns computed loyalty data: balance, XP, level, tier, and progress.
+ */
+export type LoyaltySummary = {
+    /**
+     * Current spendable points balance.
+     */
+    readonly pointsBalance: number;
+    /**
+     * Cumulative experience points.
+     */
+    readonly totalXp: number;
+    /**
+     * Current level computed from total_xp.
+     */
+    readonly level: number;
+    /**
+     * Current loyalty tier with translations, or null if none.
+     */
+    tier: LoyaltyTier | null;
+    /**
+     * XP points needed to reach the next tier, or null if at highest.
+     */
+    readonly pointsToNextTier: number | null;
+};
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export type LoyaltyTier = {
+    readonly id: number;
+    translations: {
+        el?: {
+            name?: string;
+            description?: string;
+        };
+        en?: {
+            name?: string;
+            description?: string;
+        };
+        de?: {
+            name?: string;
+            description?: string;
+        };
+    };
+    /**
+     * Minimum level to achieve this tier
+     */
+    readonly requiredLevel: number;
+    /**
+     * Multiplier applied to earned points for users in this tier
+     */
+    readonly pointsMultiplier: number;
+};
 
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -1426,6 +1489,10 @@ export type OrderCreateFromCartRequest = {
      * Customer notes or special instructions
      */
     customerNotes?: string;
+    /**
+     * Number of loyalty points to redeem for discount on this order
+     */
+    loyaltyPointsToRedeem?: number | null;
 };
 
 export type OrderDetail = {
@@ -1778,6 +1845,19 @@ export type PaginatedCountryList = {
     results: Array<Country>;
 };
 
+export type PaginatedLoyaltyTierList = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<LoyaltyTier>;
+};
+
 export type PaginatedNotificationUserList = {
     links?: {
         next?: string | null;
@@ -1828,6 +1908,19 @@ export type PaginatedPayWayList = {
     pageTotalResults?: number;
     page?: number;
     results: Array<PayWay>;
+};
+
+export type PaginatedPointsTransactionList = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<PointsTransaction>;
 };
 
 export type PaginatedProductCategoryImageList = {
@@ -2773,6 +2866,21 @@ export type PerformanceMetrics = {
 };
 
 /**
+ * Serializer for points transaction history records.
+ */
+export type PointsTransaction = {
+    readonly id: number;
+    /**
+     * Positive for earn/bonus, negative for redeem/expire/adjust
+     */
+    readonly points: number;
+    transactionType: TransactionTypeEnum;
+    readonly referenceOrder: number | null;
+    readonly description: string;
+    readonly createdAt: string;
+};
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type Product = {
@@ -3340,6 +3448,24 @@ export type ProductMeiliSearchResult = {
 };
 
 /**
+ * Serializer for product points preview response.
+ */
+export type ProductPoints = {
+    /**
+     * ID of the product.
+     */
+    readonly productId: number;
+    /**
+     * Points the user would earn by purchasing this product.
+     */
+    readonly potentialPoints: number;
+    /**
+     * Whether the user's tier multiplier was applied to the calculation.
+     */
+    readonly tierMultiplierApplied: boolean;
+};
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type ProductReview = {
@@ -3470,6 +3596,49 @@ export type ProductWriteRequest = {
  * * `10` - Ten
  */
 export type RateEnum = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+
+/**
+ * Serializer for validating a points redemption request.
+ */
+export type RedeemPointsRequestRequest = {
+    /**
+     * Number of points to redeem. Must be a positive integer.
+     */
+    pointsAmount: number;
+    /**
+     * Currency for the monetary discount (EUR or USD).
+     *
+     * * `EUR` - EUR
+     * * `USD` - USD
+     */
+    currency: CurrencyEnum;
+    /**
+     * Optional order ID to associate the redemption with. When provided, loyalty metadata is stored in the order.
+     */
+    orderId?: number | null;
+};
+
+/**
+ * Serializer for the points redemption response.
+ */
+export type RedeemPointsResponse = {
+    /**
+     * Monetary discount value in the requested currency.
+     */
+    readonly discountAmount: number;
+    /**
+     * Currency of the discount.
+     */
+    readonly currency: string;
+    /**
+     * Number of points that were redeemed.
+     */
+    readonly pointsRedeemed: number;
+    /**
+     * User's points balance after redemption.
+     */
+    readonly remainingBalance: number;
+};
 
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -3992,6 +4161,15 @@ export type TopQuery = {
      */
     clickThroughRate: number;
 };
+
+/**
+ * * `EARN` - Earn
+ * * `REDEEM` - Redeem
+ * * `EXPIRE` - Expire
+ * * `ADJUST` - Adjust
+ * * `BONUS` - Bonus
+ */
+export type TransactionTypeEnum = 'EARN' | 'REDEEM' | 'EXPIRE' | 'ADJUST' | 'BONUS';
 
 export type Unsubscribe = {
     message: string;
@@ -4666,6 +4844,35 @@ export type CountryDetailWritable = {
 };
 
 /**
+ * Serializer for the user's loyalty summary response.
+ *
+ * Returns computed loyalty data: balance, XP, level, tier, and progress.
+ */
+export type LoyaltySummaryWritable = {
+    [key: string]: unknown;
+};
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export type LoyaltyTierWritable = {
+    translations: {
+        el?: {
+            name?: string;
+            description?: string;
+        };
+        en?: {
+            name?: string;
+            description?: string;
+        };
+        de?: {
+            name?: string;
+            description?: string;
+        };
+    };
+};
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type NotificationWritable = {
@@ -4925,6 +5132,19 @@ export type PaginatedCountryListWritable = {
     results: Array<CountryWritable>;
 };
 
+export type PaginatedLoyaltyTierListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<LoyaltyTierWritable>;
+};
+
 export type PaginatedNotificationUserListWritable = {
     links?: {
         next?: string | null;
@@ -4975,6 +5195,19 @@ export type PaginatedPayWayListWritable = {
     pageTotalResults?: number;
     page?: number;
     results: Array<PayWayWritable>;
+};
+
+export type PaginatedPointsTransactionListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<unknown>;
 };
 
 export type PaginatedProductCategoryImageListWritable = {
@@ -10133,6 +10366,149 @@ export type HealthRetrieveResponses = {
 };
 
 export type HealthRetrieveResponse = HealthRetrieveResponses[keyof HealthRetrieveResponses];
+
+export type GetProductLoyaltyPointsData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/loyalty/product/{id}/points';
+};
+
+export type GetProductLoyaltyPointsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type GetProductLoyaltyPointsError = GetProductLoyaltyPointsErrors[keyof GetProductLoyaltyPointsErrors];
+
+export type GetProductLoyaltyPointsResponses = {
+    200: ProductPoints;
+};
+
+export type GetProductLoyaltyPointsResponse = GetProductLoyaltyPointsResponses[keyof GetProductLoyaltyPointsResponses];
+
+export type RedeemLoyaltyPointsData = {
+    body: RedeemPointsRequestRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/loyalty/redeem';
+};
+
+export type RedeemLoyaltyPointsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RedeemLoyaltyPointsError = RedeemLoyaltyPointsErrors[keyof RedeemLoyaltyPointsErrors];
+
+export type RedeemLoyaltyPointsResponses = {
+    200: RedeemPointsResponse;
+};
+
+export type RedeemLoyaltyPointsResponse = RedeemLoyaltyPointsResponses[keyof RedeemLoyaltyPointsResponses];
+
+export type GetLoyaltySummaryData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/loyalty/summary';
+};
+
+export type GetLoyaltySummaryErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type GetLoyaltySummaryError = GetLoyaltySummaryErrors[keyof GetLoyaltySummaryErrors];
+
+export type GetLoyaltySummaryResponses = {
+    200: LoyaltySummary;
+};
+
+export type GetLoyaltySummaryResponse = GetLoyaltySummaryResponses[keyof GetLoyaltySummaryResponses];
+
+export type ListLoyaltyTiersData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * A page number within the paginated result set.
+         */
+        page?: string | number;
+        /**
+         * Number of results to return per page.
+         */
+        pageSize?: string | number;
+        /**
+         * A search term.
+         */
+        search?: string;
+    };
+    url: '/api/v1/loyalty/tiers';
+};
+
+export type ListLoyaltyTiersErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListLoyaltyTiersError = ListLoyaltyTiersErrors[keyof ListLoyaltyTiersErrors];
+
+export type ListLoyaltyTiersResponses = {
+    200: PaginatedLoyaltyTierList;
+};
+
+export type ListLoyaltyTiersResponse = ListLoyaltyTiersResponses[keyof ListLoyaltyTiersResponses];
+
+export type ListLoyaltyTransactionsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * A page number within the paginated result set.
+         */
+        page?: string | number;
+        /**
+         * Number of results to return per page.
+         */
+        pageSize?: string | number;
+        /**
+         * A search term.
+         */
+        search?: string;
+    };
+    url: '/api/v1/loyalty/transactions';
+};
+
+export type ListLoyaltyTransactionsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListLoyaltyTransactionsError = ListLoyaltyTransactionsErrors[keyof ListLoyaltyTransactionsErrors];
+
+export type ListLoyaltyTransactionsResponses = {
+    200: PaginatedPointsTransactionList;
+};
+
+export type ListLoyaltyTransactionsResponse = ListLoyaltyTransactionsResponses[keyof ListLoyaltyTransactionsResponses];
 
 export type GetNotificationsByIdsData = {
     body: NotificationIdsRequest;

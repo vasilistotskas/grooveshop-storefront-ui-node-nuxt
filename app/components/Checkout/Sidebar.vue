@@ -13,7 +13,7 @@ const { t, locale } = useI18n()
 const { getPaymentMethodName } = usePaymentMethod()
 
 const payWayCost = computed(() => {
-  if (!payWay?.value || typeof payWay.value === 'number') return 0
+  if (!payWay?.value) return 0
   const cartTotal = cart.value?.totalPrice || 0
   const threshold = payWay.value.freeThreshold || 0
 
@@ -45,6 +45,7 @@ const checkoutTotal = computed(() => {
 defineSlots<{
   'pay-ways'(props: object): any
   'items'(props: object): any
+  'loyalty'(props: object): any
   'button'(props: object): any
 }>()
 </script>
@@ -75,6 +76,11 @@ defineSlots<{
           "
         >
           <slot name="items" />
+        </div>
+
+        <!-- Loyalty Points Redemption Slot -->
+        <div v-if="$slots.loyalty" class="pt-2">
+          <slot name="loyalty" />
         </div>
 
         <div

@@ -3,6 +3,7 @@
   "type": "Typ",
   "favourites": "Favoriten",
   "subscriptions": "Benachrichtigungen",
+  "loyalty": "Treuepunkte",
   "error": {
     "default": "Fehler"
   },

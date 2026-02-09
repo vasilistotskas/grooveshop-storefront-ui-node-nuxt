@@ -125,7 +125,7 @@ const customerInitials = computed(() => {
             variant="outline"
             icon="i-heroicons-clock"
             :label="t('cancelable')"
-            size="xs"
+            size="sm"
           />
         </UFieldGroup>
       </div>
@@ -278,7 +278,7 @@ const customerInitials = computed(() => {
           <div
             class="
               mb-2 flex items-center gap-2 text-sm text-gray-500
-              dark:text-gray-400
+              dark:text-gray-200
             "
           >
             <UIcon name="i-heroicons-credit-card" class="h-4 w-4" />
@@ -305,7 +305,7 @@ const customerInitials = computed(() => {
           <div
             class="
               mb-2 flex items-center gap-2 text-sm text-gray-500
-              dark:text-gray-400
+              dark:text-gray-200
             "
           >
             <UIcon name="i-heroicons-map-pin" class="h-4 w-4" />
@@ -327,7 +327,7 @@ const customerInitials = computed(() => {
           <div
             class="
               mb-2 flex items-center gap-2 text-sm text-gray-500
-              dark:text-gray-400
+              dark:text-gray-200
             "
           >
             <UIcon name="i-heroicons-calendar" class="h-4 w-4" />
@@ -349,7 +349,7 @@ const customerInitials = computed(() => {
           <div
             class="
               mb-2 flex items-center gap-2 text-sm text-gray-500
-              dark:text-gray-400
+              dark:text-gray-200
             "
           >
             <UIcon name="i-heroicons-truck" class="h-4 w-4" />
@@ -372,7 +372,7 @@ const customerInitials = computed(() => {
         <div
           class="
             mb-2 flex items-center gap-2 text-sm text-gray-500
-            dark:text-gray-400
+            dark:text-gray-200
           "
         >
           <UIcon name="i-heroicons-currency-euro" class="h-4 w-4" />
@@ -398,7 +398,7 @@ const customerInitials = computed(() => {
         <div
           class="
             flex items-center gap-2 text-sm text-gray-500
-            dark:text-gray-400
+            dark:text-gray-200
           "
         >
           <UIcon name="i-heroicons-clock" class="h-4 w-4" />

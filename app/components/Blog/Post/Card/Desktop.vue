@@ -56,7 +56,7 @@ const { post } = toRefs(props)
 
 const postUrl = computed(() => {
   if (!post.value) return ''
-  return `/blog/post/${post.value.id}/${post.value.slug}`
+  return localePath({ name: 'blog-post-id-slug', params: { id: post.value.id, slug: post.value.slug } })
 })
 
 const alt = computed(() => {

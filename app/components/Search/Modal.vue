@@ -281,7 +281,7 @@ onMounted(() => {
           <p
             class="
               mb-2 font-medium text-gray-600
-              dark:text-gray-400
+              dark:text-gray-200
             "
           >
             {{ t('search.no_results') }}

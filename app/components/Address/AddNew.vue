@@ -46,7 +46,7 @@ const { t } = useI18n()
           class="
             text-sm text-gray-600
             sm:text-base
-            dark:text-gray-400
+            dark:text-gray-200
           "
         >
           {{ t('description') }}

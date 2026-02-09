@@ -17050,6 +17050,534 @@
                 }
             }
         },
+        "/api/v1/loyalty/product/{id}/points": {
+            "get": {
+                "operationId": "getProductLoyaltyPoints",
+                "description": "Get product loyalty points preview",
+                "summary": "Get product loyalty points preview",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Loyalty"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductPoints"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/loyalty/redeem": {
+            "post": {
+                "operationId": "redeemLoyaltyPoints",
+                "description": "Redeem loyalty points",
+                "summary": "Redeem loyalty points",
+                "tags": [
+                    "Loyalty"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RedeemPointsRequestRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RedeemPointsRequestRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RedeemPointsRequestRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RedeemPointsResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/loyalty/summary": {
+            "get": {
+                "operationId": "getLoyaltySummary",
+                "description": "Get loyalty summary",
+                "summary": "Get loyalty summary",
+                "tags": [
+                    "Loyalty"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/LoyaltySummary"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/loyalty/tiers": {
+            "get": {
+                "operationId": "listLoyaltyTiers",
+                "description": "List all loyalty tiers",
+                "summary": "List all loyalty tiers",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "A search term.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Loyalty"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedLoyaltyTierList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/loyalty/transactions": {
+            "get": {
+                "operationId": "listLoyaltyTransactions",
+                "description": "List loyalty transactions",
+                "summary": "List loyalty transactions",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "A search term.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "Loyalty"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedPointsTransactionList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/notification/ids": {
             "post": {
                 "operationId": "getNotificationsByIds",
@@ -48592,6 +49120,14 @@
                     "status"
                 ]
             },
+            "CurrencyEnum": {
+                "enum": [
+                    "EUR",
+                    "USD"
+                ],
+                "type": "string",
+                "description": "* `EUR` - EUR\n* `USD` - USD"
+            },
             "DateRange": {
                 "type": "object",
                 "description": "Serializer for date range in analytics.",
@@ -48901,6 +49437,119 @@
                 ],
                 "type": "string",
                 "description": "* `HOME` - Αρχική\n* `OFFICE` - Office\n* `OTHER` - Other"
+            },
+            "LoyaltySummary": {
+                "type": "object",
+                "description": "Serializer for the user's loyalty summary response.\n\nReturns computed loyalty data: balance, XP, level, tier, and progress.",
+                "properties": {
+                    "pointsBalance": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "Current spendable points balance."
+                    },
+                    "totalXp": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "Cumulative experience points."
+                    },
+                    "level": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "Current level computed from total_xp."
+                    },
+                    "tier": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/LoyaltyTier"
+                            }
+                        ],
+                        "readOnly": true,
+                        "nullable": true,
+                        "description": "Current loyalty tier with translations, or null if none."
+                    },
+                    "pointsToNextTier": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true,
+                        "description": "XP points needed to reach the next tier, or null if at highest."
+                    }
+                },
+                "required": [
+                    "level",
+                    "pointsBalance",
+                    "pointsToNextTier",
+                    "tier",
+                    "totalXp"
+                ]
+            },
+            "LoyaltyTier": {
+                "type": "object",
+                "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "translations": {
+                        "type": "object",
+                        "properties": {
+                            "el": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "en": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "de": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "requiredLevel": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "Minimum level to achieve this tier"
+                    },
+                    "pointsMultiplier": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000,
+                        "minimum": -1000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "description": "Multiplier applied to earned points for users in this tier"
+                    }
+                },
+                "required": [
+                    "id",
+                    "pointsMultiplier",
+                    "requiredLevel",
+                    "translations"
+                ]
             },
             "Notification": {
                 "type": "object",
@@ -49460,6 +50109,12 @@
                         "type": "string",
                         "description": "Customer notes or special instructions",
                         "maxLength": 500
+                    },
+                    "loyaltyPointsToRedeem": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "nullable": true,
+                        "description": "Number of loyalty points to redeem for discount on this order"
                     }
                 },
                 "required": [
@@ -50785,6 +51440,58 @@
                     }
                 }
             },
+            "PaginatedLoyaltyTierList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "links": {
+                        "type": "object",
+                        "properties": {
+                            "next": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=4"
+                            },
+                            "previous": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=2"
+                            }
+                        }
+                    },
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageTotalResults": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/LoyaltyTier"
+                        }
+                    }
+                }
+            },
             "PaginatedNotificationUserList": {
                 "type": "object",
                 "required": [
@@ -50989,6 +51696,58 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/PayWay"
+                        }
+                    }
+                }
+            },
+            "PaginatedPointsTransactionList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "links": {
+                        "type": "object",
+                        "properties": {
+                            "next": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=4"
+                            },
+                            "previous": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=2"
+                            }
+                        }
+                    },
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageTotalResults": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PointsTransaction"
                         }
                     }
                 }
@@ -53471,6 +54230,51 @@
                     "avgResultsCount"
                 ]
             },
+            "PointsTransaction": {
+                "type": "object",
+                "description": "Serializer for points transaction history records.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "points": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "Positive for earn/bonus, negative for redeem/expire/adjust"
+                    },
+                    "transactionType": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/TransactionTypeEnum"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "referenceOrder": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "createdAt",
+                    "description",
+                    "id",
+                    "points",
+                    "referenceOrder",
+                    "transactionType"
+                ]
+            },
             "Product": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -55349,6 +56153,32 @@
                     "viewCount"
                 ]
             },
+            "ProductPoints": {
+                "type": "object",
+                "description": "Serializer for product points preview response.",
+                "properties": {
+                    "productId": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "ID of the product."
+                    },
+                    "potentialPoints": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "Points the user would earn by purchasing this product."
+                    },
+                    "tierMultiplierApplied": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "description": "Whether the user's tier multiplier was applied to the calculation."
+                    }
+                },
+                "required": [
+                    "potentialPoints",
+                    "productId",
+                    "tierMultiplierApplied"
+                ]
+            },
             "ProductReview": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -55756,6 +56586,71 @@
                 ],
                 "type": "integer",
                 "description": "* `1` - One\n* `2` - Two\n* `3` - Three\n* `4` - Four\n* `5` - Five\n* `6` - Six\n* `7` - Seven\n* `8` - Eight\n* `9` - Nine\n* `10` - Ten"
+            },
+            "RedeemPointsRequestRequest": {
+                "type": "object",
+                "description": "Serializer for validating a points redemption request.",
+                "properties": {
+                    "pointsAmount": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "description": "Number of points to redeem. Must be a positive integer."
+                    },
+                    "currency": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/CurrencyEnum"
+                            }
+                        ],
+                        "description": "Currency for the monetary discount (EUR or USD).\n\n* `EUR` - EUR\n* `USD` - USD"
+                    },
+                    "orderId": {
+                        "type": "integer",
+                        "nullable": true,
+                        "description": "Optional order ID to associate the redemption with. When provided, loyalty metadata is stored in the order."
+                    }
+                },
+                "required": [
+                    "currency",
+                    "pointsAmount"
+                ]
+            },
+            "RedeemPointsResponse": {
+                "type": "object",
+                "description": "Serializer for the points redemption response.",
+                "properties": {
+                    "discountAmount": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "description": "Monetary discount value in the requested currency."
+                    },
+                    "currency": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Currency of the discount."
+                    },
+                    "pointsRedeemed": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "Number of points that were redeemed."
+                    },
+                    "remainingBalance": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "User's points balance after redemption."
+                    }
+                },
+                "required": [
+                    "currency",
+                    "discountAmount",
+                    "pointsRedeemed",
+                    "remainingBalance"
+                ]
             },
             "Region": {
                 "type": "object",
@@ -56848,6 +57743,17 @@
                     "count",
                     "query"
                 ]
+            },
+            "TransactionTypeEnum": {
+                "enum": [
+                    "EARN",
+                    "REDEEM",
+                    "EXPIRE",
+                    "ADJUST",
+                    "BONUS"
+                ],
+                "type": "string",
+                "description": "* `EARN` - Earn\n* `REDEEM` - Redeem\n* `EXPIRE` - Expire\n* `ADJUST` - Adjust\n* `BONUS` - Bonus"
             },
             "Unsubscribe": {
                 "type": "object",
