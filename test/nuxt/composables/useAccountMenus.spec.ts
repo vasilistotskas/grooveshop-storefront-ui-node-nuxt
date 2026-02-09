@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 let mockEnabledValue = false
+let mockLoyaltyEnabled = false
 
 mockNuxtImport('useNuxtApp', () => () => ({
   $i18n: { t: (key: string) => key },
@@ -13,10 +14,28 @@ mockNuxtImport('useAuthPreviewMode', () => {
   })
 })
 
+mockNuxtImport('useLoyalty', () => {
+  return () => ({
+    fetchSettings: () => ({
+      data: computed(() => ({
+        enabled: mockLoyaltyEnabled,
+        redemptionRatioEur: 100,
+        pointsFactor: 1.0,
+        tierMultiplierEnabled: false,
+        pointsExpirationDays: 0,
+        newCustomerBonusEnabled: false,
+        newCustomerBonusPoints: 0,
+        xpPerLevel: 1000,
+      })),
+    }),
+  })
+})
+
 describe('useAccountMenus', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockEnabledValue = false
+    mockLoyaltyEnabled = false
   })
 
   it('should return basic menu items when preview mode is disabled', () => {

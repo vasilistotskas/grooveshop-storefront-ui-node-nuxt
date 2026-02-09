@@ -1,20 +1,26 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { LoyaltySummary, PaginatedPointsTransactionList, RedeemPointsResponse, ProductPoints } from '#shared/openapi/types.gen'
 
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
-// Mock useAsyncData
-const mockUseAsyncData = vi.fn()
-vi.mock('#app', () => ({
-  useAsyncData: mockUseAsyncData,
-  refreshNuxtData: vi.fn(),
+// Use vi.hoisted to ensure mocks are available before mockNuxtImport is called
+const { mockUseAsyncDataFn, mockRefreshNuxtDataFn } = vi.hoisted(() => ({
+  mockUseAsyncDataFn: vi.fn(),
+  mockRefreshNuxtDataFn: vi.fn(),
 }))
+
+// Mock Nuxt composables using mockNuxtImport
+mockNuxtImport('useAsyncData', () => mockUseAsyncDataFn)
+mockNuxtImport('refreshNuxtData', () => mockRefreshNuxtDataFn)
+mockNuxtImport('useRequestHeaders', () => () => ({}))
 
 describe('useLoyalty Composable', () => {
   beforeEach(() => {
     mockFetch.mockReset()
-    mockUseAsyncData.mockReset()
+    mockUseAsyncDataFn.mockReset()
+    mockRefreshNuxtDataFn.mockReset()
   })
 
   describe('fetchSummary', () => {
@@ -27,7 +33,7 @@ describe('useLoyalty Composable', () => {
         pointsToNextTier: 200,
       })
 
-      mockUseAsyncData.mockReturnValue({
+      mockUseAsyncDataFn.mockReturnValue({
         data: mockData,
         status: ref('success'),
         error: ref(null),
@@ -37,7 +43,7 @@ describe('useLoyalty Composable', () => {
       const { fetchSummary } = useLoyalty()
       const result = fetchSummary()
 
-      expect(mockUseAsyncData).toHaveBeenCalledWith(
+      expect(mockUseAsyncDataFn).toHaveBeenCalledWith(
         'loyalty-summary',
         expect.any(Function),
       )
@@ -47,7 +53,7 @@ describe('useLoyalty Composable', () => {
     it('should handle error state', () => {
       const mockError = new Error('Network error')
 
-      mockUseAsyncData.mockReturnValue({
+      mockUseAsyncDataFn.mockReturnValue({
         data: ref(null),
         status: ref('error'),
         error: ref(mockError),
@@ -62,7 +68,7 @@ describe('useLoyalty Composable', () => {
     })
 
     it('should handle pending state', () => {
-      mockUseAsyncData.mockReturnValue({
+      mockUseAsyncDataFn.mockReturnValue({
         data: ref(null),
         status: ref('pending'),
         error: ref(null),
@@ -84,7 +90,7 @@ describe('useLoyalty Composable', () => {
         results: [],
       })
 
-      mockUseAsyncData.mockReturnValue({
+      mockUseAsyncDataFn.mockReturnValue({
         data: mockData,
         status: ref('success'),
         error: ref(null),
@@ -94,15 +100,17 @@ describe('useLoyalty Composable', () => {
       const { fetchTransactions } = useLoyalty()
       const result = fetchTransactions(params)
 
-      expect(mockUseAsyncData).toHaveBeenCalledWith(
-        expect.stringContaining('loyalty-transactions'),
-        expect.any(Function),
-      )
+      // Check that useAsyncData was called
+      expect(mockUseAsyncDataFn).toHaveBeenCalled()
+      // Check the first argument contains 'loyalty-transactions'
+      const firstCall = mockUseAsyncDataFn.mock.calls[0]
+      expect(firstCall).toBeDefined()
+      expect(firstCall![0]).toContain('loyalty-transactions')
       expect(result.data.value).toEqual(mockData.value)
     })
 
     it('should handle empty params', () => {
-      mockUseAsyncData.mockReturnValue({
+      mockUseAsyncDataFn.mockReturnValue({
         data: ref(null),
         status: ref('pending'),
         error: ref(null),
@@ -112,7 +120,7 @@ describe('useLoyalty Composable', () => {
       const { fetchTransactions } = useLoyalty()
       const result = fetchTransactions()
 
-      expect(mockUseAsyncData).toHaveBeenCalled()
+      expect(mockUseAsyncDataFn).toHaveBeenCalled()
       expect(result.status.value).toBe('pending')
     })
   })
@@ -130,7 +138,7 @@ describe('useLoyalty Composable', () => {
         xpPerLevel: 1000,
       })
 
-      mockUseAsyncData.mockReturnValue({
+      mockUseAsyncDataFn.mockReturnValue({
         data: mockData,
         status: ref('success'),
         error: ref(null),
@@ -140,7 +148,7 @@ describe('useLoyalty Composable', () => {
       const { fetchSettings } = useLoyalty()
       const result = fetchSettings()
 
-      expect(mockUseAsyncData).toHaveBeenCalledWith(
+      expect(mockUseAsyncDataFn).toHaveBeenCalledWith(
         'loyalty-settings',
         expect.any(Function),
       )
@@ -160,7 +168,7 @@ describe('useLoyalty Composable', () => {
         },
       ])
 
-      mockUseAsyncData.mockReturnValue({
+      mockUseAsyncDataFn.mockReturnValue({
         data: mockData,
         status: ref('success'),
         error: ref(null),
@@ -170,7 +178,7 @@ describe('useLoyalty Composable', () => {
       const { fetchTiers } = useLoyalty()
       const result = fetchTiers()
 
-      expect(mockUseAsyncData).toHaveBeenCalledWith(
+      expect(mockUseAsyncDataFn).toHaveBeenCalledWith(
         'loyalty-tiers',
         expect.any(Function),
       )
@@ -187,7 +195,7 @@ describe('useLoyalty Composable', () => {
         tierMultiplierApplied: true,
       })
 
-      mockUseAsyncData.mockReturnValue({
+      mockUseAsyncDataFn.mockReturnValue({
         data: mockData,
         status: ref('success'),
         error: ref(null),
@@ -197,7 +205,7 @@ describe('useLoyalty Composable', () => {
       const { fetchProductPoints } = useLoyalty()
       const result = fetchProductPoints(productId)
 
-      expect(mockUseAsyncData).toHaveBeenCalledWith(
+      expect(mockUseAsyncDataFn).toHaveBeenCalledWith(
         `loyalty-product-points-${productId}`,
         expect.any(Function),
       )
@@ -208,7 +216,7 @@ describe('useLoyalty Composable', () => {
       const productId = 456
       const mockError = new Error('Product not found')
 
-      mockUseAsyncData.mockReturnValue({
+      mockUseAsyncDataFn.mockReturnValue({
         data: ref(null),
         status: ref('error'),
         error: ref(mockError),
@@ -258,7 +266,7 @@ describe('useLoyalty Composable', () => {
 
   describe('Integration', () => {
     it('should allow multiple fetch methods to be called', () => {
-      mockUseAsyncData.mockReturnValue({
+      mockUseAsyncDataFn.mockReturnValue({
         data: ref(null),
         status: ref('pending'),
         error: ref(null),
@@ -271,7 +279,7 @@ describe('useLoyalty Composable', () => {
       loyalty.fetchTiers()
       loyalty.fetchSettings()
 
-      expect(mockUseAsyncData).toHaveBeenCalledTimes(3)
+      expect(mockUseAsyncDataFn).toHaveBeenCalledTimes(3)
     })
   })
 })
