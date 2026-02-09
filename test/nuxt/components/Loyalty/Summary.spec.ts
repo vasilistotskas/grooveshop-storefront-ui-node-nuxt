@@ -14,36 +14,30 @@ mockNuxtImport('navigateTo', () => vi.fn())
 // Mock useLocalePath
 mockNuxtImport('useLocalePath', () => () => (path: string) => path)
 
-// Mock the useLoyalty composable
+// Mock the useLoyalty composable with new API
 const mockSummaryRef = ref<any>(null)
-const mockLoadingRef = ref(false)
+const mockStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
 const mockErrorRef = ref<any>(null)
 
-const mockFetchSummary = vi.fn().mockImplementation(async () => {
-  mockLoadingRef.value = true
-  await new Promise(resolve => setTimeout(resolve, 10))
-  mockLoadingRef.value = false
-})
+const mockRefresh = vi.fn()
 
 mockNuxtImport('useLoyalty', () => {
   return () => ({
-    summary: mockSummaryRef,
-    loading: mockLoadingRef,
-    error: mockErrorRef,
-    fetchSummary: mockFetchSummary,
+    fetchSummary: () => ({
+      data: mockSummaryRef,
+      status: mockStatusRef,
+      error: mockErrorRef,
+      refresh: mockRefresh,
+    }),
   })
 })
 
 describe('LoyaltySummary Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockFetchSummary.mockClear().mockImplementation(async () => {
-      mockLoadingRef.value = true
-      await new Promise(resolve => setTimeout(resolve, 10))
-      mockLoadingRef.value = false
-    })
+    mockRefresh.mockClear()
     mockSummaryRef.value = null
-    mockLoadingRef.value = false
+    mockStatusRef.value = 'idle'
     mockErrorRef.value = null
   })
 
@@ -289,7 +283,7 @@ describe('LoyaltySummary Component', () => {
 
   describe('Loading and Error States', () => {
     it('should display skeleton loading state when loading', async () => {
-      mockLoadingRef.value = true
+      mockStatusRef.value = 'pending'
       mockSummaryRef.value = null
 
       const wrapper = await mountSuspended(LoyaltySummary)
@@ -302,6 +296,7 @@ describe('LoyaltySummary Component', () => {
     })
 
     it('should display error message with retry button when error occurs', async () => {
+      mockStatusRef.value = 'error'
       mockErrorRef.value = new Error('Network error')
       mockSummaryRef.value = null
 
@@ -317,9 +312,9 @@ describe('LoyaltySummary Component', () => {
       const retryButton = wrapper.findAll('button').find(btn => btn.text().includes('Δοκιμάστε ξανά'))
       expect(retryButton).toBeDefined()
 
-      // Clicking retry should call fetchSummary
+      // Clicking retry should call refresh
       await retryButton!.trigger('click')
-      expect(mockFetchSummary).toHaveBeenCalled()
+      expect(mockRefresh).toHaveBeenCalled()
     })
   })
 })

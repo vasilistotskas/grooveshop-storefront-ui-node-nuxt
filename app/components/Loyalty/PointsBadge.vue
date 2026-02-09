@@ -13,39 +13,16 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const { loggedIn } = useUserSession()
-const { fetchProductPoints, loyaltyEnabled, settings, fetchSettings } = useLoyalty()
+const loyalty = useLoyalty()
 
-const productPoints = ref<ProductPoints | null>(null)
-const loading = ref(true) // Start as loading to reserve space
-const shouldShow = ref(false)
+// Fetch loyalty settings and product points
+const { data: settings } = loyalty.fetchSettings()
+const { data: productPoints, status } = loyalty.fetchProductPoints(props.productId)
 
-// Fetch loyalty settings if not already loaded
-if (!settings.value) {
-  await fetchSettings()
-}
-
-// Determine if we should even attempt to fetch
-const shouldFetch = computed(() => loggedIn.value && loyaltyEnabled.value)
-
-// Only fetch if user is authenticated AND loyalty is enabled
-onMounted(async () => {
-  if (!shouldFetch.value) {
-    loading.value = false
-    return
-  }
-
-  try {
-    productPoints.value = await fetchProductPoints(props.productId)
-    shouldShow.value = productPoints.value !== null
-  }
-  catch (error) {
-    // Silent failure
-    console.error('Failed to fetch product points:', error)
-  }
-  finally {
-    loading.value = false
-  }
-})
+// Computed states
+const loading = computed(() => status.value === 'pending')
+const shouldFetch = computed(() => loggedIn.value && settings.value?.enabled)
+const shouldShow = computed(() => shouldFetch.value && productPoints.value !== null)
 </script>
 
 <template>

@@ -2,25 +2,21 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import LoyaltyRedemption from '~/components/Loyalty/Redemption.vue'
 
-// Mock the useLoyalty composable
+// Mock the useLoyalty composable with new API
 const mockSummaryRef = ref<any>(null)
-const mockLoadingRef = ref(false)
+const mockStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
 const mockErrorRef = ref<any>(null)
-
-const mockFetchSummary = vi.fn().mockImplementation(async () => {
-  mockLoadingRef.value = true
-  await new Promise(resolve => setTimeout(resolve, 10))
-  mockLoadingRef.value = false
-})
-
+const mockRefresh = vi.fn()
 const mockRedeemPoints = vi.fn()
 
 mockNuxtImport('useLoyalty', () => {
   return () => ({
-    summary: mockSummaryRef,
-    loading: mockLoadingRef,
-    error: mockErrorRef,
-    fetchSummary: mockFetchSummary,
+    fetchSummary: () => ({
+      data: mockSummaryRef,
+      status: mockStatusRef,
+      error: mockErrorRef,
+      refresh: mockRefresh,
+    }),
     redeemPoints: mockRedeemPoints,
   })
 })
@@ -28,11 +24,7 @@ mockNuxtImport('useLoyalty', () => {
 describe('LoyaltyRedemption Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockFetchSummary.mockClear().mockImplementation(async () => {
-      mockLoadingRef.value = true
-      await new Promise(resolve => setTimeout(resolve, 10))
-      mockLoadingRef.value = false
-    })
+    mockRefresh.mockClear()
     mockRedeemPoints.mockClear()
     mockSummaryRef.value = {
       pointsBalance: 100,
@@ -41,7 +33,7 @@ describe('LoyaltyRedemption Component', () => {
       tier: null,
       pointsToNextTier: 400,
     }
-    mockLoadingRef.value = false
+    mockStatusRef.value = 'success'
     mockErrorRef.value = null
   })
 
@@ -342,7 +334,7 @@ describe('LoyaltyRedemption Component', () => {
 
   describe('Additional Functionality', () => {
     it('should display loading state while fetching summary', async () => {
-      mockLoadingRef.value = true
+      mockStatusRef.value = 'pending'
       mockSummaryRef.value = null
 
       const wrapper = await mountSuspended(LoyaltyRedemption, {

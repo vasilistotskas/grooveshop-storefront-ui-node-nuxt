@@ -11,12 +11,9 @@ interface IMenuItem {
 
 export const useAccountMenus = () => {
   const { $i18n } = useNuxtApp()
-  const { loyaltyEnabled, settings, fetchSettings } = useLoyalty()
 
-  // Fetch loyalty settings if not already loaded
-  if (!settings.value) {
-    fetchSettings()
-  }
+  // Fetch loyalty settings using new API
+  const { data: settings } = useLoyalty().fetchSettings()
 
   const menus = computed<IMenuItem[]>(() => {
     const baseMenus: IMenuItem[] = [
@@ -38,7 +35,7 @@ export const useAccountMenus = () => {
     ]
 
     // Only add loyalty menu if enabled
-    if (loyaltyEnabled.value) {
+    if (settings.value?.enabled) {
       baseMenus.push({
         type: 'link',
         text: $i18n.t('loyalty'),

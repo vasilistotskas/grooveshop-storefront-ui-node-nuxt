@@ -1,122 +1,112 @@
 /**
  * Composable for loyalty points API interactions
  *
+ * Uses Nuxt's useAsyncData for SSR-safe data fetching with automatic caching,
+ * deduplication, and payload forwarding from server to client.
+ *
  * Provides centralized access to loyalty summary, transactions, redemption,
  * product points preview, tiers list, and settings functionality.
  */
 export const useLoyalty = () => {
-  // Reactive state
-  const summary = ref<LoyaltySummary | null>(null)
-  const transactions = ref<PaginatedPointsTransactionList | null>(null)
-  const settings = ref<LoyaltySettings | null>(null)
-  const tiers = ref<LoyaltyTier[] | null>(null)
-  const loading = ref(false)
-  const error = ref<Error | null>(null)
-
   /**
    * Fetch loyalty system configuration settings
    *
    * Fetches all loyalty-related settings from the backend in parallel
    * and aggregates them into a single settings object.
+   *
+   * Uses useAsyncData for SSR support and automatic caching.
    */
-  async function fetchSettings(): Promise<void> {
-    loading.value = true
-    error.value = null
+  const fetchSettings = () => {
+    return useAsyncData<LoyaltySettings>(
+      'loyalty-settings',
+      async () => {
+        try {
+          // Fetch all loyalty settings in parallel
+          const [
+            enabled,
+            redemptionRatio,
+            pointsFactor,
+            tierMultiplierEnabled,
+            expirationDays,
+            bonusEnabled,
+            bonusPoints,
+            xpPerLevel,
+          ] = await Promise.all([
+            $fetch<{ name: string, value: string }>('/api/settings/get', {
+              query: { key: 'LOYALTY_ENABLED' },
+            }).catch(() => ({ name: 'LOYALTY_ENABLED', value: 'false' })),
+            $fetch<{ name: string, value: string }>('/api/settings/get', {
+              query: { key: 'LOYALTY_REDEMPTION_RATIO_EUR' },
+            }).catch(() => ({ name: 'LOYALTY_REDEMPTION_RATIO_EUR', value: '100' })),
+            $fetch<{ name: string, value: string }>('/api/settings/get', {
+              query: { key: 'LOYALTY_POINTS_FACTOR' },
+            }).catch(() => ({ name: 'LOYALTY_POINTS_FACTOR', value: '1.0' })),
+            $fetch<{ name: string, value: string }>('/api/settings/get', {
+              query: { key: 'LOYALTY_TIER_MULTIPLIER_ENABLED' },
+            }).catch(() => ({ name: 'LOYALTY_TIER_MULTIPLIER_ENABLED', value: 'false' })),
+            $fetch<{ name: string, value: string }>('/api/settings/get', {
+              query: { key: 'LOYALTY_POINTS_EXPIRATION_DAYS' },
+            }).catch(() => ({ name: 'LOYALTY_POINTS_EXPIRATION_DAYS', value: '0' })),
+            $fetch<{ name: string, value: string }>('/api/settings/get', {
+              query: { key: 'LOYALTY_NEW_CUSTOMER_BONUS_ENABLED' },
+            }).catch(() => ({ name: 'LOYALTY_NEW_CUSTOMER_BONUS_ENABLED', value: 'false' })),
+            $fetch<{ name: string, value: string }>('/api/settings/get', {
+              query: { key: 'LOYALTY_NEW_CUSTOMER_BONUS_POINTS' },
+            }).catch(() => ({ name: 'LOYALTY_NEW_CUSTOMER_BONUS_POINTS', value: '0' })),
+            $fetch<{ name: string, value: string }>('/api/settings/get', {
+              query: { key: 'LOYALTY_XP_PER_LEVEL' },
+            }).catch(() => ({ name: 'LOYALTY_XP_PER_LEVEL', value: '1000' })),
+          ])
 
-    try {
-      // Fetch all loyalty settings in parallel
-      const [
-        enabled,
-        redemptionRatio,
-        pointsFactor,
-        tierMultiplierEnabled,
-        expirationDays,
-        bonusEnabled,
-        bonusPoints,
-        xpPerLevel,
-      ] = await Promise.all([
-        $fetch<{ name: string, value: string }>('/api/settings/get', {
-          query: { key: 'LOYALTY_ENABLED' },
-        }).catch(() => ({ name: 'LOYALTY_ENABLED', value: 'false' })),
-        $fetch<{ name: string, value: string }>('/api/settings/get', {
-          query: { key: 'LOYALTY_REDEMPTION_RATIO_EUR' },
-        }).catch(() => ({ name: 'LOYALTY_REDEMPTION_RATIO_EUR', value: '100' })),
-        $fetch<{ name: string, value: string }>('/api/settings/get', {
-          query: { key: 'LOYALTY_POINTS_FACTOR' },
-        }).catch(() => ({ name: 'LOYALTY_POINTS_FACTOR', value: '1.0' })),
-        $fetch<{ name: string, value: string }>('/api/settings/get', {
-          query: { key: 'LOYALTY_TIER_MULTIPLIER_ENABLED' },
-        }).catch(() => ({ name: 'LOYALTY_TIER_MULTIPLIER_ENABLED', value: 'false' })),
-        $fetch<{ name: string, value: string }>('/api/settings/get', {
-          query: { key: 'LOYALTY_POINTS_EXPIRATION_DAYS' },
-        }).catch(() => ({ name: 'LOYALTY_POINTS_EXPIRATION_DAYS', value: '0' })),
-        $fetch<{ name: string, value: string }>('/api/settings/get', {
-          query: { key: 'LOYALTY_NEW_CUSTOMER_BONUS_ENABLED' },
-        }).catch(() => ({ name: 'LOYALTY_NEW_CUSTOMER_BONUS_ENABLED', value: 'false' })),
-        $fetch<{ name: string, value: string }>('/api/settings/get', {
-          query: { key: 'LOYALTY_NEW_CUSTOMER_BONUS_POINTS' },
-        }).catch(() => ({ name: 'LOYALTY_NEW_CUSTOMER_BONUS_POINTS', value: '0' })),
-        $fetch<{ name: string, value: string }>('/api/settings/get', {
-          query: { key: 'LOYALTY_XP_PER_LEVEL' },
-        }).catch(() => ({ name: 'LOYALTY_XP_PER_LEVEL', value: '1000' })),
-      ])
-
-      // Parse and aggregate settings
-      settings.value = {
-        enabled: enabled.value.toLowerCase() === 'true',
-        redemptionRatioEur: Number.parseFloat(redemptionRatio.value),
-        pointsFactor: Number.parseFloat(pointsFactor.value),
-        tierMultiplierEnabled: tierMultiplierEnabled.value.toLowerCase() === 'true',
-        pointsExpirationDays: Number.parseInt(expirationDays.value, 10),
-        newCustomerBonusEnabled: bonusEnabled.value.toLowerCase() === 'true',
-        newCustomerBonusPoints: Number.parseInt(bonusPoints.value, 10),
-        xpPerLevel: Number.parseInt(xpPerLevel.value, 10),
-      }
-    }
-    catch (err) {
-      error.value = err as Error
-      console.error('Failed to fetch loyalty settings:', err)
-      // Set default values on error
-      settings.value = {
-        enabled: false,
-        redemptionRatioEur: 100,
-        pointsFactor: 1.0,
-        tierMultiplierEnabled: false,
-        pointsExpirationDays: 0,
-        newCustomerBonusEnabled: false,
-        newCustomerBonusPoints: 0,
-        xpPerLevel: 1000,
-      }
-    }
-    finally {
-      loading.value = false
-    }
+          // Parse and aggregate settings
+          return {
+            enabled: enabled.value.toLowerCase() === 'true',
+            redemptionRatioEur: Number.parseFloat(redemptionRatio.value),
+            pointsFactor: Number.parseFloat(pointsFactor.value),
+            tierMultiplierEnabled: tierMultiplierEnabled.value.toLowerCase() === 'true',
+            pointsExpirationDays: Number.parseInt(expirationDays.value, 10),
+            newCustomerBonusEnabled: bonusEnabled.value.toLowerCase() === 'true',
+            newCustomerBonusPoints: Number.parseInt(bonusPoints.value, 10),
+            xpPerLevel: Number.parseInt(xpPerLevel.value, 10),
+          }
+        }
+        catch (err) {
+          console.error('Failed to fetch loyalty settings:', err)
+          // Return default values on error
+          return {
+            enabled: false,
+            redemptionRatioEur: 100,
+            pointsFactor: 1.0,
+            tierMultiplierEnabled: false,
+            pointsExpirationDays: 0,
+            newCustomerBonusEnabled: false,
+            newCustomerBonusPoints: 0,
+            xpPerLevel: 1000,
+          }
+        }
+      },
+    )
   }
 
   /**
    * Fetch the user's loyalty summary (balance, level, tier, XP progress)
+   *
+   * Uses useAsyncData for SSR support and automatic caching.
    */
-  async function fetchSummary(): Promise<void> {
-    loading.value = true
-    error.value = null
-
-    try {
-      const data = await $fetch<LoyaltySummary>('/api/loyalty/summary', {
+  const fetchSummary = () => {
+    return useAsyncData<LoyaltySummary>(
+      'loyalty-summary',
+      () => $fetch<LoyaltySummary>('/api/loyalty/summary', {
         method: 'GET',
-      })
-      summary.value = data
-    }
-    catch (err) {
-      error.value = err as Error
-      console.error('Failed to fetch loyalty summary:', err)
-    }
-    finally {
-      loading.value = false
-    }
+        headers: useRequestHeaders(),
+      }),
+    )
   }
 
   /**
    * Fetch the user's loyalty transaction history with optional filters
+   *
+   * Uses useAsyncData with dynamic key based on filter parameters for proper caching.
    *
    * @param params - Optional filter parameters
    * @param params.page - Page number for pagination
@@ -124,154 +114,124 @@ export const useLoyalty = () => {
    * @param params.dateFrom - Filter transactions from this date (ISO format)
    * @param params.dateTo - Filter transactions to this date (ISO format)
    */
-  async function fetchTransactions(params?: {
+  const fetchTransactions = (params?: {
     page?: number
     transactionType?: string
     dateFrom?: string
     dateTo?: string
-  }): Promise<void> {
-    loading.value = true
-    error.value = null
+  }) => {
+    // Build query parameters, only including defined values
+    const query: Record<string, string | number> = {}
 
-    try {
-      // Build query parameters, only including defined values
-      const query: Record<string, string | number> = {}
+    if (params?.page !== undefined) {
+      query.page = params.page
+    }
+    if (params?.transactionType !== undefined) {
+      query.transaction_type = params.transactionType
+    }
+    if (params?.dateFrom !== undefined) {
+      query.date_from = params.dateFrom
+    }
+    if (params?.dateTo !== undefined) {
+      query.date_to = params.dateTo
+    }
 
-      if (params?.page !== undefined) {
-        query.page = params.page
-      }
-      if (params?.transactionType !== undefined) {
-        query.transaction_type = params.transactionType
-      }
-      if (params?.dateFrom !== undefined) {
-        query.date_from = params.dateFrom
-      }
-      if (params?.dateTo !== undefined) {
-        query.date_to = params.dateTo
-      }
+    // Create unique cache key based on parameters
+    const cacheKey = `loyalty-transactions-${JSON.stringify(params || {})}`
 
-      const data = await $fetch<PaginatedPointsTransactionList>('/api/loyalty/transactions', {
+    return useAsyncData<PaginatedPointsTransactionList>(
+      cacheKey,
+      () => $fetch<PaginatedPointsTransactionList>('/api/loyalty/transactions', {
         method: 'GET',
+        headers: useRequestHeaders(),
         query,
-      })
-      transactions.value = data
-    }
-    catch (err) {
-      error.value = err as Error
-      console.error('Failed to fetch loyalty transactions:', err)
-    }
-    finally {
-      loading.value = false
-    }
+      }),
+    )
   }
 
   /**
    * Redeem loyalty points for a monetary discount
+   *
+   * This is a mutation operation (POST), so it doesn't use useAsyncData.
+   * After successful redemption, you should call refresh() on the summary data.
    *
    * @param body - Redemption request
    * @param body.pointsAmount - Number of points to redeem
    * @param body.currency - Currency for the discount (e.g., "EUR")
    * @returns Redemption response with discount amount and remaining balance
    */
-  async function redeemPoints(body: {
+  const redeemPoints = async (body: {
     pointsAmount: number
     currency: string
-  }): Promise<RedeemPointsResponse> {
-    loading.value = true
-    error.value = null
-
+  }): Promise<RedeemPointsResponse> => {
     try {
       const data = await $fetch<RedeemPointsResponse>('/api/loyalty/redeem', {
         method: 'POST',
         body,
       })
 
-      // Update the summary balance after successful redemption
-      if (summary.value) {
-        summary.value = {
-          ...summary.value,
-          pointsBalance: data.remainingBalance,
-        }
-      }
+      // Refresh the summary cache after successful redemption
+      await refreshNuxtData('loyalty-summary')
 
       return data
     }
     catch (err) {
-      error.value = err as Error
       console.error('Failed to redeem loyalty points:', err)
       throw err
-    }
-    finally {
-      loading.value = false
     }
   }
 
   /**
    * Fetch potential loyalty points for a specific product
    *
+   * Uses useAsyncData with product-specific cache key.
+   * Errors are logged but don't throw (silent failure for non-critical feature).
+   *
    * @param productId - The product ID
-   * @returns Product points data or null on error (silent failure)
    */
-  async function fetchProductPoints(productId: number): Promise<ProductPoints | null> {
-    try {
-      const data = await $fetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
-        method: 'GET',
-      })
-      return data
-    }
-    catch (err) {
-      // Silent failure for product points badge
-      console.error('Failed to fetch product points:', err)
-      return null
-    }
+  const fetchProductPoints = (productId: number) => {
+    return useAsyncData<ProductPoints>(
+      `loyalty-product-points-${productId}`,
+      async () => {
+        try {
+          return await $fetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
+            method: 'GET',
+            headers: useRequestHeaders(),
+          })
+        }
+        catch (err) {
+          // Silent failure for product points badge (non-critical feature)
+          console.error('Failed to fetch product points:', err)
+          throw err // Re-throw so useAsyncData can handle it
+        }
+      },
+    )
   }
 
   /**
    * Fetch all loyalty tiers
+   *
+   * Uses useAsyncData for SSR support and automatic caching.
    */
-  async function fetchTiers(): Promise<void> {
-    loading.value = true
-    error.value = null
-
-    try {
-      const data = await $fetch<LoyaltyTier[]>('/api/loyalty/tiers', {
+  const fetchTiers = () => {
+    return useAsyncData<LoyaltyTier[]>(
+      'loyalty-tiers',
+      () => $fetch<LoyaltyTier[]>('/api/loyalty/tiers', {
         method: 'GET',
-      })
-      tiers.value = data
-    }
-    catch (err) {
-      error.value = err as Error
-      console.error('Failed to fetch loyalty tiers:', err)
-    }
-    finally {
-      loading.value = false
-    }
+        headers: useRequestHeaders(),
+      }),
+    )
   }
 
-  /**
-   * Computed property for easy access to loyalty enabled status
-   * Extracts the enabled flag from settings for convenience
-   */
-  const loyaltyEnabled = computed(() => settings.value?.enabled ?? false)
-
   return {
-    // State
-    summary,
-    transactions,
-    settings,
-    tiers,
-    loading,
-    error,
-
-    // Computed
-    loyaltyEnabled,
-
-    // Methods
+    // Data fetching methods (return useAsyncData results)
     fetchSummary,
     fetchTransactions,
-    redeemPoints,
-    fetchProductPoints,
     fetchSettings,
     fetchTiers,
+    fetchProductPoints,
+
+    // Mutation method
+    redeemPoints,
   }
 }

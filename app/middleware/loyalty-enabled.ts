@@ -4,15 +4,10 @@
  * Redirects to home page if loyalty is disabled
  */
 export default defineNuxtRouteMiddleware(async () => {
-  const { loyaltyEnabled, settings, fetchSettings } = useLoyalty()
+  const { data: settings, error } = await useLoyalty().fetchSettings()
 
-  // Fetch settings if not already loaded
-  if (!settings.value) {
-    await fetchSettings()
-  }
-
-  // Redirect to home if loyalty is disabled
-  if (!loyaltyEnabled.value) {
+  // Redirect to home if loyalty is disabled or if there was an error fetching settings
+  if (error.value || !settings.value?.enabled) {
     const localePath = useLocalePath()
     return navigateTo(localePath('index'))
   }

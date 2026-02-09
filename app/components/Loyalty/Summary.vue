@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
-const { summary, loading, error, fetchSummary } = useLoyalty()
 
-// Fetch summary on mount
-onMounted(() => {
-  fetchSummary()
-})
+// Use Nuxt's useAsyncData pattern for SSR-safe data fetching with automatic caching
+const { data: summary, status, error, refresh } = useLoyalty().fetchSummary()
+
+// Computed for loading state (compatible with existing template)
+const loading = computed(() => status.value === 'pending')
 
 // Get translated tier name and description
 const tierName = computed(() => {
@@ -52,7 +52,7 @@ const tierColor = computed<'primary' | 'secondary' | 'success' | 'warning' | 'er
 })
 
 const handleRetry = () => {
-  fetchSummary()
+  refresh()
 }
 </script>
 

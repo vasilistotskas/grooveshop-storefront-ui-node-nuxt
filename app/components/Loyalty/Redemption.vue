@@ -16,18 +16,17 @@ const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 const toast = useToast()
 
-// Loyalty composable
-const { summary, loading, fetchSummary, redeemPoints } = useLoyalty()
+// Loyalty composable with new API
+const loyalty = useLoyalty()
+const { data: summary, status } = loyalty.fetchSummary()
 
 // Component state
 const isRedeeming = ref(false)
 const redemptionResult = ref<RedeemPointsResponse | null>(null)
 const redemptionError = ref<string | null>(null)
 
-// Fetch summary on mount
-onMounted(async () => {
-  await fetchSummary()
-})
+// Computed for loading state (compatible with template)
+const loading = computed(() => status.value === 'pending')
 
 // Computed properties
 const availableBalance = computed(() => summary.value?.pointsBalance || 0)
@@ -84,7 +83,7 @@ const handleRedeem = async () => {
   isRedeeming.value = true
 
   try {
-    const result = await redeemPoints({
+    const result = await loyalty.redeemPoints({
       pointsAmount: formState.pointsToRedeem!,
       currency: props.currency,
     })
@@ -110,6 +109,8 @@ const handleRedeem = async () => {
 
     // Reset form
     formState.pointsToRedeem = undefined
+
+    // Note: redeemPoints automatically refreshes the summary cache
   }
   catch (err: any) {
     // Handle API errors

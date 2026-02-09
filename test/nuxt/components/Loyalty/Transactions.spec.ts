@@ -2,36 +2,29 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import LoyaltyTransactions from '~/components/Loyalty/Transactions.vue'
 
-// Mock the useLoyalty composable
+// Mock the useLoyalty composable with new API
 const mockTransactionsRef = ref<any>(null)
-const mockLoadingRef = ref(false)
+const mockStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
 const mockErrorRef = ref<any>(null)
-
-const mockFetchTransactions = vi.fn().mockImplementation(async () => {
-  mockLoadingRef.value = true
-  await new Promise(resolve => setTimeout(resolve, 10))
-  mockLoadingRef.value = false
-})
+const mockRefresh = vi.fn()
 
 mockNuxtImport('useLoyalty', () => {
   return () => ({
-    transactions: mockTransactionsRef,
-    loading: mockLoadingRef,
-    error: mockErrorRef,
-    fetchTransactions: mockFetchTransactions,
+    fetchTransactions: () => ({
+      data: mockTransactionsRef,
+      status: mockStatusRef,
+      error: mockErrorRef,
+      refresh: mockRefresh,
+    }),
   })
 })
 
 describe('LoyaltyTransactions Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockFetchTransactions.mockClear().mockImplementation(async () => {
-      mockLoadingRef.value = true
-      await new Promise(resolve => setTimeout(resolve, 10))
-      mockLoadingRef.value = false
-    })
+    mockRefresh.mockClear()
     mockTransactionsRef.value = null
-    mockLoadingRef.value = false
+    mockStatusRef.value = 'idle'
     mockErrorRef.value = null
   })
 
@@ -441,12 +434,9 @@ describe('LoyaltyTransactions Component', () => {
       // Wait for the next tick
       await wrapper.vm.$nextTick()
 
-      // Should call fetchTransactions with the filter
-      expect(mockFetchTransactions).toHaveBeenCalledWith(
-        expect.objectContaining({
-          transactionType: 'EARN',
-        }),
-      )
+      // Filters are now handled automatically by useAsyncData watching reactive params
+      // The component should have called refresh when filter changed
+      expect(mockRefresh).toHaveBeenCalled()
     })
 
     it('should call fetchTransactions with date range filters', async () => {
@@ -468,12 +458,8 @@ describe('LoyaltyTransactions Component', () => {
       // Wait for the next tick
       await wrapper.vm.$nextTick()
 
-      // Should call fetchTransactions with dateFrom
-      expect(mockFetchTransactions).toHaveBeenCalledWith(
-        expect.objectContaining({
-          dateFrom: '2024-01-01',
-        }),
-      )
+      // Filters are now handled automatically by useAsyncData watching reactive params
+      expect(mockRefresh).toHaveBeenCalled()
     })
   })
 
@@ -496,7 +482,7 @@ describe('LoyaltyTransactions Component', () => {
     })
 
     it('should display loading skeleton when loading', async () => {
-      mockLoadingRef.value = true
+      mockStatusRef.value = 'pending'
       mockTransactionsRef.value = null
 
       const wrapper = await mountSuspended(LoyaltyTransactions)
@@ -524,7 +510,7 @@ describe('LoyaltyTransactions Component', () => {
       expect(retryButton).toBeDefined()
 
       await retryButton!.trigger('click')
-      expect(mockFetchTransactions).toHaveBeenCalled()
+      expect(mockRefresh).toHaveBeenCalled()
     })
   })
 

@@ -6,7 +6,6 @@ import type { TableColumn } from '@nuxt/ui'
 const UBadge = resolveComponent('UBadge')
 
 const { t } = useI18n()
-const { transactions, loading, error, fetchTransactions } = useLoyalty()
 
 // Filter state
 const selectedType = ref<string>('all')
@@ -14,7 +13,52 @@ const dateFrom = ref<string>('')
 const dateTo = ref<string>('')
 const currentPage = ref(1)
 
-// Transaction type options
+// Build params for API call
+const transactionParams = computed(() => {
+  const params: {
+    page?: number
+    transactionType?: string
+    dateFrom?: string
+    dateTo?: string
+  } = {
+    page: currentPage.value,
+  }
+
+  if (selectedType.value !== 'all') {
+    params.transactionType = selectedType.value
+  }
+  if (dateFrom.value) {
+    params.dateFrom = dateFrom.value
+  }
+  if (dateTo.value) {
+    params.dateTo = dateTo.value
+  }
+
+  return params
+})
+
+// Fetch transactions with new API - automatically refetches when params change
+const { data: transactions, status, error, refresh } = useLoyalty().fetchTransactions(transactionParams.value)
+
+// Computed for loading state (compatible with template)
+const loading = computed(() => status.value === 'pending')
+
+// Watch for filter changes and refresh
+watch([selectedType, dateFrom, dateTo], () => {
+  currentPage.value = 1
+  refresh()
+})
+
+// Watch for page changes and refresh
+watch(currentPage, () => {
+  refresh()
+})
+
+const handleRetry = () => {
+  refresh()
+}
+
+// Fetch transactions with filters
 const transactionTypeOptions = computed(() => [
   { label: t('filter.all_types'), value: 'all' },
   { label: t('filter.earn'), value: 'EARN' },
@@ -95,50 +139,6 @@ const columns: TableColumn<PointsTransaction>[] = [
     },
   },
 ]
-
-// Fetch transactions with filters
-const loadTransactions = () => {
-  const params: {
-    page?: number
-    transactionType?: string
-    dateFrom?: string
-    dateTo?: string
-  } = {
-    page: currentPage.value,
-  }
-
-  if (selectedType.value !== 'all') {
-    params.transactionType = selectedType.value
-  }
-  if (dateFrom.value) {
-    params.dateFrom = dateFrom.value
-  }
-  if (dateTo.value) {
-    params.dateTo = dateTo.value
-  }
-
-  fetchTransactions(params)
-}
-
-// Load on mount
-onMounted(() => {
-  loadTransactions()
-})
-
-// Watch for filter changes
-watch([selectedType, dateFrom, dateTo], () => {
-  currentPage.value = 1
-  loadTransactions()
-})
-
-// Watch for page changes
-watch(currentPage, () => {
-  loadTransactions()
-})
-
-const handleRetry = () => {
-  loadTransactions()
-}
 
 // Pagination
 const totalPages = computed(() => {

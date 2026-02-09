@@ -2,12 +2,12 @@
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
-const { fetchSettings, settings, loading } = useLoyalty()
 
-// Fetch loyalty settings on mount
-onMounted(async () => {
-  await fetchSettings()
-})
+// Fetch loyalty settings using new API
+const { data: settings, status } = useLoyalty().fetchSettings()
+
+// Computed for loading state (compatible with template)
+const loading = computed(() => status.value === 'pending')
 
 // Computed values for dynamic content
 const redemptionRate = computed(() => {
