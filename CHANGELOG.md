@@ -1,3 +1,10 @@
+# [3.67.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.66.0...v3.67.0) (2026-02-09)
+
+
+### Features
+
+* loyalty prototype ([2d47408](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2d474084f3c83eb0820a3bf05419fedc4b10a1d8))
+
 # [3.66.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.65.0...v3.66.0) (2026-02-07)
 
 
