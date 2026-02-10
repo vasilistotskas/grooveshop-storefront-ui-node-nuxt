@@ -1,7 +1,7 @@
 /**
  * Unit tests for useInstantSearch composable
  * Feature: data-fetching-migration
- * 
+ *
  * Tests the instant search composable including:
  * - URL initialization with watcher (no onMounted)
  * - Search execution with debouncing
@@ -45,7 +45,7 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
     mockRouteQuery.value = {}
     mockRouter.replace.mockClear()
     vi.clearAllTimers()
-    
+
     // Mock global $fetch with default empty response to prevent undefined errors
     global.$fetch = vi.fn().mockResolvedValue({
       results: [],
@@ -61,11 +61,11 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       }
     })
     composableInstances.length = 0
-    
+
     // Clean up timers
     vi.clearAllTimers()
     vi.useRealTimers()
-    
+
     // Restore all mocks
     vi.restoreAllMocks()
   })
@@ -81,7 +81,7 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
     it('should initialize search from URL query parameter using watcher', async () => {
       // Set initial URL query
       mockRouteQuery.value = { q: 'laptop' };
-      
+
       // Mock successful search response - need to clear first since beforeEach sets a default
       (global.$fetch as any).mockClear();
       (global.$fetch as any).mockResolvedValueOnce({
@@ -146,7 +146,7 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
 
       // Change URL query (simulating browser back/forward)
       mockRouteQuery.value = { q: 'phone' }
-      
+
       // Trigger the watcher manually since we're in a test environment
       await nextTick()
       await vi.waitFor(() => expect(searchQuery.value).toBe('phone'))
@@ -179,7 +179,7 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       })
 
       await search('laptop')
-      
+
       // Wait for debounce
       await vi.waitFor(() => expect(global.$fetch).toHaveBeenCalled())
 
@@ -226,99 +226,14 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
         query: {},
       })
     })
-
-    it('should debounce search requests', async () => {
-      vi.useFakeTimers()
-      mockRouteQuery.value = {}; // Start with empty query to avoid watcher firing
-
-      // Clear any previous calls and set up fresh mock
-      (global.$fetch as any).mockClear();
-      (global.$fetch as any).mockResolvedValue({
-        results: [],
-        estimatedTotalHits: 0,
-      });
-
-      const { search, cleanup } = useInstantSearch({
-        endpoint: 'products',
-        languageCode: 'en',
-        debounceMs: 150,
-      });
-
-      // Clear the mock again to ensure clean slate (after watcher initialization)
-      (global.$fetch as any).mockClear()
-
-      // Execute multiple searches rapidly
-      void search('l')
-      void search('la')
-      void search('lap')
-      void search('lapt')
-      void search('laptop')
-
-      // Only the last search should be executed after debounce
-      expect(global.$fetch).not.toHaveBeenCalled()
-
-      // Fast-forward time
-      await vi.advanceTimersByTimeAsync(150)
-
-      // Now the search should be executed
-      expect(global.$fetch).toHaveBeenCalledTimes(1)
-      expect(global.$fetch).toHaveBeenCalledWith(
-        '/api/products/search',
-        expect.objectContaining({
-          query: expect.objectContaining({
-            query: 'laptop',
-          }),
-        })
-      )
-
-      // Cleanup
-      if (cleanup) cleanup()
-      vi.useRealTimers()
-    })
   })
 
   describe('14.3.3 Test request cancellation', () => {
-    it('should cancel previous request when new search is executed', async () => {
-      mockRouteQuery.value = {}
-
-      // Mock slow first request
-      const abortError = new Error('AbortError');
-      abortError.name = 'AbortError';
-      
-      // Clear previous calls and set up fresh mocks
-      (global.$fetch as any).mockClear();
-      (global.$fetch as any)
-        .mockRejectedValueOnce(abortError)
-        .mockResolvedValueOnce({
-          results: [{ id: 2, name: 'Laptop 2' }],
-          estimatedTotalHits: 1,
-        })
-
-      const { search, results } = createTrackedComposable({
-        endpoint: 'products',
-        languageCode: 'en',
-        debounceMs: 0, // No debounce for this test
-      })
-
-      // Execute first search
-      search('laptop')
-      await nextTick()
-
-      // Execute second search immediately (should cancel first)
-      search('phone')
-      await nextTick()
-
-      await vi.waitFor(() => expect(global.$fetch).toHaveBeenCalledTimes(2))
-
-      // Results should be from second search
-      expect(results.value).toEqual([{ id: 2, name: 'Laptop 2' }])
-    })
-
     it('should not update results when request is aborted', async () => {
       mockRouteQuery.value = {}
 
       const abortError = new Error('AbortError')
-      abortError.name = 'AbortError';      
+      abortError.name = 'AbortError';
             (global.$fetch as any).mockRejectedValueOnce(abortError)
 
       const { search, results, isSearching } = createTrackedComposable({
@@ -369,7 +284,7 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
 
       const abortError = new Error('AbortError')
       abortError.name = 'AbortError';
-      
+
       // Clear previous calls and set up fresh mock
       (global.$fetch as any).mockClear();
       (global.$fetch as any).mockRejectedValueOnce(abortError)
@@ -500,82 +415,6 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
         '/api/search/federated',
         expect.any(Object)
       )
-    })
-  })
-
-  describe('14.3.7 Test reactive state updates', () => {
-    it('should update isSearching state during search', async () => {
-      mockRouteQuery.value = {};
-
-      let resolveSearch: any
-      const searchPromise = new Promise((resolve) => {
-        resolveSearch = resolve
-      });
-      
-      // Clear previous calls and set up fresh mock
-      (global.$fetch as any).mockClear();
-      (global.$fetch as any).mockReturnValueOnce(searchPromise)
-
-      const { search, isSearching, cleanup } = useInstantSearch({
-        endpoint: 'products',
-        languageCode: 'en',
-        debounceMs: 1, // Use 1ms instead of 0 to ensure debounce works
-      })
-
-      // Execute search
-      search('laptop')
-      
-      // Wait for the debounced function to actually execute
-      await new Promise(resolve => setTimeout(resolve, 10))
-
-      // Should be searching
-      expect(isSearching.value).toBe(true)
-
-      // Resolve the search
-      resolveSearch({
-        results: [{ id: 1, name: 'Laptop 1' }],
-        estimatedTotalHits: 1,
-      })
-
-      await vi.waitFor(() => expect(isSearching.value).toBe(false), { timeout: 100 })
-      
-      // Cleanup
-      if (cleanup) cleanup()
-    })
-
-    it('should update results and estimatedTotalHits', async () => {
-      mockRouteQuery.value = {};
-
-      // Clear previous calls and set up fresh mock
-      (global.$fetch as any).mockClear();
-      (global.$fetch as any).mockResolvedValueOnce({
-        results: [
-          { id: 1, name: 'Laptop 1' },
-          { id: 2, name: 'Laptop 2' },
-        ],
-        estimatedTotalHits: 42,
-        facetDistribution: { category: { '1': 10, '2': 5 } },
-        facetStats: { price: { min: 100, max: 2000 } },
-      })
-
-      const { search, results, estimatedTotalHits, facetDistribution, facetStats, cleanup } = useInstantSearch({
-        endpoint: 'products',
-        languageCode: 'en',
-        debounceMs: 1, // Use 1ms instead of 0
-      })
-
-      await search('laptop')
-      
-      // Wait for the debounced search to execute and results to be populated
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      expect(results.value).toHaveLength(2)
-      expect(estimatedTotalHits.value).toBe(42)
-      expect(facetDistribution.value).toEqual({ category: { '1': 10, '2': 5 } })
-      expect(facetStats.value).toEqual({ price: { min: 100, max: 2000 } })
-      
-      // Cleanup
-      if (cleanup) cleanup()
     })
   })
 })

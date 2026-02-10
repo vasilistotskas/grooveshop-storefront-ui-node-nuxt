@@ -7,7 +7,6 @@ const mockSummaryRef = ref<any>(null)
 const mockStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
 const mockErrorRef = ref<any>(null)
 const mockRefresh = vi.fn()
-const mockRedeemPoints = vi.fn()
 
 mockNuxtImport('useLoyalty', () => {
   return () => ({
@@ -17,7 +16,13 @@ mockNuxtImport('useLoyalty', () => {
       error: mockErrorRef,
       refresh: mockRefresh,
     }),
-    redeemPoints: mockRedeemPoints,
+  })
+})
+
+// Mock useToast since the component uses it
+mockNuxtImport('useToast', () => {
+  return () => ({
+    add: vi.fn(),
   })
 })
 
@@ -25,7 +30,6 @@ describe('LoyaltyRedemption Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockRefresh.mockClear()
-    mockRedeemPoints.mockClear()
     mockSummaryRef.value = {
       pointsBalance: 100,
       totalXp: 500,
@@ -45,28 +49,24 @@ describe('LoyaltyRedemption Component', () => {
         },
       })
 
-      // Wait for component to mount and fetch
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 50))
 
-      // Find the points input field
-      const input = wrapper.find('input[type="number"]')
-      expect(input.exists()).toBe(true)
-
-      // Try to redeem more points than available (150 > 100)
-      await input.setValue('150')
+      // Set points via component VM (UInputNumber doesn't render plain input[type="number"])
+      ;(wrapper.vm as any).formState.pointsToRedeem = 150
       await wrapper.vm.$nextTick()
 
       // Trigger form submission
       const form = wrapper.find('form')
       await form.trigger('submit')
       await wrapper.vm.$nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Should display validation error (Greek locale)
-      expect(wrapper.text()).toContain("Δεν έχετε αρκετούς πόντους")
+      expect(wrapper.text()).toContain('Δεν έχετε αρκετούς πόντους')
 
-      // Should NOT call the redeem API endpoint
-      expect(mockRedeemPoints).not.toHaveBeenCalled()
+      // Should NOT emit redeemed event
+      expect(wrapper.emitted('redeemed')).toBeUndefined()
     })
 
     it('should display validation error for zero points', async () => {
@@ -79,19 +79,19 @@ describe('LoyaltyRedemption Component', () => {
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 50))
 
-      const input = wrapper.find('input[type="number"]')
-      await input.setValue('0')
+      ;(wrapper.vm as any).formState.pointsToRedeem = 0
       await wrapper.vm.$nextTick()
 
       const form = wrapper.find('form')
       await form.trigger('submit')
       await wrapper.vm.$nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Should display validation error (Greek locale)
       expect(wrapper.text()).toContain('Πρέπει να εξαργυρώσετε τουλάχιστον 1 πόντο')
 
-      // Should NOT call the API
-      expect(mockRedeemPoints).not.toHaveBeenCalled()
+      // Should NOT emit redeemed event
+      expect(wrapper.emitted('redeemed')).toBeUndefined()
     })
 
     it('should display validation error for negative points', async () => {
@@ -104,29 +104,22 @@ describe('LoyaltyRedemption Component', () => {
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 50))
 
-      const input = wrapper.find('input[type="number"]')
-      await input.setValue('-10')
+      ;(wrapper.vm as any).formState.pointsToRedeem = -10
       await wrapper.vm.$nextTick()
 
       const form = wrapper.find('form')
       await form.trigger('submit')
       await wrapper.vm.$nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       // Should display validation error (Greek locale)
       expect(wrapper.text()).toContain('Πρέπει να εξαργυρώσετε τουλάχιστον 1 πόντο')
 
-      // Should NOT call the API
-      expect(mockRedeemPoints).not.toHaveBeenCalled()
+      // Should NOT emit redeemed event
+      expect(wrapper.emitted('redeemed')).toBeUndefined()
     })
 
     it('should allow redemption when amount is within balance', async () => {
-      mockRedeemPoints.mockResolvedValue({
-        discountAmount: 5.00,
-        currency: 'EUR',
-        pointsRedeemed: 50,
-        remainingBalance: 50,
-      })
-
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
@@ -136,8 +129,7 @@ describe('LoyaltyRedemption Component', () => {
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 50))
 
-      const input = wrapper.find('input[type="number"]')
-      await input.setValue('50')
+      ;(wrapper.vm as any).formState.pointsToRedeem = 50
       await wrapper.vm.$nextTick()
 
       const form = wrapper.find('form')
@@ -146,23 +138,19 @@ describe('LoyaltyRedemption Component', () => {
       await new Promise(resolve => setTimeout(resolve, 100))
 
       // Should NOT display validation error
-      expect(wrapper.text()).not.toContain("Δεν έχετε αρκετούς πόντους")
+      expect(wrapper.text()).not.toContain('Δεν έχετε αρκετούς πόντους')
 
-      // Should call the API with correct parameters
-      expect(mockRedeemPoints).toHaveBeenCalledWith({
-        pointsAmount: 50,
+      // Should emit redeemed event with local intent (no API call)
+      const emittedEvents = wrapper.emitted('redeemed')
+      expect(emittedEvents).toBeDefined()
+      expect(emittedEvents![0]).toEqual([{
+        amount: 0.50,
         currency: 'EUR',
-      })
+        points: 50,
+      }])
     })
 
     it('should allow redemption of exact balance amount', async () => {
-      mockRedeemPoints.mockResolvedValue({
-        discountAmount: 10.00,
-        currency: 'EUR',
-        pointsRedeemed: 100,
-        remainingBalance: 0,
-      })
-
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
@@ -172,8 +160,7 @@ describe('LoyaltyRedemption Component', () => {
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 50))
 
-      const input = wrapper.find('input[type="number"]')
-      await input.setValue('100')
+      ;(wrapper.vm as any).formState.pointsToRedeem = 100
       await wrapper.vm.$nextTick()
 
       const form = wrapper.find('form')
@@ -182,25 +169,21 @@ describe('LoyaltyRedemption Component', () => {
       await new Promise(resolve => setTimeout(resolve, 100))
 
       // Should NOT display validation error
-      expect(wrapper.text()).not.toContain("Δεν έχετε αρκετούς πόντους")
+      expect(wrapper.text()).not.toContain('Δεν έχετε αρκετούς πόντους')
 
-      // Should call the API
-      expect(mockRedeemPoints).toHaveBeenCalledWith({
-        pointsAmount: 100,
+      // Should emit redeemed event
+      const emittedEvents = wrapper.emitted('redeemed')
+      expect(emittedEvents).toBeDefined()
+      expect(emittedEvents![0]).toEqual([{
+        amount: 1.00,
         currency: 'EUR',
-      })
+        points: 100,
+      }])
     })
   })
 
   describe('Test 7: Successful redemption updates displayed balance', () => {
-    it('should update displayed balance to remainingBalance after successful redemption', async () => {
-      mockRedeemPoints.mockResolvedValue({
-        discountAmount: 5.00,
-        currency: 'EUR',
-        pointsRedeemed: 50,
-        remainingBalance: 50,
-      })
-
+    it('should update displayed balance after redemption', async () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
@@ -213,29 +196,19 @@ describe('LoyaltyRedemption Component', () => {
       // Initial balance should be 100
       expect(wrapper.text()).toContain('100')
 
-      const input = wrapper.find('input[type="number"]')
-      await input.setValue('50')
+      ;(wrapper.vm as any).formState.pointsToRedeem = 50
       await wrapper.vm.$nextTick()
 
       const form = wrapper.find('form')
       await form.trigger('submit')
-
-      // Wait for async operation
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 200))
 
-      // After redemption, should display remaining balance (50)
+      // After redemption, displayed balance should be 50 (100 - 50)
       expect(wrapper.text()).toContain('50')
     })
 
-    it('should emit redeemed event with discount details', async () => {
-      mockRedeemPoints.mockResolvedValue({
-        discountAmount: 7.50,
-        currency: 'EUR',
-        pointsRedeemed: 75,
-        remainingBalance: 25,
-      })
-
+    it('should emit redeemed event with discount details including points', async () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
@@ -245,34 +218,25 @@ describe('LoyaltyRedemption Component', () => {
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 50))
 
-      const input = wrapper.find('input[type="number"]')
-      await input.setValue('75')
+      ;(wrapper.vm as any).formState.pointsToRedeem = 75
       await wrapper.vm.$nextTick()
 
       const form = wrapper.find('form')
       await form.trigger('submit')
-
-      // Wait for async operation
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 200))
 
-      // Should emit redeemed event
+      // Should emit redeemed event with amount, currency, and points
       const emittedEvents = wrapper.emitted('redeemed')
       expect(emittedEvents).toBeDefined()
       expect(emittedEvents![0]).toEqual([{
-        amount: 7.50,
+        amount: 0.75,
         currency: 'EUR',
+        points: 75,
       }])
     })
 
-    it('should display success message after redemption', async () => {
-      mockRedeemPoints.mockResolvedValue({
-        discountAmount: 10.00,
-        currency: 'EUR',
-        pointsRedeemed: 100,
-        remainingBalance: 0,
-      })
-
+    it('should display success alert after redemption', async () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
@@ -282,14 +246,11 @@ describe('LoyaltyRedemption Component', () => {
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 50))
 
-      const input = wrapper.find('input[type="number"]')
-      await input.setValue('100')
+      ;(wrapper.vm as any).formState.pointsToRedeem = 100
       await wrapper.vm.$nextTick()
 
       const form = wrapper.find('form')
       await form.trigger('submit')
-
-      // Wait for async operation
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 200))
 
@@ -300,13 +261,6 @@ describe('LoyaltyRedemption Component', () => {
     })
 
     it('should reset form after successful redemption', async () => {
-      mockRedeemPoints.mockResolvedValue({
-        discountAmount: 5.00,
-        currency: 'EUR',
-        pointsRedeemed: 50,
-        remainingBalance: 50,
-      })
-
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
@@ -316,19 +270,16 @@ describe('LoyaltyRedemption Component', () => {
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 50))
 
-      const input = wrapper.find('input[type="number"]')
-      await input.setValue('50')
+      ;(wrapper.vm as any).formState.pointsToRedeem = 50
       await wrapper.vm.$nextTick()
 
       const form = wrapper.find('form')
       await form.trigger('submit')
-
-      // Wait for async operation
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 200))
 
-      // Input should be cleared
-      expect((input.element as HTMLInputElement).value).toBe('')
+      // Form state should be cleared
+      expect((wrapper.vm as any).formState.pointsToRedeem).toBeUndefined()
     })
   })
 
@@ -350,16 +301,7 @@ describe('LoyaltyRedemption Component', () => {
       expect(skeletons.length).toBeGreaterThan(0)
     })
 
-    it('should disable submit button while redemption is in progress', async () => {
-      mockRedeemPoints.mockImplementation(() => {
-        return new Promise(resolve => setTimeout(() => resolve({
-          discountAmount: 5.00,
-          currency: 'EUR',
-          pointsRedeemed: 50,
-          remainingBalance: 50,
-        }), 1000))
-      })
-
+    it('should disable submit button when no points entered', async () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
@@ -369,49 +311,9 @@ describe('LoyaltyRedemption Component', () => {
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 50))
 
-      const input = wrapper.find('input[type="number"]')
-      await input.setValue('50')
-      await wrapper.vm.$nextTick()
-
-      const form = wrapper.find('form')
-      await form.trigger('submit')
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      // Submit button should show loading state
+      // Submit button should be disabled when no points entered
       const submitButton = wrapper.find('button[type="submit"]')
       expect(submitButton.attributes('disabled')).toBeDefined()
-    })
-
-    it('should display API error message when redemption fails', async () => {
-      mockRedeemPoints.mockRejectedValue({
-        data: {
-          detail: 'Insufficient points balance',
-        },
-      })
-
-      const wrapper = await mountSuspended(LoyaltyRedemption, {
-        props: {
-          currency: 'EUR',
-        },
-      })
-
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 50))
-
-      const input = wrapper.find('input[type="number"]')
-      await input.setValue('50')
-      await wrapper.vm.$nextTick()
-
-      const form = wrapper.find('form')
-      await form.trigger('submit')
-
-      // Wait for async operation
-      await wrapper.vm.$nextTick()
-      await new Promise(resolve => setTimeout(resolve, 200))
-
-      // Should display error message
-      expect(wrapper.text()).toContain('Insufficient points balance')
     })
 
     it('should populate input with full balance when "Redeem All" button is clicked', async () => {
@@ -440,9 +342,35 @@ describe('LoyaltyRedemption Component', () => {
       await redeemAllButton!.trigger('click')
       await wrapper.vm.$nextTick()
 
-      // Input should be populated with full balance
-      const input = wrapper.find('input[type="number"]')
-      expect((input.element as HTMLInputElement).value).toBe('250')
+      // Form state should be populated with full balance
+      expect((wrapper.vm as any).formState.pointsToRedeem).toBe(250)
+    })
+
+    it('should emit cleared event when discount is dismissed', async () => {
+      const wrapper = await mountSuspended(LoyaltyRedemption, {
+        props: {
+          currency: 'EUR',
+        },
+      })
+
+      await wrapper.vm.$nextTick()
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      // Apply a discount first
+      ;(wrapper.vm as any).formState.pointsToRedeem = 50
+      await wrapper.vm.$nextTick()
+
+      const form = wrapper.find('form')
+      await form.trigger('submit')
+      await wrapper.vm.$nextTick()
+      await new Promise(resolve => setTimeout(resolve, 100))
+
+      // Now clear the redemption via the VM
+      ;(wrapper.vm as any).clearRedemption()
+      await wrapper.vm.$nextTick()
+
+      // Should emit cleared event
+      expect(wrapper.emitted('cleared')).toBeDefined()
     })
   })
 })

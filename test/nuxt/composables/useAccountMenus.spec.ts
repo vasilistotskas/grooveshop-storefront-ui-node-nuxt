@@ -41,10 +41,11 @@ describe('useAccountMenus', () => {
   it('should return basic menu items when preview mode is disabled', () => {
     const { menus } = useAccountMenus()
 
-    expect(menus.value).toHaveLength(3)
-    expect(menus.value[0]!.route?.name).toBe('account-favourites-posts')
-    expect(menus.value[1]!.route?.name).toBe('account-subscriptions')
-    expect(menus.value[2]!.route?.name).toBe('account-settings')
+    expect(menus.value).toHaveLength(4)
+    expect(menus.value[0]!.route?.name).toBe('account')
+    expect(menus.value[1]!.route?.name).toBe('account-favourites-posts')
+    expect(menus.value[2]!.route?.name).toBe('account-subscriptions')
+    expect(menus.value[3]!.route?.name).toBe('account-settings')
   })
 
   it('should include all menu items when preview mode is enabled', () => {
@@ -52,8 +53,9 @@ describe('useAccountMenus', () => {
 
     const { menus } = useAccountMenus()
 
-    expect(menus.value).toHaveLength(7)
+    expect(menus.value).toHaveLength(8)
     const routeNames = menus.value.map(m => m.route?.name)
+    expect(routeNames).toContain('account')
     expect(routeNames).toContain('account-addresses')
     expect(routeNames).toContain('account-orders')
     expect(routeNames).toContain('account-reviews')
@@ -63,17 +65,19 @@ describe('useAccountMenus', () => {
   it('should have correct route paths for basic menus', () => {
     const { menus } = useAccountMenus()
 
-    expect(menus.value[0]!.route?.path).toBe('/account/favourites/posts')
-    expect(menus.value[1]!.route?.path).toBe('/account/subscriptions')
-    expect(menus.value[2]!.route?.path).toBe('/account/settings')
+    expect(menus.value[0]!.route?.path).toBe('/account')
+    expect(menus.value[1]!.route?.path).toBe('/account/favourites/posts')
+    expect(menus.value[2]!.route?.path).toBe('/account/subscriptions')
+    expect(menus.value[3]!.route?.path).toBe('/account/settings')
   })
 
   it('should have correct icons for menu items', () => {
     const { menus } = useAccountMenus()
 
-    expect(menus.value[0]!.icon).toBe('i-mdi-heart-outline')
-    expect(menus.value[1]!.icon).toBe('i-heroicons-bell')
-    expect(menus.value[2]!.icon).toBe('i-mdi-cog-outline')
+    expect(menus.value[0]!.icon).toBe('i-heroicons-user')
+    expect(menus.value[1]!.icon).toBe('i-mdi-heart-outline')
+    expect(menus.value[2]!.icon).toBe('i-heroicons-bell')
+    expect(menus.value[3]!.icon).toBe('i-mdi-cog-outline')
   })
 
   it('should have type link for all menu items', () => {
@@ -87,9 +91,10 @@ describe('useAccountMenus', () => {
   it('should have correct route names', () => {
     const { menus } = useAccountMenus()
 
-    expect(menus.value[0]!.route?.name).toBe('account-favourites-posts')
-    expect(menus.value[1]!.route?.name).toBe('account-subscriptions')
-    expect(menus.value[2]!.route?.name).toBe('account-settings')
+    expect(menus.value[0]!.route?.name).toBe('account')
+    expect(menus.value[1]!.route?.name).toBe('account-favourites-posts')
+    expect(menus.value[2]!.route?.name).toBe('account-subscriptions')
+    expect(menus.value[3]!.route?.name).toBe('account-settings')
   })
 
   it('should add preview mode menus with correct paths', () => {

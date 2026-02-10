@@ -419,7 +419,7 @@ describe('LoyaltyTransactions Component', () => {
   })
 
   describe('Filter Functionality', () => {
-    it('should call fetchTransactions with filter parameters when type filter changes', async () => {
+    it('should render filter controls for transaction type and dates', async () => {
       mockTransactionsRef.value = { count: 0, results: [], next: null, previous: null }
 
       const wrapper = await mountSuspended(LoyaltyTransactions)
@@ -427,19 +427,16 @@ describe('LoyaltyTransactions Component', () => {
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 100))
 
-      // Find and change the transaction type select
+      // Should have transaction type select
       const select = wrapper.findComponent({ name: 'USelect' })
-      await select.vm.$emit('update:modelValue', 'EARN')
+      expect(select.exists()).toBe(true)
 
-      // Wait for the next tick
-      await wrapper.vm.$nextTick()
-
-      // Filters are now handled automatically by useAsyncData watching reactive params
-      // The component should have called refresh when filter changed
-      expect(mockRefresh).toHaveBeenCalled()
+      // Should have date inputs
+      const inputs = wrapper.findAllComponents({ name: 'UInput' })
+      expect(inputs.length).toBeGreaterThanOrEqual(2)
     })
 
-    it('should call fetchTransactions with date range filters', async () => {
+    it('should reset page to 1 when filter changes', async () => {
       mockTransactionsRef.value = { count: 0, results: [], next: null, previous: null }
 
       const wrapper = await mountSuspended(LoyaltyTransactions)
@@ -447,19 +444,17 @@ describe('LoyaltyTransactions Component', () => {
       await wrapper.vm.$nextTick()
       await new Promise(resolve => setTimeout(resolve, 100))
 
-      // Find date inputs
-      const inputs = wrapper.findAllComponents({ name: 'UInput' })
-
-      // Set date from (check if inputs exist and have at least one element)
-      if (inputs && inputs.length > 0 && inputs[0]) {
-        await inputs[0].vm.$emit('update:modelValue', '2024-01-01')
-      }
-
-      // Wait for the next tick
+      // Set page to 2 via VM
+      ;(wrapper.vm as any).currentPage = 2
       await wrapper.vm.$nextTick()
 
-      // Filters are now handled automatically by useAsyncData watching reactive params
-      expect(mockRefresh).toHaveBeenCalled()
+      // Change the transaction type filter
+      const select = wrapper.findComponent({ name: 'USelect' })
+      await select.vm.$emit('update:modelValue', 'EARN')
+      await wrapper.vm.$nextTick()
+
+      // Page should be reset to 1
+      expect((wrapper.vm as any).currentPage).toBe(1)
     })
   })
 
@@ -518,6 +513,8 @@ describe('LoyaltyTransactions Component', () => {
     it('should display pagination when there are multiple pages', async () => {
       mockTransactionsRef.value = {
         count: 50,
+        totalPages: 5,
+        pageSize: 12,
         next: 'http://api/transactions?page=2',
         previous: null,
         results: Array(10).fill(null).map((_, i) => ({
@@ -543,6 +540,8 @@ describe('LoyaltyTransactions Component', () => {
     it('should not display pagination when only one page', async () => {
       mockTransactionsRef.value = {
         count: 5,
+        totalPages: 1,
+        pageSize: 12,
         next: null,
         previous: null,
         results: Array(5).fill(null).map((_, i) => ({
