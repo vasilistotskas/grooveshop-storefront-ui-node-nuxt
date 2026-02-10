@@ -1,34 +1,57 @@
+/**
+ * Composable for subscription topics API interactions
+ *
+ * Uses Nuxt's useAsyncData for SSR-safe data fetching with automatic caching,
+ * deduplication, and payload forwarding from server to client.
+ *
+ * Provides access to subscription topics with helper methods for filtering
+ * and grouping by category.
+ */
 export function useSubscriptionTopics() {
-  const topics = ref<SubscriptionTopic[]>([])
-  const loading = ref(true)
-  const error = ref<Error | null>(null)
-
-  const fetchTopics = async () => {
-    loading.value = true
-    error.value = null
-    try {
-      const response = await $fetch('/api/subscriptions/topics', {
-        method: 'GET',
-      })
-      topics.value = response?.results || []
-    }
-    catch (err) {
-      error.value = err instanceof Error ? err : new Error('Failed to fetch topics')
-      console.error('Error fetching subscription topics:', err)
-    }
-    finally {
-      loading.value = false
-    }
+  /**
+   * Fetch all subscription topics
+   *
+   * Uses useAsyncData for SSR support and automatic caching.
+   * Returns the complete AsyncData result with data, status, error, and refresh.
+   */
+  const fetchTopics = () => {
+    return useAsyncData<SubscriptionTopic[]>(
+      'subscription:topics:list',
+      async () => {
+        const response = await $fetch('/api/subscriptions/topics', {
+          method: 'GET',
+          headers: useRequestHeaders(),
+        })
+        return response?.results || []
+      },
+    )
   }
 
-  const getTopicById = (id: number) => {
-    return topics.value.find(topic => topic.id === id)
+  /**
+   * Helper function to get a topic by ID from a topics array
+   *
+   * @param topics - Array of subscription topics
+   * @param id - Topic ID to find
+   * @returns The matching topic or undefined
+   */
+  const getTopicById = (topics: SubscriptionTopic[] | null, id: number) => {
+    return topics?.find(topic => topic.id === id)
   }
 
-  const groupedByCategory = computed(() => {
+  /**
+   * Helper function to group topics by category
+   *
+   * @param topics - Array of subscription topics
+   * @returns Object with categories as keys and topic arrays as values
+   */
+  const groupByCategory = (topics: SubscriptionTopic[] | null | undefined) => {
     const grouped: Record<string, SubscriptionTopic[]> = {}
 
-    topics.value.forEach((topic) => {
+    if (!topics) {
+      return grouped
+    }
+
+    topics.forEach((topic) => {
       const category = topic.category || 'OTHER'
       if (!grouped[category]) {
         grouped[category] = []
@@ -37,14 +60,11 @@ export function useSubscriptionTopics() {
     })
 
     return grouped
-  })
+  }
 
   return {
-    topics,
-    loading,
-    error,
     fetchTopics,
     getTopicById,
-    groupedByCategory,
+    groupByCategory,
   }
 }

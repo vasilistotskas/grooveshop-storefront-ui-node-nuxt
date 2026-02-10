@@ -183,13 +183,9 @@ const scrollToComments = () => {
   }
 }
 
-onMounted(() => {
-  $fetch(`/api/blog/posts/${blogPostId.value}/update-view-count`, {
-    method: 'POST',
-  }).catch((error) => {
-    console.error('Failed to update view count:', error)
-  })
-})
+// Track view count using composable (client-side only, fire-and-forget)
+const { trackView } = useViewCount()
+trackView('blog', blogPostId.value)
 
 onReactivated(async () => {
   await refresh()

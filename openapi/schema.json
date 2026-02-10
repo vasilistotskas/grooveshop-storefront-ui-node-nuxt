@@ -58107,6 +58107,7 @@
                     "firstName",
                     "lastName",
                     "phone",
+                    "region",
                     "street",
                     "streetNumber",
                     "title",

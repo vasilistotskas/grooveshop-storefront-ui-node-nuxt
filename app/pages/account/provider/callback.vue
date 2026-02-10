@@ -24,41 +24,38 @@ const { t } = useI18n()
 const authInfo = useAuthInfo()
 
 const url = ref<typeof RedirectToURLs[keyof typeof RedirectToURLs]>(RedirectToURLs.LOGIN_URL)
-const error = ref(false)
-const loading = ref(true)
 
-const title = computed(() => {
-  if (loading.value) return t('title.loading')
-  if (error.value) return t('title.error')
-  if (messages) return messages
-  return ''
-})
+// Determine if we have valid token data to process
+const hasEncryptedToken = computed(() => !!encrypted_token)
+const hasProviderToken = computed(() => !!(provider && process && client_id))
+const hasValidTokenData = computed(() => hasEncryptedToken.value || hasProviderToken.value)
 
-onMounted(async () => {
-  if (encrypted_token) {
-    try {
+// Process token handling with useAsyncData
+const { status, error: tokenError, execute } = useAsyncData(
+  'provider:callback:token',
+  async () => {
+    // Handle encrypted token (session refresh)
+    if (encrypted_token) {
       await refreshSession(String(encrypted_token))
       const authEvent = useState<AuthChangeEventType>('authEvent')
       authEvent.value = AuthChangeEvent.LOGGED_IN
+      return { success: true, type: 'encrypted' }
     }
-    catch {
-      error.value = true
+
+    // Check if already authenticated
+    if (authInfo.isAuthenticated) {
+      url.value = RedirectToURLs.LOGIN_REDIRECT_URL
+      await navigateTo(localePath(url.value))
+      return { success: true, type: 'already_authenticated' }
     }
-  }
 
-  if (authInfo.isAuthenticated) {
-    url.value = RedirectToURLs.LOGIN_REDIRECT_URL
-    await navigateTo(localePath(url.value))
-    return
-  }
+    // Check for API error from query params
+    if (apiError) {
+      throw new Error('Provider authentication failed')
+    }
 
-  if (apiError) {
-    error.value = true
-  }
-
-  if (provider && process && client_id) {
-    try {
-      loading.value = true
+    // Handle provider token
+    if (provider && process && client_id) {
       const token: ProviderToken = {
         client_id: String(client_id),
       }
@@ -68,26 +65,42 @@ onMounted(async () => {
       if (access_token) {
         Object.assign(token, { access_token: String(access_token) })
       }
+
       await providerToken({
         provider: String(provider),
         token,
         process: process === 'login' ? 'login' : 'connect',
       })
-    }
-    catch {
-      error.value = true
-    }
-    finally {
-      loading.value = false
-    }
-  }
-  else {
-    loading.value = false
-  }
 
-  if (!encrypted_token && !(provider && access_token && id_token && process)) {
-    error.value = true
-  }
+      return { success: true, type: 'provider' }
+    }
+
+    // No valid token data found
+    throw new Error('No valid token data provided')
+  },
+  {
+    server: false, // Client-side only (authentication tokens)
+    immediate: false, // Don't execute automatically
+    lazy: true, // Don't block navigation
+  },
+)
+
+// Execute token processing if we have valid token data
+if (import.meta.client && hasValidTokenData.value) {
+  execute()
+}
+
+// Compute error state from both API error and token processing error
+const error = computed(() => !!apiError || !!tokenError.value || (!hasValidTokenData.value && status.value !== 'idle'))
+
+// Compute loading state from status
+const loading = computed(() => status.value === 'pending')
+
+const title = computed(() => {
+  if (loading.value) return t('title.loading')
+  if (error.value) return t('title.error')
+  if (messages) return messages
+  return ''
 })
 
 definePageMeta({

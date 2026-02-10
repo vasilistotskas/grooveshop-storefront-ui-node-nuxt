@@ -14,7 +14,7 @@ defineProps({
   displayTotal: {
     type: Boolean,
     required: false,
-    default: true,
+    default: false,
   },
 })
 

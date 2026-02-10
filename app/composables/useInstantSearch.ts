@@ -51,6 +51,8 @@ export interface InstantSearchResult<T> {
   search: (query: string) => Promise<void>
   /** Clear search results and query */
   clear: () => void
+  /** Cleanup function to stop watchers (for testing) */
+  cleanup?: () => void
 }
 
 /**
@@ -238,20 +240,21 @@ export function useInstantSearch<T = any>(
     }
   }
 
-  // Initialize search from URL on mount
-  onMounted(() => {
-    const initialQuery = route.query.q as string
-    if (initialQuery) {
-      searchQuery.value = initialQuery
-      executeSearch(initialQuery)
-    }
-  })
-
-  // Watch for URL changes (e.g., browser back/forward)
-  watch(
+  // Watch for URL changes (e.g., browser back/forward, initial load)
+  // Using immediate: true to handle initial URL state without onMounted
+  const stopWatcher = watch(
     () => route.query.q,
-    (newQuery) => {
+    (newQuery, oldQuery) => {
       const queryString = (newQuery as string) || ''
+
+      // On initial load (oldQuery is undefined), always execute search if query exists
+      if (oldQuery === undefined && queryString) {
+        searchQuery.value = queryString
+        executeSearch(queryString)
+        return
+      }
+
+      // For subsequent changes, only execute if query actually changed
       if (queryString !== searchQuery.value) {
         searchQuery.value = queryString
         if (queryString) {
@@ -262,6 +265,7 @@ export function useInstantSearch<T = any>(
         }
       }
     },
+    { immediate: true },
   )
 
   return {
@@ -273,5 +277,6 @@ export function useInstantSearch<T = any>(
     facetStats,
     search,
     clear,
+    cleanup: stopWatcher,
   }
 }

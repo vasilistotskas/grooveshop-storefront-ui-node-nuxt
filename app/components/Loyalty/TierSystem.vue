@@ -40,7 +40,7 @@ const isTierUnlocked = (tier: LoyaltyTier) => summary.value ? summary.value.leve
 
 const getTierIcon = (tier: LoyaltyTier) => {
   const name = getTierName(tier).toLowerCase()
-  if (name.includes('bronze') || name.includes('χάλκ')) return 'i-heroicons-shield'
+  if (name.includes('bronze') || name.includes('χάλκ')) return 'i-heroicons-shield-check'
   if (name.includes('silver') || name.includes('αργυ')) return 'i-heroicons-star'
   if (name.includes('gold') || name.includes('χρυσ')) return 'i-heroicons-trophy'
   if (name.includes('platinum') || name.includes('πλατ')) return 'i-heroicons-sparkles'

@@ -1,48 +1,66 @@
+/**
+ * Composable for user subscriptions API interactions
+ *
+ * Uses Nuxt's useAsyncData for SSR-safe data fetching with automatic caching,
+ * deduplication, and payload forwarding from server to client.
+ *
+ * Provides access to user subscriptions with mutation operations for
+ * subscribing, unsubscribing, and bulk operations.
+ */
 export function useUserSubscriptions() {
-  const subscriptions = ref<UserSubscription[]>([])
-  const loading = ref(true)
-  const error = ref<Error | null>(null)
   const toast = useToast()
   const { $i18n } = useNuxtApp()
 
-  const fetchSubscriptions = async () => {
-    loading.value = true
-    error.value = null
-    try {
-      const response = await $fetch('/api/subscriptions/user', {
-        method: 'GET',
-      })
-      subscriptions.value = response?.results || []
-    }
-    catch (err) {
-      error.value = err instanceof Error ? err : new Error('Failed to fetch subscriptions')
-      console.error('Error fetching user subscriptions:', err)
-    }
-    finally {
-      loading.value = false
-    }
+  /**
+   * Fetch user subscriptions
+   *
+   * Uses useAsyncData for SSR support and automatic caching.
+   * Returns the complete AsyncData result with data, status, error, and refresh.
+   */
+  const fetchSubscriptions = () => {
+    return useAsyncData<UserSubscription[]>(
+      'subscription:user:list',
+      async () => {
+        const response = await $fetch('/api/subscriptions/user', {
+          method: 'GET',
+          headers: useRequestHeaders(),
+        })
+        return response?.results || []
+      },
+    )
   }
 
+  /**
+   * Subscribe to a topic
+   *
+   * Creates a new subscription and invalidates related caches to ensure
+   * the UI reflects the updated subscription state.
+   *
+   * @param topicId - ID of the topic to subscribe to
+   * @returns The created subscription
+   */
   const subscribe = async (topicId: number) => {
-    loading.value = true
-    error.value = null
     try {
       const response = await $fetch('/api/subscriptions/user', {
         method: 'POST',
         body: { topic: topicId },
       })
-      if (response) {
-        subscriptions.value.push(response)
-      }
+
+      // Invalidate caches to refresh UI
+      await Promise.all([
+        refreshNuxtData('subscription:user:list'),
+        refreshNuxtData('subscription:topics:list'),
+      ])
+
       toast.add({
         title: $i18n.t('subscription_notifications.subscribe.success_title'),
         description: $i18n.t('subscription_notifications.subscribe.success_description'),
         color: 'success',
       })
+
       return response
     }
     catch (err) {
-      error.value = err instanceof Error ? err : new Error('Failed to subscribe')
       toast.add({
         title: $i18n.t('subscription_notifications.subscribe.error_title'),
         description: $i18n.t('subscription_notifications.subscribe.error_description'),
@@ -50,19 +68,28 @@ export function useUserSubscriptions() {
       })
       throw err
     }
-    finally {
-      loading.value = false
-    }
   }
 
+  /**
+   * Unsubscribe from a topic
+   *
+   * Deletes a subscription and invalidates related caches to ensure
+   * the UI reflects the updated subscription state.
+   *
+   * @param subscriptionId - ID of the subscription to delete
+   */
   const unsubscribe = async (subscriptionId: number) => {
-    loading.value = true
-    error.value = null
     try {
       await $fetch(`/api/subscriptions/user/${subscriptionId}`, {
         method: 'DELETE',
       })
-      subscriptions.value = subscriptions.value.filter(sub => sub.id !== subscriptionId)
+
+      // Invalidate caches to refresh UI
+      await Promise.all([
+        refreshNuxtData('subscription:user:list'),
+        refreshNuxtData('subscription:topics:list'),
+      ])
+
       toast.add({
         title: $i18n.t('subscription_notifications.unsubscribe.success_title'),
         description: $i18n.t('subscription_notifications.unsubscribe.success_description'),
@@ -70,7 +97,6 @@ export function useUserSubscriptions() {
       })
     }
     catch (err) {
-      error.value = err instanceof Error ? err : new Error('Failed to unsubscribe')
       toast.add({
         title: $i18n.t('subscription_notifications.unsubscribe.error_title'),
         description: $i18n.t('subscription_notifications.unsubscribe.error_description'),
@@ -78,21 +104,30 @@ export function useUserSubscriptions() {
       })
       throw err
     }
-    finally {
-      loading.value = false
-    }
   }
 
+  /**
+   * Bulk subscribe or unsubscribe from multiple topics
+   *
+   * Performs bulk subscription operations and invalidates related caches
+   * to ensure the UI reflects the updated subscription state.
+   *
+   * @param topicIds - Array of topic IDs to operate on
+   * @param action - Action to perform ('subscribe' or 'unsubscribe')
+   * @returns The bulk operation response
+   */
   const bulkSubscribe = async (topicIds: number[], action: 'subscribe' | 'unsubscribe') => {
-    loading.value = true
-    error.value = null
     try {
       const response = await $fetch('/api/subscriptions/user/bulk-subscribe', {
         method: 'POST',
         body: { topicIds, action },
       })
 
-      await fetchSubscriptions()
+      // Invalidate caches to refresh UI
+      await Promise.all([
+        refreshNuxtData('subscription:user:list'),
+        refreshNuxtData('subscription:topics:list'),
+      ])
 
       toast.add({
         title: action === 'subscribe'
@@ -107,7 +142,6 @@ export function useUserSubscriptions() {
       return response
     }
     catch (err) {
-      error.value = err instanceof Error ? err : new Error('Failed to perform bulk operation')
       toast.add({
         title: $i18n.t('subscription_notifications.bulk_operation.error_title'),
         description: $i18n.t('subscription_notifications.bulk_operation.error_description'),
@@ -115,25 +149,31 @@ export function useUserSubscriptions() {
       })
       throw err
     }
-    finally {
-      loading.value = false
-    }
   }
 
-  const isSubscribed = computed(() => {
-    return (topicId: number) => {
-      return subscriptions.value.some(sub => sub.topic === topicId && sub.status === 'ACTIVE')
-    }
-  })
+  /**
+   * Helper function to check if user is subscribed to a topic
+   *
+   * @param subscriptions - Array of user subscriptions
+   * @param topicId - Topic ID to check
+   * @returns True if user is subscribed and active
+   */
+  const isSubscribed = (subscriptions: UserSubscription[] | null, topicId: number) => {
+    return subscriptions?.some(sub => sub.topic === topicId && sub.status === 'ACTIVE') || false
+  }
 
-  const getSubscriptionByTopicId = (topicId: number) => {
-    return subscriptions.value.find(sub => sub.topic === topicId)
+  /**
+   * Helper function to get subscription by topic ID
+   *
+   * @param subscriptions - Array of user subscriptions
+   * @param topicId - Topic ID to find
+   * @returns The matching subscription or undefined
+   */
+  const getSubscriptionByTopicId = (subscriptions: UserSubscription[] | null, topicId: number) => {
+    return subscriptions?.find(sub => sub.topic === topicId)
   }
 
   return {
-    subscriptions,
-    loading,
-    error,
     fetchSubscriptions,
     subscribe,
     unsubscribe,

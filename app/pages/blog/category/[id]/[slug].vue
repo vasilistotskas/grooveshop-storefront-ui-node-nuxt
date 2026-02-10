@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { locale, t } = useI18n()
-const route = useRoute()
+const route = useRoute('blog-category-id')
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
 const localePath = useLocalePath()

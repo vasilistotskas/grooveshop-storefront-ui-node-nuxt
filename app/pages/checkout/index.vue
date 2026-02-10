@@ -112,14 +112,14 @@ if (payWays.value?.results?.[0]) {
   selectedPayWay.value = payWays.value.results[0]
 }
 
-// Initialize first country and fetch its regions on mount
-onMounted(async () => {
-  if (countries.value?.results?.[0] && !formState.country) {
-    formState.country = countries.value.results[0].alpha2
-    formState.countryId = countries.value.results[0].alpha2
+// Initialize first country and fetch its regions when countries data is available
+watch(countries, async (newCountries) => {
+  if (newCountries?.results?.[0] && !formState.country) {
+    formState.country = newCountries.results[0].alpha2
+    formState.countryId = newCountries.results[0].alpha2
     await fetchRegions()
   }
-})
+}, { immediate: true })
 
 // Watch for payment method changes and update selectedPayWay
 watch(() => formState.payWay, (newPayWayId) => {

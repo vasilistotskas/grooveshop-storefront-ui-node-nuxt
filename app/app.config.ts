@@ -12,6 +12,21 @@ export default defineAppConfig({
         error: 'text-xs',
       },
     },
+    input: {
+      slots: {
+        root: 'w-full',
+      },
+    },
+    selectMenu: {
+      slots: {
+        base: 'w-full',
+      },
+    },
+    textarea: {
+      slots: {
+        root: 'w-full',
+      },
+    },
     button: {
       slots: {
         base: 'cursor-pointer',

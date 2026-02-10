@@ -24,6 +24,12 @@ const selectorQuantity = ref(1)
 
 const productId = 'id' in route.params ? route.params.id : undefined
 
+// Track product view count (client-side only, fire-and-forget)
+const { trackView } = useViewCount()
+if (productId) {
+  trackView('product', Number(productId))
+}
+
 const { data: product, refresh: refreshProduct } = await useFetch<ProductDetail>(
   `/api/products/${productId}`,
   {
@@ -293,12 +299,6 @@ watch(
     await refreshProduct()
   },
 )
-
-onMounted(() => {
-  $fetch(`/api/products/${productId}/update-view-count`, {
-    method: 'POST',
-  })
-})
 
 useSeoMeta({
   title: () => productTitle.value,

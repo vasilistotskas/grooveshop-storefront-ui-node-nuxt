@@ -149,12 +149,11 @@ watch(
   { deep: true },
 )
 
-onMounted(() => {
-  if (localQuery.value && localQuery.value.length >= 2) {
-    allLoadedResults.value = { products: [], blogPosts: [] }
-    execute()
-  }
-})
+// Execute initial search if query is provided (e.g., from URL or parent component)
+if (localQuery.value && localQuery.value.length >= 2) {
+  allLoadedResults.value = { products: [], blogPosts: [] }
+  execute()
+}
 </script>
 
 <template>

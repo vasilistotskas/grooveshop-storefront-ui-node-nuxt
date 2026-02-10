@@ -33,7 +33,6 @@ const { data: addresses, status, error } = await useFetch(
       ordering: ordering,
       pageSize: pageSize,
     },
-    server: false, // User-specific data: client-side only
   },
 )
 
@@ -88,7 +87,7 @@ definePageMeta({
   <PageWrapper
     class="
       flex flex-col gap-6
-      md:mt-1 md:gap-8 md:!p-0
+      md:mt-1 md:gap-8 md:p-0!
     "
   >
     <div class="flex flex-col gap-4">

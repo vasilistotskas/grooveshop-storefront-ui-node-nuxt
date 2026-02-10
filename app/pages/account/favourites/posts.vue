@@ -106,12 +106,12 @@ definePageMeta({
       />
     </div>
     <LazyBlogPostFavouritesList
-      v-if="status !== 'pending' && favourites?.count"
+      v-if="status === 'success' && favourites?.count"
       :favourites="favourites?.results"
       :favourites-count="favourites?.count"
     />
     <div
-      v-if="status === 'pending'"
+      v-else-if="status === 'pending' || !favourites"
       class="grid w-full items-start gap-4"
     >
       <USkeleton
@@ -125,11 +125,23 @@ definePageMeta({
         "
       >
         <USkeleton
-          v-for="i in (favourites?.count || 4)"
+          v-for="i in 4"
           :key="i"
           class="h-72 w-full"
         />
       </div>
+    </div>
+    <div
+      v-else-if="status === 'success' && !favourites?.count"
+      class="flex flex-col items-center justify-center gap-4 py-12"
+    >
+      <UIcon
+        name="i-heroicons-heart"
+        class="h-16 w-16 text-gray-400"
+      />
+      <p class="text-gray-600">
+        {{ t('no_favourites') }}
+      </p>
     </div>
   </PageWrapper>
 </template>
@@ -137,4 +149,5 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Αγαπημένες Δημοσιεύσεις
+  no_favourites: Δεν έχετε αγαπημένες δημοσιεύσεις ακόμα
 </i18n>

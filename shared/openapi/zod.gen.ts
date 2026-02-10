@@ -4167,7 +4167,7 @@ export const zUserAddressWriteRequest = z.object({
     isMain: z.optional(z.boolean()).default(false),
     user: z.int(),
     country: z.string().min(1),
-    region: z.optional(z.string().min(1))
+    region: z.string().min(1)
 });
 
 export const zUserDetails = z.object({

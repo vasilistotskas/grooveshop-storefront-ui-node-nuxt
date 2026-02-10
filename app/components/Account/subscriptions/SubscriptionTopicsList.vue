@@ -1,12 +1,21 @@
 <script setup lang="ts">
 const { t } = useI18n()
 
-const { topics, loading: topicsLoading, error: topicsError, fetchTopics, groupedByCategory } = useSubscriptionTopics()
-const { subscriptions, loading: subscriptionsLoading, error: subscriptionsError, fetchSubscriptions, subscribe, unsubscribe } = useUserSubscriptions()
+// Fetch data at component setup level using composables
+const { fetchTopics, groupByCategory } = useSubscriptionTopics()
+const { fetchSubscriptions, subscribe, unsubscribe } = useUserSubscriptions()
 
-const loading = computed(() => topicsLoading.value || subscriptionsLoading.value)
+// Call composable methods at setup level and destructure AsyncData results
+const { data: topics, status: topicsStatus, error: topicsError } = fetchTopics()
+const { data: subscriptions, status: subscriptionsStatus, error: subscriptionsError } = fetchSubscriptions()
+
+// Compute loading state from status values
+const loading = computed(() => topicsStatus.value === 'pending' || subscriptionsStatus.value === 'pending')
 const error = computed(() => topicsError.value || subscriptionsError.value)
-const hasTopics = computed(() => topics.value.length > 0)
+const hasTopics = computed(() => topics.value && topics.value.length > 0)
+
+// Use helper function with data arrays
+const groupedByCategory = computed(() => groupByCategory(topics.value))
 
 const categoriesWithTopics = computed(() => {
   return Object.entries(groupedByCategory.value)
@@ -31,13 +40,6 @@ const handleUnsubscribe = async (subscriptionId: number) => {
     console.error('Failed to unsubscribe:', err)
   }
 }
-
-onMounted(async () => {
-  await Promise.all([
-    fetchTopics(),
-    fetchSubscriptions(),
-  ])
-})
 </script>
 
 <template>
@@ -89,7 +91,7 @@ onMounted(async () => {
         :key="category"
         :category="category"
         :topics="groupedByCategory[category] || []"
-        :subscriptions="subscriptions"
+        :subscriptions="subscriptions || []"
         @subscribe="handleSubscribe"
         @unsubscribe="handleUnsubscribe"
       />

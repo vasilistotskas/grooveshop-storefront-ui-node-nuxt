@@ -24,41 +24,13 @@
   --ui-bg: var(--ui-color-neutral-950);
   --ui-liked: #FF00BD;
   --ui-secondary: #3364FF;
-}
 
-/**
- * Smooth dark mode transitions
- * Adds smooth color transitions when switching between light and dark modes
- * Prevents flash of unstyled content (FOUC)
- */
-html {
-  color-scheme: light dark;
-}
-
-html,
-body,
-#__nuxt {
-  transition: background-color 300ms ease-in-out, color 300ms ease-in-out;
-}
-
-/* Apply smooth transitions to all elements that change color in dark mode */
-* {
-  transition-property: background-color, border-color, color, fill, stroke;
-  transition-duration: 300ms;
-  transition-timing-function: ease-in-out;
-}
-
-/* Preserve existing transitions for transform, opacity, and other properties */
-*[class*="transition-all"],
-*[class*="transition-transform"],
-*[class*="transition-opacity"],
-*[class*="transition-shadow"] {
-  transition-property: all;
-}
-
-/* Disable color transitions for elements that should change instantly */
-*[class*="transition-none"] {
-  transition: none;
+  /* Semantic colors - lighter shades for dark mode */
+  --ui-primary: var(--color-primary-400);
+  --ui-success: var(--color-success-400);
+  --ui-info: var(--color-info-400);
+  --ui-warning: var(--color-warning-400);
+  --ui-error: var(--color-error-400);
 }
 
 /* Respect reduced motion preferences */

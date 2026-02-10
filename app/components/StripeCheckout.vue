@@ -66,9 +66,11 @@ const createCheckoutSession = async () => {
   }
 }
 
-onMounted(() => {
+// Automatically create checkout session on component mount (client-side only)
+// This is a mutation operation that redirects the user to Stripe's checkout page
+if (import.meta.client) {
   createCheckoutSession()
-})
+}
 </script>
 
 <template>

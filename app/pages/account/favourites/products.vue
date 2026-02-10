@@ -125,13 +125,13 @@ definePageMeta({
       />
     </div>
     <LazyProductFavouritesList
-      v-if="status !== 'pending' && favourites?.count"
+      v-if="status === 'success' && favourites?.count"
       :favourites="favourites?.results"
       :favourites-total="favourites?.count"
       @refresh-favourites="refreshFavourites"
     />
     <div
-      v-else-if="status === 'pending'"
+      v-else-if="status === 'pending' || !favourites"
       class="grid w-full items-start gap-4"
     >
       <USkeleton
@@ -145,7 +145,7 @@ definePageMeta({
         "
       >
         <USkeleton
-          v-for="i in (favourites?.count || 4)"
+          v-for="i in 4"
           :key="i"
           class="h-72 w-full"
         />
@@ -156,7 +156,7 @@ definePageMeta({
       :error="error"
     />
     <LazyEmptyState
-      v-else-if="!favourites?.count"
+      v-else-if="status === 'success' && !favourites?.count"
       class="w-full"
       :title="$i18n.t('empty.title')"
     >

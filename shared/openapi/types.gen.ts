@@ -4269,7 +4269,7 @@ export type UserAddressWriteRequest = {
     /**
      * Region Code
      */
-    region?: string;
+    region: string;
 };
 
 export type UserDetails = {
