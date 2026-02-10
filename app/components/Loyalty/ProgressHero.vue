@@ -30,16 +30,7 @@ const currentTierName = computed(() => {
   return extractTranslated(summary.value.tier, 'name', locale.value) || t('no_tier')
 })
 
-const currentTierIcon = computed(() => {
-  if (!summary.value?.tier) return 'i-heroicons-trophy'
-  const name = currentTierName.value.toLowerCase()
-  if (name.includes('bronze') || name.includes('χάλκ')) return 'i-heroicons-shield-check'
-  if (name.includes('silver') || name.includes('αργυ')) return 'i-heroicons-star'
-  if (name.includes('gold') || name.includes('χρυσ')) return 'i-heroicons-trophy'
-  if (name.includes('platinum') || name.includes('πλατ')) return 'i-heroicons-sparkles'
-  if (name.includes('diamond') || name.includes('διαμ')) return 'i-heroicons-fire'
-  return 'i-heroicons-star'
-})
+
 
 const xpProgress = computed(() => {
   if (!summary.value || !tiers.value || currentTierIndex.value === -1) return 0
@@ -91,7 +82,15 @@ const ready = computed(() => !loading.value && !error.value && summary.value)
             sm:size-24
           "
         >
-          <UIcon :name="currentTierIcon" class="size-10 text-white sm:size-12" />
+          <ImgWithFallback
+            :src="summary?.tier?.mainImagePath"
+            :alt="currentTierName"
+            :width="48"
+            :height="48"
+            fit="contain"
+            :background="'transparent'"
+            class="size-10 object-contain sm:size-12"
+          />
         </div>
         <UBadge
           :label="String(summary!.level)"

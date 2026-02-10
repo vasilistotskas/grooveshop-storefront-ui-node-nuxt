@@ -1020,7 +1020,13 @@ export const zLoyaltyTier = z.object({
     }).readonly(),
     pointsMultiplier: z.number().gt(-1000).lt(1000).register(z.globalRegistry, {
         description: 'Multiplier applied to earned points for users in this tier'
-    }).readonly()
+    }).readonly(),
+    icon: z.optional(z.union([
+        z.string(),
+        z.null()
+    ])),
+    mainImagePath: z.string().readonly(),
+    iconFilename: z.string().readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
@@ -5154,7 +5160,11 @@ export const zLoyaltyTierWritable = z.object({
             name: z.optional(z.string()),
             description: z.optional(z.string())
         }))
-    })
+    }),
+    icon: z.optional(z.union([
+        z.string(),
+        z.null()
+    ]))
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });

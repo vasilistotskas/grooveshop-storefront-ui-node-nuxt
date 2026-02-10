@@ -1293,6 +1293,9 @@ export type LoyaltyTier = {
      * Multiplier applied to earned points for users in this tier
      */
     readonly pointsMultiplier: number;
+    icon?: string | null;
+    readonly mainImagePath: string;
+    readonly iconFilename: string;
 };
 
 /**
@@ -4870,6 +4873,7 @@ export type LoyaltyTierWritable = {
             description?: string;
         };
     };
+    icon?: string | null;
 };
 
 /**

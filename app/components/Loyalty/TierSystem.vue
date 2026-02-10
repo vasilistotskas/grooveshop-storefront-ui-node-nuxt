@@ -37,15 +37,13 @@ const getTierDescription = (tier: LoyaltyTier) => extractTranslated(tier, 'descr
 const isCurrentTier = (tier: LoyaltyTier) => summary.value?.tier?.id === tier.id
 const isTierUnlocked = (tier: LoyaltyTier) => summary.value ? summary.value.level >= tier.requiredLevel : false
 
-const getTierIcon = (tier: LoyaltyTier) => {
-  const name = getTierName(tier).toLowerCase()
-  if (name.includes('bronze') || name.includes('χάλκ')) return 'i-heroicons-shield-check'
-  if (name.includes('silver') || name.includes('αργυ')) return 'i-heroicons-star'
-  if (name.includes('gold') || name.includes('χρυσ')) return 'i-heroicons-trophy'
-  if (name.includes('platinum') || name.includes('πλατ')) return 'i-heroicons-sparkles'
-  if (name.includes('diamond') || name.includes('διαμ')) return 'i-heroicons-fire'
-  return 'i-heroicons-star'
+const hasTierImage = (tier: LoyaltyTier) => !!(tier.mainImagePath || tier.icon)
+
+const getTierImageUrl = (tier: LoyaltyTier) => {
+  return tier.mainImagePath || ''
 }
+
+
 
 const getMultiplierBonus = (multiplier: string | number) => {
   const mult = typeof multiplier === 'string' ? Number.parseFloat(multiplier) : multiplier
@@ -69,8 +67,9 @@ const tierStepperItems = computed(() => {
     value: tier.id.toString(),
     title: getTierName(tier),
     description: `${t('level_value', { level: tier.requiredLevel })}+`,
-    icon: getTierIcon(tier),
+    icon: undefined,
     disabled: !isTierUnlocked(tier),
+    tier,
   }))
 })
 
@@ -79,7 +78,7 @@ const tierAccordionItems = computed(() => {
   return tiersWithXpRange.value.map((tier: any) => ({
     value: tier.id.toString(),
     label: getTierName(tier),
-    icon: getTierIcon(tier),
+    icon: undefined,
     defaultOpen: isCurrentTier(tier),
     tier,
   }))
@@ -189,6 +188,16 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
           >
             <template #default="{ item }">
               <div class="flex items-center gap-3">
+                <ImgWithFallback
+                  v-if="hasTierImage(item.tier)"
+                  :src="getTierImageUrl(item.tier)"
+                  :alt="item.label"
+                  :width="24"
+                  :height="24"
+                  fit="contain"
+                  :background="'transparent'"
+                  class="size-6 shrink-0 object-contain"
+                />
                 <span class="font-medium">{{ item.label }}</span>
                 <UBadge
                   v-if="isCurrentTier(item.tier)"
