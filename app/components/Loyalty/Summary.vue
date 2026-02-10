@@ -91,13 +91,13 @@ const handleRetry = () => {
           <template #header>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <UIcon name="i-heroicons-currency-dollar" class="size-5 text-warning-600 dark:text-warning-400" />
+                <UIcon name="i-heroicons-currency-dollar" class="size-6 text-warning-600 dark:text-warning-400" />
                 <h3 class="text-lg font-semibold">
                   {{ t('points_section_title') }}
                 </h3>
               </div>
               <UTooltip :text="t('points_tooltip')">
-                <UIcon name="i-heroicons-information-circle" class="size-5 text-gray-400 cursor-help" />
+                <UIcon name="i-heroicons-information-circle" class="size-6 text-gray-400 cursor-help" />
               </UTooltip>
             </div>
           </template>
@@ -151,7 +151,7 @@ const handleRetry = () => {
             <!-- Points Info -->
             <div class="space-y-3">
               <div class="flex items-start gap-3 p-3 bg-warning-50 dark:bg-warning-950 rounded-lg">
-                <UIcon name="i-heroicons-light-bulb" class="size-5 text-warning-600 dark:text-warning-400 mt-0.5 shrink-0" />
+                <UIcon name="i-heroicons-light-bulb" class="size-6 text-warning-600 dark:text-warning-400 mt-0.5 shrink-0" />
                 <div class="text-sm text-gray-700 dark:text-gray-300">
                   <p class="font-medium mb-1">
                     {{ t('points_info_title') }}
@@ -170,13 +170,13 @@ const handleRetry = () => {
           <template #header>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <UIcon name="i-heroicons-trophy" class="size-5 text-primary-600 dark:text-primary-400" />
+                <UIcon name="i-heroicons-trophy" class="size-6 text-primary-600 dark:text-primary-400" />
                 <h3 class="text-lg font-semibold">
                   {{ t('level_section_title') }}
                 </h3>
               </div>
               <UTooltip :text="t('level_tooltip')">
-                <UIcon name="i-heroicons-information-circle" class="size-5 text-gray-400 cursor-help" />
+                <UIcon name="i-heroicons-information-circle" class="size-6 text-gray-400 cursor-help" />
               </UTooltip>
             </div>
           </template>
@@ -248,7 +248,7 @@ const handleRetry = () => {
             <!-- Tier Description -->
             <div v-if="tierDescription" class="p-3 bg-primary-50 dark:bg-primary-950 rounded-lg">
               <div class="flex items-start gap-3">
-                <UIcon name="i-heroicons-sparkles" class="size-5 text-primary-600 dark:text-primary-400 mt-0.5 shrink-0" />
+                <UIcon name="i-heroicons-sparkles" class="size-6 text-primary-600 dark:text-primary-400 mt-0.5 shrink-0" />
                 <div class="text-sm">
                   <p class="font-medium text-gray-700 dark:text-gray-300 mb-1">
                     {{ tierName }}
@@ -278,7 +278,7 @@ const handleRetry = () => {
                 {{ t('shop_to_earn') }}
               </p>
             </div>
-            <UIcon name="i-heroicons-arrow-right" class="size-5 text-gray-400" />
+            <UIcon name="i-heroicons-arrow-right" class="size-6 text-gray-400" />
           </div>
         </UCard>
 
@@ -295,7 +295,7 @@ const handleRetry = () => {
                 {{ t('how_it_works') }}
               </p>
             </div>
-            <UIcon name="i-heroicons-arrow-right" class="size-5 text-gray-400" />
+            <UIcon name="i-heroicons-arrow-right" class="size-6 text-gray-400" />
           </div>
         </UCard>
       </div>

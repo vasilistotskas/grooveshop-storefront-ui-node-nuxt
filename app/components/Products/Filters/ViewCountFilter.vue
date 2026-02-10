@@ -102,7 +102,7 @@ const formattedValue = computed(() => {
         bg-neutral-50 dark:bg-neutral-800/50
       "
     >
-      <span class="text-sm text-neutral-600 dark:text-neutral-400">
+      <span class="text-sm text-neutral-600 dark:text-neutral-300">
         {{ t('minimum_views') }}
       </span>
       <div class="flex items-center gap-1.5">

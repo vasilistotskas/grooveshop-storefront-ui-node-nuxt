@@ -122,7 +122,7 @@ const handleToggleFilters = () => {
 
       <!-- Results count -->
       <div
-        class="text-sm text-neutral-600 dark:text-neutral-400"
+        class="text-sm text-neutral-600 dark:text-neutral-300"
         role="status"
         aria-live="polite"
         aria-atomic="true"

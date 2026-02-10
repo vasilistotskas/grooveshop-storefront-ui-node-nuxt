@@ -259,7 +259,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           <span
             class="
               text-sm text-neutral-500 line-through
-              dark:text-neutral-400
+              dark:text-neutral-300
             "
           >
             {{ $i18n.n(product.price, 'currency') }}
@@ -271,7 +271,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             <span
               class="
                 text-xs text-neutral-600
-                dark:text-neutral-400
+                dark:text-neutral-300
               "
             >
               {{ t('total_price') }}
@@ -289,7 +289,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             v-if="showVat && product.vatPercent"
             class="
               text-xs text-neutral-600
-              dark:text-neutral-400
+              dark:text-neutral-300
             "
           >
             {{ t('vat_included') }} {{ product.vatPercent }}%

@@ -4,6 +4,9 @@ const { t } = useI18n()
 const { user } = useUserSession()
 const localePath = useLocalePath()
 
+const { data: loyaltySettings } = useLoyalty().fetchSettings()
+const loyaltyEnabled = computed(() => loyaltySettings.value?.enabled ?? false)
+
 defineRouteRules({
   robots: false,
 })
@@ -120,7 +123,7 @@ const activityStats = computed(() => {
               <div
                 class="
                   mt-3 flex items-center gap-2 text-sm text-neutral-600
-                  dark:text-neutral-400
+                  dark:text-neutral-300
                 "
               >
                 <UIcon name="i-heroicons-envelope" class="size-5" />
@@ -129,6 +132,8 @@ const activityStats = computed(() => {
             </div>
           </div>
         </UCard>
+
+        <LoyaltyProgressHero v-if="loyaltyEnabled" />
 
         <div
           class="
@@ -168,7 +173,7 @@ const activityStats = computed(() => {
                 <p
                   class="
                     text-xs font-medium tracking-wide text-neutral-500 uppercase
-                    dark:text-neutral-400
+                    dark:text-neutral-300
                   "
                 >
                   {{ stat.label }}
@@ -221,7 +226,7 @@ const activityStats = computed(() => {
               <p
                 class="
                   mt-1 text-xs text-neutral-600
-                  dark:text-neutral-400
+                  dark:text-neutral-300
                 "
               >
                 {{ activity.value }}: {{ activity.description }}
@@ -244,7 +249,7 @@ const activityStats = computed(() => {
               <p
                 class="
                   mt-1 text-sm text-neutral-600
-                  dark:text-neutral-400
+                  dark:text-neutral-300
                 "
               >
                 {{ t('account.quick_actions_description') }}
@@ -311,7 +316,7 @@ const activityStats = computed(() => {
                   <p
                     class="
                       mt-0.5 text-sm text-neutral-600
-                      dark:text-neutral-400
+                      dark:text-neutral-300
                     "
                   >
                     {{ t(`account.menu_description.${item.route.name}`) }}
@@ -408,7 +413,7 @@ const activityStats = computed(() => {
               <p
                 class="
                   mt-1 text-sm text-neutral-600
-                  dark:text-neutral-400
+                  dark:text-neutral-300
                 "
               >
                 {{ user?.email }}
@@ -416,6 +421,8 @@ const activityStats = computed(() => {
             </div>
           </div>
         </UCard>
+
+        <LoyaltyProgressHero v-if="loyaltyEnabled" />
 
         <div class="grid grid-cols-2 gap-3">
           <UCard
@@ -442,7 +449,7 @@ const activityStats = computed(() => {
                   class="
                     text-[10px] font-medium tracking-wide text-neutral-500
                     uppercase
-                    dark:text-neutral-400
+                    dark:text-neutral-300
                   "
                 >
                   {{ stat.label }}
@@ -495,7 +502,7 @@ const activityStats = computed(() => {
               <p
                 class="
                   mt-0.5 text-xs text-neutral-600
-                  dark:text-neutral-400
+                  dark:text-neutral-300
                 "
               >
                 {{ activity.description }}
@@ -514,7 +521,7 @@ const activityStats = computed(() => {
           <span
             class="
               text-sm font-semibold text-neutral-600
-              dark:text-neutral-400
+              dark:text-neutral-300
             "
           >
             {{ t('account.quick_actions') }}

@@ -146,7 +146,7 @@ watch(
         bg-neutral-50 dark:bg-neutral-800/50
       "
     >
-      <span class="text-sm text-neutral-600 dark:text-neutral-400">
+      <span class="text-sm text-neutral-600 dark:text-neutral-300">
         {{ t('selected_range') }} :
       </span>
       <span class="text-sm font-semibold text-primary-600 dark:text-primary-400">
@@ -174,7 +174,7 @@ watch(
       <div class="space-y-1.5">
         <label
           for="price-min-input"
-          class="text-sm font-medium text-neutral-500 dark:text-neutral-400"
+          class="text-sm font-medium text-neutral-500 dark:text-neutral-300"
         >
           {{ t('minimum') }}
         </label>
@@ -198,7 +198,7 @@ watch(
       <div class="space-y-1.5">
         <label
           for="price-max-input"
-          class="text-sm font-medium text-neutral-500 dark:text-neutral-400"
+          class="text-sm font-medium text-neutral-500 dark:text-neutral-300"
         >
           {{ t('maximum') }}
         </label>

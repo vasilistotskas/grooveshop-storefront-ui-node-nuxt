@@ -204,7 +204,7 @@ const isValueDisabled = (valueId: string) => {
           name="i-heroicons-tag"
           class="mx-auto size-10 text-neutral-300 dark:text-neutral-600"
         />
-        <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+        <p class="mt-2 text-sm text-neutral-500 dark:text-neutral-300">
           {{ t('no_attributes') }}
         </p>
       </div>
