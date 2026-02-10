@@ -1,3 +1,20 @@
+# [3.69.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.68.0...v3.69.0) (2026-02-10)
+
+
+### Bug Fixes
+
+* route types ([3ee2102](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3ee2102f3c48dae2576a2c31ef4fbe50e17618b4))
+* tests ([61769c6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/61769c67614e90be14772e6c5a5253505c83560e))
+
+
+### Features
+
+* loyalty progress ([a743b55](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a743b55750d5c4fc32c4c5779bebc67f89360fa6))
+* loyalty progress ([1829dda](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1829dda83609a8a8d54dc6d0a015b9690b1b6f9a))
+* loyalty progress ([c898907](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c898907e5fd57bcf4eed59c8b10e7d2dfb6ac76d))
+* loyalty progress ([8f9d052](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8f9d0520f086871fdb6944403cb0350ee3217804))
+* loyalty progress, code cleanup ([c6de698](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c6de698236352a02008fb4deca1a41fcfad4394d))
+
 # [3.68.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.67.0...v3.68.0) (2026-02-09)
 
 
