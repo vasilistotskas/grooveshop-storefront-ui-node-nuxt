@@ -1117,6 +1117,11 @@ definePageMeta({
                 @redeemed="onLoyaltyRedeemed"
               />
             </template>
+
+            <template #points-earned>
+              <!-- Loyalty Points Earned Preview -->
+              <CheckoutPointsEarned />
+            </template>
           </CheckoutSidebar>
         </div>
       </div>

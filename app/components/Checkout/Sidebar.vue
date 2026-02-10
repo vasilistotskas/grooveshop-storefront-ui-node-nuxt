@@ -46,6 +46,7 @@ defineSlots<{
   'pay-ways'(props: object): any
   'items'(props: object): any
   'loyalty'(props: object): any
+  'points-earned'(props: object): any
   'button'(props: object): any
 }>()
 </script>
@@ -142,6 +143,11 @@ defineSlots<{
               "
             >{{ $i18n.n(payWayCost, 'currency') }}</span>
           </div>
+        </div>
+
+        <!-- Points Earned Slot -->
+        <div v-if="$slots['points-earned']" class="pt-1">
+          <slot name="points-earned" />
         </div>
 
         <div
