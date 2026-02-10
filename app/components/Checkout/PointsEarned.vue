@@ -117,7 +117,7 @@ watch(
 
       <UBadge
         color="neutral"
-        variant="subtle"
+        variant="solid"
         size="lg"
         class="shrink-0 tabular-nums font-bold"
       >

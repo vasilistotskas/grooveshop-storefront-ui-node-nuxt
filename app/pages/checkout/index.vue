@@ -33,7 +33,7 @@ const MAX_RETRIES = 3
 const paymentIntentId = ref<string | null>(null) // Store payment intent ID for Stripe
 
 // Loyalty discount state
-const loyaltyDiscount = ref<{ amount: number, currency: string } | null>(null)
+const loyaltyDiscount = ref<{ amount: number, currency: string, points: number } | null>(null)
 
 // Stock error state
 const stockError = ref<{
@@ -461,6 +461,7 @@ const handleOnlinePaymentFlow = async () => {
       phone: formState.phone,
       customerNotes: formState.customerNotes,
       paymentIntentId: paymentIntentId.value, // Include payment intent ID
+      loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
     }
 
     await $fetch('/api/orders', {
@@ -535,6 +536,7 @@ const handleOfflinePaymentFlow = async () => {
     zipcode: formState.zipcode,
     phone: formState.phone,
     customerNotes: formState.customerNotes,
+    loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
   }
 
   try {
@@ -642,9 +644,13 @@ const backToForm = () => {
 }
 
 // Handle loyalty points redemption
-const onLoyaltyRedeemed = (discount: { amount: number, currency: string }) => {
+const onLoyaltyRedeemed = (discount: { amount: number, currency: string, points: number }) => {
   loyaltyDiscount.value = discount
-  console.log('Loyalty discount applied:', discount)
+}
+
+// Handle loyalty discount cleared
+const onLoyaltyCleared = () => {
+  loyaltyDiscount.value = null
 }
 
 // Release reservations if user leaves checkout without completing
@@ -1000,7 +1006,7 @@ definePageMeta({
               </UFormField>
             </div>
 
-            <div class="flex justify-end pt-4">
+            <div class="flex justify-end">
               <UButton
                 type="submit"
                 size="lg"
@@ -1044,6 +1050,10 @@ definePageMeta({
                 :ui="{
                   item: 'flex cursor-pointer items-center',
                   wrapper: 'ms-4',
+                  root: `
+                    max-h-80 overflow-y-auto
+                    md:max-h-120
+                  `,
                 }"
               >
                 <template #label="{ item }">
@@ -1104,18 +1114,22 @@ definePageMeta({
           <CheckoutSidebar
             :shipping-price="shippingPrice"
             :show-payment-fee="currentStep === 1"
+            :loyalty-discount="loyaltyDiscount?.amount ?? 0"
           >
             <template #items>
               <CheckoutItems />
             </template>
 
             <template #loyalty>
-              <!-- Loyalty Points Redemption -->
+              <!-- Loyalty Points Redemption (logged in) -->
               <LoyaltyRedemption
                 v-if="loggedIn"
                 :currency="'EUR'"
                 @redeemed="onLoyaltyRedeemed"
+                @cleared="onLoyaltyCleared"
               />
+              <!-- Guest CTA to sign up and earn points -->
+              <CheckoutGuestLoyaltyCTA v-else />
             </template>
 
             <template #points-earned>

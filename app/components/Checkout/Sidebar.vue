@@ -2,6 +2,7 @@
 const props = defineProps({
   shippingPrice: { type: Number, required: true },
   showPaymentFee: { type: Boolean, default: false },
+  loyaltyDiscount: { type: Number, default: 0 },
 })
 
 const { $i18n } = useNuxtApp()
@@ -39,7 +40,7 @@ const payWayName = computed(() => {
 const checkoutTotal = computed(() => {
   if (!cart.value) return 0
   const paymentFee = props.showPaymentFee ? payWayCost.value : 0
-  return cart.value.totalPrice + props.shippingPrice + paymentFee
+  return Math.max(0, cart.value.totalPrice + props.shippingPrice + paymentFee - props.loyaltyDiscount)
 })
 
 defineSlots<{
@@ -55,7 +56,15 @@ defineSlots<{
   <aside
     id="checkout-sidebar"
   >
-    <UCard class="w-full">
+    <UCard
+      class="w-full"
+      :ui="{
+        body: `
+          py-1
+          sm:py-2
+        `,
+      }"
+    >
       <template #header>
         <div class="flex items-center">
           <h3
@@ -143,6 +152,23 @@ defineSlots<{
               "
             >{{ $i18n.n(payWayCost, 'currency') }}</span>
           </div>
+          <div
+            v-if="loyaltyDiscount > 0"
+            class="flex items-center justify-between"
+          >
+            <span
+              class="
+                text-green-600
+                dark:text-green-400
+              "
+            >{{ t('loyalty_discount') }}</span>
+            <span
+              class="
+                font-bold text-green-600
+                dark:text-green-400
+              "
+            >-{{ $i18n.n(loyaltyDiscount, 'currency') }}</span>
+          </div>
         </div>
 
         <!-- Points Earned Slot -->
@@ -208,11 +234,12 @@ defineSlots<{
 <i18n lang="yaml">
 el:
   title: Ολοκλήρωση αγοράς
-  items_unique: Είδη
+  items_unique: Προϊόντα
   shipping: Μεταφορικά
   free: Δωρεάν
   total: Σύνολο
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
+  loyalty_discount: Έκπτωση πόντων
   vat_included: Στις τιμές συμπεριλαμβάνεται Φ.Π.Α.
   need_help: Χρειάζεσαι βοήθεια;
 </i18n>

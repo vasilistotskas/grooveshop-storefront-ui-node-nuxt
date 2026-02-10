@@ -37,21 +37,15 @@ const transactionParams = computed(() => {
   return params
 })
 
-// Fetch transactions with new API - automatically refetches when params change
-const { data: transactions, status, error, refresh } = useLoyalty().fetchTransactions(transactionParams.value)
+// Fetch transactions - pass the computed ref so useAsyncData re-fetches reactively
+const { data: transactions, status, error, refresh } = useLoyalty().fetchTransactions(transactionParams)
 
 // Computed for loading state (compatible with template)
 const loading = computed(() => status.value === 'pending')
 
-// Watch for filter changes and refresh
+// Reset to page 1 when filters change
 watch([selectedType, dateFrom, dateTo], () => {
   currentPage.value = 1
-  refresh()
-})
-
-// Watch for page changes and refresh
-watch(currentPage, () => {
-  refresh()
 })
 
 const handleRetry = () => {
@@ -142,9 +136,7 @@ const columns: TableColumn<PointsTransaction>[] = [
 
 // Pagination
 const totalPages = computed(() => {
-  if (!transactions.value?.count) return 1
-  const pageSize = 10 // Default page size
-  return Math.ceil(transactions.value.count / pageSize)
+  return transactions.value?.totalPages ?? 1
 })
 </script>
 
@@ -243,7 +235,7 @@ const totalPages = computed(() => {
           <UPagination
             v-model:page="currentPage"
             :total="transactions.count"
-            :items-per-page="10"
+            :items-per-page="transactions.pageSize ?? 12"
             color="neutral"
           />
         </div>

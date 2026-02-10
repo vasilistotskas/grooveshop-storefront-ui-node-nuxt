@@ -26,7 +26,7 @@
   --ui-secondary: #3364FF;
 
   /* Semantic colors - lighter shades for dark mode */
-  --ui-primary: var(--color-primary-400);
+  --ui-primary: var(--color-primary-100);
   --ui-success: var(--color-success-400);
   --ui-info: var(--color-info-400);
   --ui-warning: var(--color-warning-400);

@@ -19,6 +19,15 @@ export const useAccountMenus = () => {
     const baseMenus: IMenuItem[] = [
       {
         type: 'link',
+        text: $i18n.t('account'),
+        route: {
+          name: 'account',
+          path: '/account',
+        },
+        icon: 'i-heroicons-user',
+      },
+      {
+        type: 'link',
         text: $i18n.t('favourites'),
         route: {
           name: 'account-favourites-posts',

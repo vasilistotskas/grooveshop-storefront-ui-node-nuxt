@@ -517,10 +517,14 @@ definePageMeta({
               </div>
             </div>
 
-            <!-- Loyalty Points Badge -->
+            <!-- Loyalty Points Badge (logged in) / Guest CTA -->
             <LoyaltyPointsBadge
               v-if="loggedIn && product?.id"
               :product-id="product.id"
+            />
+            <ProductGuestLoyaltyCTA
+              v-else-if="product?.finalPrice"
+              :product-price="product.finalPrice"
             />
 
             <USeparator />

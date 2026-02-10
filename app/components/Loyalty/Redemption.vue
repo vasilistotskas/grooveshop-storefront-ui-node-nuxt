@@ -6,7 +6,8 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'redeemed', discount: { amount: number, currency: string }): void
+  (e: 'redeemed', discount: { amount: number, currency: string, points: number }): void
+  (e: 'cleared'): void
 }
 
 const props = defineProps<Props>()
@@ -20,9 +21,8 @@ const toast = useToast()
 const loyalty = useLoyalty()
 const { data: summary, status } = loyalty.fetchSummary()
 
-// Component state
-const isRedeeming = ref(false)
-const redemptionResult = ref<RedeemPointsResponse | null>(null)
+// Component state - no API call, just local intent
+const applied = ref(false)
 const redemptionError = ref<string | null>(null)
 
 // Computed for loading state (compatible with template)
@@ -31,10 +31,13 @@ const loading = computed(() => status.value === 'pending')
 // Computed properties
 const availableBalance = computed(() => summary.value?.pointsBalance || 0)
 
-// Update displayed balance after redemption
+// Track applied points for display
+const appliedPoints = ref(0)
+
+// Update displayed balance after applying
 const displayedBalance = computed(() => {
-  if (redemptionResult.value) {
-    return redemptionResult.value.remainingBalance
+  if (applied.value) {
+    return availableBalance.value - appliedPoints.value
   }
   return availableBalance.value
 })
@@ -55,7 +58,8 @@ const redemptionSchema = z.object({
     .refine(
       val => val <= availableBalance.value,
       { error: t('validation.exceeds_balance') },
-    ),
+    )
+    .optional(),
 })
 
 // Form state
@@ -63,10 +67,8 @@ const formState = reactive({
   pointsToRedeem: undefined as number | undefined,
 })
 
-// Handle redemption
+// Handle redemption - just store intent locally, actual redemption happens at order creation
 const handleRedeem = async () => {
-  if (isRedeeming.value) return
-
   // Clear previous errors
   redemptionError.value = null
 
@@ -80,52 +82,39 @@ const handleRedeem = async () => {
     return
   }
 
-  isRedeeming.value = true
+  const points = formState.pointsToRedeem!
+  const discountAmount = parseFloat(calculateDiscount(points))
 
-  try {
-    const result = await loyalty.redeemPoints({
-      pointsAmount: formState.pointsToRedeem!,
+  applied.value = true
+  appliedPoints.value = points
+
+  // Emit intent with points count so checkout page can include it in the order request
+  emit('redeemed', {
+    amount: discountAmount,
+    currency: props.currency,
+    points,
+  })
+
+  // Show success toast
+  toast.add({
+    title: t('discount_applied'),
+    description: t('redemption_success_description', {
+      points,
+      amount: discountAmount,
       currency: props.currency,
-    })
+    }),
+    color: 'success',
+  })
 
-    redemptionResult.value = result
+  // Reset form
+  formState.pointsToRedeem = undefined
+}
 
-    // Emit redeemed event with discount details
-    emit('redeemed', {
-      amount: result.discountAmount,
-      currency: result.currency,
-    })
-
-    // Show success toast
-    toast.add({
-      title: t('redemption_success'),
-      description: t('redemption_success_description', {
-        points: result.pointsRedeemed,
-        amount: result.discountAmount,
-        currency: result.currency,
-      }),
-      color: 'success',
-    })
-
-    // Reset form
-    formState.pointsToRedeem = undefined
-
-    // Note: redeemPoints automatically refreshes the summary cache
-  }
-  catch (err: any) {
-    // Handle API errors
-    const errorMessage = err.data?.detail || err.message || t('redemption_error')
-    redemptionError.value = errorMessage
-
-    toast.add({
-      title: t('redemption_failed'),
-      description: errorMessage,
-      color: 'error',
-    })
-  }
-  finally {
-    isRedeeming.value = false
-  }
+// Allow clearing the applied discount
+const clearRedemption = () => {
+  applied.value = false
+  appliedPoints.value = 0
+  emit('cleared')
 }
 </script>
 
@@ -179,28 +168,28 @@ const handleRedeem = async () => {
         </div>
       </div>
 
-      <!-- Redemption result (if successful) -->
+      <!-- Applied discount display -->
       <UAlert
-        v-if="redemptionResult"
+        v-if="applied"
         color="success"
         variant="soft"
         :title="t('discount_applied')"
         icon="i-heroicons-check-circle"
         :close="{ variant: 'link' }"
-        @update:open="(value) => { if (!value) redemptionResult = null }"
+        @update:open="(value) => { if (!value) clearRedemption() }"
       >
         <template #description>
           <div class="space-y-1 text-sm">
             <p class="flex items-center justify-between">
               <span>{{ t('discount_amount') }}:</span>
               <strong class="text-success-700 dark:text-success-300">
-                {{ redemptionResult.discountAmount }} {{ redemptionResult.currency }}
+                {{ calculateDiscount(appliedPoints) }} {{ currency }}
               </strong>
             </p>
             <p class="flex items-center justify-between">
               <span>{{ t('remaining_balance') }}:</span>
               <strong class="text-success-700 dark:text-success-300">
-                {{ redemptionResult.remainingBalance }}
+                {{ displayedBalance }}
               </strong>
             </p>
           </div>
@@ -212,13 +201,19 @@ const handleRedeem = async () => {
         <div class="space-y-4">
           <!-- Number input for points -->
           <div class="space-y-2">
-            <UFormField :label="t('points_to_redeem')" name="pointsToRedeem">
-              <UInput
+            <UFormField
+              :label="t('points_to_redeem')"
+              name="pointsToRedeem"
+              :ui="{
+                label: 'hidden',
+              }"
+            >
+              <UInputNumber
                 v-model="formState.pointsToRedeem"
-                type="number"
                 :min="0"
                 :max="availableBalance"
-                :disabled="availableBalance === 0 || isRedeeming"
+                :step="1"
+                :disabled="availableBalance === 0 || applied"
                 :placeholder="t('enter_points')"
               />
             </UFormField>
@@ -243,10 +238,9 @@ const handleRedeem = async () => {
           <UButton
             type="submit"
             size="lg"
-            color="primary"
+            color="secondary"
             block
-            :loading="isRedeeming"
-            :disabled="availableBalance === 0 || !formState.pointsToRedeem || formState.pointsToRedeem === 0 || isRedeeming"
+            :disabled="availableBalance === 0 || !formState.pointsToRedeem || formState.pointsToRedeem === 0 || applied"
           >
             {{ t('redeem_button', { amount: calculateDiscount(formState.pointsToRedeem || 0) }) }}
           </UButton>

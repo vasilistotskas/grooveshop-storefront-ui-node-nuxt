@@ -106,46 +106,51 @@ export const useLoyalty = () => {
   /**
    * Fetch the user's loyalty transaction history with optional filters
    *
-   * Uses useAsyncData with dynamic key based on filter parameters for proper caching.
+   * Accepts a reactive ref/computed/getter so filters and pagination
+   * automatically trigger a re-fetch via useAsyncData's watch option.
    *
-   * @param params - Optional filter parameters
+   * @param params - Optional reactive filter parameters
    * @param params.page - Page number for pagination
    * @param params.transactionType - Filter by transaction type (EARN, REDEEM, EXPIRE, ADJUST, BONUS)
    * @param params.dateFrom - Filter transactions from this date (ISO format)
    * @param params.dateTo - Filter transactions to this date (ISO format)
    */
-  const fetchTransactions = (params?: {
+  const fetchTransactions = (params?: MaybeRefOrGetter<{
     page?: number
     transactionType?: string
     dateFrom?: string
     dateTo?: string
-  }) => {
-    // Build query parameters, only including defined values
-    const query: Record<string, string | number> = {}
-
-    if (params?.page !== undefined) {
-      query.page = params.page
-    }
-    if (params?.transactionType !== undefined) {
-      query.transaction_type = params.transactionType
-    }
-    if (params?.dateFrom !== undefined) {
-      query.date_from = params.dateFrom
-    }
-    if (params?.dateTo !== undefined) {
-      query.date_to = params.dateTo
-    }
-
-    // Create unique cache key based on parameters
-    const cacheKey = `loyalty-transactions-${JSON.stringify(params || {})}`
-
+  }>) => {
     return useAsyncData<PaginatedPointsTransactionList>(
-      cacheKey,
-      () => $fetch<PaginatedPointsTransactionList>('/api/loyalty/transactions', {
-        method: 'GET',
-        headers: useRequestHeaders(),
-        query,
-      }),
+      'loyalty-transactions',
+      () => {
+        // Resolve reactive params inside the fetch function so each
+        // execution reads the latest values
+        const resolved = toValue(params)
+        const query: Record<string, string | number> = {}
+
+        if (resolved?.page !== undefined) {
+          query.page = resolved.page
+        }
+        if (resolved?.transactionType !== undefined) {
+          query.transaction_type = resolved.transactionType
+        }
+        if (resolved?.dateFrom !== undefined) {
+          query.created_after = resolved.dateFrom
+        }
+        if (resolved?.dateTo !== undefined) {
+          query.created_before = resolved.dateTo
+        }
+
+        return $fetch<PaginatedPointsTransactionList>('/api/loyalty/transactions', {
+          method: 'GET',
+          headers: useRequestHeaders(),
+          query,
+        })
+      },
+      {
+        watch: [() => toValue(params)],
+      },
     )
   }
 
