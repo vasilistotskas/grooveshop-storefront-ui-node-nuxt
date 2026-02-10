@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const { enabled } = useAuthPreviewMode()
-const route = useRoute()
+const route = useRoute('account-favourites-products')
 const { user } = useUserSession()
 const { $i18n } = useNuxtApp()
 const userStore = useUserStore()

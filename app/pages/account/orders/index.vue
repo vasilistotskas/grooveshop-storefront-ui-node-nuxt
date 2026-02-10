@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { t } = useI18n()
-const route = useRoute()
+const route = useRoute('account-orders')
 const { user } = useUserSession()
 const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()

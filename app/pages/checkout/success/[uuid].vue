@@ -3,11 +3,13 @@ import type { TableColumn } from '#ui/types'
 
 const UAvatar = resolveComponent('UAvatar')
 
-const route = useRoute()
+const route = useRoute('checkout-success-uuid')
 const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
 
 const sessionId = computed(() => route.query.session_id as string | undefined)
 const fromCheckout = computed(() => !!sessionId.value)
+const sessionVerified = ref(false)
+const verifyingSession = ref(false)
 
 const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
@@ -39,44 +41,6 @@ if (!order.value || error.value) {
   })
 }
 
-// Payment verification using useAsyncData
-// Only runs on client when sessionId is present and order is not yet paid
-const shouldVerifyPayment = computed(() =>
-  fromCheckout.value && order.value && !order.value.isPaid,
-)
-
-const {
-  status: verificationStatus,
-} = useAsyncData(
-  `payment-verification:${orderUUID}:${sessionId.value}`,
-  async () => {
-    // Wait for webhook to process
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
-    // Refresh order data to get updated payment status
-    await refresh()
-
-    return { verified: true }
-  },
-  {
-    server: false, // Client-side only
-    immediate: shouldVerifyPayment.value, // Only execute if payment needs verification
-    lazy: true, // Don't block navigation
-  },
-)
-
-// Computed states for template
-const verifyingSession = computed(() =>
-  fromCheckout.value && verificationStatus.value === 'pending',
-)
-
-const sessionVerified = computed(() =>
-  fromCheckout.value && (
-    verificationStatus.value === 'success'
-    || order.value?.isPaid === true
-  ),
-)
-
 const customerName = computed(() => {
   const firstName = order.value?.firstName
   const lastName = order.value?.lastName
@@ -97,6 +61,35 @@ const totalPriceExtra = computed(() => order.value?.totalPriceExtra || 0)
 
 const trackingNumber = computed(() => order.value?.trackingNumber)
 const shippingCarrier = computed(() => order.value?.shippingCarrier)
+
+// Verify payment session once when coming from checkout
+onMounted(async () => {
+  if (sessionId.value && order.value && !order.value.isPaid) {
+    verifyingSession.value = true
+    try {
+      // Wait a bit for webhook to process
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // Refresh order data once
+      await refresh()
+
+      // Mark as verified regardless of payment status
+      // The order status will show the actual payment state
+      sessionVerified.value = true
+    }
+    catch (err) {
+      console.error('Failed to verify session:', err)
+      sessionVerified.value = true // Mark as verified even on error
+    }
+    finally {
+      verifyingSession.value = false
+    }
+  }
+  else if (sessionId.value && order.value?.isPaid) {
+    // Already paid, mark as verified immediately
+    sessionVerified.value = true
+  }
+})
 
 const getPaymentStatusColor = (status: OrderDetail['paymentStatus']) => {
   const colors: Record<string, 'success' | 'warning' | 'error' | 'neutral' | 'info'> = {

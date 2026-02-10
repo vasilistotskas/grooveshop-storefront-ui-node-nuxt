@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
-const route = useRoute()
+const route = useRoute('products-category-id-slug')
 
 const categoryId = 'id' in route.params
   ? route.params.id

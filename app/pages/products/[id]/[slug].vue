@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TabsItem, ButtonProps } from '#ui/types'
 
-const route = useRoute()
+const route = useRoute('products-id-slug')
 const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
 const { y: scrollY } = useWindowScroll()

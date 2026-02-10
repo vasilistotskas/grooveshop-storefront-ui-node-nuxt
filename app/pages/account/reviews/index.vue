@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-const route = useRoute()
+const route = useRoute('account-reviews')
 const { t } = useI18n()
 const { user } = useUserSession()
 const { $i18n } = useNuxtApp()
