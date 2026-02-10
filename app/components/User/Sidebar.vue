@@ -9,25 +9,15 @@ defineProps({
 const route = useRoute()
 
 const { menus } = useAccountMenus()
-
-const sidebar = ref(null)
-onMounted(() => {
-  if (!sidebar.value) return
-  const { onScroll } = useSticky(sidebar.value as HTMLElement, 150)
-  setTimeout(() => onScroll(), 50)
-})
 </script>
 
 <template>
   <div
     id="sidebar"
-    ref="sidebar"
     :class="[
       {
-        'transition-all duration-300 ease-in-out': true,
-        'md:hidden md:h-fit lg:flex lg:w-48 xl:w-72': mode === 'normal',
+        'sticky top-18 lg:w-48 xl:w-72': mode === 'normal',
         'relative flex w-full flex-1 flex-col': mode === 'mobile',
-        'relative grid w-full': route.path === '/account',
       },
     ]"
   >

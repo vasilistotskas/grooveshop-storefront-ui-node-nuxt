@@ -133,23 +133,15 @@ const Footer = computed(() => {
                   `,
                 ]"
               >
-                <DesktopOnly>
-                  <div
-                    :class="[
-                      {
-                        'grid w-full': route.path === '/account',
-                        'hidden': route.path !== '/account',
-                      },
-                    ]"
-                    class="
-                      hidden
-                      md:grid md:w-auto md:py-4 md:pl-0
-                      xl:pl-8
-                    "
-                  >
-                    <UserSidebar />
-                  </div>
-                </DesktopOnly>
+                <aside
+                  class="
+                    hidden py-4 pl-0 relative
+                    lg:block
+                    xl:pl-8
+                  "
+                >
+                  <UserSidebar />
+                </aside>
                 <div class="flex w-full flex-col">
                   <slot />
                 </div>

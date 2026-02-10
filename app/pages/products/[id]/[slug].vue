@@ -579,7 +579,7 @@ definePageMeta({
                 />
               </div>
 
-              <div class="flex h-full">
+              <div class="w-full flex h-full">
                 <label class="sr-only mb-2 block text-sm font-medium opacity-0">
                   {{ t('add_to_cart') }}
                 </label>

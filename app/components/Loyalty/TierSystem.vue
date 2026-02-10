@@ -101,6 +101,7 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
       :description="t('slideover_description')"
       side="right"
       :ui="{
+        content: 'max-w-lg',
         body: 'space-y-6',
       }"
     >
@@ -162,7 +163,7 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
             :items="tierStepperItems"
             :model-value="currentTierIndex"
             orientation="vertical"
-            color="primary"
+            color="secondary"
             size="lg"
             class="w-full"
           />
@@ -192,7 +193,7 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
                 <UBadge
                   v-if="isCurrentTier(item.tier)"
                   :label="t('current')"
-                  color="primary"
+                  color="secondary"
                   size="sm"
                   variant="soft"
                 />

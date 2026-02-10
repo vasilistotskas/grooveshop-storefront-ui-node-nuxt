@@ -37,6 +37,7 @@ const items = ref<AccordionItem[]>([{
         trigger: 'gap-4 bg-(--ui-secondary) p-3',
         leadingIcon: 'size-8 text-white',
         label: 'truncate text-2xl font-semibold text-white',
+        trailingIcon: 'text-white',
       }"
     >
       <template #about>

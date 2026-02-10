@@ -149,90 +149,107 @@ const totalPages = computed(() => {
 </script>
 
 <template>
-  <UCard>
-    <template #header>
-      <h3 class="text-xl font-semibold">
-        {{ t('title') }}
-      </h3>
-    </template>
-
-    <!-- Filters -->
-    <div class="mb-6 grid gap-4 md:grid-cols-3">
-      <!-- Transaction Type Filter -->
-      <UFormField :label="t('filter.transaction_type')">
-        <USelect
-          v-model="selectedType"
-          :items="transactionTypeOptions"
-          value-key="value"
-          color="neutral"
-        />
-      </UFormField>
-
-      <!-- Date From Filter -->
-      <UFormField :label="t('filter.date_from')">
-        <UInput
-          v-model="dateFrom"
-          type="date"
-          color="neutral"
-        />
-      </UFormField>
-
-      <!-- Date To Filter -->
-      <UFormField :label="t('filter.date_to')">
-        <UInput
-          v-model="dateTo"
-          type="date"
-          color="neutral"
-        />
-      </UFormField>
-    </div>
-
-    <!-- Loading State -->
-    <div v-if="loading" class="space-y-4">
-      <USkeleton class="h-12" />
-      <USkeleton class="h-12" />
-      <USkeleton class="h-12" />
-      <USkeleton class="h-12" />
-    </div>
-
-    <!-- Error State -->
-    <div v-else-if="error" class="text-center py-8">
-      <p class="text-red-600 dark:text-red-400 mb-4">
-        {{ t('error_loading') }}
-      </p>
-      <UButton
-        :label="t('retry')"
-        color="secondary"
-        @click="handleRetry"
+  <details
+    class="
+      group rounded-xl border border-neutral-200 bg-white
+      dark:border-neutral-800 dark:bg-neutral-950
+    "
+  >
+    <summary
+      class="
+        flex cursor-pointer list-none items-center gap-3 px-5 py-4
+        text-xl font-semibold text-primary-950
+        select-none
+        [&::-webkit-details-marker]:hidden
+        dark:text-primary-50
+      "
+    >
+      <UIcon
+        name="i-heroicons-chevron-right"
+        class="
+          size-5 shrink-0 transition-transform duration-200
+          group-open:rotate-90
+        "
       />
-    </div>
+      {{ t('title') }}
+    </summary>
 
-    <!-- Empty State -->
-    <div v-else-if="!transactions?.results?.length" class="text-center py-12">
-      <p class="text-gray-600 dark:text-gray-200">
-        {{ t('empty_state') }}
-      </p>
-    </div>
+    <div class="px-5 pb-5 pt-2">
+      <!-- Filters -->
+      <div class="mb-6 grid gap-4 md:grid-cols-3">
+        <UFormField :label="t('filter.transaction_type')">
+          <USelect
+            v-model="selectedType"
+            :items="transactionTypeOptions"
+            value-key="value"
+            color="neutral"
+          />
+        </UFormField>
 
-    <!-- Transactions Table -->
-    <div v-else>
-      <UTable
-        :columns="columns"
-        :data="transactions.results"
-        class="flex-1"
-      />
+        <UFormField :label="t('filter.date_from')">
+          <UInput
+            v-model="dateFrom"
+            type="date"
+            color="neutral"
+          />
+        </UFormField>
 
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="mt-6 flex justify-center">
-        <UPagination
-          v-model="currentPage"
-          :total="transactions.count"
-          :page-count="10"
-          :max="5"
+        <UFormField :label="t('filter.date_to')">
+          <UInput
+            v-model="dateTo"
+            type="date"
+            color="neutral"
+          />
+        </UFormField>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="loading" class="space-y-4">
+        <USkeleton class="h-12" />
+        <USkeleton class="h-12" />
+        <USkeleton class="h-12" />
+        <USkeleton class="h-12" />
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="py-8 text-center">
+        <p class="mb-4 text-red-600 dark:text-red-400">
+          {{ t('error_loading') }}
+        </p>
+        <UButton
+          :label="t('retry')"
+          color="secondary"
+          @click="handleRetry"
         />
       </div>
+
+      <!-- Empty State -->
+      <div v-else-if="!transactions?.results?.length" class="py-12 text-center">
+        <p class="text-gray-600 dark:text-gray-200">
+          {{ t('empty_state') }}
+        </p>
+      </div>
+
+      <!-- Transactions Table -->
+      <div v-else>
+        <UTable
+          :columns="columns"
+          :data="transactions.results"
+          class="flex-1"
+        />
+
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="mt-6 flex justify-center">
+          <UPagination
+            v-model:page="currentPage"
+            :total="transactions.count"
+            :items-per-page="10"
+            color="neutral"
+          />
+        </div>
+      </div>
     </div>
-  </UCard>
+  </details>
 </template>
 
 <i18n lang="yaml">
