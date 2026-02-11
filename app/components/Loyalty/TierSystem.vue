@@ -43,8 +43,6 @@ const getTierImageUrl = (tier: LoyaltyTier) => {
   return tier.mainImagePath || ''
 }
 
-
-
 const getMultiplierBonus = (multiplier: string | number) => {
   const mult = typeof multiplier === 'string' ? Number.parseFloat(multiplier) : multiplier
   const bonus = (mult - 1) * 100

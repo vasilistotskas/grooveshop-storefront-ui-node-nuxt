@@ -30,8 +30,6 @@ const currentTierName = computed(() => {
   return extractTranslated(summary.value.tier, 'name', locale.value) || t('no_tier')
 })
 
-
-
 const xpProgress = computed(() => {
   if (!summary.value || !tiers.value || currentTierIndex.value === -1) return 0
   const currentTier = tiers.value[currentTierIndex.value]

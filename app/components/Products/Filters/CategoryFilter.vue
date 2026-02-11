@@ -47,14 +47,14 @@ const filteredCategories = computed(() => {
 })
 
 // Toggle category selection
-const toggleCategory = (categoryId: string) => {
+const toggleCategory = async (categoryId: string) => {
   const currentCategories = [...selectedCategories.value]
   const index = currentCategories.indexOf(categoryId)
 
   // If category is already selected, allow removal
   if (index > -1) {
     currentCategories.splice(index, 1)
-    updateFilters({ categories: currentCategories })
+    await updateFilters({ categories: currentCategories })
     return
   }
 
@@ -66,7 +66,7 @@ const toggleCategory = (categoryId: string) => {
 
   // Add category to selection
   currentCategories.push(categoryId)
-  updateFilters({ categories: currentCategories })
+  await updateFilters({ categories: currentCategories })
 }
 
 // Check if category is disabled (zero products and not selected)

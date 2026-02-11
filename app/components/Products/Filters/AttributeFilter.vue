@@ -81,14 +81,14 @@ const attributeGroups = computed(() => {
 })
 
 // Toggle attribute value selection
-const toggleAttributeValue = (valueId: string) => {
+const toggleAttributeValue = async (valueId: string) => {
   const currentValues = [...selectedAttributeValues.value]
   const index = currentValues.indexOf(valueId)
 
   // If value is already selected, allow removal
   if (index > -1) {
     currentValues.splice(index, 1)
-    updateFilters({ attributeValues: currentValues })
+    await updateFilters({ attributeValues: currentValues })
     return
   }
 
@@ -100,7 +100,7 @@ const toggleAttributeValue = (valueId: string) => {
 
   // Add to selection
   currentValues.push(valueId)
-  updateFilters({ attributeValues: currentValues })
+  await updateFilters({ attributeValues: currentValues })
 }
 
 // Check if value is disabled (zero products and not selected)

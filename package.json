@@ -82,7 +82,7 @@
     "@iconify-json/lucide": "1.2.90",
     "@iconify-json/mdi": "1.2.3",
     "@iconify-json/unjs": "1.2.3",
-    "@nuxt/devtools": "3.1.1",
+    "@nuxt/devtools": "3.2.0",
     "@nuxt/kit": "4.3.1",
     "@nuxt/schema": "4.3.1",
     "@nuxt/types": "2.18.1",
@@ -94,7 +94,7 @@
     "@semantic-release/release-notes-generator": "14.1.0",
     "@stripe/stripe-js": "8.7.0",
     "@testing-library/jest-dom": "6.9.1",
-    "@types/node": "25.2.2",
+    "@types/node": "25.2.3",
     "@types/rss": "0.0.32",
     "@vitest/coverage-v8": "4.0.4",
     "@vitest/ui": "4.0.4",
@@ -102,9 +102,9 @@
     "@vueuse/core": "14.2.1",
     "@vueuse/integrations": "14.2.1",
     "@vueuse/shared": "14.2.1",
-    "eslint": "9.39.2",
-    "eslint-plugin-better-tailwindcss": "4.1.1",
-    "happy-dom": "20.6.0",
+    "eslint": "10.0.0",
+    "eslint-plugin-better-tailwindcss": "4.2.0",
+    "happy-dom": "20.6.1",
     "semantic-release": "25.0.3",
     "typescript": "5.9.3",
     "undici": "7.21.0",
@@ -165,9 +165,6 @@
   },
   "packageManager": "pnpm@10.29.2",
   "pnpm": {
-    "overrides": {
-      "sharp": "0.33.4"
-    },
     "onlyBuiltDependencies": [
       "@intlify/vue-i18n-bridge",
       "@intlify/vue-router-bridge",

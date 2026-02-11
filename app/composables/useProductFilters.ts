@@ -81,7 +81,7 @@ export function useProductFilters() {
    *
    * @param updates - Partial filter updates to apply
    */
-  const updateFilters = (updates: Partial<ProductFilters>) => {
+  const updateFilters = async (updates: Partial<ProductFilters>) => {
     const newQuery: Record<string, any> = { ...route.query }
 
     // Apply updates
@@ -160,14 +160,14 @@ export function useProductFilters() {
     }
 
     // Navigate to updated URL
-    router.push({ query: newQuery })
+    await router.push({ query: newQuery })
   }
 
   /**
    * Clear all filters and return to default state
    */
-  const clearFilters = () => {
-    router.push({ query: {} })
+  const clearFilters = async () => {
+    await router.push({ query: {} })
   }
 
   /**
@@ -175,31 +175,31 @@ export function useProductFilters() {
    *
    * @param key - The filter key to remove
    */
-  const removeFilter = (key: keyof ProductFilters) => {
+  const removeFilter = async (key: keyof ProductFilters) => {
     switch (key) {
       case 'search':
-        updateFilters({ search: '' })
+        await updateFilters({ search: '' })
         break
       case 'priceMin':
-        updateFilters({ priceMin: undefined })
+        await updateFilters({ priceMin: undefined })
         break
       case 'priceMax':
-        updateFilters({ priceMax: undefined })
+        await updateFilters({ priceMax: undefined })
         break
       case 'likesMin':
-        updateFilters({ likesMin: undefined })
+        await updateFilters({ likesMin: undefined })
         break
       case 'viewsMin':
-        updateFilters({ viewsMin: undefined })
+        await updateFilters({ viewsMin: undefined })
         break
       case 'categories':
-        updateFilters({ categories: [] })
+        await updateFilters({ categories: [] })
         break
       case 'sort':
-        updateFilters({ sort: '' })
+        await updateFilters({ sort: '' })
         break
       case 'attributeValues':
-        updateFilters({ attributeValues: [] })
+        await updateFilters({ attributeValues: [] })
         break
     }
   }

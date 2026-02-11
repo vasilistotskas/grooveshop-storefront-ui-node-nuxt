@@ -83,20 +83,20 @@ const getFilterIcon = (type: string): string => {
 /**
  * Handle filter removal
  */
-const handleRemoveFilter = (chip: FilterChip) => {
+const handleRemoveFilter = async (chip: FilterChip) => {
   if (chip.type === 'category') {
     const newCategories = filters.value.categories.filter(cat => cat !== chip.value)
-    updateFilters({ categories: newCategories })
+    await updateFilters({ categories: newCategories })
   }
   else if (chip.type === 'attribute') {
     const newAttributeValues = filters.value.attributeValues.filter(attrVal => attrVal !== chip.value)
-    updateFilters({ attributeValues: newAttributeValues })
+    await updateFilters({ attributeValues: newAttributeValues })
   }
   else if (chip.type === 'price') {
-    updateFilters({ priceMin: undefined, priceMax: undefined })
+    await updateFilters({ priceMin: undefined, priceMax: undefined })
   }
   else {
-    removeFilter(chip.key)
+    await removeFilter(chip.key)
   }
 }
 </script>

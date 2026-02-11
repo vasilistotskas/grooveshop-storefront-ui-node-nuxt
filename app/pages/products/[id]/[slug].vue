@@ -356,6 +356,13 @@ useSchemaOrg([
 
     url: () => canonicalUrl.value,
 
+    category: () => product.value?.category?.toString() || undefined,
+
+    brand: {
+      '@type': 'Brand',
+      name: siteConfig.name,
+    },
+
     offers: {
       '@type': 'Offer',
       'price': () => (product.value?.finalPrice || 0).toFixed(2),
@@ -372,6 +379,41 @@ useSchemaOrg([
         '@type': 'Organization',
         'name': siteConfig.name,
       },
+      'hasMerchantReturnPolicy': {
+        '@type': 'MerchantReturnPolicy',
+        'applicableCountry': 'GR',
+        'returnPolicyCategory': 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        'merchantReturnDays': 14,
+        'returnMethod': 'https://schema.org/ReturnByMail',
+        'returnFees': 'https://schema.org/ReturnFeesCustomerResponsibility',
+      },
+      'shippingDetails': {
+        '@type': 'OfferShippingDetails',
+        'shippingRate': {
+          '@type': 'MonetaryAmount',
+          'value': 0,
+          'currency': 'EUR',
+        },
+        'shippingDestination': {
+          '@type': 'DefinedRegion',
+          'addressCountry': 'GR',
+        },
+        'deliveryTime': {
+          '@type': 'ShippingDeliveryTime',
+          'handlingTime': {
+            '@type': 'QuantitativeValue',
+            'minValue': 0,
+            'maxValue': 1,
+            'unitCode': 'DAY',
+          },
+          'transitTime': {
+            '@type': 'QuantitativeValue',
+            'minValue': 3,
+            'maxValue': 5,
+            'unitCode': 'DAY',
+          },
+        },
+      },
     },
 
     aggregateRating: () => {
@@ -386,8 +428,6 @@ useSchemaOrg([
       }
       return undefined
     },
-
-    category: () => product.value?.category?.toString() || undefined,
   }),
 
   defineBreadcrumb({

@@ -52,8 +52,8 @@ const currentLikesMin = computed(() => {
 /**
  * Update URL immediately (for slider commit)
  */
-function updateUrl(value: number) {
-  updateFilters({
+async function updateUrl(value: number) {
+  await updateFilters({
     likesMin: value !== likesStats.value.min ? value : undefined,
   })
   // Clear local override after URL is updated - let computed take over

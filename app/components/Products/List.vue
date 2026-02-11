@@ -165,15 +165,15 @@ const emit = defineEmits<{
 }>()
 
 // Handle sort changes from Toolbar
-const handleSortChange = (value: string) => {
+const handleSortChange = async (value: string) => {
   // Save current scroll position before sort change
   savedScrollPosition.value = window.scrollY
   shouldPreserveScroll.value = true
 
-  updateFilters({ sort: value })
+  await updateFilters({ sort: value })
 
   // Restore scroll position after DOM updates (with small delta allowed)
-  nextTick(() => {
+  await nextTick(() => {
     if (savedScrollPosition.value !== null) {
       // Allow up to 100px delta as per requirements
       const targetScroll = Math.max(0, savedScrollPosition.value)
