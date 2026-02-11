@@ -107,7 +107,7 @@ const handleRetry = () => {
             <div class="flex flex-col items-center justify-center py-6">
               <div class="relative mb-4">
                 <div class="absolute inset-0 bg-warning-200 dark:bg-warning-800 opacity-20 blur-2xl rounded-full" />
-                <div class="relative flex flex-col items-center justify-center w-40 h-40 bg-gradient-to-br from-warning-50 to-warning-100 dark:from-warning-950 dark:to-warning-900 rounded-full shadow-lg">
+                <div class="relative flex flex-col items-center justify-center w-42 h-42 bg-gradient-to-br from-warning-50 to-warning-100 dark:from-warning-950 dark:to-warning-900 rounded-full shadow-lg">
                   <!-- Hexagon SVG -->
                   <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100">
                     <defs>
