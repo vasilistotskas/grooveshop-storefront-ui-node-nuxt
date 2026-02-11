@@ -1,3 +1,10 @@
+## [3.72.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.72.0...v3.72.1) (2026-02-11)
+
+
+### Bug Fixes
+
+* product og image ([e06258e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e06258e6aa850bf7eaf4e06ac5a4537e532f8bfd))
+
 # [3.72.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.71.3...v3.72.0) (2026-02-11)
 
 
