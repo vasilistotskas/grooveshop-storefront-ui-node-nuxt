@@ -43,7 +43,7 @@ const shouldShow = computed(() => enabled.value && estimatedPoints.value > 0)
             stroke-width="2"
           />
         </svg>
-        <span class="relative z-10 text-[10px] font-bold text-secondary-900 dark:text-secondary-100">
+        <span class="relative z-10 text-[11px] font-bold text-secondary-900 dark:text-secondary-100">
           +{{ estimatedPoints }}
         </span>
       </div>

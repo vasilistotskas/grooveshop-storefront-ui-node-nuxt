@@ -158,7 +158,7 @@ const clearRedemption = () => {
                 {{ displayedBalance }}
               </span>
               <span
-                class="text-[10px] leading-none"
+                class="text-[11px] leading-none"
                 :class="displayedBalance > 0 ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'"
               >
                 {{ t('points') }}

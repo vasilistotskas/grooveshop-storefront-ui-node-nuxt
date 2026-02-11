@@ -447,7 +447,7 @@ const activityStats = computed(() => {
               <div>
                 <p
                   class="
-                    text-[10px] font-medium tracking-wide text-neutral-500
+                    text-[11px] font-medium tracking-wide text-neutral-500
                     uppercase
                     dark:text-neutral-300
                   "

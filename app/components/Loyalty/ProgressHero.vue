@@ -156,11 +156,11 @@ const ready = computed(() => !loading.value && !error.value && summary.value)
               dark:bg-neutral-900/40
             "
           >
-            <UIcon name="i-heroicons-star" class="size-4 text-primary-500" />
+            <UIcon name="i-heroicons-star" class="size-5 text-primary-900 dark:text-primary-100" />
             <span class="text-sm font-semibold text-primary-950 dark:text-primary-50">
               {{ summary!.level }}
             </span>
-            <span class="text-xs text-neutral-500">{{ t('level') }}</span>
+            <span class="text-xs text-neutral-900 dark:text-neutral-100">{{ t('level') }}</span>
           </div>
           <div
             class="
@@ -168,11 +168,11 @@ const ready = computed(() => !loading.value && !error.value && summary.value)
               dark:bg-neutral-900/40
             "
           >
-            <UIcon name="i-heroicons-currency-dollar" class="size-4 text-warning-500" />
+            <UIcon name="i-heroicons-currency-dollar" class="size-5 text-warning-500" />
             <span class="text-sm font-semibold text-primary-950 dark:text-primary-50">
               {{ summary!.pointsBalance.toLocaleString() }}
             </span>
-            <span class="text-xs text-neutral-500">{{ t('points') }}</span>
+            <span class="text-xs text-neutral-900 dark:text-neutral-100">{{ t('points') }}</span>
           </div>
         </div>
       </div>
