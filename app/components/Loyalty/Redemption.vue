@@ -3,6 +3,7 @@ import * as z from 'zod'
 
 interface Props {
   currency: string
+  maxDiscountAmount: number
 }
 
 interface Emits {
@@ -31,6 +32,13 @@ const loading = computed(() => status.value === 'pending')
 // Computed properties
 const availableBalance = computed(() => summary.value?.pointsBalance || 0)
 
+// Max redeemable points: capped by both balance and products total
+const maxRedeemablePoints = computed(() => {
+  const ratio = 100 // 100 points = 1 EUR
+  const maxFromProductsTotal = Math.floor(props.maxDiscountAmount * ratio)
+  return Math.min(availableBalance.value, maxFromProductsTotal)
+})
+
 // Track applied points for display
 const appliedPoints = ref(0)
 
@@ -58,6 +66,10 @@ const redemptionSchema = z.object({
     .refine(
       val => val <= availableBalance.value,
       { error: t('validation.exceeds_balance') },
+    )
+    .refine(
+      val => val <= maxRedeemablePoints.value,
+      { error: t('validation.exceeds_products_total') },
     )
     .optional(),
 })
@@ -200,30 +212,37 @@ const clearRedemption = () => {
       <UForm :state="formState" :schema="redemptionSchema" @submit="handleRedeem">
         <div class="space-y-4">
           <!-- Number input for points -->
-          <div class="space-y-2">
+          <div class="space-y-2 md:space-y-0 md:flex md:items-center">
             <UFormField
               :label="t('points_to_redeem')"
               name="pointsToRedeem"
               :ui="{
+                root: 'w-full',
                 label: 'hidden',
               }"
             >
               <UInputNumber
                 v-model="formState.pointsToRedeem"
                 :min="0"
-                :max="availableBalance"
+                :max="maxRedeemablePoints"
                 :step="1"
-                :disabled="availableBalance === 0 || applied"
+                :disabled="maxRedeemablePoints === 0 || applied"
                 :placeholder="t('enter_points')"
               />
             </UFormField>
 
             <!-- Quick action: Redeem All button -->
             <UButton
-              v-if="availableBalance > 0"
-              variant="ghost"
+              v-if="maxRedeemablePoints > 0"
+              variant="link"
               size="sm"
-              @click="formState.pointsToRedeem = availableBalance"
+              :ui="{
+                base: `
+                  flex w-full
+                  md:block
+                `,
+              }"
+              @click="formState.pointsToRedeem = maxRedeemablePoints"
             >
               {{ t('redeem_all') }}
             </UButton>
@@ -240,7 +259,7 @@ const clearRedemption = () => {
             size="lg"
             color="secondary"
             block
-            :disabled="availableBalance === 0 || !formState.pointsToRedeem || formState.pointsToRedeem === 0 || applied"
+            :disabled="maxRedeemablePoints === 0 || !formState.pointsToRedeem || formState.pointsToRedeem === 0 || applied"
           >
             {{ t('redeem_button', { amount: calculateDiscount(formState.pointsToRedeem || 0) }) }}
           </UButton>
@@ -260,7 +279,7 @@ el:
   title: "Εξαργύρωση Πόντων"
   points: "πόντοι"
   points_to_redeem: "Πόντοι προς εξαργύρωση"
-  enter_points: "Εισάγετε πόντους"
+  enter_points: "Πόντοι"
   redeem_all: "Εξαργύρωση όλων"
   redemption_info: "Οι πόντοι θα μετατραπούν σε έκπτωση στην παραγγελία σας"
   redemption_success: "Επιτυχής εξαργύρωση"
@@ -274,4 +293,5 @@ el:
   validation:
     min_points: "Πρέπει να εξαργυρώσετε τουλάχιστον 1 πόντο"
     exceeds_balance: "Δεν έχετε αρκετούς πόντους"
+    exceeds_products_total: "Δεν μπορείτε να εξαργυρώσετε πόντους αξίας μεγαλύτερης από το σύνολο προϊόντων"
 </i18n>

@@ -1125,6 +1125,7 @@ definePageMeta({
               <LoyaltyRedemption
                 v-if="loggedIn"
                 :currency="'EUR'"
+                :max-discount-amount="cart?.totalPrice ?? 0"
                 @redeemed="onLoyaltyRedeemed"
                 @cleared="onLoyaltyCleared"
               />

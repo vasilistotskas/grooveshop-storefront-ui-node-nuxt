@@ -46,6 +46,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
@@ -73,6 +74,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
@@ -98,6 +100,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
@@ -123,6 +126,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
@@ -154,6 +158,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
@@ -187,6 +192,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
@@ -212,6 +218,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
@@ -240,6 +247,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
@@ -264,6 +272,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
@@ -291,6 +300,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
@@ -305,6 +315,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
@@ -328,6 +339,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
@@ -350,6 +362,7 @@ describe('LoyaltyRedemption Component', () => {
       const wrapper = await mountSuspended(LoyaltyRedemption, {
         props: {
           currency: 'EUR',
+          maxDiscountAmount: 100,
         },
       })
 
