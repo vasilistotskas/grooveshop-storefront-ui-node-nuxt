@@ -360,7 +360,7 @@ useSchemaOrg([
 
     brand: {
       '@type': 'Brand',
-      name: siteConfig.name,
+      'name': siteConfig.name,
     },
 
     offers: {
