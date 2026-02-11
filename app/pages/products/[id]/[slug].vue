@@ -306,8 +306,11 @@ useSeoMeta({
 
   ogTitle: () => productTitle.value,
   ogDescription: () => productDescription.value,
-  ogImage: ogImage.value,
+  ogImage: () => ogImage.value,
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
   ogImageAlt: () => productTitle.value,
+  ogType: 'website',
   ogUrl: () => canonicalUrl.value,
   ogSiteName: siteConfig.name,
   ogLocale: () => dateLocale.value,
@@ -315,7 +318,7 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
   twitterTitle: () => productTitle.value,
   twitterDescription: () => productDescription.value,
-  twitterImage: ogImage.value,
+  twitterImage: () => ogImage.value,
   twitterImageAlt: () => productTitle.value,
 })
 
@@ -332,6 +335,13 @@ useHead({
       content: product.value?.seoKeywords || productTitle.value,
     },
   ],
+})
+
+defineOgImage({
+  alt: product.value?.seoTitle || productTitle.value,
+  url: ogImage.value,
+  width: 1200,
+  height: 630,
 })
 
 useSchemaOrg([
