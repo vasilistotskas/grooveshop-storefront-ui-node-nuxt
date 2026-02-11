@@ -1,3 +1,10 @@
+## [3.71.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.71.0...v3.71.1) (2026-02-11)
+
+
+### Bug Fixes
+
+* lint ([e89d3a5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e89d3a5eb8fa86617a2c2ccb4d93f9314d465de3))
+
 # [3.71.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.70.0...v3.71.0) (2026-02-11)
 
 
