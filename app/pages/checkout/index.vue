@@ -654,15 +654,10 @@ const onLoyaltyCleared = () => {
 }
 
 // Release reservations if user leaves checkout without completing
-onBeforeUnmount(async () => {
+onBeforeUnmount(() => {
   if (reservationIds.value.length > 0 && !createdOrder.value) {
-    try {
-      await releaseReservations(reservationIds.value)
-      console.log('Released stock reservations on page leave')
-    }
-    catch (error) {
-      console.error('Failed to release reservations:', error)
-    }
+    releaseReservations(reservationIds.value)
+      .catch(error => console.error('Failed to release reservations:', error))
   }
 })
 
