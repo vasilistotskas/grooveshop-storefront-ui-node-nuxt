@@ -249,12 +249,8 @@ export default defineNuxtConfig({
   experimental: {
     typedPages: true,
     asyncContext: true,
-    cookieStore: true,
-    payloadExtraction: true,
     inlineRouteRules: true,
-    checkOutdatedBuildInterval: 5 * 60 * 1000,
-    viteEnvironmentApi: true,
-    componentIslands: true,
+    viteEnvironmentApi: process.env.NODE_ENV !== 'test',
     crossOriginPrefetch: true,
     buildCache: true,
     defaults: {
@@ -301,11 +297,6 @@ export default defineNuxtConfig({
       features: {
         optionsAPI: false,
       },
-    },
-    build: {
-      cssCodeSplit: true,
-      cssMinify: 'lightningcss',
-      minify: 'esbuild',
     },
   },
   typescript: {
@@ -403,13 +394,15 @@ export default defineNuxtConfig({
         flag: '🇬🇷',
       },
     ],
-    vueI18n: './i18n.config.mts',
     compilation: {
       strictMessage: false,
     },
     experimental: {
       localeDetector: 'localeDetector.ts',
-      httpCacheDuration: 86400, // 1 day
+      httpCacheDuration: 86400,
+      typedPages: true,
+      preload: true,
+      stripMessagesPayload: true,
     },
   },
   icon: {
