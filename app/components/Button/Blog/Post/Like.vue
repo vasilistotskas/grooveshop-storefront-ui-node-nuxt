@@ -121,7 +121,7 @@ const getColor = computed(() => {
 <template>
   <UButton
     v-bind="attrs"
-    :icon="!liked ? 'i-heroicons-hand-thumb-up' : 'i-heroicons-hand-thumb-up'"
+    :icon="liked ? 'i-heroicons-hand-thumb-up-solid' : 'i-heroicons-hand-thumb-up'"
     :size="size"
     :color="getColor"
     :variant="variant"

@@ -147,7 +147,7 @@ const buttonAreaLabel = computed(() => {
   <UButton
     :size="size"
     :label="buttonLabel"
-    :icon="!favouriteId ? 'i-heroicons-heart' : 'i-heroicons-heart'"
+    :icon="favouriteId ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"
     :color="favouriteId ? 'error' : 'neutral'"
     variant="subtle"
     :aria-label="buttonAreaLabel"
