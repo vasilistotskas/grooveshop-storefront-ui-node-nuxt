@@ -29,8 +29,8 @@ export default defineNuxtPlugin({
       // Defer non-critical data to client-side only (not needed for initial render)
       // Sessions list, authenticators, notifications can load after hydration
       if (import.meta.client) {
-        // Use requestIdleCallback or setTimeout to defer non-critical fetches
-        requestIdleCallback(() => {
+        const scheduleIdle = window.requestIdleCallback || ((cb: () => void) => setTimeout(cb, 1))
+        scheduleIdle(() => {
           Promise.all([
             setupSessions(),
             setupAuthenticators(),
