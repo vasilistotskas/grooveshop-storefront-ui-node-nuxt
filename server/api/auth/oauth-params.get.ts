@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   }
 
   // Use replaceUserSession to atomically read and clear (defu in setUserSession won't clear undefined)
-  const { oauthParams: _, ...restSecure } = session.secure ?? {}
+  const { oauthParams: _oauthParams, ...restSecure } = session.secure ?? {}
   await replaceUserSession(event, {
     ...session,
     secure: restSecure,

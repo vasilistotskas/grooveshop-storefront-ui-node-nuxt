@@ -69,9 +69,9 @@ onMounted(async () => {
         Object.assign(token, { access_token: String(oauthParams.access_token) })
       }
       await providerToken({
-        provider: String(provider),
+        provider: String(oauthParams.provider),
         token,
-        process: process === 'login' ? 'login' : 'connect',
+        process: oauthParams.process === 'login' ? 'login' : 'connect',
       })
     }
     catch {
