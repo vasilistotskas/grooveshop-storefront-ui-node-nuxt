@@ -323,7 +323,7 @@ useSeoMeta({
   ogImageWidth: 1200,
   ogImageHeight: 630,
   ogImageAlt: () => productTitle.value,
-  ogType: 'product',
+  ogType: 'website',
   ogUrl: () => canonicalUrl.value,
   ogSiteName: siteConfig.name,
   ogLocale: () => dateLocale.value,

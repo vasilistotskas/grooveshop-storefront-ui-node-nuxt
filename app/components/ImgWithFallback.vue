@@ -71,7 +71,7 @@ const provider = computed(() => {
     v-else
     v-bind="fallbackImageProps"
     :src="fallback"
-    :alt="$attrs.alt || ''"
+    :alt="($attrs.alt as string) || ''"
     provider="ipx"
     :modifiers="{
       fit: 'cover',
