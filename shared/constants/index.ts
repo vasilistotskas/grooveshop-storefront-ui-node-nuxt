@@ -46,8 +46,8 @@ export const AuthenticatedRoutesSet = new Set<keyof RouteNamedMapI18n>(Authentic
 export const THEME_COLORS = {
   themeDark: '#1a202c',
   themeLight: '#ffffff',
-  backgroundDark: '#ffffff',
-  backgroundLight: '#1a202c',
+  backgroundDark: '#1a202c',
+  backgroundLight: '#ffffff',
 } as const
 
 export const GSIAuthProcess = {
