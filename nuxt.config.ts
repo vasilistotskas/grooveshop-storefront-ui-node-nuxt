@@ -110,8 +110,8 @@ export default defineNuxtConfig({
     },
     redis: {
       host: process.env.NUXT_REDIS_HOST,
-      port: Number(process.env.NUXT_REDIS_PORT),
-      ttl: Number(process.env.NUXT_REDIS_TTL),
+      port: Number(process.env.NUXT_REDIS_PORT || 6379),
+      ttl: Number(process.env.NUXT_REDIS_TTL || 3600),
     },
     scripts: {
       registry: {
