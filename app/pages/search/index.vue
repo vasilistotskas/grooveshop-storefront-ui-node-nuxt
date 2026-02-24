@@ -110,11 +110,14 @@ const shortcuts = computed(() => [
 const inputRef = ref()
 
 const handleKeydown = (e: KeyboardEvent) => {
-  if (e.key === '/' && document.activeElement?.tagName !== 'INPUT') {
+  const activeEl = document.activeElement as HTMLElement | null
+  const activeTag = activeEl?.tagName
+  const isEditable = activeEl?.isContentEditable
+  if (e.key === '/' && activeTag !== 'INPUT' && activeTag !== 'TEXTAREA' && !isEditable) {
     e.preventDefault()
-    inputRef.value.$el.querySelector('input')?.focus()
+    inputRef.value?.$el?.querySelector('input')?.focus()
   }
-  if (e.key === 'Escape' && document.activeElement?.tagName === 'INPUT') {
+  if (e.key === 'Escape' && (activeTag === 'INPUT' || activeTag === 'TEXTAREA')) {
     query.value = ''
   }
 }
