@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    return response
+    return await parseDataAs(response, zGetLoyaltySummaryResponse)
   }
   catch (error) {
     await handleError(error)

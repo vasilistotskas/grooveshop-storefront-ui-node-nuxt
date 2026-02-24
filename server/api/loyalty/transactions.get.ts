@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   const accessToken = await getAllAuthAccessToken(event)
 
   try {
-    const query = getQuery(event)
+    const query = await getValidatedQuery(event, zListLoyaltyTransactionsData.shape.query.parse)
 
     const response = await $fetch(`${config.apiBaseUrl}/loyalty/transactions`, {
       method: 'GET',
@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
       query,
     })
 
-    return response
+    return await parseDataAs(response, zListLoyaltyTransactionsResponse)
   }
   catch (error) {
     await handleError(error)
