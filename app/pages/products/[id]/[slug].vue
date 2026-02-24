@@ -61,6 +61,19 @@ const { data: productImages } = await useFetch(
   },
 )
 
+// Fetch reviews during SSR for Schema.org structured data
+const { data: productReviews } = await useFetch(
+  `/api/products/${productId}/reviews`,
+  {
+    key: `productReviewsSchema${productId}`,
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: {
+      languageCode: locale,
+    },
+  },
+)
+
 const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value
 })
@@ -310,7 +323,7 @@ useSeoMeta({
   ogImageWidth: 1200,
   ogImageHeight: 630,
   ogImageAlt: () => productTitle.value,
-  ogType: 'website',
+  ogType: 'product',
   ogUrl: () => canonicalUrl.value,
   ogSiteName: siteConfig.name,
   ogLocale: () => dateLocale.value,
@@ -326,7 +339,7 @@ useHead({
   link: [
     {
       rel: 'canonical',
-      href: canonicalUrl.value,
+      href: () => canonicalUrl.value,
     },
   ],
   meta: [
@@ -432,11 +445,31 @@ useSchemaOrg([
           '@type': 'AggregateRating',
           'ratingValue': product.value.reviewAverage || 0,
           'reviewCount': product.value.reviewCount,
-          'bestRating': 5,
+          'bestRating': 10,
           'worstRating': 1,
         }
       }
       return undefined
+    },
+
+    review: () => {
+      const reviews = productReviews.value?.results
+      if (!reviews || reviews.length === 0) return undefined
+      return reviews.slice(0, 5).map(r => ({
+        '@type': 'Review' as const,
+        'author': {
+          '@type': 'Person' as const,
+          'name': [r.user?.firstName, r.user?.lastName].filter(Boolean).join(' ') || 'Anonymous',
+        },
+        'reviewRating': {
+          '@type': 'Rating' as const,
+          'ratingValue': r.rate,
+          'bestRating': 10,
+          'worstRating': 1,
+        },
+        'datePublished': r.publishedAt || r.createdAt,
+        'reviewBody': extractTranslated(r, 'comment', locale.value) || undefined,
+      }))
     },
   }),
 
