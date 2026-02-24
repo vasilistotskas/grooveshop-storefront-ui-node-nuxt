@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Nuxt 4 SSR e-commerce storefront (Vue 3 Composition API, TypeScript) that communicates with a Django REST API backend. Uses `@nuxt/ui` v4 for the component library, Pinia for state management, and `@nuxtjs/i18n` for internationalization (default locale: Greek `el`, also English and German). The Vue Options API is disabled — all components use `<script setup lang="ts">`.
+Nuxt 4 SSR e-commerce storefront (Vue 3 Composition API, TypeScript) that communicates with a Django REST API backend. Uses `@nuxt/ui` v4 for the component library, Pinia for state management, and `@nuxtjs/i18n` for internationalization (only Greek `el` locale is active). The Vue Options API is disabled — all components use `<script setup lang="ts">`.
 
 ## Commands
 
@@ -47,7 +47,7 @@ Coverage uses v8 provider, reports to `./coverage` in text/html/lcov/json format
 - `shared/` — Auto-imported in both app and server: types, constants, schemas (Zod), utils, OpenAPI generated code
 - `modules/` — Custom Nuxt modules (`cookies.ts` for cookie consent, `purge-comments.ts` removes HTML comments in prod)
 - `runtime/` — Runtime code for the custom cookie control module (plugin, methods, types, utils)
-- `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES`/`DEFAULT_LOCALE`), locale detector, i18n config, and translation files (el-GR, en-US, de-DE, plus domain-specific: auth, breadcrumb, cookies, validation)
+- `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES`/`DEFAULT_LOCALE`), locale detector, i18n config, and translation files (el-GR primary, plus domain-specific: auth, breadcrumb, cookies, validation). Only `el` locale is active; en-US and de-DE files exist but are unused
 - `openapi/` — Schema files (`schema.json`, `schema.yml`) fetched from Django for type generation
 - `scripts/` — `fetch-schema.mjs` for downloading OpenAPI schema from Django
 
@@ -78,7 +78,8 @@ The Nuxt server acts as a **proxy** to the Django backend. Client-side code call
 
 ### Server Routes
 
-- `server/routes/auth/google.get.ts` and `facebook.get.ts` — OAuth callback handlers
+- `server/routes/auth/google.get.ts` and `facebook.get.ts` — OAuth callback handlers (store tokens in encrypted session, not URL params)
+- `server/api/auth/oauth-params.get.ts` — One-time-use endpoint that reads OAuth params from session and clears them
 - `server/routes/rss.xml.get.ts` — RSS feed generation (cached, SWR) combining blog posts and products with media:content, reading time, product pricing/availability
 - `server/api/__sitemap__/urls.ts` — Dynamic sitemap URL source for `@nuxtjs/sitemap`
 
