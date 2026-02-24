@@ -408,17 +408,9 @@ watch(
   >
     <template #header>
       <div class="flex items-center justify-between gap-4">
-        <span
-          class="
-            mb-0 text-xl leading-tight font-medium
-            md:text-base
-          "
-          v-html="
-            t('write_review_for_product', {
-              product: extractTranslated(product, 'name', locale),
-            })
-          "
-        />
+        <span class="mb-0 text-xl leading-tight font-medium md:text-base">
+          {{ t('write_review_for_product', { product: extractTranslated(product, 'name', locale) }) }}
+        </span>
         <UIcon name="i-fa-solid-pen" />
       </div>
     </template>

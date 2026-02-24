@@ -155,14 +155,12 @@ onClickOutside(dropdown, () => {
                     root: 'grid gap-1',
                   }"
                 >
-                  <span
-                    class="truncate text-sm"
-                    v-html="extractTranslated(userNotification.notification, 'title', locale)"
-                  />
-                  <span
-                    class="text-xs"
-                    v-html="extractTranslated(userNotification.notification, 'message', locale)"
-                  />
+                  <span class="truncate text-sm">
+                    {{ extractTranslated(userNotification.notification, 'title', locale) }}
+                  </span>
+                  <span class="text-xs">
+                    {{ extractTranslated(userNotification.notification, 'message', locale) }}
+                  </span>
                 </UChip>
               </UCard>
             </UButton>
