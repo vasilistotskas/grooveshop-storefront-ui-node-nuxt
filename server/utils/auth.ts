@@ -57,7 +57,6 @@ export async function processAllAuthSession(response: AllAuthResponse, accessTok
   }
   if (response.meta?.access_token) {
     console.info('Setting access token from response')
-    console.log('Setting access token from response: ', response.meta.access_token)
     appendResponseHeader(event, 'Authorization', `Bearer ${response.meta.access_token}`)
     await setUserSession(event, {
       secure: {
