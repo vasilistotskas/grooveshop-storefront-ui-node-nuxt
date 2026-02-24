@@ -34,7 +34,7 @@ const items = computed(() => {
 })
 
 const updatePayWay = (value: PayWay) => {
-  emit('update-model', payWay)
+  emit('update-model', value)
   payWay.value = value
 }
 

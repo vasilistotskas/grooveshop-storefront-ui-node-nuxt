@@ -26,7 +26,6 @@ const emit = defineEmits<{
   (e: 'reply-add', data: BlogComment): void
 }>()
 
-const { comments } = toRefs(props)
 const { loggedIn, user } = useUserSession()
 
 const userHasCommented = (comment: BlogComment) => {
@@ -40,12 +39,11 @@ const onReplyAdd = (data: BlogComment) => {
   emit('reply-add', data)
 }
 
-watchEffect(() => {
-  comments?.value?.sort((a) => {
-    if (loggedIn.value && user.value) {
-      if (a.user.id === user.value.id) {
-        return -1
-      }
+const sortedComments = computed(() => {
+  if (!props.comments) return []
+  return [...props.comments].sort((a) => {
+    if (loggedIn.value && user.value && a.user.id === user.value.id) {
+      return -1
     }
     return 0
   })
@@ -60,7 +58,7 @@ watchEffect(() => {
       class="grid gap-4"
     >
       <BlogPostCommentsCard
-        v-for="comment in comments"
+        v-for="comment in sortedComments"
         :key="comment.id"
         :comment="comment"
         :display-image-of="displayImageOf"
