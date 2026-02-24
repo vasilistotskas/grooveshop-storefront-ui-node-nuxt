@@ -311,6 +311,7 @@ describe('Cart Store', () => {
         expect(mockFetch).toHaveBeenCalledWith('/api/cart/items/1', {
           method: 'PUT',
           body,
+          headers: expect.any(Object),
         })
         expect(store.error).toBeNull()
       })
