@@ -2,15 +2,15 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { ref, computed } from 'vue'
 
 /**
- * Tests for Account Provider Callback Page - Token Handling Migration
- * 
- * These tests verify the migration from onMounted token handling to
- * useAsyncData with conditional execution.
- * 
+ * Tests for Account Provider Callback Page - OAuth Session-Based Token Flow
+ *
+ * These tests verify the new OAuth callback flow where tokens are no longer
+ * passed as URL query params but are fetched from a secure server session API.
+ *
  * Requirements tested:
- * - 3.1: Data fetching moved out of onMounted
- * - 4.2: Client-side only data fetching with server: false
- * - 11.1: Token handling moved to component setup level
+ * - URL params carry only: provider, process, encrypted_token, error, messages
+ * - Tokens (access_token, id_token, client_id) come from /api/auth/oauth-params
+ * - providerToken() uses provider and process from the API response, not URL
  */
 
 describe('Account Provider Callback Page - Token Handling', () => {
@@ -31,23 +31,23 @@ describe('Account Provider Callback Page - Token Handling', () => {
     expect(hasEncryptedToken.value).toBe(true)
   })
 
-  it('should detect provider token from query params', () => {
+  it('should trigger OAuth flow when provider and process are in URL', () => {
+    // New flow: only provider + process in URL trigger the OAuth path (no tokens in URL)
     const route = {
       query: {
         provider: 'github',
         process: 'login',
-        client_id: 'client123',
-        access_token: 'token123',
       },
     }
 
-    const { provider, process, client_id } = route.query
-    const hasProviderToken = computed(() => !!(provider && process && client_id))
+    const { provider, process } = route.query
+    const hasProviderTrigger = computed(() => !!(provider && process))
 
-    expect(hasProviderToken.value).toBe(true)
+    expect(hasProviderTrigger.value).toBe(true)
   })
 
   it('should determine if valid token data exists', () => {
+    // Valid when encrypted_token is present
     const route = {
       query: {
         encrypted_token: 'abc123',
@@ -57,16 +57,16 @@ describe('Account Provider Callback Page - Token Handling', () => {
     const encrypted_token = route.query.encrypted_token
     const provider = route.query.provider
     const process = route.query.process
-    const client_id = route.query.client_id
 
     const hasEncryptedToken = computed(() => !!encrypted_token)
-    const hasProviderToken = computed(() => !!(provider && process && client_id))
-    const hasValidTokenData = computed(() => hasEncryptedToken.value || hasProviderToken.value)
+    const hasProviderTrigger = computed(() => !!(provider && process))
+    const hasValidTokenData = computed(() => hasEncryptedToken.value || hasProviderTrigger.value)
 
     expect(hasValidTokenData.value).toBe(true)
   })
 
   it('should not have valid token data when no tokens present', () => {
+    // No encrypted_token and no provider+process in URL
     const route = {
       query: {},
     }
@@ -74,11 +74,10 @@ describe('Account Provider Callback Page - Token Handling', () => {
     const encrypted_token = route.query.encrypted_token
     const provider = route.query.provider
     const process = route.query.process
-    const client_id = route.query.client_id
 
     const hasEncryptedToken = computed(() => !!encrypted_token)
-    const hasProviderToken = computed(() => !!(provider && process && client_id))
-    const hasValidTokenData = computed(() => hasEncryptedToken.value || hasProviderToken.value)
+    const hasProviderTrigger = computed(() => !!(provider && process))
+    const hasValidTokenData = computed(() => hasEncryptedToken.value || hasProviderTrigger.value)
 
     expect(hasValidTokenData.value).toBe(false)
   })
@@ -86,9 +85,9 @@ describe('Account Provider Callback Page - Token Handling', () => {
   it('should use useAsyncData with correct options for client-side only execution', () => {
     // This test documents the expected useAsyncData configuration
     const expectedOptions = {
-      server: false,    // Client-side only (authentication tokens)
+      server: false, // Client-side only (authentication tokens)
       immediate: false, // Don't execute automatically
-      lazy: true,       // Don't block navigation
+      lazy: true, // Don't block navigation
     }
 
     // Verify the pattern matches requirements
@@ -119,10 +118,11 @@ describe('Account Provider Callback Page - Token Handling', () => {
     const status = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
     const hasValidTokenData = ref(true)
 
-    const error = computed(() => 
-      !!apiError.value || 
-      !!tokenError.value || 
-      (!hasValidTokenData.value && status.value !== 'idle')
+    const error = computed(
+      () =>
+        !!apiError.value
+        || !!tokenError.value
+        || (!hasValidTokenData.value && status.value !== 'idle'),
     )
 
     // No error initially
@@ -144,25 +144,24 @@ describe('Account Provider Callback Page - Token Handling', () => {
     expect(error.value).toBe(true)
   })
 
-  it('should build provider token object correctly', () => {
-    const route = {
-      query: {
-        client_id: 'client123',
-        id_token: 'id123',
-        access_token: 'access123',
-      },
+  it('should build provider token from oauthParams API response', () => {
+    // New flow: tokens come from API response, not URL query params
+    const oauthParams = {
+      client_id: 'client123',
+      id_token: 'id123',
+      access_token: 'access123',
+      provider: 'google',
+      process: 'login',
     }
-
-    const { client_id, id_token, access_token } = route.query
 
     const token: any = {
-      client_id: String(client_id),
+      client_id: String(oauthParams.client_id),
     }
-    if (id_token) {
-      Object.assign(token, { id_token: String(id_token) })
+    if (oauthParams.id_token) {
+      Object.assign(token, { id_token: String(oauthParams.id_token) })
     }
-    if (access_token) {
-      Object.assign(token, { access_token: String(access_token) })
+    if (oauthParams.access_token) {
+      Object.assign(token, { access_token: String(oauthParams.access_token) })
     }
 
     expect(token).toEqual({
@@ -172,23 +171,22 @@ describe('Account Provider Callback Page - Token Handling', () => {
     })
   })
 
-  it('should build provider token object without optional tokens', () => {
-    const route = {
-      query: {
-        client_id: 'client123',
-      },
+  it('should build provider token from oauthParams without optional tokens', () => {
+    // New flow: oauthParams may only have client_id (id_token/access_token are optional)
+    const oauthParams = {
+      client_id: 'client123',
+      provider: 'google',
+      process: 'connect',
     }
-
-    const { client_id, id_token, access_token } = route.query
 
     const token: any = {
-      client_id: String(client_id),
+      client_id: String(oauthParams.client_id),
     }
-    if (id_token) {
-      Object.assign(token, { id_token: String(id_token) })
+    if ((oauthParams as any).id_token) {
+      Object.assign(token, { id_token: String((oauthParams as any).id_token) })
     }
-    if (access_token) {
-      Object.assign(token, { access_token: String(access_token) })
+    if ((oauthParams as any).access_token) {
+      Object.assign(token, { access_token: String((oauthParams as any).access_token) })
     }
 
     expect(token).toEqual({
@@ -291,21 +289,32 @@ describe('Account Provider Callback Page - Token Handling', () => {
   })
 
   it('should handle provider token processing flow', async () => {
-    const provider = 'github'
-    const process = 'login'
-    const token = {
+    // New flow: provider and process come from oauthParams (API response), not URL
+    const oauthParams = {
+      provider: 'github',
+      process: 'login',
       client_id: 'client123',
       access_token: 'access123',
       id_token: 'id123',
     }
 
+    const token: any = {
+      client_id: String(oauthParams.client_id),
+    }
+    if (oauthParams.id_token) {
+      Object.assign(token, { id_token: String(oauthParams.id_token) })
+    }
+    if (oauthParams.access_token) {
+      Object.assign(token, { access_token: String(oauthParams.access_token) })
+    }
+
     const mockProviderToken = vi.fn().mockResolvedValue(undefined)
 
-    // Simulate the provider token processing
+    // Simulate the provider token processing using oauthParams, not URL params
     await mockProviderToken({
-      provider: String(provider),
+      provider: String(oauthParams.provider),
       token,
-      process: process === 'login' ? 'login' : 'connect',
+      process: oauthParams.process === 'login' ? 'login' : 'connect',
     })
 
     expect(mockProviderToken).toHaveBeenCalledWith({
@@ -317,6 +326,47 @@ describe('Account Provider Callback Page - Token Handling', () => {
       },
       process: 'login',
     })
+  })
+
+  it('should use provider and process from oauthParams not URL', async () => {
+    // Verify that providerToken is called with oauthParams values,
+    // even when URL params have different values
+    const urlParams = {
+      provider: 'url-provider', // URL param (only used as trigger, not for the call)
+      process: 'url-process', // URL param (only used as trigger, not for the call)
+    }
+
+    // API response has the authoritative values
+    const oauthParams = {
+      provider: 'google',
+      process: 'login',
+      client_id: 'c1',
+    }
+
+    const mockProviderToken = vi.fn().mockResolvedValue(undefined)
+
+    // The trigger checks URL params (both present → proceed)
+    const shouldProceed = !!(urlParams.provider && urlParams.process)
+    expect(shouldProceed).toBe(true)
+
+    if (shouldProceed) {
+      // But the actual call uses oauthParams values, not URL param values
+      await mockProviderToken({
+        provider: String(oauthParams.provider),
+        token: { client_id: String(oauthParams.client_id) },
+        process: oauthParams.process === 'login' ? 'login' : 'connect',
+      })
+    }
+
+    // Confirm the call used oauthParams.provider ('google'), not urlParams.provider ('url-provider')
+    expect(mockProviderToken).toHaveBeenCalledWith({
+      provider: 'google',
+      token: { client_id: 'c1' },
+      process: 'login',
+    })
+    expect(mockProviderToken).not.toHaveBeenCalledWith(
+      expect.objectContaining({ provider: 'url-provider' }),
+    )
   })
 
   it('should handle error during token processing', async () => {
