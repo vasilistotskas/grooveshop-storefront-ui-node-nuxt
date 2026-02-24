@@ -20,7 +20,8 @@ const alt = computed(() => {
   return extractTranslated(cartItem?.value?.product, 'name', locale.value)
 })
 
-const cartItemQuantity = useState<number>(
+// Initialize shared quantity state for QuantitySelector
+useState<number>(
   `${cartItem?.value?.id}-quantity`,
   () => cartItem?.value?.quantity || 0,
 )
@@ -129,7 +130,6 @@ const formattedTotal = computed(() => {
           "
         >
           <QuantitySelector
-            :quantity="cartItemQuantity"
             :max="cartItem.product.stock"
             :cart-item-id="cartItem.id"
           />
