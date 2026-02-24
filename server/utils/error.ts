@@ -47,15 +47,15 @@ export async function handleAllAuthError(
   const event = useEvent()
 
   if (isAllAuthError(error)) {
-    console.error('Is all auth error', error.data)
+    console.error('Is all auth error')
     if (error.data.status === 410) {
       console.error('Clearing user session')
       await clearUserSession(event)
     }
     if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
-      console.error('Is not authenticated or invalid session error', error.data)
+      console.error('Is not authenticated or invalid session error')
       if (error.data.meta?.session_token) {
-        console.error('Setting user session token', error.data.meta.session_token)
+        console.error('Setting user session token')
         await setUserSession(event, {
           secure: {
             sessionToken: error.data.meta.session_token,
@@ -63,7 +63,7 @@ export async function handleAllAuthError(
         })
       }
       if (error.data.meta?.access_token) {
-        console.error('Setting user access token', error.data.meta.access_token)
+        console.error('Setting user access token')
         await setUserSession(event, {
           secure: {
             accessToken: error.data.meta.access_token,
