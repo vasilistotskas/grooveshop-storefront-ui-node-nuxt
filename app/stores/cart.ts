@@ -95,6 +95,7 @@ export const useCartStore = defineStore('cart', () => {
       pending.value = true
       await $fetch(`/api/cart/items/${id}`, {
         method: 'PUT',
+        headers: useRequestHeaders(),
         body,
       })
       await refreshCart()
@@ -133,7 +134,7 @@ export const useCartStore = defineStore('cart', () => {
   async function setupCart() {
     const { enabled } = useAuthPreviewMode()
 
-    if (!enabled) {
+    if (!enabled.value) {
       return
     }
 
