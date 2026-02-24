@@ -15,7 +15,9 @@ const authStore = useAuthStore()
 const { sessions, otherSessions } = storeToRefs(authStore)
 const { setupSessions } = authStore
 
-await setupSessions()
+onMounted(() => {
+  setupSessions()
+})
 
 const logout = async (fromSessions: Session[]) => {
   try {

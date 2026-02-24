@@ -47,7 +47,7 @@ const { isMobileOrTablet } = useDevice()
 
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
-const { refresh } = await useLazyFetch(
+const { refresh } = useLazyFetch(
   `/api/products/${product.value?.id}/reviews`,
   {
     key: `productReviews${product.value?.id}`,
