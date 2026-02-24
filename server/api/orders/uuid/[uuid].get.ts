@@ -19,9 +19,9 @@ export default defineEventHandler(async (event) => {
       },
     )
 
-    return parseDataAs(response, zRetrieveOrderByUuidResponse)
+    return await parseDataAs(response, zRetrieveOrderByUuidResponse)
   }
   catch (error) {
-    return handleError(error)
+    await handleError(error)
   }
 })
