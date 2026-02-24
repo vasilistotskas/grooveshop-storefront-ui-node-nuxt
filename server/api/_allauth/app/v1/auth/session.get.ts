@@ -56,6 +56,5 @@ export default defineEventHandler(async (event) => {
   }
   catch (error) {
     await handleAllAuthError(error)
-    await clearUserSession(event)
   }
 })
