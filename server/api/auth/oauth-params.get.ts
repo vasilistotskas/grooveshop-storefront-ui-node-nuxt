@@ -6,11 +6,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 404, statusMessage: 'No OAuth params found' })
   }
 
-  // Clear from session after reading (one-time use)
-  await setUserSession(event, {
-    secure: {
-      oauthParams: undefined,
-    },
+  // Use replaceUserSession to atomically read and clear (defu in setUserSession won't clear undefined)
+  const { oauthParams: _, ...restSecure } = session.secure ?? {}
+  await replaceUserSession(event, {
+    ...session,
+    secure: restSecure,
   })
 
   return oauthParams
