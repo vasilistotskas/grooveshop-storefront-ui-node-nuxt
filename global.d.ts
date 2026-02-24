@@ -6,14 +6,14 @@ import type { UseWebSocketReturn } from '@vueuse/core'
 
 declare module 'vue' {
   interface ComponentCustomProperties {
-    $authState: Ref<AllAuthResponse>
+    $authState: Ref<AllAuthResponse | AllAuthResponseError>
     $websocket (): UseWebSocketReturn<any> | null
   }
 }
 
 declare module '#app' {
   interface NuxtApp {
-    $authState: Ref<AllAuthResponse>
+    $authState: Ref<AllAuthResponse | AllAuthResponseError>
     $websocket (): UseWebSocketReturn<any> | null
   }
 
