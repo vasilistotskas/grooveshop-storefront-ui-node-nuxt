@@ -12,13 +12,11 @@ const { $i18n } = useNuxtApp()
 const {
   error: apiError,
   provider,
-  access_token,
-  id_token,
-  client_id,
   process,
   messages,
   encrypted_token,
 } = route.query
+// NOTE: access_token, id_token, client_id are now fetched from session API, not URL
 
 const { t } = useI18n()
 const authInfo = useAuthInfo()
@@ -56,17 +54,19 @@ onMounted(async () => {
     error.value = true
   }
 
-  if (provider && process && client_id) {
+  if (provider && process) {
     try {
       loading.value = true
+      // Fetch tokens securely from server session (not URL)
+      const oauthParams = await $fetch('/api/auth/oauth-params')
       const token: ProviderToken = {
-        client_id: String(client_id),
+        client_id: String(oauthParams.client_id),
       }
-      if (id_token) {
-        Object.assign(token, { id_token: String(id_token) })
+      if (oauthParams.id_token) {
+        Object.assign(token, { id_token: String(oauthParams.id_token) })
       }
-      if (access_token) {
-        Object.assign(token, { access_token: String(access_token) })
+      if (oauthParams.access_token) {
+        Object.assign(token, { access_token: String(oauthParams.access_token) })
       }
       await providerToken({
         provider: String(provider),
@@ -85,7 +85,7 @@ onMounted(async () => {
     loading.value = false
   }
 
-  if (!encrypted_token && !(provider && access_token && id_token && process)) {
+  if (!encrypted_token && !(provider && process)) {
     error.value = true
   }
 })

@@ -13,21 +13,30 @@ export default defineOAuthFacebookEventHandler(
       const { access_token, id_token } = tokens
       const client_id = process.env.NUXT_OAUTH_FACEBOOK_CLIENT_ID
 
-      const redirectUrl = withQuery('/account/provider/callback', {
-        provider: 'facebook',
-        access_token,
-        id_token,
-        client_id,
-        process: 'login',
+      // Store tokens in server-side session (never in URL)
+      await setUserSession(event, {
+        secure: {
+          oauthParams: {
+            provider: 'facebook',
+            access_token: access_token ?? undefined,
+            id_token: id_token ?? undefined,
+            client_id: client_id ?? undefined,
+            process: 'login',
+          },
+        },
       })
 
-      return await sendRedirect(event, redirectUrl)
+      const redirectUrl = withQuery('/account/provider/callback', {
+        provider: 'facebook',
+        process: 'login',
+      })
+      return sendRedirect(event, redirectUrl)
     },
     async onError(event, error) {
       const redirectUrl = withQuery('/account/provider/callback', {
         provider: 'facebook',
         error: error.name,
       })
-      return await sendRedirect(event, redirectUrl)
+      return sendRedirect(event, redirectUrl)
     },
   })
