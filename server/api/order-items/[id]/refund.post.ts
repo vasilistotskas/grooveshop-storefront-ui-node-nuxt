@@ -1,5 +1,6 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
+  const accessToken = await requireAllAuthAccessToken()
   try {
     const params = await getValidatedRouterParams(
       event,
@@ -10,6 +11,9 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(url, {
       method: 'POST',
       body,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     })
     return await parseDataAs(response, zRefundOrderItemResponse)
   }
