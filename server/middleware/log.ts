@@ -28,5 +28,4 @@ export default defineEventHandler(async (event) => {
       console.log(`[${timestamp}] ${method} ${url} ${statusCode} - ${duration}ms`)
     }
   })
-
 })
