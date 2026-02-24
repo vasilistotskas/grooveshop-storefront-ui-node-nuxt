@@ -5,7 +5,9 @@ export default defineNuxtModule({
   meta: {
     name: '@groove/purge-comments',
   },
-  setup() {
+  setup(_options, nuxt) {
+    if (nuxt.options.dev) return
+
     addVitePlugin({
       name: 'purge-comments',
       enforce: 'pre',
