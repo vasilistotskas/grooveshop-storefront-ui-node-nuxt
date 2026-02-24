@@ -2,6 +2,8 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
+const { t } = useI18n()
+
 const props = withDefaults(defineProps<{
   schema: T
   buttonLabel?: string
@@ -370,7 +372,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
               :disabled="!stepper?.hasPrev"
               @click="handlePrev"
             >
-              Previous
+              {{ t('previous') }}
             </UButton>
 
             <UButton
@@ -378,7 +380,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
               type="button"
               @click="handleNext"
             >
-              Next
+              {{ t('next') }}
             </UButton>
 
             <UButton
@@ -522,3 +524,9 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
     </UForm>
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  previous: Προηγούμενο
+  next: Επόμενο
+</i18n>

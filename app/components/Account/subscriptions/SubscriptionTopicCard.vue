@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const props = defineProps<{
   topic: SubscriptionTopic
@@ -57,7 +57,7 @@ const categoryLabel = computed(() => {
       <div class="flex items-start justify-between gap-4">
         <div class="min-w-0 flex-1">
           <h3 class="truncate text-base font-semibold text-default">
-            {{ topic.translations.el?.name || topic.slug }}
+            {{ topic.translations[locale]?.name || topic.slug }}
           </h3>
           <div class="mt-1 flex items-center gap-2">
             <UBadge
@@ -90,7 +90,7 @@ const categoryLabel = computed(() => {
     </template>
 
     <div class="text-sm text-muted">
-      {{ topic.translations.el?.description || t('noDescription') }}
+      {{ topic.translations[locale]?.description || t('noDescription') }}
     </div>
 
     <template v-if="topic.requiresConfirmation" #footer>

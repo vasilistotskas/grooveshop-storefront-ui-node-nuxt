@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n()
+
 const props = defineProps<{
   result: SearchResult
 }>()
@@ -14,13 +16,13 @@ const contentTypeInfo = computed(() => {
     return {
       icon: 'i-heroicons-shopping-bag',
       color: 'neutral' as const,
-      label: 'Προϊόν',
+      label: t('product'),
     }
   }
   return {
     icon: 'i-heroicons-document-text',
     color: 'secondary' as const,
-    label: 'Άρθρο',
+    label: t('article'),
   }
 })
 
@@ -104,3 +106,9 @@ const resultUrl = (result: SearchResult) => {
     />
   </UButton>
 </template>
+
+<i18n lang="yaml">
+el:
+  product: Προϊόν
+  article: Άρθρο
+</i18n>
