@@ -9,10 +9,7 @@ export const useSticky = (el: HTMLElement, offset: number) => {
     }
   }
 
-  window.addEventListener('scroll', onScroll)
-  onUnmounted(() => {
-    window.removeEventListener('scroll', onScroll)
-  })
+  useEventListener('scroll', onScroll)
 
   return {
     onScroll,
