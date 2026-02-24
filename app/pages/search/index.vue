@@ -109,26 +109,22 @@ const shortcuts = computed(() => [
 
 const inputRef = ref()
 
+const handleKeydown = (e: KeyboardEvent) => {
+  if (e.key === '/' && document.activeElement?.tagName !== 'INPUT') {
+    e.preventDefault()
+    inputRef.value.$el.querySelector('input')?.focus()
+  }
+  if (e.key === 'Escape' && document.activeElement?.tagName === 'INPUT') {
+    query.value = ''
+  }
+}
+
+useEventListener('keydown', handleKeydown)
+
 onMounted(() => {
   if (inputRef.value) {
     inputRef.value.$el.querySelector('input')?.focus()
   }
-
-  const handleKeydown = (e: KeyboardEvent) => {
-    if (e.key === '/' && document.activeElement?.tagName !== 'INPUT') {
-      e.preventDefault()
-      inputRef.value.$el.querySelector('input')?.focus()
-    }
-    if (e.key === 'Escape' && document.activeElement?.tagName === 'INPUT') {
-      query.value = ''
-    }
-  }
-
-  window.addEventListener('keydown', handleKeydown)
-
-  onUnmounted(() => {
-    window.removeEventListener('keydown', handleKeydown)
-  })
 })
 
 useHead({
