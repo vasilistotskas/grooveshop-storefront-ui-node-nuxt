@@ -32,8 +32,6 @@ export default defineNuxtPlugin({
       console.info('authEvent', authEvent.value)
 
       if (isAllAuthResponseSuccess(newAuthState) && newAuthState.meta?.is_authenticated) {
-        console.info('Authenticated')
-        await new Promise(resolve => setTimeout(resolve, 400))
         await fetch()
       }
 
@@ -81,7 +79,7 @@ export default defineNuxtPlugin({
           console.info('handleLoggedOut, clearing user session')
           await clear()
         }
-        return await navigateToUrl({ path: RedirectToURLs.LOGIN_REDIRECT_URL })
+        return await navigateToUrl({ path: RedirectToURLs.LOGOUT_REDIRECT_URL })
       }
       catch (error) {
         console.error('Error handling logged out:', error)
