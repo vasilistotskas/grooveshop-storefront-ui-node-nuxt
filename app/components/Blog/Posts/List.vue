@@ -208,7 +208,7 @@ watch(
           <Component
             :is="BlogPostCard"
             v-for="(post, index) in allPosts"
-            :key="index"
+            :key="post.id"
             :img-loading="imgLoading(index)"
             :img-fetch-priority="imgFetchPriority(index)"
             :preload="shouldPreload(index)"
