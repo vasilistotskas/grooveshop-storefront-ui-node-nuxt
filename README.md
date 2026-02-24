@@ -11,7 +11,7 @@ A full-featured **Nuxt 4 SSR e-commerce storefront** built with Vue 3 Compositio
 | **Framework** | [Nuxt 4](https://nuxt.com/) (SSR) |
 | **UI** | [Vue 3](https://vuejs.org/) Composition API, [`@nuxt/ui`](https://ui.nuxt.com/) v4, [Tailwind CSS 4](https://tailwindcss.com/) |
 | **State** | [Pinia](https://pinia.vuejs.org/) |
-| **i18n** | [`@nuxtjs/i18n`](https://i18n.nuxtjs.org/) (Greek, English, German) |
+| **i18n** | [`@nuxtjs/i18n`](https://i18n.nuxtjs.org/) (Greek) |
 | **Auth** | [django-allauth](https://docs.allauth.org/) headless + `nuxt-auth-utils` |
 | **Payments** | [Stripe](https://stripe.com/) |
 | **Search** | [Meilisearch](https://www.meilisearch.com/) |
@@ -34,7 +34,7 @@ A full-featured **Nuxt 4 SSR e-commerce storefront** built with Vue 3 Compositio
 - **Accessibility** — `@nuxt/a11y`, reduced-motion support, keyboard navigation
 - **GDPR Cookie Consent** with granular category control
 - **Cloudflare Turnstile** bot protection
-- **Internationalization** — Greek (default), English, German with typed routes
+- **Internationalization** — Greek with typed routes (English and German translations available but inactive)
 - **Image Optimization** — IPX for local images (AVIF, WebP), custom media stream provider for product images
 - **Dark Mode** with system preference detection
 
@@ -135,7 +135,7 @@ Browser  →  Nuxt SSR / Client  →  Nitro Server (/api/*)  →  Django REST AP
 
 - **API routes**: Validate with Zod → `$fetch` to Django → `parseDataAs` response → `handleError`
 - **Caching**: Redis with memory fallback, SWR for API data, immutable caching for static assets
-- **Auth**: django-allauth headless API proxied through Nuxt, session cookies via `nuxt-auth-utils`
+- **Auth**: django-allauth headless API proxied through Nuxt, session cookies via `nuxt-auth-utils`, OAuth tokens stored in encrypted server session
 - **Image handling**: Dual provider — IPX for local, custom mediaStream for product images
 - **State**: Pinia stores for client state, server sessions for auth/cart
 

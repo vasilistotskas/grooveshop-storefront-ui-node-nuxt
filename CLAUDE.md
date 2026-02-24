@@ -68,7 +68,7 @@ The Nuxt server acts as a **proxy** to the Django backend. Client-side code call
 ### Server Middleware
 
 - `1.locale.ts` — Locale detection: query param → i18n cookies → Accept-Language header → stores in `event.context.locale`
-- `log.ts` — Request logging with performance timing, warns on requests >200ms, sets Server-Timing header
+- `log.ts` — Request logging with performance timing, warns on requests >200ms
 - `redirects.ts` — 301 redirect from `www.` to non-www
 
 ### Server Plugins
@@ -91,12 +91,12 @@ Uses [django-allauth](https://docs.allauth.org/) headless API via `nuxt-auth-uti
 - **Client composables**: `useAllAuthAuthentication` (login/signup/OAuth/session), `useAllAuthAccount` (email/password), `useAllAuthSessions` (session management)
 - **Auth store** (`app/stores/auth.ts`): Holds config, session, authenticators (TOTP, WebAuthn, recovery codes), provides `setupConfig`/`setupSession`/etc.
 - **Auth plugin** (`app/plugins/auth.ts`): Listens to `auth:change` Nuxt hook, determines auth event type (LOGGED_IN/LOGGED_OUT/REAUTHENTICATED/FLOW_UPDATED), handles navigation. Depends on nothing, runs in parallel.
-- **Setup plugin** (`app/plugins/setup.ts`): Depends on `auth` plugin. SSR-critical: fetches config + session, then account + cart. Defers sessions/authenticators/notifications to client via `requestIdleCallback`.
+- **Setup plugin** (`app/plugins/setup.ts`): Depends on `auth` plugin. SSR-critical: fetches config + session, then account + cart. Defers sessions/authenticators/notifications to client via `requestIdleCallback` (with `setTimeout` fallback for Safari).
 - **WebSocket plugin** (`app/plugins/websocket.client.ts`): Client-only, connects to Django WebSocket at `/ws/notifications/` for real-time notifications. Uses BroadcastChannel and Web Notification API.
 - **Auth middleware** (`app/middleware/auth.global.ts`): Global — redirects unauthenticated users from protected routes (defined as `AuthenticatedRoutes` in `shared/constants/index.ts`)
 - **Guest middleware** (`app/middleware/guest.ts`): Prevents logged-in users from accessing login/signup pages
 - **Auth flow routing**: `Flow2path` constant maps allauth flow states to page routes (login, signup, MFA, reauthenticate, WebAuthn, recovery codes)
-- **Session types**: `shared/auth.d.ts` augments `#auth-utils` with `User`, `UserSession`, `SecureSessionData` (sessionToken, accessToken)
+- **Session types**: `shared/auth.d.ts` augments `#auth-utils` with `User`, `UserSession`, `SecureSessionData` (sessionToken, accessToken, oauthParams). Note: `setUserSession` uses defu merge (ignores undefined); use `replaceUserSession` to fully clear session keys
 - **Global types**: `global.d.ts` declares `$authState` and `$websocket` on Vue component properties and NuxtApp, plus `auth:change` runtime hook and `window.google` GSI types
 
 ### Image Handling
@@ -273,8 +273,12 @@ Active modules in `nuxt.config.ts`:
 - **Linting**: ESLint via `@nuxt/eslint` with stylistic rules + `eslint-plugin-better-tailwindcss` (with NuxtUI class ignores). Key relaxed rules: `no-explicit-any: off`, `ban-ts-comment: off`, `vue/no-v-html: off`, `vue/multi-word-component-names: off`, `vue/attribute-hyphenation: off`, `nuxt/prefer-import-meta: off`. Warns on: `vue/no-watch-after-await`, `vue/no-lifecycle-after-await`, unknown Tailwind classes.
 - **TypeScript**: Strict mode with type checking enabled. Typed pages (`experimental.typedPages: true`). `RouteNamedMapI18n` used for type-safe route names. Vite hoisted.
 - **Releases**: Semantic release on `main` branch with conventional commits (e.g., `feat:`, `fix:`, `chore:`)
-- **API route pattern**: Validate input with Zod → `$fetch` to Django → `parseDataAs` response → `handleError` in catch
+- **API route pattern**: Validate input with Zod → `$fetch` to Django → `parseDataAs` response → `handleError` in catch. `handleError` always throws — code after it is unreachable. Use `throw createError(...)` not `return createError(...)`.
 - **Zod version**: Zod 4 (import from `zod`, schemas prefixed with `z`)
+- **Store actions**: Must use `$fetch`, not `useFetch` (which is a setup-scope composable). `useLazyFetch` should not be `await`ed in `<script setup>` — it defeats lazy loading.
+- **SSR safety**: Use VueUse `useEventListener` instead of manual `window.addEventListener`/`removeEventListener`. Guard bare `window`/`document` access with `import.meta.client` or `onMounted`.
+- **Lifecycle hooks**: Vue does not await async lifecycle hooks. Use fire-and-forget with `.catch()` for cleanup work in `onBeforeUnmount`.
+- **i18n**: All user-facing strings must use `t()` from `useI18n()` or component-scoped `<i18n lang="yaml">` blocks — no hardcoded Greek or English strings. Use `extractTranslated(obj, field, locale)` for API model translations.
 
 ## Environment
 
