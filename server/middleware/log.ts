@@ -29,6 +29,4 @@ export default defineEventHandler(async (event) => {
     }
   })
 
-  // Set Server-Timing header for browser DevTools
-  res.setHeader('Server-Timing', `total;dur=${0}`)
 })

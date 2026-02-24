@@ -77,7 +77,7 @@ export default defineCachedEventHandler(async (event) => {
   }
   catch (error) {
     console.error('Error generating RSS feed:', error)
-    return createError({ statusCode: 500, statusMessage: 'Failed to generate RSS feed' })
+    throw createError({ statusCode: 500, statusMessage: 'Failed to generate RSS feed' })
   }
 }, {
   name: 'RssFeed',
