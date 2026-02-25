@@ -101,7 +101,6 @@ onMounted(() => {
           >
             <USkeleton
               class="h-12 w-20"
-              :ui="{ rounded: 'rounded-full' }"
             />
             <USkeleton class="h-[30px] w-full" />
           </li>

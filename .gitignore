@@ -34,7 +34,7 @@ coverage
 
 # AI
 .agents
-.claude
+.claude/settings.local.json
 .cursor
 .cursorrules
 .windsurfrules
