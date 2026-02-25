@@ -14,7 +14,10 @@ import { createI18n } from 'vue-i18n'
  * approach, but vue-i18n@11 defines `$i18n` via a non-writable
  * Object.defineProperty getter. A second `app.use()` call from
  * @nuxtjs/i18n then throws "Cannot set property $i18n … which has
- * only a getter". Using `post` + a guard eliminates that conflict.
+ * only a getter". Using `post` + guarding on `globalProperties.$i18n`
+ * eliminates that conflict: if @nuxtjs/i18n installed the Vue plugin
+ * but failed before nuxtApp.provide('i18n', …), we bridge the gap by
+ * providing it ourselves rather than re-installing the plugin.
  *
  * The `missing` handler returns the raw key, which is sufficient for
  * tests that only check message existence, not exact translations.
@@ -23,9 +26,21 @@ export default defineNuxtPlugin({
   name: 'test-i18n-mock',
   enforce: 'post',
   setup(nuxtApp) {
-    // @nuxtjs/i18n already initialized successfully — nothing to do.
-    if (nuxtApp.$i18n) return
+    const globalProperties = nuxtApp.vueApp.config.globalProperties
 
+    if (globalProperties.$i18n) {
+      // vue-i18n was installed by @nuxtjs/i18n. If it failed before calling
+      // nuxtApp.provide('i18n', ...) the $i18n getter exists on globalProperties
+      // but nuxtApp.$i18n is still undefined. Bridge that gap so that
+      // `const { $i18n } = useNuxtApp()` works in stores/composables.
+      if (!nuxtApp.$i18n) {
+        nuxtApp.provide('i18n', globalProperties.$i18n)
+      }
+      return
+    }
+
+    // vue-i18n was never installed (e.g. @nuxtjs/i18n failed before vueApp.use).
+    // Install a minimal fallback instance.
     const i18n = createI18n({
       legacy: false,
       locale: 'el',
