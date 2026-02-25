@@ -17,7 +17,7 @@ export default defineNitroPlugin(() => {
     keepAliveTimeout: 30000, // 30 seconds keep-alive
     keepAliveMaxTimeout: 60000, // Max 60 seconds
     connections: 100, // Max concurrent connections per origin
-    pipelining: 10, // Pipeline up to 10 requests per connection
+    pipelining: 1, // Sequential requests per connection (safer default)
     connect: {
       timeout: 10000, // 10 second connection timeout
       rejectUnauthorized: true, // Verify SSL in production
@@ -27,8 +27,10 @@ export default defineNitroPlugin(() => {
   // Set as global dispatcher for all $fetch calls
   setGlobalDispatcher(agent)
 
-  console.log('[Nitro HTTP Agent] ✅ Connection pooling enabled with undici Agent')
-  console.log('[Nitro HTTP Agent] - keepAliveTimeout: 30s')
-  console.log('[Nitro HTTP Agent] - connections: 100')
-  console.log('[Nitro HTTP Agent] - pipelining: 10')
+  if (import.meta.dev) {
+    console.log('[Nitro HTTP Agent] Connection pooling enabled with undici Agent')
+    console.log('[Nitro HTTP Agent] - keepAliveTimeout: 30s')
+    console.log('[Nitro HTTP Agent] - connections: 100')
+    console.log('[Nitro HTTP Agent] - pipelining: 1')
+  }
 })

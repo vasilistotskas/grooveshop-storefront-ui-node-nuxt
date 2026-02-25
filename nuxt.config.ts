@@ -6,7 +6,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxt/ui',
     '@nuxt/eslint',
-    '@nuxt/test-utils/module',
+    ...(process.env.NODE_ENV === 'test' ? ['@nuxt/test-utils/module'] : []),
     '@nuxt/scripts',
     '@nuxt/fonts',
     '@nuxt/icon',
@@ -123,7 +123,6 @@ export default defineNuxtConfig({
       appLogo: process.env.NUXT_PUBLIC_APP_LOGO,
       appTitle: process.env.NUXT_PUBLIC_APP_TITLE,
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
-      apiBaseUrl: process.env.NUXT_API_BASE_URL,
       author: {
         github_url: process.env.NUXT_PUBLIC_AUTHOR_GITHUB_URL,
         name: process.env.NUXT_PUBLIC_AUTHOR_NAME,
@@ -181,7 +180,6 @@ export default defineNuxtConfig({
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
     },
-    '/api/**': { cors: true },
     '/manifest.webmanifest': {
       headers: {
         'Content-Type': 'application/manifest+json',
@@ -194,7 +192,7 @@ export default defineNuxtConfig({
       },
       headers: {
         'Content-Type': 'image/x-icon',
-        'Cache-Control': 'max-age=31536000',
+        'Cache-Control': 'public, max-age=31536000',
       },
     },
     '/favicon.png': {
@@ -203,7 +201,7 @@ export default defineNuxtConfig({
       },
       headers: {
         'Content-Type': 'image/png',
-        'Cache-Control': 'max-age=31536000',
+        'Cache-Control': 'public, max-age=31536000',
       },
     },
     '/logo.svg': {
@@ -212,7 +210,7 @@ export default defineNuxtConfig({
       },
       headers: {
         'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'max-age=31536000',
+        'Cache-Control': 'public, max-age=31536000',
       },
     },
     '/favicon/**': {
@@ -220,7 +218,7 @@ export default defineNuxtConfig({
         maxAge: 60 * 60 * 24 * 365,
       },
       headers: {
-        'Cache-Control': 'max-age=31536000',
+        'Cache-Control': 'public, max-age=31536000',
       },
     },
     '/img/**': {
@@ -228,7 +226,7 @@ export default defineNuxtConfig({
         maxAge: 60 * 60 * 24 * 365,
       },
       headers: {
-        'Cache-Control': 'max-age=31536000',
+        'Cache-Control': 'public, max-age=31536000',
       },
     },
     '/screenshots/**': {
@@ -236,14 +234,12 @@ export default defineNuxtConfig({
         maxAge: 60 * 60 * 24 * 365,
       },
       headers: {
-        'Cache-Control': 'max-age=31536000',
+        'Cache-Control': 'public, max-age=31536000',
       },
     },
     '/_ipx/**': {
       headers: { 'cache-control': 'max-age=31536000' },
-      prerender: true,
     },
-    '/index': { redirect: '/' },
     // Static pages — prerender at build time (no SSR on each request)
     '/about': { prerender: true },
     '/contact': { prerender: true },
@@ -272,7 +268,7 @@ export default defineNuxtConfig({
       },
     },
   },
-  compatibilityDate: 'latest',
+  compatibilityDate: '2025-06-01',
   nitro: {
     prerender: {
       crawlLinks: false,
@@ -385,7 +381,7 @@ export default defineNuxtConfig({
       useCookie: true,
       redirectOn: 'all',
       cookieKey: 'i18n_redirected',
-      alwaysRedirect: true,
+      alwaysRedirect: false,
       cookieCrossOrigin: true,
       cookieSecure: true,
     },
@@ -429,7 +425,7 @@ export default defineNuxtConfig({
         'i-fa6-solid:circle-user',
       ],
       scan: {
-        globInclude: ['components/**/*.vue', 'app/**/*.vue', 'pages/**/*.vue', 'layouts/**/*.vue'],
+        globInclude: ['app/**/*.vue'],
         globExclude: ['node_modules', 'dist'],
       },
       sizeLimitKb: 128,
@@ -458,13 +454,12 @@ export default defineNuxtConfig({
       },
     },
     screens: {
-      'xs': 320,
-      'sm': 640,
-      'md': 768,
-      'lg': 1024,
-      'xl': 1280,
-      'xxl': 1536,
-      '2xl': 1536,
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536,
     },
   },
   linkChecker: {

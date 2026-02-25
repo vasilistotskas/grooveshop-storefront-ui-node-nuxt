@@ -83,7 +83,7 @@ const shouldFetchFavouriteProducts = computed(() => {
 })
 
 // User-specific data: client-side only to avoid blocking SSR
-await useLazyFetch('/api/products/favourites/favourites-by-products', {
+useLazyFetch('/api/products/favourites/favourites-by-products', {
   key: `favouritesByProducts${user.value?.id}`,
   method: 'POST',
   headers: useRequestHeaders(),
@@ -105,7 +105,7 @@ await useLazyFetch('/api/products/favourites/favourites-by-products', {
 
 // User-specific data: client-side only
 const { data: userProductReview, refresh: refreshUserProductReview }
-  = await useLazyFetch(`/api/products/reviews/${productId}/user-product-review`, {
+  = useLazyFetch(`/api/products/reviews/${productId}/user-product-review`, {
     key: `productReviews${productId}${user.value?.id}`,
     headers: useRequestHeaders(),
     method: 'GET',

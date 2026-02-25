@@ -16,7 +16,7 @@ export default defineCachedEventHandler(async (event) => {
 
     // Build the backend query
     const backendQuery: Record<string, unknown> = {
-      language_code: query.languageCode || 'en',
+      language_code: query.languageCode || 'el',
       active: true, // Only fetch active attributes
       page_size: 100, // Get up to 100 attributes (should be enough for most cases)
     }

@@ -10,7 +10,7 @@ const { cleanCartState } = cartStore
 const { getCartItems, hasStockIssues, cart } = storeToRefs(cartStore)
 
 if (hasStockIssues.value) {
-  navigateTo(localePath('cart'))
+  await navigateTo(localePath('cart'))
 }
 
 const { t, n, locale } = useI18n()

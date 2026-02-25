@@ -16,7 +16,7 @@ export default defineCachedEventHandler(async (event) => {
 
     // Build the backend query
     const backendQuery: Record<string, unknown> = {
-      language_code: query.languageCode || 'en',
+      language_code: query.languageCode || 'el',
       active: true, // Only fetch active attribute values
       page_size: 500, // Get up to 500 attribute values (should cover most catalogs)
     }

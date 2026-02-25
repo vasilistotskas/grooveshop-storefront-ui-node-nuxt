@@ -1,6 +1,6 @@
 import * as z from 'zod'
 
-export const ZodWebAuthnAuthenticatePostBody = z.object({
+const ZodWebAuthnCredentialBody = z.object({
   credential: z.object({
     type: z.string(),
     id: z.string(),
@@ -9,44 +9,16 @@ export const ZodWebAuthnAuthenticatePostBody = z.object({
       clientDataJSON: z.string(),
       authenticatorData: z.string(),
       signature: z.string(),
-      userHandle: z.string(),
+      userHandle: z.string().nullable(),
     }),
     authenticatorAttachment: z.string().nullish(),
     clientExtensionResults: z.any().optional(),
   }),
 })
 
-export const ZodWebAuthnReauthenticatePostBody = z.object({
-  credential: z.object({
-    type: z.string(),
-    id: z.string(),
-    rawId: z.any(),
-    response: z.object({
-      clientDataJSON: z.string(),
-      authenticatorData: z.string(),
-      signature: z.string(),
-      userHandle: z.string(),
-    }),
-    authenticatorAttachment: z.string().nullish(),
-    clientExtensionResults: z.any().optional(),
-  }),
-})
-
-export const ZodWebAuthnLoginPostBody = z.object({
-  credential: z.object({
-    type: z.string(),
-    id: z.string(),
-    rawId: z.any(),
-    response: z.object({
-      clientDataJSON: z.string(),
-      authenticatorData: z.string(),
-      signature: z.string(),
-      userHandle: z.string(),
-    }),
-    authenticatorAttachment: z.string().nullish(),
-    clientExtensionResults: z.any().optional(),
-  }),
-})
+export const ZodWebAuthnAuthenticatePostBody = ZodWebAuthnCredentialBody
+export const ZodWebAuthnReauthenticatePostBody = ZodWebAuthnCredentialBody
+export const ZodWebAuthnLoginPostBody = ZodWebAuthnCredentialBody
 
 export const ZodWebAuthnSignupPostBody = z.object({
   email: z.string(),

@@ -103,8 +103,8 @@ definePageMeta({
           class="flex w-full flex-col gap-4"
         >
           <UCard
-            v-for="(cartItem, index) in cart.items"
-            :key="index"
+            v-for="cartItem in cart.items"
+            :key="cartItem.id"
             v-bind="cardConfig"
             :ui="mainCardUI(cartItem)"
           >

@@ -3,20 +3,33 @@ import type { SupportedLocale } from '~~/i18n/locales'
 
 const RSS_CACHE_AGE = 60 * 60
 
-export default defineCachedEventHandler(async (event) => {
-  try {
-    const config = useRuntimeConfig()
-    const siteConfig = getSiteConfig(event)
-    const baseUrl = config.public.baseUrl
-    const apiBaseUrl = config.apiBaseUrl
+const cachedBlogCategory = defineCachedFunction(
+  async (url: string): Promise<BlogCategoryDetail> => {
+    return await $fetch<BlogCategoryDetail>(url, { method: 'GET' })
+  },
+  {
+    maxAge: RSS_CACHE_AGE,
+    name: 'cachedBlogCategory',
+    getKey: (url: string) => url,
+  },
+)
 
-    const locale: SupportedLocale = (event.context.locale || siteConfig.defaultLocale).split('-')[0]
-    const siteUrl = siteConfig.url
+const cachedProductCategoryDetail = defineCachedFunction(
+  async (url: string): Promise<ProductCategoryDetail> => {
+    return await $fetch<ProductCategoryDetail>(url, { method: 'GET' })
+  },
+  {
+    maxAge: RSS_CACHE_AGE,
+    name: 'cachedProductCategoryDetail',
+    getKey: (url: string) => url,
+  },
+)
 
-    // Initialize feed
+const generateRssFeed = defineCachedFunction(
+  async (locale: SupportedLocale, siteUrl: string, siteName: string, siteDescription: string, baseUrl: string, apiBaseUrl: string, mediaStreamPath: string): Promise<string> => {
     const feed = new RSS({
-      title: siteConfig.name,
-      description: siteConfig.description,
+      title: siteName,
+      description: siteDescription,
       site_url: siteUrl,
       feed_url: `${siteUrl}/rss.xml`,
       language: locale,
@@ -31,12 +44,8 @@ export default defineCachedEventHandler(async (event) => {
       },
     })
 
-    // Fetch blog posts and products in parallel
     const cachedBlogPosts = createCachedFetcher<BlogPost>('cachedBlogPosts', RSS_CACHE_AGE)
-    const cachedProducts = createCachedFetcher<Product>(
-      'cachedProducts',
-      RSS_CACHE_AGE,
-    )
+    const cachedProducts = createCachedFetcher<Product>('cachedProducts', RSS_CACHE_AGE)
 
     const [allPosts, allProducts] = await Promise.all([
       cachedBlogPosts(`${apiBaseUrl}/blog/post`),
@@ -46,13 +55,9 @@ export default defineCachedEventHandler(async (event) => {
     const blogPosts = allPosts.map(post => zBlogPost.parse(post))
     const activeProducts = allProducts.filter(product => product.active !== false)
 
-    // Process blog posts
-    const blogItems = await processBlogPosts(blogPosts, locale, config, baseUrl, apiBaseUrl)
+    const blogItems = await processBlogPosts(blogPosts, locale, baseUrl, apiBaseUrl, mediaStreamPath)
+    const productItems = await processProducts(activeProducts, locale, baseUrl, apiBaseUrl, mediaStreamPath)
 
-    // Process products
-    const productItems = await processProducts(activeProducts, locale, config, baseUrl, apiBaseUrl)
-
-    // Combine and sort all items by date (newest first)
     const allItems = [...blogItems, ...productItems].sort(
       (a, b) => {
         const dateA = a.date instanceof Date ? a.date : new Date(a.date)
@@ -61,12 +66,39 @@ export default defineCachedEventHandler(async (event) => {
       },
     )
 
-    // Add all items to feed
     for (const item of allItems) {
       feed.item(item)
     }
 
-    const feedString = feed.xml({ indent: true })
+    return feed.xml({ indent: true })
+  },
+  {
+    name: 'RssFeed',
+    maxAge: RSS_CACHE_AGE,
+    staleMaxAge: RSS_CACHE_AGE * 24,
+    swr: true,
+    getKey: (locale: string) => `rss-${locale}`,
+  },
+)
+
+export default defineEventHandler(async (event) => {
+  try {
+    const config = useRuntimeConfig()
+    const siteConfig = getSiteConfig(event)
+    const baseUrl = config.public.baseUrl
+    const apiBaseUrl = config.apiBaseUrl
+
+    const locale: SupportedLocale = (event.context.locale || siteConfig.defaultLocale).split('-')[0]
+
+    const feedString = await generateRssFeed(
+      locale,
+      siteConfig.url,
+      siteConfig.name,
+      siteConfig.description,
+      baseUrl,
+      apiBaseUrl,
+      config.mediaStreamPath,
+    )
 
     setHeaders(event, {
       'Content-Type': 'application/rss+xml; charset=UTF-8',
@@ -79,32 +111,16 @@ export default defineCachedEventHandler(async (event) => {
     console.error('Error generating RSS feed:', error)
     throw createError({ statusCode: 500, statusMessage: 'Failed to generate RSS feed' })
   }
-}, {
-  name: 'RssFeed',
-  maxAge: RSS_CACHE_AGE, // 1 hour
-  staleMaxAge: RSS_CACHE_AGE * 24, // Serve stale for 24 hours while revalidating
-  swr: true,
 })
 
 async function processBlogPosts(
   blogPosts: BlogPost[],
   locale: SupportedLocale,
-  config: ReturnType<typeof useRuntimeConfig>,
   baseUrl: string,
   apiBaseUrl: string,
+  mediaStreamPath: string,
 ): Promise<RSS.ItemOptions[]> {
   const items: RSS.ItemOptions[] = []
-
-  const cachedCategory = defineCachedFunction(
-    async (url: string): Promise<BlogCategoryDetail> => {
-      return await $fetch<BlogCategoryDetail>(url, { method: 'GET' })
-    },
-    {
-      maxAge: RSS_CACHE_AGE,
-      name: 'cachedBlogCategory',
-      getKey: (url: string) => url,
-    },
-  )
 
   for (const post of blogPosts) {
     const translation = post.translations?.[locale] || Object.values(post.translations || {})[0]
@@ -114,7 +130,7 @@ async function processBlogPosts(
       continue
     }
 
-    const mainImageUrl = encodeURI(`${config.mediaStreamPath}/${post.mainImagePath}/472/311/cover/attention/transparent/5/webp/100`)
+    const mainImageUrl = encodeURI(`${mediaStreamPath}/${post.mainImagePath}/472/311/cover/attention/transparent/5/webp/100`)
     const mimeType = post.mainImagePath ? getMimeType(post.mainImagePath) : undefined
 
     let description = translation.subtitle || ''
@@ -132,7 +148,7 @@ async function processBlogPosts(
       pubDate = new Date(post.createdAt)
     }
 
-    const category = await cachedCategory(`${apiBaseUrl}/blog/category/${post.category}`)
+    const category = await cachedBlogCategory(`${apiBaseUrl}/blog/category/${post.category}`)
     const categoryName = category?.translations?.[locale]?.name
     const categories = categoryName ? [categoryName] : []
 
@@ -174,24 +190,11 @@ async function processBlogPosts(
 async function processProducts(
   products: Product[],
   locale: SupportedLocale,
-  config: ReturnType<typeof useRuntimeConfig>,
   baseUrl: string,
   apiBaseUrl: string,
+  mediaStreamPath: string,
 ): Promise<RSS.ItemOptions[]> {
   const items: RSS.ItemOptions[] = []
-
-  const cachedProductCategory = defineCachedFunction(
-    async (url: string): Promise<ProductCategoryDetail> => {
-      return await $fetch<ProductCategoryDetail>(url, {
-        method: 'GET',
-      })
-    },
-    {
-      maxAge: RSS_CACHE_AGE,
-      name: 'cachedProductCategoryDetail',
-      getKey: (url: string) => url,
-    },
-  )
 
   for (const product of products) {
     const translation = product.translations?.[locale] || Object.values(product.translations || {})[0]
@@ -202,11 +205,10 @@ async function processProducts(
     }
 
     const mainImageUrl = product.mainImagePath
-      ? encodeURI(`${config.mediaStreamPath}/${product.mainImagePath}/472/311/cover/attention/transparent/5/webp/100`)
+      ? encodeURI(`${mediaStreamPath}/${product.mainImagePath}/472/311/cover/attention/transparent/5/webp/100`)
       : ''
     const mimeType = product.mainImagePath ? getMimeType(product.mainImagePath) : undefined
 
-    // Build description with product details
     let description = translation.description || translation.name || ''
     if (mainImageUrl) {
       description = `<img src="${mainImageUrl}" alt="${translation.name}" />\n` + description
@@ -214,11 +216,10 @@ async function processProducts(
 
     const pubDate = new Date(product.createdAt)
 
-    // Get product category
     const categories: string[] = []
     if (product.category) {
       try {
-        const category = await cachedProductCategory(`${apiBaseUrl}/product/category/${product.category}`)
+        const category = await cachedProductCategoryDetail(`${apiBaseUrl}/product/category/${product.category}`)
         const categoryTranslation = category?.translations?.[locale]
         if (categoryTranslation?.name) {
           categories.push(categoryTranslation.name)
@@ -229,7 +230,6 @@ async function processProducts(
       }
     }
 
-    // Build custom elements with product-specific data
     const customElements: Array<Record<string, unknown>> = [
       { 'atom:updated': new Date(product.updatedAt).toISOString() },
       { 'product:price': product.finalPrice },
@@ -251,18 +251,15 @@ async function processProducts(
       customElements.push({ 'media:title': translation.name })
     }
 
-    // Add discount info if applicable
     if (product.discountPercent && product.discountPercent > 0) {
       customElements.push({ 'product:discount': `${product.discountPercent}%` })
       customElements.push({ 'product:originalPrice': product.price })
     }
 
-    // Add stock info
     if (typeof product.stock === 'number') {
       customElements.push({ 'product:availability': product.stock > 0 ? 'in stock' : 'out of stock' })
     }
 
-    // Add review info
     if (product.reviewCount > 0) {
       customElements.push({ 'product:rating': product.reviewAverage })
       customElements.push({ 'product:reviewCount': product.reviewCount })

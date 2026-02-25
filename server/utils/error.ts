@@ -12,10 +12,10 @@ export function isAllAuthError(error: unknown): error is AllAuthError {
     || isNotFoundResponseError(error) || isConflictResponseError(error)
 }
 
-export async function handleError(
+export function handleError(
   error: unknown,
-) {
-  console.error('Handling error')
+): never {
+  if (import.meta.dev) console.error('Handling error')
   if (typeof error === 'object' && error !== null && 'data' in error) {
     if (error.data instanceof ZodError) {
       console.error('Zod Message:', error.data.message)

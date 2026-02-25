@@ -76,7 +76,7 @@ const { data: likedPostsData } = await useFetch('/api/blog/posts/liked-posts', {
 })
 
 // Below-the-fold content: use useLazyFetch to not block navigation
-const { data: relatedPosts, status: relatedPostsStatus } = await useLazyFetch(`/api/blog/posts/${blogPostId.value}/related-posts`, {
+const { data: relatedPosts, status: relatedPostsStatus } = useLazyFetch(`/api/blog/posts/${blogPostId.value}/related-posts`, {
   key: `relatedPosts${blogPostId.value}`,
   method: 'GET',
   headers: useRequestHeaders(),
@@ -185,7 +185,9 @@ const scrollToComments = () => {
 
 // Track view count using composable (client-side only, fire-and-forget)
 const { trackView } = useViewCount()
-trackView('blog', blogPostId.value)
+onMounted(() => {
+  trackView('blog', blogPostId.value!)
+})
 
 onReactivated(async () => {
   await refresh()

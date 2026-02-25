@@ -179,9 +179,10 @@ const debouncedHandleResize = () => {
   }, 300)
 }
 
+useEventListener('resize', debouncedHandleResize)
+
 onMounted(() => {
   createObserver()
-  window.addEventListener('resize', debouncedHandleResize)
 })
 
 watch(
@@ -218,7 +219,6 @@ watch(
 
 onUnmounted(() => {
   destroyObserver()
-  window.removeEventListener('resize', debouncedHandleResize)
   clearCursorState()
 })
 </script>

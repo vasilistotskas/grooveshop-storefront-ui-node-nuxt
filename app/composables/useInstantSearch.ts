@@ -268,6 +268,14 @@ export function useInstantSearch<T = any>(
     { immediate: true },
   )
 
+  onScopeDispose(() => {
+    if (abortController) {
+      abortController.abort()
+      abortController = null
+    }
+    stopWatcher()
+  })
+
   return {
     searchQuery,
     results,

@@ -147,7 +147,7 @@ describe('Server Utils - Error', () => {
   })
 
   describe('handleError', () => {
-    it('should throw ZodError', async () => {
+    it('should throw ZodError', () => {
       const zodError = new ZodError([
         {
           code: 'invalid_type',
@@ -161,31 +161,31 @@ describe('Server Utils - Error', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn(err => err))
 
-      await expect(handleError(zodError)).rejects.toThrow()
+      expect(() => handleError(zodError)).toThrow()
       consoleErrorSpy.mockRestore()
     })
 
-    it('should throw FetchError', async () => {
+    it('should throw FetchError', () => {
       const fetchError = new FetchError('Network error')
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn(err => err))
 
-      await expect(handleError(fetchError)).rejects.toThrow()
+      expect(() => handleError(fetchError)).toThrow()
       consoleErrorSpy.mockRestore()
     })
 
-    it('should throw H3Error', async () => {
+    it('should throw H3Error', () => {
       const h3Error = new H3Error('Bad Request')
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn(err => err))
 
-      await expect(handleError(h3Error)).rejects.toThrow()
+      expect(() => handleError(h3Error)).toThrow()
       consoleErrorSpy.mockRestore()
     })
 
-    it('should throw generic error for unknown error types', async () => {
+    it('should throw generic error for unknown error types', () => {
       const unknownError = new Error('Unknown error')
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
@@ -196,7 +196,7 @@ describe('Server Utils - Error', () => {
       }))
 
       try {
-        await handleError(unknownError)
+        handleError(unknownError)
         expect.fail('Should have thrown an error')
       }
       catch (error: any) {
@@ -208,7 +208,7 @@ describe('Server Utils - Error', () => {
       }
     })
 
-    it('should log ZodError message', async () => {
+    it('should log ZodError message', () => {
       const zodError = new ZodError([
         {
           code: 'invalid_type',
@@ -223,54 +223,51 @@ describe('Server Utils - Error', () => {
       vi.stubGlobal('createError', vi.fn(err => err))
 
       try {
-        await handleError(zodError)
+        handleError(zodError)
       }
       catch {
         // Expected to throw
       }
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Handling error')
       expect(consoleErrorSpy).toHaveBeenCalledWith('Zod Message:', expect.any(String))
       consoleErrorSpy.mockRestore()
     })
 
-    it('should log FetchError message', async () => {
+    it('should log FetchError message', () => {
       const fetchError = new FetchError('Network error')
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn(err => err))
 
       try {
-        await handleError(fetchError)
+        handleError(fetchError)
       }
       catch {
         // Expected to throw
       }
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Handling error')
       expect(consoleErrorSpy).toHaveBeenCalledWith('Fetch Error:', 'Network error')
       consoleErrorSpy.mockRestore()
     })
 
-    it('should log H3Error message', async () => {
+    it('should log H3Error message', () => {
       const h3Error = new H3Error('Bad Request')
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.stubGlobal('createError', vi.fn(err => err))
 
       try {
-        await handleError(h3Error)
+        handleError(h3Error)
       }
       catch {
         // Expected to throw
       }
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Handling error')
       expect(consoleErrorSpy).toHaveBeenCalledWith('H3 Error:', 'Bad Request')
       consoleErrorSpy.mockRestore()
     })
 
-    it('should handle error with ZodError in data property', async () => {
+    it('should handle error with ZodError in data property', () => {
       const zodError = new ZodError([
         {
           code: 'invalid_type',
@@ -293,13 +290,12 @@ describe('Server Utils - Error', () => {
       }))
 
       try {
-        await handleError(errorWithData)
+        handleError(errorWithData)
       }
       catch {
         // Expected to throw
       }
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Handling error')
       expect(consoleErrorSpy).toHaveBeenCalledWith('Zod Message:', expect.any(String))
       consoleErrorSpy.mockRestore()
     })

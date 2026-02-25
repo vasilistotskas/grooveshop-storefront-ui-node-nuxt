@@ -142,19 +142,17 @@ export function useHtmlContent() {
     const sources = getImageSources(html).slice(0, limit)
     const config = getDefaultConfig()
 
-    sources.forEach((src) => {
-      if (shouldTransformImage(src, { ...defaultHtmlImageConfig, ...config })) {
-        const optimizedSrc = buildMediaStreamUrl(
-          src,
-          { ...defaultHtmlImageConfig, ...config },
-        )
-        const link = document.createElement('link')
-        link.rel = 'preload'
-        link.as = 'image'
-        link.href = optimizedSrc
-        document.head.appendChild(link)
-      }
-    })
+    const links = sources
+      .filter(src => shouldTransformImage(src, { ...defaultHtmlImageConfig, ...config }))
+      .map(src => ({
+        rel: 'preload' as const,
+        as: 'image' as const,
+        href: buildMediaStreamUrl(src, { ...defaultHtmlImageConfig, ...config }),
+      }))
+
+    if (links.length) {
+      useHead({ link: links })
+    }
   }
 
   return {

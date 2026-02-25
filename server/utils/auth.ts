@@ -37,45 +37,25 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
 export async function processAllAuthSession(response: AllAuthResponse, accessToken?: string | null, sessionToken?: string | null) {
   const event = useEvent()
 
-  if (response.meta?.session_token) {
-    console.info('Setting session token from response')
-    appendResponseHeader(event, 'X-Session-Token', response.meta.session_token)
-    await setUserSession(event, {
-      secure: {
-        sessionToken: response.meta.session_token,
-      },
-    })
+  const resolvedSessionToken = response.meta?.session_token ?? sessionToken
+  const resolvedAccessToken = response.meta?.access_token ?? accessToken
+
+  if (resolvedSessionToken) {
+    if (import.meta.dev) console.info('Setting session token')
+    appendResponseHeader(event, 'X-Session-Token', resolvedSessionToken)
   }
-  else if (sessionToken) {
-    console.info('Setting session token from parameter')
-    appendResponseHeader(event, 'X-Session-Token', sessionToken)
+
+  if (resolvedSessionToken || resolvedAccessToken) {
     await setUserSession(event, {
       secure: {
-        sessionToken,
-      },
-    })
-  }
-  if (response.meta?.access_token) {
-    console.info('Setting access token from response')
-    appendResponseHeader(event, 'Authorization', `Bearer ${response.meta.access_token}`)
-    await setUserSession(event, {
-      secure: {
-        accessToken: response.meta.access_token,
-      },
-    })
-  }
-  else if (accessToken) {
-    console.info('Setting access token from parameter')
-    appendResponseHeader(event, 'Authorization', `Bearer ${accessToken}`)
-    await setUserSession(event, {
-      secure: {
-        accessToken,
+        ...(resolvedSessionToken ? { sessionToken: resolvedSessionToken } : {}),
+        ...(resolvedAccessToken ? { accessToken: resolvedAccessToken } : {}),
       },
     })
   }
 
   if ((response.status === 200 && response.meta?.access_token && response.data.user) || response.meta?.is_authenticated) {
-    console.info('Fetching user data')
+    if (import.meta.dev) console.info('Fetching user data')
     await fetchUserData(response, accessToken)
   }
 }

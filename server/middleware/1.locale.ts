@@ -2,11 +2,13 @@ import { getCookie } from 'h3'
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '~~/i18n/locales'
 
 export default defineEventHandler((event) => {
+  if (event.path.startsWith('/_nuxt') || event.path.startsWith('/_ipx') || event.path.startsWith('/assets')) return
+
   let locale: string = DEFAULT_LOCALE
 
   // Priority 1: Check query parameter (e.g., ?locale=en)
   const query = getQuery(event)
-  if (query.locale && typeof query.locale === 'string') {
+  if (query.locale && typeof query.locale === 'string' && SUPPORTED_LOCALES.includes(query.locale as any)) {
     locale = query.locale
   }
   else {
@@ -24,8 +26,6 @@ export default defineEventHandler((event) => {
       // Priority 3: Check Accept-Language header
       const acceptLanguage = getHeader(event, 'accept-language')
       if (acceptLanguage) {
-        // Parse the first language from Accept-Language header
-        // Format: "en-US,en;q=0.9,el;q=0.8"
         const firstLang = acceptLanguage.split(',')[0]?.split('-')[0]?.toLowerCase()
         if (firstLang && SUPPORTED_LOCALES.includes(firstLang as any)) {
           locale = firstLang
@@ -34,7 +34,5 @@ export default defineEventHandler((event) => {
     }
   }
 
-  // Store locale in event context for use in API routes
-  console.debug(`[Locale] Locale Middleware Detected: ${locale}`)
   event.context.locale = locale
 })

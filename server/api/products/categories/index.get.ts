@@ -1,6 +1,12 @@
+import { z } from 'zod'
+
 export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const query = getQuery(event)
+  const query = await getValidatedQuery(event, z.object({
+    idIn: z.union([z.string(), z.array(z.string())]).optional(),
+    languageCode: z.string().optional(),
+    pageSize: z.union([z.number(), z.string()]).optional(),
+  }).passthrough().parse)
 
   // Build the backend query, mapping frontend params to Django filter params
   const backendQuery: Record<string, unknown> = { ...query }

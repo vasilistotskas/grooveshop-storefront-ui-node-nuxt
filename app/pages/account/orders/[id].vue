@@ -248,7 +248,6 @@ function getPaymentStatusColor(status?: string): 'success' | 'error' | 'warning'
 
 async function handleCancelOrder() {
   if (!order.value?.canBeCanceled) return
-  console.log('Cancelling order:', orderId)
 }
 
 async function handleTrackOrder() {

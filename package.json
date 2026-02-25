@@ -36,13 +36,10 @@
   },
   "dependencies": {
     "@internationalized/date": "3.11.0",
-    "@nuxt/a11y": "1.0.0-alpha.1",
-    "@nuxt/eslint": "1.15.2",
     "@nuxt/fonts": "0.14.0",
     "@nuxt/icon": "2.2.1",
     "@nuxt/image": "1.11.0",
     "@nuxt/scripts": "0.13.2",
-    "@nuxt/test-utils": "4.0.0",
     "@nuxt/ui": "4.5.0",
     "@nuxtjs/device": "4.0.0",
     "@nuxtjs/i18n": "10.2.3",
@@ -50,7 +47,6 @@
     "@pinia/nuxt": "0.11.3",
     "@tailwindcss/typography": "0.5.19",
     "@vueuse/nuxt": "14.2.1",
-    "coveralls-next": "6.0.1",
     "defu": "6.1.4",
     "h3": "1.15.4",
     "hookable": "6.0.1",
@@ -72,6 +68,10 @@
   },
   "devDependencies": {
     "@headlessui/vue": "1.7.23",
+    "@nuxt/a11y": "1.0.0-alpha.1",
+    "@nuxt/eslint": "1.15.2",
+    "@nuxt/test-utils": "4.0.0",
+    "coveralls-next": "6.0.1",
     "@hey-api/openapi-ts": "0.93.0",
     "@iconify-json/ant-design": "1.2.5",
     "@iconify-json/fa-solid": "1.2.2",
@@ -139,14 +139,6 @@
         "@semantic-release/github",
         {
           "assets": [
-            {
-              "path": ".nuxt/dist/client",
-              "label": "Client"
-            },
-            {
-              "path": ".nuxt/dist/server",
-              "label": "Server"
-            },
             {
               "path": ".output",
               "label": "Output"

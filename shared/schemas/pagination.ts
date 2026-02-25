@@ -7,11 +7,11 @@ export const ZodPagination = <T>(
     links: z.object({
       next: z.string().nullish(),
       previous: z.string().nullish(),
-    }),
+    }).optional(),
     count: z.number(),
-    totalPages: z.number(),
-    pageTotalResults: z.number(),
-    pageSize: z.number(),
+    totalPages: z.number().optional(),
+    pageTotalResults: z.number().optional(),
+    pageSize: z.number().optional(),
     page: z.number().optional(),
     results: z.array(resultSchema),
   })

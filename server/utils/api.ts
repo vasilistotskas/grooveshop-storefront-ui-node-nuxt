@@ -19,6 +19,8 @@ export function getMimeType(filePath: string): string {
   }
 }
 
+const MAX_PAGES = 100
+
 /**
  * Creates a cached fetcher for paginated data.
  *
@@ -35,7 +37,10 @@ export function createCachedFetcher<T>(
       const fetchAll = async (
         currentUrl: string,
         accumulatedItems: T[] = [],
+        pageCount: number = 0,
       ): Promise<T[]> => {
+        if (pageCount >= MAX_PAGES) return accumulatedItems
+
         const response = await $fetch<Pagination<T>>(currentUrl, {
           method: 'GET',
         })
@@ -47,7 +52,7 @@ export function createCachedFetcher<T>(
         }
 
         if (links?.next) {
-          return await fetchAll(links.next, accumulatedItems)
+          return await fetchAll(links.next, accumulatedItems, pageCount + 1)
         }
 
         return accumulatedItems

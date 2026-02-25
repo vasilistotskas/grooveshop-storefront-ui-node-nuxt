@@ -85,7 +85,11 @@ export const ZodWebAuthnSignupGetResponse = z.object({
   }),
 })
 
-export const ZodWebAuthnSignupPostResponse = z.any()
+export const ZodWebAuthnSignupPostResponse = z.object({
+  status: z.literal(200),
+  data: ZodAuthenticated,
+  meta: ZodAuthenticationMeta,
+})
 
 export const ZodWebAuthnSignupPutResponse = z.object({
   status: z.literal(200),

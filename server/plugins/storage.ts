@@ -41,7 +41,7 @@ function createRedisDriver({ host, port, ttl }: RedisDriverOptions): Driver {
     maxRetriesPerRequest: 3,
     retryStrategy: (times: number) => {
       if (times > 3) {
-        console.warn(`[Cache] ioredis: Max retries reached, giving up`)
+        if (import.meta.dev) console.warn(`[Cache] ioredis: Max retries reached, giving up`)
         return null
       }
       return Math.min(times * 200, 2000)
@@ -75,11 +75,16 @@ async function testRedisConnection(host: string, port: number): Promise<boolean>
   try {
     await client.connect()
     const pong = await client.ping()
-    await client.disconnect()
     return pong === 'PONG'
   }
   catch {
     return false
+  }
+  finally {
+    try {
+      await client.disconnect()
+    }
+    catch { /* ignore disconnect errors */ }
   }
 }
 
@@ -99,21 +104,21 @@ export default defineNitroPlugin(async () => {
 
   if (!useRedis) {
     storage.mount(CACHE_MOUNT_POINT, memoryDriver())
-    console.log(`[Cache] Using memory driver (NUXT_CACHE_BASE=${config.cacheBase})`)
+    if (import.meta.dev) console.log(`[Cache] Using memory driver (NUXT_CACHE_BASE=${config.cacheBase})`)
     return
   }
 
-  console.log(`[Cache] Testing Redis connection at ${redisHost}:${redisPort}...`)
+  if (import.meta.dev) console.log(`[Cache] Testing Redis connection at ${redisHost}:${redisPort}...`)
 
   const isConnected = await testRedisConnection(redisHost, redisPort)
 
   if (isConnected) {
     const driver = createRedisDriver({ host: redisHost, port: redisPort, ttl: redisTTL })
     storage.mount(CACHE_MOUNT_POINT, driver)
-    console.log(`[Cache] ✅ Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort}, TTL: ${redisTTL}s)`)
+    if (import.meta.dev) console.log(`[Cache] Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort}, TTL: ${redisTTL}s)`)
   }
   else {
     storage.mount(CACHE_MOUNT_POINT, memoryDriver())
-    console.warn(`[Cache] ⚠️ Redis unavailable, using memory driver (not shared across pods!)`)
+    if (import.meta.dev) console.warn(`[Cache] Redis unavailable, using memory driver (not shared across pods!)`)
   }
 })

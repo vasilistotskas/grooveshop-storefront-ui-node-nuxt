@@ -24,7 +24,7 @@ export default defineNuxtModule<ModuleOptions>({
   },
   defaults: DEFAULTS,
 
-  async setup(moduleOptions: ModuleOptions, nuxt: Nuxt) {
+  setup(moduleOptions: ModuleOptions, nuxt: Nuxt) {
     nuxt.options.alias['#cookie-control'] = cookiesDir
     nuxt.options.build.transpile.push(cookiesDir)
 
