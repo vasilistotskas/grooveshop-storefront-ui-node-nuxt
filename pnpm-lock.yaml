@@ -201,9 +201,9 @@ importers:
       '@vueuse/shared':
         specifier: 14.2.1
         version: 14.2.1(vue@3.5.29(typescript@5.9.3))
-      coveralls-next:
-        specifier: 6.0.1
-        version: 6.0.1
+      eslint:
+        specifier: 9.39.3
+        version: 9.39.3(jiti@2.6.1)
       eslint-plugin-better-tailwindcss:
         specifier: 4.3.0
         version: 4.3.0(eslint@9.39.3(jiti@2.6.1))(tailwindcss@4.2.1)(typescript@5.9.3)
@@ -4019,11 +4019,6 @@ packages:
       typescript:
         optional: true
 
-  coveralls-next@6.0.1:
-    resolution: {integrity: sha512-G0xhUJE9M3OCKf8Xn/cGWrIh4xJI1w7MgJx30HpUfJf6yxyFS1SVGgXtFKmPGb5qEEh4H6oTUk0JQRVjq0ZgDQ==}
-    engines: {node: '>=20'}
-    hasBin: true
-
   crc-32@1.2.2:
     resolution: {integrity: sha512-ROmzCKrTnOwybPcJApAA6WBWij23HVfGVNKqqrZpuyZOHqK2CwHSvpGuyt/UNNvaIjEd8X5IFGp4Mh+Ie1IHJQ==}
     engines: {node: '>=0.8'}
@@ -5290,10 +5285,6 @@ packages:
   lazystream@1.0.1:
     resolution: {integrity: sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw==}
     engines: {node: '>= 0.6.3'}
-
-  lcov-parse@1.0.0:
-    resolution: {integrity: sha512-aprLII/vPzuQvYZnDRU78Fns9I2Ag3gi4Ipga/hxnVMCZC8DnR2nI7XBqrPoywGfxqIx/DgarGvDJZAD3YBTgQ==}
-    hasBin: true
 
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
@@ -11921,11 +11912,6 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  coveralls-next@6.0.1:
-    dependencies:
-      js-yaml: 4.1.1
-      lcov-parse: 1.0.0
-
   crc-32@1.2.2: {}
 
   crc32-stream@6.0.0:
@@ -13288,8 +13274,6 @@ snapshots:
   lazystream@1.0.1:
     dependencies:
       readable-stream: 2.3.8
-
-  lcov-parse@1.0.0: {}
 
   levn@0.4.1:
     dependencies:
