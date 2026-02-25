@@ -10,7 +10,6 @@ permissions:
   contents: read
 
 env:
-  COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
   SYSTEM_ENV: ci
 
 jobs:
@@ -80,12 +79,22 @@ jobs:
           NODE_ENV: test
           CI: true
 
-      - name: Upload coverage to Coveralls
-        uses: coverallsapp/github-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          path-to-lcov: ./coverage/lcov.info
-        continue-on-error: true
+      - name: Coverage summary
+        if: always()
+        run: |
+          if [ -f coverage/coverage-summary.json ]; then
+            echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
+            node -e "
+              const fs = require('fs');
+              const s = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8')).total;
+              console.log('| Metric | Coverage | Covered / Total |');
+              console.log('|--------|----------|-----------------|');
+              console.log(\`| Statements | \${s.statements.pct}% | \${s.statements.covered} / \${s.statements.total} |\`);
+              console.log(\`| Branches   | \${s.branches.pct}% | \${s.branches.covered} / \${s.branches.total} |\`);
+              console.log(\`| Functions  | \${s.functions.pct}% | \${s.functions.covered} / \${s.functions.total} |\`);
+              console.log(\`| Lines      | \${s.lines.pct}% | \${s.lines.covered} / \${s.lines.total} |\`);
+            " >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v6

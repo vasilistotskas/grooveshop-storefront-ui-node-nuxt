@@ -88,7 +88,7 @@ async function testRedisConnection(host: string, port: number): Promise<boolean>
   }
 }
 
-export default defineNitroPlugin(async () => {
+export default defineNitroPlugin(async (nitroApp) => {
   const storage = useStorage()
   const config = useRuntimeConfig()
 
@@ -107,6 +107,12 @@ export default defineNitroPlugin(async () => {
     if (import.meta.dev) console.log(`[Cache] Using memory driver (NUXT_CACHE_BASE=${config.cacheBase})`)
     return
   }
+
+  // Unmount the cache driver on shutdown so ioredis connections are closed and
+  // the process can exit cleanly after prerender (or normal server shutdown).
+  nitroApp.hooks.hookOnce('close', async () => {
+    await storage.unmount(CACHE_MOUNT_POINT).catch(() => {})
+  })
 
   if (import.meta.dev) console.log(`[Cache] Testing Redis connection at ${redisHost}:${redisPort}...`)
 

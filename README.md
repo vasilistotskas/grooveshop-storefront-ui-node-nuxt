@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/github/vasilistotskas/grooveshop-storefront-ui-node-nuxt/badge.svg?branch=main)](https://coveralls.io/github/vasilistotskas/grooveshop-storefront-ui-node-nuxt?branch=main)
+[![CI](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/actions/workflows/ci.yml/badge.svg)](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/actions/workflows/ci.yml)
 
 # GrooveShop Nuxt Storefront
 

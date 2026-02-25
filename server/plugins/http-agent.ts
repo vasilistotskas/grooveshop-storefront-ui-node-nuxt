@@ -11,7 +11,7 @@ import { Agent, setGlobalDispatcher } from 'undici'
  * Without this, each $fetch call creates a new TCP connection,
  * adding ~50-100ms latency per request in production.
  */
-export default defineNitroPlugin(() => {
+export default defineNitroPlugin((nitroApp) => {
   // Create undici Agent with connection pooling and keep-alive
   const agent = new Agent({
     keepAliveTimeout: 30000, // 30 seconds keep-alive
@@ -26,6 +26,10 @@ export default defineNitroPlugin(() => {
 
   // Set as global dispatcher for all $fetch calls
   setGlobalDispatcher(agent)
+
+  // Close the agent when Nitro shuts down (including after prerender) so open
+  // keep-alive sockets don't prevent the build process from exiting.
+  nitroApp.hooks.hookOnce('close', () => agent.close())
 
   if (import.meta.dev) {
     console.log('[Nitro HTTP Agent] Connection pooling enabled with undici Agent')
