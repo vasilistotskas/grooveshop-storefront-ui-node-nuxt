@@ -49,30 +49,34 @@ if (!product.value) {
   })
 }
 
-const { data: productImages } = await useFetch(
-  `/api/products/${product.value?.id}/images`,
-  {
-    key: `productImages${product.value?.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      languageCode: locale,
+// Fetch images and reviews in parallel (both needed for SSR/Schema.org)
+const [
+  { data: productImages },
+  { data: productReviews },
+] = await Promise.all([
+  useFetch(
+    `/api/products/${product.value?.id}/images`,
+    {
+      key: `productImages${product.value?.id}`,
+      method: 'GET',
+      headers: useRequestHeaders(),
+      query: {
+        languageCode: locale,
+      },
     },
-  },
-)
-
-// Fetch reviews during SSR for Schema.org structured data
-const { data: productReviews } = await useFetch(
-  `/api/products/${productId}/reviews`,
-  {
-    key: `productReviewsSchema${productId}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      languageCode: locale,
+  ),
+  useFetch(
+    `/api/products/${productId}/reviews`,
+    {
+      key: `productReviewsSchema${productId}`,
+      method: 'GET',
+      headers: useRequestHeaders(),
+      query: {
+        languageCode: locale,
+      },
     },
-  },
-)
+  ),
+])
 
 const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value

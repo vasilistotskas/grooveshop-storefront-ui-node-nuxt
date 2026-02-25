@@ -30,6 +30,9 @@ const mockRouter = {
     mockRouteQuery.value = to.query ? { ...to.query } : {}
     return Promise.resolve()
   }),
+  // Required by @nuxt/test-utils setupNuxt
+  afterEach: vi.fn(() => vi.fn()),
+  beforeEach: vi.fn(() => vi.fn()),
 }
 
 // Mock Nuxt composables at module level

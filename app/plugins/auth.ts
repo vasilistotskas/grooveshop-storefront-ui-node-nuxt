@@ -39,8 +39,8 @@ export default defineNuxtPlugin({
     })
 
     watch(
-      () => [authEvent.value, authState.value],
-      async ([authEventVal, _authStateVal]) => {
+      () => authEvent.value,
+      async (authEventVal) => {
         switch (authEventVal) {
           case AuthChangeEvent.LOGGED_OUT:
             console.info('Logged out')

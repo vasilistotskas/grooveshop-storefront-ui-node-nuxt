@@ -30,36 +30,17 @@ const mockRouter = {
   beforeEach: vi.fn(() => vi.fn()),
 }
 
-// Mock i18n
-const mockT = vi.fn((key: string, params?: any) => {
-  const translations: Record<string, string> = {
-    'filters.search': 'Search',
-    'filters.price': 'Price',
-    'filters.popularity': 'Popularity',
-    'filters.view_count': 'Views',
-    'filters.categories': 'Categories',
-    'filters.sort': 'Sort',
-    'sort.price_asc': 'Price (Low to High)',
-    'sort.price_desc': 'Price (High to Low)',
-    'sort.popularity': 'Popular',
-    'sort.most_viewed': 'Most Viewed',
-    'sort.newest': 'Newest',
-    'sort.default': 'Default',
-  }
-  return translations[key] || key
-})
-
-// Mock Nuxt composables at module level
+// Note: Do NOT mock useNuxtApp — it breaks the Nuxt test environment.
+// $i18n is provided by the test-fixtures/plugins/mock-i18n.ts plugin.
+// The mock i18n returns raw keys for missing translations (e.g. 'filters.search').
 mockNuxtImport('useRoute', () => () => mockRoute.value)
 mockNuxtImport('useRouter', () => () => mockRouter)
-mockNuxtImport('useNuxtApp', () => () => ({ $i18n: { t: mockT } }))
 
 describe('Feature: meilisearch-product-filters - useProductFilters composable', () => {
   beforeEach(() => {
     // Reset mocks
     mockRoute.value = { query: {} }
     mockRouter.push.mockClear()
-    mockT.mockClear()
   })
 
   describe('20.1.1 Test filter state reads from URL query params', () => {
@@ -553,12 +534,12 @@ describe('Feature: meilisearch-product-filters - useProductFilters composable', 
     it('should generate chip for search filter', () => {
       mockRoute.value.query = { q: 'laptop' }
       const { activeFilterChips } = useProductFilters()
-      
+
       expect(activeFilterChips.value).toHaveLength(1)
       expect(activeFilterChips.value[0]).toMatchObject({
         key: 'search',
         type: 'search',
-        label: 'Search',
+        label: 'filters.search',
         value: 'laptop',
       })
     })
@@ -566,12 +547,12 @@ describe('Feature: meilisearch-product-filters - useProductFilters composable', 
     it('should generate chip for price range', () => {
       mockRoute.value.query = { priceMin: '100', priceMax: '500' }
       const { activeFilterChips } = useProductFilters()
-      
+
       expect(activeFilterChips.value).toHaveLength(1)
       expect(activeFilterChips.value[0]).toMatchObject({
         key: 'priceMin',
         type: 'price',
-        label: 'Price',
+        label: 'filters.price',
         value: { min: 100, max: 500 },
       })
     })
@@ -603,12 +584,12 @@ describe('Feature: meilisearch-product-filters - useProductFilters composable', 
     it('should generate chip for likesMin filter', () => {
       mockRoute.value.query = { likesMin: '50' }
       const { activeFilterChips } = useProductFilters()
-      
+
       expect(activeFilterChips.value).toHaveLength(1)
       expect(activeFilterChips.value[0]).toMatchObject({
         key: 'likesMin',
         type: 'likes',
-        label: 'Popularity',
+        label: 'filters.popularity',
         value: 50,
       })
     })
@@ -616,12 +597,12 @@ describe('Feature: meilisearch-product-filters - useProductFilters composable', 
     it('should generate chip for viewsMin filter', () => {
       mockRoute.value.query = { viewsMin: '100' }
       const { activeFilterChips } = useProductFilters()
-      
+
       expect(activeFilterChips.value).toHaveLength(1)
       expect(activeFilterChips.value[0]).toMatchObject({
         key: 'viewsMin',
         type: 'views',
-        label: 'Views',
+        label: 'filters.view_count',
         value: 100,
       })
     })
@@ -651,12 +632,12 @@ describe('Feature: meilisearch-product-filters - useProductFilters composable', 
     it('should generate chip for sort filter', () => {
       mockRoute.value.query = { sort: '-finalPrice' }
       const { activeFilterChips } = useProductFilters()
-      
+
       expect(activeFilterChips.value).toHaveLength(1)
       expect(activeFilterChips.value[0]).toMatchObject({
         key: 'sort',
         type: 'sort',
-        label: 'Sort',
+        label: 'filters.sort',
         value: '-finalPrice',
       })
     })

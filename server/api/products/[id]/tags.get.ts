@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(
@@ -15,4 +15,10 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
+}, {
+  name: 'ProductTagsViewSet',
+  maxAge: 60 * 60,
+  staleMaxAge: 60 * 60 * 24,
+  swr: true,
+  getKey: event => `product-tags:${getRouterParam(event, 'id')}`,
 })

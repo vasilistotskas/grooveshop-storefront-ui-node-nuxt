@@ -48,7 +48,6 @@ if (error.value || !category.value) {
 const {
   data: posts,
   status: postStatus,
-  refresh: refreshPosts,
 } = await useLazyFetch(
   `/api/blog/categories/${categoryId}/posts`,
   {
@@ -115,13 +114,6 @@ const items = computed(() => [
     current: true,
   },
 ])
-
-watch(
-  () => route.query,
-  async () => {
-    await refreshPosts()
-  },
-)
 
 useSeoMeta({
   title: () => categoryTitle.value,

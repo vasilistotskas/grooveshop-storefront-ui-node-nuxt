@@ -26,20 +26,11 @@ export function useReducedMotion() {
 
   // Only run on client-side
   if (import.meta.client) {
-    // Check initial preference
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
     prefersReducedMotion.value = mediaQuery.matches
 
-    // Listen for changes to the preference
-    const updatePreference = (event: MediaQueryListEvent) => {
+    useEventListener(mediaQuery, 'change', (event: MediaQueryListEvent) => {
       prefersReducedMotion.value = event.matches
-    }
-
-    mediaQuery.addEventListener('change', updatePreference)
-
-    // Cleanup listener on component unmount
-    onUnmounted(() => {
-      mediaQuery.removeEventListener('change', updatePreference)
     })
   }
 

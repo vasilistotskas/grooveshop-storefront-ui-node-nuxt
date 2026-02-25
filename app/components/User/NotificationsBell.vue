@@ -7,7 +7,6 @@ const { setupNotifications } = userNotificationStore
 
 const {
   notificationIds,
-  notifications,
 } = storeToRefs(userNotificationStore)
 const { loggedIn } = useUserSession()
 
@@ -20,18 +19,19 @@ const shouldFetch = computed(() => {
 })
 
 // User-specific data: client-side only to avoid blocking SSR
-const { data: unseen, status: unseenStatus } = await useAsyncData(
+const { data: unseen, status: unseenStatus } = useAsyncData(
   'unseenNotificationsCount',
   () => getUnseenCount(),
   {
     immediate: shouldFetch.value,
     watch: [notificationIds],
     server: false,
+    lazy: true,
   },
 )
 
-// User-specific data: client-side only
-const { data, status: notificationsStatus } = await useAsyncData(
+// User-specific data: client-side only, lazy to not block rendering
+const { data, status: notificationsStatus } = useAsyncData(
   'notifications',
   () => getNotifications(notificationIds.value),
   {
@@ -54,18 +54,10 @@ const show = computed(() => {
 })
 
 const userNotifications = computed(() => {
-  if (!notifications.value || !notifications.value?.results) {
-    return []
-  }
   if (!data.value) {
     return []
   }
-  return data.value?.map((notification) => {
-    return {
-      ...notification,
-      notification: data.value?.find(n => n.id === notification.id),
-    }
-  })
+  return data.value
 })
 
 const onNotificationClick = async (id: number) => {
@@ -114,7 +106,7 @@ onClickOutside(dropdown, () => {
     </UChip>
     <Transition>
       <div
-        v-if="isDropdownVisible"
+        v-show="isDropdownVisible"
         ref="dropdown"
         class="
           absolute top-12 right-0 w-80 rounded-lg border border-gray-200
@@ -156,10 +148,10 @@ onClickOutside(dropdown, () => {
                   }"
                 >
                   <span class="truncate text-sm">
-                    {{ extractTranslated(userNotification.notification, 'title', locale) }}
+                    {{ extractTranslated(userNotification, 'title', locale) }}
                   </span>
                   <span class="text-xs">
-                    {{ extractTranslated(userNotification.notification, 'message', locale) }}
+                    {{ extractTranslated(userNotification, 'message', locale) }}
                   </span>
                 </UChip>
               </UCard>

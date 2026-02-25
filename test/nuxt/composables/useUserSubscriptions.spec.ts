@@ -6,19 +6,19 @@ const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)
 
 // Use vi.hoisted to ensure mocks are available before mockNuxtImport is called
-const { mockUseAsyncDataFn, mockRefreshNuxtDataFn, mockUseToastFn, mockUseNuxtAppFn } = vi.hoisted(() => ({
+const { mockUseAsyncDataFn, mockRefreshNuxtDataFn, mockUseToastFn } = vi.hoisted(() => ({
   mockUseAsyncDataFn: vi.fn(),
   mockRefreshNuxtDataFn: vi.fn(),
   mockUseToastFn: vi.fn(),
-  mockUseNuxtAppFn: vi.fn(),
 }))
 
 // Mock Nuxt composables using mockNuxtImport
+// Note: Do NOT mock useNuxtApp — it breaks the Nuxt test environment.
+// $i18n is provided by the test-fixtures/plugins/mock-i18n.ts plugin.
 mockNuxtImport('useAsyncData', () => mockUseAsyncDataFn)
 mockNuxtImport('useRequestHeaders', () => () => ({}))
 mockNuxtImport('refreshNuxtData', () => mockRefreshNuxtDataFn)
 mockNuxtImport('useToast', () => mockUseToastFn)
-mockNuxtImport('useNuxtApp', () => mockUseNuxtAppFn)
 
 describe('useUserSubscriptions Composable', () => {
   const mockToast = {
@@ -34,11 +34,9 @@ describe('useUserSubscriptions Composable', () => {
     mockUseAsyncDataFn.mockReset()
     mockRefreshNuxtDataFn.mockReset()
     mockToast.add.mockReset()
-    mockI18n.t.mockReset()
 
     // Setup default mocks
     mockUseToastFn.mockReturnValue(mockToast)
-    mockUseNuxtAppFn.mockReturnValue({ $i18n: mockI18n })
     mockRefreshNuxtDataFn.mockResolvedValue(undefined)
   })
 

@@ -13,6 +13,7 @@ export default defineNuxtPlugin({
     const { user, loggedIn } = useUserSession()
     const userNotificationStore = useUserNotificationStore()
     const { setupNotifications } = userNotificationStore
+    const debouncedSetupNotifications = useDebounceFn(setupNotifications, 1000)
 
     async function initializeWebSocket() {
       if (!loggedIn.value) {
@@ -53,7 +54,7 @@ export default defineNuxtPlugin({
           onError: (_ws, event) => console.info('WebSocket error', event),
           onMessage: async (_ws, event) => {
             const data = JSON.parse(event.data)
-            await setupNotifications()
+            debouncedSetupNotifications()
             toast.add({
               title: data.translations[locale.value].title,
               description: data.translations[locale.value].message,

@@ -4,10 +4,6 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 let mockEnabledValue = false
 let mockLoyaltyEnabled = false
 
-mockNuxtImport('useNuxtApp', () => () => ({
-  $i18n: { t: (key: string) => key },
-}))
-
 mockNuxtImport('useAuthPreviewMode', () => {
   return () => ({
     enabled: { value: mockEnabledValue },

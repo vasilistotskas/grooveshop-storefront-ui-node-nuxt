@@ -76,34 +76,38 @@ const formState = reactive({
 
 const regions = ref<Pagination<Region> | null>(null)
 
-// Fetch data
-const { data: shippingSetting } = await useFetch('/api/settings/get', {
-  key: 'CHECKOUT_SHIPPING_PRICE',
-  method: 'GET',
-  headers: useRequestHeaders(),
-  query: { key: 'CHECKOUT_SHIPPING_PRICE' },
-})
-
-const { data: freeShippingThresholdSetting } = await useFetch('/api/settings/get', {
-  key: 'FREE_SHIPPING_THRESHOLD',
-  method: 'GET',
-  headers: useRequestHeaders(),
-  query: { key: 'FREE_SHIPPING_THRESHOLD' },
-})
-
-const { data: countries } = await useFetch('/api/countries', {
-  key: 'countries',
-  method: 'GET',
-  headers: useRequestHeaders(),
-  query: { languageCode: locale },
-})
-
-const { data: payWays } = await useFetch('/api/pay-way', {
-  key: 'payWays',
-  method: 'GET',
-  headers: useRequestHeaders(),
-  query: { languageCode: locale },
-})
+// Fetch all checkout data in parallel (independent requests)
+const [
+  { data: shippingSetting },
+  { data: freeShippingThresholdSetting },
+  { data: countries },
+  { data: payWays },
+] = await Promise.all([
+  useFetch('/api/settings/get', {
+    key: 'CHECKOUT_SHIPPING_PRICE',
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: { key: 'CHECKOUT_SHIPPING_PRICE' },
+  }),
+  useFetch('/api/settings/get', {
+    key: 'FREE_SHIPPING_THRESHOLD',
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: { key: 'FREE_SHIPPING_THRESHOLD' },
+  }),
+  useFetch('/api/countries', {
+    key: 'countries',
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: { languageCode: locale },
+  }),
+  useFetch('/api/pay-way', {
+    key: 'payWays',
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: { languageCode: locale },
+  }),
+])
 
 // Initialize payment method
 if (payWays.value?.results?.[0]) {

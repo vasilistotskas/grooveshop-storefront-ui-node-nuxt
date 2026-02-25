@@ -244,6 +244,16 @@ export default defineNuxtConfig({
       prerender: true,
     },
     '/index': { redirect: '/' },
+    // Static pages — prerender at build time (no SSR on each request)
+    '/about': { prerender: true },
+    '/contact': { prerender: true },
+    '/privacy-policy': { prerender: true },
+    '/terms-of-use': { prerender: true },
+    '/cookies-policy': { prerender: true },
+    '/return-policy': { prerender: true },
+    '/vision': { prerender: true },
+    '/what-is-microlearning': { prerender: true },
+    '/why-microlearning': { prerender: true },
   },
   sourcemap: { client: true, server: false },
   experimental: {

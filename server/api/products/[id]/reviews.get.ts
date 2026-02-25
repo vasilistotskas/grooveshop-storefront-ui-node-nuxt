@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(event, zListProductReviewsData.shape.path.parse)
@@ -10,4 +10,10 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
+}, {
+  name: 'ProductReviewsViewSet',
+  maxAge: 60 * 5,
+  staleMaxAge: 60 * 60,
+  swr: true,
+  getKey: event => `product-reviews:${getRouterParam(event, 'id')}`,
 })

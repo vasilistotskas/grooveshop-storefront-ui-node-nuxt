@@ -1,15 +1,10 @@
 export const useSticky = (el: HTMLElement, offset: number) => {
-  const onScroll = () => {
+  const onScroll = useThrottleFn(() => {
     const scrollTop = window.scrollY || document.documentElement.scrollTop
-    if (scrollTop > offset) {
-      el.classList.add('sticky')
-    }
-    else {
-      el.classList.remove('sticky')
-    }
-  }
+    el.classList.toggle('sticky', scrollTop > offset)
+  }, 50)
 
-  useEventListener('scroll', onScroll)
+  useEventListener('scroll', onScroll, { passive: true })
 
   return {
     onScroll,

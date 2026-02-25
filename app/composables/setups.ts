@@ -115,7 +115,7 @@ export function setupGoogleAnalyticsConsent() {
         })
       }
     },
-    { deep: true, immediate: true },
+    { immediate: true },
   )
 }
 

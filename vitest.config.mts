@@ -93,6 +93,10 @@ export default defineConfig({
                 experimental: {
                   appManifest: false,
                 },
+                // Load test-only i18n fallback plugin so useNuxtApp().$i18n and
+                // useI18n() work even when the real @nuxtjs/i18n module fails to
+                // fully initialise in the vitest environment.
+                plugins: ['./test/fixtures/plugins/mock-i18n.ts'],
               },
             },
           },

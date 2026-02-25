@@ -21,6 +21,7 @@ const {
   data: searchResults,
   status,
 } = await useFetch<SearchResponse>('/api/search', {
+  key: computed(() => `search-${query.value}-${limit.value}-${offset.value}`),
   query: {
     query,
     languageCode: locale,

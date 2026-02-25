@@ -2,24 +2,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useCartStore } from '~/stores/cart'
 
-const mockI18n = {
-  t: vi.fn((key: string, params?: any) => {
-    if (key === 'common.out_of_stock') return 'Out of stock'
-    if (key === 'common.limited_stock') return `Limited stock: ${params?.stock} available, ${params?.quantity} requested`
-    return key
-  }),
-}
+// Note: vi.mock('#app') does NOT intercept Nuxt auto-imports in source files.
+// $i18n is provided by the test-fixtures/plugins/mock-i18n.ts plugin.
+// useRequestHeaders is mocked via mockNuxtImport below.
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
-vi.mock('#app', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, unknown>>()
-  return {
-    ...actual,
-    useNuxtApp: () => ({
-      $i18n: mockI18n,
-    }),
-    useRequestHeaders: () => ({}),
-  }
-})
+mockNuxtImport('useRequestHeaders', () => () => ({}))
 
 const mockFetch = vi.fn()
 vi.stubGlobal('$fetch', mockFetch)

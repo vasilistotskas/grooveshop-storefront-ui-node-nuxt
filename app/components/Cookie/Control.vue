@@ -90,43 +90,47 @@ watch(
     if (isConsentGiven.value) {
       cookieCookiesEnabledIds.value = getCookieIds(current || []).join(COOKIE_ID_SEPARATOR)
 
-      for (const cookieEnabled of current || []) {
-        if (!cookieEnabled.src) continue
+      if (import.meta.client) {
+        for (const cookieEnabled of current || []) {
+          if (!cookieEnabled.src) continue
 
-        const srcs = Array.isArray(cookieEnabled.src) ? cookieEnabled.src : [cookieEnabled.src]
-        srcs.forEach((src) => {
-          if (!document.head.querySelector(`script[src="${src}"]`)) {
-            const script = document.createElement('script')
-            script.src = src
-            document.getElementsByTagName('head')[0]?.appendChild(script)
-          }
-        })
+          const srcs = Array.isArray(cookieEnabled.src) ? cookieEnabled.src : [cookieEnabled.src]
+          srcs.forEach((src) => {
+            if (!document.head.querySelector(`script[src="${src}"]`)) {
+              const script = document.createElement('script')
+              script.src = src
+              document.getElementsByTagName('head')[0]?.appendChild(script)
+            }
+          })
+        }
       }
     }
     else {
       cookieCookiesEnabledIds.value = undefined
     }
 
-    const cookiesOptionalDisabled = moduleOptions.cookies.optional.filter(
-      cookieOptional => !(current || []).includes(cookieOptional),
-    )
+    if (import.meta.client) {
+      const cookiesOptionalDisabled = moduleOptions.cookies.optional.filter(
+        cookieOptional => !(current || []).includes(cookieOptional),
+      )
 
-    for (const cookieOptionalDisabled of cookiesOptionalDisabled) {
-      if (!cookieOptionalDisabled.targetCookieIds) continue
+      for (const cookieOptionalDisabled of cookiesOptionalDisabled) {
+        if (!cookieOptionalDisabled.targetCookieIds) continue
 
-      for (const cookieOptionalDisabledId of cookieOptionalDisabled.targetCookieIds) {
-        removeCookie(cookieOptionalDisabledId)
-      }
+        for (const cookieOptionalDisabledId of cookieOptionalDisabled.targetCookieIds) {
+          removeCookie(cookieOptionalDisabledId)
+        }
 
-      if (cookieOptionalDisabled.src) {
-        const srcs = Array.isArray(cookieOptionalDisabled.src)
-          ? cookieOptionalDisabled.src
-          : [cookieOptionalDisabled.src]
-        srcs.forEach((src) => {
-          document.head.querySelectorAll(`script[src="${src}"]`).forEach((script) => {
-            script.parentNode?.removeChild(script)
+        if (cookieOptionalDisabled.src) {
+          const srcs = Array.isArray(cookieOptionalDisabled.src)
+            ? cookieOptionalDisabled.src
+            : [cookieOptionalDisabled.src]
+          srcs.forEach((src) => {
+            document.head.querySelectorAll(`script[src="${src}"]`).forEach((script) => {
+              script.parentNode?.removeChild(script)
+            })
           })
-        })
+        }
       }
     }
   },

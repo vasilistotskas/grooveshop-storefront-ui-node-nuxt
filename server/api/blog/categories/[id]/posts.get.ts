@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, zListBlogCategoryPostsData.shape.query.parse)
@@ -15,4 +15,10 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     await handleError(error)
   }
+}, {
+  name: 'BlogCategoryPostsViewSet',
+  maxAge: 60 * 10,
+  staleMaxAge: 60 * 60,
+  swr: true,
+  getKey: event => `blog-category-posts:${getRouterParam(event, 'id')}:${JSON.stringify(getQuery(event))}`,
 })
