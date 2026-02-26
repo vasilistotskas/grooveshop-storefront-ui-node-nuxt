@@ -27,17 +27,11 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref<ErrorRecord>(errorsFactory())
 
   const hasSocialAccountProviders = computed(() => {
-    if (!config?.value || !config.value || !config.value?.socialaccount) {
-      return false
-    }
-    return config.value?.socialaccount?.providers?.length > 0
+    return (config.value?.socialaccount?.providers?.length ?? 0) > 0
   })
 
   const hasCurrentPassword = computed(() => {
-    if (!session.value || !session.value || !session.value.user) {
-      return false
-    }
-    return session.value.user.has_usable_password
+    return session.value?.user?.has_usable_password ?? false
   })
 
   const otherSessions = computed(() => {

@@ -47,38 +47,34 @@ export async function handleAllAuthError(
   const event = useEvent()
 
   if (isAllAuthError(error)) {
-    console.error('Is all auth error')
+    if (import.meta.dev) console.info('handleAllAuthError: status', error.data.status)
+
     if (error.data.status === 410) {
-      console.error('Clearing user session')
+      if (import.meta.dev) console.info('Session expired (410), clearing user session')
       await clearUserSession(event)
     }
+
     if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
-      console.error('Is not authenticated or invalid session error')
+      if (import.meta.dev) console.info('Not authenticated or invalid session, updating tokens')
+
       if (error.data.meta?.session_token) {
-        console.error('Setting user session token')
         await setUserSession(event, {
-          secure: {
-            sessionToken: error.data.meta.session_token,
-          },
+          secure: { sessionToken: error.data.meta.session_token },
         })
       }
       if (error.data.meta?.access_token) {
-        console.error('Setting user access token')
         await setUserSession(event, {
-          secure: {
-            accessToken: error.data.meta.access_token,
-          },
+          secure: { accessToken: error.data.meta.access_token },
         })
       }
 
       if (!error.data.meta?.is_authenticated && (!error.data.meta?.session_token && !error.data.meta?.access_token)) {
-        console.error('Clearing user session')
+        if (import.meta.dev) console.info('No tokens in error response, clearing user session')
         await clearUserSession(event)
       }
     }
+
     clearResponseHeaders(event, ['X-Session-Token', 'Authorization'])
-    console.error('Calling authChange hook')
-    await allAuthHooks.callHookParallel('authChange', { detail: error.data })
   }
   else {
     console.error('Unexpected AllAuth error type:', error)

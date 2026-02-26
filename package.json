@@ -49,7 +49,6 @@
     "@vueuse/nuxt": "14.2.1",
     "defu": "6.1.4",
     "h3": "1.15.4",
-    "hookable": "6.0.1",
     "magic-string": "0.30.21",
     "nuxt": "4.3.1",
     "nuxt-auth-utils": "0.5.29",
@@ -68,9 +67,6 @@
   },
   "devDependencies": {
     "@headlessui/vue": "1.7.23",
-    "@nuxt/a11y": "1.0.0-alpha.1",
-    "@nuxt/eslint": "1.15.2",
-    "@nuxt/test-utils": "4.0.0",
     "@hey-api/openapi-ts": "0.93.0",
     "@iconify-json/ant-design": "1.2.5",
     "@iconify-json/fa-solid": "1.2.2",
@@ -81,9 +77,12 @@
     "@iconify-json/lucide": "1.2.94",
     "@iconify-json/mdi": "1.2.3",
     "@iconify-json/unjs": "1.2.3",
+    "@nuxt/a11y": "1.0.0-alpha.1",
     "@nuxt/devtools": "3.2.2",
+    "@nuxt/eslint": "1.15.2",
     "@nuxt/kit": "4.3.1",
     "@nuxt/schema": "4.3.1",
+    "@nuxt/test-utils": "4.0.0",
     "@nuxt/types": "2.18.1",
     "@semantic-release/changelog": "6.0.3",
     "@semantic-release/commit-analyzer": "13.0.1",
@@ -93,7 +92,7 @@
     "@semantic-release/release-notes-generator": "14.1.0",
     "@stripe/stripe-js": "8.8.0",
     "@testing-library/jest-dom": "6.9.1",
-    "@types/node": "25.3.0",
+    "@types/node": "25.3.1",
     "@types/rss": "0.0.32",
     "@vitest/coverage-v8": "4.0.18",
     "@vitest/ui": "4.0.18",
@@ -102,7 +101,7 @@
     "@vueuse/integrations": "14.2.1",
     "@vueuse/shared": "14.2.1",
     "eslint": "9.39.3",
-    "eslint-plugin-better-tailwindcss": "4.3.0",
+    "eslint-plugin-better-tailwindcss": "4.3.1",
     "happy-dom": "20.7.0",
     "semantic-release": "25.0.3",
     "typescript": "5.9.3",
@@ -154,7 +153,7 @@
       ]
     ]
   },
-  "packageManager": "pnpm@10.30.2",
+  "packageManager": "pnpm@10.30.3",
   "pnpm": {
     "onlyBuiltDependencies": [
       "@intlify/vue-i18n-bridge",

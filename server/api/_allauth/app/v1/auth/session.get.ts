@@ -30,20 +30,25 @@ export default defineEventHandler(async (event) => {
         decodedToken = decryptToken(event, signedToken)
       }
       catch (error) {
-        console.error('Error verifying signed token:', error)
+        if (import.meta.dev) console.error('Error decrypting token:', error)
       }
     }
 
     const headers = await getAllAuthHeaders()
-    let sessionId: string | undefined
 
     if (decodedToken) {
-      const cookieHeader = getRequestHeader(event, 'cookie')
-      sessionId = cookieHeader?.match(/sessionid=([^;]*)/)?.[1]
-      Object.assign(headers, {
-        'Authorization': `Bearer ${decodedToken}`,
-        'X-Session-Token': sessionId,
-      })
+      // Use the decrypted Knox token as the Bearer access token.
+      // Also forward the stored allauth session token (if any) so allauth
+      // can correlate the session — do NOT send the Django sessionid cookie
+      // as the allauth X-Session-Token; they are completely different things.
+      const storedSessionToken = await getAllAuthSessionToken()
+      headers['Authorization'] = `Bearer ${decodedToken}`
+      if (storedSessionToken) {
+        headers['X-Session-Token'] = storedSessionToken
+      }
+      else {
+        delete headers['X-Session-Token']
+      }
     }
 
     const response = await $fetch(`${config.djangoUrl}/_allauth/app/v1/auth/session`, {
@@ -51,7 +56,7 @@ export default defineEventHandler(async (event) => {
       headers,
     })
     const sessionResponse = await parseDataAs(response, ZodSessionResponse)
-    await processAllAuthSession(sessionResponse, decodedToken, sessionId)
+    await processAllAuthSession(sessionResponse, decodedToken)
     return sessionResponse
   }
   catch (error) {

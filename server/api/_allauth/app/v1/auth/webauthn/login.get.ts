@@ -1,4 +1,4 @@
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async () => {
   const config = useRuntimeConfig()
   try {
     const headers = await getAllAuthHeaders()
@@ -7,14 +7,7 @@ export default defineEventHandler(async (event) => {
       headers,
     })
     const loginResponse = await parseDataAs(response, ZodWebAuthnLoginGetResponse)
-    if (loginResponse.meta?.session_token) {
-      appendResponseHeader(event, 'X-Session-Token', loginResponse.meta.session_token)
-      await setUserSession(event, {
-        secure: {
-          sessionToken: loginResponse.meta.session_token,
-        },
-      })
-    }
+    await processAllAuthSession(loginResponse)
     return loginResponse
   }
   catch (error) {

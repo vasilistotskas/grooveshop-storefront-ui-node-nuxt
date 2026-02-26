@@ -1,11 +1,8 @@
 declare module '#auth-utils' {
-  interface User extends UserDetails {
-    _dummy?: string
-  }
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  interface User extends UserDetails {}
 
   interface UserSession {
-    data?: Authenticated | null
-    meta?: AuthenticationMeta | null
     user?: User | null
   }
 

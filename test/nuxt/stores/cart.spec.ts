@@ -1,16 +1,26 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeAll, beforeEach, afterAll, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useCartStore } from '~/stores/cart'
 
 // Note: vi.mock('#app') does NOT intercept Nuxt auto-imports in source files.
-// $i18n is provided by the test-fixtures/plugins/mock-i18n.ts plugin.
+// $i18n is provided by @nuxtjs/i18n during Nuxt app initialisation.
 // useRequestHeaders is mocked via mockNuxtImport below.
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 mockNuxtImport('useRequestHeaders', () => () => ({}))
 
+// Stub $fetch in beforeAll (not at module level) so the Nuxt app initialises
+// with the real $fetch — this allows @nuxtjs/i18n to load locale messages and
+// provide $i18n on nuxtApp before tests replace $fetch with the mock.
 const mockFetch = vi.fn()
-vi.stubGlobal('$fetch', mockFetch)
+
+beforeAll(() => {
+  vi.stubGlobal('$fetch', mockFetch)
+})
+
+afterAll(() => {
+  vi.unstubAllGlobals()
+})
 
 describe('Cart Store', () => {
   let store: ReturnType<typeof useCartStore>

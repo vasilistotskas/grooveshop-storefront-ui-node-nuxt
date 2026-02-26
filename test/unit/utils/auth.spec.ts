@@ -193,7 +193,7 @@ describe('Utils - Auth', () => {
   })
 
   describe('getPendingFlow', () => {
-    it('should return last pending flow', () => {
+    it('should return first pending flow', () => {
       const pendingFlow1 = { id: 'flow1', is_pending: true, types: [] }
       const pendingFlow2 = { id: 'flow2', is_pending: true, types: [] }
 
@@ -208,7 +208,7 @@ describe('Utils - Auth', () => {
 
       const result = getPendingFlow(response)
 
-      expect(result).toEqual(pendingFlow2)
+      expect(result).toEqual(pendingFlow1)
     })
 
     it('should return null when no pending flows exist', () => {

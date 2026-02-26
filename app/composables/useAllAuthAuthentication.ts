@@ -152,7 +152,7 @@ export default function () {
     })
   }
 
-  function providerRedirect(provider: Provider): void {
+  function providerRedirect(provider: Provider, process: 'login' | 'connect' = 'login'): void {
     if (import.meta.client) {
       const route = useRoute()
 
@@ -160,7 +160,7 @@ export default function () {
 
       let redirectUrl = resolveURL('/auth', provider.id)
 
-      redirectUrl = withQuery(redirectUrl, { redirect: returnToPath })
+      redirectUrl = withQuery(redirectUrl, { redirect: returnToPath, process })
 
       window.location.replace(redirectUrl)
     }

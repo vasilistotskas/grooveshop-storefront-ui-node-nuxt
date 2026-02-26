@@ -1,5 +1,3 @@
-import * as z from 'zod'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
@@ -9,7 +7,7 @@ export default defineEventHandler(async (event) => {
       headers,
     })
     await clearUserSession(event)
-    return await parseDataAs(response, z.any())
+    return await parseDataAs(response, ZodPasswordRequestResponse)
   }
   catch (error) {
     await handleAllAuthError(error)

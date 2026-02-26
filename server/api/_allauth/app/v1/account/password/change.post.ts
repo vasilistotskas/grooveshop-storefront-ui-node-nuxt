@@ -1,5 +1,3 @@
-import * as z from 'zod'
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
@@ -10,7 +8,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       headers,
     })
-    const passwordChangeResponse = await parseDataAs(response, z.any())
+    const passwordChangeResponse = await parseDataAs(response, ZodSessionResponse)
     await processAllAuthSession(passwordChangeResponse)
     return passwordChangeResponse
   }

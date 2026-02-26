@@ -1,5 +1,17 @@
 import type { H3Event } from 'h3'
 
+// Responses that only carry session tokens in meta (no authenticated user data).
+// Used by endpoints like /auth/code/request and /auth/webauthn/login (GET).
+type PartialAllAuthResponse = {
+  status: 200
+  data?: Record<string, unknown>
+  meta?: {
+    session_token?: string
+    access_token?: string
+    is_authenticated?: boolean | null
+  }
+}
+
 export function createHeaders(sessionToken?: string | null, accessToken?: string | null) {
   const event = useEvent()
 
@@ -8,7 +20,9 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
 
   headers['Content-Type'] = 'application/json'
 
-  const host = getRequestHost(event, { xForwardedHost: true })
+  // Use the server-trusted host value only — never trust X-Forwarded-Host
+  // from the client request to avoid host-injection attacks.
+  const host = getRequestHost(event, { xForwardedHost: false })
   if (host) {
     headers['X-Forwarded-Host'] = host
   }
@@ -29,23 +43,19 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
     headers['X-Forwarded-For'] = requestHeaders['x-forwarded-for']
   }
 
-  return {
-    ...headers,
-  }
+  return headers
 }
 
-export async function processAllAuthSession(response: AllAuthResponse, accessToken?: string | null, sessionToken?: string | null) {
+export async function processAllAuthSession(response: AllAuthResponse | PartialAllAuthResponse, accessToken?: string | null, sessionToken?: string | null) {
   const event = useEvent()
 
   const resolvedSessionToken = response.meta?.session_token ?? sessionToken
   const resolvedAccessToken = response.meta?.access_token ?? accessToken
 
-  if (resolvedSessionToken) {
-    if (import.meta.dev) console.info('Setting session token')
-    appendResponseHeader(event, 'X-Session-Token', resolvedSessionToken)
-  }
-
+  // Tokens are stored exclusively in the server-side encrypted session cookie.
+  // Do NOT expose them in response headers — they are only needed server-to-server.
   if (resolvedSessionToken || resolvedAccessToken) {
+    if (import.meta.dev) console.info('Storing tokens in encrypted session')
     await setUserSession(event, {
       secure: {
         ...(resolvedSessionToken ? { sessionToken: resolvedSessionToken } : {}),
@@ -54,9 +64,9 @@ export async function processAllAuthSession(response: AllAuthResponse, accessTok
     })
   }
 
-  if ((response.status === 200 && response.meta?.access_token && response.data.user) || response.meta?.is_authenticated) {
+  if ((response.status === 200 && response.meta?.access_token && response.data?.user) || response.meta?.is_authenticated) {
     if (import.meta.dev) console.info('Fetching user data')
-    await fetchUserData(response, accessToken)
+    await fetchUserData(response as AllAuthResponse, accessToken)
   }
 }
 

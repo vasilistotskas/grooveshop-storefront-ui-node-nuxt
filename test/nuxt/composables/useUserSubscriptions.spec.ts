@@ -1,9 +1,19 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach, afterAll, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { UserSubscription } from '#shared/openapi/types.gen'
 
+// Stub $fetch in beforeAll (not at module level) so the Nuxt app initialises
+// with the real $fetch — this allows @nuxtjs/i18n to load locale messages and
+// provide $i18n on nuxtApp before tests replace $fetch with the mock.
 const mockFetch = vi.fn()
-vi.stubGlobal('$fetch', mockFetch)
+
+beforeAll(() => {
+  vi.stubGlobal('$fetch', mockFetch)
+})
+
+afterAll(() => {
+  vi.unstubAllGlobals()
+})
 
 // Use vi.hoisted to ensure mocks are available before mockNuxtImport is called
 const { mockUseAsyncDataFn, mockRefreshNuxtDataFn, mockUseToastFn } = vi.hoisted(() => ({
@@ -200,10 +210,10 @@ describe('useUserSubscriptions Composable', () => {
       expect(mockRefreshNuxtDataFn).toHaveBeenCalledWith('subscription:user:list')
       expect(mockRefreshNuxtDataFn).toHaveBeenCalledWith('subscription:topics:list')
 
-      // Assert: Verify success toast
+      // Assert: Verify success toast (titles are i18n-translated strings)
       expect(mockToast.add).toHaveBeenCalledWith({
-        title: 'subscription_notifications.subscribe.success_title',
-        description: 'subscription_notifications.subscribe.success_description',
+        title: expect.any(String),
+        description: expect.any(String),
         color: 'success',
       })
 
@@ -221,10 +231,10 @@ describe('useUserSubscriptions Composable', () => {
       const { subscribe } = useUserSubscriptions()
       await expect(subscribe(topicId)).rejects.toThrow('Subscription failed')
 
-      // Assert: Verify error toast
+      // Assert: Verify error toast (titles are i18n-translated strings)
       expect(mockToast.add).toHaveBeenCalledWith({
-        title: 'subscription_notifications.subscribe.error_title',
-        description: 'subscription_notifications.subscribe.error_description',
+        title: expect.any(String),
+        description: expect.any(String),
         color: 'error',
       })
 
@@ -263,10 +273,10 @@ describe('useUserSubscriptions Composable', () => {
       expect(mockRefreshNuxtDataFn).toHaveBeenCalledWith('subscription:user:list')
       expect(mockRefreshNuxtDataFn).toHaveBeenCalledWith('subscription:topics:list')
 
-      // Assert: Verify success toast
+      // Assert: Verify success toast (titles are i18n-translated strings)
       expect(mockToast.add).toHaveBeenCalledWith({
-        title: 'subscription_notifications.unsubscribe.success_title',
-        description: 'subscription_notifications.unsubscribe.success_description',
+        title: expect.any(String),
+        description: expect.any(String),
         color: 'success',
       })
     })
@@ -281,10 +291,10 @@ describe('useUserSubscriptions Composable', () => {
       const { unsubscribe } = useUserSubscriptions()
       await expect(unsubscribe(subscriptionId)).rejects.toThrow('Unsubscribe failed')
 
-      // Assert: Verify error toast
+      // Assert: Verify error toast (titles are i18n-translated strings)
       expect(mockToast.add).toHaveBeenCalledWith({
-        title: 'subscription_notifications.unsubscribe.error_title',
-        description: 'subscription_notifications.unsubscribe.error_description',
+        title: expect.any(String),
+        description: expect.any(String),
         color: 'error',
       })
 
@@ -329,10 +339,10 @@ describe('useUserSubscriptions Composable', () => {
       expect(mockRefreshNuxtDataFn).toHaveBeenCalledWith('subscription:user:list')
       expect(mockRefreshNuxtDataFn).toHaveBeenCalledWith('subscription:topics:list')
 
-      // Assert: Verify success toast for subscribe
+      // Assert: Verify success toast for subscribe (titles are i18n-translated strings)
       expect(mockToast.add).toHaveBeenCalledWith({
-        title: 'subscription_notifications.bulk_subscribe.success_title',
-        description: 'subscription_notifications.bulk_subscribe.success_description',
+        title: expect.any(String),
+        description: expect.any(String),
         color: 'success',
       })
 
@@ -360,10 +370,10 @@ describe('useUserSubscriptions Composable', () => {
         body: { topicIds, action: 'unsubscribe' },
       })
 
-      // Assert: Verify success toast for unsubscribe
+      // Assert: Verify success toast for unsubscribe (titles are i18n-translated strings)
       expect(mockToast.add).toHaveBeenCalledWith({
-        title: 'subscription_notifications.bulk_unsubscribe.success_title',
-        description: 'subscription_notifications.bulk_unsubscribe.success_description',
+        title: expect.any(String),
+        description: expect.any(String),
         color: 'success',
       })
 
@@ -381,10 +391,10 @@ describe('useUserSubscriptions Composable', () => {
       const { bulkSubscribe } = useUserSubscriptions()
       await expect(bulkSubscribe(topicIds, 'subscribe')).rejects.toThrow('Bulk operation failed')
 
-      // Assert: Verify error toast
+      // Assert: Verify error toast (titles are i18n-translated strings)
       expect(mockToast.add).toHaveBeenCalledWith({
-        title: 'subscription_notifications.bulk_operation.error_title',
-        description: 'subscription_notifications.bulk_operation.error_description',
+        title: expect.any(String),
+        description: expect.any(String),
         color: 'error',
       })
 

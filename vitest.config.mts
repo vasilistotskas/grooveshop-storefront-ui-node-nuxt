@@ -82,6 +82,11 @@ export default defineConfig({
           name: 'nuxt',
           include: ['test/nuxt/**/*.{test,spec}.ts'],
           environment: 'nuxt',
+          // Provide a real localStorage implementation before Nuxt initialises.
+          // Without this, nuxt-auth-utils' session.client.js crashes on
+          // localStorage.getItem() which blocks @nuxtjs/i18n from running its
+          // plugin, leaving nuxtApp.$i18n and __VUE_I18N_SYMBOL__ unset.
+          setupFiles: ['./test/fixtures/setup/localStorage.ts'],
           environmentOptions: {
             nuxt: {
               mock: {

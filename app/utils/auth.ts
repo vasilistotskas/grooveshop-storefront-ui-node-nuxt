@@ -10,8 +10,10 @@ const callAuthChangeHook = async (authData: AllAuthResponse | AllAuthResponseErr
 export const onAllAuthResponse = async (response: FetchResponse<AllAuthResponse>) => {
   if (!response || !response._data) return
   if (import.meta.dev) console.info('onAllAuthResponse', JSON.parse(JSON.stringify(response)))
-  if (response.status === 200 && response._data.meta?.is_authenticated) {
-    if (import.meta.dev) console.info('Status is 200 and is authenticated', response._data)
+  // Fire for every 200 response — includes pending-flow states (e.g. verify_email
+  // after signup) where is_authenticated is false but a flow update is needed.
+  if (response.status === 200) {
+    if (import.meta.dev) console.info('Auth response 200, calling auth:change hook', response._data)
     await callAuthChangeHook(response._data)
   }
 }
@@ -36,7 +38,8 @@ export const authInfo = (
       pendingFlow: null,
     }
   }
-  const isAuthenticated = (response.status === 200 || (response.status === 401 && response.meta?.is_authenticated)) ?? false
+  const responseMeta = 'meta' in response ? response.meta as { is_authenticated?: boolean | null } | undefined : undefined
+  const isAuthenticated = responseMeta?.is_authenticated === true
   const requiresReauthentication = isAuthenticated && response.status === 401
   const pendingFlow = 'data' in response ? response.data?.flows?.find(flow => flow.is_pending) ?? null : null
   const user = isAuthenticated && isAllAuthResponseSuccess(response) ? response.data.user : null
@@ -172,7 +175,7 @@ export const getPendingFlow = (
   response: AllAuthResponse | AllAuthResponseError,
 ): Flow | null => {
   const pendingFlows = getPendingFlows(response)
-  return pendingFlows[pendingFlows.length - 1] ?? null
+  return pendingFlows[0] ?? null
 }
 
 export const pathForPendingFlow = (

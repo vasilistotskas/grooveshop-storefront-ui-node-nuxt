@@ -38,6 +38,15 @@ File parallelism is disabled globally to prevent `[nuxt] instance unavailable` e
 
 Coverage uses v8 provider, reports to `./coverage` in text/html/lcov/json formats, covering `app/**` and `server/**`.
 
+### Nuxt Test Environment Gotchas
+
+- **Never `vi.stubGlobal('$fetch', mock)` at module level** — it runs before Nuxt bootstraps, breaking `@nuxtjs/i18n` locale loading (`$i18n` becomes undefined). Use `beforeAll(() => vi.stubGlobal('$fetch', mock))` + `afterAll(() => vi.unstubAllGlobals())` instead.
+- **Router mocks need full API surface** — `mockNuxtImport('useRouter', ...)` with incomplete mocks (missing `beforeResolve`, `onError`, `isReady`, `resolve`) breaks Nuxt app initialization. Include all Vue Router methods in mock objects.
+- **i18n returns real Greek translations in nuxt tests** — `$i18n.t('key')` returns translated text (e.g. `'Αναζήτηση'`), not raw keys. Use `expect.any(String)` for translated text assertions.
+- **`test/fixtures/setup/localStorage.ts`** — Required setupFile that provides `Storage` implementation for happy-dom (nuxt-auth-utils needs it).
+- **`test/fixtures/plugins/mock-i18n.ts`** — Fallback i18n plugin (rarely activates; `@nuxtjs/i18n` handles it when `$fetch` isn't broken).
+- **`registerEndpoint`** from `@nuxt/test-utils/runtime` is the official way to mock Nitro server routes in tests, but doesn't intercept direct `$fetch` calls from composables/stores.
+
 ## Architecture
 
 ### Directory Layout (Nuxt 4 `app/` convention)
@@ -62,19 +71,21 @@ The Nuxt server acts as a **proxy** to the Django backend. Client-side code call
 - **`server/utils/cartSession.ts`**: Cart session management via `useCartSession(event)` — stores `cartId` in http-only session cookies, provides `getCartHeaders`/`handleCartResponse`/`clearCartSession`
 - **`server/utils/parser.ts`**: `parseDataAs(data, zodSchema)` for runtime validation of API responses
 - **`server/utils/error.ts`**: `handleError` (Zod/Fetch/H3 errors), `handleAllAuthError` (auth-specific errors with session management)
-- **`server/utils/hooks.ts`**: Hookable `allAuthHooks` event system for auth state changes between server and client
+- **`server/utils/oauth.ts`**: Shared OAuth helpers (`captureOAuthProcess`, `readAndClearOAuthProcess`, `storeOAuthTokensAndRedirect`, `redirectOAuthError`) used by Google and Facebook route handlers
+- **`app/utils/auth.ts`** (client): `callAuthChangeHook` → `nuxtApp.callHook('auth:change')` — the only path for auth state changes; composable `onResponse`/`onResponseError` interceptors call this
 - **`server/utils/logger.ts`**: `Logger` class that writes error logs to `./logs/` as JSON files
 
 ### Server Middleware
 
 - `1.locale.ts` — Locale detection: query param → i18n cookies → Accept-Language header → stores in `event.context.locale`
 - `log.ts` — Request logging with performance timing, warns on requests >200ms
-- `redirects.ts` — 301 redirect from `www.` to non-www
+- `0.redirects.ts` — 301 redirect from `www.` to non-www
 
 ### Server Plugins
 
 - `http-agent.ts` — Undici Agent for connection pooling (100 connections, pipelining 10, keep-alive 30s) — reduces latency for internal API calls
 - `storage.ts` — Configurable cache backend: tests Redis connectivity, falls back to memory driver if unavailable
+- `startup-validation.ts` — Validates required env vars (`NUXT_SESSION_PASSWORD` >= 32 chars, `NUXT_SECRET_KEY`) at startup; fails hard on misconfiguration
 
 ### Server Routes
 
@@ -93,7 +104,7 @@ Uses [django-allauth](https://docs.allauth.org/) headless API via `nuxt-auth-uti
 - **Auth plugin** (`app/plugins/auth.ts`): Listens to `auth:change` Nuxt hook, determines auth event type (LOGGED_IN/LOGGED_OUT/REAUTHENTICATED/FLOW_UPDATED), handles navigation. Depends on nothing, runs in parallel.
 - **Setup plugin** (`app/plugins/setup.ts`): Depends on `auth` plugin. SSR-critical: fetches config + session, then account + cart. Defers sessions/authenticators/notifications to client via `requestIdleCallback` (with `setTimeout` fallback for Safari).
 - **WebSocket plugin** (`app/plugins/websocket.client.ts`): Client-only, connects to Django WebSocket at `/ws/notifications/` for real-time notifications. Uses BroadcastChannel and Web Notification API.
-- **Auth middleware** (`app/middleware/auth.global.ts`): Global — redirects unauthenticated users from protected routes (defined as `AuthenticatedRoutes` in `shared/constants/index.ts`)
+- **Auth middleware** (`app/middleware/auth.global.ts`): Global — redirects unauthenticated users from protected routes to `account-login?next=<original-path>`; uses `AuthenticatedRoutes`/`AuthenticatedRoutesSet` from `shared/constants/index.ts`
 - **Guest middleware** (`app/middleware/guest.ts`): Prevents logged-in users from accessing login/signup pages
 - **Auth flow routing**: `Flow2path` constant maps allauth flow states to page routes (login, signup, MFA, reauthenticate, WebAuthn, recovery codes)
 - **Session types**: `shared/auth.d.ts` augments `#auth-utils` with `User`, `UserSession`, `SecureSessionData` (sessionToken, accessToken, oauthParams). Note: `setUserSession` uses defu merge (ignores undefined); use `replaceUserSession` to fully clear session keys
@@ -129,56 +140,18 @@ Pinia stores in `app/stores/`:
 
 ### Key Composables
 
-- `setups.ts` — `setupPageHeader` (SEO meta, i18n head), `setupGoogleAnalyticsConsent` (GDPR cookie consent → gtag), `setupCursorState`, `setupSocialLogin` (Google GSI one-tap)
-- `useCheckout.ts` — Stock reservation, payment intent creation (Stripe), payment status polling
-- `useInstantSearch.ts` — Debounced search with AbortController, URL query sync, Meilisearch endpoints (products, blog-posts, federated)
-- `useProductFilters.ts` — Product filtering with URL state management
-- `usePriceFormat.ts` — Currency formatting (EUR)
+34 composables in `app/composables/` following `use[Feature].ts` naming. Key ones for cross-cutting concerns:
+- `setups.ts` — `setupPageHeader` (SEO), `setupGoogleAnalyticsConsent` (GDPR), `setupCursorState`, `setupSocialLogin` (GSI one-tap)
+- `useAllAuthAuthentication.ts` / `useAllAuthAccount.ts` / `useAllAuthSessions.ts` — Auth flows
+- `useCheckout.ts` — Stock reservation, Stripe payment, status polling
+- `useInstantSearch.ts` — Debounced search with AbortController, Meilisearch
+- `useProductFilters.ts` — Product filtering with URL state
 - `useLoyalty.ts` — Loyalty program data (settings, transactions, tiers, redemption)
-- `useAllAuthAuthentication.ts` — Login, signup, OAuth, session management
-- `useAllAuthAccount.ts` — Email, password management
-- `useAllAuthSessions.ts` — Session listing and management
-- `useAccountMenus.ts` — Dynamic account sidebar menus (conditionally shows loyalty if enabled)
-- `useAuthInfo.ts` — Auth information helpers
-- `useAuthPreviewMode.ts` — Auth preview mode toggle
 - `useCookieControl.ts` — GDPR cookie consent management
-- `useNotification.ts` — Toast notification helpers
-- `useUserNotification.ts` — User notification state
-- `useOrder.ts` — Order processing helpers
-- `useOrdering.ts` — Sort/ordering state management
-- `usePagination.ts` — Pagination state management
-- `useProductUrl.ts` — Product URL generation
-- `useProductSearchData.ts` — Product search data helpers
-- `useReducedMotion.ts` — Prefers-reduced-motion detection
-- `useSubscriptionTopics.ts` — Subscription topic management
-- `useUserSubscriptions.ts` — User subscription management
-- `usePaymentMethod.ts` — Payment method helpers
-- `useViewCount.ts` — View count tracking
-- `useDateLocale.ts` — Date locale formatting
-- `useHtmlContent.ts` — HTML content processing
-- `useIframe.ts` — Iframe management
-- `useSingleton.ts` — Singleton pattern helper
-- `useSyncProps.ts` — Two-way prop sync
-- `useSticky.ts` — Sticky positioning
-- `useText.ts` — Text manipulation
-- `useUrls.ts` — URL generation helpers
-- `vue.ts` — Vue utility helpers
 
 ### App Utilities (`app/utils/`)
 
-- `array.ts` — Array manipulation helpers
-- `auth.ts` — Client-side auth utilities
-- `boolean.ts` — Boolean parsing
-- `color.ts` — Color manipulation
-- `date.ts` — Date formatting
-- `dom.ts` — DOM helpers
-- `error.ts` — Client-side error handling
-- `pagination.ts` — Pagination calculations
-- `route.ts` — Route helpers
-- `search.ts` — Search utilities
-- `str.ts` — String manipulation
-- `theme.ts` — Theme helpers
-- `translate.ts` — Translation utilities
+13 utility modules (array, auth, boolean, color, date, dom, error, pagination, route, search, str, theme, translate). Key: `auth.ts` (client-side auth helpers), `translate.ts` (`extractTranslated` for parler model translations), `error.ts` (client error handling).
 
 ### Layouts
 
@@ -195,13 +168,7 @@ Pinia stores in `app/stores/`:
 
 ### Pages (Routing)
 
-- `/` — Home page
-- `/products/`, `/products/category/[id]/[slug]`, `/products/[id]/[slug]` — Product browsing
-- `/blog/`, `/blog/categories/`, `/blog/category/[id]/[slug]`, `/blog/post/[id]/[slug]` — Blog
-- `/cart/`, `/checkout/`, `/checkout/success/[uuid]` — Shopping flow
-- `/search/` — Search results
-- `/account/` — Dashboard with extensive sub-routes: login (including code-based), signup (including passkey), 2FA (TOTP, WebAuthn, recovery codes), password management, email, addresses, orders, favourites (products + posts), reviews, sessions, providers, subscriptions, loyalty, settings, help, verify-email, reauthenticate, provider callback/signup
-- Static pages: about, contact, feedback, cookies-policy, privacy-policy, return-policy, terms-of-use, loyalty-program, vision, what-is-microlearning, why-microlearning
+Routes in `app/pages/`: home, products (with category/detail), blog (with category/post), cart, checkout (with success), search, account (extensive sub-routes for auth/2FA/profile/orders/favourites/reviews/subscriptions/loyalty/settings), and static content pages. See `app/pages/` for full structure.
 
 ### Component Categories
 
