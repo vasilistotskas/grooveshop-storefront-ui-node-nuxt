@@ -1,3 +1,21 @@
+export interface SerializedError {
+  message: string
+  statusCode?: number
+  statusMessage?: string
+}
+
+export function serializeError(err: unknown): SerializedError {
+  if (err && typeof err === 'object') {
+    const e = err as Record<string, unknown>
+    return {
+      message: String(e.message ?? e.statusMessage ?? 'Unknown error'),
+      statusCode: typeof e.statusCode === 'number' ? e.statusCode : undefined,
+      statusMessage: typeof e.statusMessage === 'string' ? e.statusMessage : undefined,
+    }
+  }
+  return { message: String(err) }
+}
+
 export const isBadResponseError = (error: any): error is {
   data: BadResponse
 } => {

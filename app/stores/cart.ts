@@ -1,10 +1,8 @@
-import type { IFetchError } from 'ofetch'
-
 export const useCartStore = defineStore('cart', () => {
   const { $i18n } = useNuxtApp()
   const cart = ref<CartDetail | null>(null)
   const pending = ref<boolean>(false)
-  const error = ref<IFetchError | null>(null)
+  const error = ref<SerializedError | null>(null)
 
   const getCartItems = computed(() => cart.value?.items ?? [])
   const getCartTotalItems = computed(() => cart.value?.totalItems ?? 0)
@@ -82,7 +80,7 @@ export const useCartStore = defineStore('cart', () => {
     }
     catch (err) {
       console.error('Failed to create cart item:', err)
-      error.value = err as IFetchError
+      error.value = serializeError(err)
       throw err
     }
     finally {
@@ -103,7 +101,7 @@ export const useCartStore = defineStore('cart', () => {
     }
     catch (err) {
       console.error('Failed to update cart item:', err)
-      error.value = err as IFetchError
+      error.value = serializeError(err)
       throw err
     }
     finally {
@@ -123,7 +121,7 @@ export const useCartStore = defineStore('cart', () => {
     }
     catch (err) {
       console.error('Failed to delete cart item:', err)
-      error.value = err as IFetchError
+      error.value = serializeError(err)
       throw err
     }
     finally {

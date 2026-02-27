@@ -1,9 +1,7 @@
-import type { IFetchError } from 'ofetch'
-import type { NuxtError } from '#app'
 import type { AsyncDataRequestStatus } from '#app/composables/asyncData'
 
 interface ErrorRecord {
-  config: NuxtError | IFetchError | null | undefined
+  config: SerializedError | null
 }
 
 interface StatusRecord {
@@ -68,7 +66,7 @@ export const useAuthStore = defineStore('auth', () => {
     catch (err) {
       config.value = undefined
       status.value.config = 'error'
-      error.value.config = err as IFetchError
+      error.value.config = serializeError(err)
       console.error('Failed to setup config:', err)
     }
   }
