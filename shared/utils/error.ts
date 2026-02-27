@@ -2,6 +2,7 @@ export interface SerializedError {
   message: string
   statusCode?: number
   statusMessage?: string
+  data?: Record<string, unknown>
 }
 
 export function serializeError(err: unknown): SerializedError {
@@ -11,6 +12,7 @@ export function serializeError(err: unknown): SerializedError {
       message: String(e.message ?? e.statusMessage ?? 'Unknown error'),
       statusCode: typeof e.statusCode === 'number' ? e.statusCode : undefined,
       statusMessage: typeof e.statusMessage === 'string' ? e.statusMessage : undefined,
+      data: e.data != null && typeof e.data === 'object' ? e.data as Record<string, unknown> : undefined,
     }
   }
   return { message: String(err) }

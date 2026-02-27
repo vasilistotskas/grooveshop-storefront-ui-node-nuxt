@@ -40,8 +40,10 @@ const changeQuantityEvent = async () => {
     //
   }
 
-  if (error.value?.data.data.nonFieldErrors && error.value?.data.data.nonFieldErrors.length > 0) {
-    error.value?.data.data.nonFieldErrors.forEach((error: string) => {
+  const errorData = error.value?.data?.data as Record<string, unknown> | undefined
+  const nonFieldErrors = errorData?.nonFieldErrors as string[] | undefined
+  if (nonFieldErrors && nonFieldErrors.length > 0) {
+    nonFieldErrors.forEach((error: string) => {
       toast.add({
         title: error,
         color: 'error',
