@@ -7,9 +7,16 @@ import {
   getPendingFlow,
 } from '../../../app/utils/auth'
 
+const mockLog = {
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+}
+
 describe('Utils - Auth', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.stubGlobal('log', mockLog)
   })
 
   describe('authInfo', () => {

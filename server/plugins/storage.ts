@@ -41,7 +41,7 @@ function createRedisDriver({ host, port, ttl }: RedisDriverOptions): Driver {
     maxRetriesPerRequest: 3,
     retryStrategy: (times: number) => {
       if (times > 3) {
-        if (import.meta.dev) console.warn(`[Cache] ioredis: Max retries reached, giving up`)
+        log.warn('cache', 'ioredis: Max retries reached, giving up')
         return null
       }
       return Math.min(times * 200, 2000)
@@ -104,7 +104,7 @@ export default defineNitroPlugin(async (nitroApp) => {
 
   if (!useRedis) {
     storage.mount(CACHE_MOUNT_POINT, memoryDriver())
-    if (import.meta.dev) console.log(`[Cache] Using memory driver (NUXT_CACHE_BASE=${config.cacheBase})`)
+    log.info('cache', `Using memory driver (NUXT_CACHE_BASE=${config.cacheBase})`)
     return
   }
 
@@ -114,17 +114,17 @@ export default defineNitroPlugin(async (nitroApp) => {
     await storage.unmount(CACHE_MOUNT_POINT).catch(() => {})
   })
 
-  if (import.meta.dev) console.log(`[Cache] Testing Redis connection at ${redisHost}:${redisPort}...`)
+  log.info('cache', `Testing Redis connection at ${redisHost}:${redisPort}...`)
 
   const isConnected = await testRedisConnection(redisHost, redisPort)
 
   if (isConnected) {
     const driver = createRedisDriver({ host: redisHost, port: redisPort, ttl: redisTTL })
     storage.mount(CACHE_MOUNT_POINT, driver)
-    if (import.meta.dev) console.log(`[Cache] Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort}, TTL: ${redisTTL}s)`)
+    log.info('cache', `Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort}, TTL: ${redisTTL}s)`)
   }
   else {
     storage.mount(CACHE_MOUNT_POINT, memoryDriver())
-    if (import.meta.dev) console.warn(`[Cache] Redis unavailable, using memory driver (not shared across pods!)`)
+    log.warn('cache', `Redis unavailable, using memory driver (not shared across pods!)`)
   }
 })

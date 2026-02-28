@@ -178,7 +178,7 @@ export function useInstantSearch<T = any>(
       }
 
       // Log other errors
-      console.error('Search error:', error)
+      log.error({ action: 'search:execute', error })
 
       // Clear results on error
       results.value = []

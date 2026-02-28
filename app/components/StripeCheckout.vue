@@ -57,7 +57,7 @@ const createCheckoutSession = async () => {
     window.location.href = response.checkoutUrl
   }
   catch (err: any) {
-    console.error('Checkout session creation error:', err)
+    log.error({ action: 'stripe:checkoutSession', error: err })
     error.value = err.data?.detail || t('checkout_session_error')
     emit('error', error.value)
   }

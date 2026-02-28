@@ -71,7 +71,7 @@ export const useLoyalty = () => {
           }
         }
         catch (err) {
-          console.error('Failed to fetch loyalty settings:', err)
+          log.error({ action: 'loyalty:fetchSettings', error: err })
           // Return default values on error
           return {
             enabled: false,
@@ -181,7 +181,7 @@ export const useLoyalty = () => {
       return data
     }
     catch (err) {
-      console.error('Failed to redeem loyalty points:', err)
+      log.error({ action: 'loyalty:redeem', error: err })
       throw err
     }
   }
@@ -206,7 +206,7 @@ export const useLoyalty = () => {
         }
         catch (err) {
           // Silent failure for product points badge (non-critical feature)
-          console.error('Failed to fetch product points:', err)
+          log.error({ action: 'loyalty:fetchProductPoints', error: err })
           throw err // Re-throw so useAsyncData can handle it
         }
       },

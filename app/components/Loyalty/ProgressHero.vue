@@ -22,7 +22,7 @@ const xpPerLevel = computed(() => settings.value?.xpPerLevel || 1000)
 
 const currentTierIndex = computed(() => {
   if (!summary.value?.tier || !tiers.value) return 0
-  return tiers.value.findIndex((tier: LoyaltyTier) => tier.id === summary.value?.tier?.id)
+  return tiers.value.findIndex((t: LoyaltyTier) => t.id === summary.value?.tier?.id)
 })
 
 const currentTierName = computed(() => {

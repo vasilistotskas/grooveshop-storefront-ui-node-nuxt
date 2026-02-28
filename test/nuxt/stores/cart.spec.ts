@@ -276,7 +276,7 @@ describe('Cart Store', () => {
         }
 
         await expect(store.createCartItem(body)).rejects.toThrow()
-        expect(store.error).toBe(error)
+        expect(store.error).toEqual(expect.objectContaining({ message: 'Failed to create' }))
       })
 
       it('should set pending state during creation', async () => {
@@ -323,7 +323,7 @@ describe('Cart Store', () => {
         }
 
         await expect(store.updateCartItem(1, body)).rejects.toThrow()
-        expect(store.error).toBe(error)
+        expect(store.error).toEqual(expect.objectContaining({ message: 'Failed to update' }))
       })
     })
 
@@ -346,7 +346,7 @@ describe('Cart Store', () => {
         mockFetch.mockRejectedValueOnce(error)
 
         await expect(store.deleteCartItem(1)).rejects.toThrow()
-        expect(store.error).toBe(error)
+        expect(store.error).toEqual(expect.objectContaining({ message: 'Failed to delete' }))
       })
     })
 

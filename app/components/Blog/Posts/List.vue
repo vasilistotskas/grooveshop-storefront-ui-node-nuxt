@@ -146,25 +146,20 @@ watch(
 )
 
 watch(
-  () => posts.value,
-  (newValue, _oldValue) => {
-    if (newValue?.results?.length) {
+  () => posts.value?.results,
+  (newResults) => {
+    if (!newResults?.length) return
+
+    if (paginationType.value === PaginationTypeEnum.CURSOR) {
       const postsMap = new Map(allPosts.value.map(post => [post.id, post]))
-      newValue.results.forEach(newPost => postsMap.set(newPost.id, newPost))
-
-      let sortedPosts
-      if (paginationType.value === PaginationTypeEnum.CURSOR) {
-        sortedPosts = [...postsMap.values()].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-
-        allPosts.value = sortedPosts
-      }
-      else {
-        sortedPosts = newValue.results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        allPosts.value = sortedPosts
-      }
+      newResults.forEach(newPost => postsMap.set(newPost.id, newPost))
+      allPosts.value = [...postsMap.values()].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    }
+    else {
+      allPosts.value = [...newResults].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     }
   },
-  { deep: true, immediate: true },
+  { immediate: true },
 )
 </script>
 
@@ -213,8 +208,6 @@ watch(
             :img-fetch-priority="imgFetchPriority(index)"
             :preload="shouldPreload(index)"
             :post="post"
-            :img-width="isMobileOrTablet ? 575 : 440"
-            :img-height="isMobileOrTablet ? 670 : 247"
           />
         </ol>
         <div

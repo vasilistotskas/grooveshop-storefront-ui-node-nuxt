@@ -46,6 +46,7 @@ Coverage uses v8 provider, reports to `./coverage` in text/html/lcov/json format
 - **`test/fixtures/setup/localStorage.ts`** — Required setupFile that provides `Storage` implementation for happy-dom (nuxt-auth-utils needs it).
 - **`test/fixtures/plugins/mock-i18n.ts`** — Fallback i18n plugin (rarely activates; `@nuxtjs/i18n` handles it when `$fetch` isn't broken).
 - **`registerEndpoint`** from `@nuxt/test-utils/runtime` is the official way to mock Nitro server routes in tests, but doesn't intercept direct `$fetch` calls from composables/stores.
+- **evlog `log` not available in unit tests** — `log` is auto-imported by evlog in Nuxt/Nitro context but not in vitest unit environment. Mock with `vi.stubGlobal('log', { info: vi.fn(), warn: vi.fn(), error: vi.fn() })` in `beforeEach`. In nuxt test environment, evlog's client transport outputs via `console.error` with color formatting (`%c[client]%c error`, style args, structured object).
 
 ## Architecture
 
@@ -86,6 +87,17 @@ The Nuxt server acts as a **proxy** to the Django backend. Client-side code call
 - `http-agent.ts` — Undici Agent for connection pooling (100 connections, pipelining 10, keep-alive 30s) — reduces latency for internal API calls
 - `storage.ts` — Configurable cache backend: tests Redis connectivity, falls back to memory driver if unavailable
 - `startup-validation.ts` — Validates required env vars (`NUXT_SESSION_PASSWORD` >= 32 chars, `NUXT_SECRET_KEY`) at startup; fails hard on misconfiguration
+
+### Structured Logging (evlog)
+
+Uses `evlog/nuxt` module for structured logging. `log` is auto-imported on both client and server (Nitro).
+
+- **Simple logging**: `log.info('tag', 'message', {context})`, `log.error({ action: 'name', error })`, `log.warn('tag', 'message')`
+- **Wide events** (server only): `const wideLog = useLogger(event)` → `wideLog.set({ key: value })` — one rich event per request, auto-emitted at request end
+- **Enrichers**: `server/plugins/evlog-enrichers.ts` (user-agent, geo, request size, trace context), `server/plugins/evlog-auth-enricher.ts` (auth session user ID)
+- **Sampling**: Production-only via `$production.evlog.sampling` in `nuxt.config.ts`
+- **ESLint**: `no-console: 'error'` enforced — use `log.*` instead of `console.*`
+- **Scope limitation**: `log` is NOT auto-imported in `i18n/` directory (outside Nitro/Nuxt auto-import scope)
 
 ### Server Routes
 

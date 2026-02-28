@@ -53,7 +53,7 @@ export const useViewCount = () => {
       // Fire and forget - we don't await or handle errors in UI
       execute().catch((error) => {
         // Log error for debugging but don't disrupt user experience
-        console.error(`Failed to update ${entityType} view count:`, error)
+        log.error({ action: `viewCount:${entityType}`, error })
       })
     }
   }

@@ -144,7 +144,7 @@ const loadMoreComments = async () => {
     }
   }
   catch (error) {
-    console.error('Error loading more comments:', error)
+    log.error({ action: 'comments:loadMore', error })
     toast.add({
       title: t('load.error'),
       color: 'error',

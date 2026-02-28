@@ -22,7 +22,6 @@ export default defineI18nLocaleDetector((event, config) => {
   }
 
   // Store locale in event context for use in server routes
-  console.info(`[Locale] Locale Detector Detected: ${locale}`)
   event.context.locale = locale
 
   return locale

@@ -202,7 +202,7 @@ async function handleNext(): Promise<void> {
   }
   catch (error) {
     // Validation failed, stay on current step
-    console.error('Validation failed:', error)
+    log.error({ action: 'form:validation', error })
   }
 }
 

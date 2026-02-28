@@ -23,7 +23,7 @@ export const useUserNotificationStore = defineStore('userNotification', () => {
       }
     }
     catch (err) {
-      console.error('Failed to setup notifications:', err)
+      log.error({ action: 'notifications:setup', error: err })
     }
   }
 

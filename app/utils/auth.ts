@@ -9,20 +9,20 @@ const callAuthChangeHook = async (authData: AllAuthResponse | AllAuthResponseErr
 
 export const onAllAuthResponse = async (response: FetchResponse<AllAuthResponse>) => {
   if (!response || !response._data) return
-  if (import.meta.dev) console.info('onAllAuthResponse', JSON.parse(JSON.stringify(response)))
+  log.info('auth', 'onAllAuthResponse', { status: response.status })
   // Fire for every 200 response — includes pending-flow states (e.g. verify_email
   // after signup) where is_authenticated is false but a flow update is needed.
   if (response.status === 200) {
-    if (import.meta.dev) console.info('Auth response 200, calling auth:change hook', response._data)
+    log.info('auth', 'Auth response 200, calling auth:change hook')
     await callAuthChangeHook(response._data)
   }
 }
 
 export const onAllAuthResponseError = async (response: FetchResponse<H3Error<AllAuthResponseError>>) => {
   if (!response || !response._data) return
-  if (import.meta.dev) console.info('onAllAuthResponseError', response)
+  log.info('auth', 'onAllAuthResponseError', { status: response.status })
   if ([401, 410].includes(response.status) && response._data.data) {
-    if (import.meta.dev) console.info('Status includes 401 or 410', response._data)
+    log.info('auth', 'Status includes 401 or 410')
     await callAuthChangeHook(response._data.data)
   }
 }
@@ -43,7 +43,7 @@ export const authInfo = (
   const requiresReauthentication = isAuthenticated && response.status === 401
   const pendingFlow = 'data' in response ? response.data?.flows?.find(flow => flow.is_pending) ?? null : null
   const user = isAuthenticated && isAllAuthResponseSuccess(response) ? response.data.user : null
-  if (import.meta.dev) console.info('Auth info:', { isAuthenticated, requiresReauthentication, pendingFlow })
+  log.info('auth', 'Auth info', { isAuthenticated, requiresReauthentication, hasPendingFlow: !!pendingFlow })
   return {
     isAuthenticated,
     requiresReauthentication,
@@ -58,18 +58,10 @@ export const determineAuthChangeEvent = (
 ): AuthChangeEventType | null => {
   const toast = useToast()
   const { t } = useNuxtApp().$i18n
-  if (import.meta.dev) {
-    console.info('New auth state:', newAuthState)
-    console.info('Previous auth state:', previousAuthState)
-  }
+  log.info('auth', 'Determining auth change event', { newStatus: newAuthState.status, previousStatus: previousAuthState?.status })
 
   const currentAuthInfo = authInfo(newAuthState)
   const previousAuthInfo = authInfo(previousAuthState)
-  if (import.meta.dev) {
-    console.info('Current auth info:', currentAuthInfo)
-    console.info('Previous auth info:', previousAuthInfo)
-  }
-
   if (newAuthState.status === 410) {
     toast.add({
       title: t('auth.error.session.expired'),
@@ -84,7 +76,7 @@ export const determineAuthChangeEvent = (
     && currentAuthInfo.user
     && previousAuthInfo.user.id !== currentAuthInfo.user.id
   ) {
-    console.warn('Previous auth info user ID does not match current auth info user ID')
+    log.warn('auth', 'Previous auth info user ID does not match current auth info user ID')
     effectivePreviousAuthInfo = {
       isAuthenticated: false,
       requiresReauthentication: false,
@@ -101,24 +93,24 @@ export const determineAuthChangeEvent = (
   const hasSessionToken = newAuthState.status === 200 && newAuthState.meta?.session_token
 
   if (!wasAuthenticated && isAuthenticated) {
-    if (import.meta.dev) console.info('Was not authenticated and is authenticated')
+    log.info('auth', 'Was not authenticated and is authenticated')
     if (isReauthRequired) return AuthChangeEvent.REAUTHENTICATION_REQUIRED
     if (hasAccessToken || hasSessionToken) return AuthChangeEvent.LOGGED_IN
   }
   if (wasAuthenticated && isAuthenticated) {
-    if (import.meta.dev) console.info('Was authenticated and is authenticated')
+    log.info('auth', 'Was authenticated and is authenticated')
     if (!wasReauthRequired && isReauthRequired) return AuthChangeEvent.REAUTHENTICATION_REQUIRED
     if (wasReauthRequired && !isReauthRequired) return AuthChangeEvent.REAUTHENTICATED
     if (methodsHaveIncreased(previousAuthState, newAuthState)) return AuthChangeEvent.REAUTHENTICATED
     if (wasReauthRequired && isReauthRequired) return AuthChangeEvent.REAUTHENTICATION_REQUIRED
   }
   if (!wasAuthenticated && !isAuthenticated) {
-    if (import.meta.dev) console.info('Was not authenticated and is not authenticated')
+    log.info('auth', 'Was not authenticated and is not authenticated')
     return hasFlowUpdated(previousAuthInfo.pendingFlow, currentAuthInfo.pendingFlow)
       ? AuthChangeEvent.FLOW_UPDATED
       : AuthChangeEvent.LOGGED_OUT
   }
-  if (import.meta.dev) console.info('Was authenticated and is not authenticated')
+  log.info('auth', 'Was authenticated and is not authenticated')
   if (wasAuthenticated && !isAuthenticated) return AuthChangeEvent.LOGGED_OUT
   return null
 }
@@ -151,11 +143,11 @@ function hasFlowUpdated(
   return currentFlow?.is_pending ?? false
 }
 
-export const pathForFlow = (flow: Flow, type?: string) => {
-  const key = flow.types && flow.types.length
-    ? `${flow.id}:${type ?? flow.types[0]}`
+export const pathForFlow = (flow: Flow, authenticatorType?: string) => {
+  const flowKey = flow.types && flow.types.length
+    ? `${flow.id}:${authenticatorType ?? flow.types[0]}`
     : flow.id
-  const path = Flow2path[key] ?? Flow2path[flow.id]
+  const path = Flow2path[flowKey] ?? Flow2path[flow.id]
   if (!path) {
     throw new Error(`Unknown path for flow: ${flow.id}`)
   }
@@ -191,15 +183,15 @@ export const navigateToPendingFlow = async (
   const nuxtApp = useNuxtApp()
   const localePath = useLocalePath()
   const path = pathForPendingFlow(response)
-  if (import.meta.dev) console.info('Navigating to pending flow:', path)
+  log.info('auth', 'Navigating to pending flow', { path })
   if (path) {
     const next = useRouter().currentRoute.value.query.next
     const url = withQuery(localePath(path), { next })
-    if (import.meta.dev) console.info('Navigating to URL:', url)
+    log.info('auth', 'Navigating to URL', { url })
     return nuxtApp.runWithContext(() => navigateTo(url))
   }
   else {
-    console.warn('No pending flow to navigate to')
+    log.warn('auth', 'No pending flow to navigate to')
   }
 }
 

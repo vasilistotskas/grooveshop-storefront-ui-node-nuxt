@@ -28,10 +28,7 @@ export default defineNuxtPlugin({
       authState.value = newAuthState
       authEvent.value = determineAuthChangeEvent(authState.value, previousAuthState.value)
 
-      if (import.meta.dev) {
-        console.info('authState', authState.value)
-        console.info('authEvent', authEvent.value)
-      }
+      log.info('auth', 'State changed', { event: authEvent.value })
 
       if (isAllAuthResponseSuccess(newAuthState) && newAuthState.meta?.is_authenticated) {
         await fetch()
@@ -45,27 +42,27 @@ export default defineNuxtPlugin({
       async (authEventVal) => {
         switch (authEventVal) {
           case AuthChangeEvent.LOGGED_OUT:
-            if (import.meta.dev) console.info('Logged out')
+            log.info('auth', 'Logged out')
             await handleLoggedOut()
             break
           case AuthChangeEvent.LOGGED_IN:
-            if (import.meta.dev) console.info('Logged in')
+            log.info('auth', 'Logged in')
             await handleLoggedIn()
             break
           case AuthChangeEvent.REAUTHENTICATED:
-            if (import.meta.dev) console.info('Reauthenticated')
+            log.info('auth', 'Reauthenticated')
             await handleReauthenticated()
             break
           case AuthChangeEvent.REAUTHENTICATION_REQUIRED:
-            if (import.meta.dev) console.info('Reauthentication required')
+            log.info('auth', 'Reauthentication required')
             await handleReauthenticationRequired()
             break
           case AuthChangeEvent.FLOW_UPDATED:
-            if (import.meta.dev) console.info('Flow updated')
+            log.info('auth', 'Flow updated')
             await navigateToPendingFlow(authState.value)
             break
           default:
-            if (import.meta.dev) console.info('Unhandled auth event:', authEventVal)
+            log.info('auth', 'Unhandled auth event', { event: authEventVal })
             break
         }
       },
@@ -78,13 +75,13 @@ export default defineNuxtPlugin({
         clearAuthState()
         clearAccountState()
         if (loggedIn.value) {
-          if (import.meta.dev) console.info('handleLoggedOut, clearing user session')
+          log.info('auth', 'Clearing user session')
           await clear()
         }
         return await navigateToUrl({ path: RedirectToURLs.LOGOUT_REDIRECT_URL })
       }
       catch (error) {
-        console.error('Error handling logged out:', error)
+        log.error({ action: 'auth:loggedOut', error })
       }
     }
 
@@ -100,7 +97,7 @@ export default defineNuxtPlugin({
         return await navigateToUrl({ path: redirectTo })
       }
       catch (error) {
-        console.error('Error handling logged in:', error)
+        log.error({ action: 'auth:loggedIn', error })
       }
     }
 
@@ -111,7 +108,7 @@ export default defineNuxtPlugin({
         return await navigateToUrl({ path: next || RedirectToURLs.LOGIN_REDIRECT_URL })
       }
       catch (error) {
-        console.error('Error handling reauthenticated:', error)
+        log.error({ action: 'auth:reauthenticated', error })
       }
     }
 
@@ -120,15 +117,15 @@ export default defineNuxtPlugin({
         const next = useRouter().currentRoute.value.fullPath
         const flowPath = getReauthenticationFlowPath(authState.value)
         if (flowPath) {
-          if (import.meta.dev) console.info('Reauthentication required, navigating to reauthentication flow')
+          log.info('auth', 'Navigating to reauthentication flow')
           return await navigateToUrl({ path: flowPath, query: { next } })
         }
         else {
-          console.warn('No reauthentication flow found')
+          log.warn('auth', 'No reauthentication flow found')
         }
       }
       catch (error) {
-        console.error('Error handling reauthentication required:', error)
+        log.error({ action: 'auth:reauthenticationRequired', error })
       }
     }
 
@@ -136,11 +133,11 @@ export default defineNuxtPlugin({
       try {
         const localePath = useLocalePath()
         const url = localePath(path)
-        if (import.meta.dev) console.info('Navigating to URL:', url)
+        log.info('auth', 'Navigating to URL', { url })
         return nuxtApp.runWithContext(() => navigateTo({ path: url, query }, { replace }))
       }
       catch (error) {
-        console.error('Error navigating to URL:', error)
+        log.error({ action: 'auth:navigate', error })
       }
     }
 

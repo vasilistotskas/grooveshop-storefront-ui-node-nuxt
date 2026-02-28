@@ -55,7 +55,9 @@ const defaultUI = computed(() => {
   }
 })
 
-const mergedUI = computed(() => mergeClasses(ui.value || {}, defaultUI.value))
+const mergedUI = computed(() => ({
+  base: `${defaultUI.value.base} ${(ui.value as Record<string, string>)?.base || ''}`.trim(),
+}))
 
 const toggleFavourite = async () => {
   if (!loggedIn.value) {

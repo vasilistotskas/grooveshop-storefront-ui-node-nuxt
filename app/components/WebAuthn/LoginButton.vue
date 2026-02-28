@@ -41,7 +41,7 @@ async function onSubmit() {
     await performPostLoginActions()
   }
   catch {
-    console.error('Login failed')
+    log.error({ action: 'webauthn:login' })
     toast.add({
       title: t('webauthn.error.title'),
       description: t('webauthn.error.description'),

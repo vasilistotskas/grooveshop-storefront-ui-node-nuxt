@@ -108,7 +108,7 @@ export default defineEventHandler(async (event) => {
     return feedString
   }
   catch (error) {
-    console.error('Error generating RSS feed:', error)
+    log.error({ action: 'rss:generate', error })
     throw createError({ statusCode: 500, statusMessage: 'Failed to generate RSS feed' })
   }
 })
@@ -126,7 +126,7 @@ async function processBlogPosts(
     const translation = post.translations?.[locale] || Object.values(post.translations || {})[0]
 
     if (!translation) {
-      console.warn(`Post with ID ${post.id} has no translations available.`)
+      log.warn('rss', `Post with ID ${post.id} has no translations available.`)
       continue
     }
 
@@ -200,7 +200,7 @@ async function processProducts(
     const translation = product.translations?.[locale] || Object.values(product.translations || {})[0]
 
     if (!translation) {
-      console.warn(`Product with ID ${product.id} has no translations available.`)
+      log.warn('rss', `Product with ID ${product.id} has no translations available.`)
       continue
     }
 

@@ -18,14 +18,14 @@ const onClickLogout = async () => {
   if (isRouteProtected(routeName.value))
     await navigateTo(localePath('index'))
 
-  cleanCartState()
+  await cleanCartState()
 
   try {
     await deleteSession()
     await refreshCart()
   }
   catch (error) {
-    console.error('Error during logout:', error)
+    log.error({ action: 'auth:logout', error })
   }
 }
 
@@ -83,48 +83,46 @@ const items = computed(() => [
           "
         >
           <ul class="flex items-center gap-4">
-            <template v-if="enabled">
-              <li class="flex w-full gap-4">
-                <h2>
-                  <Anchor
-                    :text="$i18n.t('shop')"
-                    :title="$i18n.t('shop')"
-                    :to="'products'"
-                    class="
+            <li class="flex w-full gap-4">
+              <h2>
+                <Anchor
+                  :text="$i18n.t('shop')"
+                  :title="$i18n.t('shop')"
+                  :to="'products'"
+                  class="
                       text-lg text-primary-700 capitalize
                       hover:text-primary-900
                       dark:text-primary-200
                       hover:dark:text-primary-50
                     "
-                    :ui="{
-                      base: 'p-0',
-                    }"
-                  >
-                    {{ $i18n.t('shop') }}
-                  </Anchor>
-                </h2>
-              </li>
-              <li class="flex w-full gap-4">
-                <h2>
-                  <Anchor
-                    :text="$i18n.t('blog')"
-                    :title="$i18n.t('blog')"
-                    :to="'blog'"
-                    class="
+                  :ui="{
+                    base: 'p-0',
+                  }"
+                >
+                  {{ $i18n.t('shop') }}
+                </Anchor>
+              </h2>
+            </li>
+            <li class="flex w-full gap-4">
+              <h2>
+                <Anchor
+                  :text="$i18n.t('blog')"
+                  :title="$i18n.t('blog')"
+                  :to="'blog'"
+                  class="
                       text-lg text-primary-700 capitalize
                       hover:text-primary-900
                       dark:text-primary-200
                       hover:dark:text-primary-50
                     "
-                    :ui="{
-                      base: 'p-0',
-                    }"
-                  >
-                    {{ $i18n.t('blog') }}
-                  </Anchor>
-                </h2>
-              </li>
-            </template>
+                  :ui="{
+                    base: 'p-0',
+                  }"
+                >
+                  {{ $i18n.t('blog') }}
+                </Anchor>
+              </h2>
+            </li>
           </ul>
           <ul
             class="
@@ -191,13 +189,7 @@ const items = computed(() => [
                 <LazyUserNotificationsBell />
               </li>
             </template>
-            <li
-              v-if="enabled"
-              class="
-                relative grid max-w-6 items-center justify-center
-                justify-items-center
-              "
-            >
+            <li class="relative grid max-w-6 items-center justify-center justify-items-center">
               <CartButton />
             </li>
             <li

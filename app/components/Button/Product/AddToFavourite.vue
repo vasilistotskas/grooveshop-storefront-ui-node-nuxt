@@ -118,7 +118,7 @@ const toggleFavourite = async () => {
     }
   }
   catch (error) {
-    console.error('Favorite toggle error:', error)
+    log.error({ action: 'favourite:toggle', error })
     toast.add({
       title: 'An error occurred',
       color: 'error',

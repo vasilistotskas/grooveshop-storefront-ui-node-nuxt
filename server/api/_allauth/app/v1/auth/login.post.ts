@@ -1,5 +1,7 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
+  const wideLog = useLogger(event)
+  wideLog.set({ auth: { method: 'login' } })
   try {
     const headers = await getAllAuthHeaders()
     const validatedBody = await readValidatedBody(event, ZodLoginBody.parse)

@@ -78,7 +78,7 @@ onMounted(async () => {
       sessionVerified.value = true
     }
     catch (err) {
-      console.error('Failed to verify session:', err)
+      log.error({ action: 'checkout:verifySession', error: err })
       sessionVerified.value = true // Mark as verified even on error
     }
     finally {

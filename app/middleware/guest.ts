@@ -4,7 +4,7 @@ export default defineNuxtRouteMiddleware(async () => {
   const localePath = useLocalePath()
 
   if (loggedIn.value) {
-    console.info('Guest page only, navigating to Home page')
+    log.info('auth', 'Guest redirect')
     return nuxtApp.runWithContext(() => navigateTo(localePath('index')))
   }
 })

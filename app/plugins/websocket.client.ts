@@ -17,7 +17,7 @@ export default defineNuxtPlugin({
 
     async function initializeWebSocket() {
       if (!loggedIn.value) {
-        if (import.meta.dev) console.warn('User not logged in, skipping websocket initialization.')
+        log.warn('ws', 'User not logged in, skipping websocket initialization.')
         return
       }
 
@@ -48,9 +48,9 @@ export default defineNuxtPlugin({
 
         websocketInstance.value = useWebSocket(wsEndpoint, {
           autoReconnect: true,
-          onConnected: (ws) => { if (import.meta.dev) console.info('WebSocket connected', ws) },
-          onDisconnected: (_ws, event) => { if (import.meta.dev) console.info('WebSocket disconnected', event) },
-          onError: (_ws, event) => { if (import.meta.dev) console.info('WebSocket error', event) },
+          onConnected: () => { log.info('ws', 'Connected') },
+          onDisconnected: (_ws, event) => { log.info('ws', 'Disconnected', { reason: event?.reason }) },
+          onError: () => { log.error({ action: 'ws:error' }) },
           onMessage: async (_ws, event) => {
             const data = JSON.parse(event.data)
             debouncedSetupNotifications()
@@ -73,7 +73,7 @@ export default defineNuxtPlugin({
         })
       }
       catch (error) {
-        console.error('Failed to initialize websocket due to token error:', error)
+        log.error({ action: 'ws:init', error })
       }
     }
 
@@ -81,7 +81,7 @@ export default defineNuxtPlugin({
       if (websocketInstance.value) {
         websocketInstance.value.close()
         websocketInstance.value = null
-        if (import.meta.dev) console.info('WebSocket closed')
+        log.info('ws', 'Closed')
       }
     }
 

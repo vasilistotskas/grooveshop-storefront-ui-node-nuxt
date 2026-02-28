@@ -15,8 +15,10 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await getAllAuthAccessToken(event)
   const cartSession = useCartSession(event)
+  const wideLog = useLogger(event)
 
   try {
+    wideLog.set({ payment: { method: 'stripe' } })
     const body = await readValidatedBody(event, (data: any) => {
       if (!data.payWayId || typeof data.payWayId !== 'number') {
         throw new Error('payWayId is required and must be a number')

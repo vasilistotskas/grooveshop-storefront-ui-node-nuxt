@@ -18,8 +18,10 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await getAllAuthAccessToken(event)
   const cartSession = useCartSession(event)
+  const wideLog = useLogger(event)
 
   try {
+    wideLog.set({ cart: { reservation: true } })
     // Get cart headers (includes cart UUID for guest users)
     const cartHeaders = await cartSession.getCartHeaders()
 

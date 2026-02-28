@@ -15,21 +15,20 @@ export function isAllAuthError(error: unknown): error is AllAuthError {
 export function handleError(
   error: unknown,
 ): never {
-  if (import.meta.dev) console.error('Handling error')
   if (typeof error === 'object' && error !== null && 'data' in error) {
     if (error.data instanceof ZodError) {
-      console.error('Zod Message:', error.data.message)
+      log.error({ action: 'validation', error: error.data.message })
     }
   }
   if (error instanceof ZodError || error instanceof FetchError || error instanceof H3Error) {
     if (error instanceof ZodError) {
-      console.error('Zod Message:', error.message)
+      log.error({ action: 'validation', error: error.message })
     }
     else if (error instanceof FetchError) {
-      console.error('Fetch Error:', error.message)
+      log.error({ action: 'upstream:fetch', error: error.message })
     }
     else {
-      console.error('H3 Error:', error.message)
+      log.error({ action: 'h3', error: error.message })
     }
     throw createError(error)
   }
@@ -47,15 +46,15 @@ export async function handleAllAuthError(
   const event = useEvent()
 
   if (isAllAuthError(error)) {
-    if (import.meta.dev) console.info('handleAllAuthError: status', error.data.status)
+    log.info('auth', `handleAllAuthError: status ${error.data.status}`)
 
     if (error.data.status === 410) {
-      if (import.meta.dev) console.info('Session expired (410), clearing user session')
+      log.info('auth', 'Session expired (410), clearing user session')
       await clearUserSession(event)
     }
 
     if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
-      if (import.meta.dev) console.info('Not authenticated or invalid session, updating tokens')
+      log.info('auth', 'Not authenticated or invalid session, updating tokens')
 
       if (error.data.meta?.session_token) {
         await setUserSession(event, {
@@ -69,7 +68,7 @@ export async function handleAllAuthError(
       }
 
       if (!error.data.meta?.is_authenticated && (!error.data.meta?.session_token && !error.data.meta?.access_token)) {
-        if (import.meta.dev) console.info('No tokens in error response, clearing user session')
+        log.info('auth', 'No tokens in error response, clearing user session')
         await clearUserSession(event)
       }
     }
@@ -77,7 +76,7 @@ export async function handleAllAuthError(
     clearResponseHeaders(event, ['X-Session-Token', 'Authorization'])
   }
   else {
-    console.error('Unexpected AllAuth error type:', error)
+    log.error({ action: 'auth:unexpected', error })
   }
 
   await handleError(error)

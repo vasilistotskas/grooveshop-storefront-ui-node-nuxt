@@ -35,12 +35,12 @@ export default defineNuxtPlugin({
             setupSessions(),
             setupAuthenticators(),
             setupNotifications(),
-          ]).catch(err => console.error('Failed to setup deferred data:', err))
+          ]).catch(err => log.error({ action: 'setup:deferred', error: err }))
         }, { timeout: 2000 })
       }
     }
     catch (error) {
-      console.error('Failed during initial setup:', error)
+      log.error({ action: 'setup:failed', error })
     }
 
     watch(loggedIn, async (value, oldValue) => {

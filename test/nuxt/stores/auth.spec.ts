@@ -262,7 +262,7 @@ describe('Auth Store', () => {
 
         expect(store.config).toBeUndefined()
         expect(store.status.config).toBe('error')
-        expect(store.error.config).toBe(error)
+        expect(store.error.config).toEqual(expect.objectContaining({ message: 'Failed to fetch config' }))
       })
 
       it('should set pending status during fetch', async () => {

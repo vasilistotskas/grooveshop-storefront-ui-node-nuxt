@@ -52,9 +52,7 @@ const declineAll = () => {
 }
 
 const init = () => {
-  if (import.meta.env.NODE_ENV !== 'production') {
-    console.info('Cookies Initialized')
-  }
+  log.info('cookies', 'Initialized')
 }
 
 const setCookies = ({

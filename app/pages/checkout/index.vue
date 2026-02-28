@@ -301,7 +301,7 @@ const handleOrderError = (response: any) => {
   let errorTitle = t('form.submit.error.general')
   let errorDescription = undefined
 
-  console.info('handleOrderError response:', response)
+  log.info('checkout', 'handleOrderError response', { status: response?.status })
 
   const errorData = response._data || response.data
   const errorType = errorData?.error?.type
@@ -419,7 +419,7 @@ const onSubmit = async () => {
     // Only show error if it wasn't already handled by onResponseError
     // $fetch errors with response are handled in onResponseError callback
     if (!error.response && !error.data) {
-      console.error('Checkout error:', error)
+      log.error({ action: 'checkout:submit', error })
       toast.add({
         title: t('form.submit.error.general'),
         description: error.message || t('error_occurred'),
@@ -520,7 +520,7 @@ const handleOnlinePaymentFlow = async () => {
   }
   catch (error: any) {
     // Error already handled in onResponseError, just prevent propagation
-    console.error('Order creation failed:', error)
+    log.error({ action: 'checkout:orderCreation', error })
   }
 }
 
@@ -604,7 +604,7 @@ const handleOfflinePaymentFlow = async () => {
   }
   catch (error: any) {
     // Error already handled in onResponseError, just prevent propagation
-    console.error('Order creation failed:', error)
+    log.error({ action: 'checkout:orderCreation', error })
   }
 }
 
@@ -636,7 +636,7 @@ const onPaymentError = async (error: string) => {
       reservationIds.value = []
     }
     catch (err) {
-      console.error('Failed to release reservations:', err)
+      log.error({ action: 'checkout:releaseReservations', error: err })
     }
   }
 }
@@ -661,7 +661,7 @@ const onLoyaltyCleared = () => {
 onBeforeUnmount(() => {
   if (reservationIds.value.length > 0 && !createdOrder.value) {
     releaseReservations(reservationIds.value)
-      .catch(error => console.error('Failed to release reservations:', error))
+      .catch(error => log.error({ action: 'checkout:releaseReservations', error }))
   }
 })
 

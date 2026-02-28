@@ -79,8 +79,8 @@ function encodeImageUrl(url: string): string {
 
     return urlObj.toString()
   }
-  catch (error) {
-    console.warn('Failed to encode image URL:', error)
+  catch {
+    log.warn('image', 'Failed to encode image URL')
     return url
   }
 }

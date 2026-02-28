@@ -14,7 +14,7 @@ export const useCheckout = () => {
       return response?.reservationIds || []
     }
     catch (error: any) {
-      console.error('Failed to reserve stock:', error)
+      log.error({ action: 'checkout:reserveStock', error })
 
       // Extract structured error data for insufficient stock
       const errorData = error?.data?.data || error?.data
@@ -45,7 +45,7 @@ export const useCheckout = () => {
       })
     }
     catch (error) {
-      console.error('Failed to release reservations:', error)
+      log.error({ action: 'checkout:releaseReservations', error })
       throw error
     }
   }
@@ -76,7 +76,7 @@ export const useCheckout = () => {
       }
     }
     catch (error) {
-      console.error('Failed to create payment intent from cart:', error)
+      log.error({ action: 'checkout:createPaymentIntent', error })
       throw error
     }
   }
@@ -94,7 +94,7 @@ export const useCheckout = () => {
       return response
     }
     catch (error) {
-      console.error('Failed to get payment status:', error)
+      log.error({ action: 'checkout:getPaymentStatus', error })
       throw error
     }
   }

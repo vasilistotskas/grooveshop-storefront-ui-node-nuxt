@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 const { t } = useI18n()
-const { enabled } = useAuthPreviewMode()
 const route = useRoute('account-favourites-products')
 const { user } = useUserSession()
 const { $i18n } = useNuxtApp()
@@ -111,7 +110,7 @@ definePageMeta({
       class="md:mt-0"
     />
 
-    <LazyUserAccountFavouritesNavbar v-if="enabled" />
+    <LazyUserAccountFavouritesNavbar />
     <div class="flex flex-row flex-wrap items-center gap-2">
       <PaginationPageNumber
         v-if="pagination"

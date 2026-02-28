@@ -36,11 +36,11 @@ export const handleAllAuthClientError = (error: unknown): void => {
     })
 
     if (isBadResponseError(error.data)) {
-      console.error('Bad response:', error.data)
+      log.error({ action: 'allauth:badResponse', error: error.data })
     }
     else if (isNotAuthenticatedResponseError(error.data)) {
       const flows = getPendingFlows(error.data.data)
-      console.info('Pending flows:', flows)
+      log.info('auth', 'Pending flows', { count: flows.length })
       if (!flows.length) {
         toast.add({
           title: t('auth.error.not_authenticated'),
@@ -66,19 +66,19 @@ export const handleAllAuthClientError = (error: unknown): void => {
       })
     }
     else if (isInvalidSessionResponseError(error.data)) {
-      console.error('Invalid session:', error.data)
+      log.error({ action: 'allauth:invalidSession', error: error.data })
     }
     else if (isForbiddenResponseError(error.data)) {
-      console.error('Forbidden:', error.data)
+      log.error({ action: 'allauth:forbidden', error: error.data })
     }
     else if (isNotFoundResponseError(error.data)) {
-      console.error('Not found:', error.data)
+      log.error({ action: 'allauth:notFound', error: error.data })
     }
     else if (isConflictResponseError(error.data)) {
-      console.error('Conflict:', error.data)
+      log.error({ action: 'allauth:conflict', error: error.data })
     }
     else {
-      console.error('Unknown error:', error)
+      log.error({ action: 'allauth:unknown', error })
     }
   }
 }

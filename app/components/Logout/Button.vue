@@ -31,7 +31,7 @@ const onClickLogout = async () => {
     await refreshCart()
   }
   catch (error) {
-    console.error('Logout failed:', error)
+    log.error({ action: 'auth:logout', error })
   }
 }
 </script>

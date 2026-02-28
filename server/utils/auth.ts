@@ -55,7 +55,7 @@ export async function processAllAuthSession(response: AllAuthResponse | PartialA
   // Tokens are stored exclusively in the server-side encrypted session cookie.
   // Do NOT expose them in response headers — they are only needed server-to-server.
   if (resolvedSessionToken || resolvedAccessToken) {
-    if (import.meta.dev) console.info('Storing tokens in encrypted session')
+    log.info('auth', 'Storing tokens in encrypted session')
     await setUserSession(event, {
       secure: {
         ...(resolvedSessionToken ? { sessionToken: resolvedSessionToken } : {}),
@@ -65,7 +65,7 @@ export async function processAllAuthSession(response: AllAuthResponse | PartialA
   }
 
   if ((response.status === 200 && response.meta?.access_token && response.data?.user) || response.meta?.is_authenticated) {
-    if (import.meta.dev) console.info('Fetching user data')
+    log.info('auth', 'Fetching user data')
     await fetchUserData(response as AllAuthResponse, accessToken)
   }
 }

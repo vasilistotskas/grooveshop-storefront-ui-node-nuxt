@@ -67,7 +67,7 @@ export const useAuthStore = defineStore('auth', () => {
       config.value = undefined
       status.value.config = 'error'
       error.value.config = serializeError(err)
-      console.error('Failed to setup config:', err)
+      log.error({ action: 'auth:setupConfig', error: err })
     }
   }
 
@@ -86,7 +86,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
     }
     catch (err) {
-      console.error('Failed to setup session:', err)
+      log.error({ action: 'auth:setupSession', error: err })
       await clear()
     }
   }
@@ -106,7 +106,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
     }
     catch (err) {
-      console.error('Failed to setup sessions:', err)
+      log.error({ action: 'auth:setupSessions', error: err })
     }
   }
 
@@ -125,7 +125,7 @@ export const useAuthStore = defineStore('auth', () => {
       }
     }
     catch (err) {
-      console.error('Failed to setup authenticators:', err)
+      log.error({ action: 'auth:setupAuthenticators', error: err })
     }
   }
 

@@ -28,7 +28,7 @@ const handleSubscribe = async (topicId: number) => {
     await subscribe(topicId)
   }
   catch (err) {
-    console.error('Failed to subscribe:', err)
+    log.error({ action: 'subscription:subscribe', error: err })
   }
 }
 
@@ -37,7 +37,7 @@ const handleUnsubscribe = async (subscriptionId: number) => {
     await unsubscribe(subscriptionId)
   }
   catch (err) {
-    console.error('Failed to unsubscribe:', err)
+    log.error({ action: 'subscription:unsubscribe', error: err })
   }
 }
 </script>

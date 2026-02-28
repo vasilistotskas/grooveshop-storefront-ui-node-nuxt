@@ -273,8 +273,13 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       await nextTick()
       await vi.waitFor(() => expect(consoleErrorSpy).toHaveBeenCalled())
 
-      // Error should be logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Search error:', searchError)
+      // Error should be logged (evlog formats as structured object via console.error)
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(String),
+        expect.any(String),
+        expect.objectContaining({ action: 'search:execute', error: searchError }),
+      )
 
       // Results should be cleared
       expect(results.value).toEqual([])

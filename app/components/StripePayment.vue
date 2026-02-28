@@ -91,7 +91,7 @@ const initializeStripe = async () => {
           resolve()
         }
         catch (err) {
-          console.error('Stripe initialization error:', err)
+          log.error({ action: 'stripe:init', error: err })
           error.value = t('stripe_init_error')
           resolve()
         }
@@ -99,7 +99,7 @@ const initializeStripe = async () => {
     })
   }
   catch (err) {
-    console.error('Stripe setup error:', err)
+    log.error({ action: 'stripe:setup', error: err })
     error.value = t('stripe_init_error')
   }
 }
@@ -145,7 +145,7 @@ const createPaymentIntent = async () => {
     currentStep.value = 'confirm'
   }
   catch (err: any) {
-    console.error('Payment intent creation error:', err)
+    log.error({ action: 'stripe:paymentIntent', error: err })
     error.value = err.data?.detail || t('payment_intent_error')
     emit('error', error.value)
     currentStep.value = 'card'
@@ -195,7 +195,7 @@ const confirmPayment = async () => {
     }
   }
   catch (err: any) {
-    console.error('Payment confirmation error:', err)
+    log.error({ action: 'stripe:confirmation', error: err })
     error.value = err.message || t('payment_confirmation_error')
     emit('error', error.value)
   }

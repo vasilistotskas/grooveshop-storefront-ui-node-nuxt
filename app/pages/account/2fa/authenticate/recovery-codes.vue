@@ -24,7 +24,7 @@ const items = computed(() => [
 ])
 
 if (authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
-  console.info('Redirecting to index', authEvent.value)
+  log.info('auth', 'Redirecting to index', { event: authEvent.value })
   await navigateTo(localePath('index'))
 }
 

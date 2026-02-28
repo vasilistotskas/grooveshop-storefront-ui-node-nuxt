@@ -61,6 +61,7 @@ export default withNuxt(
       'vue/attribute-hyphenation': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/ban-ts-comment': 'off',
+      'no-console': 'error',
     },
   },
   {

@@ -29,7 +29,6 @@ const hasPrevious = computed(() => {
 })
 
 const handleSubmit = () => {
-  console.log('Navigation submit clicked')
   emit('submit')
 }
 </script>

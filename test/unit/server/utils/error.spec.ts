@@ -4,9 +4,16 @@ import { FetchError } from 'ofetch'
 import { H3Error } from 'h3'
 import { isAllAuthError, handleError } from '../../../../server/utils/error'
 
+const mockLog = {
+  info: vi.fn(),
+  warn: vi.fn(),
+  error: vi.fn(),
+}
+
 describe('Server Utils - Error', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.stubGlobal('log', mockLog)
   })
 
   describe('isAllAuthError', () => {
@@ -158,37 +165,37 @@ describe('Server Utils - Error', () => {
         },
       ])
 
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('log', mockLog)
       vi.stubGlobal('createError', vi.fn(err => err))
 
       expect(() => handleError(zodError)).toThrow()
-      consoleErrorSpy.mockRestore()
+      vi.unstubAllGlobals()
     })
 
     it('should throw FetchError', () => {
       const fetchError = new FetchError('Network error')
 
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('log', mockLog)
       vi.stubGlobal('createError', vi.fn(err => err))
 
       expect(() => handleError(fetchError)).toThrow()
-      consoleErrorSpy.mockRestore()
+      vi.unstubAllGlobals()
     })
 
     it('should throw H3Error', () => {
       const h3Error = new H3Error('Bad Request')
 
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('log', mockLog)
       vi.stubGlobal('createError', vi.fn(err => err))
 
       expect(() => handleError(h3Error)).toThrow()
-      consoleErrorSpy.mockRestore()
+      vi.unstubAllGlobals()
     })
 
     it('should throw generic error for unknown error types', () => {
       const unknownError = new Error('Unknown error')
 
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('log', mockLog)
       vi.stubGlobal('createError', vi.fn((config) => {
         const error = new Error(config.statusMessage)
         Object.assign(error, config)
@@ -204,7 +211,7 @@ describe('Server Utils - Error', () => {
         expect(error.statusMessage).toBe('Internal Server Error')
       }
       finally {
-        consoleErrorSpy.mockRestore()
+        vi.unstubAllGlobals()
       }
     })
 
@@ -219,7 +226,7 @@ describe('Server Utils - Error', () => {
         },
       ])
 
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('log', mockLog)
       vi.stubGlobal('createError', vi.fn(err => err))
 
       try {
@@ -229,14 +236,14 @@ describe('Server Utils - Error', () => {
         // Expected to throw
       }
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Zod Message:', expect.any(String))
-      consoleErrorSpy.mockRestore()
+      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation' }))
+      vi.unstubAllGlobals()
     })
 
     it('should log FetchError message', () => {
       const fetchError = new FetchError('Network error')
 
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('log', mockLog)
       vi.stubGlobal('createError', vi.fn(err => err))
 
       try {
@@ -246,14 +253,14 @@ describe('Server Utils - Error', () => {
         // Expected to throw
       }
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Fetch Error:', 'Network error')
-      consoleErrorSpy.mockRestore()
+      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
+      vi.unstubAllGlobals()
     })
 
     it('should log H3Error message', () => {
       const h3Error = new H3Error('Bad Request')
 
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('log', mockLog)
       vi.stubGlobal('createError', vi.fn(err => err))
 
       try {
@@ -263,8 +270,8 @@ describe('Server Utils - Error', () => {
         // Expected to throw
       }
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('H3 Error:', 'Bad Request')
-      consoleErrorSpy.mockRestore()
+      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'h3' }))
+      vi.unstubAllGlobals()
     })
 
     it('should handle error with ZodError in data property', () => {
@@ -282,7 +289,7 @@ describe('Server Utils - Error', () => {
         data: zodError,
       }
 
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('log', mockLog)
       vi.stubGlobal('createError', vi.fn((config) => {
         const error = new Error(config.statusMessage)
         Object.assign(error, config)
@@ -296,14 +303,14 @@ describe('Server Utils - Error', () => {
         // Expected to throw
       }
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Zod Message:', expect.any(String))
-      consoleErrorSpy.mockRestore()
+      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation' }))
+      vi.unstubAllGlobals()
     })
   })
 
   describe('Edge Cases', () => {
     it('should handle null error', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('log', mockLog)
       vi.stubGlobal('createError', vi.fn((config) => {
         const error = new Error(config.statusMessage)
         Object.assign(error, config)
@@ -318,12 +325,12 @@ describe('Server Utils - Error', () => {
         expect(error.statusCode).toBe(500)
       }
       finally {
-        consoleErrorSpy.mockRestore()
+        vi.unstubAllGlobals()
       }
     })
 
     it('should handle undefined error', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('log', mockLog)
       vi.stubGlobal('createError', vi.fn((config) => {
         const error = new Error(config.statusMessage)
         Object.assign(error, config)
@@ -338,12 +345,12 @@ describe('Server Utils - Error', () => {
         expect(error.statusCode).toBe(500)
       }
       finally {
-        consoleErrorSpy.mockRestore()
+        vi.unstubAllGlobals()
       }
     })
 
     it('should handle string error', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('log', mockLog)
       vi.stubGlobal('createError', vi.fn((config) => {
         const error = new Error(config.statusMessage)
         Object.assign(error, config)
@@ -358,12 +365,12 @@ describe('Server Utils - Error', () => {
         expect(error.statusCode).toBe(500)
       }
       finally {
-        consoleErrorSpy.mockRestore()
+        vi.unstubAllGlobals()
       }
     })
 
     it('should handle number error', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      vi.stubGlobal('log', mockLog)
       vi.stubGlobal('createError', vi.fn((config) => {
         const error = new Error(config.statusMessage)
         Object.assign(error, config)
@@ -378,7 +385,7 @@ describe('Server Utils - Error', () => {
         expect(error.statusCode).toBe(500)
       }
       finally {
-        consoleErrorSpy.mockRestore()
+        vi.unstubAllGlobals()
       }
     })
   })

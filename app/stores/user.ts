@@ -86,7 +86,7 @@ export const useUserStore = defineStore('user', () => {
       }
     }
     catch (err) {
-      console.error('Failed to setup account:', err)
+      log.error({ action: 'user:setupAccount', error: err })
     }
   }
 

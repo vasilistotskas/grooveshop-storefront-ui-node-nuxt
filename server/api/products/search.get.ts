@@ -18,6 +18,7 @@
 export default defineEventHandler(
   async (event) => {
     const config = useRuntimeConfig()
+    const wideLog = useLogger(event)
 
     try {
       // Get query parameters from request
@@ -71,6 +72,8 @@ export default defineEventHandler(
 
       // Validate and parse response with auto-imported Zod schema
       const validatedResponse = await parseDataAs(response, zProductMeiliSearchResponse)
+
+      wideLog.set({ search: { query: query.query, resultCount: validatedResponse.results?.length ?? 0 } })
 
       // Return with proper typing from auto-generated OpenAPI types
       return validatedResponse as ProductMeiliSearchResponse

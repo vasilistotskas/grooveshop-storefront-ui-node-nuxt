@@ -22,6 +22,8 @@ function decryptToken(event: H3Event, encryptedToken: string): string {
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
+  const wideLog = useLogger(event)
+  wideLog.set({ auth: { method: 'session' } })
   try {
     let decodedToken: string | undefined
     const signedToken = getRequestHeader(event, 'X-Encrypted-Token')
@@ -30,7 +32,7 @@ export default defineEventHandler(async (event) => {
         decodedToken = decryptToken(event, signedToken)
       }
       catch (error) {
-        if (import.meta.dev) console.error('Error decrypting token:', error)
+        log.error({ action: 'auth:tokenDecrypt', error })
       }
     }
 

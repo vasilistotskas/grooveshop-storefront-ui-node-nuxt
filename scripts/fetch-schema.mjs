@@ -30,10 +30,10 @@ async function fetchSchema() {
 
     const schema = await response.text()
     writeFileSync(join(process.cwd(), 'openapi/schema.json'), schema)
-    console.log('✅ Schema fetched successfully')
+    console.log('✅ Schema fetched successfully') // eslint-disable-line no-console
   }
   catch (error) {
-    console.error('❌ Error fetching schema:', error.message)
+    console.error('❌ Error fetching schema:', error.message) // eslint-disable-line no-console
     process.exitCode = 1
   }
 }

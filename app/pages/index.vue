@@ -43,14 +43,9 @@ useSeoMeta({
 <template>
   <PageWrapper>
     <section
-      :class="{
-        'grid': isMobileOrTablet,
-        'flex': !isMobileOrTablet,
-        'flex-col': !isMobileOrTablet,
-      }"
       class="
-        gap-4 pt-4
-        md:gap-8
+        grid gap-4 pt-4
+        md:flex md:flex-col md:gap-8
       "
     >
       <div

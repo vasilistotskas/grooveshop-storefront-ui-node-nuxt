@@ -24,23 +24,23 @@ const xpPerLevel = computed(() => settings.value?.xpPerLevel || 1000)
 
 const tiersWithXpRange = computed(() => {
   if (!tiers.value) return []
-  return tiers.value.map((tier: LoyaltyTier, index: number) => {
+  return tiers.value.map((lt: LoyaltyTier, index: number) => {
     const nextTier = tiers.value?.[index + 1]
-    const minXp = (tier.requiredLevel - 1) * xpPerLevel.value
+    const minXp = (lt.requiredLevel - 1) * xpPerLevel.value
     const maxXp = nextTier ? (nextTier.requiredLevel - 1) * xpPerLevel.value - 1 : null
-    return { ...tier, minXp, maxXp, minLevel: tier.requiredLevel, maxLevel: nextTier ? nextTier.requiredLevel - 1 : null }
+    return { ...lt, minXp, maxXp, minLevel: lt.requiredLevel, maxLevel: nextTier ? nextTier.requiredLevel - 1 : null }
   })
 })
 
-const getTierName = (tier: LoyaltyTier) => extractTranslated(tier, 'name', locale.value) || 'Unknown'
-const getTierDescription = (tier: LoyaltyTier) => extractTranslated(tier, 'description', locale.value) || ''
-const isCurrentTier = (tier: LoyaltyTier) => summary.value?.tier?.id === tier.id
-const isTierUnlocked = (tier: LoyaltyTier) => summary.value ? summary.value.level >= tier.requiredLevel : false
+const getTierName = (lt: LoyaltyTier) => extractTranslated(lt, 'name', locale.value) || 'Unknown'
+const getTierDescription = (lt: LoyaltyTier) => extractTranslated(lt, 'description', locale.value) || ''
+const isCurrentTier = (lt: LoyaltyTier) => summary.value?.tier?.id === lt.id
+const isTierUnlocked = (lt: LoyaltyTier) => summary.value ? summary.value.level >= lt.requiredLevel : false
 
-const hasTierImage = (tier: LoyaltyTier) => !!(tier.mainImagePath || tier.icon)
+const hasTierImage = (lt: LoyaltyTier) => !!(lt.mainImagePath || lt.icon)
 
-const getTierImageUrl = (tier: LoyaltyTier) => {
-  return tier.mainImagePath || ''
+const getTierImageUrl = (lt: LoyaltyTier) => {
+  return lt.mainImagePath || ''
 }
 
 const getMultiplierBonus = (multiplier: string | number) => {
@@ -61,24 +61,24 @@ const currentTierName = computed(() => {
 
 const tierStepperItems = computed(() => {
   if (!tiersWithXpRange.value) return []
-  return tiersWithXpRange.value.map((tier: any) => ({
-    value: tier.id.toString(),
-    title: getTierName(tier),
-    description: `${t('level_value', { level: tier.requiredLevel })}+`,
+  return tiersWithXpRange.value.map((lt: any) => ({
+    value: lt.id.toString(),
+    title: getTierName(lt),
+    description: `${t('level_value', { level: lt.requiredLevel })}+`,
     icon: undefined,
-    disabled: !isTierUnlocked(tier),
-    tier,
+    disabled: !isTierUnlocked(lt),
+    tier: lt,
   }))
 })
 
 const tierAccordionItems = computed(() => {
   if (!tiersWithXpRange.value) return []
-  return tiersWithXpRange.value.map((tier: any) => ({
-    value: tier.id.toString(),
-    label: getTierName(tier),
+  return tiersWithXpRange.value.map((lt: any) => ({
+    value: lt.id.toString(),
+    label: getTierName(lt),
     icon: undefined,
-    defaultOpen: isCurrentTier(tier),
-    tier,
+    defaultOpen: isCurrentTier(lt),
+    tier: lt,
   }))
 })
 

@@ -22,8 +22,10 @@ const filteredTags = computed(() => {
 </script>
 
 <template>
-  <aside
+  <div
     v-if="blogTags && blogTags.count > 0"
+    role="region"
+    :aria-label="$i18n.t('tags')"
     class="
       row-start-1 hidden
       md:row-start-2
@@ -88,5 +90,5 @@ const filteredTags = computed(() => {
         </li>
       </ul>
     </div>
-  </aside>
+  </div>
 </template>

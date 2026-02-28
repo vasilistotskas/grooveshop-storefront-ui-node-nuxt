@@ -1,23 +1,46 @@
 import { DEFAULT_LOCALE } from './i18n/locales'
 
+const modules = [
+  'evlog/nuxt',
+  '@nuxt/image',
+  '@nuxt/ui',
+  '@nuxt/eslint',
+  '@nuxt/scripts',
+  '@nuxt/fonts',
+  '@nuxt/icon',
+  '@nuxtjs/i18n',
+  '@nuxtjs/device',
+  '@nuxtjs/seo',
+  '@pinia/nuxt',
+  '@vueuse/nuxt',
+  'nuxt-auth-utils',
+]
+
+if (process.env.NODE_ENV === 'test') {
+  modules.push('@nuxt/test-utils/module')
+}
+
+if (process.env.NODE_ENV === 'development') {
+  modules.push('@nuxt/a11y')
+}
+
 export default defineNuxtConfig({
 
-  modules: [
-    '@nuxt/image',
-    '@nuxt/ui',
-    '@nuxt/eslint',
-    ...(process.env.NODE_ENV === 'test' ? ['@nuxt/test-utils/module'] : []),
-    '@nuxt/scripts',
-    '@nuxt/fonts',
-    '@nuxt/icon',
-    '@nuxtjs/i18n',
-    '@nuxtjs/device',
-    '@nuxtjs/seo',
-    '@pinia/nuxt',
-    '@vueuse/nuxt',
-    'nuxt-auth-utils',
-    '@nuxt/a11y',
-  ],
+  modules,
+  $production: {
+    evlog: {
+      sampling: {
+        rates: { info: 10, warn: 50, debug: 0, error: 100 },
+        keep: [
+          { status: 400 },
+          { duration: 1000 },
+          { path: '/api/cart/**' },
+          { path: '/api/_allauth/**' },
+          { path: '/api/orders/**' },
+        ],
+      },
+    },
+  },
   ssr: true,
   imports: {
     autoImport: true,
@@ -258,7 +281,6 @@ export default defineNuxtConfig({
     inlineRouteRules: true,
     viteEnvironmentApi: process.env.NODE_ENV !== 'test',
     crossOriginPrefetch: true,
-    buildCache: true,
     defaults: {
       nuxtLink: {
         prefetchOn: {
@@ -372,6 +394,12 @@ export default defineNuxtConfig({
     config: {
       stylistic: true,
     },
+  },
+  evlog: {
+    env: { service: 'grooveshop-storefront' },
+    include: ['/api/**'],
+    exclude: ['/api/_nuxt_icon/**', '/api/health', '/api/__sitemap__/**'],
+    transport: { enabled: true },
   },
   i18n: {
     defaultLocale: DEFAULT_LOCALE as any,

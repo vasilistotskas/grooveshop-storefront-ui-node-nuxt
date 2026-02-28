@@ -79,7 +79,7 @@ export const useCartStore = defineStore('cart', () => {
       error.value = null
     }
     catch (err) {
-      console.error('Failed to create cart item:', err)
+      log.error({ action: 'cart:createItem', error: err })
       error.value = serializeError(err)
       throw err
     }
@@ -100,7 +100,7 @@ export const useCartStore = defineStore('cart', () => {
       error.value = null
     }
     catch (err) {
-      console.error('Failed to update cart item:', err)
+      log.error({ action: 'cart:updateItem', error: err })
       error.value = serializeError(err)
       throw err
     }
@@ -120,7 +120,7 @@ export const useCartStore = defineStore('cart', () => {
       error.value = null
     }
     catch (err) {
-      console.error('Failed to delete cart item:', err)
+      log.error({ action: 'cart:deleteItem', error: err })
       error.value = serializeError(err)
       throw err
     }
@@ -158,7 +158,7 @@ export const useCartStore = defineStore('cart', () => {
       error.value = null
     }
     catch (err) {
-      console.error('Failed to setup cart:', err)
+      log.error({ action: 'cart:setup', error: err })
     }
     finally {
       pending.value = false
@@ -177,7 +177,7 @@ export const useCartStore = defineStore('cart', () => {
       }
     }
     catch (err) {
-      console.error('Failed to refresh cart:', err)
+      log.error({ action: 'cart:refresh', error: err })
     }
   }
 
@@ -193,7 +193,7 @@ export const useCartStore = defineStore('cart', () => {
       })
     }
     catch (err) {
-      console.error('Failed to clear cart session:', err)
+      log.error({ action: 'cart:clearSession', error: err })
     }
   }
 

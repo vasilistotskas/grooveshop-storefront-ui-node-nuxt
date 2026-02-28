@@ -7,7 +7,7 @@ const getCursorFromUrl = (url: string): string => {
     return params.get('cursor') || ''
   }
   catch (error) {
-    console.error('Invalid URL for cursor extraction:', url, error)
+    log.error({ action: 'pagination:cursorExtract', error })
     return ''
   }
 }
@@ -114,7 +114,7 @@ const loadMore = async () => {
       }
     }
     catch (error) {
-      console.error('❌ Error in loadMore:', error)
+      log.error({ action: 'pagination:loadMore', error })
     }
     finally {
       setTimeout(() => {
@@ -125,7 +125,7 @@ const loadMore = async () => {
 }
 
 const createObserver = () => {
-  if (strategy.value !== 'scroll' || !infiniteScrollTrigger.value || !hasMore.value) {
+  if (observer || strategy.value !== 'scroll' || !infiniteScrollTrigger.value || !hasMore.value) {
     return
   }
 
@@ -148,7 +148,7 @@ const createObserver = () => {
     observer.observe(infiniteScrollTrigger.value)
   }
   else {
-    console.warn('IntersectionObserver is not supported by this browser.')
+    log.warn('pagination', 'IntersectionObserver is not supported by this browser.')
     loadMore()
   }
 }
@@ -182,37 +182,24 @@ const debouncedHandleResize = () => {
 useEventListener('resize', debouncedHandleResize)
 
 onMounted(() => {
-  createObserver()
+  if (strategy.value === 'scroll') {
+    createObserver()
+  }
 })
 
 watch(
-  () => strategy.value,
-  (newStrategy) => {
-    destroyObserver()
-    if (newStrategy === 'scroll') {
-      createObserver()
-    }
-  },
-  { immediate: true },
-)
-
-watch(
-  () => hasMore.value,
-  (newHasMore) => {
-    if (strategy.value === 'scroll') {
+  [() => strategy.value, () => hasMore.value, () => infiniteScrollTrigger.value],
+  ([newStrategy, newHasMore, newTrigger], [oldStrategy]) => {
+    if (newStrategy !== oldStrategy) {
       destroyObserver()
-      if (newHasMore) {
+    }
+    if (newStrategy === 'scroll' && newHasMore && newTrigger) {
+      if (!observer) {
         createObserver()
       }
     }
-  },
-)
-
-watch(
-  () => infiniteScrollTrigger.value,
-  (newTrigger) => {
-    if (newTrigger && strategy.value === 'scroll' && hasMore.value) {
-      createObserver()
+    else {
+      destroyObserver()
     }
   },
 )

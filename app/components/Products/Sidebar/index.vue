@@ -284,11 +284,14 @@ watch(slideoverOpen, (isOpen) => {
   </template>
 
   <!-- Desktop: Sticky Sidebar -->
-  <aside
+  <div
     v-else
     ref="sidebar"
     v-bind="attrs"
+    role="region"
+    :aria-label="t('filters.title')"
     class="
+      products-sidebar
       relative h-fit w-72
       transition-all duration-300 ease-in-out
       shrink-0
@@ -351,7 +354,7 @@ watch(slideoverOpen, (isOpen) => {
 
       <ReuseFiltersTemplate />
     </UCard>
-  </aside>
+  </div>
 </template>
 
 <i18n lang="yaml">
@@ -376,7 +379,7 @@ el:
 <style scoped>
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  aside {
+  .products-sidebar {
     transition: none;
   }
 
