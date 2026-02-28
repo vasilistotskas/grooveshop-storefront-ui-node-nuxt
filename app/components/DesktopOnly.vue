@@ -1,9 +1,7 @@
 <template>
-  <ClientOnly>
-    <div v-if="isDesktop">
-      <slot />
-    </div>
-  </ClientOnly>
+  <div v-if="isDesktop">
+    <slot />
+  </div>
 </template>
 
 <script lang="ts" setup>

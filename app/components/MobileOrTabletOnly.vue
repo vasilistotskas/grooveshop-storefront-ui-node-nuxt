@@ -1,9 +1,7 @@
 <template>
-  <ClientOnly>
-    <template v-if="isMobileOrTablet">
-      <slot />
-    </template>
-  </ClientOnly>
+  <template v-if="isMobileOrTablet">
+    <slot />
+  </template>
 </template>
 
 <script lang="ts" setup>
