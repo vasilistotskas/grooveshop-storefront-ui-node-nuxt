@@ -11,7 +11,6 @@ const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
-const { $i18n } = useNuxtApp()
 const img = useImage()
 
 const loading = ref(false)
@@ -20,19 +19,19 @@ const selected = ref(false)
 const schema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('email.validation.email'),
+      ? t('validation.required')
+      : t('email.validation.email'),
   }),
   password: z.string({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
+      ? t('validation.required')
       : undefined,
   }).min(8, {
-    error: issue => $i18n.t('password1.validation.min', { min: issue.minimum }),
+    error: issue => t('password1.validation.min', { min: issue.minimum }),
   }),
   password2: z.string({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
+      ? t('validation.required')
       : undefined,
   }),
 }).refine(data => data.password === data.password2, {
@@ -78,8 +77,8 @@ const submitButtonLabel = computed(() => {
   }
 
   return !loading.value
-    ? $i18n.t('submit')
-    : $i18n.t('loading')
+    ? t('submit')
+    : t('loading')
 })
 
 const submitButtonDisabled = computed(() => {
