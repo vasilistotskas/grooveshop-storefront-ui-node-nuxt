@@ -1,3 +1,63 @@
+# [3.73.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.72.1...v3.73.0) (2026-02-28)
+
+
+### Bug Fixes
+
+* add default fallbacks for Redis port and TTL env vars ([ce582aa](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ce582aa813af1bf3b60091fe44d32a97d2d12991))
+* add input/output validation to all loyalty API routes ([cc023ee](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cc023ee5965dad921206392a93b2f598b2996725))
+* add requestIdleCallback fallback for Safari compatibility ([6f74721](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6f74721be9afe52bbd6263fea37befb4ecd1e76f))
+* **auth:** harden security and fix auth state change handling ([2969c24](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2969c247eaf16adabdbdb0ae78b39503c5a4617d))
+* await parseDataAs and handleError in orders UUID route ([317e487](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/317e487d579e56a006beed3ddb65958878d851c4))
+* **ci:** Bump Versions ([f7f1d1e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f7f1d1e2869ae42f88f551db2ba4a10f5e59df31))
+* correct enabled.value check and add request headers in cart store ([045440e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/045440e30e32163b4824e8bf6092b9864c903277))
+* correct ogImage cache TTL and password schema descriptions ([9c74490](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9c74490c070842e480bb8ec10c7e9425e028134f))
+* eslint readded ([087f5d6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/087f5d63953f80ed1806d3d8a51bb9446159469c))
+* harden search page keydown guard for textarea and contenteditable ([550cc4d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/550cc4d9438d9532816ec4cc5b93b248e3a5c1d8))
+* **i18n:** restrict SUPPORTED_LOCALES to only el ([86ce6d7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/86ce6d79b4b2be74e3345fa80c634be444b39f9c))
+* improve image alt text for accessibility ([09ae760](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/09ae76032a4674e293ce92950933e6fb41fe1f9e))
+* include AllAuthResponseError in \$authState type declaration ([aacc67a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/aacc67a870e885eae51e88bdc1658771e9fa4137))
+* lint ([eef2bcd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eef2bcdf840699522efd80164e0a1b94f9bd9fdb))
+* make useSticky SSR-safe and remove auth state console.info ([85aebd8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/85aebd89d26f4aeaab5d2ccab547e84ce526f0ec))
+* Packages ([ce526d4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ce526d4bca37c79c348935f9c357e026203585ae))
+* prevent component render blocking from async data fetching ([83349ec](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/83349ec469235793a5b66c41669b3852fe6669a4))
+* product page SEO improvements and Schema.org review data ([b614588](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b61458851e791ab5a0a710c2b49e10186d281eb4))
+* remove 400ms delay and fix logout redirect in auth plugin ([cae66e5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cae66e5828a338dfbff7770d388393a403e974a3))
+* remove dead clearUserSession and fix double parse in allauth routes ([286c9e7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/286c9e7898de484e688758fc01cf8350d6aa730b))
+* remove undeclared quantity prop from QuantitySelector usage ([0f5fec5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0f5fec582f195c763dd83fe84bf15b55f4dc09f5))
+* rename blog post detail cache key and remove dead code in cart check ([9a7b1cc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9a7b1cc82c0839eda15f6f609af5d563f932a7b1))
+* replace hardcoded strings with i18n translations ([4c32171](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4c321716a34ef17f04c76f84087aed22d6339b97))
+* replace onUnmounted-inside-onMounted with useEventListener in search page ([6c70aff](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6c70affcdd59d23dbe6ef2619584bace8900d071))
+* replace useFetch with $fetch and fix 15ms timeout in app store ([7807564](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7807564217ef3f44bbe4c42fbbeeee8d20917bc6))
+* replace watchEffect prop mutation with computed and fix emit ref bug ([fb54cb3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fb54cb35b1679fb1895e2416bffc9d38cfaec41e))
+* resolve vue-tsc type errors in ImgWithFallback and product page ([ae61a38](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ae61a38a15a57b7eb7d8b498e62f3c8cdc3722ad))
+* **security:** add auth headers to order-items API routes ([ccbf0e6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ccbf0e69bf31e89ee2519eab163f588f1bfc5cf3))
+* **security:** remove access token plaintext logging ([13b7cf3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/13b7cf358df7ec2f3657a4cf7596d3ed38728894))
+* **security:** remove credential values from error log output ([ab3d2de](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ab3d2de6a538c6e04a992a03eec951340374b44f))
+* **security:** replace v-html with text interpolation in notifications and review ([d368afd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d368afd3dd6f08b758cb6aa5d0213a76b3fe9283))
+* **security:** store OAuth tokens in server session instead of URL params ([0ebac14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0ebac14d04bb5519a732496342e2e7a30988756b))
+* **security:** use replaceUserSession to clear OAuth params after reading ([d836007](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d8360074b95a4104d64bbee4a1fe734ee711bb62))
+* **security:** use session provider value in OAuth callback, fix lint warning ([4238c14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4238c14c07122fd447331e732d1f93bcf4376c39))
+* skip HTML comment purging in development mode ([d47f876](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d47f876a72f88757d84f178adf4da53516d92d43))
+* **stores:** fix prerender 500 by serializing store errors ([1bbfaf4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1bbfaf409df767a5b1ffa72e20d92fbdcf1013b5))
+* swap THEME_COLORS backgroundDark and backgroundLight values ([a10f6f4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a10f6f4d07d0aa3c036de5e4df0b63b816784be3)), closes [#ffffff](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/ffffff) [#1a202c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/1a202c)
+* **test:** bridge nuxtApp.\$i18n when @nuxtjs/i18n fails mid-setup ([18d8730](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/18d8730287dbec86c354793aa76d2f3cd069734a))
+* **test:** resolve vue-i18n@11 $i18n getter conflict in nuxt tests ([7883eea](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7883eeaa9e6385b173f4681b5dd2cecb09d2020c))
+* throw RSS createError and remove hardcoded Server-Timing header ([86bb851](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/86bb8513bac11ebcde4e2a8d09f1654d937c040d))
+* use distinct icons for liked/favourited toggle states ([482480d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/482480d09682712b8bb756e059e532e2e3892bb5))
+* use fire-and-forget pattern for checkout reservation release ([7572eae](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7572eaec36fe35d65fa1f2d7d12d8a7f7c538b32))
+* use post.id instead of index as v-for key in blog posts list ([81ac10e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/81ac10e80471a619ef9d8a196dc91ba5d4458b72))
+
+
+### Features
+
+* Claude ([7cd8d1a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7cd8d1a466362f527f1db3d7591fb944e4ec3ed3))
+* integrate evlog structured logging across app and server ([8224918](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/822491873efe2cf88bb6d60b8712c8e903f2d06e))
+
+
+### Performance Improvements
+
+* add SWR caching, parallel fetches, SSR guards ([6bd5743](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6bd574341d7f427efc904bb30f80aa8275269abb))
+
 ## [3.72.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.72.0...v3.72.1) (2026-02-11)
 
 
