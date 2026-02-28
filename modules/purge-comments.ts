@@ -15,7 +15,17 @@ export default defineNuxtModule({
         if (!id.endsWith('.vue') || !code.includes('<!--')) return
 
         const s = new MagicString(code)
-        s.replace(/<!--[\s\S]*?-->/g, '')
+
+        const commentPattern = /<!--[\s\S]*?-->/g
+        let current = s.toString()
+        let prev = ''
+        while (current !== prev) {
+          prev = current
+          current = current.replace(commentPattern, '')
+        }
+        if (current !== code) {
+          s.overwrite(0, code.length, current)
+        }
 
         if (s.hasChanged()) {
           return {

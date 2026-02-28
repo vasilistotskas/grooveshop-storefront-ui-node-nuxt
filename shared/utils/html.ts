@@ -443,6 +443,24 @@ export function transformHtmlImages(
 }
 
 /**
+ * Strip all HTML tags from a string, returning plain text.
+ * Loops until stable to prevent incomplete sanitization from nested tags
+ * (e.g., `<scr<script>ipt>` → `<script>` after one pass).
+ */
+export function stripHtmlTags(html: string): string {
+  if (!html) return ''
+
+  const tagPattern = /<[^>]*>/g
+  let result = html
+  let prev = ''
+  while (result !== prev) {
+    prev = result
+    result = result.replace(tagPattern, '')
+  }
+  return result
+}
+
+/**
  * Extract all image sources from HTML content
  * Useful for preloading or prefetching
  */

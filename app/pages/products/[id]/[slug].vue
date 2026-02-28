@@ -177,7 +177,7 @@ const productDescription = computed(() => {
   if (seoDesc) return seoDesc
 
   const rawDescription = extractTranslated(product?.value, 'description', locale.value) || ''
-  return rawDescription.replace(/<[^>]*>/g, '').slice(0, 160)
+  return stripHtmlTags(rawDescription).slice(0, 160)
 })
 
 const productStock = computed(() => product.value?.stock || 0)
@@ -364,7 +364,7 @@ defineOgImage({
 useSchemaOrg([
   defineProduct({
     name: () => extractTranslated(product.value, 'name', locale.value) || '',
-    description: () => extractTranslated(product.value, 'description', locale.value)?.replace(/<[^>]*>/g, '') || '',
+    description: () => stripHtmlTags(extractTranslated(product.value, 'description', locale.value) || ''),
     sku: () => product.value?.uuid || '',
     productID: () => product.value?.id?.toString() || '',
 
