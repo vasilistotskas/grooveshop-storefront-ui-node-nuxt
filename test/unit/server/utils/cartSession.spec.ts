@@ -34,6 +34,9 @@ describe('Server Utils - Cart Session', () => {
         password: 'test-password',
       },
     }))
+
+    // getRequestProtocol is used by getCartHeaders() to set X-Forwarded-Proto
+    vi.stubGlobal('getRequestProtocol', vi.fn().mockReturnValue('https'))
   })
 
   describe('getCartSession', () => {
@@ -128,7 +131,7 @@ describe('Server Utils - Cart Session', () => {
   })
 
   describe('getCartHeaders', () => {
-    it('should return empty headers for new session', async () => {
+    it('should return only proxy headers for new session', async () => {
       const event = createMockEvent()
       const mockSession = createMockSession({})
 
@@ -137,7 +140,7 @@ describe('Server Utils - Cart Session', () => {
 
       const headers = await getCartHeaders(event)
 
-      expect(headers).toEqual({})
+      expect(headers).toEqual({ 'X-Forwarded-Proto': 'https' })
     })
 
     it('should include cart ID header when cart exists', async () => {
@@ -323,9 +326,9 @@ describe('Server Utils - Cart Session', () => {
       const initialSession = await getCartSession(event)
       expect(initialSession).toEqual({})
 
-      // 2. Get headers (no cart ID yet)
+      // 2. Get headers (no cart ID yet, only proxy header)
       const initialHeaders = await getCartHeaders(event)
-      expect(initialHeaders).toEqual({})
+      expect(initialHeaders).toEqual({ 'X-Forwarded-Proto': 'https' })
 
       // 3. Handle cart response (creates cart)
       await handleCartResponse(event, { id: 123, items: [] })

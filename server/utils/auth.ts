@@ -20,6 +20,11 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
 
   headers['Content-Type'] = 'application/json'
 
+  // Tell Django the original request was HTTPS so SECURE_SSL_REDIRECT
+  // doesn't 301 to the external domain (which exits the cluster → Cloudflare 403).
+  // Also set by the forwarded-proto plugin, but explicit here for safety.
+  headers['X-Forwarded-Proto'] = getRequestProtocol(event, { xForwardedProto: true })
+
   // Use the server-trusted host value only — never trust X-Forwarded-Host
   // from the client request to avoid host-injection attacks.
   const host = getRequestHost(event, { xForwardedHost: false })
@@ -104,7 +109,8 @@ export async function fetchUserData(response: AllAuthResponse, accessToken?: str
   const config = useRuntimeConfig()
   const token = accessToken || response.meta?.access_token
   let headers: Record<string, string> = {
-    Authorization: `Bearer ${token}`,
+    'Authorization': `Bearer ${token}`,
+    'X-Forwarded-Proto': getRequestProtocol(useEvent(), { xForwardedProto: true }),
   }
   if (response.meta?.is_authenticated && !token) {
     headers = await getAllAuthHeaders()

@@ -4,6 +4,8 @@ import { createHeaders, getAllAuthSessionToken, getAllAuthAccessToken } from '..
 describe('Server Utils - Auth', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // getRequestProtocol is used by createHeaders() to set X-Forwarded-Proto
+    vi.stubGlobal('getRequestProtocol', vi.fn().mockReturnValue('https'))
   })
 
   describe('createHeaders', () => {
@@ -126,6 +128,7 @@ describe('Server Utils - Auth', () => {
 
       expect(headers).toEqual({
         'Content-Type': 'application/json',
+        'X-Forwarded-Proto': 'https',
         'X-Forwarded-Host': 'example.com',
         'X-Session-Token': 'session-token',
         'Authorization': 'Bearer access-token',

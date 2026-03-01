@@ -42,7 +42,9 @@ export async function updateCartSession(event: H3Event, updates: Partial<CartSes
 export async function getCartHeaders(event: H3Event): Promise<Record<string, string>> {
   const session = await getSession(event)
   const accessToken = await getAllAuthAccessToken(event)
-  const headers: Record<string, string> = {}
+  const headers: Record<string, string> = {
+    'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
+  }
 
   if (session.data.cartId) {
     headers['X-Cart-Id'] = String(session.data.cartId)

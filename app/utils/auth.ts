@@ -10,10 +10,13 @@ const callAuthChangeHook = async (authData: AllAuthResponse | AllAuthResponseErr
 export const onAllAuthResponse = async (response: FetchResponse<AllAuthResponse>) => {
   if (!response || !response._data) return
   log.info('auth', 'onAllAuthResponse', { status: response.status })
-  // Fire for every 200 response — includes pending-flow states (e.g. verify_email
-  // after signup) where is_authenticated is false but a flow update is needed.
-  if (response.status === 200) {
-    log.info('auth', 'Auth response 200, calling auth:change hook')
+  // Only fire auth:change for responses that carry auth state (have a `meta` field).
+  // Non-auth endpoints (authenticators, sessions list, emails, providers) return
+  // { status: 200, data: [...] } without `meta` — firing auth:change for those
+  // would make determineAuthChangeEvent see is_authenticated=false and trigger
+  // an erroneous LOGGED_OUT event.
+  if (response.status === 200 && 'meta' in response._data) {
+    log.info('auth', 'Auth response 200 with meta, calling auth:change hook')
     await callAuthChangeHook(response._data)
   }
 }
