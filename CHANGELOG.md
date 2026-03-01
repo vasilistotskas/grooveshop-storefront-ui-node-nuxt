@@ -1,3 +1,10 @@
+## [3.73.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.73.5...v3.73.6) (2026-03-01)
+
+
+### Bug Fixes
+
+* tiers.get.ts ([16d8e7e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/16d8e7ead60b9d2ac7260e38e62e90f8b03bd35e))
+
 ## [3.73.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.73.4...v3.73.5) (2026-03-01)
 
 
