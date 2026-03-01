@@ -1,3 +1,10 @@
+# [3.74.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.73.6...v3.74.0) (2026-03-01)
+
+
+### Features
+
+* Viva Wallet ([971413e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/971413ef34028ba9a98512f2f7b1bfc891c24bc4))
+
 ## [3.73.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.73.5...v3.73.6) (2026-03-01)
 
 
