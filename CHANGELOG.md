@@ -1,3 +1,10 @@
+## [3.73.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.73.4...v3.73.5) (2026-03-01)
+
+
+### Bug Fixes
+
+* config.get.ts ([83ddd09](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/83ddd0900a3722310ab944ca96aae78579712bf3))
+
 ## [3.73.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.73.3...v3.73.4) (2026-03-01)
 
 
