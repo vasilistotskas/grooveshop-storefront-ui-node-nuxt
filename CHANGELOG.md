@@ -1,3 +1,10 @@
+## [3.73.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.73.3...v3.73.4) (2026-03-01)
+
+
+### Bug Fixes
+
+* **auth:** prevent instant logout and Cloudflare 403 ([98c84ca](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/98c84ca3368c071996b574a73de9ba5fc08ca307))
+
 ## [3.73.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.73.2...v3.73.3) (2026-03-01)
 
 
