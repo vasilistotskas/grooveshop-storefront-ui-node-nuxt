@@ -1,3 +1,10 @@
+## [3.73.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.73.2...v3.73.3) (2026-03-01)
+
+
+### Bug Fixes
+
+* Update redis password ([7207324](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/720732406e6155eaefbb94efddbbc7fdcf45ed56))
+
 ## [3.73.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.73.1...v3.73.2) (2026-02-28)
 
 
