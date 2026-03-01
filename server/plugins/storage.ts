@@ -24,18 +24,20 @@ interface RedisDriverOptions {
   host: string
   port: number
   ttl: number
+  password?: string
 }
 
 /**
  * Creates a Redis driver with ioredis configuration optimized for graceful error handling.
  * The unstorage redis driver uses ioredis internally.
  */
-function createRedisDriver({ host, port, ttl }: RedisDriverOptions): Driver {
+function createRedisDriver({ host, port, ttl, password }: RedisDriverOptions): Driver {
   return redisDriver({
     base: CACHE_MOUNT_POINT,
     host,
     port,
     ttl,
+    ...(password && { password }),
     // ioredis options for graceful error handling
     lazyConnect: true,
     maxRetriesPerRequest: 3,
@@ -57,7 +59,7 @@ function createRedisDriver({ host, port, ttl }: RedisDriverOptions): Driver {
  * Tests Redis connectivity using node-redis client.
  * Returns true if connection successful, false otherwise.
  */
-async function testRedisConnection(host: string, port: number): Promise<boolean> {
+async function testRedisConnection(host: string, port: number, password?: string): Promise<boolean> {
   const client = createClient({
     socket: {
       host,
@@ -68,6 +70,7 @@ async function testRedisConnection(host: string, port: number): Promise<boolean>
         return Math.min(retries * 100, 3000)
       },
     },
+    ...(password && { password }),
   })
 
   client.on('error', () => {}) // Suppress error logs during test
@@ -92,10 +95,11 @@ export default defineNitroPlugin(async (nitroApp) => {
   const storage = useStorage()
   const config = useRuntimeConfig()
 
-  const { host, port, ttl } = config.redis
+  const { host, port, ttl, password } = config.redis
   const redisHost = host as string
   const redisPort = Number(port)
   const redisTTL = Number(ttl)
+  const redisPassword = password as string | undefined
   const useRedis = config.cacheBase === 'redis'
 
   // Unmount Nitro's default cache driver (filesystem in dev, memory in prod)
@@ -116,10 +120,10 @@ export default defineNitroPlugin(async (nitroApp) => {
 
   log.info('cache', `Testing Redis connection at ${redisHost}:${redisPort}...`)
 
-  const isConnected = await testRedisConnection(redisHost, redisPort)
+  const isConnected = await testRedisConnection(redisHost, redisPort, redisPassword)
 
   if (isConnected) {
-    const driver = createRedisDriver({ host: redisHost, port: redisPort, ttl: redisTTL })
+    const driver = createRedisDriver({ host: redisHost, port: redisPort, ttl: redisTTL, password: redisPassword })
     storage.mount(CACHE_MOUNT_POINT, driver)
     log.info('cache', `Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort}, TTL: ${redisTTL}s)`)
   }

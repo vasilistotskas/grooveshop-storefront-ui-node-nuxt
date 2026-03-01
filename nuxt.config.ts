@@ -135,6 +135,7 @@ export default defineNuxtConfig({
       host: process.env.NUXT_REDIS_HOST,
       port: Number(process.env.NUXT_REDIS_PORT || 6379),
       ttl: Number(process.env.NUXT_REDIS_TTL || 3600),
+      password: process.env.NUXT_REDIS_PASSWORD,
     },
     scripts: {
       registry: {
