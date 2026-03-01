@@ -172,6 +172,14 @@ const isStripePayment = computed(() => {
   return selectedPayWay.value?.providerCode === 'stripe'
 })
 
+const isVivaWalletPayment = computed(() => {
+  return selectedPayWay.value?.providerCode === 'viva_wallet'
+})
+
+const isOnlinePayment = computed(() => {
+  return isStripePayment.value || isVivaWalletPayment.value
+})
+
 const countryOptions = computed(() => {
   return countries.value?.results?.map(country => ({
     label: extractTranslated(country, 'name', locale.value),
@@ -405,10 +413,14 @@ const onSubmit = async () => {
       }
     })
 
-    // Step 3: Branch based on payment type (online vs offline)
+    // Step 3: Branch based on payment type
     if (isStripePayment.value) {
-      // Online payment flow: Payment-first (requires payment_intent_id)
+      // Stripe: Payment-first (requires payment_intent_id)
       await handleOnlinePaymentFlow()
+    }
+    else if (isVivaWalletPayment.value) {
+      // Viva Wallet: Order-first, then redirect to hosted checkout
+      await handleVivaWalletPaymentFlow()
     }
     else {
       // Offline payment flow: Order-first (no payment_intent_id required)
@@ -521,6 +533,74 @@ const handleOnlinePaymentFlow = async () => {
   catch (error: any) {
     // Error already handled in onResponseError, just prevent propagation
     log.error({ action: 'checkout:orderCreation', error })
+  }
+}
+
+const handleVivaWalletPaymentFlow = async () => {
+  // Viva Wallet doesn't need a payment intent created beforehand.
+  // Create the order directly, then redirect to Viva's hosted checkout.
+  const submitValues: OrderCreateFromCartRequest = {
+    payWayId: formState.payWayId!,
+    countryId: formState.countryId!,
+    regionId: formState.regionId,
+    firstName: formState.firstName,
+    lastName: formState.lastName,
+    email: formState.email,
+    street: formState.street,
+    streetNumber: formState.streetNumber,
+    city: formState.city,
+    zipcode: formState.zipcode,
+    phone: formState.phone,
+    customerNotes: formState.customerNotes,
+    loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
+  }
+
+  try {
+    await $fetch('/api/orders', {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      body: submitValues,
+      async onResponse({ response }) {
+        if (!response.ok) return
+
+        createdOrder.value = response._data
+
+        toast.add({
+          title: t('order_created_payment_required'),
+          description: t('complete_payment_to_finish'),
+          color: 'info',
+        })
+      },
+      onResponseError({ response }) {
+        const errorInfo = handleOrderError(response)
+
+        if (errorInfo.shouldRetry) {
+          if (retryCount.value >= MAX_RETRIES) {
+            toast.add({
+              title: t('form.submit.error.general'),
+              description: t('form.submit.error.max_retries'),
+              color: 'error',
+            })
+            return
+          }
+
+          retryCount.value++
+          setTimeout(() => {
+            onSubmit()
+          }, 500)
+        }
+        else {
+          toast.add({
+            title: errorInfo.title,
+            description: errorInfo.description,
+            color: 'error',
+          })
+        }
+      },
+    })
+  }
+  catch (error: any) {
+    log.error({ action: 'checkout:vivaWalletOrderCreation', error })
   }
 }
 
@@ -781,8 +861,8 @@ definePageMeta({
           class="mb-6"
         />
 
-        <!-- Payment Success View -->
-        <UCard v-if="createdOrder && isStripePayment" variant="soft">
+        <!-- Online Payment View (Stripe or Viva Wallet) -->
+        <UCard v-if="createdOrder && isOnlinePayment" variant="soft">
           <template #header>
             <div class="flex items-center justify-between">
               <div>
@@ -824,16 +904,27 @@ definePageMeta({
               </div>
             </div>
 
-            <StripeCheckout
-              v-if="useHostedCheckout"
+            <!-- Viva Wallet Hosted Checkout -->
+            <VivaWalletCheckout
+              v-if="isVivaWalletPayment"
               :order="createdOrder"
               :pay-way="selectedPayWay!"
               @error="onPaymentError"
               @redirecting="() => toast.add({ title: t('redirecting'), color: 'info' })"
             />
 
+            <!-- Stripe Hosted Checkout -->
+            <StripeCheckout
+              v-else-if="isStripePayment && useHostedCheckout"
+              :order="createdOrder"
+              :pay-way="selectedPayWay!"
+              @error="onPaymentError"
+              @redirecting="() => toast.add({ title: t('redirecting'), color: 'info' })"
+            />
+
+            <!-- Stripe Embedded Payment -->
             <StripePayment
-              v-else
+              v-else-if="isStripePayment"
               :order="createdOrder"
               :pay-way="selectedPayWay!"
               @success="onPaymentSuccess"
