@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await getAllAuthAccessToken(event)
@@ -12,7 +14,8 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    return await parseDataAs(data, zListLoyaltyTiersResponse)
+    // Django returns a plain array (not paginated) for tiers
+    return await parseDataAs(data, z.array(zLoyaltyTier))
   }
   catch (error) {
     await handleError(error)
