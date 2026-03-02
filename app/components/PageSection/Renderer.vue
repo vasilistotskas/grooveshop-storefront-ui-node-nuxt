@@ -9,7 +9,7 @@ const component = computed(() => componentRegistry[props.section.componentType])
     <component
       :is="component"
       :title="section.title"
-      v-bind="section.props"
+      v-bind="(section.props as Record<string, unknown>) ?? {}"
     />
   </section>
 </template>

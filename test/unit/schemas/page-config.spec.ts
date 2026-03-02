@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { zPageLayoutResponse, zPageSection } from '../../../shared/schemas/page-config'
+import { zPageLayout, zPageSection } from '../../../shared/openapi/zod.gen'
 
 describe('Shared Schemas - Page Config', () => {
   describe('zPageSection', () => {
@@ -42,7 +42,7 @@ describe('Shared Schemas - Page Config', () => {
     })
   })
 
-  describe('zPageLayoutResponse', () => {
+  describe('zPageLayout', () => {
     it('should parse valid layout with sections', () => {
       const data = {
         id: 1,
@@ -63,7 +63,7 @@ describe('Shared Schemas - Page Config', () => {
           },
         ],
       }
-      const result = zPageLayoutResponse.parse(data)
+      const result = zPageLayout.parse(data)
       expect(result.pageType).toBe('home')
       expect(result.sections).toHaveLength(1)
     })
@@ -78,7 +78,7 @@ describe('Shared Schemas - Page Config', () => {
         metadata: {},
         sections: [],
       }
-      const result = zPageLayoutResponse.parse(data)
+      const result = zPageLayout.parse(data)
       expect(result.sections).toHaveLength(0)
     })
 
@@ -92,7 +92,7 @@ describe('Shared Schemas - Page Config', () => {
         metadata: { theme: 'dark', layout: 'wide' },
         sections: [],
       }
-      const result = zPageLayoutResponse.parse(data)
+      const result = zPageLayout.parse(data)
       expect(result.metadata).toEqual({ theme: 'dark', layout: 'wide' })
       expect(result.isPublished).toBe(false)
     })
@@ -102,7 +102,7 @@ describe('Shared Schemas - Page Config', () => {
         id: 'not-a-number',
         pageType: 'home',
       }
-      expect(() => zPageLayoutResponse.parse(data)).toThrow()
+      expect(() => zPageLayout.parse(data)).toThrow()
     })
   })
 })

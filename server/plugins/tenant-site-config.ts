@@ -1,5 +1,3 @@
-import type { TenantConfig } from '~~/server/utils/tenant'
-
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('request', (event) => {
     const tenant = event.context.tenant as TenantConfig | undefined

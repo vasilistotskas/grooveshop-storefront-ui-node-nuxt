@@ -1,5 +1,3 @@
-import { zPageLayoutResponse } from '~~/shared/schemas/page-config'
-
 export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const pageType = getRouterParam(event, 'pageType')
@@ -9,7 +7,7 @@ export default defineCachedEventHandler(async (event) => {
       `${config.apiBaseUrl}/page-config/${pageType}`,
       { method: 'GET' },
     )
-    return await parseDataAs(response, zPageLayoutResponse)
+    return await parseDataAs(response, zPageLayout)
   }
   catch (error) {
     await handleError(error)

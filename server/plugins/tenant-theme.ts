@@ -1,5 +1,3 @@
-import type { TenantConfig } from '~~/server/utils/tenant'
-
 function isValidHex(hex: string): boolean {
   return /^#[0-9a-fA-F]{6}$/.test(hex)
 }

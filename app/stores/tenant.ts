@@ -1,5 +1,3 @@
-import type { TenantConfig } from '~~/server/utils/tenant'
-
 export const useTenantStore = defineStore('tenant', () => {
   const config = ref<TenantConfig | null>(null)
 

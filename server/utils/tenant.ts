@@ -1,34 +1,12 @@
-export interface TenantConfig {
-  schemaName: string
-  name: string
-  storeName: string
-  storeDescription: string
-  logoLightUrl: string
-  logoDarkUrl: string
-  faviconUrl: string
-  primaryColor: string
-  neutralColor: string
-  accentHex: string
-  successHex: string
-  warningHex: string
-  errorHex: string
-  infoHex: string
-  themePreset: string
-  themeMetadata: Record<string, unknown>
-  defaultLocale: string
-  defaultCurrency: string
-  primaryDomain: string
-  loyaltyEnabled: boolean
-  blogEnabled: boolean
-  plan: string
-}
-
 // In-memory cache with 5-minute TTL
 const tenantCache = new Map<string, { config: TenantConfig, expiry: number }>()
 const TENANT_CACHE_TTL = 5 * 60 * 1000
 
 export async function getTenantConfig(host: string): Promise<TenantConfig | null> {
-  const cached = tenantCache.get(host)
+  // Strip port — TenantDomain stores bare hostnames (e.g. "localhost", not "localhost:3000")
+  const domain = host.replace(/:\d+$/, '')
+
+  const cached = tenantCache.get(domain)
   if (cached && cached.expiry > Date.now()) {
     return cached.config
   }
@@ -37,9 +15,9 @@ export async function getTenantConfig(host: string): Promise<TenantConfig | null
   try {
     const response = await $fetch<TenantConfig>(
       `${config.apiBaseUrl}/tenant/resolve`,
-      { query: { domain: host } },
+      { query: { domain } },
     )
-    tenantCache.set(host, { config: response, expiry: Date.now() + TENANT_CACHE_TTL })
+    tenantCache.set(domain, { config: response, expiry: Date.now() + TENANT_CACHE_TTL })
     return response
   }
   catch {
@@ -49,7 +27,8 @@ export async function getTenantConfig(host: string): Promise<TenantConfig | null
 
 export function clearTenantCache(host?: string) {
   if (host) {
-    tenantCache.delete(host)
+    const domain = host.replace(/:\d+$/, '')
+    tenantCache.delete(domain)
   }
   else {
     tenantCache.clear()

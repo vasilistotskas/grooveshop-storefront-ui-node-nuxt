@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 const { mockUseFetchFn } = vi.hoisted(() => ({
@@ -36,8 +36,8 @@ describe('usePageConfig', () => {
     const { sections: result } = usePageConfig('home')
 
     expect(result.value).toHaveLength(2)
-    expect(result.value[0].componentType).toBe('hero_carousel')
-    expect(result.value[1].componentType).toBe('spacer')
+    expect(result.value![0]!.componentType).toBe('hero_carousel')
+    expect(result.value![1]!.componentType).toBe('spacer')
   })
 
   it('should return fallback sections for home when data is null', () => {
@@ -50,7 +50,7 @@ describe('usePageConfig', () => {
     const { sections } = usePageConfig('home')
 
     expect(sections.value.length).toBeGreaterThan(0)
-    expect(sections.value[0].componentType).toBe('hero_carousel')
+    expect(sections.value![0]!.componentType).toBe('hero_carousel')
   })
 
   it('should return empty array fallback for unknown page type', () => {

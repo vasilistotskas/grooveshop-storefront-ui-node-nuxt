@@ -7,7 +7,7 @@ const FALLBACK_LAYOUTS: Record<string, PageSection[]> = {
 }
 
 export function usePageConfig(pageType: string) {
-  const { data, status, error } = useFetch<PageLayoutResponse>(
+  const { data, status, error } = useFetch<PageLayout>(
     `/api/page-config/${pageType}`,
     { key: `page-config-${pageType}` },
   )
@@ -16,7 +16,7 @@ export function usePageConfig(pageType: string) {
     if (data.value?.isPublished && data.value.sections) {
       return data.value.sections
         .filter(s => s.isVisible)
-        .sort((a, b) => a.sortOrder - b.sortOrder)
+        .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
     }
     return FALLBACK_LAYOUTS[pageType] ?? []
   })
