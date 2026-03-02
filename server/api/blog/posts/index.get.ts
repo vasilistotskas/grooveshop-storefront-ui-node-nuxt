@@ -27,6 +27,6 @@ export default defineCachedEventHandler(async (event) => {
       query.ordering || '-createdAt',
       query.cursor || '',
     ]
-    return `blog-posts:${keyParts.join(':')}`
+    return tenantCacheKey(event, `blog-posts:${keyParts.join(':')}`)
   },
 })

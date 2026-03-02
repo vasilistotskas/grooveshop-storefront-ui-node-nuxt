@@ -17,4 +17,5 @@ export default defineCachedEventHandler(async () => {
   maxAge: 60 * 60, // 1 hour - settings rarely change
   staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
   swr: true,
+  getKey: event => tenantCacheKey(event, 'settings'),
 })

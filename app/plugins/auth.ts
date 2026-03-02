@@ -4,6 +4,11 @@ export default defineNuxtPlugin({
   name: 'auth',
   parallel: true,
   async setup(nuxtApp) {
+    // Skip during build-time prerendering (no backend available)
+    if (import.meta.server && useRequestHeaders()['x-nitro-prerender']) {
+      return
+    }
+
     const appStore = useAppStore()
     const { healthy } = storeToRefs(appStore)
 

@@ -18,6 +18,6 @@ export default defineCachedEventHandler(async (event) => {
   swr: true,
   getKey: (event) => {
     const query = getQuery(event)
-    return `product-images:${JSON.stringify(query)}`
+    return tenantCacheKey(event, `product-images:${JSON.stringify(query)}`)
   },
 })

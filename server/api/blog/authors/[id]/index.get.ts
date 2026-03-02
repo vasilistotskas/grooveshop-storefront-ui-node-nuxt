@@ -21,5 +21,5 @@ export default defineCachedEventHandler(async (event) => {
   maxAge: 60 * 60, // 1 hour - authors change rarely
   staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
   swr: true,
-  getKey: event => `blog-author:${getRouterParams(event).id}`,
+  getKey: event => tenantCacheKey(event, `blog-author:${getRouterParams(event).id}`),
 })

@@ -1,16 +1,7 @@
 <script lang="ts" setup>
-const config = useRuntimeConfig()
 const { isMobileOrTablet } = useDevice()
-const { t } = useI18n()
 
-const appTitle = computed(() => config.public.appTitle as string)
-
-const items = computed(() => [
-  isMobileOrTablet ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
-])
-
-const bannerWidth = computed(() => isMobileOrTablet ? 510 : 1194)
-const bannerHeight = computed(() => isMobileOrTablet ? 638 : 418)
+const { sections, status } = usePageConfig('home')
 
 definePageMeta({
   layout: 'default',
@@ -69,52 +60,14 @@ useSeoMeta({
           />
         </DesktopOnly>
 
-        <UCarousel
-          v-slot="{ item }"
-          :items="items"
-          :ui="{ item: `basis-full place-items-center justify-center` }"
-          :aria-label="t('carousel.banner')"
-          class="
-            mx-auto max-w-(--container-main)
-            md:!p-0
-          "
-          indicators
-        >
-          <NuxtImg
-            v-if="item"
-            :alt="appTitle"
-            :src="item"
-            :height="bannerHeight"
-            :width="bannerWidth"
-            densities="x1"
-            fit="cover"
-            quality="80"
-            class="rounded-lg"
-            style="object-fit: contain; content-visibility: auto;"
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
-            preload
+        <template v-if="status !== 'pending'">
+          <PageSectionRenderer
+            v-for="section in sections"
+            :key="section.uuid || section.id"
+            :section="section"
           />
-        </UCarousel>
-
-        <LazyBlogPostsList
-          :page-size="6"
-          :show-ordering="false"
-          class="
-            mx-auto max-w-(--container-main)
-            md:!p-0
-          "
-          pagination-type="cursor"
-          hydrate-on-visible
-        />
+        </template>
       </div>
     </section>
   </PageWrapper>
 </template>
-
-<i18n lang="yaml">
-el:
-  carousel:
-    banner: Κύριο banner
-</i18n>

@@ -1,14 +1,17 @@
 /**
- * Adds X-Forwarded-Proto: https to all $fetch calls targeting internal backend services.
+ * Adds X-Forwarded-Proto and X-Forwarded-Host to all $fetch calls targeting
+ * internal backend services.
  *
- * Why: Django's SecurityMiddleware checks SECURE_PROXY_SSL_HEADER for the
- * X-Forwarded-Proto header. Without it, SECURE_SSL_REDIRECT=True causes a 301
- * to the external HTTPS URL (e.g. https://webside.gr/...), which exits the K8s
- * cluster and hits Cloudflare's managed challenge — returning 403 because
- * server-side requests can't execute the JS challenge.
+ * X-Forwarded-Proto: Django's SecurityMiddleware checks SECURE_PROXY_SSL_HEADER.
+ * Without it, SECURE_SSL_REDIRECT=True causes a 301 to the external HTTPS URL,
+ * which exits the K8s cluster and hits Cloudflare's managed challenge (403).
+ *
+ * X-Forwarded-Host: Django's TenantMainMiddleware resolves the tenant schema from
+ * the request host. Internal $fetch calls have a Host of e.g. "django-backend:8000",
+ * so X-Forwarded-Host is required for correct tenant resolution.
  *
  * How: Uses an ofetch onRequest interceptor scoped to internal backend origins
- * (NUXT_DJANGO_URL / NUXT_API_BASE_URL). Auth/cart routes also set this header
+ * (NUXT_DJANGO_URL / NUXT_API_BASE_URL). Auth/cart routes also set these headers
  * explicitly via createHeaders()/getCartHeaders(), but this plugin acts as a
  * safety net for the ~30 cached routes that send no headers at all.
  *
@@ -52,8 +55,22 @@ export default defineNitroPlugin(() => {
       if (!options.headers.has('X-Forwarded-Proto')) {
         options.headers.set('X-Forwarded-Proto', 'https')
       }
+
+      // Inject X-Forwarded-Host for tenant resolution (uses Nitro async context)
+      if (!options.headers.has('X-Forwarded-Host')) {
+        try {
+          const event = useEvent()
+          const host = getRequestHost(event, { xForwardedHost: false })
+          if (host) {
+            options.headers.set('X-Forwarded-Host', host)
+          }
+        }
+        catch {
+          // useEvent() may fail outside a request context (e.g., during startup)
+        }
+      }
     },
   }) as typeof globalThis.$fetch
 
-  log.info('forwarded-proto', 'X-Forwarded-Proto interceptor active', { origins: internalOrigins })
+  log.info('forwarded-headers', 'Backend header interceptor active', { origins: internalOrigins })
 })

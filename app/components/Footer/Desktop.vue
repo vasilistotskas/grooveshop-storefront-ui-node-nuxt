@@ -4,6 +4,7 @@ import pkg from '../../../package.json'
 const siteConfig = useSiteConfig()
 const localePath = useLocalePath()
 const { t } = useI18n()
+const { storeName } = storeToRefs(useTenantStore())
 
 const packageVersion = pkg.version
 </script>
@@ -41,8 +42,8 @@ const packageVersion = pkg.version
           >
             <li class="grid">
               <Anchor
-                :text="t('about.site')"
-                :title="t('about.site')"
+                :text="t('about.site', { storeName })"
+                :title="t('about.site', { storeName })"
                 :to="'about'"
                 class="
                   flex-1 text-sm text-primary-700 capitalize
@@ -54,7 +55,7 @@ const packageVersion = pkg.version
                   base: 'items-start p-0 text-start',
                 }"
               >
-                {{ t('about.site') }}
+                {{ t('about.site', { storeName }) }}
               </Anchor>
             </li>
             <li class="grid">
@@ -317,7 +318,7 @@ el:
   all_rights_reserved: All rights reserved
   about:
     us: Σχετικά με εμάς,
-    site: Τι είναι το Webside
+    site: Τι είναι το {storeName}
   microlearning:
     title: Microlearning
     why: Γιατί Microlearning

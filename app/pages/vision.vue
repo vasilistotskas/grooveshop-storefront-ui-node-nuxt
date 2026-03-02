@@ -2,6 +2,7 @@
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
+const { storeName } = storeToRefs(useTenantStore())
 
 const items = computed(() => [
   {
@@ -54,10 +55,10 @@ definePageMeta({
       <div class="grid items-center justify-center">
         <NuxtImg
           :style="{ objectFit: 'contain' }"
-          src="/img/pages/about-webside.png"
+          src="/img/pages/about-hero.png"
           :width="960"
           :height="600"
-          alt="Webside"
+          :alt="storeName"
           loading="eager"
           quality="80"
           preload
@@ -70,7 +71,7 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        Στο Webside, οραματιζόμαστε έναν κόσμο όπου όλοι θα αξιοποιούν τη δύναμη της τεχνολογίας με αυτοπεποίθηση και
+        Στο {{ storeName }}, οραματιζόμαστε έναν κόσμο όπου όλοι θα αξιοποιούν τη δύναμη της τεχνολογίας με αυτοπεποίθηση και
         ασφάλεια. Αποστολή μας είναι να καλλιεργήσουμε μια κουλτούρα ψηφιακού αλφαβητισμού και διαδικτυακής ασφάλειας
         σε μια εποχή όπου η τεχνολογία διαπερνά κάθε πτυχή της ζωής μας.
       </p>
@@ -90,7 +91,7 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        Είτε είσαι αρχάριος που περιηγείται στο ψηφιακό τοπίο είτε έμπειρος λάτρης της τεχνολογίας, το Webside σου
+        Είτε είσαι αρχάριος που περιηγείται στο ψηφιακό τοπίο είτε έμπειρος λάτρης της τεχνολογίας, το {{ storeName }} σου
         παρέχει τα εργαλεία και τις γνώσεις για να ευδοκιμήσετις στο διαρκώς εξελισσόμενο τεχνολογικό οικοσύστημα.
       </p>
       <p
@@ -111,7 +112,7 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        Επιπλέον, το Webside δεν είναι απλώς μια πλατφόρμα εκμάθησης- είναι μια πύλη προς μια επιμελημένη επιλογή
+        Επιπλέον, το {{ storeName }} δεν είναι απλώς μια πλατφόρμα εκμάθησης- είναι μια πύλη προς μια επιμελημένη επιλογή
         προϊόντων τεχνολογίας αιχμής.
       </p>
       <p

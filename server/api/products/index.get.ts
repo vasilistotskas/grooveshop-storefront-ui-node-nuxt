@@ -25,6 +25,6 @@ export default defineCachedEventHandler(async (event) => {
       query.categoryId || 'all',
       query.search || '',
     ]
-    return `products:${keyParts.join(':')}`
+    return tenantCacheKey(event, `products:${keyParts.join(':')}`)
   },
 })

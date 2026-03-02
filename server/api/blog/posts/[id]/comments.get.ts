@@ -29,6 +29,6 @@ export default defineCachedEventHandler(async (event) => {
       query.cursor || '',
       query.languageCode || 'el',
     ]
-    return `post-comments:${keyParts.join(':')}`
+    return tenantCacheKey(event, `post-comments:${keyParts.join(':')}`)
   },
 })

@@ -107,10 +107,16 @@ export async function requireAllAuthAccessToken(event?: H3Event): Promise<string
 
 export async function fetchUserData(response: AllAuthResponse, accessToken?: string | null) {
   const config = useRuntimeConfig()
+  const event = useEvent()
   const token = accessToken || response.meta?.access_token
   let headers: Record<string, string> = {
     'Authorization': `Bearer ${token}`,
-    'X-Forwarded-Proto': getRequestProtocol(useEvent(), { xForwardedProto: true }),
+    'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
+  }
+  // Include X-Forwarded-Host for tenant resolution
+  const host = getRequestHost(event, { xForwardedHost: false })
+  if (host) {
+    headers['X-Forwarded-Host'] = host
   }
   if (response.meta?.is_authenticated && !token) {
     headers = await getAllAuthHeaders()

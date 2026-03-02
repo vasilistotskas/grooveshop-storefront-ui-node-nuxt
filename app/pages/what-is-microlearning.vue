@@ -2,6 +2,7 @@
 const { t } = useI18n()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
+const { storeName } = storeToRefs(useTenantStore())
 
 const items = computed(() => [
   {
@@ -58,7 +59,7 @@ definePageMeta({
           src="/img/pages/what-is-microlearning1.png"
           :width="960"
           :height="680"
-          alt="Webside"
+          :alt="storeName"
           :modifiers="{ position: 'entropy' }"
           loading="eager"
           quality="80"
@@ -90,7 +91,7 @@ definePageMeta({
           src="/img/pages/what-is-microlearning2.png"
           :width="960"
           :height="860"
-          alt="Webside"
+          :alt="storeName"
           loading="lazy"
           quality="80"
         />
@@ -121,7 +122,7 @@ definePageMeta({
           src="/img/pages/what-is-microlearning3.png"
           :width="960"
           :height="860"
-          alt="Webside"
+          :alt="storeName"
           loading="lazy"
           quality="80"
         />

@@ -23,6 +23,6 @@ export default defineCachedEventHandler(async (event) => {
       query.countryId || 'all',
       query.languageCode || 'el',
     ]
-    return `regions:${keyParts.join(':')}`
+    return tenantCacheKey(event, `regions:${keyParts.join(':')}`)
   },
 })

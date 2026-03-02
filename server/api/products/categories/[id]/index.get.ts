@@ -21,5 +21,5 @@ export default defineCachedEventHandler(async (event) => {
   maxAge: 60 * 60, // 1 hour - categories change rarely
   staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
   swr: true,
-  getKey: event => `product-category:${getRouterParams(event).id}`,
+  getKey: event => tenantCacheKey(event, `product-category:${getRouterParams(event).id}`),
 })

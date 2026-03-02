@@ -1,0 +1,18 @@
+export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComponent>> = {
+  hero_banner: defineAsyncComponent(() => import('~/components/PageSection/HeroBanner.vue')),
+  hero_carousel: defineAsyncComponent(() => import('~/components/PageSection/HeroCarousel.vue')),
+  products_slider: defineAsyncComponent(() => import('~/components/PageSection/ProductsSlider.vue')),
+  products_grid: defineAsyncComponent(() => import('~/components/PageSection/ProductsGrid.vue')),
+  featured_products: defineAsyncComponent(() => import('~/components/PageSection/FeaturedProducts.vue')),
+  product_categories: defineAsyncComponent(() => import('~/components/PageSection/ProductCategories.vue')),
+  blog_posts_carousel: defineAsyncComponent(() => import('~/components/PageSection/BlogPostsCarousel.vue')),
+  blog_posts_grid: defineAsyncComponent(() => import('~/components/PageSection/BlogPostsGrid.vue')),
+  rich_text: defineAsyncComponent(() => import('~/components/PageSection/RichText.vue')),
+  cta_banner: defineAsyncComponent(() => import('~/components/PageSection/CtaBanner.vue')),
+  newsletter_signup: defineAsyncComponent(() => import('~/components/PageSection/NewsletterSignup.vue')),
+  testimonials: defineAsyncComponent(() => import('~/components/PageSection/Testimonials.vue')),
+  spacer: defineAsyncComponent(() => import('~/components/PageSection/Spacer.vue')),
+  divider: defineAsyncComponent(() => import('~/components/PageSection/Divider.vue')),
+  loyalty_hero: defineAsyncComponent(() => import('~/components/PageSection/LoyaltyHero.vue')),
+  search_bar: defineAsyncComponent(() => import('~/components/PageSection/SearchBar.vue')),
+}

@@ -20,6 +20,6 @@ export default defineCachedEventHandler(async (event) => {
   swr: true,
   getKey: (event) => {
     const params = getRouterParams(event)
-    return `blog-post:${params.id}`
+    return tenantCacheKey(event, `blog-post:${params.id}`)
   },
 })

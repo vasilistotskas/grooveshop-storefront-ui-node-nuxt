@@ -3,6 +3,7 @@ import type { AccordionItem } from '#ui/types'
 
 const localePath = useLocalePath()
 const { t } = useI18n()
+const { storeName } = storeToRefs(useTenantStore())
 
 const items = ref<AccordionItem[]>([{
   label: t('about.us'),
@@ -48,7 +49,7 @@ const items = ref<AccordionItem[]>([{
           "
         >
           <UButton
-            :label="t('about.site')"
+            :label="t('about.site', { storeName })"
             :to="localePath('about')"
             class="font-semibold"
             color="secondary"
@@ -194,7 +195,7 @@ el:
   cookies_policy: Πολιτική Cookies
   about:
     us: Σχετικά με εμάς
-    site: Τι είναι το Webside
+    site: Τι είναι το {storeName}
   microlearning:
     title: Microlearning
     why: Γιατί Microlearning

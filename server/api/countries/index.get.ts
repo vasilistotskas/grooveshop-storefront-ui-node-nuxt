@@ -22,6 +22,6 @@ export default defineCachedEventHandler(async (event) => {
       query.pageSize || '250',
       query.languageCode || 'el',
     ]
-    return `countries:${keyParts.join(':')}`
+    return tenantCacheKey(event, `countries:${keyParts.join(':')}`)
   },
 })

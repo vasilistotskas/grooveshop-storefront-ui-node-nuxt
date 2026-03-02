@@ -23,6 +23,6 @@ export default defineCachedEventHandler(async (event) => {
       query.page || '1',
       query.languageCode || 'el',
     ]
-    return `blog-authors:${keyParts.join(':')}`
+    return tenantCacheKey(event, `blog-authors:${keyParts.join(':')}`)
   },
 })

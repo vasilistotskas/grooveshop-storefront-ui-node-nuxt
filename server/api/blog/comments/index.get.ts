@@ -25,6 +25,6 @@ export default defineCachedEventHandler(async (event) => {
       query.paginationType || 'pageNumber',
       query.cursor || '',
     ]
-    return `blog-comments:${keyParts.join(':')}`
+    return tenantCacheKey(event, `blog-comments:${keyParts.join(':')}`)
   },
 })

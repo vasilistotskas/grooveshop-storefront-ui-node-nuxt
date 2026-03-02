@@ -3,6 +3,11 @@ export default defineNuxtPlugin({
   parallel: true,
   dependsOn: ['auth'],
   async setup() {
+    // Skip API calls during build-time prerendering (no backend available)
+    if (import.meta.server && useRequestHeaders()['x-nitro-prerender']) {
+      return
+    }
+
     const { loggedIn } = useUserSession()
     const userStore = useUserStore()
     const { setupAccount } = userStore

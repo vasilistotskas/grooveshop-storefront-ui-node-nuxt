@@ -1,28 +1,19 @@
-import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { writeFileSync } from 'fs'
 import { join } from 'path'
 
 const API_BASE = process.env.NUXT_DJANGO_URL || 'http://localhost:8000'
-const TOKEN_FILE = '.auth-token'
 
 async function fetchSchema() {
   try {
-    // Try environment variable first, then file
-    let token = process.env.DJANGO_API_TOKEN
+    const headers = { Accept: 'application/vnd.oai.openapi+json' }
 
-    if (!token && existsSync(TOKEN_FILE)) {
-      token = readFileSync(TOKEN_FILE, 'utf-8').trim()
+    // Optional auth token (required in production, not needed locally with DEBUG=True)
+    const token = process.env.DJANGO_API_TOKEN
+    if (token) {
+      headers.Authorization = `Bearer ${token}`
     }
 
-    if (!token) {
-      throw new Error('No token found. Set DJANGO_API_TOKEN env var or create .auth-token file')
-    }
-
-    const response = await fetch(`${API_BASE}/api/v1/schema`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.oai.openapi+json',
-      },
-    })
+    const response = await fetch(`${API_BASE}/api/v1/schema`, { headers })
 
     if (!response.ok) {
       throw new Error(`Failed to fetch schema: ${response.status}`)
