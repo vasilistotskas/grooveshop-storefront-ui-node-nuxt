@@ -6,72 +6,10 @@ defineSlots<{
 }>()
 
 const { isMobileOrTablet } = useDevice()
-const route = useRoute()
-const { loggedIn, user } = useUserSession()
-const img = useImage()
-const { $i18n } = useNuxtApp()
-
-const avatarImg = computed(() => {
-  if (!user.value || !user.value?.mainImagePath) {
-    return ''
-  }
-  return img(user.value.mainImagePath, {
-    width: 32,
-    height: 32,
-    fit: 'cover',
-  }, {
-    provider: 'mediaStream',
-  })
-})
-
-const items = computed(() => {
-  const items = [
-    {
-      icon: 'i-heroicons-home',
-      to: '/',
-      label: $i18n.t('home'),
-    },
-    {
-      icon: 'i-heroicons-magnifying-glass',
-      to: '/search',
-      label: $i18n.t('search.title'),
-    },
-    {
-      icon: 'i-heroicons-heart',
-      to: '/account/favourites/posts',
-      label: $i18n.t('favourites'),
-    },
-  ] as LinksOption[]
-
-  if (!loggedIn.value) {
-    items.push({
-      icon: 'i-heroicons-user',
-      to: `/account/login?next=${route.path}`,
-      label: $i18n.t('account'),
-    })
-  }
-  else if (avatarImg.value) {
-    items.push({
-      to: '/account',
-      label: $i18n.t('account'),
-      avatar: {
-        src: avatarImg.value,
-      },
-    })
-  }
-  else {
-    items.push({
-      icon: 'i-heroicons-user',
-      to: '/account',
-      label: $i18n.t('account'),
-    })
-  }
-
-  return items
-})
+const { user } = useUserSession()
 
 const Footer = computed(() => {
-  return isMobileOrTablet
+  return isMobileOrTablet.value
     ? resolveComponent('FooterMobile')
     : resolveComponent('FooterDesktop')
 })
@@ -84,11 +22,7 @@ const Footer = computed(() => {
         <PageNavbar />
       </PageHeader>
       <div
-        class="
-          grid gap-2 pt-13.5
-          md:gap-6 md:pt-15.5
-          lg:pt-15.5
-        "
+        class="grid gap-2 md:gap-6"
       >
         <div
           class="
@@ -157,28 +91,6 @@ const Footer = computed(() => {
         />
       </slot>
     </div>
-    <MobileOrTabletOnly>
-      <UNavigationMenu
-        orientation="horizontal"
-        :items="items"
-        :ui="{
-          root: `
-            fixed inset-x-0 bottom-0 z-50 block w-full border-t
-            border-primary-200 bg-primary-50
-            dark:border-primary-700 dark:bg-primary-900
-          `,
-          list: 'w-full',
-          item: 'w-full',
-          link: `
-            flex place-items-center justify-center
-            before:bg-transparent
-            dark:before:bg-transparent
-          `,
-          linkLabel: 'sr-only',
-          linkLeadingIcon: 'size-8',
-          linkLeadingAvatar: 'size-8',
-        }"
-      />
-    </MobileOrTabletOnly>
+    <MobileBottomNav :include-cart="false" />
   </div>
 </template>

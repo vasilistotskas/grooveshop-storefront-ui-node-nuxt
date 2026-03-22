@@ -15,7 +15,6 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/cart`, {
       method: 'GET',
       headers,
-      credentials: 'include',
     })
 
     const parsedData = await parseDataAs(response, zRetrieveCartResponse)

@@ -1,755 +1,59 @@
 <script lang="ts" setup>
-import * as z from 'zod'
-
-const { fetch, loggedIn } = useUserSession()
+const { loggedIn } = useUserSession()
 const localePath = useLocalePath()
-const { getPaymentMethodName } = usePaymentMethod()
+const { t } = useI18n()
 
 const cartStore = useCartStore()
-const { cleanCartState } = cartStore
-const { getCartItems, hasStockIssues, cart } = storeToRefs(cartStore)
+const { hasStockIssues, cart } = storeToRefs(cartStore)
 
 if (hasStockIssues.value) {
   await navigateTo(localePath('cart'))
 }
 
-const { t, n, locale } = useI18n()
-const toast = useToast()
-const { $i18n } = useNuxtApp()
+const {
+  formState,
+  selectedPayWay,
+  payWays,
+  shippingPrice,
+  countryOptions,
+  regionOptions,
+  payWayOptions,
+  step1Schema,
+  step2Schema,
+  onCountryChange,
+} = await useCheckoutForm()
 
-// Stock reservation composable
-const { reserveStock, releaseReservations, createPaymentIntentFromCart } = useCheckout()
+const {
+  currentStep,
+  createdOrder,
+  isSubmitting,
+  loyaltyDiscount,
+  stockError,
+  isStripePayment,
+  isVivaWalletPayment,
+  isOnlinePayment,
+  useHostedCheckout,
+  onSubmit,
+  nextStep,
+  prevStep,
+  backToForm,
+  onPaymentSuccess,
+  onPaymentError,
+  onLoyaltyRedeemed,
+  onLoyaltyCleared,
+} = useCheckoutSubmit({ formState, selectedPayWay, payWays })
 
-// State management
-const currentStep = ref(0) // UStepper uses 0-based indexing
-const checkoutMode = ref<'embedded' | 'hosted'>('hosted')
-const useHostedCheckout = computed(() => checkoutMode.value === 'hosted')
-const createdOrder = ref<OrderDetail | null>(null)
-const selectedPayWay = useState<PayWay | null>('selectedPayWay', () => null)
-const isSubmitting = ref(false)
-const reservationIds = ref<number[]>([])
-const retryCount = ref(0)
-const MAX_RETRIES = 3
-const paymentIntentId = ref<string | null>(null) // Store payment intent ID for Stripe
-
-// Loyalty discount state
-const loyaltyDiscount = ref<{ amount: number, currency: string, points: number } | null>(null)
-
-// Stock error state
-const stockError = ref<{
-  show: boolean
-  failedItems: Array<{
-    productId: number
-    productName: string
-    available: number
-    requested: number
-  }>
-} | null>(null)
-
-// Form state
-const formState = reactive({
-  // Personal Info
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  // Address
-  country: '',
-  countryId: undefined as string | undefined,
-  region: '',
-  regionId: undefined as string | undefined,
-  city: '',
-  place: '',
-  zipcode: '',
-  street: '',
-  streetNumber: '',
-  customerNotes: '',
-  // Payment
-  payWay: undefined as number | undefined,
-  payWayId: undefined as number | undefined,
-  documentType: zDocumentTypeEnum.enum.RECEIPT,
-  items: getCartItems.value.map(item => ({
-    product: item.product.id,
-    quantity: item.quantity,
-  })),
-})
-
-const regions = ref<Pagination<Region> | null>(null)
-
-// Fetch all checkout data in parallel (independent requests)
-const [
-  { data: shippingSetting },
-  { data: freeShippingThresholdSetting },
-  { data: countries },
-  { data: payWays },
-] = await Promise.all([
-  useFetch('/api/settings/get', {
-    key: 'CHECKOUT_SHIPPING_PRICE',
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: { key: 'CHECKOUT_SHIPPING_PRICE' },
-  }),
-  useFetch('/api/settings/get', {
-    key: 'FREE_SHIPPING_THRESHOLD',
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: { key: 'FREE_SHIPPING_THRESHOLD' },
-  }),
-  useFetch('/api/countries', {
-    key: 'countries',
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: { languageCode: locale },
-  }),
-  useFetch('/api/pay-way', {
-    key: 'payWays',
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: { languageCode: locale },
-  }),
-])
-
-// Initialize payment method
-if (payWays.value?.results?.[0]) {
-  formState.payWay = payWays.value.results[0].id
-  formState.payWayId = payWays.value.results[0].id
-  selectedPayWay.value = payWays.value.results[0]
+const handleStockRetry = () => {
+  stockError.value = null
+  onSubmit()
 }
-
-// Initialize first country and fetch its regions on mount
-onMounted(async () => {
-  if (countries.value?.results?.[0] && !formState.country) {
-    formState.country = countries.value.results[0].alpha2
-    formState.countryId = countries.value.results[0].alpha2
-    await fetchRegions()
-  }
-})
-
-// Watch for payment method changes and update selectedPayWay
-watch(() => formState.payWay, (newPayWayId) => {
-  if (newPayWayId && payWays.value?.results) {
-    const payWay = payWays.value.results.find(pw => pw.id === newPayWayId)
-    if (payWay) {
-      selectedPayWay.value = payWay
-      formState.payWayId = payWay.id
-    }
-  }
-})
-
-// Watch for region changes and update regionId
-watch(() => formState.region, (newRegionAlpha) => {
-  if (newRegionAlpha && regions.value?.results) {
-    const selectedRegion = regions.value.results.find(r => r.alpha === newRegionAlpha)
-    if (selectedRegion) {
-      formState.regionId = selectedRegion.alpha
-    }
-  }
-  else {
-    formState.regionId = undefined
-  }
-})
-
-// Computed properties
-const shippingPrice = computed(() => {
-  if (!shippingSetting?.value) return 0
-
-  const baseShippingCost = parseFloat(shippingSetting.value?.value)
-  const freeShippingThreshold = freeShippingThresholdSetting?.value
-    ? parseFloat(freeShippingThresholdSetting.value?.value)
-    : 50.00
-
-  const cartTotal = cart.value?.totalPrice || 0
-
-  // Apply free shipping if cart total meets or exceeds threshold
-  if (cartTotal >= freeShippingThreshold) {
-    return 0
-  }
-
-  return baseShippingCost
-})
-
-const isStripePayment = computed(() => {
-  return selectedPayWay.value?.providerCode === 'stripe'
-})
-
-const isVivaWalletPayment = computed(() => {
-  return selectedPayWay.value?.providerCode === 'viva_wallet'
-})
-
-const isOnlinePayment = computed(() => {
-  return isStripePayment.value || isVivaWalletPayment.value
-})
-
-const countryOptions = computed(() => {
-  return countries.value?.results?.map(country => ({
-    label: extractTranslated(country, 'name', locale.value),
-    value: country.alpha2,
-  })) || []
-})
-
-const regionOptions = computed(() => {
-  return regions.value?.results?.map(region => ({
-    label: extractTranslated(region, 'name', locale.value),
-    value: region.alpha,
-  })) || []
-})
-
-const payWayOptions = computed(() => {
-  return payWays.value?.results?.map((payWay) => {
-    let name = extractTranslated(payWay, 'name', locale.value)
-
-    if (name) {
-      name = getPaymentMethodName(name)
-    }
-
-    // Calculate cost display based on free threshold
-    const cartTotal = cart.value?.totalPrice || 0
-    const threshold = payWay.freeThreshold || 0
-    const displayCost = (threshold > 0 && cartTotal >= threshold) ? 0 : payWay.cost
-
-    return {
-      label: `${name} (+${n(displayCost, 'currency')})`,
-      value: payWay.id,
-      mainImagePath: payWay.mainImagePath,
-    }
-  }) || []
-})
-
-// Validation schemas (Zod v4 syntax)
-const step1Schema = z.object({
-  firstName: z.string({ error: $i18n.t('validation.required') }).min(3, {
-    error: $i18n.t('validation.first_name.min', { min: 3 }),
-  }),
-  lastName: z.string({ error: $i18n.t('validation.required') }).min(3, {
-    error: $i18n.t('validation.last_name.min', { min: 3 }),
-  }),
-  email: z.email({ error: $i18n.t('validation.email.valid') }),
-  phone: z.string({ error: $i18n.t('validation.required') }).min(3, {
-    error: $i18n.t('validation.phone.min', { min: 3 }),
-  }),
-  country: z.string({ error: $i18n.t('validation.required') }).min(1, {
-    error: $i18n.t('validation.required'),
-  }),
-  region: z.string({ error: $i18n.t('validation.required') }).min(1, {
-    error: $i18n.t('validation.required'),
-  }),
-  city: z.string({ error: $i18n.t('validation.required') }).min(3, {
-    error: $i18n.t('validation.city.min', { min: 3 }),
-  }),
-  place: z.string({ error: $i18n.t('validation.required') }).min(3, {
-    error: $i18n.t('validation.place.min', { min: 3 }),
-  }),
-  zipcode: z.string({ error: $i18n.t('validation.required') }).min(3, {
-    error: $i18n.t('validation.zipcode.min', { min: 3 }),
-  }),
-  street: z.string({ error: $i18n.t('validation.required') }).min(3, {
-    error: $i18n.t('validation.street.min', { min: 3 }),
-  }),
-  streetNumber: z.string({ error: $i18n.t('validation.required') }).min(1, {
-    error: $i18n.t('validation.street_number.min', { min: 1 }),
-  }),
-  customerNotes: z.string().optional(),
-})
-
-const step2Schema = z.object({
-  payWay: z.number({ error: $i18n.t('validation.payment_method.required') }).min(1, {
-    error: $i18n.t('validation.payment_method.required'),
-  }),
-})
-
-// Functions
-const fetchRegions = async () => {
-  try {
-    const countryValue = formState.country
-    regions.value = await $fetch<ListRegionResponse>('/api/regions', {
-      method: 'GET',
-      query: {
-        country: countryValue || undefined,
-        languageCode: locale.value,
-      },
-    })
-  }
-  catch {
-    toast.add({
-      title: $i18n.t('error.default'),
-      description: t('error_occurred'),
-      color: 'error',
-    })
-  }
-}
-
-const onCountryChange = async () => {
-  formState.region = ''
-  formState.regionId = undefined
-
-  // Update countryId when country changes
-  if (formState.country && countries.value?.results) {
-    const selectedCountry = countries.value.results.find(c => c.alpha2 === formState.country)
-    if (selectedCountry) {
-      formState.countryId = selectedCountry.alpha2
-    }
-  }
-
-  await fetchRegions()
-}
-
-const nextStep = async () => {
-  if (currentStep.value === 0) {
-    currentStep.value = 1
-  }
-}
-
-const prevStep = () => {
-  if (currentStep.value > 0) {
-    currentStep.value--
-  }
-}
-
-const handleOrderError = (response: any) => {
-  let errorTitle = t('form.submit.error.general')
-  let errorDescription = undefined
-
-  log.info('checkout', 'handleOrderError response', { status: response?.status })
-
-  const errorData = response._data || response.data
-  const errorType = errorData?.error?.type
-
-  // Handle structured error types
-  if (errorType === 'invalid_order_data') {
-    const detail = errorData?.detail || ''
-
-    // Check if it's an expired reservation error
-    if (detail.includes('expired') || detail.includes('Reservation')) {
-      errorTitle = t('form.submit.error.reservation_expired')
-      errorDescription = t('form.submit.error.reservation_expired_description')
-
-      // Clear expired reservations
-      reservationIds.value = []
-      return { title: errorTitle, description: errorDescription, shouldRetry: true }
-    }
-
-    errorTitle = t('form.submit.error.invalid_order_data')
-    errorDescription = detail || t('form.submit.error.invalid_order_data_description')
-  }
-  else if (errorType === 'insufficient_stock') {
-    errorTitle = t('form.submit.error.insufficient_stock')
-    errorDescription = errorData?.detail || t('form.submit.error.insufficient_stock_description')
-  }
-  else if (errorType === 'payment_not_found') {
-    errorTitle = t('form.submit.error.payment_verification')
-    errorDescription = errorData?.detail || t('form.submit.error.payment_verification_description')
-  }
-  // Handle ValidationError with cart field
-  else if (errorData?.cart && Array.isArray(errorData.cart)) {
-    const cartErrors = errorData.cart
-    if (cartErrors.length > 0) {
-      const errorMsg = cartErrors[0]
-      if (errorMsg.includes('insufficient stock') || errorMsg.includes('Insufficient stock')) {
-        errorTitle = t('form.submit.error.insufficient_stock')
-        errorDescription = errorMsg
-      }
-      else {
-        errorTitle = t('form.submit.error.inventory')
-        errorDescription = cartErrors.join('. ')
-      }
-    }
-  }
-  // Fallback to detail
-  else if (errorData?.detail) {
-    errorTitle = t('form.submit.error.general')
-    errorDescription = errorData.detail
-  }
-
-  return { title: errorTitle, description: errorDescription, shouldRetry: false }
-}
-
-const onSubmit = async () => {
-  if (isSubmitting.value) return
-
-  isSubmitting.value = true
-
-  try {
-    // Step 1: Reserve stock before order creation (if not already reserved)
-    if (!reservationIds.value.length) {
-      try {
-        const cartId = cart.value?.uuid || cart.value?.id
-        if (!cartId) {
-          throw new Error('Cart not found')
-        }
-
-        const response = await reserveStock(cartId)
-        reservationIds.value = response
-
-        // Clear any previous stock errors on success
-        stockError.value = null
-      }
-      catch (error: any) {
-        // Handle stock reservation errors with structured data
-        if (error.code === 'insufficient_stock' && error.failedItems) {
-          stockError.value = {
-            show: true,
-            failedItems: error.failedItems,
-          }
-
-          // Scroll to top to show the error alert
-          window.scrollTo({ top: 0, behavior: 'smooth' })
-          return
-        }
-
-        // Handle other reservation errors
-        toast.add({
-          title: t('form.submit.error.stock_reservation'),
-          description: error.message || t('form.submit.error.stock_reservation_description'),
-          color: 'error',
-        })
-        return
-      }
-    }
-
-    // Step 2: Set selected payment way
-    payWays.value?.results?.forEach((pw) => {
-      if (pw.id === formState.payWay) {
-        selectedPayWay.value = pw
-      }
-    })
-
-    // Step 3: Branch based on payment type
-    if (isStripePayment.value) {
-      // Stripe: Payment-first (requires payment_intent_id)
-      await handleOnlinePaymentFlow()
-    }
-    else if (isVivaWalletPayment.value) {
-      // Viva Wallet: Order-first, then redirect to hosted checkout
-      await handleVivaWalletPaymentFlow()
-    }
-    else {
-      // Offline payment flow: Order-first (no payment_intent_id required)
-      await handleOfflinePaymentFlow()
-    }
-  }
-  catch (error: any) {
-    // Only show error if it wasn't already handled by onResponseError
-    // $fetch errors with response are handled in onResponseError callback
-    if (!error.response && !error.data) {
-      log.error({ action: 'checkout:submit', error })
-      toast.add({
-        title: t('form.submit.error.general'),
-        description: error.message || t('error_occurred'),
-        color: 'error',
-      })
-    }
-  }
-  finally {
-    isSubmitting.value = false
-  }
-}
-
-const handleOnlinePaymentFlow = async () => {
-  // For online payments (Stripe), we need to:
-  // 1. Create payment intent from cart FIRST
-  // 2. Create order with payment_intent_id (order will be PENDING)
-  // 3. Stripe webhooks will update order status after payment confirmation
-
-  try {
-    // Step 1: Create payment intent from cart if not already created
-    if (!paymentIntentId.value) {
-      const cartId = cart.value?.uuid || cart.value?.id
-      if (!cartId) {
-        throw new Error('Cart not found')
-      }
-
-      const paymentIntent = await createPaymentIntentFromCart(cartId, formState.payWayId!)
-      paymentIntentId.value = paymentIntent.paymentIntentId
-    }
-
-    // Step 2: Create order with payment_intent_id
-    const submitValues: OrderCreateFromCartRequest = {
-      payWayId: formState.payWayId!,
-      countryId: formState.countryId!,
-      regionId: formState.regionId,
-      firstName: formState.firstName,
-      lastName: formState.lastName,
-      email: formState.email,
-      street: formState.street,
-      streetNumber: formState.streetNumber,
-      city: formState.city,
-      zipcode: formState.zipcode,
-      phone: formState.phone,
-      customerNotes: formState.customerNotes,
-      paymentIntentId: paymentIntentId.value, // Include payment intent ID
-      loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
-    }
-
-    await $fetch('/api/orders', {
-      method: 'POST',
-      headers: useRequestHeaders(),
-      body: submitValues,
-      async onResponse({ response }) {
-        if (!response.ok) return
-
-        createdOrder.value = response._data
-
-        toast.add({
-          title: t('order_created_payment_required'),
-          description: t('complete_payment_to_finish'),
-          color: 'info',
-        })
-      },
-      onResponseError({ response }) {
-        const errorInfo = handleOrderError(response)
-
-        // If it's an expired reservation error, silently retry without showing error
-        if (errorInfo.shouldRetry) {
-          // Check retry limit
-          if (retryCount.value >= MAX_RETRIES) {
-            // Max retries reached, show error
-            toast.add({
-              title: t('form.submit.error.general'),
-              description: t('form.submit.error.max_retries'),
-              color: 'error',
-            })
-            return
-          }
-
-          // Increment retry counter
-          retryCount.value++
-
-          // Silently retry after a short delay
-          setTimeout(() => {
-            onSubmit()
-          }, 500)
-        }
-        else {
-          // Show error toast only for non-recoverable errors
-          toast.add({
-            title: errorInfo.title,
-            description: errorInfo.description,
-            color: 'error',
-          })
-        }
-      },
-    })
-  }
-  catch (error: any) {
-    // Error already handled in onResponseError, just prevent propagation
-    log.error({ action: 'checkout:orderCreation', error })
-  }
-}
-
-const handleVivaWalletPaymentFlow = async () => {
-  // Viva Wallet doesn't need a payment intent created beforehand.
-  // Create the order directly, then redirect to Viva's hosted checkout.
-  const submitValues: OrderCreateFromCartRequest = {
-    payWayId: formState.payWayId!,
-    countryId: formState.countryId!,
-    regionId: formState.regionId,
-    firstName: formState.firstName,
-    lastName: formState.lastName,
-    email: formState.email,
-    street: formState.street,
-    streetNumber: formState.streetNumber,
-    city: formState.city,
-    zipcode: formState.zipcode,
-    phone: formState.phone,
-    customerNotes: formState.customerNotes,
-    loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
-  }
-
-  try {
-    await $fetch('/api/orders', {
-      method: 'POST',
-      headers: useRequestHeaders(),
-      body: submitValues,
-      async onResponse({ response }) {
-        if (!response.ok) return
-
-        createdOrder.value = response._data
-
-        toast.add({
-          title: t('order_created_payment_required'),
-          description: t('complete_payment_to_finish'),
-          color: 'info',
-        })
-      },
-      onResponseError({ response }) {
-        const errorInfo = handleOrderError(response)
-
-        if (errorInfo.shouldRetry) {
-          if (retryCount.value >= MAX_RETRIES) {
-            toast.add({
-              title: t('form.submit.error.general'),
-              description: t('form.submit.error.max_retries'),
-              color: 'error',
-            })
-            return
-          }
-
-          retryCount.value++
-          setTimeout(() => {
-            onSubmit()
-          }, 500)
-        }
-        else {
-          toast.add({
-            title: errorInfo.title,
-            description: errorInfo.description,
-            color: 'error',
-          })
-        }
-      },
-    })
-  }
-  catch (error: any) {
-    log.error({ action: 'checkout:vivaWalletOrderCreation', error })
-  }
-}
-
-const handleOfflinePaymentFlow = async () => {
-  // For offline payments (Cash on Delivery, Bank Transfer),
-  // we create the order directly without payment_intent_id
-  const submitValues: OrderCreateFromCartRequest = {
-    payWayId: formState.payWayId!,
-    countryId: formState.countryId!,
-    regionId: formState.regionId,
-    firstName: formState.firstName,
-    lastName: formState.lastName,
-    email: formState.email,
-    street: formState.street,
-    streetNumber: formState.streetNumber,
-    city: formState.city,
-    zipcode: formState.zipcode,
-    phone: formState.phone,
-    customerNotes: formState.customerNotes,
-    loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
-  }
-
-  try {
-    await $fetch('/api/orders', {
-      method: 'POST',
-      headers: useRequestHeaders(),
-      body: submitValues,
-      async onResponse({ response }) {
-        if (!response.ok) return
-
-        createdOrder.value = response._data
-
-        // Reset retry counter on success
-        retryCount.value = 0
-
-        toast.add({
-          title: t('form.submit.success'),
-          color: 'success',
-        })
-        await cleanCartState()
-        await fetch()
-        await navigateTo(localePath({
-          name: 'checkout-success-uuid',
-          params: { uuid: response._data.uuid },
-        }))
-      },
-      onResponseError({ response }) {
-        const errorInfo = handleOrderError(response)
-
-        // If it's an expired reservation error, automatically retry
-        if (errorInfo.shouldRetry) {
-          // Check retry limit
-          if (retryCount.value >= MAX_RETRIES) {
-            // Max retries reached, show error
-            toast.add({
-              title: t('form.submit.error.general'),
-              description: t('form.submit.error.max_retries'),
-              color: 'error',
-            })
-            return
-          }
-
-          // Increment retry counter
-          retryCount.value++
-
-          // Silently retry after a short delay
-          setTimeout(() => {
-            onSubmit()
-          }, 500)
-        }
-        else {
-          // Show error toast only for non-recoverable errors
-          toast.add({
-            title: errorInfo.title,
-            description: errorInfo.description,
-            color: 'error',
-          })
-        }
-      },
-    })
-  }
-  catch (error: any) {
-    // Error already handled in onResponseError, just prevent propagation
-    log.error({ action: 'checkout:orderCreation', error })
-  }
-}
-
-const onPaymentSuccess = async () => {
-  toast.add({
-    title: t('payment_successful'),
-    description: t('order_completed_successfully'),
-    color: 'success',
-  })
-  await cleanCartState()
-  await fetch()
-  await navigateTo(localePath({
-    name: 'checkout-success-uuid',
-    params: { uuid: createdOrder.value?.uuid },
-  }))
-}
-
-const onPaymentError = async (error: string) => {
-  toast.add({
-    title: t('payment_failed'),
-    description: error,
-    color: 'error',
-  })
-
-  // Release reservations on payment failure
-  if (reservationIds.value.length > 0) {
-    try {
-      await releaseReservations(reservationIds.value)
-      reservationIds.value = []
-    }
-    catch (err) {
-      log.error({ action: 'checkout:releaseReservations', error: err })
-    }
-  }
-}
-
-const backToForm = () => {
-  createdOrder.value = null
-  selectedPayWay.value = null
-  currentStep.value = 1
-}
-
-// Handle loyalty points redemption
-const onLoyaltyRedeemed = (discount: { amount: number, currency: string, points: number }) => {
-  loyaltyDiscount.value = discount
-}
-
-// Handle loyalty discount cleared
-const onLoyaltyCleared = () => {
-  loyaltyDiscount.value = null
-}
-
-// Release reservations if user leaves checkout without completing
-onBeforeUnmount(() => {
-  if (reservationIds.value.length > 0 && !createdOrder.value) {
-    releaseReservations(reservationIds.value)
-      .catch(error => log.error({ action: 'checkout:releaseReservations', error }))
-  }
-})
 
 definePageMeta({
   layout: 'default',
   middleware: [
     async function () {
       const { $i18n } = useNuxtApp()
+      const t = $i18n.t.bind($i18n)
       const localePath = useLocalePath()
       const toast = useToast()
       let cart: CartDetail | null = null
@@ -761,8 +65,8 @@ definePageMeta({
       }
       catch {
         toast.add({
-          title: $i18n.t('error.default'),
-          description: $i18n.t('error_occurred'),
+          title: t('error.default'),
+          description: t('error_occurred'),
           color: 'error',
         })
         return navigateTo(localePath('index'))
@@ -770,7 +74,7 @@ definePageMeta({
 
       if (!cart?.items || cart?.items.length === 0) {
         toast.add({
-          title: $i18n.t('cart_empty'),
+          title: t('cart_empty'),
           color: 'error',
         })
         return navigateTo(localePath('index'))
@@ -786,71 +90,13 @@ definePageMeta({
       <!-- Main Content -->
       <div class="flex-1">
         <!-- Stock Error Alert -->
-        <UAlert
+        <CheckoutStockErrorAlert
           v-if="stockError?.show"
-          color="warning"
-          variant="soft"
-          :title="t('stock_error.title')"
-          :description="t('stock_error.description')"
-          icon="i-heroicons-exclamation-triangle"
-          :close="{ variant: 'link' }"
-          class="mb-6"
-          @update:open="(value) => { if (!value) stockError = null }"
-        >
-          <template #description>
-            <div class="space-y-3">
-              <p class="text-sm">
-                {{ t('stock_error.description') }}
-              </p>
+          :stock-error="stockError"
+          @dismiss="stockError = null"
+          @retry="handleStockRetry"
+        />
 
-              <!-- Failed Items List -->
-              <div class="space-y-2">
-                <div
-                  v-for="item in stockError.failedItems"
-                  :key="item.productId"
-                  class="rounded-lg bg-warning-50 dark:bg-warning-950/50 p-3"
-                >
-                  <div class="flex items-start justify-between gap-3">
-                    <div class="flex-1 min-w-0">
-                      <p class="font-medium text-warning-900 dark:text-warning-100 truncate">
-                        {{ item.productName }}
-                      </p>
-                      <p class="text-sm text-warning-700 dark:text-warning-300 mt-1">
-                        {{ t('stock_error.requested_vs_available', {
-                          requested: item.requested,
-                          available: item.available,
-                        }) }}
-                      </p>
-                    </div>
-                    <UBadge color="warning" variant="subtle">
-                      {{ t('stock_error.shortage', { count: item.requested - item.available }) }}
-                    </UBadge>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Action Buttons -->
-              <div class="flex flex-wrap gap-2 pt-2">
-                <UButton
-                  color="neutral"
-                  variant="outline"
-                  icon="i-heroicons-shopping-cart"
-                  :to="localePath('cart')"
-                >
-                  {{ t('stock_error.update_cart') }}
-                </UButton>
-                <UButton
-                  color="neutral"
-                  variant="outline"
-                  icon="i-heroicons-arrow-path"
-                  @click="() => { stockError = null; onSubmit() }"
-                >
-                  {{ t('stock_error.retry') }}
-                </UButton>
-              </div>
-            </div>
-          </template>
-        </UAlert>
         <!-- Stepper -->
         <UStepper
           v-model="currentStep"
@@ -862,340 +108,39 @@ definePageMeta({
         />
 
         <!-- Online Payment View (Stripe or Viva Wallet) -->
-        <UCard v-if="createdOrder && isOnlinePayment" variant="soft">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div>
-                <h2 class="text-lg font-semibold">
-                  {{ t('complete_payment') }}
-                </h2>
-                <p class="text-sm text-primary-950 dark:text-primary-50">
-                  {{ t('order_created_complete_payment') }}
-                </p>
-              </div>
-              <UButton
-                variant="ghost"
-                icon="i-heroicons-arrow-left"
-                size="sm"
-                @click="backToForm"
-              >
-                {{ t('back_to_form') }}
-              </UButton>
-            </div>
-          </template>
-
-          <div class="space-y-6">
-            <div class="rounded-lg bg-elevated/70 p-4">
-              <h3 class="mb-2 font-medium">
-                {{ t('order_summary') }}
-              </h3>
-              <div class="space-y-1 text-sm">
-                <div class="flex justify-between">
-                  <span>{{ t('order_number') }}:</span>
-                  <span class="font-medium">#{{ createdOrder?.id }}</span>
-                </div>
-                <div class="flex justify-between">
-                  <span>{{ t('total_amount') }}:</span>
-                  <span class="font-medium">
-                    {{ createdOrder?.pricingBreakdown?.grandTotal }}
-                    {{ createdOrder?.pricingBreakdown?.currency }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Viva Wallet Hosted Checkout -->
-            <VivaWalletCheckout
-              v-if="isVivaWalletPayment"
-              :order="createdOrder"
-              :pay-way="selectedPayWay!"
-              @error="onPaymentError"
-              @redirecting="() => toast.add({ title: t('redirecting'), color: 'info' })"
-            />
-
-            <!-- Stripe Hosted Checkout -->
-            <StripeCheckout
-              v-else-if="isStripePayment && useHostedCheckout"
-              :order="createdOrder"
-              :pay-way="selectedPayWay!"
-              @error="onPaymentError"
-              @redirecting="() => toast.add({ title: t('redirecting'), color: 'info' })"
-            />
-
-            <!-- Stripe Embedded Payment -->
-            <StripePayment
-              v-else-if="isStripePayment"
-              :order="createdOrder"
-              :pay-way="selectedPayWay!"
-              @success="onPaymentSuccess"
-              @error="onPaymentError"
-            />
-          </div>
-        </UCard>
+        <CheckoutOnlinePaymentView
+          v-if="createdOrder && isOnlinePayment"
+          :created-order="createdOrder"
+          :selected-pay-way="selectedPayWay!"
+          :is-stripe-payment="isStripePayment"
+          :is-viva-wallet-payment="isVivaWalletPayment"
+          :use-hosted-checkout="useHostedCheckout"
+          @payment-success="onPaymentSuccess"
+          @payment-error="onPaymentError"
+          @back-to-form="backToForm"
+        />
 
         <!-- Step 1: Personal Info & Address -->
-        <UCard v-else-if="currentStep === 0" class="overflow-hidden">
-          <template #header>
-            <h2 class="text-xl font-semibold">
-              {{ t('steps.info_and_address') }}
-            </h2>
-          </template>
-
-          <UForm :state="formState" :schema="step1Schema" class="space-y-6" @submit="nextStep">
-            <!-- Personal Information Section -->
-            <div class="space-y-4">
-              <h3 class="text-lg font-medium text-primary-900 dark:text-primary-100">
-                {{ t('personal_information') }}
-              </h3>
-
-              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField :label="t('form.first_name')" name="firstName" required class="[&_label]:sr-only">
-                  <UInput
-                    v-model="formState.firstName"
-                    :placeholder="t('form.first_name')"
-                    size="xl"
-                    autocomplete="given-name"
-                    class="w-full"
-                  />
-                </UFormField>
-
-                <UFormField :label="t('form.last_name')" name="lastName" required class="[&_label]:sr-only">
-                  <UInput
-                    v-model="formState.lastName"
-                    :placeholder="t('form.last_name')"
-                    size="xl"
-                    autocomplete="family-name"
-                    class="w-full"
-                  />
-                </UFormField>
-              </div>
-
-              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField :label="t('form.email')" name="email" required class="[&_label]:sr-only">
-                  <UInput
-                    v-model="formState.email"
-                    type="email"
-                    :placeholder="t('form.email')"
-                    size="xl"
-                    autocomplete="email"
-                    leading-icon="i-heroicons-envelope"
-                    class="w-full"
-                  />
-                </UFormField>
-
-                <UFormField :label="t('form.phone')" name="phone" required class="[&_label]:sr-only">
-                  <UInput
-                    v-model="formState.phone"
-                    type="tel"
-                    :placeholder="t('form.phone')"
-                    size="xl"
-                    autocomplete="tel"
-                    leading-icon="i-heroicons-phone"
-                    class="w-full"
-                  />
-                </UFormField>
-              </div>
-            </div>
-
-            <USeparator />
-
-            <!-- Address Section -->
-            <div class="space-y-4">
-              <h3 class="text-lg font-medium text-primary-900 dark:text-primary-100">
-                {{ t('delivery_address') }}
-              </h3>
-
-              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField :label="t('form.country')" name="country" required class="[&_label]:sr-only">
-                  <USelect
-                    v-model="formState.country"
-                    :items="countryOptions"
-                    :placeholder="t('form.country')"
-                    size="xl"
-                    class="w-full"
-                    @update:model-value="onCountryChange"
-                  />
-                </UFormField>
-
-                <UFormField :label="t('form.region')" name="region" required class="[&_label]:sr-only">
-                  <USelect
-                    v-model="formState.region"
-                    :items="regionOptions"
-                    :placeholder="t('form.region')"
-                    size="xl"
-                    class="w-full"
-                    :disabled="!regionOptions.length"
-                  />
-                </UFormField>
-              </div>
-
-              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <UFormField :label="t('form.city')" name="city" required class="[&_label]:sr-only">
-                  <UInput
-                    v-model="formState.city"
-                    :placeholder="t('form.city')"
-                    size="xl"
-                    autocomplete="address-level2"
-                    leading-icon="i-heroicons-building-office-2"
-                    class="w-full"
-                  />
-                </UFormField>
-
-                <UFormField :label="t('form.place')" name="place" required class="[&_label]:sr-only">
-                  <UInput
-                    v-model="formState.place"
-                    :placeholder="t('form.place')"
-                    size="xl"
-                    leading-icon="i-heroicons-map-pin"
-                    class="w-full"
-                  />
-                </UFormField>
-              </div>
-
-              <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <UFormField :label="t('form.street')" name="street" required class="md:col-span-2 [&_label]:sr-only">
-                  <UInput
-                    v-model="formState.street"
-                    :placeholder="t('form.street')"
-                    size="xl"
-                    autocomplete="address-line1"
-                    class="w-full"
-                  />
-                </UFormField>
-
-                <UFormField :label="t('form.street_number')" name="streetNumber" required class="[&_label]:sr-only">
-                  <UInput
-                    v-model="formState.streetNumber"
-                    :placeholder="t('form.street_number')"
-                    size="xl"
-                    autocomplete="address-line2"
-                    class="w-full"
-                  />
-                </UFormField>
-              </div>
-
-              <UFormField :label="t('form.zipcode')" name="zipcode" required class="[&_label]:sr-only">
-                <UInput
-                  v-model="formState.zipcode"
-                  :placeholder="t('form.zipcode')"
-                  size="xl"
-                  autocomplete="postal-code"
-                  class="w-full"
-                />
-              </UFormField>
-
-              <UFormField :label="t('form.customer_notes')" name="customerNotes" class="[&_label]:sr-only">
-                <UTextarea
-                  v-model="formState.customerNotes"
-                  :placeholder="t('form.customer_notes')"
-                  :rows="3"
-                  size="xl"
-                  autoresize
-                  class="w-full"
-                />
-              </UFormField>
-            </div>
-
-            <div class="flex justify-end">
-              <UButton
-                type="submit"
-                size="lg"
-                color="success"
-                icon="i-heroicons-arrow-right"
-                trailing
-              >
-                {{ t('continue') }}
-              </UButton>
-            </div>
-          </UForm>
-        </UCard>
+        <CheckoutStepPersonalInfo
+          v-else-if="currentStep === 0"
+          v-model:form-state="formState"
+          :schema="step1Schema"
+          :country-options="countryOptions"
+          :region-options="regionOptions"
+          @next="nextStep"
+          @country-change="onCountryChange"
+        />
 
         <!-- Step 2: Payment -->
-        <UCard v-else-if="currentStep === 1" class="overflow-hidden">
-          <template #header>
-            <h2 class="text-xl font-semibold">
-              {{ t('steps.payment') }}
-            </h2>
-          </template>
-
-          <UForm :state="formState" :schema="step2Schema" class="space-y-6" @submit="onSubmit">
-            <UFormField
-              :label="t('form.payment_method')"
-              name="payWay"
-              required
-              :ui="{
-                label: `
-                  text-lg font-medium text-primary-900
-                  dark:text-primary-100
-                `,
-                wrapper: 'mb-2',
-              }"
-            >
-              <URadioGroup
-                v-model="formState.payWay"
-                :items="payWayOptions"
-                variant="card"
-                size="xl"
-                class="w-full"
-                :ui="{
-                  item: 'flex cursor-pointer items-center',
-                  wrapper: 'ms-4',
-                  root: `
-                    max-h-80 overflow-y-auto
-                    md:max-h-120
-                  `,
-                }"
-              >
-                <template #label="{ item }">
-                  <div class="flex items-center justify-between gap-3">
-                    <span class="font-medium">{{ item.label }}</span>
-                    <div
-                      v-if="item.mainImagePath"
-                      class="
-                        flex size-12 shrink-0 items-center justify-center
-                        overflow-hidden rounded-lg
-                      "
-                    >
-                      <ImgWithFallback
-                        class="size-full object-contain dark:invert"
-                        :style="{ contentVisibility: 'auto' }"
-                        :src="item.mainImagePath"
-                        :width="48"
-                        :height="48"
-                        fit="contain"
-                        :format="'svg'"
-                        :background="'transparent'"
-                        :alt="`${item.label} payment method`"
-                        densities="x1"
-                      />
-                    </div>
-                  </div>
-                </template>
-              </URadioGroup>
-            </UFormField>
-
-            <div class="flex items-center justify-between pt-4">
-              <UButton
-                variant="ghost"
-                icon="i-heroicons-arrow-left"
-                type="button"
-                @click="prevStep"
-              >
-                {{ t('back') }}
-              </UButton>
-
-              <UButton
-                type="submit"
-                size="lg"
-                color="success"
-                :loading="isSubmitting"
-                :disabled="!formState.payWay"
-              >
-                {{ t('place_order') }}
-              </UButton>
-            </div>
-          </UForm>
-        </UCard>
+        <CheckoutStepPayment
+          v-else-if="currentStep === 1"
+          v-model:form-state="formState"
+          :schema="step2Schema"
+          :pay-way-options="payWayOptions"
+          :is-submitting="isSubmitting"
+          @submit="onSubmit"
+          @back="prevStep"
+        />
       </div>
 
       <!-- Sidebar -->

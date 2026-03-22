@@ -9,7 +9,6 @@ const modules = [
   '@nuxt/fonts',
   '@nuxt/icon',
   '@nuxtjs/i18n',
-  '@nuxtjs/device',
   '@nuxtjs/seo',
   '@pinia/nuxt',
   '@vueuse/nuxt',
@@ -327,6 +326,12 @@ export default defineNuxtConfig({
         optionsAPI: false,
       },
     },
+    optimizeDeps: {
+      include: [
+        '@internationalized/date',
+        'zod',
+      ],
+    },
   },
   typescript: {
     strict: true,
@@ -471,6 +476,7 @@ export default defineNuxtConfig({
         name: 'mediaStream',
         provider: '~/providers/media-stream',
         options: {
+          baseURL: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
           quality: 80,
           width: 100,
           height: 100,
@@ -478,7 +484,6 @@ export default defineNuxtConfig({
           position: 'entropy',
           background: 'transparent',
           trimThreshold: 5,
-          // baseURL can be overridden here if needed
         },
       },
     },
@@ -501,9 +506,7 @@ export default defineNuxtConfig({
     failOnError: false,
   },
   ogImage: {
-    defaults: {
-      cacheMaxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
-    },
+    enabled: false,
   },
   schemaOrg: {
     enabled: true,

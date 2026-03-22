@@ -53,6 +53,7 @@ export function useProductFilters() {
   const route = useRoute()
   const router = useRouter()
   const { $i18n } = useNuxtApp()
+  const t = $i18n.t.bind($i18n)
 
   /**
    * Reactive filter state derived from URL query parameters
@@ -230,7 +231,7 @@ export function useProductFilters() {
       chips.push({
         key: 'search',
         type: 'search',
-        label: $i18n.t('filters.search'),
+        label: t('filters.search'),
         value: filters.value.search,
       })
     }
@@ -239,7 +240,7 @@ export function useProductFilters() {
       chips.push({
         key: 'priceMin', // Use priceMin as key, but represents the range
         type: 'price',
-        label: $i18n.t('filters.price'),
+        label: t('filters.price'),
         value: {
           min: filters.value.priceMin,
           max: filters.value.priceMax,
@@ -251,7 +252,7 @@ export function useProductFilters() {
       chips.push({
         key: 'likesMin',
         type: 'likes',
-        label: $i18n.t('filters.popularity'),
+        label: t('filters.popularity'),
         value: filters.value.likesMin,
       })
     }
@@ -260,7 +261,7 @@ export function useProductFilters() {
       chips.push({
         key: 'viewsMin',
         type: 'views',
-        label: $i18n.t('filters.view_count'),
+        label: t('filters.view_count'),
         value: filters.value.viewsMin,
       })
     }
@@ -270,7 +271,7 @@ export function useProductFilters() {
       chips.push({
         key: 'categories',
         type: 'category',
-        label: $i18n.t('filters.categories'),
+        label: t('filters.categories'),
         value: categoryId,
       })
     })
@@ -280,7 +281,7 @@ export function useProductFilters() {
       chips.push({
         key: 'attributeValues',
         type: 'attribute',
-        label: $i18n.t('filters.attributes'),
+        label: t('filters.attributes'),
         value: attributeValueId,
       })
     })
@@ -289,7 +290,7 @@ export function useProductFilters() {
       chips.push({
         key: 'sort',
         type: 'sort',
-        label: $i18n.t('filters.sort'),
+        label: t('filters.sort'),
         value: filters.value.sort,
       })
     }

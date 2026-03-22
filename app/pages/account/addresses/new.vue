@@ -2,7 +2,6 @@
 import type * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
-const { user } = useUserSession()
 const localePath = useLocalePath()
 const { t, locale } = useI18n()
 const toast = useToast()
@@ -28,7 +27,6 @@ const state = reactive<Partial<Schema>>({
   region: undefined,
   floor: undefined,
   locationType: undefined,
-  user: user.value?.id,
 })
 
 // Countries data

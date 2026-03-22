@@ -15,7 +15,6 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
-const { $i18n } = useNuxtApp()
 const toast = useToast()
 
 // Loyalty composable with new API
@@ -61,7 +60,7 @@ const calculateDiscount = (points: number) => {
 // Validation schema
 const redemptionSchema = z.object({
   pointsToRedeem: z
-    .number({ error: $i18n.t('validation.required') })
+    .number({ error: t('validation.required') })
     .min(1, { error: t('validation.min_points') })
     .refine(
       val => val <= availableBalance.value,
@@ -83,6 +82,15 @@ const formState = reactive({
 const handleRedeem = async () => {
   // Clear previous errors
   redemptionError.value = null
+
+  // Treat 0 or empty as clearing the redemption
+  if (!formState.pointsToRedeem) {
+    if (applied.value) {
+      clearRedemption()
+    }
+    formState.pointsToRedeem = undefined
+    return
+  }
 
   // Client-side validation
   const validation = redemptionSchema.safeParse({ pointsToRedeem: formState.pointsToRedeem })

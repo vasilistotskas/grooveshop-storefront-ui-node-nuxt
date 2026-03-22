@@ -16,7 +16,7 @@ defineProps({
 const { isMobileOrTablet } = useDevice()
 
 const BlogPostCard = computed(() =>
-  isMobileOrTablet ? resolveComponent('BlogPostCardMobile') : resolveComponent('BlogPostCardDesktop'),
+  isMobileOrTablet.value ? resolveComponent('BlogPostCardMobile') : resolveComponent('BlogPostCardDesktop'),
 )
 </script>
 

@@ -13,8 +13,8 @@ defineProps({
   },
 })
 
+const { t } = useI18n()
 const config = useRuntimeConfig()
-const { $i18n } = useNuxtApp()
 </script>
 
 <template>
@@ -30,7 +30,7 @@ const { $i18n } = useNuxtApp()
       name="i-mdi-instagram"
       :class="iconClass"
     />
-    <span class="sr-only">{{ $i18n.t('instagram') }}</span>
+    <span class="sr-only">{{ t('instagram') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -44,7 +44,7 @@ const { $i18n } = useNuxtApp()
       name="i-ant-design-tik-tok-filled"
       :class="iconClass"
     />
-    <span class="sr-only">{{ $i18n.t('tiktok') }}</span>
+    <span class="sr-only">{{ t('tiktok') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -58,7 +58,7 @@ const { $i18n } = useNuxtApp()
       name="i-mdi-reddit"
       :class="iconClass"
     />
-    <span class="sr-only">{{ $i18n.t('reddit') }}</span>
+    <span class="sr-only">{{ t('reddit') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -72,7 +72,7 @@ const { $i18n } = useNuxtApp()
       name="i-mdi-youtube"
       :class="iconClass"
     />
-    <span class="sr-only">{{ $i18n.t('youtube') }}</span>
+    <span class="sr-only">{{ t('youtube') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -86,7 +86,7 @@ const { $i18n } = useNuxtApp()
       name="i-mdi-pinterest"
       :class="iconClass"
     />
-    <span class="sr-only">{{ $i18n.t('pinterest') }}</span>
+    <span class="sr-only">{{ t('pinterest') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -100,7 +100,7 @@ const { $i18n } = useNuxtApp()
       name="i-mdi-facebook"
       :class="iconClass"
     />
-    <span class="sr-only">{{ $i18n.t('facebook') }}</span>
+    <span class="sr-only">{{ t('facebook') }}</span>
   </UButton>
   <UButton
     :external="true"
@@ -114,6 +114,6 @@ const { $i18n } = useNuxtApp()
       name="i-mdi-discord"
       :class="iconClass"
     />
-    <span class="sr-only">{{ $i18n.t('discord') }}</span>
+    <span class="sr-only">{{ t('discord') }}</span>
   </UButton>
 </template>

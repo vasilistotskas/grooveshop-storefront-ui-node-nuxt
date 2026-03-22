@@ -2,7 +2,6 @@
 const { t } = useI18n()
 const route = useRoute('account-addresses')
 const { user } = useUserSession()
-const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 
 const pageSize = ref(8)
@@ -12,12 +11,12 @@ const ordering = computed(() => route.query.ordering || '-createdAt')
 const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
-    label: $i18n.t('ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'updatedAt',
-    label: $i18n.t('ordering.updated_at'),
+    label: t('ordering.updated_at'),
     options: ['ascending', 'descending'],
   },
 ])

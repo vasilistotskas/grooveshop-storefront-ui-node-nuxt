@@ -42,7 +42,6 @@ const emit = defineEmits([
 const { t, locale } = useI18n()
 const route = useRoute()
 const toast = useToast()
-const { $i18n } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
 
 const ordering = computed(() => route.query.ordering || '-createdAt')
@@ -61,8 +60,8 @@ const { refresh } = useLazyFetch(
 )
 
 const editingLocked = ref(false)
-const reviewCountMax = ref(10)
-const starCountMax = ref(5)
+const reviewCountMax = 10
+const starCountMax = 5
 const isEditable = ref(false)
 const newSelectionRatio = ref(0)
 const selectedRatio = ref(0)
@@ -86,22 +85,22 @@ const reviewCount = computed(() => {
 })
 
 const liveReviewCountRatio = computed(() => {
-  let reviewCount = 0
+  let count = 0
   if (newSelectionRatio.value > 0) {
-    reviewCount = newSelectionRatio.value * reviewCountMax.value
+    count = newSelectionRatio.value * reviewCountMax
   }
-  else if (reviewCount > 0) {
-    reviewCount = reviewCount - 0.01
+  else if (reviewCount.value && Number(reviewCount.value) > 0) {
+    count = Number(reviewCount.value) - 0.01
   }
-  if (reviewCount > reviewCountMax.value) reviewCount = reviewCountMax.value
-  if (reviewCount < 0) reviewCount = 0
-  const liveReviewCountRatio = reviewCount / reviewCountMax.value
-  return Number(liveReviewCountRatio.toFixed(1)) - 0.04
+  if (count > reviewCountMax) count = reviewCountMax
+  if (count < 0) count = 0
+  const ratio = count / reviewCountMax
+  return Number(ratio.toFixed(1)) - 0.04
 })
 
 const liveReviewCount = computed(() => {
   return Math.round(
-    Number(liveReviewCountRatio.value.toFixed(2)) * reviewCountMax.value,
+    Number(liveReviewCountRatio.value.toFixed(2)) * reviewCountMax,
   )
 })
 
@@ -172,22 +171,22 @@ const schema = z.object({
   comment: z
     .string()
     .min(10, {
-      error: $i18n.t('validation.min', {
+      error: t('validation.min', {
         min: 10,
       }),
     })
     .max(1000, {
-      error: $i18n.t('validation.max', {
+      error: t('validation.max', {
         max: 1000,
       }),
     }),
   rate: z
     .number()
     .min(1, {
-      error: $i18n.t('validation.min', { min: 1 }),
+      error: t('validation.min', { min: 1 }),
     })
     .max(10, {
-      error: $i18n.t('validation.min', { max: 10 }),
+      error: t('validation.min', { max: 10 }),
     }),
 })
 
@@ -200,13 +199,11 @@ const state = reactive<Partial<Schema>>({
   rate: Number(userProductReview?.value?.rate) || 0,
 })
 
-const submitCount = ref(0)
-
-const formRef = ref<any>(null)
+const formRef = useTemplateRef('formRef')
 
 const foregroundStars = computed(() => {
   if (!state.rate) return []
-  const reviewStarRatio = state.rate * 0.099 * starCountMax.value
+  const reviewStarRatio = state.rate * 0.099 * starCountMax
   if (reviewStarRatio < 0.1) {
     return []
   }
@@ -218,7 +215,7 @@ const foregroundStars = computed(() => {
 })
 
 const backgroundStars = computed(() => {
-  return useTimes(starCountMax.value, useConstant(starSvg)) as string[]
+  return useTimes(starCountMax, useConstant(starSvg)) as string[]
 })
 
 const lockSelection = (event: TouchEvent | MouseEvent) => {
@@ -258,10 +255,6 @@ const updateNewSelectionRatio = (event: TouchEvent | MouseEvent) => {
       - target?.getBoundingClientRect()?.left
   newSelectionRatio.value = leftBound / rightBound
 }
-
-const tooManyAttempts = computed(() => {
-  return submitCount.value >= 10
-})
 
 const createReviewEvent = async (event: Schema) => {
   await $fetch(`/api/products/reviews`, {
@@ -367,8 +360,6 @@ const deleteReviewEvent = async () => {
 }
 
 const onSubmit = async (event: FormSubmitEvent<Schema>) => {
-  submitCount.value++
-
   if (user?.value) {
     if (!userHadReviewed.value) {
       await createReviewEvent(event.data)
@@ -522,7 +513,6 @@ watch(
       >
         <div class="grid w-full justify-end">
           <UButton
-            v-if="!tooManyAttempts"
             :label="reviewButtonText"
             block
             class="w-full"
@@ -530,15 +520,6 @@ watch(
             variant="outline"
             size="lg"
             @click="formRef?.submit()"
-          />
-          <UButton
-            v-else
-            :label="$i18n.t('validation.too_many_attempts')"
-            block
-            color="neutral"
-            variant="outline"
-            disabled
-            size="lg"
           />
         </div>
 

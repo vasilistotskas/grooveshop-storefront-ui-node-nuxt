@@ -37,6 +37,20 @@ const isCardComplete = ref(false)
 const isStripeReady = ref(false)
 const currentStep = ref<'card' | 'create' | 'confirm' | 'success'>('card')
 
+const colorMode = useColorMode()
+const appearance = computed(() => ({
+  theme: 'stripe' as const,
+  variables: {
+    colorPrimary: '#0570de',
+    colorBackground: colorMode.value === 'dark' ? '#1a202c' : '#ffffff',
+    colorText: colorMode.value === 'dark' ? '#e2e8f0' : '#30313d',
+    colorDanger: '#df1b41',
+    fontFamily: 'Inter, system-ui, sans-serif',
+    spacingUnit: '4px',
+    borderRadius: '8px',
+  },
+}))
+
 const initializeStripe = async () => {
   if (!cardElementRef.value || stripe.value) return
 
@@ -53,18 +67,7 @@ const initializeStripe = async () => {
           }
 
           elements.value = stripe.value.elements({
-            appearance: {
-              theme: 'stripe',
-              variables: {
-                colorPrimary: '#0570de',
-                colorBackground: '#ffffff',
-                colorText: '#30313d',
-                colorDanger: '#df1b41',
-                fontFamily: 'Inter, system-ui, sans-serif',
-                spacingUnit: '4px',
-                borderRadius: '8px',
-              },
-            },
+            appearance: appearance.value,
           })
 
           cardElement.value = elements.value.create('card', {

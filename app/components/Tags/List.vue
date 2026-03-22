@@ -3,8 +3,7 @@ import type { PropType } from 'vue'
 import { ref, computed, toRefs } from 'vue'
 import type { AsyncDataRequestStatus } from '#app/composables/asyncData'
 
-const { locale } = useI18n()
-const { $i18n } = useNuxtApp()
+const { t, locale } = useI18n()
 
 const props = defineProps({
   tags: {
@@ -59,7 +58,7 @@ const filteredTags = computed(() => {
           "
         >
           <UIcon name="i-heroicons-tag" />
-          {{ $i18n.t('tags') }}
+          {{ t('tags') }}
         </h3>
       </div>
       <template v-if="search">
@@ -67,7 +66,7 @@ const filteredTags = computed(() => {
           class="sr-only"
           for="search"
         >
-          {{ $i18n.t('search.title') }}
+          {{ t('search.title') }}
         </label>
         <UInput
           id="search"
@@ -81,7 +80,7 @@ const filteredTags = computed(() => {
           color="neutral"
           :trailing="false"
           variant="outline"
-          :placeholder="`${$i18n.t('search.title')}...`"
+          :placeholder="`${t('search.title')}...`"
         />
       </template>
       <LazyUCarousel

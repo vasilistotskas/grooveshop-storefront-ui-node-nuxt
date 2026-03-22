@@ -4,7 +4,6 @@ const route = useRoute('blog-category-id')
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const paginationType = PaginationTypeEnum.PAGE_NUMBER
 const categoryId = 'id' in route.params
@@ -14,14 +13,14 @@ const categoryId = 'id' in route.params
 const page = computed(() => route.query.page)
 const ordering = computed(() => route.query.ordering || '-createdAt')
 const BlogPostCard = computed(() =>
-  isMobileOrTablet ? resolveComponent('BlogPostCardMobile') : resolveComponent('BlogPostCardDesktop'),
+  isMobileOrTablet.value ? resolveComponent('BlogPostCardMobile') : resolveComponent('BlogPostCardDesktop'),
 )
 
 const pageSize = ref(15)
 const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
-    label: $i18n.t('ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -101,8 +100,8 @@ const ogImage = computed(() => {
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('blog-categories'),

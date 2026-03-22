@@ -10,7 +10,6 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/cart/item`, {
       method: 'POST',
       headers,
-      credentials: 'include',
       body,
     })
     const parsedData = await parseDataAs(response, zCreateCartItemResponse)

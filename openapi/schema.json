@@ -23140,8 +23140,8 @@
         "/api/v1/order/{id}/create_checkout_session": {
             "post": {
                 "operationId": "createOrderCheckoutSession",
-                "description": "Create a Stripe Checkout Session for hosted payment page. The customer will be redirected to Stripe's checkout page to complete payment.",
-                "summary": "Create a Stripe Checkout Session for an order",
+                "description": "Create a hosted checkout session (Stripe or Viva Wallet). The customer will be redirected to the provider's checkout page to complete payment.",
+                "summary": "Create a hosted checkout session for an order",
                 "parameters": [
                     {
                         "in": "path",
@@ -25358,8 +25358,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -25576,8 +25575,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -25698,8 +25696,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -25787,8 +25784,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "204": {
@@ -37609,8 +37605,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -49427,7 +49422,7 @@
                     "DANGER"
                 ],
                 "type": "string",
-                "description": "* `ERROR` - Error\n* `SUCCESS` - Success\n* `INFO` - Info\n* `WARNING` - Warning\n* `DANGER` - Danger"
+                "description": "* `ERROR` - Σφάλμα\n* `SUCCESS` - Success\n* `INFO` - Info\n* `WARNING` - Warning\n* `DANGER` - Danger"
             },
             "LocationTypeEnum": {
                 "enum": [
@@ -49542,10 +49537,25 @@
                         "exclusiveMinimum": true,
                         "readOnly": true,
                         "description": "Multiplier applied to earned points for users in this tier"
+                    },
+                    "icon": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                    },
+                    "mainImagePath": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "iconFilename": {
+                        "type": "string",
+                        "readOnly": true
                     }
                 },
                 "required": [
+                    "iconFilename",
                     "id",
+                    "mainImagePath",
                     "pointsMultiplier",
                     "requiredLevel",
                     "translations"
@@ -49855,7 +49865,8 @@
                         "maxLength": 255
                     },
                     "payWay": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "status": {
                         "allOf": [
@@ -50177,7 +50188,8 @@
                         "maxLength": 255
                     },
                     "payWay": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "status": {
                         "allOf": [
@@ -53668,9 +53680,6 @@
                         "type": "boolean",
                         "default": false
                     },
-                    "user": {
-                        "type": "integer"
-                    },
                     "country": {
                         "type": "string",
                         "minLength": 1,
@@ -54080,12 +54089,11 @@
                         "description": "Whether this payment method requires manual confirmation (e.g., bank transfer)"
                     },
                     "configuration": {
-                        "nullable": true,
-                        "title": "Provider Configuration",
-                        "description": "Provider-specific configuration (API keys, webhooks, etc.)"
+                        "readOnly": true
                     }
                 },
                 "required": [
+                    "configuration",
                     "cost",
                     "createdAt",
                     "freeThreshold",
@@ -54388,21 +54396,6 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true
                     },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true
-                    },
-                    "updatedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true
-                    },
-                    "uuid": {
-                        "type": "string",
-                        "format": "uuid",
-                        "readOnly": true
-                    },
                     "discountValue": {
                         "type": "number",
                         "format": "double",
@@ -54458,6 +54451,21 @@
                     "likesCount": {
                         "type": "integer",
                         "description": "Return the number of likes/favourites for this product.",
+                        "readOnly": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
                         "readOnly": true
                     },
                     "attributes": {
@@ -54611,17 +54619,12 @@
                         "type": "string",
                         "format": "uuid",
                         "readOnly": true
-                    },
-                    "recursiveProductCount": {
-                        "type": "integer",
-                        "readOnly": true
                     }
                 },
                 "required": [
                     "createdAt",
                     "id",
                     "level",
-                    "recursiveProductCount",
                     "slug",
                     "translations",
                     "treeId",
@@ -54710,15 +54713,15 @@
                         "format": "uuid",
                         "readOnly": true
                     },
-                    "recursiveProductCount": {
-                        "type": "integer",
-                        "readOnly": true
-                    },
                     "children": {
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/ProductCategory"
                         },
+                        "readOnly": true
+                    },
+                    "recursiveProductCount": {
+                        "type": "integer",
                         "readOnly": true
                     },
                     "seoTitle": {
@@ -55244,21 +55247,6 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true
                     },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true
-                    },
-                    "updatedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true
-                    },
-                    "uuid": {
-                        "type": "string",
-                        "format": "uuid",
-                        "readOnly": true
-                    },
                     "discountValue": {
                         "type": "number",
                         "format": "double",
@@ -55314,6 +55302,21 @@
                     "likesCount": {
                         "type": "integer",
                         "description": "Return the number of likes/favourites for this product.",
+                        "readOnly": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
                         "readOnly": true
                     },
                     "attributes": {
@@ -55460,21 +55463,6 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true
                     },
-                    "createdAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true
-                    },
-                    "updatedAt": {
-                        "type": "string",
-                        "format": "date-time",
-                        "readOnly": true
-                    },
-                    "uuid": {
-                        "type": "string",
-                        "format": "uuid",
-                        "readOnly": true
-                    },
                     "discountValue": {
                         "type": "number",
                         "format": "double",
@@ -55530,6 +55518,21 @@
                     "likesCount": {
                         "type": "integer",
                         "description": "Return the number of likes/favourites for this product.",
+                        "readOnly": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
                         "readOnly": true
                     },
                     "attributes": {
@@ -56606,12 +56609,13 @@
                     },
                     "orderId": {
                         "type": "integer",
-                        "nullable": true,
-                        "description": "Optional order ID to associate the redemption with. When provided, loyalty metadata is stored in the order."
+                        "minimum": 1,
+                        "description": "Order ID to associate the redemption with. Used to cap the discount to the order's products total."
                     }
                 },
                 "required": [
                     "currency",
+                    "orderId",
                     "pointsAmount"
                 ]
             },
@@ -58087,9 +58091,6 @@
                         "type": "boolean",
                         "default": false
                     },
-                    "user": {
-                        "type": "integer"
-                    },
                     "country": {
                         "type": "string",
                         "minLength": 1,
@@ -58111,7 +58112,6 @@
                     "street",
                     "streetNumber",
                     "title",
-                    "user",
                     "zipcode"
                 ]
             },

@@ -10,7 +10,6 @@ const router = useRouter()
 const cartStore = useCartStore()
 const { refreshCart } = cartStore
 const { isMobileOrTablet } = useDevice()
-const { $i18n } = useNuxtApp()
 const img = useImage()
 
 const authStore = useAuthStore()
@@ -19,12 +18,12 @@ const { session, status, hasSocialAccountProviders } = storeToRefs(authStore)
 const schema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.email.valid'),
+      ? t('validation.required')
+      : t('validation.email.valid'),
   }),
   password: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
 })
 
 type Schema = z.output<typeof schema>
@@ -34,14 +33,8 @@ const state = reactive<Partial<Schema>>({
   password: undefined,
 })
 
-const showPassword = ref(false)
-const loading = ref(false)
-const submitCount = ref(0)
-
 const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   try {
-    loading.value = true
-    submitCount.value++
     const currentPath = router.currentRoute.value.path
     const currentQuery = router.currentRoute.value.query
 
@@ -55,38 +48,14 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     })
 
     session.value = response?.data
-
-    await performPostLoginActions()
   }
   catch (error) {
     handleAllAuthClientError(error)
   }
   finally {
-    await finalizeLogin()
+    await refreshCart()
   }
 }
-
-async function performPostLoginActions() {
-  await refreshCart()
-}
-
-async function finalizeLogin() {
-  loading.value = false
-}
-
-const submitButtonLabel = computed(() => {
-  if (submitCount.value > 5) {
-    return t('validation.too_many_attempts')
-  }
-
-  return !loading.value
-    ? $i18n.t('submit')
-    : $i18n.t('loading')
-})
-
-const submitButtonDisabled = computed(() => {
-  return loading.value || submitCount.value > 5
-})
 
 const backgroundImage = computed(() => {
   return img(
@@ -135,7 +104,7 @@ const backgroundImage = computed(() => {
                 :src="'/img/logo-border.png'"
                 :width="isMobileOrTablet ? 100 : 140"
                 :height="isMobileOrTablet ? 100 : 140"
-                :alt="`${'Login Logo ' + config.public.appTitle}`"
+                :alt="t('logo_alt', { appTitle: config.public.appTitle })"
                 quality="80"
               />
             </div>
@@ -160,39 +129,15 @@ const backgroundImage = computed(() => {
               :required="true"
               size="lg"
             >
-              <div class="relative grid items-center gap-2">
-                <UInput
-                  v-model="state.password"
-                  :type="showPassword ? 'text' : 'password'"
-                  autocomplete="current-password"
-                  class="w-full"
-                  size="lg"
-                />
-                <UButton
-                  :aria-label="t('password.toggle')"
-                  :icon="
-                    showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
-                  "
-                  color="neutral"
-                  type="button"
-                  variant="ghost"
-                  :ui="{
-                    base: `
-                      absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer
-                      hover:bg-transparent
-                    `,
-                  }"
-                  @click="showPassword = !showPassword"
-                />
-              </div>
+              <FormPasswordInput
+                v-model="state.password"
+                autocomplete="current-password"
+                size="lg"
+              />
             </UFormField>
 
             <UButton
-              :aria-busy="loading"
-              :disabled="submitButtonDisabled"
-              :label="
-                submitButtonLabel"
-              :loading="loading"
+              :label="t('submit')"
               block
               size="xl"
               type="submit"
@@ -258,7 +203,7 @@ const backgroundImage = computed(() => {
 
                   <UButton
                     class="p-0 font-semibold underline"
-                    :label="$i18n.t('register')"
+                    :label="t('register')"
                     :to="localePath('account-signup')"
                     size="lg"
                     color="secondary"
@@ -307,6 +252,7 @@ const backgroundImage = computed(() => {
 
 <i18n lang="yaml">
 el:
+  logo_alt: "Λογότυπο {appTitle}"
   social:
     title: Ή συνδέσου μέσω ενός τρίτου παρόχου
   email:

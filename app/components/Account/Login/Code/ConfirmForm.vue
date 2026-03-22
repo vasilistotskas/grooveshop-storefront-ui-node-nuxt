@@ -10,7 +10,6 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 const router = useRouter()
 
-const loading = ref(false)
 const hasError = ref(false)
 const code = ref<string[]>([])
 
@@ -26,7 +25,6 @@ type Schema = z.output<typeof schema>
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   try {
-    loading.value = true
     hasError.value = false
 
     await confirmLoginCode({ code: event.data.code })
@@ -45,9 +43,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   catch (err) {
     hasError.value = true
     handleAllAuthClientError(err)
-  }
-  finally {
-    loading.value = false
   }
 }
 
@@ -89,7 +84,6 @@ watch(codeString, (newCode) => {
             otp
             size="xl"
             placeholder="○"
-            :disabled="loading"
             class="gap-2"
           />
         </div>
@@ -103,7 +97,6 @@ watch(codeString, (newCode) => {
 
       <UButton
         type="submit"
-        :loading="loading"
         :disabled="codeString.length !== 6"
         block
         color="neutral"

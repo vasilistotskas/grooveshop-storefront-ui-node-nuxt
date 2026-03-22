@@ -11,7 +11,6 @@ defineSlots<{
 const { user, fetch } = useUserSession()
 const { t, locale } = useI18n()
 const toast = useToast()
-const { $i18n } = useNuxtApp()
 
 const regions = ref<Pagination<Region> | null>(null)
 const userId = user.value?.id
@@ -21,30 +20,30 @@ const selectPlaceholder = computed(() => t('form.select_placeholder'))
 const schema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.email.valid'),
+      ? t('validation.required')
+      : t('validation.email.valid'),
   }),
   firstName: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   lastName: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   phone: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   city: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   zipcode: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   address: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   place: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   birthDate: z.preprocess(
     (input) => {
       if (typeof input === 'string' || input instanceof Date) {
@@ -55,18 +54,18 @@ const schema = z.object({
     },
     z.date({
       error: issue => issue.input === undefined
-        ? $i18n.t('validation.date.required_error')
-        : $i18n.t('validation.date.invalid_type_error'),
+        ? t('validation.date.required_error')
+        : t('validation.date.invalid_type_error'),
     }).optional(),
   ),
   country: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') })
+    ? t('validation.required')
+    : t('validation.string.invalid') })
     .default(defaultSelectOptionChoose)
     .optional(),
   region: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') })
+    ? t('validation.required')
+    : t('validation.string.invalid') })
     .default(defaultSelectOptionChoose)
     .optional(),
 })
@@ -151,8 +150,8 @@ const fetchRegions = async () => {
   }
   catch {
     toast.add({
-      title: $i18n.t('error.default'),
-      description: $i18n.t('error_occurred'),
+      title: t('error.default'),
+      description: t('error_occurred'),
       color: 'error',
     })
   }

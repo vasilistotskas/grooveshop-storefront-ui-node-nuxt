@@ -41,7 +41,6 @@ const emit = defineEmits<{
   (e: 'show-more-replies', commentId: number): void
 }>()
 
-const { $i18n } = useNuxtApp()
 const userStore = useUserStore()
 const toast = useToast()
 const { t, locale } = useI18n()
@@ -89,7 +88,7 @@ const replyCommentFormSchema: DynamicFormSchema = {
       name: 'content',
       as: 'textarea',
       rules: z.string({
-        error: issue => issue.input === undefined ? $i18n.t('validation.required') : undefined,
+        error: issue => issue.input === undefined ? t('validation.required') : undefined,
       }).max(1000),
       autocomplete: 'on',
       condition: null,
@@ -417,7 +416,7 @@ watch(
         <span class="min-w-0">
           <span class="flex items-center">
             <ButtonBlogCommentLike
-              :aria-label="$i18n.t('like')"
+              :aria-label="t('like')"
               :blog-comment-id="comment.id"
               :likes-count="likes"
               color="neutral"
@@ -427,10 +426,10 @@ watch(
             />
             <UButton
               v-if="maxDepth > depth"
-              :aria-label="$i18n.t('reply')"
+              :aria-label="t('reply')"
               :icon="'i-heroicons-chat-bubble-left-ellipsis'"
-              :label="$i18n.t('reply')"
-              :title="$i18n.t('reply')"
+              :label="t('reply')"
+              :title="t('reply')"
               color="neutral"
               variant="ghost"
               size="md"
@@ -559,7 +558,7 @@ watch(
     <LazyDynamicForm
       v-if="showReplyForm"
       :id="'reply-comment-form-' + comment.id"
-      :button-label="$i18n.t('submit')"
+      :button-label="t('submit')"
       :schema="replyCommentFormSchema"
       class="relative my-2"
       @submit="onReplySubmit"

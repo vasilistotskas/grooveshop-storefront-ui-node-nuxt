@@ -7,13 +7,12 @@ const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('account-login'),
@@ -58,7 +57,7 @@ async function onSubmit(): Promise<void> {
     session.value = response?.data
 
     toast.add({
-      title: $i18n.t('success.title'),
+      title: t('success.title'),
       description: t('success.description'),
       color: 'success',
       icon: 'i-heroicons-check-circle',
@@ -70,7 +69,7 @@ async function onSubmit(): Promise<void> {
   catch {
     hasError.value = true
     toast.add({
-      title: $i18n.t('error.default'),
+      title: t('error.default'),
       color: 'error',
     })
   }
@@ -123,8 +122,8 @@ definePageMeta({
             color="error"
             variant="soft"
             icon="i-heroicons-exclamation-circle"
-            :title="$i18n.t('error.title')"
-            :description="$i18n.t('error.description')"
+            :title="t('error.title')"
+            :description="t('error.description')"
             close
             @update:open="hasError = false"
           />
@@ -163,7 +162,7 @@ definePageMeta({
               icon="i-heroicons-finger-print"
               @click="onSubmit"
             >
-              {{ $i18n.t('submit') }}
+              {{ t('submit') }}
             </UButton>
           </Account2FaAuthenticateFlow>
         </div>

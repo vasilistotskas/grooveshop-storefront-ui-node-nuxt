@@ -44,7 +44,7 @@ const { elementX, elementY, isOutside } = useMouseInElement(imageContainerRef)
 const { width: containerWidth, height: containerHeight } = useElementBounding(imageContainerRef)
 
 const magnifierStyle = computed(() => {
-  if (!showMagnifier.value || isOutside.value || isMobileOrTablet) {
+  if (!showMagnifier.value || isOutside.value || isMobileOrTablet.value) {
     return { display: 'none' }
   }
 
@@ -66,14 +66,10 @@ const magnifierStyle = computed(() => {
 
 watch(() => props.initialIndex, (newIndex) => {
   activeIndex.value = newIndex
-  nextTick(() => {
-    carousel.value?.emblaApi?.scrollTo(newIndex)
-  })
 })
 
 watch(activeIndex, (newIndex) => {
   showMagnifier.value = false
-  imageContainerRef.value = null
 
   nextTick(() => {
     carousel.value?.emblaApi?.scrollTo(newIndex)
@@ -101,7 +97,7 @@ function selectImage(index: number) {
 }
 
 function onImageClick() {
-  if (!isMobileOrTablet) {
+  if (!isMobileOrTablet.value) {
     showMagnifier.value = !showMagnifier.value
   }
 }

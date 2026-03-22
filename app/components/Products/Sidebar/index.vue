@@ -72,7 +72,7 @@ const defaultOpenSections = ['price', 'categories']
 
 function handleClearFilters() {
   clearFilters()
-  if (isMobileOrTablet) {
+  if (isMobileOrTablet.value) {
     slideoverOpen.value = false
   }
 }
@@ -94,7 +94,7 @@ onMounted(() => {
 
 // Focus management for slideover
 watch(slideoverOpen, (isOpen) => {
-  if (isOpen && isMobileOrTablet) {
+  if (isOpen && isMobileOrTablet.value) {
     nextTick(() => {
       const slideover = document.querySelector('[role="dialog"]')
       const firstFocusable = slideover?.querySelector<HTMLElement>(

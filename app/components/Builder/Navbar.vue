@@ -9,10 +9,9 @@ defineProps({
 const { $routeBaseName } = useNuxtApp()
 const route = useRoute()
 const config = useRuntimeConfig()
-const { enabled } = useAuthPreviewMode()
 const { loggedIn } = useUserSession()
 const { isMobileOrTablet } = useDevice()
-const { t } = useI18n()
+const { t, locales } = useI18n()
 const appStore = useAppStore()
 const {
   healthy,
@@ -121,7 +120,7 @@ onMounted(() => {
               "
             >
               <LazySearchInput />
-              <LazyLanguageSwitcher v-if="enabled" />
+              <LazyLanguageSwitcher v-if="locales.length > 1" />
               <UColorModeButton
                 class="w-6"
                 :ui="{
@@ -132,7 +131,25 @@ onMounted(() => {
                   leadingIcon: 'size-6',
                 }"
               />
-              <LazyUserNotificationsBell v-if="loggedIn" />
+              <ClientOnly>
+                <LazyUserNotificationsBell v-if="loggedIn" />
+                <template #fallback>
+                  <UButton
+                    v-if="loggedIn"
+                    icon="i-heroicons-bell"
+                    color="neutral"
+                    size="xl"
+                    variant="ghost"
+                    class="p-0"
+                    :ui="{
+                      base: `
+                        cursor-pointer
+                        hover:bg-transparent
+                      `,
+                    }"
+                  />
+                </template>
+              </ClientOnly>
             </div>
           </MobileOrTabletOnly>
         </div>

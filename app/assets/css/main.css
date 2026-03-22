@@ -117,6 +117,17 @@
     menu {
       @apply list-disc;
     }
+
+    blockquote { @apply border-l-4 border-neutral-300 dark:border-neutral-600 pl-4 my-4 italic text-neutral-600 dark:text-neutral-300; }
+    code { @apply bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5 text-sm font-mono; }
+    pre { @apply bg-neutral-100 dark:bg-neutral-800 rounded-lg p-4 overflow-x-auto my-4; }
+    pre code { @apply bg-transparent p-0 rounded-none; }
+    table { @apply w-full border-collapse my-4; }
+    th, td { @apply border border-neutral-200 dark:border-neutral-700 px-3 py-2 text-sm; }
+    th { @apply bg-neutral-50 dark:bg-neutral-800 font-semibold text-left; }
+    a { @apply text-[var(--ui-secondary)] underline; }
+    img { @apply max-w-full h-auto rounded-lg my-4; }
+    hr { @apply border-neutral-200 dark:border-neutral-700 my-6; }
   }
 
 .items-unset {

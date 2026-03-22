@@ -265,9 +265,31 @@
     "PAY_ON_STORE": "Πληρωμή στο Κατάστημα",
     "PAY_PAL": "PayPal",
     "STRIPE": "Stripe",
+    "VIVA_WALLET": "Viva Wallet",
     "BANK_TRANSFER": "Τραπεζική Κατάθεση",
     "APPLE_PAY": "Apple Pay",
     "GOOGLE_PAY": "Google Pay",
     "fee": "Προμήθεια {method}"
+  },
+  "footer": {
+    "about_us": "Σχετικά με εμάς",
+    "about": {
+      "us": "Σχετικά με εμάς",
+      "site": "Τι είναι το Webside"
+    },
+    "vision": "Όραμα",
+    "microlearning": {
+      "title": "Microlearning",
+      "what": "Τι είναι το Microlearning",
+      "why": "Γιατί Microlearning"
+    },
+    "terms_conditions": "Όροι και Προϋποθέσεις",
+    "term_of_use": "Όροι Χρήσης",
+    "privacy_policy": "Πολιτική Απορρήτου",
+    "cookies_policy": "Πολιτική Cookies",
+    "help_center": "Κέντρο βοηθείας",
+    "contact": {
+      "us": "Επικοινωνία"
+    }
   }
 }

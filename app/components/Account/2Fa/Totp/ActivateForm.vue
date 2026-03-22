@@ -9,7 +9,6 @@ const { activateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 const code = ref<number[]>([])
@@ -18,7 +17,6 @@ const { data, error, status } = await useAsyncData(
   'totpAuthenticatorStatus',
   () => totpAuthenticatorStatus(),
   {
-    server: false, // User-specific data: client-side only
     getCachedData(key) {
       return nuxtApp.payload.data[key] || nuxtApp.static.data[key]
     },
@@ -87,7 +85,7 @@ async function onSubmit() {
     await activateTotp({ code: codeString })
 
     toast.add({
-      title: $i18n.t('success.title'),
+      title: t('success.title'),
       description: t('success.totp_activated'),
       color: 'success',
     })
@@ -142,7 +140,7 @@ async function onSubmit() {
         lg:flex-1
       "
     >
-      <UCard class="w-full max-w-2xl">
+      <UCard class="w-full">
         <div class="grid items-center justify-center justify-items-center gap-6">
           <UAlert
             color="info"
@@ -161,6 +159,8 @@ async function onSubmit() {
             </h3>
 
             <div
+              role="img"
+              :aria-label="t('qr_code_alt')"
               class="
                 rounded-lg bg-primary-200 p-4
                 dark:bg-primary-800
@@ -234,7 +234,7 @@ async function onSubmit() {
             "
             @click="onSubmit"
           >
-            {{ $i18n.t('entry') }}
+            {{ t('entry') }}
           </UButton>
         </div>
       </UCard>
@@ -256,6 +256,7 @@ async function onSubmit() {
 
 <i18n lang="yaml">
 el:
+  qr_code_alt: Κωδικός QR για ρύθμιση ελέγχου ταυτότητας δύο παραγόντων
   authenticator_code: Κωδικός
   authenticator_secret: Μυστικό κλειδί
   authenticator_secret_description: Μπορείς να αποθηκεύσεις αυτό το μυστικό κλειδί και να το χρησιμοποιήσεις για να επανεγκαταστήσεις την εφαρμογή ελέγχου ταυτότητας σε μεταγενέστερο χρόνο.

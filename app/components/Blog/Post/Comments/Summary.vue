@@ -12,13 +12,13 @@ defineProps({
   },
 })
 
-const { $i18n } = useNuxtApp()
+const { t } = useI18n()
 </script>
 
 <template>
   <span>
     {{
-      $i18n.t('comments.count', {
+      t('comments.count', {
         count: commentsCount,
       })
     }}

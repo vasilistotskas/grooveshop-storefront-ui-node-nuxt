@@ -5,7 +5,7 @@ const localePath = useLocalePath()
 const route = useRoute()
 const { t } = useI18n()
 const { isMobileOrTablet } = useDevice()
-const { $i18n, $routeBaseName } = useNuxtApp()
+const { $routeBaseName } = useNuxtApp()
 const authStore = useAuthStore()
 const { totpAuthenticator, webauthnAuthenticator, recoveryCodesAuthenticator } = storeToRefs(authStore)
 
@@ -19,19 +19,19 @@ const items = computed(() => {
         type: 'label',
       },
       {
-        label: $i18n.t('social_accounts'),
+        label: t('social_accounts'),
         icon: 'i-heroicons-user-group',
         to: localePath('account-providers'),
         value: 'account-providers',
       },
       {
-        label: $i18n.t('sessions'),
+        label: t('sessions'),
         icon: 'i-heroicons-signal',
         to: localePath('account-sessions'),
         value: 'account-sessions',
       },
       {
-        label: $i18n.t('password.change'),
+        label: t('password.change'),
         icon: 'i-heroicons-lock-closed',
         to: localePath('account-password-change'),
         value: 'account-password-change',
@@ -44,7 +44,7 @@ const items = computed(() => {
       },
       !totpAuthenticator.value
         ? {
-            label: $i18n.t('two_factor.activate'),
+            label: t('two_factor.activate'),
             icon: 'i-heroicons-shield-check',
             to: localePath('account-2fa-totp-activate'),
             value: 'account-2fa-totp-activate',
@@ -56,13 +56,13 @@ const items = computed(() => {
             },
           }
         : {
-            label: $i18n.t('two_factor.totp'),
+            label: t('two_factor.totp'),
             icon: 'i-heroicons-device-phone-mobile',
             value: 'account-2fa-totp',
             defaultOpen: false,
             children: [
               {
-                label: $i18n.t('two_factor.deactivate'),
+                label: t('two_factor.deactivate'),
                 icon: 'i-heroicons-shield-exclamation',
                 description: t('navigation.deactivate_totp_desc'),
                 to: localePath('account-2fa-totp-deactivate'),
@@ -71,7 +71,7 @@ const items = computed(() => {
           },
       webauthnAuthenticator.value || recoveryCodesAuthenticator.value
         ? {
-            label: $i18n.t('two_factor.webauthn.title'),
+            label: t('two_factor.webauthn.title'),
             icon: 'i-heroicons-key',
             value: 'account-2fa-webauthn-section',
             defaultOpen: ['account-2fa-webauthn', 'account-2fa-webauthn-add'].includes(
@@ -81,7 +81,7 @@ const items = computed(() => {
               ...(recoveryCodesAuthenticator.value
                 ? [
                     {
-                      label: $i18n.t('two_factor.webauthn.manage'),
+                      label: t('two_factor.webauthn.manage'),
                       icon: 'i-heroicons-rectangle-stack',
                       description: t('navigation.manage_keys_desc'),
                       to: localePath('account-2fa-webauthn'),
@@ -89,7 +89,7 @@ const items = computed(() => {
                   ]
                 : []),
               {
-                label: $i18n.t('two_factor.webauthn.add.title'),
+                label: t('two_factor.webauthn.add.title'),
                 icon: 'i-heroicons-plus-circle',
                 description: t('navigation.add_key_desc'),
                 to: localePath('account-2fa-webauthn-add'),
@@ -97,7 +97,7 @@ const items = computed(() => {
             ],
           }
         : {
-            label: $i18n.t('two_factor.webauthn.add.title'),
+            label: t('two_factor.webauthn.add.title'),
             icon: 'i-heroicons-key',
             to: localePath('account-2fa-webauthn-add'),
             value: 'account-2fa-webauthn-add',
@@ -105,7 +105,7 @@ const items = computed(() => {
       ...(webauthnAuthenticator.value
         ? [
             {
-              label: $i18n.t('two_factor.recovery_codes.title'),
+              label: t('two_factor.recovery_codes.title'),
               icon: 'i-heroicons-ticket',
               value: 'account-2fa-recovery-section',
               defaultOpen: ['account-2fa-recovery-codes', 'account-2fa-recovery-codes-generate'].includes(
@@ -113,13 +113,13 @@ const items = computed(() => {
               ),
               children: [
                 {
-                  label: $i18n.t('two_factor.recovery_codes.view'),
+                  label: t('two_factor.recovery_codes.view'),
                   icon: 'i-heroicons-eye',
                   description: t('navigation.view_codes_desc'),
                   to: localePath('account-2fa-recovery-codes'),
                 },
                 {
-                  label: $i18n.t('two_factor.recovery_codes.generate'),
+                  label: t('two_factor.recovery_codes.generate'),
                   icon: 'i-heroicons-arrow-path',
                   description: t('navigation.generate_codes_desc'),
                   to: localePath('account-2fa-recovery-codes-generate'),
@@ -168,7 +168,7 @@ const activeItem = computed(() => {
 })
 
 watch(() => route.path, () => {
-  if (isMobileOrTablet && isDrawerOpen.value) {
+  if (isMobileOrTablet.value && isDrawerOpen.value) {
     isDrawerOpen.value = false
   }
 })

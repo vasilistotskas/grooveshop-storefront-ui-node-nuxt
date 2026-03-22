@@ -4,7 +4,8 @@ export default defineI18nConfig(() => ({
   availableLocales: [...SUPPORTED_LOCALES] as any,
   locale: DEFAULT_LOCALE as any,
   fallbackLocale: DEFAULT_LOCALE as any,
-  silentFallbackWarn: true,
+  fallbackWarn: false,
+  missingWarn: false,
   numberFormats: {
     el: {
       currency: {

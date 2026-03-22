@@ -94,7 +94,7 @@ Uses `evlog/nuxt` module for structured logging. `log` is auto-imported on both 
 
 - **Simple logging**: `log.info('tag', 'message', {context})`, `log.error({ action: 'name', error })`, `log.warn('tag', 'message')`
 - **Wide events** (server only): `const wideLog = useLogger(event)` → `wideLog.set({ key: value })` — one rich event per request, auto-emitted at request end
-- **Enrichers**: `server/plugins/evlog-enrichers.ts` (user-agent, geo, request size, trace context), `server/plugins/evlog-auth-enricher.ts` (auth session user ID)
+- **Enrichers**: `server/plugins/evlog-enrichers.ts` (user-agent, geo, request size, trace context), `server/middleware/2.evlog-auth.ts` (auth session user ID via `useLogger`)
 - **Sampling**: Production-only via `$production.evlog.sampling` in `nuxt.config.ts`
 - **ESLint**: `no-console: 'error'` enforced — use `log.*` instead of `console.*`
 - **Scope limitation**: `log` is NOT auto-imported in `i18n/` directory (outside Nitro/Nuxt auto-import scope)
@@ -229,14 +229,13 @@ Active modules in `nuxt.config.ts`:
 6. `@nuxt/fonts` — Font optimization
 7. `@nuxt/icon` — Icon system (server bundle: remote with externalized JSON for 9 icon sets; client bundle: scanned with 128KB limit)
 8. `@nuxtjs/i18n` — Internationalization (browser detection, cookie-based, typed pages)
-9. `@nuxtjs/device` — Device detection (desktop/mobile/tablet)
-10. `@nuxtjs/seo` — SEO suite (sitemap, OG image, Schema.org, link checker)
-11. `@pinia/nuxt` — Pinia state management
-12. `@vueuse/nuxt` — VueUse composables
-13. `nuxt-auth-utils` — Session management
-14. `@nuxt/a11y` — Accessibility auditing (alpha)
-15. Custom `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
-16. Custom `modules/purge-comments.ts` — Removes HTML comments in production
+9. `@nuxtjs/seo` — SEO suite (sitemap, OG image, Schema.org, link checker)
+10. `@pinia/nuxt` — Pinia state management
+11. `@vueuse/nuxt` — VueUse composables (device detection via `useMediaQuery` with UA-based SSR width)
+12. `nuxt-auth-utils` — Session management
+13. `@nuxt/a11y` — Accessibility auditing (alpha)
+14. Custom `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
+15. Custom `modules/purge-comments.ts` — Removes HTML comments in production
 
 ### CI/CD
 

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 const emit = defineEmits(['getWebAuthnRequestOptionsForLogin', 'loginUsingWebAuthn'])
 
-const { $i18n } = useNuxtApp()
 const { getWebAuthnRequestOptionsForLogin, loginUsingWebAuthn } = useAllAuthAuthentication()
 const { t } = useI18n()
 const router = useRouter()
@@ -70,7 +69,7 @@ const submitButtonDisabled = computed(() => {
 const submitButtonLabel = computed(() => {
   return !loading.value
     ? t('webauthn.login')
-    : $i18n.t('loading')
+    : t('loading')
 })
 </script>
 

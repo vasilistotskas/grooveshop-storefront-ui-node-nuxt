@@ -1,44 +1,25 @@
-import type { RouteLocationAsRelativeI18n } from 'vue-router'
-
-interface IMenuItem {
-  type: 'link' | 'button' | 'external-link'
-  text: string
-  href?: string
-  route?: Omit<RouteLocationAsRelativeI18n, 'path'> & { path?: string | undefined }
-  icon?: string
-  cssClass?: string
-}
-
 export const useAccountMenus = () => {
   const { $i18n } = useNuxtApp()
+  const t = $i18n.t.bind($i18n)
 
   // Fetch loyalty settings using new API
   const { data: settings } = useLoyalty().fetchSettings()
 
-  const menus = computed<IMenuItem[]>(() => {
-    const baseMenus: IMenuItem[] = [
+  const menus = computed(() => {
+    const baseMenus = [
       {
-        type: 'link',
-        text: $i18n.t('account'),
-        route: {
-          name: 'account',
-          path: '/account',
-        },
+        label: t('account'),
+        to: '/account',
         icon: 'i-heroicons-user',
       },
       {
-        type: 'link',
-        text: $i18n.t('favourites'),
-        route: {
-          name: 'account-favourites-posts',
-          path: '/account/favourites/posts',
-        },
+        label: t('favourites'),
+        to: '/account/favourites/posts',
         icon: 'i-mdi-heart-outline',
       },
       {
-        type: 'link',
-        text: $i18n.t('subscriptions'),
-        route: { name: 'account-subscriptions', path: '/account/subscriptions' },
+        label: t('subscriptions'),
+        to: '/account/subscriptions',
         icon: 'i-heroicons-bell',
       },
     ]
@@ -46,17 +27,15 @@ export const useAccountMenus = () => {
     // Only add loyalty menu if enabled
     if (settings.value?.enabled) {
       baseMenus.push({
-        type: 'link',
-        text: $i18n.t('loyalty'),
-        route: { name: 'account-loyalty', path: '/account/loyalty' },
+        label: t('loyalty'),
+        to: '/account/loyalty',
         icon: 'i-heroicons-trophy',
       })
     }
 
     baseMenus.push({
-      type: 'link',
-      text: $i18n.t('settings'),
-      route: { name: 'account-settings', path: '/account/settings' },
+      label: t('settings'),
+      to: '/account/settings',
       icon: 'i-mdi-cog-outline',
     })
 
@@ -65,33 +44,29 @@ export const useAccountMenus = () => {
 
   const { enabled } = useAuthPreviewMode()
 
-  const allMenus = computed<IMenuItem[]>(() => {
+  const allMenus = computed(() => {
     const items = [...menus.value]
 
     if (enabled.value) {
       items.push(
         {
-          type: 'link',
-          text: $i18n.t('addresses'),
-          route: { name: 'account-addresses', path: '/account/addresses' },
+          label: t('addresses'),
+          to: '/account/addresses',
           icon: 'i-fa6-solid-address-book',
         },
         {
-          type: 'link',
-          text: $i18n.t('orders'),
-          route: { name: 'account-orders', path: '/account/orders' },
+          label: t('orders'),
+          to: '/account/orders',
           icon: 'i-mdi-package-variant-closed',
         },
         {
-          type: 'link',
-          text: $i18n.t('reviews'),
-          route: { name: 'account-reviews', path: '/account/reviews' },
+          label: t('reviews'),
+          to: '/account/reviews',
           icon: 'i-mdi-star-outline',
         },
         {
-          type: 'link',
-          text: $i18n.t('help'),
-          route: { name: 'account-help', path: '/account/help' },
+          label: t('help'),
+          to: '/account/help',
           icon: 'i-mdi-help-circle-outline',
         },
       )

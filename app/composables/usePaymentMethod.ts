@@ -3,6 +3,7 @@
  */
 export function usePaymentMethod() {
   const { $i18n } = useNuxtApp()
+  const t = $i18n.t.bind($i18n)
 
   /**
    * Get the translated name for a payment method based on its provider name
@@ -16,7 +17,7 @@ export function usePaymentMethod() {
 
     // Map provider name to i18n key
     const key = `payment_methods.${providerName}`
-    return $i18n.t(key)
+    return t(key)
   }
 
   return {

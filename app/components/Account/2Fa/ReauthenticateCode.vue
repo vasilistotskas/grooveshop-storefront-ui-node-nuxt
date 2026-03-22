@@ -12,15 +12,14 @@ const toast = useToast()
 const { t } = useI18n()
 const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
-const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
 const reauthenticateCodeZodSchema = z.object({
   code: z.string({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.string.invalid'),
+      ? t('validation.required')
+      : t('validation.string.invalid'),
   }),
 })
 
@@ -32,7 +31,7 @@ async function onSubmit(values: { code: string }) {
     })
     session.value = response?.data
     toast.add({
-      title: $i18n.t('success.title'),
+      title: t('success.title'),
       color: 'success',
     })
     emit('twoFaReauthenticate')
@@ -54,7 +53,7 @@ const formSchema = computed(() => ({
       autocomplete: 'one-time-code',
       readonly: false,
       required: true,
-      placeholder: $i18n.t('code'),
+      placeholder: t('code'),
       type: 'text',
       condition: () => true,
       disabledCondition: () => false,
@@ -88,7 +87,7 @@ const formSchema = computed(() => ({
         </h3>
         <section class="grid items-center">
           <DynamicForm
-            :button-label="$i18n.t('submit')"
+            :button-label="t('submit')"
             :schema="formSchema"
             @submit="onSubmit"
           />

@@ -197,19 +197,10 @@ export const useLoyalty = () => {
   const fetchProductPoints = (productId: number) => {
     return useAsyncData<ProductPoints>(
       `loyalty-product-points-${productId}`,
-      async () => {
-        try {
-          return await $fetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
-            method: 'GET',
-            headers: useRequestHeaders(),
-          })
-        }
-        catch (err) {
-          // Silent failure for product points badge (non-critical feature)
-          log.error({ action: 'loyalty:fetchProductPoints', error: err })
-          throw err // Re-throw so useAsyncData can handle it
-        }
-      },
+      () => $fetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
+        method: 'GET',
+        headers: useRequestHeaders(),
+      }),
     )
   }
 

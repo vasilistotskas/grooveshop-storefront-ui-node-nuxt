@@ -39,7 +39,11 @@ const xpProgressPercentage = computed(() => {
   return Math.round((summary.value.totalXp / totalNeeded) * 100)
 })
 
-// Tier color mapping
+// Tier color mapping — maps translated tier names to UI colors.
+// WARNING: This relies on matching translated strings (English + Greek).
+// If new languages are added, the name checks below must be extended.
+// A more robust approach would be to map by tier slug or ID from the backend
+// (e.g., tier.slug === 'bronze') instead of translated display names.
 const tierColor = computed<'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'neutral'>(() => {
   if (!tierName.value) return 'neutral'
   const name = tierName.value.toLowerCase()

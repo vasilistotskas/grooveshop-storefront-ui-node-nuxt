@@ -1,3 +1,14 @@
+import { z } from 'zod'
+
+const bodySchema = z.object({ payWayId: z.number().int().positive() })
+
+const responseSchema = z.object({
+  clientSecret: z.string(),
+  paymentIntentId: z.string(),
+  amount: z.string(),
+  currency: z.string(),
+})
+
 /**
  * Create a Stripe payment intent from cart for online payment checkout.
  *
@@ -19,23 +30,13 @@ export default defineEventHandler(async (event) => {
 
   try {
     wideLog.set({ payment: { method: 'stripe' } })
-    const body = await readValidatedBody(event, (data: any) => {
-      if (!data.payWayId || typeof data.payWayId !== 'number') {
-        throw new Error('payWayId is required and must be a number')
-      }
-      return { payWayId: data.payWayId }
-    })
+    const body = await readValidatedBody(event, bodySchema.parse)
 
     // Get cart headers (includes cart UUID for guest users)
     const cartHeaders = await cartSession.getCartHeaders()
 
     // Call backend to create payment intent from cart
-    const response = await $fetch<{
-      clientSecret: string
-      paymentIntentId: string
-      amount: string
-      currency: string
-    }>(`${config.apiBaseUrl}/cart/create-payment-intent`, {
+    const response = await $fetch(`${config.apiBaseUrl}/cart/create-payment-intent`, {
       method: 'POST',
       headers: {
         ...cartHeaders,
@@ -48,12 +49,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    return {
-      clientSecret: response.clientSecret,
-      paymentIntentId: response.paymentIntentId,
-      amount: response.amount,
-      currency: response.currency,
-    }
+    return await parseDataAs(response, responseSchema)
   }
   catch (error) {
     await handleError(error)

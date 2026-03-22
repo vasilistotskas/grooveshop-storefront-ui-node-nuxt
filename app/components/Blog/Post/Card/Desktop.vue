@@ -13,7 +13,7 @@ const props = defineProps({
     required: false,
     default() {
       const { isMobileOrTablet } = useDevice()
-      return isMobileOrTablet ? 480 : 376
+      return isMobileOrTablet.value ? 480 : 376
     },
   },
   imgHeight: {
@@ -21,7 +21,7 @@ const props = defineProps({
     required: false,
     default() {
       const { isMobileOrTablet } = useDevice()
-      return isMobileOrTablet ? 315 : 247
+      return isMobileOrTablet.value ? 315 : 247
     },
   },
   showShareButton: { type: Boolean, required: false, default: true },
@@ -48,9 +48,8 @@ const props = defineProps({
   },
 })
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const { post } = toRefs(props)
 
@@ -165,7 +164,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           square
           color="neutral"
           variant="ghost"
-          :title="$i18n.t('comments.count', {
+          :title="t('comments.count', {
             count: post.commentsCount,
           })"
           :label="String(post.commentsCount)"
@@ -186,7 +185,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             square
             color="neutral"
             variant="ghost"
-            :title="$i18n.t('share')"
+            :title="t('share')"
             :ui="{
               base: `
                 flex cursor-pointer flex-col items-center gap-1 p-0

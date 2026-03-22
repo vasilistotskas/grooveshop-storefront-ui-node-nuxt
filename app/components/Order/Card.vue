@@ -72,7 +72,7 @@ const paymentMethodDisplay = computed(() => {
 })
 
 const actionButtonOrientation = computed(() => {
-  if (isMobileOrTablet) {
+  if (isMobileOrTablet.value) {
     return 'horizontal'
   }
   return order.value.canBeCanceled ? 'vertical' : 'horizontal'

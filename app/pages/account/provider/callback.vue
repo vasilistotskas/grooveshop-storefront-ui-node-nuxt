@@ -7,7 +7,6 @@ const { refreshSession } = authStore
 
 const route = useRoute('account-provider-callback')
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const {
   error: apiError,
@@ -134,7 +133,7 @@ definePageMeta({
           fill="currentFill"
         />
       </svg>
-      <span class="sr-only">{{ $i18n.t('loading') }}</span>
+      <span class="sr-only">{{ t('loading') }}</span>
     </div>
     <div
       v-if="error"
@@ -149,7 +148,7 @@ definePageMeta({
         {{ t('description') }}
       </p>
       <UButton
-        :label="$i18n.t('continue')"
+        :label="t('continue')"
         :to="localePath(url)"
         class="justify-center"
         color="neutral"

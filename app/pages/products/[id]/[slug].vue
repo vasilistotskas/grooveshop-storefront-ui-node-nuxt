@@ -2,7 +2,6 @@
 import type { TabsItem, ButtonProps } from '#ui/types'
 
 const route = useRoute('products-id-slug')
-const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
 const { y: scrollY } = useWindowScroll()
 
@@ -219,8 +218,8 @@ const favouriteId = computed(() => {
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('products'),
@@ -354,11 +353,11 @@ useHead({
   ],
 })
 
-defineOgImage({
-  alt: product.value?.seoTitle || productTitle.value,
-  url: ogImage.value,
-  width: 1200,
-  height: 630,
+useSeoMeta({
+  ogImage: ogImage.value,
+  ogImageAlt: product.value?.seoTitle || productTitle.value,
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
 })
 
 useSchemaOrg([
@@ -480,7 +479,7 @@ useSchemaOrg([
   defineBreadcrumb({
     itemListElement: () => [
       {
-        name: $i18n.t('breadcrumb.items.index.label'),
+        name: t('breadcrumb.items.index.label'),
         item: localePath('index'),
       },
       {
@@ -677,7 +676,7 @@ definePageMeta({
                 <ButtonProductAddToCart
                   :product="product"
                   :quantity="selectorQuantity || 1"
-                  :text="$i18n.t('add_to_cart')"
+                  :text="t('add_to_cart')"
                   class="w-full"
                 />
               </div>
@@ -825,7 +824,7 @@ definePageMeta({
             <ButtonProductAddToCart
               :product="product"
               :quantity="selectorQuantity || 1"
-              :text="$i18n.t('add_to_cart')"
+              :text="t('add_to_cart')"
               size="xl"
             />
           </div>

@@ -40,7 +40,6 @@ const state = reactive<Partial<Schema>>({
   region: address.value?.region,
   floor: address.value?.floor,
   locationType: address.value?.locationType,
-  user: address.value?.user,
 })
 
 // Countries data

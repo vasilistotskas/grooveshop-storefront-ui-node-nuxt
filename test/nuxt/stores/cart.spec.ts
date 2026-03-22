@@ -375,12 +375,14 @@ describe('Cart Store', () => {
     })
 
     describe('cleanCartState', () => {
-      it('should reset cart state', () => {
+      it('should reset cart state', async () => {
         store.cart = mockCartData
         store.pending = true
         store.error = new Error('Test error') as any
 
-        store.cleanCartState()
+        mockFetch.mockResolvedValueOnce({})
+
+        await store.cleanCartState()
 
         expect(store.cart).toBeNull()
         expect(store.pending).toBe(false)

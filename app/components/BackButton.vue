@@ -1,6 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n()
 const router = useRouter()
-const { $i18n } = useNuxtApp()
 </script>
 
 <template>
@@ -10,7 +10,7 @@ const { $i18n } = useNuxtApp()
     color="neutral"
     variant="ghost"
     icon="i-heroicons-arrow-left-circle"
-    :aria-label="$i18n.t('back')"
+    :aria-label="t('back')"
     @click="router.back()"
   />
 </template>

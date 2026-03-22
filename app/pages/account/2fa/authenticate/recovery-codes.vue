@@ -2,13 +2,12 @@
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('account-login'),
@@ -58,7 +57,7 @@ definePageMeta({
               <UIcon name="i-heroicons-key" class="size-12 text-warning" />
             </div>
             <h1 class="text-2xl font-bold text-highlighted">
-              {{ $i18n.t('authenticate.recovery_code') }}
+              {{ t('authenticate.recovery_code') }}
             </h1>
             <p class="mt-2 text-sm text-muted">
               {{ t('description') }}

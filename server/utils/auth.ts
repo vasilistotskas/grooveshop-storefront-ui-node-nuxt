@@ -69,7 +69,7 @@ export async function processAllAuthSession(response: AllAuthResponse | PartialA
     })
   }
 
-  if ((response.status === 200 && response.meta?.access_token && response.data?.user) || response.meta?.is_authenticated) {
+  if (response.data?.user && ((response.status === 200 && response.meta?.access_token) || response.meta?.is_authenticated)) {
     log.info('auth', 'Fetching user data')
     await fetchUserData(response as AllAuthResponse, accessToken)
   }

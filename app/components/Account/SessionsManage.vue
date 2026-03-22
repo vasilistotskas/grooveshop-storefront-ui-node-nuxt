@@ -7,7 +7,6 @@ const { deleteSession } = useAllAuthSessions()
 const toast = useToast()
 const { locale, t } = useI18n()
 const { contentShorten } = useText()
-const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -84,11 +83,11 @@ const columns: TableColumn<Session>[] = [
   },
   {
     accessorKey: 'ip',
-    header: $i18n.t('ip_address'),
+    header: t('ip_address'),
   },
   {
     accessorKey: 'created_at',
-    header: $i18n.t('ordering.created_at'),
+    header: t('ordering.created_at'),
   },
   {
     id: 'actions',
@@ -109,7 +108,7 @@ const data = computed(() => {
 const getActionItems = (session: Session): DropdownMenuItem[][] => {
   return [[
     {
-      label: $i18n.t('logout'),
+      label: t('logout'),
       icon: 'i-heroicons-arrow-right-start-on-rectangle',
       class: session.is_current ? '' : 'cursor-pointer',
       ui: {
@@ -223,7 +222,7 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
             </span>
           </template>
           <template #actions-cell="{ row }">
-            <UTooltip :text="row.original.is_current ? t('sessions.cannot_logout_current') : $i18n.t('logout')">
+            <UTooltip :text="row.original.is_current ? t('sessions.cannot_logout_current') : t('logout')">
               <LazyUDropdownMenu
                 v-if="getActionItems(row.original).length > 0"
                 :items="getActionItems(row.original)"

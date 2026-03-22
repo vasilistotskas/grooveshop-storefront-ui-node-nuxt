@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 const emit = defineEmits(['getWebAuthnRequestOptionsForReauthentication', 'reauthenticateUsingWebAuthn'])
 
-const { $i18n } = useNuxtApp()
 const { getWebAuthnRequestOptionsForReauthentication, reauthenticateUsingWebAuthn } = useAllAuthAuthentication()
 const toast = useToast()
 const { t } = useI18n()
@@ -37,7 +36,7 @@ async function onSubmit() {
 
     session.value = response?.data
     toast.add({
-      title: $i18n.t('success.title'),
+      title: t('success.title'),
       description: t('success.description'),
       color: 'success',
       icon: 'i-heroicons-check-circle',
@@ -48,7 +47,7 @@ async function onSubmit() {
   catch {
     error.value = t('error.failed')
     toast.add({
-      title: $i18n.t('error.default'),
+      title: t('error.default'),
       description: t('error.description'),
       color: 'error',
       icon: 'i-heroicons-exclamation-circle',

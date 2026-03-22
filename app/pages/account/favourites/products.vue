@@ -2,7 +2,6 @@
 const { t } = useI18n()
 const route = useRoute('account-favourites-products')
 const { user } = useUserSession()
-const { $i18n } = useNuxtApp()
 const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
 const localePath = useLocalePath()
@@ -14,12 +13,12 @@ const ordering = computed(() => route.query.ordering || '-createdAt')
 const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
-    label: $i18n.t('ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'updatedAt',
-    label: $i18n.t('ordering.updated_at'),
+    label: t('ordering.updated_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -35,7 +34,6 @@ const { data: favourites, refresh: refreshFavourites, status, error } = await us
       ordering: ordering,
       pageSize: pageSize,
     },
-    server: false, // User-specific data: client-side only
     onResponse({ response }) {
       if (!response.ok) {
         return
@@ -58,7 +56,6 @@ const { refresh: refreshFavouriteProducts } = await useFetch('/api/products/favo
   body: {
     productIds: productIds,
   },
-  server: false, // User-specific data: client-side only
   onResponse({ response }) {
     if (!response.ok) {
       return
@@ -157,7 +154,7 @@ definePageMeta({
     <LazyEmptyState
       v-else-if="status === 'success' && !favourites?.count"
       class="w-full"
-      :title="$i18n.t('empty.title')"
+      :title="t('empty.title')"
     >
       <template
         #icon
@@ -171,7 +168,7 @@ definePageMeta({
         #actions
       >
         <UButton
-          :label="$i18n.t('empty.description')"
+          :label="t('empty.description')"
           :to="localePath('index')"
           class="font-semibold"
           color="secondary"

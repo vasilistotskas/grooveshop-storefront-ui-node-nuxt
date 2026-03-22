@@ -6,18 +6,18 @@ const { t } = useI18n()
 const appTitle = computed(() => config.public.appTitle as string)
 
 const items = computed(() => [
-  isMobileOrTablet ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
+  isMobileOrTablet.value ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
 ])
 
-const bannerWidth = computed(() => isMobileOrTablet ? 510 : 1194)
-const bannerHeight = computed(() => isMobileOrTablet ? 638 : 418)
+const bannerWidth = computed(() => isMobileOrTablet.value ? 510 : 1194)
+const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
 
 definePageMeta({
   layout: 'default',
 })
 
 const lcpImageUrl = computed(() =>
-  isMobileOrTablet
+  isMobileOrTablet.value
     ? '/_ipx/f_avif&q_80&fit_cover&s_510x638/img/main-banner-mobile.png'
     : '/_ipx/f_avif&q_80&fit_cover&s_1194x418/img/main-banner.png',
 )

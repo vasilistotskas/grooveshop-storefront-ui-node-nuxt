@@ -51,7 +51,7 @@ const provider = computed(() => {
   if (mainImageProps.value?.provider !== undefined && mainImageProps.value.provider !== '') {
     return mainImageProps.value.provider
   }
-  if (imgSrc.value.startsWith('media/uploads') || imgSrc.value.startsWith('static/images')) {
+  if (imgSrc.value.startsWith('media/uploads') || imgSrc.value.startsWith('/media/uploads') || imgSrc.value.startsWith('static/images') || imgSrc.value.startsWith('/static/images')) {
     return 'mediaStream'
   }
   return 'ipx'

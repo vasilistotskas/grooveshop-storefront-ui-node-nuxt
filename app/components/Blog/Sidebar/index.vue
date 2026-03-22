@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 const { locale, t } = useI18n()
 const route = useRoute()
-const { $i18n } = useNuxtApp()
 
 const { data: categories, status } = await useLazyFetch(`/api/blog/categories`, {
   key: `blogCategories`,
@@ -68,7 +67,7 @@ onMounted(() => {
         "
       >
         <h2 class="flex items-center gap-2 p-2 text-center text-lg font-bold">
-          {{ $i18n.t('categories') }}
+          {{ t('categories') }}
           <span
             class="
               text-sm font-normal text-primary-950

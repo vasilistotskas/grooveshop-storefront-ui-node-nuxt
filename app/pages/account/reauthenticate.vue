@@ -6,11 +6,9 @@ const toast = useToast()
 const { t } = useI18n()
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 const password = ref('')
-const showPassword = ref(false)
 
 if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
   await navigateTo(localePath('index'))
@@ -19,7 +17,7 @@ if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
 async function onSubmit() {
   if (!password.value) {
     toast.add({
-      title: $i18n.t('validation.required'),
+      title: t('validation.required'),
       color: 'error',
     })
     return
@@ -31,7 +29,7 @@ async function onSubmit() {
       password: password.value,
     })
     toast.add({
-      title: $i18n.t('success.title'),
+      title: t('success.title'),
       description: t('success.description'),
       color: 'success',
       icon: 'i-heroicons-check-circle',
@@ -94,31 +92,14 @@ definePageMeta({
             }"
             required
           >
-            <UInput
+            <FormPasswordInput
               v-model="password"
-              :type="showPassword ? 'text' : 'password'"
               :placeholder="t('password.placeholder')"
               size="lg"
               icon="i-heroicons-lock-closed"
               autocomplete="current-password"
               :disabled="loading"
-              :ui="{
-                root: 'w-full',
-                trailing: 'pe-1',
-              }"
-            >
-              <template #trailing>
-                <UButton
-                  color="neutral"
-                  variant="link"
-                  size="sm"
-                  :icon="showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                  :aria-label="showPassword ? t('password.hide') : t('password.show')"
-                  :aria-pressed="showPassword"
-                  @click="showPassword = !showPassword"
-                />
-              </template>
-            </UInput>
+            />
           </UFormField>
 
           <UButton

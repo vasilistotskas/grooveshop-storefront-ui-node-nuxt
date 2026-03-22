@@ -9,13 +9,14 @@ defineProps({
   },
 })
 
+const { t } = useI18n()
 const cartStore = useCartStore()
 const { cleanCartState, refreshCart } = cartStore
 
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 const localePath = useLocalePath()
-const { $i18n, $routeBaseName } = useNuxtApp()
+const { $routeBaseName } = useNuxtApp()
 
 const routeName = computed(() => $routeBaseName(route))
 
@@ -38,11 +39,11 @@ const onClickLogout = async () => {
 
 <template>
   <UButton
-    :aria-label="$i18n.t('logout')"
+    :aria-label="t('logout')"
     :color="'error'"
-    :label="$i18n.t('logout')"
+    :label="t('logout')"
     :size="size"
-    :title="$i18n.t('logout')"
+    :title="t('logout')"
     :variant="'subtle'"
     @click="onClickLogout"
   />

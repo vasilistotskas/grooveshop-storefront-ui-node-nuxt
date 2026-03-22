@@ -1,5 +1,6 @@
 export const useCartStore = defineStore('cart', () => {
   const { $i18n } = useNuxtApp()
+  const t = $i18n.t.bind($i18n)
   const cart = ref<CartDetail | null>(null)
   const pending = ref<boolean>(false)
   const error = ref<SerializedError | null>(null)
@@ -46,7 +47,7 @@ export const useCartStore = defineStore('cart', () => {
     if (!cartItem.product.stock || cartItem.product.stock === 0) {
       return {
         type: 'out_of_stock' as const,
-        message: $i18n.t('out_of_stock'),
+        message: t('out_of_stock'),
         severity: 'error' as const,
       }
     }
@@ -54,7 +55,7 @@ export const useCartStore = defineStore('cart', () => {
     if (hasStockIssue(cartItem)) {
       return {
         type: 'limited_stock' as const,
-        message: $i18n.t('limited_stock', {
+        message: t('limited_stock', {
           stock: cartItem.product.stock,
           quantity: cartItem.quantity,
         }),
@@ -182,18 +183,17 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function cleanCartState() {
-    cart.value = null
-    pending.value = false
-    error.value = null
-
-    // Clear the cart session on the server
     try {
-      await $fetch('/api/cart/clear-session', {
-        method: 'POST',
-      })
+      await $fetch('/api/cart/clear-session', { method: 'POST' })
+      cart.value = null
+      pending.value = false
+      error.value = null
     }
     catch (err) {
       log.error({ action: 'cart:clearSession', error: err })
+      cart.value = null
+      pending.value = false
+      error.value = null
     }
   }
 

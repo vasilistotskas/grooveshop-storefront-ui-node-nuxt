@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "analyze-logs": {
+      "source": "hugorcd/evlog",
+      "sourceType": "github",
+      "computedHash": "68e3149fbb6a11474d55b4c60bf8d8c7bacc79fb5ca760fb4b6e0b23a5f19af9"
+    },
+    "nuxt-ui": {
+      "source": "nuxt/ui",
+      "sourceType": "github",
+      "computedHash": "03db28ce4c15bbb2ab754a4abc13b30895948211da02060a81c3b3dbe0693b2d"
+    },
+    "review-logging-patterns": {
+      "source": "hugorcd/evlog",
+      "sourceType": "github",
+      "computedHash": "ba1432e1aa821bc092bfb4dff0c179fd70e1bae1e4143cbeb526a540b29a837c"
+    }
+  }
+}

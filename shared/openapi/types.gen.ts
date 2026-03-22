@@ -1223,7 +1223,7 @@ export type HealthCheckResponse = {
 export type ImageTypeEnum = 'MAIN' | 'BANNER' | 'ICON' | 'THUMBNAIL' | 'GALLERY' | 'BACKGROUND' | 'HERO' | 'FEATURE' | 'PROMOTIONAL' | 'SEASONAL';
 
 /**
- * * `ERROR` - Error
+ * * `ERROR` - Σφάλμα
  * * `SUCCESS` - Success
  * * `INFO` - Info
  * * `WARNING` - Warning
@@ -1396,7 +1396,7 @@ export type Order = {
     locationType?: LocationTypeEnum | BlankEnum;
     street: string;
     streetNumber: string;
-    payWay: number;
+    payWay: number | null;
     /**
      * Κατάσταση
      */
@@ -1513,7 +1513,7 @@ export type OrderDetail = {
     locationType?: LocationTypeEnum | BlankEnum;
     street: string;
     streetNumber: string;
-    payWay: number;
+    payWay: number | null;
     /**
      * Κατάσταση
      */
@@ -2615,7 +2615,6 @@ export type PatchedUserAddressWriteRequest = {
     phone?: string;
     notes?: string;
     isMain?: boolean;
-    user?: number;
     /**
      * Country Code Alpha 2
      */
@@ -2790,12 +2789,7 @@ export type PayWayDetail = {
      * Whether this payment method requires manual confirmation (e.g., bank transfer)
      */
     requiresConfirmation?: boolean;
-    /**
-     * Provider Configuration
-     *
-     * Provider-specific configuration (API keys, webhooks, etc.)
-     */
-    configuration?: unknown;
+    readonly configuration: unknown;
 };
 
 /**
@@ -2917,9 +2911,6 @@ export type Product = {
     seoDescription?: string;
     seoKeywords?: string;
     discountPercent?: number;
-    readonly createdAt: string;
-    readonly updatedAt: string;
-    readonly uuid: string;
     readonly discountValue: number;
     readonly priceSavePercent: number;
     readonly vatPercent: number;
@@ -2938,6 +2929,9 @@ export type Product = {
      * Return the number of likes/favourites for this product.
      */
     readonly likesCount: number;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+    readonly uuid: string;
     readonly attributes: Array<ProductAttribute>;
 };
 
@@ -2986,7 +2980,6 @@ export type ProductCategory = {
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly uuid: string;
-    readonly recursiveProductCount: number;
 };
 
 /**
@@ -3016,8 +3009,8 @@ export type ProductCategoryDetail = {
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly uuid: string;
-    readonly recursiveProductCount: number;
     readonly children: Array<ProductCategory>;
+    readonly recursiveProductCount: number;
     seoTitle?: string;
     seoDescription?: string;
     seoKeywords?: string;
@@ -3186,9 +3179,6 @@ export type ProductDetail = {
     seoDescription?: string;
     seoKeywords?: string;
     discountPercent?: number;
-    readonly createdAt: string;
-    readonly updatedAt: string;
-    readonly uuid: string;
     readonly discountValue: number;
     readonly priceSavePercent: number;
     readonly vatPercent: number;
@@ -3207,6 +3197,9 @@ export type ProductDetail = {
      * Return the number of likes/favourites for this product.
      */
     readonly likesCount: number;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+    readonly uuid: string;
     readonly attributes: Array<ProductAttribute>;
 };
 
@@ -3244,9 +3237,6 @@ export type ProductDetailResponse = {
     seoDescription?: string;
     seoKeywords?: string;
     discountPercent?: number;
-    readonly createdAt: string;
-    readonly updatedAt: string;
-    readonly uuid: string;
     readonly discountValue: number;
     readonly priceSavePercent: number;
     readonly vatPercent: number;
@@ -3265,6 +3255,9 @@ export type ProductDetailResponse = {
      * Return the number of likes/favourites for this product.
      */
     readonly likesCount: number;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+    readonly uuid: string;
     readonly attributes: Array<ProductAttribute>;
 };
 
@@ -3616,9 +3609,9 @@ export type RedeemPointsRequestRequest = {
      */
     currency: CurrencyEnum;
     /**
-     * Optional order ID to associate the redemption with. When provided, loyalty metadata is stored in the order.
+     * Order ID to associate the redemption with. Used to cap the discount to the order's products total.
      */
-    orderId?: number | null;
+    orderId: number;
 };
 
 /**
@@ -4106,7 +4099,7 @@ export type TaggedItem = {
         description?: string;
         price?: string;
         active?: boolean;
-        [key: string]: unknown | number | string | boolean | undefined;
+        [key: string]: unknown;
     };
     readonly createdAt: string;
     readonly updatedAt: string;
@@ -4131,7 +4124,7 @@ export type TaggedItemDetail = {
         description?: string;
         price?: string;
         active?: boolean;
-        [key: string]: unknown | number | string | boolean | undefined;
+        [key: string]: unknown;
     };
     readonly createdAt: string;
     readonly updatedAt: string;
@@ -4264,7 +4257,6 @@ export type UserAddressWriteRequest = {
     phone: string;
     notes?: string;
     isMain?: boolean;
-    user: number;
     /**
      * Country Code Alpha 2
      */
@@ -4924,7 +4916,7 @@ export type OrderWritable = {
     locationType?: LocationTypeEnum | BlankEnum;
     street: string;
     streetNumber: string;
-    payWay: number;
+    payWay: number | null;
     /**
      * Κατάσταση
      */
@@ -4958,7 +4950,7 @@ export type OrderDetailWritable = {
     locationType?: LocationTypeEnum | BlankEnum;
     street: string;
     streetNumber: string;
-    payWay: number;
+    payWay: number | null;
     /**
      * Κατάσταση
      */
@@ -5468,12 +5460,6 @@ export type PayWayDetailWritable = {
      * Whether this payment method requires manual confirmation (e.g., bank transfer)
      */
     requiresConfirmation?: boolean;
-    /**
-     * Provider Configuration
-     *
-     * Provider-specific configuration (API keys, webhooks, etc.)
-     */
-    configuration?: unknown;
 };
 
 /**

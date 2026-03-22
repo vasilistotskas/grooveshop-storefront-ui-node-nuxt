@@ -6,7 +6,6 @@ const toast = useToast()
 const { t } = useI18n()
 const localePath = useLocalePath()
 const route = useRoute('account-verify-email-key')
-const { $i18n } = useNuxtApp()
 const router = useRouter()
 const { isMobileOrTablet } = useDevice()
 
@@ -22,8 +21,8 @@ const { data: getVerifyEmailData } = await useAsyncData(
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('account-login'),
@@ -153,7 +152,7 @@ definePageMeta({
               icon="i-heroicons-check-badge"
               @click="onSubmit"
             >
-              {{ $i18n.t('confirm') }}
+              {{ t('confirm') }}
             </UButton>
           </div>
 

@@ -16,6 +16,7 @@ export default defineNuxtPlugin({
     const debouncedSetupNotifications = useDebounceFn(setupNotifications, 1000)
 
     async function initializeWebSocket() {
+      closeWebSocket()
       if (!loggedIn.value) {
         log.warn('ws', 'User not logged in, skipping websocket initialization.')
         return

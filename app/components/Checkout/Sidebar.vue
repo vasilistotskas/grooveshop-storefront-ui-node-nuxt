@@ -89,9 +89,9 @@ defineSlots<{
         </div>
 
         <!-- Loyalty Points Redemption Slot -->
-        <div v-if="$slots.loyalty" class="pt-2">
+        <template v-if="$slots.loyalty">
           <slot name="loyalty" />
-        </div>
+        </template>
 
         <div
           class="
@@ -198,7 +198,7 @@ defineSlots<{
 
         <div
           class="
-            flex items-center gap-2 text-sm text-primary-600
+            flex items-center gap-2 text-sm text-primary-600 pb-2
             dark:text-primary-400
           "
         >

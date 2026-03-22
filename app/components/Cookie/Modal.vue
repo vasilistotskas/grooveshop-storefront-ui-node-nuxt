@@ -3,7 +3,6 @@ import { type Cookie, COOKIE_ID_SEPARATOR, ZodCookieTypeEnum } from '#cookie-con
 import { getCookieIds } from '#cookie-control/methods'
 
 const { t } = useI18n()
-const { $i18n } = useNuxtApp()
 
 const { cookiesEnabled, cookiesEnabledIds, isConsentGiven, isModalActive, moduleOptions } = useCookieControl()
 
@@ -16,12 +15,12 @@ const onModalClick = () => {
 }
 
 const resolveLinkEntryText = (entry: [string, unknown]) =>
-  typeof entry[1] === 'string' ? $i18n.t(entry[1] as string) : entry[0]
+  typeof entry[1] === 'string' ? t(entry[1] as string) : entry[0]
 
-const getName = (name: string) => $i18n.t(name)
+const getName = (name: string) => t(name)
 
 const getDescription = (description: string) =>
-  `${!moduleOptions.isDashInDescriptionEnabled ? '' : '-'} ${$i18n.t(description)}`
+  `${!moduleOptions.isDashInDescriptionEnabled ? '' : '-'} ${t(description)}`
 
 function isCookieEnabled(cookie: Cookie) {
   return localCookiesEnabled.value.some(c => c.id === cookie.id)
@@ -168,7 +167,7 @@ const isUnSaved = computed(() => {
                   mt-3 text-lg font-semibold text-primary-600
                   dark:text-primary-100
                 "
-                v-text="cookieType === ZodCookieTypeEnum.enum.necessary ? $i18n.t('cookies.necessary') : $i18n.t('cookies.optional')"
+                v-text="cookieType === ZodCookieTypeEnum.enum.necessary ? t('cookies.necessary') : t('cookies.optional')"
               />
               <ul>
                 <li

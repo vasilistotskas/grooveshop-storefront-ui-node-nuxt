@@ -18,7 +18,6 @@ const {
 } = useAllAuthAccount()
 const toast = useToast()
 const { t } = useI18n()
-const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
@@ -38,15 +37,15 @@ const data = computed(() => {
 const emailFormZodSchema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.email.valid'),
+      ? t('validation.required')
+      : t('validation.email.valid'),
   }),
 })
 
 const formSchema = computed(() => ({
   fields: [
     {
-      label: $i18n.t('email.title'),
+      label: t('email.title'),
       name: 'email',
       as: 'input',
       rules: emailFormZodSchema.shape.email,
@@ -56,7 +55,7 @@ const formSchema = computed(() => ({
       autocomplete: 'email',
       readonly: false,
       required: true,
-      placeholder: $i18n.t('email.title'),
+      placeholder: t('email.title'),
       condition: () => true,
       disabledCondition: () => false,
       type: 'email',
@@ -142,7 +141,7 @@ async function markAsPrimaryEmail(values: EmailPatchBody) {
 const columns: TableColumn<EmailAddress>[] = [
   {
     accessorKey: 'email',
-    header: $i18n.t('email.title'),
+    header: t('email.title'),
   },
   {
     accessorKey: 'verified',
@@ -241,7 +240,7 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
           dark:text-primary-50
         "
       >
-        {{ $i18n.t('email.add') }}
+        {{ t('email.add') }}
       </h2>
       <div
         class="
@@ -251,7 +250,7 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
       >
         <section class="grid items-center">
           <DynamicForm
-            :button-label="$i18n.t('submit')"
+            :button-label="t('submit')"
             :loading="loading"
             :reset-on-submit="true"
             :schema="formSchema"

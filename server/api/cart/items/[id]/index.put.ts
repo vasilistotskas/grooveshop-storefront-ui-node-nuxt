@@ -14,7 +14,6 @@ export default defineEventHandler(async (event) => {
       {
         method: 'PUT',
         headers,
-        credentials: 'include',
         body,
       },
     )

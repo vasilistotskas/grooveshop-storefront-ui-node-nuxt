@@ -2,25 +2,14 @@
 import type { AccordionItem } from '#ui/types'
 
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { columns } = useFooterLinks()
 
-const items = ref<AccordionItem[]>([{
-  label: t('about.us'),
-  icon: 'i-heroicons-information-circle',
-  slot: 'about',
-}, {
-  label: t('microlearning.title'),
-  icon: 'i-heroicons-light-bulb',
-  slot: 'micro-learning',
-}, {
-  label: t('terms_conditions'),
-  icon: 'i-heroicons-rectangle-group',
-  slot: 'terms-conditions',
-}, {
-  label: t('help_center'),
-  icon: 'i-heroicons-chat-bubble-oval-left',
-  slot: 'contact',
-}])
+const items = computed<AccordionItem[]>(() =>
+  columns.value.map(column => ({
+    label: column.label,
+    icon: column.icon,
+  })),
+)
 </script>
 
 <template>
@@ -40,137 +29,18 @@ const items = ref<AccordionItem[]>([{
         trailingIcon: 'text-white',
       }"
     >
-      <template #about>
+      <template #body="{ index }">
         <div
+          v-for="link in columns[index]?.children"
+          :key="link.to"
           class="
             text-primary-950
             dark:text-primary-50
           "
         >
           <UButton
-            :label="t('about.site')"
-            :to="localePath('about')"
-            class="font-semibold"
-            color="secondary"
-            size="xl"
-            type="button"
-            variant="link"
-          />
-        </div>
-        <div
-          class="
-            text-primary-950
-            dark:text-primary-50
-          "
-        >
-          <UButton
-            :label="t('vision')"
-            :to="localePath('vision')"
-            class="font-semibold"
-            color="secondary"
-            size="xl"
-            type="button"
-            variant="link"
-          />
-        </div>
-      </template>
-
-      <template #micro-learning>
-        <div
-          class="
-            text-primary-950
-            dark:text-primary-50
-          "
-        >
-          <UButton
-            :label="t('microlearning.what')"
-            :to="localePath('what-is-microlearning')"
-            class="font-semibold"
-            color="secondary"
-            size="xl"
-            type="button"
-            variant="link"
-          />
-        </div>
-        <div
-          class="
-            text-primary-950
-            dark:text-primary-50
-          "
-        >
-          <UButton
-            :label="t('microlearning.why')"
-            :to="localePath('why-microlearning')"
-            class="font-semibold"
-            color="secondary"
-            size="xl"
-            type="button"
-            variant="link"
-          />
-        </div>
-      </template>
-
-      <template #terms-conditions>
-        <div
-          class="
-            text-primary-950
-            dark:text-primary-50
-          "
-        >
-          <UButton
-            :label="t('term_of_use')"
-            :to="localePath('terms-of-use')"
-            class="font-semibold"
-            color="secondary"
-            size="xl"
-            type="button"
-            variant="link"
-          />
-        </div>
-        <div
-          class="
-            text-primary-950
-            dark:text-primary-50
-          "
-        >
-          <UButton
-            :label="t('privacy_policy')"
-            :to="localePath('privacy-policy')"
-            class="font-semibold"
-            color="secondary"
-            size="xl"
-            type="button"
-            variant="link"
-          />
-        </div>
-        <div
-          class="
-            text-primary-950
-            dark:text-primary-50
-          "
-        >
-          <UButton
-            :label="t('cookies_policy')"
-            :to="localePath('cookies-policy')"
-            class="font-semibold"
-            color="secondary"
-            size="xl"
-            type="button"
-            variant="link"
-          />
-        </div>
-      </template>
-
-      <template #contact>
-        <div
-          class="
-            text-primary-950
-            dark:text-primary-50
-          "
-        >
-          <UButton
-            :label="t('title')"
-            :to="localePath('contact')"
+            :label="link.label"
+            :to="localePath(link.to as any)"
             class="font-semibold"
             color="secondary"
             size="xl"
@@ -182,21 +52,3 @@ const items = ref<AccordionItem[]>([{
     </UAccordion>
   </footer>
 </template>
-
-<i18n lang="yaml">
-el:
-  title: Επικοινωνία
-  help_center: Κέντρο βοηθείας
-  terms_conditions: Όροι και Προϋποθέσεις
-  term_of_use: Όροι Χρήσης
-  vision: Όραμα
-  privacy_policy: Πολιτική Απορρήτου
-  cookies_policy: Πολιτική Cookies
-  about:
-    us: Σχετικά με εμάς
-    site: Τι είναι το Webside
-  microlearning:
-    title: Microlearning
-    why: Γιατί Microlearning
-    what: Τι είναι το Microlearning
-</i18n>

@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+const { t } = useI18n()
 const props = defineProps({
   currentStep: {
     type: Number,
@@ -22,8 +23,6 @@ const { currentStep, lastStep } = toRefs(props)
 
 const emit = defineEmits(['goToNextStep', 'goToPreviousStep', 'submit'])
 
-const { $i18n } = useNuxtApp()
-
 const hasPrevious = computed(() => {
   return currentStep.value > 0
 })
@@ -46,7 +45,7 @@ const handleSubmit = () => {
       icon="i-heroicons-chevron-left"
       color="neutral"
       variant="ghost"
-      :label="$i18n.t('previous')"
+      :label="t('previous')"
       @click="emit('goToPreviousStep')"
     />
     <UButton
@@ -55,7 +54,7 @@ const handleSubmit = () => {
       :disabled="nextStepButtonDisabled"
       color="neutral"
       variant="solid"
-      :label="$i18n.t('next')"
+      :label="t('next')"
       trailing
       @click="emit('goToNextStep')"
     />

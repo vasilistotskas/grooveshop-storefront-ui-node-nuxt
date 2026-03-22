@@ -20,12 +20,6 @@ const alt = computed(() => {
   return extractTranslated(cartItem?.value?.product, 'name', locale.value)
 })
 
-// Initialize shared quantity state for QuantitySelector
-useState<number>(
-  `${cartItem?.value?.id}-quantity`,
-  () => cartItem?.value?.quantity || 0,
-)
-
 const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
   await deleteCartItem(cartItemId)
 }

@@ -1,5 +1,10 @@
 import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
 
+export const ALLAUTH_API_PREFIX = '/api/_allauth/app/v1' as const
+export const ALLAUTH_AUTH_URL = `${ALLAUTH_API_PREFIX}/auth` as const
+export const ALLAUTH_ACCOUNT_URL = `${ALLAUTH_API_PREFIX}/account` as const
+export const ALLAUTH_CONFIG_URL = `${ALLAUTH_API_PREFIX}/config` as const
+
 export const floorChoicesList: { name: FloorEnum, value: FloorEnum }[]
   = zFloorEnum.options.map(opt => ({
     name: opt,

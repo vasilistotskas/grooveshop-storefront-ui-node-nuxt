@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+const { t } = useI18n()
 const route = useRoute()
 const { $i18n } = useNuxtApp()
 const locale = computed(() => $i18n.locale.value)
@@ -22,34 +23,34 @@ const shouldPreserveScroll = ref(false)
 const emptyStateDescription = computed(() => {
   // No filters active - generic message
   if (!hasActiveFilters.value) {
-    return $i18n.t('products.no_results.no_filters')
+    return t('products.no_results.no_filters')
   }
 
   // Build contextual suggestions based on active filters
   const suggestions: string[] = []
 
   if (filters.value.search) {
-    suggestions.push($i18n.t('products.no_results.try_different_search'))
+    suggestions.push(t('products.no_results.try_different_search'))
   }
 
   if (filters.value.priceMin !== undefined || filters.value.priceMax !== undefined) {
-    suggestions.push($i18n.t('products.no_results.try_broader_price'))
+    suggestions.push(t('products.no_results.try_broader_price'))
   }
 
   if (filters.value.categories.length > 0) {
-    suggestions.push($i18n.t('products.no_results.try_different_category'))
+    suggestions.push(t('products.no_results.try_different_category'))
   }
 
   if (filters.value.likesMin !== undefined) {
-    suggestions.push($i18n.t('products.no_results.try_lower_popularity'))
+    suggestions.push(t('products.no_results.try_lower_popularity'))
   }
 
   if (filters.value.viewsMin !== undefined) {
-    suggestions.push($i18n.t('products.no_results.try_lower_views'))
+    suggestions.push(t('products.no_results.try_lower_views'))
   }
 
   if (filters.value.attributeValues.length > 0) {
-    suggestions.push($i18n.t('products.no_results.try_different_attributes'))
+    suggestions.push(t('products.no_results.try_different_attributes'))
   }
 
   // Return first suggestion or generic message
@@ -57,7 +58,7 @@ const emptyStateDescription = computed(() => {
     return suggestions[0]
   }
 
-  return $i18n.t('products.no_results.description')
+  return t('products.no_results.description')
 })
 
 // Default items per page - matches Toolbar default
@@ -314,11 +315,11 @@ if (shouldFetchFavouriteProducts.value) {
     <UEmpty
       v-else-if="!products?.results?.length"
       icon="i-heroicons-magnifying-glass-minus"
-      :title="$i18n.t('products.no_results.title')"
+      :title="t('products.no_results.title')"
       :description="emptyStateDescription"
       :actions="hasActiveFilters ? [
         {
-          label: $i18n.t('products.no_results.clear_filters'),
+          label: t('products.no_results.clear_filters'),
           size: 'xl',
           color: 'primary',
           variant: 'solid',
@@ -356,7 +357,7 @@ if (shouldFetchFavouriteProducts.value) {
       >
         <!-- Page info -->
         <div class="text-sm text-gray-600 dark:text-gray-200">
-          {{ $i18n.t('pagination.page_info', { current: page, total: totalPages }) }}
+          {{ t('pagination.page_info', { current: page, total: totalPages }) }}
         </div>
 
         <!-- Pagination controls -->
@@ -373,7 +374,7 @@ if (shouldFetchFavouriteProducts.value) {
           active-variant="solid"
           :sibling-count="isMobile ? 0 : 1"
           :show-edges="false"
-          :aria-label="$i18n.t('pagination.navigation')"
+          :aria-label="t('pagination.navigation')"
           :ui="{
             root: 'flex items-center gap-2',
             list: 'flex items-center gap-1.5',
@@ -410,7 +411,7 @@ if (shouldFetchFavouriteProducts.value) {
       aria-atomic="true"
       class="sr-only"
     >
-      {{ $i18n.t('products.results_count', { count: totalResults }) }}
+      {{ t('products.results_count', { count: totalResults }) }}
     </div>
   </div>
 </template>

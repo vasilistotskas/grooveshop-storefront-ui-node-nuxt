@@ -4,7 +4,6 @@ const emit = defineEmits(['deactivateTotp'])
 const { deactivateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
-const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 
 const loading = ref(false)
@@ -13,9 +12,6 @@ const showConfirmation = ref(false)
 const { error, refresh } = await useAsyncData(
   'totpAuthenticatorStatus',
   () => totpAuthenticatorStatus(),
-  {
-    server: false, // User-specific data: client-side only
-  },
 )
 
 watchEffect(async () => {
@@ -30,7 +26,7 @@ async function onConfirm() {
     await deactivateTotp()
 
     toast.add({
-      title: $i18n.t('success.title'),
+      title: t('success.title'),
       description: t('success.description'),
       color: 'success',
       icon: 'i-heroicons-shield-check',
@@ -210,7 +206,7 @@ definePageMeta({
             "
           >
             <UButton
-              :label="$i18n.t('cancel')"
+              :label="t('cancel')"
               color="neutral"
               variant="outline"
               size="lg"
@@ -218,7 +214,7 @@ definePageMeta({
               @click="onCancel"
             />
             <UButton
-              :label="$i18n.t('deactivate')"
+              :label="t('deactivate')"
               color="error"
               size="lg"
               icon="i-heroicons-shield-exclamation"

@@ -18,7 +18,6 @@ const { t } = useI18n()
 const toast = useToast()
 const { contentShorten } = useText()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const isDeleting = ref(false)
 
@@ -187,7 +186,7 @@ const addressDetails = computed(() => {
             dark:text-gray-300
           "
         >
-          {{ $i18n.t('floor') }}: {{ address.floor }}
+          {{ t('floor') }}: {{ address.floor }}
         </span>
       </div>
 

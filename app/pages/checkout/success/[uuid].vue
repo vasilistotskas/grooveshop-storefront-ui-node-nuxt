@@ -7,9 +7,12 @@ const route = useRoute('checkout-success-uuid')
 const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
 
 const sessionId = computed(() => route.query.session_id as string | undefined)
-const fromCheckout = computed(() => !!sessionId.value)
+const vivaOrderCode = computed(() => route.query.s as string | undefined)
+const fromViva = computed(() => !!vivaOrderCode.value)
+const fromCheckout = computed(() => !!sessionId.value || fromViva.value)
 const sessionVerified = ref(false)
 const verifyingSession = ref(false)
+const pollAttempt = ref(0)
 
 const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
@@ -62,32 +65,43 @@ const totalPriceExtra = computed(() => order.value?.totalPriceExtra || 0)
 const trackingNumber = computed(() => order.value?.trackingNumber)
 const shippingCarrier = computed(() => order.value?.shippingCarrier)
 
-// Verify payment session once when coming from checkout
+// Poll order status when coming from a payment provider.
+// Viva Wallet webhooks can be delayed, so poll more aggressively.
 onMounted(async () => {
-  if (sessionId.value && order.value && !order.value.isPaid) {
-    verifyingSession.value = true
-    try {
-      // Wait a bit for webhook to process
-      await new Promise(resolve => setTimeout(resolve, 2000))
+  if (!fromCheckout.value || !order.value) return
 
-      // Refresh order data once
+  if (order.value.isPaid) {
+    sessionVerified.value = true
+    return
+  }
+
+  verifyingSession.value = true
+  // Viva webhooks can be slow; Stripe is typically fast
+  const maxAttempts = fromViva.value ? 15 : 5
+  const interval = 2000
+
+  try {
+    for (let i = 0; i < maxAttempts; i++) {
+      pollAttempt.value = i + 1
+      await new Promise(resolve => setTimeout(resolve, interval))
       await refresh()
 
-      // Mark as verified regardless of payment status
-      // The order status will show the actual payment state
-      sessionVerified.value = true
+      const status = order.value?.paymentStatus?.toLowerCase() || ''
+      if (
+        order.value?.isPaid
+        || ['completed', 'failed', 'canceled', 'refunded'].includes(status)
+      ) {
+        break
+      }
     }
-    catch (err) {
-      log.error({ action: 'checkout:verifySession', error: err })
-      sessionVerified.value = true // Mark as verified even on error
-    }
-    finally {
-      verifyingSession.value = false
-    }
-  }
-  else if (sessionId.value && order.value?.isPaid) {
-    // Already paid, mark as verified immediately
     sessionVerified.value = true
+  }
+  catch (err) {
+    log.error({ action: 'checkout:verifySession', error: err })
+    sessionVerified.value = true
+  }
+  finally {
+    verifyingSession.value = false
   }
 })
 
@@ -209,7 +223,7 @@ definePageMeta({
     </UAlert>
 
     <UAlert
-      v-else-if="fromCheckout && sessionVerified"
+      v-else-if="fromCheckout && sessionVerified && isPaid"
       color="success"
       variant="subtle"
       icon="i-heroicons-check-circle"
@@ -220,6 +234,21 @@ definePageMeta({
       </template>
       <template #description>
         {{ t('payment.completed.description') }}
+      </template>
+    </UAlert>
+
+    <UAlert
+      v-else-if="fromCheckout && sessionVerified && !isPaid"
+      color="warning"
+      variant="subtle"
+      icon="i-heroicons-clock"
+      class="mx-auto max-w-2xl"
+    >
+      <template #title>
+        {{ t('payment.processing.title') }}
+      </template>
+      <template #description>
+        {{ t('payment.processing.description') }}
       </template>
     </UAlert>
 
@@ -414,8 +443,11 @@ el:
     pending: Εκκρεμεί
     method: Τρόπος Πληρωμής
     completed:
-      title: Η παραγγελία ολοκληρώθηκε
-      description: Η παραγγελία σου επιβεβαιώθηκε και θα λάβεις email επιβεβαίωσης σύντομα.
+      title: Η πληρωμή ολοκληρώθηκε
+      description: Η πληρωμή σου επιβεβαιώθηκε και θα λάβεις email επιβεβαίωσης σύντομα.
+    processing:
+      title: Η πληρωμή επεξεργάζεται
+      description: Η παραγγελία σου καταχωρήθηκε. Η επιβεβαίωση πληρωμής μπορεί να καθυστερήσει λίγα λεπτά.
   tracking:
     number: Αριθμός Παρακολούθησης
   shipping:
