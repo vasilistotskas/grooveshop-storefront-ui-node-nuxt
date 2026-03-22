@@ -294,11 +294,7 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: false,
-      routes: [
-        '/_ipx/q_80&s_145x30/img/logo-navbar.svg',
-        '/_ipx/f_avif&q_80&fit_cover&s_1194x418/img/main-banner.png',
-        '/_ipx/f_avif&q_80&fit_cover&s_510x638/img/main-banner-mobile.png',
-      ],
+      ignore: ['/_ipx/**'],
     },
     esbuild: {
       options: {
