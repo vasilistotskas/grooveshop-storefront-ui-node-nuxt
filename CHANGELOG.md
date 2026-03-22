@@ -1,3 +1,10 @@
+# [3.75.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.74.0...v3.75.0) (2026-03-22)
+
+
+### Features
+
+* code cleanup ([7b13231](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7b1323137c2c46e45717ea3f2c84fd17e52dc3fe))
+
 # [3.74.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.73.6...v3.74.0) (2026-03-01)
 
 
