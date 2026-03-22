@@ -29,6 +29,8 @@ RUN pnpm run build
 
 FROM node:${NODE_VERSION}-alpine AS production
 
+RUN apk add --no-cache vips
+
 ENV NODE_ENV=production
 
 WORKDIR /app
