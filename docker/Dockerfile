@@ -5,6 +5,8 @@ FROM node:${NODE_VERSION}-alpine AS build
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
+RUN apk add --no-cache python3 make g++ vips-dev
+
 RUN npm install -g pnpm@latest
 
 WORKDIR /app

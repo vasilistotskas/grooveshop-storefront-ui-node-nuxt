@@ -294,7 +294,7 @@ export default defineNuxtConfig({
   nitro: {
     prerender: {
       crawlLinks: false,
-      ignore: ['/_ipx/**'],
+      ignore: ['/_ipx/'],
     },
     esbuild: {
       options: {
