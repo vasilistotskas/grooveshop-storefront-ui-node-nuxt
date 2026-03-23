@@ -203,6 +203,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
     }
     catch (error: any) {
       log.error({ action: 'checkout:orderCreation', error })
+      toast.add({
+        title: t('payment_intent_error'),
+        description: error?.data?.message || error?.message || t('payment_intent_error_description'),
+        color: 'error',
+      })
     }
   }
 
@@ -233,6 +238,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
     }
     catch (error: any) {
       log.error({ action: 'checkout:vivaWalletOrderCreation', error })
+      toast.add({
+        title: t('payment_intent_error'),
+        description: error?.data?.message || error?.message || t('payment_intent_error_description'),
+        color: 'error',
+      })
     }
   }
 

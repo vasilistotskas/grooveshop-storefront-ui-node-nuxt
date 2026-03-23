@@ -5,7 +5,12 @@
   "subscriptions": "Ειδοποιήσεις",
   "loyalty": "Πρόγραμμα Επιβράβευσης",
   "error": {
-    "default": "Σφάλμα"
+    "default": "Σφάλμα",
+    "page": {
+      "not": {
+        "found": "Η σελίδα δεν βρέθηκε"
+      }
+    }
   },
   "subscription_notifications": {
     "subscribe": {

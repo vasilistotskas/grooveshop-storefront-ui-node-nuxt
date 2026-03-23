@@ -9,7 +9,7 @@ defineSlots<{
     :toggle="false"
     title=""
     :ui="{
-      root: 'border-b-0 h-auto',
+      root: 'h-auto border-b-0',
       container: `
         max-w-full px-0
         sm:px-0

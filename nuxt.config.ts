@@ -423,6 +423,7 @@ export default defineNuxtConfig({
           'el-GR.json',
           'auth/el-GR.json',
           'breadcrumb/el-GR.json',
+          'checkout/el-GR.json',
           'cookies/el-GR.json',
           'validation/el-GR.json',
         ],
