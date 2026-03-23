@@ -1,3 +1,10 @@
+## [3.75.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.75.4...v3.75.5) (2026-03-23)
+
+
+### Bug Fixes
+
+* checkout locales ([27444d0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/27444d057a100b51d3c8ed9e7e35d14f174dc436))
+
 ## [3.75.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.75.3...v3.75.4) (2026-03-23)
 
 
