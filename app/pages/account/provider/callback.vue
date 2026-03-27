@@ -5,7 +5,8 @@ const {
 const authStore = useAuthStore()
 const { refreshSession } = authStore
 
-const route = useRoute('account-provider-callback')
+const { t, locale } = useI18n()
+const route = useRoute(`account-provider-callback___${locale.value}`)
 const localePath = useLocalePath()
 
 const {
@@ -17,7 +18,6 @@ const {
 } = route.query
 // NOTE: access_token, id_token, client_id are now fetched from session API, not URL
 
-const { t } = useI18n()
 const authInfo = useAuthInfo()
 
 const url = ref<typeof RedirectToURLs[keyof typeof RedirectToURLs]>(RedirectToURLs.LOGIN_URL)

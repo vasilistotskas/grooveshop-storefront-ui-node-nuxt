@@ -69,7 +69,7 @@ cursorState.value[cursorKey.value] = ''
 const cursor = computed(() => cursorState.value[cursorKey.value] ?? '')
 
 const route = useRoute()
-const blogPostId = computed(() => route.params.id as string)
+const blogPostId = computed(() => (route.params as Record<string, string>).id)
 
 const likeClicked = (event: { blogCommentId: number, liked: boolean }) => {
   if (event.liked) {

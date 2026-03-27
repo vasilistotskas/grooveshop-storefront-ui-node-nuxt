@@ -75,7 +75,7 @@ const items = computed(() => {
             icon: 'i-heroicons-key',
             value: 'account-2fa-webauthn-section',
             defaultOpen: ['account-2fa-webauthn', 'account-2fa-webauthn-add'].includes(
-              $routeBaseName(route) || '',
+              ($routeBaseName(route) as string) || '',
             ),
             children: [
               ...(recoveryCodesAuthenticator.value
@@ -109,7 +109,7 @@ const items = computed(() => {
               icon: 'i-heroicons-ticket',
               value: 'account-2fa-recovery-section',
               defaultOpen: ['account-2fa-recovery-codes', 'account-2fa-recovery-codes-generate'].includes(
-                $routeBaseName(route) || '',
+                ($routeBaseName(route) as string) || '',
               ),
               children: [
                 {

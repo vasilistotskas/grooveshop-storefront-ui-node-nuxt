@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-const route = useRoute('blog-post-id-slug')
 const { t, locale } = useI18n()
+const route = useRoute(`blog-post-id-slug___${locale.value}`)
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const siteConfig = useSiteConfig()

@@ -392,7 +392,10 @@ export default defineNuxtConfig({
     },
   },
   eslint: {
-    checker: true,
+    checker: {
+      eslintPath: 'eslint',
+      lintOnStart: true,
+    },
     config: {
       stylistic: true,
     },

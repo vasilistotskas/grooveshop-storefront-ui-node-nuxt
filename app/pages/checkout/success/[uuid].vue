@@ -3,7 +3,8 @@ import type { TableColumn } from '#ui/types'
 
 const UAvatar = resolveComponent('UAvatar')
 
-const route = useRoute('checkout-success-uuid')
+const { t, locale } = useI18n()
+const route = useRoute(`checkout-success-uuid___${locale.value}`)
 const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
 
 const sessionId = computed(() => route.query.session_id as string | undefined)
@@ -15,7 +16,6 @@ const verifyingSession = ref(false)
 const pollAttempt = ref(0)
 
 const { $i18n } = useNuxtApp()
-const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const img = useImage()
 

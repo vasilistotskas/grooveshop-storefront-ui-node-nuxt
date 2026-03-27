@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-const { t } = useI18n()
-const route = useRoute('account-favourites-posts')
+const { t, locale } = useI18n()
+const route = useRoute(`account-favourites-posts___${locale.value}`)
 const { user } = useUserSession()
 const { enabled } = useAuthPreviewMode()
 

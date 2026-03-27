@@ -4,7 +4,7 @@ import type { FormSubmitEvent } from '#ui/types'
 
 const { t, locale } = useI18n()
 const toast = useToast()
-const route = useRoute('account-addresses-id-edit')
+const route = useRoute(`account-addresses-id-edit___${locale.value}`)
 const localePath = useLocalePath()
 
 const addressId = 'id' in route.params ? route.params.id : undefined

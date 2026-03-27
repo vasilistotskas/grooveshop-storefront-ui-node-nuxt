@@ -23,7 +23,7 @@ const isScrolled = ref(false)
 const routeName = computed(() => $routeBaseName(route))
 const isPageWithH1 = computed(() => {
   if (!routeName.value) return false
-  return ['blog-post-id-slug'].includes(routeName.value)
+  return ['blog-post-id-slug'].includes(routeName.value as string)
 })
 
 const appTitle = computed(() => config.public.appTitle as string)

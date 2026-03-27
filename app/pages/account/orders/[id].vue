@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
-const route = useRoute('account-orders-id')
+const route = useRoute(`account-orders-id___${locale.value}`)
 const orderId = 'id' in route.params
   ? route.params.id
   : undefined

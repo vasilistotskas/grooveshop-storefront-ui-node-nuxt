@@ -3,9 +3,9 @@ const emit = defineEmits(['emailVerify'])
 
 const { emailVerify, getEmailVerify } = useAllAuthAuthentication()
 const toast = useToast()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
-const route = useRoute('account-verify-email-key')
+const route = useRoute(`account-verify-email-key___${locale.value}`)
 const router = useRouter()
 const { isMobileOrTablet } = useDevice()
 

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-const { t } = useI18n()
-const route = useRoute('account-favourites-products')
+const { t, locale } = useI18n()
+const route = useRoute(`account-favourites-products___${locale.value}`)
 const { user } = useUserSession()
 const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore

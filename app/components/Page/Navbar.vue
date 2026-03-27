@@ -14,7 +14,7 @@ const routeName = computed(() => $routeBaseName(route))
 
 const onClickLogout = async () => {
   if (!routeName.value) return
-  if (isRouteProtected(routeName.value))
+  if (isRouteProtected(String(routeName.value)))
     await navigateTo(localePath('index'))
 
   await cleanCartState()

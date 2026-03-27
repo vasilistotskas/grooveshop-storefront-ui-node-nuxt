@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-const { t } = useI18n()
-const route = useRoute('account-addresses')
+const { t, locale } = useI18n()
+const route = useRoute(`account-addresses___${locale.value}`)
 const { user } = useUserSession()
 const localePath = useLocalePath()
 

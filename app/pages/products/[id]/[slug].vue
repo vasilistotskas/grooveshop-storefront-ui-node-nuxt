@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { TabsItem, ButtonProps } from '#ui/types'
 
-const route = useRoute('products-id-slug')
 const { t, locale } = useI18n()
+const route = useRoute(`products-id-slug___${locale.value}`)
 const { y: scrollY } = useWindowScroll()
 
 const { user, loggedIn } = useUserSession()
