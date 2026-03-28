@@ -1,3 +1,10 @@
+## [3.76.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.76.0...v3.76.1) (2026-03-28)
+
+
+### Bug Fixes
+
+* **cart:** support authenticated and guest carts with proper cleanup ([615b8d4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/615b8d4e4b22fc4c1407ed95f65153d4c296517b))
+
 # [3.76.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.75.5...v3.76.0) (2026-03-27)
 
 
