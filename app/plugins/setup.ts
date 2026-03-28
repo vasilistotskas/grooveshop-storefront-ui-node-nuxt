@@ -7,7 +7,7 @@ export default defineNuxtPlugin({
     const userStore = useUserStore()
     const { setupAccount } = userStore
     const cartStore = useCartStore()
-    const { setupCart } = cartStore
+    const { setupCart, cleanCartState } = cartStore
     const authStore = useAuthStore()
     const { setupConfig, setupSession, setupSessions, setupAuthenticators } = authStore
     const userNotificationStore = useUserNotificationStore()
@@ -54,8 +54,11 @@ export default defineNuxtPlugin({
           setupAuthenticators(),
           setupNotifications(),
         ])
+        await setupCart()
       }
-      await setupCart()
+      else {
+        await cleanCartState()
+      }
     }, { immediate: false })
   },
 })

@@ -4,11 +4,15 @@ export default defineEventHandler(async (event) => {
   const wideLog = useLogger(event)
   try {
     const sessionData = await cartSession.getSession()
+    const accessToken = await getAllAuthAccessToken(event)
 
-    if (!sessionData.cartId) {
+    // Need either a guest cartId or an authenticated user to fetch the cart
+    if (!sessionData.cartId && !accessToken) {
       return null
     }
-    wideLog.set({ cart: { id: sessionData.cartId } })
+    if (sessionData.cartId) {
+      wideLog.set({ cart: { id: sessionData.cartId } })
+    }
 
     const headers = await cartSession.getCartHeaders()
 

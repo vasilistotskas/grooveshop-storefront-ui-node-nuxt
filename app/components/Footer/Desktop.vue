@@ -18,10 +18,12 @@ const packageVersion = pkg.version
     "
   >
     <template #top>
-      <UFooterColumns
-        :columns="columns"
-        class="py-8"
-      />
+      <UContainer>
+        <UFooterColumns
+          :columns="columns"
+          :ui="{ center: 'xl:col-span-3' }"
+        />
+      </UContainer>
     </template>
 
     <template #left>

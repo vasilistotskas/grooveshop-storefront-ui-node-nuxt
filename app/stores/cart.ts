@@ -131,29 +131,27 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function setupCart() {
-    const { enabled } = useAuthPreviewMode()
-
-    if (!enabled.value) {
-      return
-    }
-
+    const headers = useRequestHeaders()
     try {
       pending.value = true
 
       const hasExistingCart = await $fetch('/api/cart/check', {
         method: 'GET',
-        headers: useRequestHeaders(),
+        headers,
       })
 
       if (hasExistingCart) {
         const data = await $fetch('/api/cart', {
           method: 'GET',
-          headers: useRequestHeaders(),
+          headers,
         })
 
         if (data) {
           cart.value = data
         }
+      }
+      else {
+        cart.value = null
       }
 
       error.value = null
