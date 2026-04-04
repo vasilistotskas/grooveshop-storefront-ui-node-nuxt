@@ -1,3 +1,10 @@
+# [3.78.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.77.0...v3.78.0) (2026-04-04)
+
+
+### Features
+
+* harden security, optimize caching, and bump dependencies ([8be1b10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8be1b107a5fbc6825a8533fd423fca08c936e6a2))
+
 # [3.77.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.76.1...v3.77.0) (2026-03-31)
 
 
