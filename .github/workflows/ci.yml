@@ -3,8 +3,22 @@ name: CI
 on:
   push:
     branches: ['main']
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.editorconfig'
   pull_request:
     branches: ['main']
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE'
+      - '.editorconfig'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -13,9 +27,20 @@ env:
   SYSTEM_ENV: ci
 
 jobs:
-  quality:
-    name: Code Quality
+  ci:
+    name: Quality, Test & Build
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      redis:
+        image: redis:8-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -49,31 +74,7 @@ jobs:
         run: npx vue-tsc --noEmit
         continue-on-error: true
 
-  test:
-    name: Testing
-    needs: quality
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v5
-        with:
-          run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24.x'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@vasilistotskas'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Run unit/nuxt tests with coverage (exclude e2e for now)
+      - name: Run tests with coverage
         run: pnpm run test:ci
         env:
           NODE_ENV: test
@@ -96,51 +97,9 @@ jobs:
             " >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: Upload coverage artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: coverage-report
-          path: coverage/
-          retention-days: 7
-
-  build:
-    name: Build
-    needs: test
-    runs-on: ubuntu-latest
-    services:
-      redis:
-        image: redis:8-alpine
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v5
-        with:
-          run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24.x'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@vasilistotskas'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
       - name: Create .env file from GitHub variables and secrets
         env:
           ALL_VARS: ${{ toJSON(vars) }}
-          # Secrets must be explicitly listed (GitHub doesn't allow dynamic iteration)
           NUXT_SESSION_PASSWORD: ${{ secrets.NUXT_SESSION_PASSWORD }}
           NUXT_SECRET_KEY: ${{ secrets.NUXT_SECRET_KEY }}
           NUXT_OAUTH_GOOGLE_CLIENT_SECRET: ${{ secrets.NUXT_OAUTH_GOOGLE_CLIENT_SECRET }}
@@ -150,12 +109,9 @@ jobs:
           NUXT_OAUTH_DISCORD_CLIENT_SECRET: ${{ secrets.NUXT_OAUTH_DISCORD_CLIENT_SECRET }}
           NUXT_OAUTH_DISCORD_CLIENT_ID: ${{ secrets.NUXT_OAUTH_DISCORD_CLIENT_ID }}
         run: |
-          # Add all NUXT_* variables (dynamic)
           echo "$ALL_VARS" | jq -r 'to_entries | .[] | select(.key | startswith("NUXT_")) | "\(.key)=\(.value)"' > .env
-          # Override Redis host for CI (use localhost instead of production hostname)
           echo "NUXT_REDIS_HOST=localhost" >> .env
           echo "NUXT_REDIS_PORT=6379" >> .env
-          # Add secrets (must be explicit) - use || true to prevent exit code 1 when var is empty
           [ -n "$NUXT_SESSION_PASSWORD" ] && echo "NUXT_SESSION_PASSWORD=$NUXT_SESSION_PASSWORD" >> .env || true
           [ -n "$NUXT_SECRET_KEY" ] && echo "NUXT_SECRET_KEY=$NUXT_SECRET_KEY" >> .env || true
           [ -n "$NUXT_OAUTH_GOOGLE_CLIENT_SECRET" ] && echo "NUXT_OAUTH_GOOGLE_CLIENT_SECRET=$NUXT_OAUTH_GOOGLE_CLIENT_SECRET" >> .env || true
@@ -181,9 +137,18 @@ jobs:
             pnpm-lock.yaml
           retention-days: 7
 
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
   schema-freshness:
     name: OpenAPI Schema Freshness
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -218,9 +183,10 @@ jobs:
 
   release:
     name: Release
-    needs: build
+    needs: ci
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     concurrency: release
     permissions:
       contents: write
