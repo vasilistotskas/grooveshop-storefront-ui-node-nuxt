@@ -1,4 +1,4 @@
-export function parseBoolean(value: any): boolean | undefined {
+export function parseBoolean(value: unknown): boolean | undefined {
   if (value === true || value === 'true') {
     return true
   }
