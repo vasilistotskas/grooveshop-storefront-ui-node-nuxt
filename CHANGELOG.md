@@ -1,3 +1,10 @@
+## [3.78.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.78.1...v3.78.2) (2026-04-04)
+
+
+### Bug Fixes
+
+* update server routes to match regenerated OpenAPI schema names ([0b73851](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0b7385108009499143f3990733f193847acc0b71))
+
 ## [3.78.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.78.0...v3.78.1) (2026-04-04)
 
 
