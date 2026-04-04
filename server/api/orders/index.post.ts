@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     wideLog.set({ order: { created: true } })
-    const body = await readValidatedBody(event, zCreateOrderData.shape.body.parse)
+    const body = await readValidatedBody(event, zCreateOrderBody.parse)
     const cartHeaders = await cartSession.getCartHeaders()
 
     const response = await $fetch(`${config.apiBaseUrl}/order`, {

@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zDestroyProductFavouriteData.shape.path.parse,
+      zDestroyProductFavouritePath.parse,
     )
     await $fetch(
       `${config.apiBaseUrl}/product/favourite/${params.id}`,

@@ -4,10 +4,10 @@ export default defineEventHandler(async (event) => {
 
   try {
     const headers = await cartSession.getCartHeaders()
-    const body = await readValidatedBody(event, zUpdateCartItemData.shape.body.parse)
+    const body = await readValidatedBody(event, zUpdateCartItemBody.parse)
     const params = await getValidatedRouterParams(
       event,
-      zUpdateCartItemData.shape.path.parse,
+      zUpdateCartItemPath.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/cart/item/${params.id}`,

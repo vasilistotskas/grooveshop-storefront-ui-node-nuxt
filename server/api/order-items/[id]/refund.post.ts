@@ -4,9 +4,9 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zRefundOrderItemData.shape.path.parse,
+      zRefundOrderItemPath.parse,
     )
-    const body = await readValidatedBody(event, zRefundOrderItemData.shape.body.parse)
+    const body = await readValidatedBody(event, zRefundOrderItemBody.parse)
     const url = `${config.apiBaseUrl}/order-items/${params.id}/refund`
     const response = await $fetch(url, {
       method: 'POST',

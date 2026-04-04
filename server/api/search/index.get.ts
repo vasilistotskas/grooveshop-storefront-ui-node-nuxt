@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
   try {
-    const query = await getValidatedQuery(event, zSearchProductRetrieveData.shape.query.parse)
+    const query = await getValidatedQuery(event, zSearchProductRetrieveQuery.parse)
 
     if (!query?.query?.trim()) {
       return {

@@ -26,7 +26,7 @@ export default defineCachedEventHandler(async (event) => {
     // Validate query parameters with auto-imported Zod schema
     const query = await getValidatedQuery(
       event,
-      zSearchProductRetrieveData.shape.query.parse,
+      zSearchProductRetrieveQuery.parse,
     )
 
     // Ensure query is defined (validation should guarantee this)

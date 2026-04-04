@@ -1,7 +1,7 @@
 export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zListBlogCommentData.shape.query.parse)
+    const query = await getValidatedQuery(event, zListBlogCommentQuery.parse)
     const response = await $fetch(`${config.apiBaseUrl}/blog/comment`, {
       method: 'GET',
       query,

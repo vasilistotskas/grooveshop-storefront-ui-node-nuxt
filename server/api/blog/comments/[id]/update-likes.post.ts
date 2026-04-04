@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zToggleBlogCommentLikeData.shape.path.parse,
+      zToggleBlogCommentLikePath.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/blog/comment/${params.id}/update_likes`,

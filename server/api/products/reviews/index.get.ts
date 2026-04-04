@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zListProductReviewData.shape.query.parse)
+    const query = await getValidatedQuery(event, zListProductReviewQuery.parse)
     const response = await $fetch(`${config.apiBaseUrl}/product/review`, {
       method: 'GET',
       query,

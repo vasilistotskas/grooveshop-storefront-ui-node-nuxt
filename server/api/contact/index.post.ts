@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const body = await readValidatedBody(event, zCreateContactData.shape.body.parse)
+    const body = await readValidatedBody(event, zCreateContactBody.parse)
     const response = await $fetch(`${config.apiBaseUrl}/contact`, {
       method: 'POST',
       body,

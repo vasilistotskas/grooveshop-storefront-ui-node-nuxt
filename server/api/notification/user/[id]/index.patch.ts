@@ -4,11 +4,11 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zPartialUpdateNotificationUserData.shape.path.parse,
+      zPartialUpdateNotificationUserPath.parse,
     )
     const validatedBody = await readValidatedBody(
       event,
-      zPartialUpdateNotificationUserData.shape.body.parse,
+      zPartialUpdateNotificationUserBody.parse,
     )
     const response = await $fetch(`${config.apiBaseUrl}/notification/user/${params.id}`, {
       body: validatedBody,

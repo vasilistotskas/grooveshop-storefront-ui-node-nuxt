@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zDestroyNotificationUserData.shape.path.parse,
+      zDestroyNotificationUserPath.parse,
     )
     await $fetch(
       `${config.apiBaseUrl}/notification/user/${params.id}`,

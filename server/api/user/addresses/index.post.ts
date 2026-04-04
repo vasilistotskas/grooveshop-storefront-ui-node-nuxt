@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const body = await readValidatedBody(event, zCreateUserAddressData.shape.body.parse)
+    const body = await readValidatedBody(event, zCreateUserAddressBody.parse)
     const response = await $fetch(`${config.apiBaseUrl}/user/address`, {
       method: 'POST',
       body,

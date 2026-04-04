@@ -4,9 +4,9 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zCancelOrderData.shape.path.parse,
+      zCancelOrderPath.parse,
     )
-    const body = await readValidatedBody(event, zCancelOrderData.shape.body.parse)
+    const body = await readValidatedBody(event, zCancelOrderBody.parse)
     const response = await $fetch(`${config.apiBaseUrl}/order/${params.id}/cancel`, {
       method: 'POST',
       body,

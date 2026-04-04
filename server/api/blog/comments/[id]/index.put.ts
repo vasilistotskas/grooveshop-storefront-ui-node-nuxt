@@ -2,10 +2,10 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const body = await readValidatedBody(event, zUpdateBlogCommentData.shape.body.parse)
+    const body = await readValidatedBody(event, zUpdateBlogCommentBody.parse)
     const params = await getValidatedRouterParams(
       event,
-      zUpdateBlogCommentData.shape.path.parse,
+      zUpdateBlogCommentPath.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/blog/comment/${params.id}`,

@@ -4,9 +4,9 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zGetUserAccountLikedBlogPostsData.shape.path.parse,
+      zGetUserAccountLikedBlogPostsPath.parse,
     )
-    const query = await getValidatedQuery(event, zGetUserAccountLikedBlogPostsData.shape.query.parse)
+    const query = await getValidatedQuery(event, zGetUserAccountLikedBlogPostsQuery.parse)
     const response = await $fetch(`${config.apiBaseUrl}/user/account/${params.id}/liked_blog_posts`, {
       method: 'GET',
       query,

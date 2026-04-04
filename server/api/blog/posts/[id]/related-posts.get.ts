@@ -3,7 +3,7 @@ export default defineCachedEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zListBlogPostRelatedData.shape.path.parse,
+      zListBlogPostRelatedPath.parse,
     )
     const response = await $fetch(`${config.apiBaseUrl}/blog/post/${params.id}/related_posts`, {
       method: 'GET',

@@ -1,7 +1,7 @@
 export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const params = await getValidatedRouterParams(event, zListProductReviewsData.shape.path.parse)
+    const params = await getValidatedRouterParams(event, zListProductReviewsPath.parse)
     const response = await $fetch(`${config.apiBaseUrl}/product/${params.id}/reviews`, {
       method: 'GET',
     })

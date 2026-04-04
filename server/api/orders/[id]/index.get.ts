@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zRetrieveOrderData.shape.path.parse,
+      zRetrieveOrderPath.parse,
     )
     const url = `${config.apiBaseUrl}/order/${params.id}`
     const response = await $fetch(url, {

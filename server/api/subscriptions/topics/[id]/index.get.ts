@@ -2,7 +2,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const params = await getValidatedRouterParams(event, zRetrieveSubscriptionTopicData.shape.path.parse)
+    const params = await getValidatedRouterParams(event, zRetrieveSubscriptionTopicPath.parse)
     const response = await $fetch(
       `${config.apiBaseUrl}/user/subscription/topic/${params.id}`,
       {

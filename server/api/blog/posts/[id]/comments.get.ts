@@ -3,9 +3,9 @@ export default defineCachedEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zListBlogPostCommentsData.shape.path.parse,
+      zListBlogPostCommentsPath.parse,
     )
-    const query = await getValidatedQuery(event, zListBlogPostCommentsData.shape.query.parse)
+    const query = await getValidatedQuery(event, zListBlogPostCommentsQuery.parse)
     const response = await $fetch(`${config.apiBaseUrl}/blog/post/${params.id}/comments`, {
       method: 'GET',
       query,

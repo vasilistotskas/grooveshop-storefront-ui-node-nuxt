@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     const headers = await cartSession.getCartHeaders()
     const params = await getValidatedRouterParams(
       event,
-      zDestroyCartItemData.shape.path.parse,
+      zDestroyCartItemPath.parse,
     )
     await $fetch(
       `${config.apiBaseUrl}/cart/item/${params.id}`,

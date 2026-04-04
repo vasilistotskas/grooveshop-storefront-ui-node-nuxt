@@ -4,9 +4,9 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zCreateOrderPaymentIntentData.shape.path.parse,
+      zCreateOrderPaymentIntentPath.parse,
     )
-    const body = await readValidatedBody(event, zCreateOrderPaymentIntentData.shape.body.parse)
+    const body = await readValidatedBody(event, zCreateOrderPaymentIntentBody.parse)
     const response = await $fetch(`${config.apiBaseUrl}/order/${params.id}/create_payment_intent`, {
       method: 'POST',
       body,

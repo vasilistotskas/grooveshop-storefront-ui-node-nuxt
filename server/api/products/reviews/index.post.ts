@@ -2,10 +2,10 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const body = await readValidatedBody(event, zCreateProductReviewData.shape.body.parse)
+    const body = await readValidatedBody(event, zCreateProductReviewBody.parse)
     const query = await getValidatedQuery(
       event,
-      zCreateProductReviewData.shape.query.parse,
+      zCreateProductReviewQuery.parse,
     )
     const response = await $fetch(`${config.apiBaseUrl}/product/review`, {
       method: 'POST',

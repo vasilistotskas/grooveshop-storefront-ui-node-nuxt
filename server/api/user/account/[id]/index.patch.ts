@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
     const form = await readFormData(event)
     const params = await getValidatedRouterParams(
       event,
-      zPartialUpdateUserAccountData.shape.path.parse,
+      zPartialUpdateUserAccountPath.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/user/account/${params.id}`,

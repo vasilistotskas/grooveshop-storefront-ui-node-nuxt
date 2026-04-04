@@ -4,9 +4,9 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readValidatedBody(
       event,
-      zCreateProductFavouriteData.shape.body.parse,
+      zCreateProductFavouriteBody.parse,
     )
-    const query = await getValidatedQuery(event, zCreateProductFavouriteData.shape.query.parse)
+    const query = await getValidatedQuery(event, zCreateProductFavouriteQuery.parse)
     const response = await $fetch(`${config.apiBaseUrl}/product/favourite`, {
       method: 'POST',
       body,

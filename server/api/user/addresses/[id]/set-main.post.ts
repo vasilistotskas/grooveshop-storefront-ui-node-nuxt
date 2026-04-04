@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zSetMainUserAddressData.shape.path.parse,
+      zSetMainUserAddressPath.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/user/address/${params.id}/set_main`,

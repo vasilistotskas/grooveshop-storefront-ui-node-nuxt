@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   const accessToken = await getAllAuthAccessToken(event)
 
   try {
-    const params = await getValidatedRouterParams(event, zGetProductLoyaltyPointsData.shape.path.parse)
+    const params = await getValidatedRouterParams(event, zGetProductLoyaltyPointsPath.parse)
     const productId = params.id
 
     const response = await $fetch(`${config.apiBaseUrl}/loyalty/product/${productId}/points`, {

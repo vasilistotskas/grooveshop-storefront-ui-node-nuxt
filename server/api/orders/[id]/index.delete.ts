@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zDestroyOrderData.shape.path.parse,
+      zDestroyOrderPath.parse,
     )
     await $fetch(`${config.apiBaseUrl}/order/${params.id}`, {
       method: 'DELETE',

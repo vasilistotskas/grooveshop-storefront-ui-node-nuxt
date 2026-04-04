@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   const accessToken = await getAllAuthAccessToken(event)
 
   try {
-    const body = await readValidatedBody(event, zRedeemLoyaltyPointsData.shape.body.parse)
+    const body = await readValidatedBody(event, zRedeemLoyaltyPointsBody.parse)
 
     const response = await $fetch(`${config.apiBaseUrl}/loyalty/redeem`, {
       method: 'POST',
