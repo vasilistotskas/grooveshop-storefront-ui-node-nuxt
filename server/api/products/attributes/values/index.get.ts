@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 /**
  * Fetch all product attribute values
  *
@@ -11,8 +13,10 @@ export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
   try {
-    // Get query parameters
-    const query = getQuery(event)
+    // Get and validate query parameters
+    const query = await getValidatedQuery(event, z.object({
+      languageCode: z.string().optional(),
+    }).passthrough().parse)
 
     // Build the backend query
     const backendQuery: Record<string, unknown> = {

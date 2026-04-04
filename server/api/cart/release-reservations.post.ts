@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 /**
  * Release stock reservations when customer abandons checkout.
  *
@@ -19,7 +21,9 @@ export default defineEventHandler(async (event) => {
   const cartSession = useCartSession(event)
 
   try {
-    const body = await readBody(event)
+    const body = await readValidatedBody(event, z.object({
+      reservationIds: z.array(z.number().int().positive()).max(100),
+    }).parse)
     const cartHeaders = await cartSession.getCartHeaders()
 
     // Call backend release-reservations endpoint

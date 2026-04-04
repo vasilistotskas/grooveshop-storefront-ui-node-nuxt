@@ -77,6 +77,10 @@ const [
   ),
 ])
 
+const sanitizedDescription = computed(() =>
+  cleanHtml(extractTranslated(product.value, 'description', locale.value) ?? ''),
+)
+
 const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value
 })
@@ -85,7 +89,6 @@ const shouldFetchFavouriteProducts = computed(() => {
 useLazyFetch('/api/products/favourites/favourites-by-products', {
   key: `favouritesByProducts${user.value?.id}`,
   method: 'POST',
-  headers: useRequestHeaders(),
   body: {
     productIds: [Number(productId)],
   },
@@ -106,7 +109,6 @@ useLazyFetch('/api/products/favourites/favourites-by-products', {
 const { data: userProductReview, refresh: refreshUserProductReview }
   = useLazyFetch(`/api/products/reviews/${productId}/user-product-review`, {
     key: `productReviews${productId}${user.value?.id}`,
-    headers: useRequestHeaders(),
     method: 'GET',
     immediate: loggedIn.value,
     server: false, // Client-side only - user-specific data
@@ -690,8 +692,8 @@ definePageMeta({
                   class="max-w-none pt-2 md:py-4"
                 >
                   <div
-                    v-if="extractTranslated(product, 'description', locale)"
-                    v-html="extractTranslated(product, 'description', locale) || ''"
+                    v-if="sanitizedDescription"
+                    v-html="sanitizedDescription"
                   />
                   <p
                     v-else

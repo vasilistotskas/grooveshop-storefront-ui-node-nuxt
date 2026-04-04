@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import DOMPurify from 'isomorphic-dompurify'
 import * as z from 'zod'
 
 const emit = defineEmits(['activateTotp'])
@@ -40,7 +41,7 @@ const totpSvg = computed(() => {
   if (!('meta' in data.value)) {
     return ''
   }
-  return data.value?.meta.totp_svg
+  return DOMPurify.sanitize(data.value?.meta.totp_svg ?? '', { USE_PROFILES: { svg: true } })
 })
 
 watchEffect(async () => {

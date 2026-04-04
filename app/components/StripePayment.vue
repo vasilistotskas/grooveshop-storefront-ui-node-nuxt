@@ -131,7 +131,6 @@ const createPaymentIntent = async () => {
   try {
     const response = await $fetch(`/api/orders/${props.order.id}/create-payment-intent`, {
       method: 'POST',
-      headers: useRequestHeaders(),
       body: {},
     })
 

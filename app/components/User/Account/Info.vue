@@ -50,7 +50,6 @@ const changeUserName = async () => {
   try {
     const response = await $fetch(`/api/user/account/${account.value.id}/change-username`, {
       method: 'POST',
-      headers: useRequestHeaders(),
       body: { username: username.value },
     })
 

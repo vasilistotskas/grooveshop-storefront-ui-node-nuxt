@@ -3,20 +3,17 @@
  *
  * Why: Django's SecurityMiddleware checks SECURE_PROXY_SSL_HEADER for the
  * X-Forwarded-Proto header. Without it, SECURE_SSL_REDIRECT=True causes a 301
- * to the external HTTPS URL (e.g. https://webside.gr/...), which exits the K8s
- * cluster and hits Cloudflare's managed challenge — returning 403 because
- * server-side requests can't execute the JS challenge.
+ * to the external HTTPS URL, which exits the K8s cluster and hits Cloudflare's
+ * managed challenge — returning 403 because server-side requests can't execute
+ * the JS challenge.
  *
- * How: Uses an ofetch onRequest interceptor scoped to internal backend origins
- * (NUXT_DJANGO_URL / NUXT_API_BASE_URL). Auth/cart routes also set this header
- * explicitly via createHeaders()/getCartHeaders(), but this plugin acts as a
- * safety net for the ~30 cached routes that send no headers at all.
+ * How: Initialises the named `$backendFetch` utility (server/utils/backendFetch.ts)
+ * at startup and keeps the global $fetch patch as a safety net for the ~30
+ * cached routes that still call $fetch directly without an explicit origin.
+ * New server routes should prefer `useBackendFetch()` over raw `$fetch`.
  *
- * Note: Nuxt docs state "$fetch is intentionally not globally configurable" and
- * recommend named instances (https://nuxt.com/docs/guide/recipes/custom-usefetch).
- * This global override is a pragmatic choice to cover all existing routes without
- * modifying 50+ files. A future refactor could migrate routes to a named
- * $backendFetch utility.
+ * Migration path: incrementally update consumers to call useBackendFetch() and
+ * remove the globalThis patch once no routes rely on it.
  */
 export default defineNitroPlugin(() => {
   const config = useRuntimeConfig()
@@ -37,6 +34,11 @@ export default defineNitroPlugin(() => {
 
   if (internalOrigins.length === 0) return
 
+  // Warm up the named instance so it is ready for first use.
+  useBackendFetch()
+
+  // Keep the global patch as a safety net for existing routes that use $fetch
+  // directly. Remove this block once all backend-facing routes use useBackendFetch().
   globalThis.$fetch = globalThis.$fetch.create({
     onRequest({ request, options }) {
       const url = typeof request === 'string'

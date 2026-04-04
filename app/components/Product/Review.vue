@@ -259,7 +259,6 @@ const updateNewSelectionRatio = (event: TouchEvent | MouseEvent) => {
 const createReviewEvent = async (event: Schema) => {
   await $fetch(`/api/products/reviews`, {
     method: 'POST',
-    headers: useRequestHeaders(),
     body: {
       product: product.value?.id,
       translations: {
@@ -293,7 +292,6 @@ const updateReviewEvent = async (event: Schema) => {
   if (!userProductReview?.value) return
   await $fetch(`/api/products/reviews/${userProductReview?.value.id}`, {
     method: 'PUT',
-    headers: useRequestHeaders(),
     body: {
       product: product.value?.id,
       translations: {
@@ -328,7 +326,6 @@ const deleteReviewEvent = async () => {
   if (user?.value && userProductReview?.value) {
     await $fetch(`/api/products/reviews/${userProductReview?.value.id}`, {
       method: 'DELETE',
-      headers: useRequestHeaders(),
       async onResponse({ response }) {
         if (!userProductReview?.value) return
         if (!response.ok) {

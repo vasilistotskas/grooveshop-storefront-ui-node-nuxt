@@ -17,12 +17,12 @@ export const useCheckout = () => {
       log.error({ action: 'checkout:reserveStock', error })
 
       // Extract structured error data for insufficient stock
-      const errorData = error?.data?.data || error?.data
-      if (errorData?.failedItems) {
-        // Re-throw with structured error for UI handling
+      // Server route normalizes 409 errors with {code, detail, failedItems} at error.data.data
+      const errorData = error?.data?.data
+      if (errorData?.code === 'insufficient_stock' && errorData?.failedItems) {
         const structuredError = new Error('Insufficient stock for one or more items')
         Object.assign(structuredError, {
-          code: 'insufficient_stock',
+          code: errorData.code,
           failedItems: errorData.failedItems,
           detail: errorData.detail,
         })

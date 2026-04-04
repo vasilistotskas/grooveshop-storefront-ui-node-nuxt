@@ -56,7 +56,6 @@ const fetchAllProductPoints = async () => {
         try {
           const data = await $fetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
             method: 'GET',
-            headers: useRequestHeaders(),
           })
           return { productId, points: data.potentialPoints }
         }

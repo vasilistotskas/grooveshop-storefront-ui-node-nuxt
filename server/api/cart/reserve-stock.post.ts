@@ -1,3 +1,5 @@
+import { FetchError } from 'ofetch'
+
 /**
  * Reserve stock for cart items during checkout.
  *
@@ -39,6 +41,19 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zReserveCartStockResponse)
   }
   catch (error) {
+    // Surface structured stock failure data at the top level of the error
+    if (error instanceof FetchError && error.statusCode === 409) {
+      const errorData = error.data as Record<string, unknown> | undefined
+      throw createError({
+        statusCode: 409,
+        statusMessage: 'Insufficient stock',
+        data: {
+          code: 'insufficient_stock',
+          detail: errorData?.detail,
+          failedItems: errorData?.failed_items ?? errorData?.failedItems,
+        },
+      })
+    }
     await handleError(error)
   }
 })

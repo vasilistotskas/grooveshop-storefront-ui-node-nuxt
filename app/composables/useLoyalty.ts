@@ -16,58 +16,35 @@ export const useLoyalty = () => {
    *
    * Uses useAsyncData for SSR support and automatic caching.
    */
+  const LOYALTY_SETTING_KEYS = [
+    'LOYALTY_ENABLED',
+    'LOYALTY_REDEMPTION_RATIO_EUR',
+    'LOYALTY_POINTS_FACTOR',
+    'LOYALTY_TIER_MULTIPLIER_ENABLED',
+    'LOYALTY_POINTS_EXPIRATION_DAYS',
+    'LOYALTY_NEW_CUSTOMER_BONUS_ENABLED',
+    'LOYALTY_NEW_CUSTOMER_BONUS_POINTS',
+    'LOYALTY_XP_PER_LEVEL',
+  ] as const
+
   const fetchSettings = () => {
     return useAsyncData<LoyaltySettings>(
       'loyalty-settings',
       async () => {
         try {
-          // Fetch all loyalty settings in parallel
-          const [
-            enabled,
-            redemptionRatio,
-            pointsFactor,
-            tierMultiplierEnabled,
-            expirationDays,
-            bonusEnabled,
-            bonusPoints,
-            xpPerLevel,
-          ] = await Promise.all([
-            $fetch<{ name: string, value: string }>('/api/settings/get', {
-              query: { key: 'LOYALTY_ENABLED' },
-            }).catch(() => ({ name: 'LOYALTY_ENABLED', value: 'false' })),
-            $fetch<{ name: string, value: string }>('/api/settings/get', {
-              query: { key: 'LOYALTY_REDEMPTION_RATIO_EUR' },
-            }).catch(() => ({ name: 'LOYALTY_REDEMPTION_RATIO_EUR', value: '100' })),
-            $fetch<{ name: string, value: string }>('/api/settings/get', {
-              query: { key: 'LOYALTY_POINTS_FACTOR' },
-            }).catch(() => ({ name: 'LOYALTY_POINTS_FACTOR', value: '1.0' })),
-            $fetch<{ name: string, value: string }>('/api/settings/get', {
-              query: { key: 'LOYALTY_TIER_MULTIPLIER_ENABLED' },
-            }).catch(() => ({ name: 'LOYALTY_TIER_MULTIPLIER_ENABLED', value: 'false' })),
-            $fetch<{ name: string, value: string }>('/api/settings/get', {
-              query: { key: 'LOYALTY_POINTS_EXPIRATION_DAYS' },
-            }).catch(() => ({ name: 'LOYALTY_POINTS_EXPIRATION_DAYS', value: '0' })),
-            $fetch<{ name: string, value: string }>('/api/settings/get', {
-              query: { key: 'LOYALTY_NEW_CUSTOMER_BONUS_ENABLED' },
-            }).catch(() => ({ name: 'LOYALTY_NEW_CUSTOMER_BONUS_ENABLED', value: 'false' })),
-            $fetch<{ name: string, value: string }>('/api/settings/get', {
-              query: { key: 'LOYALTY_NEW_CUSTOMER_BONUS_POINTS' },
-            }).catch(() => ({ name: 'LOYALTY_NEW_CUSTOMER_BONUS_POINTS', value: '0' })),
-            $fetch<{ name: string, value: string }>('/api/settings/get', {
-              query: { key: 'LOYALTY_XP_PER_LEVEL' },
-            }).catch(() => ({ name: 'LOYALTY_XP_PER_LEVEL', value: '1000' })),
-          ])
+          const settings = await $fetch<Record<string, string>>('/api/loyalty/settings', {
+            query: { keys: LOYALTY_SETTING_KEYS.join(',') },
+          })
 
-          // Parse and aggregate settings
           return {
-            enabled: enabled.value.toLowerCase() === 'true',
-            redemptionRatioEur: Number.parseFloat(redemptionRatio.value),
-            pointsFactor: Number.parseFloat(pointsFactor.value),
-            tierMultiplierEnabled: tierMultiplierEnabled.value.toLowerCase() === 'true',
-            pointsExpirationDays: Number.parseInt(expirationDays.value, 10),
-            newCustomerBonusEnabled: bonusEnabled.value.toLowerCase() === 'true',
-            newCustomerBonusPoints: Number.parseInt(bonusPoints.value, 10),
-            xpPerLevel: Number.parseInt(xpPerLevel.value, 10),
+            enabled: (settings['LOYALTY_ENABLED'] ?? 'false').toLowerCase() === 'true',
+            redemptionRatioEur: Number.parseFloat(settings['LOYALTY_REDEMPTION_RATIO_EUR'] ?? '100'),
+            pointsFactor: Number.parseFloat(settings['LOYALTY_POINTS_FACTOR'] ?? '1.0'),
+            tierMultiplierEnabled: (settings['LOYALTY_TIER_MULTIPLIER_ENABLED'] ?? 'false').toLowerCase() === 'true',
+            pointsExpirationDays: Number.parseInt(settings['LOYALTY_POINTS_EXPIRATION_DAYS'] ?? '0', 10),
+            newCustomerBonusEnabled: (settings['LOYALTY_NEW_CUSTOMER_BONUS_ENABLED'] ?? 'false').toLowerCase() === 'true',
+            newCustomerBonusPoints: Number.parseInt(settings['LOYALTY_NEW_CUSTOMER_BONUS_POINTS'] ?? '0', 10),
+            xpPerLevel: Number.parseInt(settings['LOYALTY_XP_PER_LEVEL'] ?? '1000', 10),
           }
         }
         catch (err) {

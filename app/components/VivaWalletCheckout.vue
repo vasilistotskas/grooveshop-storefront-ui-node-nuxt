@@ -41,7 +41,6 @@ const createCheckoutSession = async () => {
       `/api/orders/${props.order.id}/create-checkout-session`,
       {
         method: 'POST',
-        headers: useRequestHeaders(),
         body: {
           successUrl: successUrl,
           cancelUrl: cancelUrl,

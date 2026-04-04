@@ -17,6 +17,7 @@ export default withNuxt(
     '**/.eslintcache',
     '**/coverage/**',
     '**/*.log',
+    '**/*.md',
     '**/logs/**',
     '**/skills/**',
   ]),

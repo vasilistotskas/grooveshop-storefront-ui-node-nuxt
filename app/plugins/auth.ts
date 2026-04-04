@@ -89,8 +89,10 @@ export default defineNuxtPlugin({
       try {
         const router = useRouter()
         const route = router.currentRoute.value
+        const localePath = useLocalePath()
         const returnToPath = route.query.next?.toString()
-        const isRedirectingToLogin = returnToPath === 'account-login'
+        const loginPath = localePath(RedirectToURLs.LOGIN_URL)
+        const isRedirectingToLogin = returnToPath === RedirectToURLs.LOGIN_URL || returnToPath === loginPath
         const redirectTo = isRedirectingToLogin || !returnToPath
           ? RedirectToURLs.LOGIN_REDIRECT_URL
           : returnToPath as keyof RouteNamedMapI18n

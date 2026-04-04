@@ -4,10 +4,13 @@ const vivaResolveOrderResponse = z.object({ uuid: z.string() })
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const query = getQuery(event)
+  const query = await getValidatedQuery(event, z.object({
+    s: z.string().max(64).optional(),
+    t: z.string().max(64).optional(),
+  }).parse)
 
-  const orderCode = query.s as string
-  const transactionId = query.t as string
+  const orderCode = query.s
+  const transactionId = query.t
 
   if (!orderCode) {
     return sendRedirect(event, '/checkout?error=missing_order_code')

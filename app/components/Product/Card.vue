@@ -46,28 +46,29 @@ const productId = computed(() => {
   return product.value.id
 })
 
-const alt = computed(() => {
-  // Handle both Product (with translations) and ProductMeiliSearchResult (flat structure)
-  if (product?.value) {
-    // Check if it's a search result (has name directly)
-    if ('name' in product.value && typeof product.value.name === 'string') {
-      return product.value.name
-    }
-    // Otherwise use extractTranslated for full Product objects
-    return extractTranslated(product.value, 'name', locale.value)
+const productName = computed(() => {
+  if (!product.value) return undefined
+  if ('name' in product.value && typeof product.value.name === 'string') {
+    return product.value.name
   }
-  return undefined
+  return extractTranslated(product.value, 'name', locale.value)
 })
 
-const shareOptions = reactive({
-  title: 'name' in product.value && typeof product.value.name === 'string'
-    ? product.value.name
-    : extractTranslated(product.value, 'name', locale.value) || '',
-  text: 'description' in product.value && typeof product.value.description === 'string'
-    ? product.value.description
-    : extractTranslated(product.value, 'description', locale.value) || '',
-  url: import.meta.client ? productUrl(productId.value, product.value.slug) : '',
+const productDescription = computed(() => {
+  if (!product.value) return ''
+  if ('description' in product.value && typeof product.value.description === 'string') {
+    return product.value.description
+  }
+  return extractTranslated(product.value, 'description', locale.value) || ''
 })
+
+const alt = computed(() => productName.value)
+
+const shareOptions = computed(() => ({
+  title: productName.value || '',
+  text: productDescription.value,
+  url: import.meta.client ? productUrl(productId.value, product.value.slug) : '',
+}))
 const { share, isSupported } = useShare(shareOptions)
 const startShare = async () => {
   try {
@@ -191,7 +192,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       <NuxtLink
         :to="{ path: productUrl(productId, product.slug) }"
         class="group/link"
-        :aria-label="`${t('view_product')}: ${'name' in product && typeof product.name === 'string' ? product.name : extractTranslated(product, 'name', locale)}`"
+        :aria-label="`${t('view_product')}: ${productName}`"
       >
         <h3
           class="
@@ -201,7 +202,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             dark:text-neutral-50 dark:group-hover/link:text-primary-400
           "
         >
-          {{ 'name' in product && typeof product.name === 'string' ? product.name : extractTranslated(product, 'name', locale) }}
+          {{ productName }}
         </h3>
       </NuxtLink>
 
@@ -212,15 +213,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           dark:text-neutral-300
         "
       >
-        {{
-          contentShorten(
-            'description' in product && typeof product.description === 'string'
-              ? product.description
-              : extractTranslated(product, 'description', locale),
-            0,
-            100,
-          )
-        }}
+        {{ contentShorten(productDescription, 0, 100) }}
       </p>
 
       <div
@@ -228,7 +221,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           flex items-center gap-2
         "
       >
-        <div class="flex items-center">
+        <div v-once class="flex items-center">
           <UIcon
             v-for="star in 5"
             :key="star"

@@ -24,6 +24,7 @@ export default defineCachedEventHandler(async (event) => {
       query.ordering || '-createdAt',
       query.categoryId || 'all',
       query.search || '',
+      query.languageCode || getHeader(event, 'accept-language')?.split(',')[0] || 'el',
     ]
     return `products:${keyParts.join(':')}`
   },

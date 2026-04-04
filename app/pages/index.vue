@@ -54,20 +54,12 @@ useSeoMeta({
           md:gap-8
         "
       >
-        <MobileOrTabletOnly>
-          <BlogCategoriesSlider
-            class="mx-auto max-w-(--container-main) !py-0"
-          />
-        </MobileOrTabletOnly>
-
-        <DesktopOnly>
-          <BlogCategoriesSlider
-            class="
-              mx-auto max-w-(--container-main)
-              md:!p-0
-            "
-          />
-        </DesktopOnly>
+        <BlogCategoriesSlider
+          :class="[
+            'mx-auto max-w-(--container-main)',
+            isMobileOrTablet ? '!py-0' : 'md:!p-0',
+          ]"
+        />
 
         <UCarousel
           v-slot="{ item }"

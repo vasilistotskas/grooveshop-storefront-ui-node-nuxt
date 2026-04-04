@@ -66,7 +66,6 @@ const [
 const { data: likedPostsData } = await useFetch('/api/blog/posts/liked-posts', {
   key: `likedPosts${blogPostId.value}`,
   method: 'POST',
-  headers: useRequestHeaders(),
   body: {
     postIds: [blogPostId.value],
   },
@@ -78,7 +77,6 @@ const { data: likedPostsData } = await useFetch('/api/blog/posts/liked-posts', {
 const { data: relatedPosts, status: relatedPostsStatus } = useLazyFetch(`/api/blog/posts/${blogPostId.value}/related-posts`, {
   key: `relatedPosts${blogPostId.value}`,
   method: 'GET',
-  headers: useRequestHeaders(),
 })
 
 if (likedPostsData.value) {

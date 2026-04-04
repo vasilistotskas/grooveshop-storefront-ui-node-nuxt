@@ -290,7 +290,7 @@ export default defineNuxtConfig({
       },
     },
   },
-  compatibilityDate: '2025-06-01',
+  compatibilityDate: 'latest',
   nitro: {
     prerender: {
       crawlLinks: false,

@@ -13,7 +13,8 @@ const OAUTH_COOKIE_OPTIONS = {
 
 export function captureOAuthProcess(event: H3Event, query: Record<string, string | string[]>) {
   if (!query.code && !query.error) {
-    const oauthProcess = String(query.process || 'login')
+    const rawProcess = String(query.process || 'login')
+    const oauthProcess = ['login', 'connect'].includes(rawProcess) ? rawProcess : 'login'
     setCookie(event, OAUTH_PROCESS_COOKIE, oauthProcess, OAUTH_COOKIE_OPTIONS)
   }
 }
@@ -31,7 +32,7 @@ export async function storeOAuthTokensAndRedirect(
   clientId: string | undefined,
   oauthProcess: 'login' | 'connect',
 ) {
-  await setUserSession(event, {
+  await replaceUserSession(event, {
     secure: {
       oauthParams: {
         provider,

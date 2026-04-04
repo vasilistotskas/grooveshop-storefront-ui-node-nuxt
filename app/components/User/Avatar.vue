@@ -125,7 +125,6 @@ const handleUpload = async (file: File | null) => {
 
   await $fetch(`/api/user/account/${props.userAccount.id}`, {
     method: 'PATCH',
-    headers: useRequestHeaders(),
     body: formData,
     async onResponse({ response }) {
       if (!response.ok) {
