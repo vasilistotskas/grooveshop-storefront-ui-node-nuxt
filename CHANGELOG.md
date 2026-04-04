@@ -1,3 +1,10 @@
+## [3.78.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.78.0...v3.78.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* replace `any` with proper types in utility functions ([7d8c783](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7d8c78381b755881d54e6c8c8b82fbd2daf6b32d))
+
 # [3.78.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.77.0...v3.78.0) (2026-04-04)
 
 
