@@ -446,7 +446,6 @@ export type BlogCommentWriteRequest = {
             content?: string;
         };
     };
-    user?: number;
     post: number;
     parent?: number | null;
 };
@@ -1013,7 +1012,7 @@ export type CreatePaymentIntentRequestRequest = {
      * Additional payment data required by the payment provider
      */
     paymentData?: {
-        [key: string]: unknown;
+        [key: string]: string;
     };
 };
 
@@ -1704,7 +1703,6 @@ export type OrderWriteRequest = {
     place?: string;
     city: string;
     phone: string;
-    paidAmount?: number;
     customerNotes?: string;
     items: Array<OrderItemCreateRequest>;
     documentType?: DocumentTypeEnum;
@@ -2155,7 +2153,6 @@ export type PatchedBlogCommentWriteRequest = {
             content?: string;
         };
     };
-    user?: number;
     post?: number;
     parent?: number | null;
 };
@@ -2296,7 +2293,6 @@ export type PatchedOrderWriteRequest = {
     place?: string;
     city?: string;
     phone?: string;
-    paidAmount?: number;
     customerNotes?: string;
     items?: Array<OrderItemCreateRequest>;
     documentType?: DocumentTypeEnum;
@@ -2447,11 +2443,6 @@ export type PatchedProductImageWriteRequest = {
 export type PatchedProductReviewWriteRequest = {
     product?: number;
     rate?: RateEnum;
-    /**
-     * Κατάσταση
-     */
-    status?: ReviewStatus;
-    isPublished?: boolean;
     translations?: {
         el?: {
             comment?: string;
@@ -2847,6 +2838,18 @@ export type PayWayWriteRequest = {
  * * `CANCELED` - Ακυρώθηκε
  */
 export type PaymentStatusEnum = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'REFUNDED' | 'PARTIALLY_REFUNDED' | 'CANCELED';
+
+export type PaymentStatusResponse = {
+    paymentId: string;
+    status: string;
+    rawStatus?: string;
+    provider: string;
+    amount?: number;
+    currency?: string;
+    created?: number;
+    lastUpdated?: string | null;
+    error?: string;
+};
 
 /**
  * Serializer for search performance metrics.
@@ -3527,11 +3530,6 @@ export type ProductReviewDetail = {
 export type ProductReviewWriteRequest = {
     product: number;
     rate: RateEnum;
-    /**
-     * Κατάσταση
-     */
-    status?: ReviewStatus;
-    isPublished?: boolean;
     translations: {
         el?: {
             comment?: string;
@@ -12000,6 +11998,31 @@ export type CreateOrderPaymentIntentResponses = {
 };
 
 export type CreateOrderPaymentIntentResponse = CreateOrderPaymentIntentResponses[keyof CreateOrderPaymentIntentResponses];
+
+export type GetOrderPaymentStatusData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/order/{id}/payment_status';
+};
+
+export type GetOrderPaymentStatusErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type GetOrderPaymentStatusError = GetOrderPaymentStatusErrors[keyof GetOrderPaymentStatusErrors];
+
+export type GetOrderPaymentStatusResponses = {
+    200: PaymentStatusResponse;
+};
+
+export type GetOrderPaymentStatusResponse = GetOrderPaymentStatusResponses[keyof GetOrderPaymentStatusResponses];
 
 export type UpdateOrderStatusData = {
     body: UpdateStatusRequest;

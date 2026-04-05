@@ -281,7 +281,6 @@ export const zBlogCommentWriteRequest = z.object({
             content: z.string().optional()
         }).optional()
     }),
-    user: z.int().optional(),
     post: z.int(),
     parent: z.int().nullish()
 }).register(z.globalRegistry, {
@@ -646,7 +645,7 @@ export const zCreateCheckoutSessionResponse = z.object({
 });
 
 export const zCreatePaymentIntentRequestRequest = z.object({
-    paymentData: z.record(z.string(), z.unknown()).register(z.globalRegistry, {
+    paymentData: z.record(z.string(), z.string().min(1).max(500)).register(z.globalRegistry, {
         description: 'Additional payment data required by the payment provider'
     }).optional()
 });
@@ -1167,7 +1166,6 @@ export const zOrderWriteRequest = z.object({
     place: z.string().max(255).optional(),
     city: z.string().min(1).max(255),
     phone: z.string().min(1),
-    paidAmount: z.number().gt(-1000000000).lt(1000000000).optional(),
     customerNotes: z.string().optional(),
     items: z.array(zOrderItemCreateRequest),
     documentType: zDocumentTypeEnum.optional(),
@@ -1369,7 +1367,6 @@ export const zPatchedBlogCommentWriteRequest = z.object({
             content: z.string().optional()
         }).optional()
     }).optional(),
-    user: z.int().optional(),
     post: z.int().optional(),
     parent: z.int().nullish()
 }).register(z.globalRegistry, {
@@ -1497,7 +1494,6 @@ export const zPatchedOrderWriteRequest = z.object({
     place: z.string().max(255).optional(),
     city: z.string().min(1).max(255).optional(),
     phone: z.string().min(1).optional(),
-    paidAmount: z.number().gt(-1000000000).lt(1000000000).optional(),
     customerNotes: z.string().optional(),
     items: z.array(zOrderItemCreateRequest).optional(),
     documentType: zDocumentTypeEnum.optional(),
@@ -1963,6 +1959,18 @@ export const zPaymentStatusEnum = z.enum([
     'CANCELED'
 ]).register(z.globalRegistry, {
     description: '* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Failed\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Ακυρώθηκε'
+});
+
+export const zPaymentStatusResponse = z.object({
+    paymentId: z.string(),
+    status: z.string(),
+    rawStatus: z.string().optional(),
+    provider: z.string(),
+    amount: z.number().gt(-100000000).lt(100000000).optional(),
+    currency: z.string().optional(),
+    created: z.int().optional(),
+    lastUpdated: z.iso.datetime({ offset: true }).nullish(),
+    error: z.string().optional()
 });
 
 /**
@@ -2964,6 +2972,48 @@ export const zRateEnum = z.union([
 });
 
 /**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zPatchedProductReviewWriteRequest = z.object({
+    product: z.int().optional(),
+    rate: zRateEnum.optional(),
+    translations: z.object({
+        el: z.object({
+            comment: z.string().optional()
+        }).optional(),
+        en: z.object({
+            comment: z.string().optional()
+        }).optional(),
+        de: z.object({
+            comment: z.string().optional()
+        }).optional()
+    }).optional()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zProductReviewWriteRequest = z.object({
+    product: z.int(),
+    rate: zRateEnum,
+    translations: z.object({
+        el: z.object({
+            comment: z.string().optional()
+        }).optional(),
+        en: z.object({
+            comment: z.string().optional()
+        }).optional(),
+        de: z.object({
+            comment: z.string().optional()
+        }).optional()
+    })
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
  * Serializer for validating a points redemption request.
  */
 export const zRedeemPointsRequestRequest = z.object({
@@ -3135,52 +3185,6 @@ export const zReviewStatus = z.enum([
     'FALSE'
 ]).register(z.globalRegistry, {
     description: '* `NEW` - New\n* `TRUE` - True\n* `FALSE` - False'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zPatchedProductReviewWriteRequest = z.object({
-    product: z.int().optional(),
-    rate: zRateEnum.optional(),
-    status: zReviewStatus.optional(),
-    isPublished: z.boolean().optional(),
-    translations: z.object({
-        el: z.object({
-            comment: z.string().optional()
-        }).optional(),
-        en: z.object({
-            comment: z.string().optional()
-        }).optional(),
-        de: z.object({
-            comment: z.string().optional()
-        }).optional()
-    }).optional()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zProductReviewWriteRequest = z.object({
-    product: z.int(),
-    rate: zRateEnum,
-    status: zReviewStatus.optional(),
-    isPublished: z.boolean().optional(),
-    translations: z.object({
-        el: z.object({
-            comment: z.string().optional()
-        }).optional(),
-        en: z.object({
-            comment: z.string().optional()
-        }).optional(),
-        de: z.object({
-            comment: z.string().optional()
-        }).optional()
-    })
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
 /**
@@ -10853,6 +10857,15 @@ export const zCreateOrderPaymentIntentPath = z.object({
 });
 
 export const zCreateOrderPaymentIntentResponse = zCreatePaymentIntentResponse;
+
+export const zGetOrderPaymentStatusPath = z.object({
+    id: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ])
+});
+
+export const zGetOrderPaymentStatusResponse = zPaymentStatusResponse;
 
 export const zUpdateOrderStatusBody = zUpdateStatusRequest;
 

@@ -255,8 +255,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -489,8 +488,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -619,8 +617,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -716,8 +713,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "204": {
@@ -1168,8 +1164,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -1402,8 +1397,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -1532,8 +1526,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -1629,8 +1622,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "204": {
@@ -2579,8 +2571,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -8271,8 +8262,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -8505,8 +8495,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -8635,8 +8624,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -8732,8 +8720,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "204": {
@@ -16542,8 +16529,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -16764,8 +16750,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -16888,8 +16873,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -16979,8 +16963,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "204": {
@@ -17635,8 +17618,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -18314,8 +18296,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -18429,8 +18410,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -18534,8 +18514,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "401": {
@@ -18647,8 +18626,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -18769,8 +18747,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -18858,8 +18835,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "204": {
@@ -18912,8 +18888,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -18993,8 +18968,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -19094,8 +19068,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -19195,8 +19168,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -19276,8 +19248,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -23372,6 +23343,104 @@
                 }
             }
         },
+        "/api/v1/order/{id}/payment_status": {
+            "get": {
+                "operationId": "getOrderPaymentStatus",
+                "description": "Retrieve the current payment status from the payment provider. This fetches the latest status directly from Stripe/PayPal.",
+                "summary": "Get payment status for an order",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentStatusResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/order/{id}/update_status": {
             "post": {
                 "operationId": "updateOrderStatus",
@@ -26906,8 +26975,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -27140,8 +27208,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -27270,8 +27337,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -27367,8 +27433,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "204": {
@@ -30525,8 +30590,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -30759,8 +30823,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -30889,8 +30952,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -30986,8 +31048,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "204": {
@@ -33260,8 +33321,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -33478,8 +33538,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -33600,8 +33659,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -33689,8 +33747,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "204": {
@@ -36799,8 +36856,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -37021,8 +37077,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -37145,8 +37200,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -37236,8 +37290,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "204": {
@@ -38016,8 +38069,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -38740,8 +38792,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -38974,8 +39025,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -39104,8 +39154,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -39201,8 +39250,7 @@
                     },
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "204": {
@@ -47294,9 +47342,6 @@
                             }
                         }
                     },
-                    "user": {
-                        "type": "integer"
-                    },
                     "post": {
                         "type": "integer"
                     },
@@ -49063,7 +49108,11 @@
                 "properties": {
                     "paymentData": {
                         "type": "object",
-                        "additionalProperties": {},
+                        "additionalProperties": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 500
+                        },
                         "description": "Additional payment data required by the payment provider"
                     }
                 }
@@ -50878,14 +50927,6 @@
                         "type": "string",
                         "minLength": 1
                     },
-                    "paidAmount": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000000000,
-                        "minimum": -1000000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true
-                    },
                     "customerNotes": {
                         "type": "string"
                     },
@@ -52576,9 +52617,6 @@
                             }
                         }
                     },
-                    "user": {
-                        "type": "integer"
-                    },
                     "post": {
                         "type": "integer"
                     },
@@ -52926,14 +52964,6 @@
                     "phone": {
                         "type": "string",
                         "minLength": 1
-                    },
-                    "paidAmount": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000000000,
-                        "minimum": -1000000000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true
                     },
                     "customerNotes": {
                         "type": "string"
@@ -53283,17 +53313,6 @@
                         ],
                         "minimum": 0,
                         "maximum": 32767
-                    },
-                    "status": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/ReviewStatus"
-                            }
-                        ],
-                        "title": "Κατάσταση"
-                    },
-                    "isPublished": {
-                        "type": "boolean"
                     },
                     "translations": {
                         "type": "object",
@@ -54217,6 +54236,50 @@
                 ],
                 "type": "string",
                 "description": "* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Failed\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Ακυρώθηκε"
+            },
+            "PaymentStatusResponse": {
+                "type": "object",
+                "properties": {
+                    "paymentId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "rawStatus": {
+                        "type": "string"
+                    },
+                    "provider": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 100000000,
+                        "minimum": -100000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "created": {
+                        "type": "integer"
+                    },
+                    "lastUpdated": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "error": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "paymentId",
+                    "provider",
+                    "status"
+                ]
             },
             "PerformanceMetrics": {
                 "type": "object",
@@ -56411,17 +56474,6 @@
                         ],
                         "minimum": 0,
                         "maximum": 32767
-                    },
-                    "status": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/ReviewStatus"
-                            }
-                        ],
-                        "title": "Κατάσταση"
-                    },
-                    "isPublished": {
-                        "type": "boolean"
                     },
                     "translations": {
                         "type": "object",
