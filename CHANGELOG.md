@@ -1,3 +1,10 @@
+## [3.79.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.79.0...v3.79.1) (2026-04-06)
+
+
+### Bug Fixes
+
+* **server:** inject X-Forwarded-Host so Django builds public URLs ([97652f5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/97652f57a3b4149cfa9d74121582bd62fc8f0855))
+
 # [3.79.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.78.2...v3.79.0) (2026-04-05)
 
 
