@@ -1,12 +1,20 @@
 /**
  * Named $fetch instance pre-configured for internal backend calls.
  *
- * Automatically adds `X-Forwarded-Proto: https` to every request so that
- * Django's SecurityMiddleware does not issue a 301 redirect when
- * SECURE_SSL_REDIRECT=True is set.  The same logic lives in the
- * `forwarded-proto` Nitro plugin as a global safety net, but using this
- * named instance is the preferred approach for new server routes because it
- * avoids patching globalThis.$fetch.
+ * Automatically adds two forwarded headers to every request so that Django
+ * builds correct absolute URLs and does not 301-redirect inside the cluster:
+ *
+ * - `X-Forwarded-Proto: https` — prevents `SECURE_SSL_REDIRECT=True` from
+ *   issuing a 301 to the public HTTPS URL.
+ * - `X-Forwarded-Host` (= `NUXT_PUBLIC_DJANGO_HOST_NAME`) — overrides the
+ *   internal K8s service name when Django builds paginated `next` links via
+ *   `request.build_absolute_uri()` (USE_X_FORWARDED_HOST=True). Without it,
+ *   `next` URLs come back as `https://backend-service/...` and the next
+ *   $fetch fails with `<no response> fetch failed`.
+ *
+ * The same logic lives in the `forwarded-proto` Nitro plugin as a global
+ * safety net, but using this named instance is the preferred approach for
+ * new server routes because it avoids patching globalThis.$fetch.
  *
  * Usage:
  *   const data = await $backendFetch(`${config.apiBaseUrl}/some/endpoint`)
@@ -32,6 +40,10 @@ export function useBackendFetch(): typeof $fetch {
       }),
   )]
 
+  const publicHost = typeof config.public.djangoHostName === 'string'
+    ? config.public.djangoHostName
+    : undefined
+
   _backendFetch = $fetch.create({
     onRequest({ request, options }) {
       const url = typeof request === 'string'
@@ -45,6 +57,9 @@ export function useBackendFetch(): typeof $fetch {
       options.headers = new Headers(options.headers as HeadersInit)
       if (!options.headers.has('X-Forwarded-Proto')) {
         options.headers.set('X-Forwarded-Proto', 'https')
+      }
+      if (publicHost && !options.headers.has('X-Forwarded-Host')) {
+        options.headers.set('X-Forwarded-Host', publicHost)
       }
     },
   }) as typeof $fetch
