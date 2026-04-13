@@ -14,7 +14,7 @@ export default defineCachedEventHandler(async (event) => {
 }, {
   name: 'CountryViewSet',
   maxAge: 60 * 60 * 24, // 24 hours - countries are static data
-  staleMaxAge: 60 * 60 * 24 * 7, // Serve stale for 7 days while revalidating
+  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
   swr: true,
   getKey: (event) => {
     const query = getQuery(event)

@@ -42,4 +42,8 @@ export default defineCachedEventHandler(async (event) => {
   maxAge: 60 * 5, // 5 minutes cache - attributes don't change frequently
   staleMaxAge: 60 * 60, // Serve stale for 1 hour while revalidating
   swr: true,
+  getKey: (event) => {
+    const query = getQuery(event)
+    return `product-attributes:${query.languageCode || 'el'}`
+  },
 })
