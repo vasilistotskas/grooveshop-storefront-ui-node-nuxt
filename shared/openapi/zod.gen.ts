@@ -2361,6 +2361,18 @@ export const zPaginatedProductList = z.object({
 });
 
 /**
+ * Minimal product representation for use in list-level review serializer.
+ */
+export const zProductBrief = z.object({
+    id: z.int().readonly(),
+    name: z.string().readonly().nullable(),
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+    mainImagePath: z.string().readonly()
+}).register(z.globalRegistry, {
+    description: 'Minimal product representation for use in list-level review serializer.'
+});
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zProductCategory = z.object({
@@ -3957,7 +3969,7 @@ export const zPaginatedUserDetailsList = z.object({
  */
 export const zProductReview = z.object({
     id: z.int().readonly(),
-    product: zProduct,
+    product: zProductBrief,
     user: zUserDetails,
     rate: zRateEnum,
     status: zReviewStatus.optional(),
@@ -4990,6 +5002,15 @@ export const zProductAttributeWritable = z.object({
     attributeValueId: z.int()
 }).register(z.globalRegistry, {
     description: 'Serializer for ProductAttribute with nested attribute and value info.'
+});
+
+/**
+ * Minimal product representation for use in list-level review serializer.
+ */
+export const zProductBriefWritable = z.object({
+    slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/)
+}).register(z.globalRegistry, {
+    description: 'Minimal product representation for use in list-level review serializer.'
 });
 
 /**

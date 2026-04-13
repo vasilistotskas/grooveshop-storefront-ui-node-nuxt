@@ -2957,6 +2957,16 @@ export type ProductAttribute = {
 };
 
 /**
+ * Minimal product representation for use in list-level review serializer.
+ */
+export type ProductBrief = {
+    readonly id: number;
+    readonly name: string | null;
+    slug: string;
+    readonly mainImagePath: string;
+};
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type ProductCategory = {
@@ -3469,7 +3479,7 @@ export type ProductPoints = {
  */
 export type ProductReview = {
     readonly id: number;
-    product: Product;
+    product: ProductBrief;
     user: UserDetails;
     rate: RateEnum;
     /**
@@ -5499,6 +5509,13 @@ export type ProductWritable = {
  */
 export type ProductAttributeWritable = {
     attributeValueId: number;
+};
+
+/**
+ * Minimal product representation for use in list-level review serializer.
+ */
+export type ProductBriefWritable = {
+    slug: string;
 };
 
 /**
