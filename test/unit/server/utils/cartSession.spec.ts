@@ -33,10 +33,13 @@ describe('Server Utils - Cart Session', () => {
       session: {
         password: 'test-password',
       },
+      public: { djangoHostName: '' },
     }))
 
     // getRequestProtocol is used by getCartHeaders() to set X-Forwarded-Proto
     vi.stubGlobal('getRequestProtocol', vi.fn().mockReturnValue('https'))
+    // getRequestHost is used by getCartHeaders() as fallback for X-Forwarded-Host
+    vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('localhost'))
   })
 
   describe('getCartSession', () => {
@@ -140,7 +143,7 @@ describe('Server Utils - Cart Session', () => {
 
       const headers = await getCartHeaders(event)
 
-      expect(headers).toEqual({ 'X-Forwarded-Proto': 'https' })
+      expect(headers).toEqual({ 'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'localhost' })
     })
 
     it('should include cart ID header when cart exists', async () => {
@@ -328,7 +331,7 @@ describe('Server Utils - Cart Session', () => {
 
       // 2. Get headers (no cart ID yet, only proxy header)
       const initialHeaders = await getCartHeaders(event)
-      expect(initialHeaders).toEqual({ 'X-Forwarded-Proto': 'https' })
+      expect(initialHeaders).toEqual({ 'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'localhost' })
 
       // 3. Handle cart response (creates cart)
       await handleCartResponse(event, { id: 123, items: [] })

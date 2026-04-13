@@ -167,6 +167,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
       toast.add({ title: t('form.submit.error.general'), color: 'error' })
       return
     }
+    let handledByResponseError = false
     try {
       // Create payment intent from cart if not already created
       if (!paymentIntentId.value) {
@@ -180,7 +181,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
       }
 
       // Create order with payment_intent_id
-      let handledByResponseError = false // eslint-disable-line @typescript-eslint/no-unused-vars
       const submitValues = {
         ...buildOrderValues(),
         paymentIntentId: paymentIntentId.value,

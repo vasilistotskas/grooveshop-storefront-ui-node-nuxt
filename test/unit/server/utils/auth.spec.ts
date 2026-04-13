@@ -6,6 +6,10 @@ describe('Server Utils - Auth', () => {
     vi.clearAllMocks()
     // getRequestProtocol is used by createHeaders() to set X-Forwarded-Proto
     vi.stubGlobal('getRequestProtocol', vi.fn().mockReturnValue('https'))
+    // createHeaders() calls useRuntimeConfig() to get the public Django hostname
+    vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
+      public: { djangoHostName: '' },
+    }))
   })
 
   describe('createHeaders', () => {
@@ -78,6 +82,23 @@ describe('Server Utils - Auth', () => {
       const headers = createHeaders()
 
       expect(headers['X-Forwarded-Host']).toBe('example.com')
+    })
+
+    it('should prefer config djangoHostName over request host for X-Forwarded-Host', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('10.42.0.180:3000'))
+      vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
+        public: { djangoHostName: 'api.webside.gr' },
+      }))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Forwarded-Host']).toBe('api.webside.gr')
     })
 
     it('should include User-Agent from request headers', () => {

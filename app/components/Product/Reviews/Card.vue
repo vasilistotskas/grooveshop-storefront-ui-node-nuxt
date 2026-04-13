@@ -25,11 +25,11 @@ const { productUrl } = useUrls()
 const alt = computed(() => {
   return displayImageOf.value === 'user'
     ? 'Anonymous'
-    : extractTranslated(product?.value, 'name', locale.value)
+    : product?.value?.name ?? ''
 })
 
 const productName = computed(() =>
-  extractTranslated(product?.value, 'name', locale.value),
+  product?.value?.name ?? '',
 )
 
 const reviewComment = computed(() => {

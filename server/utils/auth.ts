@@ -25,9 +25,11 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   // Also set by the forwarded-proto plugin, but explicit here for safety.
   headers['X-Forwarded-Proto'] = getRequestProtocol(event, { xForwardedProto: true })
 
-  // Use the server-trusted host value only — never trust X-Forwarded-Host
-  // from the client request to avoid host-injection attacks.
-  const host = getRequestHost(event, { xForwardedHost: false })
+  // Use the configured public Django hostname so Django's ALLOWED_HOSTS
+  // check passes for internal cluster calls. Falls back to the request's
+  // server-trusted Host only if the config is missing.
+  const config = useRuntimeConfig()
+  const host = config.public.djangoHostName || getRequestHost(event, { xForwardedHost: false })
   if (host) {
     headers['X-Forwarded-Host'] = host
   }
@@ -113,6 +115,7 @@ export async function fetchUserData(response: AllAuthResponse, accessToken?: str
   let headers: Record<string, string> = {
     'Authorization': `Bearer ${token}`,
     'X-Forwarded-Proto': getRequestProtocol(useEvent(), { xForwardedProto: true }),
+    'X-Forwarded-Host': config.public.djangoHostName || getRequestHost(useEvent(), { xForwardedHost: false }),
   }
   if (response.meta?.is_authenticated && !token) {
     headers = await getAllAuthHeaders()

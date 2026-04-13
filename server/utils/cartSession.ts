@@ -42,8 +42,10 @@ export async function updateCartSession(event: H3Event, updates: Partial<CartSes
 export async function getCartHeaders(event: H3Event): Promise<Record<string, string>> {
   const session = await getSession(event)
   const accessToken = await getAllAuthAccessToken(event)
+  const config = useRuntimeConfig(event)
   const headers: Record<string, string> = {
     'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
+    'X-Forwarded-Host': config.public.djangoHostName || getRequestHost(event, { xForwardedHost: false }),
   }
 
   if (session.data.cartId) {
