@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import { useShare } from '@vueuse/core'
-import type { PropType } from 'vue'
-
 const { blogPostUrl } = useUrls()
 
 const localLikesCount = ref(0)

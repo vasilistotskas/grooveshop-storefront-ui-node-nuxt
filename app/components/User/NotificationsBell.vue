@@ -119,9 +119,9 @@ onClickOutside(dropdown, () => {
         <div class="relative grid gap-1 p-2">
           <template v-if="!pending && userNotifications?.length">
             <UButton
-              v-for="(userNotification, index) in userNotifications"
+              v-for="userNotification in userNotifications"
               :id="userNotification.id"
-              :key="index"
+              :key="userNotification.id"
               color="neutral"
               variant="link"
               @click="onNotificationClick(userNotification.id)"

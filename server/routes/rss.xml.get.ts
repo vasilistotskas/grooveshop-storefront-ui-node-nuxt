@@ -122,6 +122,18 @@ async function processBlogPosts(
 ): Promise<RSS.ItemOptions[]> {
   const items: RSS.ItemOptions[] = []
 
+  // Pre-fetch all unique category IDs in parallel
+  const uniqueCategoryIds = [...new Set(blogPosts.map(p => p.category).filter(Boolean))]
+  const categoryResults = await Promise.allSettled(
+    uniqueCategoryIds.map(id => cachedBlogCategory(`${apiBaseUrl}/blog/category/${id}`)),
+  )
+  const categoryMap = new Map(
+    uniqueCategoryIds.map((id, i) => {
+      const result = categoryResults[i]
+      return [id, result?.status === 'fulfilled' ? result.value : null]
+    }),
+  )
+
   for (const post of blogPosts) {
     const translation = post.translations?.[locale] || Object.values(post.translations || {})[0]
 
@@ -148,7 +160,7 @@ async function processBlogPosts(
       pubDate = new Date(post.createdAt)
     }
 
-    const category = await cachedBlogCategory(`${apiBaseUrl}/blog/category/${post.category}`)
+    const category = categoryMap.get(post.category)
     const categoryName = category?.translations?.[locale]?.name
     const categories = categoryName ? [categoryName] : []
 
@@ -196,6 +208,18 @@ async function processProducts(
 ): Promise<RSS.ItemOptions[]> {
   const items: RSS.ItemOptions[] = []
 
+  // Pre-fetch all unique category IDs in parallel
+  const uniqueCategoryIds = [...new Set(products.map(p => p.category).filter(Boolean))]
+  const categoryResults = await Promise.allSettled(
+    uniqueCategoryIds.map(id => cachedProductCategoryDetail(`${apiBaseUrl}/product/category/${id}`)),
+  )
+  const categoryMap = new Map(
+    uniqueCategoryIds.map((id, i) => {
+      const result = categoryResults[i]
+      return [id, result?.status === 'fulfilled' ? result.value : null]
+    }),
+  )
+
   for (const product of products) {
     const translation = product.translations?.[locale] || Object.values(product.translations || {})[0]
 
@@ -218,15 +242,10 @@ async function processProducts(
 
     const categories: string[] = []
     if (product.category) {
-      try {
-        const category = await cachedProductCategoryDetail(`${apiBaseUrl}/product/category/${product.category}`)
-        const categoryTranslation = category?.translations?.[locale]
-        if (categoryTranslation?.name) {
-          categories.push(categoryTranslation.name)
-        }
-      }
-      catch {
-        // Category fetch failed, continue without category
+      const category = categoryMap.get(product.category)
+      const categoryTranslation = category?.translations?.[locale]
+      if (categoryTranslation?.name) {
+        categories.push(categoryTranslation.name)
       }
     }
 

@@ -1,3 +1,9 @@
+import * as z from 'zod'
+
+const zGuestQuery = z.object({
+  uuid: z.string().uuid().optional(),
+})
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await getAllAuthAccessToken(event)
@@ -6,8 +12,13 @@ export default defineEventHandler(async (event) => {
       event,
       zCreateOrderPaymentIntentPath.parse,
     )
+    const query = await getValidatedQuery(event, zGuestQuery.parse)
     const body = await readValidatedBody(event, zCreateOrderPaymentIntentBody.parse)
-    const response = await $fetch(`${config.apiBaseUrl}/order/${params.id}/create_payment_intent`, {
+    const url = new URL(`${config.apiBaseUrl}/order/${params.id}/create_payment_intent`)
+    if (query.uuid) {
+      url.searchParams.set('uuid', query.uuid)
+    }
+    const response = await $fetch(url.toString(), {
       method: 'POST',
       body,
       ...(accessToken && {

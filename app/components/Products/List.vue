@@ -257,25 +257,30 @@ watch(
 )
 
 // User-specific data: client-side only to avoid blocking SSR
-if (shouldFetchFavouriteProducts.value) {
-  await useFetch('/api/products/favourites/favourites-by-products', {
-    key: computed(() => `favouritesByProducts-${user.value?.id}-${productIds.value.join(',')}`),
-    method: 'POST',
-    body: {
-      productIds,
-    },
-    server: false, // Client-side only - user-specific data
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      const favourites = response._data
-      if (favourites) {
-        updateFavouriteProducts(favourites)
-      }
-    },
-  })
-}
+// Use useLazyFetch with immediate: false so it can be triggered reactively
+// when the user logs in after the component is already mounted
+const { execute: fetchFavourites } = useLazyFetch('/api/products/favourites/favourites-by-products', {
+  key: computed(() => `favouritesByProducts-${user.value?.id}-${productIds.value.join(',')}`),
+  method: 'POST',
+  body: {
+    productIds,
+  },
+  immediate: false,
+  server: false, // Client-side only - user-specific data
+  onResponse({ response }) {
+    if (!response.ok) {
+      return
+    }
+    const favourites = response._data
+    if (favourites) {
+      updateFavouriteProducts(favourites)
+    }
+  },
+})
+
+watch(shouldFetchFavouriteProducts, (shouldFetch) => {
+  if (shouldFetch) fetchFavourites()
+}, { immediate: true })
 </script>
 
 <template>

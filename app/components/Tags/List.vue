@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { PropType } from 'vue'
-import { ref, computed, toRefs } from 'vue'
 import type { AsyncDataRequestStatus } from '#app/composables/asyncData'
 
 const { t, locale } = useI18n()

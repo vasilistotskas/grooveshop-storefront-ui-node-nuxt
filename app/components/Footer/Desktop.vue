@@ -1,12 +1,11 @@
 <script lang="ts" setup>
-import pkg from '../../../package.json'
-
 const siteConfig = useSiteConfig()
 const localePath = useLocalePath()
 const { t } = useI18n()
 const { columns } = useFooterLinks()
+const runtimeConfig = useRuntimeConfig()
 
-const packageVersion = pkg.version
+const packageVersion = runtimeConfig.public.version
 </script>
 
 <template>

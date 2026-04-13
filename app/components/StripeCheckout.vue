@@ -44,6 +44,7 @@ const createCheckoutSession = async () => {
           customerEmail: props.order.email,
           description: `Payment for Order #${props.order.id}`,
         },
+        query: props.order.uuid ? { uuid: props.order.uuid } : undefined,
       },
     )
 

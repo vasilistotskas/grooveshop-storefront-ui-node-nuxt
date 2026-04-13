@@ -25,6 +25,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
   const retryCount = ref(0)
   const MAX_RETRIES = 3
   const paymentIntentId = ref<string | null>(null)
+  const retryTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
 
   // Loyalty discount state
   const loyaltyDiscount = ref<{ amount: number, currency: string, points: number } | null>(null)
@@ -145,7 +146,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
         return
       }
       retryCount.value++
-      setTimeout(() => {
+      // Keep isSubmitting true during retry window to block double-submit
+      isSubmitting.value = true
+      retryTimeoutId.value = setTimeout(() => {
+        retryTimeoutId.value = null
         onSubmit()
       }, 500)
     }
@@ -176,6 +180,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
       }
 
       // Create order with payment_intent_id
+      let handledByResponseError = false // eslint-disable-line @typescript-eslint/no-unused-vars
       const submitValues = {
         ...buildOrderValues(),
         paymentIntentId: paymentIntentId.value,
@@ -197,17 +202,22 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
           })
         },
         onResponseError({ response }) {
+          // Clear stale payment intent so the next retry creates a fresh one
+          paymentIntentId.value = null
+          handledByResponseError = true
           handleRetryableError(handleOrderError(response))
         },
       })
     }
     catch (error: any) {
       log.error({ action: 'checkout:orderCreation', error })
-      toast.add({
-        title: t('payment_intent_error'),
-        description: error?.data?.message || error?.message || t('payment_intent_error_description'),
-        color: 'error',
-      })
+      if (!handledByResponseError) {
+        toast.add({
+          title: t('payment_intent_error'),
+          description: error?.data?.message || error?.message || t('payment_intent_error_description'),
+          color: 'error',
+        })
+      }
     }
   }
 
@@ -215,6 +225,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
     const orderBody = buildOrderValues()
     if (!orderBody) return
 
+    let handledByResponseError = false
     try {
       await $fetch('/api/orders', {
         method: 'POST',
@@ -232,17 +243,20 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
           })
         },
         onResponseError({ response }) {
+          handledByResponseError = true
           handleRetryableError(handleOrderError(response))
         },
       })
     }
     catch (error: any) {
       log.error({ action: 'checkout:vivaWalletOrderCreation', error })
-      toast.add({
-        title: t('payment_intent_error'),
-        description: error?.data?.message || error?.message || t('payment_intent_error_description'),
-        color: 'error',
-      })
+      if (!handledByResponseError) {
+        toast.add({
+          title: t('payment_intent_error'),
+          description: error?.data?.message || error?.message || t('payment_intent_error_description'),
+          color: 'error',
+        })
+      }
     }
   }
 
@@ -289,6 +303,12 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
   }
 
   const onSubmit = async () => {
+    // Cancel any pending retry before checking isSubmitting
+    if (retryTimeoutId.value) {
+      clearTimeout(retryTimeoutId.value)
+      retryTimeoutId.value = null
+    }
+
     if (isSubmitting.value) return
 
     isSubmitting.value = true
@@ -360,7 +380,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
       }
     }
     finally {
-      isSubmitting.value = false
+      // Only reset isSubmitting if no retry is pending (retry keeps it true to block double-submit)
+      if (!retryTimeoutId.value) {
+        isSubmitting.value = false
+      }
     }
   }
 

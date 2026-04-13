@@ -1,4 +1,5 @@
 import { DEFAULT_LOCALE } from './i18n/locales'
+import { version } from './package.json'
 
 const modules = [
   'evlog/nuxt',
@@ -179,6 +180,7 @@ export default defineNuxtConfig({
         origin: process.env.NUXT_PUBLIC_STATIC_ORIGIN,
       },
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+      version,
     },
   },
   routeRules: {
@@ -326,6 +328,7 @@ export default defineNuxtConfig({
       include: [
         '@internationalized/date',
         'zod',
+        'isomorphic-dompurify',
       ],
     },
   },

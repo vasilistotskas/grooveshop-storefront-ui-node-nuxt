@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { onKeyDown } from '@vueuse/core'
-
 const src = ref<string | null>(null)
 
 function showModal(link: string) {
@@ -10,7 +8,7 @@ const el = ref<HTMLIFrameElement>()
 
 provideIframeModal(showModal)
 
-onKeyDown('Escape', () => {
+onKeyStroke('Escape', () => {
   if (src.value) src.value = null
 })
 

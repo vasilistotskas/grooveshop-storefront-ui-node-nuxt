@@ -6,9 +6,11 @@ const { t } = useI18n()
 const cartStore = useCartStore()
 const { hasStockIssues, cart } = storeToRefs(cartStore)
 
-if (hasStockIssues.value) {
-  await navigateTo(localePath('cart'))
-}
+watchEffect(() => {
+  if (hasStockIssues.value) {
+    navigateTo(localePath('cart'))
+  }
+})
 
 const {
   formState,
@@ -47,6 +49,10 @@ const handleStockRetry = () => {
   stockError.value = null
   onSubmit()
 }
+
+useSeoMeta({
+  title: () => t('checkout.title'),
+})
 
 definePageMeta({
   layout: 'default',

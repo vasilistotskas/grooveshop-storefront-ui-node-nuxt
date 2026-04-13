@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 /**
  * Product search API route with advanced filtering
  *
@@ -15,18 +17,21 @@
  * GET /api/products/search?q=laptop&priceMin=500&priceMax=1500&categories=1,2&attributeValues=10,20&facets=category,final_price,attribute_values
  */
 
+// Extend the auto-generated schema to also accept the plural `attributeValues` alias
+// sent by the Products/List component
+const zSearchProductQuery = zSearchProductRetrieveQuery.extend({
+  attributeValues: z.string().optional(),
+})
+
 export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const wideLog = useLogger(event)
 
   try {
-    // Get query parameters from request
-    const queryParams = getQuery(event)
-
-    // Validate query parameters with auto-imported Zod schema
+    // Validate query parameters — includes both attributeValue (OpenAPI) and attributeValues (client alias)
     const query = await getValidatedQuery(
       event,
-      zSearchProductRetrieveQuery.parse,
+      zSearchProductQuery.parse,
     )
 
     // Ensure query is defined (validation should guarantee this)
@@ -56,8 +61,8 @@ export default defineCachedEventHandler(async (event) => {
     if (query.sort) backendQuery.sort = query.sort
 
     // Add attribute value filtering support
-    // Handle attributeValues parameter (can be single value or comma-separated string)
-    const attributeValues = queryParams.attributeValues || queryParams.attributeValue
+    // Accept both plural (client alias) and singular (OpenAPI field name)
+    const attributeValues = query.attributeValues || query.attributeValue
     if (attributeValues) {
       // Pass as comma-separated string to backend
       backendQuery.attribute_value = attributeValues

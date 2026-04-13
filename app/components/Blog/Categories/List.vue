@@ -78,8 +78,8 @@ watch(
       "
     >
       <UCard
-        v-for="(category, index) in categories?.results"
-        :key="index"
+        v-for="category in categories?.results"
+        :key="category.id"
         class="grid h-full"
       >
         <Anchor

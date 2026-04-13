@@ -225,13 +225,6 @@ useSchemaOrg([
   }),
 ])
 
-useSeoMeta({
-  ogImage: ogImage.value,
-  ogImageAlt: blogPost.value.seoTitle || blogPostTitle.value,
-  ogImageWidth: 1200,
-  ogImageHeight: 630,
-})
-
 definePageMeta({
   layout: 'default',
 })

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TabsItem, ButtonProps } from '#ui/types'
 
-const { t, locale } = useI18n()
+const { t, locale, n } = useI18n()
 const route = useRoute(`products-id-slug___${locale.value}`)
 const { y: scrollY } = useWindowScroll()
 
@@ -128,10 +128,7 @@ const _onDeleteExistingReview = async () => {
 }
 
 const formatProductPrice = (price?: number) => {
-  return new Intl.NumberFormat('el-GR', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(price || 0)
+  return n(price || 0, 'currency')
 }
 
 const incrementQuantity = () => {
@@ -353,13 +350,6 @@ useHead({
       content: product.value?.seoKeywords || productTitle.value,
     },
   ],
-})
-
-useSeoMeta({
-  ogImage: ogImage.value,
-  ogImageAlt: product.value?.seoTitle || productTitle.value,
-  ogImageWidth: 1200,
-  ogImageHeight: 630,
 })
 
 useSchemaOrg([

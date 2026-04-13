@@ -1,6 +1,15 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const localePath = useLocalePath()
+const runtimeConfig = useRuntimeConfig()
+const siteHost = computed(() => {
+  try {
+    return new URL(runtimeConfig.public.baseUrl).host
+  }
+  catch {
+    return useRequestURL().host
+  }
+})
 
 const items = computed(() => [
   {
@@ -118,7 +127,7 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        Για τη δημιουργία λογαριασμού στο webside.gr
+        Για τη δημιουργία λογαριασμού στο {{ siteHost }}
       </p>
       <p
         class="
@@ -126,7 +135,7 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        Προσωπικά δεδομένα συλλέγονται όταν δημιουργείτε λογαριασμό στον ιστότοπο του Webside webside.gr. Κατά τη
+        Προσωπικά δεδομένα συλλέγονται όταν δημιουργείτε λογαριασμό στον ιστότοπο του Webside {{ siteHost }}. Κατά τη
         δημιουργία λογαριασμού μπορεί να σας ζητηθούν περισσότερα στοιχεία, ωστόσο θα είναι τα ελάχιστα απαιτούμενα
         για τη σύναψη και ολοκλήρωση δημιουργίας.
       </p>

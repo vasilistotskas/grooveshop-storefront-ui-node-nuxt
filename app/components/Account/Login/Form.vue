@@ -15,6 +15,8 @@ const img = useImage()
 const authStore = useAuthStore()
 const { session, status, hasSocialAccountProviders } = storeToRefs(authStore)
 
+const isSubmitting = ref(false)
+
 const schema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
@@ -34,6 +36,7 @@ const state = reactive<Partial<Schema>>({
 })
 
 const onSubmit = async (event: FormSubmitEvent<Schema>) => {
+  isSubmitting.value = true
   try {
     const currentPath = router.currentRoute.value.path
     const currentQuery = router.currentRoute.value.query
@@ -54,6 +57,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   }
   finally {
     await refreshCart()
+    isSubmitting.value = false
   }
 }
 
@@ -138,6 +142,7 @@ const backgroundImage = computed(() => {
 
             <UButton
               :label="t('submit')"
+              :loading="isSubmitting"
               block
               size="xl"
               type="submit"

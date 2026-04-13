@@ -7,6 +7,9 @@ defineProps<{
   useHostedCheckout: boolean
 }>()
 
+// Persist Stripe clientSecret across re-mounts to avoid orphan payment intents
+const stripeClientSecret = ref<string | null>(null)
+
 const emit = defineEmits<{
   'payment-success': []
   'payment-error': [error: string]
@@ -87,8 +90,10 @@ const onRedirecting = () => {
         v-else-if="isStripePayment"
         :order="createdOrder"
         :pay-way="selectedPayWay"
+        :initial-client-secret="stripeClientSecret"
         @success="emit('payment-success')"
         @error="(error: string) => emit('payment-error', error)"
+        @update:client-secret="(val) => stripeClientSecret = val"
       />
     </div>
   </UCard>

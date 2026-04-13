@@ -16,6 +16,10 @@ const zPaymentStatusParams = z.object({
   id: z.union([z.string().regex(/^-?\d+$/), z.coerce.number().int()]),
 })
 
+const zGuestQuery = z.object({
+  uuid: z.string().uuid().optional(),
+})
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await getAllAuthAccessToken(event)
@@ -24,7 +28,12 @@ export default defineEventHandler(async (event) => {
       event,
       zPaymentStatusParams.parse,
     )
-    const response = await $fetch(`${config.apiBaseUrl}/order/${params.id}/payment_status`, {
+    const query = await getValidatedQuery(event, zGuestQuery.parse)
+    const url = new URL(`${config.apiBaseUrl}/order/${params.id}/payment_status`)
+    if (query.uuid) {
+      url.searchParams.set('uuid', query.uuid)
+    }
+    const response = await $fetch(url.toString(), {
       method: 'GET',
       ...(accessToken && {
         headers: {

@@ -14,6 +14,7 @@ const fromCheckout = computed(() => !!sessionId.value || fromViva.value)
 const sessionVerified = ref(false)
 const verifyingSession = ref(false)
 const pollAttempt = ref(0)
+const isActive = ref(true)
 
 const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
@@ -65,6 +66,18 @@ const totalPriceExtra = computed(() => order.value?.totalPriceExtra || 0)
 const trackingNumber = computed(() => order.value?.trackingNumber)
 const shippingCarrier = computed(() => order.value?.shippingCarrier)
 
+const openTracking = () => {
+  if (!trackingNumber.value) return
+  const query = shippingCarrier.value
+    ? `${shippingCarrier.value} ${trackingNumber.value} tracking`
+    : `${trackingNumber.value} tracking`
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank', 'noopener,noreferrer')
+}
+
+onBeforeUnmount(() => {
+  isActive.value = false
+})
+
 // Poll order status when coming from a payment provider.
 // Viva Wallet webhooks can be delayed, so poll more aggressively.
 onMounted(async () => {
@@ -82,8 +95,10 @@ onMounted(async () => {
 
   try {
     for (let i = 0; i < maxAttempts; i++) {
+      if (!isActive.value) break
       pollAttempt.value = i + 1
       await new Promise(resolve => setTimeout(resolve, interval))
+      if (!isActive.value) break
       await refresh()
 
       const status = order.value?.paymentStatus?.toLowerCase() || ''
@@ -412,6 +427,7 @@ definePageMeta({
               block
               icon="i-heroicons-truck"
               :label="t('actions.track')"
+              @click="openTracking"
             />
           </div>
         </UCard>

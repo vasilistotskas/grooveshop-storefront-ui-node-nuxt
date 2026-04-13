@@ -84,12 +84,14 @@ export const useCheckout = () => {
   /**
    * Get payment status for an order
    * @param orderId - The order ID
+   * @param orderUuid - Optional UUID for guest order access
    * @returns Payment status information
    */
-  const getPaymentStatus = async (orderId: string | number): Promise<any> => {
+  const getPaymentStatus = async (orderId: string | number, orderUuid?: string): Promise<any> => {
     try {
       const response = await $fetch(`/api/orders/${orderId}/payment-status`, {
         method: 'GET',
+        query: orderUuid ? { uuid: orderUuid } : undefined,
       })
       return response
     }
@@ -104,15 +106,17 @@ export const useCheckout = () => {
    * @param orderId - The order ID
    * @param maxAttempts - Maximum number of polling attempts
    * @param interval - Interval between attempts in milliseconds
+   * @param orderUuid - Optional UUID for guest order access
    * @returns Final payment status
    */
   const pollPaymentStatus = async (
     orderId: string | number,
     maxAttempts = 10,
     interval = 2000,
+    orderUuid?: string,
   ): Promise<any> => {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const status = await getPaymentStatus(orderId)
+      const status = await getPaymentStatus(orderId, orderUuid)
 
       // Check if payment reached a final state
       if (['PROCESSING', 'COMPLETED', 'FAILED', 'CANCELED'].includes(status.status)) {
