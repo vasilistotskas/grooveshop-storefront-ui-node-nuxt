@@ -1,3 +1,10 @@
+## [3.81.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.0...v3.81.1) (2026-04-13)
+
+
+### Bug Fixes
+
+* generate schema ([155ea15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/155ea157e259bf4e61845d0eb3694c6e01f12870))
+
 # [3.81.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.80.0...v3.81.0) (2026-04-13)
 
 
