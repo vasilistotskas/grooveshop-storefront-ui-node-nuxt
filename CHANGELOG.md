@@ -1,3 +1,10 @@
+## [3.81.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.1...v3.81.2) (2026-04-13)
+
+
+### Bug Fixes
+
+* **server:** use configured Django hostname for X-Forwarded-Host in all header builders ([ef0dee8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ef0dee81dc27eba9e9c126b1fb4c1d71d1daded3))
+
 ## [3.81.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.0...v3.81.1) (2026-04-13)
 
 
