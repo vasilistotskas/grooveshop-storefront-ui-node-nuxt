@@ -1,3 +1,10 @@
+## [3.81.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.2...v3.81.3) (2026-04-13)
+
+
+### Bug Fixes
+
+* **cache:** fix auth cache poisoning, missing getKeys, and excessive staleMaxAge ([7a94880](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7a948806654d0699ae4ccad976192a2c0502c58f))
+
 ## [3.81.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.1...v3.81.2) (2026-04-13)
 
 
