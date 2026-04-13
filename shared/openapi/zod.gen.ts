@@ -5677,7 +5677,7 @@ export const zListBlogAuthorQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     ordering: z.enum([
         'id',
         '-id',
@@ -5708,14 +5708,14 @@ export const zListBlogAuthorQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
     }).optional()
@@ -5732,7 +5732,7 @@ export const zCreateBlogAuthorQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateBlogAuthorResponse = zBlogAuthorDetail;
@@ -5765,7 +5765,7 @@ export const zRetrieveBlogAuthorQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveBlogAuthorResponse = zBlogAuthorDetail;
@@ -5786,7 +5786,7 @@ export const zPartialUpdateBlogAuthorQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateBlogAuthorResponse = zBlogAuthorDetail;
@@ -5807,7 +5807,7 @@ export const zUpdateBlogAuthorQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateBlogAuthorResponse = zBlogAuthorDetail;
@@ -5862,7 +5862,7 @@ export const zListBlogCategoryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     ordering: z.enum([
         'id',
         '-id',
@@ -5895,14 +5895,14 @@ export const zListBlogCategoryQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
     }).optional()
@@ -5919,7 +5919,7 @@ export const zCreateBlogCategoryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateBlogCategoryResponse = zBlogCategoryDetail;
@@ -5952,7 +5952,7 @@ export const zRetrieveBlogCategoryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveBlogCategoryResponse = zBlogCategoryDetail;
@@ -5973,7 +5973,7 @@ export const zPartialUpdateBlogCategoryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateBlogCategoryResponse = zBlogCategoryDetail;
@@ -5994,7 +5994,7 @@ export const zUpdateBlogCategoryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateBlogCategoryResponse = zBlogCategoryDetail;
@@ -6359,7 +6359,7 @@ export const zListBlogCommentQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     level: z.union([
         z.string().regex(/^-?\d+$/),
         z.int()
@@ -6452,14 +6452,14 @@ export const zListBlogCommentQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     parent: z.union([
         z.string().regex(/^-?\d+$/),
         z.int()
@@ -6562,7 +6562,7 @@ export const zCreateBlogCommentQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateBlogCommentResponse = zBlogCommentDetail;
@@ -6595,7 +6595,7 @@ export const zRetrieveBlogCommentQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveBlogCommentResponse = zBlogCommentDetail;
@@ -6616,7 +6616,7 @@ export const zPartialUpdateBlogCommentQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateBlogCommentResponse = zBlogCommentDetail;
@@ -6637,7 +6637,7 @@ export const zUpdateBlogCommentQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateBlogCommentResponse = zBlogCommentDetail;
@@ -7525,7 +7525,7 @@ export const zListBlogPostQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     minComments: z.union([
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
@@ -7568,14 +7568,14 @@ export const zListBlogPostQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     publishedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
         description: 'Filter items published after this date'
     }).optional(),
@@ -7637,7 +7637,7 @@ export const zCreateBlogPostQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateBlogPostResponse = zBlogPostDetail;
@@ -7670,7 +7670,7 @@ export const zRetrieveBlogPostQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveBlogPostResponse = zBlogPostDetail;
@@ -7691,7 +7691,7 @@ export const zPartialUpdateBlogPostQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateBlogPostResponse = zBlogPostDetail;
@@ -7712,7 +7712,7 @@ export const zUpdateBlogPostQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateBlogPostResponse = zBlogPostDetail;
@@ -8448,7 +8448,7 @@ export const zListBlogTagQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     maxPosts: z.union([
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
@@ -8510,14 +8510,14 @@ export const zListBlogTagQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     post: z.union([
         z.string().regex(/^-?\d+$/),
         z.int()
@@ -8585,7 +8585,7 @@ export const zCreateBlogTagQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateBlogTagResponse = zBlogTagDetail;
@@ -8618,7 +8618,7 @@ export const zRetrieveBlogTagQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveBlogTagResponse = zBlogTagDetail;
@@ -8639,7 +8639,7 @@ export const zPartialUpdateBlogTagQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateBlogTagResponse = zBlogTagDetail;
@@ -8660,7 +8660,7 @@ export const zUpdateBlogTagQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateBlogTagResponse = zBlogTagDetail;
@@ -8790,7 +8790,7 @@ export const zListCartItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     maxDiscountPercent: z.union([
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
@@ -8851,14 +8851,14 @@ export const zListCartItemQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     product: z.union([
         z.string().regex(/^-?\d+$/),
         z.int()
@@ -8968,7 +8968,7 @@ export const zRetrieveCartItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveCartItemResponse = zCartItemDetail;
@@ -8996,7 +8996,7 @@ export const zPartialUpdateCartItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateCartItemResponse = zCartItemDetail;
@@ -9101,7 +9101,7 @@ export const zListCartQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     lastActivity: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
         description: 'Filter by exact last activity date'
     }).optional(),
@@ -9162,14 +9162,14 @@ export const zListCartQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
     }).optional(),
@@ -9359,7 +9359,7 @@ export const zListCountryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     multipleCodes: z.string().register(z.globalRegistry, {
         description: 'Filter by multiple country codes (comma-separated, alpha-2 or alpha-3)'
     }).optional(),
@@ -9402,14 +9402,14 @@ export const zListCountryQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     phoneCode: z.union([
         z.string().regex(/^-?\d+$/),
         z.int()
@@ -9474,7 +9474,7 @@ export const zCreateCountryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateCountryResponse = zCountryDetail;
@@ -9505,7 +9505,7 @@ export const zRetrieveCountryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveCountryResponse = zCountryDetail;
@@ -9525,7 +9525,7 @@ export const zPartialUpdateCountryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateCountryResponse = zCountryDetail;
@@ -9545,7 +9545,7 @@ export const zUpdateCountryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateCountryResponse = zCountryDetail;
@@ -9656,7 +9656,7 @@ export const zListNotificationUserQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     notification: z.union([
         z.string().regex(/^-?\d+$/),
         z.int()
@@ -9743,14 +9743,14 @@ export const zListNotificationUserQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     recentNotifications: z.union([
         z.literal('true'),
         z.literal('false'),
@@ -9844,7 +9844,7 @@ export const zCreateNotificationUserQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateNotificationUserResponse = zNotificationUserDetail;
@@ -9871,7 +9871,7 @@ export const zRetrieveNotificationUserQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveNotificationUserResponse = zNotificationUserDetail;
@@ -9889,7 +9889,7 @@ export const zPartialUpdateNotificationUserQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateNotificationUserResponse = zNotificationUserDetail;
@@ -9907,7 +9907,7 @@ export const zUpdateNotificationUserQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateNotificationUserResponse = zNotificationUserDetail;
@@ -10064,7 +10064,7 @@ export const zListOrderQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     lastName: z.string().register(z.globalRegistry, {
         description: 'Filter by customer last name (case-insensitive)'
     }).optional(),
@@ -10113,14 +10113,14 @@ export const zListOrderQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     paidAmount_Gte: z.union([
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
@@ -10311,7 +10311,7 @@ export const zCreateOrderQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateOrderResponse = zOrderDetail;
@@ -10394,7 +10394,7 @@ export const zListOrderItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     notes: z.string().register(z.globalRegistry, {
         description: 'Filter by notes content (case-insensitive)'
     }).optional(),
@@ -10500,14 +10500,14 @@ export const zListOrderItemQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     price: z.union([
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
@@ -10648,7 +10648,7 @@ export const zCreateOrderItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateOrderItemResponse = zOrderItemDetail;
@@ -10681,7 +10681,7 @@ export const zRetrieveOrderItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveOrderItemResponse = zOrderItemDetail;
@@ -10702,7 +10702,7 @@ export const zPartialUpdateOrderItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateOrderItemResponse = zOrderItemDetail;
@@ -10723,7 +10723,7 @@ export const zUpdateOrderItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateOrderItemResponse = zOrderItemDetail;
@@ -10767,7 +10767,7 @@ export const zRetrieveOrderQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveOrderResponse = zOrderDetail;
@@ -10788,7 +10788,7 @@ export const zPartialUpdateOrderQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateOrderResponse = zOrderDetail;
@@ -10809,7 +10809,7 @@ export const zUpdateOrderQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateOrderResponse = zOrderDetail;
@@ -11317,7 +11317,7 @@ export const zListPayWayQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     name: z.string().register(z.globalRegistry, {
         description: 'Filter by name (partial match)'
     }).optional(),
@@ -11353,14 +11353,14 @@ export const zListPayWayQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     providerCode: z.string().register(z.globalRegistry, {
         description: 'Filter by provider code (partial match)'
     }).optional(),
@@ -11401,7 +11401,7 @@ export const zCreatePayWayQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreatePayWayResponse = zPayWayDetail;
@@ -11428,7 +11428,7 @@ export const zRetrievePayWayQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrievePayWayResponse = zPayWayDetail;
@@ -11446,7 +11446,7 @@ export const zPartialUpdatePayWayQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdatePayWayResponse = zPayWayDetail;
@@ -11464,7 +11464,7 @@ export const zUpdatePayWayQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdatePayWayResponse = zPayWayDetail;
@@ -11562,7 +11562,7 @@ export const zListProductQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     maxDiscount: z.union([
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
@@ -11661,14 +11661,14 @@ export const zListProductQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     price: z.union([
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
@@ -11745,7 +11745,7 @@ export const zCreateProductQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateProductResponse = zProductDetail;
@@ -11778,7 +11778,7 @@ export const zRetrieveProductQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveProductResponse = zProductDetail;
@@ -11799,7 +11799,7 @@ export const zPartialUpdateProductQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateProductResponse = zProductDetail;
@@ -11820,7 +11820,7 @@ export const zUpdateProductQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateProductResponse = zProductDetail;
@@ -11839,7 +11839,7 @@ export const zListProductImagesQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     ordering: z.enum([
         'price',
         '-price',
@@ -11897,14 +11897,14 @@ export const zListProductReviewsQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
     }).optional()
@@ -11995,7 +11995,7 @@ export const zListAttributeQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     name: z.string().optional(),
     ordering: z.enum([
         'id',
@@ -12019,14 +12019,14 @@ export const zListAttributeQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
     }).optional(),
@@ -12063,7 +12063,7 @@ export const zCreateAttributeQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateAttributeResponse = zAttribute;
@@ -12096,7 +12096,7 @@ export const zRetrieveAttributeQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveAttributeResponse = zAttribute;
@@ -12115,7 +12115,7 @@ export const zPartialUpdateAttributeQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateAttributeResponse = zAttribute;
@@ -12134,7 +12134,7 @@ export const zUpdateAttributeQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateAttributeResponse = zAttribute;
@@ -12185,7 +12185,7 @@ export const zListAttributeValueQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     ordering: z.enum([
         'id',
         '-id',
@@ -12210,14 +12210,14 @@ export const zListAttributeValueQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
     }).optional(),
@@ -12255,7 +12255,7 @@ export const zCreateAttributeValueQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateAttributeValueResponse = zAttributeValue;
@@ -12288,7 +12288,7 @@ export const zRetrieveAttributeValueQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveAttributeValueResponse = zAttributeValue;
@@ -12307,7 +12307,7 @@ export const zPartialUpdateAttributeValueQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateAttributeValueResponse = zAttributeValue;
@@ -12326,7 +12326,7 @@ export const zUpdateAttributeValueQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateAttributeValueResponse = zAttributeValue;
@@ -12403,7 +12403,7 @@ export const zListProductCategoryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     level: z.union([
         z.string().regex(/^-?\d+$/),
         z.int()
@@ -12462,14 +12462,14 @@ export const zListProductCategoryQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     parent: z.union([
         z.string().regex(/^-?\d+$/),
         z.int()
@@ -12521,7 +12521,7 @@ export const zCreateProductCategoryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateProductCategoryResponse = zProductCategoryDetail;
@@ -12554,7 +12554,7 @@ export const zRetrieveProductCategoryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveProductCategoryResponse = zProductCategoryDetail;
@@ -12575,7 +12575,7 @@ export const zPartialUpdateProductCategoryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateProductCategoryResponse = zProductCategoryDetail;
@@ -12596,7 +12596,7 @@ export const zUpdateProductCategoryQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateProductCategoryResponse = zProductCategoryDetail;
@@ -12793,7 +12793,7 @@ export const zListProductCategoryImageQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     ordering: z.enum([
         'createdAt',
         '-createdAt',
@@ -12814,14 +12814,14 @@ export const zListProductCategoryImageQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
     }).optional()
@@ -12838,7 +12838,7 @@ export const zCreateProductCategoryImageQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateProductCategoryImageResponse = zProductCategoryImageDetail;
@@ -12871,7 +12871,7 @@ export const zRetrieveProductCategoryImageQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveProductCategoryImageResponse = zProductCategoryImageDetail;
@@ -12892,7 +12892,7 @@ export const zPartialUpdateProductCategoryImageQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateProductCategoryImageResponse = zProductCategoryImageDetail;
@@ -12913,7 +12913,7 @@ export const zUpdateProductCategoryImageQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateProductCategoryImageResponse = zProductCategoryImageDetail;
@@ -13036,7 +13036,7 @@ export const zListProductFavouriteQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     ordering: z.enum([
         'id',
         '-id',
@@ -13061,14 +13061,14 @@ export const zListProductFavouriteQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     product: z.union([
         z.string().regex(/^-?\d+$/),
         z.int()
@@ -13108,7 +13108,7 @@ export const zCreateProductFavouriteQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateProductFavouriteResponse = zProductFavouriteWrite;
@@ -13135,7 +13135,7 @@ export const zRetrieveProductFavouriteQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveProductFavouriteResponse = zProductFavouriteDetail;
@@ -13153,7 +13153,7 @@ export const zPartialUpdateProductFavouriteQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateProductFavouriteResponse = zProductFavouriteWrite;
@@ -13171,7 +13171,7 @@ export const zUpdateProductFavouriteQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateProductFavouriteResponse = zProductFavouriteWrite;
@@ -13261,7 +13261,7 @@ export const zListProductImageQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     ordering: z.enum([
         'id',
         '-id',
@@ -13286,14 +13286,14 @@ export const zListProductImageQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     product: z.union([
         z.string().regex(/^-?\d+$/),
         z.int()
@@ -13319,7 +13319,7 @@ export const zCreateProductImageQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateProductImageResponse = zProductImageDetail;
@@ -13352,7 +13352,7 @@ export const zRetrieveProductImageQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveProductImageResponse = zProductImageDetail;
@@ -13373,7 +13373,7 @@ export const zPartialUpdateProductImageQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateProductImageResponse = zProductImageDetail;
@@ -13394,7 +13394,7 @@ export const zUpdateProductImageQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateProductImageResponse = zProductImageDetail;
@@ -13450,7 +13450,7 @@ export const zListProductReviewQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     maxRate: z.union([
         z.string().regex(/^-?\d+$/),
         z.int()
@@ -13491,14 +13491,14 @@ export const zListProductReviewQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     product: z.union([
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
@@ -13627,7 +13627,7 @@ export const zCreateProductReviewQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateProductReviewResponse = zProductReviewDetail;
@@ -13660,7 +13660,7 @@ export const zRetrieveProductReviewQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveProductReviewResponse = zProductReviewDetail;
@@ -13681,7 +13681,7 @@ export const zPartialUpdateProductReviewQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateProductReviewResponse = zProductReviewDetail;
@@ -13702,7 +13702,7 @@ export const zUpdateProductReviewQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateProductReviewResponse = zProductReviewDetail;
@@ -13748,7 +13748,7 @@ export const zListRegionQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     name: z.string().register(z.globalRegistry, {
         description: 'Filter by region name (partial match)'
     }).optional(),
@@ -13772,14 +13772,14 @@ export const zListRegionQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
     }).optional(),
@@ -13815,7 +13815,7 @@ export const zCreateRegionQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateRegionResponse = zRegionDetail;
@@ -13846,7 +13846,7 @@ export const zRetrieveRegionQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveRegionResponse = zRegionDetail;
@@ -13866,7 +13866,7 @@ export const zPartialUpdateRegionQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateRegionResponse = zRegionDetail;
@@ -13886,7 +13886,7 @@ export const zUpdateRegionQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateRegionResponse = zRegionDetail;
@@ -14138,7 +14138,7 @@ export const zListTagQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     maxUsageCount: z.union([
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
@@ -14184,14 +14184,14 @@ export const zListTagQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
     }).optional(),
@@ -14240,7 +14240,7 @@ export const zCreateTagQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateTagResponse = zTagDetail;
@@ -14273,7 +14273,7 @@ export const zRetrieveTagQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveTagResponse = zTagDetail;
@@ -14294,7 +14294,7 @@ export const zPartialUpdateTagQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateTagResponse = zTagDetail;
@@ -14315,7 +14315,7 @@ export const zUpdateTagQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateTagResponse = zTagDetail;
@@ -14355,7 +14355,7 @@ export const zListTaggedItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     objectId: z.union([
         z.string().regex(/^-?\d+$/),
         z.int()
@@ -14390,14 +14390,14 @@ export const zListTaggedItemQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
     }).optional(),
@@ -14438,7 +14438,7 @@ export const zCreateTaggedItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateTaggedItemResponse = zTaggedItemDetail;
@@ -14471,7 +14471,7 @@ export const zRetrieveTaggedItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveTaggedItemResponse = zTaggedItemDetail;
@@ -14492,7 +14492,7 @@ export const zPartialUpdateTaggedItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateTaggedItemResponse = zTaggedItemDetail;
@@ -14513,7 +14513,7 @@ export const zUpdateTaggedItemQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateTaggedItemResponse = zTaggedItemDetail;
@@ -14528,7 +14528,7 @@ export const zListUserAccountQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     ordering: z.enum([
         'id',
         '-id',
@@ -14553,14 +14553,14 @@ export const zListUserAccountQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
     }).optional()
@@ -14577,7 +14577,7 @@ export const zCreateUserAccountQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateUserAccountResponse = zUserDetails;
@@ -14610,7 +14610,7 @@ export const zRetrieveUserAccountQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveUserAccountResponse = zUserDetails;
@@ -14631,7 +14631,7 @@ export const zPartialUpdateUserAccountQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateUserAccountResponse = zUserDetails;
@@ -14652,7 +14652,7 @@ export const zUpdateUserAccountQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateUserAccountResponse = zUserDetails;
@@ -15003,7 +15003,7 @@ export const zListUserAddressQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     lastName: z.string().register(z.globalRegistry, {
         description: 'Filter by last name (partial match)'
     }).optional(),
@@ -15041,14 +15041,14 @@ export const zListUserAddressQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     phone: z.string().register(z.globalRegistry, {
         description: 'Filter by phone number (partial match)'
     }).optional(),
@@ -15105,7 +15105,7 @@ export const zCreateUserAddressQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateUserAddressResponse = zUserAddressDetail;
@@ -15138,7 +15138,7 @@ export const zRetrieveUserAddressQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveUserAddressResponse = zUserAddressDetail;
@@ -15159,7 +15159,7 @@ export const zPartialUpdateUserAddressQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateUserAddressResponse = zUserAddressDetail;
@@ -15180,7 +15180,7 @@ export const zUpdateUserAddressQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateUserAddressResponse = zUserAddressDetail;
@@ -15237,7 +15237,7 @@ export const zListUserSubscriptionQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     ordering: z.enum([
         'subscribedAt',
         '-subscribedAt',
@@ -15264,14 +15264,14 @@ export const zListUserSubscriptionQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
     }).optional(),
@@ -15351,7 +15351,7 @@ export const zCreateUserSubscriptionQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateUserSubscriptionResponse = zUserSubscriptionDetail;
@@ -15384,7 +15384,7 @@ export const zRetrieveUserSubscriptionQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveUserSubscriptionResponse = zUserSubscriptionDetail;
@@ -15405,7 +15405,7 @@ export const zPartialUpdateUserSubscriptionQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateUserSubscriptionResponse = zUserSubscriptionDetail;
@@ -15426,7 +15426,7 @@ export const zUpdateUserSubscriptionQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateUserSubscriptionResponse = zUserSubscriptionDetail;
@@ -15506,7 +15506,7 @@ export const zListSubscriptionTopicQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional(),
+    }).optional().default('el'),
     name: z.string().register(z.globalRegistry, {
         description: 'Filter by name (partial match)'
     }).optional(),
@@ -15532,14 +15532,14 @@ export const zListSubscriptionTopicQuery = z.object({
     ]).optional(),
     pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
         description: 'Enable or disable pagination'
-    }).optional(),
+    }).optional().default('true'),
     paginationType: z.enum([
         'cursor',
         'limitOffset',
         'pageNumber'
     ]).register(z.globalRegistry, {
         description: 'Pagination strategy type'
-    }).optional(),
+    }).optional().default('pageNumber'),
     requiresConfirmation: z.union([
         z.literal('true'),
         z.literal('false'),
@@ -15580,7 +15580,7 @@ export const zCreateSubscriptionTopicQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zCreateSubscriptionTopicResponse = zSubscriptionTopicDetail;
@@ -15613,7 +15613,7 @@ export const zRetrieveSubscriptionTopicQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zRetrieveSubscriptionTopicResponse = zSubscriptionTopicDetail;
@@ -15634,7 +15634,7 @@ export const zPartialUpdateSubscriptionTopicQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zPartialUpdateSubscriptionTopicResponse = zSubscriptionTopicDetail;
@@ -15655,7 +15655,7 @@ export const zUpdateSubscriptionTopicQuery = z.object({
         'en'
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
-    }).optional()
+    }).optional().default('el')
 });
 
 export const zUpdateSubscriptionTopicResponse = zSubscriptionTopicDetail;
