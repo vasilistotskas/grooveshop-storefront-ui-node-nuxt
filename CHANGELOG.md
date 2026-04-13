@@ -1,3 +1,15 @@
+# [3.81.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.80.0...v3.81.0) (2026-04-13)
+
+
+### Bug Fixes
+
+* **checkout:** resolve payment race conditions, SEO issues, and cross-service UUID forwarding ([92a6ea1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/92a6ea13990822efe3ec0388ca150889332412ab))
+
+
+### Features
+
+* Bump Versions ([9b36ca2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9b36ca2f680504b6cc7e0b52dc5ccd307a008739))
+
 # [3.80.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.79.1...v3.80.0) (2026-04-10)
 
 
