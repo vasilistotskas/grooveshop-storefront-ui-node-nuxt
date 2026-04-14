@@ -1,3 +1,10 @@
+## [3.81.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.3...v3.81.4) (2026-04-14)
+
+
+### Bug Fixes
+
+* **viva:** full checkout flow fixes — headers, guest UUID, cart clearing, error feedback ([707c643](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/707c643a53318a4e1ac1485dea61dddf6390adce))
+
 ## [3.81.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.2...v3.81.3) (2026-04-13)
 
 
