@@ -1,9 +1,10 @@
-import { z } from 'zod'
+import * as z from 'zod'
 
 const vivaResolveOrderResponse = z.object({ uuid: z.string() })
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
+  const backendFetch = useBackendFetch()
   const query = await getValidatedQuery(event, z.object({
     s: z.string().max(64).optional(),
     t: z.string().max(64).optional(),
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const result = await $fetch(
+    const result = await backendFetch(
       `${config.djangoUrl}/viva-wallet/resolve-order`,
       { query: { order_code: orderCode } },
     )

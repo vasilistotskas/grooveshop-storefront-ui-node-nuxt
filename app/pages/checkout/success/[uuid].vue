@@ -20,6 +20,9 @@ const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 const img = useImage()
 
+const cartStore = useCartStore()
+const { cleanCartState } = cartStore
+
 const getImage = (mainImagePath: string) => {
   return img(mainImagePath, { width: 96, height: 96, fit: 'cover' }, {
     provider: 'mediaStream',
@@ -34,6 +37,9 @@ const { data: order, error, refresh } = await useFetch(
     headers: useRequestHeaders(),
     query: {
       languageCode: locale,
+      // Forward the UUID as a query param so Django's IsOwnerOrAdminOrGuest
+      // permission check passes for guest orders (unauthenticated users)
+      uuid: orderUUID,
     },
   },
 )
@@ -81,6 +87,16 @@ onBeforeUnmount(() => {
 // Poll order status when coming from a payment provider.
 // Viva Wallet webhooks can be delayed, so poll more aggressively.
 onMounted(async () => {
+  // Clear client-side cart state on arrival at the success page.
+  // For Viva Wallet the checkout page is unloaded before onPaymentSuccess fires
+  // (window.location.href redirect), so the Pinia cart store still holds stale
+  // data. Calling cleanCartState() here ensures the cart badge resets regardless
+  // of the payment method used. The server-side cart session is already cleared
+  // by orders/index.post.ts on order creation.
+  if (fromCheckout.value) {
+    cleanCartState().catch(err => log.error({ action: 'success:cleanCartState', error: err }))
+  }
+
   if (!fromCheckout.value || !order.value) return
 
   if (order.value.isPaid) {
@@ -132,6 +148,20 @@ const getPaymentStatusColor = (status: OrderDetail['paymentStatus']) => {
   }
   if (!status) return 'neutral'
   return colors[status.toLowerCase()] || 'neutral'
+}
+
+const getPaymentStatusLabel = (status: OrderDetail['paymentStatus']) => {
+  const labels: Record<string, string> = {
+    pending: t('payment.status_label.pending'),
+    processing: t('payment.status_label.processing'),
+    completed: t('payment.status_label.completed'),
+    failed: t('payment.status_label.failed'),
+    refunded: t('payment.status_label.refunded'),
+    partially_refunded: t('payment.status_label.partially_refunded'),
+    canceled: t('payment.status_label.canceled'),
+  }
+  if (!status) return t('payment.pending')
+  return labels[status.toLowerCase()] || status
 }
 
 const orderItemColumns: TableColumn<OrderItemDetail>[] = [
@@ -344,7 +374,7 @@ definePageMeta({
                 :color="getPaymentStatusColor(paymentStatus)"
                 variant="subtle"
               >
-                {{ isPaid ? t('payment.paid') : t('payment.pending') }}
+                {{ getPaymentStatusLabel(paymentStatus) }}
               </UBadge>
             </div>
 
@@ -458,6 +488,14 @@ el:
     paid: Πληρωμένη
     pending: Εκκρεμεί
     method: Τρόπος Πληρωμής
+    status_label:
+      pending: Εκκρεμεί
+      processing: Σε επεξεργασία
+      completed: Ολοκληρώθηκε
+      failed: Απέτυχε
+      refunded: Επεστράφη
+      partially_refunded: Μερική επιστροφή
+      canceled: Ακυρώθηκε
     completed:
       title: Η πληρωμή ολοκληρώθηκε
       description: Η πληρωμή σου επιβεβαιώθηκε και θα λάβεις email επιβεβαίωσης σύντομα.

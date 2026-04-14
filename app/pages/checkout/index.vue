@@ -2,6 +2,8 @@
 const { loggedIn } = useUserSession()
 const localePath = useLocalePath()
 const { t } = useI18n()
+const route = useRoute()
+const toast = useToast()
 
 const cartStore = useCartStore()
 const { hasStockIssues, cart } = storeToRefs(cartStore)
@@ -9,6 +11,26 @@ const { hasStockIssues, cart } = storeToRefs(cartStore)
 watchEffect(() => {
   if (hasStockIssues.value) {
     navigateTo(localePath('cart'))
+  }
+})
+
+// Handle return from payment provider after cancellation or failure.
+// Viva Wallet and Stripe hosted checkout redirect back to this page with
+// ?canceled=true or ?error=<code> when the user cancels or payment fails.
+onMounted(() => {
+  if (route.query.canceled) {
+    toast.add({
+      title: t('payment_canceled'),
+      description: t('payment_canceled_description'),
+      color: 'warning',
+    })
+  }
+  else if (route.query.error) {
+    toast.add({
+      title: t('payment_error_title'),
+      description: t('payment_error_description'),
+      color: 'error',
+    })
   }
 })
 

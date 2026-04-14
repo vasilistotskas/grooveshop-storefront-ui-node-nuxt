@@ -6,7 +6,7 @@ const zGuestQuery = z.object({
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await getAllAuthAccessToken(event)
+  const headers = await getAllAuthHeaders()
   try {
     const params = await getValidatedRouterParams(
       event,
@@ -21,11 +21,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(url.toString(), {
       method: 'POST',
       body,
-      ...(accessToken && {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }),
+      headers,
     })
     return await parseDataAs(response, zCreateOrderCheckoutSessionResponse)
   }

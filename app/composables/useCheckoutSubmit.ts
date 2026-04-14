@@ -256,6 +256,12 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
           description: error?.data?.message || error?.message || t('payment_intent_error_description'),
           color: 'error',
         })
+        // Release any stock reservations held for this checkout attempt
+        if (reservationIds.value.length > 0) {
+          releaseReservations(reservationIds.value)
+            .catch(err => log.error({ action: 'checkout:releaseReservations', error: err }))
+          reservationIds.value = []
+        }
       }
     }
   }
