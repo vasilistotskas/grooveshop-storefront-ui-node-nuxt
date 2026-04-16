@@ -36,7 +36,7 @@ export default defineEventHandler((event) => {
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     `img-src 'self' data: blob: ${trustedOrigins} https://www.googletagmanager.com`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src 'self' ${trustedOrigins} https://*.google-analytics.com https://api.stripe.com ${wsScheme}://${djangoHost}`,
+    `connect-src 'self' ${trustedOrigins} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}`,
     `frame-src 'self' https://js.stripe.com https://challenges.cloudflare.com https://accounts.google.com`,
     `object-src 'none'`,
     `base-uri 'self'`,
