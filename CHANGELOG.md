@@ -1,3 +1,10 @@
+## [3.81.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.4...v3.81.5) (2026-04-16)
+
+
+### Performance Improvements
+
+* **home:** drop double hero preload, inline category icons, add manifest + a11y ([5987eaf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5987eaf58eb803c70d0314c242a0a23916e0acfe))
+
 ## [3.81.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.3...v3.81.4) (2026-04-14)
 
 
