@@ -1,3 +1,10 @@
+## [3.81.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.5...v3.81.6) (2026-04-16)
+
+
+### Bug Fixes
+
+* blog category image ([66ee6e4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/66ee6e4ebd0b0f329c62aa54b7f0dad1cd05fb79))
+
 ## [3.81.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.4...v3.81.5) (2026-04-16)
 
 
