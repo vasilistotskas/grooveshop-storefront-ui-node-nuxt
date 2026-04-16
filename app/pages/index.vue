@@ -16,23 +16,8 @@ definePageMeta({
   layout: 'default',
 })
 
-const lcpImageUrl = computed(() =>
-  isMobileOrTablet.value
-    ? '/_ipx/f_avif&q_80&fit_cover&s_510x638/img/main-banner-mobile.png'
-    : '/_ipx/f_avif&q_80&fit_cover&s_1194x418/img/main-banner.png',
-)
-
 useHead({
   titleTemplate: '%s',
-  link: [
-    {
-      rel: 'preload',
-      as: 'image',
-      href: lcpImageUrl,
-      fetchpriority: 'high',
-      type: 'image/avif',
-    },
-  ],
 })
 
 useSeoMeta({

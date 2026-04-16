@@ -59,6 +59,7 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
         { rel: 'icon', type: 'image/png', href: '/favicon/favicon-16x16.png' },
         { rel: 'apple-touch-icon', href: '/favicon/apple-touch-icon.png' },
+        { rel: 'manifest', href: '/manifest.webmanifest' },
         // DNS prefetch for external domains to reduce DNS lookup time
         { rel: 'dns-prefetch', href: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003' },
         { rel: 'dns-prefetch', href: process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000' },
@@ -207,7 +208,6 @@ export default defineNuxtConfig({
     },
     '/manifest.webmanifest': {
       headers: {
-        'Content-Type': 'application/manifest+json',
         'Cache-Control': 'public, max-age=0, must-revalidate',
       },
     },
@@ -460,6 +460,14 @@ export default defineNuxtConfig({
         'i-lucide:sun',
         'i-heroicons:heart',
         'i-fa6-solid:circle-user',
+        'i-fa6-solid:shield',
+        'i-fa6-solid:mobile',
+        'i-fa6-solid:desktop',
+        'i-fa6-solid:robot',
+        'i-fa6-solid:microchip',
+        'i-fa6-solid:globe',
+        'i-fa6-solid:network-wired',
+        'i-fa6-solid:shuffle',
       ],
       scan: {
         globInclude: ['app/**/*.vue'],

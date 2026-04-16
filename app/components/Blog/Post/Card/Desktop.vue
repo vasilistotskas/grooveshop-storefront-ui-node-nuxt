@@ -183,6 +183,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             color="neutral"
             variant="ghost"
             :title="t('share')"
+            :aria-label="t('share')"
             :ui="{
               base: `
                 flex cursor-pointer flex-col items-center gap-1 p-0
