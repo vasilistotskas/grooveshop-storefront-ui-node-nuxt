@@ -74,23 +74,21 @@ export function setupCursorState() {
 
 export function setupGoogleAnalyticsConsent() {
   const config = useRuntimeConfig()
-  const { proxy } = useScriptGoogleAnalytics({
+  const { consent } = useScriptGoogleAnalytics({
     id: config.public.scripts.googleAnalytics.id,
     // Defer loading until after hydration to not block initial render
     scriptOptions: {
       trigger: 'onNuxtReady',
     },
-    onBeforeGtagStart(gtag) {
-      gtag('consent', 'default', {
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
-        ad_storage: 'denied',
-        analytics_storage: 'denied',
-        functionality_storage: 'granted',
-        personalization_storage: 'denied',
-        security_storage: 'denied',
-        wait_for_update: 500,
-      })
+    defaultConsent: {
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      ad_storage: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'granted',
+      personalization_storage: 'denied',
+      security_storage: 'denied',
+      wait_for_update: 500,
     },
   })
 
@@ -101,19 +99,18 @@ export function setupGoogleAnalyticsConsent() {
 
   watch(
     () => cookiesEnabledIds.value,
-    async (current, _previous) => {
-      if (isConsentGiven.value) {
-        const consentFieldStatus = (field: string) => current?.includes(field) ? 'granted' : 'denied'
-        proxy.gtag('consent', 'update', {
-          ad_storage: consentFieldStatus('ad_storage'),
-          ad_user_data: consentFieldStatus('ad_user_data'),
-          ad_personalization: consentFieldStatus('ad_personalization'),
-          analytics_storage: consentFieldStatus('analytics_storage'),
-          functionality_storage: consentFieldStatus('functionality_storage'),
-          personalization_storage: consentFieldStatus('personalization_storage'),
-          security_storage: consentFieldStatus('security_storage'),
-        })
-      }
+    (current) => {
+      if (!consent || !isConsentGiven.value) return
+      const status = (field: string) => current?.includes(field) ? 'granted' as const : 'denied' as const
+      consent.update({
+        ad_storage: status('ad_storage'),
+        ad_user_data: status('ad_user_data'),
+        ad_personalization: status('ad_personalization'),
+        analytics_storage: status('analytics_storage'),
+        functionality_storage: status('functionality_storage'),
+        personalization_storage: status('personalization_storage'),
+        security_storage: status('security_storage'),
+      })
     },
     { immediate: true },
   )

@@ -523,6 +523,11 @@ export default defineNuxtConfig({
     enabled: true,
     minify: true,
   },
+  scripts: {
+    assets: {
+      integrity: 'sha384',
+    },
+  },
   seo: {
     redirectToCanonicalSiteUrl: true,
   },
