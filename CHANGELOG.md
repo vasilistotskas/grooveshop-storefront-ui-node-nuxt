@@ -1,3 +1,10 @@
+## [3.81.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.6...v3.81.7) (2026-04-16)
+
+
+### Bug Fixes
+
+* csp ([6bddbaf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6bddbaf6b59dc2e82639b463fd614dff022e98ca))
+
 ## [3.81.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.5...v3.81.6) (2026-04-16)
 
 
