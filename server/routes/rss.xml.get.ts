@@ -44,8 +44,10 @@ const generateRssFeed = defineCachedFunction(
       },
     })
 
-    const cachedBlogPosts = createCachedFetcher<BlogPost>('cachedBlogPosts', RSS_CACHE_AGE)
-    const cachedProducts = createCachedFetcher<Product>('cachedProducts', RSS_CACHE_AGE)
+    // Namespaced to avoid collision with sitemap handlers which register
+    // fetchers under the same logical name but a different TTL.
+    const cachedBlogPosts = createCachedFetcher<BlogPost>('rss:blog-posts', RSS_CACHE_AGE)
+    const cachedProducts = createCachedFetcher<Product>('rss:products', RSS_CACHE_AGE)
 
     const [allPosts, allProducts] = await Promise.all([
       cachedBlogPosts(`${apiBaseUrl}/blog/post`),

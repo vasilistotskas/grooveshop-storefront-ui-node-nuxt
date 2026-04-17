@@ -126,7 +126,17 @@ export async function fetchUserData(response: AllAuthResponse, accessToken?: str
   })
 
   const userResponse = await parseDataAs(user, zUserDetails)
-  await setUserSession(useEvent(), {
+  // Use replaceUserSession (not setUserSession) so any stale `user`
+  // fields from a prior session — e.g. old email, username, or custom
+  // keys no longer present in the new payload — are cleared. We
+  // explicitly carry forward `secure` (Knox + session tokens) and
+  // `oauthParams`, which were just set by processAllAuthSession above
+  // and must survive this rebuild; setUserSession's defu merge kept them
+  // by accident but also kept other stale `user` keys we want to drop.
+  const event = useEvent()
+  const current = await getUserSession(event)
+  await replaceUserSession(event, {
+    ...current,
     user: userResponse,
   })
   return userResponse

@@ -343,7 +343,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
             }
 
             // Scroll to top to show the error alert
-            window.scrollTo({ top: 0, behavior: 'smooth' })
+            if (import.meta.client) {
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }
             return
           }
 
