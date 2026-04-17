@@ -145,19 +145,22 @@ export const useCheckout = () => {
     try {
       const response = await $fetch<{
         clientSecret?: string
-        client_secret?: string
         paymentIntentId?: string
-        payment_id?: string
       }>(`/api/orders/${orderId}/retry-payment`, {
         method: 'POST',
         body: {},
         query: orderUuid ? { uuid: orderUuid } : undefined,
       })
+      // Django's retry-payment endpoint always returns a clientSecret
+      // for the fresh Stripe PaymentIntent. An empty value would
+      // silently break the Stripe Elements remount on the caller side,
+      // so we fail loudly here instead.
+      if (!response.clientSecret) {
+        throw new Error('retryPayment: missing clientSecret in response')
+      }
       return {
-        clientSecret:
-          response.clientSecret || response.client_secret || '',
-        paymentIntentId:
-          response.paymentIntentId || response.payment_id || '',
+        clientSecret: response.clientSecret,
+        paymentIntentId: response.paymentIntentId || '',
       }
     }
     catch (error) {
