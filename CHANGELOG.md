@@ -1,3 +1,10 @@
+## [3.82.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.82.0...v3.82.1) (2026-04-17)
+
+
+### Bug Fixes
+
+* **checkout:** throw explicitly when retryPayment response lacks clientSecret ([46b0b91](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/46b0b9178ca64e1cebec75fc77e46ccdc3b58faf))
+
 # [3.82.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.7...v3.82.0) (2026-04-17)
 
 
