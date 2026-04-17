@@ -23,16 +23,23 @@ export default defineNuxtPlugin({
       }
 
       try {
-        const tokens = await $fetch('/api/websocket/user/tokens', {
+        // Single-use 60s ticket — see server/api/websocket/user/ticket.get.ts.
+        // Never put the Knox access token in the URL; it is logged by
+        // every proxy layer and lives for 7 days.
+        const response = await $fetch<{ ticket: string, expiresIn: number }>('/api/websocket/user/ticket', {
           method: 'GET',
           headers: useRequestHeaders(),
         })
+        if (!response?.ticket) {
+          log.warn('ws', 'No ticket returned from /api/websocket/user/ticket')
+          return
+        }
 
         const websocketProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
         const djangoApiHostName = config.public.djangoHostName || `api.${window.location.hostname}`
         const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHostName}/ws/notifications/`, {
           user_id: user.value?.id,
-          access_token: tokens.accessToken,
+          ticket: response.ticket,
         })
 
         const options: UseWebNotificationOptions = {
