@@ -130,11 +130,48 @@ export const useCheckout = () => {
     throw new Error('Payment status polling timeout')
   }
 
+  /**
+   * Retry payment for a failed/pending order. Creates a fresh Stripe
+   * PaymentIntent on the existing order so the customer can re-enter
+   * card details without starting a new order.
+   * @param orderId - The order ID
+   * @param orderUuid - Optional UUID for guest order access
+   * @returns Payment intent details including client_secret and payment_intent_id
+   */
+  const retryPayment = async (
+    orderId: string | number,
+    orderUuid?: string,
+  ): Promise<{ clientSecret: string, paymentIntentId: string }> => {
+    try {
+      const response = await $fetch<{
+        clientSecret?: string
+        client_secret?: string
+        paymentIntentId?: string
+        payment_id?: string
+      }>(`/api/orders/${orderId}/retry-payment`, {
+        method: 'POST',
+        body: {},
+        query: orderUuid ? { uuid: orderUuid } : undefined,
+      })
+      return {
+        clientSecret:
+          response.clientSecret || response.client_secret || '',
+        paymentIntentId:
+          response.paymentIntentId || response.payment_id || '',
+      }
+    }
+    catch (error) {
+      log.error({ action: 'checkout:retryPayment', error })
+      throw error
+    }
+  }
+
   return {
     reserveStock,
     releaseReservations,
     createPaymentIntentFromCart,
     getPaymentStatus,
     pollPaymentStatus,
+    retryPayment,
   }
 }
