@@ -1,3 +1,16 @@
+# [3.83.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.82.1...v3.83.0) (2026-04-17)
+
+
+### Bug Fixes
+
+* audit fixes — SSR guards, cache name collisions, session rebuild ([b1dc45c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b1dc45cd59175511843edaa09a00318e845a4474))
+
+
+### Features
+
+* **auth:** WebSocket ticket fetch replaces Knox token in URL ([289d692](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/289d692b7c7373e6a8d70b3feee003036365e242))
+* **checkout:** SSE payment-status stream with poll fallback ([d64867b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d64867b94b018ea08ff7c90fda221b488f2816d8))
+
 ## [3.82.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.82.0...v3.82.1) (2026-04-17)
 
 
