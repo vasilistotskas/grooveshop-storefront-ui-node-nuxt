@@ -1,3 +1,10 @@
+# [3.82.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.7...v3.82.0) (2026-04-17)
+
+
+### Features
+
+* **checkout:** add retryPayment composable + server route ([f3f7224](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f3f722485675953053aadba5c8b0c719a50b3635))
+
 ## [3.81.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.6...v3.81.7) (2026-04-16)
 
 
