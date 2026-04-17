@@ -87,11 +87,16 @@ export const useCheckout = () => {
    * @param orderUuid - Optional UUID for guest order access
    * @returns Payment status information
    */
-  const getPaymentStatus = async (orderId: string | number, orderUuid?: string): Promise<any> => {
+  const getPaymentStatus = async (
+    orderId: string | number,
+    orderUuid?: string,
+    signal?: AbortSignal,
+  ): Promise<any> => {
     try {
       const response = await $fetch(`/api/orders/${orderId}/payment-status`, {
         method: 'GET',
         query: orderUuid ? { uuid: orderUuid } : undefined,
+        signal,
       })
       return response
     }
@@ -107,6 +112,9 @@ export const useCheckout = () => {
    * @param maxAttempts - Maximum number of polling attempts
    * @param interval - Interval between attempts in milliseconds
    * @param orderUuid - Optional UUID for guest order access
+   * @param signal - Optional AbortSignal to cancel the poll (e.g. on
+   *   route change). When aborted, the pending $fetch is canceled and
+   *   the sleep between attempts short-circuits.
    * @returns Final payment status
    */
   const pollPaymentStatus = async (
@@ -114,17 +122,32 @@ export const useCheckout = () => {
     maxAttempts = 10,
     interval = 2000,
     orderUuid?: string,
+    signal?: AbortSignal,
   ): Promise<any> => {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      const status = await getPaymentStatus(orderId, orderUuid)
+      if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
+      const status = await getPaymentStatus(orderId, orderUuid, signal)
 
-      // Check if payment reached a final state
-      if (['PROCESSING', 'COMPLETED', 'FAILED', 'CANCELED'].includes(status.status)) {
+      // Check if payment reached a final state. PROCESSING is a
+      // transitional Stripe state (payment in flight) — treating it as
+      // terminal caused the UI to stop polling before a real outcome.
+      if (['COMPLETED', 'FAILED', 'CANCELED'].includes(status.status)) {
         return status
       }
 
-      // Wait before next attempt
-      await new Promise(resolve => setTimeout(resolve, interval))
+      // Abortable sleep — drops the setTimeout as soon as the signal fires.
+      await new Promise<void>((resolve, reject) => {
+        const timer = setTimeout(() => {
+          signal?.removeEventListener('abort', onAbort)
+          resolve()
+        }, interval)
+        const onAbort = () => {
+          clearTimeout(timer)
+          signal?.removeEventListener('abort', onAbort)
+          reject(new DOMException('Aborted', 'AbortError'))
+        }
+        signal?.addEventListener('abort', onAbort, { once: true })
+      })
     }
 
     throw new Error('Payment status polling timeout')
@@ -169,12 +192,97 @@ export const useCheckout = () => {
     }
   }
 
+  /**
+   * Subscribe to server-sent payment-status updates for an order.
+   *
+   * Opens an EventSource against the Nuxt SSE endpoint which proxies
+   * Redis pub/sub messages emitted by Django webhooks. Resolves as
+   * soon as the server reports a terminal status (COMPLETED / FAILED /
+   * CANCELED). Falls back to pollPaymentStatus if the browser lacks
+   * EventSource, the connection fails before a terminal state, or the
+   * provided signal aborts.
+   *
+   * @param orderId - The order ID
+   * @param orderUuid - Optional UUID for guest order access
+   * @param signal - Optional AbortSignal to cancel the stream
+   * @returns Final payment status (same shape as pollPaymentStatus)
+   */
+  const streamPaymentStatus = async (
+    orderId: string | number,
+    orderUuid?: string,
+    signal?: AbortSignal,
+  ): Promise<any> => {
+    if (typeof EventSource === 'undefined') {
+      return pollPaymentStatus(orderId, 10, 2000, orderUuid, signal)
+    }
+
+    const url = new URL(
+      `/api/orders/${orderId}/payment-status/stream`,
+      window.location.origin,
+    )
+    if (orderUuid) url.searchParams.set('uuid', orderUuid)
+
+    return new Promise((resolve, reject) => {
+      const source = new EventSource(url.toString(), { withCredentials: true })
+      let settled = false
+
+      const finish = (value: any, reason: 'resolve' | 'reject') => {
+        if (settled) return
+        settled = true
+        source.close()
+        signal?.removeEventListener('abort', onAbort)
+        if (reason === 'resolve') resolve(value)
+        else reject(value)
+      }
+
+      const onAbort = () => {
+        finish(new DOMException('Aborted', 'AbortError'), 'reject')
+      }
+      if (signal?.aborted) return onAbort()
+      signal?.addEventListener('abort', onAbort, { once: true })
+
+      const onMessage = (ev: MessageEvent) => {
+        try {
+          const data = JSON.parse(ev.data)
+          const status = data.paymentStatus ?? data.status
+          if (['COMPLETED', 'FAILED', 'CANCELED'].includes(status)) {
+            finish({ ...data, status }, 'resolve')
+          }
+        }
+        catch (err) {
+          log.error({ action: 'checkout:streamPaymentStatus:parse', error: err })
+        }
+      }
+
+      source.addEventListener('payment-status', onMessage as EventListener)
+      source.addEventListener('message', onMessage as EventListener)
+
+      source.onerror = async () => {
+        // Browser auto-reconnects EventSource on transient drops. If
+        // readyState is CLOSED the server gave up — fall back to
+        // polling so the user isn't left staring at a spinner.
+        if (source.readyState === EventSource.CLOSED) {
+          source.close()
+          signal?.removeEventListener('abort', onAbort)
+          try {
+            const result = await pollPaymentStatus(orderId, 10, 2000, orderUuid, signal)
+            finish(result, 'resolve')
+          }
+          catch (err) {
+            finish(err, 'reject')
+          }
+        }
+      }
+    })
+  }
+
   return {
     reserveStock,
     releaseReservations,
     createPaymentIntentFromCart,
     getPaymentStatus,
     pollPaymentStatus,
+    streamPaymentStatus,
     retryPayment,
   }
 }
