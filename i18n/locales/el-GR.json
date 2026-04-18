@@ -265,7 +265,7 @@
   "ip_address": "Διεύθυνση IP",
   "user_agent": "Πρόγραμμα περιήγησης",
   "payment_methods": {
-    "CREDIT_CARD": "Πιστωτική Κάρτα",
+    "CREDIT_CARD": "Πληρωμή με Κάρτα",
     "PAY_ON_DELIVERY": "Αντικαταβολή",
     "PAY_ON_STORE": "Πληρωμή στο Κατάστημα",
     "PAY_PAL": "PayPal",
