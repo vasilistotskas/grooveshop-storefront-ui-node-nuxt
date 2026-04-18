@@ -531,6 +531,16 @@ export const zCategoryEnum = z.enum([
     description: '* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other'
 });
 
+export const zConfirmResponse = z.object({
+    status: z.string(),
+    topic: z.string().optional()
+});
+
+export const zConfirmResponseRequest = z.object({
+    status: z.string().min(1),
+    topic: z.string().min(1).optional()
+});
+
 export const zContactWrite = z.object({
     id: z.int().readonly(),
     name: z.string().max(100),
@@ -1792,7 +1802,10 @@ export const zPatchedUserWriteRequest = z.object({
     website: z.url().max(200).nullish(),
     youtube: z.url().max(200).nullish(),
     github: z.url().max(200).nullish(),
-    bio: z.string().optional()
+    bio: z.string().optional(),
+    languageCode: z.string().min(1).max(10).register(z.globalRegistry, {
+        description: 'Preferred language for emails and UI messages.'
+    }).optional()
 });
 
 /**
@@ -3601,6 +3614,7 @@ export const zUnsubscribe = z.object({
     topic: z.string().optional(),
     userEmail: z.email().optional(),
     topicSlug: z.string().optional(),
+    count: z.int().optional(),
     error: z.string().optional()
 });
 
@@ -3723,6 +3737,9 @@ export const zUserDetails = z.object({
     youtube: z.string().max(200).readonly().nullable(),
     github: z.string().max(200).readonly().nullable(),
     bio: z.string().optional(),
+    languageCode: z.string().max(10).register(z.globalRegistry, {
+        description: 'Preferred language for emails and UI messages.'
+    }).optional(),
     isActive: z.boolean().readonly(),
     isStaff: z.boolean().readonly(),
     isSuperuser: z.boolean().register(z.globalRegistry, {
@@ -4110,7 +4127,10 @@ export const zUserWriteRequest = z.object({
     website: z.url().max(200).nullish(),
     youtube: z.url().max(200).nullish(),
     github: z.url().max(200).nullish(),
-    bio: z.string().optional()
+    bio: z.string().optional(),
+    languageCode: z.string().min(1).max(10).register(z.globalRegistry, {
+        description: 'Preferred language for emails and UI messages.'
+    }).optional()
 });
 
 export const zUsernameUpdateRequest = z.object({
@@ -4123,6 +4143,11 @@ export const zUsernameUpdateResponse = z.object({
     detail: z.string().register(z.globalRegistry, {
         description: 'Success message for username update'
     })
+});
+
+export const zWebSocketTicketResponse = z.object({
+    ticket: z.string(),
+    expiresIn: z.int()
 });
 
 /**
@@ -5643,7 +5668,10 @@ export const zUserDetailsWritable = z.object({
     country: z.string().nullish(),
     region: z.string().nullish(),
     birthDate: z.iso.date().nullish(),
-    bio: z.string().optional()
+    bio: z.string().optional(),
+    languageCode: z.string().max(10).register(z.globalRegistry, {
+        description: 'Preferred language for emails and UI messages.'
+    }).optional()
 });
 
 export const zPaginatedUserDetailsListWritable = z.object({
@@ -10888,6 +10916,17 @@ export const zGetOrderPaymentStatusPath = z.object({
 
 export const zGetOrderPaymentStatusResponse = zPaymentStatusResponse;
 
+export const zRetryOrderPaymentBody = zCreatePaymentIntentRequestRequest;
+
+export const zRetryOrderPaymentPath = z.object({
+    id: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ])
+});
+
+export const zRetryOrderPaymentResponse = zCreatePaymentIntentResponse;
+
 export const zUpdateOrderStatusBody = zUpdateStatusRequest;
 
 export const zUpdateOrderStatusPath = z.object({
@@ -15463,6 +15502,20 @@ export const zConfirmUserSubscriptionResponse = zUserSubscriptionDetail;
 
 export const zBulkUpdateUserSubscriptionsBody = zBulkSubscriptionRequest;
 
+export const zConfirmSubscriptionByTokenPath = z.object({
+    token: z.string()
+});
+
+export const zConfirmSubscriptionByTokenResponse = zConfirmResponse;
+
+export const zUserSubscriptionConfirmCreateBody = zConfirmResponseRequest;
+
+export const zUserSubscriptionConfirmCreatePath = z.object({
+    token: z.string()
+});
+
+export const zUserSubscriptionConfirmCreateResponse = zConfirmResponse;
+
 export const zListSubscriptionTopicQuery = z.object({
     category: z.enum([
         'ACCOUNT',
@@ -15706,8 +15759,28 @@ export const zGetMySubscriptionTopicsResponse = z.object({
 
 export const zUnsubscribeViaLinkPath = z.object({
     token: z.string(),
-    topicSlug: z.string(),
     uidb64: z.string()
 });
 
 export const zUnsubscribeViaLinkResponse = zUnsubscribe;
+
+export const zUnsubscribeOneClickPath = z.object({
+    token: z.string(),
+    uidb64: z.string()
+});
+
+export const zUnsubscribeViaLink2Path = z.object({
+    token: z.string(),
+    topicSlug: z.string(),
+    uidb64: z.string()
+});
+
+export const zUnsubscribeViaLink2Response = zUnsubscribe;
+
+export const zUnsubscribeOneClick2Path = z.object({
+    token: z.string(),
+    topicSlug: z.string(),
+    uidb64: z.string()
+});
+
+export const zCreateWebSocketTicketResponse = zWebSocketTicketResponse;

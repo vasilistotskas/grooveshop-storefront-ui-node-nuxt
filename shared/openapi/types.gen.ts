@@ -873,6 +873,16 @@ export type CartWriteRequest = {
  */
 export type CategoryEnum = 'MARKETING' | 'PRODUCT' | 'ACCOUNT' | 'SYSTEM' | 'NEWSLETTER' | 'PROMOTIONAL' | 'OTHER';
 
+export type ConfirmResponse = {
+    status: string;
+    topic?: string;
+};
+
+export type ConfirmResponseRequest = {
+    status: string;
+    topic?: string;
+};
+
 export type ContactWrite = {
     readonly id: number;
     name: string;
@@ -2688,6 +2698,12 @@ export type PatchedUserWriteRequest = {
      */
     github?: string | null;
     bio?: string;
+    /**
+     * Language
+     *
+     * Preferred language for emails and UI messages.
+     */
+    languageCode?: string;
 };
 
 /**
@@ -4180,6 +4196,7 @@ export type Unsubscribe = {
     topic?: string;
     userEmail?: string;
     topicSlug?: string;
+    count?: number;
     error?: string;
 };
 
@@ -4340,6 +4357,12 @@ export type UserDetails = {
     readonly github: string | null;
     bio?: string;
     /**
+     * Language
+     *
+     * Preferred language for emails and UI messages.
+     */
+    languageCode?: string;
+    /**
      * Active
      */
     readonly isActive: boolean;
@@ -4479,6 +4502,12 @@ export type UserWriteRequest = {
      */
     github?: string | null;
     bio?: string;
+    /**
+     * Language
+     *
+     * Preferred language for emails and UI messages.
+     */
+    languageCode?: string;
 };
 
 export type UsernameUpdateRequest = {
@@ -4493,6 +4522,11 @@ export type UsernameUpdateResponse = {
      * Success message for username update
      */
     detail: string;
+};
+
+export type WebSocketTicketResponse = {
+    ticket: string;
+    expiresIn: number;
 };
 
 /**
@@ -6083,6 +6117,12 @@ export type UserDetailsWritable = {
     region?: string | null;
     birthDate?: string | null;
     bio?: string;
+    /**
+     * Language
+     *
+     * Preferred language for emails and UI messages.
+     */
+    languageCode?: string;
 };
 
 export type UserSubscriptionWritable = {
@@ -12041,6 +12081,31 @@ export type GetOrderPaymentStatusResponses = {
 
 export type GetOrderPaymentStatusResponse = GetOrderPaymentStatusResponses[keyof GetOrderPaymentStatusResponses];
 
+export type RetryOrderPaymentData = {
+    body?: CreatePaymentIntentRequestRequest;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/order/{id}/retry-payment';
+};
+
+export type RetryOrderPaymentErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetryOrderPaymentError = RetryOrderPaymentErrors[keyof RetryOrderPaymentErrors];
+
+export type RetryOrderPaymentResponses = {
+    200: CreatePaymentIntentResponse;
+};
+
+export type RetryOrderPaymentResponse = RetryOrderPaymentResponses[keyof RetryOrderPaymentResponses];
+
 export type UpdateOrderStatusData = {
     body: UpdateStatusRequest;
     path: {
@@ -17671,6 +17736,42 @@ export type BulkUpdateUserSubscriptionsResponses = {
     200: unknown;
 };
 
+export type ConfirmSubscriptionByTokenData = {
+    body?: never;
+    path: {
+        token: string;
+    };
+    query?: never;
+    url: '/api/v1/user/subscription/confirm/{token}';
+};
+
+export type ConfirmSubscriptionByTokenErrors = {
+    400: ErrorResponse;
+};
+
+export type ConfirmSubscriptionByTokenError = ConfirmSubscriptionByTokenErrors[keyof ConfirmSubscriptionByTokenErrors];
+
+export type ConfirmSubscriptionByTokenResponses = {
+    200: ConfirmResponse;
+};
+
+export type ConfirmSubscriptionByTokenResponse = ConfirmSubscriptionByTokenResponses[keyof ConfirmSubscriptionByTokenResponses];
+
+export type UserSubscriptionConfirmCreateData = {
+    body: ConfirmResponseRequest;
+    path: {
+        token: string;
+    };
+    query?: never;
+    url: '/api/v1/user/subscription/confirm/{token}';
+};
+
+export type UserSubscriptionConfirmCreateResponses = {
+    200: ConfirmResponse;
+};
+
+export type UserSubscriptionConfirmCreateResponse = UserSubscriptionConfirmCreateResponses[keyof UserSubscriptionConfirmCreateResponses];
+
 export type ListSubscriptionTopicData = {
     body?: never;
     path?: never;
@@ -18024,11 +18125,10 @@ export type UnsubscribeViaLinkData = {
     body?: never;
     path: {
         token: string;
-        topicSlug: string;
         uidb64: string;
     };
     query?: never;
-    url: '/api/v1/user/unsubscribe/{uidb64}/{token}/{topic_slug}';
+    url: '/api/v1/user/unsubscribe/{uidb64}/{token}';
 };
 
 export type UnsubscribeViaLinkErrors = {
@@ -18042,3 +18142,74 @@ export type UnsubscribeViaLinkResponses = {
 };
 
 export type UnsubscribeViaLinkResponse = UnsubscribeViaLinkResponses[keyof UnsubscribeViaLinkResponses];
+
+export type UnsubscribeOneClickData = {
+    body?: never;
+    path: {
+        token: string;
+        uidb64: string;
+    };
+    query?: never;
+    url: '/api/v1/user/unsubscribe/{uidb64}/{token}';
+};
+
+export type UnsubscribeOneClickResponses = {
+    /**
+     * No response body
+     */
+    200: unknown;
+};
+
+export type UnsubscribeViaLink2Data = {
+    body?: never;
+    path: {
+        token: string;
+        topicSlug: string;
+        uidb64: string;
+    };
+    query?: never;
+    url: '/api/v1/user/unsubscribe/{uidb64}/{token}/{topic_slug}';
+};
+
+export type UnsubscribeViaLink2Errors = {
+    400: ErrorResponse;
+};
+
+export type UnsubscribeViaLink2Error = UnsubscribeViaLink2Errors[keyof UnsubscribeViaLink2Errors];
+
+export type UnsubscribeViaLink2Responses = {
+    200: Unsubscribe;
+};
+
+export type UnsubscribeViaLink2Response = UnsubscribeViaLink2Responses[keyof UnsubscribeViaLink2Responses];
+
+export type UnsubscribeOneClick2Data = {
+    body?: never;
+    path: {
+        token: string;
+        topicSlug: string;
+        uidb64: string;
+    };
+    query?: never;
+    url: '/api/v1/user/unsubscribe/{uidb64}/{token}/{topic_slug}';
+};
+
+export type UnsubscribeOneClick2Responses = {
+    /**
+     * No response body
+     */
+    200: unknown;
+};
+
+export type CreateWebSocketTicketData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/websocket/ticket';
+};
+
+export type CreateWebSocketTicketResponses = {
+    200: WebSocketTicketResponse;
+};
+
+export type CreateWebSocketTicketResponse = CreateWebSocketTicketResponses[keyof CreateWebSocketTicketResponses];
