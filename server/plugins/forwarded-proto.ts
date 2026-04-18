@@ -71,6 +71,17 @@ export default defineNitroPlugin(() => {
       if (publicHost && !options.headers.has('X-Forwarded-Host')) {
         options.headers.set('X-Forwarded-Host', publicHost)
       }
+      if (!options.headers.has('X-Language')) {
+        let locale: string | undefined
+        try {
+          const event = useEvent()
+          locale = event?.context?.locale as string | undefined
+        }
+        catch {
+          locale = undefined
+        }
+        if (locale) options.headers.set('X-Language', locale)
+      }
     },
   }) as typeof globalThis.$fetch
 

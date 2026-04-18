@@ -20,6 +20,8 @@
  *   const data = await $backendFetch(`${config.apiBaseUrl}/some/endpoint`)
  */
 
+import { DEFAULT_LOCALE } from '~~/i18n/locales'
+
 let _backendFetch: typeof $fetch | undefined
 
 export function useBackendFetch(): typeof $fetch {
@@ -60,6 +62,20 @@ export function useBackendFetch(): typeof $fetch {
       }
       if (publicHost && !options.headers.has('X-Forwarded-Host')) {
         options.headers.set('X-Forwarded-Host', publicHost)
+      }
+      if (!options.headers.has('X-Language')) {
+        let locale: string | undefined
+        try {
+          // useEvent() is available only inside an active Nitro request.
+          // Cached/SSR-prerender calls may not have one — fall through
+          // to the default locale in that case.
+          const event = useEvent()
+          locale = event?.context?.locale as string | undefined
+        }
+        catch {
+          locale = undefined
+        }
+        options.headers.set('X-Language', locale || DEFAULT_LOCALE)
       }
     },
   }) as typeof $fetch

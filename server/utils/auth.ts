@@ -1,4 +1,5 @@
 import type { H3Event } from 'h3'
+import { DEFAULT_LOCALE } from '~~/i18n/locales'
 
 // Responses that only carry session tokens in meta (no authenticated user data).
 // Used by endpoints like /auth/code/request and /auth/webauthn/login (GET).
@@ -49,6 +50,13 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   if (requestHeaders['x-forwarded-for']) {
     headers['X-Forwarded-For'] = requestHeaders['x-forwarded-for']
   }
+
+  // Tell Django which language to render emails/responses in. The locale
+  // middleware populates event.context.locale from (in order): ?locale query,
+  // i18n cookies, Accept-Language. allauth's adapter + every Celery email
+  // task reads this header to capture/override user language.
+  const locale = (event.context.locale as string | undefined) || DEFAULT_LOCALE
+  headers['X-Language'] = locale
 
   return headers
 }
@@ -111,11 +119,14 @@ export async function requireAllAuthAccessToken(event?: H3Event): Promise<string
 
 export async function fetchUserData(response: AllAuthResponse, accessToken?: string | null) {
   const config = useRuntimeConfig()
+  const event = useEvent()
   const token = accessToken || response.meta?.access_token
+  const locale = (event.context.locale as string | undefined) || DEFAULT_LOCALE
   let headers: Record<string, string> = {
     'Authorization': `Bearer ${token}`,
-    'X-Forwarded-Proto': getRequestProtocol(useEvent(), { xForwardedProto: true }),
-    'X-Forwarded-Host': config.public.djangoHostName || getRequestHost(useEvent(), { xForwardedHost: false }),
+    'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
+    'X-Forwarded-Host': config.public.djangoHostName || getRequestHost(event, { xForwardedHost: false }),
+    'X-Language': locale,
   }
   if (response.meta?.is_authenticated && !token) {
     headers = await getAllAuthHeaders()
@@ -133,7 +144,6 @@ export async function fetchUserData(response: AllAuthResponse, accessToken?: str
   // `oauthParams`, which were just set by processAllAuthSession above
   // and must survive this rebuild; setUserSession's defu merge kept them
   // by accident but also kept other stale `user` keys we want to drop.
-  const event = useEvent()
   const current = await getUserSession(event)
   await replaceUserSession(event, {
     ...current,

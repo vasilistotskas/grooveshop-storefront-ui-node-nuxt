@@ -1,4 +1,5 @@
 import type { H3Event } from 'h3'
+import { DEFAULT_LOCALE } from '~~/i18n/locales'
 
 interface CartSessionData {
   cartId?: number
@@ -43,9 +44,11 @@ export async function getCartHeaders(event: H3Event): Promise<Record<string, str
   const session = await getSession(event)
   const accessToken = await getAllAuthAccessToken(event)
   const config = useRuntimeConfig(event)
+  const locale = (event.context.locale as string | undefined) || DEFAULT_LOCALE
   const headers: Record<string, string> = {
     'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
     'X-Forwarded-Host': config.public.djangoHostName || getRequestHost(event, { xForwardedHost: false }),
+    'X-Language': locale,
   }
 
   if (session.data.cartId) {

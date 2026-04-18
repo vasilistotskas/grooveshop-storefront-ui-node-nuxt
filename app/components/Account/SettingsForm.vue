@@ -3,6 +3,7 @@ import * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '~~/i18n/locales'
 
 defineSlots<{
   default(props: object): any
@@ -10,6 +11,7 @@ defineSlots<{
 
 const { user, fetch } = useUserSession()
 const { t, locale } = useI18n()
+const { setLanguage } = useUserLanguage()
 const toast = useToast()
 
 const regions = ref<Pagination<Region> | null>(null)
@@ -68,9 +70,16 @@ const schema = z.object({
     : t('validation.string.invalid') })
     .default(defaultSelectOptionChoose)
     .optional(),
+  languageCode: z.enum(SUPPORTED_LOCALES, {
+    error: () => t('validation.string.invalid'),
+  }).default(DEFAULT_LOCALE),
 })
 
 type Schema = z.output<typeof schema>
+
+const userLanguage = (user.value?.languageCode && SUPPORTED_LOCALES.includes(user.value.languageCode as typeof SUPPORTED_LOCALES[number]))
+  ? user.value.languageCode as typeof SUPPORTED_LOCALES[number]
+  : DEFAULT_LOCALE
 
 const state = reactive<Partial<Schema>>({
   email: user.value?.email || '',
@@ -84,6 +93,15 @@ const state = reactive<Partial<Schema>>({
   birthDate: user.value?.birthDate ? new Date(user.value.birthDate) : undefined,
   country: user.value?.country || defaultSelectOptionChoose,
   region: user.value?.region || defaultSelectOptionChoose,
+  languageCode: userLanguage,
+})
+
+const languageOptions = computed(() => {
+  const names = new Intl.DisplayNames([locale.value], { type: 'language' })
+  return SUPPORTED_LOCALES.map(code => ({
+    label: names.of(code) ?? code,
+    value: code,
+  }))
 })
 
 const isSubmitting = ref(false)
@@ -205,6 +223,9 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     return
   }
 
+  const previousLanguage = locale.value
+  const nextLanguage = values.languageCode || DEFAULT_LOCALE
+
   await $fetch(`/api/user/account/${userId}`, {
     method: 'PUT',
     body: {
@@ -219,6 +240,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
       birthDate: values.birthDate ? values.birthDate.toISOString().split('T')[0] : null,
       country: values.country,
       region: values.region,
+      languageCode: nextLanguage,
     },
     async onResponse({ response }) {
       if (!response.ok) {
@@ -226,6 +248,13 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
         return
       }
       await fetch()
+      if (nextLanguage !== previousLanguage) {
+        // setLanguage keeps UI locale, i18n cookie, and Django's stored
+        // language_code in sync; the PUT above already wrote the new value,
+        // so this call only flips the UI locale (the subsequent PATCH is a
+        // no-op when stored === code).
+        await setLanguage(nextLanguage)
+      }
       toast.add({
         title: t('form.success'),
         color: 'success',
@@ -410,6 +439,22 @@ watch(calendarDate, (newVal) => {
         />
       </UFormField>
 
+      <UFormField
+        :label="t('form.language')"
+        name="languageCode"
+        :description="t('form.language_help')"
+      >
+        <USelect
+          v-model="state.languageCode"
+          name="languageCode"
+          :items="languageOptions"
+          :disabled="languageOptions.length < 2"
+          color="neutral"
+          class="w-full"
+          value-key="value"
+        />
+      </UFormField>
+
       <div class="col-span-2 grid items-end justify-end">
         <UButton
           :aria-busy="isSubmitting"
@@ -438,6 +483,8 @@ el:
     birth_date: Ημερομηνία γέννησης
     country: Χώρα
     region: Περιοχή
+    language: Γλώσσα
+    language_help: Χρησιμοποιείται για email και μηνύματα διεπαφής.
     submit: Υποβολή
     success: Τα στοιχεία αποθηκεύτηκαν επιτυχώς
     error: Σφάλμα

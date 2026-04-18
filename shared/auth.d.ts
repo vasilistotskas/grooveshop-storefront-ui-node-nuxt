@@ -1,6 +1,10 @@
 declare module '#auth-utils' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-  interface User extends UserDetails {}
+  interface User extends UserDetails {
+    // Not yet in the auto-generated UserDetails; present in Django
+    // serializer from 2026-04-18. Regenerate via `pnpm openapi-ts`
+    // to drop this augmentation once the schema refreshes.
+    languageCode?: string
+  }
 
   interface UserSession {
     user?: User | null
