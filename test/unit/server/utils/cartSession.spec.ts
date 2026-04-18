@@ -143,7 +143,7 @@ describe('Server Utils - Cart Session', () => {
 
       const headers = await getCartHeaders(event)
 
-      expect(headers).toEqual({ 'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'localhost' })
+      expect(headers).toEqual({ 'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'localhost', 'X-Language': 'el' })
     })
 
     it('should include cart ID header when cart exists', async () => {
@@ -331,7 +331,7 @@ describe('Server Utils - Cart Session', () => {
 
       // 2. Get headers (no cart ID yet, only proxy header)
       const initialHeaders = await getCartHeaders(event)
-      expect(initialHeaders).toEqual({ 'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'localhost' })
+      expect(initialHeaders).toEqual({ 'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'localhost', 'X-Language': 'el' })
 
       // 3. Handle cart response (creates cart)
       await handleCartResponse(event, { id: 123, items: [] })

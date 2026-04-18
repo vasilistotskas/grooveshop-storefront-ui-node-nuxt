@@ -55,7 +55,7 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   // middleware populates event.context.locale from (in order): ?locale query,
   // i18n cookies, Accept-Language. allauth's adapter + every Celery email
   // task reads this header to capture/override user language.
-  const locale = (event.context.locale as string | undefined) || DEFAULT_LOCALE
+  const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
   headers['X-Language'] = locale
 
   return headers
@@ -121,7 +121,7 @@ export async function fetchUserData(response: AllAuthResponse, accessToken?: str
   const config = useRuntimeConfig()
   const event = useEvent()
   const token = accessToken || response.meta?.access_token
-  const locale = (event.context.locale as string | undefined) || DEFAULT_LOCALE
+  const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
   let headers: Record<string, string> = {
     'Authorization': `Bearer ${token}`,
     'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),

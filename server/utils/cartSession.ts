@@ -44,7 +44,7 @@ export async function getCartHeaders(event: H3Event): Promise<Record<string, str
   const session = await getSession(event)
   const accessToken = await getAllAuthAccessToken(event)
   const config = useRuntimeConfig(event)
-  const locale = (event.context.locale as string | undefined) || DEFAULT_LOCALE
+  const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
   const headers: Record<string, string> = {
     'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
     'X-Forwarded-Host': config.public.djangoHostName || getRequestHost(event, { xForwardedHost: false }),

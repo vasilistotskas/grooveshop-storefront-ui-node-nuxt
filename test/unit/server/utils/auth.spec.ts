@@ -155,7 +155,37 @@ describe('Server Utils - Auth', () => {
         'Authorization': 'Bearer access-token',
         'User-Agent': 'Mozilla/5.0',
         'X-Forwarded-For': '192.168.1.1',
+        'X-Language': 'el',
       })
+    })
+
+    it('should forward X-Language from event.context.locale', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+        context: { locale: 'en' },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Language']).toBe('en')
+    })
+
+    it('should fall back to DEFAULT_LOCALE when event.context.locale is missing', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Language']).toBe('el')
     })
 
     it('should not include session token when null', () => {
