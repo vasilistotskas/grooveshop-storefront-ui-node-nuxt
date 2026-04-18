@@ -13,9 +13,14 @@ import { SUPPORTED_LOCALES, type SupportedLocale } from '~~/i18n/locales'
  * Use this composable from any place that lets the user change language
  * (header switcher, account settings, onboarding, etc.) — do NOT call
  * `useI18n().setLocale()` directly in user-facing code.
+ *
+ * `useI18n()` is resolved lazily inside each method rather than at
+ * composable-call time so that callers like `plugins/setup.ts` — which
+ * runs before the @nuxtjs/i18n module plugin has finished wiring up
+ * `$i18n` during SSR — can still instantiate us without crashing
+ * prerender.
  */
 export function useUserLanguage() {
-  const { locale, setLocale } = useI18n()
   const { user, loggedIn, fetch } = useUserSession()
 
   const isSupported = (code: string): code is SupportedLocale =>
@@ -24,6 +29,7 @@ export function useUserLanguage() {
   const setLanguage = async (code: string): Promise<boolean> => {
     if (!isSupported(code)) return false
 
+    const { setLocale } = useI18n()
     await setLocale(code)
 
     if (loggedIn.value && user.value?.id) {
@@ -57,9 +63,10 @@ export function useUserLanguage() {
     if (!loggedIn.value) return
     const stored = user.value?.languageCode
     if (!stored || !isSupported(stored)) return
+    const { locale, setLocale } = useI18n()
     if (stored === locale.value) return
     await setLocale(stored)
   }
 
-  return { locale, setLanguage, syncFromUser }
+  return { setLanguage, syncFromUser }
 }

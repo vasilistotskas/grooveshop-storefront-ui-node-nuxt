@@ -30,8 +30,13 @@ export default defineNuxtPlugin({
       // Backend is the source of truth for the user's language. Reconcile
       // the UI locale with `user.languageCode` so the switcher and every
       // rendered email agree, even if the i18n cookie disagreed (fresh
-      // browser, different device, cookie cleared).
-      await syncLanguageFromUser()
+      // browser, different device, cookie cleared). Deferred to the client
+      // so prerender / anonymous SSR — where `loggedIn` is always false and
+      // calling setLocale() on a not-fully-wired i18n instance could
+      // explode — never runs it.
+      if (import.meta.client) {
+        await syncLanguageFromUser()
+      }
 
       // Defer non-critical data to client-side only (not needed for initial render)
       // Sessions list, authenticators, notifications can load after hydration
