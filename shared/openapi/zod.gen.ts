@@ -3609,7 +3609,7 @@ export const zPaginatedPointsTransactionList = z.object({
     results: z.array(zPointsTransaction)
 });
 
-export const zUnsubscribe = z.object({
+export const zUnsubscribeResponse = z.object({
     message: z.string(),
     topic: z.string().optional(),
     userEmail: z.email().optional(),
@@ -15757,27 +15757,27 @@ export const zGetMySubscriptionTopicsResponse = z.object({
     available: z.array(zSubscriptionTopic).optional()
 });
 
-export const zUnsubscribeViaLinkPath = z.object({
+export const zUnsubscribeFromAllViaLinkPath = z.object({
     token: z.string(),
     uidb64: z.string()
 });
 
-export const zUnsubscribeViaLinkResponse = zUnsubscribe;
+export const zUnsubscribeFromAllViaLinkResponse = zUnsubscribeResponse;
 
-export const zUnsubscribeOneClickPath = z.object({
+export const zUnsubscribeFromAllOneClickPath = z.object({
     token: z.string(),
     uidb64: z.string()
 });
 
-export const zUnsubscribeViaLink2Path = z.object({
+export const zUnsubscribeFromTopicViaLinkPath = z.object({
     token: z.string(),
     topicSlug: z.string(),
     uidb64: z.string()
 });
 
-export const zUnsubscribeViaLink2Response = zUnsubscribe;
+export const zUnsubscribeFromTopicViaLinkResponse = zUnsubscribeResponse;
 
-export const zUnsubscribeOneClick2Path = z.object({
+export const zUnsubscribeFromTopicOneClickPath = z.object({
     token: z.string(),
     topicSlug: z.string(),
     uidb64: z.string()

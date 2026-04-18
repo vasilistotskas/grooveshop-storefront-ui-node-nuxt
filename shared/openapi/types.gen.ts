@@ -4191,7 +4191,7 @@ export type TopQuery = {
  */
 export type TransactionTypeEnum = 'EARN' | 'REDEEM' | 'EXPIRE' | 'ADJUST' | 'BONUS';
 
-export type Unsubscribe = {
+export type UnsubscribeResponse = {
     message: string;
     topic?: string;
     userEmail?: string;
@@ -18121,7 +18121,7 @@ export type GetMySubscriptionTopicsResponses = {
 
 export type GetMySubscriptionTopicsResponse = GetMySubscriptionTopicsResponses[keyof GetMySubscriptionTopicsResponses];
 
-export type UnsubscribeViaLinkData = {
+export type UnsubscribeFromAllViaLinkData = {
     body?: never;
     path: {
         token: string;
@@ -18131,19 +18131,19 @@ export type UnsubscribeViaLinkData = {
     url: '/api/v1/user/unsubscribe/{uidb64}/{token}';
 };
 
-export type UnsubscribeViaLinkErrors = {
+export type UnsubscribeFromAllViaLinkErrors = {
     400: ErrorResponse;
 };
 
-export type UnsubscribeViaLinkError = UnsubscribeViaLinkErrors[keyof UnsubscribeViaLinkErrors];
+export type UnsubscribeFromAllViaLinkError = UnsubscribeFromAllViaLinkErrors[keyof UnsubscribeFromAllViaLinkErrors];
 
-export type UnsubscribeViaLinkResponses = {
-    200: Unsubscribe;
+export type UnsubscribeFromAllViaLinkResponses = {
+    200: UnsubscribeResponse;
 };
 
-export type UnsubscribeViaLinkResponse = UnsubscribeViaLinkResponses[keyof UnsubscribeViaLinkResponses];
+export type UnsubscribeFromAllViaLinkResponse = UnsubscribeFromAllViaLinkResponses[keyof UnsubscribeFromAllViaLinkResponses];
 
-export type UnsubscribeOneClickData = {
+export type UnsubscribeFromAllOneClickData = {
     body?: never;
     path: {
         token: string;
@@ -18153,14 +18153,14 @@ export type UnsubscribeOneClickData = {
     url: '/api/v1/user/unsubscribe/{uidb64}/{token}';
 };
 
-export type UnsubscribeOneClickResponses = {
+export type UnsubscribeFromAllOneClickResponses = {
     /**
      * No response body
      */
     200: unknown;
 };
 
-export type UnsubscribeViaLink2Data = {
+export type UnsubscribeFromTopicViaLinkData = {
     body?: never;
     path: {
         token: string;
@@ -18171,19 +18171,19 @@ export type UnsubscribeViaLink2Data = {
     url: '/api/v1/user/unsubscribe/{uidb64}/{token}/{topic_slug}';
 };
 
-export type UnsubscribeViaLink2Errors = {
+export type UnsubscribeFromTopicViaLinkErrors = {
     400: ErrorResponse;
 };
 
-export type UnsubscribeViaLink2Error = UnsubscribeViaLink2Errors[keyof UnsubscribeViaLink2Errors];
+export type UnsubscribeFromTopicViaLinkError = UnsubscribeFromTopicViaLinkErrors[keyof UnsubscribeFromTopicViaLinkErrors];
 
-export type UnsubscribeViaLink2Responses = {
-    200: Unsubscribe;
+export type UnsubscribeFromTopicViaLinkResponses = {
+    200: UnsubscribeResponse;
 };
 
-export type UnsubscribeViaLink2Response = UnsubscribeViaLink2Responses[keyof UnsubscribeViaLink2Responses];
+export type UnsubscribeFromTopicViaLinkResponse = UnsubscribeFromTopicViaLinkResponses[keyof UnsubscribeFromTopicViaLinkResponses];
 
-export type UnsubscribeOneClick2Data = {
+export type UnsubscribeFromTopicOneClickData = {
     body?: never;
     path: {
         token: string;
@@ -18194,7 +18194,7 @@ export type UnsubscribeOneClick2Data = {
     url: '/api/v1/user/unsubscribe/{uidb64}/{token}/{topic_slug}';
 };
 
-export type UnsubscribeOneClick2Responses = {
+export type UnsubscribeFromTopicOneClickResponses = {
     /**
      * No response body
      */

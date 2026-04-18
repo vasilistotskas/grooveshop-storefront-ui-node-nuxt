@@ -46246,9 +46246,9 @@
         },
         "/api/v1/user/unsubscribe/{uidb64}/{token}": {
             "get": {
-                "operationId": "unsubscribeViaLink",
-                "description": "GET (user click) + POST (RFC 8058 one-click) unsubscribe.\n\n`topic_slug` is optional: when omitted, the user is unsubscribed from\nALL active subscriptions (used by non-topic marketing emails such as\nre-engagement and abandoned-cart).",
-                "summary": "Unsubscribe via email link (GET)",
+                "operationId": "unsubscribeFromAllViaLink",
+                "description": "Non-topic unsubscribe: `/unsubscribe/<uid>/<token>`.\n\nUnsubscribes from ALL active subscriptions — used by emails without a\ntopic binding such as re-engagement and abandoned-cart.",
+                "summary": "Unsubscribe from all topics via email link (GET)",
                 "parameters": [
                     {
                         "in": "path",
@@ -46275,7 +46275,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Unsubscribe"
+                                    "$ref": "#/components/schemas/UnsubscribeResponse"
                                 }
                             }
                         },
@@ -46294,9 +46294,9 @@
                 }
             },
             "post": {
-                "operationId": "unsubscribeOneClick",
-                "description": "Invoked by mail clients honoring List-Unsubscribe-Post=One-Click. Returns 200 OK on success or invalid token (silent per RFC 8058).",
-                "summary": "Unsubscribe via RFC 8058 one-click POST",
+                "operationId": "unsubscribeFromAllOneClick",
+                "description": "Invoked by mail clients honoring List-Unsubscribe-Post=One-Click. Returns 200 OK regardless of token validity (silent per RFC 8058).",
+                "summary": "RFC 8058 one-click unsubscribe from all topics",
                 "parameters": [
                     {
                         "in": "path",
@@ -46327,9 +46327,9 @@
         },
         "/api/v1/user/unsubscribe/{uidb64}/{token}/{topic_slug}": {
             "get": {
-                "operationId": "unsubscribeViaLink_2",
-                "description": "GET (user click) + POST (RFC 8058 one-click) unsubscribe.\n\n`topic_slug` is optional: when omitted, the user is unsubscribed from\nALL active subscriptions (used by non-topic marketing emails such as\nre-engagement and abandoned-cart).",
-                "summary": "Unsubscribe via email link (GET)",
+                "operationId": "unsubscribeFromTopicViaLink",
+                "description": "Topic-scoped unsubscribe: `/unsubscribe/<uid>/<token>/<topic_slug>`.\n\nUsed by marketing emails with a specific List-ID (newsletter etc.).",
+                "summary": "Unsubscribe from a topic via email link (GET)",
                 "parameters": [
                     {
                         "in": "path",
@@ -46364,7 +46364,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/Unsubscribe"
+                                    "$ref": "#/components/schemas/UnsubscribeResponse"
                                 }
                             }
                         },
@@ -46383,9 +46383,9 @@
                 }
             },
             "post": {
-                "operationId": "unsubscribeOneClick_2",
-                "description": "Invoked by mail clients honoring List-Unsubscribe-Post=One-Click. Returns 200 OK on success or invalid token (silent per RFC 8058).",
-                "summary": "Unsubscribe via RFC 8058 one-click POST",
+                "operationId": "unsubscribeFromTopicOneClick",
+                "description": "Invoked by mail clients honoring List-Unsubscribe-Post=One-Click. Returns 200 OK regardless of token validity (silent per RFC 8058).",
+                "summary": "RFC 8058 one-click unsubscribe from a topic",
                 "parameters": [
                     {
                         "in": "path",
@@ -58211,7 +58211,7 @@
                 "type": "string",
                 "description": "* `EARN` - Earn\n* `REDEEM` - Redeem\n* `EXPIRE` - Expire\n* `ADJUST` - Adjust\n* `BONUS` - Bonus"
             },
-            "Unsubscribe": {
+            "UnsubscribeResponse": {
                 "type": "object",
                 "properties": {
                     "message": {

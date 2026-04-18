@@ -27,7 +27,7 @@ export function useUserLanguage() {
     await setLocale(code)
 
     if (loggedIn.value && user.value?.id) {
-      const stored = (user.value as { languageCode?: string }).languageCode
+      const stored = user.value.languageCode
       if (stored === code) return true
       try {
         const form = new FormData()
@@ -55,7 +55,7 @@ export function useUserLanguage() {
    */
   const syncFromUser = async (): Promise<void> => {
     if (!loggedIn.value) return
-    const stored = (user.value as { languageCode?: string })?.languageCode
+    const stored = user.value?.languageCode
     if (!stored || !isSupported(stored)) return
     if (stored === locale.value) return
     await setLocale(stored)
