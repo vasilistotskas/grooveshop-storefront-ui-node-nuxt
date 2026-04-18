@@ -1,3 +1,18 @@
+# [3.84.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.83.0...v3.84.0) (2026-04-18)
+
+
+### Bug Fixes
+
+* **i18n:** defer useI18n() in useUserLanguage, gate syncFromUser to client ([fa7f94f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fa7f94fe813bcb79fe480843e162d3b41d1a1fb6))
+* schema ([f8e5067](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f8e5067ec9f7d291c69afe02434e32e59f266580))
+* **test:** resolve ~~/i18n/locales alias in unit vitest + guard event.context reads ([e53c80b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e53c80b3ad08b7c9d518efcd739e5bcaaddfd020))
+
+
+### Features
+
+* Bump Versions ([227d44c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/227d44c6c5229c79bb51d7184ebe4eb3612ed203))
+* **i18n:** unify locale switcher and settings with backend language_code ([2209caa](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2209caa240793c1cc4090c733ef91c9a95e34b7c))
+
 # [3.83.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.82.1...v3.83.0) (2026-04-17)
 
 
