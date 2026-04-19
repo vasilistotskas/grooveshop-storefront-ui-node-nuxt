@@ -2,31 +2,54 @@
 /**
  * Payment-method trust row.
  *
- * Rendered as monospaced text chips instead of brand logos so the
- * component has no dependency on an iconify brand pack (the repo's
- * @nuxt/icon config only includes ant-design, fa-solid, heroicons,
- * lucide, mdi and unjs). Chips inherit text/bg tokens and therefore
- * look correct in light + dark mode without per-brand overrides.
+ * Fetches the active PayWay records from the Django backend
+ * (`/api/pay-way`, Nitro-cached 1h with 24h SWR) and renders each one
+ * as a small badge using the PayWay's own uploaded icon (via
+ * `mainImagePath`) and its translated display name. Falls back to the
+ * translated enum label when an icon file isn't configured.
  *
- * Placed in the footer and the checkout summary; non-interactive —
- * purely a visual trust cue.
+ * The shared `key: 'pay-way-badges'` dedupes the request across every
+ * mount point (Footer/Desktop, Footer/Mobile, Checkout/Sidebar), so the
+ * whole trust row is a single network trip per page.
+ *
+ * Renders nothing if the fetch fails or no active pay-ways exist —
+ * empty trust rows are worse than none.
  */
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const { getPaymentMethodName } = usePaymentMethod()
 
-const methods = [
-  { key: 'visa', label: 'VISA' },
-  { key: 'mastercard', label: 'Mastercard' },
-  { key: 'amex', label: 'Amex' },
-  { key: 'applePay', label: 'Apple Pay' },
-  { key: 'googlePay', label: 'Google Pay' },
-  { key: 'paypal', label: 'PayPal' },
-  { key: 'viva', label: 'Viva Wallet' },
-] as const
+const { data } = await useFetch('/api/pay-way', {
+  key: 'pay-way-badges',
+  query: { active: true },
+  server: true,
+  lazy: true,
+  // PayWay rows change rarely; let the Nitro-level cache do the
+  // heavy lifting and keep the client watcher idle.
+  deep: false,
+})
+
+const items = computed(() => {
+  const results = data.value?.results ?? []
+  return results
+    .filter(p => p?.active)
+    .map((p) => {
+      const enumName = extractTranslated(p, 'name', locale.value) as string | undefined
+      const displayName = enumName ? getPaymentMethodName(enumName) : null
+      return {
+        id: p.id,
+        providerCode: p.providerCode ?? '',
+        name: displayName || enumName || '',
+        image: p.mainImagePath || null,
+      }
+    })
+    .filter(item => !!item.name)
+})
 </script>
 
 <template>
   <div
+    v-if="items.length > 0"
     :aria-label="t('payment_methods')"
     class="flex flex-wrap items-center gap-2"
   >
@@ -36,28 +59,30 @@ const methods = [
       aria-hidden="true"
     />
     <span
-      v-for="m in methods"
-      :key="m.key"
-      :title="m.label"
+      v-for="item in items"
+      :key="item.id"
+      :title="item.name"
       class="
-        inline-flex h-6 items-center rounded border border-neutral-200
-        bg-white px-2 text-[11px] font-semibold tracking-wide
-        text-neutral-700
-        dark:border-neutral-700 dark:bg-neutral-100 dark:text-neutral-700
+        inline-flex h-7 items-center gap-1.5 rounded border
+        border-neutral-200 bg-white px-2 shadow-sm
+        dark:border-neutral-700 dark:bg-neutral-100
       "
     >
-      {{ m.label }}
-    </span>
-    <span
-      class="
-        inline-flex h-6 items-center gap-1 rounded border border-neutral-200
-        bg-white px-2 text-[11px] font-semibold tracking-wide
-        text-neutral-700
-        dark:border-neutral-700 dark:bg-neutral-100 dark:text-neutral-700
-      "
-    >
-      <UIcon name="i-heroicons-banknotes" class="h-3.5 w-3.5" />
-      {{ t('cod') }}
+      <NuxtImg
+        v-if="item.image"
+        :src="item.image"
+        :alt="item.name"
+        class="h-4 w-auto object-contain"
+        width="24"
+        height="16"
+        loading="lazy"
+      />
+      <span
+        v-else
+        class="text-[11px] font-semibold tracking-wide text-neutral-700"
+      >
+        {{ item.name }}
+      </span>
     </span>
   </div>
 </template>
@@ -65,5 +90,4 @@ const methods = [
 <i18n lang="yaml">
 el:
   payment_methods: Τρόποι πληρωμής
-  cod: Αντικαταβολή
 </i18n>
