@@ -1,3 +1,12 @@
+# [3.88.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.87.0...v3.88.0) (2026-04-19)
+
+
+### Features
+
+* **nav:** sprint 2D header + nav + socials + notifications polish ([db0e949](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/db0e949e030872fc9974bdbf496fa0f7181ae257))
+* **pdp:** sprint 2C product-page UX polish ([6a6d722](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6a6d722ac2600d41d0047b5c62f033fad533e48a))
+* **ux:** sprint 2E+F — cart empty state + lottie 404 ([8b69782](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8b69782b82fb41f60f117f005f47ca81a71dad17)), closes [#fallback](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/fallback)
+
 # [3.87.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.86.0...v3.87.0) (2026-04-19)
 
 
