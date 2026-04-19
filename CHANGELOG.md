@@ -1,3 +1,10 @@
+## [3.88.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.88.2...v3.88.3) (2026-04-19)
+
+
+### Bug Fixes
+
+* **icons:** keep iconify fallback server-side to satisfy CSP ([c4b871f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c4b871fbfd750f4db3f366eac37a1f9065d88488))
+
 ## [3.88.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.88.1...v3.88.2) (2026-04-19)
 
 
