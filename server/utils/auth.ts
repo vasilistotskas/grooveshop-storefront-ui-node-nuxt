@@ -47,12 +47,17 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
     headers['User-Agent'] = requestHeaders['user-agent']
   }
 
-  // Real client IP for allauth session tracking. allauth 65.14+ no longer
-  // trusts X-Forwarded-For by default (spoof protection), so we surface the
-  // resolved IP via a dedicated header bound to ALLAUTH_TRUSTED_CLIENT_IP_HEADER.
-  // h3 reads XFF when present (production: Traefik → Nuxt → Django) and falls
-  // back to the socket address (local dev: direct browser connection).
-  const clientIp = getRequestIP(event, { xForwardedFor: true })
+  // Real client IP for allauth session tracking. Prefer Cloudflare's
+  // CF-Connecting-IP (always set when the zone is proxied) and fall back
+  // to True-Client-IP (Cloudflare Enterprise) before h3's XFF/socket
+  // resolution. Using CF-Connecting-IP bypasses K3s klipper-lb's SNAT
+  // — it rewrites the TCP source to the Flannel gateway (10.42.0.1), so
+  // getRequestIP alone would surface that masked address in production.
+  // Django's UserAccountAdapter reads this via X-Real-IP.
+  const clientIp
+    = requestHeaders['cf-connecting-ip']
+    || requestHeaders['true-client-ip']
+    || getRequestIP(event, { xForwardedFor: true })
   if (clientIp) {
     headers['X-Real-IP'] = clientIp
   }

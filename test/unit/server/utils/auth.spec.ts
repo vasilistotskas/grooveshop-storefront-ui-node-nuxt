@@ -150,6 +150,59 @@ describe('Server Utils - Auth', () => {
       expect(headers['X-Real-IP']).toBe('203.0.113.42')
     })
 
+    it('should prefer CF-Connecting-IP over getRequestIP', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      const getRequestIPMock = vi.fn().mockReturnValue('10.42.0.1')
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
+        'cf-connecting-ip': '203.0.113.42',
+      }))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+      vi.stubGlobal('getRequestIP', getRequestIPMock)
+
+      const headers = createHeaders()
+
+      expect(headers['X-Real-IP']).toBe('203.0.113.42')
+    })
+
+    it('should prefer True-Client-IP over getRequestIP when CF-Connecting-IP is absent', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
+        'true-client-ip': '203.0.113.99',
+      }))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+      vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue('10.42.0.1'))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Real-IP']).toBe('203.0.113.99')
+    })
+
+    it('should prefer CF-Connecting-IP over True-Client-IP when both are present', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
+        'cf-connecting-ip': '203.0.113.42',
+        'true-client-ip': '203.0.113.99',
+      }))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+      vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue('10.42.0.1'))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Real-IP']).toBe('203.0.113.42')
+    })
+
     it('should omit X-Real-IP when getRequestIP returns undefined', () => {
       const mockEvent = {
         node: { req: { headers: {} } },
