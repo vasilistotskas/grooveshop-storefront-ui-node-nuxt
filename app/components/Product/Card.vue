@@ -64,6 +64,14 @@ const productDescription = computed(() => {
 
 const alt = computed(() => productName.value)
 
+const isLowStock = computed(() => {
+  const stock = product.value?.stock ?? 0
+  if (stock <= 0) return false
+  const lowStockThreshold = (product.value as { lowStockThreshold?: number })?.lowStockThreshold
+  const threshold = typeof lowStockThreshold === 'number' && lowStockThreshold > 0 ? lowStockThreshold : 10
+  return stock <= threshold
+})
+
 const shareOptions = computed(() => ({
   title: productName.value || '',
   text: productDescription.value,
@@ -128,13 +136,13 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           {{ t('out_of_stock') }}
         </UBadge>
         <UBadge
-          v-else-if="product.stock && product.stock < 10"
+          v-else-if="isLowStock"
           color="warning"
           variant="solid"
           size="sm"
           class="w-fit"
         >
-          {{ t('low_stock') }}
+          {{ t('only_n_left', { count: product.stock }) }}
         </UBadge>
       </div>
 
@@ -314,6 +322,7 @@ el:
   add_to_cart: Αγορά
   out_of_stock: Εξαντλημένο
   low_stock: Τελευταία κομμάτια
+  only_n_left: Μόνο {count} απέμεινε | Μόνο {count} απέμειναν
   view_product: Προβολή προϊόντος
 </i18n>
 

@@ -14,11 +14,28 @@ const emit = defineEmits<{
 const { isMobileOrTablet } = useDevice()
 const router = useRouter()
 const { t, locale } = useI18n()
+const history = useSearchHistory()
+
+const trending = useLazyFetch<{
+  window_hours: number
+  content_type: string
+  language_code: string | null
+  results: { query: string, count: number }[]
+}>('/api/search/trending', {
+  query: { languageCode: locale, contentType: 'product', limit: 8 },
+  immediate: true,
+  server: false,
+  default: () => ({ window_hours: 24, content_type: 'product', language_code: null, results: [] }),
+})
 
 const localQuery = computed({
   get: () => props.query,
   set: value => emit('update:query', value),
 })
+
+function applyQuery(query: string) {
+  emit('update:query', query)
+}
 
 const localOpen = computed({
   get: () => props.open,
@@ -90,6 +107,7 @@ function close() {
 
 function goToSearchPage() {
   if (localQuery.value) {
+    history.add(localQuery.value)
     router.push(`/search?query=${localQuery.value}`)
     localOpen.value = false
   }
@@ -248,18 +266,70 @@ if (localQuery.value && localQuery.value.length >= 2) {
 
         <div
           v-else-if="!localQuery || localQuery.length < 2"
-          class="p-12 text-center"
+          class="space-y-6 p-6"
         >
-          <UIcon
-            name="i-heroicons-magnifying-glass"
-            class="
-              mx-auto mb-4 size-12 text-gray-300
-              dark:text-gray-600
-            "
-          />
-          <p class="text-sm text-gray-500">
-            {{ t('search.start_typing') }}
-          </p>
+          <div v-if="history.entries.value.length > 0">
+            <div class="mb-3 flex items-center justify-between">
+              <span class="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                {{ t('search.recent') }}
+              </span>
+              <UButton
+                :label="t('search.clear')"
+                size="xs"
+                variant="ghost"
+                color="neutral"
+                @click="history.clear()"
+              />
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <UButton
+                v-for="entry in history.entries.value"
+                :key="`recent-${entry}`"
+                :label="entry"
+                size="sm"
+                variant="soft"
+                color="neutral"
+                icon="i-heroicons-clock"
+                @click="applyQuery(entry)"
+              />
+            </div>
+          </div>
+
+          <div v-if="trending.data.value && trending.data.value.results.length > 0">
+            <div class="mb-3">
+              <span class="text-xs font-semibold tracking-wide text-gray-500 uppercase">
+                {{ t('search.trending') }}
+              </span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <UButton
+                v-for="entry in trending.data.value.results"
+                :key="`trend-${entry.query}`"
+                :label="entry.query"
+                size="sm"
+                variant="soft"
+                color="primary"
+                icon="i-heroicons-fire"
+                @click="applyQuery(entry.query)"
+              />
+            </div>
+          </div>
+
+          <div
+            v-if="history.entries.value.length === 0 && (!trending.data.value || trending.data.value.results.length === 0)"
+            class="py-8 text-center"
+          >
+            <UIcon
+              name="i-heroicons-magnifying-glass"
+              class="
+                mx-auto mb-4 size-12 text-gray-300
+                dark:text-gray-600
+              "
+            />
+            <p class="text-sm text-gray-500">
+              {{ t('search.start_typing') }}
+            </p>
+          </div>
         </div>
 
         <div
@@ -345,6 +415,9 @@ el:
       products: Προϊόντα ({count})
       blog_posts: Άρθρα ({count})
     start_typing: Ξεκίνα να πληκτρολογείς για αναζήτηση
+    recent: Πρόσφατες αναζητήσεις
+    trending: Δημοφιλείς αναζητήσεις
+    clear: Εκκαθάριση
     no_results: Δεν βρέθηκαν αποτελέσματα
     try_different: Δοκίμασς διαφορετικούς όρους αναζήτησης
     load_more: Φόρτωση περισσότερων
