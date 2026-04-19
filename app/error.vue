@@ -54,6 +54,13 @@ const helpfulTips = computed(() => {
         pointer-events-none mx-auto max-w-md px-6 pt-10 sm:pt-16
       "
     >
+      <!--
+        Using the auto-generated <LazyLottie> variant (Nuxt wraps every
+        component under components/ into a `Lazy*` twin that defers its
+        chunk until it actually renders). Paired with the Lottie
+        component's own dynamic lottie-web import, the 404-only path
+        never pulls the animation runtime onto any other page.
+      -->
       <LazyLottie
         :data="() => import('~/assets/lotties/404.json')"
         :aria-label="t('error.page.title')"
