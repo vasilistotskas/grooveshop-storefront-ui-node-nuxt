@@ -111,7 +111,7 @@
     "vite": "7.3.2",
     "vite-plugin-eslint2": "5.1.0",
     "vitest": "4.1.4",
-    "vue-tsc": "3.2.6"
+    "vue-tsc": "3.2.7"
   },
   "publishConfig": {
     "@vasilistotskas:registry": "https://npm.pkg.github.com"
