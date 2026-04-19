@@ -53,9 +53,17 @@ defineSlots<{
 </script>
 
 <template>
-  <aside
-    id="checkout-sidebar"
-  >
+  <!--
+    Plain <div> (no role) — axe flagged "Aside should not be
+    contained in another landmark" because the checkout layout
+    renders this sidebar inside <UMain> (the page's <main>
+    landmark). Both <aside> and role="complementary" register as
+    landmarks, so the only way to stop the nesting violation is to
+    drop the landmark semantics entirely. The sidebar is a summary
+    of the checkout form it sits next to, not tangential content,
+    so losing the landmark role is also the right semantic call.
+  -->
+  <div id="checkout-sidebar">
     <UCard
       class="w-full"
       :ui="{
@@ -122,10 +130,7 @@ defineSlots<{
             >{{ t('shipping') }}</span>
             <span
               v-if="shippingPrice === 0"
-              class="
-                font-bold text-green-600
-                dark:text-green-400
-              "
+              class="font-bold text-success"
             >{{ t('free') }}</span>
             <span
               v-else
@@ -156,18 +161,8 @@ defineSlots<{
             v-if="loyaltyDiscount > 0"
             class="flex items-center justify-between"
           >
-            <span
-              class="
-                text-green-600
-                dark:text-green-400
-              "
-            >{{ t('loyalty_discount') }}</span>
-            <span
-              class="
-                font-bold text-green-600
-                dark:text-green-400
-              "
-            >-{{ $i18n.n(loyaltyDiscount, 'currency') }}</span>
+            <span class="text-success">{{ t('loyalty_discount') }}</span>
+            <span class="font-bold text-success">-{{ $i18n.n(loyaltyDiscount, 'currency') }}</span>
           </div>
         </div>
 
@@ -238,7 +233,7 @@ defineSlots<{
         </div>
       </template>
     </UCard>
-  </aside>
+  </div>
 </template>
 
 <i18n lang="yaml">

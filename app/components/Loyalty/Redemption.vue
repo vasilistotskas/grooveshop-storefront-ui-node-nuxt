@@ -226,7 +226,12 @@ const clearRedemption = () => {
               name="pointsToRedeem"
               :ui="{
                 root: 'w-full',
-                label: 'hidden',
+                // Hide the label visually but keep it in the a11y
+                // tree — `display: none` strips the label from the
+                // accessibility mapping, which is what axe flagged
+                // (the UInputNumber's nested native input had no
+                // programmatic label).
+                label: 'sr-only',
               }"
             >
               <UInputNumber
@@ -236,6 +241,7 @@ const clearRedemption = () => {
                 :step="1"
                 :disabled="maxRedeemablePoints === 0 || applied"
                 :placeholder="t('enter_points')"
+                :aria-label="t('points_to_redeem')"
               />
             </UFormField>
 

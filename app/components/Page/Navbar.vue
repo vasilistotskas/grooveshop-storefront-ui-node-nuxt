@@ -270,12 +270,25 @@ const items = computed(() => [
                 :items="items"
                 :popper="{ placement: 'bottom-start' }"
               >
-                <UserAvatar
-                  :show-name="false"
-                  :user-account="user"
+                <!--
+                  Reka's DropdownMenuTrigger forwards `type="button"`
+                  to the element rendered by the default slot. When
+                  that element was UserAvatar (a <div>), axe flagged
+                  "Elements must only use supported ARIA attributes"
+                  because `type` is not valid on <div>. Wrapping in
+                  an explicit <button> gives Reka a real button to
+                  set `type` on, and keeps the avatar visual.
+                -->
+                <button
+                  type="button"
                   :aria-label="t('user.profile')"
-                  class="cursor-pointer"
-                />
+                  class="cursor-pointer bg-transparent p-0"
+                >
+                  <UserAvatar
+                    :show-name="false"
+                    :user-account="user"
+                  />
+                </button>
 
                 <template #account="{ item }">
                   <div class="text-left">

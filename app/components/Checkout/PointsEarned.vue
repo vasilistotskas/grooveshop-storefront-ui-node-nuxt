@@ -92,38 +92,49 @@ watch(
 </script>
 
 <template>
-  <div v-if="shouldFetch">
-    <!-- Skeleton loading -->
-    <USkeleton v-if="loading" class="h-14 w-full rounded-lg" />
+  <!--
+    ClientOnly: `shouldFetch` depends on the session (loggedIn) and a
+    lazy-loaded loyalty-settings fetch, both of which only settle on
+    the client. Rendering the component during SSR produced a
+    comment node ("shouldFetch" false) while the client hydrated as
+    a <div>, tripping a Vue hydration mismatch on /checkout. Keeping
+    the whole thing client-only is the right call — this is a
+    logged-in perks indicator, not SEO-critical content.
+  -->
+  <ClientOnly>
+    <div v-if="shouldFetch">
+      <!-- Skeleton loading -->
+      <USkeleton v-if="loading" class="h-14 w-full rounded-lg" />
 
-    <!-- Points earned display -->
-    <div
-      v-else-if="shouldShow"
-      class="
-        flex items-center gap-3 rounded-lg
-        bg-secondary-100 p-3
-        dark:bg-secondary-800
-      "
-    >
-      <div class="flex-1 min-w-0">
-        <p class="text-sm font-medium text-secondary-900 dark:text-secondary-100">
-          {{ t('earn_with_order', { points: totalPointsEarned }) }}
-        </p>
-        <p class="text-xs text-secondary-800 dark:text-secondary-200">
-          {{ t('earn_description') }}
-        </p>
-      </div>
-
-      <UBadge
-        color="neutral"
-        variant="solid"
-        size="lg"
-        class="shrink-0 tabular-nums font-bold"
+      <!-- Points earned display -->
+      <div
+        v-else-if="shouldShow"
+        class="
+          flex items-center gap-3 rounded-lg
+          bg-secondary-100 p-3
+          dark:bg-secondary-800
+        "
       >
-        +{{ totalPointsEarned }}
-      </UBadge>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium text-secondary-900 dark:text-secondary-100">
+            {{ t('earn_with_order', { points: totalPointsEarned }) }}
+          </p>
+          <p class="text-xs text-secondary-800 dark:text-secondary-200">
+            {{ t('earn_description') }}
+          </p>
+        </div>
+
+        <UBadge
+          color="neutral"
+          variant="solid"
+          size="lg"
+          class="shrink-0 tabular-nums font-bold"
+        >
+          +{{ totalPointsEarned }}
+        </UBadge>
+      </div>
     </div>
-  </div>
+  </ClientOnly>
 </template>
 
 <i18n lang="yaml">
