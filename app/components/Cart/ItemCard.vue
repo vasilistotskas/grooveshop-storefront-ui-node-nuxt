@@ -9,8 +9,9 @@ const { productUrl } = useUrls()
 const { t, locale } = useI18n()
 const { $i18n } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
+const toast = useToast()
 const cartStore = useCartStore()
-const { deleteCartItem } = cartStore
+const { deleteCartItem, createCartItem } = cartStore
 
 const { contentShorten } = useText()
 
@@ -21,7 +22,50 @@ const alt = computed(() => {
 })
 
 const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
+  // Snapshot the product + quantity before deletion so the toast's
+  // Undo action can re-create the same line. Once the backend deletes
+  // the row, cartItem.id is gone forever — we can only add a fresh
+  // line via createCartItem.
+  const snapshot = {
+    productId: cartItem.value?.product?.id,
+    quantity: cartItem.value?.quantity ?? 1,
+    name: alt.value,
+  }
+
   await deleteCartItem(cartItemId)
+
+  if (!snapshot.productId) return
+
+  toast.add({
+    title: t('toast.removed_title'),
+    description: t('toast.removed_description', { name: snapshot.name }),
+    color: 'neutral',
+    icon: 'i-heroicons-trash',
+    duration: 8000,
+    actions: [
+      {
+        label: t('toast.undo'),
+        color: 'primary',
+        variant: 'subtle',
+        onClick: async (event?: Event) => {
+          event?.stopPropagation?.()
+          try {
+            await createCartItem({
+              product: snapshot.productId!,
+              quantity: snapshot.quantity,
+            })
+          }
+          catch (err) {
+            log.error({ action: 'cart:undoRemove', error: err })
+            toast.add({
+              title: t('toast.undo_failed'),
+              color: 'error',
+            })
+          }
+        },
+      },
+    ],
+  })
 }
 
 const formattedPrice = computed(() => {
@@ -143,4 +187,9 @@ el:
   price: Τιμή
   save: Έκπτωση
   total: Σύνολο
+  toast:
+    removed_title: Αφαιρέθηκε από το καλάθι
+    removed_description: Το προϊόν "{name}" αφαιρέθηκε.
+    undo: Αναίρεση
+    undo_failed: Η αναίρεση απέτυχε
 </i18n>

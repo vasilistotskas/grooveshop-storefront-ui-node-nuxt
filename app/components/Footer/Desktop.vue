@@ -22,6 +22,17 @@ const packageVersion = runtimeConfig.public.version
           :columns="columns"
           :ui="{ center: 'xl:col-span-3' }"
         />
+        <div
+          class="
+            mt-6 flex flex-col items-center justify-between gap-4 border-t
+            border-primary-200 pt-6
+            md:flex-row
+            dark:border-primary-800
+          "
+        >
+          <TrustSecureCheckoutBadge />
+          <TrustPaymentBadges />
+        </div>
       </UContainer>
     </template>
 

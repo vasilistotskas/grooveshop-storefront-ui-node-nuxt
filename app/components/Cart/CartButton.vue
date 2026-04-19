@@ -18,6 +18,14 @@ const color = computed(() => {
   if (hasStockIssues.value) return 'warning'
   return 'success'
 })
+
+// Cap the badge at "99+" so a runaway count (returning customer with a
+// big saved cart, or a synced multi-session cart) doesn't overflow the
+// UChip and distort the cart-icon tap target.
+const displayCount = computed<string | number>(() => {
+  const n = Number(getCartTotalItems.value) || 0
+  return n > 99 ? '99+' : n
+})
 </script>
 
 <template>
@@ -25,7 +33,7 @@ const color = computed(() => {
     :size="'3xl'"
     :color="color"
     :show="!pending"
-    :text="getCartTotalItems"
+    :text="displayCount"
   >
     <UButton
       class="p-0"
