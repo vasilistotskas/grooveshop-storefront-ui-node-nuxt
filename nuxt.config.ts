@@ -449,15 +449,26 @@ export default defineNuxtConfig({
     },
   },
   icon: {
+    // Resolve icons against the locally-installed @iconify-json/*
+    // packages (see dependencies in package.json) instead of hitting
+    // a public CDN. `externalizeIconsJson` splits the icon JSON out
+    // of the main server bundle so cold-starts stay lean.
     serverBundle: {
-      remote: true,
       externalizeIconsJson: true,
       collections: ['ant-design', 'fa-solid', 'fa6-solid', 'heroicons', 'lucide', 'heroicons-solid', 'heroicons-outline', 'mdi', 'unjs'],
     },
+    // Force the CDN fallback (for icons outside the installed packs) to
+    // go through the Nuxt server, not the browser. Browsers talking
+    // directly to api.iconify.design tripped the site's strict
+    // `connect-src` CSP; with `server-only` the fallback is a
+    // same-origin request to /api/_nuxt_icon/... and the server
+    // proxies upstream if needed.
+    fallbackToApi: 'server-only',
     clientBundle: {
       icons: [
         'i-lucide:moon',
         'i-lucide:sun',
+        'i-lucide:check',
         'i-heroicons:heart',
         'i-fa6-solid:circle-user',
         'i-fa6-solid:shield',
