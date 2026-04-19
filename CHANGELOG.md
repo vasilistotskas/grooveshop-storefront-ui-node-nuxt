@@ -1,3 +1,10 @@
+# [3.87.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.86.0...v3.87.0) (2026-04-19)
+
+
+### Features
+
+* **cart:** sprint 2B cart UX + trust signals ([71f6b79](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/71f6b79d072e8ef283defd157fbace802bfd4e90))
+
 # [3.86.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.85.1...v3.86.0) (2026-04-19)
 
 
