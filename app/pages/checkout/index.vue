@@ -73,7 +73,11 @@ const handleStockRetry = () => {
 }
 
 useSeoMeta({
-  title: () => t('checkout.title'),
+  // The per-locale checkout file (i18n/locales/checkout/el-GR.json)
+  // merges its keys at the root of the locale messages, so the
+  // title lives at `title` — not under a `checkout.` namespace.
+  // Using `t('checkout.title')` silently rendered the raw key.
+  title: () => t('title'),
 })
 
 definePageMeta({

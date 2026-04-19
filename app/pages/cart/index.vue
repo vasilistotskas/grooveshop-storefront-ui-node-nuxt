@@ -37,6 +37,15 @@ const summaryCardUI = {
   root: 'p-6',
 }
 
+// Without a page-level title, setupPageHeader() falls back to the
+// raw appTitle ("GrooveShop - APP TITLE"), which the siteName
+// template then pads with " - GrooveShop" on top, producing
+// "GrooveShop - APP TITLE - GrooveShop". Set a proper cart title so
+// the document title reads "Καλάθι Αγορών - GrooveShop".
+useSeoMeta({
+  title: () => t('shopping_cart'),
+})
+
 defineRouteRules({
   robots: false,
 })
