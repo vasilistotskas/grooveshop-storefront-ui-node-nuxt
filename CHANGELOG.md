@@ -1,3 +1,10 @@
+## [3.88.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.88.3...v3.88.4) (2026-04-19)
+
+
+### Bug Fixes
+
+* **title:** cart and checkout page titles render correctly ([99ff993](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/99ff993e1ae191871192ddca56f15aecac9cbd87))
+
 ## [3.88.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.88.2...v3.88.3) (2026-04-19)
 
 
