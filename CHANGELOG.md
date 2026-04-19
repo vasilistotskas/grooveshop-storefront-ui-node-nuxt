@@ -1,3 +1,11 @@
+## [3.88.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.88.0...v3.88.1) (2026-04-19)
+
+
+### Bug Fixes
+
+* **lottie:** rename LazyLottie → Lottie to avoid Nuxt reserved prefix ([bb25fcd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bb25fcdebf222b8e2f36d9c672eba7ce5cbf04cf))
+* UI ([c96da67](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c96da67039c56ffc17ff69ec7d321d66274f9975))
+
 # [3.88.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.87.0...v3.88.0) (2026-04-19)
 
 
