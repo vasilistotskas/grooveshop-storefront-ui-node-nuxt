@@ -1,3 +1,16 @@
+## [3.88.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.88.1...v3.88.2) (2026-04-19)
+
+
+### Bug Fixes
+
+* **checkout:** a11y + hydration mismatches on /checkout ([420239f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/420239f9701f8fca2da147021900bf3395a0472e))
+* **trust:** drive PaymentBadges from the /pay-way backend ([ea2847e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ea2847e1a8076f7b0dc4c6eef720eafd7d733152))
+
+
+### Reverts
+
+* **nav:** drop S2D-21 header hide-on-scroll ([30b60a6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/30b60a69140430a5a16b68592d4092667565bb4f))
+
 ## [3.88.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.88.0...v3.88.1) (2026-04-19)
 
 
