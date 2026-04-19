@@ -12,6 +12,17 @@ const { isMobileOrTablet } = useDevice()
 
 const routeName = computed(() => $routeBaseName(route))
 
+// Used for the main-nav active-route state. Matches the anchor's
+// base route name plus any nested page under it (products-id-slug,
+// products-category-id-slug, blog-post-id-slug…) so the user stays
+// oriented while drilling into category or detail pages.
+const isRouteActive = (base: string) => {
+  const name = routeName.value
+  if (!name) return false
+  if (name === base) return true
+  return typeof name === 'string' && name.startsWith(`${base}-`)
+}
+
 const onClickLogout = async () => {
   if (!routeName.value) return
   if (isRouteProtected(String(routeName.value)))
@@ -88,12 +99,29 @@ const items = computed(() => [
                   :text="t('shop')"
                   :title="t('shop')"
                   :to="'products'"
+                  :aria-current="isRouteActive('products') ? 'page' : undefined"
                   class="
-                      text-lg text-primary-700 capitalize
-                      hover:text-primary-900
-                      dark:text-primary-200
-                      hover:dark:text-primary-50
-                    "
+                    relative text-lg capitalize transition-colors
+                    after:absolute after:right-0 after:-bottom-1
+                    after:left-0 after:h-0.5 after:bg-(--ui-secondary)
+                    after:transition-transform after:duration-200
+                    motion-reduce:after:transition-none
+                  "
+                  :class="
+                    isRouteActive('products')
+                      ? `
+                          font-bold text-primary-900
+                          dark:text-primary-50
+                          after:scale-x-100
+                        `
+                      : `
+                          text-primary-700
+                          hover:text-primary-900
+                          dark:text-primary-200
+                          hover:dark:text-primary-50
+                          after:scale-x-0
+                        `
+                  "
                   :ui="{
                     base: 'p-0',
                   }"
@@ -108,12 +136,29 @@ const items = computed(() => [
                   :text="t('blog')"
                   :title="t('blog')"
                   :to="'blog'"
+                  :aria-current="isRouteActive('blog') ? 'page' : undefined"
                   class="
-                      text-lg text-primary-700 capitalize
-                      hover:text-primary-900
-                      dark:text-primary-200
-                      hover:dark:text-primary-50
-                    "
+                    relative text-lg capitalize transition-colors
+                    after:absolute after:right-0 after:-bottom-1
+                    after:left-0 after:h-0.5 after:bg-(--ui-secondary)
+                    after:transition-transform after:duration-200
+                    motion-reduce:after:transition-none
+                  "
+                  :class="
+                    isRouteActive('blog')
+                      ? `
+                          font-bold text-primary-900
+                          dark:text-primary-50
+                          after:scale-x-100
+                        `
+                      : `
+                          text-primary-700
+                          hover:text-primary-900
+                          dark:text-primary-200
+                          hover:dark:text-primary-50
+                          after:scale-x-0
+                        `
+                  "
                   :ui="{
                     base: 'p-0',
                   }"

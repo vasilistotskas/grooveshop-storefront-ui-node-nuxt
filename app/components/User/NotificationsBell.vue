@@ -88,12 +88,12 @@ onClickOutside(dropdown, () => {
       :show="show"
     >
       <UButton
-        :icon="isDropdownVisible ? 'i-heroicons-solid:bell' : 'i-heroicons-bell'"
         color="neutral"
         size="xl"
         type="button"
         variant="ghost"
         :aria-label="t('notifications.title')"
+        :aria-expanded="isDropdownVisible"
         :title="t('notifications.title')"
         :ui="{
           base: `
@@ -102,7 +102,20 @@ onClickOutside(dropdown, () => {
           `,
         }"
         @click="toggleDropdown"
-      />
+      >
+        <!-- Crossfade between outline (idle) and solid (open) rather
+             than snapping instantly. Single Transition + keyed icon
+             handles the swap; `.bell-fade-*` CSS below fades in/out
+             without moving the icon. motion-reduce collapses to an
+             instant swap. -->
+        <Transition name="bell-fade" mode="out-in">
+          <UIcon
+            :key="isDropdownVisible ? 'solid' : 'outline'"
+            :name="isDropdownVisible ? 'i-heroicons-solid:bell' : 'i-heroicons-bell'"
+            class="size-6"
+          />
+        </Transition>
+      </UButton>
     </UChip>
     <Transition>
       <div
@@ -184,3 +197,28 @@ el:
     title: Ειδοποιήσεις
     no_notifications: Δεν έχεις ειδοποιήσεις
 </i18n>
+
+<style scoped>
+.bell-fade-enter-active,
+.bell-fade-leave-active {
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+.bell-fade-enter-from,
+.bell-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bell-fade-enter-active,
+  .bell-fade-leave-active {
+    transition: none;
+  }
+
+  .bell-fade-enter-from,
+  .bell-fade-leave-to {
+    transform: none;
+  }
+}
+</style>

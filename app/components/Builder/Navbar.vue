@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { useScroll } from '@vueuse/core'
+
 defineProps({
   useToggle: {
     type: Boolean,
@@ -18,7 +20,6 @@ const {
 } = storeToRefs(appStore)
 
 const navbar = ref(null)
-const isScrolled = ref(false)
 
 const routeName = computed(() => $routeBaseName(route))
 const isPageWithH1 = computed(() => {
@@ -29,14 +30,25 @@ const isPageWithH1 = computed(() => {
 const appTitle = computed(() => config.public.appTitle as string)
 const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
 
-const handleScroll = () => {
-  isScrolled.value = window.scrollY > 0
-}
+// Sticky header with hide-on-scroll-down / show-on-scroll-up. The
+// previous build only toggled a bottom-border on any scroll; this
+// also reclaims ~56px of mobile viewport while the user is reading,
+// and restores the bar as soon as they start scrolling back up (the
+// retail convention popularised by Shopify, Amazon, Asos).
+const { y: scrollY, directions } = useScroll(() =>
+  (import.meta.client ? window : null),
+{ throttle: 100 },
+)
 
-useEventListener('scroll', handleScroll, { passive: true })
+// Keep the nav visible within ~80px of the top so the transition
+// doesn't flash on short pages or while the address bar collapses.
+const TOP_THRESHOLD = 80
 
-onMounted(() => {
-  handleScroll()
+const isScrolled = computed(() => scrollY.value > 0)
+
+const isHidden = computed(() => {
+  if (scrollY.value <= TOP_THRESHOLD) return false
+  return directions.bottom
 })
 </script>
 
@@ -44,10 +56,15 @@ onMounted(() => {
   <div
     ref="navbar"
     class="
-      top-0 z-50 w-full flex-none backdrop-blur-md
+      sticky top-0 z-50 w-full flex-none bg-(--ui-bg)/85 backdrop-blur-md
+      transition-transform duration-200 ease-out
+      motion-reduce:transition-none
       lg:z-50
     "
-    :class="{ 'border-b border-gray-200 dark:border-gray-800': isScrolled }"
+    :class="[
+      isScrolled ? 'border-b border-gray-200 dark:border-gray-800' : '',
+      isHidden ? '-translate-y-full' : 'translate-y-0',
+    ]"
   >
     <div
       id="navbar-banner"
