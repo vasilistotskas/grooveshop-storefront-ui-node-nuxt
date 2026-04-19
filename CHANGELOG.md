@@ -1,3 +1,10 @@
+# [3.86.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.85.1...v3.86.0) (2026-04-19)
+
+
+### Features
+
+* **forms:** sprint 2A greek-market form overhaul ([71793e3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/71793e3b3d78506ccac779b2b6c7c360f350bd50)), closes [hi#impact](https://github.com/hi/issues/impact)
+
 ## [3.85.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.85.0...v3.85.1) (2026-04-19)
 
 
