@@ -1,3 +1,10 @@
+## [3.85.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.85.0...v3.85.1) (2026-04-19)
+
+
+### Bug Fixes
+
+* **a11y:** sprint 1 critical accessibility + legal compliance pass ([b37687c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b37687cfe30ed4da7565027ef6d4e06a63a5f433)), closes [#003DFF](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/003DFF) [#0028B3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/0028B3) [#3364FF](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/3364FF) [#8FB0FF](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/8FB0FF)
+
 # [3.85.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.4...v3.85.0) (2026-04-19)
 
 
