@@ -1,3 +1,10 @@
+## [3.84.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.3...v3.84.4) (2026-04-19)
+
+
+### Bug Fixes
+
+* **i18n:** populate shared breadcrumb locale keys ([9ff3e09](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9ff3e09acde5814470bbc05fc28dc5d38986ed60))
+
 ## [3.84.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.2...v3.84.3) (2026-04-19)
 
 
