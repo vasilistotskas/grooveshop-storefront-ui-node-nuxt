@@ -8,19 +8,11 @@
 
 :root {
   --ui-bg: var(--ui-color-neutral-50);
-  /* Liked state: magenta kept for brand recognition, but components MUST
-     pair this color with an icon-fill swap so the state is not conveyed
-     by color alone (WCAG 1.4.1). See Button/Product/AddToFavourite and
-     Button/Blog/Post|Comment/Like for the canonical filled ↔ outline
-     icon toggle. */
   --ui-liked: #FF00BD;
 
   --ui-container: var(--container-8xl);
 
-  /* Brand secondary darkened from #003DFF (≈4.2:1 on white) to
-     #0028B3 (≈7.6:1) so body text and small-size UI elements pass
-     WCAG 2.2 AA (4.5:1) and AAA (7:1). */
-  --ui-secondary: #0028B3;
+  --ui-secondary: #003DFF;
   --ui-success: var(--color-success-600);
   --ui-info: var(--color-info-600);
   --ui-warning: var(--color-warning-600);
@@ -30,9 +22,7 @@
 
 .dark {
   --ui-bg: var(--ui-color-neutral-950);
-  /* Brightened from #3364FF (≈3.2:1 on neutral-950) to #8FB0FF
-     (≈7.1:1) for WCAG AA body-text compliance in dark mode. */
-  --ui-secondary: #8FB0FF;
+  --ui-secondary: #3364FF;
 
   /* Semantic colors - lighter shades for dark mode */
   --ui-primary: var(--color-primary-100);
@@ -54,91 +44,91 @@
 }
 
 .article {
-    h1, h2, h3, h4, h5, h6 {
-      @apply font-bold;
-    }
-
-    h1 {
-      @apply text-3xl;
-    }
-
-    h2 {
-      @apply text-2xl;
-    }
-
-    h3 {
-      @apply text-xl;
-    }
-
-    h4 {
-      @apply text-lg;
-    }
-
-    h5 {
-      @apply text-base;
-    }
-
-    h6 {
-      @apply text-sm;
-    }
-
-    p {
-      @apply mt-[1em] mb-[1em];
-
-      &:first-child {
-        @apply mt-0;
-      }
-
-      &:last-child {
-        @apply mb-0;
-      }
-    }
-
-    ol, ul, menu {
-      display: block;
-      margin-block-start: 1em;
-      margin-block-end: 1em;
-      margin-inline-start: 0;
-      margin-inline-end: 0;
-      padding-inline-start: 40px;
-      unicode-bidi: isolate;
-    }
-
-    ol {
-      @apply list-decimal;
-    }
-
-    ul {
-      @apply list-disc;
-    }
-
-    li {
-      @apply mt-[0.25em] mb-[0.25em];
-
-      &:first-child {
-        @apply mt-0;
-      }
-
-      &:last-child {
-        @apply mb-0;
-      }
-    }
-
-    menu {
-      @apply list-disc;
-    }
-
-    blockquote { @apply border-l-4 border-neutral-300 dark:border-neutral-600 pl-4 my-4 italic text-neutral-600 dark:text-neutral-300; }
-    code { @apply bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5 text-sm font-mono; }
-    pre { @apply bg-neutral-100 dark:bg-neutral-800 rounded-lg p-4 overflow-x-auto my-4; }
-    pre code { @apply bg-transparent p-0 rounded-none; }
-    table { @apply w-full border-collapse my-4; }
-    th, td { @apply border border-neutral-200 dark:border-neutral-700 px-3 py-2 text-sm; }
-    th { @apply bg-neutral-50 dark:bg-neutral-800 font-semibold text-left; }
-    a { @apply text-[var(--ui-secondary)] underline; }
-    img { @apply max-w-full h-auto rounded-lg my-4; }
-    hr { @apply border-neutral-200 dark:border-neutral-700 my-6; }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
   }
+
+  h1 {
+    @apply text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-xl;
+  }
+
+  h4 {
+    @apply text-lg;
+  }
+
+  h5 {
+    @apply text-base;
+  }
+
+  h6 {
+    @apply text-sm;
+  }
+
+  p {
+    @apply mt-[1em] mb-[1em];
+
+    &:first-child {
+      @apply mt-0;
+    }
+
+    &:last-child {
+      @apply mb-0;
+    }
+  }
+
+  ol, ul, menu {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+    padding-inline-start: 40px;
+    unicode-bidi: isolate;
+  }
+
+  ol {
+    @apply list-decimal;
+  }
+
+  ul {
+    @apply list-disc;
+  }
+
+  li {
+    @apply mt-[0.25em] mb-[0.25em];
+
+    &:first-child {
+      @apply mt-0;
+    }
+
+    &:last-child {
+      @apply mb-0;
+    }
+  }
+
+  menu {
+    @apply list-disc;
+  }
+
+  blockquote { @apply border-l-4 border-neutral-300 dark:border-neutral-600 pl-4 my-4 italic text-neutral-600 dark:text-neutral-300; }
+  code { @apply bg-neutral-100 dark:bg-neutral-800 rounded px-1.5 py-0.5 text-sm font-mono; }
+  pre { @apply bg-neutral-100 dark:bg-neutral-800 rounded-lg p-4 overflow-x-auto my-4; }
+  pre code { @apply bg-transparent p-0 rounded-none; }
+  table { @apply w-full border-collapse my-4; }
+  th, td { @apply border border-neutral-200 dark:border-neutral-700 px-3 py-2 text-sm; }
+  th { @apply bg-neutral-50 dark:bg-neutral-800 font-semibold text-left; }
+  a { @apply text-secondary underline; }
+  img { @apply max-w-full h-auto rounded-lg my-4; }
+  hr { @apply border-neutral-200 dark:border-neutral-700 my-6; }
+}
 
 .items-unset {
   align-items: unset;

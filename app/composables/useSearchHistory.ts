@@ -39,36 +39,36 @@ function writeRaw(locale: string, entries: string[]): void {
 }
 
 export function useSearchHistory() {
-  const { locale } = useI18n()
+  const { $i18n } = useNuxtApp()
   const entries = ref<string[]>([])
 
   function refresh(): void {
-    entries.value = readRaw(locale.value)
+    entries.value = readRaw($i18n.locale.value)
   }
 
   function add(query: string): void {
     const trimmed = (query ?? '').trim()
     if (trimmed.length < MIN_QUERY_LENGTH) return
     const normalized = trimmed.toLowerCase()
-    const existing = readRaw(locale.value).filter(
+    const existing = readRaw($i18n.locale.value).filter(
       item => item.toLowerCase() !== normalized,
     )
     const next = [trimmed, ...existing].slice(0, MAX_ENTRIES)
-    writeRaw(locale.value, next)
+    writeRaw($i18n.locale.value, next)
     entries.value = next
   }
 
   function remove(query: string): void {
     const normalized = (query ?? '').trim().toLowerCase()
-    const next = readRaw(locale.value).filter(
+    const next = readRaw($i18n.locale.value).filter(
       item => item.toLowerCase() !== normalized,
     )
-    writeRaw(locale.value, next)
+    writeRaw($i18n.locale.value, next)
     entries.value = next
   }
 
   function clear(): void {
-    writeRaw(locale.value, [])
+    writeRaw($i18n.locale.value, [])
     entries.value = []
   }
 
