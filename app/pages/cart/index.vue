@@ -232,7 +232,12 @@ definePageMeta({
             </h2>
           </template>
 
-          <div class="grid gap-4">
+          <div
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            class="grid gap-4"
+          >
             <div class="flex justify-between">
               <span>{{ t('subtotal', cart.totalItems) }}</span>
               <span>{{ $i18n.n(cart.totalPrice - cart.totalVatValue, 'currency') }}</span>

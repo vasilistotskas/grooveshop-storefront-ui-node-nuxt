@@ -46,7 +46,13 @@ useSeoMeta({
 <template>
   <NuxtRouteAnnouncer />
   <LoadingIndicator />
-  <UApp :locale="uiLocales[locale]">
+  <UApp
+    :locale="uiLocales[locale]"
+    :toaster="{
+      position: 'top-right',
+      duration: 5000,
+    }"
+  >
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

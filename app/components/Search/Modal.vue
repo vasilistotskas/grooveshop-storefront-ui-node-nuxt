@@ -17,15 +17,15 @@ const { t, locale } = useI18n()
 const history = useSearchHistory()
 
 const trending = useLazyFetch<{
-  window_hours: number
-  content_type: string
-  language_code: string | null
+  windowHours: number
+  contentType: string
+  languageCode: string | null
   results: { query: string, count: number }[]
 }>('/api/search/trending', {
   query: { languageCode: locale, contentType: 'product', limit: 8 },
   immediate: true,
   server: false,
-  default: () => ({ window_hours: 24, content_type: 'product', language_code: null, results: [] }),
+  default: () => ({ windowHours: 24, contentType: 'product', languageCode: null, results: [] }),
 })
 
 const localQuery = computed({
@@ -252,6 +252,9 @@ if (localQuery.value && localQuery.value.length >= 2) {
       </div>
 
       <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
         class="
           h-full overflow-y-auto
           md:h-[60vh]

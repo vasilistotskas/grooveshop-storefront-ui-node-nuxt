@@ -20,6 +20,8 @@ defineSlots<{
 
 <template>
   <div
+    role="status"
+    aria-live="polite"
     class="
       flex flex-col items-center justify-center gap-4 rounded-lg border
       border-primary-500 p-4 text-center text-primary-950

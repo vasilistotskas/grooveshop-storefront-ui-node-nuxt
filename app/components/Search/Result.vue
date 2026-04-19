@@ -46,6 +46,10 @@ const resultUrl = (result: SearchResult) => {
     size="lg"
     block
     :to="resultUrl(result)"
+    class="
+      focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary
+      focus-visible:outline-none
+    "
     @click="emit('click')"
   >
     <span

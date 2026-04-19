@@ -592,6 +592,15 @@ definePageMeta({
                 >
                   {{ formatProductPrice(product?.price) }}
                 </span>
+
+                <span
+                  class="
+                    text-xs text-gray-500
+                    dark:text-gray-400
+                  "
+                >
+                  {{ t('vat_included') }}
+                </span>
               </div>
             </div>
 
@@ -848,4 +857,5 @@ el:
   out_of_stock: Μη διαθέσιμο
   low_stock: Χαμηλό απόθεμα ({count})
   in_stock: Διαθέσιμο
+  vat_included: Περιλαμβάνει ΦΠΑ
 </i18n>

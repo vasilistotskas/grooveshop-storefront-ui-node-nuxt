@@ -102,9 +102,9 @@ definePageMeta({
         `,
       }"
       class="
-        absolute z-10 mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
+        relative mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
         !pt-2
-        md:relative md:mb-5 md:w-full md:!pt-0
+        md:mb-5 md:w-full md:!pt-0
         dark:bg-transparent
       "
     />

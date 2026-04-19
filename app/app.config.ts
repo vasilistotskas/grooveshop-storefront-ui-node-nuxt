@@ -68,7 +68,10 @@ export default defineAppConfig({
     },
     switch: {
       slots: {
-        base: 'cursor-pointer data-[state=unchecked]:bg-(--ui-secondary)/25 data-[state=unchecked]:dark:bg-gray-300/25',
+        // Unchecked opacity raised from /25 (~2.8:1) to /50 so the
+        // switch track meets WCAG 2.1 AA 3:1 non-text contrast against
+        // neutral-50 / neutral-950 backgrounds.
+        base: 'cursor-pointer data-[state=unchecked]:bg-(--ui-secondary)/50 data-[state=unchecked]:dark:bg-gray-300/50',
       },
     },
     avatar: {

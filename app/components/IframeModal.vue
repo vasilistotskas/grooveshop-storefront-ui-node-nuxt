@@ -1,40 +1,45 @@
 <script lang="ts" setup>
+// Delegates focus-trap, body scroll-lock, ESC-to-close and click-outside
+// dismissal to UModal (Reka UI Dialog under the hood) — all the a11y
+// plumbing the previous hand-rolled overlay was missing.
+
+const open = ref(false)
 const src = ref<string | null>(null)
 
 function showModal(link: string) {
   src.value = link
+  open.value = true
 }
-const el = ref<HTMLIFrameElement>()
+
+function handleOpenUpdate(value: boolean) {
+  open.value = value
+  if (!value) {
+    src.value = null
+  }
+}
 
 provideIframeModal(showModal)
-
-onKeyStroke('Escape', () => {
-  if (src.value) src.value = null
-})
-
-onClickOutside(el, () => {
-  src.value = null
-})
 </script>
 
 <template>
-  <div
-    v-if="src"
-    class="fixed inset-0 z-10 flex"
+  <UModal
+    :open="open"
+    fullscreen
+    :ui="{
+      content: 'bg-transparent shadow-none ring-0',
+      body: 'flex items-center justify-center p-0',
+      close: 'inset-e-2 top-2 z-60',
+    }"
+    @update:open="handleOpenUpdate"
   >
-    <button
-      class="absolute top-1 right-1 z-100 rounded-full text-3xl"
-      title="Close"
-      @click="src = null"
-    >
-      <UIcon name="i-fa6-solid-circle-xmark" />
-    </button>
-    <iframe
-      ref="el"
-      allow="autoplay; encrypted-media"
-      allowfullscreen
-      :src="src"
-      class="w-full border-none"
-    />
-  </div>
+    <template #body>
+      <iframe
+        v-if="src"
+        allow="autoplay; encrypted-media"
+        allowfullscreen
+        :src="src"
+        class="h-full w-full border-none"
+      />
+    </template>
+  </UModal>
 </template>

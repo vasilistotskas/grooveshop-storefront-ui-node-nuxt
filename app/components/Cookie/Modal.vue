@@ -2,17 +2,22 @@
 import { type Cookie, COOKIE_ID_SEPARATOR, ZodCookieTypeEnum } from '#cookie-control/types'
 import { getCookieIds } from '#cookie-control/methods'
 
+// Migrated to UModal so that focus-trap, body scroll lock, ESC-to-close,
+// aria-modal and click-outside dismissal come from Reka UI Dialog by
+// default — the previous hand-rolled overlay (`fixed inset-0 z-[1000]
+// @click.self`) only handled click-outside and missed every other a11y
+// requirement.
+
 const { t } = useI18n()
 
 const { cookiesEnabled, cookiesEnabledIds, isConsentGiven, isModalActive, moduleOptions } = useCookieControl()
 
 const localCookiesEnabled = ref([...(cookiesEnabled.value || [])])
 
-const onModalClick = () => {
-  if (moduleOptions.closeModalOnClickOutside) {
-    isModalActive.value = false
-  }
-}
+// Forced modals (first-visit consent) must not be dismissible — disable
+// click-outside + ESC + hide the close button so users cannot bypass
+// the consent step.
+const dismissible = computed(() => !moduleOptions.isModalForced)
 
 const resolveLinkEntryText = (entry: [string, unknown]) =>
   typeof entry[1] === 'string' ? t(entry[1] as string) : entry[0]
@@ -92,186 +97,147 @@ const isUnSaved = computed(() => {
 </script>
 
 <template>
-  <Transition name="fade">
-    <div
-      v-if="isModalActive"
-      class="
-        fixed inset-0 z-[1000] flex items-center overflow-y-auto bg-black/25
-        px-4 py-6 pt-8 shadow-xl ring-1 drop-shadow-sm backdrop-blur-[0.125em]
-        md:pt-0
-      "
-      @click.self="onModalClick"
-    >
-      <p
-        v-if="isUnSaved"
-        class="
-          fixed right-0 bottom-0 left-0 z-50 mx-auto mb-5 border
-          border-primary-200 bg-primary-50 p-3 text-center text-sm
-          sm:right-16 sm:bottom-6 sm:left-16 sm:max-w-sm sm:rounded-md
-          dark:border-primary-700 dark:bg-primary-800
-        "
-        v-text="t('settings.unsaved')"
-      />
+  <UModal
+    v-model:open="isModalActive"
+    :title="t('modal.title')"
+    :description="t('modal.description')"
+    :dismissible="dismissible"
+    :close="dismissible"
+    scrollable
+    :ui="{
+      content: 'max-w-3xl',
+    }"
+  >
+    <template #body>
+      <div class="flex flex-col gap-4">
+        <template
+          v-for="cookieType in ZodCookieTypeEnum.enum"
+          :key="cookieType"
+        >
+          <div v-if="moduleOptions.cookies[cookieType].length">
+            <h3
+              class="
+                mb-2 text-lg font-semibold text-primary-600
+                dark:text-primary-100
+              "
+              v-text="cookieType === ZodCookieTypeEnum.enum.necessary ? t('cookies.necessary') : t('cookies.optional')"
+            />
+            <ul class="flex flex-col gap-3">
+              <li
+                v-for="cookie in moduleOptions.cookies[cookieType]"
+                :key="cookie.id"
+                class="
+                  rounded-md border border-primary-200 bg-primary-100 p-3
+                  md:p-5
+                  dark:border-primary-700 dark:bg-primary-700
+                "
+              >
+                <div class="flex flex-col">
+                  <USwitch
+                    :model-value="isCookieEnabled(cookie)"
+                    color="secondary"
+                    size="xl"
+                    unchecked-icon="i-heroicons-x-mark"
+                    checked-icon="i-heroicons-check"
+                    :label="getName(cookie.name)"
+                    :disabled="cookieType === ZodCookieTypeEnum.enum.necessary"
+                    :ui="{
+                      root: 'w-full flex-row-reverse',
+                      base: 'cursor-pointer',
+                      wrapper: 'm-0 w-full',
+                      label: 'cursor-pointer',
+                    }"
+                    @update:model-value="(_: boolean) => toggleCookie(cookie, cookieType)"
+                  />
+                  <div>
+                    <span
+                      v-if="moduleOptions.isCookieIdVisible && cookie.targetCookieIds && cookie.targetCookieIds.length"
+                      class="mt-2 block text-xs font-normal"
+                    >
+                      {{ 'IDs: ' + cookie.targetCookieIds.map((id) => `"${id}"`).join(', ') }}
+                    </span>
+                    <template v-if="Object.entries(cookie.links || {}).length">
+                      <span
+                        v-for="entry in Object.entries(cookie.links || {})"
+                        :key="entry[0]"
+                      >
+                        <a
+                          :href="entry[0]"
+                          class="
+                            text-blue-600 underline
+                            hover:text-blue-800
+                          "
+                        >
+                          {{ resolveLinkEntryText(entry) }}
+                        </a>
+                      </span>
+                    </template>
+                  </div>
+                  <ReadMore
+                    v-if="cookie.description"
+                    :max-chars="100"
+                    :text="getDescription(cookie.description)"
+                    class="mt-2"
+                  />
+                </div>
+              </li>
+            </ul>
+          </div>
+        </template>
+
+        <p
+          v-if="isUnSaved"
+          role="status"
+          aria-live="polite"
+          class="
+            rounded-md border border-primary-200 bg-primary-50 p-3 text-center
+            text-sm
+            dark:border-primary-700 dark:bg-primary-800
+          "
+          v-text="t('settings.unsaved')"
+        />
+      </div>
+    </template>
+
+    <template #footer>
       <div
         class="
-          relative mb-6 transform rounded-lg border border-primary-200
-          bg-primary-50 shadow-xl transition-all
-          sm:mx-auto sm:w-full
-          md:max-w-3xl
-          dark:border-primary-700 dark:bg-primary-800
+          grid w-full gap-2
+          md:flex md:justify-between md:gap-0
         "
       >
+        <UButton
+          v-if="dismissible"
+          :label="t('decline_all')"
+          color="neutral"
+          variant="outline"
+          size="lg"
+          @click="() => { declineAll(); isModalActive = false }"
+        />
         <div
           class="
-            relative max-h-[90vh] overflow-y-scroll px-4 py-2
-            md:max-h-[80vh] md:px-7 md:py-3
+            grid gap-2
+            md:flex
           "
         >
-          <slot name="modal">
-            <h2
-              class="
-                mt-3 text-2xl font-medium text-primary-600
-                dark:text-primary-100
-              "
-            >
-              {{ t('modal.title') }}
-            </h2>
-            <p
-              class="
-                mt-6 mb-5 border-b pb-5 text-sm text-primary-600
-                dark:text-primary-100
-              "
-            >
-              {{ t('modal.description') }}
-            </p>
-          </slot>
           <UButton
-            v-if="!moduleOptions.isModalForced"
-            type="button"
-            :label="t('close')"
-            color="error"
-            variant="solid"
-            class="
-              absolute top-2 right-6 z-10
-              md:top-6
-            "
-            @click="isModalActive = false"
+            :label="t('accept_all')"
+            color="neutral"
+            variant="outline"
+            size="lg"
+            @click="() => { accept(); isModalActive = false }"
           />
-          <template
-            v-for="cookieType in ZodCookieTypeEnum.enum"
-            :key="cookieType"
-          >
-            <template v-if="moduleOptions.cookies[cookieType].length">
-              <h2
-                class="
-                  mt-3 text-lg font-semibold text-primary-600
-                  dark:text-primary-100
-                "
-                v-text="cookieType === ZodCookieTypeEnum.enum.necessary ? t('cookies.necessary') : t('cookies.optional')"
-              />
-              <ul>
-                <li
-                  v-for="cookie in moduleOptions.cookies[cookieType]"
-                  :key="cookie.id"
-                  class="
-                    relative my-3 rounded-md border border-primary-200
-                    bg-primary-100 p-3
-                    md:p-5
-                    dark:border-primary-700 dark:bg-primary-700
-                  "
-                >
-                  <div class="flex flex-col">
-                    <USwitch
-                      :model-value="isCookieEnabled(cookie)"
-                      color="secondary"
-                      size="xl"
-                      unchecked-icon="i-heroicons-x-mark"
-                      checked-icon="i-heroicons-check"
-                      :label="getName(cookie.name)"
-                      :disabled="cookieType === ZodCookieTypeEnum.enum.necessary"
-                      :ui="{
-                        root: 'w-full flex-row-reverse',
-                        base: 'cursor-pointer',
-                        wrapper: 'm-0 w-full',
-                        label: 'cursor-pointer',
-                      }"
-                      @update:model-value="(_: boolean) => toggleCookie(cookie, cookieType)"
-                    />
-                    <div>
-                      <span
-                        v-if="moduleOptions.isCookieIdVisible && cookie.targetCookieIds && cookie.targetCookieIds.length"
-                        class="mt-2 block text-xs font-normal"
-                      >
-                        {{ 'IDs: ' + cookie.targetCookieIds.map((id) => `"${id}"`).join(', ') }}
-                      </span>
-                      <template v-if="Object.entries(cookie.links || {}).length">
-                        <span
-                          v-for="entry in Object.entries(cookie.links || {})"
-                          :key="entry[0]"
-                        >
-                          <a
-                            :href="entry[0]"
-                            class="
-                              text-blue-600 underline
-                              hover:text-blue-800
-                            "
-                          >
-                            {{ resolveLinkEntryText(entry) }}
-                          </a>
-                        </span>
-                      </template>
-                    </div>
-                    <ReadMore
-                      v-if="cookie.description"
-                      :max-chars="100"
-                      :text="getDescription(cookie.description)"
-                      class="mt-2"
-                    />
-                  </div>
-                </li>
-              </ul>
-            </template>
-          </template>
-          <div
-            class="
-              mt-5 mb-2 grid gap-2
-              md:flex md:justify-between md:gap-0
-            "
-          >
-            <UButton
-              v-if="!moduleOptions.isModalForced"
-              :label="t('decline_all')"
-              color="neutral"
-              variant="outline"
-              size="lg"
-              @click="() => { declineAll(); isModalActive = false }"
-            />
-            <div
-              class="
-                grid gap-2
-                md:flex
-              "
-            >
-              <UButton
-                :label="t('accept_all')"
-                color="neutral"
-                variant="outline"
-                size="lg"
-                @click="() => { accept(); isModalActive = false }"
-              />
-              <UButton
-                :label="t('save')"
-                color="secondary"
-                variant="solid"
-                size="lg"
-                @click="() => { acceptPartial(); isModalActive = false }"
-              />
-            </div>
-          </div>
+          <UButton
+            :label="t('save')"
+            color="secondary"
+            variant="solid"
+            size="lg"
+            @click="() => { acceptPartial(); isModalActive = false }"
+          />
         </div>
       </div>
-    </div>
-  </Transition>
+    </template>
+  </UModal>
 </template>
 
 <i18n lang="yaml">

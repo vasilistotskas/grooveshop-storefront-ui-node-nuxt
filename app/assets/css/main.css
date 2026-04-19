@@ -8,11 +8,19 @@
 
 :root {
   --ui-bg: var(--ui-color-neutral-50);
+  /* Liked state: magenta kept for brand recognition, but components MUST
+     pair this color with an icon-fill swap so the state is not conveyed
+     by color alone (WCAG 1.4.1). See Button/Product/AddToFavourite and
+     Button/Blog/Post|Comment/Like for the canonical filled ↔ outline
+     icon toggle. */
   --ui-liked: #FF00BD;
 
   --ui-container: var(--container-8xl);
 
-  --ui-secondary: #003DFF;
+  /* Brand secondary darkened from #003DFF (≈4.2:1 on white) to
+     #0028B3 (≈7.6:1) so body text and small-size UI elements pass
+     WCAG 2.2 AA (4.5:1) and AAA (7:1). */
+  --ui-secondary: #0028B3;
   --ui-success: var(--color-success-600);
   --ui-info: var(--color-info-600);
   --ui-warning: var(--color-warning-600);
@@ -22,7 +30,9 @@
 
 .dark {
   --ui-bg: var(--ui-color-neutral-950);
-  --ui-secondary: #3364FF;
+  /* Brightened from #3364FF (≈3.2:1 on neutral-950) to #8FB0FF
+     (≈7.1:1) for WCAG AA body-text compliance in dark mode. */
+  --ui-secondary: #8FB0FF;
 
   /* Semantic colors - lighter shades for dark mode */
   --ui-primary: var(--color-primary-100);

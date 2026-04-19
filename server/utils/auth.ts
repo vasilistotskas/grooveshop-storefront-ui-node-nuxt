@@ -56,8 +56,8 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   // Django's UserAccountAdapter reads this via X-Real-IP.
   const clientIp
     = requestHeaders['cf-connecting-ip']
-    || requestHeaders['true-client-ip']
-    || getRequestIP(event, { xForwardedFor: true })
+      || requestHeaders['true-client-ip']
+      || getRequestIP(event, { xForwardedFor: true })
   if (clientIp) {
     headers['X-Real-IP'] = clientIp
   }

@@ -18,10 +18,13 @@ const zResult = z.object({
   count: z.number().int().nonnegative(),
 })
 
+// Django's djangorestframework-camel-case middleware converts snake_case
+// response keys to camelCase on the wire, so the Zod schema validating
+// the Django payload must mirror that (windowHours, contentType, …).
 const zResponse = z.object({
-  window_hours: z.number().int(),
-  content_type: z.string(),
-  language_code: z.string().nullable(),
+  windowHours: z.number().int(),
+  contentType: z.string(),
+  languageCode: z.string().nullable(),
   results: z.array(zResult),
 })
 
