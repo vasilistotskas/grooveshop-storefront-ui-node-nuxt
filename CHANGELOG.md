@@ -1,3 +1,10 @@
+## [3.84.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.2...v3.84.3) (2026-04-19)
+
+
+### Bug Fixes
+
+* **auth:** read CF-Connecting-IP for real client IP through klipper-lb SNAT ([ce0a02f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ce0a02f640ab82bb78ae94308ad862ca9ace6831))
+
 ## [3.84.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.1...v3.84.2) (2026-04-19)
 
 
