@@ -139,6 +139,7 @@ const backgroundImage = computed(() => {
                 autocomplete="new-password"
                 size="lg"
               />
+              <FormPasswordStrengthMeter :password="state.password ?? ''" />
             </UFormField>
 
             <UFormField

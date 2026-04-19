@@ -129,7 +129,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
       streetNumber: formState.streetNumber,
       city: formState.city,
       zipcode: formState.zipcode,
-      phone: formState.phone,
+      // The phone UInput displays a sticky "+30" leading badge and users
+      // type their Greek local number (e.g. 6912345678). Django's
+      // phonenumber_field expects E.164, so normalize to "+30<local>"
+      // unless the user already typed an international prefix.
+      phone: normalizeGreekPhone(formState.phone),
       customerNotes: formState.customerNotes,
       loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
     } as OrderCreateFromCartRequest

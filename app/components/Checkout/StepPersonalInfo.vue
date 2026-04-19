@@ -31,20 +31,18 @@ const { t } = useI18n()
         </h3>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <UFormField :label="t('form.first_name')" name="firstName" required class="[&_label]:sr-only">
+          <UFormField :label="t('form.first_name')" name="firstName" required>
             <UInput
               v-model="formState.firstName"
-              :placeholder="t('form.first_name')"
               size="xl"
               autocomplete="given-name"
               class="w-full"
             />
           </UFormField>
 
-          <UFormField :label="t('form.last_name')" name="lastName" required class="[&_label]:sr-only">
+          <UFormField :label="t('form.last_name')" name="lastName" required>
             <UInput
               v-model="formState.lastName"
-              :placeholder="t('form.last_name')"
               size="xl"
               autocomplete="family-name"
               class="w-full"
@@ -53,57 +51,101 @@ const { t } = useI18n()
         </div>
 
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <UFormField :label="t('form.email')" name="email" required class="[&_label]:sr-only">
+          <UFormField :label="t('form.email')" name="email" required>
             <UInput
               v-model="formState.email"
               type="email"
-              :placeholder="t('form.email')"
               size="xl"
               autocomplete="email"
+              inputmode="email"
               leading-icon="i-heroicons-envelope"
               class="w-full"
             />
           </UFormField>
 
-          <UFormField :label="t('form.phone')" name="phone" required class="[&_label]:sr-only">
+          <UFormField :label="t('form.phone')" name="phone" required>
             <UInput
               v-model="formState.phone"
               type="tel"
-              :placeholder="t('form.phone')"
               size="xl"
-              autocomplete="tel"
-              leading-icon="i-heroicons-phone"
+              autocomplete="tel-national"
+              inputmode="tel"
+              :placeholder="t('form.phone_placeholder')"
               class="w-full"
-            />
+            >
+              <template #leading>
+                <span class="pl-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">+30</span>
+              </template>
+            </UInput>
           </UFormField>
         </div>
       </div>
 
       <USeparator />
 
-      <!-- Address Section -->
+      <!-- Address Section — ordered per Greek postal norm: street → number → zipcode → city → area → region → country -->
       <div class="space-y-4">
         <h3 class="text-lg font-medium text-primary-900 dark:text-primary-100">
           {{ t('delivery_address') }}
         </h3>
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <UFormField :label="t('form.country')" name="country" required class="[&_label]:sr-only">
-            <USelect
-              v-model="formState.country"
-              :items="countryOptions"
-              :placeholder="t('form.country')"
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+          <UFormField :label="t('form.street')" name="street" required class="md:col-span-2">
+            <UInput
+              v-model="formState.street"
               size="xl"
+              autocomplete="address-line1"
               class="w-full"
-              @update:model-value="emit('country-change')"
             />
           </UFormField>
 
-          <UFormField :label="t('form.region')" name="region" required class="[&_label]:sr-only">
+          <UFormField :label="t('form.street_number')" name="streetNumber" required>
+            <UInput
+              v-model="formState.streetNumber"
+              size="xl"
+              autocomplete="address-line2"
+              inputmode="numeric"
+              class="w-full"
+            />
+          </UFormField>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <UFormField :label="t('form.zipcode')" name="zipcode" required>
+            <UInput
+              v-model="formState.zipcode"
+              size="xl"
+              autocomplete="postal-code"
+              inputmode="numeric"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField :label="t('form.city')" name="city" required>
+            <UInput
+              v-model="formState.city"
+              size="xl"
+              autocomplete="address-level2"
+              leading-icon="i-heroicons-building-office-2"
+              class="w-full"
+            />
+          </UFormField>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <UFormField :label="t('form.place')" name="place" required>
+            <UInput
+              v-model="formState.place"
+              size="xl"
+              leading-icon="i-heroicons-map-pin"
+              class="w-full"
+            />
+          </UFormField>
+
+          <UFormField :label="t('form.region')" name="region" required>
             <USelect
               v-model="formState.region"
               :items="regionOptions"
-              :placeholder="t('form.region')"
               size="xl"
               class="w-full"
               :disabled="!regionOptions.length"
@@ -111,65 +153,19 @@ const { t } = useI18n()
           </UFormField>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <UFormField :label="t('form.city')" name="city" required class="[&_label]:sr-only">
-            <UInput
-              v-model="formState.city"
-              :placeholder="t('form.city')"
-              size="xl"
-              autocomplete="address-level2"
-              leading-icon="i-heroicons-building-office-2"
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField :label="t('form.place')" name="place" required class="[&_label]:sr-only">
-            <UInput
-              v-model="formState.place"
-              :placeholder="t('form.place')"
-              size="xl"
-              leading-icon="i-heroicons-map-pin"
-              class="w-full"
-            />
-          </UFormField>
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <UFormField :label="t('form.street')" name="street" required class="md:col-span-2 [&_label]:sr-only">
-            <UInput
-              v-model="formState.street"
-              :placeholder="t('form.street')"
-              size="xl"
-              autocomplete="address-line1"
-              class="w-full"
-            />
-          </UFormField>
-
-          <UFormField :label="t('form.street_number')" name="streetNumber" required class="[&_label]:sr-only">
-            <UInput
-              v-model="formState.streetNumber"
-              :placeholder="t('form.street_number')"
-              size="xl"
-              autocomplete="address-line2"
-              class="w-full"
-            />
-          </UFormField>
-        </div>
-
-        <UFormField :label="t('form.zipcode')" name="zipcode" required class="[&_label]:sr-only">
-          <UInput
-            v-model="formState.zipcode"
-            :placeholder="t('form.zipcode')"
+        <UFormField :label="t('form.country')" name="country" required>
+          <USelect
+            v-model="formState.country"
+            :items="countryOptions"
             size="xl"
-            autocomplete="postal-code"
             class="w-full"
+            @update:model-value="emit('country-change')"
           />
         </UFormField>
 
-        <UFormField :label="t('form.customer_notes')" name="customerNotes" class="[&_label]:sr-only">
+        <UFormField :label="t('form.customer_notes')" name="customerNotes">
           <UTextarea
             v-model="formState.customerNotes"
-            :placeholder="t('form.customer_notes')"
             :rows="3"
             size="xl"
             autoresize
@@ -205,6 +201,7 @@ el:
     last_name: Επίθετο
     email: Email
     phone: Τηλέφωνο
+    phone_placeholder: 6912345678
     place: Περιοχή
     city: Πόλη
     zipcode: Ταχυδρομικός Κώδικας

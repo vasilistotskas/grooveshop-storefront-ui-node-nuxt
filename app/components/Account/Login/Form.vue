@@ -120,8 +120,9 @@ const backgroundImage = computed(() => {
             >
               <UInput
                 v-model="state.email"
-                type="text"
+                type="email"
                 autocomplete="email"
+                inputmode="email"
                 class="w-full"
                 size="lg"
               />

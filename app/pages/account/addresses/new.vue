@@ -105,7 +105,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     await $fetch('/api/user/addresses', {
       method: 'POST',
       headers: useRequestHeaders(),
-      body: event.data,
+      body: {
+        ...event.data,
+        // Phone input shows a sticky "+30" badge and users type their
+        // Greek local number — normalize to E.164 before sending.
+        phone: normalizeGreekPhone(event.data.phone),
+      },
     })
 
     toast.add({
@@ -177,7 +182,22 @@ definePageMeta({
           />
         </UFormField>
 
-        <!-- Street -->
+        <!-- Phone (Greek number; +30 prefix applied on submit) -->
+        <UFormField :label="t('form.phone')" name="phone" required>
+          <UInput
+            v-model="state.phone"
+            type="tel"
+            :placeholder="t('form.phone_placeholder')"
+            autocomplete="tel-national"
+            inputmode="tel"
+          >
+            <template #leading>
+              <span class="pl-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">+30</span>
+            </template>
+          </UInput>
+        </UFormField>
+
+        <!-- Address: Greek postal order (street → number → zipcode → city → region → country) -->
         <UFormField :label="t('form.street')" name="street" required>
           <UInput
             v-model="state.street"
@@ -186,16 +206,24 @@ definePageMeta({
           />
         </UFormField>
 
-        <!-- Street Number -->
         <UFormField :label="t('form.street_number')" name="streetNumber" required>
           <UInput
             v-model="state.streetNumber"
             :placeholder="t('form.street_number')"
-            autocomplete="address-line1"
+            autocomplete="address-line2"
+            inputmode="numeric"
           />
         </UFormField>
 
-        <!-- City -->
+        <UFormField :label="t('form.zipcode')" name="zipcode" required>
+          <UInput
+            v-model="state.zipcode"
+            :placeholder="t('form.zipcode')"
+            autocomplete="postal-code"
+            inputmode="numeric"
+          />
+        </UFormField>
+
         <UFormField :label="t('form.city')" name="city" required>
           <UInput
             v-model="state.city"
@@ -204,36 +232,6 @@ definePageMeta({
           />
         </UFormField>
 
-        <!-- Zipcode -->
-        <UFormField :label="t('form.zipcode')" name="zipcode" required>
-          <UInput
-            v-model="state.zipcode"
-            :placeholder="t('form.zipcode')"
-            autocomplete="postal-code"
-          />
-        </UFormField>
-
-        <!-- Phone -->
-        <UFormField :label="t('form.phone')" name="phone" required>
-          <UInput
-            v-model="state.phone"
-            :placeholder="t('form.phone')"
-            autocomplete="tel"
-          />
-        </UFormField>
-
-        <!-- Country -->
-        <UFormField :label="t('form.country')" name="country" required>
-          <USelectMenu
-            v-model="state.country"
-            :items="countryOptions"
-            :placeholder="t('form.select_placeholder')"
-            value-key="value"
-            autocomplete="country"
-          />
-        </UFormField>
-
-        <!-- Region -->
         <UFormField :label="t('form.region')" name="region" required>
           <USelectMenu
             v-model="state.region"
@@ -242,6 +240,16 @@ definePageMeta({
             :disabled="!state.country"
             value-key="value"
             autocomplete="address-level1"
+          />
+        </UFormField>
+
+        <UFormField :label="t('form.country')" name="country" required>
+          <USelectMenu
+            v-model="state.country"
+            :items="countryOptions"
+            :placeholder="t('form.select_placeholder')"
+            value-key="value"
+            autocomplete="country"
           />
         </UFormField>
 
@@ -302,6 +310,7 @@ el:
     city: Πόλη
     zipcode: Ταχυδρομικός Κώδικας
     phone: Τηλέφωνο
+    phone_placeholder: 6912345678
     notes: Σημειώσεις
     floor: Όροφος
     floor_options:

@@ -85,7 +85,9 @@ const state = reactive<Partial<Schema>>({
   email: user.value?.email || '',
   firstName: user.value?.firstName || '',
   lastName: user.value?.lastName || '',
-  phone: user.value?.phone || '',
+  // Stored as E.164 (e.g. "+306912345678"); strip the +30 for display
+  // so it pairs cleanly with the sticky "+30" leading badge.
+  phone: stripGreekPrefixForDisplay(user.value?.phone),
   city: user.value?.city || '',
   zipcode: user.value?.zipcode || '',
   address: user.value?.address || '',
@@ -232,7 +234,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
       email: values.email,
       firstName: values.firstName,
       lastName: values.lastName,
-      phone: values.phone,
+      phone: normalizeGreekPhone(values.phone),
       city: values.city,
       zipcode: values.zipcode,
       address: values.address,
@@ -331,11 +333,16 @@ watch(calendarDate, (newVal) => {
       >
         <UInput
           v-model="state.phone"
-          :placeholder="t('form.phone')"
-          autocomplete="tel"
+          type="tel"
+          autocomplete="tel-national"
+          inputmode="tel"
+          :placeholder="t('form.phone_placeholder')"
           class="w-full"
-          type="text"
-        />
+        >
+          <template #leading>
+            <span class="pl-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">+30</span>
+          </template>
+        </UInput>
       </UFormField>
 
       <UFormField
@@ -476,6 +483,7 @@ el:
     first_name: Όνομα
     last_name: Επώνυμο
     phone: Τηλέφωνο
+    phone_placeholder: 6912345678
     city: Πόλη
     zipcode: Ταχυδρομικός κώδικας
     address: Διεύθυνση
