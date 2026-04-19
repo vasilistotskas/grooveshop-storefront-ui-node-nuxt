@@ -130,7 +130,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           v-if="product.stock === 0"
           color="neutral"
           variant="solid"
-          size="sm"
+          size="md"
           class="w-fit"
         >
           {{ t('out_of_stock') }}
@@ -139,7 +139,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           v-else-if="isLowStock"
           color="warning"
           variant="solid"
-          size="sm"
+          size="md"
           class="w-fit"
         >
           {{ t('only_n_left', { count: product.stock }) }}
@@ -160,8 +160,21 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             :title="t('share')"
             @click.stop="startShare"
           />
+          <!-- SSR placeholder: a dimensionally-identical disabled
+               button — not a skeleton — so no CLS when Web Share
+               hydrates (support detection is client-only). -->
           <template #fallback>
-            <USkeleton class="size-8 rounded-md" />
+            <UButton
+              v-if="showShareButton"
+              disabled
+              :aria-hidden="true"
+              tabindex="-1"
+              icon="i-heroicons-share"
+              size="md"
+              color="neutral"
+              square
+              variant="soft"
+            />
           </template>
         </ClientOnly>
         <LazyButtonProductAddToFavourite
@@ -179,7 +192,14 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         :aria-label="`${t('view_product')}: ${alt}`"
         class="block"
       >
-        <div class="aspect-4/3 max-w-full overflow-hidden">
+        <div
+          class="aspect-4/3 max-w-full overflow-hidden"
+          :class="{
+            // Dim out-of-stock products so browsing scannability
+            // reflects availability, not just the badge.
+            'opacity-60 grayscale': product.stock === 0,
+          }"
+        >
           <ImgWithFallback
             :loading="imgLoading"
             class="size-full max-w-full bg-white object-contain"

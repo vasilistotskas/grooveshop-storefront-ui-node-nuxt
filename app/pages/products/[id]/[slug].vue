@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import type { TabsItem, ButtonProps } from '#ui/types'
+import type { AccordionItem, TabsItem, ButtonProps } from '#ui/types'
 
 const { t, locale, n } = useI18n()
 const route = useRoute(`products-id-slug___${locale.value}`)
 const { y: scrollY } = useWindowScroll()
+
+const { isMobileOrTablet } = useDevice()
 
 const { user, loggedIn } = useUserSession()
 
@@ -285,6 +287,22 @@ const productTabs = computed<TabsItem[]>(() => [
   },
 ])
 
+// AccordionItem requires value to be a string (TabsItem allows
+// number too); mirror the tabs list into a dedicated typed array for
+// the mobile accordion path.
+const productAccordionItems = computed<AccordionItem[]>(() => [
+  {
+    label: t('description'),
+    icon: 'i-heroicons-document-text',
+    value: 'description',
+  },
+  {
+    label: t('specifications'),
+    icon: 'i-heroicons-cpu-chip',
+    value: 'specifications',
+  },
+])
+
 const productSpecifications = computed(() => {
   const specs = []
 
@@ -338,12 +356,27 @@ useSeoMeta({
 })
 
 useHead({
-  link: [
-    {
-      rel: 'canonical',
-      href: () => canonicalUrl.value,
-    },
-  ],
+  link: () => {
+    const links = [
+      {
+        rel: 'canonical',
+        href: canonicalUrl.value,
+      },
+    ] as const
+    // Preload the hero image so it's in flight before render — cuts
+    // ~200-400ms off LCP on cold product detail pages.
+    const heroHref = ogImage.value
+    if (!heroHref) return [...links]
+    return [
+      ...links,
+      {
+        rel: 'preload' as const,
+        as: 'image' as const,
+        href: heroHref,
+        fetchpriority: 'high' as const,
+      },
+    ]
+  },
   meta: [
     {
       name: 'keywords',
@@ -685,64 +718,45 @@ definePageMeta({
 
             <USeparator class="my-2" />
 
-            <UTabs :items="productTabs" class="w-full" color="neutral">
+            <!--
+              Description + specs render as tabs on desktop (more
+              content above the fold) but collapse to an accordion on
+              mobile so the two sections don't push reviews / related
+              rails off a narrow viewport. useDevice() reads the UA
+              server-side so SSR picks the right shell and avoids a
+              hydration re-render.
+            -->
+            <UTabs
+              v-if="!isMobileOrTablet"
+              :items="productTabs"
+              class="w-full"
+              color="neutral"
+            >
               <template #description>
-                <div
-                  class="max-w-none pt-2 md:py-4"
-                >
-                  <div
-                    v-if="sanitizedDescription"
-                    v-html="sanitizedDescription"
-                  />
-                  <p
-                    v-else
-                    class="
-                      text-gray-500
-                      dark:text-gray-200
-                    "
-                  >
-                    {{ t('no_description_available') }}
-                  </p>
-                </div>
+                <ProductDescriptionPanel :html="sanitizedDescription" />
               </template>
-
               <template #specifications>
-                <div class="py-4">
-                  <dl v-if="productSpecifications.length > 0" class="space-y-3">
-                    <div
-                      v-for="spec in productSpecifications"
-                      :key="spec.label"
-                      class="
-                        flex items-center justify-between rounded-lg border
-                        border-gray-200 p-4
-                        dark:border-gray-700
-                      "
-                    >
-                      <dt class="flex items-center">
-                        <span class="font-medium">{{ spec.label }}</span>
-                      </dt>
-                      <dd
-                        class="
-                          text-gray-600
-                          dark:text-gray-200
-                        "
-                      >
-                        {{ spec.value }}
-                      </dd>
-                    </div>
-                  </dl>
-                  <p
-                    v-else
-                    class="
-                      text-gray-500
-                      dark:text-gray-200
-                    "
-                  >
-                    {{ t('no_specifications_available') }}
-                  </p>
-                </div>
+                <ProductSpecificationsPanel :specifications="productSpecifications" />
               </template>
             </UTabs>
+            <UAccordion
+              v-else
+              :items="productAccordionItems"
+              default-value="description"
+              type="single"
+              class="w-full"
+            >
+              <template #body="{ item }">
+                <ProductDescriptionPanel
+                  v-if="item.value === 'description'"
+                  :html="sanitizedDescription"
+                />
+                <ProductSpecificationsPanel
+                  v-else-if="item.value === 'specifications'"
+                  :specifications="productSpecifications"
+                />
+              </template>
+            </UAccordion>
           </div>
         </div>
       </div>
