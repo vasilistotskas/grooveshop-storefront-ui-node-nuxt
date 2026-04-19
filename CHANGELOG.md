@@ -1,3 +1,10 @@
+## [3.84.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.1...v3.84.2) (2026-04-19)
+
+
+### Bug Fixes
+
+* **auth:** forward X-Real-IP to Django for allauth session tracking ([ff66ba5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ff66ba5024870b86f1b610410b9e3ad517ba0a75))
+
 ## [3.84.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.0...v3.84.1) (2026-04-19)
 
 
