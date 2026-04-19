@@ -50,6 +50,7 @@
     "evlog": "2.13.0",
     "h3": "1.15.11",
     "isomorphic-dompurify": "3.9.0",
+    "lottie-web": "^5.13.0",
     "magic-string": "0.30.21",
     "nuxt": "4.4.2",
     "nuxt-auth-utils": "0.5.29",

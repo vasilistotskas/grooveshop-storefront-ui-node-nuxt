@@ -48,13 +48,43 @@ const helpfulTips = computed(() => {
       dark:from-gray-950 dark:via-gray-900 dark:to-primary-950
     "
   >
-    <div class="pointer-events-none absolute inset-0 overflow-hidden opacity-20">
+    <div
+      v-if="error.statusCode === 404"
+      class="
+        pointer-events-none mx-auto max-w-md px-6 pt-10 sm:pt-16
+      "
+    >
+      <LazyLottie
+        :data="() => import('~/assets/lotties/404.json')"
+        :aria-label="t('error.page.title')"
+      >
+        <template #fallback>
+          <div
+            class="
+              flex h-64 items-center justify-center text-primary-400/50
+              dark:text-primary-700/60
+            "
+          >
+            <UIcon
+              name="i-heroicons-magnifying-glass-minus"
+              class="size-32"
+              aria-hidden="true"
+            />
+          </div>
+        </template>
+      </LazyLottie>
+    </div>
+    <div
+      v-else
+      class="pointer-events-none absolute inset-0 overflow-hidden opacity-20"
+    >
       <div
         v-for="(_blob, index) in 3"
         :key="index"
         class="
           absolute size-72 animate-pulse rounded-full mix-blend-multiply
           blur-3xl
+          motion-reduce:animate-none
           dark:mix-blend-lighten
         "
         :class="[

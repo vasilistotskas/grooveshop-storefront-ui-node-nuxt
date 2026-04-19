@@ -37,10 +37,6 @@ const summaryCardUI = {
   root: 'p-6',
 }
 
-const emptyCardUI = {
-  root: 'w-full p-8',
-}
-
 defineRouteRules({
   robots: false,
 })
@@ -135,34 +131,31 @@ definePageMeta({
           </UCard>
         </div>
 
-        <UCard
+        <LazyEmptyState
           v-else-if="!pending && !cart?.items?.length"
-          v-bind="cardConfig"
-          :ui="emptyCardUI"
-          class="text-center"
+          class="w-full"
+          :title="t('empty.title')"
+          :description="t('empty.description_long')"
         >
-          <UIcon
-            name="i-heroicons-shopping-cart"
-            class="mx-auto h-16 w-16 text-gray-400"
-          />
-          <div class="mt-4">
-            <h3 class="text-lg font-semibold">
-              {{ t('empty.title') }}
-            </h3>
-            <p class="mt-1 text-sm text-gray-500">
-              {{ t('empty.description_long') }}
-            </p>
-          </div>
-          <UButton
-            :to="localePath('index')"
-            color="neutral"
-            variant="solid"
-            size="lg"
-            class="mt-4"
-          >
-            {{ t('empty.description') }}
-          </UButton>
-        </UCard>
+          <template #icon>
+            <UIcon
+              name="i-heroicons-shopping-cart"
+              size="xl"
+            />
+          </template>
+          <template #actions>
+            <UButton
+              :to="localePath('index')"
+              color="secondary"
+              variant="solid"
+              size="lg"
+              icon="i-heroicons-arrow-right"
+              trailing
+            >
+              {{ t('empty.description') }}
+            </UButton>
+          </template>
+        </LazyEmptyState>
 
         <div
           v-else
