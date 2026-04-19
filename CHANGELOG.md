@@ -1,3 +1,10 @@
+# [3.85.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.4...v3.85.0) (2026-04-19)
+
+
+### Features
+
+* low-stock scarcity badge, trending + recent searches, product-alert proxies ([8e1c952](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8e1c952aece9c7d38b7f783015eacd25c94ca0c5))
+
 ## [3.84.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.3...v3.84.4) (2026-04-19)
 
 
