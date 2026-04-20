@@ -1,18 +1,46 @@
 <script lang="ts" setup>
 const formState = defineModel<Record<string, any>>('formState', { required: true })
 
-defineProps<{
+const props = defineProps<{
   schema: any
   countryOptions: Array<{ label: string, value: string }>
   regionOptions: Array<{ label: string, value: string }>
+  savedAddresses?: UserAddressDetail[]
+  selectedSavedAddressId?: number | null
 }>()
 
 const emit = defineEmits<{
   'next': []
   'country-change': []
+  'select-saved-address': [addressId: number | null]
 }>()
 
 const { t } = useI18n()
+
+// Only render the picker when there's a real choice to make (≥ 2 saved
+// addresses). Single-address users already got their main prefilled on
+// mount, so a one-option dropdown would just be visual noise.
+const showAddressPicker = computed(() => (props.savedAddresses?.length ?? 0) >= 2)
+
+const savedAddressOptions = computed(() => {
+  const options = (props.savedAddresses ?? []).map(address => ({
+    label: [
+      address.title,
+      `${address.street} ${address.streetNumber}`,
+      `${address.zipcode} ${address.city}`,
+    ]
+      .filter(Boolean)
+      .join(' · '),
+    value: address.id,
+  }))
+  return options
+})
+
+const currentPickerValue = computed<number | null>(() => props.selectedSavedAddressId ?? null)
+
+function onPickerChange(value: number | null | undefined) {
+  emit('select-saved-address', value ?? null)
+}
 </script>
 
 <template>
@@ -24,6 +52,24 @@ const { t } = useI18n()
     </template>
 
     <UForm :state="formState" :schema="schema" class="space-y-6" @submit="emit('next')">
+      <!-- Saved address picker (shown only for users with ≥ 2 saved
+           addresses so the main-address prefill remains the default
+           experience for single-address users). -->
+      <UFormField
+        v-if="showAddressPicker"
+        :label="t('saved_addresses.label')"
+        :help="t('saved_addresses.help')"
+      >
+        <USelect
+          :model-value="currentPickerValue ?? undefined"
+          :items="savedAddressOptions"
+          :placeholder="t('saved_addresses.placeholder')"
+          size="xl"
+          class="w-full"
+          @update:model-value="onPickerChange"
+        />
+      </UFormField>
+
       <!-- Personal Information Section -->
       <div class="space-y-4">
         <h3 class="text-lg font-medium text-primary-900 dark:text-primary-100">
@@ -195,6 +241,10 @@ el:
     info_and_address: Στοιχεία & Διεύθυνση
   personal_information: Προσωπικά Στοιχεία
   delivery_address: Διεύθυνση Παράδοσης
+  saved_addresses:
+    label: "Επίλεξε αποθηκευμένη διεύθυνση"
+    placeholder: "Επίλεξε διεύθυνση"
+    help: "Διάλεξε μία από τις διευθύνσεις σου για να συμπληρωθούν αυτόματα τα πεδία."
   continue: Συνέχεια
   form:
     first_name: Όνομα

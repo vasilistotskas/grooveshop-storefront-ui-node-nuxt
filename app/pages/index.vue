@@ -75,6 +75,17 @@ useSeoMeta({
           />
         </UCarousel>
 
+        <!-- Recently viewed rail: rendered client-side from localStorage
+             so returning visitors land on products they were eyeing.
+             Hidden when history is empty. -->
+        <LazyProductRecentlyViewed
+          class="
+            mx-auto w-full max-w-(--container-main)
+            md:!p-0
+          "
+          hydrate-on-visible
+        />
+
         <LazyBlogPostsList
           :page-size="6"
           :show-ordering="false"

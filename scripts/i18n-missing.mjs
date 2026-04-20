@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // Audit i18n keys used via `t(...)` across the app against BOTH the global
 // JSON locale files AND every component-scoped <i18n lang="yaml"> block, so
 // keys that only exist inside a component block still count as defined.
@@ -36,7 +37,7 @@ function indexYamlKeys(body) {
     const indent = raw.length - raw.trimStart().length
     while (stack.length && stack[stack.length - 1].indent >= indent) stack.pop()
     const line = raw.trim()
-    const m = line.match(/^([\w.\-]+)\s*:\s*(.*)$/)
+    const m = line.match(/^([\w.-]+)\s*:\s*(.*)$/)
     if (!m) continue
     const [, key, val] = m
     const prefix = stack.length ? stack[stack.length - 1].prefix + '.' + key : key
@@ -66,7 +67,7 @@ const files = execSync('find app shared server -type f \\( -name "*.vue" -o -nam
   .trim()
   .split(/\r?\n/)
 
-const rx = /\b(?:\$t|t|i18n\.t)\(\s*(['"`])([a-zA-Z_][\w.\-]*?)\1\s*[,)]/g
+const rx = /\b(?:\$t|t|i18n\.t)\(\s*(['"`])([a-zA-Z_][\w.-]*?)\1\s*[,)]/g
 const usedKeys = new Map()
 for (const f of files) {
   if (!fs.existsSync(f)) continue

@@ -18,7 +18,14 @@ export function setupPageHeader() {
   const themeColor = computed(() => colorMode.value === 'dark' ? THEME_COLORS.themeDark : THEME_COLORS.themeLight)
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
   const ogLocalesAlternate = computed(() => $i18n.locales.value.map(l => l.language || l.code))
-  const lang = computed(() => uiLocales[$i18n.locale.value].code)
+  // Prefer the locale's full BCP-47 `language` (e.g. `el-GR`) so screen
+  // readers + search engines get region-specific pronunciation hints.
+  // Fall back to @nuxt/ui's 2-letter code when no `language` is configured
+  // (e.g. legacy locales added without the `language` field).
+  const lang = computed(() => {
+    const props = $i18n.localeProperties.value as { language?: string, code: string }
+    return props.language || uiLocales[$i18n.locale.value].code
+  })
   const dir = computed(() => uiLocales[$i18n.locale.value].dir)
 
   useSeoMeta({

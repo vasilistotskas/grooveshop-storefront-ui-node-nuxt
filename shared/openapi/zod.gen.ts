@@ -886,23 +886,6 @@ export const zImageTypeEnum = z.enum([
 });
 
 /**
- * * `ERROR` - Σφάλμα
- * * `SUCCESS` - Success
- * * `INFO` - Info
- * * `WARNING` - Warning
- * * `DANGER` - Danger
- */
-export const zKindEnum = z.enum([
-    'ERROR',
-    'SUCCESS',
-    'INFO',
-    'WARNING',
-    'DANGER'
-]).register(z.globalRegistry, {
-    description: '* `ERROR` - Σφάλμα\n* `SUCCESS` - Success\n* `INFO` - Info\n* `WARNING` - Warning\n* `DANGER` - Danger'
-});
-
-/**
  * * `HOME` - Αρχική
  * * `OFFICE` - Office
  * * `OTHER` - Other
@@ -968,6 +951,33 @@ export const zLoyaltySummary = z.object({
     description: 'Serializer for the user\'s loyalty summary response.\n\nReturns computed loyalty data: balance, XP, level, tier, and progress.'
 });
 
+export const zNotificationCountResponse = z.object({
+    count: z.int().register(z.globalRegistry, {
+        description: 'Number of unseen notifications'
+    })
+});
+
+export const zNotificationIdsRequest = z.object({
+    ids: z.array(z.int())
+});
+
+/**
+ * * `ERROR` - Σφάλμα
+ * * `SUCCESS` - Success
+ * * `INFO` - Info
+ * * `WARNING` - Warning
+ * * `DANGER` - Danger
+ */
+export const zNotificationKindEnum = z.enum([
+    'ERROR',
+    'SUCCESS',
+    'INFO',
+    'WARNING',
+    'DANGER'
+]).register(z.globalRegistry, {
+    description: '* `ERROR` - Σφάλμα\n* `SUCCESS` - Success\n* `INFO` - Info\n* `WARNING` - Warning\n* `DANGER` - Danger'
+});
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -988,23 +998,13 @@ export const zNotification = z.object({
     }),
     id: z.int().readonly(),
     link: z.string().max(200).readonly().nullable(),
-    kind: zKindEnum.optional(),
+    kind: zNotificationKindEnum.optional(),
     expiryDate: z.iso.datetime({ offset: true }).nullish(),
     createdAt: z.iso.datetime({ offset: true }).readonly(),
     updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zNotificationCountResponse = z.object({
-    count: z.int().register(z.globalRegistry, {
-        description: 'Number of unseen notifications'
-    })
-});
-
-export const zNotificationIdsRequest = z.object({
-    ids: z.array(z.int())
 });
 
 export const zNotificationSuccessResponse = z.object({
@@ -2001,6 +2001,48 @@ export const zPerformanceMetrics = z.object({
 });
 
 /**
+ * * `restock` - Restock
+ * * `price_drop` - Price drop
+ */
+export const zProductAlertKindEnum = z.enum(['restock', 'price_drop']).register(z.globalRegistry, {
+    description: '* `restock` - Restock\n* `price_drop` - Price drop'
+});
+
+export const zProductAlert = z.object({
+    id: z.int().readonly(),
+    uuid: z.uuid().readonly(),
+    kind: zProductAlertKindEnum,
+    product: z.int(),
+    user: z.int().readonly().nullable(),
+    email: z.email().max(254).nullish(),
+    targetPrice: z.number().gt(-1000000000).lt(1000000000).nullish(),
+    isActive: z.boolean().readonly(),
+    notifiedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly()
+});
+
+export const zPaginatedProductAlertList = z.object({
+    links: z.object({
+        next: z.url().nullish(),
+        previous: z.url().nullish()
+    }).optional(),
+    count: z.int(),
+    totalPages: z.int().optional(),
+    pageSize: z.int().optional(),
+    pageTotalResults: z.int().optional(),
+    page: z.int().optional(),
+    results: z.array(zProductAlert)
+});
+
+export const zProductAlertRequest = z.object({
+    kind: zProductAlertKindEnum,
+    product: z.int(),
+    email: z.email().min(1).max(254).nullish(),
+    targetPrice: z.number().gt(-1000000000).lt(1000000000).nullish()
+});
+
+/**
  * Serializer for ProductAttribute with nested attribute and value info.
  */
 export const zProductAttribute = z.object({
@@ -2043,6 +2085,9 @@ export const zProduct = z.object({
     vat: z.int(),
     viewCount: z.int().readonly(),
     stock: z.int().gte(0).lte(2147483647).optional(),
+    lowStockThreshold: z.int().register(z.globalRegistry, {
+        description: 'Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.'
+    }).readonly(),
     active: z.boolean().optional(),
     weight: z.object({
         unit: z.string().optional(),
@@ -2631,6 +2676,9 @@ export const zProductDetail = z.object({
     vat: z.int(),
     viewCount: z.int().readonly(),
     stock: z.int().gte(0).lte(2147483647).optional(),
+    lowStockThreshold: z.int().register(z.globalRegistry, {
+        description: 'Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.'
+    }).readonly(),
     active: z.boolean().optional(),
     weight: z.object({
         unit: z.string().optional(),
@@ -2688,6 +2736,9 @@ export const zProductDetailResponse = z.object({
     vat: z.int(),
     viewCount: z.int().readonly(),
     stock: z.int().gte(0).lte(2147483647).optional(),
+    lowStockThreshold: z.int().register(z.globalRegistry, {
+        description: 'Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.'
+    }).readonly(),
     active: z.boolean().optional(),
     weight: z.object({
         unit: z.string().optional(),
@@ -3185,6 +3236,19 @@ export const zReleaseReservationsResponse = z.object({
     description: 'Serializer for release reservations response.'
 });
 
+export const zReorderItem = z.object({
+    productId: z.int(),
+    requestedQuantity: z.int(),
+    addedQuantity: z.int().optional().default(0),
+    reason: z.string().optional().default('')
+});
+
+export const zReorderResponse = z.object({
+    cartId: z.int().nullable(),
+    addedItems: z.array(zReorderItem),
+    skippedItems: z.array(zReorderItem)
+});
+
 /**
  * Serializer for reserve stock response.
  */
@@ -3241,7 +3305,7 @@ export const zSettingDetail = z.object({
 });
 
 /**
- * * `ACTIVE` - Active
+ * * `ACTIVE` - Ενεργή
  * * `PENDING` - Pending Confirmation
  * * `UNSUBSCRIBED` - Unsubscribed
  * * `BOUNCED` - Bounced
@@ -3252,7 +3316,7 @@ export const zSubscriptionStatus = z.enum([
     'UNSUBSCRIBED',
     'BOUNCED'
 ]).register(z.globalRegistry, {
-    description: '* `ACTIVE` - Active\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced'
+    description: '* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced'
 });
 
 export const zPatchedUserSubscriptionWriteRequest = z.object({
@@ -3607,6 +3671,40 @@ export const zPaginatedPointsTransactionList = z.object({
     pageTotalResults: z.int().optional(),
     page: z.int().optional(),
     results: z.array(zPointsTransaction)
+});
+
+/**
+ * One trending search result: a query string + its occurrence count.
+ */
+export const zTrendingSearchItem = z.object({
+    query: z.string().register(z.globalRegistry, {
+        description: 'The user-entered search term.'
+    }),
+    count: z.int().register(z.globalRegistry, {
+        description: 'Number of times this query ran in the trending window.'
+    })
+}).register(z.globalRegistry, {
+    description: 'One trending search result: a query string + its occurrence count.'
+});
+
+/**
+ * Response payload for ``listTrendingSearches``.
+ *
+ * The shape mirrors what the view caches in Redis so drf-spectacular
+ * can resolve a concrete schema (otherwise it falls back to
+ * ``unable to guess serializer`` and emits a W002 warning).
+ */
+export const zTrendingSearchResponse = z.object({
+    windowHours: z.int().register(z.globalRegistry, {
+        description: 'Trailing window size the results were aggregated over.'
+    }),
+    contentType: z.string().register(z.globalRegistry, {
+        description: 'Content namespace the queries were scoped to.'
+    }),
+    languageCode: z.string().nullish(),
+    results: z.array(zTrendingSearchItem)
+}).register(z.globalRegistry, {
+    description: 'Response payload for ``listTrendingSearches``.\n\nThe shape mirrors what the view caches in Redis so drf-spectacular\ncan resolve a concrete schema (otherwise it falls back to\n``unable to guess serializer`` and emits a W002 warning).'
 });
 
 export const zUnsubscribeResponse = z.object({
@@ -4574,7 +4672,7 @@ export const zNotificationWritable = z.object({
             message: z.string().optional()
         }).optional()
     }),
-    kind: zKindEnum.optional(),
+    kind: zNotificationKindEnum.optional(),
     expiryDate: z.iso.datetime({ offset: true }).nullish()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
@@ -5018,6 +5116,26 @@ export const zPaginatedProductListWritable = z.object({
     pageTotalResults: z.int().optional(),
     page: z.int().optional(),
     results: z.array(zProductWritable)
+});
+
+export const zProductAlertWritable = z.object({
+    kind: zProductAlertKindEnum,
+    product: z.int(),
+    email: z.email().max(254).nullish(),
+    targetPrice: z.number().gt(-1000000000).lt(1000000000).nullish()
+});
+
+export const zPaginatedProductAlertListWritable = z.object({
+    links: z.object({
+        next: z.url().nullish(),
+        previous: z.url().nullish()
+    }).optional(),
+    count: z.int(),
+    totalPages: z.int().optional(),
+    pageSize: z.int().optional(),
+    pageTotalResults: z.int().optional(),
+    page: z.int().optional(),
+    results: z.array(zProductAlertWritable)
 });
 
 /**
@@ -10916,6 +11034,15 @@ export const zGetOrderPaymentStatusPath = z.object({
 
 export const zGetOrderPaymentStatusResponse = zPaymentStatusResponse;
 
+export const zReorderOrderPath = z.object({
+    id: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ])
+});
+
+export const zReorderOrderResponse = zReorderResponse;
+
 export const zRetryOrderPaymentBody = zCreatePaymentIntentRequestRequest;
 
 export const zRetryOrderPaymentPath = z.object({
@@ -12011,6 +12138,106 @@ export const zIncrementProductViewsPath = z.object({
 });
 
 export const zIncrementProductViewsResponse = zProductDetail;
+
+export const zListProductAlertQuery = z.object({
+    cursor: z.string().register(z.globalRegistry, {
+        description: 'Cursor for pagination'
+    }).optional(),
+    isActive: z.union([
+        z.literal('true'),
+        z.literal('false'),
+        z.literal('1'),
+        z.literal('0'),
+        z.boolean()
+    ]).optional(),
+    kind: z.enum(['price_drop', 'restock']).register(z.globalRegistry, {
+        description: '* `restock` - Restock\n* `price_drop` - Price drop'
+    }).optional(),
+    languageCode: z.enum([
+        'de',
+        'el',
+        'en'
+    ]).register(z.globalRegistry, {
+        description: 'Language code for translations (el, en, de)'
+    }).optional().default('el'),
+    ordering: z.enum([
+        'id',
+        '-id',
+        'createdAt',
+        '-createdAt',
+        'notifiedAt',
+        '-notifiedAt'
+    ]).register(z.globalRegistry, {
+        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, notifiedAt, -notifiedAt'
+    }).optional(),
+    page: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ]).optional(),
+    pageSize: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ]).optional(),
+    pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+        description: 'Enable or disable pagination'
+    }).optional().default('true'),
+    paginationType: z.enum([
+        'cursor',
+        'limitOffset',
+        'pageNumber'
+    ]).register(z.globalRegistry, {
+        description: 'Pagination strategy type'
+    }).optional().default('pageNumber'),
+    product: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ]).optional(),
+    search: z.string().register(z.globalRegistry, {
+        description: 'A search term.'
+    }).optional()
+});
+
+export const zListProductAlertResponse = zPaginatedProductAlertList;
+
+export const zCreateProductAlertBody = zProductAlertRequest;
+
+export const zCreateProductAlertQuery = z.object({
+    languageCode: z.enum([
+        'de',
+        'el',
+        'en'
+    ]).register(z.globalRegistry, {
+        description: 'Language code for translations (el, en, de)'
+    }).optional().default('el')
+});
+
+export const zCreateProductAlertResponse = zProductAlert;
+
+export const zDestroyProductAlertPath = z.object({
+    id: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ])
+});
+
+export const zRetrieveProductAlertPath = z.object({
+    id: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ])
+});
+
+export const zRetrieveProductAlertQuery = z.object({
+    languageCode: z.enum([
+        'de',
+        'el',
+        'en'
+    ]).register(z.globalRegistry, {
+        description: 'Language code for translations (el, en, de)'
+    }).optional().default('el')
+});
+
+export const zRetrieveProductAlertResponse = zProductAlert;
 
 export const zListAttributeQuery = z.object({
     active: z.union([
@@ -14123,6 +14350,21 @@ export const zSearchProductRetrieveQuery = z.object({
 
 export const zSearchProductRetrieveResponse = zProductMeiliSearchResponse;
 
+export const zListTrendingSearchesQuery = z.object({
+    contentType: z.string().register(z.globalRegistry, {
+        description: 'Filter by content type: product, blog_post, federated. Defaults to product.'
+    }).optional(),
+    languageCode: z.string().register(z.globalRegistry, {
+        description: 'Filter queries by language (e.g. \'el\').'
+    }).optional(),
+    limit: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ]).optional()
+});
+
+export const zListTrendingSearchesResponse = zTrendingSearchResponse;
+
 export const zSettingsListResponse = z.array(zSetting);
 
 export const zSettingsGetRetrieveQuery = z.object({
@@ -15254,6 +15496,8 @@ export const zSetMainUserAddressPath = z.object({
 
 export const zSetMainUserAddressResponse = zUserAddressDetail;
 
+export const zGetMainUserAddressResponse = zUserAddressDetail;
+
 export const zListUserSubscriptionQuery = z.object({
     createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
         description: 'Filter items created after this date'
@@ -15341,7 +15585,7 @@ export const zListUserSubscriptionQuery = z.object({
         'PENDING',
         'UNSUBSCRIBED'
     ]).register(z.globalRegistry, {
-        description: 'Filter by subscription status\n\n* `ACTIVE` - Active\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced'
+        description: 'Filter by subscription status\n\n* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced'
     }).optional(),
     subscribedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
         description: 'Filter subscriptions created after this date'

@@ -3,7 +3,9 @@ const { t, locale } = useI18n()
 const localePath = useLocalePath()
 
 // Use Nuxt's useAsyncData pattern for SSR-safe data fetching with automatic caching
-const { data: summary, status, error, refresh } = useLoyalty().fetchSummary()
+const loyalty = useLoyalty()
+const { data: summary, status, error, refresh } = loyalty.fetchSummary()
+const { data: tiers } = loyalty.fetchTiers()
 
 // Computed for loading state (compatible with existing template)
 const loading = computed(() => status.value === 'pending')
@@ -19,6 +21,34 @@ const tierDescription = computed(() => {
   if (!summary.value?.tier) return null
   const translations = summary.value.tier.translations
   return translations?.[locale.value]?.description || null
+})
+
+// The next tier relative to the user's current one (sorted by requiredLevel).
+// Drives the "Unlock next" hint below the XP progress bar so users can see
+// what they're working toward — the backend returns tiers ordered by
+// required_level but we guard with a sort in case that ever changes.
+const nextTier = computed<LoyaltyTier | null>(() => {
+  if (!tiers.value || !summary.value) return null
+  const ordered = [...tiers.value].sort((a, b) => a.requiredLevel - b.requiredLevel)
+  const currentId = summary.value.tier?.id
+  const currentIndex = currentId
+    ? ordered.findIndex(t => t.id === currentId)
+    : -1
+  // No current tier yet → the first tier is the next unlock.
+  if (currentIndex === -1) return ordered[0] ?? null
+  return ordered[currentIndex + 1] ?? null
+})
+
+const nextTierName = computed(() => {
+  if (!nextTier.value) return null
+  return extractTranslated(nextTier.value, 'name', locale.value)
+})
+
+const nextTierMultiplierBonus = computed(() => {
+  if (!nextTier.value) return null
+  const multiplier = Number.parseFloat(String(nextTier.value.pointsMultiplier ?? '1'))
+  if (!Number.isFinite(multiplier) || multiplier <= 1) return null
+  return `+${Math.round((multiplier - 1) * 100)}%`
 })
 
 // Calculate coin value in EUR (100 points = 1 EUR by default)
@@ -249,6 +279,25 @@ const handleRetry = () => {
               />
             </div>
 
+            <!-- Next Tier Preview -->
+            <div
+              v-if="nextTier && nextTierName"
+              class="flex items-start gap-3 rounded-lg bg-secondary-50 p-3 dark:bg-secondary-950"
+            >
+              <UIcon
+                name="i-heroicons-arrow-up-circle"
+                class="size-6 shrink-0 text-secondary-600 dark:text-secondary-400"
+              />
+              <div class="flex-1 text-sm">
+                <p class="font-medium text-gray-700 dark:text-gray-300">
+                  {{ t('next_tier_unlocks', { tier: nextTierName }) }}
+                </p>
+                <p v-if="nextTierMultiplierBonus" class="mt-1 text-gray-600 dark:text-gray-300">
+                  {{ t('next_tier_multiplier', { bonus: nextTierMultiplierBonus }) }}
+                </p>
+              </div>
+            </div>
+
             <!-- Tier Description -->
             <div v-if="tierDescription" class="p-3 bg-primary-50 dark:bg-primary-950 rounded-lg">
               <div class="flex items-start gap-3">
@@ -328,4 +377,6 @@ el:
   shop_to_earn: "Αγοράστε για να κερδίσετε πόντους και XP"
   learn_more: "Μάθετε περισσότερα"
   how_it_works: "Πώς λειτουργεί το πρόγραμμα επιβράβευσης"
+  next_tier_unlocks: "Ξεκλειδώστε τη βαθμίδα {tier}"
+  next_tier_multiplier: "Ξεκλειδώνεται πολλαπλασιαστής πόντων {bonus}"
 </i18n>

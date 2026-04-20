@@ -32,6 +32,9 @@ export type Attribute = {
             name?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     readonly sortOrder: number | null;
     readonly valuesCount: number;
@@ -62,6 +65,9 @@ export type AttributeValue = {
             value?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     readonly sortOrder: number | null;
     readonly usageCount: number;
@@ -640,6 +646,9 @@ export type BlogTag = {
             name?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     readonly sortOrder: number | null;
     /**
@@ -667,6 +676,9 @@ export type BlogTagDetail = {
             name?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     readonly sortOrder: number | null;
     /**
@@ -693,6 +705,9 @@ export type BlogTagWriteRequest = {
             name?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
 };
 
@@ -1232,15 +1247,6 @@ export type HealthCheckResponse = {
 export type ImageTypeEnum = 'MAIN' | 'BANNER' | 'ICON' | 'THUMBNAIL' | 'GALLERY' | 'BACKGROUND' | 'HERO' | 'FEATURE' | 'PROMOTIONAL' | 'SEASONAL';
 
 /**
- * * `ERROR` - Σφάλμα
- * * `SUCCESS` - Success
- * * `INFO` - Info
- * * `WARNING` - Warning
- * * `DANGER` - Danger
- */
-export type KindEnum = 'ERROR' | 'SUCCESS' | 'INFO' | 'WARNING' | 'DANGER';
-
-/**
  * * `HOME` - Αρχική
  * * `OFFICE` - Office
  * * `OTHER` - Other
@@ -1330,7 +1336,7 @@ export type Notification = {
      * URL link or empty string
      */
     readonly link: string | null;
-    kind?: KindEnum;
+    kind?: NotificationKindEnum;
     expiryDate?: string | null;
     readonly createdAt: string;
     readonly updatedAt: string;
@@ -1347,6 +1353,15 @@ export type NotificationCountResponse = {
 export type NotificationIdsRequest = {
     ids: Array<number>;
 };
+
+/**
+ * * `ERROR` - Σφάλμα
+ * * `SUCCESS` - Success
+ * * `INFO` - Info
+ * * `WARNING` - Warning
+ * * `DANGER` - Danger
+ */
+export type NotificationKindEnum = 'ERROR' | 'SUCCESS' | 'INFO' | 'WARNING' | 'DANGER';
 
 export type NotificationSuccessResponse = {
     /**
@@ -1432,6 +1447,9 @@ export type Order = {
     readonly totalPriceExtra: number;
     readonly fullAddress: string;
     paymentId?: string | null;
+    /**
+     * Κατάσταση πληρωμής
+     */
     paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
     readonly canBeCanceled: boolean;
@@ -1549,6 +1567,9 @@ export type OrderDetail = {
     readonly totalPriceExtra: number;
     readonly fullAddress: string;
     paymentId?: string | null;
+    /**
+     * Κατάσταση πληρωμής
+     */
     paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
     readonly canBeCanceled: boolean;
@@ -1934,6 +1955,19 @@ export type PaginatedPointsTransactionList = {
     results: Array<PointsTransaction>;
 };
 
+export type PaginatedProductAlertList = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<ProductAlert>;
+};
+
 export type PaginatedProductCategoryImageList = {
     links?: {
         next?: string | null;
@@ -2214,6 +2248,9 @@ export type PatchedBlogTagWriteRequest = {
             name?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
 };
 
@@ -2337,6 +2374,9 @@ export type PatchedPayWayWriteRequest = {
             instructions?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     cost?: number;
     freeThreshold?: number;
@@ -2377,6 +2417,9 @@ export type PatchedProductCategoryImageWriteRequest = {
      */
     image?: Blob | File;
     imageType?: ImageTypeEnum;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     translations?: {
         el?: {
@@ -2413,6 +2456,9 @@ export type PatchedProductCategoryWriteRequest = {
         };
     };
     slug?: string;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     parent?: number | null;
     seoTitle?: string;
@@ -2497,6 +2543,9 @@ export type PatchedProductWriteRequest = {
     seoTitle?: string;
     seoDescription?: string;
     seoKeywords?: string;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
 };
 
@@ -2548,6 +2597,8 @@ export type PatchedSubscriptionTopicWriteRequest = {
      */
     slug?: string;
     /**
+     * Κατηγορία
+     *
      * Category of the subscription topic
      *
      * * `MARKETING` - Marketing Campaigns
@@ -2560,7 +2611,7 @@ export type PatchedSubscriptionTopicWriteRequest = {
      */
     category?: CategoryEnum;
     /**
-     * Active
+     * Ενεργή
      *
      * Whether this topic is currently available for subscription
      */
@@ -2592,6 +2643,9 @@ export type PatchedTagWriteRequest = {
             label?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
 };
 
@@ -2728,6 +2782,9 @@ export type PayWay = {
         };
     };
     readonly id: number;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     cost: number;
     freeThreshold: number;
@@ -2774,6 +2831,9 @@ export type PayWayDetail = {
         };
     };
     readonly id: number;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     cost: number;
     freeThreshold: number;
@@ -2820,6 +2880,9 @@ export type PayWayWriteRequest = {
             instructions?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     cost: number;
     freeThreshold?: number;
@@ -2921,6 +2984,13 @@ export type Product = {
     vat: number;
     readonly viewCount: number;
     stock?: number;
+    /**
+     * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
+     */
+    readonly lowStockThreshold: number;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     weight?: {
         unit?: string;
@@ -2952,6 +3022,33 @@ export type Product = {
     readonly updatedAt: string;
     readonly uuid: string;
     readonly attributes: Array<ProductAttribute>;
+};
+
+export type ProductAlert = {
+    readonly id: number;
+    readonly uuid: string;
+    kind: ProductAlertKindEnum;
+    product: number;
+    readonly user: number | null;
+    email?: string | null;
+    targetPrice?: number | null;
+    readonly isActive: boolean;
+    readonly notifiedAt: string | null;
+    readonly createdAt: string;
+    readonly updatedAt: string;
+};
+
+/**
+ * * `restock` - Restock
+ * * `price_drop` - Price drop
+ */
+export type ProductAlertKindEnum = 'restock' | 'price_drop';
+
+export type ProductAlertRequest = {
+    kind: ProductAlertKindEnum;
+    product: number;
+    email?: string | null;
+    targetPrice?: number | null;
 };
 
 /**
@@ -3002,6 +3099,9 @@ export type ProductCategory = {
         };
     };
     slug: string;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     parent?: number | null;
     readonly level: number;
@@ -3031,6 +3131,9 @@ export type ProductCategoryDetail = {
         };
     };
     slug: string;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     parent?: number | null;
     readonly level: number;
@@ -3057,6 +3160,9 @@ export type ProductCategoryImage = {
      */
     image: string;
     imageType?: ImageTypeEnum;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     readonly sortOrder: number | null;
     translations: {
@@ -3098,6 +3204,9 @@ export type ProductCategoryImageDetail = {
      */
     image: string;
     imageType?: ImageTypeEnum;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     readonly sortOrder: number | null;
     translations: {
@@ -3131,6 +3240,9 @@ export type ProductCategoryImageWriteRequest = {
      */
     image: Blob | File;
     imageType?: ImageTypeEnum;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     translations: {
         el?: {
@@ -3167,6 +3279,9 @@ export type ProductCategoryWriteRequest = {
         };
     };
     slug: string;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     parent?: number | null;
     seoTitle?: string;
@@ -3199,6 +3314,13 @@ export type ProductDetail = {
     vat: number;
     readonly viewCount: number;
     stock?: number;
+    /**
+     * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
+     */
+    readonly lowStockThreshold: number;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     weight?: {
         unit?: string;
@@ -3257,6 +3379,13 @@ export type ProductDetailResponse = {
     vat: number;
     readonly viewCount: number;
     stock?: number;
+    /**
+     * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
+     */
+    readonly lowStockThreshold: number;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     weight?: {
         unit?: string;
@@ -3600,6 +3729,9 @@ export type ProductWriteRequest = {
     seoTitle?: string;
     seoDescription?: string;
     seoKeywords?: string;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
 };
 
@@ -3773,6 +3905,19 @@ export type ReleaseReservationsResponse = {
     }>;
 };
 
+export type ReorderItem = {
+    productId: number;
+    requestedQuantity: number;
+    addedQuantity?: number;
+    reason?: string;
+};
+
+export type ReorderResponse = {
+    cartId: number | null;
+    addedItems: Array<ReorderItem>;
+    skippedItems: Array<ReorderItem>;
+};
+
 /**
  * Serializer for reserve stock response.
  */
@@ -3858,7 +4003,7 @@ export type SettingDetail = {
 };
 
 /**
- * * `ACTIVE` - Active
+ * * `ACTIVE` - Ενεργή
  * * `PENDING` - Pending Confirmation
  * * `UNSUBSCRIBED` - Unsubscribed
  * * `BOUNCED` - Bounced
@@ -3890,6 +4035,8 @@ export type SubscriptionTopic = {
      */
     slug: string;
     /**
+     * Κατηγορία
+     *
      * Category of the subscription topic
      *
      * * `MARKETING` - Marketing Campaigns
@@ -3902,7 +4049,7 @@ export type SubscriptionTopic = {
      */
     category?: CategoryEnum;
     /**
-     * Active
+     * Ενεργή
      *
      * Whether this topic is currently available for subscription
      */
@@ -3945,6 +4092,8 @@ export type SubscriptionTopicDetail = {
      */
     slug: string;
     /**
+     * Κατηγορία
+     *
      * Category of the subscription topic
      *
      * * `MARKETING` - Marketing Campaigns
@@ -3957,7 +4106,7 @@ export type SubscriptionTopicDetail = {
      */
     category?: CategoryEnum;
     /**
-     * Active
+     * Ενεργή
      *
      * Whether this topic is currently available for subscription
      */
@@ -4000,6 +4149,8 @@ export type SubscriptionTopicWriteRequest = {
      */
     slug: string;
     /**
+     * Κατηγορία
+     *
      * Category of the subscription topic
      *
      * * `MARKETING` - Marketing Campaigns
@@ -4012,7 +4163,7 @@ export type SubscriptionTopicWriteRequest = {
      */
     category?: CategoryEnum;
     /**
-     * Active
+     * Ενεργή
      *
      * Whether this topic is currently available for subscription
      */
@@ -4045,6 +4196,9 @@ export type Tag = {
             label?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     readonly sortOrder: number | null;
     /**
@@ -4072,6 +4226,9 @@ export type TagDetail = {
             label?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     readonly sortOrder: number | null;
     /**
@@ -4102,6 +4259,9 @@ export type TagWriteRequest = {
             label?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
 };
 
@@ -4190,6 +4350,43 @@ export type TopQuery = {
  * * `BONUS` - Bonus
  */
 export type TransactionTypeEnum = 'EARN' | 'REDEEM' | 'EXPIRE' | 'ADJUST' | 'BONUS';
+
+/**
+ * One trending search result: a query string + its occurrence count.
+ */
+export type TrendingSearchItem = {
+    /**
+     * The user-entered search term.
+     */
+    query: string;
+    /**
+     * Number of times this query ran in the trending window.
+     */
+    count: number;
+};
+
+/**
+ * Response payload for ``listTrendingSearches``.
+ *
+ * The shape mirrors what the view caches in Redis so drf-spectacular
+ * can resolve a concrete schema (otherwise it falls back to
+ * ``unable to guess serializer`` and emits a W002 warning).
+ */
+export type TrendingSearchResponse = {
+    /**
+     * Trailing window size the results were aggregated over.
+     */
+    windowHours: number;
+    /**
+     * Content namespace the queries were scoped to.
+     */
+    contentType: string;
+    /**
+     * BCP-47 filter applied; null when the caller didn't pass one.
+     */
+    languageCode?: string | null;
+    results: Array<TrendingSearchItem>;
+};
 
 export type UnsubscribeResponse = {
     message: string;
@@ -4363,7 +4560,7 @@ export type UserDetails = {
      */
     languageCode?: string;
     /**
-     * Active
+     * Ενεργή
      */
     readonly isActive: boolean;
     /**
@@ -4562,6 +4759,9 @@ export type AttributeWritable = {
             name?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
 };
 
@@ -4581,6 +4781,9 @@ export type AttributeValueWritable = {
             value?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
 };
 
@@ -4771,6 +4974,9 @@ export type BlogTagWritable = {
             name?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
 };
 
@@ -4789,6 +4995,9 @@ export type BlogTagDetailWritable = {
             name?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
 };
 
@@ -4928,7 +5137,7 @@ export type NotificationWritable = {
             message?: string;
         };
     };
-    kind?: KindEnum;
+    kind?: NotificationKindEnum;
     expiryDate?: string | null;
 };
 
@@ -4974,6 +5183,9 @@ export type OrderWritable = {
     items: Array<OrderItemDetailWritable>;
     documentType?: DocumentTypeEnum;
     paymentId?: string | null;
+    /**
+     * Κατάσταση πληρωμής
+     */
     paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
 };
@@ -5007,6 +5219,9 @@ export type OrderDetailWritable = {
     items: Array<OrderItemDetailWritable>;
     documentType?: DocumentTypeEnum;
     paymentId?: string | null;
+    /**
+     * Κατάσταση πληρωμής
+     */
     paymentStatus?: PaymentStatusEnum | BlankEnum;
     paymentMethod?: string;
     /**
@@ -5248,6 +5463,19 @@ export type PaginatedPointsTransactionListWritable = {
     results: Array<unknown>;
 };
 
+export type PaginatedProductAlertListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<ProductAlertWritable>;
+};
+
 export type PaginatedProductCategoryImageListWritable = {
     links?: {
         next?: string | null;
@@ -5447,6 +5675,9 @@ export type PayWayWritable = {
             instructions?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     cost: number;
     freeThreshold: number;
@@ -5486,6 +5717,9 @@ export type PayWayDetailWritable = {
             instructions?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     cost: number;
     freeThreshold: number;
@@ -5527,6 +5761,9 @@ export type ProductWritable = {
     price: number;
     vat: number;
     stock?: number;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     weight?: {
         unit?: string;
@@ -5536,6 +5773,13 @@ export type ProductWritable = {
     seoDescription?: string;
     seoKeywords?: string;
     discountPercent?: number;
+};
+
+export type ProductAlertWritable = {
+    kind: ProductAlertKindEnum;
+    product: number;
+    email?: string | null;
+    targetPrice?: number | null;
 };
 
 /**
@@ -5571,6 +5815,9 @@ export type ProductCategoryWritable = {
         };
     };
     slug: string;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     parent?: number | null;
 };
@@ -5594,6 +5841,9 @@ export type ProductCategoryDetailWritable = {
         };
     };
     slug: string;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     parent?: number | null;
     seoTitle?: string;
@@ -5611,6 +5861,9 @@ export type ProductCategoryImageWritable = {
      */
     image: string;
     imageType?: ImageTypeEnum;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     translations: {
         el?: {
@@ -5638,6 +5891,9 @@ export type ProductCategoryImageDetailWritable = {
      */
     image: string;
     imageType?: ImageTypeEnum;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     translations: {
         el?: {
@@ -5678,6 +5934,9 @@ export type ProductDetailWritable = {
     price: number;
     vat: number;
     stock?: number;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     weight?: {
         unit?: string;
@@ -5712,6 +5971,9 @@ export type ProductDetailResponseWritable = {
     price: number;
     vat: number;
     stock?: number;
+    /**
+     * Ενεργή
+     */
     active?: boolean;
     weight?: {
         unit?: string;
@@ -5898,6 +6160,8 @@ export type SubscriptionTopicWritable = {
      */
     slug: string;
     /**
+     * Κατηγορία
+     *
      * Category of the subscription topic
      *
      * * `MARKETING` - Marketing Campaigns
@@ -5910,7 +6174,7 @@ export type SubscriptionTopicWritable = {
      */
     category?: CategoryEnum;
     /**
-     * Active
+     * Ενεργή
      *
      * Whether this topic is currently available for subscription
      */
@@ -5950,6 +6214,8 @@ export type SubscriptionTopicDetailWritable = {
      */
     slug: string;
     /**
+     * Κατηγορία
+     *
      * Category of the subscription topic
      *
      * * `MARKETING` - Marketing Campaigns
@@ -5962,7 +6228,7 @@ export type SubscriptionTopicDetailWritable = {
      */
     category?: CategoryEnum;
     /**
-     * Active
+     * Ενεργή
      *
      * Whether this topic is currently available for subscription
      */
@@ -5994,6 +6260,9 @@ export type TagWritable = {
             label?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
 };
 
@@ -6012,6 +6281,9 @@ export type TagDetailWritable = {
             label?: string;
         };
     };
+    /**
+     * Ενεργή
+     */
     active?: boolean;
 };
 
@@ -11209,6 +11481,8 @@ export type ListOrderData = {
         paymentMethod?: string;
         paymentMethod_Icontains?: string;
         /**
+         * Κατάσταση πληρωμής
+         *
          * Filter by payment status
          *
          * * `PENDING` - Εκκρεμεί
@@ -11484,6 +11758,8 @@ export type ListOrderItemData = {
          */
         order_LastName?: string;
         /**
+         * Κατάσταση πληρωμής
+         *
          * Filter by order payment status
          *
          * * `PENDING` - Εκκρεμεί
@@ -12081,6 +12357,31 @@ export type GetOrderPaymentStatusResponses = {
 
 export type GetOrderPaymentStatusResponse = GetOrderPaymentStatusResponses[keyof GetOrderPaymentStatusResponses];
 
+export type ReorderOrderData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/order/{id}/reorder';
+};
+
+export type ReorderOrderErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ReorderOrderError = ReorderOrderErrors[keyof ReorderOrderErrors];
+
+export type ReorderOrderResponses = {
+    200: ReorderResponse;
+};
+
+export type ReorderOrderResponse = ReorderOrderResponses[keyof ReorderOrderResponses];
+
 export type RetryOrderPaymentData = {
     body?: CreatePaymentIntentRequestRequest;
     path: {
@@ -12294,6 +12595,8 @@ export type ListMyOrdersData = {
         paymentMethod?: string;
         paymentMethod_Icontains?: string;
         /**
+         * Κατάσταση πληρωμής
+         *
          * Filter by payment status
          *
          * * `PENDING` - Εκκρεμεί
@@ -13248,6 +13551,143 @@ export type IncrementProductViewsResponses = {
 };
 
 export type IncrementProductViewsResponse = IncrementProductViewsResponses[keyof IncrementProductViewsResponses];
+
+export type ListProductAlertData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Cursor for pagination
+         */
+        cursor?: string;
+        isActive?: 'true' | 'false' | '1' | '0' | boolean;
+        /**
+         * * `restock` - Restock
+         * * `price_drop` - Price drop
+         */
+        kind?: 'price_drop' | 'restock';
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+        /**
+         * Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, notifiedAt, -notifiedAt
+         */
+        ordering?: 'id' | '-id' | 'createdAt' | '-createdAt' | 'notifiedAt' | '-notifiedAt';
+        /**
+         * A page number within the paginated result set.
+         */
+        page?: string | number;
+        /**
+         * Number of results to return per page
+         */
+        pageSize?: string | number;
+        /**
+         * Enable or disable pagination
+         */
+        pagination?: 'false' | 'true';
+        /**
+         * Pagination strategy type
+         */
+        paginationType?: 'cursor' | 'limitOffset' | 'pageNumber';
+        product?: string | number;
+        /**
+         * A search term.
+         */
+        search?: string;
+    };
+    url: '/api/v1/product/alert';
+};
+
+export type ListProductAlertErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListProductAlertError = ListProductAlertErrors[keyof ListProductAlertErrors];
+
+export type ListProductAlertResponses = {
+    200: PaginatedProductAlertList;
+};
+
+export type ListProductAlertResponse = ListProductAlertResponses[keyof ListProductAlertResponses];
+
+export type CreateProductAlertData = {
+    body: ProductAlertRequest;
+    path?: never;
+    query?: {
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+    };
+    url: '/api/v1/product/alert';
+};
+
+export type CreateProductAlertErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type CreateProductAlertError = CreateProductAlertErrors[keyof CreateProductAlertErrors];
+
+export type CreateProductAlertResponses = {
+    201: ProductAlert;
+};
+
+export type CreateProductAlertResponse = CreateProductAlertResponses[keyof CreateProductAlertResponses];
+
+export type DestroyProductAlertData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/product/alert/{id}';
+};
+
+export type DestroyProductAlertErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+};
+
+export type DestroyProductAlertError = DestroyProductAlertErrors[keyof DestroyProductAlertErrors];
+
+export type RetrieveProductAlertData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: {
+        /**
+         * Language code for translations (el, en, de)
+         */
+        languageCode?: 'de' | 'el' | 'en';
+    };
+    url: '/api/v1/product/alert/{id}';
+};
+
+export type RetrieveProductAlertErrors = {
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveProductAlertError = RetrieveProductAlertErrors[keyof RetrieveProductAlertErrors];
+
+export type RetrieveProductAlertResponses = {
+    200: ProductAlert;
+};
+
+export type RetrieveProductAlertResponse = RetrieveProductAlertResponses[keyof RetrieveProductAlertResponses];
 
 export type ListAttributeData = {
     body?: never;
@@ -15943,6 +16383,32 @@ export type SearchProductRetrieveResponses = {
 
 export type SearchProductRetrieveResponse = SearchProductRetrieveResponses[keyof SearchProductRetrieveResponses];
 
+export type ListTrendingSearchesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Filter by content type: product, blog_post, federated. Defaults to product.
+         */
+        contentType?: string;
+        /**
+         * Filter queries by language (e.g. 'el').
+         */
+        languageCode?: string;
+        /**
+         * Max results. Default 8, cap 20.
+         */
+        limit?: string | number;
+    };
+    url: '/api/v1/search/trending';
+};
+
+export type ListTrendingSearchesResponses = {
+    200: TrendingSearchResponse;
+};
+
+export type ListTrendingSearchesResponse = ListTrendingSearchesResponses[keyof ListTrendingSearchesResponses];
+
 export type SettingsListData = {
     body?: never;
     path?: never;
@@ -17387,6 +17853,29 @@ export type SetMainUserAddressResponses = {
 
 export type SetMainUserAddressResponse = SetMainUserAddressResponses[keyof SetMainUserAddressResponses];
 
+export type GetMainUserAddressData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/user/address/get_main';
+};
+
+export type GetMainUserAddressErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type GetMainUserAddressError = GetMainUserAddressErrors[keyof GetMainUserAddressErrors];
+
+export type GetMainUserAddressResponses = {
+    200: UserAddressDetail;
+};
+
+export type GetMainUserAddressResponse = GetMainUserAddressResponses[keyof GetMainUserAddressResponses];
+
 export type ListUserSubscriptionData = {
     body?: never;
     path?: never;
@@ -17452,7 +17941,7 @@ export type ListUserSubscriptionData = {
          *
          * Filter by subscription status
          *
-         * * `ACTIVE` - Active
+         * * `ACTIVE` - Ενεργή
          * * `PENDING` - Pending Confirmation
          * * `UNSUBSCRIBED` - Unsubscribed
          * * `BOUNCED` - Bounced
@@ -17474,6 +17963,8 @@ export type ListUserSubscriptionData = {
          */
         topic?: string | number;
         /**
+         * Κατηγορία
+         *
          * Filter by topic category
          *
          * * `MARKETING` - Marketing Campaigns
@@ -17777,6 +18268,8 @@ export type ListSubscriptionTopicData = {
     path?: never;
     query?: {
         /**
+         * Κατηγορία
+         *
          * Filter by topic category
          *
          * * `MARKETING` - Marketing Campaigns

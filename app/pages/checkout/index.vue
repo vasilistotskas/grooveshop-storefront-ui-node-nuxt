@@ -45,6 +45,9 @@ const {
   step1Schema,
   step2Schema,
   onCountryChange,
+  savedAddresses,
+  selectedSavedAddressId,
+  selectSavedAddress,
 } = await useCheckoutForm()
 
 const {
@@ -174,8 +177,11 @@ definePageMeta({
             :schema="step1Schema"
             :country-options="countryOptions"
             :region-options="regionOptions"
+            :saved-addresses="savedAddresses"
+            :selected-saved-address-id="selectedSavedAddressId"
             @next="nextStep"
             @country-change="onCountryChange"
+            @select-saved-address="selectSavedAddress"
           />
 
           <!-- Step 2: Payment -->

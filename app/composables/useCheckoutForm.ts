@@ -10,6 +10,7 @@ export async function useCheckoutForm() {
 
   const cartStore = useCartStore()
   const { getCartItems, cart } = storeToRefs(cartStore)
+  const { loggedIn, user } = useUserSession()
 
   // Form state
   const formState = reactive({
@@ -88,8 +89,126 @@ export async function useCheckoutForm() {
     await fetchRegions()
   }
 
+  // Saved addresses exposed to the Step 1 component so users with
+  // multiple saved addresses can pick one without re-typing. Only
+  // populated for authenticated users — the server route rejects guests.
+  const savedAddresses = ref<UserAddressDetail[]>([])
+  const selectedSavedAddressId = ref<number | null>(null)
+
+  /**
+   * Apply a saved UserAddress to the checkout form state. Shared between
+   * the "prefill main on mount" and "user picks an address from the
+   * dropdown" code paths so the mapping stays consistent. Email comes
+   * from the session (addresses don't carry one).
+   */
+  const applyAddressToFormState = (address: UserAddressDetail) => {
+    formState.firstName = address.firstName || formState.firstName
+    formState.lastName = address.lastName || formState.lastName
+    formState.phone = address.phone || formState.phone
+    formState.street = address.street || formState.street
+    formState.streetNumber = address.streetNumber || formState.streetNumber
+    formState.city = address.city || formState.city
+    formState.zipcode = address.zipcode || formState.zipcode
+    formState.country = address.country || formState.country
+    formState.countryId = address.country || formState.countryId
+    formState.region = address.region || formState.region
+    formState.regionId = address.region || formState.regionId
+    if (user.value?.email && !formState.email) {
+      formState.email = user.value.email
+    }
+  }
+
+  /**
+   * User-invoked address picker: set the selected address id and hydrate
+   * the form from its values. Kicks off a regions refresh so the region
+   * dropdown shows the right options for the new country.
+   */
+  const selectSavedAddress = async (addressId: number | null) => {
+    selectedSavedAddressId.value = addressId
+    if (addressId === null) return
+    const address = savedAddresses.value.find(a => a.id === addressId)
+    if (!address) return
+    applyAddressToFormState(address)
+    await fetchRegions()
+  }
+
+  /**
+   * Hydrate the checkout form from the user's saved main address. Called
+   * once on mount when the user is logged in. Silent on 404 (no main
+   * address yet) — other errors surface as a toast so the user knows the
+   * saved-address lookup failed (they can still complete checkout by
+   * typing the fields).
+   */
+  const applyMainAddressPrefill = async () => {
+    if (!loggedIn.value) return false
+
+    try {
+      const address = await $fetch<UserAddressDetail>('/api/user/main-address', {
+        method: 'GET',
+        headers: useRequestHeaders(),
+      })
+
+      applyAddressToFormState(address)
+      selectedSavedAddressId.value = address.id
+      await fetchRegions()
+      return true
+    }
+    catch (error) {
+      // 404 = user has no main address yet — not an error worth surfacing.
+      const status = (error as { statusCode?: number })?.statusCode
+      if (status && status !== 404) {
+        log.warn('checkout', 'Main address prefill failed', { error })
+      }
+      return false
+    }
+  }
+
+  /**
+   * Fetch the user's saved address book (for the picker dropdown).
+   * Silent on error — the picker simply won't appear.
+   */
+  const fetchSavedAddresses = async () => {
+    if (!loggedIn.value) return
+    try {
+      const response = await $fetch<Pagination<UserAddressDetail>>(
+        '/api/user/addresses',
+        {
+          method: 'GET',
+          headers: useRequestHeaders(),
+          // The API accepts camelCase ordering keys — see
+          // ``zListUserAddressQuery.ordering`` in shared/openapi/zod.gen.ts.
+          // ``isMain`` first puts the user's main address at the top of
+          // the picker, then most-recent by creation date.
+          query: { pageSize: 50, ordering: '-isMain,-createdAt' },
+        },
+      )
+      savedAddresses.value = response.results ?? []
+    }
+    catch (error) {
+      log.warn('checkout', 'saved addresses fetch failed', { error })
+    }
+  }
+
   // Register all watchers/lifecycle hooks BEFORE await (Vue context requirement)
   onMounted(async () => {
+    // Kick off the saved-address fetch in parallel with the main-address
+    // prefill so the picker shows up as soon as the form is usable.
+    const [filled] = await Promise.all([
+      applyMainAddressPrefill(),
+      fetchSavedAddresses(),
+    ])
+
+    if (filled) {
+      toast.add({
+        title: t('address.prefilled_title'),
+        description: t('address.prefilled_description'),
+        color: 'info',
+        icon: 'i-heroicons-map-pin',
+      })
+      return
+    }
+
+    // Fallback to default country selection for first-time / guest users.
     if (countries.value?.results?.[0] && !formState.country) {
       formState.country = countries.value.results[0].alpha2
       formState.countryId = countries.value.results[0].alpha2
@@ -269,5 +388,8 @@ export async function useCheckoutForm() {
     step2Schema,
     fetchRegions,
     onCountryChange,
+    savedAddresses,
+    selectedSavedAddressId,
+    selectSavedAddress,
   }
 }

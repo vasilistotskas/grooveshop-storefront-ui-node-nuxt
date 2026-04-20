@@ -43,6 +43,14 @@ const checkoutTotal = computed(() => {
   return Math.max(0, cart.value.totalPrice + props.shippingPrice + paymentFee - props.loyaltyDiscount)
 })
 
+// VAT is baked into the cart's `totalPrice` (Greek retail convention).
+// Surface the breakdown so customers see what they're paying in tax.
+const vatAmount = computed(() => cart.value?.totalVatValue ?? 0)
+const subtotalExclVat = computed(() => {
+  const total = cart.value?.totalPrice ?? 0
+  return Math.max(0, total - vatAmount.value)
+})
+
 defineSlots<{
   'pay-ways'(props: object): any
   'items'(props: object): any
@@ -120,6 +128,20 @@ defineSlots<{
                 dark:text-primary-50
               "
             >{{ cart?.totalItemsUnique }}</span>
+          </div>
+          <div
+            v-if="vatAmount > 0"
+            class="flex items-center justify-between"
+          >
+            <span class="text-neutral-600 dark:text-neutral-300">{{ t('subtotal_excl_vat') }}</span>
+            <span class="text-primary-950 dark:text-primary-50">{{ $i18n.n(subtotalExclVat, 'currency') }}</span>
+          </div>
+          <div
+            v-if="vatAmount > 0"
+            class="flex items-center justify-between"
+          >
+            <span class="text-neutral-600 dark:text-neutral-300">{{ t('vat') }}</span>
+            <span class="text-primary-950 dark:text-primary-50">{{ $i18n.n(vatAmount, 'currency') }}</span>
           </div>
           <div class="flex items-center justify-between">
             <span
@@ -246,5 +268,7 @@ el:
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
   loyalty_discount: Έκπτωση πόντων
   vat_included: Στις τιμές συμπεριλαμβάνεται Φ.Π.Α.
+  subtotal_excl_vat: Υποσύνολο (χωρίς Φ.Π.Α.)
+  vat: Φ.Π.Α.
   need_help: Χρειάζεσαι βοήθεια;
 </i18n>

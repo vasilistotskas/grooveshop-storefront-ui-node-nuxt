@@ -31,6 +31,11 @@ if (productId) {
   trackView('product', Number(productId))
 }
 
+// Client-side recently-viewed rail. We record the visit once the product
+// detail lands (below) so we have the translated name + image to show
+// without re-fetching on homepage/PDP rails.
+const recentlyViewed = useRecentlyViewed()
+
 const { data: product, refresh: refreshProduct } = await useFetch<ProductDetail>(
   `/api/products/${productId}`,
   {
@@ -184,6 +189,24 @@ const productDescription = computed(() => {
 
 const productStock = computed(() => product.value?.stock || 0)
 const showStickyAddToCart = computed(() => scrollY.value > 350)
+
+// Record this PDP visit in the recently-viewed history once we have
+// translated data to cache. `onMounted` guarantees we're on the client
+// (localStorage is unavailable during SSR) and re-triggers when the
+// user navigates between PDPs without a full reload.
+onMounted(() => {
+  if (!product.value?.id) return
+  recentlyViewed.add({
+    id: product.value.id,
+    slug: product.value.slug ?? null,
+    name: extractTranslated(product.value, 'name', locale.value) || '',
+    mainImagePath: product.value.mainImagePath ?? null,
+    finalPrice: typeof product.value.finalPrice === 'number'
+      ? product.value.finalPrice
+      : null,
+    addedAt: Date.now(),
+  })
+})
 
 const canonicalUrl = computed(() => {
   const baseUrl = runtimeConfig.public.baseUrl
@@ -718,6 +741,14 @@ definePageMeta({
               </div>
             </div>
 
+            <!-- Out-of-stock subscribers: let the shopper opt into a
+                 restock email. The backend ProductAlert infra handles
+                 one-shot delivery + dedupe per user/email+kind. -->
+            <ProductNotifyMe
+              v-if="productStock === 0 && product?.id"
+              :product-id="product.id"
+            />
+
             <USeparator class="my-2" />
 
             <!--
@@ -762,6 +793,9 @@ definePageMeta({
           </div>
         </div>
       </div>
+
+      <!-- Recently viewed rail (client-only, hidden when history is empty) -->
+      <ProductRecentlyViewed :exclude-product-id="product?.id" />
 
       <div
         v-if="showStickyAddToCart"

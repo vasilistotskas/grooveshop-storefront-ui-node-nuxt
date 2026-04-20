@@ -257,6 +257,56 @@ async function handleTrackOrder() {
   }
 }
 
+const toast = useToast()
+const cartStore = useCartStore()
+const isReordering = ref(false)
+
+async function handleReorder() {
+  if (!order.value?.id || isReordering.value) return
+  isReordering.value = true
+  try {
+    const result = await $fetch<ReorderResponse>(`/api/orders/${order.value.id}/reorder`, {
+      method: 'POST',
+      headers: useRequestHeaders(),
+    })
+    await cartStore.refreshCart()
+
+    const skippedCount = result.skippedItems?.length ?? 0
+    const addedCount = result.addedItems?.length ?? 0
+    if (addedCount === 0) {
+      toast.add({
+        title: t('reorder.empty_title'),
+        description: t('reorder.empty_description'),
+        color: 'warning',
+        icon: 'i-heroicons-exclamation-triangle',
+      })
+      return
+    }
+
+    toast.add({
+      title: t('reorder.success_title'),
+      description: skippedCount > 0
+        ? t('reorder.success_with_skipped', { added: addedCount, skipped: skippedCount })
+        : t('reorder.success_description', { count: addedCount }),
+      color: 'success',
+      icon: 'i-heroicons-shopping-cart',
+    })
+    await navigateTo(localePath('cart'))
+  }
+  catch (error) {
+    log.error({ action: 'order:reorder', error })
+    toast.add({
+      title: t('reorder.error_title'),
+      description: t('reorder.error_description'),
+      color: 'error',
+      icon: 'i-heroicons-x-circle',
+    })
+  }
+  finally {
+    isReordering.value = false
+  }
+}
+
 defineRouteRules({
   robots: false,
 })
@@ -356,8 +406,8 @@ definePageMeta({
     />
 
     <div
-      v-if="order.canBeCanceled || order.trackingDetails?.hasTracking" class="
-        flex gap-3
+      class="
+        flex flex-wrap gap-3
       "
     >
       <UButton
@@ -378,6 +428,17 @@ definePageMeta({
         @click="handleTrackOrder"
       >
         {{ t('track_order') }}
+      </UButton>
+
+      <UButton
+        color="secondary"
+        variant="solid"
+        icon="i-heroicons-arrow-path"
+        :loading="isReordering"
+        :disabled="isReordering"
+        @click="handleReorder"
+      >
+        {{ t('reorder.cta') }}
       </UButton>
     </div>
 
@@ -1084,4 +1145,13 @@ el:
   payment_pending: Εκκρεμής Πληρωμή
   payment_method_fee: Χρέωση μεθόδου πληρωμής
   payment_pending_desc: Υπάρχει εκκρεμές ποσό {amount} για αυτή την παραγγελία
+  reorder:
+    cta: "Επανάληψη παραγγελίας"
+    success_title: "Προστέθηκαν στο καλάθι"
+    success_description: "Προστέθηκαν {count} προϊόντα στο καλάθι σου."
+    success_with_skipped: "Προστέθηκαν {added} προϊόντα. {skipped} δεν ήταν διαθέσιμα."
+    empty_title: "Κανένα προϊόν δεν είναι διαθέσιμο"
+    empty_description: "Τα προϊόντα αυτής της παραγγελίας δεν είναι πλέον διαθέσιμα."
+    error_title: "Αποτυχία επανάληψης"
+    error_description: "Δεν μπορέσαμε να προσθέσουμε τα προϊόντα στο καλάθι. Δοκίμασε ξανά."
 </i18n>
