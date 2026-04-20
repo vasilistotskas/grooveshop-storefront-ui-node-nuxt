@@ -1,3 +1,10 @@
+# [3.91.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.90.2...v3.91.0) (2026-04-20)
+
+
+### Features
+
+* **phase-1:** checkout prefill, reorder, recently viewed, notify-me, polish ([075b10e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/075b10e6a8f0e0e8df40f7424a3edccac2ea431c))
+
 ## [3.90.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.90.1...v3.90.2) (2026-04-20)
 
 
