@@ -657,6 +657,7 @@ el:
     location: Τοποθεσία
     location_description: Η πόλη και χώρα σου
     menu_description:
+      account: Δες την επισκόπηση του λογαριασμού σου
       account-favourites-posts: Δες τις αγαπημένες σου αναρτήσεις
       account-subscriptions: Διαχειρίσου τις εγγραφές σου
       account-loyalty: Δες τους πόντους και το ιστορικό σου

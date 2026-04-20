@@ -205,11 +205,18 @@
     "mark_as_primary": "Καθορισμός ως κύριο",
     "remove": "Αφαίρεση email",
     "request_verification": "Αίτηση επαλήθευσης",
+    "verification_requested": "Σου έχει σταλεί email επαλήθευσης",
+    "marked_as_primary": "Το email ορίστηκε ως κύριο",
     "verification": {
       "requested": "Σου έχει σταλεί email επαλήθευσης",
       "too_many_requests": "Πολλές αιτήσεις επαλήθευσης",
       "marked_as_primary": "Σου έχει σταλεί email επαλήθευσης"
     }
+  },
+  "primary": "Κύριο",
+  "verified": "Επαληθευμένο",
+  "unknown": {
+    "error": "Άγνωστο σφάλμα"
   },
   "next": "Επόμενο",
   "previous": "Προηγούμενο",

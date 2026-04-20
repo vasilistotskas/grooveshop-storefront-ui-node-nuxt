@@ -201,7 +201,7 @@ el:
     last_name: Επίθετο
     email: Email
     phone: Τηλέφωνο
-    phone_placeholder: 6912345678
+    phone_placeholder: "6912345678"
     place: Περιοχή
     city: Πόλη
     zipcode: Ταχυδρομικός Κώδικας

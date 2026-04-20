@@ -371,7 +371,7 @@ el:
     city: Πόλη
     zipcode: Ταχυδρομικός Κώδικας
     phone: Τηλέφωνο
-    phone_placeholder: 6912345678
+    phone_placeholder: "6912345678"
     notes: Σημειώσεις
     floor: Όροφος
     floor_options:

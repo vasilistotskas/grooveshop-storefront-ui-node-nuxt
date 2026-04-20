@@ -483,7 +483,7 @@ el:
     first_name: Όνομα
     last_name: Επώνυμο
     phone: Τηλέφωνο
-    phone_placeholder: 6912345678
+    phone_placeholder: "6912345678"
     city: Πόλη
     zipcode: Ταχυδρομικός κώδικας
     address: Διεύθυνση
