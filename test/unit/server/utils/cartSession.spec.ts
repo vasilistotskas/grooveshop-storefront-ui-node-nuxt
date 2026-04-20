@@ -1,16 +1,32 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { getCartSession, updateCartSession, getCartHeaders, handleCartResponse, useCartSession } from '../../../../server/utils/cartSession'
 
-// Mock H3 event
+// Mock H3 event — h3's getCookie/setCookie helpers read from
+// event.node.req.headers.cookie and mutate event.node.res via getHeader/
+// setHeader, so mocks must provide enough of that shape for the fallback
+// cart-id cookie path introduced alongside the encrypted session.
 const createMockEvent = (sessionData: any = {}, accessToken?: string) => {
+  const resHeaders: Record<string, string | string[]> = {}
   return {
     context: {},
     node: {
-      req: {},
-      res: {},
+      req: {
+        headers: {} as Record<string, string | string[] | undefined>,
+      },
+      res: {
+        getHeader: (name: string) => resHeaders[name.toLowerCase()],
+        setHeader: (name: string, value: string | string[]) => {
+          resHeaders[name.toLowerCase()] = value
+        },
+        removeHeader: (name: string) => {
+          delete resHeaders[name.toLowerCase()]
+        },
+        headersSent: false,
+      },
     },
     _sessionData: sessionData,
     _accessToken: accessToken,
+    _resHeaders: resHeaders,
   } as any
 }
 

@@ -1,4 +1,8 @@
 import type { H3Event } from 'h3'
+// Import h3 cookie helpers explicitly: Nitro injects them as auto-imports at
+// runtime, but vitest's `unit` project (node env) doesn't, so tests fail
+// without the explicit import.
+import { deleteCookie, getCookie, setCookie } from 'h3'
 import { DEFAULT_LOCALE } from '~~/i18n/locales'
 
 interface CartSessionData {
