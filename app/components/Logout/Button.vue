@@ -20,12 +20,17 @@ const { $routeBaseName } = useNuxtApp()
 
 const routeName = computed(() => $routeBaseName(route))
 
+const userInitiatedLogout = useState<boolean>('auth:userInitiatedLogout', () => false)
+
 const onClickLogout = async () => {
   if (!routeName.value) return
   if (isRouteProtected(String(routeName.value)))
     await navigateTo(localePath('index'))
 
   cleanCartState()
+  // Signal the auth plugin that the upcoming LOGGED_OUT event is explicit
+  // (user clicked this button) so it suppresses the "session expired" toast.
+  userInitiatedLogout.value = true
 
   try {
     await deleteSession()

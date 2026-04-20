@@ -72,6 +72,20 @@ const handleStockRetry = () => {
   onSubmit()
 }
 
+const onBoundaryError = (error: unknown) => {
+  log.error({ action: 'checkout:boundary', error })
+  toast.add({
+    title: t('payment_error_title'),
+    description: t('payment_error_description'),
+    color: 'error',
+  })
+}
+
+const handleBoundaryRetry = (error: unknown, clearError: () => void) => {
+  log.warn('checkout:boundary-retry', String((error as Error)?.message ?? ''))
+  clearError()
+}
+
 useSeoMeta({
   // The per-locale checkout file (i18n/locales/checkout/el-GR.json)
   // merges its keys at the root of the locale messages, so the
@@ -139,40 +153,61 @@ definePageMeta({
           class="mb-6"
         />
 
-        <!-- Online Payment View (Stripe or Viva Wallet) -->
-        <CheckoutOnlinePaymentView
-          v-if="createdOrder && isOnlinePayment"
-          :created-order="createdOrder"
-          :selected-pay-way="selectedPayWay!"
-          :is-stripe-payment="isStripePayment"
-          :is-viva-wallet-payment="isVivaWalletPayment"
-          :use-hosted-checkout="useHostedCheckout"
-          @payment-success="onPaymentSuccess"
-          @payment-error="onPaymentError"
-          @back-to-form="backToForm"
-        />
+        <NuxtErrorBoundary @error="onBoundaryError">
+          <!-- Online Payment View (Stripe or Viva Wallet) -->
+          <CheckoutOnlinePaymentView
+            v-if="createdOrder && isOnlinePayment"
+            :created-order="createdOrder"
+            :selected-pay-way="selectedPayWay!"
+            :is-stripe-payment="isStripePayment"
+            :is-viva-wallet-payment="isVivaWalletPayment"
+            :use-hosted-checkout="useHostedCheckout"
+            @payment-success="onPaymentSuccess"
+            @payment-error="onPaymentError"
+            @back-to-form="backToForm"
+          />
 
-        <!-- Step 1: Personal Info & Address -->
-        <CheckoutStepPersonalInfo
-          v-else-if="currentStep === 0"
-          v-model:form-state="formState"
-          :schema="step1Schema"
-          :country-options="countryOptions"
-          :region-options="regionOptions"
-          @next="nextStep"
-          @country-change="onCountryChange"
-        />
+          <!-- Step 1: Personal Info & Address -->
+          <CheckoutStepPersonalInfo
+            v-else-if="currentStep === 0"
+            v-model:form-state="formState"
+            :schema="step1Schema"
+            :country-options="countryOptions"
+            :region-options="regionOptions"
+            @next="nextStep"
+            @country-change="onCountryChange"
+          />
 
-        <!-- Step 2: Payment -->
-        <CheckoutStepPayment
-          v-else-if="currentStep === 1"
-          v-model:form-state="formState"
-          :schema="step2Schema"
-          :pay-way-options="payWayOptions"
-          :is-submitting="isSubmitting"
-          @submit="onSubmit"
-          @back="prevStep"
-        />
+          <!-- Step 2: Payment -->
+          <CheckoutStepPayment
+            v-else-if="currentStep === 1"
+            v-model:form-state="formState"
+            :schema="step2Schema"
+            :pay-way-options="payWayOptions"
+            :is-submitting="isSubmitting"
+            @submit="onSubmit"
+            @back="prevStep"
+          />
+
+          <template #error="{ error, clearError }">
+            <UAlert
+              :title="t('payment_error_title')"
+              :description="t('payment_error_description')"
+              color="error"
+              variant="subtle"
+              icon="i-heroicons-exclamation-triangle"
+              class="mb-4"
+              :actions="[
+                {
+                  label: t('retry'),
+                  color: 'neutral',
+                  variant: 'outline',
+                  onClick: () => handleBoundaryRetry(error, clearError),
+                },
+              ]"
+            />
+          </template>
+        </NuxtErrorBoundary>
       </div>
 
       <!-- Sidebar -->

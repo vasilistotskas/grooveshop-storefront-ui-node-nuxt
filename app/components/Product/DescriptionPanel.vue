@@ -1,9 +1,5 @@
 <script lang="ts" setup>
-/**
- * Product description panel — shared between the PDP desktop `<UTabs>`
- * and mobile `<UAccordion>` so both layouts render identical markup
- * without duplicating the description/empty-state copy.
- */
+import DOMPurify from 'isomorphic-dompurify'
 
 const props = defineProps<{
   html: string | null | undefined
@@ -11,7 +7,11 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const hasHtml = computed(() => !!props.html && props.html.trim().length > 0)
+const sanitizedHtml = computed(() =>
+  props.html ? DOMPurify.sanitize(props.html) : '',
+)
+
+const hasHtml = computed(() => sanitizedHtml.value.trim().length > 0)
 </script>
 
 <template>
@@ -19,7 +19,7 @@ const hasHtml = computed(() => !!props.html && props.html.trim().length > 0)
     <div
       v-if="hasHtml"
       class="article"
-      v-html="html"
+      v-html="sanitizedHtml"
     />
     <p
       v-else

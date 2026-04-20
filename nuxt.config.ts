@@ -285,8 +285,11 @@ export default defineNuxtConfig({
     crossOriginPrefetch: true,
     defaults: {
       nuxtLink: {
+        // Prefetch on viewport visibility so hot listings (products, blog,
+        // category grids) warm the route bundles before the user clicks.
+        // Interaction still triggers immediate prefetch on hover/focus.
         prefetchOn: {
-          visibility: false,
+          visibility: true,
           interaction: true,
         },
       },
