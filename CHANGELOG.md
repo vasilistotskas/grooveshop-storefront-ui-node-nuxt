@@ -1,3 +1,10 @@
+## [3.90.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.90.0...v3.90.1) (2026-04-20)
+
+
+### Bug Fixes
+
+* **i18n:** quote phone_placeholder and backfill genuinely missing keys ([6fb132c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6fb132cc06ec01b35d634fa55368133e99eebc57))
+
 # [3.90.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.89.1...v3.90.0) (2026-04-20)
 
 
