@@ -80,6 +80,6 @@ jobs:
           cache-to: type=gha,mode=max
           target: production
           build-args: |
-            NODE_VERSION=24.14.1
+            NODE_VERSION=24.15.0
           sbom: true
           provenance: mode=max
