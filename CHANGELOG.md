@@ -1,3 +1,15 @@
+# [3.90.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.89.1...v3.90.0) (2026-04-20)
+
+
+### Bug Fixes
+
+* **cart:** import h3 cookie helpers explicitly for unit-test env ([cc3117d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cc3117d2197ecfebb765750e5b8829322e8bf6c2))
+
+
+### Features
+
+* **hardening:** sanitize product html, boundary checkout, guest cart fallback ([572f659](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/572f65966a9cbb3d1e665f000100d15bfc67b512))
+
 ## [3.89.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.89.0...v3.89.1) (2026-04-20)
 
 
