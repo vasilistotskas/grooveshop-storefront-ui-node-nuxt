@@ -338,6 +338,9 @@ watch(calendarDate, (newVal) => {
           inputmode="tel"
           :placeholder="t('form.phone_placeholder')"
           class="w-full"
+          :ui="{
+            base: 'ps-11',
+          }"
         >
           <template #leading>
             <span class="pl-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">+30</span>
