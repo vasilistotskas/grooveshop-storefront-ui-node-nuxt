@@ -79,8 +79,10 @@ const [
   ),
 ])
 
+const { transformImages } = useHtmlContent()
+
 const sanitizedDescription = computed(() =>
-  cleanHtml(extractTranslated(product.value, 'description', locale.value) ?? ''),
+  transformImages(extractTranslated(product.value, 'description', locale.value) ?? ''),
 )
 
 const shouldFetchFavouriteProducts = computed(() => {
