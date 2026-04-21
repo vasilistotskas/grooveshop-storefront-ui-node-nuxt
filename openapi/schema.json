@@ -50436,11 +50436,13 @@
                     },
                     "country": {
                         "type": "string",
-                        "title": "Country Code Alpha 2"
+                        "title": "Country Code Alpha 2",
+                        "nullable": true
                     },
                     "region": {
                         "type": "string",
-                        "title": "Region Code"
+                        "title": "Region Code",
+                        "nullable": true
                     },
                     "floor": {
                         "oneOf": [
@@ -50760,11 +50762,13 @@
                     },
                     "country": {
                         "type": "string",
-                        "title": "Country Code Alpha 2"
+                        "title": "Country Code Alpha 2",
+                        "nullable": true
                     },
                     "region": {
                         "type": "string",
-                        "title": "Region Code"
+                        "title": "Region Code",
+                        "nullable": true
                     },
                     "floor": {
                         "oneOf": [

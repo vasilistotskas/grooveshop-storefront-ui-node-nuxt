@@ -1492,11 +1492,11 @@ export type Order = {
     /**
      * Country Code Alpha 2
      */
-    country: string;
+    country: string | null;
     /**
      * Region Code
      */
-    region: string;
+    region: string | null;
     floor?: FloorEnum | BlankEnum;
     locationType?: LocationTypeEnum | BlankEnum;
     street: string;
@@ -1612,11 +1612,11 @@ export type OrderDetail = {
     /**
      * Country Code Alpha 2
      */
-    country: string;
+    country: string | null;
     /**
      * Region Code
      */
-    region: string;
+    region: string | null;
     floor?: FloorEnum | BlankEnum;
     locationType?: LocationTypeEnum | BlankEnum;
     street: string;
@@ -5300,11 +5300,11 @@ export type OrderWritable = {
     /**
      * Country Code Alpha 2
      */
-    country: string;
+    country: string | null;
     /**
      * Region Code
      */
-    region: string;
+    region: string | null;
     floor?: FloorEnum | BlankEnum;
     locationType?: LocationTypeEnum | BlankEnum;
     street: string;
@@ -5337,11 +5337,11 @@ export type OrderDetailWritable = {
     /**
      * Country Code Alpha 2
      */
-    country: string;
+    country: string | null;
     /**
      * Region Code
      */
-    region: string;
+    region: string | null;
     floor?: FloorEnum | BlankEnum;
     locationType?: LocationTypeEnum | BlankEnum;
     street: string;

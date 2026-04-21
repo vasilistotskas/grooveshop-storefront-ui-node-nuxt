@@ -8,6 +8,17 @@ const { notifications } = storeToRefs(userNotificationStore)
 const { setupNotifications } = userNotificationStore
 const { loggedIn } = useUserSession()
 
+// Defensive bootstrap — if the ``setup`` plugin's idle-callback couldn't
+// populate the store (one of its sibling calls rejected, idle callback
+// never fired, etc.) the bell would show "no notifications" even when
+// the unseen-count endpoint returns a positive number. Loading here as
+// a no-op when already populated keeps the bell self-consistent.
+onMounted(() => {
+  if (!loggedIn.value) return
+  if (notifications.value && notifications.value.results?.length) return
+  setupNotifications().catch(err => log.warn('notifications:bell', 'self-bootstrap failed', { error: err }))
+})
+
 const isDropdownVisible = ref(false)
 const dropdown = ref<HTMLDivElement>()
 const toggleButton = ref<HTMLButtonElement>()

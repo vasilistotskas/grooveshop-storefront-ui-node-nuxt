@@ -2300,8 +2300,8 @@ export const zOrderItemDetail = z.object({
 export const zOrder = z.object({
     id: z.int().readonly(),
     user: z.int().nullish(),
-    country: z.string(),
-    region: z.string(),
+    country: z.string().nullable(),
+    region: z.string().nullable(),
     floor: z.union([
         zFloorEnum,
         zBlankEnum
@@ -2348,8 +2348,8 @@ export const zOrder = z.object({
 export const zOrderDetail = z.object({
     id: z.int().readonly(),
     user: z.int().nullish(),
-    country: z.string(),
-    region: z.string(),
+    country: z.string().nullable(),
+    region: z.string().nullable(),
     floor: z.union([
         zFloorEnum,
         zBlankEnum
@@ -4841,8 +4841,8 @@ export const zOrderItemDetailWritable = z.object({
 
 export const zOrderWritable = z.object({
     user: z.int().nullish(),
-    country: z.string(),
-    region: z.string(),
+    country: z.string().nullable(),
+    region: z.string().nullable(),
     floor: z.union([
         zFloorEnum,
         zBlankEnum
@@ -4875,8 +4875,8 @@ export const zOrderWritable = z.object({
 
 export const zOrderDetailWritable = z.object({
     user: z.int().nullish(),
-    country: z.string(),
-    region: z.string(),
+    country: z.string().nullable(),
+    region: z.string().nullable(),
     floor: z.union([
         zFloorEnum,
         zBlankEnum

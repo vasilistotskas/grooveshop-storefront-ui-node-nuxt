@@ -39,15 +39,29 @@ export default defineNuxtPlugin({
       }
 
       // Defer non-critical data to client-side only (not needed for initial render)
-      // Sessions list, authenticators, notifications can load after hydration
+      // Sessions list, authenticators, notifications can load after hydration.
+      //
+      // ``Promise.allSettled`` (not ``Promise.all``) so one failing
+      // call — e.g. an expired session token causing ``setupSessions``
+      // to 401 — doesn't cancel the other two. Before this change a
+      // single bad call silently left the notification bell empty even
+      // though the /user/account/{id}/notifications endpoint returned
+      // data fine.
       if (import.meta.client) {
         const scheduleIdle = window.requestIdleCallback || ((cb: () => void) => setTimeout(cb, 1))
         scheduleIdle(() => {
-          Promise.all([
+          Promise.allSettled([
             setupSessions(),
             setupAuthenticators(),
             setupNotifications(),
-          ]).catch(err => log.error({ action: 'setup:deferred', error: err }))
+          ]).then((results) => {
+            results.forEach((r, i) => {
+              if (r.status === 'rejected') {
+                const name = ['setupSessions', 'setupAuthenticators', 'setupNotifications'][i]
+                log.warn('setup', `deferred ${name} failed`, { error: r.reason })
+              }
+            })
+          })
         }, { timeout: 2000 })
       }
     }
