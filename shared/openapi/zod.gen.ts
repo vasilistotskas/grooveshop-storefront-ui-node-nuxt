@@ -5845,25 +5845,8 @@ export const zListBlogAuthorQuery = z.object({
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
     }).optional().default('el'),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'user_FirstName',
-        '-user_FirstName',
-        'user_LastName',
-        '-user_LastName',
-        'user_Email',
-        '-user_Email',
-        'user_CreatedAt',
-        '-user_CreatedAt',
-        'website',
-        '-website'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -5987,25 +5970,8 @@ export const zGetBlogAuthorPostsPath = z.object({
 });
 
 export const zGetBlogAuthorPostsQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'user_FirstName',
-        '-user_FirstName',
-        'user_LastName',
-        '-user_LastName',
-        'user_Email',
-        '-user_Email',
-        'user_CreatedAt',
-        '-user_CreatedAt',
-        'website',
-        '-website'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -6030,27 +5996,8 @@ export const zListBlogCategoryQuery = z.object({
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
     }).optional().default('el'),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'sortOrder',
-        '-sortOrder',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'rght',
-        '-rght',
-        'treeId',
-        '-treeId',
-        'name',
-        '-name'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -6174,27 +6121,8 @@ export const zListBlogCategoryAncestorsPath = z.object({
 });
 
 export const zListBlogCategoryAncestorsQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'sortOrder',
-        '-sortOrder',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'rght',
-        '-rght',
-        'treeId',
-        '-treeId',
-        'name',
-        '-name'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -6219,27 +6147,8 @@ export const zListBlogCategoryChildrenPath = z.object({
 });
 
 export const zListBlogCategoryChildrenQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'sortOrder',
-        '-sortOrder',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'rght',
-        '-rght',
-        'treeId',
-        '-treeId',
-        'name',
-        '-name'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -6264,27 +6173,8 @@ export const zListBlogCategoryDescendantsPath = z.object({
 });
 
 export const zListBlogCategoryDescendantsQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'sortOrder',
-        '-sortOrder',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'rght',
-        '-rght',
-        'treeId',
-        '-treeId',
-        'name',
-        '-name'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -6309,27 +6199,8 @@ export const zListBlogCategoryPostsPath = z.object({
 });
 
 export const zListBlogCategoryPostsQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'sortOrder',
-        '-sortOrder',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'rght',
-        '-rght',
-        'treeId',
-        '-treeId',
-        'name',
-        '-name'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -6361,27 +6232,8 @@ export const zListBlogCategorySiblingsPath = z.object({
 });
 
 export const zListBlogCategorySiblingsQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'sortOrder',
-        '-sortOrder',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'rght',
-        '-rght',
-        'treeId',
-        '-treeId',
-        'name',
-        '-name'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -6403,27 +6255,8 @@ export const zReorderBlogCategoriesBody = zBlogCategoryReorderRequestRequest;
 export const zReorderBlogCategoriesResponse = zBlogCategoryReorderResponse;
 
 export const zGetBlogCategoryTreeQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'sortOrder',
-        '-sortOrder',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'rght',
-        '-rght',
-        'treeId',
-        '-treeId',
-        'name',
-        '-name'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -6593,21 +6426,8 @@ export const zListBlogCommentQuery = z.object({
         z.literal('0'),
         z.boolean()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'approved',
-        '-approved'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -6968,21 +6788,8 @@ export const zListBlogCommentRepliesQuery = z.object({
         z.literal('0'),
         z.boolean()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'approved',
-        '-approved'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -7235,21 +7042,8 @@ export const zGetBlogCommentThreadQuery = z.object({
         z.literal('0'),
         z.boolean()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'approved',
-        '-approved'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -7508,21 +7302,8 @@ export const zListMyBlogCommentsQuery = z.object({
         z.literal('0'),
         z.boolean()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'approved',
-        '-approved'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -7709,21 +7490,8 @@ export const zListBlogPostQuery = z.object({
         z.string().regex(/^-?\d+$/),
         z.int()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'publishedAt',
-        '-publishedAt',
-        'viewCount',
-        '-viewCount',
-        'featured',
-        '-featured'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -7892,21 +7660,8 @@ export const zListBlogPostCommentsPath = z.object({
 });
 
 export const zListBlogPostCommentsQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'publishedAt',
-        '-publishedAt',
-        'viewCount',
-        '-viewCount',
-        'featured',
-        '-featured'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -8014,21 +7769,8 @@ export const zListBlogPostRelatedQuery = z.object({
         z.string().regex(/^-?\d+$/),
         z.int()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'publishedAt',
-        '-publishedAt',
-        'viewCount',
-        '-viewCount',
-        'featured',
-        '-featured'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
     }).optional(),
     publishedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
         description: 'Filter items published after this date'
@@ -8174,21 +7916,8 @@ export const zListFeaturedBlogPostsQuery = z.object({
         z.string().regex(/^-?\d+$/),
         z.int()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'publishedAt',
-        '-publishedAt',
-        'viewCount',
-        '-viewCount',
-        'featured',
-        '-featured'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -8328,21 +8057,8 @@ export const zListPopularBlogPostsQuery = z.object({
         z.string().regex(/^-?\d+$/),
         z.int()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'publishedAt',
-        '-publishedAt',
-        'viewCount',
-        '-viewCount',
-        'featured',
-        '-featured'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -8482,21 +8198,8 @@ export const zListTrendingBlogPostsQuery = z.object({
         z.string().regex(/^-?\d+$/),
         z.int()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'publishedAt',
-        '-publishedAt',
-        'viewCount',
-        '-viewCount',
-        'featured',
-        '-featured'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -8651,21 +8354,8 @@ export const zListBlogTagQuery = z.object({
     name_Startswith: z.string().register(z.globalRegistry, {
         description: 'Filter tags with names starting with'
     }).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'active',
-        '-active',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'sortOrder',
-        '-sortOrder',
-        'name',
-        '-name'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, name, -name'
+    ordering: z.string().regex(/^(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|name|\-name)(?:,(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|name|\-name))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, name, -name'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -8990,23 +8680,8 @@ export const zListCartItemQuery = z.object({
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'quantity',
-        '-quantity',
-        'cart_Id',
-        '-cart_Id',
-        'cart_LastActivity',
-        '-cart_LastActivity',
-        'product_Id',
-        '-product_Id'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, quantity, -quantity, cart_Id, -cart_Id, cart_LastActivity, -cart_LastActivity, product_Id, -product_Id'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|quantity|\-quantity|cart_Id|\-cart_Id|cart_LastActivity|\-cart_LastActivity|product_Id|\-product_Id)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|quantity|\-quantity|cart_Id|\-cart_Id|cart_LastActivity|\-cart_LastActivity|product_Id|\-product_Id))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, quantity, -quantity, cart_Id, -cart_Id, cart_LastActivity, -cart_LastActivity, product_Id, -product_Id'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -9305,19 +8980,8 @@ export const zListCartQuery = z.object({
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'user',
-        '-user',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'lastActivity',
-        '-lastActivity'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, user, -user, createdAt, -createdAt, updatedAt, -updatedAt, lastActivity, -lastActivity'
+    ordering: z.string().regex(/^(?:id|\-id|user|\-user|createdAt|\-createdAt|updatedAt|\-updatedAt|lastActivity|\-lastActivity)(?:,(?:id|\-id|user|\-user|createdAt|\-createdAt|updatedAt|\-updatedAt|lastActivity|\-lastActivity))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, user, -user, createdAt, -createdAt, updatedAt, -updatedAt, lastActivity, -lastActivity'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -9539,25 +9203,8 @@ export const zListCountryQuery = z.object({
     name_Startswith: z.string().register(z.globalRegistry, {
         description: 'Filter countries with names starting with'
     }).optional(),
-    ordering: z.enum([
-        'alpha2',
-        '-alpha2',
-        'alpha3',
-        '-alpha3',
-        'isoCc',
-        '-isoCc',
-        'phoneCode',
-        '-phoneCode',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'sortOrder',
-        '-sortOrder',
-        'translations_Name',
-        '-translations_Name'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: alpha2, -alpha2, alpha3, -alpha3, isoCc, -isoCc, phoneCode, -phoneCode, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Name, -translations_Name'
+    ordering: z.string().regex(/^(?:alpha2|\-alpha2|alpha3|\-alpha3|isoCc|\-isoCc|phoneCode|\-phoneCode|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Name|\-translations_Name)(?:,(?:alpha2|\-alpha2|alpha3|\-alpha3|isoCc|\-isoCc|phoneCode|\-phoneCode|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Name|\-translations_Name))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: alpha2, -alpha2, alpha3, -alpha3, isoCc, -isoCc, phoneCode, -phoneCode, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Name, -translations_Name'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -9868,37 +9515,8 @@ export const zListNotificationUserQuery = z.object({
     notificationKind: z.string().register(z.globalRegistry, {
         description: 'Filter by notification kind'
     }).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'user',
-        '-user',
-        'user_Email',
-        '-user_Email',
-        'user_FirstName',
-        '-user_FirstName',
-        'user_LastName',
-        '-user_LastName',
-        'notification',
-        '-notification',
-        'notification_Kind',
-        '-notification_Kind',
-        'notification_Category',
-        '-notification_Category',
-        'notification_Priority',
-        '-notification_Priority',
-        'notification_CreatedAt',
-        '-notification_CreatedAt',
-        'seen',
-        '-seen',
-        'seenAt',
-        '-seenAt',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, user, -user, user_Email, -user_Email, user_FirstName, -user_FirstName, user_LastName, -user_LastName, notification, -notification, notification_Kind, -notification_Kind, notification_Category, -notification_Category, notification_Priority, -notification_Priority, notification_CreatedAt, -notification_CreatedAt, seen, -seen, seenAt, -seenAt, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|user|\-user|user_Email|\-user_Email|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|notification|\-notification|notification_Kind|\-notification_Kind|notification_Category|\-notification_Category|notification_Priority|\-notification_Priority|notification_CreatedAt|\-notification_CreatedAt|seen|\-seen|seenAt|\-seenAt|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|user|\-user|user_Email|\-user_Email|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|notification|\-notification|notification_Kind|\-notification_Kind|notification_Category|\-notification_Category|notification_Priority|\-notification_Priority|notification_CreatedAt|\-notification_CreatedAt|seen|\-seen|seenAt|\-seenAt|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, user, -user, user_Email, -user_Email, user_FirstName, -user_FirstName, user_LastName, -user_LastName, notification, -notification, notification_Kind, -notification_Kind, notification_Category, -notification_Category, notification_Priority, -notification_Priority, notification_CreatedAt, -notification_CreatedAt, seen, -seen, seenAt, -seenAt, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -10246,29 +9864,8 @@ export const zListOrderQuery = z.object({
         z.literal('0'),
         z.boolean()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'status',
-        '-status',
-        'statusUpdatedAt',
-        '-statusUpdatedAt',
-        'paidAmount',
-        '-paidAmount',
-        'shippingPrice',
-        '-shippingPrice',
-        'paymentStatus',
-        '-paymentStatus',
-        'user_FirstName',
-        '-user_FirstName',
-        'user_LastName',
-        '-user_LastName'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paidAmount, -paidAmount, shippingPrice, -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName, user_LastName, -user_LastName'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paidAmount, -paidAmount, shippingPrice, -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName, user_LastName, -user_LastName'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -10621,21 +10218,8 @@ export const zListOrderItemQuery = z.object({
     orderStatuses: z.string().register(z.globalRegistry, {
         description: 'Filter by multiple order statuses (comma-separated)'
     }).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'quantity',
-        '-quantity',
-        'price',
-        '-price',
-        'sortOrder',
-        '-sortOrder'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, quantity, -quantity, price, -price, sortOrder, -sortOrder'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|quantity|\-quantity|price|\-price|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|quantity|\-quantity|price|\-price|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, quantity, -quantity, price, -price, sortOrder, -sortOrder'
     }).optional(),
     originalQuantity: z.union([
         z.string().regex(/^-?\d+$/),
@@ -11208,29 +10792,8 @@ export const zListMyOrdersQuery = z.object({
         z.literal('0'),
         z.boolean()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'status',
-        '-status',
-        'statusUpdatedAt',
-        '-statusUpdatedAt',
-        'paidAmount',
-        '-paidAmount',
-        'shippingPrice',
-        '-shippingPrice',
-        'paymentStatus',
-        '-paymentStatus',
-        'user_FirstName',
-        '-user_FirstName',
-        'user_LastName',
-        '-user_LastName'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paidAmount, -paidAmount, shippingPrice, -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName, user_LastName, -user_LastName'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paidAmount, -paidAmount, shippingPrice, -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName, user_LastName, -user_LastName'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -11508,27 +11071,8 @@ export const zListPayWayQuery = z.object({
     name: z.string().register(z.globalRegistry, {
         description: 'Filter by name (partial match)'
     }).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'cost',
-        '-cost',
-        'freeThreshold',
-        '-freeThreshold',
-        'providerCode',
-        '-providerCode',
-        'isOnlinePayment',
-        '-isOnlinePayment',
-        'requiresConfirmation',
-        '-requiresConfirmation',
-        'sortOrder',
-        '-sortOrder'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, cost, -cost, freeThreshold, -freeThreshold, providerCode, -providerCode, isOnlinePayment, -isOnlinePayment, requiresConfirmation, -requiresConfirmation, sortOrder, -sortOrder'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, cost, -cost, freeThreshold, -freeThreshold, providerCode, -providerCode, isOnlinePayment, -isOnlinePayment, requiresConfirmation, -requiresConfirmation, sortOrder, -sortOrder'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -11822,21 +11366,8 @@ export const zListProductQuery = z.object({
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
     ]).optional(),
-    ordering: z.enum([
-        'price',
-        '-price',
-        'createdAt',
-        '-createdAt',
-        'active',
-        '-active',
-        'availabilityPriority',
-        '-availabilityPriority',
-        'viewCount',
-        '-viewCount',
-        'stock',
-        '-stock'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock'
+    ordering: z.string().regex(/^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -12027,21 +11558,8 @@ export const zListProductImagesQuery = z.object({
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
     }).optional().default('el'),
-    ordering: z.enum([
-        'price',
-        '-price',
-        'createdAt',
-        '-createdAt',
-        'active',
-        '-active',
-        'availabilityPriority',
-        '-availabilityPriority',
-        'viewCount',
-        '-viewCount',
-        'stock',
-        '-stock'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock'
+    ordering: z.string().regex(/^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock'
     }).optional(),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
@@ -12058,21 +11576,8 @@ export const zListProductReviewsPath = z.object({
 });
 
 export const zListProductReviewsQuery = z.object({
-    ordering: z.enum([
-        'price',
-        '-price',
-        'createdAt',
-        '-createdAt',
-        'active',
-        '-active',
-        'availabilityPriority',
-        '-availabilityPriority',
-        'viewCount',
-        '-viewCount',
-        'stock',
-        '-stock'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock'
+    ordering: z.string().regex(/^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -12107,21 +11612,8 @@ export const zListProductTagsPath = z.object({
 });
 
 export const zListProductTagsQuery = z.object({
-    ordering: z.enum([
-        'price',
-        '-price',
-        'createdAt',
-        '-createdAt',
-        'active',
-        '-active',
-        'availabilityPriority',
-        '-availabilityPriority',
-        'viewCount',
-        '-viewCount',
-        'stock',
-        '-stock'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock'
+    ordering: z.string().regex(/^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock'
     }).optional(),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
@@ -12160,15 +11652,8 @@ export const zListProductAlertQuery = z.object({
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
     }).optional().default('el'),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'notifiedAt',
-        '-notifiedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, notifiedAt, -notifiedAt'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|notifiedAt|\-notifiedAt)(?:,(?:id|\-id|createdAt|\-createdAt|notifiedAt|\-notifiedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, notifiedAt, -notifiedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -12284,17 +11769,8 @@ export const zListAttributeQuery = z.object({
         description: 'Language code for translations (el, en, de)'
     }).optional().default('el'),
     name: z.string().optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'sortOrder',
-        '-sortOrder',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, sortOrder, -sortOrder, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, sortOrder, -sortOrder, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -12473,19 +11949,8 @@ export const zListAttributeValueQuery = z.object({
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
     }).optional().default('el'),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'attribute',
-        '-attribute',
-        'sortOrder',
-        '-sortOrder',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, attribute, -attribute, sortOrder, -sortOrder, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|attribute|\-attribute|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|attribute|\-attribute|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, attribute, -attribute, sortOrder, -sortOrder, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -12719,25 +12184,8 @@ export const zListProductCategoryQuery = z.object({
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'sortOrder',
-        '-sortOrder',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'rght',
-        '-rght',
-        'treeId',
-        '-treeId',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -12979,25 +12427,8 @@ export const zListAllProductCategoryQuery = z.object({
         z.string().regex(/^-?\d+(\.\d+)?$/),
         z.number()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'sortOrder',
-        '-sortOrder',
-        'level',
-        '-level',
-        'lft',
-        '-lft',
-        'rght',
-        '-rght',
-        'treeId',
-        '-treeId',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     parent: z.union([
         z.string().regex(/^-?\d+$/),
@@ -13081,15 +12512,8 @@ export const zListProductCategoryImageQuery = z.object({
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
     }).optional().default('el'),
-    ordering: z.enum([
-        'createdAt',
-        '-createdAt',
-        'imageType',
-        '-imageType',
-        'sortOrder',
-        '-sortOrder'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder'
+    ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -13239,15 +12663,8 @@ export const zGetProductCategoryImagesByCategoryQuery = z.object({
     ]).register(z.globalRegistry, {
         description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image'
     }).optional(),
-    ordering: z.enum([
-        'createdAt',
-        '-createdAt',
-        'imageType',
-        '-imageType',
-        'sortOrder',
-        '-sortOrder'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder'
+    ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder'
     }).optional(),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
@@ -13286,15 +12703,8 @@ export const zGetProductCategoryImagesByTypeQuery = z.object({
     ]).register(z.globalRegistry, {
         description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image'
     }).optional(),
-    ordering: z.enum([
-        'createdAt',
-        '-createdAt',
-        'imageType',
-        '-imageType',
-        'sortOrder',
-        '-sortOrder'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder'
+    ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder'
     }).optional(),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
@@ -13324,19 +12734,8 @@ export const zListProductFavouriteQuery = z.object({
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
     }).optional().default('el'),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'userId',
-        '-userId',
-        'productId',
-        '-productId',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, userId, -userId, productId, -productId, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, userId, -userId, productId, -productId, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -13482,19 +12881,8 @@ export const zGetProductFavouritesByProductsQuery = z.object({
         z.string().regex(/^-?\d+$/),
         z.int()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'userId',
-        '-userId',
-        'productId',
-        '-productId',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, userId, -userId, productId, -productId, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, userId, -userId, productId, -productId, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     product: z.union([
         z.string().regex(/^-?\d+$/),
@@ -13549,19 +12937,8 @@ export const zListProductImageQuery = z.object({
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
     }).optional().default('el'),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'isMain',
-        '-isMain',
-        'sortOrder',
-        '-sortOrder'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, isMain, -isMain, sortOrder, -sortOrder'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|isMain|\-isMain|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|isMain|\-isMain|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, isMain, -isMain, sortOrder, -sortOrder'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -13746,27 +13123,8 @@ export const zListProductReviewQuery = z.object({
         z.string().regex(/^-?\d+$/),
         z.int()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'userId',
-        '-userId',
-        'productId',
-        '-productId',
-        'rate',
-        '-rate',
-        'status',
-        '-status',
-        'isPublished',
-        '-isPublished',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'publishedAt',
-        '-publishedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, userId, -userId, productId, -productId, rate, -rate, status, -status, isPublished, -isPublished, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt'
+    ordering: z.string().regex(/^(?:id|\-id|userId|\-userId|productId|\-productId|rate|\-rate|status|\-status|isPublished|\-isPublished|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt)(?:,(?:id|\-id|userId|\-userId|productId|\-productId|rate|\-rate|status|\-status|isPublished|\-isPublished|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, userId, -userId, productId, -productId, rate, -rate, status, -status, isPublished, -isPublished, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -14039,15 +13397,8 @@ export const zListRegionQuery = z.object({
     name: z.string().register(z.globalRegistry, {
         description: 'Filter by region name (partial match)'
     }).optional(),
-    ordering: z.enum([
-        'createdAt',
-        '-createdAt',
-        'alpha',
-        '-alpha',
-        'sortOrder',
-        '-sortOrder'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: createdAt, -createdAt, alpha, -alpha, sortOrder, -sortOrder'
+    ordering: z.string().regex(/^(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, alpha, -alpha, sortOrder, -sortOrder'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -14207,15 +13558,8 @@ export const zListRegionsByCountryQuery = z.object({
     name: z.string().register(z.globalRegistry, {
         description: 'Filter by region name (partial match)'
     }).optional(),
-    ordering: z.enum([
-        'createdAt',
-        '-createdAt',
-        'alpha',
-        '-alpha',
-        'sortOrder',
-        '-sortOrder'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: createdAt, -createdAt, alpha, -alpha, sortOrder, -sortOrder'
+    ordering: z.string().regex(/^(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, alpha, -alpha, sortOrder, -sortOrder'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -14460,21 +13804,8 @@ export const zListTagQuery = z.object({
         z.string().regex(/^-?\d+$/),
         z.int()
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'active',
-        '-active',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'sortOrder',
-        '-sortOrder',
-        'translations_Label',
-        '-translations_Label'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Label, -translations_Label'
+    ordering: z.string().regex(/^(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Label|\-translations_Label)(?:,(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Label|\-translations_Label))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Label, -translations_Label'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -14668,19 +13999,8 @@ export const zListTaggedItemQuery = z.object({
         }),
         z.array(z.int().gte(0).lte(2147483647))
     ]).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'objectId',
-        '-objectId',
-        'tag_Translations_Label',
-        '-tag_Translations_Label'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, objectId, -objectId, tag_Translations_Label, -tag_Translations_Label'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|objectId|\-objectId|tag_Translations_Label|\-tag_Translations_Label)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|objectId|\-objectId|tag_Translations_Label|\-tag_Translations_Label))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, objectId, -objectId, tag_Translations_Label, -tag_Translations_Label'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -14831,19 +14151,8 @@ export const zListUserAccountQuery = z.object({
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
     }).optional().default('el'),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'email',
-        '-email',
-        'username',
-        '-username',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -14967,19 +14276,8 @@ export const zGetUserAccountAddressesPath = z.object({
 });
 
 export const zGetUserAccountAddressesQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'email',
-        '-email',
-        'username',
-        '-username',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -15004,19 +14302,8 @@ export const zGetUserAccountBlogPostCommentsPath = z.object({
 });
 
 export const zGetUserAccountBlogPostCommentsQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'email',
-        '-email',
-        'username',
-        '-username',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -15052,19 +14339,8 @@ export const zGetUserAccountFavouriteProductsPath = z.object({
 });
 
 export const zGetUserAccountFavouriteProductsQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'email',
-        '-email',
-        'username',
-        '-username',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -15089,19 +14365,8 @@ export const zGetUserAccountLikedBlogPostsPath = z.object({
 });
 
 export const zGetUserAccountLikedBlogPostsQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'email',
-        '-email',
-        'username',
-        '-username',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -15126,19 +14391,8 @@ export const zGetUserAccountNotificationsPath = z.object({
 });
 
 export const zGetUserAccountNotificationsQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'email',
-        '-email',
-        'username',
-        '-username',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -15163,19 +14417,8 @@ export const zGetUserAccountOrdersPath = z.object({
 });
 
 export const zGetUserAccountOrdersQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'email',
-        '-email',
-        'username',
-        '-username',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -15200,19 +14443,8 @@ export const zGetUserAccountProductReviewsPath = z.object({
 });
 
 export const zGetUserAccountProductReviewsQuery = z.object({
-    ordering: z.enum([
-        'id',
-        '-id',
-        'email',
-        '-email',
-        'username',
-        '-username',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
+    ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -15317,21 +14549,8 @@ export const zListUserAddressQuery = z.object({
     locationTypeContains: z.string().register(z.globalRegistry, {
         description: 'Filter by location type (partial match)'
     }).optional(),
-    ordering: z.enum([
-        'id',
-        '-id',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'city',
-        '-city',
-        'zipcode',
-        '-zipcode',
-        'isMain',
-        '-isMain'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, city, -city, zipcode, -zipcode, isMain, -isMain'
+    ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|city|\-city|zipcode|\-zipcode|isMain|\-isMain)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|city|\-city|zipcode|\-zipcode|isMain|\-isMain))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, city, -city, zipcode, -zipcode, isMain, -isMain'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -15542,21 +14761,8 @@ export const zListUserSubscriptionQuery = z.object({
     ]).register(z.globalRegistry, {
         description: 'Language code for translations (el, en, de)'
     }).optional().default('el'),
-    ordering: z.enum([
-        'subscribedAt',
-        '-subscribedAt',
-        'unsubscribedAt',
-        '-unsubscribedAt',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'status',
-        '-status',
-        'topic_Category',
-        '-topic_Category'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: subscribedAt, -subscribedAt, unsubscribedAt, -unsubscribedAt, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, topic_Category, -topic_Category'
+    ordering: z.string().regex(/^(?:subscribedAt|\-subscribedAt|unsubscribedAt|\-unsubscribedAt|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|topic_Category|\-topic_Category)(?:,(?:subscribedAt|\-subscribedAt|unsubscribedAt|\-unsubscribedAt|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|topic_Category|\-topic_Category))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: subscribedAt, -subscribedAt, unsubscribedAt, -unsubscribedAt, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, topic_Category, -topic_Category'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),
@@ -15828,17 +15034,8 @@ export const zListSubscriptionTopicQuery = z.object({
     name: z.string().register(z.globalRegistry, {
         description: 'Filter by name (partial match)'
     }).optional(),
-    ordering: z.enum([
-        'category',
-        '-category',
-        'createdAt',
-        '-createdAt',
-        'updatedAt',
-        '-updatedAt',
-        'slug',
-        '-slug'
-    ]).register(z.globalRegistry, {
-        description: 'Which field to use when ordering the results. Available fields: category, -category, createdAt, -createdAt, updatedAt, -updatedAt, slug, -slug'
+    ordering: z.string().regex(/^(?:category|\-category|createdAt|\-createdAt|updatedAt|\-updatedAt|slug|\-slug)(?:,(?:category|\-category|createdAt|\-createdAt|updatedAt|\-updatedAt|slug|\-slug))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: category, -category, createdAt, -createdAt, updatedAt, -updatedAt, slug, -slug'
     }).optional(),
     page: z.union([
         z.string().regex(/^-?\d+$/),

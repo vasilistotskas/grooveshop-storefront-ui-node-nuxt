@@ -139,6 +139,57 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
     } as OrderCreateFromCartRequest
   }
 
+  /**
+   * Fire-and-forget persistence of the checkout address to the signed-in
+   * user's address book when they opted in via the "Save this address"
+   * checkbox. Errors are swallowed intentionally: a failed save must
+   * never block a successful purchase. The surfaced toast is friendly
+   * rather than alarming so the user knows the order went through even
+   * if the bonus bookkeeping didn't.
+   */
+  const maybeSaveDeliveryAddress = () => {
+    if (!formState.saveAddress) return
+    const title = (formState.addressTitle ?? '').trim()
+    if (!title) return
+
+    const body = {
+      title,
+      firstName: formState.firstName,
+      lastName: formState.lastName,
+      phone: normalizeGreekPhone(formState.phone),
+      street: formState.street,
+      streetNumber: formState.streetNumber,
+      city: formState.city,
+      zipcode: formState.zipcode,
+      country: formState.country,
+      region: formState.region,
+      notes: formState.place || undefined,
+    }
+
+    $fetch('/api/user/addresses', {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      body,
+    })
+      .then(() => {
+        toast.add({
+          title: t('form.submit.address_saved_title'),
+          description: t('form.submit.address_saved_description'),
+          color: 'success',
+          icon: 'i-heroicons-bookmark',
+        })
+      })
+      .catch((error) => {
+        log.warn('checkout', 'save address failed', { error })
+        toast.add({
+          title: t('form.submit.address_save_failed_title'),
+          description: t('form.submit.address_save_failed_description'),
+          color: 'warning',
+          icon: 'i-heroicons-exclamation-triangle',
+        })
+      })
+  }
+
   const handleRetryableError = (errorInfo: { title: string, description?: string, shouldRetry: boolean }) => {
     if (errorInfo.shouldRetry) {
       if (retryCount.value >= MAX_RETRIES) {
@@ -198,6 +249,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
           if (!response.ok) return
 
           createdOrder.value = response._data
+          maybeSaveDeliveryAddress()
 
           toast.add({
             title: t('order_created_payment_required'),
@@ -239,6 +291,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
           if (!response.ok) return
 
           createdOrder.value = response._data
+          maybeSaveDeliveryAddress()
 
           toast.add({
             title: t('order_created_payment_required'),
@@ -283,6 +336,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
           if (!response.ok) return
 
           createdOrder.value = response._data
+          maybeSaveDeliveryAddress()
 
           // Reset retry counter on success
           retryCount.value = 0

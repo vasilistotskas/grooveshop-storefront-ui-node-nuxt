@@ -48,6 +48,8 @@ const {
   savedAddresses,
   selectedSavedAddressId,
   selectSavedAddress,
+  addressEntryMode,
+  useNewAddress,
 } = await useCheckoutForm()
 
 const {
@@ -179,9 +181,11 @@ definePageMeta({
             :region-options="regionOptions"
             :saved-addresses="savedAddresses"
             :selected-saved-address-id="selectedSavedAddressId"
+            :mode="addressEntryMode"
             @next="nextStep"
             @country-change="onCountryChange"
             @select-saved-address="selectSavedAddress"
+            @use-new-address="useNewAddress"
           />
 
           <!-- Step 2: Payment -->

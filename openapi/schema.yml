@@ -30,29 +30,14 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName,
           user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt,
           -user_CreatedAt, website, -website'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - user_FirstName
-          - -user_FirstName
-          - user_LastName
-          - -user_LastName
-          - user_Email
-          - -user_Email
-          - user_CreatedAt
-          - -user_CreatedAt
-          - website
-          - -website
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website))*$
       - name: page
         required: false
         in: query
@@ -477,29 +462,14 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName,
           user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt,
           -user_CreatedAt, website, -website'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - user_FirstName
-          - -user_FirstName
-          - user_LastName
-          - -user_LastName
-          - user_Email
-          - -user_Email
-          - user_CreatedAt
-          - -user_CreatedAt
-          - website
-          - -website
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website))*$
       - name: page
         required: false
         in: query
@@ -588,30 +558,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder,
           level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - sortOrder
-          - -sortOrder
-          - level
-          - -level
-          - lft
-          - -lft
-          - rght
-          - -rght
-          - treeId
-          - -treeId
-          - name
-          - -name
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$
       - name: page
         required: false
         in: query
@@ -1036,30 +989,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder,
           level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - sortOrder
-          - -sortOrder
-          - level
-          - -level
-          - lft
-          - -lft
-          - rght
-          - -rght
-          - treeId
-          - -treeId
-          - name
-          - -name
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$
       - name: page
         required: false
         in: query
@@ -1144,30 +1080,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder,
           level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - sortOrder
-          - -sortOrder
-          - level
-          - -level
-          - lft
-          - -lft
-          - rght
-          - -rght
-          - treeId
-          - -treeId
-          - name
-          - -name
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$
       - name: page
         required: false
         in: query
@@ -1252,30 +1171,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder,
           level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - sortOrder
-          - -sortOrder
-          - level
-          - -level
-          - lft
-          - -lft
-          - rght
-          - -rght
-          - treeId
-          - -treeId
-          - name
-          - -name
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$
       - name: page
         required: false
         in: query
@@ -1361,30 +1263,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder,
           level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - sortOrder
-          - -sortOrder
-          - level
-          - -level
-          - lft
-          - -lft
-          - rght
-          - -rght
-          - treeId
-          - -treeId
-          - name
-          - -name
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$
       - name: page
         required: false
         in: query
@@ -1481,30 +1366,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder,
           level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - sortOrder
-          - -sortOrder
-          - level
-          - -level
-          - lft
-          - -lft
-          - rght
-          - -rght
-          - treeId
-          - -treeId
-          - name
-          - -name
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$
       - name: page
         required: false
         in: query
@@ -1642,30 +1510,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder,
           level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - sortOrder
-          - -sortOrder
-          - level
-          - -level
-          - lft
-          - -lft
-          - rght
-          - -rght
-          - treeId
-          - -treeId
-          - name
-          - -name
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$
       - name: page
         required: false
         in: query
@@ -2033,24 +1884,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft,
           -lft, approved, -approved'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - level
-          - -level
-          - lft
-          - -lft
-          - approved
-          - -approved
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved))*$
       - name: page
         required: false
         in: query
@@ -2973,24 +2813,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft,
           -lft, approved, -approved'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - level
-          - -level
-          - lft
-          - -lft
-          - approved
-          - -approved
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved))*$
       - name: page
         required: false
         in: query
@@ -3519,24 +3348,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft,
           -lft, approved, -approved'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - level
-          - -level
-          - lft
-          - -lft
-          - approved
-          - -approved
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved))*$
       - name: page
         required: false
         in: query
@@ -4171,24 +3989,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft,
           -lft, approved, -approved'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - level
-          - -level
-          - lft
-          - -lft
-          - approved
-          - -approved
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved))*$
       - name: page
         required: false
         in: query
@@ -4597,24 +4404,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt,
           viewCount, -viewCount, featured, -featured'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - publishedAt
-          - -publishedAt
-          - viewCount
-          - -viewCount
-          - featured
-          - -featured
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$
       - name: page
         required: false
         in: query
@@ -5149,24 +4945,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt,
           viewCount, -viewCount, featured, -featured'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - publishedAt
-          - -publishedAt
-          - viewCount
-          - -viewCount
-          - featured
-          - -featured
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$
       - name: page
         required: false
         in: query
@@ -5415,24 +5200,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt,
           viewCount, -viewCount, featured, -featured'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - publishedAt
-          - -publishedAt
-          - viewCount
-          - -viewCount
-          - featured
-          - -featured
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$
       - in: query
         name: publishedAfter
         schema:
@@ -5863,24 +5637,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt,
           viewCount, -viewCount, featured, -featured'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - publishedAt
-          - -publishedAt
-          - viewCount
-          - -viewCount
-          - featured
-          - -featured
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$
       - name: page
         required: false
         in: query
@@ -6273,24 +6036,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt,
           viewCount, -viewCount, featured, -featured'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - publishedAt
-          - -publishedAt
-          - viewCount
-          - -viewCount
-          - featured
-          - -featured
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$
       - name: page
         required: false
         in: query
@@ -6632,24 +6384,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt,
           viewCount, -viewCount, featured, -featured'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - publishedAt
-          - -publishedAt
-          - viewCount
-          - -viewCount
-          - featured
-          - -featured
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$
       - name: page
         required: false
         in: query
@@ -7010,24 +6751,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt,
           sortOrder, -sortOrder, name, -name'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - active
-          - -active
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - sortOrder
-          - -sortOrder
-          - name
-          - -name
+          pattern: ^(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|name|\-name)(?:,(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|name|\-name))*$
       - name: page
         required: false
         in: query
@@ -8058,26 +7788,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, quantity, -quantity,
           cart_Id, -cart_Id, cart_LastActivity, -cart_LastActivity, product_Id, -product_Id'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - quantity
-          - -quantity
-          - cart_Id
-          - -cart_Id
-          - cart_LastActivity
-          - -cart_LastActivity
-          - product_Id
-          - -product_Id
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|quantity|\-quantity|cart_Id|\-cart_Id|cart_LastActivity|\-cart_LastActivity|product_Id|\-product_Id)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|quantity|\-quantity|cart_Id|\-cart_Id|cart_LastActivity|\-cart_LastActivity|product_Id|\-product_Id))*$
       - name: page
         required: false
         in: query
@@ -8874,22 +8591,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, user, -user, createdAt, -createdAt, updatedAt, -updatedAt, lastActivity,
           -lastActivity'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - user
-          - -user
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - lastActivity
-          - -lastActivity
+          pattern: ^(?:id|\-id|user|\-user|createdAt|\-createdAt|updatedAt|\-updatedAt|lastActivity|\-lastActivity)(?:,(?:id|\-id|user|\-user|createdAt|\-createdAt|updatedAt|\-updatedAt|lastActivity|\-lastActivity))*$
       - name: page
         required: false
         in: query
@@ -9485,29 +9193,14 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           alpha2, -alpha2, alpha3, -alpha3, isoCc, -isoCc, phoneCode, -phoneCode,
           createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Name,
           -translations_Name'
         schema:
           type: string
-          enum:
-          - alpha2
-          - -alpha2
-          - alpha3
-          - -alpha3
-          - isoCc
-          - -isoCc
-          - phoneCode
-          - -phoneCode
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - sortOrder
-          - -sortOrder
-          - translations_Name
-          - -translations_Name
+          pattern: ^(?:alpha2|\-alpha2|alpha3|\-alpha3|isoCc|\-isoCc|phoneCode|\-phoneCode|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Name|\-translations_Name)(?:,(?:alpha2|\-alpha2|alpha3|\-alpha3|isoCc|\-isoCc|phoneCode|\-phoneCode|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Name|\-translations_Name))*$
       - name: page
         required: false
         in: query
@@ -10556,7 +10249,8 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, user, -user, user_Email, -user_Email, user_FirstName, -user_FirstName,
           user_LastName, -user_LastName, notification, -notification, notification_Kind,
           -notification_Kind, notification_Category, -notification_Category, notification_Priority,
@@ -10564,35 +10258,7 @@ paths:
           seen, -seen, seenAt, -seenAt, createdAt, -createdAt, updatedAt, -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - user
-          - -user
-          - user_Email
-          - -user_Email
-          - user_FirstName
-          - -user_FirstName
-          - user_LastName
-          - -user_LastName
-          - notification
-          - -notification
-          - notification_Kind
-          - -notification_Kind
-          - notification_Category
-          - -notification_Category
-          - notification_Priority
-          - -notification_Priority
-          - notification_CreatedAt
-          - -notification_CreatedAt
-          - seen
-          - -seen
-          - seenAt
-          - -seenAt
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|user|\-user|user_Email|\-user_Email|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|notification|\-notification|notification_Kind|\-notification_Kind|notification_Category|\-notification_Category|notification_Priority|\-notification_Priority|notification_CreatedAt|\-notification_CreatedAt|seen|\-seen|seenAt|\-seenAt|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|user|\-user|user_Email|\-user_Email|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|notification|\-notification|notification_Kind|\-notification_Kind|notification_Category|\-notification_Category|notification_Priority|\-notification_Priority|notification_CreatedAt|\-notification_CreatedAt|seen|\-seen|seenAt|\-seenAt|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -11699,34 +11365,15 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status,
           statusUpdatedAt, -statusUpdatedAt, paidAmount, -paidAmount, shippingPrice,
           -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName,
           user_LastName, -user_LastName'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - status
-          - -status
-          - statusUpdatedAt
-          - -statusUpdatedAt
-          - paidAmount
-          - -paidAmount
-          - shippingPrice
-          - -shippingPrice
-          - paymentStatus
-          - -paymentStatus
-          - user_FirstName
-          - -user_FirstName
-          - user_LastName
-          - -user_LastName
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName))*$
       - name: page
         required: false
         in: query
@@ -12509,24 +12156,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, quantity, -quantity,
           price, -price, sortOrder, -sortOrder'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - quantity
-          - -quantity
-          - price
-          - -price
-          - sortOrder
-          - -sortOrder
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|quantity|\-quantity|price|\-price|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|quantity|\-quantity|price|\-price|sortOrder|\-sortOrder))*$
       - in: query
         name: originalQuantity
         schema:
@@ -14329,34 +13965,15 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status,
           statusUpdatedAt, -statusUpdatedAt, paidAmount, -paidAmount, shippingPrice,
           -shippingPrice, paymentStatus, -paymentStatus, user_FirstName, -user_FirstName,
           user_LastName, -user_LastName'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - status
-          - -status
-          - statusUpdatedAt
-          - -statusUpdatedAt
-          - paidAmount
-          - -paidAmount
-          - shippingPrice
-          - -shippingPrice
-          - paymentStatus
-          - -paymentStatus
-          - user_FirstName
-          - -user_FirstName
-          - user_LastName
-          - -user_LastName
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paidAmount|\-paidAmount|shippingPrice|\-shippingPrice|paymentStatus|\-paymentStatus|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName))*$
       - name: page
         required: false
         in: query
@@ -14989,31 +14606,14 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, cost, -cost, freeThreshold,
           -freeThreshold, providerCode, -providerCode, isOnlinePayment, -isOnlinePayment,
           requiresConfirmation, -requiresConfirmation, sortOrder, -sortOrder'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - cost
-          - -cost
-          - freeThreshold
-          - -freeThreshold
-          - providerCode
-          - -providerCode
-          - isOnlinePayment
-          - -isOnlinePayment
-          - requiresConfirmation
-          - -requiresConfirmation
-          - sortOrder
-          - -sortOrder
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder))*$
       - name: page
         required: false
         in: query
@@ -15795,24 +15395,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           price, -price, createdAt, -createdAt, active, -active, availabilityPriority,
           -availabilityPriority, viewCount, -viewCount, stock, -stock'
         schema:
           type: string
-          enum:
-          - price
-          - -price
-          - createdAt
-          - -createdAt
-          - active
-          - -active
-          - availabilityPriority
-          - -availabilityPriority
-          - viewCount
-          - -viewCount
-          - stock
-          - -stock
+          pattern: ^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock))*$
       - name: page
         required: false
         in: query
@@ -16372,24 +15961,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           price, -price, createdAt, -createdAt, active, -active, availabilityPriority,
           -availabilityPriority, viewCount, -viewCount, stock, -stock'
         schema:
           type: string
-          enum:
-          - price
-          - -price
-          - createdAt
-          - -createdAt
-          - active
-          - -active
-          - availabilityPriority
-          - -availabilityPriority
-          - viewCount
-          - -viewCount
-          - stock
-          - -stock
+          pattern: ^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock))*$
       - name: search
         required: false
         in: query
@@ -16459,24 +16037,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           price, -price, createdAt, -createdAt, active, -active, availabilityPriority,
           -availabilityPriority, viewCount, -viewCount, stock, -stock'
         schema:
           type: string
-          enum:
-          - price
-          - -price
-          - createdAt
-          - -createdAt
-          - active
-          - -active
-          - availabilityPriority
-          - -availabilityPriority
-          - viewCount
-          - -viewCount
-          - stock
-          - -stock
+          pattern: ^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock))*$
       - name: page
         required: false
         in: query
@@ -16580,24 +16147,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           price, -price, createdAt, -createdAt, active, -active, availabilityPriority,
           -availabilityPriority, viewCount, -viewCount, stock, -stock'
         schema:
           type: string
-          enum:
-          - price
-          - -price
-          - createdAt
-          - -createdAt
-          - active
-          - -active
-          - availabilityPriority
-          - -availabilityPriority
-          - viewCount
-          - -viewCount
-          - stock
-          - -stock
+          pattern: ^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock))*$
       - name: search
         required: false
         in: query
@@ -16753,17 +16309,12 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, notifiedAt, -notifiedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - notifiedAt
-          - -notifiedAt
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|notifiedAt|\-notifiedAt)(?:,(?:id|\-id|createdAt|\-createdAt|notifiedAt|\-notifiedAt))*$
       - name: page
         required: false
         in: query
@@ -17120,19 +16671,12 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, sortOrder, -sortOrder, createdAt, -createdAt, updatedAt, -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - sortOrder
-          - -sortOrder
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -17661,22 +17205,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, attribute, -attribute, sortOrder, -sortOrder, createdAt, -createdAt,
           updatedAt, -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - attribute
-          - -attribute
-          - sortOrder
-          - -sortOrder
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|attribute|\-attribute|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|attribute|\-attribute|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -18308,28 +17843,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId,
           -treeId, createdAt, -createdAt, updatedAt, -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - sortOrder
-          - -sortOrder
-          - level
-          - -level
-          - lft
-          - -lft
-          - rght
-          - -rght
-          - treeId
-          - -treeId
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -19007,28 +18527,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId,
           -treeId, createdAt, -createdAt, updatedAt, -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - sortOrder
-          - -sortOrder
-          - level
-          - -level
-          - lft
-          - -lft
-          - rght
-          - -rght
-          - treeId
-          - -treeId
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - in: query
         name: parent
         schema:
@@ -19242,17 +18747,12 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder'
         schema:
           type: string
-          enum:
-          - createdAt
-          - -createdAt
-          - imageType
-          - -imageType
-          - sortOrder
-          - -sortOrder
+          pattern: ^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$
       - name: page
         required: false
         in: query
@@ -19779,17 +19279,12 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder'
         schema:
           type: string
-          enum:
-          - createdAt
-          - -createdAt
-          - imageType
-          - -imageType
-          - sortOrder
-          - -sortOrder
+          pattern: ^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$
       - name: search
         required: false
         in: query
@@ -19901,17 +19396,12 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder'
         schema:
           type: string
-          enum:
-          - createdAt
-          - -createdAt
-          - imageType
-          - -imageType
-          - sortOrder
-          - -sortOrder
+          pattern: ^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$
       - name: search
         required: false
         in: query
@@ -20008,22 +19498,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, userId, -userId, productId, -productId, createdAt, -createdAt,
           updatedAt, -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - userId
-          - -userId
-          - productId
-          - -productId
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -20546,22 +20027,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, userId, -userId, productId, -productId, createdAt, -createdAt,
           updatedAt, -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - userId
-          - -userId
-          - productId
-          - -productId
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - in: query
         name: product
         schema:
@@ -20719,22 +20191,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, isMain, -isMain,
           sortOrder, -sortOrder'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - isMain
-          - -isMain
-          - sortOrder
-          - -sortOrder
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|isMain|\-isMain|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|isMain|\-isMain|sortOrder|\-sortOrder))*$
       - name: page
         required: false
         in: query
@@ -21288,31 +20751,14 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, userId, -userId, productId, -productId, rate, -rate, status, -status,
           isPublished, -isPublished, createdAt, -createdAt, updatedAt, -updatedAt,
           publishedAt, -publishedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - userId
-          - -userId
-          - productId
-          - -productId
-          - rate
-          - -rate
-          - status
-          - -status
-          - isPublished
-          - -isPublished
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - publishedAt
-          - -publishedAt
+          pattern: ^(?:id|\-id|userId|\-userId|productId|\-productId|rate|\-rate|status|\-status|isPublished|\-isPublished|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt)(?:,(?:id|\-id|userId|\-userId|productId|\-productId|rate|\-rate|status|\-status|isPublished|\-isPublished|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt))*$
       - name: page
         required: false
         in: query
@@ -22143,17 +21589,12 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           createdAt, -createdAt, alpha, -alpha, sortOrder, -sortOrder'
         schema:
           type: string
-          enum:
-          - createdAt
-          - -createdAt
-          - alpha
-          - -alpha
-          - sortOrder
-          - -sortOrder
+          pattern: ^(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder))*$
       - name: page
         required: false
         in: query
@@ -22652,17 +22093,12 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           createdAt, -createdAt, alpha, -alpha, sortOrder, -sortOrder'
         schema:
           type: string
-          enum:
-          - createdAt
-          - -createdAt
-          - alpha
-          - -alpha
-          - sortOrder
-          - -sortOrder
+          pattern: ^(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder))*$
       - name: page
         required: false
         in: query
@@ -23301,24 +22737,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt,
           sortOrder, -sortOrder, translations_Label, -translations_Label'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - active
-          - -active
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - sortOrder
-          - -sortOrder
-          - translations_Label
-          - -translations_Label
+          pattern: ^(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Label|\-translations_Label)(?:,(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Label|\-translations_Label))*$
       - name: page
         required: false
         in: query
@@ -23907,22 +23332,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, objectId, -objectId,
           tag_Translations_Label, -tag_Translations_Label'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - objectId
-          - -objectId
-          - tag_Translations_Label
-          - -tag_Translations_Label
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|objectId|\-objectId|tag_Translations_Label|\-tag_Translations_Label)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|objectId|\-objectId|tag_Translations_Label|\-tag_Translations_Label))*$
       - name: page
         required: false
         in: query
@@ -24413,22 +23829,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt,
           -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - email
-          - -email
-          - username
-          - -username
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -24851,22 +24258,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt,
           -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - email
-          - -email
-          - username
-          - -username
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -24950,22 +24348,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt,
           -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - email
-          - -email
-          - username
-          - -username
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -25117,22 +24506,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt,
           -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - email
-          - -email
-          - username
-          - -username
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -25216,22 +24596,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt,
           -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - email
-          - -email
-          - username
-          - -username
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -25315,22 +24686,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt,
           -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - email
-          - -email
-          - username
-          - -username
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -25414,22 +24776,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt,
           -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - email
-          - -email
-          - username
-          - -username
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -25513,22 +24866,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt,
           -updatedAt'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - email
-          - -email
-          - username
-          - -username
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
+          pattern: ^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
       - name: page
         required: false
         in: query
@@ -25767,24 +25111,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           id, -id, createdAt, -createdAt, updatedAt, -updatedAt, city, -city, zipcode,
           -zipcode, isMain, -isMain'
         schema:
           type: string
-          enum:
-          - id
-          - -id
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - city
-          - -city
-          - zipcode
-          - -zipcode
-          - isMain
-          - -isMain
+          pattern: ^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|city|\-city|zipcode|\-zipcode|isMain|\-isMain)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|city|\-city|zipcode|\-zipcode|isMain|\-isMain))*$
       - name: page
         required: false
         in: query
@@ -26485,24 +25818,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           subscribedAt, -subscribedAt, unsubscribedAt, -unsubscribedAt, createdAt,
           -createdAt, updatedAt, -updatedAt, status, -status, topic_Category, -topic_Category'
         schema:
           type: string
-          enum:
-          - subscribedAt
-          - -subscribedAt
-          - unsubscribedAt
-          - -unsubscribedAt
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - status
-          - -status
-          - topic_Category
-          - -topic_Category
+          pattern: ^(?:subscribedAt|\-subscribedAt|unsubscribedAt|\-unsubscribedAt|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|topic_Category|\-topic_Category)(?:,(?:subscribedAt|\-subscribedAt|unsubscribedAt|\-unsubscribedAt|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|topic_Category|\-topic_Category))*$
       - name: page
         required: false
         in: query
@@ -27380,20 +26702,13 @@ paths:
       - name: ordering
         in: query
         required: false
-        description: 'Which field to use when ordering the results. Available fields:
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
           category, -category, createdAt, -createdAt, updatedAt, -updatedAt, slug,
           -slug'
         schema:
           type: string
-          enum:
-          - category
-          - -category
-          - createdAt
-          - -createdAt
-          - updatedAt
-          - -updatedAt
-          - slug
-          - -slug
+          pattern: ^(?:category|\-category|createdAt|\-createdAt|updatedAt|\-updatedAt|slug|\-slug)(?:,(?:category|\-category|createdAt|\-createdAt|updatedAt|\-updatedAt|slug|\-slug))*$
       - name: page
         required: false
         in: query

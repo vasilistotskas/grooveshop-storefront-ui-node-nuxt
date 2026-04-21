@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 /**
- * "Secure checkout" seal — small inline lock icon + copy.
+ * "Secure checkout" seal — small inline lock icon + SSL copy.
  *
- * Signals SSL/HTTPS protection and links to the return policy so the
- * trust row carries both halves of the common e-commerce reassurance
- * (secure payment + buyer protection).
+ * Signals SSL/HTTPS protection during checkout. The ``compact`` prop is
+ * kept for callers that want to opt out of longer trust copy in tight
+ * layouts, even though we currently render the same content either way.
  */
 
 const { t } = useI18n()
-const localePath = useLocalePath()
 
 defineProps<{
   compact?: boolean
@@ -22,19 +21,8 @@ defineProps<{
       class="h-4 w-4 shrink-0 text-success"
       aria-hidden="true"
     />
-    <span>
-      <span class="font-semibold text-neutral-800 dark:text-neutral-100">
-        {{ t('title') }}
-      </span>
-      <template v-if="!compact">
-        ·
-        <NuxtLink
-          :to="localePath('return-policy')"
-          class="underline hover:text-(--ui-secondary)"
-        >
-          {{ t('returns_link') }}
-        </NuxtLink>
-      </template>
+    <span class="font-semibold text-neutral-800 dark:text-neutral-100">
+      {{ t('title') }}
     </span>
   </div>
 </template>
@@ -42,5 +30,4 @@ defineProps<{
 <i18n lang="yaml">
 el:
   title: Ασφαλής πληρωμή SSL
-  returns_link: 14 ημέρες πολιτική επιστροφών
 </i18n>
