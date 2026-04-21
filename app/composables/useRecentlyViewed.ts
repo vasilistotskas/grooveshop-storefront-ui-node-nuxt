@@ -1,5 +1,3 @@
-import { useLocalStorage } from '@vueuse/core'
-
 /**
  * Shape stored in localStorage for each recently-viewed product.
  *
@@ -27,40 +25,88 @@ export interface RecentlyViewedProduct {
 }
 
 const STORAGE_KEY = 'grooveshop:recently-viewed'
-const MAX_ITEMS = 8
+const MAX_ITEMS = 5
+
+/**
+ * Read the persisted history off localStorage. Always safe to call;
+ * returns an empty list on SSR or any parse/access error.
+ */
+function readFromStorage(): RecentlyViewedProduct[] {
+  if (!import.meta.client) return []
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw) as unknown
+    if (!Array.isArray(parsed)) return []
+    return (parsed as RecentlyViewedProduct[]).slice(0, MAX_ITEMS)
+  }
+  catch (error) {
+    log.warn('recently-viewed', 'read failed', { error })
+    return []
+  }
+}
+
+function writeToStorage(next: RecentlyViewedProduct[]) {
+  if (!import.meta.client) return
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
+  }
+  catch (error) {
+    log.warn('recently-viewed', 'write failed', { error })
+  }
+}
 
 /**
  * Tracks and exposes the user's recently-viewed products, persisted to
- * localStorage. The list is bounded (`MAX_ITEMS`) and deduped by id so
- * revisiting a product just promotes its entry to the front instead of
- * inflating the list.
+ * localStorage.
+ *
+ * Implementation: we intentionally re-read localStorage every time the
+ * composable is invoked on the client instead of trusting an in-memory
+ * cache. That's cheap (localStorage is a sync call) and sidesteps a
+ * whole class of "stale cache clobbered storage" bugs that hit us with
+ * VueUse's ``useLocalStorage`` + ``hydrate-on-visible`` interaction.
+ * Writes only happen in response to explicit ``add``/``remove``/``clear``
+ * calls, so a fresh reload is always idempotent.
  */
 export function useRecentlyViewed() {
-  const items = useLocalStorage<RecentlyViewedProduct[]>(STORAGE_KEY, [], {
-    mergeDefaults: true,
-    // localStorage is only available on the client; the SSR fallback is
-    // an empty array so server-rendered HTML never ships personalised
-    // history (which would be a privacy + CLS pitfall).
-    writeDefaults: false,
-  })
+  const items = useState<RecentlyViewedProduct[]>(
+    'recently-viewed:items',
+    () => readFromStorage(),
+  )
+
+  // The very first client-side invocation may have received the SSR
+  // payload's empty default instead of the factory result. Refresh
+  // from localStorage once we know we're on the client — subsequent
+  // calls keep whatever's in memory (respecting in-flight mutations).
+  if (import.meta.client && items.value.length === 0) {
+    const stored = readFromStorage()
+    if (stored.length) items.value = stored
+  }
 
   const add = (product: RecentlyViewedProduct) => {
     if (!import.meta.client) return
+    // Merge against the freshest stored copy so a stale in-memory ref
+    // (e.g. from a lazy-hydrated component) can't wipe newer history.
+    const baseline = readFromStorage()
     const next = [
       { ...product, addedAt: Date.now() },
-      ...items.value.filter(p => p.id !== product.id),
-    ]
-    items.value = next.slice(0, MAX_ITEMS)
+      ...baseline.filter(p => p.id !== product.id),
+    ].slice(0, MAX_ITEMS)
+    items.value = next
+    writeToStorage(next)
   }
 
   const remove = (productId: number) => {
     if (!import.meta.client) return
-    items.value = items.value.filter(p => p.id !== productId)
+    const next = readFromStorage().filter(p => p.id !== productId)
+    items.value = next
+    writeToStorage(next)
   }
 
   const clear = () => {
     if (!import.meta.client) return
     items.value = []
+    writeToStorage([])
   }
 
   /**

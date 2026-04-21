@@ -794,9 +794,6 @@ definePageMeta({
         </div>
       </div>
 
-      <!-- Recently viewed rail (client-only, hidden when history is empty) -->
-      <ProductRecentlyViewed :exclude-product-id="product?.id" />
-
       <div
         v-if="showStickyAddToCart"
         class="
