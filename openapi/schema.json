@@ -41612,6 +41612,275 @@
                 }
             }
         },
+        "/api/v1/user/account/{id}/data_exports": {
+            "get": {
+                "operationId": "listUserAccountDataExports",
+                "description": "List recent data-export requests for this user so the UI can show progress and the last download link.",
+                "summary": "List GDPR data exports",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    },
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "required": false,
+                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^(?:id|\\-id|email|\\-email|username|\\-username|createdAt|\\-createdAt|updatedAt|\\-updatedAt)(?:,(?:id|\\-id|email|\\-email|username|\\-username|createdAt|\\-createdAt|updatedAt|\\-updatedAt))*$"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "pageSize",
+                        "required": false,
+                        "in": "query",
+                        "description": "Number of results to return per page.",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "A search term.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "User Accounts"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedUserDataExportList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/user/account/{id}/delete_account": {
+            "post": {
+                "operationId": "deleteUserAccountGdpr",
+                "description": "Anonymises the user's orders (kept for tax/accounting) and hard-deletes every other linked record. Irreversible. Caller must have re-authenticated via allauth within the window configured by ``ACCOUNT_REAUTHENTICATION_TIMEOUT``.",
+                "summary": "Delete account (GDPR right-to-erasure)",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "User Accounts"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteAccountRequestRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteAccountRequestRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DeleteAccountRequestRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DeleteAccountResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/user/account/{id}/favourite_products": {
             "get": {
                 "operationId": "getUserAccountFavouriteProducts",
@@ -42380,6 +42649,104 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/PaginatedProductReviewList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/user/account/{id}/request_data_export": {
+            "post": {
+                "operationId": "requestUserAccountDataExport",
+                "description": "Queue a job that compiles the user's personal data and emails a one-off download link. Returns the new UserDataExport record.",
+                "summary": "Request GDPR data export",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "User Accounts"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserDataExport"
                                 }
                             }
                         },
@@ -43684,6 +44051,40 @@
                             }
                         },
                         "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/user/data_export/{token}/download": {
+            "get": {
+                "operationId": "downloadUserDataExport",
+                "description": "Returns the JSON bundle produced by the export task. The token is single-scope, tied to one UserDataExport row, and expires 7 days after the export was produced.",
+                "summary": "Download a GDPR data export bundle",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "token",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "User Accounts"
+                ],
+                "security": [
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    },
+                    "404": {
+                        "description": "No response body"
+                    },
+                    "410": {
+                        "description": "No response body"
                     }
                 }
             }
@@ -49629,6 +50030,31 @@
                     "start"
                 ]
             },
+            "DeleteAccountRequestRequest": {
+                "type": "object",
+                "description": "Body for ``POST user/account/{id}/delete_account``.\n\nRequires the user to re-type ``DELETE`` as a guardrail. The allauth\nre-authentication happens outside this serializer via the session\nmiddleware's ``X-Session-Token`` header before the task is queued.",
+                "properties": {
+                    "confirmation": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Must equal the literal string \"DELETE\"."
+                    }
+                },
+                "required": [
+                    "confirmation"
+                ]
+            },
+            "DeleteAccountResponse": {
+                "type": "object",
+                "properties": {
+                    "detail": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "detail"
+                ]
+            },
             "Detail": {
                 "type": "object",
                 "properties": {
@@ -53046,6 +53472,58 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/UserAddress"
+                        }
+                    }
+                }
+            },
+            "PaginatedUserDataExportList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "links": {
+                        "type": "object",
+                        "properties": {
+                            "next": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=4"
+                            },
+                            "previous": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=2"
+                            }
+                        }
+                    },
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageTotalResults": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserDataExport"
                         }
                     }
                 }
@@ -59153,6 +59631,54 @@
                     "streetNumber",
                     "title",
                     "zipcode"
+                ]
+            },
+            "UserDataExport": {
+                "type": "object",
+                "description": "Read-only view of a UserDataExport row for the privacy UI.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "status": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "token": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "fileSize": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "downloadUrl": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "createdAt",
+                    "downloadUrl",
+                    "expiresAt",
+                    "fileSize",
+                    "id",
+                    "status",
+                    "token"
                 ]
             },
             "UserDetails": {

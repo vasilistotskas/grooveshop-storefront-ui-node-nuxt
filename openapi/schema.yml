@@ -13435,6 +13435,64 @@ paths:
               schema:
                 $ref: '#/components/schemas/CreatePaymentIntentResponse'
           description: ''
+  /api/v1/order/{id}/invoice:
+    get:
+      operationId: retrieveOrderInvoice
+      description: Return the order's invoice metadata and a short-lived signed URL
+        to download the PDF. 404 if the invoice has not been generated yet (e.g. order
+        not completed).
+      summary: Get invoice download metadata for an order
+      parameters:
+      - in: path
+        name: id
+        schema:
+          oneOf:
+          - type: string
+            pattern: ^-?\d+$
+          - type: integer
+        required: true
+      tags:
+      - Orders
+      security:
+      - knoxApiToken: []
+      - cookieAuth: []
+      responses:
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceDownloadResponse'
+          description: ''
   /api/v1/order/{id}/payment_status:
     get:
       operationId: getOrderPaymentStatus
@@ -24489,6 +24547,167 @@ paths:
               schema:
                 $ref: '#/components/schemas/UsernameUpdateResponse'
           description: ''
+  /api/v1/user/account/{id}/data_exports:
+    get:
+      operationId: listUserAccountDataExports
+      description: List recent data-export requests for this user so the UI can show
+        progress and the last download link.
+      summary: List GDPR data exports
+      parameters:
+      - in: path
+        name: id
+        schema:
+          oneOf:
+          - type: string
+            pattern: ^-?\d+$
+          - type: integer
+        required: true
+      - name: ordering
+        in: query
+        required: false
+        description: 'Which field(s) to use when ordering the results. Multiple fields
+          can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields:
+          id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt,
+          -updatedAt'
+        schema:
+          type: string
+          pattern: ^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          oneOf:
+          - type: string
+            pattern: ^-?\d+$
+          - type: integer
+      - name: pageSize
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          oneOf:
+          - type: string
+            pattern: ^-?\d+$
+          - type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - User Accounts
+      security:
+      - knoxApiToken: []
+      - cookieAuth: []
+      responses:
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserDataExportList'
+          description: ''
+  /api/v1/user/account/{id}/delete_account:
+    post:
+      operationId: deleteUserAccountGdpr
+      description: Anonymises the user's orders (kept for tax/accounting) and hard-deletes
+        every other linked record. Irreversible. Caller must have re-authenticated
+        via allauth within the window configured by ``ACCOUNT_REAUTHENTICATION_TIMEOUT``.
+      summary: Delete account (GDPR right-to-erasure)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          oneOf:
+          - type: string
+            pattern: ^-?\d+$
+          - type: integer
+        required: true
+      tags:
+      - User Accounts
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeleteAccountRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeleteAccountRequestRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteAccountRequestRequest'
+        required: true
+      security:
+      - knoxApiToken: []
+      - cookieAuth: []
+      responses:
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteAccountResponse'
+          description: ''
   /api/v1/user/account/{id}/favourite_products:
     get:
       operationId: getUserAccountFavouriteProducts
@@ -24717,6 +24936,18 @@ paths:
         description: A search term.
         schema:
           type: string
+      - in: query
+        name: seen
+        schema:
+          oneOf:
+          - type: string
+            enum:
+            - 'true'
+            - 'false'
+            - '1'
+            - '0'
+          - type: boolean
+        description: Filter notifications by seen/unseen state.
       tags:
       - User Accounts
       security:
@@ -24757,7 +24988,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedNotificationUserList'
+                $ref: '#/components/schemas/PaginatedNotificationUserDetailList'
           description: ''
   /api/v1/user/account/{id}/orders:
     get:
@@ -24938,6 +25169,63 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedProductReviewList'
+          description: ''
+  /api/v1/user/account/{id}/request_data_export:
+    post:
+      operationId: requestUserAccountDataExport
+      description: Queue a job that compiles the user's personal data and emails a
+        one-off download link. Returns the new UserDataExport record.
+      summary: Request GDPR data export
+      parameters:
+      - in: path
+        name: id
+        schema:
+          oneOf:
+          - type: string
+            pattern: ^-?\d+$
+          - type: integer
+        required: true
+      tags:
+      - User Accounts
+      security:
+      - knoxApiToken: []
+      - cookieAuth: []
+      responses:
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDataExport'
           description: ''
   /api/v1/user/address:
     get:
@@ -25722,6 +26010,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserAddressDetail'
           description: ''
+  /api/v1/user/data_export/{token}/download:
+    get:
+      operationId: downloadUserDataExport
+      description: Returns the JSON bundle produced by the export task. The token
+        is single-scope, tied to one UserDataExport row, and expires 7 days after
+        the export was produced.
+      summary: Download a GDPR data export bundle
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - User Accounts
+      security:
+      - {}
+      responses:
+        '200':
+          description: No response body
+        '404':
+          description: No response body
+        '410':
+          description: No response body
   /api/v1/user/subscription:
     get:
       operationId: listUserSubscription
@@ -29411,24 +29723,6 @@ components:
         user:
           type: integer
           nullable: true
-    CategoryB9dEnum:
-      enum:
-      - MARKETING
-      - PRODUCT
-      - ACCOUNT
-      - SYSTEM
-      - NEWSLETTER
-      - PROMOTIONAL
-      - OTHER
-      type: string
-      description: |-
-        * `MARKETING` - Marketing Campaigns
-        * `PRODUCT` - Product Updates
-        * `ACCOUNT` - Λογαριασμός Ανενεργός
-        * `SYSTEM` - System Notifications
-        * `NEWSLETTER` - Newsletter
-        * `PROMOTIONAL` - Promotional
-        * `OTHER` - Other
     ConfirmResponse:
       type: object
       properties:
@@ -29817,6 +30111,28 @@ components:
       required:
       - end
       - start
+    DeleteAccountRequestRequest:
+      type: object
+      description: |-
+        Body for ``POST user/account/{id}/delete_account``.
+
+        Requires the user to re-type ``DELETE`` as a guardrail. The allauth
+        re-authentication happens outside this serializer via the session
+        middleware's ``X-Session-Token`` header before the task is queued.
+      properties:
+        confirmation:
+          type: string
+          minLength: 1
+          description: Must equal the literal string "DELETE".
+      required:
+      - confirmation
+    DeleteAccountResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
     Detail:
       type: object
       properties:
@@ -30045,6 +30361,62 @@ components:
         * `FEATURE` - Feature Image
         * `PROMOTIONAL` - Promotional Image
         * `SEASONAL` - Seasonal Image
+    InvoiceDownloadResponse:
+      type: object
+      description: Invoice metadata plus a short-lived signed download URL.
+      properties:
+        invoiceNumber:
+          type: string
+          readOnly: true
+          description: Sequential identifier in the form ``INV-{YEAR}-{NNNNNN}``.
+            Gaps are not allowed by Greek tax law.
+        issueDate:
+          type: string
+          format: date
+          readOnly: true
+          description: Fiscal date of issue. Immutable once the invoice is rendered
+            — used for sequential numbering and reporting.
+        downloadUrl:
+          type: string
+          nullable: true
+          description: |-
+            Return a signed, short-lived URL for the PDF.
+
+            On S3 backends django-storages already signs the URL when
+            ``default_acl='private'`` and ``AWS_QUERYSTRING_AUTH=True`` —
+            otherwise the storage backend's ``.url()`` returns the relative
+            path which the Nuxt layer can still fetch through its own
+            authenticated proxy.
+          readOnly: true
+        subtotal:
+          type: string
+          nullable: true
+          readOnly: true
+        totalVat:
+          type: string
+          nullable: true
+          readOnly: true
+        total:
+          type: string
+          nullable: true
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        vatBreakdown:
+          readOnly: true
+          description: Cached list of ``{rate, subtotal, vat, gross}`` rows — frozen
+            at issue time so re-rendering the invoice always yields the same VAT table
+            even if product rates change.
+      required:
+      - currency
+      - downloadUrl
+      - invoiceNumber
+      - issueDate
+      - subtotal
+      - total
+      - totalVat
+      - vatBreakdown
     LocationTypeEnum:
       enum:
       - HOME
@@ -30193,14 +30565,31 @@ components:
           $ref: '#/components/schemas/NotificationKindEnum'
         category:
           allOf:
-          - $ref: '#/components/schemas/NotificationCategoryEnum'
+          - $ref: '#/components/schemas/NotificationCategory'
           title: Κατηγορία
         priority:
           $ref: '#/components/schemas/PriorityEnum'
         notificationType:
-          type: string
-          description: Specific type of notification for categorization
-          maxLength: 100
+          description: |-
+            Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.
+
+            * `order_created` - Order created
+            * `order_processing` - Order processing
+            * `order_shipped` - Order shipped
+            * `order_delivered` - Order delivered
+            * `order_completed` - Order completed
+            * `order_canceled` - Order canceled
+            * `order_refunded` - Order refunded
+            * `shipment_dispatched` - Shipment dispatched
+            * `payment_confirmed` - Payment confirmed
+            * `payment_failed` - Payment failed
+            * `price_drop_favourite` - Price drop (favourited product)
+            * `restock_favourite` - Back in stock (favourited product)
+            * `loyalty_tier_up` - Loyalty tier promotion
+            * `comment_liked` - Blog comment liked
+          oneOf:
+          - $ref: '#/components/schemas/NotificationTypeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
         expiryDate:
           type: string
           format: date-time
@@ -30224,7 +30613,7 @@ components:
       - translations
       - updatedAt
       - uuid
-    NotificationCategoryEnum:
+    NotificationCategory:
       enum:
       - ORDER
       - PAYMENT
@@ -30293,6 +30682,38 @@ components:
         success:
           type: boolean
           description: Whether the operation was successful
+    NotificationTypeEnum:
+      enum:
+      - order_created
+      - order_processing
+      - order_shipped
+      - order_delivered
+      - order_completed
+      - order_canceled
+      - order_refunded
+      - shipment_dispatched
+      - payment_confirmed
+      - payment_failed
+      - price_drop_favourite
+      - restock_favourite
+      - loyalty_tier_up
+      - comment_liked
+      type: string
+      description: |-
+        * `order_created` - Order created
+        * `order_processing` - Order processing
+        * `order_shipped` - Order shipped
+        * `order_delivered` - Order delivered
+        * `order_completed` - Order completed
+        * `order_canceled` - Order canceled
+        * `order_refunded` - Order refunded
+        * `shipment_dispatched` - Shipment dispatched
+        * `payment_confirmed` - Payment confirmed
+        * `payment_failed` - Payment failed
+        * `price_drop_favourite` - Price drop (favourited product)
+        * `restock_favourite` - Back in stock (favourited product)
+        * `loyalty_tier_up` - Loyalty tier promotion
+        * `comment_liked` - Blog comment liked
     NotificationUser:
       type: object
       properties:
@@ -30401,9 +30822,11 @@ components:
         country:
           type: string
           title: Country Code Alpha 2
+          nullable: true
         region:
           type: string
           title: Region Code
+          nullable: true
         floor:
           oneOf:
           - $ref: '#/components/schemas/FloorEnum'
@@ -30659,9 +31082,11 @@ components:
         country:
           type: string
           title: Country Code Alpha 2
+          nullable: true
         region:
           type: string
           title: Region Code
+          nullable: true
         floor:
           oneOf:
           - $ref: '#/components/schemas/FloorEnum'
@@ -30857,6 +31282,12 @@ components:
               nullable: true
           readOnly: true
           description: Tracking and shipping details
+        hasInvoice:
+          type: boolean
+          readOnly: true
+          description: True when a PDF invoice has been generated — the frontend can
+            show the download CTA without issuing a separate request to the invoice
+            endpoint to find out.
         trackingNumber:
           type: string
           title: Αριθμός Παρακολούθησης
@@ -30882,6 +31313,7 @@ components:
       - email
       - firstName
       - fullAddress
+      - hasInvoice
       - id
       - isCanceled
       - isCompleted
@@ -31665,6 +32097,44 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LoyaltyTier'
+    PaginatedNotificationUserDetailList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+              nullable: true
+              format: uri
+              example: http://api.example.org/accounts/?page=4
+            previous:
+              type: string
+              nullable: true
+              format: uri
+              example: http://api.example.org/accounts/?page=2
+        count:
+          type: integer
+          example: 123
+        totalPages:
+          type: integer
+          example: 123
+        pageSize:
+          type: integer
+          example: 123
+        pageTotalResults:
+          type: integer
+          example: 123
+        page:
+          type: integer
+          example: 123
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationUserDetail'
     PaginatedNotificationUserList:
       type: object
       required:
@@ -32311,6 +32781,44 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/UserAddress'
+    PaginatedUserDataExportList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+              nullable: true
+              format: uri
+              example: http://api.example.org/accounts/?page=4
+            previous:
+              type: string
+              nullable: true
+              format: uri
+              example: http://api.example.org/accounts/?page=2
+        count:
+          type: integer
+          example: 123
+        totalPages:
+          type: integer
+          example: 123
+        pageSize:
+          type: integer
+          example: 123
+        pageTotalResults:
+          type: integer
+          example: 123
+        page:
+          type: integer
+          example: 123
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDataExport'
     PaginatedUserDetailsList:
       type: object
       required:
@@ -33121,7 +33629,7 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         category:
           allOf:
-          - $ref: '#/components/schemas/CategoryB9dEnum'
+          - $ref: '#/components/schemas/TopicCategory'
           title: Κατηγορία
           description: |-
             Category of the subscription topic
@@ -35996,7 +36504,7 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         category:
           allOf:
-          - $ref: '#/components/schemas/CategoryB9dEnum'
+          - $ref: '#/components/schemas/TopicCategory'
           title: Κατηγορία
           description: |-
             Category of the subscription topic
@@ -36070,7 +36578,7 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         category:
           allOf:
-          - $ref: '#/components/schemas/CategoryB9dEnum'
+          - $ref: '#/components/schemas/TopicCategory'
           title: Κατηγορία
           description: |-
             Category of the subscription topic
@@ -36148,7 +36656,7 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         category:
           allOf:
-          - $ref: '#/components/schemas/CategoryB9dEnum'
+          - $ref: '#/components/schemas/TopicCategory'
           title: Κατηγορία
           description: |-
             Category of the subscription topic
@@ -36484,6 +36992,24 @@ components:
       - clickThroughRate
       - count
       - query
+    TopicCategory:
+      enum:
+      - MARKETING
+      - PRODUCT
+      - ACCOUNT
+      - SYSTEM
+      - NEWSLETTER
+      - PROMOTIONAL
+      - OTHER
+      type: string
+      description: |-
+        * `MARKETING` - Marketing Campaigns
+        * `PRODUCT` - Product Updates
+        * `ACCOUNT` - Λογαριασμός Ανενεργός
+        * `SYSTEM` - System Notifications
+        * `NEWSLETTER` - Newsletter
+        * `PROMOTIONAL` - Promotional
+        * `OTHER` - Other
     TransactionTypeEnum:
       enum:
       - EARN
@@ -36793,6 +37319,44 @@ components:
       - streetNumber
       - title
       - zipcode
+    UserDataExport:
+      type: object
+      description: Read-only view of a UserDataExport row for the privacy UI.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        token:
+          type: string
+          readOnly: true
+        fileSize:
+          type: integer
+          readOnly: true
+          nullable: true
+        expiresAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+        downloadUrl:
+          type: string
+          nullable: true
+          readOnly: true
+      required:
+      - createdAt
+      - downloadUrl
+      - expiresAt
+      - fileSize
+      - id
+      - status
+      - token
     UserDetails:
       type: object
       properties:

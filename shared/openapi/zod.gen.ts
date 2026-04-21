@@ -686,6 +686,25 @@ export const zDateRange = z.object({
     description: 'Serializer for date range in analytics.'
 });
 
+/**
+ * Body for ``POST user/account/{id}/delete_account``.
+ *
+ * Requires the user to re-type ``DELETE`` as a guardrail. The allauth
+ * re-authentication happens outside this serializer via the session
+ * middleware's ``X-Session-Token`` header before the task is queued.
+ */
+export const zDeleteAccountRequestRequest = z.object({
+    confirmation: z.string().min(1).register(z.globalRegistry, {
+        description: 'Must equal the literal string "DELETE".'
+    })
+}).register(z.globalRegistry, {
+    description: 'Body for ``POST user/account/{id}/delete_account``.\n\nRequires the user to re-type ``DELETE`` as a guardrail. The allauth\nre-authentication happens outside this serializer via the session\nmiddleware\'s ``X-Session-Token`` header before the task is queued.'
+});
+
+export const zDeleteAccountResponse = z.object({
+    detail: z.string()
+});
+
 export const zDetail = z.object({
     detail: z.string()
 });
@@ -3930,6 +3949,34 @@ export const zUserAddressWriteRequest = z.object({
     region: z.string().min(1)
 });
 
+/**
+ * Read-only view of a UserDataExport row for the privacy UI.
+ */
+export const zUserDataExport = z.object({
+    id: z.int().readonly(),
+    status: z.string().readonly(),
+    token: z.string().readonly(),
+    fileSize: z.int().readonly().nullable(),
+    expiresAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    downloadUrl: z.string().readonly().nullable()
+}).register(z.globalRegistry, {
+    description: 'Read-only view of a UserDataExport row for the privacy UI.'
+});
+
+export const zPaginatedUserDataExportList = z.object({
+    links: z.object({
+        next: z.url().nullish(),
+        previous: z.url().nullish()
+    }).optional(),
+    count: z.int(),
+    totalPages: z.int().optional(),
+    pageSize: z.int().optional(),
+    pageTotalResults: z.int().optional(),
+    page: z.int().optional(),
+    results: z.array(zUserDataExport)
+});
+
 export const zUserDetails = z.object({
     pk: z.int().readonly(),
     email: z.email().max(254),
@@ -5110,6 +5157,19 @@ export const zPaginatedOrderListWritable = z.object({
 });
 
 export const zPaginatedPointsTransactionListWritable = z.object({
+    links: z.object({
+        next: z.url().nullish(),
+        previous: z.url().nullish()
+    }).optional(),
+    count: z.int(),
+    totalPages: z.int().optional(),
+    pageSize: z.int().optional(),
+    pageTotalResults: z.int().optional(),
+    page: z.int().optional(),
+    results: z.array(z.unknown())
+});
+
+export const zPaginatedUserDataExportListWritable = z.object({
     links: z.object({
         next: z.url().nullish(),
         previous: z.url().nullish()
@@ -14490,6 +14550,43 @@ export const zChangeUserAccountUsernamePath = z.object({
 
 export const zChangeUserAccountUsernameResponse = zUsernameUpdateResponse;
 
+export const zListUserAccountDataExportsPath = z.object({
+    id: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ])
+});
+
+export const zListUserAccountDataExportsQuery = z.object({
+    ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+        description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt'
+    }).optional(),
+    page: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ]).optional(),
+    pageSize: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ]).optional(),
+    search: z.string().register(z.globalRegistry, {
+        description: 'A search term.'
+    }).optional()
+});
+
+export const zListUserAccountDataExportsResponse = zPaginatedUserDataExportList;
+
+export const zDeleteUserAccountGdprBody = zDeleteAccountRequestRequest;
+
+export const zDeleteUserAccountGdprPath = z.object({
+    id: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ])
+});
+
+export const zDeleteUserAccountGdprResponse = zDeleteAccountResponse;
+
 export const zGetUserAccountFavouriteProductsPath = z.object({
     id: z.union([
         z.string().regex(/^-?\d+$/),
@@ -14626,6 +14723,15 @@ export const zGetUserAccountProductReviewsQuery = z.object({
 });
 
 export const zGetUserAccountProductReviewsResponse = zPaginatedProductReviewList;
+
+export const zRequestUserAccountDataExportPath = z.object({
+    id: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ])
+});
+
+export const zRequestUserAccountDataExportResponse = zUserDataExport;
 
 export const zListUserAddressQuery = z.object({
     city: z.string().register(z.globalRegistry, {
@@ -14882,6 +14988,10 @@ export const zSetMainUserAddressPath = z.object({
 export const zSetMainUserAddressResponse = zUserAddressDetail;
 
 export const zGetMainUserAddressResponse = zUserAddressDetail;
+
+export const zDownloadUserDataExportPath = z.object({
+    token: z.string()
+});
 
 export const zListUserSubscriptionQuery = z.object({
     createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {

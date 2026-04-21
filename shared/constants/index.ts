@@ -44,6 +44,7 @@ export const AuthenticatedRoutes = [
   'account-reviews',
   'account-sessions',
   'account-settings',
+  'account-settings-privacy',
   'account-subscriptions',
   // Cart recovery from the abandoned-cart email only makes sense for
   // authenticated shoppers (the email task filters ``user__isnull=False``),

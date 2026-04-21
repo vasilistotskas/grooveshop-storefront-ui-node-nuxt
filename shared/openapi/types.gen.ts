@@ -1087,6 +1087,24 @@ export type DateRange = {
     end: string;
 };
 
+/**
+ * Body for ``POST user/account/{id}/delete_account``.
+ *
+ * Requires the user to re-type ``DELETE`` as a guardrail. The allauth
+ * re-authentication happens outside this serializer via the session
+ * middleware's ``X-Session-Token`` header before the task is queued.
+ */
+export type DeleteAccountRequestRequest = {
+    /**
+     * Must equal the literal string "DELETE".
+     */
+    confirmation: string;
+};
+
+export type DeleteAccountResponse = {
+    detail: string;
+};
+
 export type Detail = {
     detail: string;
 };
@@ -2207,6 +2225,19 @@ export type PaginatedUserAddressList = {
     pageTotalResults?: number;
     page?: number;
     results: Array<UserAddress>;
+};
+
+export type PaginatedUserDataExportList = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<UserDataExport>;
 };
 
 export type PaginatedUserDetailsList = {
@@ -4607,6 +4638,19 @@ export type UserAddressWriteRequest = {
     region: string;
 };
 
+/**
+ * Read-only view of a UserDataExport row for the privacy UI.
+ */
+export type UserDataExport = {
+    readonly id: number;
+    readonly status: string;
+    readonly token: string;
+    readonly fileSize: number | null;
+    readonly expiresAt: string | null;
+    readonly createdAt: string;
+    readonly downloadUrl: string | null;
+};
+
 export type UserDetails = {
     /**
      * Id
@@ -5772,6 +5816,19 @@ export type PaginatedUserAddressListWritable = {
     pageTotalResults?: number;
     page?: number;
     results: Array<UserAddressWritable>;
+};
+
+export type PaginatedUserDataExportListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<unknown>;
 };
 
 export type PaginatedUserDetailsListWritable = {
@@ -17481,6 +17538,73 @@ export type ChangeUserAccountUsernameResponses = {
 
 export type ChangeUserAccountUsernameResponse = ChangeUserAccountUsernameResponses[keyof ChangeUserAccountUsernameResponses];
 
+export type ListUserAccountDataExportsData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: {
+        /**
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
+         */
+        ordering?: string;
+        /**
+         * A page number within the paginated result set.
+         */
+        page?: string | number;
+        /**
+         * Number of results to return per page.
+         */
+        pageSize?: string | number;
+        /**
+         * A search term.
+         */
+        search?: string;
+    };
+    url: '/api/v1/user/account/{id}/data_exports';
+};
+
+export type ListUserAccountDataExportsErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type ListUserAccountDataExportsError = ListUserAccountDataExportsErrors[keyof ListUserAccountDataExportsErrors];
+
+export type ListUserAccountDataExportsResponses = {
+    200: PaginatedUserDataExportList;
+};
+
+export type ListUserAccountDataExportsResponse = ListUserAccountDataExportsResponses[keyof ListUserAccountDataExportsResponses];
+
+export type DeleteUserAccountGdprData = {
+    body: DeleteAccountRequestRequest;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/user/account/{id}/delete_account';
+};
+
+export type DeleteUserAccountGdprErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type DeleteUserAccountGdprError = DeleteUserAccountGdprErrors[keyof DeleteUserAccountGdprErrors];
+
+export type DeleteUserAccountGdprResponses = {
+    200: DeleteAccountResponse;
+};
+
+export type DeleteUserAccountGdprResponse = DeleteUserAccountGdprResponses[keyof DeleteUserAccountGdprResponses];
+
 export type GetUserAccountFavouriteProductsData = {
     body?: never;
     path: {
@@ -17694,6 +17818,31 @@ export type GetUserAccountProductReviewsResponses = {
 };
 
 export type GetUserAccountProductReviewsResponse = GetUserAccountProductReviewsResponses[keyof GetUserAccountProductReviewsResponses];
+
+export type RequestUserAccountDataExportData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/user/account/{id}/request_data_export';
+};
+
+export type RequestUserAccountDataExportErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RequestUserAccountDataExportError = RequestUserAccountDataExportErrors[keyof RequestUserAccountDataExportErrors];
+
+export type RequestUserAccountDataExportResponses = {
+    200: UserDataExport;
+};
+
+export type RequestUserAccountDataExportResponse = RequestUserAccountDataExportResponses[keyof RequestUserAccountDataExportResponses];
 
 export type ListUserAddressData = {
     body?: never;
@@ -18059,6 +18208,33 @@ export type GetMainUserAddressResponses = {
 };
 
 export type GetMainUserAddressResponse = GetMainUserAddressResponses[keyof GetMainUserAddressResponses];
+
+export type DownloadUserDataExportData = {
+    body?: never;
+    path: {
+        token: string;
+    };
+    query?: never;
+    url: '/api/v1/user/data_export/{token}/download';
+};
+
+export type DownloadUserDataExportErrors = {
+    /**
+     * No response body
+     */
+    404: unknown;
+    /**
+     * No response body
+     */
+    410: unknown;
+};
+
+export type DownloadUserDataExportResponses = {
+    /**
+     * No response body
+     */
+    200: unknown;
+};
 
 export type ListUserSubscriptionData = {
     body?: never;

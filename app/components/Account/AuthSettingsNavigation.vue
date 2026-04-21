@@ -36,6 +36,12 @@ const items = computed(() => {
         to: localePath('account-password-change'),
         value: 'account-password-change',
       },
+      {
+        label: t('navigation.privacy'),
+        icon: 'i-heroicons-shield-check',
+        to: localePath('account-settings-privacy'),
+        value: 'account-settings-privacy',
+      },
     ],
     [
       {
@@ -271,4 +277,5 @@ el:
     add_key_desc: Πρόσθεσε ένα νέο κλειδί ασφαλείας
     view_codes_desc: Δες τους κωδικούς ανάκτησής σου
     generate_codes_desc: Δημιούργησε νέους κωδικούς ανάκτησης
+    privacy: Απόρρητο & Δεδομένα
 </i18n>
