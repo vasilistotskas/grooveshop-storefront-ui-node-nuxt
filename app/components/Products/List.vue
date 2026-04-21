@@ -256,9 +256,18 @@ watch(
   { immediate: true },
 )
 
-// User-specific data: client-side only to avoid blocking SSR
-// Use useLazyFetch with immediate: false so it can be triggered reactively
-// when the user logs in after the component is already mounted
+// User-specific data: client-side only to avoid blocking SSR.
+//
+// The fetch trigger is deferred to ``onMounted`` — not called during
+// setup — because Nuxt's payload cache can resolve the request
+// synchronously on hydration (same key from a prior navigation). That
+// would populate the user store *before* Vue's hydration walk reaches
+// the heart buttons, producing a ``Hydration mismatch`` where SSR
+// rendered "add" and the client expected "remove". Vue logs the warning
+// in dev and **does not rectify the DOM in production**, so the heart
+// would stay grey forever on F5. Triggering in ``onMounted`` guarantees
+// the first client render matches SSR; the subsequent store update
+// patches the DOM normally through the usual reactive update path.
 const { execute: fetchFavourites } = useLazyFetch('/api/products/favourites/favourites-by-products', {
   key: computed(() => `favouritesByProducts-${user.value?.id}-${productIds.value.join(',')}`),
   method: 'POST',
@@ -266,7 +275,7 @@ const { execute: fetchFavourites } = useLazyFetch('/api/products/favourites/favo
     productIds,
   },
   immediate: false,
-  server: false, // Client-side only - user-specific data
+  server: false,
   onResponse({ response }) {
     if (!response.ok) {
       return
@@ -278,9 +287,17 @@ const { execute: fetchFavourites } = useLazyFetch('/api/products/favourites/favo
   },
 })
 
-watch(shouldFetchFavouriteProducts, (shouldFetch) => {
-  if (shouldFetch) fetchFavourites()
-}, { immediate: true })
+onMounted(() => {
+  // Re-enter reactivity with ``watchEffect`` after mount so we catch
+  // both "already-true at mount" (user logged in + products loaded) and
+  // "becomes true later" (user logs in mid-session, productIds populate
+  // from SSR payload after hydration). Registering during setup with
+  // ``immediate: true`` would race hydration — see the block comment on
+  // ``useLazyFetch`` above.
+  watchEffect(() => {
+    if (shouldFetchFavouriteProducts.value) fetchFavourites()
+  })
+})
 </script>
 
 <template>

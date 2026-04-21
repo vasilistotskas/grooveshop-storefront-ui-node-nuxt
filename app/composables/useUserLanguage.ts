@@ -29,8 +29,14 @@ export function useUserLanguage() {
   const setLanguage = async (code: string): Promise<boolean> => {
     if (!isSupported(code)) return false
 
-    const { setLocale } = useI18n()
-    await setLocale(code)
+    // ``useI18n()`` is a setup-scope composable — throws "Must be
+    // called at the top of a setup function" when invoked inside
+    // async callbacks (e.g. ``watch`` bodies in ``plugins/setup.ts``
+    // after an ``await``). ``useNuxtApp().$i18n`` is the
+    // plugin-registered instance and is safe to read at any point in
+    // the app lifecycle.
+    const { $i18n } = useNuxtApp()
+    await $i18n.setLocale(code)
 
     if (loggedIn.value && user.value?.id) {
       const stored = user.value.languageCode
@@ -63,9 +69,12 @@ export function useUserLanguage() {
     if (!loggedIn.value) return
     const stored = user.value?.languageCode
     if (!stored || !isSupported(stored)) return
-    const { locale, setLocale } = useI18n()
-    if (stored === locale.value) return
-    await setLocale(stored)
+    // See note above — ``useNuxtApp().$i18n`` is the async-safe
+    // accessor; ``useI18n()`` here crashes when called after awaits
+    // have detached the callback from the setup scope.
+    const { $i18n } = useNuxtApp()
+    if (stored === $i18n.locale.value) return
+    await $i18n.setLocale(stored)
   }
 
   return { setLanguage, syncFromUser }

@@ -94,15 +94,22 @@ const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value
 })
 
-// User-specific data: client-side only to avoid blocking SSR
-useLazyFetch('/api/products/favourites/favourites-by-products', {
+// User-specific data: client-side only. The trigger is deferred to
+// ``onMounted`` — not called during setup — because Nuxt's payload
+// cache can resolve this synchronously during hydration (same key from
+// a prior navigation), which would populate the store before the heart
+// button hydrates and produce a ``Hydration mismatch`` that Vue **does
+// not rectify in production**. Triggering after mount keeps SSR and the
+// initial client render identical, so the subsequent store update
+// flows through the normal reactive patch path.
+const { execute: fetchFavourites } = useLazyFetch('/api/products/favourites/favourites-by-products', {
   key: `favouritesByProducts${user.value?.id}`,
   method: 'POST',
   body: {
     productIds: [Number(productId)],
   },
-  server: false, // Client-side only - user-specific data
-  immediate: shouldFetchFavouriteProducts.value,
+  server: false,
+  immediate: false,
   onResponse({ response }) {
     if (!response.ok) {
       return
@@ -112,6 +119,12 @@ useLazyFetch('/api/products/favourites/favourites-by-products', {
       updateFavouriteProducts(favourites)
     }
   },
+})
+
+onMounted(() => {
+  watchEffect(() => {
+    if (shouldFetchFavouriteProducts.value) fetchFavourites()
+  })
 })
 
 // User-specific data: client-side only
