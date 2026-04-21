@@ -2,7 +2,7 @@
 const { t } = useI18n()
 
 const props = defineProps<{
-  category: CategoryEnum
+  category: TopicCategory
   topics: SubscriptionTopic[]
   subscriptions: UserSubscription[]
 }>()
@@ -17,7 +17,7 @@ const categoryLabel = computed(() => {
 })
 
 const categoryIcon = computed(() => {
-  const iconMap: Record<CategoryEnum, string> = {
+  const iconMap: Record<TopicCategory, string> = {
     MARKETING: 'i-heroicons-megaphone',
     PRODUCT: 'i-heroicons-cube',
     ACCOUNT: 'i-heroicons-user-circle',

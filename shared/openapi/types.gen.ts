@@ -877,17 +877,6 @@ export type CartWriteRequest = {
     user?: number | null;
 };
 
-/**
- * * `MARKETING` - Marketing Campaigns
- * * `PRODUCT` - Product Updates
- * * `ACCOUNT` - Λογαριασμός Ανενεργός
- * * `SYSTEM` - System Notifications
- * * `NEWSLETTER` - Newsletter
- * * `PROMOTIONAL` - Promotional
- * * `OTHER` - Other
- */
-export type CategoryEnum = 'MARKETING' | 'PRODUCT' | 'ACCOUNT' | 'SYSTEM' | 'NEWSLETTER' | 'PROMOTIONAL' | 'OTHER';
-
 export type ConfirmResponse = {
     status: string;
     topic?: string;
@@ -1337,11 +1326,53 @@ export type Notification = {
      */
     readonly link: string | null;
     kind?: NotificationKindEnum;
+    /**
+     * Κατηγορία
+     */
+    category?: NotificationCategory;
+    priority?: PriorityEnum;
+    /**
+     * Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.
+     *
+     * * `order_created` - Order created
+     * * `order_processing` - Order processing
+     * * `order_shipped` - Order shipped
+     * * `order_delivered` - Order delivered
+     * * `order_completed` - Order completed
+     * * `order_canceled` - Order canceled
+     * * `order_refunded` - Order refunded
+     * * `shipment_dispatched` - Shipment dispatched
+     * * `payment_confirmed` - Payment confirmed
+     * * `payment_failed` - Payment failed
+     * * `price_drop_favourite` - Price drop (favourited product)
+     * * `restock_favourite` - Back in stock (favourited product)
+     * * `loyalty_tier_up` - Loyalty tier promotion
+     * * `comment_liked` - Blog comment liked
+     */
+    notificationType?: NotificationTypeEnum | BlankEnum;
     expiryDate?: string | null;
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly uuid: string;
 };
+
+/**
+ * * `ORDER` - Παραγγελία
+ * * `PAYMENT` - Payment
+ * * `SHIPPING` - Μεταφορικά
+ * * `CART` - Cart
+ * * `PRODUCT` - Προϊόν
+ * * `ACCOUNT` - Λογαριασμός Ανενεργός
+ * * `SECURITY` - Security
+ * * `PROMOTION` - Promotion
+ * * `SYSTEM` - System
+ * * `REVIEW` - Review
+ * * `WISHLIST` - Wishlist
+ * * `SUPPORT` - Support
+ * * `NEWSLETTER` - Newsletter
+ * * `RECOMMENDATION` - Recommendation
+ */
+export type NotificationCategory = 'ORDER' | 'PAYMENT' | 'SHIPPING' | 'CART' | 'PRODUCT' | 'ACCOUNT' | 'SECURITY' | 'PROMOTION' | 'SYSTEM' | 'REVIEW' | 'WISHLIST' | 'SUPPORT' | 'NEWSLETTER' | 'RECOMMENDATION';
 
 export type NotificationCountResponse = {
     /**
@@ -1369,6 +1400,24 @@ export type NotificationSuccessResponse = {
      */
     success?: boolean;
 };
+
+/**
+ * * `order_created` - Order created
+ * * `order_processing` - Order processing
+ * * `order_shipped` - Order shipped
+ * * `order_delivered` - Order delivered
+ * * `order_completed` - Order completed
+ * * `order_canceled` - Order canceled
+ * * `order_refunded` - Order refunded
+ * * `shipment_dispatched` - Shipment dispatched
+ * * `payment_confirmed` - Payment confirmed
+ * * `payment_failed` - Payment failed
+ * * `price_drop_favourite` - Price drop (favourited product)
+ * * `restock_favourite` - Back in stock (favourited product)
+ * * `loyalty_tier_up` - Loyalty tier promotion
+ * * `comment_liked` - Blog comment liked
+ */
+export type NotificationTypeEnum = 'order_created' | 'order_processing' | 'order_shipped' | 'order_delivered' | 'order_completed' | 'order_canceled' | 'order_refunded' | 'shipment_dispatched' | 'payment_confirmed' | 'payment_failed' | 'price_drop_favourite' | 'restock_favourite' | 'loyalty_tier_up' | 'comment_liked';
 
 export type NotificationUser = {
     readonly id: number;
@@ -1888,6 +1937,19 @@ export type PaginatedLoyaltyTierList = {
     pageTotalResults?: number;
     page?: number;
     results: Array<LoyaltyTier>;
+};
+
+export type PaginatedNotificationUserDetailList = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<NotificationUserDetail>;
 };
 
 export type PaginatedNotificationUserList = {
@@ -2609,7 +2671,7 @@ export type PatchedSubscriptionTopicWriteRequest = {
      * * `PROMOTIONAL` - Promotional
      * * `OTHER` - Other
      */
-    category?: CategoryEnum;
+    category?: TopicCategory;
     /**
      * Ενεργή
      *
@@ -2958,6 +3020,15 @@ export type PointsTransaction = {
     readonly description: string;
     readonly createdAt: string;
 };
+
+/**
+ * * `LOW` - Low Priority
+ * * `NORMAL` - Normal Priority
+ * * `HIGH` - High Priority
+ * * `URGENT` - Urgent Priority
+ * * `CRITICAL` - Critical Priority
+ */
+export type PriorityEnum = 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT' | 'CRITICAL';
 
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -4047,7 +4118,7 @@ export type SubscriptionTopic = {
      * * `PROMOTIONAL` - Promotional
      * * `OTHER` - Other
      */
-    category?: CategoryEnum;
+    category?: TopicCategory;
     /**
      * Ενεργή
      *
@@ -4104,7 +4175,7 @@ export type SubscriptionTopicDetail = {
      * * `PROMOTIONAL` - Promotional
      * * `OTHER` - Other
      */
-    category?: CategoryEnum;
+    category?: TopicCategory;
     /**
      * Ενεργή
      *
@@ -4161,7 +4232,7 @@ export type SubscriptionTopicWriteRequest = {
      * * `PROMOTIONAL` - Promotional
      * * `OTHER` - Other
      */
-    category?: CategoryEnum;
+    category?: TopicCategory;
     /**
      * Ενεργή
      *
@@ -4341,6 +4412,17 @@ export type TopQuery = {
      */
     clickThroughRate: number;
 };
+
+/**
+ * * `MARKETING` - Marketing Campaigns
+ * * `PRODUCT` - Product Updates
+ * * `ACCOUNT` - Λογαριασμός Ανενεργός
+ * * `SYSTEM` - System Notifications
+ * * `NEWSLETTER` - Newsletter
+ * * `PROMOTIONAL` - Promotional
+ * * `OTHER` - Other
+ */
+export type TopicCategory = 'MARKETING' | 'PRODUCT' | 'ACCOUNT' | 'SYSTEM' | 'NEWSLETTER' | 'PROMOTIONAL' | 'OTHER';
 
 /**
  * * `EARN` - Earn
@@ -5138,6 +5220,30 @@ export type NotificationWritable = {
         };
     };
     kind?: NotificationKindEnum;
+    /**
+     * Κατηγορία
+     */
+    category?: NotificationCategory;
+    priority?: PriorityEnum;
+    /**
+     * Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.
+     *
+     * * `order_created` - Order created
+     * * `order_processing` - Order processing
+     * * `order_shipped` - Order shipped
+     * * `order_delivered` - Order delivered
+     * * `order_completed` - Order completed
+     * * `order_canceled` - Order canceled
+     * * `order_refunded` - Order refunded
+     * * `shipment_dispatched` - Shipment dispatched
+     * * `payment_confirmed` - Payment confirmed
+     * * `payment_failed` - Payment failed
+     * * `price_drop_favourite` - Price drop (favourited product)
+     * * `restock_favourite` - Back in stock (favourited product)
+     * * `loyalty_tier_up` - Loyalty tier promotion
+     * * `comment_liked` - Blog comment liked
+     */
+    notificationType?: NotificationTypeEnum | BlankEnum;
     expiryDate?: string | null;
 };
 
@@ -5396,6 +5502,19 @@ export type PaginatedLoyaltyTierListWritable = {
     pageTotalResults?: number;
     page?: number;
     results: Array<LoyaltyTierWritable>;
+};
+
+export type PaginatedNotificationUserDetailListWritable = {
+    links?: {
+        next?: string | null;
+        previous?: string | null;
+    };
+    count: number;
+    totalPages?: number;
+    pageSize?: number;
+    pageTotalResults?: number;
+    page?: number;
+    results: Array<NotificationUserDetailWritable>;
 };
 
 export type PaginatedNotificationUserListWritable = {
@@ -6172,7 +6291,7 @@ export type SubscriptionTopicWritable = {
      * * `PROMOTIONAL` - Promotional
      * * `OTHER` - Other
      */
-    category?: CategoryEnum;
+    category?: TopicCategory;
     /**
      * Ενεργή
      *
@@ -6226,7 +6345,7 @@ export type SubscriptionTopicDetailWritable = {
      * * `PROMOTIONAL` - Promotional
      * * `OTHER` - Other
      */
-    category?: CategoryEnum;
+    category?: TopicCategory;
     /**
      * Ενεργή
      *
@@ -17407,6 +17526,10 @@ export type GetUserAccountNotificationsData = {
          * A search term.
          */
         search?: string;
+        /**
+         * Filter notifications by seen/unseen state.
+         */
+        seen?: 'true' | 'false' | '1' | '0' | boolean;
     };
     url: '/api/v1/user/account/{id}/notifications';
 };
@@ -17422,7 +17545,7 @@ export type GetUserAccountNotificationsErrors = {
 export type GetUserAccountNotificationsError = GetUserAccountNotificationsErrors[keyof GetUserAccountNotificationsErrors];
 
 export type GetUserAccountNotificationsResponses = {
-    200: PaginatedNotificationUserList;
+    200: PaginatedNotificationUserDetailList;
 };
 
 export type GetUserAccountNotificationsResponse = GetUserAccountNotificationsResponses[keyof GetUserAccountNotificationsResponses];

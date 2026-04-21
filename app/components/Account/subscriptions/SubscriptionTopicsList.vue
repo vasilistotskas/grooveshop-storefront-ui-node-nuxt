@@ -20,7 +20,7 @@ const groupedByCategory = computed(() => groupByCategory(topics.value))
 const categoriesWithTopics = computed(() => {
   return Object.entries(groupedByCategory.value)
     .filter(([_, topics]) => topics.length > 0)
-    .map(([category]) => category as CategoryEnum)
+    .map(([category]) => category as TopicCategory)
 })
 
 const handleSubscribe = async (topicId: number) => {

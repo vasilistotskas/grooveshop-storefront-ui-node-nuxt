@@ -36,6 +36,7 @@ export const AuthenticatedRoutes = [
   'account-favourites-products',
   'account-help',
   'account-loyalty',
+  'account-notifications',
   'account-orders',
   'account-orders-id',
   'account-password-change',
@@ -44,6 +45,12 @@ export const AuthenticatedRoutes = [
   'account-sessions',
   'account-settings',
   'account-subscriptions',
+  // Cart recovery from the abandoned-cart email only makes sense for
+  // authenticated shoppers (the email task filters ``user__isnull=False``),
+  // so we gate the route behind auth — a logged-out click routes
+  // through login with ``next=/cart/recover/<uuid>`` and lands back
+  // here after sign-in.
+  'cart-recover-uuid',
 ] as const satisfies readonly (keyof RouteNamedMapI18n)[]
 
 export const AuthenticatedRoutesSet = new Set<keyof RouteNamedMapI18n>(AuthenticatedRoutes)

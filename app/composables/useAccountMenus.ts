@@ -23,9 +23,14 @@ export const useAccountMenus = () => {
         icon: 'i-mdi-heart-outline',
       },
       {
+        label: t('notifications'),
+        to: '/account/notifications',
+        icon: 'i-heroicons-bell',
+      },
+      {
         label: t('subscriptions'),
         to: '/account/subscriptions',
-        icon: 'i-heroicons-bell',
+        icon: 'i-heroicons-envelope',
       },
       {
         label: t('addresses'),

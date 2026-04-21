@@ -41890,6 +41890,27 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "seen",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Filter notifications by seen/unseen state."
                     }
                 ],
                 "tags": [
@@ -41958,7 +41979,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaginatedNotificationUserList"
+                                    "$ref": "#/components/schemas/PaginatedNotificationUserDetailList"
                                 }
                             }
                         },
@@ -48994,19 +49015,6 @@
                     }
                 }
             },
-            "CategoryEnum": {
-                "enum": [
-                    "MARKETING",
-                    "PRODUCT",
-                    "ACCOUNT",
-                    "SYSTEM",
-                    "NEWSLETTER",
-                    "PROMOTIONAL",
-                    "OTHER"
-                ],
-                "type": "string",
-                "description": "* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
-            },
             "ConfirmResponse": {
                 "type": "object",
                 "properties": {
@@ -49988,6 +49996,28 @@
                     "kind": {
                         "$ref": "#/components/schemas/NotificationKindEnum"
                     },
+                    "category": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/NotificationCategory"
+                            }
+                        ],
+                        "title": "Κατηγορία"
+                    },
+                    "priority": {
+                        "$ref": "#/components/schemas/PriorityEnum"
+                    },
+                    "notificationType": {
+                        "description": "Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.\n\n* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Shipment dispatched\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Price drop (favourited product)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Blog comment liked",
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/NotificationTypeEnum"
+                            },
+                            {
+                                "$ref": "#/components/schemas/BlankEnum"
+                            }
+                        ]
+                    },
                     "expiryDate": {
                         "type": "string",
                         "format": "date-time",
@@ -50017,6 +50047,26 @@
                     "updatedAt",
                     "uuid"
                 ]
+            },
+            "NotificationCategory": {
+                "enum": [
+                    "ORDER",
+                    "PAYMENT",
+                    "SHIPPING",
+                    "CART",
+                    "PRODUCT",
+                    "ACCOUNT",
+                    "SECURITY",
+                    "PROMOTION",
+                    "SYSTEM",
+                    "REVIEW",
+                    "WISHLIST",
+                    "SUPPORT",
+                    "NEWSLETTER",
+                    "RECOMMENDATION"
+                ],
+                "type": "string",
+                "description": "* `ORDER` - Παραγγελία\n* `PAYMENT` - Payment\n* `SHIPPING` - Μεταφορικά\n* `CART` - Cart\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - System\n* `REVIEW` - Review\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation"
             },
             "NotificationCountResponse": {
                 "type": "object",
@@ -50063,6 +50113,26 @@
                         "description": "Whether the operation was successful"
                     }
                 }
+            },
+            "NotificationTypeEnum": {
+                "enum": [
+                    "order_created",
+                    "order_processing",
+                    "order_shipped",
+                    "order_delivered",
+                    "order_completed",
+                    "order_canceled",
+                    "order_refunded",
+                    "shipment_dispatched",
+                    "payment_confirmed",
+                    "payment_failed",
+                    "price_drop_favourite",
+                    "restock_favourite",
+                    "loyalty_tier_up",
+                    "comment_liked"
+                ],
+                "type": "string",
+                "description": "* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Shipment dispatched\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Price drop (favourited product)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Blog comment liked"
             },
             "NotificationUser": {
                 "type": "object",
@@ -51876,6 +51946,58 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/LoyaltyTier"
+                        }
+                    }
+                }
+            },
+            "PaginatedNotificationUserDetailList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "links": {
+                        "type": "object",
+                        "properties": {
+                            "next": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=4"
+                            },
+                            "previous": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=2"
+                            }
+                        }
+                    },
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageTotalResults": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NotificationUserDetail"
                         }
                     }
                 }
@@ -53943,7 +54065,7 @@
                     "category": {
                         "allOf": [
                             {
-                                "$ref": "#/components/schemas/CategoryEnum"
+                                "$ref": "#/components/schemas/TopicCategory"
                             }
                         ],
                         "title": "Κατηγορία",
@@ -54749,6 +54871,17 @@
                     "referenceOrder",
                     "transactionType"
                 ]
+            },
+            "PriorityEnum": {
+                "enum": [
+                    "LOW",
+                    "NORMAL",
+                    "HIGH",
+                    "URGENT",
+                    "CRITICAL"
+                ],
+                "type": "string",
+                "description": "* `LOW` - Low Priority\n* `NORMAL` - Normal Priority\n* `HIGH` - High Priority\n* `URGENT` - Urgent Priority\n* `CRITICAL` - Critical Priority"
             },
             "Product": {
                 "type": "object",
@@ -57788,7 +57921,7 @@
                     "category": {
                         "allOf": [
                             {
-                                "$ref": "#/components/schemas/CategoryEnum"
+                                "$ref": "#/components/schemas/TopicCategory"
                             }
                         ],
                         "title": "Κατηγορία",
@@ -57881,7 +58014,7 @@
                     "category": {
                         "allOf": [
                             {
-                                "$ref": "#/components/schemas/CategoryEnum"
+                                "$ref": "#/components/schemas/TopicCategory"
                             }
                         ],
                         "title": "Κατηγορία",
@@ -57978,7 +58111,7 @@
                     "category": {
                         "allOf": [
                             {
-                                "$ref": "#/components/schemas/CategoryEnum"
+                                "$ref": "#/components/schemas/TopicCategory"
                             }
                         ],
                         "title": "Κατηγορία",
@@ -58426,6 +58559,19 @@
                     "count",
                     "query"
                 ]
+            },
+            "TopicCategory": {
+                "enum": [
+                    "MARKETING",
+                    "PRODUCT",
+                    "ACCOUNT",
+                    "SYSTEM",
+                    "NEWSLETTER",
+                    "PROMOTIONAL",
+                    "OTHER"
+                ],
+                "type": "string",
+                "description": "* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
             },
             "TransactionTypeEnum": {
                 "enum": [

@@ -747,6 +747,18 @@ definePageMeta({
             <ProductNotifyMe
               v-if="productStock === 0 && product?.id"
               :product-id="product.id"
+              kind="restock"
+            />
+
+            <!-- Price-drop subscribers: independent of stock — a shopper
+                 may want to watch the price even for out-of-stock items.
+                 Target price is validated below the current final price
+                 so the alert doesn't fire immediately. -->
+            <ProductNotifyMe
+              v-if="product?.id && (product?.finalPrice ?? 0) > 0"
+              :product-id="product.id"
+              kind="price_drop"
+              :current-price="product.finalPrice"
             />
 
             <USeparator class="my-2" />

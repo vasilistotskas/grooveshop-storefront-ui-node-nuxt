@@ -4,7 +4,7 @@
  * Provides factory functions to create properly typed test data
  * that matches the auto-generated OpenAPI types.
  */
-import type { SubscriptionTopic, UserSubscription, CategoryEnum, SubscriptionStatus } from '#shared/openapi/types.gen'
+import type { SubscriptionTopic, UserSubscription, TopicCategory, SubscriptionStatus } from '#shared/openapi/types.gen'
 
 /**
  * Create a mock SubscriptionTopic with proper structure
@@ -20,7 +20,7 @@ export function createMockTopic(overrides: Partial<SubscriptionTopic> = {}): Sub
         description: 'Test Description',
       },
     },
-    category: 'MARKETING' as CategoryEnum,
+    category: 'MARKETING' as TopicCategory,
     isActive: true,
     isDefault: false,
     requiresConfirmation: false,

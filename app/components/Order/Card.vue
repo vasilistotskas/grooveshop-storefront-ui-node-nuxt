@@ -13,14 +13,54 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits<{
+  cancelled: [orderId: number]
+}>()
+
 const { order, maxItems } = toRefs(props)
 
 const { t, locale } = useI18n()
 const { contentShorten } = useText()
-const { statusClass, paymentStatusClass } = useOrder()
+const { statusClass, paymentStatusClass, cancelOrder } = useOrder()
 const localePath = useLocalePath()
 const { $i18n } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
+const toast = useToast()
+const isCanceling = ref(false)
+
+async function handleCancel() {
+  if (!order.value.canBeCanceled || isCanceling.value) return
+  isCanceling.value = true
+  try {
+    await cancelOrder(order.value.id)
+    toast.add({
+      title: t('cancel_success_title'),
+      description: t('cancel_success_description'),
+      color: 'success',
+      icon: 'i-heroicons-check-circle',
+    })
+    emit('cancelled', order.value.id)
+  }
+  catch (error) {
+    const status = (error as { statusCode?: number })?.statusCode
+    log.error({ action: 'order:cancel:card', status, error })
+    const isConflict = status === 409 || status === 400
+    toast.add({
+      title: t('cancel_error_title'),
+      description: isConflict
+        ? t('cancel_error_conflict')
+        : t('cancel_error_description'),
+      color: 'error',
+      icon: 'i-heroicons-x-circle',
+    })
+    // Ask the parent to refetch so the stale ``canBeCanceled`` flag
+    // updates (e.g. someone already canceled in another tab).
+    if (isConflict) emit('cancelled', order.value.id)
+  }
+  finally {
+    isCanceling.value = false
+  }
+}
 
 const statusColor = computed(() => {
   switch (order.value.status) {
@@ -413,9 +453,12 @@ const customerInitials = computed(() => {
             variant="outline"
             size="md"
             trailing-icon="i-heroicons-x-circle"
+            :loading="isCanceling"
+            :disabled="isCanceling"
             :ui="{
               base: 'w-full justify-center',
             }"
+            @click="handleCancel"
           >
             {{ t('cancel') }}
           </UButton>
@@ -453,6 +496,11 @@ el:
   shipping: Έξοδα αποστολής
   created_at: Δημιουργήθηκε
   cancel: Ακύρωση
+  cancel_success_title: "Η παραγγελία ακυρώθηκε"
+  cancel_success_description: "Η παραγγελία σου ακυρώθηκε με επιτυχία."
+  cancel_error_title: "Αποτυχία ακύρωσης"
+  cancel_error_description: "Δεν μπορέσαμε να ακυρώσουμε την παραγγελία."
+  cancel_error_conflict: "Η παραγγελία δεν μπορεί πλέον να ακυρωθεί."
   paid: Πληρωμένη
   cancelable: Ακυρώσιμη
   actions:

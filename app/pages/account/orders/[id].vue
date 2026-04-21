@@ -6,7 +6,7 @@ const orderId = 'id' in route.params
   ? route.params.id
   : undefined
 
-const { data: order } = await useFetch<OrderDetail>(`/api/orders/${orderId}`, {
+const { data: order, refresh: refreshOrder } = await useFetch<OrderDetail>(`/api/orders/${orderId}`, {
   key: `order${orderId}`,
   method: 'GET',
   headers: useRequestHeaders(),
@@ -14,6 +14,10 @@ const { data: order } = await useFetch<OrderDetail>(`/api/orders/${orderId}`, {
     languageCode: locale,
   },
 })
+
+const { cancelOrder } = useOrder()
+const toast = useToast()
+const isCanceling = ref(false)
 
 const localePath = useLocalePath()
 const { productUrl } = useUrls()
@@ -142,7 +146,10 @@ const stepperColor = computed(() => {
 const orderAlert = computed(() => {
   const status = order.value?.status?.toLowerCase()
 
-  if (status === 'cancelled') {
+  // Backend emits ``CANCELED`` (US spelling). Accept both spellings
+  // defensively so a stray ``CANCELLED`` in historical metadata doesn't
+  // silently fall through.
+  if (status === 'canceled' || status === 'cancelled') {
     return {
       show: true,
       color: 'error' as const,
@@ -195,6 +202,7 @@ function getTimelineIcon(changeType?: string) {
       return 'i-heroicons-truck'
     case 'delivered':
       return 'i-heroicons-check-circle'
+    case 'canceled':
     case 'cancelled':
       return 'i-heroicons-x-circle'
     case 'payment':
@@ -247,7 +255,37 @@ function getPaymentStatusColor(status?: string): 'success' | 'error' | 'warning'
 }
 
 async function handleCancelOrder() {
-  if (!order.value?.canBeCanceled) return
+  if (!order.value?.canBeCanceled || isCanceling.value) return
+  isCanceling.value = true
+  try {
+    await cancelOrder(order.value.id)
+    await refreshOrder()
+    toast.add({
+      title: t('cancel.success_title'),
+      description: t('cancel.success_description'),
+      color: 'success',
+      icon: 'i-heroicons-check-circle',
+    })
+  }
+  catch (error) {
+    const status = (error as { statusCode?: number })?.statusCode
+    log.error({ action: 'order:cancel', status, error })
+    const isConflict = status === 409 || status === 400
+    toast.add({
+      title: t('cancel.error_title'),
+      description: isConflict
+        ? t('cancel.error_conflict')
+        : t('cancel.error_description'),
+      color: 'error',
+      icon: 'i-heroicons-x-circle',
+    })
+    // Sync to the authoritative state — maybe someone else already
+    // canceled it or the status moved on since page load.
+    if (isConflict) await refreshOrder()
+  }
+  finally {
+    isCanceling.value = false
+  }
 }
 
 async function handleTrackOrder() {
@@ -257,7 +295,6 @@ async function handleTrackOrder() {
   }
 }
 
-const toast = useToast()
 const cartStore = useCartStore()
 const isReordering = ref(false)
 
@@ -415,6 +452,8 @@ definePageMeta({
         color="error"
         variant="outline"
         icon="i-heroicons-x-circle"
+        :loading="isCanceling"
+        :disabled="isCanceling"
         @click="handleCancelOrder"
       >
         {{ t('cancel_order') }}
@@ -1145,6 +1184,12 @@ el:
   payment_pending: Εκκρεμής Πληρωμή
   payment_method_fee: Χρέωση μεθόδου πληρωμής
   payment_pending_desc: Υπάρχει εκκρεμές ποσό {amount} για αυτή την παραγγελία
+  cancel:
+    success_title: "Η παραγγελία ακυρώθηκε"
+    success_description: "Η παραγγελία σου ακυρώθηκε με επιτυχία."
+    error_title: "Αποτυχία ακύρωσης"
+    error_description: "Δεν μπορέσαμε να ακυρώσουμε την παραγγελία. Δοκίμασε ξανά."
+    error_conflict: "Η παραγγελία δεν μπορεί πλέον να ακυρωθεί στην τρέχουσα κατάστασή της."
   reorder:
     cta: "Επανάληψη παραγγελίας"
     success_title: "Προστέθηκαν στο καλάθι"

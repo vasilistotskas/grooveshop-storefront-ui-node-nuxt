@@ -37,11 +37,14 @@ describe('useAccountMenus', () => {
   it('should return basic menu items when preview mode is disabled', () => {
     const { menus } = useAccountMenus()
 
-    expect(menus.value).toHaveLength(4)
+    expect(menus.value).toHaveLength(7)
     expect(menus.value[0]!.to).toBe('/account')
-    expect(menus.value[1]!.to).toBe('/account/favourites/posts')
-    expect(menus.value[2]!.to).toBe('/account/subscriptions')
-    expect(menus.value[3]!.to).toBe('/account/settings')
+    expect(menus.value[1]!.to).toBe('/account/orders')
+    expect(menus.value[2]!.to).toBe('/account/favourites/posts')
+    expect(menus.value[3]!.to).toBe('/account/notifications')
+    expect(menus.value[4]!.to).toBe('/account/subscriptions')
+    expect(menus.value[5]!.to).toBe('/account/addresses')
+    expect(menus.value[6]!.to).toBe('/account/settings')
   })
 
   it('should include all menu items when preview mode is enabled', () => {
@@ -49,11 +52,12 @@ describe('useAccountMenus', () => {
 
     const { menus } = useAccountMenus()
 
-    expect(menus.value).toHaveLength(8)
+    expect(menus.value).toHaveLength(9)
     const paths = menus.value.map(m => m.to)
     expect(paths).toContain('/account')
     expect(paths).toContain('/account/addresses')
     expect(paths).toContain('/account/orders')
+    expect(paths).toContain('/account/notifications')
     expect(paths).toContain('/account/reviews')
     expect(paths).toContain('/account/help')
   })
@@ -62,18 +66,24 @@ describe('useAccountMenus', () => {
     const { menus } = useAccountMenus()
 
     expect(menus.value[0]!.to).toBe('/account')
-    expect(menus.value[1]!.to).toBe('/account/favourites/posts')
-    expect(menus.value[2]!.to).toBe('/account/subscriptions')
-    expect(menus.value[3]!.to).toBe('/account/settings')
+    expect(menus.value[1]!.to).toBe('/account/orders')
+    expect(menus.value[2]!.to).toBe('/account/favourites/posts')
+    expect(menus.value[3]!.to).toBe('/account/notifications')
+    expect(menus.value[4]!.to).toBe('/account/subscriptions')
+    expect(menus.value[5]!.to).toBe('/account/addresses')
+    expect(menus.value[6]!.to).toBe('/account/settings')
   })
 
   it('should have correct icons for menu items', () => {
     const { menus } = useAccountMenus()
 
     expect(menus.value[0]!.icon).toBe('i-heroicons-user')
-    expect(menus.value[1]!.icon).toBe('i-mdi-heart-outline')
-    expect(menus.value[2]!.icon).toBe('i-heroicons-bell')
-    expect(menus.value[3]!.icon).toBe('i-mdi-cog-outline')
+    expect(menus.value[1]!.icon).toBe('i-mdi-package-variant-closed')
+    expect(menus.value[2]!.icon).toBe('i-mdi-heart-outline')
+    expect(menus.value[3]!.icon).toBe('i-heroicons-bell')
+    expect(menus.value[4]!.icon).toBe('i-heroicons-envelope')
+    expect(menus.value[5]!.icon).toBe('i-fa6-solid-address-book')
+    expect(menus.value[6]!.icon).toBe('i-mdi-cog-outline')
   })
 
   it('should have labels for all menu items', () => {

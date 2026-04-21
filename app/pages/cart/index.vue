@@ -10,6 +10,34 @@ const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 const { hasStockIssue, getStockStatusMessage } = cartStore
 
+// The abandoned-cart recovery route forwards here with ``?recovered=1``.
+// We surface a one-shot welcome banner so the shopper sees affirmation
+// that their cart was preserved (stock reservations are NOT restored —
+// items may have sold out in the interim, which the existing
+// ``hasStockIssues`` alert below will flag naturally).
+//
+// Only render once the cart has loaded AND has at least one item —
+// otherwise the "we kept your cart" copy is actively misleading for
+// shoppers whose cart was emptied between email send and click. Once
+// shown, we strip the ``recovered`` query param from the URL so a
+// subsequent back-nav or reload doesn't re-trigger the banner.
+const route = useRoute()
+const router = useRouter()
+const wasRecovered = ref(route.query.recovered === '1')
+const showRecoveredBanner = computed(() =>
+  wasRecovered.value
+  && !pending.value
+  && (cart.value?.items?.length ?? 0) > 0,
+)
+
+watch(showRecoveredBanner, (isShown) => {
+  if (!isShown) return
+  // Fire-and-forget: removing the query param is a nice-to-have for
+  // back-nav; blocking the banner render on it would be a regression.
+  router.replace({ query: { ...route.query, recovered: undefined } })
+    .catch(() => {})
+})
+
 const breadcrumb = computed(() => [
   {
     label: t('home'),
@@ -61,6 +89,18 @@ definePageMeta({
       :items="breadcrumb"
       divider="chevron"
       class="mb-8"
+    />
+
+    <UAlert
+      v-if="showRecoveredBanner"
+      color="info"
+      variant="soft"
+      icon="i-heroicons-shopping-cart"
+      :title="t('recovered.title')"
+      :description="t('recovered.description')"
+      :close="true"
+      class="mb-6"
+      @update:open="(open: boolean) => !open && (wasRecovered = false)"
     />
 
     <UAlert
@@ -344,4 +384,7 @@ el:
   stock_fix:
     success_title: Το καλάθι ενημερώθηκε
     success_description: Οι ποσότητες προσαρμόστηκαν στη διαθέσιμη προϊόντα.
+  recovered:
+    title: Καλωσόρισες πίσω!
+    description: Κρατήσαμε το καλάθι σου. Έλεγξε τα προϊόντα πριν κάποια εξαντληθούν.
 </i18n>

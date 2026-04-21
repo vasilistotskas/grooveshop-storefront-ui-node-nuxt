@@ -14,6 +14,7 @@ export default defineNuxtPlugin({
     const userNotificationStore = useUserNotificationStore()
     const { setupNotifications } = userNotificationStore
     const debouncedSetupNotifications = useDebounceFn(setupNotifications, 1000)
+    const { presentationFor } = useNotificationPresentation()
 
     async function initializeWebSocket() {
       closeWebSocket()
@@ -62,19 +63,37 @@ export default defineNuxtPlugin({
           onMessage: async (_ws, event) => {
             const data = JSON.parse(event.data)
             debouncedSetupNotifications()
+
+            // Resolve the active locale's copy with graceful fallback
+            // so a missing translation doesn't crash the toast (the
+            // backend ships ``{el, en, de}`` but an older schema or a
+            // hand-authored admin broadcast might miss the active one).
+            const localized = data?.translations?.[locale.value]
+              ?? data?.translations?.en
+              ?? data?.translations?.el
+              ?? { title: '', message: '' }
+
+            const presentation = presentationFor(data.kind, data.category)
+
             toast.add({
-              title: data.translations[locale.value].title,
-              description: data.translations[locale.value].message,
-              color: 'success',
+              title: localized.title,
+              description: localized.message,
+              color: presentation.color,
+              icon: presentation.icon,
             })
             if (isBroadcastChannelSupported) {
               post(data)
             }
             if (isWebNotificationSupported) {
               await show({
-                title: data.translations[locale.value].title,
-                body: data.translations[locale.value].message,
-                tag: data.type,
+                title: localized.title,
+                body: localized.message,
+                // ``notification_type`` (e.g. ``order_shipped``) is a
+                // stable, shared-across-users tag so the OS-level
+                // replacement behavior actually collapses duplicates.
+                // Falls back to ``data.type`` (the channel-layer event
+                // name) for notifications without an explicit subtype.
+                tag: data.notification_type || data.type,
               })
             }
           },

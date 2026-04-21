@@ -510,27 +510,6 @@ export const zCartWriteRequest = z.object({
     user: z.int().nullish()
 });
 
-/**
- * * `MARKETING` - Marketing Campaigns
- * * `PRODUCT` - Product Updates
- * * `ACCOUNT` - Λογαριασμός Ανενεργός
- * * `SYSTEM` - System Notifications
- * * `NEWSLETTER` - Newsletter
- * * `PROMOTIONAL` - Promotional
- * * `OTHER` - Other
- */
-export const zCategoryEnum = z.enum([
-    'MARKETING',
-    'PRODUCT',
-    'ACCOUNT',
-    'SYSTEM',
-    'NEWSLETTER',
-    'PROMOTIONAL',
-    'OTHER'
-]).register(z.globalRegistry, {
-    description: '* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other'
-});
-
 export const zConfirmResponse = z.object({
     status: z.string(),
     topic: z.string().optional()
@@ -951,6 +930,41 @@ export const zLoyaltySummary = z.object({
     description: 'Serializer for the user\'s loyalty summary response.\n\nReturns computed loyalty data: balance, XP, level, tier, and progress.'
 });
 
+/**
+ * * `ORDER` - Παραγγελία
+ * * `PAYMENT` - Payment
+ * * `SHIPPING` - Μεταφορικά
+ * * `CART` - Cart
+ * * `PRODUCT` - Προϊόν
+ * * `ACCOUNT` - Λογαριασμός Ανενεργός
+ * * `SECURITY` - Security
+ * * `PROMOTION` - Promotion
+ * * `SYSTEM` - System
+ * * `REVIEW` - Review
+ * * `WISHLIST` - Wishlist
+ * * `SUPPORT` - Support
+ * * `NEWSLETTER` - Newsletter
+ * * `RECOMMENDATION` - Recommendation
+ */
+export const zNotificationCategory = z.enum([
+    'ORDER',
+    'PAYMENT',
+    'SHIPPING',
+    'CART',
+    'PRODUCT',
+    'ACCOUNT',
+    'SECURITY',
+    'PROMOTION',
+    'SYSTEM',
+    'REVIEW',
+    'WISHLIST',
+    'SUPPORT',
+    'NEWSLETTER',
+    'RECOMMENDATION'
+]).register(z.globalRegistry, {
+    description: '* `ORDER` - Παραγγελία\n* `PAYMENT` - Payment\n* `SHIPPING` - Μεταφορικά\n* `CART` - Cart\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - System\n* `REVIEW` - Review\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation'
+});
+
 export const zNotificationCountResponse = z.object({
     count: z.int().register(z.globalRegistry, {
         description: 'Number of unseen notifications'
@@ -978,39 +992,45 @@ export const zNotificationKindEnum = z.enum([
     description: '* `ERROR` - Σφάλμα\n* `SUCCESS` - Success\n* `INFO` - Info\n* `WARNING` - Warning\n* `DANGER` - Danger'
 });
 
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zNotification = z.object({
-    translations: z.object({
-        el: z.object({
-            title: z.string().optional(),
-            message: z.string().optional()
-        }).optional(),
-        en: z.object({
-            title: z.string().optional(),
-            message: z.string().optional()
-        }).optional(),
-        de: z.object({
-            title: z.string().optional(),
-            message: z.string().optional()
-        }).optional()
-    }),
-    id: z.int().readonly(),
-    link: z.string().max(200).readonly().nullable(),
-    kind: zNotificationKindEnum.optional(),
-    expiryDate: z.iso.datetime({ offset: true }).nullish(),
-    createdAt: z.iso.datetime({ offset: true }).readonly(),
-    updatedAt: z.iso.datetime({ offset: true }).readonly(),
-    uuid: z.uuid().readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
 export const zNotificationSuccessResponse = z.object({
     success: z.boolean().register(z.globalRegistry, {
         description: 'Whether the operation was successful'
     }).optional()
+});
+
+/**
+ * * `order_created` - Order created
+ * * `order_processing` - Order processing
+ * * `order_shipped` - Order shipped
+ * * `order_delivered` - Order delivered
+ * * `order_completed` - Order completed
+ * * `order_canceled` - Order canceled
+ * * `order_refunded` - Order refunded
+ * * `shipment_dispatched` - Shipment dispatched
+ * * `payment_confirmed` - Payment confirmed
+ * * `payment_failed` - Payment failed
+ * * `price_drop_favourite` - Price drop (favourited product)
+ * * `restock_favourite` - Back in stock (favourited product)
+ * * `loyalty_tier_up` - Loyalty tier promotion
+ * * `comment_liked` - Blog comment liked
+ */
+export const zNotificationTypeEnum = z.enum([
+    'order_created',
+    'order_processing',
+    'order_shipped',
+    'order_delivered',
+    'order_completed',
+    'order_canceled',
+    'order_refunded',
+    'shipment_dispatched',
+    'payment_confirmed',
+    'payment_failed',
+    'price_drop_favourite',
+    'restock_favourite',
+    'loyalty_tier_up',
+    'comment_liked'
+]).register(z.globalRegistry, {
+    description: '* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Shipment dispatched\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Price drop (favourited product)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Blog comment liked'
 });
 
 export const zNotificationUser = z.object({
@@ -1701,41 +1721,6 @@ export const zPatchedRegionWriteRequest = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zPatchedSubscriptionTopicWriteRequest = z.object({
-    translations: z.object({
-        el: z.object({
-            name: z.string().optional(),
-            description: z.string().optional()
-        }).optional(),
-        en: z.object({
-            name: z.string().optional(),
-            description: z.string().optional()
-        }).optional(),
-        de: z.object({
-            name: z.string().optional(),
-            description: z.string().optional()
-        }).optional()
-    }).optional(),
-    slug: z.string().min(1).max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
-    }).optional(),
-    category: zCategoryEnum.optional(),
-    isActive: z.boolean().register(z.globalRegistry, {
-        description: 'Whether this topic is currently available for subscription'
-    }).optional(),
-    isDefault: z.boolean().register(z.globalRegistry, {
-        description: 'Whether new users are automatically subscribed to this topic'
-    }).optional(),
-    requiresConfirmation: z.boolean().register(z.globalRegistry, {
-        description: 'Whether subscription to this topic requires email confirmation'
-    }).optional()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
 export const zPatchedTagWriteRequest = z.object({
     translations: z.object({
         el: z.object({
@@ -1998,6 +1983,58 @@ export const zPerformanceMetrics = z.object({
     })
 }).register(z.globalRegistry, {
     description: 'Serializer for search performance metrics.'
+});
+
+/**
+ * * `LOW` - Low Priority
+ * * `NORMAL` - Normal Priority
+ * * `HIGH` - High Priority
+ * * `URGENT` - Urgent Priority
+ * * `CRITICAL` - Critical Priority
+ */
+export const zPriorityEnum = z.enum([
+    'LOW',
+    'NORMAL',
+    'HIGH',
+    'URGENT',
+    'CRITICAL'
+]).register(z.globalRegistry, {
+    description: '* `LOW` - Low Priority\n* `NORMAL` - Normal Priority\n* `HIGH` - High Priority\n* `URGENT` - Urgent Priority\n* `CRITICAL` - Critical Priority'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zNotification = z.object({
+    translations: z.object({
+        el: z.object({
+            title: z.string().optional(),
+            message: z.string().optional()
+        }).optional(),
+        en: z.object({
+            title: z.string().optional(),
+            message: z.string().optional()
+        }).optional(),
+        de: z.object({
+            title: z.string().optional(),
+            message: z.string().optional()
+        }).optional()
+    }),
+    id: z.int().readonly(),
+    link: z.string().max(200).readonly().nullable(),
+    kind: zNotificationKindEnum.optional(),
+    category: zNotificationCategory.optional(),
+    priority: zPriorityEnum.optional(),
+    notificationType: z.union([
+        zNotificationTypeEnum,
+        zBlankEnum
+    ]).optional(),
+    expiryDate: z.iso.datetime({ offset: true }).nullish(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly(),
+    uuid: z.uuid().readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
 /**
@@ -3330,132 +3367,6 @@ export const zPatchedUserSubscriptionWriteRequest = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
-export const zSubscriptionTopic = z.object({
-    translations: z.object({
-        el: z.object({
-            name: z.string().optional(),
-            description: z.string().optional()
-        }).optional(),
-        en: z.object({
-            name: z.string().optional(),
-            description: z.string().optional()
-        }).optional(),
-        de: z.object({
-            name: z.string().optional(),
-            description: z.string().optional()
-        }).optional()
-    }),
-    id: z.int().readonly(),
-    uuid: z.uuid().readonly(),
-    slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
-    }),
-    category: zCategoryEnum.optional(),
-    isActive: z.boolean().register(z.globalRegistry, {
-        description: 'Whether this topic is currently available for subscription'
-    }).optional(),
-    isDefault: z.boolean().register(z.globalRegistry, {
-        description: 'Whether new users are automatically subscribed to this topic'
-    }).optional(),
-    requiresConfirmation: z.boolean().register(z.globalRegistry, {
-        description: 'Whether subscription to this topic requires email confirmation'
-    }).optional(),
-    subscriberCount: z.int().readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-export const zPaginatedSubscriptionTopicList = z.object({
-    links: z.object({
-        next: z.url().nullish(),
-        previous: z.url().nullish()
-    }).optional(),
-    count: z.int(),
-    totalPages: z.int().optional(),
-    pageSize: z.int().optional(),
-    pageTotalResults: z.int().optional(),
-    page: z.int().optional(),
-    results: z.array(zSubscriptionTopic)
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zSubscriptionTopicDetail = z.object({
-    translations: z.object({
-        el: z.object({
-            name: z.string().optional(),
-            description: z.string().optional()
-        }).optional(),
-        en: z.object({
-            name: z.string().optional(),
-            description: z.string().optional()
-        }).optional(),
-        de: z.object({
-            name: z.string().optional(),
-            description: z.string().optional()
-        }).optional()
-    }),
-    id: z.int().readonly(),
-    uuid: z.uuid().readonly(),
-    slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
-    }),
-    category: zCategoryEnum.optional(),
-    isActive: z.boolean().register(z.globalRegistry, {
-        description: 'Whether this topic is currently available for subscription'
-    }).optional(),
-    isDefault: z.boolean().register(z.globalRegistry, {
-        description: 'Whether new users are automatically subscribed to this topic'
-    }).optional(),
-    requiresConfirmation: z.boolean().register(z.globalRegistry, {
-        description: 'Whether subscription to this topic requires email confirmation'
-    }).optional(),
-    subscriberCount: z.int().readonly(),
-    createdAt: z.iso.datetime({ offset: true }).readonly(),
-    updatedAt: z.iso.datetime({ offset: true }).readonly()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zSubscriptionTopicWriteRequest = z.object({
-    translations: z.object({
-        el: z.object({
-            name: z.string().optional(),
-            description: z.string().optional()
-        }).optional(),
-        en: z.object({
-            name: z.string().optional(),
-            description: z.string().optional()
-        }).optional(),
-        de: z.object({
-            name: z.string().optional(),
-            description: z.string().optional()
-        }).optional()
-    }),
-    slug: z.string().min(1).max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
-    }),
-    category: zCategoryEnum.optional(),
-    isActive: z.boolean().register(z.globalRegistry, {
-        description: 'Whether this topic is currently available for subscription'
-    }).optional(),
-    isDefault: z.boolean().register(z.globalRegistry, {
-        description: 'Whether new users are automatically subscribed to this topic'
-    }).optional(),
-    requiresConfirmation: z.boolean().register(z.globalRegistry, {
-        description: 'Whether subscription to this topic requires email confirmation'
-    }).optional()
-}).register(z.globalRegistry, {
-    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
-});
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
 export const zTag = z.object({
     id: z.int().readonly(),
     translations: z.object({
@@ -3625,6 +3536,188 @@ export const zTopQuery = z.object({
     })
 }).register(z.globalRegistry, {
     description: 'Serializer for top query analytics.'
+});
+
+/**
+ * * `MARKETING` - Marketing Campaigns
+ * * `PRODUCT` - Product Updates
+ * * `ACCOUNT` - Λογαριασμός Ανενεργός
+ * * `SYSTEM` - System Notifications
+ * * `NEWSLETTER` - Newsletter
+ * * `PROMOTIONAL` - Promotional
+ * * `OTHER` - Other
+ */
+export const zTopicCategory = z.enum([
+    'MARKETING',
+    'PRODUCT',
+    'ACCOUNT',
+    'SYSTEM',
+    'NEWSLETTER',
+    'PROMOTIONAL',
+    'OTHER'
+]).register(z.globalRegistry, {
+    description: '* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zPatchedSubscriptionTopicWriteRequest = z.object({
+    translations: z.object({
+        el: z.object({
+            name: z.string().optional(),
+            description: z.string().optional()
+        }).optional(),
+        en: z.object({
+            name: z.string().optional(),
+            description: z.string().optional()
+        }).optional(),
+        de: z.object({
+            name: z.string().optional(),
+            description: z.string().optional()
+        }).optional()
+    }).optional(),
+    slug: z.string().min(1).max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
+    }).optional(),
+    category: zTopicCategory.optional(),
+    isActive: z.boolean().register(z.globalRegistry, {
+        description: 'Whether this topic is currently available for subscription'
+    }).optional(),
+    isDefault: z.boolean().register(z.globalRegistry, {
+        description: 'Whether new users are automatically subscribed to this topic'
+    }).optional(),
+    requiresConfirmation: z.boolean().register(z.globalRegistry, {
+        description: 'Whether subscription to this topic requires email confirmation'
+    }).optional()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zSubscriptionTopic = z.object({
+    translations: z.object({
+        el: z.object({
+            name: z.string().optional(),
+            description: z.string().optional()
+        }).optional(),
+        en: z.object({
+            name: z.string().optional(),
+            description: z.string().optional()
+        }).optional(),
+        de: z.object({
+            name: z.string().optional(),
+            description: z.string().optional()
+        }).optional()
+    }),
+    id: z.int().readonly(),
+    uuid: z.uuid().readonly(),
+    slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
+    }),
+    category: zTopicCategory.optional(),
+    isActive: z.boolean().register(z.globalRegistry, {
+        description: 'Whether this topic is currently available for subscription'
+    }).optional(),
+    isDefault: z.boolean().register(z.globalRegistry, {
+        description: 'Whether new users are automatically subscribed to this topic'
+    }).optional(),
+    requiresConfirmation: z.boolean().register(z.globalRegistry, {
+        description: 'Whether subscription to this topic requires email confirmation'
+    }).optional(),
+    subscriberCount: z.int().readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+export const zPaginatedSubscriptionTopicList = z.object({
+    links: z.object({
+        next: z.url().nullish(),
+        previous: z.url().nullish()
+    }).optional(),
+    count: z.int(),
+    totalPages: z.int().optional(),
+    pageSize: z.int().optional(),
+    pageTotalResults: z.int().optional(),
+    page: z.int().optional(),
+    results: z.array(zSubscriptionTopic)
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zSubscriptionTopicDetail = z.object({
+    translations: z.object({
+        el: z.object({
+            name: z.string().optional(),
+            description: z.string().optional()
+        }).optional(),
+        en: z.object({
+            name: z.string().optional(),
+            description: z.string().optional()
+        }).optional(),
+        de: z.object({
+            name: z.string().optional(),
+            description: z.string().optional()
+        }).optional()
+    }),
+    id: z.int().readonly(),
+    uuid: z.uuid().readonly(),
+    slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
+    }),
+    category: zTopicCategory.optional(),
+    isActive: z.boolean().register(z.globalRegistry, {
+        description: 'Whether this topic is currently available for subscription'
+    }).optional(),
+    isDefault: z.boolean().register(z.globalRegistry, {
+        description: 'Whether new users are automatically subscribed to this topic'
+    }).optional(),
+    requiresConfirmation: z.boolean().register(z.globalRegistry, {
+        description: 'Whether subscription to this topic requires email confirmation'
+    }).optional(),
+    subscriberCount: z.int().readonly(),
+    createdAt: z.iso.datetime({ offset: true }).readonly(),
+    updatedAt: z.iso.datetime({ offset: true }).readonly()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
+});
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zSubscriptionTopicWriteRequest = z.object({
+    translations: z.object({
+        el: z.object({
+            name: z.string().optional(),
+            description: z.string().optional()
+        }).optional(),
+        en: z.object({
+            name: z.string().optional(),
+            description: z.string().optional()
+        }).optional(),
+        de: z.object({
+            name: z.string().optional(),
+            description: z.string().optional()
+        }).optional()
+    }),
+    slug: z.string().min(1).max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+        description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
+    }),
+    category: zTopicCategory.optional(),
+    isActive: z.boolean().register(z.globalRegistry, {
+        description: 'Whether this topic is currently available for subscription'
+    }).optional(),
+    isDefault: z.boolean().register(z.globalRegistry, {
+        description: 'Whether new users are automatically subscribed to this topic'
+    }).optional(),
+    requiresConfirmation: z.boolean().register(z.globalRegistry, {
+        description: 'Whether subscription to this topic requires email confirmation'
+    }).optional()
+}).register(z.globalRegistry, {
+    description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
 });
 
 /**
@@ -4064,6 +4157,19 @@ export const zPaginatedBlogCommentList = z.object({
     pageTotalResults: z.int().optional(),
     page: z.int().optional(),
     results: z.array(zBlogComment)
+});
+
+export const zPaginatedNotificationUserDetailList = z.object({
+    links: z.object({
+        next: z.url().nullish(),
+        previous: z.url().nullish()
+    }).optional(),
+    count: z.int(),
+    totalPages: z.int().optional(),
+    pageSize: z.int().optional(),
+    pageTotalResults: z.int().optional(),
+    page: z.int().optional(),
+    results: z.array(zNotificationUserDetail)
 });
 
 export const zPaginatedUserDetailsList = z.object({
@@ -4673,6 +4779,12 @@ export const zNotificationWritable = z.object({
         }).optional()
     }),
     kind: zNotificationKindEnum.optional(),
+    category: zNotificationCategory.optional(),
+    priority: zPriorityEnum.optional(),
+    notificationType: z.union([
+        zNotificationTypeEnum,
+        zBlankEnum
+    ]).optional(),
     expiryDate: z.iso.datetime({ offset: true }).nullish()
 }).register(z.globalRegistry, {
     description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.'
@@ -4918,6 +5030,19 @@ export const zPaginatedLoyaltyTierListWritable = z.object({
     pageTotalResults: z.int().optional(),
     page: z.int().optional(),
     results: z.array(zLoyaltyTierWritable)
+});
+
+export const zPaginatedNotificationUserDetailListWritable = z.object({
+    links: z.object({
+        next: z.url().nullish(),
+        previous: z.url().nullish()
+    }).optional(),
+    count: z.int(),
+    totalPages: z.int().optional(),
+    pageSize: z.int().optional(),
+    pageTotalResults: z.int().optional(),
+    page: z.int().optional(),
+    results: z.array(zNotificationUserDetailWritable)
 });
 
 export const zPaginatedNotificationUserListWritable = z.object({
@@ -5568,7 +5693,7 @@ export const zSubscriptionTopicWritable = z.object({
     slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
         description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
     }),
-    category: zCategoryEnum.optional(),
+    category: zTopicCategory.optional(),
     isActive: z.boolean().register(z.globalRegistry, {
         description: 'Whether this topic is currently available for subscription'
     }).optional(),
@@ -5616,7 +5741,7 @@ export const zSubscriptionTopicDetailWritable = z.object({
     slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
         description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')'
     }),
-    category: zCategoryEnum.optional(),
+    category: zTopicCategory.optional(),
     isActive: z.boolean().register(z.globalRegistry, {
         description: 'Whether this topic is currently available for subscription'
     }).optional(),
@@ -14404,10 +14529,17 @@ export const zGetUserAccountNotificationsQuery = z.object({
     ]).optional(),
     search: z.string().register(z.globalRegistry, {
         description: 'A search term.'
-    }).optional()
+    }).optional(),
+    seen: z.union([
+        z.literal('true'),
+        z.literal('false'),
+        z.literal('1'),
+        z.literal('0'),
+        z.boolean()
+    ]).optional()
 });
 
-export const zGetUserAccountNotificationsResponse = zPaginatedNotificationUserList;
+export const zGetUserAccountNotificationsResponse = zPaginatedNotificationUserDetailList;
 
 export const zGetUserAccountOrdersPath = z.object({
     id: z.union([

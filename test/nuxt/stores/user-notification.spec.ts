@@ -73,9 +73,9 @@ describe('User Notification Store', () => {
           previous: null,
         },
         results: [
-          { id: 1, notification: 101, user: 1, isRead: false } as any,
-          { id: 2, notification: 102, user: 1, isRead: false } as any,
-          { id: 3, notification: 103, user: 1, isRead: true } as any,
+          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
+          { id: 2, notification: { id: 102 }, user: 1, isRead: false } as any,
+          { id: 3, notification: { id: 103 }, user: 1, isRead: true } as any,
         ],
       }
 
@@ -103,7 +103,7 @@ describe('User Notification Store', () => {
           previous: null,
         },
         results: [
-          { id: 1, notification: 101, user: 1, isRead: false } as any,
+          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
         ],
       }
 
@@ -116,8 +116,8 @@ describe('User Notification Store', () => {
           previous: null,
         },
         results: [
-          { id: 1, notification: 101, user: 1, isRead: false } as any,
-          { id: 2, notification: 102, user: 1, isRead: false } as any,
+          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
+          { id: 2, notification: { id: 102 }, user: 1, isRead: false } as any,
         ],
       }
 
@@ -172,9 +172,9 @@ describe('User Notification Store', () => {
           previous: null,
         },
         results: [
-          { id: 1, notification: 101, user: 1, isRead: false } as any,
-          { id: 2, notification: 101, user: 1, isRead: false } as any,
-          { id: 3, notification: 102, user: 1, isRead: true } as any,
+          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
+          { id: 2, notification: { id: 101 }, user: 1, isRead: false } as any,
+          { id: 3, notification: { id: 102 }, user: 1, isRead: true } as any,
         ],
       }
 
@@ -184,7 +184,7 @@ describe('User Notification Store', () => {
     it('should handle very large notification lists', () => {
       const results = Array.from({ length: 1000 }, (_, i) => ({
         id: i + 1,
-        notification: i + 1000,
+        notification: { id: i + 1000 },
         user: 1,
         isRead: false,
       })) as any[]
@@ -211,7 +211,7 @@ describe('User Notification Store', () => {
           previous: null,
         },
         results: [
-          { id: 1, notification: 0, user: 1, isRead: false } as any,
+          { id: 1, notification: { id: 0 }, user: 1, isRead: false } as any,
         ],
       }
 
@@ -226,7 +226,7 @@ describe('User Notification Store', () => {
           previous: null,
         },
         results: [
-          { id: 1, notification: -1, user: 1, isRead: false } as any,
+          { id: 1, notification: { id: -1 }, user: 1, isRead: false } as any,
         ],
       }
 
@@ -243,7 +243,7 @@ describe('User Notification Store', () => {
           previous: null,
         },
         results: [
-          { id: 1, notification: 101, user: 1, isRead: false } as any,
+          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
         ],
       }
 
@@ -261,7 +261,7 @@ describe('User Notification Store', () => {
           previous: null,
         },
         results: [
-          { id: 1, notification: 101, user: 1, isRead: false } as any,
+          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
         ],
       }
 
@@ -290,7 +290,7 @@ describe('User Notification Store', () => {
           previous: null,
         },
         results: [
-          { id: 1, notification: 101, user: 1, isRead: false } as any,
+          { id: 1, notification: { id: 101 }, user: 1, isRead: false } as any,
         ],
       }
 
@@ -306,7 +306,7 @@ describe('User Notification Store', () => {
           previous: 'http://api.example.com/notifications?page=9',
         },
         results: [
-          { id: 100, notification: 200, user: 1, isRead: false } as any,
+          { id: 100, notification: { id: 200 }, user: 1, isRead: false } as any,
         ],
       }
 

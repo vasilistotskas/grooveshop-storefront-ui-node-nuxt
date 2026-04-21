@@ -1,9 +1,30 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   productId: number
-}>()
+  /**
+   * Which ProductAlert kind this instance subscribes to. ``restock``
+   * pings the shopper when stock transitions from 0 → N; ``price_drop``
+   * pings them when the product's final price drops to or below their
+   * ``target_price`` threshold. The two kinds are independent
+   * subscriptions — a shopper can hold both for the same product.
+   *
+   * Typed against the auto-generated ``ProductAlertKindEnum`` from the
+   * OpenAPI schema so the allowed values stay in sync with Django's
+   * ``ProductAlertKind`` model enum without a local string-union drift.
+   */
+  kind?: ProductAlertKindEnum
+  /**
+   * Current product final price. Used to validate the user's
+   * target_price (must be below or equal to current price, otherwise
+   * the alert would fire immediately). Ignored for restock.
+   */
+  currentPrice?: number | null
+}>(), {
+  kind: 'restock',
+  currentPrice: null,
+})
 
 const { t } = useI18n()
 const toast = useToast()
@@ -13,16 +34,36 @@ const open = ref(false)
 const submitting = ref(false)
 const canceling = ref(false)
 
-const schema = computed(() =>
-  z.object({
-    email: loggedIn.value
-      ? z.email({ error: t('validation.email.valid') }).optional().or(z.literal(''))
-      : z.email({ error: t('validation.email.valid') }),
-  }),
-)
+const isPriceDrop = computed(() => props.kind === 'price_drop')
 
-const state = reactive<{ email: string }>({
+const schema = computed(() => {
+  const emailField = loggedIn.value
+    ? z.email({ error: t('validation.email.valid') }).optional().or(z.literal(''))
+    : z.email({ error: t('validation.email.valid') })
+
+  const base = { email: emailField }
+
+  if (isPriceDrop.value) {
+    const cap = typeof props.currentPrice === 'number' && props.currentPrice > 0
+      ? props.currentPrice
+      : Number.POSITIVE_INFINITY
+    return z.object({
+      ...base,
+      // Coerce handles the empty-string → number hop that <input
+      // type="number"> sends when the user clears the field.
+      targetPrice: z.coerce
+        .number({ error: t('price_drop.validation.required') })
+        .positive({ error: t('price_drop.validation.positive') })
+        .max(cap, { error: t('price_drop.validation.below_current') }),
+    })
+  }
+
+  return z.object(base)
+})
+
+const state = reactive<{ email: string, targetPrice: number | undefined }>({
   email: '',
+  targetPrice: undefined,
 })
 
 // Pre-fill the email field from the authenticated session so the modal
@@ -33,9 +74,9 @@ watchEffect(() => {
   }
 })
 
-// Fetch the user's existing active restock alert for this product so we
-// can render an "alert active" state instead of letting them open the
-// modal and hit the 409 (uniqueness is enforced at the DB level).
+// Fetch the user's existing active alert for this product+kind so we can
+// render an "alert active" state instead of letting them open the modal
+// and hit the 409 (uniqueness is enforced at the DB level).
 // Guests get `null` by design — we can't identify guest subscribers
 // without their email, and we don't want to leak per-user info from the
 // list endpoint.
@@ -43,7 +84,7 @@ const {
   data: existingAlert,
   refresh: refreshAlert,
 } = await useAsyncData<ProductAlert | null>(
-  `product-alert-restock:${props.productId}`,
+  `product-alert-${props.kind}:${props.productId}`,
   async () => {
     if (!loggedIn.value) return null
     try {
@@ -52,7 +93,7 @@ const {
         headers: useRequestHeaders(),
         query: {
           product: props.productId,
-          kind: 'restock',
+          kind: props.kind,
           isActive: true,
           pageSize: 1,
         },
@@ -60,7 +101,7 @@ const {
       return response?.results?.[0] ?? null
     }
     catch (error) {
-      log.warn('product:notify-me', 'lookup failed', { error })
+      log.warn('product:notify-me', 'lookup failed', { kind: props.kind, error })
       return null
     }
   },
@@ -76,17 +117,18 @@ async function onSubmit() {
     await $fetch('/api/products/alerts', {
       method: 'POST',
       body: {
-        kind: 'restock',
+        kind: props.kind,
         product: props.productId,
         // Only send an email for guest subscribers — the backend ties
         // the alert to request.user for authenticated callers and
         // stores an empty string for them.
         ...(loggedIn.value ? {} : { email: state.email }),
+        ...(isPriceDrop.value ? { targetPrice: state.targetPrice } : {}),
       },
     })
     toast.add({
-      title: t('success.title'),
-      description: t('success.description'),
+      title: t(`${props.kind}.success.title`),
+      description: t(`${props.kind}.success.description`),
       color: 'success',
       icon: 'i-heroicons-bell-alert',
     })
@@ -96,7 +138,7 @@ async function onSubmit() {
   catch (error) {
     const status = (error as { statusCode?: number })?.statusCode
     const isConflict = status === 409
-    log.warn('product:notify-me', 'create failed', { status, error })
+    log.warn('product:notify-me', 'create failed', { kind: props.kind, status, error })
     toast.add({
       title: isConflict ? t('conflict.title') : t('error.title'),
       description: isConflict ? t('conflict.description') : t('error.description'),
@@ -131,7 +173,7 @@ async function cancelAlert() {
     await refreshAlert()
   }
   catch (error) {
-    log.warn('product:notify-me', 'cancel failed', { error })
+    log.warn('product:notify-me', 'cancel failed', { kind: props.kind, error })
     toast.add({
       title: t('cancel_error.title'),
       description: t('cancel_error.description'),
@@ -151,8 +193,10 @@ async function cancelAlert() {
        409. Offers an inline cancel path. -->
   <UAlert
     v-if="existingAlert"
-    :title="t('active.title')"
-    :description="t('active.description')"
+    :title="t(`${kind}.active.title`)"
+    :description="isPriceDrop && existingAlert.targetPrice != null
+      ? t('price_drop.active.description_with_target', { amount: existingAlert.targetPrice })
+      : t(`${kind}.active.description`)"
     color="success"
     variant="subtle"
     icon="i-heroicons-bell-alert"
@@ -172,8 +216,8 @@ async function cancelAlert() {
   <UModal
     v-else
     v-model:open="open"
-    :title="t('modal_title')"
-    :description="t('modal_description')"
+    :title="t(`${kind}.modal_title`)"
+    :description="t(`${kind}.modal_description`)"
   >
     <UButton
       block
@@ -182,7 +226,7 @@ async function cancelAlert() {
       icon="i-heroicons-bell-alert"
       size="xl"
     >
-      {{ t('cta') }}
+      {{ t(`${kind}.cta`) }}
     </UButton>
 
     <template #body>
@@ -211,6 +255,29 @@ async function cancelAlert() {
           {{ t('logged_in_hint', { email: state.email }) }}
         </p>
 
+        <UFormField
+          v-if="isPriceDrop"
+          :label="t('price_drop.target_price_label')"
+          :help="t('price_drop.target_price_help')"
+          name="targetPrice"
+          required
+        >
+          <UInput
+            v-model="state.targetPrice"
+            type="number"
+            inputmode="decimal"
+            step="0.01"
+            min="0"
+            :max="currentPrice ?? undefined"
+            :placeholder="t('price_drop.target_price_placeholder')"
+            class="w-full"
+          >
+            <template #leading>
+              <span class="pl-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">€</span>
+            </template>
+          </UInput>
+        </UFormField>
+
         <div class="flex justify-end gap-2">
           <UButton
             type="button"
@@ -238,34 +305,54 @@ async function cancelAlert() {
 
 <i18n lang="yaml">
 el:
-  cta: "Ειδοποίησέ με όταν γίνει διαθέσιμο"
-  modal_title: "Ειδοποίηση επαναφοράς αποθέματος"
-  modal_description: "Θα σου στείλουμε email μόλις το προϊόν γίνει ξανά διαθέσιμο."
-  email_label: "Email"
   # vue-i18n treats `@` as a linked-message marker, so the literal must
   # go through `{'@'}` interpolation or the compiler raises "Invalid
   # linked format (error code: 10)".
+  email_label: "Email"
   email_placeholder: "you{'@'}example.com"
   logged_in_hint: "Θα στείλουμε την ειδοποίηση στο {email}."
   cancel: "Άκυρο"
   submit: "Ενεργοποίηση ειδοποίησης"
-  success:
-    title: "Η ειδοποίηση ενεργοποιήθηκε"
-    description: "Θα σε ειδοποιήσουμε μόλις το προϊόν επιστρέψει σε απόθεμα."
   conflict:
     title: "Έχεις ήδη ενεργή ειδοποίηση"
-    description: "Η προηγούμενη εγγραφή σου ισχύει ακόμη — θα σε ειδοποιήσουμε μόλις γίνει διαθέσιμο."
+    description: "Η προηγούμενη εγγραφή σου ισχύει ακόμη — θα σε ειδοποιήσουμε όταν το κριτήριο ικανοποιηθεί."
   error:
     title: "Αποτυχία ενεργοποίησης"
     description: "Δοκίμασε ξανά σε λίγο ή επικοινώνησε μαζί μας."
   active:
-    title: "Η ειδοποίηση είναι ενεργή"
-    description: "Θα σε ειδοποιήσουμε μόλις το προϊόν γίνει ξανά διαθέσιμο."
     cancel: "Απενεργοποίηση ειδοποίησης"
   cancel_success:
     title: "Η ειδοποίηση απενεργοποιήθηκε"
-    description: "Δεν θα σου στείλουμε email για αυτό το προϊόν."
+    description: "Δεν θα σου στείλουμε email για αυτή την ειδοποίηση."
   cancel_error:
     title: "Αποτυχία απενεργοποίησης"
     description: "Δοκίμασε ξανά σε λίγο."
+  restock:
+    cta: "Ειδοποίησέ με όταν γίνει διαθέσιμο"
+    modal_title: "Ειδοποίηση επαναφοράς αποθέματος"
+    modal_description: "Θα σου στείλουμε email μόλις το προϊόν γίνει ξανά διαθέσιμο."
+    success:
+      title: "Η ειδοποίηση ενεργοποιήθηκε"
+      description: "Θα σε ειδοποιήσουμε μόλις το προϊόν επιστρέψει σε απόθεμα."
+    active:
+      title: "Η ειδοποίηση διαθεσιμότητας είναι ενεργή"
+      description: "Θα σε ειδοποιήσουμε μόλις το προϊόν γίνει ξανά διαθέσιμο."
+  price_drop:
+    cta: "Ειδοποίησέ με όταν πέσει η τιμή"
+    modal_title: "Ειδοποίηση πτώσης τιμής"
+    modal_description: "Δώσε την τιμή που σε ενδιαφέρει. Θα σου στείλουμε email όταν το προϊόν φτάσει ή πέσει κάτω από αυτή."
+    target_price_label: "Επιθυμητή τιμή"
+    target_price_help: "Πρέπει να είναι μικρότερη από την τρέχουσα τιμή."
+    target_price_placeholder: "π.χ. 19.99"
+    success:
+      title: "Η ειδοποίηση τιμής ενεργοποιήθηκε"
+      description: "Θα σε ειδοποιήσουμε μόλις η τιμή φτάσει στο επιθυμητό επίπεδο."
+    validation:
+      required: "Δώσε μια επιθυμητή τιμή."
+      positive: "Η τιμή πρέπει να είναι μεγαλύτερη από 0."
+      below_current: "Η επιθυμητή τιμή πρέπει να είναι μικρότερη από την τρέχουσα."
+    active:
+      title: "Η ειδοποίηση τιμής είναι ενεργή"
+      description: "Θα σε ειδοποιήσουμε μόλις η τιμή πέσει."
+      description_with_target: "Θα σε ειδοποιήσουμε μόλις η τιμή φτάσει στα {amount} € ή χαμηλότερα."
 </i18n>

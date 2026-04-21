@@ -29411,7 +29411,7 @@ components:
         user:
           type: integer
           nullable: true
-    CategoryEnum:
+    CategoryB9dEnum:
       enum:
       - MARKETING
       - PRODUCT
@@ -30191,6 +30191,16 @@ components:
           readOnly: true
         kind:
           $ref: '#/components/schemas/NotificationKindEnum'
+        category:
+          allOf:
+          - $ref: '#/components/schemas/NotificationCategoryEnum'
+          title: Κατηγορία
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        notificationType:
+          type: string
+          description: Specific type of notification for categorization
+          maxLength: 100
         expiryDate:
           type: string
           format: date-time
@@ -30214,6 +30224,38 @@ components:
       - translations
       - updatedAt
       - uuid
+    NotificationCategoryEnum:
+      enum:
+      - ORDER
+      - PAYMENT
+      - SHIPPING
+      - CART
+      - PRODUCT
+      - ACCOUNT
+      - SECURITY
+      - PROMOTION
+      - SYSTEM
+      - REVIEW
+      - WISHLIST
+      - SUPPORT
+      - NEWSLETTER
+      - RECOMMENDATION
+      type: string
+      description: |-
+        * `ORDER` - Παραγγελία
+        * `PAYMENT` - Payment
+        * `SHIPPING` - Μεταφορικά
+        * `CART` - Cart
+        * `PRODUCT` - Προϊόν
+        * `ACCOUNT` - Λογαριασμός Ανενεργός
+        * `SECURITY` - Security
+        * `PROMOTION` - Promotion
+        * `SYSTEM` - System
+        * `REVIEW` - Review
+        * `WISHLIST` - Wishlist
+        * `SUPPORT` - Support
+        * `NEWSLETTER` - Newsletter
+        * `RECOMMENDATION` - Recommendation
     NotificationCountResponse:
       type: object
       properties:
@@ -33079,7 +33121,7 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         category:
           allOf:
-          - $ref: '#/components/schemas/CategoryEnum'
+          - $ref: '#/components/schemas/CategoryB9dEnum'
           title: Κατηγορία
           description: |-
             Category of the subscription topic
@@ -33696,6 +33738,20 @@ components:
       - points
       - referenceOrder
       - transactionType
+    PriorityEnum:
+      enum:
+      - LOW
+      - NORMAL
+      - HIGH
+      - URGENT
+      - CRITICAL
+      type: string
+      description: |-
+        * `LOW` - Low Priority
+        * `NORMAL` - Normal Priority
+        * `HIGH` - High Priority
+        * `URGENT` - Urgent Priority
+        * `CRITICAL` - Critical Priority
     Product:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -35940,7 +35996,7 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         category:
           allOf:
-          - $ref: '#/components/schemas/CategoryEnum'
+          - $ref: '#/components/schemas/CategoryB9dEnum'
           title: Κατηγορία
           description: |-
             Category of the subscription topic
@@ -36014,7 +36070,7 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         category:
           allOf:
-          - $ref: '#/components/schemas/CategoryEnum'
+          - $ref: '#/components/schemas/CategoryB9dEnum'
           title: Κατηγορία
           description: |-
             Category of the subscription topic
@@ -36092,7 +36148,7 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         category:
           allOf:
-          - $ref: '#/components/schemas/CategoryEnum'
+          - $ref: '#/components/schemas/CategoryB9dEnum'
           title: Κατηγορία
           description: |-
             Category of the subscription topic

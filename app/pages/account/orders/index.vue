@@ -62,6 +62,10 @@ const refreshOrders = async () => {
   return orders
 }
 
+async function onOrderCancelled() {
+  orders.value = await refreshOrders()
+}
+
 const pagination = computed(() => {
   if (!orders.value?.count) return
   return usePagination<Order>(orders.value)
@@ -115,6 +119,7 @@ definePageMeta({
       v-if="status !== 'pending' && orders?.count"
       :orders="orders?.results"
       :orders-total="orders?.count"
+      @cancelled="onOrderCancelled"
     />
     <div
       v-else-if="status === 'pending'"
