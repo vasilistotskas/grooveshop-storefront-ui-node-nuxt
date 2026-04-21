@@ -1236,6 +1236,38 @@ export type HealthCheckResponse = {
 export type ImageTypeEnum = 'MAIN' | 'BANNER' | 'ICON' | 'THUMBNAIL' | 'GALLERY' | 'BACKGROUND' | 'HERO' | 'FEATURE' | 'PROMOTIONAL' | 'SEASONAL';
 
 /**
+ * Invoice metadata plus a short-lived signed download URL.
+ */
+export type InvoiceDownloadResponse = {
+    /**
+     * Sequential identifier in the form ``INV-{YEAR}-{NNNNNN}``. Gaps are not allowed by Greek tax law.
+     */
+    readonly invoiceNumber: string;
+    /**
+     * Fiscal date of issue. Immutable once the invoice is rendered — used for sequential numbering and reporting.
+     */
+    readonly issueDate: string;
+    /**
+     * Return a signed, short-lived URL for the PDF.
+     *
+     * On S3 backends django-storages already signs the URL when
+     * ``default_acl='private'`` and ``AWS_QUERYSTRING_AUTH=True`` —
+     * otherwise the storage backend's ``.url()`` returns the relative
+     * path which the Nuxt layer can still fetch through its own
+     * authenticated proxy.
+     */
+    readonly downloadUrl: string | null;
+    readonly subtotal: string | null;
+    readonly totalVat: string | null;
+    readonly total: string | null;
+    readonly currency: string;
+    /**
+     * Cached list of ``{rate, subtotal, vat, gross}`` rows — frozen at issue time so re-rendering the invoice always yields the same VAT table even if product rates change.
+     */
+    readonly vatBreakdown: unknown;
+};
+
+/**
  * * `HOME` - Αρχική
  * * `OFFICE` - Office
  * * `OTHER` - Other
@@ -1655,6 +1687,10 @@ export type OrderDetail = {
         estimatedDelivery?: string | null;
         trackingUrl?: string | null;
     } | null;
+    /**
+     * True when a PDF invoice has been generated — the frontend can show the download CTA without issuing a separate request to the invoice endpoint to find out.
+     */
+    readonly hasInvoice: boolean;
     /**
      * Αριθμός Παρακολούθησης
      */
@@ -12450,6 +12486,31 @@ export type CreateOrderPaymentIntentResponses = {
 };
 
 export type CreateOrderPaymentIntentResponse = CreateOrderPaymentIntentResponses[keyof CreateOrderPaymentIntentResponses];
+
+export type RetrieveOrderInvoiceData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/order/{id}/invoice';
+};
+
+export type RetrieveOrderInvoiceErrors = {
+    400: ErrorResponse;
+    401: ErrorResponse;
+    403: ErrorResponse;
+    404: ErrorResponse;
+    500: ErrorResponse;
+};
+
+export type RetrieveOrderInvoiceError = RetrieveOrderInvoiceErrors[keyof RetrieveOrderInvoiceErrors];
+
+export type RetrieveOrderInvoiceResponses = {
+    200: InvoiceDownloadResponse;
+};
+
+export type RetrieveOrderInvoiceResponse = RetrieveOrderInvoiceResponses[keyof RetrieveOrderInvoiceResponses];
 
 export type GetOrderPaymentStatusData = {
     body?: never;

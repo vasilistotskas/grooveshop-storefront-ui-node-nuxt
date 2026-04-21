@@ -865,6 +865,28 @@ export const zImageTypeEnum = z.enum([
 });
 
 /**
+ * Invoice metadata plus a short-lived signed download URL.
+ */
+export const zInvoiceDownloadResponse = z.object({
+    invoiceNumber: z.string().register(z.globalRegistry, {
+        description: 'Sequential identifier in the form ``INV-{YEAR}-{NNNNNN}``. Gaps are not allowed by Greek tax law.'
+    }).readonly(),
+    issueDate: z.iso.date().register(z.globalRegistry, {
+        description: 'Fiscal date of issue. Immutable once the invoice is rendered — used for sequential numbering and reporting.'
+    }).readonly(),
+    downloadUrl: z.string().readonly().nullable(),
+    subtotal: z.string().readonly().nullable(),
+    totalVat: z.string().readonly().nullable(),
+    total: z.string().readonly().nullable(),
+    currency: z.string().readonly(),
+    vatBreakdown: z.unknown().register(z.globalRegistry, {
+        description: 'Cached list of ``{rate, subtotal, vat, gross}`` rows — frozen at issue time so re-rendering the invoice always yields the same VAT table even if product rates change.'
+    })
+}).register(z.globalRegistry, {
+    description: 'Invoice metadata plus a short-lived signed download URL.'
+});
+
+/**
  * * `HOME` - Αρχική
  * * `OFFICE` - Office
  * * `OTHER` - Other
@@ -2396,6 +2418,9 @@ export const zOrderDetail = z.object({
         estimatedDelivery: z.string().nullish(),
         trackingUrl: z.string().nullish()
     }).readonly().nullable(),
+    hasInvoice: z.boolean().register(z.globalRegistry, {
+        description: 'True when a PDF invoice has been generated — the frontend can show the download CTA without issuing a separate request to the invoice endpoint to find out.'
+    }).readonly(),
     trackingNumber: z.string().max(255).optional(),
     shippingCarrier: z.string().max(255).optional(),
     customerFullName: z.string().readonly(),
@@ -10733,6 +10758,15 @@ export const zCreateOrderPaymentIntentPath = z.object({
 });
 
 export const zCreateOrderPaymentIntentResponse = zCreatePaymentIntentResponse;
+
+export const zRetrieveOrderInvoicePath = z.object({
+    id: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ])
+});
+
+export const zRetrieveOrderInvoiceResponse = zInvoiceDownloadResponse;
 
 export const zGetOrderPaymentStatusPath = z.object({
     id: z.union([

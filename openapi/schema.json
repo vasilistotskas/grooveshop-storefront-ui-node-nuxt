@@ -22925,6 +22925,104 @@
                 }
             }
         },
+        "/api/v1/order/{id}/invoice": {
+            "get": {
+                "operationId": "retrieveOrderInvoice",
+                "description": "Return the order's invoice metadata and a short-lived signed URL to download the PDF. 404 if the invoice has not been generated yet (e.g. order not completed).",
+                "summary": "Get invoice download metadata for an order",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/InvoiceDownloadResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/order/{id}/payment_status": {
             "get": {
                 "operationId": "getOrderPaymentStatus",
@@ -49803,6 +49901,62 @@
                 "type": "string",
                 "description": "* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image"
             },
+            "InvoiceDownloadResponse": {
+                "type": "object",
+                "description": "Invoice metadata plus a short-lived signed download URL.",
+                "properties": {
+                    "invoiceNumber": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Sequential identifier in the form ``INV-{YEAR}-{NNNNNN}``. Gaps are not allowed by Greek tax law."
+                    },
+                    "issueDate": {
+                        "type": "string",
+                        "format": "date",
+                        "readOnly": true,
+                        "description": "Fiscal date of issue. Immutable once the invoice is rendered — used for sequential numbering and reporting."
+                    },
+                    "downloadUrl": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Return a signed, short-lived URL for the PDF.\n\nOn S3 backends django-storages already signs the URL when\n``default_acl='private'`` and ``AWS_QUERYSTRING_AUTH=True`` —\notherwise the storage backend's ``.url()`` returns the relative\npath which the Nuxt layer can still fetch through its own\nauthenticated proxy.",
+                        "readOnly": true
+                    },
+                    "subtotal": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "totalVat": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "total": {
+                        "type": "string",
+                        "nullable": true,
+                        "readOnly": true
+                    },
+                    "currency": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "vatBreakdown": {
+                        "readOnly": true,
+                        "description": "Cached list of ``{rate, subtotal, vat, gross}`` rows — frozen at issue time so re-rendering the invoice always yields the same VAT table even if product rates change."
+                    }
+                },
+                "required": [
+                    "currency",
+                    "downloadUrl",
+                    "invoiceNumber",
+                    "issueDate",
+                    "subtotal",
+                    "total",
+                    "totalVat",
+                    "vatBreakdown"
+                ]
+            },
             "LocationTypeEnum": {
                 "enum": [
                     "HOME",
@@ -50884,6 +51038,11 @@
                         "readOnly": true,
                         "description": "Tracking and shipping details"
                     },
+                    "hasInvoice": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "description": "True when a PDF invoice has been generated — the frontend can show the download CTA without issuing a separate request to the invoice endpoint to find out."
+                    },
                     "trackingNumber": {
                         "type": "string",
                         "title": "Αριθμός Παρακολούθησης",
@@ -50915,6 +51074,7 @@
                     "email",
                     "firstName",
                     "fullAddress",
+                    "hasInvoice",
                     "id",
                     "isCanceled",
                     "isCompleted",

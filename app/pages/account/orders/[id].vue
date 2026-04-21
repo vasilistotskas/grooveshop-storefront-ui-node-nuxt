@@ -295,6 +295,44 @@ async function handleTrackOrder() {
   }
 }
 
+const isFetchingInvoice = ref(false)
+
+async function handleDownloadInvoice() {
+  if (!order.value?.id || isFetchingInvoice.value) return
+  isFetchingInvoice.value = true
+  try {
+    const data = await $fetch(`/api/orders/${order.value.id}/invoice`, {
+      method: 'GET',
+      headers: useRequestHeaders(),
+    })
+    const downloadUrl = data?.downloadUrl
+    if (!downloadUrl) {
+      toast.add({
+        title: t('invoice.error_title'),
+        description: t('invoice.error_missing'),
+        color: 'error',
+        icon: 'i-heroicons-x-circle',
+      })
+      return
+    }
+    // Opening in a new tab keeps the order page context; the URL is a
+    // short-lived signed link so there's no value in deep-linking.
+    window.open(downloadUrl, '_blank', 'noopener,noreferrer')
+  }
+  catch (error) {
+    log.error({ action: 'order:invoice:download', error })
+    toast.add({
+      title: t('invoice.error_title'),
+      description: t('invoice.error_description'),
+      color: 'error',
+      icon: 'i-heroicons-x-circle',
+    })
+  }
+  finally {
+    isFetchingInvoice.value = false
+  }
+}
+
 const cartStore = useCartStore()
 const isReordering = ref(false)
 
@@ -467,6 +505,18 @@ definePageMeta({
         @click="handleTrackOrder"
       >
         {{ t('track_order') }}
+      </UButton>
+
+      <UButton
+        v-if="order.hasInvoice"
+        color="neutral"
+        variant="outline"
+        icon="i-heroicons-document-arrow-down"
+        :loading="isFetchingInvoice"
+        :disabled="isFetchingInvoice"
+        @click="handleDownloadInvoice"
+      >
+        {{ t('invoice.download') }}
       </UButton>
 
       <UButton
@@ -1184,6 +1234,11 @@ el:
   payment_pending: Εκκρεμής Πληρωμή
   payment_method_fee: Χρέωση μεθόδου πληρωμής
   payment_pending_desc: Υπάρχει εκκρεμές ποσό {amount} για αυτή την παραγγελία
+  invoice:
+    download: "Λήψη τιμολογίου"
+    error_title: "Αποτυχία λήψης τιμολογίου"
+    error_description: "Δοκίμασε ξανά σε λίγο."
+    error_missing: "Το τιμολόγιο δεν είναι διαθέσιμο ακόμη."
   cancel:
     success_title: "Η παραγγελία ακυρώθηκε"
     success_description: "Η παραγγελία σου ακυρώθηκε με επιτυχία."
