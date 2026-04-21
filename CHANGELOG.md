@@ -1,3 +1,10 @@
+# [3.92.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.91.0...v3.92.0) (2026-04-21)
+
+
+### Features
+
+* **checkout:** radio-card address picker, save-to-book, SSR-first hydration ([a4e7599](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a4e759960f98954ca005fd464a6d561bb30640dc))
+
 # [3.91.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.90.2...v3.91.0) (2026-04-20)
 
 
