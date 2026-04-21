@@ -13,6 +13,11 @@ export const useAccountMenus = () => {
         icon: 'i-heroicons-user',
       },
       {
+        label: t('orders'),
+        to: '/account/orders',
+        icon: 'i-mdi-package-variant-closed',
+      },
+      {
         label: t('favourites'),
         to: '/account/favourites/posts',
         icon: 'i-mdi-heart-outline',
@@ -21,6 +26,11 @@ export const useAccountMenus = () => {
         label: t('subscriptions'),
         to: '/account/subscriptions',
         icon: 'i-heroicons-bell',
+      },
+      {
+        label: t('addresses'),
+        to: '/account/addresses',
+        icon: 'i-fa6-solid-address-book',
       },
     ]
 
@@ -49,16 +59,6 @@ export const useAccountMenus = () => {
 
     if (enabled.value) {
       items.push(
-        {
-          label: t('addresses'),
-          to: '/account/addresses',
-          icon: 'i-fa6-solid-address-book',
-        },
-        {
-          label: t('orders'),
-          to: '/account/orders',
-          icon: 'i-mdi-package-variant-closed',
-        },
         {
           label: t('reviews'),
           to: '/account/reviews',

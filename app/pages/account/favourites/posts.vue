@@ -2,7 +2,6 @@
 const { t, locale } = useI18n()
 const route = useRoute(`account-favourites-posts___${locale.value}`)
 const { user } = useUserSession()
-const { enabled } = useAuthPreviewMode()
 
 const pageSize = ref(4)
 const page = computed(() => route.query.page)
@@ -89,7 +88,7 @@ definePageMeta({
       :text="t('title')"
       class="md:mt-0"
     />
-    <LazyUserAccountFavouritesNavbar v-if="enabled" />
+    <LazyUserAccountFavouritesNavbar />
 
     <div class="flex flex-row flex-wrap items-center gap-2">
       <PaginationPageNumber
