@@ -1,3 +1,10 @@
+## [3.93.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.93.0...v3.93.1) (2026-04-22)
+
+
+### Bug Fixes
+
+* signup form loading ([a599f8f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a599f8f2261db08e9da5125064658fe4a13d1cf6))
+
 # [3.93.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.92.1...v3.93.0) (2026-04-22)
 
 
