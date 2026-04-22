@@ -14,6 +14,7 @@ const { isMobileOrTablet } = useDevice()
 const img = useImage()
 
 const selected = ref(false)
+const isSubmitting = ref(false)
 
 const schema = z.object({
   email: z.email({
@@ -47,6 +48,7 @@ const state = reactive<Partial<Schema>>({
 })
 
 const onSubmit = async (event: FormSubmitEvent<Schema>) => {
+  isSubmitting.value = true
   try {
     await signup({ email: event.data.email, password: event.data.password })
     toast.add({
@@ -57,10 +59,13 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   catch (error) {
     handleAllAuthClientError(error)
   }
+  finally {
+    isSubmitting.value = false
+  }
 }
 
 const submitButtonDisabled = computed(() => {
-  return !selected.value
+  return !selected.value || isSubmitting.value
 })
 
 const backgroundImage = computed(() => {
@@ -186,6 +191,7 @@ const backgroundImage = computed(() => {
 
             <UButton
               :disabled="submitButtonDisabled"
+              :loading="isSubmitting"
               :label="t('submit')"
               block
               size="xl"
