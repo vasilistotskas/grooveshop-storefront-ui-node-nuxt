@@ -71,60 +71,58 @@ const pricingItems = computed(() => {
   return items
 })
 
-const orderSteps = computed(() => {
-  const status = order.value?.status?.toLowerCase() || 'pending'
-  const statusOrder = ['pending', 'confirmed', 'processing', 'shipped', 'delivered']
-  const currentIndex = statusOrder.indexOf(status)
+// Happy-path order flow, aligned with Django's `OrderStatus` enum
+// (see order/enum/status.py + the allowed_transitions map in
+// order/services.py). Typed as `OrderStatus` so TS errors the moment
+// the backend renames or removes one of these values. The remaining
+// enum members (CANCELED, RETURNED, REFUNDED) are off-path terminal
+// states surfaced via the alert banner / status badge, not the stepper.
+const ORDER_STATUS_FLOW = [
+  'PENDING',
+  'PROCESSING',
+  'SHIPPED',
+  'DELIVERED',
+  'COMPLETED',
+] as const satisfies readonly OrderStatus[]
 
-  const steps = [
-    {
-      title: t('order_placed'),
-      description: t('order_placed_desc'),
-      icon: 'i-heroicons-shopping-cart',
-      value: 'pending',
-    },
-    {
-      title: t('confirmed'),
-      description: t('confirmed_desc'),
-      icon: 'i-heroicons-check-circle',
-      value: 'confirmed',
-    },
-    {
-      title: t('processing'),
-      description: t('processing_desc'),
-      icon: 'i-heroicons-archive-box',
-      value: 'processing',
-    },
-    {
-      title: t('shipped'),
-      description: t('shipped_desc'),
-      icon: 'i-heroicons-truck',
-      value: 'shipped',
-    },
-    {
-      title: t('delivered'),
-      description: t('delivered_desc'),
-      icon: 'i-heroicons-check-circle',
-      value: 'delivered',
-    },
-  ]
+const ORDER_STEP_META: Record<typeof ORDER_STATUS_FLOW[number], { titleKey: string, descKey: string, icon: string }> = {
+  PENDING: { titleKey: 'order_placed', descKey: 'order_placed_desc', icon: 'i-heroicons-shopping-cart' },
+  PROCESSING: { titleKey: 'processing', descKey: 'processing_desc', icon: 'i-heroicons-archive-box' },
+  SHIPPED: { titleKey: 'shipped', descKey: 'shipped_desc', icon: 'i-heroicons-truck' },
+  DELIVERED: { titleKey: 'delivered', descKey: 'delivered_desc', icon: 'i-heroicons-truck' },
+  COMPLETED: { titleKey: 'completed', descKey: 'completed_desc', icon: 'i-heroicons-check-circle' },
+}
 
-  return steps.map((step, index) => ({
-    ...step,
-    completed: index <= currentIndex,
-    active: index === currentIndex,
-  }))
+const currentStatusIndex = computed(() => {
+  const status = order.value?.status
+  if (!status) return 0
+  return ORDER_STATUS_FLOW.indexOf(status as typeof ORDER_STATUS_FLOW[number])
 })
 
+const orderSteps = computed(() =>
+  ORDER_STATUS_FLOW.map((value, index) => {
+    const meta = ORDER_STEP_META[value]
+    return {
+      title: t(meta.titleKey),
+      description: t(meta.descKey),
+      icon: meta.icon,
+      value,
+      completed: index <= currentStatusIndex.value,
+      active: index === currentStatusIndex.value,
+    }
+  }),
+)
+
 const orderProgressPercentage = computed(() => {
-  const status = order.value?.status?.toLowerCase() || 'pending'
-  const statusOrder = ['pending', 'confirmed', 'processing', 'shipped', 'delivered']
-  const currentIndex = statusOrder.indexOf(status)
-  return currentIndex >= 0 ? ((currentIndex + 1) / statusOrder.length) * 100 : 0
+  const index = currentStatusIndex.value
+  return index >= 0 ? ((index + 1) / ORDER_STATUS_FLOW.length) * 100 : 0
 })
 
 const currentStepValue = computed(() => {
-  return order.value?.status?.toLowerCase() || 'pending'
+  const status = order.value?.status
+  return status && (ORDER_STATUS_FLOW as readonly string[]).includes(status)
+    ? status
+    : ORDER_STATUS_FLOW[0]
 })
 
 const stepperColor = computed(() => {
@@ -1184,14 +1182,14 @@ el:
   order_progress: Πρόοδος Παραγγελίας
   order_placed: Παραγγελία
   order_placed_desc: Η παραγγελία σας δημιουργήθηκε
-  confirmed: Επιβεβαιώθηκε
-  confirmed_desc: Η παραγγελία επιβεβαιώθηκε
   processing: Επεξεργασία
   processing_desc: Η παραγγελία επεξεργάζεται
   shipped: Απεστάλη
   shipped_desc: Η παραγγελία απεστάλη
   delivered: Παραδόθηκε
   delivered_desc: Η παραγγελία παραδόθηκε
+  completed: Ολοκληρώθηκε
+  completed_desc: Η παραγγελία ολοκληρώθηκε
   order_items: Προϊόντα Παραγγελίας
   order_summary: Σύνοψη Παραγγελίας
   quantity: Ποσότητα
