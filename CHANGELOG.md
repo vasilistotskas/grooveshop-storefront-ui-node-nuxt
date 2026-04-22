@@ -1,3 +1,19 @@
+# [3.93.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.92.1...v3.93.0) (2026-04-22)
+
+
+### Bug Fixes
+
+* **frontend:** useI18n scope + defer favourites fetch past hydration ([1402f3a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1402f3a1a28375d714b5a9802f0f3b54f070d172))
+* **notifications:** self-heal store + correct i18n labels surfaced by live testing ([17a64b1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/17a64b13a4ca4b3d58ca163b6350a6edf8bb1a26))
+* orders/address showing at user profile ([3db60df](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3db60df49e137a00cefa835134b39fb6eccb0fa7))
+
+
+### Features
+
+* **gdpr:** privacy page with async export + typed-DELETE erasure modal ([c73f957](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c73f95744c3566a58365dc2c68d47fa162fa0862))
+* **notifications:** live in-app notifications + dedicated page ([5a36bbb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5a36bbb861419ce47bcc802a77bf1c61b695303b))
+* **orders:** download PDF invoice from the order detail page ([11c303e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/11c303eefd86d6ab6dbcb2e47aa793c6647dccd5))
+
 ## [3.92.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.92.0...v3.92.1) (2026-04-21)
 
 
