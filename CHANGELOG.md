@@ -1,3 +1,10 @@
+## [3.93.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.93.1...v3.93.2) (2026-04-22)
+
+
+### Bug Fixes
+
+* **orders:** align stepper flow with backend OrderStatus enum ([8fe9735](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8fe9735d3f0f97867c29b220aaf622412d2b47b5))
+
 ## [3.93.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.93.0...v3.93.1) (2026-04-22)
 
 
