@@ -1,3 +1,10 @@
+## [3.94.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.94.1...v3.94.2) (2026-04-23)
+
+
+### Bug Fixes
+
+* **icon:** inline iconify JSON into server bundle for Node 24 ([58c5e64](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/58c5e64536998fb5ba4a98e81785f4e97e082c34))
+
 ## [3.94.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.94.0...v3.94.1) (2026-04-23)
 
 
