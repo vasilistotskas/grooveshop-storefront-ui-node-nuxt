@@ -1,3 +1,10 @@
+# [3.95.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.94.2...v3.95.0) (2026-04-23)
+
+
+### Features
+
+* **checkout:** gate B2B invoicing + self-gate LoyaltyRedemption ([799b130](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/799b1306210b0ca76cf90deb9285fec3e4d75819))
+
 ## [3.94.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.94.1...v3.94.2) (2026-04-23)
 
 
