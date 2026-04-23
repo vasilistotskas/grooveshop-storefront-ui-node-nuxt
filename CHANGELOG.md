@@ -1,3 +1,10 @@
+# [3.94.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.93.2...v3.94.0) (2026-04-23)
+
+
+### Features
+
+* **checkout:** B2B billing — ΑΦΜ field + invoiceType toggle ([afb42fd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/afb42fd890da6d149e9bc83f406c32a1eaadaa00))
+
 ## [3.93.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.93.1...v3.93.2) (2026-04-22)
 
 
