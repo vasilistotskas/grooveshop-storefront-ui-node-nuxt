@@ -1,3 +1,10 @@
+## [3.94.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.94.0...v3.94.1) (2026-04-23)
+
+
+### Bug Fixes
+
+* **openapi:** stable enum names + unblock openapi-ts codegen ([4c40919](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4c409199b45aff6225b3501b2a98c666fe6fc373))
+
 # [3.94.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.93.2...v3.94.0) (2026-04-23)
 
 
