@@ -50110,18 +50110,6 @@
                     "detail"
                 ]
             },
-            "DocumentType128Enum": {
-                "enum": [
-                    "RECEIPT",
-                    "INVOICE",
-                    "PROFORMA",
-                    "SHIPPING_LABEL",
-                    "RETURN_LABEL",
-                    "CREDIT_NOTE"
-                ],
-                "type": "string",
-                "description": "* `RECEIPT` - Receipt\n* `INVOICE` - Invoice\n* `PROFORMA` - Proforma Invoice\n* `SHIPPING_LABEL` - Shipping Label\n* `RETURN_LABEL` - Return Label\n* `CREDIT_NOTE` - Credit Note"
-            },
             "ErrorResponse": {
                 "type": "object",
                 "properties": {
@@ -51029,7 +51017,7 @@
                         "readOnly": true
                     },
                     "documentType": {
-                        "$ref": "#/components/schemas/DocumentType128Enum"
+                        "$ref": "#/components/schemas/OrderDocumentType"
                     },
                     "createdAt": {
                         "type": "string",
@@ -51126,7 +51114,7 @@
                     "zipcode"
                 ]
             },
-            "OrderCreateFromCartDocumentTypeEnum": {
+            "OrderCreateDocumentType": {
                 "enum": [
                     "RECEIPT",
                     "INVOICE"
@@ -51221,7 +51209,7 @@
                     "documentType": {
                         "allOf": [
                             {
-                                "$ref": "#/components/schemas/OrderCreateFromCartDocumentTypeEnum"
+                                "$ref": "#/components/schemas/OrderCreateDocumentType"
                             }
                         ],
                         "default": "RECEIPT",
@@ -51383,7 +51371,7 @@
                         "readOnly": true
                     },
                     "documentType": {
-                        "$ref": "#/components/schemas/DocumentType128Enum"
+                        "$ref": "#/components/schemas/OrderDocumentType"
                     },
                     "createdAt": {
                         "type": "string",
@@ -51601,6 +51589,18 @@
                     "uuid",
                     "zipcode"
                 ]
+            },
+            "OrderDocumentType": {
+                "enum": [
+                    "RECEIPT",
+                    "INVOICE",
+                    "PROFORMA",
+                    "SHIPPING_LABEL",
+                    "RETURN_LABEL",
+                    "CREDIT_NOTE"
+                ],
+                "type": "string",
+                "description": "* `RECEIPT` - Receipt\n* `INVOICE` - Invoice\n* `PROFORMA` - Proforma Invoice\n* `SHIPPING_LABEL` - Shipping Label\n* `RETURN_LABEL` - Return Label\n* `CREDIT_NOTE` - Credit Note"
             },
             "OrderItem": {
                 "type": "object",
@@ -52003,7 +52003,7 @@
                         }
                     },
                     "documentType": {
-                        "$ref": "#/components/schemas/DocumentType128Enum"
+                        "$ref": "#/components/schemas/OrderDocumentType"
                     },
                     "paymentId": {
                         "type": "string",
@@ -54198,7 +54198,7 @@
                         }
                     },
                     "documentType": {
-                        "$ref": "#/components/schemas/DocumentType128Enum"
+                        "$ref": "#/components/schemas/OrderDocumentType"
                     },
                     "paymentId": {
                         "type": "string",

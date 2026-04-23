@@ -33,7 +33,7 @@ export async function useCheckoutForm() {
     // Payment
     payWay: undefined as number | undefined,
     payWayId: undefined as number | undefined,
-    documentType: zDocumentTypeEnum.enum.RECEIPT,
+    documentType: zOrderCreateDocumentType.enum.RECEIPT,
     // B2B billing identity — only required when documentType=INVOICE.
     // Normalised server-side (strip EL/GR, uppercase country) but we
     // keep the raw value here and surface the validation error inline
@@ -325,7 +325,7 @@ export async function useCheckoutForm() {
     addressTitle: z.string().max(255).optional(),
     // Document type drives the myDATA submission downstream: RECEIPT
     // → 11.1 retail, INVOICE → 1.1 B2B (requires buyer VAT).
-    documentType: zDocumentTypeEnum.optional(),
+    documentType: zOrderCreateDocumentType.optional(),
     billingVatId: z.string().max(12).optional(),
     billingCountry: z.string().max(2).optional(),
   }).superRefine((data, ctx) => {
@@ -340,7 +340,7 @@ export async function useCheckoutForm() {
     // Mirror the Django-side normalisation (strip EL/GR, 9 digits) so
     // the user gets an inline error before we hit the API. Django
     // re-validates because the form isn't the only entry point.
-    if (data.documentType === zDocumentTypeEnum.enum.INVOICE) {
+    if (data.documentType === zOrderCreateDocumentType.enum.INVOICE) {
       const rawVat = (data.billingVatId ?? '').trim().toUpperCase()
       const cleaned = rawVat.replace(/^(EL|GR)/, '').trim()
       if (!/^\d{9}$/.test(cleaned)) {
