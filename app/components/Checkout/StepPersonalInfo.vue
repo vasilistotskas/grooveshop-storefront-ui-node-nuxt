@@ -13,6 +13,11 @@ const props = defineProps<{
    * typing a fresh address so the full form stays visible.
    */
   mode?: 'saved' | 'new'
+  /**
+   * Mirrors the ``B2B_INVOICING_ENABLED`` extra setting. When false, the
+   * Τιμολόγιο (INVOICE) toggle is hidden and orders ship as RECEIPT only.
+   */
+  b2bInvoicingEnabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -249,31 +254,38 @@ function onUseNew() {
              routes the myDATA submission through invoiceType 1.1
              with the buyer as <counterpart>. Cross-field validation
              on step1Schema enforces that INVOICE requires a valid
-             9-digit ΑΦΜ before the step can advance. -->
-        <USeparator />
-        <UCheckbox
-          :model-value="formState.documentType === 'INVOICE'"
-          :label="t('form.invoice.toggle_label')"
-          :description="t('form.invoice.toggle_description')"
-          color="primary"
-          @update:model-value="(v) => { formState.documentType = v ? 'INVOICE' : 'RECEIPT'; if (!v) { formState.billingVatId = ''; formState.billingCountry = '' } }"
-        />
-        <template v-if="formState.documentType === 'INVOICE'">
-          <UFormField
-            :label="t('form.invoice.vat_label')"
-            :help="t('form.invoice.vat_help')"
-            name="billingVatId"
-            required
-          >
-            <UInput
-              v-model="formState.billingVatId"
-              size="xl"
-              placeholder="123456789"
-              leading-icon="i-heroicons-identification"
-              maxlength="12"
-              class="w-full"
-            />
-          </UFormField>
+             9-digit ΑΦΜ before the step can advance.
+
+             Gated by ``B2B_INVOICING_ENABLED`` so the owner can hide
+             the entire Τιμολόγιο flow from admin without a deploy.
+             The Django serializer also rejects ``INVOICE`` when the
+             setting is off, so a direct API call can't bypass the UI. -->
+        <template v-if="b2bInvoicingEnabled !== false">
+          <USeparator />
+          <UCheckbox
+            :model-value="formState.documentType === 'INVOICE'"
+            :label="t('form.invoice.toggle_label')"
+            :description="t('form.invoice.toggle_description')"
+            color="primary"
+            @update:model-value="(v) => { formState.documentType = v ? 'INVOICE' : 'RECEIPT'; if (!v) { formState.billingVatId = ''; formState.billingCountry = '' } }"
+          />
+          <template v-if="formState.documentType === 'INVOICE'">
+            <UFormField
+              :label="t('form.invoice.vat_label')"
+              :help="t('form.invoice.vat_help')"
+              name="billingVatId"
+              required
+            >
+              <UInput
+                v-model="formState.billingVatId"
+                size="xl"
+                placeholder="123456789"
+                leading-icon="i-heroicons-identification"
+                maxlength="12"
+                class="w-full"
+              />
+            </UFormField>
+          </template>
         </template>
 
         <!-- Save-to-address-book affordance. The checkout form already

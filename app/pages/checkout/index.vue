@@ -50,6 +50,7 @@ const {
   selectSavedAddress,
   addressEntryMode,
   useNewAddress,
+  b2bInvoicingEnabled,
 } = await useCheckoutForm()
 
 const {
@@ -182,6 +183,7 @@ definePageMeta({
             :saved-addresses="savedAddresses"
             :selected-saved-address-id="selectedSavedAddressId"
             :mode="addressEntryMode"
+            :b2b-invoicing-enabled="b2bInvoicingEnabled"
             @next="nextStep"
             @country-change="onCountryChange"
             @select-saved-address="selectSavedAddress"

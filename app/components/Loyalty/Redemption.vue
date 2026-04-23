@@ -19,7 +19,15 @@ const toast = useToast()
 
 // Loyalty composable with new API
 const loyalty = useLoyalty()
+const { data: settings } = loyalty.fetchSettings()
 const { data: summary, status } = loyalty.fetchSummary()
+
+// Self-gate on LOYALTY_ENABLED so parents don't have to. Other loyalty
+// surfaces (PointsBadge, PointsEarned, GuestLoyaltyCTA) follow the same
+// self-gating pattern; keeping this consistent means adding a new caller
+// never silently shows "Εξαργύρωση Πόντων" when the owner has disabled
+// the system in admin.
+const loyaltyEnabled = computed(() => settings.value?.enabled ?? false)
 
 // Component state - no API call, just local intent
 const applied = ref(false)
@@ -139,7 +147,7 @@ const clearRedemption = () => {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div v-if="loyaltyEnabled" class="space-y-4">
     <!-- Loading state -->
     <div v-if="loading && !summary" class="space-y-3">
       <USkeleton class="h-6 w-32" />

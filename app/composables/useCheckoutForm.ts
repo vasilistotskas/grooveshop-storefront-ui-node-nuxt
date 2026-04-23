@@ -64,6 +64,7 @@ export async function useCheckoutForm() {
   // Declare refs for fetched data (populated after await)
   const shippingSetting = ref<{ value: string } | null>(null)
   const freeShippingThresholdSetting = ref<{ value: string } | null>(null)
+  const b2bInvoicingEnabled = ref(true)
   const countries = ref<Pagination<Country> | null>(null)
   const payWays = ref<Pagination<PayWay> | null>(null)
 
@@ -367,6 +368,7 @@ export async function useCheckoutForm() {
   const [
     shippingResult,
     freeShippingResult,
+    b2bInvoicingResult,
     countriesResult,
     payWaysResult,
     mainAddressResult,
@@ -385,6 +387,14 @@ export async function useCheckoutForm() {
       () => $fetch<{ value: string }>('/api/settings/get', {
         method: 'GET',
         query: { key: 'FREE_SHIPPING_THRESHOLD' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:b2b-invoicing-enabled',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'B2B_INVOICING_ENABLED' },
         headers: useRequestHeaders(),
       }).catch(() => null),
     ),
@@ -456,6 +466,15 @@ export async function useCheckoutForm() {
   // the type back to what the refs expect.
   shippingSetting.value = shippingResult.data.value ?? null
   freeShippingThresholdSetting.value = freeShippingResult.data.value ?? null
+  // extra_settings serialises booleans as the strings "True"/"False".
+  // Default to ``true`` if the endpoint is unreachable so a transient
+  // settings-API failure doesn't silently hide the B2B option.
+  b2bInvoicingEnabled.value = b2bInvoicingResult.data.value?.value !== 'False'
+  if (!b2bInvoicingEnabled.value) {
+    formState.documentType = zOrderCreateDocumentType.enum.RECEIPT
+    formState.billingVatId = ''
+    formState.billingCountry = ''
+  }
   countries.value = countriesResult.data.value ?? null
   payWays.value = payWaysResult.data.value ?? null
   savedAddresses.value = savedAddressesResult.data.value ?? []
@@ -507,5 +526,6 @@ export async function useCheckoutForm() {
     selectSavedAddress,
     addressEntryMode,
     useNewAddress,
+    b2bInvoicingEnabled,
   }
 }
