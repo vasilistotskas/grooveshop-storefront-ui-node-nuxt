@@ -454,10 +454,17 @@ export default defineNuxtConfig({
   icon: {
     // Resolve icons against the locally-installed @iconify-json/*
     // packages (see dependencies in package.json) instead of hitting
-    // a public CDN. `externalizeIconsJson` splits the icon JSON out
-    // of the main server bundle so cold-starts stay lean.
+    // a public CDN. ``externalizeIconsJson: true`` keeps cold starts
+    // lean by loading icon JSONs via dynamic import at request time,
+    // but Node 24 enforces ``with { type: 'json' }`` on those imports
+    // and @nuxt/icon 2.2.1's externalised path doesn't emit the
+    // attribute — /_nuxt_icon/*.json 500'd in production with
+    // ERR_IMPORT_ATTRIBUTE_MISSING after the base image bumped to
+    // node:24-alpine. Inlining the JSON into the server bundle at
+    // build time avoids the runtime import entirely; slight bundle
+    // bloat in exchange for icons that actually load under Node 24+.
     serverBundle: {
-      externalizeIconsJson: true,
+      externalizeIconsJson: false,
       collections: ['ant-design', 'fa-solid', 'fa6-solid', 'heroicons', 'lucide', 'heroicons-solid', 'heroicons-outline', 'mdi', 'unjs'],
     },
     // Force the CDN fallback (for icons outside the installed packs) to
