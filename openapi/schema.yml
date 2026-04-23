@@ -13438,9 +13438,11 @@ paths:
   /api/v1/order/{id}/invoice:
     get:
       operationId: retrieveOrderInvoice
-      description: Return the order's invoice metadata and a short-lived signed URL
-        to download the PDF. 404 if the invoice has not been generated yet (e.g. order
-        not completed).
+      description: Return the order's invoice metadata and an absolute URL to the
+        streaming download endpoint (``/order/{id}/invoice/download``). The URL is
+        gated by the same owner/admin permission check as this metadata endpoint —
+        no raw storage URLs are exposed to the client. 404 if the invoice has not
+        been generated yet (e.g. order not completed).
       summary: Get invoice download metadata for an order
       parameters:
       - in: path
@@ -13493,6 +13495,33 @@ paths:
               schema:
                 $ref: '#/components/schemas/InvoiceDownloadResponse'
           description: ''
+  /api/v1/order/{id}/invoice/download:
+    get:
+      operationId: downloadOrderInvoice
+      description: Streams the rendered PDF through Django auth. 404 when the invoice
+        has not been generated yet. Same ownership check as the metadata endpoint
+        — returns a signed S3 stream on prod and a filesystem stream in dev without
+        exposing the storage URL to the client.
+      summary: Download the invoice PDF
+      parameters:
+      - in: path
+        name: id
+        schema:
+          oneOf:
+          - type: string
+            pattern: ^-?\d+$
+          - type: integer
+        required: true
+      tags:
+      - Orders
+      security:
+      - knoxApiToken: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+        '404':
+          description: No response body
   /api/v1/order/{id}/payment_status:
     get:
       operationId: getOrderPaymentStatus
@@ -30140,7 +30169,7 @@ components:
           type: string
       required:
       - detail
-    DocumentTypeEnum:
+    DocumentType128Enum:
       enum:
       - RECEIPT
       - INVOICE
@@ -30363,7 +30392,7 @@ components:
         * `SEASONAL` - Seasonal Image
     InvoiceDownloadResponse:
       type: object
-      description: Invoice metadata plus a short-lived signed download URL.
+      description: Invoice metadata plus an absolute URL to the streaming endpoint.
       properties:
         invoiceNumber:
           type: string
@@ -30380,13 +30409,14 @@ components:
           type: string
           nullable: true
           description: |-
-            Return a signed, short-lived URL for the PDF.
+            Absolute URL to ``OrderViewSet.invoice_download``.
 
-            On S3 backends django-storages already signs the URL when
-            ``default_acl='private'`` and ``AWS_QUERYSTRING_AUTH=True`` —
-            otherwise the storage backend's ``.url()`` returns the relative
-            path which the Nuxt layer can still fetch through its own
-            authenticated proxy.
+            Routes every client click through Django so the same
+            ``IsOwnerOrAdmin`` check applies to the bytes as to the
+            metadata — avoids the pre-existing leak where
+            ``document_file.url`` returned either an unsigned S3 URL
+            (403s without IAM) or a broken ``/media/...`` path (not
+            served in dev).
           readOnly: true
         subtotal:
           type: string
@@ -30908,7 +30938,7 @@ components:
           exclusiveMinimum: true
           readOnly: true
         documentType:
-          $ref: '#/components/schemas/DocumentTypeEnum'
+          $ref: '#/components/schemas/DocumentType128Enum'
         createdAt:
           type: string
           format: date-time
@@ -30985,6 +31015,14 @@ components:
       - updatedAt
       - uuid
       - zipcode
+    OrderCreateFromCartDocumentTypeEnum:
+      enum:
+      - RECEIPT
+      - INVOICE
+      type: string
+      description: |-
+        * `RECEIPT` - Receipt
+        * `INVOICE` - Invoice
     OrderCreateFromCartRequest:
       type: object
       description: |-
@@ -31055,6 +31093,25 @@ components:
           type: string
           description: Customer notes or special instructions
           maxLength: 500
+        billingVatId:
+          type: string
+          description: Buyer tax number (ΑΦΜ). Required when ``document_type`` is
+            INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.
+          maxLength: 12
+        billingCountry:
+          type: string
+          description: ISO 3166-1 alpha-2 country code for the buyer's tax identity.
+            Defaults to the order country when blank.
+          maxLength: 2
+        documentType:
+          allOf:
+          - $ref: '#/components/schemas/OrderCreateFromCartDocumentTypeEnum'
+          default: RECEIPT
+          description: |-
+            RECEIPT (Α.Λ.Π., Tier A — retail) or INVOICE (Τιμολόγιο Πώλησης, Tier B — B2B). Selecting INVOICE requires a valid ``billing_vat_id``.
+
+            * `RECEIPT` - Receipt
+            * `INVOICE` - Invoice
         loyaltyPointsToRedeem:
           type: integer
           minimum: 0
@@ -31169,7 +31226,7 @@ components:
           exclusiveMinimum: true
           readOnly: true
         documentType:
-          $ref: '#/components/schemas/DocumentTypeEnum'
+          $ref: '#/components/schemas/DocumentType128Enum'
         createdAt:
           type: string
           format: date-time
@@ -31652,7 +31709,7 @@ components:
           items:
             $ref: '#/components/schemas/OrderItemCreateRequest'
         documentType:
-          $ref: '#/components/schemas/DocumentTypeEnum'
+          $ref: '#/components/schemas/DocumentType128Enum'
         paymentId:
           type: string
           minLength: 1
@@ -33232,7 +33289,7 @@ components:
           items:
             $ref: '#/components/schemas/OrderItemCreateRequest'
         documentType:
-          $ref: '#/components/schemas/DocumentTypeEnum'
+          $ref: '#/components/schemas/DocumentType128Enum'
         paymentId:
           type: string
           minLength: 1

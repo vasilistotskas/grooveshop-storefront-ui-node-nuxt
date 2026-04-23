@@ -34,6 +34,12 @@ export async function useCheckoutForm() {
     payWay: undefined as number | undefined,
     payWayId: undefined as number | undefined,
     documentType: zDocumentTypeEnum.enum.RECEIPT,
+    // B2B billing identity — only required when documentType=INVOICE.
+    // Normalised server-side (strip EL/GR, uppercase country) but we
+    // keep the raw value here and surface the validation error inline
+    // via ``superRefine`` on step1Schema.
+    billingVatId: '',
+    billingCountry: '',
     items: [] as { product: number, quantity: number }[],
     // Optional "save this delivery address to my address book" toggle —
     // only reachable in the ``new address`` flow for logged-in users.
@@ -317,6 +323,11 @@ export async function useCheckoutForm() {
     // saveAddress is true. The pairing requirement is enforced in
     // ``superRefine`` below so users can leave the field blank otherwise.
     addressTitle: z.string().max(255).optional(),
+    // Document type drives the myDATA submission downstream: RECEIPT
+    // → 11.1 retail, INVOICE → 1.1 B2B (requires buyer VAT).
+    documentType: zDocumentTypeEnum.optional(),
+    billingVatId: z.string().max(12).optional(),
+    billingCountry: z.string().max(2).optional(),
   }).superRefine((data, ctx) => {
     if (data.saveAddress && !(data.addressTitle ?? '').trim()) {
       ctx.addIssue({
@@ -324,6 +335,21 @@ export async function useCheckoutForm() {
         code: z.ZodIssueCode.custom,
         message: t('validation.required'),
       })
+    }
+    // Buyer asked for a proper invoice — require a valid Greek ΑΦΜ.
+    // Mirror the Django-side normalisation (strip EL/GR, 9 digits) so
+    // the user gets an inline error before we hit the API. Django
+    // re-validates because the form isn't the only entry point.
+    if (data.documentType === zDocumentTypeEnum.enum.INVOICE) {
+      const rawVat = (data.billingVatId ?? '').trim().toUpperCase()
+      const cleaned = rawVat.replace(/^(EL|GR)/, '').trim()
+      if (!/^\d{9}$/.test(cleaned)) {
+        ctx.addIssue({
+          path: ['billingVatId'],
+          code: z.ZodIssueCode.custom,
+          message: t('validation.billing_vat.invalid'),
+        })
+      }
     }
   })
 

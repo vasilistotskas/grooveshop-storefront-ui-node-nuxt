@@ -135,6 +135,12 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
       // unless the user already typed an international prefix.
       phone: normalizeGreekPhone(formState.phone),
       customerNotes: formState.customerNotes,
+      // B2B billing — only meaningful when documentType=INVOICE. The
+      // server strips EL/GR prefix and uppercases country, but we
+      // send whatever the user entered; empty strings are tolerated.
+      documentType: formState.documentType,
+      billingVatId: formState.billingVatId || undefined,
+      billingCountry: formState.billingCountry || undefined,
       loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
     } as OrderCreateFromCartRequest
   }

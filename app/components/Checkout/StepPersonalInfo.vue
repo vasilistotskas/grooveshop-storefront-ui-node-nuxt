@@ -244,6 +244,38 @@ function onUseNew() {
           />
         </UFormField>
 
+        <!-- B2B toggle. Default is RECEIPT (retail Α.Λ.Π., no VAT
+             needed). Flipping to INVOICE exposes the ΑΦΜ field and
+             routes the myDATA submission through invoiceType 1.1
+             with the buyer as <counterpart>. Cross-field validation
+             on step1Schema enforces that INVOICE requires a valid
+             9-digit ΑΦΜ before the step can advance. -->
+        <USeparator />
+        <UCheckbox
+          :model-value="formState.documentType === 'INVOICE'"
+          :label="t('form.invoice.toggle_label')"
+          :description="t('form.invoice.toggle_description')"
+          color="primary"
+          @update:model-value="(v) => { formState.documentType = v ? 'INVOICE' : 'RECEIPT'; if (!v) { formState.billingVatId = ''; formState.billingCountry = '' } }"
+        />
+        <template v-if="formState.documentType === 'INVOICE'">
+          <UFormField
+            :label="t('form.invoice.vat_label')"
+            :help="t('form.invoice.vat_help')"
+            name="billingVatId"
+            required
+          >
+            <UInput
+              v-model="formState.billingVatId"
+              size="xl"
+              placeholder="123456789"
+              leading-icon="i-heroicons-identification"
+              maxlength="12"
+              class="w-full"
+            />
+          </UFormField>
+        </template>
+
         <!-- Save-to-address-book affordance. The checkout form already
              collects every required UserAddress field except ``title``;
              the title input appears only once the user opts in so we

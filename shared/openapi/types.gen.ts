@@ -1117,7 +1117,7 @@ export type Detail = {
  * * `RETURN_LABEL` - Return Label
  * * `CREDIT_NOTE` - Credit Note
  */
-export type DocumentTypeEnum = 'RECEIPT' | 'INVOICE' | 'PROFORMA' | 'SHIPPING_LABEL' | 'RETURN_LABEL' | 'CREDIT_NOTE';
+export type DocumentType128Enum = 'RECEIPT' | 'INVOICE' | 'PROFORMA' | 'SHIPPING_LABEL' | 'RETURN_LABEL' | 'CREDIT_NOTE';
 
 export type ErrorResponse = {
     detail: string;
@@ -1254,7 +1254,7 @@ export type HealthCheckResponse = {
 export type ImageTypeEnum = 'MAIN' | 'BANNER' | 'ICON' | 'THUMBNAIL' | 'GALLERY' | 'BACKGROUND' | 'HERO' | 'FEATURE' | 'PROMOTIONAL' | 'SEASONAL';
 
 /**
- * Invoice metadata plus a short-lived signed download URL.
+ * Invoice metadata plus an absolute URL to the streaming endpoint.
  */
 export type InvoiceDownloadResponse = {
     /**
@@ -1266,13 +1266,14 @@ export type InvoiceDownloadResponse = {
      */
     readonly issueDate: string;
     /**
-     * Return a signed, short-lived URL for the PDF.
+     * Absolute URL to ``OrderViewSet.invoice_download``.
      *
-     * On S3 backends django-storages already signs the URL when
-     * ``default_acl='private'`` and ``AWS_QUERYSTRING_AUTH=True`` —
-     * otherwise the storage backend's ``.url()`` returns the relative
-     * path which the Nuxt layer can still fetch through its own
-     * authenticated proxy.
+     * Routes every client click through Django so the same
+     * ``IsOwnerOrAdmin`` check applies to the bytes as to the
+     * metadata — avoids the pre-existing leak where
+     * ``document_file.url`` returned either an unsigned S3 URL
+     * (403s without IAM) or a broken ``/media/...`` path (not
+     * served in dev).
      */
     readonly downloadUrl: string | null;
     readonly subtotal: string | null;
@@ -1538,7 +1539,7 @@ export type Order = {
     items: Array<OrderItemDetail>;
     readonly shippingPrice: number;
     readonly paymentMethodFee: number;
-    documentType?: DocumentTypeEnum;
+    documentType?: DocumentType128Enum;
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly uuid: string;
@@ -1554,6 +1555,12 @@ export type Order = {
     readonly canBeCanceled: boolean;
     readonly isPaid: boolean;
 };
+
+/**
+ * * `RECEIPT` - Receipt
+ * * `INVOICE` - Invoice
+ */
+export type OrderCreateFromCartDocumentTypeEnum = 'RECEIPT' | 'INVOICE';
 
 /**
  * Serializer for creating orders from cart (dual-flow payment architecture).
@@ -1619,6 +1626,21 @@ export type OrderCreateFromCartRequest = {
      */
     customerNotes?: string;
     /**
+     * Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.
+     */
+    billingVatId?: string;
+    /**
+     * ISO 3166-1 alpha-2 country code for the buyer's tax identity. Defaults to the order country when blank.
+     */
+    billingCountry?: string;
+    /**
+     * RECEIPT (Α.Λ.Π., Tier A — retail) or INVOICE (Τιμολόγιο Πώλησης, Tier B — B2B). Selecting INVOICE requires a valid ``billing_vat_id``.
+     *
+     * * `RECEIPT` - Receipt
+     * * `INVOICE` - Invoice
+     */
+    documentType?: OrderCreateFromCartDocumentTypeEnum;
+    /**
      * Number of loyalty points to redeem for discount on this order
      */
     loyaltyPointsToRedeem?: number | null;
@@ -1658,7 +1680,7 @@ export type OrderDetail = {
     items: Array<OrderItemDetail>;
     readonly shippingPrice: number;
     readonly paymentMethodFee: number;
-    documentType?: DocumentTypeEnum;
+    documentType?: DocumentType128Enum;
     readonly createdAt: string;
     readonly updatedAt: string;
     readonly uuid: string;
@@ -1839,7 +1861,7 @@ export type OrderWriteRequest = {
     phone: string;
     customerNotes?: string;
     items: Array<OrderItemCreateRequest>;
-    documentType?: DocumentTypeEnum;
+    documentType?: DocumentType128Enum;
     paymentId?: string;
     paymentStatus?: string;
     paymentMethod?: string;
@@ -2471,7 +2493,7 @@ export type PatchedOrderWriteRequest = {
     phone?: string;
     customerNotes?: string;
     items?: Array<OrderItemCreateRequest>;
-    documentType?: DocumentTypeEnum;
+    documentType?: DocumentType128Enum;
     paymentId?: string;
     paymentStatus?: string;
     paymentMethod?: string;
@@ -5367,7 +5389,7 @@ export type OrderWritable = {
     phone: string;
     customerNotes?: string;
     items: Array<OrderItemDetailWritable>;
-    documentType?: DocumentTypeEnum;
+    documentType?: DocumentType128Enum;
     paymentId?: string | null;
     /**
      * Κατάσταση πληρωμής
@@ -5403,7 +5425,7 @@ export type OrderDetailWritable = {
     city: string;
     customerNotes?: string;
     items: Array<OrderItemDetailWritable>;
-    documentType?: DocumentTypeEnum;
+    documentType?: DocumentType128Enum;
     paymentId?: string | null;
     /**
      * Κατάσταση πληρωμής
@@ -12568,6 +12590,29 @@ export type RetrieveOrderInvoiceResponses = {
 };
 
 export type RetrieveOrderInvoiceResponse = RetrieveOrderInvoiceResponses[keyof RetrieveOrderInvoiceResponses];
+
+export type DownloadOrderInvoiceData = {
+    body?: never;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/api/v1/order/{id}/invoice/download';
+};
+
+export type DownloadOrderInvoiceErrors = {
+    /**
+     * No response body
+     */
+    404: unknown;
+};
+
+export type DownloadOrderInvoiceResponses = {
+    /**
+     * No response body
+     */
+    200: unknown;
+};
 
 export type GetOrderPaymentStatusData = {
     body?: never;

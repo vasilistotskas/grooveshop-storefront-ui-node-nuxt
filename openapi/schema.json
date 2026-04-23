@@ -22928,7 +22928,7 @@
         "/api/v1/order/{id}/invoice": {
             "get": {
                 "operationId": "retrieveOrderInvoice",
-                "description": "Return the order's invoice metadata and a short-lived signed URL to download the PDF. 404 if the invoice has not been generated yet (e.g. order not completed).",
+                "description": "Return the order's invoice metadata and an absolute URL to the streaming download endpoint (``/order/{id}/invoice/download``). The URL is gated by the same owner/admin permission check as this metadata endpoint — no raw storage URLs are exposed to the client. 404 if the invoice has not been generated yet (e.g. order not completed).",
                 "summary": "Get invoice download metadata for an order",
                 "parameters": [
                     {
@@ -23019,6 +23019,50 @@
                             }
                         },
                         "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/order/{id}/invoice/download": {
+            "get": {
+                "operationId": "downloadOrderInvoice",
+                "description": "Streams the rendered PDF through Django auth. 404 when the invoice has not been generated yet. Same ownership check as the metadata endpoint — returns a signed S3 stream on prod and a filesystem stream in dev without exposing the storage URL to the client.",
+                "summary": "Download the invoice PDF",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    },
+                    "404": {
+                        "description": "No response body"
                     }
                 }
             }
@@ -50066,7 +50110,7 @@
                     "detail"
                 ]
             },
-            "DocumentTypeEnum": {
+            "DocumentType128Enum": {
                 "enum": [
                     "RECEIPT",
                     "INVOICE",
@@ -50329,7 +50373,7 @@
             },
             "InvoiceDownloadResponse": {
                 "type": "object",
-                "description": "Invoice metadata plus a short-lived signed download URL.",
+                "description": "Invoice metadata plus an absolute URL to the streaming endpoint.",
                 "properties": {
                     "invoiceNumber": {
                         "type": "string",
@@ -50345,7 +50389,7 @@
                     "downloadUrl": {
                         "type": "string",
                         "nullable": true,
-                        "description": "Return a signed, short-lived URL for the PDF.\n\nOn S3 backends django-storages already signs the URL when\n``default_acl='private'`` and ``AWS_QUERYSTRING_AUTH=True`` —\notherwise the storage backend's ``.url()`` returns the relative\npath which the Nuxt layer can still fetch through its own\nauthenticated proxy.",
+                        "description": "Absolute URL to ``OrderViewSet.invoice_download``.\n\nRoutes every client click through Django so the same\n``IsOwnerOrAdmin`` check applies to the bytes as to the\nmetadata — avoids the pre-existing leak where\n``document_file.url`` returned either an unsigned S3 URL\n(403s without IAM) or a broken ``/media/...`` path (not\nserved in dev).",
                         "readOnly": true
                     },
                     "subtotal": {
@@ -50985,7 +51029,7 @@
                         "readOnly": true
                     },
                     "documentType": {
-                        "$ref": "#/components/schemas/DocumentTypeEnum"
+                        "$ref": "#/components/schemas/DocumentType128Enum"
                     },
                     "createdAt": {
                         "type": "string",
@@ -51082,6 +51126,14 @@
                     "zipcode"
                 ]
             },
+            "OrderCreateFromCartDocumentTypeEnum": {
+                "enum": [
+                    "RECEIPT",
+                    "INVOICE"
+                ],
+                "type": "string",
+                "description": "* `RECEIPT` - Receipt\n* `INVOICE` - Invoice"
+            },
             "OrderCreateFromCartRequest": {
                 "type": "object",
                 "description": "Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it's retrieved from the header using CartService.",
@@ -51155,6 +51207,25 @@
                         "type": "string",
                         "description": "Customer notes or special instructions",
                         "maxLength": 500
+                    },
+                    "billingVatId": {
+                        "type": "string",
+                        "description": "Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.",
+                        "maxLength": 12
+                    },
+                    "billingCountry": {
+                        "type": "string",
+                        "description": "ISO 3166-1 alpha-2 country code for the buyer's tax identity. Defaults to the order country when blank.",
+                        "maxLength": 2
+                    },
+                    "documentType": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/OrderCreateFromCartDocumentTypeEnum"
+                            }
+                        ],
+                        "default": "RECEIPT",
+                        "description": "RECEIPT (Α.Λ.Π., Tier A — retail) or INVOICE (Τιμολόγιο Πώλησης, Tier B — B2B). Selecting INVOICE requires a valid ``billing_vat_id``.\n\n* `RECEIPT` - Receipt\n* `INVOICE` - Invoice"
                     },
                     "loyaltyPointsToRedeem": {
                         "type": "integer",
@@ -51312,7 +51383,7 @@
                         "readOnly": true
                     },
                     "documentType": {
-                        "$ref": "#/components/schemas/DocumentTypeEnum"
+                        "$ref": "#/components/schemas/DocumentType128Enum"
                     },
                     "createdAt": {
                         "type": "string",
@@ -51932,7 +52003,7 @@
                         }
                     },
                     "documentType": {
-                        "$ref": "#/components/schemas/DocumentTypeEnum"
+                        "$ref": "#/components/schemas/DocumentType128Enum"
                     },
                     "paymentId": {
                         "type": "string",
@@ -54127,7 +54198,7 @@
                         }
                     },
                     "documentType": {
-                        "$ref": "#/components/schemas/DocumentTypeEnum"
+                        "$ref": "#/components/schemas/DocumentType128Enum"
                     },
                     "paymentId": {
                         "type": "string",

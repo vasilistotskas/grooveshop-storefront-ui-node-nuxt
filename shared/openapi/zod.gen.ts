@@ -717,7 +717,7 @@ export const zDetail = z.object({
  * * `RETURN_LABEL` - Return Label
  * * `CREDIT_NOTE` - Credit Note
  */
-export const zDocumentTypeEnum = z.enum([
+export const zDocumentType128Enum = z.enum([
     'RECEIPT',
     'INVOICE',
     'PROFORMA',
@@ -884,7 +884,7 @@ export const zImageTypeEnum = z.enum([
 });
 
 /**
- * Invoice metadata plus a short-lived signed download URL.
+ * Invoice metadata plus an absolute URL to the streaming endpoint.
  */
 export const zInvoiceDownloadResponse = z.object({
     invoiceNumber: z.string().register(z.globalRegistry, {
@@ -902,7 +902,7 @@ export const zInvoiceDownloadResponse = z.object({
         description: 'Cached list of ``{rate, subtotal, vat, gross}`` rows — frozen at issue time so re-rendering the invoice always yields the same VAT table even if product rates change.'
     })
 }).register(z.globalRegistry, {
-    description: 'Invoice metadata plus a short-lived signed download URL.'
+    description: 'Invoice metadata plus an absolute URL to the streaming endpoint.'
 });
 
 /**
@@ -1098,6 +1098,14 @@ export const zNotificationUserWriteRequest = z.object({
 });
 
 /**
+ * * `RECEIPT` - Receipt
+ * * `INVOICE` - Invoice
+ */
+export const zOrderCreateFromCartDocumentTypeEnum = z.enum(['RECEIPT', 'INVOICE']).register(z.globalRegistry, {
+    description: '* `RECEIPT` - Receipt\n* `INVOICE` - Invoice'
+});
+
+/**
  * Serializer for creating orders from cart (dual-flow payment architecture).
  *
  * This serializer supports two payment flows:
@@ -1143,6 +1151,13 @@ export const zOrderCreateFromCartRequest = z.object({
     customerNotes: z.string().max(500).register(z.globalRegistry, {
         description: 'Customer notes or special instructions'
     }).optional(),
+    billingVatId: z.string().max(12).register(z.globalRegistry, {
+        description: 'Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.'
+    }).optional(),
+    billingCountry: z.string().max(2).register(z.globalRegistry, {
+        description: 'ISO 3166-1 alpha-2 country code for the buyer\'s tax identity. Defaults to the order country when blank.'
+    }).optional(),
+    documentType: zOrderCreateFromCartDocumentTypeEnum.optional(),
     loyaltyPointsToRedeem: z.int().gte(0).nullish()
 }).register(z.globalRegistry, {
     description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.'
@@ -1239,7 +1254,7 @@ export const zOrderWriteRequest = z.object({
     phone: z.string().min(1),
     customerNotes: z.string().optional(),
     items: z.array(zOrderItemCreateRequest),
-    documentType: zDocumentTypeEnum.optional(),
+    documentType: zDocumentType128Enum.optional(),
     paymentId: z.string().min(1).optional(),
     paymentStatus: z.string().min(1).optional(),
     paymentMethod: z.string().min(1).optional(),
@@ -1567,7 +1582,7 @@ export const zPatchedOrderWriteRequest = z.object({
     phone: z.string().min(1).optional(),
     customerNotes: z.string().optional(),
     items: z.array(zOrderItemCreateRequest).optional(),
-    documentType: zDocumentTypeEnum.optional(),
+    documentType: zDocumentType128Enum.optional(),
     paymentId: z.string().min(1).optional(),
     paymentStatus: z.string().min(1).optional(),
     paymentMethod: z.string().min(1).optional(),
@@ -2347,7 +2362,7 @@ export const zOrder = z.object({
     items: z.array(zOrderItemDetail),
     shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
     paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    documentType: zDocumentTypeEnum.optional(),
+    documentType: zDocumentType128Enum.optional(),
     createdAt: z.iso.datetime({ offset: true }).readonly(),
     updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly(),
@@ -2395,7 +2410,7 @@ export const zOrderDetail = z.object({
     items: z.array(zOrderItemDetail),
     shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
     paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
-    documentType: zDocumentTypeEnum.optional(),
+    documentType: zDocumentType128Enum.optional(),
     createdAt: z.iso.datetime({ offset: true }).readonly(),
     updatedAt: z.iso.datetime({ offset: true }).readonly(),
     uuid: z.uuid().readonly(),
@@ -4911,7 +4926,7 @@ export const zOrderWritable = z.object({
     phone: z.string(),
     customerNotes: z.string().optional(),
     items: z.array(zOrderItemDetailWritable),
-    documentType: zDocumentTypeEnum.optional(),
+    documentType: zDocumentType128Enum.optional(),
     paymentId: z.string().max(255).nullish(),
     paymentStatus: z.union([
         zPaymentStatusEnum,
@@ -4944,7 +4959,7 @@ export const zOrderDetailWritable = z.object({
     city: z.string().max(255),
     customerNotes: z.string().optional(),
     items: z.array(zOrderItemDetailWritable),
-    documentType: zDocumentTypeEnum.optional(),
+    documentType: zDocumentType128Enum.optional(),
     paymentId: z.string().max(255).nullish(),
     paymentStatus: z.union([
         zPaymentStatusEnum,
@@ -10827,6 +10842,13 @@ export const zRetrieveOrderInvoicePath = z.object({
 });
 
 export const zRetrieveOrderInvoiceResponse = zInvoiceDownloadResponse;
+
+export const zDownloadOrderInvoicePath = z.object({
+    id: z.union([
+        z.string().regex(/^-?\d+$/),
+        z.int()
+    ])
+});
 
 export const zGetOrderPaymentStatusPath = z.object({
     id: z.union([
