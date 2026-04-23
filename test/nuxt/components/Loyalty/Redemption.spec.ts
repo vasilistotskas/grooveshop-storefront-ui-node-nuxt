@@ -8,8 +8,15 @@ const mockStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
 const mockErrorRef = ref<any>(null)
 const mockRefresh = vi.fn()
 
+// Default to enabled so the self-gate lets the component render; per-test
+// suites that need the disabled-state can override mockSettingsRef.value.
+const mockSettingsRef = ref<{ enabled: boolean } | null>({ enabled: true })
+
 mockNuxtImport('useLoyalty', () => {
   return () => ({
+    fetchSettings: () => ({
+      data: mockSettingsRef,
+    }),
     fetchSummary: () => ({
       data: mockSummaryRef,
       status: mockStatusRef,
