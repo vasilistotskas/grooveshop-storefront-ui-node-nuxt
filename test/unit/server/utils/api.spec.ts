@@ -68,7 +68,7 @@ describe('Server Utils - API', () => {
       vi.stubGlobal('$fetch', vi.fn().mockResolvedValue(mockData))
 
       const fetcher = createCachedFetcher<any>('test', 60)
-      const result = await fetcher('https://api.example.com/data')
+      const result = await fetcher('webside.gr', 'https://api.example.com/data')
 
       expect(result).toEqual([{ id: 1 }, { id: 2 }])
       expect($fetch).toHaveBeenCalledWith('https://api.example.com/data', {
@@ -92,7 +92,7 @@ describe('Server Utils - API', () => {
         .mockResolvedValueOnce(page2))
 
       const fetcher = createCachedFetcher<any>('test', 60)
-      const result = await fetcher('https://api.example.com/data')
+      const result = await fetcher('webside.gr', 'https://api.example.com/data')
 
       expect(result).toEqual([
         { id: 1 },
@@ -112,7 +112,7 @@ describe('Server Utils - API', () => {
       vi.stubGlobal('$fetch', vi.fn().mockResolvedValue(mockData))
 
       const fetcher = createCachedFetcher<any>('test', 60)
-      const result = await fetcher('https://api.example.com/data')
+      const result = await fetcher('webside.gr', 'https://api.example.com/data')
 
       expect(result).toEqual([])
     })
@@ -125,9 +125,33 @@ describe('Server Utils - API', () => {
       vi.stubGlobal('$fetch', vi.fn().mockResolvedValue(mockData))
 
       const fetcher = createCachedFetcher<any>('test', 60)
-      const result = await fetcher('https://api.example.com/data')
+      const result = await fetcher('webside.gr', 'https://api.example.com/data')
 
       expect(result).toEqual([])
+    })
+
+    it('should derive cache key from tenantKey + url', () => {
+      // The function passed to defineCachedFunction receives (tenantKey, url)
+      // and the cache key generator must combine them — otherwise tenant A
+      // and tenant B would collide on the same URL.
+      let capturedOptions: any = null
+      vi.stubGlobal('defineCachedFunction', (fn: Function, options: any) => {
+        capturedOptions = options
+        return fn
+      })
+
+      createCachedFetcher<any>('test', 60)
+
+      expect(capturedOptions).not.toBeNull()
+      expect(capturedOptions.getKey).toBeDefined()
+      const key = capturedOptions.getKey('tenant-a.com', '/product')
+      // Tenant host is part of the key so two tenants fetching the
+      // same URL do NOT share a cache slot.
+      expect(key).toContain('tenant-a.com')
+      expect(key).toContain('/product')
+
+      const otherKey = capturedOptions.getKey('tenant-b.com', '/product')
+      expect(otherKey).not.toBe(key)
     })
   })
 })

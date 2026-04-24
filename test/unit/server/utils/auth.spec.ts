@@ -86,14 +86,38 @@ describe('Server Utils - Auth', () => {
       expect(headers['X-Forwarded-Host']).toBe('example.com')
     })
 
-    it('should prefer config djangoHostName over request host for X-Forwarded-Host', () => {
+    it('prefers the request host over djangoHostName for tenant resolution', () => {
+      // Under multi-tenant the request host is authoritative — Django's
+      // TenantMainMiddleware resolves the schema from X-Forwarded-Host,
+      // so the configured djangoHostName must NOT be preferred (that
+      // would pin every request to the webside tenant regardless of
+      // which domain the caller arrived on).
       const mockEvent = {
         node: { req: { headers: {} } },
       } as any
 
       vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
       vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
-      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('10.42.0.180:3000'))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('tenant-b.com'))
+      vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
+        public: { djangoHostName: 'api.webside.gr' },
+      }))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Forwarded-Host']).toBe('tenant-b.com')
+    })
+
+    it('falls back to djangoHostName when request has no host', () => {
+      // Prerender / startup contexts have no real request host; in
+      // those cases the configured platform host is the correct value.
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
       vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
         public: { djangoHostName: 'api.webside.gr' },
       }))
