@@ -51,7 +51,12 @@ const provider = computed(() => {
   if (mainImageProps.value?.provider !== undefined && mainImageProps.value.provider !== '') {
     return mainImageProps.value.provider
   }
-  if (imgSrc.value.startsWith('media/uploads') || imgSrc.value.startsWith('/media/uploads') || imgSrc.value.startsWith('static/images') || imgSrc.value.startsWith('/static/images')) {
+  // `media/{schema}/uploads/...` is the tenant-scoped path produced by
+  // Django's ``image_to_media_path`` under TenantFileSystemStorage; the
+  // older `media/uploads/...` is the legacy single-tenant path kept for
+  // assets uploaded before the storage switch. Both route to the
+  // media-stream provider so background processing / caching kicks in.
+  if (/^\/?media\/[^/]+\/uploads(\/|$)/.test(imgSrc.value) || imgSrc.value.startsWith('media/uploads') || imgSrc.value.startsWith('/media/uploads') || imgSrc.value.startsWith('static/images') || imgSrc.value.startsWith('/static/images')) {
     return 'mediaStream'
   }
   return 'ipx'

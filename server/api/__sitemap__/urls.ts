@@ -1,5 +1,28 @@
 const SITEMAP_CACHE_AGE = 60 * 60
 
+// Hoisted to module scope so ``defineCachedFunction`` registers each
+// fetcher exactly once — calling ``createCachedFetcher`` inside the
+// handler meant every sitemap request re-registered the same name
+// into Nitro's cache registry (harmless, but wasteful + fragile).
+// Callers pass the request host as the first arg for per-tenant
+// cache scoping.
+const cachedBlogPosts = createCachedFetcher<BlogPost>(
+  'sitemap:blog-posts',
+  SITEMAP_CACHE_AGE,
+)
+const cachedBlogCategories = createCachedFetcher<BlogCategory>(
+  'sitemap:blog-categories',
+  SITEMAP_CACHE_AGE,
+)
+const cachedProducts = createCachedFetcher<Product>(
+  'sitemap:products',
+  SITEMAP_CACHE_AGE,
+)
+const cachedProductCategories = createCachedFetcher<ProductCategory>(
+  'sitemap:product-categories',
+  SITEMAP_CACHE_AGE,
+)
+
 export default defineSitemapEventHandler(async (event) => {
   const config = useRuntimeConfig()
   // Use the tenant's primary domain for public URLs so the sitemap reflects
@@ -8,27 +31,6 @@ export default defineSitemapEventHandler(async (event) => {
   const tenantDomain = event.context.tenant?.primaryDomain || host
   const baseUrl = tenantDomain ? `https://${tenantDomain}` : config.public.baseUrl
   const apiBaseUrl = config.apiBaseUrl
-
-  // Namespace cache names so sitemap and RSS fetchers don't collide
-  // inside defineCachedFunction's global registry (shared cache keys
-  // with divergent TTLs would otherwise serve stale data across routes).
-  const cachedBlogPosts = createCachedFetcher<BlogPost>(
-    'sitemap:blog-posts',
-    SITEMAP_CACHE_AGE,
-  )
-  const cachedBlogCategories = createCachedFetcher<BlogCategory>(
-    'sitemap:blog-categories',
-    SITEMAP_CACHE_AGE,
-  )
-
-  const cachedProducts = createCachedFetcher<Product>(
-    'sitemap:products',
-    SITEMAP_CACHE_AGE,
-  )
-  const cachedProductCategories = createCachedFetcher<ProductCategory>(
-    'sitemap:product-categories',
-    SITEMAP_CACHE_AGE,
-  )
 
   // Fetch all data in parallel for better performance — tenant host
   // is passed so each tenant's sitemap has its own cache entry.

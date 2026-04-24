@@ -26,7 +26,7 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
       >
         <NuxtImg
           :style="{ objectFit: 'contain' }"
-          :src="'/img/logo-navbar.svg'"
+          :src="tenantStore.logoLightUrl || '/img/logo-navbar.svg'"
           :width="145"
           :height="30"
           :alt="appTitle"
