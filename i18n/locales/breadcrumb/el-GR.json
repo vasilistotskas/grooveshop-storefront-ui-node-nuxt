@@ -4,6 +4,114 @@
       "index": {
         "label": "Αρχική",
         "icon": "i-heroicons-home"
+      },
+      "about": {
+        "label": "Τι Είναι Το Webside",
+        "icon": "i-heroicons-information-circle"
+      },
+      "account": {
+        "label": "Λογαριασμός",
+        "icon": "i-heroicons-user-circle"
+      },
+      "account-login": {
+        "label": "Σύνδεση",
+        "icon": "i-heroicons-arrow-right-on-rectangle"
+      },
+      "account-login-code": {
+        "label": "Σύνδεση με Κωδικό",
+        "icon": "i-heroicons-envelope"
+      },
+      "account-login-code-confirm": {
+        "label": "Επιβεβαίωση Κωδικού",
+        "icon": "i-heroicons-check-circle"
+      },
+      "account-signup": {
+        "label": "Εγγραφή",
+        "icon": "i-heroicons-user-plus"
+      },
+      "account-signup-passkey": {
+        "label": "Κλειδί Πρόσβασης",
+        "icon": "i-heroicons-finger-print"
+      },
+      "account-signup-passkey-create": {
+        "label": "Δημιουργία Κλειδιού Πρόσβασης",
+        "icon": "i-heroicons-plus-circle"
+      },
+      "account-password-reset": {
+        "label": "Επαναφορά Κωδικού",
+        "icon": "i-heroicons-lock-closed"
+      },
+      "account-password-reset-key": {
+        "label": "Επιβεβαίωση Επαναφοράς",
+        "icon": "i-heroicons-key"
+      },
+      "account-verify-email": {
+        "label": "Επαλήθευση Email",
+        "icon": "i-heroicons-envelope-open"
+      },
+      "account-verify-email-key": {
+        "label": "Επιβεβαίωση Email",
+        "icon": "i-heroicons-check-badge"
+      },
+      "account-2fa-authenticate-totp": {
+        "label": "Επαλήθευση Αυθεντικοποιητή",
+        "icon": "i-heroicons-device-phone-mobile"
+      },
+      "account-2fa-authenticate-webauthn": {
+        "label": "Επαλήθευση Κλειδιού Πρόσβασης",
+        "icon": "i-heroicons-finger-print"
+      },
+      "account-2fa-authenticate-recovery-codes": {
+        "label": "Κωδικοί Ανάκτησης",
+        "icon": "i-heroicons-key"
+      },
+      "blog": {
+        "label": "Ιστολόγιο",
+        "icon": "i-heroicons-newspaper"
+      },
+      "products": {
+        "label": "Προϊόντα",
+        "icon": "i-heroicons-shopping-bag"
+      },
+      "contact": {
+        "label": "Επικοινωνία",
+        "icon": "i-heroicons-envelope"
+      },
+      "feedback": {
+        "label": "Σχόλια",
+        "icon": "i-heroicons-chat-bubble-left-right"
+      },
+      "loyalty_program": {
+        "label": "Πρόγραμμα Επιβράβευσης",
+        "icon": "i-heroicons-star"
+      },
+      "vision": {
+        "label": "Όραμα",
+        "icon": "i-heroicons-eye"
+      },
+      "what-is-microlearning": {
+        "label": "Τι Είναι το Microlearning",
+        "icon": "i-heroicons-academic-cap"
+      },
+      "why-microlearning": {
+        "label": "Γιατί Microlearning",
+        "icon": "i-heroicons-question-mark-circle"
+      },
+      "cookies-policy": {
+        "label": "Πολιτική Cookies",
+        "icon": "i-heroicons-cake"
+      },
+      "privacy-policy": {
+        "label": "Πολιτική Απορρήτου",
+        "icon": "i-heroicons-shield-check"
+      },
+      "return-policy": {
+        "label": "Πολιτική Επιστροφών",
+        "icon": "i-heroicons-arrow-uturn-left"
+      },
+      "terms-of-use": {
+        "label": "Όροι Χρήσης",
+        "icon": "i-heroicons-document-text"
       }
     }
   }

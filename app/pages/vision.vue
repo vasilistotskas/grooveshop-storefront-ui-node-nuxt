@@ -1,14 +1,12 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
-const { storeName } = storeToRefs(useTenantStore())
 
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('vision'),
@@ -55,10 +53,10 @@ definePageMeta({
       <div class="grid items-center justify-center">
         <NuxtImg
           :style="{ objectFit: 'contain' }"
-          src="/img/pages/about-hero.png"
+          src="/img/pages/about-webside.png"
           :width="960"
           :height="600"
-          :alt="storeName"
+          alt="Webside"
           loading="eager"
           quality="80"
           preload
@@ -71,7 +69,7 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        Στο {{ storeName }}, οραματιζόμαστε έναν κόσμο όπου όλοι θα αξιοποιούν τη δύναμη της τεχνολογίας με αυτοπεποίθηση και
+        Στο Webside, οραματιζόμαστε έναν κόσμο όπου όλοι θα αξιοποιούν τη δύναμη της τεχνολογίας με αυτοπεποίθηση και
         ασφάλεια. Αποστολή μας είναι να καλλιεργήσουμε μια κουλτούρα ψηφιακού αλφαβητισμού και διαδικτυακής ασφάλειας
         σε μια εποχή όπου η τεχνολογία διαπερνά κάθε πτυχή της ζωής μας.
       </p>
@@ -91,7 +89,7 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        Είτε είσαι αρχάριος που περιηγείται στο ψηφιακό τοπίο είτε έμπειρος λάτρης της τεχνολογίας, το {{ storeName }} σου
+        Είτε είσαι αρχάριος που περιηγείται στο ψηφιακό τοπίο είτε έμπειρος λάτρης της τεχνολογίας, το Webside σου
         παρέχει τα εργαλεία και τις γνώσεις για να ευδοκιμήσετις στο διαρκώς εξελισσόμενο τεχνολογικό οικοσύστημα.
       </p>
       <p
@@ -112,7 +110,7 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        Επιπλέον, το {{ storeName }} δεν είναι απλώς μια πλατφόρμα εκμάθησης- είναι μια πύλη προς μια επιμελημένη επιλογή
+        Επιπλέον, το Webside δεν είναι απλώς μια πλατφόρμα εκμάθησης- είναι μια πύλη προς μια επιμελημένη επιλογή
         προϊόντων τεχνολογίας αιχμής.
       </p>
       <p

@@ -5,17 +5,27 @@ const { cleanCartState, refreshCart } = cartStore
 const { user, loggedIn } = useUserSession()
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
-const { t } = useI18n()
+const { t, locales } = useI18n()
 const localePath = useLocalePath()
-const { enabled } = useAuthPreviewMode()
-const { $i18n, $routeBaseName } = useNuxtApp()
+const { $routeBaseName } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
 
 const routeName = computed(() => $routeBaseName(route))
 
+// Used for the main-nav active-route state. Matches the anchor's
+// base route name plus any nested page under it (products-id-slug,
+// products-category-id-slug, blog-post-id-slug…) so the user stays
+// oriented while drilling into category or detail pages.
+const isRouteActive = (base: string) => {
+  const name = routeName.value
+  if (!name) return false
+  if (name === base) return true
+  return typeof name === 'string' && name.startsWith(`${base}-`)
+}
+
 const onClickLogout = async () => {
   if (!routeName.value) return
-  if (isRouteProtected(routeName.value))
+  if (isRouteProtected(String(routeName.value)))
     await navigateTo(localePath('index'))
 
   await cleanCartState()
@@ -40,19 +50,19 @@ const items = computed(() => [
   ],
   [
     {
-      label: $i18n.t('account'),
+      label: t('account'),
       icon: 'i-heroicons-user',
       onSelect: async () => await navigateTo(localePath('account')),
     },
     {
-      label: $i18n.t('settings'),
+      label: t('settings'),
       icon: 'i-heroicons-cog-8-tooth',
       onSelect: async () => await navigateTo(localePath('account-settings')),
     },
   ],
   [
     {
-      label: $i18n.t('logout'),
+      label: t('logout'),
       icon: 'i-heroicons-arrow-left-on-rectangle',
       onSelect: async () => await onClickLogout(),
     },
@@ -86,40 +96,74 @@ const items = computed(() => [
             <li class="flex w-full gap-4">
               <h2>
                 <Anchor
-                  :text="$i18n.t('shop')"
-                  :title="$i18n.t('shop')"
+                  :text="t('shop')"
+                  :title="t('shop')"
                   :to="'products'"
+                  :aria-current="isRouteActive('products') ? 'page' : undefined"
                   class="
-                      text-lg text-primary-700 capitalize
-                      hover:text-primary-900
-                      dark:text-primary-200
-                      hover:dark:text-primary-50
-                    "
+                    relative text-lg capitalize transition-colors
+                    after:absolute after:right-0 after:-bottom-1
+                    after:left-0 after:h-0.5 after:bg-(--ui-secondary)
+                    after:transition-transform after:duration-200
+                    motion-reduce:after:transition-none
+                  "
+                  :class="
+                    isRouteActive('products')
+                      ? `
+                          font-bold text-primary-900
+                          dark:text-primary-50
+                          after:scale-x-100
+                        `
+                      : `
+                          text-primary-700
+                          hover:text-primary-900
+                          dark:text-primary-200
+                          hover:dark:text-primary-50
+                          after:scale-x-0
+                        `
+                  "
                   :ui="{
                     base: 'p-0',
                   }"
                 >
-                  {{ $i18n.t('shop') }}
+                  {{ t('shop') }}
                 </Anchor>
               </h2>
             </li>
             <li class="flex w-full gap-4">
               <h2>
                 <Anchor
-                  :text="$i18n.t('blog')"
-                  :title="$i18n.t('blog')"
+                  :text="t('blog')"
+                  :title="t('blog')"
                   :to="'blog'"
+                  :aria-current="isRouteActive('blog') ? 'page' : undefined"
                   class="
-                      text-lg text-primary-700 capitalize
-                      hover:text-primary-900
-                      dark:text-primary-200
-                      hover:dark:text-primary-50
-                    "
+                    relative text-lg capitalize transition-colors
+                    after:absolute after:right-0 after:-bottom-1
+                    after:left-0 after:h-0.5 after:bg-(--ui-secondary)
+                    after:transition-transform after:duration-200
+                    motion-reduce:after:transition-none
+                  "
+                  :class="
+                    isRouteActive('blog')
+                      ? `
+                          font-bold text-primary-900
+                          dark:text-primary-50
+                          after:scale-x-100
+                        `
+                      : `
+                          text-primary-700
+                          hover:text-primary-900
+                          dark:text-primary-200
+                          hover:dark:text-primary-50
+                          after:scale-x-0
+                        `
+                  "
                   :ui="{
                     base: 'p-0',
                   }"
                 >
-                  {{ $i18n.t('blog') }}
+                  {{ t('blog') }}
                 </Anchor>
               </h2>
             </li>
@@ -131,9 +175,9 @@ const items = computed(() => [
             "
           >
             <li
-              v-if="enabled"
+              v-if="locales.length > 1"
               class="
-                relative grid max-w-6 items-center justify-center
+                relative grid items-center justify-center
                 justify-items-center
               "
             >
@@ -146,7 +190,7 @@ const items = computed(() => [
                 "
             >
               <UButton
-                :aria-label="$i18n.t('favourites')"
+                :aria-label="t('favourites')"
                 :to="loggedIn ? localePath('account-favourites-posts') : localePath('account-login')"
                 class="p-0"
                 color="neutral"
@@ -179,8 +223,9 @@ const items = computed(() => [
                 }"
               />
             </li>
-            <template v-if="loggedIn">
+            <ClientOnly>
               <li
+                v-if="loggedIn"
                 class="
                     relative grid max-w-6 items-center justify-center
                     justify-items-center
@@ -188,7 +233,30 @@ const items = computed(() => [
               >
                 <LazyUserNotificationsBell />
               </li>
-            </template>
+              <template #fallback>
+                <li
+                  v-if="loggedIn"
+                  class="
+                      relative grid max-w-6 items-center justify-center
+                      justify-items-center
+                    "
+                >
+                  <UButton
+                    icon="i-heroicons-bell"
+                    color="neutral"
+                    size="xl"
+                    variant="ghost"
+                    class="p-0"
+                    :ui="{
+                      base: `
+                        cursor-pointer
+                        hover:bg-transparent
+                      `,
+                    }"
+                  />
+                </li>
+              </template>
+            </ClientOnly>
             <li class="relative grid max-w-6 items-center justify-center justify-items-center">
               <CartButton />
             </li>
@@ -202,16 +270,29 @@ const items = computed(() => [
                 :items="items"
                 :popper="{ placement: 'bottom-start' }"
               >
-                <UserAvatar
-                  :show-name="false"
-                  :user-account="user"
+                <!--
+                  Reka's DropdownMenuTrigger forwards `type="button"`
+                  to the element rendered by the default slot. When
+                  that element was UserAvatar (a <div>), axe flagged
+                  "Elements must only use supported ARIA attributes"
+                  because `type` is not valid on <div>. Wrapping in
+                  an explicit <button> gives Reka a real button to
+                  set `type` on, and keeps the avatar visual.
+                -->
+                <button
+                  type="button"
                   :aria-label="t('user.profile')"
-                  class="cursor-pointer"
-                />
+                  class="cursor-pointer bg-transparent p-0"
+                >
+                  <UserAvatar
+                    :show-name="false"
+                    :user-account="user"
+                  />
+                </button>
 
                 <template #account="{ item }">
                   <div class="text-left">
-                    <p>{{ $i18n.t('email.title') }}</p>
+                    <p>{{ t('email.title') }}</p>
                     <p
                       class="
                           truncate font-medium text-primary-900
@@ -243,8 +324,8 @@ const items = computed(() => [
                 "
             >
               <Anchor
-                :title="$i18n.t('login')"
-                :aria-label="$i18n.t('login')"
+                :title="t('login')"
+                :aria-label="t('login')"
                 :to="route.path === '/account/login' ? { name: 'account-login' } : { name: 'account-login', query: { next: route.path } }"
                 class="
                     flex size-[30px] items-center self-center text-[1.5rem]
@@ -258,7 +339,7 @@ const items = computed(() => [
                 }"
               >
                 <UIcon name="i-fa6-solid-circle-user" />
-                <span class="sr-only">{{ $i18n.t('login') }}</span>
+                <span class="sr-only">{{ t('login') }}</span>
               </Anchor>
             </li>
           </ul>

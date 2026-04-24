@@ -7,7 +7,6 @@ const emit = defineEmits(['signUpByPasskey'])
 const { signUpByPasskey } = useAllAuthAuthentication()
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 const toast = useToast()
 
 const loading = ref(false)
@@ -16,8 +15,8 @@ const hasError = ref(false)
 const schema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.email.valid'),
+      ? t('validation.required')
+      : t('validation.email.valid'),
   }),
 })
 
@@ -66,7 +65,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
       :fields="fields"
       :loading="loading"
       :submit="{
-        label: $i18n.t('submit'),
+        label: t('submit'),
         icon: 'i-heroicons-finger-print',
         block: true,
         size: 'lg',

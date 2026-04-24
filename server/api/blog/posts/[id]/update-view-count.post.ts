@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zIncrementBlogPostViewsData.shape.path.parse,
+      zIncrementBlogPostViewsPath.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/blog/post/${params.id}/update_view_count`,

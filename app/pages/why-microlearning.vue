@@ -1,14 +1,12 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
-const { storeName } = storeToRefs(useTenantStore())
 
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('why-microlearning'),
@@ -59,7 +57,7 @@ definePageMeta({
           src="/img/pages/why-microlearning1.png"
           :width="960"
           :height="960"
-          :alt="storeName"
+          alt="Webside"
           :modifiers="{ position: 'entropy' }"
           loading="eager"
           quality="80"
@@ -90,7 +88,7 @@ definePageMeta({
           src="/img/pages/why-microlearning2.png"
           :width="960"
           :height="600"
-          :alt="storeName"
+          alt="Webside"
           :modifiers="{ position: 'entropy' }"
           loading="lazy"
           quality="80"
@@ -129,7 +127,7 @@ definePageMeta({
           src="/img/pages/why-microlearning3.png"
           :width="960"
           :height="700"
-          :alt="storeName"
+          alt="Webside"
           :modifiers="{ position: 'entropy' }"
           loading="lazy"
           quality="80"

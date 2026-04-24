@@ -1,25 +1,31 @@
 /**
- * Adds X-Forwarded-Proto and X-Forwarded-Host to all $fetch calls targeting
- * internal backend services.
+ * Adds X-Forwarded-Proto, X-Forwarded-Host, and X-Language to all $fetch
+ * calls targeting internal backend services.
  *
- * X-Forwarded-Proto: Django's SecurityMiddleware checks SECURE_PROXY_SSL_HEADER.
- * Without it, SECURE_SSL_REDIRECT=True causes a 301 to the external HTTPS URL,
- * which exits the K8s cluster and hits Cloudflare's managed challenge (403).
+ * Why X-Forwarded-Proto: Django's SecurityMiddleware checks
+ * SECURE_PROXY_SSL_HEADER. Without it, SECURE_SSL_REDIRECT=True causes a
+ * 301 to the external HTTPS URL, which exits the K8s cluster and hits
+ * Cloudflare's managed challenge — returning 403 because server-side
+ * requests can't execute the JS challenge.
  *
- * X-Forwarded-Host: Django's TenantMainMiddleware resolves the tenant schema from
- * the request host. Internal $fetch calls have a Host of e.g. "django-backend:8000",
- * so X-Forwarded-Host is required for correct tenant resolution.
+ * Why X-Forwarded-Host: With USE_X_FORWARDED_HOST=True, Django uses this
+ * header to build absolute URLs (request.build_absolute_uri()) — without
+ * it, paginated `next` links come back as `https://backend-service/...`
+ * which has no public TLS cert and breaks follow-up fetches. Additionally,
+ * Django's TenantMainMiddleware resolves the tenant schema from this
+ * header, so multi-tenant deployments need the actual request host
+ * forwarded (not a hardcoded hostname).
  *
- * How: Uses an ofetch onRequest interceptor scoped to internal backend origins
- * (NUXT_DJANGO_URL / NUXT_API_BASE_URL). Auth/cart routes also set these headers
- * explicitly via createHeaders()/getCartHeaders(), but this plugin acts as a
- * safety net for the ~30 cached routes that send no headers at all.
+ * Why X-Language: Django's allauth adapter + Celery email tasks read this
+ * header to render responses/emails in the correct locale.
  *
- * Note: Nuxt docs state "$fetch is intentionally not globally configurable" and
- * recommend named instances (https://nuxt.com/docs/guide/recipes/custom-usefetch).
- * This global override is a pragmatic choice to cover all existing routes without
- * modifying 50+ files. A future refactor could migrate routes to a named
- * $backendFetch utility.
+ * How: Initialises the named `$backendFetch` utility (server/utils/backendFetch.ts)
+ * at startup and keeps the global $fetch patch as a safety net for the ~30
+ * cached routes that still call $fetch directly without an explicit origin.
+ * New server routes should prefer `useBackendFetch()` over raw `$fetch`.
+ *
+ * Migration path: incrementally update consumers to call useBackendFetch() and
+ * remove the globalThis patch once no routes rely on it.
  */
 export default defineNitroPlugin(() => {
   const config = useRuntimeConfig()
@@ -40,6 +46,15 @@ export default defineNitroPlugin(() => {
 
   if (internalOrigins.length === 0) return
 
+  const publicHost = typeof config.public.djangoHostName === 'string'
+    ? config.public.djangoHostName
+    : undefined
+
+  // Warm up the named instance so it is ready for first use.
+  useBackendFetch()
+
+  // Keep the global patch as a safety net for existing routes that use $fetch
+  // directly. Remove this block once all backend-facing routes use useBackendFetch().
   globalThis.$fetch = globalThis.$fetch.create({
     onRequest({ request, options }) {
       const url = typeof request === 'string'
@@ -56,21 +71,30 @@ export default defineNitroPlugin(() => {
         options.headers.set('X-Forwarded-Proto', 'https')
       }
 
-      // Inject X-Forwarded-Host for tenant resolution (uses Nitro async context)
-      if (!options.headers.has('X-Forwarded-Host')) {
-        try {
-          const event = useEvent()
-          const host = getRequestHost(event, { xForwardedHost: false })
+      // X-Forwarded-Host and X-Language both need the request context.
+      // Prefer the request host (tenant resolution); fall back to publicHost
+      // (single-tenant config) when outside a request context.
+      try {
+        const event = useEvent()
+        if (!options.headers.has('X-Forwarded-Host')) {
+          const host = getRequestHost(event, { xForwardedHost: false }) || publicHost
           if (host) {
             options.headers.set('X-Forwarded-Host', host)
           }
         }
-        catch {
-          // useEvent() may fail outside a request context (e.g., during startup)
+        if (!options.headers.has('X-Language')) {
+          const locale = event?.context?.locale as string | undefined
+          if (locale) options.headers.set('X-Language', locale)
+        }
+      }
+      catch {
+        // useEvent() may fail outside a request context (e.g., during startup).
+        if (publicHost && !options.headers.has('X-Forwarded-Host')) {
+          options.headers.set('X-Forwarded-Host', publicHost)
         }
       }
     },
   }) as typeof globalThis.$fetch
 
-  log.info('forwarded-headers', 'Backend header interceptor active', { origins: internalOrigins })
+  log.info('forwarded-headers', 'Backend header interceptor active', { origins: internalOrigins, publicHost })
 })

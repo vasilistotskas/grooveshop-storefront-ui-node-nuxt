@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readValidatedBody(
       event,
-      zGetProductFavouritesByProductsData.shape.body.parse,
+      zGetProductFavouritesByProductsBody.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/product/favourite/favourites_by_products`,

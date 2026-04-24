@@ -5,7 +5,6 @@ const { getAuthenticators, deleteWebAuthnCredential, updateWebAuthnCredential } 
 const localePath = useLocalePath()
 const toast = useToast()
 const { t } = useI18n()
-const { $i18n } = useNuxtApp()
 
 const authStore = useAuthStore()
 const { authenticators } = storeToRefs(authStore)
@@ -25,7 +24,7 @@ async function optimisticSetKeys(newKeys: any[], op: () => Promise<boolean>) {
       keys.value = oldKeys
     }
     toast.add({
-      title: ok ? $i18n.t('success.title') : $i18n.t('error.default'),
+      title: ok ? t('success.title') : t('error.default'),
       color: ok ? 'success' : 'error',
     })
   }
@@ -86,19 +85,19 @@ function getTypeLabel(type: string) {
 const columns: TableColumn<any>[] = [
   {
     accessorKey: 'name',
-    header: $i18n.t('name'),
+    header: t('name'),
   },
   {
     accessorKey: 'type',
-    header: $i18n.t('type'),
+    header: t('type'),
   },
   {
     accessorKey: 'created_at',
-    header: $i18n.t('ordering.created_at'),
+    header: t('ordering.created_at'),
   },
   {
     accessorKey: 'last_used_at',
-    header: $i18n.t('last_used_at'),
+    header: t('last_used_at'),
   },
   {
     id: 'actions',
@@ -124,7 +123,7 @@ const actionItems = (row: { id: number, name: string, type: string, created_at: 
   const key = keys.value?.find(k => k.id === row.id)
 
   items.push({
-    label: $i18n.t('edit.title'),
+    label: t('edit.title'),
     icon: 'i-heroicons-pencil-20-solid',
     class: 'cursor-pointer',
     ui: {
@@ -134,7 +133,7 @@ const actionItems = (row: { id: number, name: string, type: string, created_at: 
   })
 
   items.push({
-    label: $i18n.t('delete.title'),
+    label: t('delete.title'),
     icon: 'i-heroicons-trash-20-solid',
     class: 'cursor-pointer',
     ui: {
@@ -185,7 +184,7 @@ onReactivated(async () => {
             :columns="columns"
             :empty-state="{
               icon: 'i-heroicons-key',
-              label: $i18n.t('empty.title'),
+              label: t('empty.title'),
               description: t('empty.description'),
             }"
             :data="rows"
@@ -209,7 +208,7 @@ onReactivated(async () => {
                   <template #trailing>
                     <UTooltip
                       v-if="row.original.name && editId === row.original.id"
-                      :text="$i18n.t('save')"
+                      :text="t('save')"
                     >
                       <UButton
                         color="success"
@@ -249,7 +248,7 @@ onReactivated(async () => {
                   color="neutral"
                   variant="soft"
                 >
-                  {{ $i18n.t('unused') }}
+                  {{ t('unused') }}
                 </UBadge>
                 <span v-else class="text-muted">
                   {{ new Date(row.original.last_used_at * 1000).toLocaleString() }}
@@ -257,7 +256,7 @@ onReactivated(async () => {
               </span>
             </template>
             <template #actions-cell="{ row }">
-              <UTooltip :text="$i18n.t('actions')">
+              <UTooltip :text="t('actions')">
                 <LazyUDropdownMenu
                   v-if="actionItems({
                     id: row.original.id,
@@ -292,7 +291,7 @@ onReactivated(async () => {
               {{ t('total') }}: {{ t('total_keys', { count: rows.length }) }}
             </span>
             <UButton
-              :label="$i18n.t('add.title')"
+              :label="t('add.title')"
               :to="localePath('account-2fa-webauthn-add')"
               icon="i-heroicons-plus"
               color="neutral"

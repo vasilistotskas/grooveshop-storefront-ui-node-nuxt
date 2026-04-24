@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zRetrieveUserAccountData.shape.path.parse,
+      zRetrieveUserAccountPath.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/user/account/${params.id}`,

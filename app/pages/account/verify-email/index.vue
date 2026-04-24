@@ -8,19 +8,17 @@ const { emailVerify } = useAllAuthAuthentication()
 const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 const router = useRouter()
 const { isMobileOrTablet } = useDevice()
 
-const loading = ref(false)
 const hasError = ref(false)
 const code = ref<string[]>([])
 
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('account-login'),
@@ -39,7 +37,7 @@ const codeString = computed(() => code.value.join(''))
 
 const schema = z.object({
   key: z.string()
-    .min(1, $i18n.t('validation.required'))
+    .min(1, t('validation.required'))
     .length(6, t('validation.code.length')),
 })
 
@@ -47,7 +45,6 @@ type Schema = z.output<typeof schema>
 
 async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
   try {
-    loading.value = true
     hasError.value = false
 
     const data = await emailVerify({ key: event.data.key })
@@ -67,9 +64,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
   catch (error) {
     hasError.value = true
     handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
   }
 }
 
@@ -108,9 +102,9 @@ definePageMeta({
         `,
       }"
       class="
-        absolute z-10 mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
+        relative mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
         !pt-2
-        md:relative md:mb-5 md:w-full md:!pt-0
+        md:mb-5 md:w-full md:!pt-0
         dark:bg-transparent
       "
     />
@@ -170,7 +164,6 @@ definePageMeta({
                   otp
                   size="xl"
                   placeholder="○"
-                  :disabled="loading"
                   class="gap-2 pt-2"
                 />
               </div>
@@ -184,7 +177,6 @@ definePageMeta({
 
             <UButton
               type="submit"
-              :loading="loading"
               :disabled="codeString.length !== 6"
               block
               color="neutral"
@@ -192,7 +184,7 @@ definePageMeta({
               size="lg"
               icon="i-heroicons-check-circle"
             >
-              {{ $i18n.t('entry') }}
+              {{ t('entry') }}
             </UButton>
           </UForm>
 

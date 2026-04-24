@@ -3,7 +3,6 @@ const { getRecoveryCodes } = useAllAuthAccount()
 const toast = useToast()
 const localePath = useLocalePath()
 const { t } = useI18n()
-const { $i18n } = useNuxtApp()
 const { copy } = useClipboard()
 
 const { data, refresh, error } = await useAsyncData(
@@ -13,7 +12,7 @@ const { data, refresh, error } = await useAsyncData(
 
 if (error.value) {
   toast.add({
-    title: $i18n.t('auth.mfa.required'),
+    title: t('auth.mfa.required'),
     color: 'error',
   })
   navigateTo(localePath('account-settings'))
@@ -68,7 +67,7 @@ async function copyCode(code: string) {
 function downloadCodes() {
   if (!unused_codes.value) return
   const allCodes = unused_codes.value.join('\n')
-  const blob = new Blob([`Recovery Codes - Generated: ${createdDate.value}\n\n${allCodes}\n\nKeep these codes safe!`], { type: 'text/plain' })
+  const blob = new Blob([`${t('print.title')} - ${t('print.generated')}: ${createdDate.value}\n\n${allCodes}\n\n${t('print.keep_safe')}`], { type: 'text/plain' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
@@ -86,10 +85,11 @@ function downloadCodes() {
 function printCodes() {
   const printWindow = window.open('', '_blank')
   if (printWindow) {
-    printWindow.document.write(`
+    const doc = printWindow.document
+    doc.write(`
       <html>
         <head>
-          <title>Recovery Codes</title>
+          <title>${t('print.title')}</title>
           <style>
             body { font-family: monospace; padding: 40px; }
             h1 { font-size: 24px; margin-bottom: 20px; }
@@ -99,18 +99,32 @@ function printCodes() {
           </style>
         </head>
         <body>
-          <h1>Recovery Codes</h1>
-          <p>Generated: ${createdDate.value}</p>
-          <div class="codes">
-            ${unused_codes.value.map(code => `<div class="code">${code}</div>`).join('')}
-          </div>
+          <h1></h1>
+          <p></p>
+          <div class="codes"></div>
           <div class="warning">
-            <strong>⚠️ Important:</strong> Store these codes in a safe place. Each code can only be used once.
+            <strong></strong> <span></span>
           </div>
         </body>
       </html>
     `)
-    printWindow.document.close()
+    doc.close()
+
+    // Use textContent to safely insert user-facing strings (no HTML injection)
+    doc.querySelector('h1')!.textContent = t('print.title')
+    doc.querySelector('p')!.textContent = `${t('print.generated')}: ${createdDate.value}`
+
+    const codesContainer = doc.querySelector('.codes')!
+    for (const code of unused_codes.value) {
+      const div = doc.createElement('div')
+      div.className = 'code'
+      div.textContent = code
+      codesContainer.appendChild(div)
+    }
+
+    doc.querySelector('.warning strong')!.textContent = t('print.important')
+    doc.querySelector('.warning span')!.textContent = t('print.keep_safe')
+
     printWindow.print()
   }
 }
@@ -241,7 +255,7 @@ onReactivated(async () => {
                   dark:text-white
                 "
               >
-                {{ createdDate || $i18n.t('unused') }}
+                {{ createdDate || t('unused') }}
               </p>
             </div>
 
@@ -266,7 +280,7 @@ onReactivated(async () => {
                 class="mt-2 text-lg font-semibold"
                 :class="lastUsedDate ? 'text-warning' : 'text-success'"
               >
-                {{ lastUsedDate || $i18n.t('unused') }}
+                {{ lastUsedDate || t('unused') }}
               </p>
             </div>
           </div>
@@ -410,6 +424,11 @@ el:
   footer:
     reminder: Μην μοιραστείς αυτούς τους κωδικούς με κανέναν
     regenerate: Δημιουργία Νέων
+  print:
+    title: Κωδικοί Ανάκτησης
+    generated: Δημιουργήθηκαν
+    important: "⚠️ Σημαντικό:"
+    keep_safe: Αποθήκευσε αυτούς τους κωδικούς σε ασφαλές μέρος. Κάθε κωδικός μπορεί να χρησιμοποιηθεί μόνο μία φορά.
   toast:
     copy_all:
       title: Όλοι οι κωδικοί αντιγράφηκαν

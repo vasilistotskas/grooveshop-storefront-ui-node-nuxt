@@ -30,9 +30,13 @@ const mockRouter = {
     mockRouteQuery.value = to.query ? { ...to.query } : {}
     return Promise.resolve()
   }),
-  // Required by @nuxt/test-utils setupNuxt
+  // Required by @nuxt/test-utils setupNuxt and Nuxt internal plugins
   afterEach: vi.fn(() => vi.fn()),
   beforeEach: vi.fn(() => vi.fn()),
+  beforeResolve: vi.fn(() => vi.fn()),
+  onError: vi.fn(() => vi.fn()),
+  isReady: vi.fn(() => Promise.resolve()),
+  resolve: vi.fn((to: any) => ({ fullPath: typeof to === 'string' ? to : to?.path || '/', path: typeof to === 'string' ? to : to?.path || '/', query: {}, hash: '', name: undefined, params: {}, matched: [], meta: {}, redirectedFrom: undefined, href: typeof to === 'string' ? to : to?.path || '/' })),
 }
 
 // Mock Nuxt composables at module level
@@ -273,12 +277,9 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       await nextTick()
       await vi.waitFor(() => expect(consoleErrorSpy).toHaveBeenCalled())
 
-      // Error should be logged (evlog formats as structured object via console.error)
+      // Error should be logged (evlog client transport outputs JSON string via console.error)
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.any(String),
-        expect.any(String),
-        expect.objectContaining({ action: 'search:execute', error: searchError }),
+        expect.stringContaining('"action":"search:execute"'),
       )
 
       // Results should be cleared

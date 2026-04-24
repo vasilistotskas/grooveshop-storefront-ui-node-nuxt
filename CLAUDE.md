@@ -67,13 +67,14 @@ The Nuxt server acts as a **proxy** to the Django backend. Client-side code call
 
 - **Server API routes** (`server/api/`): Proxy endpoints organized by domain — products, cart, orders, order-items, blog (posts/comments/categories), user (account/addresses), search, loyalty, notifications, subscriptions (topics/user), contact, countries, regions, pay-way, settings, health, websocket
 - **Server API pattern**: Routes use `getValidatedQuery`/`readValidatedBody` with Zod schemas, `$fetch` to Django, `parseDataAs` for response validation, `handleError` for error handling. Many routes use `defineCachedEventHandler` with SWR for caching.
-- **`server/utils/auth.ts`**: Creates forwarding headers (`X-Session-Token`, `Authorization`, `X-Forwarded-Host`) for Django requests; `processAllAuthSession` handles token propagation
+- **`server/utils/auth.ts`**: Creates forwarding headers (`X-Session-Token`, `Authorization`, `X-Forwarded-Host`) for Django requests; `createHeaders` sources `X-Forwarded-Host` from `config.public.djangoHostName` (not the raw request host) so that Django's `ALLOWED_HOSTS` validation passes for internal K8s calls; `processAllAuthSession` handles token propagation
 - **`server/utils/api.ts`**: `createCachedFetcher<T>` for paginated data fetching with caching
-- **`server/utils/cartSession.ts`**: Cart session management via `useCartSession(event)` — stores `cartId` in http-only session cookies, provides `getCartHeaders`/`handleCartResponse`/`clearCartSession`
+- **`server/utils/cartSession.ts`**: Cart session management via `useCartSession(event)` — stores `cartId` in http-only session cookies, provides `getCartHeaders`/`handleCartResponse`/`clearCartSession`; `getCartHeaders` includes `X-Forwarded-Host` sourced from `config.public.djangoHostName` for internal K8s calls
 - **`server/utils/parser.ts`**: `parseDataAs(data, zodSchema)` for runtime validation of API responses
 - **`server/utils/error.ts`**: `handleError` (Zod/Fetch/H3 errors), `handleAllAuthError` (auth-specific errors with session management)
 - **`server/utils/oauth.ts`**: Shared OAuth helpers (`captureOAuthProcess`, `readAndClearOAuthProcess`, `storeOAuthTokensAndRedirect`, `redirectOAuthError`) used by Google and Facebook route handlers
 - **`app/utils/auth.ts`** (client): `callAuthChangeHook` → `nuxtApp.callHook('auth:change')` — the only path for auth state changes; composable `onResponse`/`onResponseError` interceptors call this
+- **Guest order access**: Guest order API calls require a `?uuid=` query parameter for Django's `IsOwnerOrAdminOrGuest` permission check. Server routes under `server/api/orders/[id]/` forward the UUID to the backend.
 - **`server/utils/logger.ts`**: `Logger` class that writes error logs to `./logs/` as JSON files
 
 ### Server Middleware
@@ -94,7 +95,7 @@ Uses `evlog/nuxt` module for structured logging. `log` is auto-imported on both 
 
 - **Simple logging**: `log.info('tag', 'message', {context})`, `log.error({ action: 'name', error })`, `log.warn('tag', 'message')`
 - **Wide events** (server only): `const wideLog = useLogger(event)` → `wideLog.set({ key: value })` — one rich event per request, auto-emitted at request end
-- **Enrichers**: `server/plugins/evlog-enrichers.ts` (user-agent, geo, request size, trace context), `server/plugins/evlog-auth-enricher.ts` (auth session user ID)
+- **Enrichers**: `server/plugins/evlog-enrichers.ts` (user-agent, geo, request size, trace context), `server/middleware/2.evlog-auth.ts` (auth session user ID via `useLogger`)
 - **Sampling**: Production-only via `$production.evlog.sampling` in `nuxt.config.ts`
 - **ESLint**: `no-console: 'error'` enforced — use `log.*` instead of `console.*`
 - **Scope limitation**: `log` is NOT auto-imported in `i18n/` directory (outside Nitro/Nuxt auto-import scope)
@@ -214,6 +215,7 @@ Components in `app/components/` organized by domain:
 - **`@nuxtjs/seo`** suite: sitemap (dynamic via `/api/__sitemap__/urls`, auto-excludes account/cart/checkout routes, 24h cache), OG Image (7-day cache), Schema.org (minified), link checker (dev only), canonical URL redirects
 - **Route rules**: Immutable caching for `/_nuxt/**`, static assets, images, CSS/JS. CORS for `/api/**`. Custom headers for manifest, favicons. IPX image prerendering.
 - **Experimental features**: `typedPages`, `asyncContext`, `inlineRouteRules`, `crossOriginPrefetch`, `buildCache`, `viteEnvironmentApi` (disabled in test). NuxtLink prefetch on interaction (not visibility).
+- **Build-time version injection**: `runtimeConfig.public.version` is set from `process.env.npm_package_version` in `nuxt.config.ts`, exposing the `package.json` version to client and server at runtime.
 - **Nitro**: ESBuild target `esnext`, gzip + brotli compression, minification, async context. Prerendered routes for critical above-the-fold images.
 - **DNS prefetch + preconnect**: Media stream, static origin, Django, Google services
 - **Source maps**: Client-side only (server disabled for smaller production bundles)
@@ -229,14 +231,13 @@ Active modules in `nuxt.config.ts`:
 6. `@nuxt/fonts` — Font optimization
 7. `@nuxt/icon` — Icon system (server bundle: remote with externalized JSON for 9 icon sets; client bundle: scanned with 128KB limit)
 8. `@nuxtjs/i18n` — Internationalization (browser detection, cookie-based, typed pages)
-9. `@nuxtjs/device` — Device detection (desktop/mobile/tablet)
-10. `@nuxtjs/seo` — SEO suite (sitemap, OG image, Schema.org, link checker)
-11. `@pinia/nuxt` — Pinia state management
-12. `@vueuse/nuxt` — VueUse composables
-13. `nuxt-auth-utils` — Session management
-14. `@nuxt/a11y` — Accessibility auditing (alpha)
-15. Custom `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
-16. Custom `modules/purge-comments.ts` — Removes HTML comments in production
+9. `@nuxtjs/seo` — SEO suite (sitemap, OG image, Schema.org, link checker)
+10. `@pinia/nuxt` — Pinia state management
+11. `@vueuse/nuxt` — VueUse composables (device detection via `useMediaQuery` with UA-based SSR width)
+12. `nuxt-auth-utils` — Session management
+13. `@nuxt/a11y` — Accessibility auditing (alpha)
+14. Custom `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
+15. Custom `modules/purge-comments.ts` — Removes HTML comments in production
 
 ### CI/CD
 
@@ -265,7 +266,7 @@ Copy `.env.example` to `.env`. Key variables:
 - `NUXT_API_BASE_URL` — Django API URL (default `http://localhost:8000/api/v1`)
 - `NUXT_DJANGO_URL` — Django base URL
 - `NUXT_PUBLIC_BASE_URL` — Frontend URL (default `http://localhost:3000`)
-- `NUXT_PUBLIC_DJANGO_HOST_NAME` — Django hostname for WebSocket connections
+- `NUXT_PUBLIC_DJANGO_HOST_NAME` — Public Django hostname (e.g. `api.webside.gr`); used as `X-Forwarded-Host` in all internal cluster `$fetch` calls so Django's `ALLOWED_HOSTS` validation passes and `request.build_absolute_uri()` constructs correct URLs. Also used for WebSocket connections.
 - `NUXT_PUBLIC_MEDIA_STREAM_ORIGIN` / `NUXT_PUBLIC_MEDIA_STREAM_PATH` — Media processing service
 - `NUXT_PUBLIC_STATIC_ORIGIN` — Static file origin (Django)
 - `NUXT_CACHE_BASE` — `redis` or `memory`

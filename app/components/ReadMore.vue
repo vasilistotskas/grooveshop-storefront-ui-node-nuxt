@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+const { t } = useI18n()
 const props = defineProps({
   text: {
     type: String,
@@ -12,7 +13,6 @@ const props = defineProps({
 
 const uuid = useId()
 const showFullText = useState<boolean>(`${uuid}-read-more`, () => false)
-const { $i18n } = useNuxtApp()
 
 const toggleFullText = () => {
   showFullText.value = !showFullText.value
@@ -42,8 +42,9 @@ const trimmedText = computed(() => {
           block text-sm
           md:text-base
         "
-        v-html="trimmedText"
-      />
+      >
+        {{ trimmedText }}
+      </span>
     </div>
     <div
       v-else
@@ -57,12 +58,13 @@ const trimmedText = computed(() => {
           block text-sm
           md:text-base
         "
-        v-html="text"
-      />
+      >
+        {{ text }}
+      </span>
     </div>
     <div class="right-0 bottom-0 grid justify-end">
       <UButton
-        :label="showFullText ? $i18n.t('read_less') : $i18n.t('read_more')"
+        :label="showFullText ? t('read_less') : t('read_more')"
         size="xs"
         color="neutral"
         @click="toggleFullText"

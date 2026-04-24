@@ -2,10 +2,10 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await requireAllAuthAccessToken()
   try {
-    const body = await readValidatedBody(event, zUpdateUserAccountData.shape.body.parse)
+    const body = await readValidatedBody(event, zUpdateUserAccountBody.parse)
     const params = await getValidatedRouterParams(
       event,
-      zUpdateUserAccountData.shape.path.parse,
+      zUpdateUserAccountPath.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/user/account/${params.id}`,

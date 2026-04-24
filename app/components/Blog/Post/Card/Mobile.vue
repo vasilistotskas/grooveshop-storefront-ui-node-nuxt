@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import { useShare } from '@vueuse/core'
-import type { PropType } from 'vue'
-
 const { blogPostUrl } = useUrls()
 
 const localLikesCount = ref(0)
@@ -34,9 +31,8 @@ const props = defineProps({
   },
 })
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const { post } = toRefs(props)
 
@@ -148,7 +144,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           square
           color="neutral"
           variant="ghost"
-          :title="$i18n.t('comments.count', {
+          :title="t('comments.count', {
             count: post.commentsCount,
           })"
           :to="localePath({ path: blogPostUrl(post.id, post.slug), hash: '#blog-post-comments' })"
@@ -172,7 +168,8 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             square
             color="neutral"
             variant="ghost"
-            :title="$i18n.t('share')"
+            :title="t('share')"
+            :aria-label="t('share')"
             :ui="{
               base: `
                 flex cursor-pointer flex-col items-center gap-1 p-0 text-white

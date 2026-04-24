@@ -1,107 +1,44 @@
 <script lang="ts" setup>
-import type { DropdownMenuItem } from '#ui/types'
-import type { Locale } from '@intlify/core-base'
-
-defineProps({
-  type: {
-    type: String,
-    default: 'dropdown-right-top',
-  },
-})
-
-const { locale, locales, t, setLocale } = useI18n()
-
-const isOpen = ref(false)
+const { locale, locales, t } = useI18n()
+const { setLanguage } = useUserLanguage()
 
 const emit = defineEmits(['languageChanged'])
 
-const items = computed<DropdownMenuItem[][]>(() => {
-  const dropDownItems: DropdownMenuItem[][] = []
-  locales.value?.forEach((option) => {
-    dropDownItems.push([
-      {
-        label: option.name || '',
-        disabled: option.code === locale.value,
-        icon: String(option.icon) || undefined,
-        onSelect: () => {
-          emit('languageChanged', option.code)
-          navigateToLocale(option.code)
-        },
-      },
-    ])
-  })
+const currentLocale = ref(locale.value)
 
-  dropDownItems.sort((a, b) => {
-    if (!a[0]) {
-      return 1
-    }
-    if (!b[0]) {
-      return -1
-    }
-    if (a[0].disabled && !b[0].disabled) {
-      return -1
-    }
-    if (!a[0].disabled && b[0].disabled) {
-      return 1
-    }
-
-    if (a[0].label && b[0].label) {
-      return a[0].label.localeCompare(b[0].label)
-    }
-
-    return 0
-  })
-
-  return dropDownItems
+// Keep the selector in sync with any external locale change (settings form,
+// login-time syncFromUser, programmatic setLocale elsewhere).
+watch(locale, (newLocale) => {
+  if (newLocale !== currentLocale.value) {
+    currentLocale.value = newLocale
+  }
 })
 
-const navigateToLocale = (locale: Locale) => {
-  setLocale(locale)
-}
+watch(currentLocale, async (newLocale) => {
+  if (newLocale === locale.value) return
+  const ok = await setLanguage(newLocale)
+  if (ok) {
+    emit('languageChanged', newLocale)
+  }
+  else {
+    // revert if the server couldn't persist or the locale isn't supported.
+    currentLocale.value = locale.value
+  }
+})
 </script>
 
 <template>
-  <div class="flex items-center">
-    <UDropdownMenu
-      v-model:open="isOpen"
-      arrow
-      :items="items"
-      :popper="{ placement: 'bottom-start' }"
-    >
-      <UButton
-        type="button"
-        class="p-0"
-        color="neutral"
-        variant="ghost"
-        size="xl"
-        trailing-icon="i-heroicons-language"
-        :ui="{
-          base: `
-            cursor-pointer
-            hover:bg-transparent
-          `,
-        }"
-        :title="t('current_language', {
-          language: locale,
-        })"
-        :aria-label="t('current_language', {
-          language: locale,
-        })"
-        :aria-current-value="locale"
-      >
-        <span class="sr-only">{{
-          t('change_language')
-        }}</span>
-      </UButton>
-      <template #item="{ item }">
-        <span class="truncate">{{ item.label }}</span>
-      </template>
-    </UDropdownMenu>
-  </div>
+  <ULocaleSelect
+    v-model="currentLocale"
+    :locales="locales as any"
+    color="neutral"
+    variant="ghost"
+    size="xl"
+    :aria-label="t('change_language')"
+  />
 </template>
 
 <i18n lang="yaml">
 el:
   change_language: Άλλαξε γλώσσα
-  current_language: Τρέχουσα γλώσσα {language}
 </i18n>

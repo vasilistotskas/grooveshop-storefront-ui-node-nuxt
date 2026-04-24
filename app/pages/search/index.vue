@@ -3,8 +3,8 @@ definePageMeta({
   layout: 'default',
 })
 
-const route = useRoute('search')
 const { t, locale } = useI18n()
+const route = useRoute(`search___${locale.value}`)
 
 const query = ref(
   Array.isArray(route.query.query)

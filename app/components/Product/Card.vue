@@ -46,28 +46,37 @@ const productId = computed(() => {
   return product.value.id
 })
 
-const alt = computed(() => {
-  // Handle both Product (with translations) and ProductMeiliSearchResult (flat structure)
-  if (product?.value) {
-    // Check if it's a search result (has name directly)
-    if ('name' in product.value && typeof product.value.name === 'string') {
-      return product.value.name
-    }
-    // Otherwise use extractTranslated for full Product objects
-    return extractTranslated(product.value, 'name', locale.value)
+const productName = computed(() => {
+  if (!product.value) return undefined
+  if ('name' in product.value && typeof product.value.name === 'string') {
+    return product.value.name
   }
-  return undefined
+  return extractTranslated(product.value, 'name', locale.value)
 })
 
-const shareOptions = reactive({
-  title: 'name' in product.value && typeof product.value.name === 'string'
-    ? product.value.name
-    : extractTranslated(product.value, 'name', locale.value) || '',
-  text: 'description' in product.value && typeof product.value.description === 'string'
-    ? product.value.description
-    : extractTranslated(product.value, 'description', locale.value) || '',
-  url: import.meta.client ? productUrl(productId.value, product.value.slug) : '',
+const productDescription = computed(() => {
+  if (!product.value) return ''
+  if ('description' in product.value && typeof product.value.description === 'string') {
+    return product.value.description
+  }
+  return extractTranslated(product.value, 'description', locale.value) || ''
 })
+
+const alt = computed(() => productName.value)
+
+const isLowStock = computed(() => {
+  const stock = product.value?.stock ?? 0
+  if (stock <= 0) return false
+  const lowStockThreshold = (product.value as { lowStockThreshold?: number })?.lowStockThreshold
+  const threshold = typeof lowStockThreshold === 'number' && lowStockThreshold > 0 ? lowStockThreshold : 10
+  return stock <= threshold
+})
+
+const shareOptions = computed(() => ({
+  title: productName.value || '',
+  text: productDescription.value,
+  url: import.meta.client ? productUrl(productId.value, product.value.slug) : '',
+}))
 const { share, isSupported } = useShare(shareOptions)
 const startShare = async () => {
   try {
@@ -121,19 +130,19 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           v-if="product.stock === 0"
           color="neutral"
           variant="solid"
-          size="sm"
+          size="md"
           class="w-fit"
         >
           {{ t('out_of_stock') }}
         </UBadge>
         <UBadge
-          v-else-if="product.stock && product.stock < 10"
+          v-else-if="isLowStock"
           color="warning"
           variant="solid"
-          size="sm"
+          size="md"
           class="w-fit"
         >
-          {{ t('low_stock') }}
+          {{ t('only_n_left', { count: product.stock }) }}
         </UBadge>
       </div>
 
@@ -151,8 +160,21 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             :title="t('share')"
             @click.stop="startShare"
           />
+          <!-- SSR placeholder: a dimensionally-identical disabled
+               button — not a skeleton — so no CLS when Web Share
+               hydrates (support detection is client-only). -->
           <template #fallback>
-            <USkeleton class="size-8 rounded-md" />
+            <UButton
+              v-if="showShareButton"
+              disabled
+              :aria-hidden="true"
+              tabindex="-1"
+              icon="i-heroicons-share"
+              size="md"
+              color="neutral"
+              square
+              variant="soft"
+            />
           </template>
         </ClientOnly>
         <LazyButtonProductAddToFavourite
@@ -170,7 +192,14 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         :aria-label="`${t('view_product')}: ${alt}`"
         class="block"
       >
-        <div class="aspect-4/3 max-w-full overflow-hidden">
+        <div
+          class="aspect-4/3 max-w-full overflow-hidden"
+          :class="{
+            // Dim out-of-stock products so browsing scannability
+            // reflects availability, not just the badge.
+            'opacity-60 grayscale': product.stock === 0,
+          }"
+        >
           <ImgWithFallback
             :loading="imgLoading"
             class="size-full max-w-full bg-white object-contain"
@@ -191,7 +220,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
       <NuxtLink
         :to="{ path: productUrl(productId, product.slug) }"
         class="group/link"
-        :aria-label="`${t('view_product')}: ${'name' in product && typeof product.name === 'string' ? product.name : extractTranslated(product, 'name', locale)}`"
+        :aria-label="`${t('view_product')}: ${productName}`"
       >
         <h3
           class="
@@ -201,7 +230,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
             dark:text-neutral-50 dark:group-hover/link:text-primary-400
           "
         >
-          {{ 'name' in product && typeof product.name === 'string' ? product.name : extractTranslated(product, 'name', locale) }}
+          {{ productName }}
         </h3>
       </NuxtLink>
 
@@ -212,15 +241,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           dark:text-neutral-300
         "
       >
-        {{
-          contentShorten(
-            'description' in product && typeof product.description === 'string'
-              ? product.description
-              : extractTranslated(product, 'description', locale),
-            0,
-            100,
-          )
-        }}
+        {{ contentShorten(productDescription, 0, 100) }}
       </p>
 
       <div
@@ -228,7 +249,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           flex items-center gap-2
         "
       >
-        <div class="flex items-center">
+        <div v-once class="flex items-center">
           <UIcon
             v-for="star in 5"
             :key="star"
@@ -321,6 +342,7 @@ el:
   add_to_cart: Αγορά
   out_of_stock: Εξαντλημένο
   low_stock: Τελευταία κομμάτια
+  only_n_left: Μόνο {count} απέμεινε | Μόνο {count} απέμειναν
   view_product: Προβολή προϊόντος
 </i18n>
 

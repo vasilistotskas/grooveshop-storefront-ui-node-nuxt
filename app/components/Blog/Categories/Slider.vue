@@ -26,6 +26,29 @@ const { data: categories } = await useLazyFetch(`/api/blog/categories`, {
   },
 })
 const categoryResults = computed(() => categories.value?.results ?? [])
+
+const INLINED_FA6_ICONS = new Set([
+  'shield',
+  'mobile',
+  'desktop',
+  'robot',
+  'microchip',
+  'globe',
+  'network-wired',
+  'shuffle',
+])
+
+function deriveIconName(mainImagePath: string | null | undefined): string | null {
+  if (!mainImagePath) return null
+  const match = mainImagePath.match(/\/([^/]+)\.svg(?:\/|$)/i)
+  const captured = match?.[1]
+  if (!captured) return null
+  const base = captured
+    .replace(/(-solid(?:-full)?)(_\d+)?$/i, '')
+    .replace(/_\d+$/, '')
+  if (!base || !INLINED_FA6_ICONS.has(base)) return null
+  return `i-fa6-solid:${base}`
+}
 </script>
 
 <template>
@@ -59,7 +82,14 @@ const categoryResults = computed(() => categories.value?.results ?? [])
         size="xl"
       >
         <template #leading>
+          <UIcon
+            v-if="deriveIconName(item?.mainImagePath)"
+            :name="deriveIconName(item?.mainImagePath)!"
+            class="size-[25px] text-primary-100"
+            :aria-label="extractTranslated(item, 'name', locale)"
+          />
           <ImgWithFallback
+            v-else
             class="aspect-square"
             :alt="`Image - ${extractTranslated(item, 'name', locale)}`"
             :background="'ffffff'"

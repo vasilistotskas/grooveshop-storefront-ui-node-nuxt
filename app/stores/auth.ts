@@ -52,7 +52,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       status.value.config = 'pending'
       const data = await $fetch<ConfigResponse>(
-        '/api/_allauth/app/v1/config',
+        ALLAUTH_CONFIG_URL,
         {
           method: 'GET',
           headers: useRequestHeaders(),
@@ -85,9 +85,14 @@ export const useAuthStore = defineStore('auth', () => {
         session.value = data.data
       }
     }
-    catch (err) {
+    catch (err: any) {
       log.error({ action: 'auth:setupSession', error: err })
-      await clear()
+      // Only clear the session on definitive auth failures (401/410),
+      // not on transient errors (network, 500) which would destroy the access token
+      const status = err?.response?.status || err?.statusCode
+      if (status === 401 || status === 410) {
+        await clear()
+      }
     }
   }
 

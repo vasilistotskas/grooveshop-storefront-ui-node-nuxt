@@ -1,6 +1,5 @@
-const API_ACCOUNT_BASE_URL = '/api/_allauth/app/v1/account' as const
-
 export default function () {
+  const API_ACCOUNT_BASE_URL = ALLAUTH_ACCOUNT_URL
   async function getUserAccount(id: number) {
     return $fetch(`/api/user/account/${id}`, {
       method: 'GET',

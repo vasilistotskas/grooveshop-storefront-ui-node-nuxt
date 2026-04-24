@@ -10,6 +10,7 @@
 export function useUserSubscriptions() {
   const toast = useToast()
   const { $i18n } = useNuxtApp()
+  const t = $i18n.t.bind($i18n)
 
   /**
    * Fetch user subscriptions
@@ -53,8 +54,8 @@ export function useUserSubscriptions() {
       ])
 
       toast.add({
-        title: $i18n.t('subscription_notifications.subscribe.success_title'),
-        description: $i18n.t('subscription_notifications.subscribe.success_description'),
+        title: t('subscription_notifications.subscribe.success_title'),
+        description: t('subscription_notifications.subscribe.success_description'),
         color: 'success',
       })
 
@@ -62,8 +63,8 @@ export function useUserSubscriptions() {
     }
     catch (err) {
       toast.add({
-        title: $i18n.t('subscription_notifications.subscribe.error_title'),
-        description: $i18n.t('subscription_notifications.subscribe.error_description'),
+        title: t('subscription_notifications.subscribe.error_title'),
+        description: t('subscription_notifications.subscribe.error_description'),
         color: 'error',
       })
       throw err
@@ -91,15 +92,15 @@ export function useUserSubscriptions() {
       ])
 
       toast.add({
-        title: $i18n.t('subscription_notifications.unsubscribe.success_title'),
-        description: $i18n.t('subscription_notifications.unsubscribe.success_description'),
+        title: t('subscription_notifications.unsubscribe.success_title'),
+        description: t('subscription_notifications.unsubscribe.success_description'),
         color: 'success',
       })
     }
     catch (err) {
       toast.add({
-        title: $i18n.t('subscription_notifications.unsubscribe.error_title'),
-        description: $i18n.t('subscription_notifications.unsubscribe.error_description'),
+        title: t('subscription_notifications.unsubscribe.error_title'),
+        description: t('subscription_notifications.unsubscribe.error_description'),
         color: 'error',
       })
       throw err
@@ -131,11 +132,11 @@ export function useUserSubscriptions() {
 
       toast.add({
         title: action === 'subscribe'
-          ? $i18n.t('subscription_notifications.bulk_subscribe.success_title')
-          : $i18n.t('subscription_notifications.bulk_unsubscribe.success_title'),
+          ? t('subscription_notifications.bulk_subscribe.success_title')
+          : t('subscription_notifications.bulk_unsubscribe.success_title'),
         description: action === 'subscribe'
-          ? $i18n.t('subscription_notifications.bulk_subscribe.success_description')
-          : $i18n.t('subscription_notifications.bulk_unsubscribe.success_description'),
+          ? t('subscription_notifications.bulk_subscribe.success_description')
+          : t('subscription_notifications.bulk_unsubscribe.success_description'),
         color: 'success',
       })
 
@@ -143,8 +144,8 @@ export function useUserSubscriptions() {
     }
     catch (err) {
       toast.add({
-        title: $i18n.t('subscription_notifications.bulk_operation.error_title'),
-        description: $i18n.t('subscription_notifications.bulk_operation.error_description'),
+        title: t('subscription_notifications.bulk_operation.error_title'),
+        description: t('subscription_notifications.bulk_operation.error_description'),
         color: 'error',
       })
       throw err

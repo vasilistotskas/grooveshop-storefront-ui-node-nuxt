@@ -36,7 +36,7 @@ watch(
       selectedImage.value = image
     }
   },
-  { deep: true, immediate: true },
+  { immediate: true },
 )
 
 function openModal(index?: number) {

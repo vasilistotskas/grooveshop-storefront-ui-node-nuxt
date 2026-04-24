@@ -10,6 +10,34 @@ const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 const { hasStockIssue, getStockStatusMessage } = cartStore
 
+// The abandoned-cart recovery route forwards here with ``?recovered=1``.
+// We surface a one-shot welcome banner so the shopper sees affirmation
+// that their cart was preserved (stock reservations are NOT restored —
+// items may have sold out in the interim, which the existing
+// ``hasStockIssues`` alert below will flag naturally).
+//
+// Only render once the cart has loaded AND has at least one item —
+// otherwise the "we kept your cart" copy is actively misleading for
+// shoppers whose cart was emptied between email send and click. Once
+// shown, we strip the ``recovered`` query param from the URL so a
+// subsequent back-nav or reload doesn't re-trigger the banner.
+const route = useRoute()
+const router = useRouter()
+const wasRecovered = ref(route.query.recovered === '1')
+const showRecoveredBanner = computed(() =>
+  wasRecovered.value
+  && !pending.value
+  && (cart.value?.items?.length ?? 0) > 0,
+)
+
+watch(showRecoveredBanner, (isShown) => {
+  if (!isShown) return
+  // Fire-and-forget: removing the query param is a nice-to-have for
+  // back-nav; blocking the banner render on it would be a regression.
+  router.replace({ query: { ...route.query, recovered: undefined } })
+    .catch(() => {})
+})
+
 const breadcrumb = computed(() => [
   {
     label: t('home'),
@@ -37,9 +65,14 @@ const summaryCardUI = {
   root: 'p-6',
 }
 
-const emptyCardUI = {
-  root: 'w-full p-8',
-}
+// Without a page-level title, setupPageHeader() falls back to the
+// raw appTitle ("GrooveShop - APP TITLE"), which the siteName
+// template then pads with " - GrooveShop" on top, producing
+// "GrooveShop - APP TITLE - GrooveShop". Set a proper cart title so
+// the document title reads "Καλάθι Αγορών - GrooveShop".
+useSeoMeta({
+  title: () => t('shopping_cart'),
+})
 
 defineRouteRules({
   robots: false,
@@ -56,6 +89,18 @@ definePageMeta({
       :items="breadcrumb"
       divider="chevron"
       class="mb-8"
+    />
+
+    <UAlert
+      v-if="showRecoveredBanner"
+      color="info"
+      variant="soft"
+      icon="i-heroicons-shopping-cart"
+      :title="t('recovered.title')"
+      :description="t('recovered.description')"
+      :close="true"
+      class="mb-6"
+      @update:open="(open: boolean) => !open && (wasRecovered = false)"
     />
 
     <UAlert
@@ -135,34 +180,31 @@ definePageMeta({
           </UCard>
         </div>
 
-        <UCard
+        <LazyEmptyState
           v-else-if="!pending && !cart?.items?.length"
-          v-bind="cardConfig"
-          :ui="emptyCardUI"
-          class="text-center"
+          class="w-full"
+          :title="t('empty.title')"
+          :description="t('empty.description_long')"
         >
-          <UIcon
-            name="i-heroicons-shopping-cart"
-            class="mx-auto h-16 w-16 text-gray-400"
-          />
-          <div class="mt-4">
-            <h3 class="text-lg font-semibold">
-              {{ t('empty.title') }}
-            </h3>
-            <p class="mt-1 text-sm text-gray-500">
-              {{ t('empty.description_long') }}
-            </p>
-          </div>
-          <UButton
-            :to="localePath('index')"
-            color="neutral"
-            variant="solid"
-            size="lg"
-            class="mt-4"
-          >
-            {{ t('empty.description') }}
-          </UButton>
-        </UCard>
+          <template #icon>
+            <UIcon
+              name="i-heroicons-shopping-cart"
+              size="xl"
+            />
+          </template>
+          <template #actions>
+            <UButton
+              :to="localePath('index')"
+              color="secondary"
+              variant="solid"
+              size="lg"
+              icon="i-heroicons-arrow-right"
+              trailing
+            >
+              {{ t('empty.description') }}
+            </UButton>
+          </template>
+        </LazyEmptyState>
 
         <div
           v-else
@@ -232,7 +274,12 @@ definePageMeta({
             </h2>
           </template>
 
-          <div class="grid gap-4">
+          <div
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            class="grid gap-4"
+          >
             <div class="flex justify-between">
               <span>{{ t('subtotal', cart.totalItems) }}</span>
               <span>{{ $i18n.n(cart.totalPrice - cart.totalVatValue, 'currency') }}</span>
@@ -337,4 +384,7 @@ el:
   stock_fix:
     success_title: Το καλάθι ενημερώθηκε
     success_description: Οι ποσότητες προσαρμόστηκαν στη διαθέσιμη προϊόντα.
+  recovered:
+    title: Καλωσόρισες πίσω!
+    description: Κρατήσαμε το καλάθι σου. Έλεγξε τα προϊόντα πριν κάποια εξαντληθούν.
 </i18n>

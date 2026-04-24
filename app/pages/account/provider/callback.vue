@@ -5,9 +5,9 @@ const {
 const authStore = useAuthStore()
 const { refreshSession } = authStore
 
-const route = useRoute('account-provider-callback')
+const { t, locale } = useI18n()
+const route = useRoute(`account-provider-callback___${locale.value}`)
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const {
   error: apiError,
@@ -18,7 +18,6 @@ const {
 } = route.query
 // NOTE: access_token, id_token, client_id are now fetched from session API, not URL
 
-const { t } = useI18n()
 const authInfo = useAuthInfo()
 
 const url = ref<typeof RedirectToURLs[keyof typeof RedirectToURLs]>(RedirectToURLs.LOGIN_URL)
@@ -134,7 +133,7 @@ definePageMeta({
           fill="currentFill"
         />
       </svg>
-      <span class="sr-only">{{ $i18n.t('loading') }}</span>
+      <span class="sr-only">{{ t('loading') }}</span>
     </div>
     <div
       v-if="error"
@@ -149,7 +148,7 @@ definePageMeta({
         {{ t('description') }}
       </p>
       <UButton
-        :label="$i18n.t('continue')"
+        :label="t('continue')"
         :to="localePath(url)"
         class="justify-center"
         color="neutral"

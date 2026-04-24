@@ -1,7 +1,4 @@
 <script lang="ts" setup>
-import { useShare } from '@vueuse/core'
-import type { PropType } from 'vue'
-
 const { blogPostUrl } = useUrls()
 
 const localLikesCount = ref(0)
@@ -13,7 +10,7 @@ const props = defineProps({
     required: false,
     default() {
       const { isMobileOrTablet } = useDevice()
-      return isMobileOrTablet ? 480 : 376
+      return isMobileOrTablet.value ? 480 : 376
     },
   },
   imgHeight: {
@@ -21,7 +18,7 @@ const props = defineProps({
     required: false,
     default() {
       const { isMobileOrTablet } = useDevice()
-      return isMobileOrTablet ? 315 : 247
+      return isMobileOrTablet.value ? 315 : 247
     },
   },
   showShareButton: { type: Boolean, required: false, default: true },
@@ -48,9 +45,8 @@ const props = defineProps({
   },
 })
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const { post } = toRefs(props)
 
@@ -115,11 +111,12 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           :loading="imgLoading"
           :fetchpriority="imgFetchPriority"
           :preload="preload"
-          class="rounded-t-lg bg-primary-100"
-          :style="{ objectFit: 'contain', contentVisibility: 'auto' }"
+          class="h-auto w-full rounded-t-lg bg-primary-100"
+          :style="{ objectFit: 'cover', contentVisibility: 'auto' }"
           :src="post.mainImagePath"
           :height="imgHeight"
           :width="imgWidth"
+          sizes="md:360px lg:480px xl:480px xxl:520px 2xl:520px"
           fit="cover"
           :modifiers="{
             position: 'attention',
@@ -165,7 +162,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           square
           color="neutral"
           variant="ghost"
-          :title="$i18n.t('comments.count', {
+          :title="t('comments.count', {
             count: post.commentsCount,
           })"
           :label="String(post.commentsCount)"
@@ -186,7 +183,8 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             square
             color="neutral"
             variant="ghost"
-            :title="$i18n.t('share')"
+            :title="t('share')"
+            :aria-label="t('share')"
             :ui="{
               base: `
                 flex cursor-pointer flex-col items-center gap-1 p-0

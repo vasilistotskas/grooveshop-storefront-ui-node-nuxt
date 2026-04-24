@@ -1,9 +1,7 @@
 <script lang="ts" setup>
-const { t } = useI18n()
-const route = useRoute('account-favourites-posts')
+const { t, locale } = useI18n()
+const route = useRoute(`account-favourites-posts___${locale.value}`)
 const { user } = useUserSession()
-const { enabled } = useAuthPreviewMode()
-const { $i18n } = useNuxtApp()
 
 const pageSize = ref(4)
 const page = computed(() => route.query.page)
@@ -12,12 +10,12 @@ const ordering = computed(() => route.query.ordering || '-createdAt')
 const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
-    label: $i18n.t('ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'updatedAt',
-    label: $i18n.t('ordering.updated_at'),
+    label: t('ordering.updated_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -33,7 +31,6 @@ const { data: favourites, status } = useFetch(
       ordering: ordering,
       pageSize: pageSize,
     },
-    server: false, // User-specific data: client-side only
   },
 )
 
@@ -91,7 +88,7 @@ definePageMeta({
       :text="t('title')"
       class="md:mt-0"
     />
-    <LazyUserAccountFavouritesNavbar v-if="enabled" />
+    <LazyUserAccountFavouritesNavbar />
 
     <div class="flex flex-row flex-wrap items-center gap-2">
       <PaginationPageNumber

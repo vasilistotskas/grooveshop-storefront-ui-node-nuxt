@@ -14,24 +14,33 @@ export default defineNuxtPlugin({
     const userNotificationStore = useUserNotificationStore()
     const { setupNotifications } = userNotificationStore
     const debouncedSetupNotifications = useDebounceFn(setupNotifications, 1000)
+    const { presentationFor } = useNotificationPresentation()
 
     async function initializeWebSocket() {
+      closeWebSocket()
       if (!loggedIn.value) {
         log.warn('ws', 'User not logged in, skipping websocket initialization.')
         return
       }
 
       try {
-        const tokens = await $fetch('/api/websocket/user/tokens', {
+        // Single-use 60s ticket — see server/api/websocket/user/ticket.get.ts.
+        // Never put the Knox access token in the URL; it is logged by
+        // every proxy layer and lives for 7 days.
+        const response = await $fetch<{ ticket: string, expiresIn: number }>('/api/websocket/user/ticket', {
           method: 'GET',
           headers: useRequestHeaders(),
         })
+        if (!response?.ticket) {
+          log.warn('ws', 'No ticket returned from /api/websocket/user/ticket')
+          return
+        }
 
         const websocketProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
         const djangoApiHostName = config.public.djangoHostName || `api.${window.location.hostname}`
         const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHostName}/ws/notifications/`, {
           user_id: user.value?.id,
-          access_token: tokens.accessToken,
+          ticket: response.ticket,
         })
 
         const options: UseWebNotificationOptions = {
@@ -54,19 +63,37 @@ export default defineNuxtPlugin({
           onMessage: async (_ws, event) => {
             const data = JSON.parse(event.data)
             debouncedSetupNotifications()
+
+            // Resolve the active locale's copy with graceful fallback
+            // so a missing translation doesn't crash the toast (the
+            // backend ships ``{el, en, de}`` but an older schema or a
+            // hand-authored admin broadcast might miss the active one).
+            const localized = data?.translations?.[locale.value]
+              ?? data?.translations?.en
+              ?? data?.translations?.el
+              ?? { title: '', message: '' }
+
+            const presentation = presentationFor(data.kind, data.category)
+
             toast.add({
-              title: data.translations[locale.value].title,
-              description: data.translations[locale.value].message,
-              color: 'success',
+              title: localized.title,
+              description: localized.message,
+              color: presentation.color,
+              icon: presentation.icon,
             })
             if (isBroadcastChannelSupported) {
               post(data)
             }
             if (isWebNotificationSupported) {
               await show({
-                title: data.translations[locale.value].title,
-                body: data.translations[locale.value].message,
-                tag: data.type,
+                title: localized.title,
+                body: localized.message,
+                // ``notification_type`` (e.g. ``order_shipped``) is a
+                // stable, shared-across-users tag so the OS-level
+                // replacement behavior actually collapses duplicates.
+                // Falls back to ``data.type`` (the channel-layer event
+                // name) for notifications without an explicit subtype.
+                tag: data.notification_type || data.type,
               })
             }
           },

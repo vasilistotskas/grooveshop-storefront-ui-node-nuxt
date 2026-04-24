@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
+const { t } = useI18n()
 const getCursorFromUrl = (url: string): string => {
   try {
     const params = new URLSearchParams(url.split('?')[1])
@@ -48,7 +49,6 @@ const { cursorKey, links, loading, useRouteQuery, strategy, totalPages } = toRef
 
 const router = useRouter()
 const route = useRoute()
-const { $i18n } = useNuxtApp()
 
 const cursorState = useState<CursorState>('cursor-state')
 
@@ -221,7 +221,7 @@ onUnmounted(() => {
       v-if="showLoadMoreButton"
       size="md"
       variant="soft"
-      :label="$i18n.t('load.more')"
+      :label="t('load.more')"
       color="neutral"
       aria-label="Load more posts"
       :loading="loading"

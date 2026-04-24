@@ -1,67 +1,92 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
+const localePath = useLocalePath()
 const { getUnseenCount, markAsSeen } = useUserNotification()
-const { getNotifications } = useNotification()
+const { presentationFor } = useNotificationPresentation()
 const userNotificationStore = useUserNotificationStore()
+const { notifications } = storeToRefs(userNotificationStore)
 const { setupNotifications } = userNotificationStore
-
-const {
-  notificationIds,
-} = storeToRefs(userNotificationStore)
 const { loggedIn } = useUserSession()
+
+// Defensive bootstrap — if the ``setup`` plugin's idle-callback couldn't
+// populate the store (one of its sibling calls rejected, idle callback
+// never fired, etc.) the bell would show "no notifications" even when
+// the unseen-count endpoint returns a positive number. Loading here as
+// a no-op when already populated keeps the bell self-consistent.
+onMounted(() => {
+  if (!loggedIn.value) return
+  if (notifications.value && notifications.value.results?.length) return
+  setupNotifications().catch(err => log.warn('notifications:bell', 'self-bootstrap failed', { error: err }))
+})
 
 const isDropdownVisible = ref(false)
 const dropdown = ref<HTMLDivElement>()
 const toggleButton = ref<HTMLButtonElement>()
 
-const shouldFetch = computed(() => {
-  return loggedIn.value && notificationIds.value && notificationIds.value.length > 0
-})
-
-// User-specific data: client-side only to avoid blocking SSR
+// Unseen count is an aggregate over the *whole* history (paginated
+// list only covers page 1), so it has its own endpoint.
 const { data: unseen, status: unseenStatus } = useAsyncData(
   'unseenNotificationsCount',
   () => getUnseenCount(),
   {
-    immediate: shouldFetch.value,
-    watch: [notificationIds],
+    immediate: loggedIn.value,
+    watch: [notifications],
     server: false,
     lazy: true,
   },
 )
 
-// User-specific data: client-side only, lazy to not block rendering
-const { data, status: notificationsStatus } = useAsyncData(
-  'notifications',
-  () => getNotifications(notificationIds.value),
-  {
-    immediate: shouldFetch.value,
-    watch: [notificationIds],
-    server: false,
-    lazy: true,
-  },
-)
-
-const pending = computed(() => {
-  return unseenStatus.value === 'pending' || notificationsStatus.value === 'pending'
-})
+const pending = computed(() => unseenStatus.value === 'pending')
 
 const show = computed(() => {
-  if (!unseen.value || !('count' in unseen.value)) {
-    return false
-  }
+  if (!unseen.value || !('count' in unseen.value)) return false
   return unseen.value.count > 0
 })
 
+// Drop directly into the store's detail-serialised rows instead of
+// fetching Notification objects by ID (that path returned plain
+// ``Notification`` rows keyed by Notification.id, which broke the
+// ``markAsSeen`` call below — that endpoint expects
+// ``NotificationUser`` ids). Using the store rows gives us both the
+// nested Notification content to render AND the correct
+// ``NotificationUser.id`` for mark-as-seen.
 const userNotifications = computed(() => {
-  if (!data.value) {
-    return []
-  }
-  return data.value
+  return notifications.value?.results ?? []
 })
 
-const onNotificationClick = async (id: number) => {
-  await markAsSeen([id])
+type ResolvedLink = { to: string, external: boolean } | null
+
+const resolveLink = (link?: string | null): ResolvedLink => {
+  if (!link) return null
+  if (link.startsWith('http://') || link.startsWith('https://')) {
+    const origin = typeof window !== 'undefined' ? window.location.origin : ''
+    if (origin && link.startsWith(origin)) {
+      return { to: link.slice(origin.length) || '/', external: false }
+    }
+    return { to: link, external: true }
+  }
+  return { to: link, external: false }
+}
+
+const onNotificationClick = async (
+  notificationUserId: number,
+  link?: string | null,
+) => {
+  isDropdownVisible.value = false
+  const resolved = resolveLink(link)
+  if (resolved?.external) {
+    markAsSeen([notificationUserId]).catch(() => {})
+    setupNotifications().catch(() => {})
+    window.open(resolved.to, '_blank', 'noopener,noreferrer')
+    return
+  }
+  if (resolved) {
+    markAsSeen([notificationUserId]).catch(() => {})
+    setupNotifications().catch(() => {})
+    await navigateTo(resolved.to)
+    return
+  }
+  await markAsSeen([notificationUserId])
   await setupNotifications()
 }
 
@@ -88,12 +113,12 @@ onClickOutside(dropdown, () => {
       :show="show"
     >
       <UButton
-        :icon="isDropdownVisible ? 'i-heroicons-solid:bell' : 'i-heroicons-bell'"
         color="neutral"
         size="xl"
         type="button"
         variant="ghost"
         :aria-label="t('notifications.title')"
+        :aria-expanded="isDropdownVisible"
         :title="t('notifications.title')"
         :ui="{
           base: `
@@ -102,7 +127,15 @@ onClickOutside(dropdown, () => {
           `,
         }"
         @click="toggleDropdown"
-      />
+      >
+        <Transition name="bell-fade" mode="out-in">
+          <UIcon
+            :key="isDropdownVisible ? 'solid' : 'outline'"
+            :name="isDropdownVisible ? 'i-heroicons-solid:bell' : 'i-heroicons-bell'"
+            class="size-6"
+          />
+        </Transition>
+      </UButton>
     </UChip>
     <Transition>
       <div
@@ -117,14 +150,15 @@ onClickOutside(dropdown, () => {
         "
       >
         <div class="relative grid gap-1 p-2">
-          <template v-if="!pending && userNotifications?.length">
+          <template v-if="!pending && userNotifications.length">
             <UButton
-              v-for="(userNotification, index) in userNotifications"
-              :id="userNotification.id"
-              :key="index"
+              v-for="row in userNotifications"
+              :id="String(row.id)"
+              :key="row.id"
               color="neutral"
               variant="link"
-              @click="onNotificationClick(userNotification.id)"
+              class="justify-start"
+              @click="onNotificationClick(row.id, row.notification?.link)"
             >
               <UCard
                 variant="subtle"
@@ -132,32 +166,47 @@ onClickOutside(dropdown, () => {
                   root: 'size-full',
                   body: `
                     p-2
-                    sm:p-4
+                    sm:p-3
                   `,
                 }"
               >
-                <UChip
-                  :id="`notification-${userNotification.id}`"
-                  :key="`notification-${userNotification.id}`"
-                  class="w-full"
-                  size="md"
-                  color="success"
-                  :show="true"
-                  :ui="{
-                    root: 'grid gap-1',
-                  }"
-                >
-                  <span class="truncate text-sm">
-                    {{ extractTranslated(userNotification, 'title', locale) }}
-                  </span>
-                  <span class="text-xs">
-                    {{ extractTranslated(userNotification, 'message', locale) }}
-                  </span>
-                </UChip>
+                <div class="flex items-start gap-3 text-left">
+                  <UIcon
+                    :name="presentationFor(row.notification?.kind, row.notification?.category).categoryIcon"
+                    :class="['mt-0.5 size-5 shrink-0', presentationFor(row.notification?.kind, row.notification?.category).textClass]"
+                  />
+                  <div class="grid min-w-0 gap-0.5">
+                    <span class="truncate text-sm font-medium">
+                      {{ extractTranslated(row.notification, 'title', locale) }}
+                    </span>
+                    <span
+                      class="
+                        line-clamp-2 text-xs text-neutral-600
+                        dark:text-neutral-300
+                      "
+                    >
+                      {{ extractTranslated(row.notification, 'message', locale) }}
+                    </span>
+                  </div>
+                </div>
               </UCard>
             </UButton>
+
+            <UButton
+              :to="localePath('account-notifications')"
+              color="neutral"
+              variant="soft"
+              size="sm"
+              icon="i-heroicons-arrow-right"
+              trailing
+              block
+              class="mt-1"
+              @click="isDropdownVisible = false"
+            >
+              {{ t('notifications.view_all') }}
+            </UButton>
           </template>
-          <template v-else-if="!pending && !userNotifications?.length">
+          <template v-else-if="!pending && !userNotifications.length">
             <div
               class="
                 grid items-center justify-center justify-items-center gap-2 p-2
@@ -183,4 +232,30 @@ el:
   notifications:
     title: Ειδοποιήσεις
     no_notifications: Δεν έχεις ειδοποιήσεις
+    view_all: "Δες όλες τις ειδοποιήσεις"
 </i18n>
+
+<style scoped>
+.bell-fade-enter-active,
+.bell-fade-leave-active {
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
+}
+
+.bell-fade-enter-from,
+.bell-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bell-fade-enter-active,
+  .bell-fade-leave-active {
+    transition: none;
+  }
+
+  .bell-fade-enter-from,
+  .bell-fade-leave-to {
+    transform: none;
+  }
+}
+</style>

@@ -409,7 +409,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
   </div>
 
   <!-- Non-stepper form (single step with fields) -->
-  <div v-else-if="schema.fields && schema.fields.length > 0">
+  <div v-else-if="schema.fields && schema.fields.length > 0" class="w-full">
     <UForm
       ref="form"
       :state="formState"

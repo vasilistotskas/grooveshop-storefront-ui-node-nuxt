@@ -6,6 +6,12 @@ describe('Server Utils - Auth', () => {
     vi.clearAllMocks()
     // getRequestProtocol is used by createHeaders() to set X-Forwarded-Proto
     vi.stubGlobal('getRequestProtocol', vi.fn().mockReturnValue('https'))
+    // getRequestIP is used by createHeaders() to set X-Real-IP for allauth
+    vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue(undefined))
+    // createHeaders() calls useRuntimeConfig() to get the public Django hostname
+    vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
+      public: { djangoHostName: '' },
+    }))
   })
 
   describe('createHeaders', () => {
@@ -80,6 +86,23 @@ describe('Server Utils - Auth', () => {
       expect(headers['X-Forwarded-Host']).toBe('example.com')
     })
 
+    it('should prefer config djangoHostName over request host for X-Forwarded-Host', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('10.42.0.180:3000'))
+      vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
+        public: { djangoHostName: 'api.webside.gr' },
+      }))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Forwarded-Host']).toBe('api.webside.gr')
+    })
+
     it('should include User-Agent from request headers', () => {
       const mockEvent = {
         node: { req: { headers: {} } },
@@ -112,6 +135,89 @@ describe('Server Utils - Auth', () => {
       expect(headers['X-Forwarded-For']).toBe('192.168.1.1')
     })
 
+    it('should set X-Real-IP from getRequestIP for allauth session tracking', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+      vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue('203.0.113.42'))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Real-IP']).toBe('203.0.113.42')
+    })
+
+    it('should prefer CF-Connecting-IP over getRequestIP', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      const getRequestIPMock = vi.fn().mockReturnValue('10.42.0.1')
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
+        'cf-connecting-ip': '203.0.113.42',
+      }))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+      vi.stubGlobal('getRequestIP', getRequestIPMock)
+
+      const headers = createHeaders()
+
+      expect(headers['X-Real-IP']).toBe('203.0.113.42')
+    })
+
+    it('should prefer True-Client-IP over getRequestIP when CF-Connecting-IP is absent', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
+        'true-client-ip': '203.0.113.99',
+      }))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+      vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue('10.42.0.1'))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Real-IP']).toBe('203.0.113.99')
+    })
+
+    it('should prefer CF-Connecting-IP over True-Client-IP when both are present', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({
+        'cf-connecting-ip': '203.0.113.42',
+        'true-client-ip': '203.0.113.99',
+      }))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+      vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue('10.42.0.1'))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Real-IP']).toBe('203.0.113.42')
+    })
+
+    it('should omit X-Real-IP when getRequestIP returns undefined', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+      vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue(undefined))
+
+      const headers = createHeaders()
+
+      expect(headers).not.toHaveProperty('X-Real-IP')
+    })
+
     it('should create complete headers with all fields', () => {
       const mockEvent = {
         node: { req: { headers: {} } },
@@ -123,6 +229,7 @@ describe('Server Utils - Auth', () => {
         'x-forwarded-for': '192.168.1.1',
       }))
       vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('example.com'))
+      vi.stubGlobal('getRequestIP', vi.fn().mockReturnValue('192.168.1.1'))
 
       const headers = createHeaders('session-token', 'access-token')
 
@@ -133,8 +240,39 @@ describe('Server Utils - Auth', () => {
         'X-Session-Token': 'session-token',
         'Authorization': 'Bearer access-token',
         'User-Agent': 'Mozilla/5.0',
+        'X-Real-IP': '192.168.1.1',
         'X-Forwarded-For': '192.168.1.1',
+        'X-Language': 'el',
       })
+    })
+
+    it('should forward X-Language from event.context.locale', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+        context: { locale: 'en' },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Language']).toBe('en')
+    })
+
+    it('should fall back to DEFAULT_LOCALE when event.context.locale is missing', () => {
+      const mockEvent = {
+        node: { req: { headers: {} } },
+      } as any
+
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue(mockEvent))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+
+      const headers = createHeaders()
+
+      expect(headers['X-Language']).toBe('el')
     })
 
     it('should not include session token when null', () => {

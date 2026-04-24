@@ -4,9 +4,9 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zGetUserAccountFavouriteProductsData.shape.path.parse,
+      zGetUserAccountFavouriteProductsPath.parse,
     )
-    const query = await getValidatedQuery(event, zGetUserAccountFavouriteProductsData.shape.query.parse)
+    const query = await getValidatedQuery(event, zGetUserAccountFavouriteProductsQuery.parse)
     const response = await $fetch(`${config.apiBaseUrl}/user/account/${params.id}/favourite_products`, {
       method: 'GET',
       query,

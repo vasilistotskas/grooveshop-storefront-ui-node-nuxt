@@ -35,18 +35,24 @@ useSchemaOrg([
     ],
   }),
 ])
-defineOgImage({
-  alt: config.public.appTitle,
-  url: config.public.appLogo,
-  width: 1200,
-  height: 630,
+useSeoMeta({
+  ogImage: config.public.appLogo,
+  ogImageAlt: config.public.appTitle,
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
 })
 </script>
 
 <template>
   <NuxtRouteAnnouncer />
   <LoadingIndicator />
-  <UApp :locale="uiLocales[locale]">
+  <UApp
+    :locale="uiLocales[locale]"
+    :toaster="{
+      position: 'top-right',
+      duration: 5000,
+    }"
+  >
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

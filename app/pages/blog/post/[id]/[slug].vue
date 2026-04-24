@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-const route = useRoute('blog-post-id-slug')
-const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
+const route = useRoute(`blog-post-id-slug___${locale.value}`)
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const siteConfig = useSiteConfig()
@@ -67,7 +66,6 @@ const [
 const { data: likedPostsData } = await useFetch('/api/blog/posts/liked-posts', {
   key: `likedPosts${blogPostId.value}`,
   method: 'POST',
-  headers: useRequestHeaders(),
   body: {
     postIds: [blogPostId.value],
   },
@@ -79,7 +77,6 @@ const { data: likedPostsData } = await useFetch('/api/blog/posts/liked-posts', {
 const { data: relatedPosts, status: relatedPostsStatus } = useLazyFetch(`/api/blog/posts/${blogPostId.value}/related-posts`, {
   key: `relatedPosts${blogPostId.value}`,
   method: 'GET',
-  headers: useRequestHeaders(),
 })
 
 if (likedPostsData.value) {
@@ -133,8 +130,8 @@ const ogImage = computed(() => {
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('blog'),
@@ -228,13 +225,6 @@ useSchemaOrg([
   }),
 ])
 
-defineOgImage({
-  alt: blogPost.value.seoTitle || blogPostTitle.value,
-  url: ogImage.value,
-  width: 1200,
-  height: 630,
-})
-
 definePageMeta({
   layout: 'default',
 })
@@ -296,7 +286,7 @@ definePageMeta({
 
             <UButton
               :label="String(blogPost.commentsCount)"
-              :title="$i18n.t('comments.count', { count: blogPost.commentsCount })"
+              :title="t('comments.count', { count: blogPost.commentsCount })"
               size="xl"
               icon="i-heroicons-chat-bubble-oval-left"
               square
@@ -311,7 +301,7 @@ definePageMeta({
             <ClientOnly>
               <UButton
                 v-if="isSupported"
-                :title="$i18n.t('share')"
+                :title="t('share')"
                 size="xl"
                 icon="i-heroicons-share"
                 square

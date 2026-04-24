@@ -9,22 +9,28 @@ defineProps({
   },
 })
 
+const { t } = useI18n()
 const cartStore = useCartStore()
 const { cleanCartState, refreshCart } = cartStore
 
 const { deleteSession } = useAllAuthAuthentication()
 const route = useRoute()
 const localePath = useLocalePath()
-const { $i18n, $routeBaseName } = useNuxtApp()
+const { $routeBaseName } = useNuxtApp()
 
 const routeName = computed(() => $routeBaseName(route))
 
+const userInitiatedLogout = useState<boolean>('auth:userInitiatedLogout', () => false)
+
 const onClickLogout = async () => {
   if (!routeName.value) return
-  if (isRouteProtected(routeName.value))
+  if (isRouteProtected(String(routeName.value)))
     await navigateTo(localePath('index'))
 
   cleanCartState()
+  // Signal the auth plugin that the upcoming LOGGED_OUT event is explicit
+  // (user clicked this button) so it suppresses the "session expired" toast.
+  userInitiatedLogout.value = true
 
   try {
     await deleteSession()
@@ -38,11 +44,11 @@ const onClickLogout = async () => {
 
 <template>
   <UButton
-    :aria-label="$i18n.t('logout')"
+    :aria-label="t('logout')"
     :color="'error'"
-    :label="$i18n.t('logout')"
+    :label="t('logout')"
     :size="size"
-    :title="$i18n.t('logout')"
+    :title="t('logout')"
     :variant="'subtle'"
     @click="onClickLogout"
   />

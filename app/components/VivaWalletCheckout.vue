@@ -41,13 +41,13 @@ const createCheckoutSession = async () => {
       `/api/orders/${props.order.id}/create-checkout-session`,
       {
         method: 'POST',
-        headers: useRequestHeaders(),
         body: {
           successUrl: successUrl,
           cancelUrl: cancelUrl,
           customerEmail: props.order.email,
           description: `Payment for Order #${props.order.id}`,
         },
+        query: props.order.uuid ? { uuid: props.order.uuid } : undefined,
       },
     )
 
@@ -69,11 +69,16 @@ const createCheckoutSession = async () => {
   }
 }
 
+const sessionCreated = ref(false)
+
 // Automatically create checkout session on component mount (client-side only)
 // This is a mutation operation that redirects the user to Viva Wallet's checkout page
-if (import.meta.client) {
-  createCheckoutSession()
-}
+onMounted(() => {
+  if (!sessionCreated.value && !processing.value) {
+    sessionCreated.value = true
+    createCheckoutSession()
+  }
+})
 </script>
 
 <template>

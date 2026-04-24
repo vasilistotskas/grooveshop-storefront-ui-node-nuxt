@@ -5,6 +5,8 @@ interface Props {
   order: OrderDetail
   payWay: PayWay
   disabled?: boolean
+  /** Persist clientSecret across re-mounts to avoid orphan payment intents */
+  initialClientSecret?: string | null
 }
 
 interface PaymentSuccessData {
@@ -17,9 +19,10 @@ interface PaymentSuccessData {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  success: [paymentData: PaymentSuccessData]
-  error: [error: string]
-  ready: []
+  'success': [paymentData: PaymentSuccessData]
+  'error': [error: string]
+  'ready': []
+  'update:clientSecret': [value: string | null]
 }>()
 
 const { t } = useI18n()
@@ -30,12 +33,27 @@ const elements = ref<StripeElements | null>(null)
 const cardElement = ref<StripeCardElement | null>(null)
 const cardElementRef = ref<HTMLElement>()
 
-const clientSecret = ref<string | null>(null)
+// Initialise from prop so re-mounts reuse an existing payment intent
+const clientSecret = ref<string | null>(props.initialClientSecret ?? null)
 const processing = ref(false)
 const error = ref('')
 const isCardComplete = ref(false)
 const isStripeReady = ref(false)
 const currentStep = ref<'card' | 'create' | 'confirm' | 'success'>('card')
+
+const colorMode = useColorMode()
+const appearance = computed(() => ({
+  theme: 'stripe' as const,
+  variables: {
+    colorPrimary: '#0570de',
+    colorBackground: colorMode.value === 'dark' ? '#1a202c' : '#ffffff',
+    colorText: colorMode.value === 'dark' ? '#e2e8f0' : '#30313d',
+    colorDanger: '#df1b41',
+    fontFamily: 'Inter, system-ui, sans-serif',
+    spacingUnit: '4px',
+    borderRadius: '8px',
+  },
+}))
 
 const initializeStripe = async () => {
   if (!cardElementRef.value || stripe.value) return
@@ -53,18 +71,7 @@ const initializeStripe = async () => {
           }
 
           elements.value = stripe.value.elements({
-            appearance: {
-              theme: 'stripe',
-              variables: {
-                colorPrimary: '#0570de',
-                colorBackground: '#ffffff',
-                colorText: '#30313d',
-                colorDanger: '#df1b41',
-                fontFamily: 'Inter, system-ui, sans-serif',
-                spacingUnit: '4px',
-                borderRadius: '8px',
-              },
-            },
+            appearance: appearance.value,
           })
 
           cardElement.value = elements.value.create('card', {
@@ -128,8 +135,8 @@ const createPaymentIntent = async () => {
   try {
     const response = await $fetch(`/api/orders/${props.order.id}/create-payment-intent`, {
       method: 'POST',
-      headers: useRequestHeaders(),
       body: {},
+      query: props.order.uuid ? { uuid: props.order.uuid } : undefined,
     })
 
     if (!response) {
@@ -137,6 +144,7 @@ const createPaymentIntent = async () => {
     }
 
     clientSecret.value = response.clientSecret || null
+    emit('update:clientSecret', clientSecret.value)
 
     if (!clientSecret.value) {
       throw new Error('No client secret received from server')

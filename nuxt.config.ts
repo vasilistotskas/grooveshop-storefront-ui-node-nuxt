@@ -1,4 +1,5 @@
 import { DEFAULT_LOCALE } from './i18n/locales'
+import { version } from './package.json'
 
 const modules = [
   'evlog/nuxt',
@@ -9,7 +10,6 @@ const modules = [
   '@nuxt/fonts',
   '@nuxt/icon',
   '@nuxtjs/i18n',
-  '@nuxtjs/device',
   '@nuxtjs/seo',
   '@pinia/nuxt',
   '@vueuse/nuxt',
@@ -59,6 +59,7 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
         { rel: 'icon', type: 'image/png', href: '/favicon/favicon-16x16.png' },
         { rel: 'apple-touch-icon', href: '/favicon/apple-touch-icon.png' },
+        { rel: 'manifest', href: '/manifest.webmanifest' },
         // DNS prefetch for external domains to reduce DNS lookup time
         { rel: 'dns-prefetch', href: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003' },
         { rel: 'dns-prefetch', href: process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000' },
@@ -180,6 +181,7 @@ export default defineNuxtConfig({
         origin: process.env.NUXT_PUBLIC_STATIC_ORIGIN,
       },
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+      version,
     },
   },
   routeRules: {
@@ -206,7 +208,6 @@ export default defineNuxtConfig({
     },
     '/manifest.webmanifest': {
       headers: {
-        'Content-Type': 'application/manifest+json',
         'Cache-Control': 'public, max-age=0, must-revalidate',
       },
     },
@@ -284,22 +285,21 @@ export default defineNuxtConfig({
     crossOriginPrefetch: true,
     defaults: {
       nuxtLink: {
+        // Prefetch on viewport visibility so hot listings (products, blog,
+        // category grids) warm the route bundles before the user clicks.
+        // Interaction still triggers immediate prefetch on hover/focus.
         prefetchOn: {
-          visibility: false,
+          visibility: true,
           interaction: true,
         },
       },
     },
   },
-  compatibilityDate: '2025-06-01',
+  compatibilityDate: 'latest',
   nitro: {
     prerender: {
       crawlLinks: false,
-      routes: [
-        '/_ipx/q_80&s_145x30/img/logo-navbar.svg',
-        '/_ipx/f_avif&q_80&fit_cover&s_1194x418/img/main-banner.png',
-        '/_ipx/f_avif&q_80&fit_cover&s_510x638/img/main-banner-mobile.png',
-      ],
+      ignore: ['/_ipx/'],
     },
     esbuild: {
       options: {
@@ -326,6 +326,13 @@ export default defineNuxtConfig({
       features: {
         optionsAPI: false,
       },
+    },
+    optimizeDeps: {
+      include: [
+        '@internationalized/date',
+        'zod',
+        'isomorphic-dompurify',
+      ],
     },
   },
   typescript: {
@@ -391,7 +398,10 @@ export default defineNuxtConfig({
     },
   },
   eslint: {
-    checker: true,
+    checker: {
+      eslintPath: 'eslint',
+      lintOnStart: true,
+    },
     config: {
       stylistic: true,
     },
@@ -422,6 +432,7 @@ export default defineNuxtConfig({
           'el-GR.json',
           'auth/el-GR.json',
           'breadcrumb/el-GR.json',
+          'checkout/el-GR.json',
           'cookies/el-GR.json',
           'validation/el-GR.json',
         ],
@@ -441,17 +452,43 @@ export default defineNuxtConfig({
     },
   },
   icon: {
+    // Resolve icons against the locally-installed @iconify-json/*
+    // packages (see dependencies in package.json) instead of hitting
+    // a public CDN. ``externalizeIconsJson: true`` keeps cold starts
+    // lean by loading icon JSONs via dynamic import at request time,
+    // but Node 24 enforces ``with { type: 'json' }`` on those imports
+    // and @nuxt/icon 2.2.1's externalised path doesn't emit the
+    // attribute — /_nuxt_icon/*.json 500'd in production with
+    // ERR_IMPORT_ATTRIBUTE_MISSING after the base image bumped to
+    // node:24-alpine. Inlining the JSON into the server bundle at
+    // build time avoids the runtime import entirely; slight bundle
+    // bloat in exchange for icons that actually load under Node 24+.
     serverBundle: {
-      remote: true,
-      externalizeIconsJson: true,
+      externalizeIconsJson: false,
       collections: ['ant-design', 'fa-solid', 'fa6-solid', 'heroicons', 'lucide', 'heroicons-solid', 'heroicons-outline', 'mdi', 'unjs'],
     },
+    // Force the CDN fallback (for icons outside the installed packs) to
+    // go through the Nuxt server, not the browser. Browsers talking
+    // directly to api.iconify.design tripped the site's strict
+    // `connect-src` CSP; with `server-only` the fallback is a
+    // same-origin request to /api/_nuxt_icon/... and the server
+    // proxies upstream if needed.
+    fallbackToApi: 'server-only',
     clientBundle: {
       icons: [
         'i-lucide:moon',
         'i-lucide:sun',
+        'i-lucide:check',
         'i-heroicons:heart',
         'i-fa6-solid:circle-user',
+        'i-fa6-solid:shield',
+        'i-fa6-solid:mobile',
+        'i-fa6-solid:desktop',
+        'i-fa6-solid:robot',
+        'i-fa6-solid:microchip',
+        'i-fa6-solid:globe',
+        'i-fa6-solid:network-wired',
+        'i-fa6-solid:shuffle',
       ],
       scan: {
         globInclude: ['app/**/*.vue'],
@@ -471,6 +508,7 @@ export default defineNuxtConfig({
         name: 'mediaStream',
         provider: '~/providers/media-stream',
         options: {
+          baseURL: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
           quality: 80,
           width: 100,
           height: 100,
@@ -478,7 +516,6 @@ export default defineNuxtConfig({
           position: 'entropy',
           background: 'transparent',
           trimThreshold: 5,
-          // baseURL can be overridden here if needed
         },
       },
     },
@@ -501,13 +538,16 @@ export default defineNuxtConfig({
     failOnError: false,
   },
   ogImage: {
-    defaults: {
-      cacheMaxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
-    },
+    enabled: false,
   },
   schemaOrg: {
     enabled: true,
     minify: true,
+  },
+  scripts: {
+    assets: {
+      integrity: 'sha384',
+    },
   },
   seo: {
     redirectToCanonicalSiteUrl: true,

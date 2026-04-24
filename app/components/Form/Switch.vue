@@ -20,11 +20,7 @@ defineSlots<{
 const emit = defineEmits(['update:modelValue'])
 const { on, id } = toRefs(props)
 
-const randomId = () =>
-  Math.random().toString(36).substring(2, 15)
-  + Math.random().toString(36).substring(2, 15)
-
-const switchId = ref(id?.value || randomId())
+const switchId = ref(id?.value || useId())
 const input = ref<HTMLInputElement>()
 
 const checked = useSyncProps<boolean>(props, 'modelValue', emit)

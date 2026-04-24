@@ -19,9 +19,7 @@ const localePath = useLocalePath()
 const authStore = useAuthStore()
 const { t } = useI18n()
 const { session } = storeToRefs(authStore)
-const { $i18n } = useNuxtApp()
 
-const loading = ref(false)
 const showError = ref(false)
 const code = ref<string[]>([])
 
@@ -35,7 +33,7 @@ if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
 
 const schema = z.object({
   code: z.string()
-    .min(1, $i18n.t('validation.required'))
+    .min(1, t('validation.required'))
     .length(6, t('validation.code.length')),
 })
 
@@ -43,7 +41,6 @@ type Schema = z.output<typeof schema>
 
 async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
   try {
-    loading.value = true
     showError.value = false
 
     const response = await twoFaAuthenticate({
@@ -65,9 +62,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
     showError.value = true
     handleAllAuthClientError(error)
   }
-  finally {
-    loading.value = false
-  }
 }
 
 // Auto-submit when code is complete
@@ -88,8 +82,8 @@ watch(codeString, (newCode) => {
         color="error"
         variant="soft"
         icon="i-heroicons-exclamation-circle"
-        :title="$i18n.t('error.title')"
-        :description="$i18n.t('error.invalid_code')"
+        :title="t('error.title')"
+        :description="t('error.invalid_code')"
         close
         @update:open="showError = false"
       />
@@ -112,7 +106,6 @@ watch(codeString, (newCode) => {
               otp
               size="xl"
               placeholder="○"
-              :disabled="loading"
               class="gap-2"
             />
           </div>
@@ -126,13 +119,12 @@ watch(codeString, (newCode) => {
 
         <UButton
           type="submit"
-          :loading="loading"
           :disabled="codeString.length !== 6"
           block
           size="lg"
           icon="i-heroicons-arrow-right-on-rectangle"
         >
-          {{ $i18n.t('entry') }}
+          {{ t('entry') }}
         </UButton>
       </UForm>
     </div>

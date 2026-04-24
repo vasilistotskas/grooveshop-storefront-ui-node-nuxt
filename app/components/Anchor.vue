@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-// eslint-disable-next-line
 import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
-// eslint-disable-next-line
+
 import type { RouteLocationAsRelativeI18n } from 'vue-router'
 
 defineProps({

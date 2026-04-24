@@ -1,14 +1,21 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
-const { primaryDomain } = storeToRefs(useTenantStore())
+const runtimeConfig = useRuntimeConfig()
+const siteHost = computed(() => {
+  try {
+    return new URL(runtimeConfig.public.baseUrl).host
+  }
+  catch {
+    return useRequestURL().host
+  }
+})
 
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('cookies-policy'),
@@ -58,13 +65,13 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        Στο {{ primaryDomain }} χρησιμοποιούμε cookies για να κάνουμε καλύτερη την εμπειρία σου στο site μας. Η χρήση των
+        Στο www.{{ siteHost }} χρησιμοποιούμε cookies για να κάνουμε καλύτερη την εμπειρία σου στο site μας. Η χρήση των
         cookies μας βοηθάει να βελτιώσουμε τις λειτουργίες του site, να κάνουν πιο εύκολη την περιήγηση σου αλλά και
         να σε διευκολύνουν στις επιλογές σου. Έτσι, μπορούμε να σου παρέχουμε εξατομικευμένο περιεχόμενο και
         διαφημίσεις που βασίζονται στα ενδιαφέροντα και τις ανάγκες σου. Επιπλέον, τα cookies χρησιμοποιούνται για να
         αναλύσουμε την επισκεψιμότητα του site μας και να εντοπίσουμε προβληματικές σελίδες που χρήζουν βελτίωσης.
         Στόχος μας είναι να βελτιώνουμε το site μας για να παρέχουμε συνεχώς καλύτερες υπηρεσίες αλλά και εμπειρία
-        κατά την επίσκεψη των χρηστών μας. Στο {{ primaryDomain }} πρωταρχικός στόχος είναι η προστασία της ιδιωτικότητας
+        κατά την επίσκεψη των χρηστών μας. Στο www.{{ siteHost }} πρωταρχικός στόχος είναι η προστασία της ιδιωτικότητας
         των επισκεπτών της ιστοσελίδας και για το λόγο αυτό ο οργανισμός τηρεί αυστηρή πολιτική. Σου προτείνουμε να
         αφιερώσεις λίγο χρόνο και να διαβάσεις αυτήν την πολιτική, ώστε να μπομπορείς να κατανοήσεις τον τύπο των
         cookies που χρησιμοποιούμε, τις πληροφορίες που συλλέγουμε χρησιμοποιώντας τα cookies και πώς χρησιμοποιούνται

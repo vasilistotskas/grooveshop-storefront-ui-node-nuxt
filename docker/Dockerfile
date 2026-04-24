@@ -1,9 +1,11 @@
-ARG NODE_VERSION=24.13.0
+ARG NODE_VERSION=24.15.0
 
 FROM node:${NODE_VERSION}-alpine AS build
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+
+RUN apk add --no-cache python3 make g++
 
 RUN npm install -g pnpm@latest
 

@@ -3,18 +3,25 @@ import type { TableColumn } from '#ui/types'
 
 const UAvatar = resolveComponent('UAvatar')
 
-const route = useRoute('checkout-success-uuid')
+const { t, locale } = useI18n()
+const route = useRoute(`checkout-success-uuid___${locale.value}`)
 const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
 
 const sessionId = computed(() => route.query.session_id as string | undefined)
-const fromCheckout = computed(() => !!sessionId.value)
+const vivaOrderCode = computed(() => route.query.s as string | undefined)
+const fromViva = computed(() => !!vivaOrderCode.value)
+const fromCheckout = computed(() => !!sessionId.value || fromViva.value)
 const sessionVerified = ref(false)
 const verifyingSession = ref(false)
+const pollAttempt = ref(0)
+const isActive = ref(true)
 
 const { $i18n } = useNuxtApp()
-const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const img = useImage()
+
+const cartStore = useCartStore()
+const { cleanCartState } = cartStore
 
 const getImage = (mainImagePath: string) => {
   return img(mainImagePath, { width: 96, height: 96, fit: 'cover' }, {
@@ -30,6 +37,9 @@ const { data: order, error, refresh } = await useFetch(
     headers: useRequestHeaders(),
     query: {
       languageCode: locale,
+      // Forward the UUID as a query param so Django's IsOwnerOrAdminOrGuest
+      // permission check passes for guest orders (unauthenticated users)
+      uuid: orderUUID,
     },
   },
 )
@@ -62,32 +72,67 @@ const totalPriceExtra = computed(() => order.value?.totalPriceExtra || 0)
 const trackingNumber = computed(() => order.value?.trackingNumber)
 const shippingCarrier = computed(() => order.value?.shippingCarrier)
 
-// Verify payment session once when coming from checkout
-onMounted(async () => {
-  if (sessionId.value && order.value && !order.value.isPaid) {
-    verifyingSession.value = true
-    try {
-      // Wait a bit for webhook to process
-      await new Promise(resolve => setTimeout(resolve, 2000))
+const openTracking = () => {
+  if (!trackingNumber.value) return
+  const query = shippingCarrier.value
+    ? `${shippingCarrier.value} ${trackingNumber.value} tracking`
+    : `${trackingNumber.value} tracking`
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank', 'noopener,noreferrer')
+}
 
-      // Refresh order data once
+onBeforeUnmount(() => {
+  isActive.value = false
+})
+
+// Poll order status when coming from a payment provider.
+// Viva Wallet webhooks can be delayed, so poll more aggressively.
+onMounted(async () => {
+  // Clear client-side cart state on arrival at the success page.
+  // For Viva Wallet the checkout page is unloaded before onPaymentSuccess fires
+  // (window.location.href redirect), so the Pinia cart store still holds stale
+  // data. Calling cleanCartState() here ensures the cart badge resets regardless
+  // of the payment method used. The server-side cart session is already cleared
+  // by orders/index.post.ts on order creation.
+  if (fromCheckout.value) {
+    cleanCartState().catch(err => log.error({ action: 'success:cleanCartState', error: err }))
+  }
+
+  if (!fromCheckout.value || !order.value) return
+
+  if (order.value.isPaid) {
+    sessionVerified.value = true
+    return
+  }
+
+  verifyingSession.value = true
+  // Viva webhooks can be slow; Stripe is typically fast
+  const maxAttempts = fromViva.value ? 15 : 5
+  const interval = 2000
+
+  try {
+    for (let i = 0; i < maxAttempts; i++) {
+      if (!isActive.value) break
+      pollAttempt.value = i + 1
+      await new Promise(resolve => setTimeout(resolve, interval))
+      if (!isActive.value) break
       await refresh()
 
-      // Mark as verified regardless of payment status
-      // The order status will show the actual payment state
-      sessionVerified.value = true
+      const status = order.value?.paymentStatus?.toLowerCase() || ''
+      if (
+        order.value?.isPaid
+        || ['completed', 'failed', 'canceled', 'refunded'].includes(status)
+      ) {
+        break
+      }
     }
-    catch (err) {
-      log.error({ action: 'checkout:verifySession', error: err })
-      sessionVerified.value = true // Mark as verified even on error
-    }
-    finally {
-      verifyingSession.value = false
-    }
-  }
-  else if (sessionId.value && order.value?.isPaid) {
-    // Already paid, mark as verified immediately
     sessionVerified.value = true
+  }
+  catch (err) {
+    log.error({ action: 'checkout:verifySession', error: err })
+    sessionVerified.value = true
+  }
+  finally {
+    verifyingSession.value = false
   }
 })
 
@@ -103,6 +148,20 @@ const getPaymentStatusColor = (status: OrderDetail['paymentStatus']) => {
   }
   if (!status) return 'neutral'
   return colors[status.toLowerCase()] || 'neutral'
+}
+
+const getPaymentStatusLabel = (status: OrderDetail['paymentStatus']) => {
+  const labels: Record<string, string> = {
+    pending: t('payment.status_label.pending'),
+    processing: t('payment.status_label.processing'),
+    completed: t('payment.status_label.completed'),
+    failed: t('payment.status_label.failed'),
+    refunded: t('payment.status_label.refunded'),
+    partially_refunded: t('payment.status_label.partially_refunded'),
+    canceled: t('payment.status_label.canceled'),
+  }
+  if (!status) return t('payment.pending')
+  return labels[status.toLowerCase()] || status
 }
 
 const orderItemColumns: TableColumn<OrderItemDetail>[] = [
@@ -209,7 +268,7 @@ definePageMeta({
     </UAlert>
 
     <UAlert
-      v-else-if="fromCheckout && sessionVerified"
+      v-else-if="fromCheckout && sessionVerified && isPaid"
       color="success"
       variant="subtle"
       icon="i-heroicons-check-circle"
@@ -220,6 +279,21 @@ definePageMeta({
       </template>
       <template #description>
         {{ t('payment.completed.description') }}
+      </template>
+    </UAlert>
+
+    <UAlert
+      v-else-if="fromCheckout && sessionVerified && !isPaid"
+      color="warning"
+      variant="subtle"
+      icon="i-heroicons-clock"
+      class="mx-auto max-w-2xl"
+    >
+      <template #title>
+        {{ t('payment.processing.title') }}
+      </template>
+      <template #description>
+        {{ t('payment.processing.description') }}
       </template>
     </UAlert>
 
@@ -300,7 +374,7 @@ definePageMeta({
                 :color="getPaymentStatusColor(paymentStatus)"
                 variant="subtle"
               >
-                {{ isPaid ? t('payment.paid') : t('payment.pending') }}
+                {{ getPaymentStatusLabel(paymentStatus) }}
               </UBadge>
             </div>
 
@@ -383,6 +457,7 @@ definePageMeta({
               block
               icon="i-heroicons-truck"
               :label="t('actions.track')"
+              @click="openTracking"
             />
           </div>
         </UCard>
@@ -413,9 +488,20 @@ el:
     paid: Πληρωμένη
     pending: Εκκρεμεί
     method: Τρόπος Πληρωμής
+    status_label:
+      pending: Εκκρεμεί
+      processing: Σε επεξεργασία
+      completed: Ολοκληρώθηκε
+      failed: Απέτυχε
+      refunded: Επεστράφη
+      partially_refunded: Μερική επιστροφή
+      canceled: Ακυρώθηκε
     completed:
-      title: Η παραγγελία ολοκληρώθηκε
-      description: Η παραγγελία σου επιβεβαιώθηκε και θα λάβεις email επιβεβαίωσης σύντομα.
+      title: Η πληρωμή ολοκληρώθηκε
+      description: Η πληρωμή σου επιβεβαιώθηκε και θα λάβεις email επιβεβαίωσης σύντομα.
+    processing:
+      title: Η πληρωμή επεξεργάζεται
+      description: Η παραγγελία σου καταχωρήθηκε. Η επιβεβαίωση πληρωμής μπορεί να καθυστερήσει λίγα λεπτά.
   tracking:
     number: Αριθμός Παρακολούθησης
   shipping:

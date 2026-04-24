@@ -35,10 +35,12 @@ export default defineCachedEventHandler(async (event) => {
   getKey: (event) => {
     const query = getQuery(event)
     const keyParts = [
-      query.pageSize || '10',
+      'categories',
+      query.idIn || 'all',
       query.languageCode || 'el',
-      query.idIn || '',
+      query.pageSize || '100',
+      query.page || '1',
     ]
-    return tenantCacheKey(event, `product-categories:${keyParts.join(':')}`)
+    return tenantCacheKey(event, keyParts.join(':'))
   },
 })

@@ -46,7 +46,6 @@ const { loggedIn, user } = useUserSession()
 const userStore = useUserStore()
 const { updateLikedComments } = userStore
 const cursorState = useState<CursorState>('cursor-state')
-const { $i18n } = useNuxtApp()
 
 const cursor = computed(
   () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
@@ -60,7 +59,6 @@ const refreshLikedComments = async (ids: number[]) => {
   if (!loggedIn.value) return
   return await $fetch('/api/blog/comments/liked-comments', {
     method: 'POST',
-    headers: useRequestHeaders(),
     body: {
       commentIds: ids,
     },
@@ -122,9 +120,7 @@ const loadMoreComments = async () => {
   isLoadingMore.value = true
 
   try {
-    const response = await $fetch<PaginatedBlogCommentList>(nextUrl, {
-      headers: useRequestHeaders(),
-    })
+    const response = await $fetch<PaginatedBlogCommentList>(nextUrl)
 
     if (response?.results?.length) {
       const newComments = response.results.filter(
@@ -169,7 +165,6 @@ if (loggedInAndHasComments.value) {
   await useFetch('/api/blog/comments/liked-comments', {
     key: `likedComments${blogPostId.value}`,
     method: 'POST',
-    headers: useRequestHeaders(),
     body: {
       commentIds: commentIds,
     },
@@ -196,7 +191,7 @@ const addCommentFormSchema: DynamicFormSchema = {
       name: 'content',
       as: 'textarea',
       rules: z.string({
-        error: issue => issue.input === undefined ? $i18n.t('validation.required') : undefined,
+        error: issue => issue.input === undefined ? t('validation.required') : undefined,
       }).max(1000),
       autocomplete: 'on',
       condition: null,
@@ -215,7 +210,6 @@ const addCommentFormSchema: DynamicFormSchema = {
 async function onAddCommentSubmit(values: Record<string, any>) {
   await $fetch('/api/blog/comments', {
     method: 'POST',
-    headers: useRequestHeaders(),
     body: {
       post: Number(blogPostId.value),
       user: Number(user?.value?.id),
@@ -337,7 +331,7 @@ onMounted(() => {
 
     <div v-if="showLoadMoreButton" class="flex w-full justify-center">
       <UButton
-        :label="$i18n.t('load.more')"
+        :label="t('load.more')"
         :loading="isLoadingMore"
         size="md"
         color="secondary"
@@ -357,7 +351,7 @@ onMounted(() => {
         <LazyDynamicForm
           v-if="loggedIn"
           id="add-comment-form"
-          :button-label="$i18n.t('submit')"
+          :button-label="t('submit')"
           :schema="addCommentFormSchema"
           class="container mx-auto"
           @submit="onAddCommentSubmit"
@@ -386,7 +380,7 @@ onMounted(() => {
     <div v-if="showCommentsList && loggedIn" class="w-full">
       <LazyDynamicForm
         id="add-comment-form-with-comments"
-        :button-label="$i18n.t('submit')"
+        :button-label="t('submit')"
         :schema="addCommentFormSchema"
         class="container mx-auto"
         :submit-button-ui="{

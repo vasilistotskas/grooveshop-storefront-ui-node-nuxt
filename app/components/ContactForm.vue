@@ -2,29 +2,27 @@
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
+const { t } = useI18n()
 const toast = useToast()
-const { $i18n } = useNuxtApp()
-
-const loading = ref(false)
 
 const schema = z.object({
   name: z.string({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.string.invalid'),
-  }).min(2, { error: $i18n.t('validation.string.invalid') }),
+      ? t('validation.required')
+      : t('validation.string.invalid'),
+  }).min(2, { error: t('validation.string.invalid') }),
 
   email: z.email({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.email.valid'),
+      ? t('validation.required')
+      : t('validation.email.valid'),
   }),
 
   message: z.string({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.string.invalid'),
-  }).min(10, { error: $i18n.t('validation.string.invalid') }),
+      ? t('validation.required')
+      : t('validation.string.invalid'),
+  }).min(10, { error: t('validation.string.invalid') }),
 })
 
 type Schema = z.output<typeof schema>
@@ -36,7 +34,6 @@ const state = reactive<Partial<Schema>>({
 })
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  loading.value = true
   try {
     await $fetch('/api/contact', {
       method: 'POST',
@@ -44,7 +41,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     })
 
     toast.add({
-      title: $i18n.t('success.title'),
+      title: t('success.title'),
       color: 'success',
     })
 
@@ -54,12 +51,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   }
   catch {
     toast.add({
-      title: $i18n.t('error.default'),
+      title: t('error.default'),
       color: 'error',
     })
-  }
-  finally {
-    loading.value = false
   }
 }
 </script>
@@ -83,16 +77,15 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         >
           <!-- Name Field -->
           <UFormField
-            :label="$i18n.t('name')"
+            :label="t('name')"
             name="name"
             required
           >
             <UInput
               v-model="state.name"
-              :placeholder="$i18n.t('name')"
+              :placeholder="t('name')"
               size="lg"
               autocomplete="name"
-              :disabled="loading"
               :ui="{
                 root: 'w-full',
               }"
@@ -101,17 +94,16 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
           <!-- Email Field -->
           <UFormField
-            :label="$i18n.t('email.title')"
+            :label="t('email.title')"
             name="email"
             required
           >
             <UInput
               v-model="state.email"
-              :placeholder="$i18n.t('email.title')"
+              :placeholder="t('email.title')"
               type="email"
               size="lg"
               autocomplete="email"
-              :disabled="loading"
               :ui="{
                 root: 'w-full',
               }"
@@ -120,16 +112,15 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
           <!-- Message Field -->
           <UFormField
-            :label="$i18n.t('message')"
+            :label="t('message')"
             name="message"
             required
           >
             <UTextarea
               v-model="state.message"
-              :placeholder="$i18n.t('message')"
+              :placeholder="t('message')"
               :rows="6"
               size="lg"
-              :disabled="loading"
               :ui="{
                 root: 'w-full',
               }"
@@ -143,11 +134,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               color="success"
               variant="soft"
               size="lg"
-              :loading="loading"
-              :disabled="loading"
               block
             >
-              {{ $i18n.t('submit') }}
+              {{ t('submit') }}
             </UButton>
           </div>
         </UForm>

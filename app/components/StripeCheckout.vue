@@ -38,13 +38,13 @@ const createCheckoutSession = async () => {
       `/api/orders/${props.order.id}/create-checkout-session`,
       {
         method: 'POST',
-        headers: useRequestHeaders(),
         body: {
           successUrl: successUrl,
           cancelUrl: cancelUrl,
           customerEmail: props.order.email,
           description: `Payment for Order #${props.order.id}`,
         },
+        query: props.order.uuid ? { uuid: props.order.uuid } : undefined,
       },
     )
 

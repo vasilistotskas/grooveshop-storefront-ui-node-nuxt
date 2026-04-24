@@ -38,6 +38,12 @@ defineExpose({
 <template>
   <div
     id="nuxt-loading-indicator"
+    role="progressbar"
+    aria-label="Page loading"
+    :aria-valuenow="isLoading ? Math.round(progress) : undefined"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    :aria-hidden="!isLoading"
     :style="{
       position: 'fixed',
       top: 0,

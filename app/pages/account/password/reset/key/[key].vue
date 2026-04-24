@@ -2,13 +2,12 @@
 const { t } = useI18n()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('account-login'),
@@ -57,9 +56,9 @@ definePageMeta({
         `,
       }"
       class="
-        absolute z-10 mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
+        relative mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
         !pt-2
-        md:relative md:mb-5 md:w-full md:!pt-0
+        md:mb-5 md:w-full md:!pt-0
         dark:bg-transparent
       "
     />

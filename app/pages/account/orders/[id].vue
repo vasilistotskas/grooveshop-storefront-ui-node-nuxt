@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 const { $i18n } = useNuxtApp()
 const { t, locale } = useI18n()
-const route = useRoute('account-orders-id')
+const route = useRoute(`account-orders-id___${locale.value}`)
 const orderId = 'id' in route.params
   ? route.params.id
   : undefined
 
-const { data: order } = await useFetch<OrderDetail>(`/api/orders/${orderId}`, {
+const { data: order, refresh: refreshOrder } = await useFetch<OrderDetail>(`/api/orders/${orderId}`, {
   key: `order${orderId}`,
   method: 'GET',
   headers: useRequestHeaders(),
@@ -14,6 +14,10 @@ const { data: order } = await useFetch<OrderDetail>(`/api/orders/${orderId}`, {
     languageCode: locale,
   },
 })
+
+const { cancelOrder } = useOrder()
+const toast = useToast()
+const isCanceling = ref(false)
 
 const localePath = useLocalePath()
 const { productUrl } = useUrls()
@@ -67,60 +71,58 @@ const pricingItems = computed(() => {
   return items
 })
 
-const orderSteps = computed(() => {
-  const status = order.value?.status?.toLowerCase() || 'pending'
-  const statusOrder = ['pending', 'confirmed', 'processing', 'shipped', 'delivered']
-  const currentIndex = statusOrder.indexOf(status)
+// Happy-path order flow, aligned with Django's `OrderStatus` enum
+// (see order/enum/status.py + the allowed_transitions map in
+// order/services.py). Typed as `OrderStatus` so TS errors the moment
+// the backend renames or removes one of these values. The remaining
+// enum members (CANCELED, RETURNED, REFUNDED) are off-path terminal
+// states surfaced via the alert banner / status badge, not the stepper.
+const ORDER_STATUS_FLOW = [
+  'PENDING',
+  'PROCESSING',
+  'SHIPPED',
+  'DELIVERED',
+  'COMPLETED',
+] as const satisfies readonly OrderStatus[]
 
-  const steps = [
-    {
-      title: t('order_placed'),
-      description: t('order_placed_desc'),
-      icon: 'i-heroicons-shopping-cart',
-      value: 'pending',
-    },
-    {
-      title: t('confirmed'),
-      description: t('confirmed_desc'),
-      icon: 'i-heroicons-check-circle',
-      value: 'confirmed',
-    },
-    {
-      title: t('processing'),
-      description: t('processing_desc'),
-      icon: 'i-heroicons-archive-box',
-      value: 'processing',
-    },
-    {
-      title: t('shipped'),
-      description: t('shipped_desc'),
-      icon: 'i-heroicons-truck',
-      value: 'shipped',
-    },
-    {
-      title: t('delivered'),
-      description: t('delivered_desc'),
-      icon: 'i-heroicons-check-circle',
-      value: 'delivered',
-    },
-  ]
+const ORDER_STEP_META: Record<typeof ORDER_STATUS_FLOW[number], { titleKey: string, descKey: string, icon: string }> = {
+  PENDING: { titleKey: 'order_placed', descKey: 'order_placed_desc', icon: 'i-heroicons-shopping-cart' },
+  PROCESSING: { titleKey: 'processing', descKey: 'processing_desc', icon: 'i-heroicons-archive-box' },
+  SHIPPED: { titleKey: 'shipped', descKey: 'shipped_desc', icon: 'i-heroicons-truck' },
+  DELIVERED: { titleKey: 'delivered', descKey: 'delivered_desc', icon: 'i-heroicons-truck' },
+  COMPLETED: { titleKey: 'completed', descKey: 'completed_desc', icon: 'i-heroicons-check-circle' },
+}
 
-  return steps.map((step, index) => ({
-    ...step,
-    completed: index <= currentIndex,
-    active: index === currentIndex,
-  }))
+const currentStatusIndex = computed(() => {
+  const status = order.value?.status
+  if (!status) return 0
+  return ORDER_STATUS_FLOW.indexOf(status as typeof ORDER_STATUS_FLOW[number])
 })
 
+const orderSteps = computed(() =>
+  ORDER_STATUS_FLOW.map((value, index) => {
+    const meta = ORDER_STEP_META[value]
+    return {
+      title: t(meta.titleKey),
+      description: t(meta.descKey),
+      icon: meta.icon,
+      value,
+      completed: index <= currentStatusIndex.value,
+      active: index === currentStatusIndex.value,
+    }
+  }),
+)
+
 const orderProgressPercentage = computed(() => {
-  const status = order.value?.status?.toLowerCase() || 'pending'
-  const statusOrder = ['pending', 'confirmed', 'processing', 'shipped', 'delivered']
-  const currentIndex = statusOrder.indexOf(status)
-  return currentIndex >= 0 ? ((currentIndex + 1) / statusOrder.length) * 100 : 0
+  const index = currentStatusIndex.value
+  return index >= 0 ? ((index + 1) / ORDER_STATUS_FLOW.length) * 100 : 0
 })
 
 const currentStepValue = computed(() => {
-  return order.value?.status?.toLowerCase() || 'pending'
+  const status = order.value?.status
+  return status && (ORDER_STATUS_FLOW as readonly string[]).includes(status)
+    ? status
+    : ORDER_STATUS_FLOW[0]
 })
 
 const stepperColor = computed(() => {
@@ -142,7 +144,10 @@ const stepperColor = computed(() => {
 const orderAlert = computed(() => {
   const status = order.value?.status?.toLowerCase()
 
-  if (status === 'cancelled') {
+  // Backend emits ``CANCELED`` (US spelling). Accept both spellings
+  // defensively so a stray ``CANCELLED`` in historical metadata doesn't
+  // silently fall through.
+  if (status === 'canceled' || status === 'cancelled') {
     return {
       show: true,
       color: 'error' as const,
@@ -195,6 +200,7 @@ function getTimelineIcon(changeType?: string) {
       return 'i-heroicons-truck'
     case 'delivered':
       return 'i-heroicons-check-circle'
+    case 'canceled':
     case 'cancelled':
       return 'i-heroicons-x-circle'
     case 'payment':
@@ -247,13 +253,130 @@ function getPaymentStatusColor(status?: string): 'success' | 'error' | 'warning'
 }
 
 async function handleCancelOrder() {
-  if (!order.value?.canBeCanceled) return
+  if (!order.value?.canBeCanceled || isCanceling.value) return
+  isCanceling.value = true
+  try {
+    await cancelOrder(order.value.id)
+    await refreshOrder()
+    toast.add({
+      title: t('cancel.success_title'),
+      description: t('cancel.success_description'),
+      color: 'success',
+      icon: 'i-heroicons-check-circle',
+    })
+  }
+  catch (error) {
+    const status = (error as { statusCode?: number })?.statusCode
+    log.error({ action: 'order:cancel', status, error })
+    const isConflict = status === 409 || status === 400
+    toast.add({
+      title: t('cancel.error_title'),
+      description: isConflict
+        ? t('cancel.error_conflict')
+        : t('cancel.error_description'),
+      color: 'error',
+      icon: 'i-heroicons-x-circle',
+    })
+    // Sync to the authoritative state — maybe someone else already
+    // canceled it or the status moved on since page load.
+    if (isConflict) await refreshOrder()
+  }
+  finally {
+    isCanceling.value = false
+  }
 }
 
 async function handleTrackOrder() {
   const trackingUrl = order.value?.trackingDetails?.trackingUrl
   if (trackingUrl) {
     window.open(trackingUrl, '_blank')
+  }
+}
+
+const isFetchingInvoice = ref(false)
+
+async function handleDownloadInvoice() {
+  if (!order.value?.id || isFetchingInvoice.value) return
+  isFetchingInvoice.value = true
+  try {
+    const data = await $fetch(`/api/orders/${order.value.id}/invoice`, {
+      method: 'GET',
+      headers: useRequestHeaders(),
+    })
+    const downloadUrl = data?.downloadUrl
+    if (!downloadUrl) {
+      toast.add({
+        title: t('invoice.error_title'),
+        description: t('invoice.error_missing'),
+        color: 'error',
+        icon: 'i-heroicons-x-circle',
+      })
+      return
+    }
+    // Opening in a new tab keeps the order page context; the URL is a
+    // short-lived signed link so there's no value in deep-linking.
+    window.open(downloadUrl, '_blank', 'noopener,noreferrer')
+  }
+  catch (error) {
+    log.error({ action: 'order:invoice:download', error })
+    toast.add({
+      title: t('invoice.error_title'),
+      description: t('invoice.error_description'),
+      color: 'error',
+      icon: 'i-heroicons-x-circle',
+    })
+  }
+  finally {
+    isFetchingInvoice.value = false
+  }
+}
+
+const cartStore = useCartStore()
+const isReordering = ref(false)
+
+async function handleReorder() {
+  if (!order.value?.id || isReordering.value) return
+  isReordering.value = true
+  try {
+    const result = await $fetch<ReorderResponse>(`/api/orders/${order.value.id}/reorder`, {
+      method: 'POST',
+      headers: useRequestHeaders(),
+    })
+    await cartStore.refreshCart()
+
+    const skippedCount = result.skippedItems?.length ?? 0
+    const addedCount = result.addedItems?.length ?? 0
+    if (addedCount === 0) {
+      toast.add({
+        title: t('reorder.empty_title'),
+        description: t('reorder.empty_description'),
+        color: 'warning',
+        icon: 'i-heroicons-exclamation-triangle',
+      })
+      return
+    }
+
+    toast.add({
+      title: t('reorder.success_title'),
+      description: skippedCount > 0
+        ? t('reorder.success_with_skipped', { added: addedCount, skipped: skippedCount })
+        : t('reorder.success_description', { count: addedCount }),
+      color: 'success',
+      icon: 'i-heroicons-shopping-cart',
+    })
+    await navigateTo(localePath('cart'))
+  }
+  catch (error) {
+    log.error({ action: 'order:reorder', error })
+    toast.add({
+      title: t('reorder.error_title'),
+      description: t('reorder.error_description'),
+      color: 'error',
+      icon: 'i-heroicons-x-circle',
+    })
+  }
+  finally {
+    isReordering.value = false
   }
 }
 
@@ -356,8 +479,8 @@ definePageMeta({
     />
 
     <div
-      v-if="order.canBeCanceled || order.trackingDetails?.hasTracking" class="
-        flex gap-3
+      class="
+        flex flex-wrap gap-3
       "
     >
       <UButton
@@ -365,6 +488,8 @@ definePageMeta({
         color="error"
         variant="outline"
         icon="i-heroicons-x-circle"
+        :loading="isCanceling"
+        :disabled="isCanceling"
         @click="handleCancelOrder"
       >
         {{ t('cancel_order') }}
@@ -378,6 +503,29 @@ definePageMeta({
         @click="handleTrackOrder"
       >
         {{ t('track_order') }}
+      </UButton>
+
+      <UButton
+        v-if="order.hasInvoice"
+        color="neutral"
+        variant="outline"
+        icon="i-heroicons-document-arrow-down"
+        :loading="isFetchingInvoice"
+        :disabled="isFetchingInvoice"
+        @click="handleDownloadInvoice"
+      >
+        {{ t('invoice.download') }}
+      </UButton>
+
+      <UButton
+        color="secondary"
+        variant="solid"
+        icon="i-heroicons-arrow-path"
+        :loading="isReordering"
+        :disabled="isReordering"
+        @click="handleReorder"
+      >
+        {{ t('reorder.cta') }}
       </UButton>
     </div>
 
@@ -1034,14 +1182,14 @@ el:
   order_progress: Πρόοδος Παραγγελίας
   order_placed: Παραγγελία
   order_placed_desc: Η παραγγελία σας δημιουργήθηκε
-  confirmed: Επιβεβαιώθηκε
-  confirmed_desc: Η παραγγελία επιβεβαιώθηκε
   processing: Επεξεργασία
   processing_desc: Η παραγγελία επεξεργάζεται
   shipped: Απεστάλη
   shipped_desc: Η παραγγελία απεστάλη
   delivered: Παραδόθηκε
   delivered_desc: Η παραγγελία παραδόθηκε
+  completed: Ολοκληρώθηκε
+  completed_desc: Η παραγγελία ολοκληρώθηκε
   order_items: Προϊόντα Παραγγελίας
   order_summary: Σύνοψη Παραγγελίας
   quantity: Ποσότητα
@@ -1084,4 +1232,24 @@ el:
   payment_pending: Εκκρεμής Πληρωμή
   payment_method_fee: Χρέωση μεθόδου πληρωμής
   payment_pending_desc: Υπάρχει εκκρεμές ποσό {amount} για αυτή την παραγγελία
+  invoice:
+    download: "Λήψη τιμολογίου"
+    error_title: "Αποτυχία λήψης τιμολογίου"
+    error_description: "Δοκίμασε ξανά σε λίγο."
+    error_missing: "Το τιμολόγιο δεν είναι διαθέσιμο ακόμη."
+  cancel:
+    success_title: "Η παραγγελία ακυρώθηκε"
+    success_description: "Η παραγγελία σου ακυρώθηκε με επιτυχία."
+    error_title: "Αποτυχία ακύρωσης"
+    error_description: "Δεν μπορέσαμε να ακυρώσουμε την παραγγελία. Δοκίμασε ξανά."
+    error_conflict: "Η παραγγελία δεν μπορεί πλέον να ακυρωθεί στην τρέχουσα κατάστασή της."
+  reorder:
+    cta: "Επανάληψη παραγγελίας"
+    success_title: "Προστέθηκαν στο καλάθι"
+    success_description: "Προστέθηκαν {count} προϊόντα στο καλάθι σου."
+    success_with_skipped: "Προστέθηκαν {added} προϊόντα. {skipped} δεν ήταν διαθέσιμα."
+    empty_title: "Κανένα προϊόν δεν είναι διαθέσιμο"
+    empty_description: "Τα προϊόντα αυτής της παραγγελίας δεν είναι πλέον διαθέσιμα."
+    error_title: "Αποτυχία επανάληψης"
+    error_description: "Δεν μπορέσαμε να προσθέσουμε τα προϊόντα στο καλάθι. Δοκίμασε ξανά."
 </i18n>

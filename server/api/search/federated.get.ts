@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
   try {
-    const query = await getValidatedQuery(event, zSearchFederatedRetrieveData.shape.query.parse)
+    const query = await getValidatedQuery(event, zSearchFederatedRetrieveQuery.parse)
 
     const response = await $fetch(`${config.apiBaseUrl}/search/federated`, {
       method: 'GET',

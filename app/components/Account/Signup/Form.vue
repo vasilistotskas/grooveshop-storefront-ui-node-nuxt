@@ -13,8 +13,8 @@ const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
 
-const loading = ref(false)
 const selected = ref(false)
+const isSubmitting = ref(false)
 
 const schema = z.object({
   email: z.email({
@@ -47,15 +47,8 @@ const state = reactive<Partial<Schema>>({
   password2: undefined,
 })
 
-const showPassword1 = ref(false)
-const showPassword2 = ref(false)
-
-const submitCount = ref(0)
-
 const onSubmit = async (event: FormSubmitEvent<Schema>) => {
-  loading.value = true
-  submitCount.value++
-
+  isSubmitting.value = true
   try {
     await signup({ email: event.data.email, password: event.data.password })
     toast.add({
@@ -67,22 +60,12 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     handleAllAuthClientError(error)
   }
   finally {
-    loading.value = false
+    isSubmitting.value = false
   }
 }
 
-const submitButtonLabel = computed(() => {
-  if (submitCount.value > 5) {
-    return t('validation.too_many_attempts')
-  }
-
-  return !loading.value
-    ? t('submit')
-    : t('loading')
-})
-
 const submitButtonDisabled = computed(() => {
-  return loading.value || submitCount.value > 5 || !selected.value
+  return !selected.value || isSubmitting.value
 })
 
 const backgroundImage = computed(() => {
@@ -131,7 +114,7 @@ const backgroundImage = computed(() => {
                 :src="'/img/logo-border.png'"
                 :width="isMobileOrTablet ? 100 : 140"
                 :height="isMobileOrTablet ? 100 : 140"
-                :alt="`${'Login Logo ' + config.public.appTitle}`"
+                :alt="t('logo_alt', { appTitle: config.public.appTitle })"
                 quality="80"
               />
             </div>
@@ -156,31 +139,12 @@ const backgroundImage = computed(() => {
               :required="true"
               size="lg"
             >
-              <div class="relative grid items-center gap-2">
-                <UInput
-                  v-model="state.password"
-                  :type="showPassword1 ? 'text' : 'password'"
-                  autocomplete="current-password"
-                  class="w-full"
-                  size="lg"
-                />
-                <UButton
-                  :aria-label="t('password1.show')"
-                  :icon="
-                    showPassword1 ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
-                  "
-                  color="neutral"
-                  type="button"
-                  variant="ghost"
-                  :ui="{
-                    base: `
-                      absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer
-                      hover:bg-transparent
-                    `,
-                  }"
-                  @click="showPassword1 = !showPassword1"
-                />
-              </div>
+              <FormPasswordInput
+                v-model="state.password"
+                autocomplete="new-password"
+                size="lg"
+              />
+              <FormPasswordStrengthMeter :password="state.password ?? ''" />
             </UFormField>
 
             <UFormField
@@ -189,31 +153,11 @@ const backgroundImage = computed(() => {
               :required="true"
               size="lg"
             >
-              <div class="relative grid items-center gap-2">
-                <UInput
-                  v-model="state.password2"
-                  :type="showPassword2 ? 'text' : 'password'"
-                  autocomplete="current-password"
-                  class="w-full"
-                  size="lg"
-                />
-                <UButton
-                  :aria-label="t('password2.show')"
-                  :icon="
-                    showPassword2 ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'
-                  "
-                  color="neutral"
-                  type="button"
-                  variant="ghost"
-                  :ui="{
-                    base: `
-                      absolute top-1/2 right-2 -translate-y-1/2 cursor-pointer
-                      hover:bg-transparent
-                    `,
-                  }"
-                  @click="showPassword2 = !showPassword2"
-                />
-              </div>
+              <FormPasswordInput
+                v-model="state.password2"
+                autocomplete="new-password"
+                size="lg"
+              />
             </UFormField>
 
             <div class="flex items-center gap-2">
@@ -246,11 +190,9 @@ const backgroundImage = computed(() => {
             </div>
 
             <UButton
-              :aria-busy="loading"
               :disabled="submitButtonDisabled"
-              :label="
-                submitButtonLabel"
-              :loading="loading"
+              :loading="isSubmitting"
+              :label="t('submit')"
               block
               size="xl"
               type="submit"
@@ -348,6 +290,7 @@ const backgroundImage = computed(() => {
 
 <i18n lang="yaml">
 el:
+  logo_alt: "Λογότυπο {appTitle}"
   login: Σύνδεση
   or: ή
   passkey_login: Εγγραφή με κωδικό μιας χρήσης

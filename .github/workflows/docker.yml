@@ -11,6 +11,7 @@ jobs:
   push_to_registries:
     name: Push Docker image to multiple registries
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       packages: write
       contents: read
@@ -19,16 +20,16 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -37,7 +38,6 @@ jobs:
       - name: Create .env file from GitHub variables and secrets
         env:
           ALL_VARS: ${{ toJSON(vars) }}
-          # Secrets must be explicitly listed (GitHub doesn't allow dynamic iteration)
           NUXT_SESSION_PASSWORD: ${{ secrets.NUXT_SESSION_PASSWORD }}
           NUXT_SECRET_KEY: ${{ secrets.NUXT_SECRET_KEY }}
           NUXT_OAUTH_GOOGLE_CLIENT_SECRET: ${{ secrets.NUXT_OAUTH_GOOGLE_CLIENT_SECRET }}
@@ -47,11 +47,8 @@ jobs:
           NUXT_OAUTH_DISCORD_CLIENT_SECRET: ${{ secrets.NUXT_OAUTH_DISCORD_CLIENT_SECRET }}
           NUXT_OAUTH_DISCORD_CLIENT_ID: ${{ secrets.NUXT_OAUTH_DISCORD_CLIENT_ID }}
         run: |
-          # Add all NUXT_* variables (dynamic)
           echo "$ALL_VARS" | jq -r 'to_entries | .[] | select(.key | startswith("NUXT_")) | "\(.key)=\(.value)"' > .env
-          # Override cache to memory for Docker build (no Redis available)
           echo "NUXT_CACHE_BASE=memory" >> .env
-          # Add secrets (must be explicit) - use || true to prevent exit code 1 when var is empty
           [ -n "$NUXT_SESSION_PASSWORD" ] && echo "NUXT_SESSION_PASSWORD=$NUXT_SESSION_PASSWORD" >> .env || true
           [ -n "$NUXT_SECRET_KEY" ] && echo "NUXT_SECRET_KEY=$NUXT_SECRET_KEY" >> .env || true
           [ -n "$NUXT_OAUTH_GOOGLE_CLIENT_SECRET" ] && echo "NUXT_OAUTH_GOOGLE_CLIENT_SECRET=$NUXT_OAUTH_GOOGLE_CLIENT_SECRET" >> .env || true
@@ -60,20 +57,19 @@ jobs:
           [ -n "$NUXT_OAUTH_FACEBOOK_CLIENT_ID" ] && echo "NUXT_OAUTH_FACEBOOK_CLIENT_ID=$NUXT_OAUTH_FACEBOOK_CLIENT_ID" >> .env || true
           [ -n "$NUXT_OAUTH_DISCORD_CLIENT_SECRET" ] && echo "NUXT_OAUTH_DISCORD_CLIENT_SECRET=$NUXT_OAUTH_DISCORD_CLIENT_SECRET" >> .env || true
           [ -n "$NUXT_OAUTH_DISCORD_CLIENT_ID" ] && echo "NUXT_OAUTH_DISCORD_CLIENT_ID=$NUXT_OAUTH_DISCORD_CLIENT_ID" >> .env || true
-          # Debug: show .env file (without secrets)
           echo "=== .env file created (keys only) ==="
           cut -d'=' -f1 .env
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             gro0ve/grooveshop-storefront-ui-node-nuxt
             ghcr.io/${{ github.repository }}
 
       - name: Build and push Docker images
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./docker/Dockerfile
@@ -84,4 +80,6 @@ jobs:
           cache-to: type=gha,mode=max
           target: production
           build-args: |
-            NODE_VERSION=24.13.0
+            NODE_VERSION=24.15.0
+          sbom: true
+          provenance: mode=max

@@ -18,7 +18,6 @@ const { t } = useI18n()
 const toast = useToast()
 const { contentShorten } = useText()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const isDeleting = ref(false)
 
@@ -35,7 +34,6 @@ const submit = async () => {
 
   await $fetch(`/api/user/addresses/${address?.value.id}`, {
     method: 'DELETE',
-    headers: useRequestHeaders(),
     onResponse({ response }) {
       if (!response.ok) {
         return
@@ -187,7 +185,7 @@ const addressDetails = computed(() => {
             dark:text-gray-300
           "
         >
-          {{ $i18n.t('floor') }}: {{ address.floor }}
+          {{ t('floor') }}: {{ address.floor }}
         </span>
       </div>
 

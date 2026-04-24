@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zDestroyBlogCommentData.shape.path.parse,
+      zDestroyBlogCommentPath.parse,
     )
     await $fetch(
       `${config.apiBaseUrl}/blog/comment/${params.id}`,

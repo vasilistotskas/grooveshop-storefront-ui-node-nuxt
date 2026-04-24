@@ -28,7 +28,6 @@ const { productId, reviewsAverage, reviewsCount, displayImageOf }
 
 const { t, locale } = useI18n()
 const route = useRoute()
-const { $i18n } = useNuxtApp()
 
 const ordering = computed(() => route.query.ordering || '-createdAt')
 
@@ -49,7 +48,7 @@ const {
 const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
-    label: $i18n.t('ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
 ])

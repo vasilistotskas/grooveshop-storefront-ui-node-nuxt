@@ -1,3 +1,437 @@
+## [3.95.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.95.0...v3.95.1) (2026-04-24)
+
+
+### Bug Fixes
+
+* **order:** drop duplicate local cancel toast ([a11a21b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a11a21b1cd7eba69c3d81f2f19a7e295728e022f))
+
+# [3.95.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.94.2...v3.95.0) (2026-04-23)
+
+
+### Features
+
+* **checkout:** gate B2B invoicing + self-gate LoyaltyRedemption ([799b130](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/799b1306210b0ca76cf90deb9285fec3e4d75819))
+
+## [3.94.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.94.1...v3.94.2) (2026-04-23)
+
+
+### Bug Fixes
+
+* **icon:** inline iconify JSON into server bundle for Node 24 ([58c5e64](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/58c5e64536998fb5ba4a98e81785f4e97e082c34))
+
+## [3.94.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.94.0...v3.94.1) (2026-04-23)
+
+
+### Bug Fixes
+
+* **openapi:** stable enum names + unblock openapi-ts codegen ([4c40919](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4c409199b45aff6225b3501b2a98c666fe6fc373))
+
+# [3.94.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.93.2...v3.94.0) (2026-04-23)
+
+
+### Features
+
+* **checkout:** B2B billing — ΑΦΜ field + invoiceType toggle ([afb42fd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/afb42fd890da6d149e9bc83f406c32a1eaadaa00))
+
+## [3.93.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.93.1...v3.93.2) (2026-04-22)
+
+
+### Bug Fixes
+
+* **orders:** align stepper flow with backend OrderStatus enum ([8fe9735](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8fe9735d3f0f97867c29b220aaf622412d2b47b5))
+
+## [3.93.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.93.0...v3.93.1) (2026-04-22)
+
+
+### Bug Fixes
+
+* signup form loading ([a599f8f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a599f8f2261db08e9da5125064658fe4a13d1cf6))
+
+# [3.93.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.92.1...v3.93.0) (2026-04-22)
+
+
+### Bug Fixes
+
+* **frontend:** useI18n scope + defer favourites fetch past hydration ([1402f3a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1402f3a1a28375d714b5a9802f0f3b54f070d172))
+* **notifications:** self-heal store + correct i18n labels surfaced by live testing ([17a64b1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/17a64b13a4ca4b3d58ca163b6350a6edf8bb1a26))
+* orders/address showing at user profile ([3db60df](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3db60df49e137a00cefa835134b39fb6eccb0fa7))
+
+
+### Features
+
+* **gdpr:** privacy page with async export + typed-DELETE erasure modal ([c73f957](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c73f95744c3566a58365dc2c68d47fa162fa0862))
+* **notifications:** live in-app notifications + dedicated page ([5a36bbb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5a36bbb861419ce47bcc802a77bf1c61b695303b))
+* **orders:** download PDF invoice from the order detail page ([11c303e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/11c303eefd86d6ab6dbcb2e47aa793c6647dccd5))
+
+## [3.92.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.92.0...v3.92.1) (2026-04-21)
+
+
+### Bug Fixes
+
+* recently viewed ([3194b60](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3194b60713960fe971bf4f42dd8086d58ec9f425))
+
+# [3.92.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.91.0...v3.92.0) (2026-04-21)
+
+
+### Features
+
+* **checkout:** radio-card address picker, save-to-book, SSR-first hydration ([a4e7599](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a4e759960f98954ca005fd464a6d561bb30640dc))
+
+# [3.91.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.90.2...v3.91.0) (2026-04-20)
+
+
+### Features
+
+* **phase-1:** checkout prefill, reorder, recently viewed, notify-me, polish ([075b10e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/075b10e6a8f0e0e8df40f7424a3edccac2ea431c))
+
+## [3.90.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.90.1...v3.90.2) (2026-04-20)
+
+
+### Bug Fixes
+
+* UI ([d28e5e7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d28e5e7b9c4a5eb665b357db29c7deaae7e8b672))
+
+## [3.90.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.90.0...v3.90.1) (2026-04-20)
+
+
+### Bug Fixes
+
+* **i18n:** quote phone_placeholder and backfill genuinely missing keys ([6fb132c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6fb132cc06ec01b35d634fa55368133e99eebc57))
+
+# [3.90.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.89.1...v3.90.0) (2026-04-20)
+
+
+### Bug Fixes
+
+* **cart:** import h3 cookie helpers explicitly for unit-test env ([cc3117d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cc3117d2197ecfebb765750e5b8829322e8bf6c2))
+
+
+### Features
+
+* **hardening:** sanitize product html, boundary checkout, guest cart fallback ([572f659](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/572f65966a9cbb3d1e665f000100d15bfc67b512))
+
+## [3.89.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.89.0...v3.89.1) (2026-04-20)
+
+
+### Bug Fixes
+
+* product description ([14ba230](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/14ba23033c5e6befeafd8e6406cd789800f5d5f1))
+
+# [3.89.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.88.4...v3.89.0) (2026-04-20)
+
+
+### Features
+
+* Bump Versions ([18b9ed9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/18b9ed979d7617613d0d9e0c2eb5132f8ef22030))
+
+## [3.88.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.88.3...v3.88.4) (2026-04-19)
+
+
+### Bug Fixes
+
+* **title:** cart and checkout page titles render correctly ([99ff993](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/99ff993e1ae191871192ddca56f15aecac9cbd87))
+
+## [3.88.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.88.2...v3.88.3) (2026-04-19)
+
+
+### Bug Fixes
+
+* **icons:** keep iconify fallback server-side to satisfy CSP ([c4b871f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c4b871fbfd750f4db3f366eac37a1f9065d88488))
+
+## [3.88.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.88.1...v3.88.2) (2026-04-19)
+
+
+### Bug Fixes
+
+* **checkout:** a11y + hydration mismatches on /checkout ([420239f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/420239f9701f8fca2da147021900bf3395a0472e))
+* **trust:** drive PaymentBadges from the /pay-way backend ([ea2847e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ea2847e1a8076f7b0dc4c6eef720eafd7d733152))
+
+
+### Reverts
+
+* **nav:** drop S2D-21 header hide-on-scroll ([30b60a6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/30b60a69140430a5a16b68592d4092667565bb4f))
+
+## [3.88.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.88.0...v3.88.1) (2026-04-19)
+
+
+### Bug Fixes
+
+* **lottie:** rename LazyLottie → Lottie to avoid Nuxt reserved prefix ([bb25fcd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bb25fcdebf222b8e2f36d9c672eba7ce5cbf04cf))
+* UI ([c96da67](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c96da67039c56ffc17ff69ec7d321d66274f9975))
+
+# [3.88.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.87.0...v3.88.0) (2026-04-19)
+
+
+### Features
+
+* **nav:** sprint 2D header + nav + socials + notifications polish ([db0e949](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/db0e949e030872fc9974bdbf496fa0f7181ae257))
+* **pdp:** sprint 2C product-page UX polish ([6a6d722](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6a6d722ac2600d41d0047b5c62f033fad533e48a))
+* **ux:** sprint 2E+F — cart empty state + lottie 404 ([8b69782](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8b69782b82fb41f60f117f005f47ca81a71dad17)), closes [#fallback](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/fallback)
+
+# [3.87.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.86.0...v3.87.0) (2026-04-19)
+
+
+### Features
+
+* **cart:** sprint 2B cart UX + trust signals ([71f6b79](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/71f6b79d072e8ef283defd157fbace802bfd4e90))
+
+# [3.86.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.85.1...v3.86.0) (2026-04-19)
+
+
+### Features
+
+* **forms:** sprint 2A greek-market form overhaul ([71793e3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/71793e3b3d78506ccac779b2b6c7c360f350bd50)), closes [hi#impact](https://github.com/hi/issues/impact)
+
+## [3.85.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.85.0...v3.85.1) (2026-04-19)
+
+
+### Bug Fixes
+
+* **a11y:** sprint 1 critical accessibility + legal compliance pass ([b37687c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b37687cfe30ed4da7565027ef6d4e06a63a5f433)), closes [#003DFF](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/003DFF) [#0028B3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/0028B3) [#3364FF](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/3364FF) [#8FB0FF](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/8FB0FF)
+
+# [3.85.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.4...v3.85.0) (2026-04-19)
+
+
+### Features
+
+* low-stock scarcity badge, trending + recent searches, product-alert proxies ([8e1c952](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8e1c952aece9c7d38b7f783015eacd25c94ca0c5))
+
+## [3.84.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.3...v3.84.4) (2026-04-19)
+
+
+### Bug Fixes
+
+* **i18n:** populate shared breadcrumb locale keys ([9ff3e09](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9ff3e09acde5814470bbc05fc28dc5d38986ed60))
+
+## [3.84.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.2...v3.84.3) (2026-04-19)
+
+
+### Bug Fixes
+
+* **auth:** read CF-Connecting-IP for real client IP through klipper-lb SNAT ([ce0a02f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ce0a02f640ab82bb78ae94308ad862ca9ace6831))
+
+## [3.84.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.1...v3.84.2) (2026-04-19)
+
+
+### Bug Fixes
+
+* **auth:** forward X-Real-IP to Django for allauth session tracking ([ff66ba5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ff66ba5024870b86f1b610410b9e3ad517ba0a75))
+
+## [3.84.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.84.0...v3.84.1) (2026-04-19)
+
+
+### Bug Fixes
+
+* lint ([b3a9932](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b3a9932eb3e8aac533b59d3cd86a0514078f5c3d))
+
+# [3.84.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.83.0...v3.84.0) (2026-04-18)
+
+
+### Bug Fixes
+
+* **i18n:** defer useI18n() in useUserLanguage, gate syncFromUser to client ([fa7f94f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fa7f94fe813bcb79fe480843e162d3b41d1a1fb6))
+* schema ([f8e5067](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f8e5067ec9f7d291c69afe02434e32e59f266580))
+* **test:** resolve ~~/i18n/locales alias in unit vitest + guard event.context reads ([e53c80b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e53c80b3ad08b7c9d518efcd739e5bcaaddfd020))
+
+
+### Features
+
+* Bump Versions ([227d44c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/227d44c6c5229c79bb51d7184ebe4eb3612ed203))
+* **i18n:** unify locale switcher and settings with backend language_code ([2209caa](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2209caa240793c1cc4090c733ef91c9a95e34b7c))
+
+# [3.83.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.82.1...v3.83.0) (2026-04-17)
+
+
+### Bug Fixes
+
+* audit fixes — SSR guards, cache name collisions, session rebuild ([b1dc45c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b1dc45cd59175511843edaa09a00318e845a4474))
+
+
+### Features
+
+* **auth:** WebSocket ticket fetch replaces Knox token in URL ([289d692](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/289d692b7c7373e6a8d70b3feee003036365e242))
+* **checkout:** SSE payment-status stream with poll fallback ([d64867b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d64867b94b018ea08ff7c90fda221b488f2816d8))
+
+## [3.82.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.82.0...v3.82.1) (2026-04-17)
+
+
+### Bug Fixes
+
+* **checkout:** throw explicitly when retryPayment response lacks clientSecret ([46b0b91](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/46b0b9178ca64e1cebec75fc77e46ccdc3b58faf))
+
+# [3.82.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.7...v3.82.0) (2026-04-17)
+
+
+### Features
+
+* **checkout:** add retryPayment composable + server route ([f3f7224](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f3f722485675953053aadba5c8b0c719a50b3635))
+
+## [3.81.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.6...v3.81.7) (2026-04-16)
+
+
+### Bug Fixes
+
+* csp ([6bddbaf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6bddbaf6b59dc2e82639b463fd614dff022e98ca))
+
+## [3.81.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.5...v3.81.6) (2026-04-16)
+
+
+### Bug Fixes
+
+* blog category image ([66ee6e4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/66ee6e4ebd0b0f329c62aa54b7f0dad1cd05fb79))
+
+## [3.81.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.4...v3.81.5) (2026-04-16)
+
+
+### Performance Improvements
+
+* **home:** drop double hero preload, inline category icons, add manifest + a11y ([5987eaf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5987eaf58eb803c70d0314c242a0a23916e0acfe))
+
+## [3.81.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.3...v3.81.4) (2026-04-14)
+
+
+### Bug Fixes
+
+* **viva:** full checkout flow fixes — headers, guest UUID, cart clearing, error feedback ([707c643](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/707c643a53318a4e1ac1485dea61dddf6390adce))
+
+## [3.81.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.2...v3.81.3) (2026-04-13)
+
+
+### Bug Fixes
+
+* **cache:** fix auth cache poisoning, missing getKeys, and excessive staleMaxAge ([7a94880](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7a948806654d0699ae4ccad976192a2c0502c58f))
+
+## [3.81.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.1...v3.81.2) (2026-04-13)
+
+
+### Bug Fixes
+
+* **server:** use configured Django hostname for X-Forwarded-Host in all header builders ([ef0dee8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ef0dee81dc27eba9e9c126b1fb4c1d71d1daded3))
+
+## [3.81.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.81.0...v3.81.1) (2026-04-13)
+
+
+### Bug Fixes
+
+* generate schema ([155ea15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/155ea157e259bf4e61845d0eb3694c6e01f12870))
+
+# [3.81.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.80.0...v3.81.0) (2026-04-13)
+
+
+### Bug Fixes
+
+* **checkout:** resolve payment race conditions, SEO issues, and cross-service UUID forwarding ([92a6ea1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/92a6ea13990822efe3ec0388ca150889332412ab))
+
+
+### Features
+
+* Bump Versions ([9b36ca2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9b36ca2f680504b6cc7e0b52dc5ccd307a008739))
+
+# [3.80.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.79.1...v3.80.0) (2026-04-10)
+
+
+### Features
+
+* Bump Versions ([05ad015](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/05ad015164f1a451bac112469d112eab7d9b76a5))
+
+## [3.79.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.79.0...v3.79.1) (2026-04-06)
+
+
+### Bug Fixes
+
+* **server:** inject X-Forwarded-Host so Django builds public URLs ([97652f5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/97652f57a3b4149cfa9d74121582bd62fc8f0855))
+
+# [3.79.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.78.2...v3.79.0) (2026-04-05)
+
+
+### Features
+
+* Update schema ([5da0573](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5da0573bbca6ad066dc3316fbe67ce12e907a4fc))
+
+## [3.78.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.78.1...v3.78.2) (2026-04-04)
+
+
+### Bug Fixes
+
+* update server routes to match regenerated OpenAPI schema names ([0b73851](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0b7385108009499143f3990733f193847acc0b71))
+
+## [3.78.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.78.0...v3.78.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* replace `any` with proper types in utility functions ([7d8c783](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7d8c78381b755881d54e6c8c8b82fbd2daf6b32d))
+
+# [3.78.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.77.0...v3.78.0) (2026-04-04)
+
+
+### Features
+
+* harden security, optimize caching, and bump dependencies ([8be1b10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8be1b107a5fbc6825a8533fd423fca08c936e6a2))
+
+# [3.77.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.76.1...v3.77.0) (2026-03-31)
+
+
+### Features
+
+* Bump Versions ([ff58b49](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ff58b49e3ed9e3cb6ca11ae1879ada57ef1e8fbd))
+
+## [3.76.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.76.0...v3.76.1) (2026-03-28)
+
+
+### Bug Fixes
+
+* **cart:** support authenticated and guest carts with proper cleanup ([615b8d4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/615b8d4e4b22fc4c1407ed95f65153d4c296517b))
+
+# [3.76.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.75.5...v3.76.0) (2026-03-27)
+
+
+### Features
+
+* Bump Versions ([07e532b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/07e532b3220484b1106cc9b51ff714b96bc59187))
+
+## [3.75.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.75.4...v3.75.5) (2026-03-23)
+
+
+### Bug Fixes
+
+* checkout locales ([27444d0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/27444d057a100b51d3c8ed9e7e35d14f174dc436))
+
+## [3.75.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.75.3...v3.75.4) (2026-03-23)
+
+
+### Bug Fixes
+
+* sharp ([e92c1fd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e92c1fd7dec74e991649ffad5c89373c1a3e1233))
+
+## [3.75.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.75.2...v3.75.3) (2026-03-22)
+
+
+### Bug Fixes
+
+* vips ([2c5e421](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2c5e421fafa37ff31ec162f2d9fe55f654eb74e3))
+
+## [3.75.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.75.1...v3.75.2) (2026-03-22)
+
+
+### Bug Fixes
+
+* ci ([7d86e1f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7d86e1ff873e5bfed021ebb97ed17ab8db8009a7))
+
+## [3.75.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.75.0...v3.75.1) (2026-03-22)
+
+
+### Bug Fixes
+
+* prerender ([dd11f8f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/dd11f8fadd7ef9502f099f38083b8b247efd146c))
+
+# [3.75.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.74.0...v3.75.0) (2026-03-22)
+
+
+### Features
+
+* code cleanup ([7b13231](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7b1323137c2c46e45717ea3f2c84fd17e52dc3fe))
+
 # [3.74.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.73.6...v3.74.0) (2026-03-01)
 
 

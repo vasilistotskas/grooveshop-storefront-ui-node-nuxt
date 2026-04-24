@@ -15,12 +15,19 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const { t } = useI18n()
-const { $i18n } = useNuxtApp()
 const toast = useToast()
 
 // Loyalty composable with new API
 const loyalty = useLoyalty()
+const { data: settings } = loyalty.fetchSettings()
 const { data: summary, status } = loyalty.fetchSummary()
+
+// Self-gate on LOYALTY_ENABLED so parents don't have to. Other loyalty
+// surfaces (PointsBadge, PointsEarned, GuestLoyaltyCTA) follow the same
+// self-gating pattern; keeping this consistent means adding a new caller
+// never silently shows "Εξαργύρωση Πόντων" when the owner has disabled
+// the system in admin.
+const loyaltyEnabled = computed(() => settings.value?.enabled ?? false)
 
 // Component state - no API call, just local intent
 const applied = ref(false)
@@ -61,7 +68,7 @@ const calculateDiscount = (points: number) => {
 // Validation schema
 const redemptionSchema = z.object({
   pointsToRedeem: z
-    .number({ error: $i18n.t('validation.required') })
+    .number({ error: t('validation.required') })
     .min(1, { error: t('validation.min_points') })
     .refine(
       val => val <= availableBalance.value,
@@ -83,6 +90,15 @@ const formState = reactive({
 const handleRedeem = async () => {
   // Clear previous errors
   redemptionError.value = null
+
+  // Treat 0 or empty as clearing the redemption
+  if (!formState.pointsToRedeem) {
+    if (applied.value) {
+      clearRedemption()
+    }
+    formState.pointsToRedeem = undefined
+    return
+  }
 
   // Client-side validation
   const validation = redemptionSchema.safeParse({ pointsToRedeem: formState.pointsToRedeem })
@@ -131,7 +147,7 @@ const clearRedemption = () => {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div v-if="loyaltyEnabled" class="space-y-4">
     <!-- Loading state -->
     <div v-if="loading && !summary" class="space-y-3">
       <USkeleton class="h-6 w-32" />
@@ -218,7 +234,12 @@ const clearRedemption = () => {
               name="pointsToRedeem"
               :ui="{
                 root: 'w-full',
-                label: 'hidden',
+                // Hide the label visually but keep it in the a11y
+                // tree — `display: none` strips the label from the
+                // accessibility mapping, which is what axe flagged
+                // (the UInputNumber's nested native input had no
+                // programmatic label).
+                label: 'sr-only',
               }"
             >
               <UInputNumber
@@ -228,6 +249,7 @@ const clearRedemption = () => {
                 :step="1"
                 :disabled="maxRedeemablePoints === 0 || applied"
                 :placeholder="t('enter_points')"
+                :aria-label="t('points_to_redeem')"
               />
             </UFormField>
 

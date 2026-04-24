@@ -2,10 +2,16 @@
   "id": "ID",
   "type": "Τύπος",
   "favourites": "Αγαπημένα",
-  "subscriptions": "Ειδοποιήσεις",
+  "notifications": "Ειδοποιήσεις",
+  "subscriptions": "Συνδρομές",
   "loyalty": "Πρόγραμμα Επιβράβευσης",
   "error": {
-    "default": "Σφάλμα"
+    "default": "Σφάλμα",
+    "page": {
+      "not": {
+        "found": "Η σελίδα δεν βρέθηκε"
+      }
+    }
   },
   "subscription_notifications": {
     "subscribe": {
@@ -200,11 +206,18 @@
     "mark_as_primary": "Καθορισμός ως κύριο",
     "remove": "Αφαίρεση email",
     "request_verification": "Αίτηση επαλήθευσης",
+    "verification_requested": "Σου έχει σταλεί email επαλήθευσης",
+    "marked_as_primary": "Το email ορίστηκε ως κύριο",
     "verification": {
       "requested": "Σου έχει σταλεί email επαλήθευσης",
       "too_many_requests": "Πολλές αιτήσεις επαλήθευσης",
       "marked_as_primary": "Σου έχει σταλεί email επαλήθευσης"
     }
+  },
+  "primary": "Κύριο",
+  "verified": "Επαληθευμένο",
+  "unknown": {
+    "error": "Άγνωστο σφάλμα"
   },
   "next": "Επόμενο",
   "previous": "Προηγούμενο",
@@ -260,14 +273,36 @@
   "ip_address": "Διεύθυνση IP",
   "user_agent": "Πρόγραμμα περιήγησης",
   "payment_methods": {
-    "CREDIT_CARD": "Πιστωτική Κάρτα",
+    "CREDIT_CARD": "Πληρωμή με Κάρτα",
     "PAY_ON_DELIVERY": "Αντικαταβολή",
     "PAY_ON_STORE": "Πληρωμή στο Κατάστημα",
     "PAY_PAL": "PayPal",
     "STRIPE": "Stripe",
+    "VIVA_WALLET": "Viva Wallet",
     "BANK_TRANSFER": "Τραπεζική Κατάθεση",
     "APPLE_PAY": "Apple Pay",
     "GOOGLE_PAY": "Google Pay",
     "fee": "Προμήθεια {method}"
+  },
+  "footer": {
+    "about_us": "Σχετικά με εμάς",
+    "about": {
+      "us": "Σχετικά με εμάς",
+      "site": "Τι είναι το Webside"
+    },
+    "vision": "Όραμα",
+    "microlearning": {
+      "title": "Microlearning",
+      "what": "Τι είναι το Microlearning",
+      "why": "Γιατί Microlearning"
+    },
+    "terms_conditions": "Όροι και Προϋποθέσεις",
+    "term_of_use": "Όροι Χρήσης",
+    "privacy_policy": "Πολιτική Απορρήτου",
+    "cookies_policy": "Πολιτική Cookies",
+    "help_center": "Κέντρο βοηθείας",
+    "contact": {
+      "us": "Επικοινωνία"
+    }
   }
 }

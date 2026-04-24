@@ -51,10 +51,22 @@ const provider = computed(() => {
   if (mainImageProps.value?.provider !== undefined && mainImageProps.value.provider !== '') {
     return mainImageProps.value.provider
   }
-  if (imgSrc.value.startsWith('media/uploads') || imgSrc.value.startsWith('static/images')) {
+  if (imgSrc.value.startsWith('media/uploads') || imgSrc.value.startsWith('/media/uploads') || imgSrc.value.startsWith('static/images') || imgSrc.value.startsWith('/static/images')) {
     return 'mediaStream'
   }
   return 'ipx'
+})
+
+// Lock the intrinsic aspect ratio on the element when width & height props
+// are numeric so the layout reserves space before the image loads (avoids
+// CLS even if parent CSS overrides `width`/`height` to `auto`).
+const aspectStyle = computed(() => {
+  const w = Number(props.width)
+  const h = Number(props.height)
+  if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) {
+    return undefined
+  }
+  return { aspectRatio: `${w} / ${h}` }
 })
 </script>
 
@@ -64,6 +76,7 @@ const provider = computed(() => {
     v-bind="mainImageProps"
     :src="imgSrc"
     :provider="provider"
+    :style="aspectStyle"
     @error="handleError"
     @load="emit('load', $event)"
   />
@@ -73,6 +86,7 @@ const provider = computed(() => {
     :src="fallback"
     :alt="($attrs.alt as string) || ''"
     provider="ipx"
+    :style="aspectStyle"
     :modifiers="{
       fit: 'cover',
     }"

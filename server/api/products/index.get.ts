@@ -1,7 +1,7 @@
 export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zListProductData.shape.query.parse)
+    const query = await getValidatedQuery(event, zListProductQuery.parse)
     const response = await $fetch(`${config.apiBaseUrl}/product`, {
       method: 'GET',
       query,
@@ -24,6 +24,7 @@ export default defineCachedEventHandler(async (event) => {
       query.ordering || '-createdAt',
       query.categoryId || 'all',
       query.search || '',
+      query.languageCode || getHeader(event, 'accept-language')?.split(',')[0] || 'el',
     ]
     return tenantCacheKey(event, `products:${keyParts.join(':')}`)
   },

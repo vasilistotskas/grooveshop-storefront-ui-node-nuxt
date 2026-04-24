@@ -4,9 +4,9 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zUpdateOrderData.shape.path.parse,
+      zUpdateOrderPath.parse,
     )
-    const body = await readValidatedBody(event, zUpdateOrderData.shape.body.parse)
+    const body = await readValidatedBody(event, zUpdateOrderBody.parse)
     const response = await $fetch(`${config.apiBaseUrl}/order/${params.id}`, {
       method: 'PUT',
       body,

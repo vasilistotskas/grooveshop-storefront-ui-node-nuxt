@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+const { t } = useI18n()
 const route = useRoute()
 const { $i18n } = useNuxtApp()
 const locale = computed(() => $i18n.locale.value)
@@ -22,34 +23,34 @@ const shouldPreserveScroll = ref(false)
 const emptyStateDescription = computed(() => {
   // No filters active - generic message
   if (!hasActiveFilters.value) {
-    return $i18n.t('products.no_results.no_filters')
+    return t('products.no_results.no_filters')
   }
 
   // Build contextual suggestions based on active filters
   const suggestions: string[] = []
 
   if (filters.value.search) {
-    suggestions.push($i18n.t('products.no_results.try_different_search'))
+    suggestions.push(t('products.no_results.try_different_search'))
   }
 
   if (filters.value.priceMin !== undefined || filters.value.priceMax !== undefined) {
-    suggestions.push($i18n.t('products.no_results.try_broader_price'))
+    suggestions.push(t('products.no_results.try_broader_price'))
   }
 
   if (filters.value.categories.length > 0) {
-    suggestions.push($i18n.t('products.no_results.try_different_category'))
+    suggestions.push(t('products.no_results.try_different_category'))
   }
 
   if (filters.value.likesMin !== undefined) {
-    suggestions.push($i18n.t('products.no_results.try_lower_popularity'))
+    suggestions.push(t('products.no_results.try_lower_popularity'))
   }
 
   if (filters.value.viewsMin !== undefined) {
-    suggestions.push($i18n.t('products.no_results.try_lower_views'))
+    suggestions.push(t('products.no_results.try_lower_views'))
   }
 
   if (filters.value.attributeValues.length > 0) {
-    suggestions.push($i18n.t('products.no_results.try_different_attributes'))
+    suggestions.push(t('products.no_results.try_different_attributes'))
   }
 
   // Return first suggestion or generic message
@@ -57,7 +58,7 @@ const emptyStateDescription = computed(() => {
     return suggestions[0]
   }
 
-  return $i18n.t('products.no_results.description')
+  return t('products.no_results.description')
 })
 
 // Default items per page - matches Toolbar default
@@ -255,26 +256,48 @@ watch(
   { immediate: true },
 )
 
-// User-specific data: client-side only to avoid blocking SSR
-if (shouldFetchFavouriteProducts.value) {
-  await useFetch('/api/products/favourites/favourites-by-products', {
-    key: computed(() => `favouritesByProducts-${user.value?.id}-${productIds.value.join(',')}`),
-    method: 'POST',
-    body: {
-      productIds,
-    },
-    server: false, // Client-side only - user-specific data
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      const favourites = response._data
-      if (favourites) {
-        updateFavouriteProducts(favourites)
-      }
-    },
+// User-specific data: client-side only to avoid blocking SSR.
+//
+// The fetch trigger is deferred to ``onMounted`` — not called during
+// setup — because Nuxt's payload cache can resolve the request
+// synchronously on hydration (same key from a prior navigation). That
+// would populate the user store *before* Vue's hydration walk reaches
+// the heart buttons, producing a ``Hydration mismatch`` where SSR
+// rendered "add" and the client expected "remove". Vue logs the warning
+// in dev and **does not rectify the DOM in production**, so the heart
+// would stay grey forever on F5. Triggering in ``onMounted`` guarantees
+// the first client render matches SSR; the subsequent store update
+// patches the DOM normally through the usual reactive update path.
+const { execute: fetchFavourites } = useLazyFetch('/api/products/favourites/favourites-by-products', {
+  key: computed(() => `favouritesByProducts-${user.value?.id}-${productIds.value.join(',')}`),
+  method: 'POST',
+  body: {
+    productIds,
+  },
+  immediate: false,
+  server: false,
+  onResponse({ response }) {
+    if (!response.ok) {
+      return
+    }
+    const favourites = response._data
+    if (favourites) {
+      updateFavouriteProducts(favourites)
+    }
+  },
+})
+
+onMounted(() => {
+  // Re-enter reactivity with ``watchEffect`` after mount so we catch
+  // both "already-true at mount" (user logged in + products loaded) and
+  // "becomes true later" (user logs in mid-session, productIds populate
+  // from SSR payload after hydration). Registering during setup with
+  // ``immediate: true`` would race hydration — see the block comment on
+  // ``useLazyFetch`` above.
+  watchEffect(() => {
+    if (shouldFetchFavouriteProducts.value) fetchFavourites()
   })
-}
+})
 </script>
 
 <template>
@@ -314,11 +337,11 @@ if (shouldFetchFavouriteProducts.value) {
     <UEmpty
       v-else-if="!products?.results?.length"
       icon="i-heroicons-magnifying-glass-minus"
-      :title="$i18n.t('products.no_results.title')"
+      :title="t('products.no_results.title')"
       :description="emptyStateDescription"
       :actions="hasActiveFilters ? [
         {
-          label: $i18n.t('products.no_results.clear_filters'),
+          label: t('products.no_results.clear_filters'),
           size: 'xl',
           color: 'primary',
           variant: 'solid',
@@ -356,7 +379,7 @@ if (shouldFetchFavouriteProducts.value) {
       >
         <!-- Page info -->
         <div class="text-sm text-gray-600 dark:text-gray-200">
-          {{ $i18n.t('pagination.page_info', { current: page, total: totalPages }) }}
+          {{ t('pagination.page_info', { current: page, total: totalPages }) }}
         </div>
 
         <!-- Pagination controls -->
@@ -373,7 +396,7 @@ if (shouldFetchFavouriteProducts.value) {
           active-variant="solid"
           :sibling-count="isMobile ? 0 : 1"
           :show-edges="false"
-          :aria-label="$i18n.t('pagination.navigation')"
+          :aria-label="t('pagination.navigation')"
           :ui="{
             root: 'flex items-center gap-2',
             list: 'flex items-center gap-1.5',
@@ -410,7 +433,7 @@ if (shouldFetchFavouriteProducts.value) {
       aria-atomic="true"
       class="sr-only"
     >
-      {{ $i18n.t('products.results_count', { count: totalResults }) }}
+      {{ t('products.results_count', { count: totalResults }) }}
     </div>
   </div>
 </template>

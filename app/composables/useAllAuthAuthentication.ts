@@ -1,8 +1,7 @@
 import { resolveURL, withQuery } from 'ufo'
 
-const API_BASE_URL = '/api/_allauth/app/v1/auth'
-
 export default function () {
+  const API_BASE_URL = ALLAUTH_AUTH_URL
   async function getSession(encrypted_token: string | null = null) {
     const headers = useRequestHeaders()
     if (encrypted_token) {

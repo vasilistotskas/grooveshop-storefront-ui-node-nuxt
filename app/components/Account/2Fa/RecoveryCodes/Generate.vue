@@ -5,7 +5,6 @@ const { getRecoveryCodes, generateRecoveryCodes } = useAllAuthAccount()
 const { t } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
-const { $i18n } = useNuxtApp()
 
 const { data, refresh, error } = await useAsyncData(
   'recoveryCodes',
@@ -266,7 +265,7 @@ onReactivated(async () => {
               :disabled="loading"
               @click="onCancel"
             >
-              {{ $i18n.t('cancel') }}
+              {{ t('cancel') }}
             </UButton>
             <UButton
               color="neutral"

@@ -5,23 +5,24 @@ export default defineSitemapEventHandler(async () => {
   const baseUrl = config.public.baseUrl
   const apiBaseUrl = config.apiBaseUrl
 
-  // Blog fetchers
+  // Namespace cache names so sitemap and RSS fetchers don't collide
+  // inside defineCachedFunction's global registry (shared cache keys
+  // with divergent TTLs would otherwise serve stale data across routes).
   const cachedBlogPosts = createCachedFetcher<BlogPost>(
-    'cachedBlogPosts',
+    'sitemap:blog-posts',
     SITEMAP_CACHE_AGE,
   )
   const cachedBlogCategories = createCachedFetcher<BlogCategory>(
-    'cachedBlogCategories',
+    'sitemap:blog-categories',
     SITEMAP_CACHE_AGE,
   )
 
-  // Product fetchers
   const cachedProducts = createCachedFetcher<Product>(
-    'cachedProducts',
+    'sitemap:products',
     SITEMAP_CACHE_AGE,
   )
   const cachedProductCategories = createCachedFetcher<ProductCategory>(
-    'cachedProductCategories',
+    'sitemap:product-categories',
     SITEMAP_CACHE_AGE,
   )
 

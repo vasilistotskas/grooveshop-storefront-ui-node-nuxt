@@ -5,12 +5,11 @@ export default defineEventHandler(async (event) => {
 
   try {
     const headers = await cartSession.getCartHeaders()
-    const body = await readValidatedBody(event, zCreateCartItemData.shape.body.parse)
+    const body = await readValidatedBody(event, zCreateCartItemBody.parse)
     wideLog.set({ cart: { item: { productId: body.product, quantity: body.quantity } } })
     const response = await $fetch(`${config.apiBaseUrl}/cart/item`, {
       method: 'POST',
       headers,
-      credentials: 'include',
       body,
     })
     const parsedData = await parseDataAs(response, zCreateCartItemResponse)

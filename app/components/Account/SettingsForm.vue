@@ -3,6 +3,7 @@ import * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
+import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '~~/i18n/locales'
 
 defineSlots<{
   default(props: object): any
@@ -10,8 +11,8 @@ defineSlots<{
 
 const { user, fetch } = useUserSession()
 const { t, locale } = useI18n()
+const { setLanguage } = useUserLanguage()
 const toast = useToast()
-const { $i18n } = useNuxtApp()
 
 const regions = ref<Pagination<Region> | null>(null)
 const userId = user.value?.id
@@ -21,30 +22,30 @@ const selectPlaceholder = computed(() => t('form.select_placeholder'))
 const schema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.email.valid'),
+      ? t('validation.required')
+      : t('validation.email.valid'),
   }),
   firstName: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   lastName: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   phone: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   city: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   zipcode: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   address: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   place: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') }),
+    ? t('validation.required')
+    : t('validation.string.invalid') }),
   birthDate: z.preprocess(
     (input) => {
       if (typeof input === 'string' || input instanceof Date) {
@@ -55,29 +56,38 @@ const schema = z.object({
     },
     z.date({
       error: issue => issue.input === undefined
-        ? $i18n.t('validation.date.required_error')
-        : $i18n.t('validation.date.invalid_type_error'),
+        ? t('validation.date.required_error')
+        : t('validation.date.invalid_type_error'),
     }).optional(),
   ),
   country: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') })
+    ? t('validation.required')
+    : t('validation.string.invalid') })
     .default(defaultSelectOptionChoose)
     .optional(),
   region: z.string({ error: issue => issue.input === undefined
-    ? $i18n.t('validation.required')
-    : $i18n.t('validation.string.invalid') })
+    ? t('validation.required')
+    : t('validation.string.invalid') })
     .default(defaultSelectOptionChoose)
     .optional(),
+  languageCode: z.enum(SUPPORTED_LOCALES, {
+    error: () => t('validation.string.invalid'),
+  }).default(DEFAULT_LOCALE),
 })
 
 type Schema = z.output<typeof schema>
+
+const userLanguage = (user.value?.languageCode && SUPPORTED_LOCALES.includes(user.value.languageCode as typeof SUPPORTED_LOCALES[number]))
+  ? user.value.languageCode as typeof SUPPORTED_LOCALES[number]
+  : DEFAULT_LOCALE
 
 const state = reactive<Partial<Schema>>({
   email: user.value?.email || '',
   firstName: user.value?.firstName || '',
   lastName: user.value?.lastName || '',
-  phone: user.value?.phone || '',
+  // Stored as E.164 (e.g. "+306912345678"); strip the +30 for display
+  // so it pairs cleanly with the sticky "+30" leading badge.
+  phone: stripGreekPrefixForDisplay(user.value?.phone),
   city: user.value?.city || '',
   zipcode: user.value?.zipcode || '',
   address: user.value?.address || '',
@@ -85,6 +95,15 @@ const state = reactive<Partial<Schema>>({
   birthDate: user.value?.birthDate ? new Date(user.value.birthDate) : undefined,
   country: user.value?.country || defaultSelectOptionChoose,
   region: user.value?.region || defaultSelectOptionChoose,
+  languageCode: userLanguage,
+})
+
+const languageOptions = computed(() => {
+  const names = new Intl.DisplayNames([locale.value], { type: 'language' })
+  return SUPPORTED_LOCALES.map(code => ({
+    label: names.of(code) ?? code,
+    value: code,
+  }))
 })
 
 const isSubmitting = ref(false)
@@ -151,8 +170,8 @@ const fetchRegions = async () => {
   }
   catch {
     toast.add({
-      title: $i18n.t('error.default'),
-      description: $i18n.t('error_occurred'),
+      title: t('error.default'),
+      description: t('error_occurred'),
       color: 'error',
     })
   }
@@ -206,14 +225,16 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     return
   }
 
+  const previousLanguage = locale.value
+  const nextLanguage = values.languageCode || DEFAULT_LOCALE
+
   await $fetch(`/api/user/account/${userId}`, {
     method: 'PUT',
-    headers: useRequestHeaders(),
     body: {
       email: values.email,
       firstName: values.firstName,
       lastName: values.lastName,
-      phone: values.phone,
+      phone: normalizeGreekPhone(values.phone),
       city: values.city,
       zipcode: values.zipcode,
       address: values.address,
@@ -221,6 +242,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
       birthDate: values.birthDate ? values.birthDate.toISOString().split('T')[0] : null,
       country: values.country,
       region: values.region,
+      languageCode: nextLanguage,
     },
     async onResponse({ response }) {
       if (!response.ok) {
@@ -228,6 +250,13 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
         return
       }
       await fetch()
+      if (nextLanguage !== previousLanguage) {
+        // setLanguage keeps UI locale, i18n cookie, and Django's stored
+        // language_code in sync; the PUT above already wrote the new value,
+        // so this call only flips the UI locale (the subsequent PATCH is a
+        // no-op when stored === code).
+        await setLanguage(nextLanguage)
+      }
       toast.add({
         title: t('form.success'),
         color: 'success',
@@ -304,11 +333,19 @@ watch(calendarDate, (newVal) => {
       >
         <UInput
           v-model="state.phone"
-          :placeholder="t('form.phone')"
-          autocomplete="tel"
+          type="tel"
+          autocomplete="tel-national"
+          inputmode="tel"
+          :placeholder="t('form.phone_placeholder')"
           class="w-full"
-          type="text"
-        />
+          :ui="{
+            base: 'ps-11',
+          }"
+        >
+          <template #leading>
+            <span class="pl-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">+30</span>
+          </template>
+        </UInput>
       </UFormField>
 
       <UFormField
@@ -412,6 +449,22 @@ watch(calendarDate, (newVal) => {
         />
       </UFormField>
 
+      <UFormField
+        :label="t('form.language')"
+        name="languageCode"
+        :description="t('form.language_help')"
+      >
+        <USelect
+          v-model="state.languageCode"
+          name="languageCode"
+          :items="languageOptions"
+          :disabled="languageOptions.length < 2"
+          color="neutral"
+          class="w-full"
+          value-key="value"
+        />
+      </UFormField>
+
       <div class="col-span-2 grid items-end justify-end">
         <UButton
           :aria-busy="isSubmitting"
@@ -433,6 +486,7 @@ el:
     first_name: Όνομα
     last_name: Επώνυμο
     phone: Τηλέφωνο
+    phone_placeholder: "6912345678"
     city: Πόλη
     zipcode: Ταχυδρομικός κώδικας
     address: Διεύθυνση
@@ -440,6 +494,8 @@ el:
     birth_date: Ημερομηνία γέννησης
     country: Χώρα
     region: Περιοχή
+    language: Γλώσσα
+    language_help: Χρησιμοποιείται για email και μηνύματα διεπαφής.
     submit: Υποβολή
     success: Τα στοιχεία αποθηκεύτηκαν επιτυχώς
     error: Σφάλμα

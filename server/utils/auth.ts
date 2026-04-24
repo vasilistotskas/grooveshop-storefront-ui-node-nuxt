@@ -1,4 +1,5 @@
 import type { H3Event } from 'h3'
+import { DEFAULT_LOCALE } from '~~/i18n/locales'
 
 // Responses that only carry session tokens in meta (no authenticated user data).
 // Used by endpoints like /auth/code/request and /auth/webauthn/login (GET).
@@ -25,9 +26,11 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   // Also set by the forwarded-proto plugin, but explicit here for safety.
   headers['X-Forwarded-Proto'] = getRequestProtocol(event, { xForwardedProto: true })
 
-  // Use the server-trusted host value only — never trust X-Forwarded-Host
-  // from the client request to avoid host-injection attacks.
-  const host = getRequestHost(event, { xForwardedHost: false })
+  // Use the configured public Django hostname so Django's ALLOWED_HOSTS
+  // check passes for internal cluster calls. Falls back to the request's
+  // server-trusted Host only if the config is missing.
+  const config = useRuntimeConfig()
+  const host = config.public.djangoHostName || getRequestHost(event, { xForwardedHost: false })
   if (host) {
     headers['X-Forwarded-Host'] = host
   }
@@ -44,9 +47,31 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
     headers['User-Agent'] = requestHeaders['user-agent']
   }
 
+  // Real client IP for allauth session tracking. Prefer Cloudflare's
+  // CF-Connecting-IP (always set when the zone is proxied) and fall back
+  // to True-Client-IP (Cloudflare Enterprise) before h3's XFF/socket
+  // resolution. Using CF-Connecting-IP bypasses K3s klipper-lb's SNAT
+  // — it rewrites the TCP source to the Flannel gateway (10.42.0.1), so
+  // getRequestIP alone would surface that masked address in production.
+  // Django's UserAccountAdapter reads this via X-Real-IP.
+  const clientIp
+    = requestHeaders['cf-connecting-ip']
+      || requestHeaders['true-client-ip']
+      || getRequestIP(event, { xForwardedFor: true })
+  if (clientIp) {
+    headers['X-Real-IP'] = clientIp
+  }
+
   if (requestHeaders['x-forwarded-for']) {
     headers['X-Forwarded-For'] = requestHeaders['x-forwarded-for']
   }
+
+  // Tell Django which language to render emails/responses in. The locale
+  // middleware populates event.context.locale from (in order): ?locale query,
+  // i18n cookies, Accept-Language. allauth's adapter + every Celery email
+  // task reads this header to capture/override user language.
+  const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
+  headers['X-Language'] = locale
 
   return headers
 }
@@ -60,17 +85,19 @@ export async function processAllAuthSession(response: AllAuthResponse | PartialA
   // Tokens are stored exclusively in the server-side encrypted session cookie.
   // Do NOT expose them in response headers — they are only needed server-to-server.
   if (resolvedSessionToken || resolvedAccessToken) {
-    log.info('auth', 'Storing tokens in encrypted session')
-    await setUserSession(event, {
+    log.debug('auth', 'Storing tokens in encrypted session')
+    const existingSession = await getUserSession(event)
+    await replaceUserSession(event, {
+      ...existingSession,
       secure: {
-        ...(resolvedSessionToken ? { sessionToken: resolvedSessionToken } : {}),
-        ...(resolvedAccessToken ? { accessToken: resolvedAccessToken } : {}),
+        sessionToken: resolvedSessionToken ?? existingSession.secure?.sessionToken,
+        accessToken: resolvedAccessToken ?? existingSession.secure?.accessToken,
       },
     })
   }
 
-  if ((response.status === 200 && response.meta?.access_token && response.data?.user) || response.meta?.is_authenticated) {
-    log.info('auth', 'Fetching user data')
+  if (response.data?.user && ((response.status === 200 && response.meta?.access_token) || response.meta?.is_authenticated)) {
+    log.debug('auth', 'Fetching user data')
     await fetchUserData(response as AllAuthResponse, accessToken)
   }
 }
@@ -109,11 +136,14 @@ export async function fetchUserData(response: AllAuthResponse, accessToken?: str
   const config = useRuntimeConfig()
   const event = useEvent()
   const token = accessToken || response.meta?.access_token
+  const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
   let headers: Record<string, string> = {
     'Authorization': `Bearer ${token}`,
     'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
+    'X-Language': locale,
   }
-  // Include X-Forwarded-Host for tenant resolution
+  // Include X-Forwarded-Host for tenant resolution (honors the actual
+  // request host so Django's TenantMainMiddleware picks the right schema).
   const host = getRequestHost(event, { xForwardedHost: false })
   if (host) {
     headers['X-Forwarded-Host'] = host
@@ -127,7 +157,16 @@ export async function fetchUserData(response: AllAuthResponse, accessToken?: str
   })
 
   const userResponse = await parseDataAs(user, zUserDetails)
-  await setUserSession(useEvent(), {
+  // Use replaceUserSession (not setUserSession) so any stale `user`
+  // fields from a prior session — e.g. old email, username, or custom
+  // keys no longer present in the new payload — are cleared. We
+  // explicitly carry forward `secure` (Knox + session tokens) and
+  // `oauthParams`, which were just set by processAllAuthSession above
+  // and must survive this rebuild; setUserSession's defu merge kept them
+  // by accident but also kept other stale `user` keys we want to drop.
+  const current = await getUserSession(event)
+  await replaceUserSession(event, {
+    ...current,
     user: userResponse,
   })
   return userResponse

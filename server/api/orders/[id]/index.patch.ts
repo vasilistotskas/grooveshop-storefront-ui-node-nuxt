@@ -4,9 +4,9 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zPartialUpdateOrderData.shape.path.parse,
+      zPartialUpdateOrderPath.parse,
     )
-    const body = await readValidatedBody(event, zPartialUpdateOrderData.shape.body.parse)
+    const body = await readValidatedBody(event, zPartialUpdateOrderBody.parse)
     const response = await $fetch(`${config.apiBaseUrl}/order/${params.id}`, {
       method: 'PATCH',
       body,

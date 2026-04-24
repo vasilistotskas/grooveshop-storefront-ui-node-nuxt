@@ -18,6 +18,12 @@ mockNuxtImport('useLocalePath', () => () => (path: string) => path)
 const mockSummaryRef = ref<any>(null)
 const mockStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
 const mockErrorRef = ref<any>(null)
+// The Summary component also reads `fetchTiers()` to drive the
+// "next tier unlocks" hint; tests render without tiers by default so we
+// mock an empty list (the preview is conditionally hidden when empty).
+const mockTiersRef = ref<any[]>([])
+const mockTiersStatusRef = ref<'idle' | 'pending' | 'success' | 'error'>('idle')
+const mockTiersErrorRef = ref<any>(null)
 
 const mockRefresh = vi.fn()
 
@@ -28,6 +34,12 @@ mockNuxtImport('useLoyalty', () => {
       status: mockStatusRef,
       error: mockErrorRef,
       refresh: mockRefresh,
+    }),
+    fetchTiers: () => ({
+      data: mockTiersRef,
+      status: mockTiersStatusRef,
+      error: mockTiersErrorRef,
+      refresh: vi.fn(),
     }),
   })
 })

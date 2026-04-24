@@ -280,8 +280,8 @@ const activityStats = computed(() => {
               "
             >
               <NuxtLink
-                v-if="item.route && item.type === 'link'"
-                :to="localePath(item.route)"
+                v-if="item.to"
+                :to="localePath(item.to as any)"
                 class="
                   flex h-full items-center gap-4 p-5 transition-all duration-200
                 "
@@ -311,7 +311,7 @@ const activityStats = computed(() => {
                       dark:text-primary-50
                     "
                   >
-                    {{ item.text }}
+                    {{ item.label }}
                   </h4>
                   <p
                     class="
@@ -319,7 +319,7 @@ const activityStats = computed(() => {
                       dark:text-neutral-300
                     "
                   >
-                    {{ t(`account.menu_description.${item.route.name}`) }}
+                    {{ t(`account.menu_description.${item.to.replace(/^\//, '').replaceAll('/', '-')}`) }}
                   </p>
                 </div>
                 <UIcon
@@ -548,7 +548,7 @@ const activityStats = computed(() => {
             :key="i"
           >
             <UCard
-              v-if="item.route && item.type === 'link'"
+              v-if="item.to"
               :ui="{
                 body: 'p-4',
               }"
@@ -561,8 +561,8 @@ const activityStats = computed(() => {
               "
             >
               <NuxtLink
-                :to="localePath(item.route)"
-                :aria-label="item.text"
+                :to="localePath(item.to as any)"
+                :aria-label="item.label"
                 class="
                   flex h-full flex-col content-center items-center
                   justify-center gap-3
@@ -592,7 +592,7 @@ const activityStats = computed(() => {
                     dark:text-primary-50
                   "
                 >
-                  {{ item.text }}
+                  {{ item.label }}
                 </span>
               </NuxtLink>
             </UCard>
@@ -657,6 +657,7 @@ el:
     location: Τοποθεσία
     location_description: Η πόλη και χώρα σου
     menu_description:
+      account: Δες την επισκόπηση του λογαριασμού σου
       account-favourites-posts: Δες τις αγαπημένες σου αναρτήσεις
       account-subscriptions: Διαχειρίσου τις εγγραφές σου
       account-loyalty: Δες τους πόντους και το ιστορικό σου

@@ -4,7 +4,7 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readValidatedBody(
       event,
-      zCheckBlogCommentLikesData.shape.body.parse,
+      zCheckBlogCommentLikesBody.parse,
     )
 
     const response = await $fetch(

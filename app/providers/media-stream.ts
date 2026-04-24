@@ -12,13 +12,11 @@ import { joinURL } from 'ufo'
  * @see https://image.nuxt.com/advanced/custom-provider
  */
 export const getImage: ProviderGetImage = (src, { modifiers = {}, baseURL } = {}) => {
-  const config = useRuntimeConfig()
-
-  const mediaStreamBaseURL = baseURL || config.public.mediaStreamPath as string
-
-  if (!mediaStreamBaseURL) {
-    throw new Error('Media Stream base URL is not configured')
+  if (!baseURL) {
+    throw new Error('Media Stream base URL is not configured. Set NUXT_PUBLIC_MEDIA_STREAM_PATH in your environment.')
   }
+
+  const mediaStreamBaseURL = baseURL
 
   // Default modifiers
   const width = modifiers.width || 100

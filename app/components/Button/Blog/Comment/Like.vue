@@ -70,7 +70,6 @@ const toggleFavourite = async () => {
 
   await $fetch(`/api/blog/comments/${props.blogCommentId}/update-likes`, {
     method: 'POST',
-    headers: useRequestHeaders(),
     onResponse({ response }) {
       if (!response.ok) {
         return

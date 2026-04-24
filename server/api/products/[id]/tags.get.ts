@@ -3,9 +3,9 @@ export default defineCachedEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zListProductTagsData.shape.path.parse,
+      zListProductTagsPath.parse,
     )
-    const query = await getValidatedQuery(event, zListProductTagsData.shape.query.parse)
+    const query = await getValidatedQuery(event, zListProductTagsQuery.parse)
     const response = await $fetch(`${config.apiBaseUrl}/product/${params.id}/tags`, {
       method: 'GET',
       query,

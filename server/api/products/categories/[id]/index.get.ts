@@ -3,7 +3,7 @@ export default defineCachedEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zRetrieveProductCategoryData.shape.path.parse,
+      zRetrieveProductCategoryPath.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/product/category/${params.id}`,

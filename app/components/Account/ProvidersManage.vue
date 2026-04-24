@@ -9,16 +9,12 @@ const {
 } = useAllAuthAccount()
 const toast = useToast()
 const { t } = useI18n()
-const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
 const { data: providerAccounts, refresh: refreshProviderAccounts } = await useAsyncData(
   'providerAccounts',
   () => connectedThirdPartyProviderAccounts(),
-  {
-    server: false, // User-specific data: client-side only
-  },
 )
 
 async function disconnect(values: ProvidersDeleteBody) {
@@ -27,7 +23,7 @@ async function disconnect(values: ProvidersDeleteBody) {
     await disconnectThirdPartyProviderAccount(values)
     await refreshProviderAccounts()
     toast.add({
-      title: $i18n.t('success.title'),
+      title: t('success.title'),
       color: 'success',
     })
     emit('disconnectThirdPartyProviderAccount')
@@ -79,7 +75,7 @@ const columns: TableColumn<any>[] = [
   },
   {
     accessorKey: 'uid',
-    header: $i18n.t('uid'),
+    header: t('uid'),
   },
   {
     id: 'actions',
@@ -101,7 +97,7 @@ const data = computed(() => {
 const actionItems = (row: { uid: string, display: string, name: string, providerId: string }): DropdownMenuItem[][] => {
   const items: DropdownMenuItem[] = []
   items.push({
-    label: $i18n.t('disconnect'),
+    label: t('disconnect'),
     icon: 'i-heroicons-trash-20-solid',
     class: 'cursor-pointer',
     ui: {
@@ -186,7 +182,7 @@ onReactivated(async () => {
             </UTooltip>
           </template>
           <template #actions-cell="{ row }">
-            <UTooltip :text="$i18n.t('actions')">
+            <UTooltip :text="t('actions')">
               <LazyUDropdownMenu
                 v-if="actionItems(row.original).length > 0"
                 :items="actionItems(row.original)"

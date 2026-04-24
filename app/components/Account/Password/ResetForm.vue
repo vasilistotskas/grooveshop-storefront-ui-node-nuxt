@@ -6,7 +6,6 @@ const emit = defineEmits(['passwordRequest'])
 
 const { passwordRequest } = useAllAuthAuthentication()
 const toast = useToast()
-const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 const { t } = useI18n()
 
@@ -16,8 +15,8 @@ const hasError = ref(false)
 const schema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.email.valid'),
+      ? t('validation.required')
+      : t('validation.email.valid'),
   }),
 })
 
@@ -43,7 +42,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     })
 
     toast.add({
-      title: $i18n.t('password.reset.request.success'),
+      title: t('password.reset.request.success'),
       description: t('success.description'),
       color: 'success',
       icon: 'i-heroicons-check-circle',

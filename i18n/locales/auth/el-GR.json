@@ -1,5 +1,7 @@
 {
   "auth": {
+    "session_expired_title": "Η συνεδρία έληξε",
+    "session_expired_description": "Η συνεδρία σου έληξε. Παρακαλώ συνδέσου ξανά για να συνεχίσεις.",
     "login": {
       "success": "Συνδεθείτε με επιτυχία",
       "error": {

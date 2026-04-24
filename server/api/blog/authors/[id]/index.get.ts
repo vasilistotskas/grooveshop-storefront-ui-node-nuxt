@@ -3,7 +3,7 @@ export default defineCachedEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zRetrieveBlogAuthorData.shape.path.parse,
+      zRetrieveBlogAuthorPath.parse,
     )
     const response = await $fetch(
       `${config.apiBaseUrl}/blog/author/${params.id}`,

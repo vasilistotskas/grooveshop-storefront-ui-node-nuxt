@@ -37,7 +37,7 @@ const { count } = toRefs(props)
 
 const currentPage = ref(props.page)
 
-const maxVisibleButtons = computed(() => (isMobileOrTablet ? 2 : 3))
+const maxVisibleButtons = computed(() => (isMobileOrTablet.value ? 2 : 3))
 const items = ref(Array(count.value))
 
 watch(

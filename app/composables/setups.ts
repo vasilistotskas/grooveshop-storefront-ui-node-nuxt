@@ -18,7 +18,14 @@ export function setupPageHeader() {
   const themeColor = computed(() => colorMode.value === 'dark' ? THEME_COLORS.themeDark : THEME_COLORS.themeLight)
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
   const ogLocalesAlternate = computed(() => $i18n.locales.value.map(l => l.language || l.code))
-  const lang = computed(() => uiLocales[$i18n.locale.value].code)
+  // Prefer the locale's full BCP-47 `language` (e.g. `el-GR`) so screen
+  // readers + search engines get region-specific pronunciation hints.
+  // Fall back to @nuxt/ui's 2-letter code when no `language` is configured
+  // (e.g. legacy locales added without the `language` field).
+  const lang = computed(() => {
+    const props = $i18n.localeProperties.value as { language?: string, code: string }
+    return props.language || uiLocales[$i18n.locale.value].code
+  })
   const dir = computed(() => uiLocales[$i18n.locale.value].dir)
 
   useSeoMeta({
@@ -74,23 +81,21 @@ export function setupCursorState() {
 
 export function setupGoogleAnalyticsConsent() {
   const config = useRuntimeConfig()
-  const { proxy } = useScriptGoogleAnalytics({
+  const { consent } = useScriptGoogleAnalytics({
     id: config.public.scripts.googleAnalytics.id,
     // Defer loading until after hydration to not block initial render
     scriptOptions: {
       trigger: 'onNuxtReady',
     },
-    onBeforeGtagStart(gtag) {
-      gtag('consent', 'default', {
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
-        ad_storage: 'denied',
-        analytics_storage: 'denied',
-        functionality_storage: 'granted',
-        personalization_storage: 'denied',
-        security_storage: 'denied',
-        wait_for_update: 500,
-      })
+    defaultConsent: {
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      ad_storage: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'granted',
+      personalization_storage: 'denied',
+      security_storage: 'denied',
+      wait_for_update: 500,
     },
   })
 
@@ -101,19 +106,18 @@ export function setupGoogleAnalyticsConsent() {
 
   watch(
     () => cookiesEnabledIds.value,
-    async (current, _previous) => {
-      if (isConsentGiven.value) {
-        const consentFieldStatus = (field: string) => current?.includes(field) ? 'granted' : 'denied'
-        proxy.gtag('consent', 'update', {
-          ad_storage: consentFieldStatus('ad_storage'),
-          ad_user_data: consentFieldStatus('ad_user_data'),
-          ad_personalization: consentFieldStatus('ad_personalization'),
-          analytics_storage: consentFieldStatus('analytics_storage'),
-          functionality_storage: consentFieldStatus('functionality_storage'),
-          personalization_storage: consentFieldStatus('personalization_storage'),
-          security_storage: consentFieldStatus('security_storage'),
-        })
-      }
+    (current) => {
+      if (!consent || !isConsentGiven.value) return
+      const status = (field: string) => current?.includes(field) ? 'granted' as const : 'denied' as const
+      consent.update({
+        ad_storage: status('ad_storage'),
+        ad_user_data: status('ad_user_data'),
+        ad_personalization: status('ad_personalization'),
+        analytics_storage: status('analytics_storage'),
+        functionality_storage: status('functionality_storage'),
+        personalization_storage: status('personalization_storage'),
+        security_storage: status('security_storage'),
+      })
     },
     { immediate: true },
   )

@@ -4,9 +4,7 @@ const toast = useToast()
 const { t } = useI18n()
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
-const loading = ref(false)
 const recoveryCode = ref('')
 
 if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
@@ -24,10 +22,9 @@ async function onSubmit() {
   }
 
   try {
-    loading.value = true
     await twoFaReauthenticate({ code: recoveryCode.value })
     toast.add({
-      title: $i18n.t('success.title'),
+      title: t('success.title'),
       description: t('success.description'),
       color: 'success',
       icon: 'i-heroicons-check-circle',
@@ -36,9 +33,6 @@ async function onSubmit() {
   catch (error) {
     handleAllAuthClientError(error)
     recoveryCode.value = ''
-  }
-  finally {
-    loading.value = false
   }
 }
 
@@ -95,7 +89,6 @@ definePageMeta({
               size="lg"
               icon="i-heroicons-key"
               autocomplete="off"
-              :disabled="loading"
               class="font-mono"
               :ui="{
                 root: 'w-full',
@@ -109,7 +102,6 @@ definePageMeta({
             color="neutral"
             size="lg"
             block
-            :loading="loading"
             :disabled="!recoveryCode"
             icon="i-heroicons-arrow-right"
             trailing

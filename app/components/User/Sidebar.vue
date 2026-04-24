@@ -6,8 +6,6 @@ defineProps({
   },
 })
 
-const route = useRoute()
-
 const { menus } = useAccountMenus()
 </script>
 
@@ -22,114 +20,28 @@ const { menus } = useAccountMenus()
     ]"
   >
     <div class="flex-1 overflow-y-auto">
-      <ul
+      <UNavigationMenu
+        orientation="vertical"
+        :items="menus"
+        :ui="{
+          link: 'gap-4 p-2',
+          linkLeadingIcon: 'size-6',
+          linkLabel: `
+            text-xl font-semibold capitalize
+            md:text-lg
+          `,
+        }"
+      />
+      <div
         class="
-          grid
-          md:gap-2
+          mt-2 rounded border border-primary-500 bg-primary-100 p-2
+          md:border-transparent md:bg-transparent md:p-0
+          dark:bg-primary-900
+          md:dark:bg-transparent
         "
       >
-        <li
-          v-for="(item, i) in menus"
-          :key="i"
-          class="
-            rounded border border-primary-500 bg-primary-100 p-2
-            md:border-transparent md:bg-transparent md:p-0
-            dark:bg-primary-900
-            md:dark:bg-transparent
-          "
-        >
-          <LazyAnchor
-            v-if="item.route && item.type === 'link'"
-            :to="item.route"
-            :text="item.text"
-            :ui="{
-              base: 'w-full p-0',
-            }"
-          >
-            <div
-              :class="{
-                'group flex w-full items-center gap-4 p-2 hover:no-underline': true,
-                'rounded-lg bg-primary-100 dark:bg-primary-900': route.path === item.route?.path,
-              }"
-            >
-              <LazyUIcon
-                v-if="item.icon"
-                :name="item.icon"
-                class="size-6"
-              />
-              <span
-                class="
-                  text-xl font-semibold text-primary-950 capitalize
-                  md:text-lg
-                  dark:text-primary-50
-                "
-                :class="{
-                  'font-extrabold':
-                    route.path === item.route?.path,
-                }"
-              >
-                {{ item.text }}
-              </span>
-            </div>
-          </LazyAnchor>
-          <Anchor
-            v-else-if="item.type === 'external-link'"
-            :href="item.href"
-            :text="item.text"
-            class="
-              group flex items-center gap-4 p-2
-              hover:no-underline
-            "
-          >
-            <div
-              class="
-                flex items-center rounded-md p-1 shadow-sm ring-1
-                ring-slate-900/5
-                group-hover:shadow group-hover:shadow-sky-200
-                group-hover:ring-slate-900/10
-                dark:shadow-none dark:ring-0 dark:group-hover:shadow-none
-              "
-              :class="{
-                'bg-secondary text-primary-50 dark:text-primary-50':
-                  item.route?.path === route.path,
-                'bg-primary-100 text-slate-500 group-hover:bg-primary-200 dark:bg-primary-900 dark:text-primary-50 dark:group-hover:bg-primary-600':
-                  item.route?.path !== route.path,
-              }"
-            >
-              <Component
-                :is="item.icon"
-                class="
-                  text-2xl
-                  md:text-xl
-                "
-              />
-            </div>
-            <span
-              class="
-                text-xl font-semibold text-primary-950 capitalize
-                md:text-lg
-                dark:text-primary-50
-              "
-              :class="{
-                'font-extrabold':
-                  item.route?.path === route.path,
-              }"
-            >
-              {{ item.text }}
-            </span>
-          </Anchor>
-        </li>
-        <li
-          class="
-            rounded border border-primary-500 bg-primary-100 p-2
-            md:border-transparent md:bg-transparent md:p-0
-            dark:bg-primary-900
-            md:dark:bg-transparent
-          "
-        >
-          <LogoutButton class="ml-2" />
-        </li>
-      </ul>
+        <LogoutButton class="ml-2" />
+      </div>
     </div>
   </div>
 </template>

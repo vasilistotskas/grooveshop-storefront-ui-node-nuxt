@@ -1,19 +1,19 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 
+const { t } = useI18n()
 const emit = defineEmits(['providerSignup'])
 
 const { providerSignup } = useAllAuthAuthentication()
 const toast = useToast()
-const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
 const providerSignupZodSchema = z.object({
   email: z.email({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.email.valid'),
+      ? t('validation.required')
+      : t('validation.email.valid'),
   }),
 })
 
@@ -22,7 +22,7 @@ async function onSubmit(values: z.infer<typeof providerSignupZodSchema>) {
     loading.value = true
     await providerSignup(values) // Properly typed as { email: string }
     toast.add({
-      title: $i18n.t('success.title'),
+      title: t('success.title'),
       color: 'success',
     })
     emit('providerSignup')
@@ -35,7 +35,7 @@ async function onSubmit(values: z.infer<typeof providerSignupZodSchema>) {
 const formSchema = computed(() => ({
   fields: [
     {
-      label: $i18n.t('email.title'),
+      label: t('email.title'),
       name: 'email',
       as: 'input',
       rules: providerSignupZodSchema.shape.email,
@@ -47,7 +47,7 @@ const formSchema = computed(() => ({
       required: true,
       condition: () => true,
       disabledCondition: () => false,
-      placeholder: $i18n.t('email.title'),
+      placeholder: t('email.title'),
       type: 'email',
     },
   ],
@@ -63,7 +63,7 @@ const formSchema = computed(() => ({
   >
     <section class="grid items-center">
       <DynamicForm
-        :button-label="$i18n.t('submit')"
+        :button-label="t('submit')"
         :schema="formSchema"
         @submit="onSubmit"
       />

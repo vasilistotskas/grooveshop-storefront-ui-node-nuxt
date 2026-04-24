@@ -56,18 +56,18 @@ export async function handleAllAuthError(
     if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
       log.info('auth', 'Not authenticated or invalid session, updating tokens')
 
-      if (error.data.meta?.session_token) {
-        await setUserSession(event, {
-          secure: { sessionToken: error.data.meta.session_token },
+      const hasTokens = error.data.meta?.session_token || error.data.meta?.access_token
+      if (hasTokens) {
+        const existingSession = await getUserSession(event)
+        await replaceUserSession(event, {
+          ...existingSession,
+          secure: {
+            sessionToken: error.data.meta?.session_token ?? existingSession.secure?.sessionToken,
+            accessToken: error.data.meta?.access_token ?? existingSession.secure?.accessToken,
+          },
         })
       }
-      if (error.data.meta?.access_token) {
-        await setUserSession(event, {
-          secure: { accessToken: error.data.meta.access_token },
-        })
-      }
-
-      if (!error.data.meta?.is_authenticated && (!error.data.meta?.session_token && !error.data.meta?.access_token)) {
+      else if (!error.data.meta?.is_authenticated) {
         log.info('auth', 'No tokens in error response, clearing user session')
         await clearUserSession(event)
       }

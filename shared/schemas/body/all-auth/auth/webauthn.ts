@@ -5,12 +5,7 @@ const ZodWebAuthnCredentialBody = z.object({
     type: z.string(),
     id: z.string(),
     rawId: z.any(),
-    response: z.object({
-      clientDataJSON: z.string(),
-      authenticatorData: z.string(),
-      signature: z.string(),
-      userHandle: z.string().nullable(),
-    }),
+    response: z.record(z.string(), z.any()),
     authenticatorAttachment: z.string().nullish(),
     clientExtensionResults: z.any().optional(),
   }),

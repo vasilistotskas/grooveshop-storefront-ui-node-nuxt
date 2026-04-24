@@ -1,4 +1,12 @@
 export const useOrder = () => {
+  const cancelOrder = async (orderId: number, reason?: string) => {
+    return await $fetch<OrderDetail>(`/api/orders/${orderId}/cancel`, {
+      method: 'POST',
+      headers: useRequestHeaders(),
+      body: reason ? { reason } : {},
+    })
+  }
+
   const statusClass = (order: Order) => {
     switch (order.status) {
       case 'PENDING':
@@ -83,6 +91,7 @@ export const useOrder = () => {
   }
 
   return {
+    cancelOrder,
     statusClass,
     paymentStatusClass,
   }

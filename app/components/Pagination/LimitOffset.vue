@@ -31,7 +31,7 @@ const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 const { t } = useI18n()
 
-const maxVisibleButtons = computed(() => (isMobileOrTablet ? 2 : 3))
+const maxVisibleButtons = computed(() => (isMobileOrTablet.value ? 2 : 3))
 
 const firstPageNumber = computed(() => 1)
 const lastPageNumber = computed(() => props.totalPages)

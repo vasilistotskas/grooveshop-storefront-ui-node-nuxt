@@ -10,12 +10,12 @@ const callAuthChangeHook = async (authData: AllAuthResponse | AllAuthResponseErr
 export const onAllAuthResponse = async (response: FetchResponse<AllAuthResponse>) => {
   if (!response || !response._data) return
   log.info('auth', 'onAllAuthResponse', { status: response.status })
-  // Only fire auth:change for responses that carry auth state (have a `meta` field).
-  // Non-auth endpoints (authenticators, sessions list, emails, providers) return
-  // { status: 200, data: [...] } without `meta` — firing auth:change for those
-  // would make determineAuthChangeEvent see is_authenticated=false and trigger
-  // an erroneous LOGGED_OUT event.
-  if (response.status === 200 && 'meta' in response._data) {
+  // Only fire auth:change for responses that carry auth state (meta.is_authenticated).
+  // Some endpoints (e.g. TOTP SVG) return `meta` with domain-specific fields (secret,
+  // totp_svg) but no `is_authenticated` — treating those as auth state would make
+  // determineAuthChangeEvent see is_authenticated=false and trigger an erroneous
+  // LOGGED_OUT event.
+  if (response.status === 200 && response._data.meta?.is_authenticated !== undefined) {
     log.info('auth', 'Auth response 200 with meta, calling auth:change hook')
     await callAuthChangeHook(response._data)
   }
@@ -59,13 +59,15 @@ export const determineAuthChangeEvent = (
   newAuthState: AllAuthResponse | AllAuthResponseError,
   previousAuthState?: AllAuthResponse | AllAuthResponseError | null,
 ): AuthChangeEventType | null => {
-  const toast = useToast()
-  const { t } = useNuxtApp().$i18n
   log.info('auth', 'Determining auth change event', { newStatus: newAuthState.status, previousStatus: previousAuthState?.status })
 
   const currentAuthInfo = authInfo(newAuthState)
   const previousAuthInfo = authInfo(previousAuthState)
   if (newAuthState.status === 410) {
+    // useToast/useNuxtApp must be called inside the branch that needs them
+    // to avoid Vue's inject() warning when this function runs outside setup context
+    const toast = useToast()
+    const { t } = useNuxtApp().$i18n
     toast.add({
       title: t('auth.error.session.expired'),
       color: 'warning',
@@ -113,8 +115,10 @@ export const determineAuthChangeEvent = (
       ? AuthChangeEvent.FLOW_UPDATED
       : AuthChangeEvent.LOGGED_OUT
   }
-  log.info('auth', 'Was authenticated and is not authenticated')
-  if (wasAuthenticated && !isAuthenticated) return AuthChangeEvent.LOGGED_OUT
+  if (wasAuthenticated && !isAuthenticated) {
+    log.info('auth', 'Was authenticated and is not authenticated')
+    return AuthChangeEvent.LOGGED_OUT
+  }
   return null
 }
 

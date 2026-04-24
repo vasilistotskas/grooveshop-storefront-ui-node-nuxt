@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 const { t } = useI18n()
 
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('account-login'),
@@ -61,7 +60,7 @@ definePageMeta({
               />
             </div>
             <h1 class="text-2xl font-bold text-highlighted">
-              {{ $i18n.t('authenticate.totp') }}
+              {{ t('authenticate.totp') }}
             </h1>
             <p class="mt-2 text-sm text-muted">
               {{ t('description') }}

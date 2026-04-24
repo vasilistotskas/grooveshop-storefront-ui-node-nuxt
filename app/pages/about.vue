@@ -1,20 +1,16 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
-const { storeName } = storeToRefs(useTenantStore())
-
-const i18nParams = computed(() => ({ storeName: storeName.value }))
 
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('about'),
-    label: t('breadcrumb.items.about.label', i18nParams.value),
+    label: t('breadcrumb.items.about.label'),
     icon: t('breadcrumb.items.about.icon'),
     current: true,
   },
@@ -22,11 +18,11 @@ const items = computed(() => [
 
 useSeoMeta({
   titleTemplate: '%s',
-  title: t('title', i18nParams.value),
+  title: t('title'),
 })
 useHead({
   titleTemplate: '%s',
-  title: t('title', i18nParams.value),
+  title: t('title'),
 })
 
 definePageMeta({
@@ -51,7 +47,7 @@ definePageMeta({
       class="relative mb-5 min-w-0"
     />
     <PageTitle
-      :text="t('title', i18nParams)"
+      :text="t('title')"
       class="mb-4 text-center capitalize"
     />
 
@@ -59,10 +55,10 @@ definePageMeta({
       <div class="grid items-center justify-center">
         <NuxtImg
           :style="{ objectFit: 'contain' }"
-          src="/img/pages/about-hero.png"
+          src="/img/pages/about-webside.png"
           :width="960"
           :height="600"
-          :alt="storeName"
+          alt="Webside"
           loading="eager"
           quality="80"
           preload
@@ -76,7 +72,7 @@ definePageMeta({
         "
       >
         Χρησιμοποιώντας ως γνώμονα το μοντέλο ηλεκτρονικής μάθησης «Microlearning», ολοκληρώθηκε η δημιουργία της
-        τελικής μορφής της εφαρμογής “{{ storeName }}”.
+        τελικής μορφής της εφαρμογής “Webside”.
       </p>
       <p
         class="
@@ -84,7 +80,7 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        To {{ storeName }}, είναι μία ηλεκτρονική πλατφόρμα Microlearning και ηλεκτρονικού εμπορίου, όπου μπορείς να
+        To Webside, είναι μία ηλεκτρονική πλατφόρμα Microlearning και ηλεκτρονικού εμπορίου, όπου μπορείς να
         εκπαιδευτείς και να λάβεις χρήσιμες πληροφορίες σχετικά με την ηλεκτρονική προστασία σου από ηλεκτρονικές
         απειλές και να ενημερωθείς – εκπαιδευτείς δωρεάν σχετικά με βέλτιστες πρακτικές, συμβουλές και tips σχετικά με
         τον κλάδο της τεχνολογίας (PC, Mobile, AI κ.α.).
@@ -95,7 +91,7 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        Ο σκοπός του {{ storeName }} είναι η οικοδόμηση μίας κουλτούρας τεχνολογικής γνώσης και ηλεκτρονικής ασφάλειας, στα
+        Ο σκοπός του Webside είναι η οικοδόμηση μίας κουλτούρας τεχνολογικής γνώσης και ηλεκτρονικής ασφάλειας, στα
         πλαίσια της αυξητικής τάσης χρήσης της τεχνολογίας σε καθημερινή βάση.
       </p>
       <p
@@ -114,7 +110,7 @@ definePageMeta({
           dark:text-primary-50
         "
       >
-        Παράλληλα, το {{ storeName }} περιλαμβάνει και ηλεκτρονικό κατάστημα τεχνολογικών προιόντων, μέσω του οποίου μπορείς
+        Παράλληλα, το Webside περιλαμβάνει και ηλεκτρονικό κατάστημα τεχνολογικών προιόντων, μέσω του οποίου μπορείς
         να
         αγοράσεις χρήσιμα tech gadgets τα οποία κατά κύριο λόγο θα συνδέονται άμεσα με το αντικείμενο των
         εκπαιδευτικών
@@ -126,10 +122,10 @@ definePageMeta({
 
 <i18n lang="yaml">
 el:
-  title: Τι Είναι Το {storeName}
+  title: Τι Είναι Το Webside
   breadcrumb:
     items:
       about:
-        label: Τι Είναι Το {storeName}
+        label: Τι Είναι Το Webside
         icon: i-heroicons-information-circle
 </i18n>

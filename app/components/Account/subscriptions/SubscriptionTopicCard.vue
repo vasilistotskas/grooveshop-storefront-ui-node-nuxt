@@ -34,7 +34,7 @@ const handleToggle = (checked: boolean) => {
 }
 
 const categoryColor = computed(() => {
-  const colorMap: Record<CategoryEnum, 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'> = {
+  const colorMap: Record<TopicCategory, 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'> = {
     MARKETING: 'primary',
     PRODUCT: 'info',
     ACCOUNT: 'secondary',

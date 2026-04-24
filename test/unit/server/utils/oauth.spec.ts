@@ -121,9 +121,9 @@ describe('Server Utils - OAuth', () => {
   describe('storeOAuthTokensAndRedirect', () => {
     it('should store all oauth params in session', async () => {
       const mockEvent = {} as any
-      const mockSetUserSession = vi.fn().mockResolvedValue(undefined)
+      const mockReplaceUserSession = vi.fn().mockResolvedValue(undefined)
       const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
-      vi.stubGlobal('setUserSession', mockSetUserSession)
+      vi.stubGlobal('replaceUserSession', mockReplaceUserSession)
       vi.stubGlobal('sendRedirect', mockSendRedirect)
 
       await storeOAuthTokensAndRedirect(
@@ -134,7 +134,7 @@ describe('Server Utils - OAuth', () => {
         'login',
       )
 
-      expect(mockSetUserSession).toHaveBeenCalledWith(mockEvent, {
+      expect(mockReplaceUserSession).toHaveBeenCalledWith(mockEvent, {
         secure: {
           oauthParams: {
             provider: 'google',
@@ -149,7 +149,7 @@ describe('Server Utils - OAuth', () => {
 
     it('should redirect to /account/provider/callback with provider and process', async () => {
       const mockEvent = {} as any
-      vi.stubGlobal('setUserSession', vi.fn().mockResolvedValue(undefined))
+      vi.stubGlobal('replaceUserSession', vi.fn().mockResolvedValue(undefined))
       const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
       vi.stubGlobal('sendRedirect', mockSendRedirect)
 
@@ -177,8 +177,8 @@ describe('Server Utils - OAuth', () => {
 
     it('should handle null/undefined optional tokens gracefully', async () => {
       const mockEvent = {} as any
-      const mockSetUserSession = vi.fn().mockResolvedValue(undefined)
-      vi.stubGlobal('setUserSession', mockSetUserSession)
+      const mockReplaceUserSession = vi.fn().mockResolvedValue(undefined)
+      vi.stubGlobal('replaceUserSession', mockReplaceUserSession)
       vi.stubGlobal('sendRedirect', vi.fn().mockResolvedValue(undefined))
 
       await storeOAuthTokensAndRedirect(
@@ -189,7 +189,7 @@ describe('Server Utils - OAuth', () => {
         'connect',
       )
 
-      expect(mockSetUserSession).toHaveBeenCalledWith(mockEvent, {
+      expect(mockReplaceUserSession).toHaveBeenCalledWith(mockEvent, {
         secure: {
           oauthParams: {
             provider: 'facebook',
@@ -204,7 +204,7 @@ describe('Server Utils - OAuth', () => {
 
     it('should use connect process in redirect URL', async () => {
       const mockEvent = {} as any
-      vi.stubGlobal('setUserSession', vi.fn().mockResolvedValue(undefined))
+      vi.stubGlobal('replaceUserSession', vi.fn().mockResolvedValue(undefined))
       const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
       vi.stubGlobal('sendRedirect', mockSendRedirect)
 

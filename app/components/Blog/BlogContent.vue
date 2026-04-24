@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import DOMPurify from 'isomorphic-dompurify'
+
 /**
  * BlogContent - A wrapper component for blog post HTML content
  *
@@ -11,15 +13,17 @@
  * <LazyBlogContent hydrate-never :html="transformedHtml" />
  * ```
  */
-defineProps<{
+const props = defineProps<{
   /** The transformed HTML content to render */
   html: string
 }>()
+
+const sanitizedHtml = computed(() => DOMPurify.sanitize(props.html))
 </script>
 
 <template>
   <div
     class="article"
-    v-html="html"
+    v-html="sanitizedHtml"
   />
 </template>

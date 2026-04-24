@@ -4,9 +4,9 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zGetUserAccountBlogPostCommentsData.shape.path.parse,
+      zGetUserAccountBlogPostCommentsPath.parse,
     )
-    const query = await getValidatedQuery(event, zGetUserAccountBlogPostCommentsData.shape.query.parse)
+    const query = await getValidatedQuery(event, zGetUserAccountBlogPostCommentsQuery.parse)
     const response = await $fetch(`${config.apiBaseUrl}/user/account/${params.id}/blog_post_comments`, {
       method: 'GET',
       query,

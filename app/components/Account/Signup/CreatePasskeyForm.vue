@@ -9,24 +9,21 @@ const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 const authInfo = useAuthInfo()
-const { $i18n } = useNuxtApp()
 const router = useRouter()
 
-const loading = ref(false)
 const hasError = ref(false)
 const deviceName = ref('')
 
 const schema = z.object({
   name: z.string()
-    .min(1, $i18n.t('validation.required'))
-    .max(50, $i18n.t('validation.max', { max: 50 })),
+    .min(1, t('validation.required'))
+    .max(50, t('validation.max', { max: 50 })),
 })
 
 type Schema = z.output<typeof schema>
 
 async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
   try {
-    loading.value = true
     hasError.value = false
 
     const optResp = await getWebAuthnCreateOptionsAtSignup()
@@ -45,7 +42,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
     })
 
     toast.add({
-      title: $i18n.t('success.title'),
+      title: t('success.title'),
       description: t('success.description'),
       color: 'success',
       icon: 'i-heroicons-check-circle',
@@ -63,9 +60,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
     }
     hasError.value = true
     handleAllAuthClientError(error)
-  }
-  finally {
-    loading.value = false
   }
 }
 </script>
@@ -99,22 +93,19 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
           v-model="deviceName"
           :placeholder="t('name_placeholder')"
           icon="i-heroicons-device-phone-mobile"
-          :disabled="loading"
           class="w-full"
         />
       </UFormField>
 
       <UButton
         type="submit"
-        :loading="loading"
-        :disabled="loading"
         color="neutral"
         variant="subtle"
         block
         size="lg"
         icon="i-heroicons-finger-print"
       >
-        {{ $i18n.t('submit') }}
+        {{ t('submit') }}
       </UButton>
     </UForm>
 

@@ -36,6 +36,7 @@ const resultUrl = (result: SearchResult) => {
   else if (result.contentType === 'blog_post') {
     return blogPostUrl(result.master, result.slug)
   }
+  return '/'
 }
 </script>
 
@@ -45,6 +46,10 @@ const resultUrl = (result: SearchResult) => {
     size="lg"
     block
     :to="resultUrl(result)"
+    class="
+      focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary
+      focus-visible:outline-none
+    "
     @click="emit('click')"
   >
     <span
@@ -77,8 +82,9 @@ const resultUrl = (result: SearchResult) => {
             group-hover:text-primary-600
             dark:text-gray-100 dark:group-hover:text-primary-400
           "
-          v-html="displayTitle"
-        />
+        >
+          {{ displayTitle }}
+        </h3>
         <UBadge
           :label="contentTypeInfo.label"
           :color="contentTypeInfo.color"
@@ -92,8 +98,9 @@ const resultUrl = (result: SearchResult) => {
           line-clamp-2 text-sm text-gray-600
           dark:text-gray-200
         "
-        v-html="displaySubtitle"
-      />
+      >
+        {{ displaySubtitle }}
+      </span>
     </span>
 
     <UIcon

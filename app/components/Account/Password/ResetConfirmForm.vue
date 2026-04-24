@@ -9,7 +9,6 @@ const { t } = useI18n()
 const route = useRoute()
 const toast = useToast()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 const router = useRouter()
 
 const key = 'key' in route.params ? route.params.key : undefined
@@ -20,10 +19,7 @@ if (!key) {
 
 await useAsyncData('passwordReset', () => getPasswordReset(String(key)))
 
-const loading = ref(false)
 const hasError = ref(false)
-const showPassword1 = ref(false)
-const showPassword2 = ref(false)
 
 function checkStrength(str: string) {
   const requirements = [
@@ -58,10 +54,10 @@ const strengthText = computed(() => {
 
 const schema = z.object({
   newPassword1: z.string()
-    .min(8, $i18n.t('validation.min', { min: 8 }))
+    .min(8, t('validation.min', { min: 8 }))
     .max(255),
   newPassword2: z.string()
-    .min(8, $i18n.t('validation.min', { min: 8 }))
+    .min(8, t('validation.min', { min: 8 }))
     .max(255),
   key: z.string(),
 }).refine(data => data.newPassword1 === data.newPassword2, {
@@ -73,7 +69,6 @@ type Schema = z.output<typeof schema>
 
 async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
   try {
-    loading.value = true
     hasError.value = false
 
     await passwordReset({
@@ -82,7 +77,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
     })
 
     toast.add({
-      title: $i18n.t('password.reset.success'),
+      title: t('password.reset.success'),
       description: t('success.description'),
       color: 'success',
       icon: 'i-heroicons-check-circle',
@@ -96,7 +91,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
     if (isAllAuthClientError(error)) {
       if (error.data.data.status === 401) {
         toast.add({
-          title: $i18n.t('password.reset.success'),
+          title: t('password.reset.success'),
           color: 'success',
         })
         await navigateTo(localePath('account-login'))
@@ -113,12 +108,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
     }
     hasError.value = true
     toast.add({
-      title: $i18n.t('error.default'),
+      title: t('error.default'),
       color: 'error',
     })
-  }
-  finally {
-    loading.value = false
   }
 }
 </script>
@@ -147,28 +139,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
         :label="t('form.newPassword1.label')"
         required
       >
-        <UInput
+        <FormPasswordInput
           v-model="newPassword1"
-          :type="showPassword1 ? 'text' : 'password'"
           :color="color"
           autocomplete="new-password"
           :placeholder="t('password.placeholder')"
-          :ui="{
-            root: 'w-full',
-            trailing: 'pe-1',
-          }"
-        >
-          <template #trailing>
-            <UButton
-              color="neutral"
-              variant="link"
-              size="sm"
-              :icon="showPassword1 ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-              :aria-label="showPassword1 ? 'Hide password' : 'Show password'"
-              @click="showPassword1 = !showPassword1"
-            />
-          </template>
-        </UInput>
+        />
 
         <template v-if="newPassword1" #hint>
           <div class="mt-2 space-y-2">
@@ -206,35 +182,18 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
         :label="t('form.newPassword2.label')"
         required
       >
-        <UInput
+        <FormPasswordInput
           v-model="newPassword2"
-          :type="showPassword2 ? 'text' : 'password'"
           autocomplete="new-password"
           :placeholder="t('password.placeholder_confirm')"
-          :ui="{
-            root: 'w-full',
-            trailing: 'pe-1',
-          }"
-        >
-          <template #trailing>
-            <UButton
-              color="neutral"
-              variant="link"
-              size="sm"
-              :icon="showPassword2 ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-              :aria-label="showPassword2 ? 'Hide password' : 'Show password'"
-              @click="showPassword2 = !showPassword2"
-            />
-          </template>
-        </UInput>
+        />
       </UFormField>
 
       <UButton
         type="submit"
         color="neutral"
         variant="subtle"
-        :loading="loading"
-        :disabled="loading || score < 4"
+        :disabled="score < 4"
         block
         size="lg"
         icon="i-heroicons-check-circle"

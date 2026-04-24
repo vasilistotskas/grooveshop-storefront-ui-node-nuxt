@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import type { TabsItem, ButtonProps } from '#ui/types'
+import type { AccordionItem, TabsItem, ButtonProps } from '#ui/types'
 
-const route = useRoute('products-id-slug')
-const { $i18n } = useNuxtApp()
-const { t, locale } = useI18n()
+const { t, locale, n } = useI18n()
+const route = useRoute(`products-id-slug___${locale.value}`)
 const { y: scrollY } = useWindowScroll()
+
+const { isMobileOrTablet } = useDevice()
 
 const { user, loggedIn } = useUserSession()
 
@@ -29,6 +30,11 @@ const { trackView } = useViewCount()
 if (productId) {
   trackView('product', Number(productId))
 }
+
+// Client-side recently-viewed rail. We record the visit once the product
+// detail lands (below) so we have the translated name + image to show
+// without re-fetching on homepage/PDP rails.
+const recentlyViewed = useRecentlyViewed()
 
 const { data: product, refresh: refreshProduct } = await useFetch<ProductDetail>(
   `/api/products/${productId}`,
@@ -78,20 +84,32 @@ const [
   ),
 ])
 
+const { transformImages } = useHtmlContent()
+
+const sanitizedDescription = computed(() =>
+  transformImages(extractTranslated(product.value, 'description', locale.value) ?? ''),
+)
+
 const shouldFetchFavouriteProducts = computed(() => {
   return loggedIn.value
 })
 
-// User-specific data: client-side only to avoid blocking SSR
-useLazyFetch('/api/products/favourites/favourites-by-products', {
+// User-specific data: client-side only. The trigger is deferred to
+// ``onMounted`` — not called during setup — because Nuxt's payload
+// cache can resolve this synchronously during hydration (same key from
+// a prior navigation), which would populate the store before the heart
+// button hydrates and produce a ``Hydration mismatch`` that Vue **does
+// not rectify in production**. Triggering after mount keeps SSR and the
+// initial client render identical, so the subsequent store update
+// flows through the normal reactive patch path.
+const { execute: fetchFavourites } = useLazyFetch('/api/products/favourites/favourites-by-products', {
   key: `favouritesByProducts${user.value?.id}`,
   method: 'POST',
-  headers: useRequestHeaders(),
   body: {
     productIds: [Number(productId)],
   },
-  server: false, // Client-side only - user-specific data
-  immediate: shouldFetchFavouriteProducts.value,
+  server: false,
+  immediate: false,
   onResponse({ response }) {
     if (!response.ok) {
       return
@@ -103,11 +121,16 @@ useLazyFetch('/api/products/favourites/favourites-by-products', {
   },
 })
 
+onMounted(() => {
+  watchEffect(() => {
+    if (shouldFetchFavouriteProducts.value) fetchFavourites()
+  })
+})
+
 // User-specific data: client-side only
 const { data: userProductReview, refresh: refreshUserProductReview }
   = useLazyFetch(`/api/products/reviews/${productId}/user-product-review`, {
     key: `productReviews${productId}${user.value?.id}`,
-    headers: useRequestHeaders(),
     method: 'GET',
     immediate: loggedIn.value,
     server: false, // Client-side only - user-specific data
@@ -127,10 +150,7 @@ const _onDeleteExistingReview = async () => {
 }
 
 const formatProductPrice = (price?: number) => {
-  return new Intl.NumberFormat('el-GR', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(price || 0)
+  return n(price || 0, 'currency')
 }
 
 const incrementQuantity = () => {
@@ -183,6 +203,24 @@ const productDescription = computed(() => {
 const productStock = computed(() => product.value?.stock || 0)
 const showStickyAddToCart = computed(() => scrollY.value > 350)
 
+// Record this PDP visit in the recently-viewed history once we have
+// translated data to cache. `onMounted` guarantees we're on the client
+// (localStorage is unavailable during SSR) and re-triggers when the
+// user navigates between PDPs without a full reload.
+onMounted(() => {
+  if (!product.value?.id) return
+  recentlyViewed.add({
+    id: product.value.id,
+    slug: product.value.slug ?? null,
+    name: extractTranslated(product.value, 'name', locale.value) || '',
+    mainImagePath: product.value.mainImagePath ?? null,
+    finalPrice: typeof product.value.finalPrice === 'number'
+      ? product.value.finalPrice
+      : null,
+    addedAt: Date.now(),
+  })
+})
+
 const canonicalUrl = computed(() => {
   const baseUrl = runtimeConfig.public.baseUrl
   return `${baseUrl}/products/${product.value?.id}/${product.value?.slug}`
@@ -219,8 +257,8 @@ const favouriteId = computed(() => {
 const items = computed(() => [
   {
     to: localePath('index'),
-    label: $i18n.t('breadcrumb.items.index.label'),
-    icon: $i18n.t('breadcrumb.items.index.icon'),
+    label: t('breadcrumb.items.index.label'),
+    icon: t('breadcrumb.items.index.icon'),
   },
   {
     to: localePath('products'),
@@ -287,6 +325,22 @@ const productTabs = computed<TabsItem[]>(() => [
   },
 ])
 
+// AccordionItem requires value to be a string (TabsItem allows
+// number too); mirror the tabs list into a dedicated typed array for
+// the mobile accordion path.
+const productAccordionItems = computed<AccordionItem[]>(() => [
+  {
+    label: t('description'),
+    icon: 'i-heroicons-document-text',
+    value: 'description',
+  },
+  {
+    label: t('specifications'),
+    icon: 'i-heroicons-cpu-chip',
+    value: 'specifications',
+  },
+])
+
 const productSpecifications = computed(() => {
   const specs = []
 
@@ -340,25 +394,33 @@ useSeoMeta({
 })
 
 useHead({
-  link: [
-    {
-      rel: 'canonical',
-      href: () => canonicalUrl.value,
-    },
-  ],
+  link: () => {
+    const links = [
+      {
+        rel: 'canonical',
+        href: canonicalUrl.value,
+      },
+    ] as const
+    // Preload the hero image so it's in flight before render — cuts
+    // ~200-400ms off LCP on cold product detail pages.
+    const heroHref = ogImage.value
+    if (!heroHref) return [...links]
+    return [
+      ...links,
+      {
+        rel: 'preload' as const,
+        as: 'image' as const,
+        href: heroHref,
+        fetchpriority: 'high' as const,
+      },
+    ]
+  },
   meta: [
     {
       name: 'keywords',
       content: product.value?.seoKeywords || productTitle.value,
     },
   ],
-})
-
-defineOgImage({
-  alt: product.value?.seoTitle || productTitle.value,
-  url: ogImage.value,
-  width: 1200,
-  height: 630,
 })
 
 useSchemaOrg([
@@ -480,7 +542,7 @@ useSchemaOrg([
   defineBreadcrumb({
     itemListElement: () => [
       {
-        name: $i18n.t('breadcrumb.items.index.label'),
+        name: t('breadcrumb.items.index.label'),
         item: localePath('index'),
       },
       {
@@ -601,6 +663,15 @@ definePageMeta({
                 >
                   {{ formatProductPrice(product?.price) }}
                 </span>
+
+                <span
+                  class="
+                    text-xs text-gray-500
+                    dark:text-gray-400
+                  "
+                >
+                  {{ t('vat_included') }}
+                </span>
               </div>
             </div>
 
@@ -677,72 +748,73 @@ definePageMeta({
                 <ButtonProductAddToCart
                   :product="product"
                   :quantity="selectorQuantity || 1"
-                  :text="$i18n.t('add_to_cart')"
+                  :text="t('add_to_cart')"
                   class="w-full"
                 />
               </div>
             </div>
 
+            <!-- Out-of-stock subscribers: let the shopper opt into a
+                 restock email. The backend ProductAlert infra handles
+                 one-shot delivery + dedupe per user/email+kind. -->
+            <ProductNotifyMe
+              v-if="productStock === 0 && product?.id"
+              :product-id="product.id"
+              kind="restock"
+            />
+
+            <!-- Price-drop subscribers: independent of stock — a shopper
+                 may want to watch the price even for out-of-stock items.
+                 Target price is validated below the current final price
+                 so the alert doesn't fire immediately. -->
+            <ProductNotifyMe
+              v-if="product?.id && (product?.finalPrice ?? 0) > 0"
+              :product-id="product.id"
+              kind="price_drop"
+              :current-price="product.finalPrice"
+            />
+
             <USeparator class="my-2" />
 
-            <UTabs :items="productTabs" class="w-full" color="neutral">
+            <!--
+              Description + specs render as tabs on desktop (more
+              content above the fold) but collapse to an accordion on
+              mobile so the two sections don't push reviews / related
+              rails off a narrow viewport. useDevice() reads the UA
+              server-side so SSR picks the right shell and avoids a
+              hydration re-render.
+            -->
+            <UTabs
+              v-if="!isMobileOrTablet"
+              :items="productTabs"
+              class="w-full"
+              color="neutral"
+            >
               <template #description>
-                <div
-                  class="max-w-none pt-2 md:py-4"
-                >
-                  <div
-                    v-if="extractTranslated(product, 'description', locale)"
-                    v-html="extractTranslated(product, 'description', locale) || ''"
-                  />
-                  <p
-                    v-else
-                    class="
-                      text-gray-500
-                      dark:text-gray-200
-                    "
-                  >
-                    {{ t('no_description_available') }}
-                  </p>
-                </div>
+                <ProductDescriptionPanel :html="sanitizedDescription" />
               </template>
-
               <template #specifications>
-                <div class="py-4">
-                  <dl v-if="productSpecifications.length > 0" class="space-y-3">
-                    <div
-                      v-for="spec in productSpecifications"
-                      :key="spec.label"
-                      class="
-                        flex items-center justify-between rounded-lg border
-                        border-gray-200 p-4
-                        dark:border-gray-700
-                      "
-                    >
-                      <dt class="flex items-center">
-                        <span class="font-medium">{{ spec.label }}</span>
-                      </dt>
-                      <dd
-                        class="
-                          text-gray-600
-                          dark:text-gray-200
-                        "
-                      >
-                        {{ spec.value }}
-                      </dd>
-                    </div>
-                  </dl>
-                  <p
-                    v-else
-                    class="
-                      text-gray-500
-                      dark:text-gray-200
-                    "
-                  >
-                    {{ t('no_specifications_available') }}
-                  </p>
-                </div>
+                <ProductSpecificationsPanel :specifications="productSpecifications" />
               </template>
             </UTabs>
+            <UAccordion
+              v-else
+              :items="productAccordionItems"
+              default-value="description"
+              type="single"
+              class="w-full"
+            >
+              <template #body="{ item }">
+                <ProductDescriptionPanel
+                  v-if="item.value === 'description'"
+                  :html="sanitizedDescription"
+                />
+                <ProductSpecificationsPanel
+                  v-else-if="item.value === 'specifications'"
+                  :specifications="productSpecifications"
+                />
+              </template>
+            </UAccordion>
           </div>
         </div>
       </div>
@@ -825,7 +897,7 @@ definePageMeta({
             <ButtonProductAddToCart
               :product="product"
               :quantity="selectorQuantity || 1"
-              :text="$i18n.t('add_to_cart')"
+              :text="t('add_to_cart')"
               size="xl"
             />
           </div>
@@ -857,4 +929,5 @@ el:
   out_of_stock: Μη διαθέσιμο
   low_stock: Χαμηλό απόθεμα ({count})
   in_stock: Διαθέσιμο
+  vat_included: Περιλαμβάνει ΦΠΑ
 </i18n>

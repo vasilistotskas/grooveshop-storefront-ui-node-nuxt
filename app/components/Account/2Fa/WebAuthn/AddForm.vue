@@ -8,15 +8,14 @@ const { getWebAuthnCreateOptions, addWebAuthnCredential } = useAllAuthAccount()
 const { t } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
-const { $i18n } = useNuxtApp()
 
 const loading = ref(false)
 
 const webAuthnFormZodSchema = z.object({
   name: z.string({
     error: issue => issue.input === undefined
-      ? $i18n.t('validation.required')
-      : $i18n.t('validation.string.invalid'),
+      ? t('validation.required')
+      : t('validation.string.invalid'),
   }),
   passwordless: z.boolean(),
 })
@@ -36,7 +35,7 @@ async function onSubmit(values: z.infer<typeof webAuthnFormZodSchema>) {
       credential: credential.toJSON(),
     })
     toast.add({
-      title: $i18n.t('success.title'),
+      title: t('success.title'),
       color: 'success',
     })
     emit('getWebAuthnCreateOptions')
@@ -46,8 +45,8 @@ async function onSubmit(values: z.infer<typeof webAuthnFormZodSchema>) {
   }
   catch (error) {
     toast.add({
-      title: $i18n.t('error.default'),
-      description: error instanceof Error ? error.message : $i18n.t('error.webauthn_failed'),
+      title: t('error.default'),
+      description: error instanceof Error ? error.message : t('error.webauthn_failed'),
       color: 'error',
     })
   }
@@ -59,7 +58,7 @@ async function onSubmit(values: z.infer<typeof webAuthnFormZodSchema>) {
 const formSchema = computed(() => ({
   fields: [
     {
-      label: $i18n.t('name'),
+      label: t('name'),
       name: 'name',
       as: 'input',
       rules: webAuthnFormZodSchema.shape.name,
@@ -140,7 +139,7 @@ const formSchema = computed(() => ({
 
         <DynamicForm
           class="!flex flex-col"
-          :button-label="$i18n.t('submit')"
+          :button-label="t('submit')"
           :schema="formSchema"
           :loading="loading"
           @submit="onSubmit"

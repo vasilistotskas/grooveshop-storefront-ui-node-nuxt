@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-const route = useRoute('account-reviews')
-const { t } = useI18n()
+const { t, locale } = useI18n()
+const route = useRoute(`account-reviews___${locale.value}`)
 const { user } = useUserSession()
-const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 
 const pageSize = ref(8)
@@ -12,12 +11,12 @@ const ordering = computed(() => route.query.ordering || '-createdAt')
 const entityOrdering = ref<EntityOrdering<any>>([
   {
     value: 'createdAt',
-    label: $i18n.t('ordering.created_at'),
+    label: t('ordering.created_at'),
     options: ['ascending', 'descending'],
   },
   {
     value: 'updatedAt',
-    label: $i18n.t('ordering.updated_at'),
+    label: t('ordering.updated_at'),
     options: ['ascending', 'descending'],
   },
 ])
@@ -33,7 +32,6 @@ const { data: reviews, status, error } = useFetch(
       ordering: ordering,
       pageSize: pageSize,
     },
-    server: false, // User-specific data: client-side only
   },
 )
 
@@ -132,7 +130,7 @@ definePageMeta({
     <LazyEmptyState
       v-else-if="!reviews?.count"
       class="w-full"
-      :title="$i18n.t('empty.title')"
+      :title="t('empty.title')"
     >
       <template
         #icon
@@ -146,7 +144,7 @@ definePageMeta({
         #actions
       >
         <UButton
-          :label="$i18n.t('empty.description')"
+          :label="t('empty.description')"
           :to="localePath('index')"
           class="font-semibold"
           color="secondary"

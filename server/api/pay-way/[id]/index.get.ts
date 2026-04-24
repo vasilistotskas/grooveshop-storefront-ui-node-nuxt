@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zRetrievePayWayData.shape.path.parse,
+      zRetrievePayWayPath.parse,
     )
     const response = await $fetch(`${config.apiBaseUrl}/pay_way/${params.id}`, {
       method: 'GET',

@@ -26,9 +26,8 @@ defineSlots<{
 const { paginationType, pageSize } = toRefs(props)
 
 const route = useRoute()
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 const { isMobileOrTablet } = useDevice()
-const { $i18n } = useNuxtApp()
 const { loggedIn, user } = useUserSession()
 const cursorState = useState<CursorState>('cursor-state')
 
@@ -110,7 +109,7 @@ const showResults = computed(() => {
 })
 
 const BlogPostCard = computed(() =>
-  isMobileOrTablet ? resolveComponent('BlogPostCardMobile') : resolveComponent('BlogPostCardDesktop'),
+  isMobileOrTablet.value ? resolveComponent('BlogPostCardMobile') : resolveComponent('BlogPostCardDesktop'),
 )
 
 const imgLoading = (index: number) => {
@@ -235,7 +234,7 @@ watch(
         class="grid items-center justify-items-center pt-4"
       >
         <USkeleton class="h-6 w-32" />
-        <span class="sr-only">{{ $i18n.t('loading') }}</span>
+        <span class="sr-only">{{ t('loading') }}</span>
       </div>
     </Transition>
     <Pagination

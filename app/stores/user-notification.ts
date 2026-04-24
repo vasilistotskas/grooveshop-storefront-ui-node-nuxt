@@ -1,11 +1,17 @@
 export const useUserNotificationStore = defineStore('userNotification', () => {
-  const notifications = ref<Pagination<NotificationUser>>()
+  // The user-account notifications endpoint returns ``NotificationUserDetail``
+  // rows (nested ``notification`` object + ``UserDetails``) so the bell
+  // and the dedicated page can render title/message without a second
+  // fetch. The store doesn't care about the user subfield — only the
+  // ``notification`` id, used to invalidate the bell's ``getNotifications``
+  // ID-based lookup.
+  const notifications = ref<Pagination<NotificationUserDetail>>()
 
   const notificationIds = computed(() => {
     if (!notifications.value || !notifications.value.results) {
       return []
     }
-    return notifications.value.results.map(notification => notification.notification)
+    return notifications.value.results.map(notification => notification.notification.id)
   })
 
   const setupNotifications = async () => {

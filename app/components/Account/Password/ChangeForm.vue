@@ -7,14 +7,9 @@ const { changePassword } = useAllAuthAccount()
 const authStore = useAuthStore()
 const { hasCurrentPassword } = storeToRefs(authStore)
 
-const { $i18n } = useNuxtApp()
 const toast = useToast()
 const localePath = useLocalePath()
 const { t } = useI18n()
-
-const showCurrent = ref(false)
-const showNew = ref(false)
-const showConfirm = ref(false)
 
 const state = reactive({
   current_password: '',
@@ -58,26 +53,26 @@ const schema = computed(() => {
   return z
     .object({
       current_password: hasCurrentPassword.value
-        ? z.string().min(1, $i18n.t('validation.required'))
+        ? z.string().min(1, t('validation.required'))
         : z.string().optional(),
       new_password: z
         .string({ error: issue => issue.input === undefined
-          ? $i18n.t('validation.required')
-          : $i18n.t('validation.string.invalid') })
-        .min(8, $i18n.t('validation.min', { min: 8 }))
-        .max(255, $i18n.t('validation.max', { max: 255 })),
+          ? t('validation.required')
+          : t('validation.string.invalid') })
+        .min(8, t('validation.min', { min: 8 }))
+        .max(255, t('validation.max', { max: 255 })),
       confirm_password: z.string({ error: issue => issue.input === undefined
-        ? $i18n.t('validation.required')
-        : $i18n.t('validation.string.invalid') })
-        .min(1, $i18n.t('validation.required')),
+        ? t('validation.required')
+        : t('validation.string.invalid') })
+        .min(1, t('validation.required')),
     })
     .superRefine((val, ctx) => {
       if (val.new_password !== val.confirm_password) {
         ctx.addIssue({
           code: 'custom',
-          message: $i18n.t('validation.must_match', {
-            field: $i18n.t('password.new'),
-            other: $i18n.t('password.confirm'),
+          message: t('validation.must_match', {
+            field: t('password.new'),
+            other: t('password.confirm'),
           }),
           path: ['confirm_password'],
         })
@@ -86,7 +81,7 @@ const schema = computed(() => {
       if (hasCurrentPassword.value && val.current_password && val.current_password === val.new_password) {
         ctx.addIssue({
           code: 'custom',
-          message: $i18n.t('validation.password.must_not_be_same'),
+          message: t('validation.password.must_not_be_same'),
           path: ['new_password'],
         })
       }
@@ -102,7 +97,7 @@ async function onSubmit() {
   try {
     await changePassword(body)
     toast.add({
-      title: $i18n.t('auth.password.change.success'),
+      title: t('auth.password.change.success'),
       color: 'success',
       icon: 'i-heroicons-check-circle',
     })
@@ -178,64 +173,32 @@ async function onSubmit() {
         >
           <UFormField
             v-if="hasCurrentPassword"
-            :label="$i18n.t('password.current')"
+            :label="t('password.current')"
             name="current_password"
             required
           >
-            <UInput
+            <FormPasswordInput
               v-model="state.current_password"
-              :type="showCurrent ? 'text' : 'password'"
-              :placeholder="$i18n.t('password.current')"
+              :placeholder="t('password.current')"
               autocomplete="current-password"
               icon="i-heroicons-lock-closed"
               size="lg"
-              :ui="{
-                root: 'w-full',
-                trailing: 'pe-1',
-              }"
-            >
-              <template #trailing>
-                <UButton
-                  color="neutral"
-                  variant="link"
-                  size="sm"
-                  :icon="showCurrent ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                  :aria-label="showCurrent ? t('hide_password') : t('show_password')"
-                  @click="showCurrent = !showCurrent"
-                />
-              </template>
-            </UInput>
+            />
           </UFormField>
 
           <UFormField
-            :label="$i18n.t('password.new')"
+            :label="t('password.new')"
             name="new_password"
             required
           >
-            <UInput
+            <FormPasswordInput
               v-model="state.new_password"
-              :type="showNew ? 'text' : 'password'"
-              :placeholder="$i18n.t('password.new')"
+              :placeholder="t('password.new')"
               :color="state.new_password ? strengthColor : 'primary'"
               autocomplete="new-password"
               icon="i-heroicons-key"
               size="lg"
-              :ui="{
-                root: 'w-full',
-                trailing: 'pe-1',
-              }"
-            >
-              <template #trailing>
-                <UButton
-                  color="neutral"
-                  variant="link"
-                  size="sm"
-                  :icon="showNew ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                  :aria-label="showNew ? t('hide_password') : t('show_password')"
-                  @click="showNew = !showNew"
-                />
-              </template>
-            </UInput>
+            />
 
             <div v-if="state.new_password" class="mt-3 space-y-2">
               <UProgress
@@ -275,33 +238,17 @@ async function onSubmit() {
           </UFormField>
 
           <UFormField
-            :label="$i18n.t('password.confirm')"
+            :label="t('password.confirm')"
             name="confirm_password"
             required
           >
-            <UInput
+            <FormPasswordInput
               v-model="state.confirm_password"
-              :type="showConfirm ? 'text' : 'password'"
-              :placeholder="$i18n.t('password.confirm')"
+              :placeholder="t('password.confirm')"
               autocomplete="new-password"
               icon="i-heroicons-check-badge"
               size="lg"
-              :ui="{
-                root: 'w-full',
-                trailing: 'pe-1',
-              }"
-            >
-              <template #trailing>
-                <UButton
-                  color="neutral"
-                  variant="link"
-                  size="sm"
-                  :icon="showConfirm ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
-                  :aria-label="showConfirm ? t('hide_password') : t('show_password')"
-                  @click="showConfirm = !showConfirm"
-                />
-              </template>
-            </UInput>
+            />
           </UFormField>
 
           <div class="flex items-center justify-between gap-3 pt-4">

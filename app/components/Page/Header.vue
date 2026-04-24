@@ -5,7 +5,21 @@ defineSlots<{
 </script>
 
 <template>
-  <header class="fixed inset-x-0 top-0 z-50 w-full">
+  <UHeader
+    :toggle="false"
+    title=""
+    :ui="{
+      root: 'h-auto border-b-0',
+      container: `
+        max-w-full px-0
+        sm:px-0
+        lg:px-0
+      `,
+      left: 'hidden',
+      center: 'flex w-full',
+      right: 'hidden',
+    }"
+  >
     <slot />
-  </header>
+  </UHeader>
 </template>

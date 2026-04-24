@@ -2,7 +2,7 @@
 const cartStore = useCartStore()
 const { getCartItems } = storeToRefs(cartStore)
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 const { $i18n } = useNuxtApp()
 const { productUrl } = useUrls()
 </script>
@@ -10,7 +10,7 @@ const { productUrl } = useUrls()
 <template>
   <div
     v-if="getCartItems?.length"
-    class="h-[6rem] overflow-auto"
+    class="max-h-24 overflow-auto"
   >
     <div class="sr-only items-center justify-center">
       <h3
@@ -19,7 +19,7 @@ const { productUrl } = useUrls()
           dark:text-primary-50
         "
       >
-        {{ $i18n.t('items') }}
+        {{ t('items') }}
       </h3>
     </div>
     <div

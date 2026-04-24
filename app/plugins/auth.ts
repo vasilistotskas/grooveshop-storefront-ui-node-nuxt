@@ -24,6 +24,7 @@ export default defineNuxtPlugin({
 
     const authState = useState<AllAuthResponse | AllAuthResponseError>('auth-state')
     const authEvent = useState<AuthChangeEventType>('authEvent')
+    const userInitiatedLogout = useState<boolean>('auth:userInitiatedLogout', () => false)
 
     const previousAuthState = ref<AllAuthResponse | AllAuthResponseError | null>(
       authState.value,
@@ -76,12 +77,35 @@ export default defineNuxtPlugin({
     nuxtApp.provide('authState', authState)
 
     async function handleLoggedOut() {
+      const wasExplicit = userInitiatedLogout.value
+      userInitiatedLogout.value = false
       try {
         clearAuthState()
         clearAccountState()
         if (loggedIn.value) {
           log.info('auth', 'Clearing user session')
           await clear()
+        }
+        if (!wasExplicit && import.meta.client) {
+          // Session was killed by the server (410/401) — surface it so the
+          // user isn't silently redirected mid-task. Composables need the
+          // Nuxt context from the plugin setup; the watcher that drives us
+          // fires after hydration so wrap in runWithContext.
+          try {
+            nuxtApp.runWithContext(() => {
+              const toast = useToast()
+              const { t } = useI18n()
+              toast.add({
+                title: t('auth.session_expired_title'),
+                description: t('auth.session_expired_description'),
+                color: 'warning',
+                icon: 'i-heroicons-lock-closed',
+              })
+            })
+          }
+          catch (toastError) {
+            log.warn('auth', 'Failed to surface session-expired toast', { error: toastError })
+          }
         }
         return await navigateToUrl({ path: RedirectToURLs.LOGOUT_REDIRECT_URL })
       }
@@ -94,8 +118,10 @@ export default defineNuxtPlugin({
       try {
         const router = useRouter()
         const route = router.currentRoute.value
+        const localePath = useLocalePath()
         const returnToPath = route.query.next?.toString()
-        const isRedirectingToLogin = returnToPath === 'account-login'
+        const loginPath = localePath(RedirectToURLs.LOGIN_URL)
+        const isRedirectingToLogin = returnToPath === RedirectToURLs.LOGIN_URL || returnToPath === loginPath
         const redirectTo = isRedirectingToLogin || !returnToPath
           ? RedirectToURLs.LOGIN_REDIRECT_URL
           : returnToPath as keyof RouteNamedMapI18n

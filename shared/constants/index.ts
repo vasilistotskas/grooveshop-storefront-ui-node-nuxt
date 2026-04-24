@@ -1,5 +1,10 @@
 import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
 
+export const ALLAUTH_API_PREFIX = '/api/_allauth/app/v1' as const
+export const ALLAUTH_AUTH_URL = `${ALLAUTH_API_PREFIX}/auth` as const
+export const ALLAUTH_ACCOUNT_URL = `${ALLAUTH_API_PREFIX}/account` as const
+export const ALLAUTH_CONFIG_URL = `${ALLAUTH_API_PREFIX}/config` as const
+
 export const floorChoicesList: { name: FloorEnum, value: FloorEnum }[]
   = zFloorEnum.options.map(opt => ({
     name: opt,
@@ -31,6 +36,7 @@ export const AuthenticatedRoutes = [
   'account-favourites-products',
   'account-help',
   'account-loyalty',
+  'account-notifications',
   'account-orders',
   'account-orders-id',
   'account-password-change',
@@ -38,7 +44,14 @@ export const AuthenticatedRoutes = [
   'account-reviews',
   'account-sessions',
   'account-settings',
+  'account-settings-privacy',
   'account-subscriptions',
+  // Cart recovery from the abandoned-cart email only makes sense for
+  // authenticated shoppers (the email task filters ``user__isnull=False``),
+  // so we gate the route behind auth — a logged-out click routes
+  // through login with ``next=/cart/recover/<uuid>`` and lands back
+  // here after sign-in.
+  'cart-recover-uuid',
 ] as const satisfies readonly (keyof RouteNamedMapI18n)[]
 
 export const AuthenticatedRoutesSet = new Set<keyof RouteNamedMapI18n>(AuthenticatedRoutes)
