@@ -26,11 +26,13 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   // Also set by the forwarded-proto plugin, but explicit here for safety.
   headers['X-Forwarded-Proto'] = getRequestProtocol(event, { xForwardedProto: true })
 
-  // Use the configured public Django hostname so Django's ALLOWED_HOSTS
-  // check passes for internal cluster calls. Falls back to the request's
-  // server-trusted Host only if the config is missing.
+  // Tenant resolution: prefer the actual request host so Django's
+  // TenantMainMiddleware picks the tenant the caller is on. Falls back
+  // to the configured public Django hostname only when outside a request
+  // context (prerender/startup). django-tenants sets ALLOWED_HOSTS=["*"]
+  // because domain validation happens at the tenant-resolution layer.
   const config = useRuntimeConfig()
-  const host = config.public.djangoHostName || getRequestHost(event, { xForwardedHost: false })
+  const host = getRequestHost(event, { xForwardedHost: false }) || config.public.djangoHostName
   if (host) {
     headers['X-Forwarded-Host'] = host
   }

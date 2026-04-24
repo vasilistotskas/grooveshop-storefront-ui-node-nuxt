@@ -1,8 +1,12 @@
 const SITEMAP_CACHE_AGE = 60 * 60
 
-export default defineSitemapEventHandler(async () => {
+export default defineSitemapEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const baseUrl = config.public.baseUrl
+  // Use the tenant's primary domain for public URLs so the sitemap reflects
+  // the requesting tenant (not the single NUXT_PUBLIC_BASE_URL build-time value).
+  const host = getRequestHost(event, { xForwardedHost: false })
+  const tenantDomain = event.context.tenant?.primaryDomain || host
+  const baseUrl = tenantDomain ? `https://${tenantDomain}` : config.public.baseUrl
   const apiBaseUrl = config.apiBaseUrl
 
   // Namespace cache names so sitemap and RSS fetchers don't collide
@@ -26,12 +30,13 @@ export default defineSitemapEventHandler(async () => {
     SITEMAP_CACHE_AGE,
   )
 
-  // Fetch all data in parallel for better performance
+  // Fetch all data in parallel for better performance — tenant host
+  // is passed so each tenant's sitemap has its own cache entry.
   const [allPosts, allBlogCategories, allProducts, allProductCategories] = await Promise.all([
-    cachedBlogPosts(`${apiBaseUrl}/blog/post`),
-    cachedBlogCategories(`${apiBaseUrl}/blog/category`),
-    cachedProducts(`${apiBaseUrl}/product`),
-    cachedProductCategories(`${apiBaseUrl}/product/category`),
+    cachedBlogPosts(host, `${apiBaseUrl}/blog/post`),
+    cachedBlogCategories(host, `${apiBaseUrl}/blog/category`),
+    cachedProducts(host, `${apiBaseUrl}/product`),
+    cachedProductCategories(host, `${apiBaseUrl}/product/category`),
   ])
 
   return [

@@ -887,6 +887,26 @@ export type ConfirmResponseRequest = {
   topic?: string
 }
 
+/**
+ * * `hero_banner` - Hero Banner
+ * * `hero_carousel` - Hero Carousel
+ * * `products_slider` - Products Slider
+ * * `products_grid` - Products Grid
+ * * `featured_products` - Featured Products
+ * * `product_categories` - Product Categories
+ * * `blog_posts_carousel` - Blog Posts Carousel
+ * * `blog_posts_grid` - Blog Posts Grid
+ * * `rich_text` - Rich Text Block
+ * * `cta_banner` - Call to Action Banner
+ * * `newsletter_signup` - Newsletter Signup
+ * * `testimonials` - Testimonials
+ * * `spacer` - Spacer
+ * * `divider` - Divider
+ * * `loyalty_hero` - Loyalty Program Hero
+ * * `search_bar` - Search Bar
+ */
+export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar'
+
 export type ContactWrite = {
   readonly id: number
   name: string
@@ -1872,6 +1892,58 @@ export type OrderWriteRequest = {
   shippingCarrier?: string
 }
 
+export type PageLayout = {
+  readonly id: number
+  readonly uuid: string
+  /**
+     * Identifier for the page (e.g. "home", "products", "blog").
+     */
+  pageType: string
+  /**
+     * Admin display name for this layout.
+     */
+  title: string
+  isPublished?: boolean
+  metadata?: unknown
+  readonly sections: Array<PageSection>
+}
+
+export type PageLayoutRequest = {
+  /**
+     * Identifier for the page (e.g. "home", "products", "blog").
+     */
+  pageType: string
+  /**
+     * Admin display name for this layout.
+     */
+  title: string
+  isPublished?: boolean
+  metadata?: unknown
+}
+
+export type PageSection = {
+  readonly id: number
+  readonly uuid: string
+  componentType: ComponentTypeEnum
+  title?: string
+  isVisible?: boolean
+  /**
+     * Component-specific configuration as JSON.
+     */
+  props?: unknown
+  readonly sortOrder: number | null
+}
+
+export type PageSectionRequest = {
+  componentType: ComponentTypeEnum
+  title?: string
+  isVisible?: boolean
+  /**
+     * Component-specific configuration as JSON.
+     */
+  props?: unknown
+}
+
 export type PaginatedAttributeList = {
   links?: {
     next?: string | null
@@ -2065,6 +2137,19 @@ export type PaginatedOrderList = {
   pageTotalResults?: number
   page?: number
   results: Array<Order>
+}
+
+export type PaginatedPageLayoutList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<PageLayout>
 }
 
 export type PaginatedPayWayList = {
@@ -2502,6 +2587,19 @@ export type PatchedOrderWriteRequest = {
      */
   trackingNumber?: string
   shippingCarrier?: string
+}
+
+export type PatchedPageLayoutRequest = {
+  /**
+     * Identifier for the page (e.g. "home", "products", "blog").
+     */
+  pageType?: string
+  /**
+     * Admin display name for this layout.
+     */
+  title?: string
+  isPublished?: boolean
+  metadata?: unknown
 }
 
 /**
@@ -4480,6 +4578,31 @@ export type TaggedItemWriteRequest = {
   objectId: number
 }
 
+export type TenantConfig = {
+  readonly schemaName: string
+  readonly name: string
+  readonly storeName: string
+  readonly storeDescription: string
+  readonly logoLightUrl: string
+  readonly logoDarkUrl: string
+  readonly faviconUrl: string
+  readonly primaryColor: string
+  readonly neutralColor: string
+  readonly accentHex: string
+  readonly successHex: string
+  readonly warningHex: string
+  readonly errorHex: string
+  readonly infoHex: string
+  readonly themePreset: string
+  readonly themeMetadata: unknown
+  readonly defaultLocale: string
+  readonly defaultCurrency: string
+  readonly primaryDomain: string
+  readonly loyaltyEnabled: boolean
+  readonly blogEnabled: boolean
+  readonly plan: string
+}
+
 /**
  * Serializer for top query analytics.
  */
@@ -5463,6 +5586,29 @@ export type OrderItemRefundResponseWritable = {
   item: OrderItemWritable
 }
 
+export type PageLayoutWritable = {
+  /**
+     * Identifier for the page (e.g. "home", "products", "blog").
+     */
+  pageType: string
+  /**
+     * Admin display name for this layout.
+     */
+  title: string
+  isPublished?: boolean
+  metadata?: unknown
+}
+
+export type PageSectionWritable = {
+  componentType: ComponentTypeEnum
+  title?: string
+  isVisible?: boolean
+  /**
+     * Component-specific configuration as JSON.
+     */
+  props?: unknown
+}
+
 export type PaginatedAttributeListWritable = {
   links?: {
     next?: string | null
@@ -5656,6 +5802,19 @@ export type PaginatedOrderListWritable = {
   pageTotalResults?: number
   page?: number
   results: Array<OrderWritable>
+}
+
+export type PaginatedPageLayoutListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<PageLayoutWritable>
 }
 
 export type PaginatedPayWayListWritable = {
@@ -13069,6 +13228,159 @@ export type RetrieveOrderByUuidResponses = {
 
 export type RetrieveOrderByUuidResponse = RetrieveOrderByUuidResponses[keyof RetrieveOrderByUuidResponses]
 
+export type PageConfigRetrieveData = {
+  body?: never
+  path: {
+    pageType: string
+  }
+  query?: never
+  url: '/api/v1/page-config/{page_type}'
+}
+
+export type PageConfigRetrieveResponses = {
+  200: PageLayout
+}
+
+export type PageConfigRetrieveResponse = PageConfigRetrieveResponses[keyof PageConfigRetrieveResponses]
+
+export type PageConfigAdminListData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Cursor for pagination
+         */
+    cursor?: string
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Number of results to return per page
+         */
+    pageSize?: string | number
+    /**
+         * Enable or disable pagination
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Pagination strategy type
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/page-config/admin'
+}
+
+export type PageConfigAdminListResponses = {
+  200: PaginatedPageLayoutList
+}
+
+export type PageConfigAdminListResponse = PageConfigAdminListResponses[keyof PageConfigAdminListResponses]
+
+export type PageConfigAdminCreateData = {
+  body: PageLayoutRequest
+  path?: never
+  query?: {
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/page-config/admin'
+}
+
+export type PageConfigAdminCreateResponses = {
+  201: PageLayout
+}
+
+export type PageConfigAdminCreateResponse = PageConfigAdminCreateResponses[keyof PageConfigAdminCreateResponses]
+
+export type PageConfigAdminDestroyData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/page-config/admin/{id}'
+}
+
+export type PageConfigAdminDestroyResponses = {
+  /**
+     * No response body
+     */
+  204: void
+}
+
+export type PageConfigAdminDestroyResponse = PageConfigAdminDestroyResponses[keyof PageConfigAdminDestroyResponses]
+
+export type PageConfigAdminRetrieveData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: {
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/page-config/admin/{id}'
+}
+
+export type PageConfigAdminRetrieveResponses = {
+  200: PageLayout
+}
+
+export type PageConfigAdminRetrieveResponse = PageConfigAdminRetrieveResponses[keyof PageConfigAdminRetrieveResponses]
+
+export type PageConfigAdminPartialUpdateData = {
+  body?: PatchedPageLayoutRequest
+  path: {
+    id: string | number
+  }
+  query?: {
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/page-config/admin/{id}'
+}
+
+export type PageConfigAdminPartialUpdateResponses = {
+  200: PageLayout
+}
+
+export type PageConfigAdminPartialUpdateResponse = PageConfigAdminPartialUpdateResponses[keyof PageConfigAdminPartialUpdateResponses]
+
+export type PageConfigAdminUpdateData = {
+  body: PageLayoutRequest
+  path: {
+    id: string | number
+  }
+  query?: {
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/page-config/admin/{id}'
+}
+
+export type PageConfigAdminUpdateResponses = {
+  200: PageLayout
+}
+
+export type PageConfigAdminUpdateResponse = PageConfigAdminUpdateResponses[keyof PageConfigAdminUpdateResponses]
+
 export type ListPayWayData = {
   body?: never
   path?: never
@@ -17274,6 +17586,21 @@ export type UpdateTaggedItemResponses = {
 }
 
 export type UpdateTaggedItemResponse = UpdateTaggedItemResponses[keyof UpdateTaggedItemResponses]
+
+export type TenantResolveRetrieveData = {
+  body?: never
+  path?: never
+  query: {
+    domain: string
+  }
+  url: '/api/v1/tenant/resolve'
+}
+
+export type TenantResolveRetrieveResponses = {
+  200: TenantConfig
+}
+
+export type TenantResolveRetrieveResponse = TenantResolveRetrieveResponses[keyof TenantResolveRetrieveResponses]
 
 export type ListUserAccountData = {
   body?: never

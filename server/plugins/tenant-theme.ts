@@ -4,7 +4,7 @@ function isValidHex(hex: string): boolean {
 
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('render:html', (html, { event }) => {
-    const tenant = event.context.tenant as TenantConfig | undefined
+    const tenant = event.context.tenant
     if (!tenant) return
 
     const vars: string[] = []

@@ -1,23 +1,30 @@
 /**
  * Named $fetch instance pre-configured for internal backend calls.
  *
- * Automatically adds two forwarded headers to every request so that Django
- * builds correct absolute URLs and does not 301-redirect inside the cluster:
+ * Automatically adds forwarded headers so Django resolves the correct tenant,
+ * builds correct absolute URLs, and does not 301-redirect inside the cluster:
  *
  * - `X-Forwarded-Proto: https` — prevents `SECURE_SSL_REDIRECT=True` from
  *   issuing a 301 to the public HTTPS URL.
- * - `X-Forwarded-Host` (= `NUXT_PUBLIC_DJANGO_HOST_NAME`) — overrides the
- *   internal K8s service name when Django builds paginated `next` links via
- *   `request.build_absolute_uri()` (USE_X_FORWARDED_HOST=True). Without it,
- *   `next` URLs come back as `https://backend-service/...` and the next
- *   $fetch fails with `<no response> fetch failed`.
+ * - `X-Forwarded-Host` — tenant-aware. Preferred source is the actual
+ *   request host (so Django's `TenantMainMiddleware` picks the tenant
+ *   the caller is on). Falls back to `NUXT_PUBLIC_DJANGO_HOST_NAME` only
+ *   when there's no active request context (prerender, startup hooks).
+ * - `X-Language` — tenant/request locale so Django renders emails and
+ *   responses in the right language.
+ *
+ * Multi-tenant note: previously this instance baked `publicHost` in at
+ * module init, which sent every request to Django as if it originated
+ * from the single configured Django hostname. In a multi-tenant setup
+ * that caused tenant B's writes to land in tenant A's schema. Headers
+ * are now resolved per-request via `useEvent()`.
  *
  * The same logic lives in the `forwarded-proto` Nitro plugin as a global
  * safety net, but using this named instance is the preferred approach for
  * new server routes because it avoids patching globalThis.$fetch.
  *
  * Usage:
- *   const data = await $backendFetch(`${config.apiBaseUrl}/some/endpoint`)
+ *   const data = await useBackendFetch()(`${config.apiBaseUrl}/some/endpoint`)
  */
 
 import { DEFAULT_LOCALE } from '~~/i18n/locales'
@@ -42,7 +49,7 @@ export function useBackendFetch(): typeof $fetch {
       }),
   )]
 
-  const publicHost = typeof config.public.djangoHostName === 'string'
+  const fallbackPublicHost = typeof config.public.djangoHostName === 'string'
     ? config.public.djangoHostName
     : undefined
 
@@ -60,21 +67,30 @@ export function useBackendFetch(): typeof $fetch {
       if (!options.headers.has('X-Forwarded-Proto')) {
         options.headers.set('X-Forwarded-Proto', 'https')
       }
-      if (publicHost && !options.headers.has('X-Forwarded-Host')) {
-        options.headers.set('X-Forwarded-Host', publicHost)
+
+      // Resolve tenant host + locale per request — useEvent() is only
+      // available inside an active Nitro request. Cached/SSR-prerender
+      // calls may not have one; fall back to build-time config.
+      let requestHost: string | undefined
+      let locale: string | undefined
+      try {
+        const event = useEvent()
+        requestHost = event ? getRequestHost(event, { xForwardedHost: false }) : undefined
+        locale = event?.context?.locale as string | undefined
       }
+      catch {
+        requestHost = undefined
+        locale = undefined
+      }
+
+      if (!options.headers.has('X-Forwarded-Host')) {
+        const forwardedHost = requestHost || fallbackPublicHost
+        if (forwardedHost) {
+          options.headers.set('X-Forwarded-Host', forwardedHost)
+        }
+      }
+
       if (!options.headers.has('X-Language')) {
-        let locale: string | undefined
-        try {
-          // useEvent() is available only inside an active Nitro request.
-          // Cached/SSR-prerender calls may not have one — fall through
-          // to the default locale in that case.
-          const event = useEvent()
-          locale = event?.context?.locale as string | undefined
-        }
-        catch {
-          locale = undefined
-        }
         options.headers.set('X-Language', locale || DEFAULT_LOCALE)
       }
     },

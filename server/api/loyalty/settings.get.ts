@@ -40,7 +40,7 @@ export default defineCachedEventHandler(
     swr: true,
     getKey: (event) => {
       const query = getQuery(event)
-      return `loyalty-settings:${String(query.keys ?? '')}`
+      return tenantCacheKey(event, `loyalty-settings:${String(query.keys ?? '')}`)
     },
   },
 )

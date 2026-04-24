@@ -4,29 +4,29 @@ import type { SupportedLocale } from '~~/i18n/locales'
 const RSS_CACHE_AGE = 60 * 60
 
 const cachedBlogCategory = defineCachedFunction(
-  async (url: string): Promise<BlogCategoryDetail> => {
+  async (_tenantKey: string, url: string): Promise<BlogCategoryDetail> => {
     return await $fetch<BlogCategoryDetail>(url, { method: 'GET' })
   },
   {
     maxAge: RSS_CACHE_AGE,
     name: 'cachedBlogCategory',
-    getKey: (url: string) => url,
+    getKey: (tenantKey: string, url: string) => `${tenantKey}:${url}`,
   },
 )
 
 const cachedProductCategoryDetail = defineCachedFunction(
-  async (url: string): Promise<ProductCategoryDetail> => {
+  async (_tenantKey: string, url: string): Promise<ProductCategoryDetail> => {
     return await $fetch<ProductCategoryDetail>(url, { method: 'GET' })
   },
   {
     maxAge: RSS_CACHE_AGE,
     name: 'cachedProductCategoryDetail',
-    getKey: (url: string) => url,
+    getKey: (tenantKey: string, url: string) => `${tenantKey}:${url}`,
   },
 )
 
 const generateRssFeed = defineCachedFunction(
-  async (locale: SupportedLocale, siteUrl: string, siteName: string, siteDescription: string, baseUrl: string, apiBaseUrl: string, mediaStreamPath: string): Promise<string> => {
+  async (tenantKey: string, locale: SupportedLocale, siteUrl: string, siteName: string, siteDescription: string, baseUrl: string, apiBaseUrl: string, mediaStreamPath: string): Promise<string> => {
     const feed = new RSS({
       title: siteName,
       description: siteDescription,
@@ -50,15 +50,15 @@ const generateRssFeed = defineCachedFunction(
     const cachedProducts = createCachedFetcher<Product>('rss:products', RSS_CACHE_AGE)
 
     const [allPosts, allProducts] = await Promise.all([
-      cachedBlogPosts(`${apiBaseUrl}/blog/post`),
-      cachedProducts(`${apiBaseUrl}/product`),
+      cachedBlogPosts(tenantKey, `${apiBaseUrl}/blog/post`),
+      cachedProducts(tenantKey, `${apiBaseUrl}/product`),
     ])
 
     const blogPosts = allPosts.map(post => zBlogPost.parse(post))
     const activeProducts = allProducts.filter(product => product.active !== false)
 
-    const blogItems = await processBlogPosts(blogPosts, locale, baseUrl, apiBaseUrl, mediaStreamPath)
-    const productItems = await processProducts(activeProducts, locale, baseUrl, apiBaseUrl, mediaStreamPath)
+    const blogItems = await processBlogPosts(blogPosts, locale, baseUrl, apiBaseUrl, mediaStreamPath, tenantKey)
+    const productItems = await processProducts(activeProducts, locale, baseUrl, apiBaseUrl, mediaStreamPath, tenantKey)
 
     const allItems = [...blogItems, ...productItems].sort(
       (a, b) => {
@@ -79,7 +79,7 @@ const generateRssFeed = defineCachedFunction(
     maxAge: RSS_CACHE_AGE,
     staleMaxAge: RSS_CACHE_AGE * 24,
     swr: true,
-    getKey: (locale: string) => `rss-${locale}`,
+    getKey: (tenantKey: string, locale: string) => `${tenantKey}:rss-${locale}`,
   },
 )
 
@@ -87,12 +87,18 @@ export default defineEventHandler(async (event) => {
   try {
     const config = useRuntimeConfig()
     const siteConfig = getSiteConfig(event)
-    const baseUrl = config.public.baseUrl
+    // Prefer the tenant's primary domain for the public URLs in feed items —
+    // falls back to the build-time NUXT_PUBLIC_BASE_URL when tenant context
+    // is missing (e.g. during prerender).
+    const host = getRequestHost(event, { xForwardedHost: false })
+    const tenantDomain = event.context.tenant?.primaryDomain || host
+    const baseUrl = tenantDomain ? `https://${tenantDomain}` : config.public.baseUrl
     const apiBaseUrl = config.apiBaseUrl
 
     const locale: SupportedLocale = (event.context.locale || siteConfig.defaultLocale).split('-')[0]
 
     const feedString = await generateRssFeed(
+      host,
       locale,
       siteConfig.url,
       siteConfig.name,
@@ -121,13 +127,14 @@ async function processBlogPosts(
   baseUrl: string,
   apiBaseUrl: string,
   mediaStreamPath: string,
+  tenantKey: string,
 ): Promise<RSS.ItemOptions[]> {
   const items: RSS.ItemOptions[] = []
 
   // Pre-fetch all unique category IDs in parallel
   const uniqueCategoryIds = [...new Set(blogPosts.map(p => p.category).filter(Boolean))]
   const categoryResults = await Promise.allSettled(
-    uniqueCategoryIds.map(id => cachedBlogCategory(`${apiBaseUrl}/blog/category/${id}`)),
+    uniqueCategoryIds.map(id => cachedBlogCategory(tenantKey, `${apiBaseUrl}/blog/category/${id}`)),
   )
   const categoryMap = new Map(
     uniqueCategoryIds.map((id, i) => {
@@ -207,13 +214,14 @@ async function processProducts(
   baseUrl: string,
   apiBaseUrl: string,
   mediaStreamPath: string,
+  tenantKey: string,
 ): Promise<RSS.ItemOptions[]> {
   const items: RSS.ItemOptions[] = []
 
   // Pre-fetch all unique category IDs in parallel
   const uniqueCategoryIds = [...new Set(products.map(p => p.category).filter(Boolean))]
   const categoryResults = await Promise.allSettled(
-    uniqueCategoryIds.map(id => cachedProductCategoryDetail(`${apiBaseUrl}/product/category/${id}`)),
+    uniqueCategoryIds.map(id => cachedProductCategoryDetail(tenantKey, `${apiBaseUrl}/product/category/${id}`)),
   )
   const categoryMap = new Map(
     uniqueCategoryIds.map((id, i) => {

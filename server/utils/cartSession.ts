@@ -91,7 +91,10 @@ export async function getCartHeaders(event: H3Event): Promise<Record<string, str
   const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
   const headers: Record<string, string> = {
     'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
-    'X-Forwarded-Host': config.public.djangoHostName || getRequestHost(event, { xForwardedHost: false }),
+    // Tenant resolution — prefer the actual request host so cart
+    // operations hit the caller's tenant schema. Falls back to the
+    // configured Django hostname outside request context.
+    'X-Forwarded-Host': getRequestHost(event, { xForwardedHost: false }) || config.public.djangoHostName,
     'X-Language': locale,
   }
 

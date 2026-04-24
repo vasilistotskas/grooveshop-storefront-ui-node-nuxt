@@ -22,6 +22,13 @@ declare module '#app' {
   }
 }
 
+declare module 'h3' {
+  interface H3EventContext {
+    tenant?: TenantConfig | null
+    locale?: string
+  }
+}
+
 declare global {
   interface Window {
     google: {

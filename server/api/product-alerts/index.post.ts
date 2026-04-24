@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
       body: payload,
       headers: {
         ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
-        'X-Forwarded-Host': config.public.djangoHostName,
+        'X-Forwarded-Host': getRequestHost(event, { xForwardedHost: false }) || config.public.djangoHostName,
         'X-Forwarded-Proto': 'https',
       },
     })

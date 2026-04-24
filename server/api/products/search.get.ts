@@ -106,6 +106,6 @@ export default defineCachedEventHandler(async (event) => {
       query.sort || '',
       query.viewsMin || '',
     ]
-    return `search:products:${keyParts.join(':')}`
+    return tenantCacheKey(event, `search:products:${keyParts.join(':')}`)
   },
 })

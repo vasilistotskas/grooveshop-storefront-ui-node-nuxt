@@ -24,6 +24,11 @@ const MAX_PAGES = 100
 /**
  * Creates a cached fetcher for paginated data.
  *
+ * Django resolves the tenant from X-Forwarded-Host, so the same URL returns
+ * different data per tenant. Callers MUST pass a tenant discriminator (host
+ * or schema name) as the first argument so cache entries don't bleed across
+ * tenants.
+ *
  * @param name - The unique name for the cache entry.
  * @param maxAge - The maximum age (in seconds) for the cached data.
  * @returns A cached function that fetches all paginated data of type T.
@@ -31,9 +36,9 @@ const MAX_PAGES = 100
 export function createCachedFetcher<T>(
   name: string,
   maxAge: number,
-): (url: string) => Promise<T[]> {
+): (tenantKey: string, url: string) => Promise<T[]> {
   return defineCachedFunction(
-    async (url: string): Promise<T[]> => {
+    async (_tenantKey: string, url: string): Promise<T[]> => {
       const fetchAll = async (
         currentUrl: string,
         accumulatedItems: T[] = [],
@@ -63,7 +68,7 @@ export function createCachedFetcher<T>(
     {
       maxAge,
       name,
-      getKey: (url: string) => url,
+      getKey: (tenantKey: string, url: string) => `${tenantKey}:${url}`,
     },
   )
 }

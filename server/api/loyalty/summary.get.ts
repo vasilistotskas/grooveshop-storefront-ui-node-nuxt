@@ -1,5 +1,5 @@
 const fetchLoyaltySummary = defineCachedFunction(
-  async () => {
+  async (_tenantKey: string) => {
     const config = useRuntimeConfig()
     const response = await $fetch(`${config.apiBaseUrl}/loyalty/summary`, {
       method: 'GET',
@@ -11,7 +11,10 @@ const fetchLoyaltySummary = defineCachedFunction(
     maxAge: 300, // 5 minutes for unauthenticated summary
     staleMaxAge: 600,
     swr: true,
-    getKey: () => 'loyalty:summary:anon',
+    // Keyed by tenant host — Django's /loyalty/summary resolves the
+    // tenant from X-Forwarded-Host, so responses differ per tenant and
+    // must not share a cache slot.
+    getKey: (tenantKey: string) => `loyalty:summary:anon:${tenantKey}`,
   },
 )
 
@@ -31,8 +34,9 @@ export default defineEventHandler(async (event) => {
       return await parseDataAs(response, zGetLoyaltySummaryResponse)
     }
 
-    // Unauthenticated — serve from cache
-    return await fetchLoyaltySummary()
+    // Unauthenticated — serve from cache, keyed per tenant host.
+    const host = getRequestHost(event, { xForwardedHost: false })
+    return await fetchLoyaltySummary(host)
   }
   catch (error) {
     await handleError(error)

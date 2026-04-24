@@ -1,6 +1,6 @@
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('request', (event) => {
-    const tenant = event.context.tenant as TenantConfig | undefined
+    const tenant = event.context.tenant
     if (!tenant) return
 
     // Override site config for SEO (sitemap, OG images, Schema.org, canonical URLs)

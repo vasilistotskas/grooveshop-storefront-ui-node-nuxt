@@ -520,6 +520,45 @@ export const zConfirmResponseRequest = z.object({
   topic: z.string().min(1).optional(),
 })
 
+/**
+ * * `hero_banner` - Hero Banner
+ * * `hero_carousel` - Hero Carousel
+ * * `products_slider` - Products Slider
+ * * `products_grid` - Products Grid
+ * * `featured_products` - Featured Products
+ * * `product_categories` - Product Categories
+ * * `blog_posts_carousel` - Blog Posts Carousel
+ * * `blog_posts_grid` - Blog Posts Grid
+ * * `rich_text` - Rich Text Block
+ * * `cta_banner` - Call to Action Banner
+ * * `newsletter_signup` - Newsletter Signup
+ * * `testimonials` - Testimonials
+ * * `spacer` - Spacer
+ * * `divider` - Divider
+ * * `loyalty_hero` - Loyalty Program Hero
+ * * `search_bar` - Search Bar
+ */
+export const zComponentTypeEnum = z.enum([
+  'hero_banner',
+  'hero_carousel',
+  'products_slider',
+  'products_grid',
+  'featured_products',
+  'product_categories',
+  'blog_posts_carousel',
+  'blog_posts_grid',
+  'rich_text',
+  'cta_banner',
+  'newsletter_signup',
+  'testimonials',
+  'spacer',
+  'divider',
+  'loyalty_hero',
+  'search_bar',
+]).register(z.globalRegistry, {
+  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Featured Products\n* `product_categories` - Product Categories\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar',
+})
+
 export const zContactWrite = z.object({
   id: z.int().readonly(),
   name: z.string().max(100),
@@ -1262,6 +1301,52 @@ export const zOrderWriteRequest = z.object({
   shippingCarrier: z.string().max(255).optional(),
 })
 
+export const zPageLayoutRequest = z.object({
+  pageType: z.string().min(1).max(50).register(z.globalRegistry, {
+    description: 'Identifier for the page (e.g. "home", "products", "blog").',
+  }),
+  title: z.string().min(1).max(200).register(z.globalRegistry, {
+    description: 'Admin display name for this layout.',
+  }),
+  isPublished: z.boolean().optional(),
+  metadata: z.unknown().optional(),
+})
+
+export const zPageSection = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  componentType: zComponentTypeEnum,
+  title: z.string().max(200).optional(),
+  isVisible: z.boolean().optional(),
+  props: z.unknown().register(z.globalRegistry, {
+    description: 'Component-specific configuration as JSON.',
+  }).optional(),
+  sortOrder: z.int().readonly().nullable(),
+})
+
+export const zPageLayout = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  pageType: z.string().max(50).register(z.globalRegistry, {
+    description: 'Identifier for the page (e.g. "home", "products", "blog").',
+  }),
+  title: z.string().max(200).register(z.globalRegistry, {
+    description: 'Admin display name for this layout.',
+  }),
+  isPublished: z.boolean().optional(),
+  metadata: z.unknown().optional(),
+  sections: z.array(zPageSection).readonly(),
+})
+
+export const zPageSectionRequest = z.object({
+  componentType: zComponentTypeEnum,
+  title: z.string().max(200).optional(),
+  isVisible: z.boolean().optional(),
+  props: z.unknown().register(z.globalRegistry, {
+    description: 'Component-specific configuration as JSON.',
+  }).optional(),
+})
+
 export const zPaginatedAttributeList = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -1390,6 +1475,19 @@ export const zPaginatedOrderItemList = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zOrderItem),
+})
+
+export const zPaginatedPageLayoutList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zPageLayout),
 })
 
 /**
@@ -1588,6 +1686,17 @@ export const zPatchedOrderWriteRequest = z.object({
   paymentMethod: z.string().min(1).optional(),
   trackingNumber: z.string().max(255).optional(),
   shippingCarrier: z.string().max(255).optional(),
+})
+
+export const zPatchedPageLayoutRequest = z.object({
+  pageType: z.string().min(1).max(50).register(z.globalRegistry, {
+    description: 'Identifier for the page (e.g. "home", "products", "blog").',
+  }).optional(),
+  title: z.string().min(1).max(200).register(z.globalRegistry, {
+    description: 'Admin display name for this layout.',
+  }).optional(),
+  isPublished: z.boolean().optional(),
+  metadata: z.unknown().optional(),
 })
 
 /**
@@ -3577,6 +3686,31 @@ export const zTaggedItemWriteRequest = z.object({
   objectId: z.int().gte(0).lte(2147483647),
 })
 
+export const zTenantConfig = z.object({
+  schemaName: z.string().readonly(),
+  name: z.string().readonly(),
+  storeName: z.string().readonly(),
+  storeDescription: z.string().readonly(),
+  logoLightUrl: z.url().readonly(),
+  logoDarkUrl: z.url().readonly(),
+  faviconUrl: z.url().readonly(),
+  primaryColor: z.string().readonly(),
+  neutralColor: z.string().readonly(),
+  accentHex: z.string().readonly(),
+  successHex: z.string().readonly(),
+  warningHex: z.string().readonly(),
+  errorHex: z.string().readonly(),
+  infoHex: z.string().readonly(),
+  themePreset: z.string().readonly(),
+  themeMetadata: z.unknown(),
+  defaultLocale: z.string().readonly(),
+  defaultCurrency: z.string().readonly(),
+  primaryDomain: z.string().readonly(),
+  loyaltyEnabled: z.boolean().readonly(),
+  blogEnabled: z.boolean().readonly(),
+  plan: z.string().readonly(),
+})
+
 /**
  * Serializer for top query analytics.
  */
@@ -4976,6 +5110,26 @@ export const zOrderItemRefundResponseWritable = z.object({
   item: zOrderItemWritable,
 })
 
+export const zPageLayoutWritable = z.object({
+  pageType: z.string().max(50).register(z.globalRegistry, {
+    description: 'Identifier for the page (e.g. "home", "products", "blog").',
+  }),
+  title: z.string().max(200).register(z.globalRegistry, {
+    description: 'Admin display name for this layout.',
+  }),
+  isPublished: z.boolean().optional(),
+  metadata: z.unknown().optional(),
+})
+
+export const zPageSectionWritable = z.object({
+  componentType: zComponentTypeEnum,
+  title: z.string().max(200).optional(),
+  isVisible: z.boolean().optional(),
+  props: z.unknown().register(z.globalRegistry, {
+    description: 'Component-specific configuration as JSON.',
+  }).optional(),
+})
+
 export const zPaginatedAttributeListWritable = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -5169,6 +5323,19 @@ export const zPaginatedOrderListWritable = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zOrderWritable),
+})
+
+export const zPaginatedPageLayoutListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zPageLayoutWritable),
 })
 
 export const zPaginatedPointsTransactionListWritable = z.object({
@@ -11231,6 +11398,137 @@ export const zRetrieveOrderByUuidPath = z.object({
 
 export const zRetrieveOrderByUuidResponse = zOrderDetail
 
+export const zPageConfigRetrievePath = z.object({
+  pageType: z.string(),
+})
+
+export const zPageConfigRetrieveResponse = zPageLayout
+
+export const zPageConfigAdminListQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Cursor for pagination',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Enable or disable pagination',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Pagination strategy type',
+  }).optional().default('pageNumber'),
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+})
+
+export const zPageConfigAdminListResponse = zPaginatedPageLayoutList
+
+export const zPageConfigAdminCreateBody = zPageLayoutRequest
+
+export const zPageConfigAdminCreateQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zPageConfigAdminCreateResponse = zPageLayout
+
+export const zPageConfigAdminDestroyPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+/**
+ * No response body
+ */
+export const zPageConfigAdminDestroyResponse = z.void().register(z.globalRegistry, {
+  description: 'No response body',
+})
+
+export const zPageConfigAdminRetrievePath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zPageConfigAdminRetrieveQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zPageConfigAdminRetrieveResponse = zPageLayout
+
+export const zPageConfigAdminPartialUpdateBody = zPatchedPageLayoutRequest
+
+export const zPageConfigAdminPartialUpdatePath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zPageConfigAdminPartialUpdateQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zPageConfigAdminPartialUpdateResponse = zPageLayout
+
+export const zPageConfigAdminUpdateBody = zPageLayoutRequest
+
+export const zPageConfigAdminUpdatePath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zPageConfigAdminUpdateQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zPageConfigAdminUpdateResponse = zPageLayout
+
 export const zListPayWayQuery = z.object({
   active: z.union([
     z.literal('true'),
@@ -14380,6 +14678,12 @@ export const zUpdateTaggedItemQuery = z.object({
 })
 
 export const zUpdateTaggedItemResponse = zTaggedItemDetail
+
+export const zTenantResolveRetrieveQuery = z.object({
+  domain: z.string(),
+})
+
+export const zTenantResolveRetrieveResponse = zTenantConfig
 
 export const zListUserAccountQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
