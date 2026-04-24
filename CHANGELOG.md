@@ -1,3 +1,10 @@
+## [3.95.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.95.0...v3.95.1) (2026-04-24)
+
+
+### Bug Fixes
+
+* **order:** drop duplicate local cancel toast ([a11a21b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a11a21b1cd7eba69c3d81f2f19a7e295728e022f))
+
 # [3.95.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.94.2...v3.95.0) (2026-04-23)
 
 
