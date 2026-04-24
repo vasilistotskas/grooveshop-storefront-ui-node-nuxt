@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 const config = useRuntimeConfig()
+const tenantStore = useTenantStore()
 
-const appTitle = computed(() => config.public.appTitle as string)
+const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 </script>
 
 <template>

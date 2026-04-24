@@ -7,10 +7,11 @@ const props = defineProps({
 
 const config = useRuntimeConfig()
 const { t } = useI18n()
+const tenantStore = useTenantStore()
 
 useSeoMeta({
   title: t('error.page.title'),
-  ogImage: config.public.appLogo,
+  ogImage: () => tenantStore.logoLightUrl || config.public.appLogo,
   ogImageAlt: 'Page not found',
   ogImageWidth: 1200,
   ogImageHeight: 630,

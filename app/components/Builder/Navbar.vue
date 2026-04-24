@@ -26,7 +26,8 @@ const isPageWithH1 = computed(() => {
   return ['blog-post-id-slug'].includes(routeName.value as string)
 })
 
-const appTitle = computed(() => config.public.appTitle as string)
+const tenantStore = useTenantStore()
+const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
 
 const handleScroll = () => {

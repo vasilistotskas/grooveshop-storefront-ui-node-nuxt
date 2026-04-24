@@ -288,7 +288,7 @@
     "about_us": "Σχετικά με εμάς",
     "about": {
       "us": "Σχετικά με εμάς",
-      "site": "Τι είναι το Webside"
+      "site": "Τι είναι το {storeName}"
     },
     "vision": "Όραμα",
     "microlearning": {

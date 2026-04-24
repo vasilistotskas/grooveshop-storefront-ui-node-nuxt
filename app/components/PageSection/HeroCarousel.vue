@@ -7,7 +7,8 @@ defineProps<{
 const { isMobileOrTablet } = useDevice()
 
 const config = useRuntimeConfig()
-const appTitle = computed(() => config.public.appTitle as string)
+const tenantStore = useTenantStore()
+const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 
 const defaultItems = [
   isMobileOrTablet ? '/img/main-banner-mobile.png' : '/img/main-banner.png',

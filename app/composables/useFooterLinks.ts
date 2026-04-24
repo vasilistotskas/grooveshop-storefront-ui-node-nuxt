@@ -8,13 +8,22 @@ export function useFooterLinks() {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
   const localePath = useLocalePath()
+  const tenantStore = useTenantStore()
+
+  // The "about the site" link reads "About {storeName}" so each tenant
+  // gets its own brand name in the footer nav without duplicating the
+  // translation strings.
+  const storeName = computed(() => tenantStore.storeName || '')
 
   const columns = computed<FooterLinkColumn[]>(() => [
     {
       label: t('footer.about.us'),
       icon: 'i-heroicons-information-circle',
       children: [
-        { label: t('footer.about.site'), to: localePath('about') },
+        {
+          label: t('footer.about.site', { storeName: storeName.value }),
+          to: localePath('about'),
+        },
         { label: t('footer.vision'), to: localePath('vision') },
       ],
     },

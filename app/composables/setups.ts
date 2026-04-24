@@ -5,8 +5,19 @@ export function setupPageHeader() {
   const publicConfig = useRuntimeConfig().public
   const siteConfig = useSiteConfig()
   const { $i18n } = useNuxtApp()
+  const tenantStore = useTenantStore()
 
   const siteUrl = siteConfig.url
+
+  // Tenant branding with env-level fallback. The computed values stay
+  // reactive so switching tenants (e.g. during HMR) re-renders the head.
+  const title = computed(
+    () => tenantStore.storeName || publicConfig.appTitle,
+  )
+  const logo = computed(
+    () => tenantStore.logoLightUrl || publicConfig.appLogo,
+  )
+  const favicon = computed(() => tenantStore.faviconUrl)
 
   const i18nHead = useLocaleHead({
     dir: true,
@@ -29,17 +40,17 @@ export function setupPageHeader() {
   const dir = computed(() => uiLocales[$i18n.locale.value].dir)
 
   useSeoMeta({
-    title: publicConfig.appTitle,
+    title: () => title.value,
     ogUrl: () => `${siteUrl}${route.path}`,
     ogTitle: '%s',
     ogType: 'website',
-    ogSiteName: siteConfig.name,
-    ogImage: publicConfig.appLogo,
-    twitterTitle: publicConfig.appTitle,
-    twitterDescription: siteConfig.description,
-    twitterImage: publicConfig.appLogo,
+    ogSiteName: () => siteConfig.name,
+    ogImage: () => logo.value,
+    twitterTitle: () => title.value,
+    twitterDescription: () => siteConfig.description,
+    twitterImage: () => logo.value,
     twitterCard: 'summary',
-    applicationName: publicConfig.appTitle,
+    applicationName: () => title.value,
     author: publicConfig.author.name,
     creator: publicConfig.author.name,
     publisher: publicConfig.author.name,
@@ -56,7 +67,7 @@ export function setupPageHeader() {
   })
 
   useHead(() => ({
-    title: publicConfig.appTitle,
+    title: title.value,
     templateParams: {
       siteName: siteConfig.name,
       separator: publicConfig.titleSeparator,
@@ -65,7 +76,15 @@ export function setupPageHeader() {
       lang,
       dir,
     },
-    link: [...(i18nHead.value.link || [])],
+    link: [
+      ...(i18nHead.value.link || []),
+      // Only override the <link rel="icon"> when the tenant supplies
+      // its own favicon; otherwise let the static files in
+      // nuxt.config.ts app.head.link serve the platform default.
+      ...(favicon.value
+        ? [{ rel: 'icon', type: 'image/x-icon', href: favicon.value }]
+        : []),
+    ],
     meta: [...(i18nHead.value.meta || []),
       {
         name: 'p:domain_verify',

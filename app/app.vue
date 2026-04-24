@@ -11,6 +11,19 @@ const { loggedIn, user } = useUserSession()
 const config = useRuntimeConfig()
 const siteConfig = useSiteConfig()
 const { locales, locale } = useI18n()
+const tenantStore = useTenantStore()
+
+// Tenant-aware SEO metadata. siteConfig is already overridden per
+// tenant by server/plugins/tenant-site-config.ts; tenantStore exposes
+// branding fields (logo, store name) that the env-level appLogo /
+// appTitle don't cover.
+const siteName = computed(
+  () => tenantStore.storeName || config.public.appTitle,
+)
+const siteLogo = computed(
+  () => tenantStore.logoLightUrl || config.public.appLogo,
+)
+const siteUrl = computed(() => siteConfig.url || config.public.baseUrl)
 
 watch([loggedIn, user], ([l, u]) => {
   if (import.meta.dev || process.env.NODE_ENV === 'development') return
@@ -20,14 +33,14 @@ watch([loggedIn, user], ([l, u]) => {
 useSchemaOrg([
   defineWebPage(),
   defineWebSite({
-    url: config.public.baseUrl,
-    name: config.public.appTitle,
+    url: siteUrl,
+    name: siteName,
     description: siteConfig.description,
     inLanguage: locales.value.map(l => l.language),
   }),
   defineOrganization({
-    name: config.public.appTitle,
-    logo: config.public.appLogo,
+    name: siteName,
+    logo: siteLogo,
     sameAs: [
       config.public.socials.facebook,
       config.public.socials.twitter,
@@ -36,8 +49,8 @@ useSchemaOrg([
   }),
 ])
 useSeoMeta({
-  ogImage: config.public.appLogo,
-  ogImageAlt: config.public.appTitle,
+  ogImage: siteLogo,
+  ogImageAlt: siteName,
   ogImageWidth: 1200,
   ogImageHeight: 630,
 })

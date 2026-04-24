@@ -2,8 +2,9 @@
 const config = useRuntimeConfig()
 const { isMobileOrTablet } = useDevice()
 const { t } = useI18n()
+const tenantStore = useTenantStore()
 
-const appTitle = computed(() => config.public.appTitle as string)
+const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 
 const items = computed(() => [
   isMobileOrTablet.value ? '/img/main-banner-mobile.png' : '/img/main-banner.png',

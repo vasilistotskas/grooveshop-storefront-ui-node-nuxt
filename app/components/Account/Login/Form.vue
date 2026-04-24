@@ -11,6 +11,7 @@ const cartStore = useCartStore()
 const { refreshCart } = cartStore
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
+const tenantStore = useTenantStore()
 
 const authStore = useAuthStore()
 const { session, status, hasSocialAccountProviders } = storeToRefs(authStore)
@@ -108,7 +109,7 @@ const backgroundImage = computed(() => {
                 :src="'/img/logo-border.png'"
                 :width="isMobileOrTablet ? 100 : 140"
                 :height="isMobileOrTablet ? 100 : 140"
-                :alt="t('logo_alt', { appTitle: config.public.appTitle })"
+                :alt="t('logo_alt', { appTitle: tenantStore.storeName || config.public.appTitle })"
                 quality="80"
               />
             </div>

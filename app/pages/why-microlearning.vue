@@ -1,6 +1,9 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const localePath = useLocalePath()
+const tenantStore = useTenantStore()
+
+const storeName = computed(() => tenantStore.storeName || 'Webside')
 
 const items = computed(() => [
   {
@@ -57,7 +60,7 @@ definePageMeta({
           src="/img/pages/why-microlearning1.png"
           :width="960"
           :height="960"
-          alt="Webside"
+          :alt="storeName"
           :modifiers="{ position: 'entropy' }"
           loading="eager"
           quality="80"
@@ -88,7 +91,7 @@ definePageMeta({
           src="/img/pages/why-microlearning2.png"
           :width="960"
           :height="600"
-          alt="Webside"
+          :alt="storeName"
           :modifiers="{ position: 'entropy' }"
           loading="lazy"
           quality="80"
@@ -127,7 +130,7 @@ definePageMeta({
           src="/img/pages/why-microlearning3.png"
           :width="960"
           :height="700"
-          alt="Webside"
+          :alt="storeName"
           :modifiers="{ position: 'entropy' }"
           loading="lazy"
           quality="80"

@@ -510,16 +510,6 @@ export const zCartWriteRequest = z.object({
   user: z.int().nullish(),
 })
 
-export const zConfirmResponse = z.object({
-  status: z.string(),
-  topic: z.string().optional(),
-})
-
-export const zConfirmResponseRequest = z.object({
-  status: z.string().min(1),
-  topic: z.string().min(1).optional(),
-})
-
 /**
  * * `hero_banner` - Hero Banner
  * * `hero_carousel` - Hero Carousel
@@ -557,6 +547,16 @@ export const zComponentTypeEnum = z.enum([
   'search_bar',
 ]).register(z.globalRegistry, {
   description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Featured Products\n* `product_categories` - Product Categories\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar',
+})
+
+export const zConfirmResponse = z.object({
+  status: z.string(),
+  topic: z.string().optional(),
+})
+
+export const zConfirmResponseRequest = z.object({
+  status: z.string().min(1),
+  topic: z.string().min(1).optional(),
 })
 
 export const zContactWrite = z.object({
@@ -992,12 +992,12 @@ export const zLoyaltySummary = z.object({
 })
 
 /**
- * * `ORDER` - Παραγγελία
+ * * `ORDER` - Ταξινόμηση
  * * `PAYMENT` - Payment
- * * `SHIPPING` - Μεταφορικά
+ * * `SHIPPING` - Shipping
  * * `CART` - Cart
- * * `PRODUCT` - Προϊόν
- * * `ACCOUNT` - Λογαριασμός Ανενεργός
+ * * `PRODUCT` - Product
+ * * `ACCOUNT` - Account
  * * `SECURITY` - Security
  * * `PROMOTION` - Promotion
  * * `SYSTEM` - System
@@ -1023,7 +1023,7 @@ export const zNotificationCategory = z.enum([
   'NEWSLETTER',
   'RECOMMENDATION',
 ]).register(z.globalRegistry, {
-  description: '* `ORDER` - Παραγγελία\n* `PAYMENT` - Payment\n* `SHIPPING` - Μεταφορικά\n* `CART` - Cart\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - System\n* `REVIEW` - Review\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation',
+  description: '* `ORDER` - Ταξινόμηση\n* `PAYMENT` - Payment\n* `SHIPPING` - Shipping\n* `CART` - Cart\n* `PRODUCT` - Product\n* `ACCOUNT` - Account\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - System\n* `REVIEW` - Review\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation',
 })
 
 export const zNotificationCountResponse = z.object({
@@ -1246,14 +1246,14 @@ export const zOrderItemWriteRequest = z.object({
 })
 
 /**
- * * `PENDING` - Εκκρεμεί
- * * `PROCESSING` - Σε επεξεργασία
- * * `SHIPPED` - Απεστάλη
- * * `DELIVERED` - Παραδόθηκε
- * * `COMPLETED` - Ολοκληρώθηκε
- * * `CANCELED` - Ακυρώθηκε
- * * `RETURNED` - Επιστράφηκε
- * * `REFUNDED` - Επεστράφη
+ * * `PENDING` - Pending
+ * * `PROCESSING` - Processing
+ * * `SHIPPED` - Shipped
+ * * `DELIVERED` - Delivered
+ * * `COMPLETED` - Completed
+ * * `CANCELED` - Canceled
+ * * `RETURNED` - Returned
+ * * `REFUNDED` - Refunded
  */
 export const zOrderStatus = z.enum([
   'PENDING',
@@ -1265,7 +1265,7 @@ export const zOrderStatus = z.enum([
   'RETURNED',
   'REFUNDED',
 ]).register(z.globalRegistry, {
-  description: '* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επεστράφη',
+  description: '* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded',
 })
 
 export const zOrderWriteRequest = z.object({
@@ -2104,13 +2104,13 @@ export const zPayWayWriteRequest = z.object({
 })
 
 /**
- * * `PENDING` - Εκκρεμεί
- * * `PROCESSING` - Σε επεξεργασία
- * * `COMPLETED` - Ολοκληρώθηκε
+ * * `PENDING` - Pending
+ * * `PROCESSING` - Processing
+ * * `COMPLETED` - Completed
  * * `FAILED` - Failed
- * * `REFUNDED` - Επεστράφη
+ * * `REFUNDED` - Refunded
  * * `PARTIALLY_REFUNDED` - Partially Refunded
- * * `CANCELED` - Ακυρώθηκε
+ * * `CANCELED` - Canceled
  */
 export const zPaymentStatusEnum = z.enum([
   'PENDING',
@@ -2121,7 +2121,7 @@ export const zPaymentStatusEnum = z.enum([
   'PARTIALLY_REFUNDED',
   'CANCELED',
 ]).register(z.globalRegistry, {
-  description: '* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Failed\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Ακυρώθηκε',
+  description: '* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled',
 })
 
 export const zPaymentStatusResponse = z.object({
@@ -3510,7 +3510,7 @@ export const zSettingDetail = z.object({
 })
 
 /**
- * * `ACTIVE` - Ενεργή
+ * * `ACTIVE` - Active
  * * `PENDING` - Pending Confirmation
  * * `UNSUBSCRIBED` - Unsubscribed
  * * `BOUNCED` - Bounced
@@ -3521,7 +3521,7 @@ export const zSubscriptionStatus = z.enum([
   'UNSUBSCRIBED',
   'BOUNCED',
 ]).register(z.globalRegistry, {
-  description: '* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced',
+  description: '* `ACTIVE` - Active\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced',
 })
 
 export const zPatchedUserSubscriptionWriteRequest = z.object({
@@ -3734,7 +3734,7 @@ export const zTopQuery = z.object({
 /**
  * * `MARKETING` - Marketing Campaigns
  * * `PRODUCT` - Product Updates
- * * `ACCOUNT` - Λογαριασμός Ανενεργός
+ * * `ACCOUNT` - Account Updates
  * * `SYSTEM` - System Notifications
  * * `NEWSLETTER` - Newsletter
  * * `PROMOTIONAL` - Promotional
@@ -3749,7 +3749,7 @@ export const zTopicCategory = z.enum([
   'PROMOTIONAL',
   'OTHER',
 ]).register(z.globalRegistry, {
-  description: '* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
+  description: '* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
 })
 
 /**
@@ -10324,7 +10324,7 @@ export const zListOrderQuery = z.object({
     'PROCESSING',
     'REFUNDED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Failed\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Ακυρώθηκε',
+    description: 'Filter by payment status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled',
   }).optional(),
   paymentStatus_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -10386,7 +10386,7 @@ export const zListOrderQuery = z.object({
     'RETURNED',
     'SHIPPED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επεστράφη',
+    description: 'Filter by order status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded',
   }).optional(),
   status_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -10580,7 +10580,7 @@ export const zListOrderItemQuery = z.object({
     'PROCESSING',
     'REFUNDED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Failed\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Ακυρώθηκε',
+    description: 'Filter by order payment status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled',
   }).optional(),
   order_Region: z.string().register(z.globalRegistry, {
     description: 'Filter by order region code',
@@ -10595,7 +10595,7 @@ export const zListOrderItemQuery = z.object({
     'RETURNED',
     'SHIPPED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επεστράφη',
+    description: 'Filter by order status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded',
   }).optional(),
   order_User: z.union([
     z.string().regex(/^-?\d+$/),
@@ -11258,7 +11258,7 @@ export const zListMyOrdersQuery = z.object({
     'PROCESSING',
     'REFUNDED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Failed\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Ακυρώθηκε',
+    description: 'Filter by payment status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled',
   }).optional(),
   paymentStatus_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -11320,7 +11320,7 @@ export const zListMyOrdersQuery = z.object({
     'RETURNED',
     'SHIPPED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επεστράφη',
+    description: 'Filter by order status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded',
   }).optional(),
   status_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -14679,6 +14679,19 @@ export const zUpdateTaggedItemQuery = z.object({
 
 export const zUpdateTaggedItemResponse = zTaggedItemDetail
 
+export const zTenantMembershipsMineRetrieveResponse = z.array(z.object({
+  schemaName: z.string().optional(),
+  name: z.string().optional(),
+  storeName: z.string().optional(),
+  primaryDomain: z.string().optional(),
+  role: z.enum([
+    'member',
+    'staff',
+    'admin',
+    'owner',
+  ]).optional(),
+}))
+
 export const zTenantResolveRetrieveQuery = z.object({
   domain: z.string(),
 })
@@ -15393,7 +15406,7 @@ export const zListUserSubscriptionQuery = z.object({
     'PENDING',
     'UNSUBSCRIBED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by subscription status\n\n* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced',
+    description: 'Filter by subscription status\n\n* `ACTIVE` - Active\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced',
   }).optional(),
   subscribedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter subscriptions created after this date',
@@ -15417,7 +15430,7 @@ export const zListUserSubscriptionQuery = z.object({
     'PROMOTIONAL',
     'SYSTEM',
   ]).register(z.globalRegistry, {
-    description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
+    description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
   }).optional(),
   topicDescription: z.string().register(z.globalRegistry, {
     description: 'Filter by topic description (partial match)',
@@ -15578,7 +15591,7 @@ export const zListSubscriptionTopicQuery = z.object({
     'PROMOTIONAL',
     'SYSTEM',
   ]).register(z.globalRegistry, {
-    description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
+    description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
