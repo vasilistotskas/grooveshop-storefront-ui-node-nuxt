@@ -33,12 +33,12 @@ async function handleCancel() {
   isCanceling.value = true
   try {
     await cancelOrder(order.value.id)
-    toast.add({
-      title: t('cancel_success_title'),
-      description: t('cancel_success_description'),
-      color: 'success',
-      icon: 'i-heroicons-check-circle',
-    })
+    // No local success toast — the Django WebSocket notification
+    // ("Η παραγγελία #X ακυρώθηκε") arrives within ~300ms and says the
+    // same thing. Firing a second local toast just duplicates it, and
+    // paid orders also get a "Refund processed" WS toast right after.
+    // Parent refetches the list so the CANCELED status replaces the
+    // cancel button, giving the user immediate visual confirmation.
     emit('cancelled', order.value.id)
   }
   catch (error) {
