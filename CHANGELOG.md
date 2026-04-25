@@ -1,3 +1,10 @@
+# [3.97.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.96.1...v3.97.0) (2026-04-25)
+
+
+### Features
+
+* **product:** gate price-drop CTA on admin flag + regen OpenAPI ([ea7634a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ea7634aed8de51743bb4a28ca23a3c7d57417bf4))
+
 ## [3.96.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.96.0...v3.96.1) (2026-04-25)
 
 
