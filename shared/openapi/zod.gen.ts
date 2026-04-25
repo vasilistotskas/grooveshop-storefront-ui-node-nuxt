@@ -2822,6 +2822,9 @@ export const zProductDetail = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
   attributes: z.array(zProductAttribute).readonly(),
+  priceDropAlertsEnabled: z.boolean().register(z.globalRegistry, {
+    description: 'When enabled, customers can subscribe to a one-time email when this product\'s price drops below a target. Disabled by default — admins opt products in per SKU.',
+  }).readonly(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
@@ -2882,6 +2885,9 @@ export const zProductDetailResponse = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
   attributes: z.array(zProductAttribute).readonly(),
+  priceDropAlertsEnabled: z.boolean().register(z.globalRegistry, {
+    description: 'When enabled, customers can subscribe to a one-time email when this product\'s price drops below a target. Disabled by default — admins opt products in per SKU.',
+  }).readonly(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })

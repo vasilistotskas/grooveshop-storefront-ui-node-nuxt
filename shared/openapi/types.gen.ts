@@ -3396,6 +3396,10 @@ export type ProductDetail = {
   readonly updatedAt: string
   readonly uuid: string
   readonly attributes: Array<ProductAttribute>
+  /**
+     * When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU.
+     */
+  readonly priceDropAlertsEnabled: boolean
 }
 
 /**
@@ -3458,6 +3462,10 @@ export type ProductDetailResponse = {
   readonly updatedAt: string
   readonly uuid: string
   readonly attributes: Array<ProductAttribute>
+  /**
+     * When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU.
+     */
+  readonly priceDropAlertsEnabled: boolean
 }
 
 export type ProductFavourite = {

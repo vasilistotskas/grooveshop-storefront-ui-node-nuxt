@@ -762,9 +762,13 @@ definePageMeta({
             <!-- Price-drop subscribers: independent of stock — a shopper
                  may want to watch the price even for out-of-stock items.
                  Target price is validated below the current final price
-                 so the alert doesn't fire immediately. -->
+                 so the alert doesn't fire immediately.
+                 Gated on ``product.priceDropAlertsEnabled``: admins opt
+                 individual SKUs into the feature (default off) so we
+                 don't promise an alert we can't honour for products
+                 whose pricing is too volatile or manually managed. -->
             <ProductNotifyMe
-              v-if="product?.id && (product?.finalPrice ?? 0) > 0"
+              v-if="product?.id && product?.priceDropAlertsEnabled && (product?.finalPrice ?? 0) > 0"
               :product-id="product.id"
               kind="price_drop"
               :current-price="product.finalPrice"
