@@ -1,3 +1,10 @@
+# [3.98.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.97.0...v3.98.0) (2026-04-25)
+
+
+### Features
+
+* **home:** gate Recently Viewed rail on RECENTLY_VIEWED_ENABLED ([c52dccd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c52dccd152ebb26e151ca37bcc578c80c1800354))
+
 # [3.97.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.96.1...v3.97.0) (2026-04-25)
 
 
