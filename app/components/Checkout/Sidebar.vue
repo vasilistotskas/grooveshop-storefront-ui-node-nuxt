@@ -228,16 +228,6 @@ defineSlots<{
           />
           <span>{{ t('vat_included') }}</span>
         </div>
-
-        <div
-          class="
-            flex flex-col gap-3 border-t border-primary-200 pt-4
-            dark:border-primary-800
-          "
-        >
-          <TrustSecureCheckoutBadge />
-          <TrustPaymentBadges />
-        </div>
       </div>
 
       <template #footer>

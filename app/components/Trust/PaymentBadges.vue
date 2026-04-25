@@ -72,9 +72,13 @@ const items = computed(() => {
         v-if="item.image"
         :src="item.image"
         :alt="item.name"
-        class="h-4 w-auto object-contain"
+        class="h-4 w-auto object-contain dark:invert"
         :width="24"
         :height="16"
+        fit="contain"
+        :format="'svg'"
+        :background="'transparent'"
+        provider="mediaStream"
         loading="lazy"
       />
       <span
