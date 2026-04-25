@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useAuthStore } from '~/stores/auth'
 
@@ -34,7 +34,14 @@ vi.mock('~/composables/useAllAuthAccount', () => ({
 }))
 
 const mockFetch = vi.fn()
-vi.stubGlobal('$fetch', mockFetch)
+
+beforeAll(() => {
+  vi.stubGlobal('$fetch', mockFetch)
+})
+
+afterAll(() => {
+  vi.unstubAllGlobals()
+})
 
 describe('Auth Store', () => {
   let store: ReturnType<typeof useAuthStore>

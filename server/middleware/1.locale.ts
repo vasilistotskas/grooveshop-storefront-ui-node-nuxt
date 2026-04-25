@@ -16,10 +16,10 @@ export default defineEventHandler((event) => {
     const i18nRedirected = getCookie(event, 'i18n_redirected')
     const i18nLocale = getCookie(event, 'i18n_locale')
 
-    if (i18nRedirected) {
+    if (i18nRedirected && SUPPORTED_LOCALES.includes(i18nRedirected as any)) {
       locale = i18nRedirected
     }
-    else if (i18nLocale) {
+    else if (i18nLocale && SUPPORTED_LOCALES.includes(i18nLocale as any)) {
       locale = i18nLocale
     }
     else {

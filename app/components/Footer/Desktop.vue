@@ -6,6 +6,7 @@ const { columns } = useFooterLinks()
 const runtimeConfig = useRuntimeConfig()
 
 const packageVersion = runtimeConfig.public.version
+const currentYear = new Date().getFullYear()
 </script>
 
 <template>
@@ -43,7 +44,7 @@ const packageVersion = runtimeConfig.public.version
           dark:text-primary-100
         "
       >
-        &copy; {{ new Date().getFullYear() }}&nbsp;
+        &copy; {{ currentYear }}&nbsp;
         <UButton
           :label="`${siteConfig.name}™.`"
           :to="localePath('index')"

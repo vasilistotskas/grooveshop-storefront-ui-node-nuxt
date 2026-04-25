@@ -364,13 +364,6 @@ const productSpecifications = computed(() => {
   return specs
 })
 
-watch(
-  () => route.query,
-  async () => {
-    await refreshProduct()
-  },
-)
-
 useSeoMeta({
   title: () => productTitle.value,
   description: () => productDescription.value,
@@ -381,7 +374,6 @@ useSeoMeta({
   ogImageWidth: 1200,
   ogImageHeight: 630,
   ogImageAlt: () => productTitle.value,
-  ogType: 'website',
   ogUrl: () => canonicalUrl.value,
   ogSiteName: siteConfig.name,
   ogLocale: () => dateLocale.value,
@@ -392,6 +384,10 @@ useSeoMeta({
   twitterImage: () => ogImage.value,
   twitterImageAlt: () => productTitle.value,
 })
+// 'product' is a valid OG type per the OpenGraph spec for product detail pages;
+// rich structured data is conveyed via Schema.org in useSchemaOrg below.
+// Set via useHead because @unhead/vue's UseSeoMetaInput union omits 'product'.
+useHead({ meta: [{ property: 'og:type', content: 'product' }] })
 
 useHead({
   link: () => {
@@ -822,7 +818,7 @@ definePageMeta({
       <div
         v-if="showStickyAddToCart"
         class="
-          fixed right-0 bottom-12 left-0 z-40 border-t border-gray-200
+          fixed right-0 bottom-18 left-0 z-40 border-t border-gray-200
           bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm
           md:bottom-0
           dark:border-gray-700 dark:bg-gray-900/95

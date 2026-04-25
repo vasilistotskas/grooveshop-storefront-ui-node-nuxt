@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await getAllAuthAccessToken(event)
+  const accessToken = await requireAllAuthAccessToken(event)
   const cartSession = useCartSession(event)
   const wideLog = useLogger(event)
 
@@ -14,16 +14,11 @@ export default defineEventHandler(async (event) => {
       body,
       headers: {
         ...cartHeaders,
-        ...(accessToken && {
-          Authorization: `Bearer ${accessToken}`,
-        }),
+        Authorization: `Bearer ${accessToken}`,
       },
     })
 
     const parsedData = await parseDataAs(response, zCreateOrderResponse)
-
-    // Clear the entire cart session after successful order creation
-    await cartSession.clearSession()
 
     return parsedData
   }

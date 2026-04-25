@@ -65,13 +65,19 @@ export const determineAuthChangeEvent = (
   const previousAuthInfo = authInfo(previousAuthState)
   if (newAuthState.status === 410) {
     // useToast/useNuxtApp must be called inside the branch that needs them
-    // to avoid Vue's inject() warning when this function runs outside setup context
-    const toast = useToast()
-    const { t } = useNuxtApp().$i18n
-    toast.add({
-      title: t('auth.error.session.expired'),
-      color: 'warning',
-    })
+    // to avoid Vue's inject() warning when this function runs outside setup context.
+    // The try/catch makes the util safe in non-Nuxt contexts (e.g. unit tests).
+    try {
+      const toast = useToast()
+      const { t } = useNuxtApp().$i18n
+      toast.add({
+        title: t('auth.error.session.expired'),
+        color: 'warning',
+      })
+    }
+    catch {
+      // Nuxt context unavailable (e.g. unit test) — caller will re-display
+    }
     return AuthChangeEvent.LOGGED_OUT
   }
 

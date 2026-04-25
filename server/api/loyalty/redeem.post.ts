@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await getAllAuthAccessToken(event)
+  const accessToken = await requireAllAuthAccessToken(event)
 
   try {
     const body = await readValidatedBody(event, zRedeemLoyaltyPointsBody.parse)
@@ -9,9 +9,7 @@ export default defineEventHandler(async (event) => {
       method: 'POST',
       body,
       headers: {
-        ...(accessToken && {
-          Authorization: `Bearer ${accessToken}`,
-        }),
+        Authorization: `Bearer ${accessToken}`,
       },
     })
 

@@ -1,31 +1,31 @@
 export const useUserStore = defineStore('user', () => {
   const account = ref<UserDetails | null>(null)
-  const favouriteProductIds = ref<Map<number, number>>(new Map())
+  const favouriteProductIds = ref<Record<number, number>>({})
   const blogLikedPosts = ref<number[]>([])
   const blogLikedComments = ref<number[]>([])
 
   const getFavouriteIdByProductId = (productId: number) => {
-    const favouriteId = favouriteProductIds.value.get(productId)
-    return favouriteId
+    return favouriteProductIds.value[productId]
   }
 
   const clearAccountState = () => {
-    favouriteProductIds.value.clear()
+    favouriteProductIds.value = {}
     blogLikedPosts.value = []
     blogLikedComments.value = []
   }
 
   const addFavouriteProduct = (favourite: CreateProductFavouriteResponse) => {
-    favouriteProductIds.value.set(favourite.product, favourite.id)
+    favouriteProductIds.value[favourite.product] = favourite.id
   }
 
   const removeFavouriteProduct = (productId: number) => {
-    favouriteProductIds.value.delete(productId)
+    const { [productId]: _removed, ...rest } = favouriteProductIds.value
+    favouriteProductIds.value = rest
   }
 
   const updateFavouriteProducts = (favourites: GetProductFavouritesByProductsResponse) => {
     favourites.forEach((favourite) => {
-      favouriteProductIds.value.set(favourite.productId, favourite.id)
+      favouriteProductIds.value[favourite.productId] = favourite.id
     })
   }
 

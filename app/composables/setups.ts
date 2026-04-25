@@ -1,4 +1,4 @@
-import * as uiLocales from '@nuxt/ui/locale'
+import { el as uiLocaleEl } from '@nuxt/ui/locale'
 
 export function setupPageHeader() {
   const route = useRoute()
@@ -24,9 +24,9 @@ export function setupPageHeader() {
   // (e.g. legacy locales added without the `language` field).
   const lang = computed(() => {
     const props = $i18n.localeProperties.value as { language?: string, code: string }
-    return props.language || uiLocales[$i18n.locale.value].code
+    return props.language || uiLocaleEl.code
   })
-  const dir = computed(() => uiLocales[$i18n.locale.value].dir)
+  const dir = computed(() => uiLocaleEl.dir)
 
   useSeoMeta({
     title: publicConfig.appTitle,

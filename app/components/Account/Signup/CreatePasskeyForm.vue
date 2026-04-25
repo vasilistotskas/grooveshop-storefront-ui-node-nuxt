@@ -12,6 +12,7 @@ const authInfo = useAuthInfo()
 const router = useRouter()
 
 const hasError = ref(false)
+const isSubmitting = ref(false)
 const deviceName = ref('')
 
 const schema = z.object({
@@ -23,6 +24,8 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
   try {
     hasError.value = false
 
@@ -60,6 +63,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
     }
     hasError.value = true
     handleAllAuthClientError(error)
+  }
+  finally {
+    isSubmitting.value = false
   }
 }
 </script>
@@ -101,6 +107,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
         type="submit"
         color="neutral"
         variant="subtle"
+        :loading="isSubmitting"
+        :disabled="isSubmitting"
         block
         size="lg"
         icon="i-heroicons-finger-print"
@@ -140,6 +148,7 @@ el:
   or: ή
   using_password: Εγγραφή με κωδικό
   success:
+    title: Επιτυχία
     description: Το κλειδί πρόσβασης δημιουργήθηκε επιτυχώς.
   error:
     title: Σφάλμα δημιουργίας

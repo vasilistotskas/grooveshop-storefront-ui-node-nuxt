@@ -4,7 +4,7 @@ import type { BadgeProps, TableColumn, DropdownMenuItem } from '#ui/types'
 const { getAuthenticators, deleteWebAuthnCredential, updateWebAuthnCredential } = useAllAuthAccount()
 const localePath = useLocalePath()
 const toast = useToast()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const authStore = useAuthStore()
 const { authenticators } = storeToRefs(authStore)
@@ -238,7 +238,7 @@ onReactivated(async () => {
             </template>
             <template #created_at-cell="{ row }">
               <span class="text-sm text-muted">
-                {{ new Date(row.original.created_at * 1000).toLocaleString() }}
+                {{ new Date(row.original.created_at * 1000).toLocaleString(locale) }}
               </span>
             </template>
             <template #last_used_at-cell="{ row }">
@@ -251,7 +251,7 @@ onReactivated(async () => {
                   {{ t('unused') }}
                 </UBadge>
                 <span v-else class="text-muted">
-                  {{ new Date(row.original.last_used_at * 1000).toLocaleString() }}
+                  {{ new Date(row.original.last_used_at * 1000).toLocaleString(locale) }}
                 </span>
               </span>
             </template>

@@ -125,7 +125,7 @@ const ready = computed(() => !loading.value && !error.value && summary.value)
               {{ t('xp_progress') }}
             </span>
             <span class="font-bold text-lg text-primary-900 dark:text-primary-100">
-              {{ summary!.totalXp.toLocaleString() }} / {{ nextTierXp.toLocaleString() }} XP
+              {{ summary!.totalXp.toLocaleString(locale) }} / {{ nextTierXp.toLocaleString(locale) }} XP
             </span>
           </div>
           <UProgress
@@ -138,7 +138,7 @@ const ready = computed(() => !loading.value && !error.value && summary.value)
             v-if="summary!.pointsToNextTier !== null"
             class="text-xs text-neutral-500 dark:text-neutral-300"
           >
-            {{ t('xp_to_next_tier', { xp: summary!.pointsToNextTier!.toLocaleString() }) }}
+            {{ t('xp_to_next_tier', { xp: summary!.pointsToNextTier!.toLocaleString(locale) }) }}
           </p>
           <p
             v-else
@@ -170,7 +170,7 @@ const ready = computed(() => !loading.value && !error.value && summary.value)
           >
             <UIcon name="i-heroicons-currency-dollar" class="size-5 text-warning-500" />
             <span class="text-sm font-semibold text-primary-950 dark:text-primary-50">
-              {{ summary!.pointsBalance.toLocaleString() }}
+              {{ summary!.pointsBalance.toLocaleString(locale) }}
             </span>
             <span class="text-xs text-neutral-900 dark:text-neutral-100">{{ t('points') }}</span>
           </div>

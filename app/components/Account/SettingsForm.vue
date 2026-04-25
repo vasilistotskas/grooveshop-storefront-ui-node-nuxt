@@ -467,7 +467,7 @@ watch(calendarDate, (newVal) => {
 
       <div class="col-span-2 grid items-end justify-end">
         <UButton
-          :aria-busy="isSubmitting"
+          :loading="isSubmitting"
           :disabled="isSubmitting"
           :label="t('form.submit')"
           type="submit"

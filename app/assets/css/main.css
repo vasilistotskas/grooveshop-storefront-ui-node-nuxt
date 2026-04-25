@@ -43,6 +43,29 @@
   }
 }
 
+/* Mobile scroll polish.
+   - ``overscroll-behavior-y: contain`` on the document stops vertical
+     overscroll from cascading into pull-to-refresh / browser bounce,
+     which on iOS Safari and Chrome Android otherwise feels like the
+     page "fights" the swipe at top-of-page.
+   - ``-webkit-text-size-adjust: 100%`` keeps text from auto-zooming on
+     orientation changes, which would otherwise reflow the layout
+     mid-scroll.
+   - ``touch-action: manipulation`` on form/button-like targets removes
+     the 300 ms tap-to-zoom delay without disabling all gestures.
+   We deliberately do NOT set ``overscroll-behavior: none`` — that
+   blocks legitimate horizontal swipes inside carousels. ``y: contain``
+   is enough to stop the vertical bounce that triggers the
+   "scrolling looks broken" feeling on the home + product pages. */
+html {
+  overscroll-behavior-y: contain;
+  -webkit-text-size-adjust: 100%;
+}
+
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
 .article {
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold;

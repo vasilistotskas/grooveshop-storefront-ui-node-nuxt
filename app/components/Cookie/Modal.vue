@@ -22,6 +22,15 @@ const dismissible = computed(() => !moduleOptions.isModalForced)
 const resolveLinkEntryText = (entry: [string, unknown]) =>
   typeof entry[1] === 'string' ? t(entry[1] as string) : entry[0]
 
+function safeHref(url: string | null): string | undefined {
+  if (!url) return undefined
+  const trimmed = url.trim().toLowerCase()
+  if (trimmed.startsWith('javascript:') || trimmed.startsWith('vbscript:') || trimmed.startsWith('data:')) {
+    return undefined
+  }
+  return url
+}
+
 const getName = (name: string) => t(name)
 
 const getDescription = (description: string) =>
@@ -162,7 +171,8 @@ const isUnSaved = computed(() => {
                         :key="entry[0]"
                       >
                         <a
-                          :href="entry[0]"
+                          v-if="safeHref(entry[0])"
+                          :href="safeHref(entry[0])"
                           class="
                             text-blue-600 underline
                             hover:text-blue-800
@@ -170,6 +180,12 @@ const isUnSaved = computed(() => {
                         >
                           {{ resolveLinkEntryText(entry) }}
                         </a>
+                        <span
+                          v-else
+                          class="text-blue-600 underline"
+                        >
+                          {{ resolveLinkEntryText(entry) }}
+                        </span>
                       </span>
                     </template>
                   </div>

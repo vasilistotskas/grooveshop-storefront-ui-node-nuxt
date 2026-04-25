@@ -192,6 +192,25 @@ const confirmPayment = async () => {
       return
     }
 
+    if (paymentIntent?.status === 'requires_action') {
+      const { error: actionError, paymentIntent: confirmedPi } = await stripe.value.handleCardAction(
+        clientSecret.value,
+      )
+      if (actionError) {
+        error.value = actionError.message || t('payment_3ds_failed')
+        emit('error', error.value)
+        return
+      }
+      if (confirmedPi?.status === 'succeeded') {
+        currentStep.value = 'success'
+        emit('success', { payment_id: confirmedPi.id, status: confirmedPi.status, amount: confirmedPi.amount, currency: confirmedPi.currency })
+        return
+      }
+      error.value = t('payment_3ds_incomplete')
+      emit('error', error.value)
+      return
+    }
+
     if (paymentIntent?.status === 'succeeded') {
       currentStep.value = 'success'
       emit('success', {
@@ -378,4 +397,6 @@ el:
   card_valid: Έγκυρη Κάρτα
   secure_connection: Ασφαλής Σύνδεση
   security_notice: Οι πληρωμές σου είναι ασφαλείς και κρυπτογραφημένες με SSL. Δεν αποθηκεύουμε τα στοιχεία της κάρτας σου.
+  payment_3ds_failed: Η επαλήθευση ταυτότητας 3D Secure απέτυχε
+  payment_3ds_incomplete: Η επαλήθευση ταυτότητας 3D Secure δεν ολοκληρώθηκε
 </i18n>

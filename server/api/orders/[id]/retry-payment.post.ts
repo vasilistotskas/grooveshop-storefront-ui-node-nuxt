@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zCreateOrderPaymentIntentPath.parse,
+      zRetryOrderPaymentPath.parse,
     )
     const query = await getValidatedQuery(event, zGuestQuery.parse)
     const body = await readValidatedBody(event, zCreateOrderPaymentIntentBody.parse)

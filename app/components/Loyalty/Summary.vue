@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
+const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
 
 // Use Nuxt's useAsyncData pattern for SSR-safe data fetching with automatic caching
@@ -53,11 +54,12 @@ const nextTierMultiplierBonus = computed(() => {
 
 // Calculate coin value in EUR (100 points = 1 EUR by default)
 const coinValueInEur = computed(() => {
-  if (!summary.value) return '0.00'
+  if (!summary.value) return 0
   const ratio = 100 // Default: 100 points = 1 EUR
-  const value = summary.value.pointsBalance / ratio
-  return value.toFixed(2)
+  return summary.value.pointsBalance / ratio
 })
+
+const formattedEur = computed(() => $i18n.n(coinValueInEur.value, 'currency'))
 
 // Calculate XP progress percentage
 const xpProgressPercentage = computed(() => {
@@ -175,7 +177,7 @@ const handleRetry = () => {
                   {{ t('points_value_label') }}
                 </p>
                 <p class="text-2xl font-bold text-warning-700 dark:text-warning-300">
-                  {{ coinValueInEur }} €
+                  {{ formattedEur }}
                 </p>
               </div>
             </div>

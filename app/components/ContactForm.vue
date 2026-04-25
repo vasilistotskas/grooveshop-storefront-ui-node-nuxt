@@ -5,6 +5,8 @@ import type { FormSubmitEvent } from '#ui/types'
 const { t } = useI18n()
 const toast = useToast()
 
+const isSubmitting = ref(false)
+
 const schema = z.object({
   name: z.string({
     error: issue => issue.input === undefined
@@ -34,6 +36,8 @@ const state = reactive<Partial<Schema>>({
 })
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
   try {
     await $fetch('/api/contact', {
       method: 'POST',
@@ -54,6 +58,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       title: t('error.default'),
       color: 'error',
     })
+  }
+  finally {
+    isSubmitting.value = false
   }
 }
 </script>
@@ -135,6 +142,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               variant="soft"
               size="lg"
               block
+              :loading="isSubmitting"
+              :disabled="isSubmitting"
             >
               {{ t('submit') }}
             </UButton>

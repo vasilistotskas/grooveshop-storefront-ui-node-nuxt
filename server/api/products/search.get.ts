@@ -1,5 +1,3 @@
-import { z } from 'zod'
-
 /**
  * Product search API route with advanced filtering
  *
@@ -17,11 +15,7 @@ import { z } from 'zod'
  * GET /api/products/search?q=laptop&priceMin=500&priceMax=1500&categories=1,2&attributeValues=10,20&facets=category,final_price,attribute_values
  */
 
-// Extend the auto-generated schema to also accept the plural `attributeValues` alias
-// sent by the Products/List component
-const zSearchProductQuery = zSearchProductRetrieveQuery.extend({
-  attributeValues: z.string().optional(),
-})
+const zSearchProductQuery = zSearchProductRetrieveQuery
 
 export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -60,12 +54,9 @@ export default defineCachedEventHandler(async (event) => {
     if (query.categories) backendQuery.categories = query.categories
     if (query.sort) backendQuery.sort = query.sort
 
-    // Add attribute value filtering support
-    // Accept both plural (client alias) and singular (OpenAPI field name)
-    const attributeValues = query.attributeValues || query.attributeValue
-    if (attributeValues) {
-      // Pass as comma-separated string to backend
-      backendQuery.attribute_value = attributeValues
+    // Pass attribute value filter (comma-separated IDs) to backend.
+    if (query.attributeValues) {
+      backendQuery.attributeValues = query.attributeValues
     }
 
     // Fetch from Django backend
@@ -93,7 +84,7 @@ export default defineCachedEventHandler(async (event) => {
   getKey: (event) => {
     const query = getQuery(event)
     const keyParts = [
-      query.attributeValues || query.attributeValue || '',
+      query.attributeValues || '',
       query.categories || '',
       query.facets || '',
       query.languageCode || '',

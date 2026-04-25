@@ -28,11 +28,11 @@ const props = defineProps({
 })
 
 const { image } = toRefs(props)
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 
 const alt = computed(() => {
   return (
-    extractTranslated(props.image, 'title', locale.value) || 'Product image'
+    extractTranslated(props.image, 'title', locale.value) || t('image.product_fallback')
   )
 })
 </script>
@@ -50,3 +50,9 @@ const alt = computed(() => {
     quality="100"
   />
 </template>
+
+<i18n lang="yaml">
+el:
+  image:
+    product_fallback: Εικόνα προϊόντος
+</i18n>

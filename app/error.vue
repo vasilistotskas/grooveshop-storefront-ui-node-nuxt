@@ -8,6 +8,8 @@ const props = defineProps({
 const config = useRuntimeConfig()
 const { t } = useI18n()
 
+const showDebug = import.meta.dev || Boolean((config.public as Record<string, unknown>).debug)
+
 useSeoMeta({
   title: t('error.page.title'),
   ogImage: config.public.appLogo,
@@ -145,7 +147,7 @@ const helpfulTips = computed(() => {
         </UAlert>
 
         <UCard
-          v-if="error.message"
+          v-if="showDebug && error.message"
           variant="outline"
           class="mt-4 max-w-2xl text-left"
         >

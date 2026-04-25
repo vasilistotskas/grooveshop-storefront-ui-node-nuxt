@@ -33,6 +33,7 @@ export default defineEventHandler(async (event) => {
       }
       catch (error) {
         log.error({ action: 'auth:tokenDecrypt', error })
+        throw createError({ statusCode: 400, statusMessage: 'Invalid token' })
       }
     }
 
@@ -59,6 +60,9 @@ export default defineEventHandler(async (event) => {
     })
     const sessionResponse = await parseDataAs(response, ZodSessionResponse)
     await processAllAuthSession(sessionResponse, decodedToken)
+    if (sessionResponse.meta?.is_authenticated === false) {
+      await clearUserSession(event)
+    }
     return sessionResponse
   }
   catch (error) {

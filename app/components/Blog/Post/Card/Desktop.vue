@@ -123,7 +123,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
             trimThreshold: 5,
           }"
           :background="'transparent'"
-          :alt="`Image - ${alt}`"
+          :alt="t('image.of', { title: alt })"
         />
       </Anchor>
     </div>
@@ -203,3 +203,12 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
     </div>
   </Component>
 </template>
+
+<i18n lang="yaml">
+el:
+  image:
+    of: "Εικόνα - {title}"
+  comments:
+    count: "{count} σχόλια"
+  share: Κοινοποίηση
+</i18n>

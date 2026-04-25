@@ -4,6 +4,8 @@ declare module '#auth-utils' {
 
   interface UserSession {
     user?: User | null
+    /** Post IDs for which this session has already incremented the view counter. */
+    viewedPosts?: string[]
   }
 
   interface SecureSessionData {

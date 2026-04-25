@@ -1,10 +1,17 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import type { SubscriptionTopic } from '#shared/openapi/types.gen'
 import { createMockTopic } from '../../helpers/subscriptionTestData'
 
 const mockFetch = vi.fn()
-vi.stubGlobal('$fetch', mockFetch)
+
+beforeAll(() => {
+  vi.stubGlobal('$fetch', mockFetch)
+})
+
+afterAll(() => {
+  vi.unstubAllGlobals()
+})
 
 // Use vi.hoisted to ensure mocks are available before mockNuxtImport is called
 const { mockUseAsyncDataFn } = vi.hoisted(() => ({

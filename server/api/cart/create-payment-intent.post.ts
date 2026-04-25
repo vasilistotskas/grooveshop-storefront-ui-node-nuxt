@@ -2,13 +2,6 @@ import { z } from 'zod'
 
 const bodySchema = z.object({ payWayId: z.number().int().positive() })
 
-const responseSchema = z.object({
-  clientSecret: z.string(),
-  paymentIntentId: z.string(),
-  amount: z.string(),
-  currency: z.string(),
-})
-
 /**
  * Create a Stripe payment intent from cart for online payment checkout.
  *
@@ -49,7 +42,7 @@ export default defineEventHandler(async (event) => {
       },
     })
 
-    return await parseDataAs(response, responseSchema)
+    return await parseDataAs(response, zCreateCartPaymentIntentResponse)
   }
   catch (error) {
     await handleError(error)

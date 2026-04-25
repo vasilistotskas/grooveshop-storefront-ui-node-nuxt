@@ -7,6 +7,8 @@ const toast = useToast()
 const route = useRoute(`account-addresses-id-edit___${locale.value}`)
 const localePath = useLocalePath()
 
+const isSubmitting = ref(false)
+
 const addressId = 'id' in route.params ? route.params.id : undefined
 
 // Use auto-generated Zod schema
@@ -116,6 +118,8 @@ watch(
 
 // Form submission
 async function onSubmit(event: FormSubmitEvent<Schema>) {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
   try {
     await $fetch(`/api/user/addresses/${addressId}`, {
       method: 'PUT',
@@ -138,6 +142,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       title: t('error'),
       color: 'error',
     })
+  }
+  finally {
+    isSubmitting.value = false
   }
 }
 
@@ -341,7 +348,7 @@ definePageMeta({
 
         <!-- Submit Button -->
         <div class="md:col-span-2">
-          <UButton type="submit" color="success" block>
+          <UButton type="submit" color="success" block :loading="isSubmitting" :disabled="isSubmitting">
             {{ t('form.update') }}
           </UButton>
         </div>

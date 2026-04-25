@@ -2,7 +2,8 @@ export const useCartStore = defineStore('cart', () => {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
   const cart = ref<CartDetail | null>(null)
-  const pending = ref<boolean>(false)
+  const inFlight = reactive(new Set<string>())
+  const pending = computed(() => inFlight.size > 0)
   const error = ref<SerializedError | null>(null)
 
   const getCartItems = computed(() => cart.value?.items ?? [])
@@ -69,8 +70,9 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function createCartItem(body: CartItemCreateRequest) {
+    const opId = crypto.randomUUID()
+    inFlight.add(opId)
     try {
-      pending.value = true
       await $fetch('/api/cart/items', {
         method: 'POST',
         headers: useRequestHeaders(),
@@ -85,13 +87,14 @@ export const useCartStore = defineStore('cart', () => {
       throw err
     }
     finally {
-      pending.value = false
+      inFlight.delete(opId)
     }
   }
 
   async function updateCartItem(id: number, body: CartItemUpdateRequest) {
+    const opId = crypto.randomUUID()
+    inFlight.add(opId)
     try {
-      pending.value = true
       await $fetch(`/api/cart/items/${id}`, {
         method: 'PUT',
         headers: useRequestHeaders(),
@@ -106,13 +109,14 @@ export const useCartStore = defineStore('cart', () => {
       throw err
     }
     finally {
-      pending.value = false
+      inFlight.delete(opId)
     }
   }
 
   async function deleteCartItem(id: number) {
+    const opId = crypto.randomUUID()
+    inFlight.add(opId)
     try {
-      pending.value = true
       await $fetch(`/api/cart/items/${id}`, {
         method: 'DELETE',
         headers: useRequestHeaders(),
@@ -126,15 +130,15 @@ export const useCartStore = defineStore('cart', () => {
       throw err
     }
     finally {
-      pending.value = false
+      inFlight.delete(opId)
     }
   }
 
   async function setupCart() {
     const headers = useRequestHeaders()
+    const opId = crypto.randomUUID()
+    inFlight.add(opId)
     try {
-      pending.value = true
-
       const hasExistingCart = await $fetch('/api/cart/check', {
         method: 'GET',
         headers,
@@ -160,7 +164,7 @@ export const useCartStore = defineStore('cart', () => {
       log.error({ action: 'cart:setup', error: err })
     }
     finally {
-      pending.value = false
+      inFlight.delete(opId)
     }
   }
 
@@ -184,13 +188,13 @@ export const useCartStore = defineStore('cart', () => {
     try {
       await $fetch('/api/cart/clear-session', { method: 'POST' })
       cart.value = null
-      pending.value = false
+      inFlight.clear()
       error.value = null
     }
     catch (err) {
       log.error({ action: 'cart:clearSession', error: err })
       cart.value = null
-      pending.value = false
+      inFlight.clear()
       error.value = null
     }
   }

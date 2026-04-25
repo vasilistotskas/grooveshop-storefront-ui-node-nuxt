@@ -51,6 +51,7 @@ const {
   addressEntryMode,
   useNewAddress,
   b2bInvoicingEnabled,
+  refetchShippingSettings,
 } = await useCheckoutForm()
 
 const {
@@ -71,7 +72,7 @@ const {
   onPaymentError,
   onLoyaltyRedeemed,
   onLoyaltyCleared,
-} = useCheckoutSubmit({ formState, selectedPayWay, payWays })
+} = useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchShippingSettings })
 
 const handleStockRetry = () => {
   stockError.value = null
@@ -238,7 +239,7 @@ definePageMeta({
               <!-- Loyalty Points Redemption (logged in) -->
               <LoyaltyRedemption
                 v-if="loggedIn"
-                :currency="'EUR'"
+                :currency="cart?.currency ?? 'EUR'"
                 :max-discount-amount="cart?.totalPrice ?? 0"
                 @redeemed="onLoyaltyRedeemed"
                 @cleared="onLoyaltyCleared"

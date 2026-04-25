@@ -77,13 +77,14 @@ const onRedirecting = () => {
       />
 
       <!-- Stripe Hosted Checkout -->
-      <StripeCheckout
-        v-else-if="isStripePayment && useHostedCheckout"
-        :order="createdOrder"
-        :pay-way="selectedPayWay"
-        @error="(error: string) => emit('payment-error', error)"
-        @redirecting="onRedirecting"
-      />
+      <ClientOnly v-else-if="isStripePayment && useHostedCheckout">
+        <StripeCheckout
+          :order="createdOrder"
+          :pay-way="selectedPayWay"
+          @error="(error: string) => emit('payment-error', error)"
+          @redirecting="onRedirecting"
+        />
+      </ClientOnly>
 
       <!-- Stripe Embedded Payment -->
       <StripePayment

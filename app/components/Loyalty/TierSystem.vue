@@ -240,11 +240,11 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
                     </div>
                     <div class="flex items-center justify-between">
                       <span class="text-neutral-600 dark:text-neutral-300">{{ t('min_xp') }}</span>
-                      <span class="font-semibold">{{ item.tier.minXp.toLocaleString() }} XP</span>
+                      <span class="font-semibold">{{ item.tier.minXp.toLocaleString(locale) }} XP</span>
                     </div>
                     <div v-if="item.tier.maxXp !== null" class="flex items-center justify-between">
                       <span class="text-neutral-600 dark:text-neutral-300">{{ t('max_xp') }}</span>
-                      <span class="font-semibold">{{ item.tier.maxXp.toLocaleString() }} XP</span>
+                      <span class="font-semibold">{{ item.tier.maxXp.toLocaleString(locale) }} XP</span>
                     </div>
                   </div>
                 </div>
@@ -289,7 +289,7 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
           <ul class="space-y-2 text-sm text-neutral-700 dark:text-neutral-300">
             <li class="flex items-start gap-2">
               <UIcon name="i-heroicons-check" class="mt-0.5 size-4 shrink-0 text-primary-600 dark:text-primary-400" />
-              <span>{{ t('how_it_works_1', { xp: xpPerLevel.toLocaleString() }) }}</span>
+              <span>{{ t('how_it_works_1', { xp: xpPerLevel.toLocaleString(locale) }) }}</span>
             </li>
             <li class="flex items-start gap-2">
               <UIcon name="i-heroicons-check" class="mt-0.5 size-4 shrink-0 text-primary-600 dark:text-primary-400" />
@@ -307,12 +307,12 @@ const ready = computed(() => !loading.value && !error.value && tiers.value && ti
               {{ t('formula') }}:
             </p>
             <code class="block rounded bg-neutral-900 p-2 text-xs text-neutral-100 dark:bg-neutral-800">
-              Level = 1 + (Total XP / {{ xpPerLevel.toLocaleString() }})
+              Level = 1 + (Total XP / {{ xpPerLevel.toLocaleString(locale) }})
             </code>
             <div class="mt-3 space-y-1 text-xs text-neutral-600 dark:text-neutral-300">
               <div>0 XP = {{ t('level_value', { level: 1 }) }}</div>
-              <div>{{ xpPerLevel.toLocaleString() }} XP = {{ t('level_value', { level: 2 }) }}</div>
-              <div>{{ (xpPerLevel * 5).toLocaleString() }} XP = {{ t('level_value', { level: 6 }) }}</div>
+              <div>{{ xpPerLevel.toLocaleString(locale) }} XP = {{ t('level_value', { level: 2 }) }}</div>
+              <div>{{ (xpPerLevel * 5).toLocaleString(locale) }} XP = {{ t('level_value', { level: 6 }) }}</div>
             </div>
           </div>
         </div>

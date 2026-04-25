@@ -19,12 +19,12 @@ const items = computed(() => [
   },
 ])
 
-useHead({
-  title: t('title'),
-})
-
-defineRouteRules({
-  robots: false,
+useSeoMeta({
+  title: () => t('title'),
+  description: () => t('seo.description'),
+  ogTitle: () => t('title'),
+  ogDescription: () => t('seo.description'),
+  ogType: 'website',
 })
 
 definePageMeta({
@@ -112,6 +112,8 @@ el:
   title: Προϊόντα
   skip_to_content: Μετάβαση στο περιεχόμενο
   skip_to_filters: Μετάβαση στα φίλτρα
+  seo:
+    description: Εξερεύνησε την πλήρη συλλογή μουσικών οργάνων και εξοπλισμού. Φίλτρα κατηγορίας, τιμής και χαρακτηριστικών.
   breadcrumb:
     items:
       index:

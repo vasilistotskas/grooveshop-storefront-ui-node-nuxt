@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await getAllAuthAccessToken(event)
+  const accessToken = await requireAllAuthAccessToken(event)
 
   try {
     const query = await getValidatedQuery(event, zListLoyaltyTransactionsQuery.parse)
@@ -8,9 +8,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/loyalty/transactions`, {
       method: 'GET',
       headers: {
-        ...(accessToken && {
-          Authorization: `Bearer ${accessToken}`,
-        }),
+        Authorization: `Bearer ${accessToken}`,
       },
       query,
     })

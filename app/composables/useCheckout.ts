@@ -59,6 +59,7 @@ export const useCheckout = () => {
   const createPaymentIntentFromCart = async (
     cartId: string | number,
     payWayId: number,
+    idempotencyKey?: string,
   ): Promise<{ clientSecret: string, paymentIntentId: string }> => {
     try {
       const response = await $fetch<{
@@ -69,6 +70,7 @@ export const useCheckout = () => {
       }>('/api/cart/create-payment-intent', {
         method: 'POST',
         body: { cartId, payWayId },
+        headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
       })
       return {
         clientSecret: response.clientSecret,

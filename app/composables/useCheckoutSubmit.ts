@@ -1,7 +1,8 @@
-export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
+export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchShippingSettings }: {
   formState: Record<string, any>
   selectedPayWay: Ref<PayWay | null>
   payWays: Ref<Pagination<PayWay> | null | undefined>
+  refetchShippingSettings?: () => Promise<void>
 }) {
   const { fetch } = useUserSession()
   const localePath = useLocalePath()
@@ -26,6 +27,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
   const MAX_RETRIES = 3
   const paymentIntentId = ref<string | null>(null)
   const retryTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
+  // Idempotency key: generated once per checkout attempt, preserved
+  // across retries so duplicate network submissions never double-charge.
+  // Cleared on success or on non-retryable errors so a fresh attempt
+  // (e.g. user corrects a validation error) gets a new key.
+  const idempotencyKey = ref<string | null>(null)
 
   // Loyalty discount state
   const loyaltyDiscount = ref<{ amount: number, currency: string, points: number } | null>(null)
@@ -229,6 +235,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
       return
     }
     let handledByResponseError = false
+    // Generate an idempotency key on first attempt; reuse on retries
+    if (!idempotencyKey.value) {
+      idempotencyKey.value = crypto.randomUUID()
+    }
     try {
       // Create payment intent from cart if not already created
       if (!paymentIntentId.value) {
@@ -237,7 +247,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
           throw new Error('Cart not found')
         }
 
-        const paymentIntent = await createPaymentIntentFromCart(cartId, formState.payWayId)
+        const paymentIntent = await createPaymentIntentFromCart(cartId, formState.payWayId, idempotencyKey.value)
         paymentIntentId.value = paymentIntent.paymentIntentId
       }
 
@@ -249,13 +259,18 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
 
       await $fetch('/api/orders', {
         method: 'POST',
-        headers: useRequestHeaders(),
+        headers: {
+          ...useRequestHeaders(),
+          'Idempotency-Key': idempotencyKey.value,
+        },
         body: submitValues,
         async onResponse({ response }) {
           if (!response.ok) return
 
           createdOrder.value = response._data
           maybeSaveDeliveryAddress()
+          // Clear idempotency key on success so a future checkout starts fresh
+          idempotencyKey.value = null
 
           toast.add({
             title: t('order_created_payment_required'),
@@ -267,13 +282,20 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
           // Clear stale payment intent so the next retry creates a fresh one
           paymentIntentId.value = null
           handledByResponseError = true
-          handleRetryableError(handleOrderError(response))
+          const errorInfo = handleOrderError(response)
+          // Clear idempotency key on non-retryable errors so the next
+          // fresh attempt doesn't reuse a key that maps to a failed intent
+          if (!errorInfo.shouldRetry) {
+            idempotencyKey.value = null
+          }
+          handleRetryableError(errorInfo)
         },
       })
     }
     catch (error: any) {
       log.error({ action: 'checkout:orderCreation', error })
       if (!handledByResponseError) {
+        idempotencyKey.value = null
         toast.add({
           title: t('payment_intent_error'),
           description: error?.data?.message || error?.message || t('payment_intent_error_description'),
@@ -351,6 +373,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
             title: t('form.submit.success'),
             color: 'success',
           })
+          // Clear cart server-side after order is confirmed
+          try {
+            await $fetch('/api/cart/clear', { method: 'POST' })
+          }
+          catch (err) {
+            log.error({ action: 'checkout:clearCart', error: err })
+          }
           await cleanCartState()
           await fetch()
           if (!response._data?.uuid) {
@@ -423,7 +452,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
         }
       }
 
-      // Step 2: Set selected payment way
+      // Step 2a: Refetch shipping price to ensure the sidebar total
+      // reflects the latest server-side cost before order creation.
+      if (refetchShippingSettings) {
+        await refetchShippingSettings().catch(err =>
+          log.warn('checkout', 'shipping refetch failed, using cached value', { err }),
+        )
+      }
+
+      // Step 2b: Set selected payment way
       payWays.value?.results?.forEach((pw) => {
         if (pw.id === formState.payWay) {
           selectedPayWay.value = pw
@@ -469,6 +506,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
       description: t('order_completed_successfully'),
       color: 'success',
     })
+    // Clear cart server-side only after payment is confirmed so a failed
+    // Stripe confirmation doesn't wipe the cart before we know it succeeded.
+    try {
+      await $fetch('/api/cart/clear', { method: 'POST' })
+    }
+    catch (err) {
+      log.error({ action: 'checkout:clearCart', error: err })
+    }
     await cleanCartState()
     await fetch()
     await navigateTo(localePath({

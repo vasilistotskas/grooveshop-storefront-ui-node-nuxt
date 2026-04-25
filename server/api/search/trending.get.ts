@@ -1,5 +1,3 @@
-import { z } from 'zod'
-
 /**
  * Trending Search Queries proxy.
  *
@@ -7,31 +5,10 @@ import { z } from 'zod'
  * over the last 24h and caches the result for 5 minutes in Redis.
  */
 
-const zQuery = z.object({
-  languageCode: z.string().optional(),
-  contentType: z.enum(['product', 'blog_post', 'federated']).optional(),
-  limit: z.coerce.number().int().min(1).max(20).optional(),
-})
-
-const zResult = z.object({
-  query: z.string(),
-  count: z.number().int().nonnegative(),
-})
-
-// Django's djangorestframework-camel-case middleware converts snake_case
-// response keys to camelCase on the wire, so the Zod schema validating
-// the Django payload must mirror that (windowHours, contentType, …).
-const zResponse = z.object({
-  windowHours: z.number().int(),
-  contentType: z.string(),
-  languageCode: z.string().nullable(),
-  results: z.array(zResult),
-})
-
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
-    const query = await getValidatedQuery(event, zQuery.parse)
+    const query = await getValidatedQuery(event, zListTrendingSearchesQuery.parse)
     const backendQuery: Record<string, unknown> = {}
     if (query.languageCode) backendQuery.language_code = query.languageCode
     if (query.contentType) backendQuery.content_type = query.contentType
@@ -42,7 +19,7 @@ export default defineEventHandler(async (event) => {
       query: backendQuery,
     })
 
-    return await parseDataAs(response, zResponse)
+    return await parseDataAs(response, zListTrendingSearchesResponse)
   }
   catch (error) {
     await handleError(error)

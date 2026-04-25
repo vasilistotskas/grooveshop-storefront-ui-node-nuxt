@@ -29,7 +29,7 @@ describe('User Store', () => {
     it('should have empty favourite product IDs map', async () => {
       const wrapper = await mountSuspended(createTestComponent())
       const vm = wrapper.vm as unknown as { store: ReturnType<typeof useUserStore> }
-      expect(vm.store.favouriteProductIds.size).toBe(0)
+      expect(Object.keys(vm.store.favouriteProductIds).length).toBe(0)
     })
 
     it('should have empty liked posts array', async () => {
@@ -53,7 +53,7 @@ describe('User Store', () => {
       const favourite = { id: 100, product: 1 } as CreateProductFavouriteResponse
       vm.store.addFavouriteProduct(favourite)
 
-      expect(vm.store.favouriteProductIds.get(1)).toBe(100)
+      expect(vm.store.favouriteProductIds[1]).toBe(100)
     })
 
     it('should get favourite ID by product ID', async () => {
@@ -81,10 +81,10 @@ describe('User Store', () => {
       
       const favourite = { id: 300, product: 3 } as CreateProductFavouriteResponse
       vm.store.addFavouriteProduct(favourite)
-      expect(vm.store.favouriteProductIds.has(3)).toBe(true)
+      expect(3 in vm.store.favouriteProductIds).toBe(true)
 
       vm.store.removeFavouriteProduct(3)
-      expect(vm.store.favouriteProductIds.has(3)).toBe(false)
+      expect(3 in vm.store.favouriteProductIds).toBe(false)
     })
 
     it('should update multiple favourite products', async () => {
@@ -99,9 +99,9 @@ describe('User Store', () => {
 
       vm.store.updateFavouriteProducts(favourites)
 
-      expect(vm.store.favouriteProductIds.get(1)).toBe(100)
-      expect(vm.store.favouriteProductIds.get(2)).toBe(200)
-      expect(vm.store.favouriteProductIds.get(3)).toBe(300)
+      expect(vm.store.favouriteProductIds[1]).toBe(100)
+      expect(vm.store.favouriteProductIds[2]).toBe(200)
+      expect(vm.store.favouriteProductIds[3]).toBe(300)
     })
   })
 
@@ -193,7 +193,7 @@ describe('User Store', () => {
       vm.store.addLikedComment(10)
 
       // Verify state is set
-      expect(vm.store.favouriteProductIds.size).toBe(1)
+      expect(Object.keys(vm.store.favouriteProductIds).length).toBe(1)
       expect(vm.store.blogLikedPosts.length).toBe(1)
       expect(vm.store.blogLikedComments.length).toBe(1)
 
@@ -201,7 +201,7 @@ describe('User Store', () => {
       vm.store.clearAccountState()
 
       // Verify state is cleared
-      expect(vm.store.favouriteProductIds.size).toBe(0)
+      expect(Object.keys(vm.store.favouriteProductIds).length).toBe(0)
       expect(vm.store.blogLikedPosts).toEqual([])
       expect(vm.store.blogLikedComments).toEqual([])
     })

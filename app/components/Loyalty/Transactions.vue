@@ -5,7 +5,7 @@ import type { TableColumn } from '@nuxt/ui'
 
 const UBadge = resolveComponent('UBadge')
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 // Filter state
 const selectedType = ref<string>('all')
@@ -65,7 +65,7 @@ const transactionTypeOptions = computed(() => [
 // Format date
 const formatDate = (dateString: string) => {
   const date = new Date(dateString)
-  return date.toLocaleDateString(undefined, {
+  return date.toLocaleDateString(locale.value, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

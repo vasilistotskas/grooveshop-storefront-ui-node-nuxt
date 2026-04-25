@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useProductFilters } from '~/composables/useProductFilters'
 
 /**
  * Feature: meilisearch-product-filters

@@ -58,7 +58,7 @@ definePageMeta({
           src="/img/pages/about-webside.png"
           :width="960"
           :height="600"
-          alt="Webside"
+          :alt="t('about.brand_alt')"
           loading="eager"
           quality="80"
           preload
@@ -123,6 +123,8 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Τι Είναι Το Webside
+  about:
+    brand_alt: Εικόνα σχετικά με το Webside
   breadcrumb:
     items:
       about:

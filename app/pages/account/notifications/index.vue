@@ -301,7 +301,7 @@ definePageMeta({
                 dark:text-neutral-400
               "
               >
-                <span>{{ formatRelative(row.createdAt) }}</span>
+                <ClientOnly><span>{{ formatRelative(row.createdAt) }}</span></ClientOnly>
                 <span v-if="row.notification?.link" class="inline-flex items-center gap-1">
                   <UIcon name="i-heroicons-arrow-top-right-on-square" class="size-3" />
                   <span>{{ t('card.open') }}</span>

@@ -43,6 +43,7 @@ const localOpen = computed({
 })
 
 const debouncedQuery = refDebounced(localQuery, 200)
+const activeResultIndex = ref(-1)
 
 const allLoadedResults = ref<{
   products: ProductMeiliSearchResult[]
@@ -60,7 +61,7 @@ const {
   data: searchResults,
   status,
   execute,
-} = await useLazyFetch<SearchResponse>('/api/search', {
+} = useLazyFetch<SearchResponse>('/api/search', {
   query: {
     query: debouncedQuery,
     languageCode: locale,
@@ -103,12 +104,23 @@ const totalResults = computed(() => {
 
 function close() {
   localOpen.value = false
+  activeResultIndex.value = -1
+}
+
+function selectNextResult() {
+  const max = filteredResults.value.length - 1
+  activeResultIndex.value = activeResultIndex.value < max ? activeResultIndex.value + 1 : 0
+}
+
+function selectPrevResult() {
+  const max = filteredResults.value.length - 1
+  activeResultIndex.value = activeResultIndex.value > 0 ? activeResultIndex.value - 1 : max
 }
 
 function goToSearchPage() {
   if (localQuery.value) {
     history.add(localQuery.value)
-    router.push(`/search?query=${localQuery.value}`)
+    router.replace({ path: '/search', query: { query: localQuery.value } })
     localOpen.value = false
   }
 }
@@ -123,6 +135,17 @@ defineShortcuts({
     usingInput: 'queryInput',
     handler: () => goToSearchPage(),
   },
+  arrowdown: {
+    usingInput: 'queryInput',
+    handler: () => selectNextResult(),
+  },
+  arrowup: {
+    usingInput: 'queryInput',
+    handler: () => selectPrevResult(),
+  },
+  escape: {
+    handler: () => close(),
+  },
 })
 
 watch(activeTab, () => {
@@ -130,6 +153,7 @@ watch(activeTab, () => {
 })
 
 watch(debouncedQuery, (newQuery) => {
+  activeResultIndex.value = -1
   if (newQuery && newQuery.length >= 2) {
     offset.value = 0
     allLoadedResults.value = { products: [], blogPosts: [] }
@@ -199,6 +223,12 @@ if (localQuery.value && localQuery.value.length >= 2) {
             focus:outline-none
             md:gap-4
           "
+          role="combobox"
+          :aria-expanded="filteredResults.length > 0"
+          aria-haspopup="listbox"
+          aria-autocomplete="list"
+          aria-controls="search-results-listbox"
+          :aria-activedescendant="activeResultIndex >= 0 ? `search-result-${activeResultIndex}` : undefined"
           autofocus
         >
           <UKbd v-if="!isMobileOrTablet" value="ESC" />
@@ -364,14 +394,21 @@ if (localQuery.value && localQuery.value.length >= 2) {
         </div>
 
         <div
-          v-else class="
+          v-else
+          id="search-results-listbox"
+          role="listbox"
+          :aria-label="t('search.title')"
+          class="
             grid gap-2 divide-y divide-gray-100 px-1 pt-2
             dark:divide-gray-800
           "
         >
           <SearchResult
-            v-for="result in filteredResults"
+            v-for="(result, index) in filteredResults"
+            :id="`search-result-${index}`"
             :key="`${result.contentType}-${result.id}`"
+            role="option"
+            :aria-selected="index === activeResultIndex"
             :result="result"
             @click="close"
           />

@@ -3,31 +3,20 @@ import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import CategoryFilter from '~/components/Products/Filters/CategoryFilter.vue'
 
-// Mock categories data
-const mockCategories = {
-  results: [
-    { id: 1, name: 'Electronics', nameEl: 'Ηλεκτρονικά', nameEn: 'Electronics', nameDe: 'Elektronik' },
-    { id: 2, name: 'Clothing', nameEl: 'Ρούχα', nameEn: 'Clothing', nameDe: 'Kleidung' },
-    { id: 3, name: 'Books', nameEl: 'Βιβλία', nameEn: 'Books', nameDe: 'Bücher' },
-    { id: 4, name: 'Home & Garden', nameEl: 'Σπίτι & Κήπος', nameEn: 'Home & Garden', nameDe: 'Haus & Garten' },
-  ],
-}
+// Mock categories returned by useProductSearchData
+const mockAllCategories = [
+  { id: 1, name: 'Electronics', nameEl: 'Ηλεκτρονικά', nameEn: 'Electronics', nameDe: 'Elektronik' },
+  { id: 2, name: 'Clothing', nameEl: 'Ρούχα', nameEn: 'Clothing', nameDe: 'Kleidung' },
+  { id: 3, name: 'Books', nameEl: 'Βιβλία', nameEn: 'Books', nameDe: 'Bücher' },
+  { id: 4, name: 'Home & Garden', nameEl: 'Σπίτι & Κήπος', nameEn: 'Home & Garden', nameDe: 'Haus & Garten' },
+]
 
 // Mock facet distribution (product counts per category)
-const mockFacetDistribution = {
-  category: {
-    '1': 15, // Electronics has 15 products
-    '2': 8,  // Clothing has 8 products
-    '3': 0,  // Books has 0 products (should be disabled)
-    '4': 5,  // Home & Garden has 5 products
-  },
-}
-
-// Mock search results with facets
-const mockSearchResults = {
-  hits: [],
-  totalHits: 28,
-  facetDistribution: mockFacetDistribution,
+const mockCategoryFacets = {
+  1: 15, // Electronics has 15 products
+  2: 8, //  Clothing has 8 products
+  3: 0, //  Books has 0 products (should be disabled)
+  4: 5, //  Home & Garden has 5 products
 }
 
 // Mock filters
@@ -57,36 +46,17 @@ mockNuxtImport('useProductFilters', () => () => ({
   filterCountBySection: mockFilterCountBySection,
 }))
 
-// Mock useFetch for categories and search results
-mockNuxtImport('useFetch', () => (url: string, options?: any) => {
-  if (url === '/api/products/categories') {
-    return {
-      data: ref(mockCategories),
-      status: ref('success'),
-      error: ref(null),
-      refresh: vi.fn(),
-    }
-  }
-  if (url === '/api/products/search') {
-    return {
-      data: ref(mockSearchResults),
-      status: ref('success'),
-      error: ref(null),
-      refresh: vi.fn(),
-    }
-  }
-  return {
-    data: ref(null),
-    status: ref('idle'),
-    error: ref(null),
-    refresh: vi.fn(),
-  }
-})
-
-// Mock useI18n
-mockNuxtImport('useI18n', () => () => ({
-  locale: ref('en'),
-  t: (key: string) => key,
+// Mock useProductSearchData directly instead of the lower-level useFetch.
+// Mocking useFetch at module level runs before Nuxt bootstraps and breaks
+// @nuxtjs/i18n locale init, leaving $setup.t undefined at render (same class
+// of bug documented in CLAUDE.md for vi.stubGlobal('$fetch')).
+// Do NOT mock useI18n — the real @nuxtjs/i18n provides working t()/locale
+// in the nuxt test env; the component's <i18n lang="yaml"> scoped composer
+// is injected by @intlify/unplugin-vue-i18n and bypasses any mock anyway.
+mockNuxtImport('useProductSearchData', () => () => ({
+  allCategories: ref(mockAllCategories),
+  categoriesStatus: ref('success'),
+  categoryFacets: ref(mockCategoryFacets),
 }))
 
 describe('Feature: products-page-ui-enhancement - CategoryFilter disabled state', () => {

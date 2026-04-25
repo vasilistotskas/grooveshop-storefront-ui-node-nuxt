@@ -6,7 +6,7 @@ const categoryId = 'id' in route.params
   ? route.params.id
   : undefined
 
-const { data: category } = await useFetch(
+const { data: category } = await useFetch<ProductCategoryDetail>(
   `/api/products/categories/${categoryId}`,
   {
     key: `category${categoryId}`,
@@ -25,8 +25,22 @@ if (!category.value) {
   })
 }
 
-defineRouteRules({
-  robots: false,
+const categoryName = computed(() =>
+  extractTranslated(category.value, 'name', locale.value) ?? '',
+)
+
+const categoryDescription = computed(() =>
+  category.value?.seoDescription
+  || extractTranslated(category.value, 'description', locale.value)
+  || '',
+)
+
+useSeoMeta({
+  title: () => categoryName.value || t('title'),
+  description: () => categoryDescription.value,
+  ogTitle: () => categoryName.value || t('title'),
+  ogDescription: () => categoryDescription.value,
+  ogType: 'website',
 })
 
 definePageMeta({

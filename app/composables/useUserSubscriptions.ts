@@ -19,12 +19,16 @@ export function useUserSubscriptions() {
    * Returns the complete AsyncData result with data, status, error, and refresh.
    */
   const fetchSubscriptions = () => {
+    // Forward the browser cookie during SSR so the internal $fetch to
+    // /api/subscriptions/user inherits the encrypted nuxt-session
+    // cookie. See useSubscriptionTopics.fetchTopics for the same fix.
+    const headers = useRequestHeaders(['cookie'])
     return useAsyncData<UserSubscription[]>(
       'subscription:user:list',
       async () => {
         const response = await $fetch('/api/subscriptions/user', {
           method: 'GET',
-          headers: useRequestHeaders(),
+          headers,
         })
         return response?.results || []
       },

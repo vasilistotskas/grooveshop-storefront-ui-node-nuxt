@@ -20,6 +20,7 @@ if (!key) {
 await useAsyncData('passwordReset', () => getPasswordReset(String(key)))
 
 const hasError = ref(false)
+const isSubmitting = ref(false)
 
 function checkStrength(str: string) {
   const requirements = [
@@ -68,6 +69,8 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
   try {
     hasError.value = false
 
@@ -111,6 +114,9 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
       title: t('error.default'),
       color: 'error',
     })
+  }
+  finally {
+    isSubmitting.value = false
   }
 }
 </script>
@@ -193,7 +199,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
         type="submit"
         color="neutral"
         variant="subtle"
-        :disabled="score < 4"
+        :disabled="score < 4 || isSubmitting"
+        :loading="isSubmitting"
         block
         size="lg"
         icon="i-heroicons-check-circle"

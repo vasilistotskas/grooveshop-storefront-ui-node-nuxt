@@ -29,7 +29,7 @@ const orderTimeline = computed(() => {
   return order.value.orderTimeline
     .filter(item => item.timestamp && item.description)
     .map(item => ({
-      date: item.timestamp ? new Date(item.timestamp).toLocaleDateString() : '',
+      date: item.timestamp ? new Date(item.timestamp).toLocaleDateString(locale.value) : '',
       title: item.changeType || t('status_change'),
       description: item.description || '',
       icon: getTimelineIcon(item.changeType),

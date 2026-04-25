@@ -8,6 +8,17 @@
  * product points preview, tiers list, and settings functionality.
  */
 export const useLoyalty = () => {
+  // Forward the browser cookie during SSR so the internal $fetch to our
+  // own /api/loyalty/* server routes inherits the encrypted nuxt-session
+  // cookie. Without it, server-to-server SSR calls land at the routes
+  // anonymously and ``getAllAuthAccessToken``/``requireAllAuthAccessToken``
+  // returns nothing — Django then sees no Bearer token and replies 401
+  // (e.g. /api/loyalty/tiers, /api/loyalty/transactions). Reading the
+  // cookie once at composable invocation is correct because
+  // useRequestHeaders is only meaningful in the SSR setup phase; on the
+  // client this object is empty and ignored by $fetch.
+  const headers = useRequestHeaders(['cookie'])
+
   /**
    * Fetch loyalty system configuration settings
    *
@@ -34,6 +45,7 @@ export const useLoyalty = () => {
         try {
           const settings = await $fetch<Record<string, string>>('/api/loyalty/settings', {
             query: { keys: LOYALTY_SETTING_KEYS.join(',') },
+            headers,
           })
 
           return {
@@ -75,7 +87,7 @@ export const useLoyalty = () => {
       'loyalty-summary',
       () => $fetch<LoyaltySummary>('/api/loyalty/summary', {
         method: 'GET',
-        headers: useRequestHeaders(),
+        headers,
       }),
     )
   }
@@ -121,8 +133,8 @@ export const useLoyalty = () => {
 
         return $fetch<PaginatedPointsTransactionList>('/api/loyalty/transactions', {
           method: 'GET',
-          headers: useRequestHeaders(),
           query,
+          headers,
         })
       },
       {
@@ -176,7 +188,7 @@ export const useLoyalty = () => {
       `loyalty-product-points-${productId}`,
       () => $fetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
         method: 'GET',
-        headers: useRequestHeaders(),
+        headers,
       }),
     )
   }
@@ -191,7 +203,7 @@ export const useLoyalty = () => {
       'loyalty-tiers',
       () => $fetch<LoyaltyTier[]>('/api/loyalty/tiers', {
         method: 'GET',
-        headers: useRequestHeaders(),
+        headers,
       }),
     )
   }

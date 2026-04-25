@@ -1,3 +1,4 @@
+import type { Composer } from 'vue-i18n'
 import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
 
 export default defineNuxtPlugin({
@@ -89,7 +90,7 @@ export default defineNuxtPlugin({
           try {
             nuxtApp.runWithContext(() => {
               const toast = useToast()
-              const { t } = useI18n()
+              const { t } = nuxtApp.$i18n as Composer
               toast.add({
                 title: t('auth.session_expired_title'),
                 description: t('auth.session_expired_description'),

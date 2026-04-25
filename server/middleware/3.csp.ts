@@ -30,6 +30,16 @@ export default defineEventHandler((event) => {
   // In dev, the WebSocket connection uses ws:// (plain HTTP); in production it uses wss://
   const wsScheme = import.meta.dev ? 'ws' : 'wss'
 
+  // TODO(csp-nonce): Replace 'unsafe-inline' with a per-request nonce.
+  // Doing so requires:
+  //   1. Generating a nonce here and storing it on event.context.cspNonce.
+  //   2. Using the Nitro `render:html` hook to inject nonce attributes onto
+  //      every <script> and <style> tag that Nuxt emits during SSR (hydration
+  //      chunks, useHead inline blocks, etc.).
+  //   3. Forwarding event.context.cspNonce into the nuxtApp.ssrContext so
+  //      useHead's script/style transforms can stamp the attribute.
+  // Until that wiring is in place 'unsafe-inline' is kept to avoid breaking
+  // Nuxt's hydration bootstrap and inline style bindings.
   const directives = [
     `default-src 'self'`,
     `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com`,

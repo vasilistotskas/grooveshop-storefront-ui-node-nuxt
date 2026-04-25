@@ -141,7 +141,7 @@ useHead({
 </script>
 
 <template>
-  <div class="flex min-h-[calc(100vh-200px)] flex-col">
+  <div class="flex min-h-[calc(100dvh-200px)] flex-col">
     <div
       class="
         border-b border-gray-200 bg-white

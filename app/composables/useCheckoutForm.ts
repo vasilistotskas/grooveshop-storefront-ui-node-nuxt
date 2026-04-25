@@ -507,6 +507,26 @@ export async function useCheckoutForm() {
     await fetchRegions()
   }
 
+  /**
+   * Re-fetches shipping settings from the server at submit time so the
+   * displayed shipping cost is always current even if the page was loaded
+   * hours ago.
+   */
+  const refetchShippingSettings = async () => {
+    const [freshShipping, freshThreshold] = await Promise.all([
+      $fetch<{ value: string }>('/api/settings/get', {
+        query: { key: 'CHECKOUT_SHIPPING_PRICE' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+      $fetch<{ value: string }>('/api/settings/get', {
+        query: { key: 'FREE_SHIPPING_THRESHOLD' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ])
+    if (freshShipping) shippingSetting.value = freshShipping
+    if (freshThreshold) freeShippingThresholdSetting.value = freshThreshold
+  }
+
   return {
     formState,
     regions,
@@ -527,5 +547,6 @@ export async function useCheckoutForm() {
     addressEntryMode,
     useNewAddress,
     b2bInvoicingEnabled,
+    refetchShippingSettings,
   }
 }

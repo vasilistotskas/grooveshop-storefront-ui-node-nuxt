@@ -68,13 +68,13 @@ const items = computed(() => {
         dark:border-neutral-700 dark:bg-neutral-100
       "
     >
-      <NuxtImg
+      <ImgWithFallback
         v-if="item.image"
         :src="item.image"
         :alt="item.name"
         class="h-4 w-auto object-contain"
-        width="24"
-        height="16"
+        :width="24"
+        :height="16"
         loading="lazy"
       />
       <span

@@ -377,7 +377,6 @@ describe('Cart Store', () => {
     describe('cleanCartState', () => {
       it('should reset cart state', async () => {
         store.cart = mockCartData
-        store.pending = true
         store.error = new Error('Test error') as any
 
         mockFetch.mockResolvedValueOnce({})
