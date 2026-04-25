@@ -1,3 +1,10 @@
+# [3.96.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.95.1...v3.96.0) (2026-04-25)
+
+
+### Features
+
+* mobile UX, SSR auth forwarding, OpenAPI regen, ws ticket fix ([c90c247](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c90c24794fcf993ae9bd80823bc393e3e3d83101))
+
 ## [3.95.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.95.0...v3.95.1) (2026-04-24)
 
 
