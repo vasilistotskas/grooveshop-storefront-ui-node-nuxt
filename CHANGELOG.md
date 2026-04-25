@@ -1,3 +1,10 @@
+## [3.96.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.96.0...v3.96.1) (2026-04-25)
+
+
+### Bug Fixes
+
+* remove payment badges ([c12e675](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c12e675c02edc59adde5db2b48e20ffeede69f9f))
+
 # [3.96.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.95.1...v3.96.0) (2026-04-25)
 
 
