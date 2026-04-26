@@ -63,21 +63,12 @@ export const determineAuthChangeEvent = (
 
   const currentAuthInfo = authInfo(newAuthState)
   const previousAuthInfo = authInfo(previousAuthState)
+  // 410 GONE means the server tore down the session (expired, revoked,
+  // or torn down via explicit logout). Surface as LOGGED_OUT and let the
+  // auth plugin's `handleLoggedOut` decide whether to toast — it already
+  // checks the `userInitiatedLogout` flag so an explicit logout stays
+  // silent and a server-initiated expiry shows exactly one toast.
   if (newAuthState.status === 410) {
-    // useToast/useNuxtApp must be called inside the branch that needs them
-    // to avoid Vue's inject() warning when this function runs outside setup context.
-    // The try/catch makes the util safe in non-Nuxt contexts (e.g. unit tests).
-    try {
-      const toast = useToast()
-      const { t } = useNuxtApp().$i18n
-      toast.add({
-        title: t('auth.error.session.expired'),
-        color: 'warning',
-      })
-    }
-    catch {
-      // Nuxt context unavailable (e.g. unit test) — caller will re-display
-    }
     return AuthChangeEvent.LOGGED_OUT
   }
 
