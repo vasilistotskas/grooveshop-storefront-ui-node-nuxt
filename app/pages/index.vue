@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 const config = useRuntimeConfig()
+const siteConfig = useSiteConfig()
 const { isMobileOrTablet } = useDevice()
 const { t } = useI18n()
 const route = useRoute()
@@ -40,10 +41,10 @@ useHead({
 
 useSeoMeta({
   titleTemplate: '%s',
-  title: () => t('home.title'),
-  description: () => t('home.description'),
-  ogTitle: () => t('home.title'),
-  ogDescription: () => t('home.description'),
+  title: () => appTitle.value,
+  description: () => siteConfig.description,
+  ogTitle: () => appTitle.value,
+  ogDescription: () => siteConfig.description,
   ogUrl: `${config.public.baseUrl}${route.path}`,
   ogType: 'website',
 })
@@ -141,7 +142,4 @@ useSeoMeta({
 el:
   carousel:
     banner: Κύριο banner
-  home:
-    title: GrooveShop – Μουσικά Όργανα & Εξοπλισμός
-    description: Ανακάλυψε μουσικά όργανα, εξοπλισμό ήχου και αξεσουάρ στο GrooveShop. Γρήγορη αποστολή σε όλη την Ελλάδα.
 </i18n>

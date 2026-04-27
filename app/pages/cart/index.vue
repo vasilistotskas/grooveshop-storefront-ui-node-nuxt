@@ -66,10 +66,10 @@ const summaryCardUI = {
 }
 
 // Without a page-level title, setupPageHeader() falls back to the
-// raw appTitle ("GrooveShop - APP TITLE"), which the siteName
-// template then pads with " - GrooveShop" on top, producing
-// "GrooveShop - APP TITLE - GrooveShop". Set a proper cart title so
-// the document title reads "Καλάθι Αγορών - GrooveShop".
+// raw appTitle, which the siteName template then pads with
+// " - <siteName>" on top, producing a duplicated brand suffix.
+// Set a proper cart title so the document title reads
+// "Καλάθι Αγορών - <siteName>".
 useSeoMeta({
   title: () => t('shopping_cart'),
 })

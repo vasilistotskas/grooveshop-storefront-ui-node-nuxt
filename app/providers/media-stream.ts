@@ -2,7 +2,7 @@ import type { ProviderGetImage } from '@nuxt/image'
 import { joinURL } from 'ufo'
 
 /**
- * Custom Nuxt Image provider for GrooveShop Media Stream service
+ * Custom Nuxt Image provider for the Media Stream service
  *
  * Generates optimized image URLs with the following structure:
  * /media/uploads/{imageType}/{image}/{width}/{height}/{fit}/{position}/{background}/{trimThreshold}/{quality}.{format}
