@@ -35,6 +35,7 @@ coverage
 # AI
 .agents
 .claude/settings.local.json
+.claude/.typecheck-pending
 .cursor
 .cursorrules
 .windsurfrules

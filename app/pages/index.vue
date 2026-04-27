@@ -77,7 +77,7 @@ useSeoMeta({
           :aria-label="t('carousel.banner')"
           class="
             mx-auto max-w-main
-            md:!p-0
+            md:p-0!
           "
           indicators
         >

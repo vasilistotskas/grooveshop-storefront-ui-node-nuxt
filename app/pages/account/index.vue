@@ -71,7 +71,7 @@ const activityStats = computed(() => {
   <PageWrapper
     class="
       flex flex-col gap-4
-      md:mt-1 md:gap-8 md:!p-0
+      md:mt-1 md:gap-8 md:p-0!
     "
   >
     <PageTitle
@@ -87,7 +87,7 @@ const activityStats = computed(() => {
           }"
           variant="subtle"
           class="
-            overflow-hidden bg-gradient-to-br from-primary-50 to-secondary-50
+            overflow-hidden bg-linear-to-br from-primary-50 to-secondary-50
             dark:from-primary-950/30 dark:to-secondary-950/30
           "
         >
@@ -289,7 +289,7 @@ const activityStats = computed(() => {
                 <div
                   class="
                     flex items-center justify-center rounded-xl
-                    bg-gradient-to-br from-primary-100 to-primary-200 p-3
+                    bg-linear-to-br from-primary-100 to-primary-200 p-3
                     transition-transform duration-200
                     group-hover:scale-105
                     dark:from-primary-900 dark:to-primary-800
@@ -365,7 +365,7 @@ const activityStats = computed(() => {
                 </div>
                 <div class="flex-1">
                   <LogoutButton
-                    class="!m-0 !p-0"
+                    class="m-0! p-0!"
                     variant="link"
                     size="lg"
                   />
@@ -385,7 +385,7 @@ const activityStats = computed(() => {
           }"
           variant="subtle"
           class="
-            bg-gradient-to-br from-primary-50 to-secondary-50
+            bg-linear-to-br from-primary-50 to-secondary-50
             dark:from-primary-950/30 dark:to-secondary-950/30
           "
         >
@@ -572,7 +572,7 @@ const activityStats = computed(() => {
                 <div
                   class="
                     flex items-center justify-center rounded-xl
-                    bg-gradient-to-br from-primary-100 to-primary-200 p-2.5
+                    bg-linear-to-br from-primary-100 to-primary-200 p-2.5
                     dark:from-primary-900 dark:to-primary-800
                   "
                 >
@@ -627,7 +627,7 @@ const activityStats = computed(() => {
                   />
                 </div>
                 <LogoutButton
-                  class="!m-0 !p-0"
+                  class="m-0! p-0!"
                   variant="link"
                   size="xl"
                 />
