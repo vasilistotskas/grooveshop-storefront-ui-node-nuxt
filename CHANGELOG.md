@@ -1,3 +1,10 @@
+## [3.98.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.98.0...v3.98.1) (2026-04-27)
+
+
+### Bug Fixes
+
+* **auth:** remove duplicate session-expired toast and silence on user logout ([81272b2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/81272b223daf7affc3cd197919d2ddb82ff0180e))
+
 # [3.98.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.97.0...v3.98.0) (2026-04-25)
 
 
