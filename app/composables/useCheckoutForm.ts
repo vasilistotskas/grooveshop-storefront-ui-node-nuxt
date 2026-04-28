@@ -69,6 +69,8 @@ export async function useCheckoutForm() {
   // Declare refs for fetched data (populated after await)
   const shippingSetting = ref<{ value: string } | null>(null)
   const freeShippingThresholdSetting = ref<{ value: string } | null>(null)
+  const boxnowShippingSetting = ref<{ value: string } | null>(null)
+  const boxnowFreeShippingThresholdSetting = ref<{ value: string } | null>(null)
   const b2bInvoicingEnabled = ref(true)
   const countries = ref<Pagination<Country> | null>(null)
   const payWays = ref<Pagination<PayWay> | null>(null)
@@ -271,30 +273,25 @@ export async function useCheckoutForm() {
     formState.regionId = matched?.alpha ?? newRegionAlpha
   })
 
-  // Computed properties (also before await)
-  // Shipping cost switches on the selected method.
-  // HOME_DELIVERY: reads from the CHECKOUT_SHIPPING_PRICE +
-  //   FREE_SHIPPING_THRESHOLD settings (populated by the parallel fetch
-  //   block below).
-  // BOX_NOW_LOCKER: BoxNow's contractual flat rate (€2.50, free over €30).
-  //   Hard-coded because the rate is fixed by partnership terms; see
-  //   ``useShippingPrice.ts`` docstring for how to make it admin-editable.
-  const BOXNOW_SHIPPING_PRICE = 2.50
-  const BOXNOW_FREE_SHIPPING_THRESHOLD = 30.00
-
+  // Computed properties (also before await).
+  // Shipping cost switches on the selected method. All four settings
+  // live in `extra_settings.Setting` on Django and are exposed via
+  // `/api/settings/get`. The free-shipping threshold zeroes the price
+  // once the cart total reaches it.
   const shippingPrice = computed(() => {
     const cartTotal = cart.value?.totalPrice || 0
+    const isBoxNow = formState.shippingMethod === 'box_now_locker'
 
-    if (formState.shippingMethod === 'box_now_locker') {
-      return cartTotal >= BOXNOW_FREE_SHIPPING_THRESHOLD ? 0 : BOXNOW_SHIPPING_PRICE
-    }
+    const priceSetting = isBoxNow ? boxnowShippingSetting : shippingSetting
+    const thresholdSetting = isBoxNow
+      ? boxnowFreeShippingThresholdSetting
+      : freeShippingThresholdSetting
 
-    // HOME_DELIVERY
-    if (!shippingSetting.value) return 0
-    const baseShippingCost = parseFloat(shippingSetting.value.value)
-    const freeShippingThreshold = freeShippingThresholdSetting.value
-      ? parseFloat(freeShippingThresholdSetting.value.value)
-      : 50.00
+    if (!priceSetting.value) return 0
+    const baseShippingCost = parseFloat(priceSetting.value.value)
+    const freeShippingThreshold = thresholdSetting.value
+      ? parseFloat(thresholdSetting.value.value)
+      : Number.POSITIVE_INFINITY
 
     return cartTotal >= freeShippingThreshold ? 0 : baseShippingCost
   })
@@ -433,6 +430,8 @@ export async function useCheckoutForm() {
   const [
     shippingResult,
     freeShippingResult,
+    boxnowShippingResult,
+    boxnowFreeShippingResult,
     b2bInvoicingResult,
     countriesResult,
     payWaysResult,
@@ -452,6 +451,22 @@ export async function useCheckoutForm() {
       () => $fetch<{ value: string }>('/api/settings/get', {
         method: 'GET',
         query: { key: 'FREE_SHIPPING_THRESHOLD' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:boxnow-shipping-price-setting',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'BOXNOW_SHIPPING_PRICE' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:boxnow-free-shipping-threshold-setting',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'BOXNOW_FREE_SHIPPING_THRESHOLD' },
         headers: useRequestHeaders(),
       }).catch(() => null),
     ),
@@ -534,6 +549,8 @@ export async function useCheckoutForm() {
   // the type back to what the refs expect.
   shippingSetting.value = shippingResult.data.value ?? null
   freeShippingThresholdSetting.value = freeShippingResult.data.value ?? null
+  boxnowShippingSetting.value = boxnowShippingResult.data.value ?? null
+  boxnowFreeShippingThresholdSetting.value = boxnowFreeShippingResult.data.value ?? null
   // extra_settings serialises booleans as the strings "True"/"False".
   // Default to ``true`` if the endpoint is unreachable so a transient
   // settings-API failure doesn't silently hide the B2B option.
