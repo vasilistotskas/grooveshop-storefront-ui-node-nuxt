@@ -47,7 +47,10 @@ export default defineEventHandler((event) => {
     `img-src 'self' data: blob: ${trustedOrigins} https://www.googletagmanager.com`,
     `font-src 'self' https://fonts.gstatic.com`,
     `connect-src 'self' ${trustedOrigins} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}`,
-    `frame-src 'self' https://js.stripe.com https://challenges.cloudflare.com https://accounts.google.com`,
+    // BoxNow widget iframe origins per their CDN: gr (primary), plus
+    // cy/bg/hr regional variants (Phase 2 multi-country) and the v1-v4
+    // back-compat versions surfaced by the loader script we audited.
+    `frame-src 'self' https://js.stripe.com https://challenges.cloudflare.com https://accounts.google.com https://widget-v5.boxnow.gr https://widget-v5.boxnow.cy https://widget-v5.boxnow.bg https://widget-v5.boxnow.hr https://widget.boxnow.gr`,
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,

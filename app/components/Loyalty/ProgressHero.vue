@@ -136,7 +136,7 @@ const ready = computed(() => !loading.value && !error.value && summary.value)
           />
           <p
             v-if="summary!.pointsToNextTier !== null"
-            class="text-xs text-neutral-500 dark:text-neutral-300"
+            class="text-xs text-neutral-700 dark:text-neutral-300"
           >
             {{ t('xp_to_next_tier', { xp: summary!.pointsToNextTier!.toLocaleString(locale) }) }}
           </p>

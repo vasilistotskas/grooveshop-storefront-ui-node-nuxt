@@ -2,7 +2,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { defineComponent, h } from 'vue'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import type { SubscriptionTopic, UserSubscription } from '#shared/openapi/types.gen'
 
 // Mock composables with new AsyncData API
 const mockTopicsRef = ref<SubscriptionTopic[] | null>(null)

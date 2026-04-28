@@ -47,6 +47,40 @@
     "info_and_address": "Στοιχεία & Διεύθυνση",
     "payment": "Πληρωμή"
   },
+  "shipping": {
+    "method": {
+      "title": "Μέθοδος Παράδοσης",
+      "subtitle": "Επιλέξτε πώς θέλετε να παραλάβετε την παραγγελία σας",
+      "home_delivery": {
+        "label": "Παράδοση στη διεύθυνσή σας",
+        "description": "Παράδοση από courier στη διεύθυνση που δηλώσατε"
+      },
+      "boxnow": {
+        "label": "BOX NOW Lockers",
+        "tagline": "Γρήγορη παράδοση, 24/7",
+        "description": "Παραλάβετε την παραγγελία σας από οποιοδήποτε locker της BOX NOW, οποιαδήποτε ώρα",
+        "cod_blocked_title": "Δεν διατίθεται με Αντικαταβολή",
+        "cod_blocked_description": "Τα BOX NOW lockers δεν δέχονται πληρωμή με αντικαταβολή (δεν διαθέτουν POS). Άλλαξε πρώτα τρόπο πληρωμής στο επόμενο βήμα για να επιλέξεις παραλαβή από locker.",
+        "unconfigured_title": "Η υπηρεσία BOX NOW δεν είναι ενεργή προσωρινά",
+        "unconfigured_description": "Η ενσωμάτωση με το δίκτυο BOX NOW δεν έχει ολοκληρωθεί ακόμη. Παρακαλούμε επιλέξτε παράδοση στη διεύθυνσή σας."
+      }
+    },
+    "boxnow": {
+      "select_locker": "Επιλέξτε Locker",
+      "change_locker": "Αλλαγή Locker",
+      "modal_title": "Επιλέξτε ένα BOX NOW Locker",
+      "iframe_loading": "Φόρτωση χάρτη...",
+      "required_error": "Παρακαλώ επιλέξτε ένα locker για να συνεχίσετε",
+      "selected_locker": {
+        "title": "Επιλεγμένο Locker",
+        "id_label": "ID Locker"
+      }
+    },
+    "price": {
+      "free": "Δωρεάν",
+      "free_over": "Δωρεάν για παραγγελίες άνω των {amount}"
+    }
+  },
   "form": {
     "select_placeholder": "Επέλεξε",
     "first_name": "Όνομα",

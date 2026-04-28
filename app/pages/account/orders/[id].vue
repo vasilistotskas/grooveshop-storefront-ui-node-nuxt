@@ -1046,7 +1046,16 @@ definePageMeta({
       </UCard>
     </div>
 
-    <UCard v-if="order.trackingDetails && order.trackingDetails.hasTracking">
+    <!-- BoxNow tracking card — rendered for box_now_locker shipping method. -->
+    <OrderBoxNowTracking
+      v-if="order.shippingMethod === 'box_now_locker' && order.boxnowShipment"
+      :shipment="order.boxnowShipment"
+      :order-id="order.id"
+    />
+
+    <!-- Home-delivery courier tracking — only shown for home_delivery orders
+         (or pre-BoxNow orders that have no shippingMethod field yet). -->
+    <UCard v-if="order.trackingDetails && order.trackingDetails.hasTracking && order.shippingMethod !== 'box_now_locker'">
       <template #header>
         <div class="flex w-full items-center justify-between">
           <UCollapsible v-model:open="sectionsState.trackingInfo" class="flex-1">

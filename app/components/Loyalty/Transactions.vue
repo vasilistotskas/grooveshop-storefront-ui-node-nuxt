@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { h, resolveComponent } from 'vue'
-import type { PointsTransaction } from '#shared/openapi/types.gen'
 import type { TableColumn } from '@nuxt/ui'
 
 const UBadge = resolveComponent('UBadge')

@@ -254,7 +254,7 @@ definePageMeta({
             inputmode="tel"
           >
             <template #leading>
-              <span class="pl-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">+30</span>
+              <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">+30</span>
             </template>
           </UInput>
         </UFormField>

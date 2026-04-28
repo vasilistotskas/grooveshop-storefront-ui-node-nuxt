@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll, beforeEach, afterAll, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import type { UserSubscription } from '#shared/openapi/types.gen'
 
 // Stub $fetch in beforeAll (not at module level) so the Nuxt app initialises
 // with the real $fetch — this allows @nuxtjs/i18n to load locale messages and

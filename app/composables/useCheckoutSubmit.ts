@@ -124,6 +124,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       toast.add({ title: t('form.submit.error.general'), color: 'error' })
       return
     }
+
+    const isBoxNow = formState.shippingMethod === 'box_now_locker'
+
     return {
       payWayId: formState.payWayId,
       countryId: formState.countryId!,
@@ -148,6 +151,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       billingVatId: formState.billingVatId || undefined,
       billingCountry: formState.billingCountry || undefined,
       loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
+      // formState.shippingMethod is already lowercase per ShippingMethodEnum
+      // ('home_delivery' | 'box_now_locker') — no transform needed.
+      shippingMethod: formState.shippingMethod,
+      ...(isBoxNow && {
+        boxnowLockerId: formState.boxnowLockerId,
+        boxnowCompartmentSize: formState.boxnowCompartmentSize,
+      }),
     } as OrderCreateFromCartRequest
   }
 
@@ -544,7 +554,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   const backToForm = () => {
     createdOrder.value = null
     selectedPayWay.value = null
-    currentStep.value = 1
+    // Payment is now step 2 in the 3-step flow (0: info, 1: shipping, 2: payment)
+    currentStep.value = 2
   }
 
   const onLoyaltyRedeemed = (discount: { amount: number, currency: string, points: number }) => {
@@ -556,8 +567,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   }
 
   const nextStep = async () => {
-    if (currentStep.value === 0) {
-      currentStep.value = 1
+    if (currentStep.value < 2) {
+      currentStep.value++
     }
   }
 

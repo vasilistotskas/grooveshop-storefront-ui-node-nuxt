@@ -4,6 +4,12 @@ const localePath = useLocalePath()
 const { t } = useI18n()
 const route = useRoute()
 const toast = useToast()
+const config = useRuntimeConfig()
+// Nuxt's runtimeConfig parser passes env values through destr(), which
+// auto-coerces numeric strings to numbers ('10391' → 10391). Force the
+// downstream prop type back to string so all the BoxNow components keep
+// their strict `partnerId: string` typing.
+const boxnowPartnerId = String(config.public.boxnowPartnerId ?? '')
 
 const cartStore = useCartStore()
 const { hasStockIssues, cart } = storeToRefs(cartStore)
@@ -44,6 +50,7 @@ const {
   payWayOptions,
   step1Schema,
   step2Schema,
+  step3Schema,
   onCountryChange,
   savedAddresses,
   selectedSavedAddressId,
@@ -155,6 +162,7 @@ definePageMeta({
           v-model="currentStep"
           :items="[
             { title: t('steps.info_and_address'), icon: 'i-heroicons-user-circle' },
+            { title: t('shipping.method.title'), icon: 'i-heroicons-truck' },
             { title: t('steps.payment'), icon: 'i-heroicons-credit-card' },
           ]"
           class="mb-6"
@@ -174,7 +182,7 @@ definePageMeta({
             @back-to-form="backToForm"
           />
 
-          <!-- Step 1: Personal Info & Address -->
+          <!-- Step 0: Personal Info & Address -->
           <CheckoutStepPersonalInfo
             v-else-if="currentStep === 0"
             v-model:form-state="formState"
@@ -191,11 +199,22 @@ definePageMeta({
             @use-new-address="useNewAddress"
           />
 
-          <!-- Step 2: Payment -->
-          <CheckoutStepPayment
+          <!-- Step 1: Shipping Method -->
+          <CheckoutStepShipping
             v-else-if="currentStep === 1"
             v-model:form-state="formState"
             :schema="step2Schema"
+            :partner-id="boxnowPartnerId"
+            :selected-pay-way="selectedPayWay"
+            @next="nextStep"
+            @back="prevStep"
+          />
+
+          <!-- Step 2: Payment -->
+          <CheckoutStepPayment
+            v-else-if="currentStep === 2"
+            v-model:form-state="formState"
+            :schema="step3Schema"
             :pay-way-options="payWayOptions"
             :is-submitting="isSubmitting"
             @submit="onSubmit"
@@ -228,7 +247,7 @@ definePageMeta({
         <div class="lg:sticky lg:top-4">
           <CheckoutSidebar
             :shipping-price="shippingPrice"
-            :show-payment-fee="currentStep === 1"
+            :show-payment-fee="currentStep === 2"
             :loyalty-discount="loyaltyDiscount?.amount ?? 0"
           >
             <template #items>

@@ -172,7 +172,7 @@ const activityStats = computed(() => {
               <div class="flex w-full flex-col items-center">
                 <p
                   class="
-                    text-xs font-medium tracking-wide text-neutral-500 uppercase
+                    text-xs font-medium tracking-wide text-neutral-700 uppercase
                     dark:text-neutral-300
                   "
                 >
@@ -447,7 +447,7 @@ const activityStats = computed(() => {
               <div>
                 <p
                   class="
-                    text-[11px] font-medium tracking-wide text-neutral-500
+                    text-[11px] font-medium tracking-wide text-neutral-700
                     uppercase
                     dark:text-neutral-300
                   "

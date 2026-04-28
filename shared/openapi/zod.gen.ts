@@ -481,6 +481,262 @@ export const zBlogTagWriteRequest = z.object({
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
+/**
+ * Nested ``customer`` object within a BoxNow webhook payload.
+ */
+export const zBoxNowCustomerRequest = z.object({
+  name: z.string().register(z.globalRegistry, {
+    description: 'Customer full name',
+  }).optional(),
+  email: z.string().register(z.globalRegistry, {
+    description: 'Customer email address',
+  }).optional(),
+  phoneNumber: z.string().register(z.globalRegistry, {
+    description: 'Customer phone number',
+  }).optional(),
+}).register(z.globalRegistry, {
+  description: 'Nested ``customer`` object within a BoxNow webhook payload.',
+})
+
+/**
+ * Nested ``eventLocation`` object within a BoxNow webhook payload.
+ */
+export const zBoxNowEventLocationRequest = z.object({
+  displayName: z.string().register(z.globalRegistry, {
+    description: 'Human-readable locker or hub name',
+  }).optional(),
+  postalCode: z.string().register(z.globalRegistry, {
+    description: 'Postal code of the event location',
+  }).optional(),
+}).register(z.globalRegistry, {
+  description: 'Nested ``eventLocation`` object within a BoxNow webhook payload.',
+})
+
+/**
+ * Request body for ``POST /lockers/nearest``.
+ *
+ * Maps to the BoxNow ``/api/v2/delivery-requests:checkAddressDelivery``
+ * endpoint parameters.
+ */
+export const zBoxNowNearestLockerRequestRequest = z.object({
+  city: z.string().min(1).max(128).register(z.globalRegistry, {
+    description: 'City name for nearest-locker lookup',
+  }),
+  street: z.string().min(1).max(255).register(z.globalRegistry, {
+    description: 'Street name and number',
+  }),
+  postalCode: z.string().min(1).max(16).register(z.globalRegistry, {
+    description: 'Postal / ZIP code',
+  }),
+  region: z.string().min(1).max(8).register(z.globalRegistry, {
+    description: 'IETF language tag / region code (default: el-GR)',
+  }).optional().default('el-GR'),
+  compartmentSize: z.int().gte(1).lte(3).register(z.globalRegistry, {
+    description: 'Required compartment size: 1=Small, 2=Medium, 3=Large',
+  }).optional().default(1),
+}).register(z.globalRegistry, {
+  description: 'Request body for ``POST /lockers/nearest``.\n\nMaps to the BoxNow ``/api/v2/delivery-requests:checkAddressDelivery``\nendpoint parameters.',
+})
+
+/**
+ * Response shape returned by BoxNow's checkAddressDelivery call.
+ *
+ * Mirrors ``/api/v2/delivery-requests:checkAddressDelivery`` response.
+ * ``lat`` and ``lng`` are CharField because BoxNow returns them as
+ * strings in this endpoint.  ``distance`` is the straight-line
+ * distance in kilometres from the supplied address.
+ */
+export const zBoxNowNearestLockerResponse = z.object({
+  id: z.string().register(z.globalRegistry, {
+    description: 'BoxNow APM identifier',
+  }).readonly(),
+  type: z.string().register(z.globalRegistry, {
+    description: 'Locker type (e.g. apm, warehouse)',
+  }).readonly(),
+  image: z.string().register(z.globalRegistry, {
+    description: 'URL of locker image',
+  }).readonly(),
+  lat: z.string().register(z.globalRegistry, {
+    description: 'Latitude (string as returned by BoxNow)',
+  }).readonly(),
+  lng: z.string().register(z.globalRegistry, {
+    description: 'Longitude (string as returned by BoxNow)',
+  }).readonly(),
+  title: z.string().register(z.globalRegistry, {
+    description: 'Short display title',
+  }).readonly(),
+  name: z.string().register(z.globalRegistry, {
+    description: 'Full locker name',
+  }).readonly(),
+  postalCode: z.string().register(z.globalRegistry, {
+    description: 'Postal code of the locker',
+  }).readonly(),
+  country: z.string().register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code',
+  }).readonly(),
+  note: z.string().register(z.globalRegistry, {
+    description: 'Operational note from BoxNow',
+  }).readonly(),
+  addressLine1: z.string().register(z.globalRegistry, {
+    description: 'Primary address line',
+  }).readonly(),
+  addressLine2: z.string().register(z.globalRegistry, {
+    description: 'Secondary address line',
+  }).readonly(),
+  region: z.string().register(z.globalRegistry, {
+    description: 'IETF region tag returned by BoxNow',
+  }).readonly(),
+  distance: z.number().register(z.globalRegistry, {
+    description: 'Distance from the supplied address in kilometres',
+  }).readonly(),
+}).register(z.globalRegistry, {
+  description: 'Response shape returned by BoxNow\'s checkAddressDelivery call.\n\nMirrors ``/api/v2/delivery-requests:checkAddressDelivery`` response.\n``lat`` and ``lng`` are CharField because BoxNow returns them as\nstrings in this endpoint.  ``distance`` is the straight-line\ndistance in kilometres from the supplied address.',
+})
+
+/**
+ * * `pending_creation` - Pending creation
+ * * `new` - New
+ * * `in_depot` - In depot
+ * * `final_destination` - At locker
+ * * `delivered` - Delivered
+ * * `returned` - Returned
+ * * `expired` - Expired
+ * * `canceled` - Canceled
+ * * `accepted_for_return` - Accepted for return
+ * * `accepted_to_locker` - Accepted to locker
+ * * `missing` - Missing
+ * * `lost` - Lost
+ */
+export const zBoxNowParcelState = z.enum([
+  'pending_creation',
+  'new',
+  'in_depot',
+  'final_destination',
+  'delivered',
+  'returned',
+  'expired',
+  'canceled',
+  'accepted_for_return',
+  'accepted_to_locker',
+  'missing',
+  'lost',
+]).register(z.globalRegistry, {
+  description: '* `pending_creation` - Pending creation\n* `new` - New\n* `in_depot` - In depot\n* `final_destination` - At locker\n* `delivered` - Delivered\n* `returned` - Returned\n* `expired` - Expired\n* `canceled` - Canceled\n* `accepted_for_return` - Accepted for return\n* `accepted_to_locker` - Accepted to locker\n* `missing` - Missing\n* `lost` - Lost',
+})
+
+/**
+ * Read-only serializer for ``BoxNowParcelEvent`` webhook audit records.
+ *
+ * All fields are read-only — events are written exclusively by the
+ * webhook handler and are never modified after creation.
+ */
+export const zBoxNowParcelEvent = z.object({
+  id: z.int().readonly(),
+  webhookMessageId: z.string().register(z.globalRegistry, {
+    description: 'CloudEvents \'id\' field — idempotency key',
+  }).readonly(),
+  eventType: zBoxNowParcelState,
+  eventTypeDisplay: z.string().register(z.globalRegistry, {
+    description: 'Human-readable label for the event_type choice',
+  }).readonly(),
+  parcelState: z.string().register(z.globalRegistry, {
+    description: 'Raw \'data.parcelState\' value from BoxNow webhook payload',
+  }).readonly(),
+  eventTime: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Timestamp from \'data.time\' in the webhook payload',
+  }).readonly(),
+  displayName: z.string().register(z.globalRegistry, {
+    description: 'data.eventLocation.displayName',
+  }).readonly(),
+  postalCode: z.string().register(z.globalRegistry, {
+    description: 'data.eventLocation.postalCode',
+  }).readonly(),
+  additionalInformation: z.string().readonly(),
+  receivedAt: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Timestamp when GrooveShop received the webhook (separate from event_time)',
+  }).readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+}).register(z.globalRegistry, {
+  description: 'Read-only serializer for ``BoxNowParcelEvent`` webhook audit records.\n\nAll fields are read-only — events are written exclusively by the\nwebhook handler and are never modified after creation.',
+})
+
+/**
+ * ``data`` field of a BoxNow CloudEvent webhook envelope.
+ *
+ * Reflects the payload shape described in the BoxNow webhook PDF.
+ * ``camelCase`` field names are preserved because
+ * ``djangorestframework-camel-case`` is already applied
+ * project-wide at the middleware level; no manual aliasing needed.
+ */
+export const zBoxNowWebhookDataRequest = z.object({
+  parcelId: z.string().min(1).register(z.globalRegistry, {
+    description: '10-digit BoxNow voucher/parcel number',
+  }),
+  parcelState: z.string().min(1).register(z.globalRegistry, {
+    description: 'BoxNow parcel state vocabulary (data.parcelState)',
+  }),
+  parcelReferenceNumber: z.string().register(z.globalRegistry, {
+    description: 'Optional merchant reference number',
+  }).optional(),
+  parcelName: z.string().register(z.globalRegistry, {
+    description: 'Optional descriptive parcel name',
+  }).optional(),
+  orderNumber: z.string().min(1).register(z.globalRegistry, {
+    description: 'Merchant order number sent during delivery-request creation',
+  }),
+  event: z.string().min(1).register(z.globalRegistry, {
+    description: 'BoxNow event type string (e.g. \'in-depot\', \'final-destination\', \'delivered\')',
+  }),
+  eventLocation: zBoxNowEventLocationRequest.optional(),
+  customer: zBoxNowCustomerRequest.optional(),
+  additionalInformation: z.string().register(z.globalRegistry, {
+    description: 'Free-text additional information from BoxNow',
+  }).optional(),
+  time: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Timestamp when the event occurred at BoxNow',
+  }),
+}).register(z.globalRegistry, {
+  description: '``data`` field of a BoxNow CloudEvent webhook envelope.\n\nReflects the payload shape described in the BoxNow webhook PDF.\n``camelCase`` field names are preserved because\n``djangorestframework-camel-case`` is already applied\nproject-wide at the middleware level; no manual aliasing needed.',
+})
+
+/**
+ * Top-level CloudEvent envelope for BoxNow webhook POST requests.
+ *
+ * Used for OpenAPI documentation only — the webhook view reads
+ * raw bytes before parsing in order to verify the HMAC-SHA256
+ * ``datasignature`` against the unmodified ``data`` JSON substring.
+ * DRF validation is not applied to the incoming request directly.
+ */
+export const zBoxNowWebhookEnvelopeRequest = z.object({
+  specversion: z.string().min(1).register(z.globalRegistry, {
+    description: 'CloudEvents specification version (expected: \'1.0\')',
+  }),
+  type: z.string().min(1).register(z.globalRegistry, {
+    description: 'Event type (expected: \'gr.boxnow.parcel_event_change\')',
+  }),
+  source: z.url().min(1).register(z.globalRegistry, {
+    description: 'Origin URL of the event source',
+  }),
+  subject: z.string().min(1).register(z.globalRegistry, {
+    description: 'Subject of the event (typically the parcel ID)',
+  }),
+  id: z.string().min(1).register(z.globalRegistry, {
+    description: 'Unique CloudEvents ID; used as idempotency key (stored as webhook_message_id)',
+  }),
+  time: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Timestamp the envelope was generated',
+  }),
+  datacontenttype: z.string().min(1).register(z.globalRegistry, {
+    description: 'MIME type of the data field (expected: \'application/json\')',
+  }),
+  datasignature: z.string().min(1).register(z.globalRegistry, {
+    description: 'HMAC-SHA256 hex digest of the raw \'data\' JSON object; used for signature verification',
+  }),
+  data: zBoxNowWebhookDataRequest,
+}).register(z.globalRegistry, {
+  description: 'Top-level CloudEvent envelope for BoxNow webhook POST requests.\n\nUsed for OpenAPI documentation only — the webhook view reads\nraw bytes before parsing in order to verify the HMAC-SHA256\n``datasignature`` against the unmodified ``data`` JSON substring.\nDRF validation is not applied to the incoming request directly.',
+})
+
 export const zBulkSubscriptionRequest = z.object({
   topicIds: z.array(z.int()).register(z.globalRegistry, {
     description: 'List of topic IDs to subscribe/unsubscribe',
@@ -528,6 +784,19 @@ export const zCartPaymentIntentResponse = z.object({
 
 export const zCartWriteRequest = z.object({
   user: z.int().nullish(),
+})
+
+/**
+ * * `1` - Μικρό
+ * * `2` - Μεσαίο
+ * * `3` - Μεγάλο
+ */
+export const zCompartmentSizeEnum = z.union([
+  z.literal(1),
+  z.literal(2),
+  z.literal(3),
+]).register(z.globalRegistry, {
+  description: '* `1` - Μικρό\n* `2` - Μεσαίο\n* `3` - Μεγάλο',
 })
 
 export const zConfirmResponse = z.object({
@@ -1103,64 +1372,6 @@ export const zNotificationUserWriteRequest = z.object({
  */
 export const zOrderCreateDocumentType = z.enum(['RECEIPT', 'INVOICE']).register(z.globalRegistry, {
   description: '* `RECEIPT` - Receipt\n* `INVOICE` - Invoice',
-})
-
-/**
- * Serializer for creating orders from cart (dual-flow payment architecture).
- *
- * This serializer supports two payment flows:
- * 1. Online payments (is_online_payment=True): Requires payment_intent_id
- * 2. Offline payments (is_online_payment=False): No payment_intent_id required
- *
- * The order is created from an existing cart identified via X-Cart-Id header.
- * Cart is NOT sent in request body - it's retrieved from the header using CartService.
- */
-export const zOrderCreateFromCartRequest = z.object({
-  payWayId: z.int().register(z.globalRegistry, {
-    description: 'Payment method ID',
-  }),
-  paymentIntentId: z.string().nullish(),
-  firstName: z.string().min(1).max(150).register(z.globalRegistry, {
-    description: 'Customer first name',
-  }),
-  lastName: z.string().min(1).max(150).register(z.globalRegistry, {
-    description: 'Customer last name',
-  }),
-  email: z.email().min(1).register(z.globalRegistry, {
-    description: 'Customer email address',
-  }),
-  street: z.string().min(1).max(255).register(z.globalRegistry, {
-    description: 'Street name',
-  }),
-  streetNumber: z.string().max(50).register(z.globalRegistry, {
-    description: 'Street number',
-  }).optional(),
-  city: z.string().min(1).max(100).register(z.globalRegistry, {
-    description: 'City name',
-  }),
-  zipcode: z.string().min(1).max(20).register(z.globalRegistry, {
-    description: 'Postal/ZIP code',
-  }),
-  countryId: z.string().min(1).register(z.globalRegistry, {
-    description: 'Country alpha-2 code (e.g., \'GR\', \'US\')',
-  }),
-  regionId: z.string().nullish(),
-  phone: z.string().min(1).register(z.globalRegistry, {
-    description: 'Customer phone number',
-  }),
-  customerNotes: z.string().max(500).register(z.globalRegistry, {
-    description: 'Customer notes or special instructions',
-  }).optional(),
-  billingVatId: z.string().max(12).register(z.globalRegistry, {
-    description: 'Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.',
-  }).optional(),
-  billingCountry: z.string().max(2).register(z.globalRegistry, {
-    description: 'ISO 3166-1 alpha-2 country code for the buyer\'s tax identity. Defaults to the order country when blank.',
-  }).optional(),
-  documentType: zOrderCreateDocumentType.optional(),
-  loyaltyPointsToRedeem: z.int().gte(0).nullish(),
-}).register(z.globalRegistry, {
-  description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',
 })
 
 /**
@@ -2008,6 +2219,14 @@ export const zPayWayWriteRequest = z.object({
 })
 
 /**
+ * * `prepaid` - Prepaid
+ * * `cod` - Cash on delivery
+ */
+export const zPaymentModeEnum = z.enum(['prepaid', 'cod']).register(z.globalRegistry, {
+  description: '* `prepaid` - Prepaid\n* `cod` - Cash on delivery',
+})
+
+/**
  * * `PENDING` - Pending
  * * `PROCESSING` - Processing
  * * `COMPLETED` - Completed
@@ -2350,137 +2569,6 @@ export const zOrderItemDetail = z.object({
   notes: z.string().optional(),
 })
 
-export const zOrder = z.object({
-  id: z.int().readonly(),
-  user: z.int().nullish(),
-  country: z.string().nullable(),
-  region: z.string().nullable(),
-  floor: z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ]).optional(),
-  locationType: z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ]).optional(),
-  street: z.string().max(255),
-  streetNumber: z.string().max(255),
-  payWay: z.int().nullable(),
-  status: zOrderStatus.optional(),
-  statusDisplay: z.string().readonly(),
-  statusUpdatedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  firstName: z.string().max(255),
-  lastName: z.string().max(255),
-  email: z.email().max(255),
-  zipcode: z.string().max(255),
-  place: z.string().max(255).optional(),
-  city: z.string().max(255),
-  phone: z.string(),
-  customerNotes: z.string().optional(),
-  paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  items: z.array(zOrderItemDetail),
-  shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  documentType: zOrderDocumentType.optional(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  fullAddress: z.string().readonly(),
-  paymentId: z.string().max(255).nullish(),
-  paymentStatus: z.union([
-    zPaymentStatusEnum,
-    zBlankEnum,
-  ]).optional(),
-  paymentMethod: z.string().max(50).optional(),
-  canBeCanceled: z.boolean().readonly(),
-  isPaid: z.boolean().readonly(),
-})
-
-export const zOrderDetail = z.object({
-  id: z.int().readonly(),
-  user: z.int().nullish(),
-  country: z.string().nullable(),
-  region: z.string().nullable(),
-  floor: z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ]).optional(),
-  locationType: z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ]).optional(),
-  street: z.string().max(255),
-  streetNumber: z.string().max(255),
-  payWay: z.int().nullable(),
-  status: zOrderStatus.optional(),
-  statusDisplay: z.string().readonly(),
-  statusUpdatedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  firstName: z.string().max(255),
-  lastName: z.string().max(255),
-  email: z.email().max(255),
-  zipcode: z.string().max(255),
-  place: z.string().max(255).optional(),
-  city: z.string().max(255),
-  phone: z.string().readonly(),
-  customerNotes: z.string().optional(),
-  paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  items: z.array(zOrderItemDetail),
-  shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  documentType: zOrderDocumentType.optional(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  fullAddress: z.string().readonly(),
-  paymentId: z.string().max(255).nullish(),
-  paymentStatus: z.union([
-    zPaymentStatusEnum,
-    zBlankEnum,
-  ]).optional(),
-  paymentMethod: z.string().max(50).optional(),
-  canBeCanceled: z.boolean().readonly(),
-  isPaid: z.boolean().readonly(),
-  orderTimeline: z.array(z.object({
-    changeType: z.string().optional(),
-    timestamp: z.string().optional(),
-    description: z.string().optional(),
-    user: z.string().nullish(),
-  })).register(z.globalRegistry, {
-    description: 'Order status timeline and history',
-  }).readonly(),
-  pricingBreakdown: z.object({
-    itemsSubtotal: z.number().optional(),
-    shippingCost: z.number().optional(),
-    paymentMethodFee: z.number().optional(),
-    extrasTotal: z.number().optional(),
-    grandTotal: z.number().optional(),
-    currency: z.string().optional(),
-    paidAmount: z.number().optional(),
-    remainingAmount: z.number().optional(),
-  }).register(z.globalRegistry, {
-    description: 'Detailed pricing breakdown',
-  }).readonly(),
-  trackingDetails: z.object({
-    trackingNumber: z.string().nullish(),
-    shippingCarrier: z.string().nullish(),
-    hasTracking: z.boolean().optional(),
-    estimatedDelivery: z.string().nullish(),
-    trackingUrl: z.string().nullish(),
-  }).readonly().nullable(),
-  hasInvoice: z.boolean().register(z.globalRegistry, {
-    description: 'True when a PDF invoice has been generated — the frontend can show the download CTA without issuing a separate request to the invoice endpoint to find out.',
-  }).readonly(),
-  trackingNumber: z.string().max(255).optional(),
-  shippingCarrier: z.string().max(255).optional(),
-  customerFullName: z.string().readonly(),
-  isCompleted: z.boolean().readonly(),
-  isCanceled: z.boolean().readonly(),
-})
-
 export const zPaginatedCartItemList = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -2505,19 +2593,6 @@ export const zPaginatedCartList = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zCart),
-})
-
-export const zPaginatedOrderList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zOrder),
 })
 
 export const zPaginatedProductList = z.object({
@@ -3426,6 +3501,141 @@ export const zSettingDetail = z.object({
 })
 
 /**
+ * * `home_delivery` - Home delivery
+ * * `box_now_locker` - BOX NOW Locker
+ */
+export const zShippingMethodEnum = z.enum(['home_delivery', 'box_now_locker']).register(z.globalRegistry, {
+  description: '* `home_delivery` - Home delivery\n* `box_now_locker` - BOX NOW Locker',
+})
+
+export const zOrder = z.object({
+  id: z.int().readonly(),
+  user: z.int().nullish(),
+  country: z.string().nullable(),
+  region: z.string().nullable(),
+  floor: z.union([
+    zFloorEnum,
+    zBlankEnum,
+  ]).optional(),
+  locationType: z.union([
+    zLocationTypeEnum,
+    zBlankEnum,
+  ]).optional(),
+  street: z.string().max(255),
+  streetNumber: z.string().max(255),
+  payWay: z.int().nullable(),
+  status: zOrderStatus.optional(),
+  statusDisplay: z.string().readonly(),
+  statusUpdatedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  firstName: z.string().max(255),
+  lastName: z.string().max(255),
+  email: z.email().max(255),
+  zipcode: z.string().max(255),
+  place: z.string().max(255).optional(),
+  city: z.string().max(255),
+  phone: z.string(),
+  customerNotes: z.string().optional(),
+  paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  items: z.array(zOrderItemDetail),
+  shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  documentType: zOrderDocumentType.optional(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  fullAddress: z.string().readonly(),
+  paymentId: z.string().max(255).nullish(),
+  paymentStatus: z.union([
+    zPaymentStatusEnum,
+    zBlankEnum,
+  ]).optional(),
+  paymentMethod: z.string().max(50).optional(),
+  shippingMethod: zShippingMethodEnum.optional(),
+  canBeCanceled: z.boolean().readonly(),
+  isPaid: z.boolean().readonly(),
+})
+
+/**
+ * Serializer for creating orders from cart (dual-flow payment architecture).
+ *
+ * This serializer supports two payment flows:
+ * 1. Online payments (is_online_payment=True): Requires payment_intent_id
+ * 2. Offline payments (is_online_payment=False): No payment_intent_id required
+ *
+ * The order is created from an existing cart identified via X-Cart-Id header.
+ * Cart is NOT sent in request body - it's retrieved from the header using CartService.
+ */
+export const zOrderCreateFromCartRequest = z.object({
+  payWayId: z.int().register(z.globalRegistry, {
+    description: 'Payment method ID',
+  }),
+  paymentIntentId: z.string().nullish(),
+  firstName: z.string().min(1).max(150).register(z.globalRegistry, {
+    description: 'Customer first name',
+  }),
+  lastName: z.string().min(1).max(150).register(z.globalRegistry, {
+    description: 'Customer last name',
+  }),
+  email: z.email().min(1).register(z.globalRegistry, {
+    description: 'Customer email address',
+  }),
+  street: z.string().min(1).max(255).register(z.globalRegistry, {
+    description: 'Street name',
+  }),
+  streetNumber: z.string().max(50).register(z.globalRegistry, {
+    description: 'Street number',
+  }).optional(),
+  city: z.string().min(1).max(100).register(z.globalRegistry, {
+    description: 'City name',
+  }),
+  zipcode: z.string().min(1).max(20).register(z.globalRegistry, {
+    description: 'Postal/ZIP code',
+  }),
+  countryId: z.string().min(1).register(z.globalRegistry, {
+    description: 'Country alpha-2 code (e.g., \'GR\', \'US\')',
+  }),
+  regionId: z.string().nullish(),
+  phone: z.string().min(1).register(z.globalRegistry, {
+    description: 'Customer phone number',
+  }),
+  customerNotes: z.string().max(500).register(z.globalRegistry, {
+    description: 'Customer notes or special instructions',
+  }).optional(),
+  billingVatId: z.string().max(12).register(z.globalRegistry, {
+    description: 'Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.',
+  }).optional(),
+  billingCountry: z.string().max(2).register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code for the buyer\'s tax identity. Defaults to the order country when blank.',
+  }).optional(),
+  documentType: zOrderCreateDocumentType.optional(),
+  loyaltyPointsToRedeem: z.int().gte(0).nullish(),
+  shippingMethod: zShippingMethodEnum.optional(),
+  boxnowLockerId: z.string().max(64).register(z.globalRegistry, {
+    description: 'BoxNow APM locker ID from the widget',
+  }).optional(),
+  boxnowCompartmentSize: z.int().gte(1).lte(3).register(z.globalRegistry, {
+    description: 'BoxNow compartment size: 1=Small, 2=Medium, 3=Large',
+  }).optional().default(1),
+}).register(z.globalRegistry, {
+  description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',
+})
+
+export const zPaginatedOrderList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zOrder),
+})
+
+/**
  * * `ACTIVE` - Active
  * * `PENDING` - Pending Confirmation
  * * `UNSUBSCRIBED` - Unsubscribed
@@ -3874,6 +4084,234 @@ export const zTrendingSearchResponse = z.object({
   results: z.array(zTrendingSearchItem),
 }).register(z.globalRegistry, {
   description: 'Response payload for ``listTrendingSearches``.\n\nThe shape mirrors what the view caches in Redis so drf-spectacular\ncan resolve a concrete schema (otherwise it falls back to\n``unable to guess serializer`` and emits a W002 warning).',
+})
+
+/**
+ * * `apm` - APM
+ * * `any_apm` - Any APM
+ * * `warehouse` - Warehouse
+ * * `depot` - Depot
+ */
+export const zTypeEnum = z.enum([
+  'apm',
+  'any_apm',
+  'warehouse',
+  'depot',
+]).register(z.globalRegistry, {
+  description: '* `apm` - APM\n* `any_apm` - Any APM\n* `warehouse` - Warehouse\n* `depot` - Depot',
+})
+
+/**
+ * Lightweight serializer for BoxNow locker list endpoints.
+ *
+ * Lockers are populated exclusively via the ``sync_boxnow_lockers``
+ * Celery task — all fields are read-only.
+ */
+export const zBoxNowLocker = z.object({
+  id: z.int().readonly(),
+  externalId: z.string().register(z.globalRegistry, {
+    description: 'BoxNow APM identifier (string)',
+  }).readonly(),
+  type: zTypeEnum,
+  imageUrl: z.url().readonly().nullable(),
+  lat: z.number().gt(-1000).lt(1000).readonly(),
+  lng: z.number().gt(-1000).lt(1000).readonly(),
+  title: z.string().readonly(),
+  name: z.string().readonly(),
+  addressLine1: z.string().readonly(),
+  addressLine2: z.string().readonly(),
+  postalCode: z.string().readonly(),
+  countryCode: z.string().register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code',
+  }).readonly(),
+  note: z.string().readonly(),
+  isActive: z.boolean().readonly(),
+  lastSyncedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+}).register(z.globalRegistry, {
+  description: 'Lightweight serializer for BoxNow locker list endpoints.\n\nLockers are populated exclusively via the ``sync_boxnow_lockers``\nCelery task — all fields are read-only.',
+})
+
+/**
+ * Detail serializer for a single BoxNow locker.
+ *
+ * Inherits all fields from ``BoxNowLockerSerializer``.
+ * Extended fields can be added here as requirements grow.
+ */
+export const zBoxNowLockerDetail = z.object({
+  id: z.int().readonly(),
+  externalId: z.string().register(z.globalRegistry, {
+    description: 'BoxNow APM identifier (string)',
+  }).readonly(),
+  type: zTypeEnum,
+  imageUrl: z.url().readonly().nullable(),
+  lat: z.number().gt(-1000).lt(1000).readonly(),
+  lng: z.number().gt(-1000).lt(1000).readonly(),
+  title: z.string().readonly(),
+  name: z.string().readonly(),
+  addressLine1: z.string().readonly(),
+  addressLine2: z.string().readonly(),
+  postalCode: z.string().readonly(),
+  countryCode: z.string().register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code',
+  }).readonly(),
+  note: z.string().readonly(),
+  isActive: z.boolean().readonly(),
+  lastSyncedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+}).register(z.globalRegistry, {
+  description: 'Detail serializer for a single BoxNow locker.\n\nInherits all fields from ``BoxNowLockerSerializer``.\nExtended fields can be added here as requirements grow.',
+})
+
+/**
+ * Detail serializer for a single BoxNow shipment.
+ *
+ * Extends the list serializer with:
+ * - nested ``locker`` object (``BoxNowLockerSerializer``)
+ * - ``events`` — last 20 ``BoxNowParcelEvent`` records ordered by
+ * ``event_time`` descending
+ * - ``label_url`` — relative URL for downloading the parcel label PDF
+ * via the Django proxy route; ``None`` when ``parcel_id`` is blank
+ *
+ * Imports of ``BoxNowLockerSerializer`` and
+ * ``BoxNowParcelEventSerializer`` are deferred to method bodies to
+ * prevent circular import chains between the serializer modules.
+ */
+export const zBoxNowShipmentDetail = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  deliveryRequestId: z.string().readonly().nullable(),
+  parcelId: z.string().readonly().nullable(),
+  lockerExternalId: z.string().register(z.globalRegistry, {
+    description: 'Denormalised BoxNow APM ID — preserved even if the BoxNowLocker row is deleted',
+  }).readonly(),
+  parcelState: zBoxNowParcelState,
+  parcelStateDisplay: z.string().register(z.globalRegistry, {
+    description: 'Human-readable label for the parcel_state choice',
+  }).readonly(),
+  compartmentSize: zCompartmentSizeEnum,
+  paymentMode: zPaymentModeEnum,
+  lastEventAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  locker: zBoxNowLocker.nullable(),
+  events: z.array(zBoxNowParcelEvent).register(z.globalRegistry, {
+    description: 'Last 20 parcel events ordered by event_time desc',
+  }).readonly(),
+  labelUrl: z.string().readonly().nullable(),
+  weightGrams: z.int().readonly(),
+  amountToBeCollected: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'Amount collected at delivery (PoG / COD). Always 0 in Phase 1.',
+  }).readonly(),
+  allowReturn: z.boolean().readonly(),
+  cancelRequestedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  metadata: z.unknown().register(z.globalRegistry, {
+    description: 'Full delivery-request response and diagnostics from BoxNow',
+  }),
+}).register(z.globalRegistry, {
+  description: 'Detail serializer for a single BoxNow shipment.\n\nExtends the list serializer with:\n- nested ``locker`` object (``BoxNowLockerSerializer``)\n- ``events`` — last 20 ``BoxNowParcelEvent`` records ordered by\n  ``event_time`` descending\n- ``label_url`` — relative URL for downloading the parcel label PDF\n  via the Django proxy route; ``None`` when ``parcel_id`` is blank\n\nImports of ``BoxNowLockerSerializer`` and\n``BoxNowParcelEventSerializer`` are deferred to method bodies to\nprevent circular import chains between the serializer modules.',
+})
+
+export const zOrderDetail = z.object({
+  id: z.int().readonly(),
+  user: z.int().nullish(),
+  country: z.string().nullable(),
+  region: z.string().nullable(),
+  floor: z.union([
+    zFloorEnum,
+    zBlankEnum,
+  ]).optional(),
+  locationType: z.union([
+    zLocationTypeEnum,
+    zBlankEnum,
+  ]).optional(),
+  street: z.string().max(255),
+  streetNumber: z.string().max(255),
+  payWay: z.int().nullable(),
+  status: zOrderStatus.optional(),
+  statusDisplay: z.string().readonly(),
+  statusUpdatedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  firstName: z.string().max(255),
+  lastName: z.string().max(255),
+  email: z.email().max(255),
+  zipcode: z.string().max(255),
+  place: z.string().max(255).optional(),
+  city: z.string().max(255),
+  phone: z.string().readonly(),
+  customerNotes: z.string().optional(),
+  paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  items: z.array(zOrderItemDetail),
+  shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  documentType: zOrderDocumentType.optional(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  fullAddress: z.string().readonly(),
+  paymentId: z.string().max(255).nullish(),
+  paymentStatus: z.union([
+    zPaymentStatusEnum,
+    zBlankEnum,
+  ]).optional(),
+  paymentMethod: z.string().max(50).optional(),
+  shippingMethod: zShippingMethodEnum.optional(),
+  canBeCanceled: z.boolean().readonly(),
+  isPaid: z.boolean().readonly(),
+  orderTimeline: z.array(z.object({
+    changeType: z.string().optional(),
+    timestamp: z.string().optional(),
+    description: z.string().optional(),
+    user: z.string().nullish(),
+  })).register(z.globalRegistry, {
+    description: 'Order status timeline and history',
+  }).readonly(),
+  pricingBreakdown: z.object({
+    itemsSubtotal: z.number().optional(),
+    shippingCost: z.number().optional(),
+    paymentMethodFee: z.number().optional(),
+    extrasTotal: z.number().optional(),
+    grandTotal: z.number().optional(),
+    currency: z.string().optional(),
+    paidAmount: z.number().optional(),
+    remainingAmount: z.number().optional(),
+  }).register(z.globalRegistry, {
+    description: 'Detailed pricing breakdown',
+  }).readonly(),
+  trackingDetails: z.object({
+    trackingNumber: z.string().nullish(),
+    shippingCarrier: z.string().nullish(),
+    hasTracking: z.boolean().optional(),
+    estimatedDelivery: z.string().nullish(),
+    trackingUrl: z.string().nullish(),
+  }).readonly().nullable(),
+  hasInvoice: z.boolean().register(z.globalRegistry, {
+    description: 'True when a PDF invoice has been generated — the frontend can show the download CTA without issuing a separate request to the invoice endpoint to find out.',
+  }).readonly(),
+  boxnowShipment: zBoxNowShipmentDetail.nullable(),
+  trackingNumber: z.string().max(255).optional(),
+  shippingCarrier: z.string().max(255).optional(),
+  customerFullName: z.string().readonly(),
+  isCompleted: z.boolean().readonly(),
+  isCanceled: z.boolean().readonly(),
+})
+
+export const zPaginatedBoxNowLockerList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zBoxNowLocker),
 })
 
 export const zUnsubscribeResponse = z.object({
@@ -4943,6 +5381,7 @@ export const zOrderWritable = z.object({
     zBlankEnum,
   ]).optional(),
   paymentMethod: z.string().max(50).optional(),
+  shippingMethod: zShippingMethodEnum.optional(),
 })
 
 export const zOrderDetailWritable = z.object({
@@ -4976,6 +5415,7 @@ export const zOrderDetailWritable = z.object({
     zBlankEnum,
   ]).optional(),
   paymentMethod: z.string().max(50).optional(),
+  shippingMethod: zShippingMethodEnum.optional(),
   trackingNumber: z.string().max(255).optional(),
   shippingCarrier: z.string().max(255).optional(),
 })
@@ -5075,6 +5515,19 @@ export const zPaginatedBlogTagListWritable = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zBlogTagWritable),
+})
+
+export const zPaginatedBoxNowLockerListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(z.unknown()),
 })
 
 export const zPaginatedCartItemListWritable = z.object({
@@ -9601,7 +10054,7 @@ export const zUpdateCountryQuery = z.object({
 
 export const zUpdateCountryResponse = zCountryDetail
 
-export const zHealthRetrieveResponse = zHealthCheckResponse
+export const zApiV1HealthRetrieveResponse = zHealthCheckResponse
 
 export const zGetProductLoyaltyPointsPath = z.object({
   id: z.union([
@@ -10813,6 +11266,20 @@ export const zAddOrderTrackingPath = z.object({
 
 export const zAddOrderTrackingResponse = zOrderDetail
 
+export const zCancelBoxNowShipmentForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zGetBoxNowLabelForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
 export const zCancelOrderBody = zCancelOrderRequestRequest
 
 export const zCancelOrderPath = z.object({
@@ -11358,6 +11825,9 @@ export const zListPayWayQuery = z.object({
   ]).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
+  }).optional(),
+  shippingMethod: z.string().register(z.globalRegistry, {
+    description: 'Filter pay ways compatible with the given shipping method. When \'box_now_locker\', only online-payment pay ways are returned.',
   }).optional(),
   sortOrder: z.union([
     z.string().regex(/^-?\d+$/),
@@ -13848,7 +14318,7 @@ export const zListRegionsByCountryQuery = z.object({
 
 export const zListRegionsByCountryResponse = zPaginatedRegionList
 
-export const zSearchAnalyticsRetrieveQuery = z.object({
+export const zApiV1SearchAnalyticsRetrieveQuery = z.object({
   contentType: z.string().register(z.globalRegistry, {
     description: 'Filter by content type: \'product\', \'blog_post\', or \'federated\'. If not provided, includes all content types.',
   }).optional(),
@@ -13860,9 +14330,9 @@ export const zSearchAnalyticsRetrieveQuery = z.object({
   }).optional(),
 })
 
-export const zSearchAnalyticsRetrieveResponse = zSearchAnalyticsResponse
+export const zApiV1SearchAnalyticsRetrieveResponse = zSearchAnalyticsResponse
 
-export const zSearchBlogPostRetrieveQuery = z.object({
+export const zApiV1SearchBlogPostRetrieveQuery = z.object({
   languageCode: z.string().register(z.globalRegistry, {
     description: 'Language code to filter results (e.g., \'en\', \'el\', \'de\'). If not provided, searches all languages.',
   }).optional(),
@@ -13879,9 +14349,9 @@ export const zSearchBlogPostRetrieveQuery = z.object({
   }),
 })
 
-export const zSearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse
+export const zApiV1SearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse
 
-export const zSearchFederatedRetrieveQuery = z.object({
+export const zApiV1SearchFederatedRetrieveQuery = z.object({
   languageCode: z.string().register(z.globalRegistry, {
     description: 'Language code to filter results (e.g., \'en\', \'el\', \'de\'). If not provided, searches all languages.',
   }).optional(),
@@ -13898,9 +14368,9 @@ export const zSearchFederatedRetrieveQuery = z.object({
   }),
 })
 
-export const zSearchFederatedRetrieveResponse = zFederatedSearchResponse
+export const zApiV1SearchFederatedRetrieveResponse = zFederatedSearchResponse
 
-export const zSearchProductRetrieveQuery = z.object({
+export const zApiV1SearchProductRetrieveQuery = z.object({
   attributeValues: z.string().register(z.globalRegistry, {
     description: 'Comma-separated attribute value IDs (attribute_values IN [ids])',
   }).optional(),
@@ -13945,7 +14415,7 @@ export const zSearchProductRetrieveQuery = z.object({
   ]).optional(),
 })
 
-export const zSearchProductRetrieveResponse = zProductMeiliSearchResponse
+export const zApiV1SearchProductRetrieveResponse = zProductMeiliSearchResponse
 
 export const zListTrendingSearchesQuery = z.object({
   contentType: z.string().register(z.globalRegistry, {
@@ -13962,15 +14432,84 @@ export const zListTrendingSearchesQuery = z.object({
 
 export const zListTrendingSearchesResponse = zTrendingSearchResponse
 
-export const zSettingsListResponse = z.array(zSetting)
+export const zApiV1SettingsListResponse = z.array(zSetting)
 
-export const zSettingsGetRetrieveQuery = z.object({
+export const zApiV1SettingsGetRetrieveQuery = z.object({
   key: z.string().register(z.globalRegistry, {
     description: 'Setting key name (e.g., CHECKOUT_SHIPPING_PRICE)',
   }),
 })
 
-export const zSettingsGetRetrieveResponse = zSettingDetail
+export const zApiV1SettingsGetRetrieveResponse = zSettingDetail
+
+export const zListBoxNowLockerQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Cursor for pagination',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+  ordering: z.string().regex(/^(?:externalId|\-externalId|postalCode|\-postalCode|lastSyncedAt|\-lastSyncedAt|createdAt|\-createdAt)(?:,(?:externalId|\-externalId|postalCode|\-postalCode|lastSyncedAt|\-lastSyncedAt|createdAt|\-createdAt))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: externalId, -externalId, postalCode, -postalCode, lastSyncedAt, -lastSyncedAt, createdAt, -createdAt',
+  }).optional(),
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Enable or disable pagination',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Pagination strategy type',
+  }).optional().default('pageNumber'),
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+})
+
+export const zListBoxNowLockerResponse = zPaginatedBoxNowLockerList
+
+export const zRetrieveBoxNowLockerPath = z.object({
+  id: z.string(),
+})
+
+export const zRetrieveBoxNowLockerQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zRetrieveBoxNowLockerResponse = zBoxNowLockerDetail
+
+export const zNearestBoxNowLockerBody = zBoxNowNearestLockerRequestRequest
+
+export const zNearestBoxNowLockerResponse = zBoxNowNearestLockerResponse
+
+export const zCancelBoxNowShipmentPath = z.object({
+  parcelId: z.string(),
+})
+
+export const zGetBoxNowLabelPath = z.object({
+  parcelId: z.string(),
+})
+
+export const zGetBoxNowLabelResponse = z.string()
 
 export const zListTagQuery = z.object({
   active: z.union([
@@ -15268,13 +15807,13 @@ export const zConfirmSubscriptionByTokenPath = z.object({
 
 export const zConfirmSubscriptionByTokenResponse = zConfirmResponse
 
-export const zUserSubscriptionConfirmCreateBody = zConfirmResponseRequest
+export const zApiV1UserSubscriptionConfirmCreateBody = zConfirmResponseRequest
 
-export const zUserSubscriptionConfirmCreatePath = z.object({
+export const zApiV1UserSubscriptionConfirmCreatePath = z.object({
   token: z.string(),
 })
 
-export const zUserSubscriptionConfirmCreateResponse = zConfirmResponse
+export const zApiV1UserSubscriptionConfirmCreateResponse = zConfirmResponse
 
 export const zListSubscriptionTopicQuery = z.object({
   category: z.enum([
@@ -15535,3 +16074,5 @@ export const zUnsubscribeFromTopicOneClickPath = z.object({
 })
 
 export const zCreateWebSocketTicketResponse = zWebSocketTicketResponse
+
+export const zBoxnowWebhookBody = zBoxNowWebhookEnvelopeRequest

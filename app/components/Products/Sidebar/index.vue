@@ -332,7 +332,7 @@ watch(slideoverOpen, (isOpen) => {
               </h2>
               <p
                 v-if="hasActiveFilters"
-                class="text-xs text-neutral-500 dark:text-neutral-300"
+                class="text-xs text-neutral-700 dark:text-neutral-300"
               >
                 {{ t('filters.active_count', { count: activeFilterCount }) }}
               </p>

@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 const formState = defineModel<Record<string, any>>('formState', { required: true })
 
-defineProps<{
+const props = defineProps<{
   schema: any
-  payWayOptions: Array<{ label: string, value: number, mainImagePath?: string }>
+  payWayOptions: Array<{ label: string, value: number, mainImagePath?: string, isOnlinePayment?: boolean }>
   isSubmitting: boolean
 }>()
 
@@ -13,6 +13,17 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+// When BoxNow Locker is selected, lockers don't support cash-on-delivery.
+// Filter to online-payment methods only for fast UI feedback. Django also
+// enforces this server-side on order create — the frontend filter is
+// additive, not the source of truth.
+const filteredPayWayOptions = computed(() => {
+  if (formState.value.shippingMethod === 'box_now_locker') {
+    return props.payWayOptions.filter(opt => opt.isOnlinePayment !== false)
+  }
+  return props.payWayOptions
+})
 </script>
 
 <template>
@@ -38,7 +49,7 @@ const { t } = useI18n()
       >
         <URadioGroup
           v-model="formState.payWay"
-          :items="payWayOptions"
+          :items="filteredPayWayOptions"
           variant="card"
           size="xl"
           class="w-full"

@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import type { SubscriptionTopic } from '#shared/openapi/types.gen'
 import { createMockTopic } from '../../helpers/subscriptionTestData'
 
 const mockFetch = vi.fn()

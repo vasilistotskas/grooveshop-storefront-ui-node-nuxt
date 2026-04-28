@@ -7,7 +7,7 @@ export default defineCachedEventHandler(async () => {
         method: 'GET',
       },
     )
-    return await parseDataAs(response, zSettingsListResponse)
+    return await parseDataAs(response, zApiV1SettingsListResponse)
   }
   catch (error) {
     await handleError(error)

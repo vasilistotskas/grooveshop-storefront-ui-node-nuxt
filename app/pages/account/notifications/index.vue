@@ -297,8 +297,8 @@ definePageMeta({
               </p>
               <div
                 class="
-                flex flex-wrap items-center gap-2 text-xs text-neutral-500
-                dark:text-neutral-400
+                flex flex-wrap items-center gap-2 text-xs text-neutral-700
+                dark:text-neutral-200
               "
               >
                 <ClientOnly><span>{{ formatRelative(row.createdAt) }}</span></ClientOnly>

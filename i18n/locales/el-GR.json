@@ -284,6 +284,37 @@
     "GOOGLE_PAY": "Google Pay",
     "fee": "Προμήθεια {method}"
   },
+  "tracking": {
+    "boxnow": {
+      "title": "Παρακολούθηση BOX NOW",
+      "voucher": "Αριθμός voucher",
+      "locker": "Locker παραλαβής",
+      "last_update": "Τελευταία ενημέρωση",
+      "open_tracking": "Άνοιγμα στο BOX NOW",
+      "label_download": "Κατεβάστε ετικέτα",
+      "no_events": "Δεν υπάρχουν ακόμη γεγονότα παρακολούθησης",
+      "state": {
+        "pending_creation": "Σε αναμονή δημιουργίας",
+        "new": "Καταχωρήθηκε",
+        "in_depot": "Σε αποθήκη BOX NOW",
+        "final_destination": "Στο locker, έτοιμο για παραλαβή",
+        "delivered": "Παραδόθηκε",
+        "returned": "Επιστράφηκε",
+        "expired": "Έληξε",
+        "canceled": "Ακυρώθηκε",
+        "accepted_for_return": "Παρελήφθη για επιστροφή",
+        "accepted_to_locker": "Σε μεταφορά",
+        "missing": "Δεν βρέθηκε",
+        "lost": "Χάθηκε"
+      },
+      "notification": {
+        "at_locker_title": "Το πακέτο σας έφτασε!",
+        "at_locker_body": "Το πακέτο σας περιμένει στο locker {address}. Voucher: {voucher}",
+        "delivered_title": "Το πακέτο παραλήφθηκε",
+        "delivered_body": "Παραλάβατε το πακέτο σας από το BOX NOW locker"
+      }
+    }
+  },
   "footer": {
     "about_us": "Σχετικά με εμάς",
     "about": {

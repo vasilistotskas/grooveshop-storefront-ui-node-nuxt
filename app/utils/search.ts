@@ -1,9 +1,11 @@
-import type { SearchResult } from '#shared/types/search'
-import { isProductResult } from '#shared/types/search'
 import { cleanHtml } from './str'
 
+function isProduct(result: SearchResult): result is ProductMeiliSearchResult {
+  return result?.contentType === 'product'
+}
+
 export function getDisplayTitle(result: SearchResult): string {
-  if (isProductResult(result)) {
+  if (isProduct(result)) {
     if (result?.name) {
       return cleanHtml(result.name)
     }
@@ -18,7 +20,7 @@ export function getDisplayTitle(result: SearchResult): string {
 }
 
 export function getDisplaySubtitle(result: SearchResult, maxLength = 150): string {
-  if (isProductResult(result)) {
+  if (isProduct(result)) {
     if (result?.description) {
       const text = cleanHtml(result.description)
       return text.length > maxLength ? text.substring(0, maxLength) + '...' : text

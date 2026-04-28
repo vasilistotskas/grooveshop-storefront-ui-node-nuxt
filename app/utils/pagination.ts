@@ -1,5 +1,4 @@
-import type { CursorState } from '#shared/types/pagination'
-import { PaginationCursorStateEnum } from '#shared/types/enum'
+const CURSOR_STATE_KEYS = ['blogPostsCursor', 'blogPostCommentsCursor'] as const
 
 export function getCursorFromUrl(
   url: string,
@@ -12,7 +11,7 @@ export function getCursorFromUrl(
 export function generateInitialCursorState(): CursorState {
   const initialState: CursorState = {}
 
-  for (const value of Object.values(PaginationCursorStateEnum)) {
+  for (const value of CURSOR_STATE_KEYS) {
     initialState[value] = ''
   }
 

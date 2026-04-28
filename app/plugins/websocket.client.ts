@@ -119,11 +119,21 @@ export default defineNuxtPlugin({
 
             const presentation = presentationFor(data.kind as string, data.category as string)
 
+            // BoxNow parcel-state notifications carry semantic icons that are
+            // more specific than the generic SHIPPING category icon.
+            // `data.type` is the Django notification channel-layer event name.
+            const BOXNOW_ICON_OVERRIDES: Record<string, string> = {
+              BOXNOW_PARCEL_AT_LOCKER: 'i-lucide-package-check',
+              BOXNOW_PARCEL_DELIVERED: 'i-lucide-check-circle',
+            }
+            const notificationType = data.type as string | undefined
+            const resolvedIcon = (notificationType && BOXNOW_ICON_OVERRIDES[notificationType]) || presentation.icon
+
             toast.add({
               title: localized.title,
               description: localized.message,
               color: presentation.color,
-              icon: presentation.icon,
+              icon: resolvedIcon,
             })
             if (isBroadcastChannelSupported.value) {
               post(data)

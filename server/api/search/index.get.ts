@@ -2,9 +2,9 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
   try {
-    const query = await getValidatedQuery(event, zSearchProductRetrieveQuery.parse)
+    const query = await getValidatedQuery(event, zApiV1SearchProductRetrieveQuery.parse)
 
-    if (!query?.query?.trim()) {
+    if (typeof query?.query !== 'string' || !query.query.trim()) {
       return {
         products: null,
         blogPosts: null,

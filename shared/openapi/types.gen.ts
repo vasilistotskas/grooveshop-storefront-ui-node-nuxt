@@ -696,6 +696,462 @@ export type BlogTagWriteRequest = {
   active?: boolean
 }
 
+/**
+ * Nested ``customer`` object within a BoxNow webhook payload.
+ */
+export type BoxNowCustomerRequest = {
+  /**
+     * Customer full name
+     */
+  name?: string
+  /**
+     * Customer email address
+     */
+  email?: string
+  /**
+     * Customer phone number
+     */
+  phoneNumber?: string
+}
+
+/**
+ * Nested ``eventLocation`` object within a BoxNow webhook payload.
+ */
+export type BoxNowEventLocationRequest = {
+  /**
+     * Human-readable locker or hub name
+     */
+  displayName?: string
+  /**
+     * Postal code of the event location
+     */
+  postalCode?: string
+}
+
+/**
+ * Lightweight serializer for BoxNow locker list endpoints.
+ *
+ * Lockers are populated exclusively via the ``sync_boxnow_lockers``
+ * Celery task — all fields are read-only.
+ */
+export type BoxNowLocker = {
+  readonly id: number
+  /**
+     * BoxNow APM identifier (string)
+     */
+  readonly externalId: string
+  type: TypeEnum
+  readonly imageUrl: string | null
+  /**
+     * Latitude
+     */
+  readonly lat: number
+  /**
+     * Longitude
+     */
+  readonly lng: number
+  readonly title: string
+  readonly name: string
+  readonly addressLine1: string
+  readonly addressLine2: string
+  readonly postalCode: string
+  /**
+     * ISO 3166-1 alpha-2 country code
+     */
+  readonly countryCode: string
+  /**
+     * Σημείωση
+     */
+  readonly note: string
+  readonly isActive: boolean
+  /**
+     * Timestamp of the most recent sync from BoxNow API
+     */
+  readonly lastSyncedAt: string | null
+  readonly createdAt: string
+  readonly updatedAt: string
+  readonly uuid: string
+}
+
+/**
+ * Detail serializer for a single BoxNow locker.
+ *
+ * Inherits all fields from ``BoxNowLockerSerializer``.
+ * Extended fields can be added here as requirements grow.
+ */
+export type BoxNowLockerDetail = {
+  readonly id: number
+  /**
+     * BoxNow APM identifier (string)
+     */
+  readonly externalId: string
+  type: TypeEnum
+  readonly imageUrl: string | null
+  /**
+     * Latitude
+     */
+  readonly lat: number
+  /**
+     * Longitude
+     */
+  readonly lng: number
+  readonly title: string
+  readonly name: string
+  readonly addressLine1: string
+  readonly addressLine2: string
+  readonly postalCode: string
+  /**
+     * ISO 3166-1 alpha-2 country code
+     */
+  readonly countryCode: string
+  /**
+     * Σημείωση
+     */
+  readonly note: string
+  readonly isActive: boolean
+  /**
+     * Timestamp of the most recent sync from BoxNow API
+     */
+  readonly lastSyncedAt: string | null
+  readonly createdAt: string
+  readonly updatedAt: string
+  readonly uuid: string
+}
+
+/**
+ * Request body for ``POST /lockers/nearest``.
+ *
+ * Maps to the BoxNow ``/api/v2/delivery-requests:checkAddressDelivery``
+ * endpoint parameters.
+ */
+export type BoxNowNearestLockerRequestRequest = {
+  /**
+     * City name for nearest-locker lookup
+     */
+  city: string
+  /**
+     * Street name and number
+     */
+  street: string
+  /**
+     * Postal / ZIP code
+     */
+  postalCode: string
+  /**
+     * IETF language tag / region code (default: el-GR)
+     */
+  region?: string
+  /**
+     * Required compartment size: 1=Small, 2=Medium, 3=Large
+     */
+  compartmentSize?: number
+}
+
+/**
+ * Response shape returned by BoxNow's checkAddressDelivery call.
+ *
+ * Mirrors ``/api/v2/delivery-requests:checkAddressDelivery`` response.
+ * ``lat`` and ``lng`` are CharField because BoxNow returns them as
+ * strings in this endpoint.  ``distance`` is the straight-line
+ * distance in kilometres from the supplied address.
+ */
+export type BoxNowNearestLockerResponse = {
+  /**
+     * BoxNow APM identifier
+     */
+  readonly id: string
+  /**
+     * Locker type (e.g. apm, warehouse)
+     */
+  readonly type: string
+  /**
+     * URL of locker image
+     */
+  readonly image: string
+  /**
+     * Latitude (string as returned by BoxNow)
+     */
+  readonly lat: string
+  /**
+     * Longitude (string as returned by BoxNow)
+     */
+  readonly lng: string
+  /**
+     * Short display title
+     */
+  readonly title: string
+  /**
+     * Full locker name
+     */
+  readonly name: string
+  /**
+     * Postal code of the locker
+     */
+  readonly postalCode: string
+  /**
+     * ISO 3166-1 alpha-2 country code
+     */
+  readonly country: string
+  /**
+     * Operational note from BoxNow
+     */
+  readonly note: string
+  /**
+     * Primary address line
+     */
+  readonly addressLine1: string
+  /**
+     * Secondary address line
+     */
+  readonly addressLine2: string
+  /**
+     * IETF region tag returned by BoxNow
+     */
+  readonly region: string
+  /**
+     * Distance from the supplied address in kilometres
+     */
+  readonly distance: number
+}
+
+/**
+ * Read-only serializer for ``BoxNowParcelEvent`` webhook audit records.
+ *
+ * All fields are read-only — events are written exclusively by the
+ * webhook handler and are never modified after creation.
+ */
+export type BoxNowParcelEvent = {
+  readonly id: number
+  /**
+     * CloudEvents 'id' field — idempotency key
+     */
+  readonly webhookMessageId: string
+  /**
+     * BoxNow event mapped from the webhook 'event' field
+     *
+     * * `pending_creation` - Pending creation
+     * * `new` - New
+     * * `in_depot` - In depot
+     * * `final_destination` - At locker
+     * * `delivered` - Delivered
+     * * `returned` - Returned
+     * * `expired` - Expired
+     * * `canceled` - Canceled
+     * * `accepted_for_return` - Accepted for return
+     * * `accepted_to_locker` - Accepted to locker
+     * * `missing` - Missing
+     * * `lost` - Lost
+     */
+  eventType: BoxNowParcelState
+  /**
+     * Human-readable label for the event_type choice
+     */
+  readonly eventTypeDisplay: string
+  /**
+     * Raw 'data.parcelState' value from BoxNow webhook payload
+     */
+  readonly parcelState: string
+  /**
+     * Timestamp from 'data.time' in the webhook payload
+     */
+  readonly eventTime: string
+  /**
+     * data.eventLocation.displayName
+     */
+  readonly displayName: string
+  /**
+     * data.eventLocation.postalCode
+     */
+  readonly postalCode: string
+  readonly additionalInformation: string
+  /**
+     * Timestamp when GrooveShop received the webhook (separate from event_time)
+     */
+  readonly receivedAt: string
+  readonly createdAt: string
+}
+
+/**
+ * * `pending_creation` - Pending creation
+ * * `new` - New
+ * * `in_depot` - In depot
+ * * `final_destination` - At locker
+ * * `delivered` - Delivered
+ * * `returned` - Returned
+ * * `expired` - Expired
+ * * `canceled` - Canceled
+ * * `accepted_for_return` - Accepted for return
+ * * `accepted_to_locker` - Accepted to locker
+ * * `missing` - Missing
+ * * `lost` - Lost
+ */
+export type BoxNowParcelState = 'pending_creation' | 'new' | 'in_depot' | 'final_destination' | 'delivered' | 'returned' | 'expired' | 'canceled' | 'accepted_for_return' | 'accepted_to_locker' | 'missing' | 'lost'
+
+/**
+ * Detail serializer for a single BoxNow shipment.
+ *
+ * Extends the list serializer with:
+ * - nested ``locker`` object (``BoxNowLockerSerializer``)
+ * - ``events`` — last 20 ``BoxNowParcelEvent`` records ordered by
+ * ``event_time`` descending
+ * - ``label_url`` — relative URL for downloading the parcel label PDF
+ * via the Django proxy route; ``None`` when ``parcel_id`` is blank
+ *
+ * Imports of ``BoxNowLockerSerializer`` and
+ * ``BoxNowParcelEventSerializer`` are deferred to method bodies to
+ * prevent circular import chains between the serializer modules.
+ */
+export type BoxNowShipmentDetail = {
+  readonly id: number
+  readonly uuid: string
+  /**
+     * BoxNow delivery-request ID returned from POST /api/v1/delivery-requests
+     */
+  readonly deliveryRequestId: string | null
+  /**
+     * 10-digit BoxNow voucher number
+     */
+  readonly parcelId: string | null
+  /**
+     * Denormalised BoxNow APM ID — preserved even if the BoxNowLocker row is deleted
+     */
+  readonly lockerExternalId: string
+  parcelState: BoxNowParcelState
+  /**
+     * Human-readable label for the parcel_state choice
+     */
+  readonly parcelStateDisplay: string
+  compartmentSize: CompartmentSizeEnum
+  paymentMode: PaymentModeEnum
+  readonly lastEventAt: string | null
+  readonly createdAt: string
+  readonly updatedAt: string
+  /**
+     * Nested BoxNow locker details
+     */
+  locker: BoxNowLocker | null
+  /**
+     * Last 20 parcel events ordered by event_time desc
+     */
+  readonly events: Array<BoxNowParcelEvent>
+  /**
+     * Relative URL to download the parcel label PDF via the Django proxy endpoint
+     */
+  readonly labelUrl: string | null
+  /**
+     * Weight (grams)
+     */
+  readonly weightGrams: number
+  /**
+     * Amount collected at delivery (PoG / COD). Always 0 in Phase 1.
+     */
+  readonly amountToBeCollected: number
+  readonly allowReturn: boolean
+  readonly cancelRequestedAt: string | null
+  /**
+     * Full delivery-request response and diagnostics from BoxNow
+     */
+  readonly metadata: unknown
+}
+
+/**
+ * ``data`` field of a BoxNow CloudEvent webhook envelope.
+ *
+ * Reflects the payload shape described in the BoxNow webhook PDF.
+ * ``camelCase`` field names are preserved because
+ * ``djangorestframework-camel-case`` is already applied
+ * project-wide at the middleware level; no manual aliasing needed.
+ */
+export type BoxNowWebhookDataRequest = {
+  /**
+     * 10-digit BoxNow voucher/parcel number
+     */
+  parcelId: string
+  /**
+     * BoxNow parcel state vocabulary (data.parcelState)
+     */
+  parcelState: string
+  /**
+     * Optional merchant reference number
+     */
+  parcelReferenceNumber?: string
+  /**
+     * Optional descriptive parcel name
+     */
+  parcelName?: string
+  /**
+     * Merchant order number sent during delivery-request creation
+     */
+  orderNumber: string
+  /**
+     * BoxNow event type string (e.g. 'in-depot', 'final-destination', 'delivered')
+     */
+  event: string
+  /**
+     * Location context for this event
+     */
+  eventLocation?: BoxNowEventLocationRequest
+  /**
+     * Customer details associated with the parcel
+     */
+  customer?: BoxNowCustomerRequest
+  /**
+     * Free-text additional information from BoxNow
+     */
+  additionalInformation?: string
+  /**
+     * Timestamp when the event occurred at BoxNow
+     */
+  time: string
+}
+
+/**
+ * Top-level CloudEvent envelope for BoxNow webhook POST requests.
+ *
+ * Used for OpenAPI documentation only — the webhook view reads
+ * raw bytes before parsing in order to verify the HMAC-SHA256
+ * ``datasignature`` against the unmodified ``data`` JSON substring.
+ * DRF validation is not applied to the incoming request directly.
+ */
+export type BoxNowWebhookEnvelopeRequest = {
+  /**
+     * CloudEvents specification version (expected: '1.0')
+     */
+  specversion: string
+  /**
+     * Event type (expected: 'gr.boxnow.parcel_event_change')
+     */
+  type: string
+  /**
+     * Origin URL of the event source
+     */
+  source: string
+  /**
+     * Subject of the event (typically the parcel ID)
+     */
+  subject: string
+  /**
+     * Unique CloudEvents ID; used as idempotency key (stored as webhook_message_id)
+     */
+  id: string
+  /**
+     * Timestamp the envelope was generated
+     */
+  time: string
+  /**
+     * MIME type of the data field (expected: 'application/json')
+     */
+  datacontenttype: string
+  /**
+     * HMAC-SHA256 hex digest of the raw 'data' JSON object; used for signature verification
+     */
+  datasignature: string
+  /**
+     * Parcel event payload
+     */
+  data: BoxNowWebhookDataRequest
+}
+
 export type BulkSubscriptionRequest = {
   /**
      * List of topic IDs to subscribe/unsubscribe
@@ -879,6 +1335,13 @@ export type CartPaymentIntentResponse = {
 export type CartWriteRequest = {
   user?: number | null
 }
+
+/**
+ * * `1` - Μικρό
+ * * `2` - Μεσαίο
+ * * `3` - Μεγάλο
+ */
+export type CompartmentSizeEnum = 1 | 2 | 3
 
 export type ConfirmResponse = {
   status: string
@@ -1535,6 +1998,7 @@ export type Order = {
   paymentId?: string | null
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
+  shippingMethod?: ShippingMethodEnum
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
 }
@@ -1627,6 +2091,21 @@ export type OrderCreateFromCartRequest = {
      * Number of loyalty points to redeem for discount on this order
      */
   loyaltyPointsToRedeem?: number | null
+  /**
+     * Shipping method for this order
+     *
+     * * `home_delivery` - Home delivery
+     * * `box_now_locker` - BOX NOW Locker
+     */
+  shippingMethod?: ShippingMethodEnum
+  /**
+     * BoxNow APM locker ID from the widget
+     */
+  boxnowLockerId?: string
+  /**
+     * BoxNow compartment size: 1=Small, 2=Medium, 3=Large
+     */
+  boxnowCompartmentSize?: number
 }
 
 export type OrderDetail = {
@@ -1670,6 +2149,7 @@ export type OrderDetail = {
   paymentId?: string | null
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
+  shippingMethod?: ShippingMethodEnum
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
   /**
@@ -1708,6 +2188,10 @@ export type OrderDetail = {
      * True when a PDF invoice has been generated — the frontend can show the download CTA without issuing a separate request to the invoice endpoint to find out.
      */
   readonly hasInvoice: boolean
+  /**
+     * BoxNow shipment details when shipping_method is 'box_now_locker', else null.
+     */
+  boxnowShipment: BoxNowShipmentDetail | null
   trackingNumber?: string
   shippingCarrier?: string
   readonly customerFullName: string
@@ -1921,6 +2405,19 @@ export type PaginatedBlogTagList = {
   pageTotalResults?: number
   page?: number
   results: Array<BlogTag>
+}
+
+export type PaginatedBoxNowLockerList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<BoxNowLocker>
 }
 
 export type PaginatedCartItemList = {
@@ -2965,6 +3462,12 @@ export type PayWayWriteRequest = {
      */
   configuration?: unknown
 }
+
+/**
+ * * `prepaid` - Prepaid
+ * * `cod` - Cash on delivery
+ */
+export type PaymentModeEnum = 'prepaid' | 'cod'
 
 /**
  * * `PENDING` - Pending
@@ -4043,6 +4546,12 @@ export type SettingDetail = {
 }
 
 /**
+ * * `home_delivery` - Home delivery
+ * * `box_now_locker` - BOX NOW Locker
+ */
+export type ShippingMethodEnum = 'home_delivery' | 'box_now_locker'
+
+/**
  * * `ACTIVE` - Active
  * * `PENDING` - Pending Confirmation
  * * `UNSUBSCRIBED` - Unsubscribed
@@ -4423,6 +4932,14 @@ export type TrendingSearchResponse = {
   languageCode?: string | null
   results: Array<TrendingSearchItem>
 }
+
+/**
+ * * `apm` - APM
+ * * `any_apm` - Any APM
+ * * `warehouse` - Warehouse
+ * * `depot` - Depot
+ */
+export type TypeEnum = 'apm' | 'any_apm' | 'warehouse' | 'depot'
 
 export type UnsubscribeResponse = {
   message: string
@@ -5217,6 +5734,7 @@ export type OrderWritable = {
   paymentId?: string | null
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
+  shippingMethod?: ShippingMethodEnum
 }
 
 export type OrderDetailWritable = {
@@ -5247,6 +5765,7 @@ export type OrderDetailWritable = {
   paymentId?: string | null
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
+  shippingMethod?: ShippingMethodEnum
   trackingNumber?: string
   shippingCarrier?: string
 }
@@ -5358,6 +5877,19 @@ export type PaginatedBlogTagListWritable = {
   pageTotalResults?: number
   page?: number
   results: Array<BlogTagWritable>
+}
+
+export type PaginatedBoxNowLockerListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<unknown>
 }
 
 export type PaginatedCartItemListWritable = {
@@ -10668,18 +11200,18 @@ export type UpdateCountryResponses = {
 
 export type UpdateCountryResponse = UpdateCountryResponses[keyof UpdateCountryResponses]
 
-export type HealthRetrieveData = {
+export type ApiV1HealthRetrieveData = {
   body?: never
   path?: never
   query?: never
   url: '/api/v1/health'
 }
 
-export type HealthRetrieveResponses = {
+export type ApiV1HealthRetrieveResponses = {
   200: HealthCheckResponse
 }
 
-export type HealthRetrieveResponse = HealthRetrieveResponses[keyof HealthRetrieveResponses]
+export type ApiV1HealthRetrieveResponse = ApiV1HealthRetrieveResponses[keyof ApiV1HealthRetrieveResponses]
 
 export type GetProductLoyaltyPointsData = {
   body?: never
@@ -12246,6 +12778,44 @@ export type AddOrderTrackingResponses = {
 
 export type AddOrderTrackingResponse = AddOrderTrackingResponses[keyof AddOrderTrackingResponses]
 
+export type CancelBoxNowShipmentForOrderData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/order/{id}/boxnow_cancel'
+}
+
+export type CancelBoxNowShipmentForOrderErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type CancelBoxNowShipmentForOrderError = CancelBoxNowShipmentForOrderErrors[keyof CancelBoxNowShipmentForOrderErrors]
+
+export type GetBoxNowLabelForOrderData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/order/{id}/boxnow_label'
+}
+
+export type GetBoxNowLabelForOrderErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type GetBoxNowLabelForOrderError = GetBoxNowLabelForOrderErrors[keyof GetBoxNowLabelForOrderErrors]
+
 export type CancelOrderData = {
   body?: CancelOrderRequestRequest
   path: {
@@ -12913,6 +13483,10 @@ export type ListPayWayData = {
          * A search term.
          */
     search?: string
+    /**
+         * Filter pay ways compatible with the given shipping method. When 'box_now_locker', only online-payment pay ways are returned.
+         */
+    shippingMethod?: string
     sortOrder?: string | number
     sortOrder_Gte?: string | number
     sortOrder_Lte?: string | number
@@ -16242,7 +16816,7 @@ export type ListRegionsByCountryResponses = {
 
 export type ListRegionsByCountryResponse = ListRegionsByCountryResponses[keyof ListRegionsByCountryResponses]
 
-export type SearchAnalyticsRetrieveData = {
+export type ApiV1SearchAnalyticsRetrieveData = {
   body?: never
   path?: never
   query?: {
@@ -16262,19 +16836,19 @@ export type SearchAnalyticsRetrieveData = {
   url: '/api/v1/search/analytics'
 }
 
-export type SearchAnalyticsRetrieveErrors = {
+export type ApiV1SearchAnalyticsRetrieveErrors = {
   400: ErrorResponse
 }
 
-export type SearchAnalyticsRetrieveError = SearchAnalyticsRetrieveErrors[keyof SearchAnalyticsRetrieveErrors]
+export type ApiV1SearchAnalyticsRetrieveError = ApiV1SearchAnalyticsRetrieveErrors[keyof ApiV1SearchAnalyticsRetrieveErrors]
 
-export type SearchAnalyticsRetrieveResponses = {
+export type ApiV1SearchAnalyticsRetrieveResponses = {
   200: SearchAnalyticsResponse
 }
 
-export type SearchAnalyticsRetrieveResponse = SearchAnalyticsRetrieveResponses[keyof SearchAnalyticsRetrieveResponses]
+export type ApiV1SearchAnalyticsRetrieveResponse = ApiV1SearchAnalyticsRetrieveResponses[keyof ApiV1SearchAnalyticsRetrieveResponses]
 
-export type SearchBlogPostRetrieveData = {
+export type ApiV1SearchBlogPostRetrieveData = {
   body?: never
   path?: never
   query: {
@@ -16298,19 +16872,19 @@ export type SearchBlogPostRetrieveData = {
   url: '/api/v1/search/blog/post'
 }
 
-export type SearchBlogPostRetrieveErrors = {
+export type ApiV1SearchBlogPostRetrieveErrors = {
   400: ErrorResponse
 }
 
-export type SearchBlogPostRetrieveError = SearchBlogPostRetrieveErrors[keyof SearchBlogPostRetrieveErrors]
+export type ApiV1SearchBlogPostRetrieveError = ApiV1SearchBlogPostRetrieveErrors[keyof ApiV1SearchBlogPostRetrieveErrors]
 
-export type SearchBlogPostRetrieveResponses = {
+export type ApiV1SearchBlogPostRetrieveResponses = {
   200: BlogPostMeiliSearchResponse
 }
 
-export type SearchBlogPostRetrieveResponse = SearchBlogPostRetrieveResponses[keyof SearchBlogPostRetrieveResponses]
+export type ApiV1SearchBlogPostRetrieveResponse = ApiV1SearchBlogPostRetrieveResponses[keyof ApiV1SearchBlogPostRetrieveResponses]
 
-export type SearchFederatedRetrieveData = {
+export type ApiV1SearchFederatedRetrieveData = {
   body?: never
   path?: never
   query: {
@@ -16334,19 +16908,19 @@ export type SearchFederatedRetrieveData = {
   url: '/api/v1/search/federated'
 }
 
-export type SearchFederatedRetrieveErrors = {
+export type ApiV1SearchFederatedRetrieveErrors = {
   400: ErrorResponse
 }
 
-export type SearchFederatedRetrieveError = SearchFederatedRetrieveErrors[keyof SearchFederatedRetrieveErrors]
+export type ApiV1SearchFederatedRetrieveError = ApiV1SearchFederatedRetrieveErrors[keyof ApiV1SearchFederatedRetrieveErrors]
 
-export type SearchFederatedRetrieveResponses = {
+export type ApiV1SearchFederatedRetrieveResponses = {
   200: FederatedSearchResponse
 }
 
-export type SearchFederatedRetrieveResponse = SearchFederatedRetrieveResponses[keyof SearchFederatedRetrieveResponses]
+export type ApiV1SearchFederatedRetrieveResponse = ApiV1SearchFederatedRetrieveResponses[keyof ApiV1SearchFederatedRetrieveResponses]
 
-export type SearchProductRetrieveData = {
+export type ApiV1SearchProductRetrieveData = {
   body?: never
   path?: never
   query?: {
@@ -16402,17 +16976,17 @@ export type SearchProductRetrieveData = {
   url: '/api/v1/search/product'
 }
 
-export type SearchProductRetrieveErrors = {
+export type ApiV1SearchProductRetrieveErrors = {
   400: ErrorResponse
 }
 
-export type SearchProductRetrieveError = SearchProductRetrieveErrors[keyof SearchProductRetrieveErrors]
+export type ApiV1SearchProductRetrieveError = ApiV1SearchProductRetrieveErrors[keyof ApiV1SearchProductRetrieveErrors]
 
-export type SearchProductRetrieveResponses = {
+export type ApiV1SearchProductRetrieveResponses = {
   200: ProductMeiliSearchResponse
 }
 
-export type SearchProductRetrieveResponse = SearchProductRetrieveResponses[keyof SearchProductRetrieveResponses]
+export type ApiV1SearchProductRetrieveResponse = ApiV1SearchProductRetrieveResponses[keyof ApiV1SearchProductRetrieveResponses]
 
 export type ListTrendingSearchesData = {
   body?: never
@@ -16440,26 +17014,26 @@ export type ListTrendingSearchesResponses = {
 
 export type ListTrendingSearchesResponse = ListTrendingSearchesResponses[keyof ListTrendingSearchesResponses]
 
-export type SettingsListData = {
+export type ApiV1SettingsListData = {
   body?: never
   path?: never
   query?: never
   url: '/api/v1/settings'
 }
 
-export type SettingsListErrors = {
+export type ApiV1SettingsListErrors = {
   500: ErrorResponse
 }
 
-export type SettingsListError = SettingsListErrors[keyof SettingsListErrors]
+export type ApiV1SettingsListError = ApiV1SettingsListErrors[keyof ApiV1SettingsListErrors]
 
-export type SettingsListResponses = {
+export type ApiV1SettingsListResponses = {
   200: Array<Setting>
 }
 
-export type SettingsListResponse = SettingsListResponses[keyof SettingsListResponses]
+export type ApiV1SettingsListResponse = ApiV1SettingsListResponses[keyof ApiV1SettingsListResponses]
 
-export type SettingsGetRetrieveData = {
+export type ApiV1SettingsGetRetrieveData = {
   body?: never
   path?: never
   query: {
@@ -16471,18 +17045,183 @@ export type SettingsGetRetrieveData = {
   url: '/api/v1/settings/get'
 }
 
-export type SettingsGetRetrieveErrors = {
+export type ApiV1SettingsGetRetrieveErrors = {
   404: ErrorResponse
   500: ErrorResponse
 }
 
-export type SettingsGetRetrieveError = SettingsGetRetrieveErrors[keyof SettingsGetRetrieveErrors]
+export type ApiV1SettingsGetRetrieveError = ApiV1SettingsGetRetrieveErrors[keyof ApiV1SettingsGetRetrieveErrors]
 
-export type SettingsGetRetrieveResponses = {
+export type ApiV1SettingsGetRetrieveResponses = {
   200: SettingDetail
 }
 
-export type SettingsGetRetrieveResponse = SettingsGetRetrieveResponses[keyof SettingsGetRetrieveResponses]
+export type ApiV1SettingsGetRetrieveResponse = ApiV1SettingsGetRetrieveResponses[keyof ApiV1SettingsGetRetrieveResponses]
+
+export type ListBoxNowLockerData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Cursor for pagination
+         */
+    cursor?: string
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: externalId, -externalId, postalCode, -postalCode, lastSyncedAt, -lastSyncedAt, createdAt, -createdAt
+         */
+    ordering?: string
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Number of results to return per page
+         */
+    pageSize?: string | number
+    /**
+         * Enable or disable pagination
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Pagination strategy type
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/shipping/boxnow/lockers'
+}
+
+export type ListBoxNowLockerErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListBoxNowLockerError = ListBoxNowLockerErrors[keyof ListBoxNowLockerErrors]
+
+export type ListBoxNowLockerResponses = {
+  200: PaginatedBoxNowLockerList
+}
+
+export type ListBoxNowLockerResponse = ListBoxNowLockerResponses[keyof ListBoxNowLockerResponses]
+
+export type RetrieveBoxNowLockerData = {
+  body?: never
+  path: {
+    id: string
+  }
+  query?: {
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/shipping/boxnow/lockers/{id}'
+}
+
+export type RetrieveBoxNowLockerErrors = {
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type RetrieveBoxNowLockerError = RetrieveBoxNowLockerErrors[keyof RetrieveBoxNowLockerErrors]
+
+export type RetrieveBoxNowLockerResponses = {
+  200: BoxNowLockerDetail
+}
+
+export type RetrieveBoxNowLockerResponse = RetrieveBoxNowLockerResponses[keyof RetrieveBoxNowLockerResponses]
+
+export type NearestBoxNowLockerData = {
+  body: BoxNowNearestLockerRequestRequest
+  path?: never
+  query?: never
+  url: '/api/v1/shipping/boxnow/lockers/nearest'
+}
+
+export type NearestBoxNowLockerErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type NearestBoxNowLockerError = NearestBoxNowLockerErrors[keyof NearestBoxNowLockerErrors]
+
+export type NearestBoxNowLockerResponses = {
+  200: BoxNowNearestLockerResponse
+}
+
+export type NearestBoxNowLockerResponse = NearestBoxNowLockerResponses[keyof NearestBoxNowLockerResponses]
+
+export type CancelBoxNowShipmentData = {
+  body?: never
+  path: {
+    parcelId: string
+  }
+  query?: never
+  url: '/api/v1/shipping/boxnow/parcels/{parcel_id}/cancel'
+}
+
+export type CancelBoxNowShipmentErrors = {
+  /**
+     * No response body
+     */
+  400: unknown
+  /**
+     * No response body
+     */
+  403: unknown
+  /**
+     * No response body
+     */
+  404: unknown
+}
+
+export type CancelBoxNowShipmentResponses = {
+  /**
+     * No response body
+     */
+  200: unknown
+}
+
+export type GetBoxNowLabelData = {
+  body?: never
+  path: {
+    parcelId: string
+  }
+  query?: never
+  url: '/api/v1/shipping/boxnow/parcels/{parcel_id}/label.pdf'
+}
+
+export type GetBoxNowLabelErrors = {
+  /**
+     * No response body
+     */
+  403: unknown
+  /**
+     * No response body
+     */
+  404: unknown
+}
+
+export type GetBoxNowLabelResponses = {
+  200: Blob | File
+}
+
+export type GetBoxNowLabelResponse = GetBoxNowLabelResponses[keyof GetBoxNowLabelResponses]
 
 export type ListTagData = {
   body?: never
@@ -18398,7 +19137,7 @@ export type ConfirmSubscriptionByTokenResponses = {
 
 export type ConfirmSubscriptionByTokenResponse = ConfirmSubscriptionByTokenResponses[keyof ConfirmSubscriptionByTokenResponses]
 
-export type UserSubscriptionConfirmCreateData = {
+export type ApiV1UserSubscriptionConfirmCreateData = {
   body: ConfirmResponseRequest
   path: {
     token: string
@@ -18407,11 +19146,11 @@ export type UserSubscriptionConfirmCreateData = {
   url: '/api/v1/user/subscription/confirm/{token}'
 }
 
-export type UserSubscriptionConfirmCreateResponses = {
+export type ApiV1UserSubscriptionConfirmCreateResponses = {
   200: ConfirmResponse
 }
 
-export type UserSubscriptionConfirmCreateResponse = UserSubscriptionConfirmCreateResponses[keyof UserSubscriptionConfirmCreateResponses]
+export type ApiV1UserSubscriptionConfirmCreateResponse = ApiV1UserSubscriptionConfirmCreateResponses[keyof ApiV1UserSubscriptionConfirmCreateResponses]
 
 export type ListSubscriptionTopicData = {
   body?: never
@@ -18854,3 +19593,32 @@ export type CreateWebSocketTicketResponses = {
 }
 
 export type CreateWebSocketTicketResponse = CreateWebSocketTicketResponses[keyof CreateWebSocketTicketResponses]
+
+export type BoxnowWebhookData = {
+  body: BoxNowWebhookEnvelopeRequest
+  path?: never
+  query?: never
+  url: '/boxnow/webhook/'
+}
+
+export type BoxnowWebhookErrors = {
+  /**
+     * No response body
+     */
+  400: unknown
+  /**
+     * No response body
+     */
+  401: unknown
+  /**
+     * No response body
+     */
+  503: unknown
+}
+
+export type BoxnowWebhookResponses = {
+  /**
+     * No response body
+     */
+  200: unknown
+}

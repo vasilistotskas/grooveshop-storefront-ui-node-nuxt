@@ -13,8 +13,14 @@ export default defineCachedEventHandler(async (event) => {
   }
 }, {
   name: 'PayWayViewSet',
-  maxAge: 60 * 60, // 1 hour - payment methods rarely change
-  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
+  // 5 min — PayWays don't change often, but admins disabling a method
+  // (Αντικαταβολή / cash-on-delivery / etc.) need it to disappear from
+  // the storefront in a reasonable window. Previous 1-hour TTL meant a
+  // disabled method could keep showing for up to an hour after the
+  // admin toggle. Shorten the window; pair with SWR so the perf cost
+  // is absorbed at the edge.
+  maxAge: 60 * 5,
+  staleMaxAge: 60 * 30,
   swr: true,
   getKey: event => `pay-way:${JSON.stringify(getQuery(event))}`,
 })

@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
-import type { LoyaltySummary, PaginatedPointsTransactionList, RedeemPointsResponse, ProductPoints } from '#shared/openapi/types.gen'
 
 const mockFetch = vi.fn()
 

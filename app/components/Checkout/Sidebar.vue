@@ -151,7 +151,7 @@ defineSlots<{
               "
             >
               {{ t('shipping') }}
-              <span class="block text-xs text-neutral-500 dark:text-neutral-400">{{ t('shipping_estimated') }}</span>
+              <span class="block text-xs text-neutral-700 dark:text-neutral-200">{{ t('shipping_estimated') }}</span>
             </span>
             <span
               v-if="shippingPrice === 0"

@@ -279,7 +279,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         >
           <span
             class="
-              text-sm text-neutral-500 line-through
+              text-sm text-neutral-700 line-through
               dark:text-neutral-300
             "
           >

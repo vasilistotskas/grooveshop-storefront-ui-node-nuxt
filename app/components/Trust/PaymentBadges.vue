@@ -55,7 +55,7 @@ const items = computed(() => {
   >
     <UIcon
       name="i-mdi-credit-card-outline"
-      class="h-5 w-5 text-neutral-500 dark:text-neutral-300"
+      class="h-5 w-5 text-neutral-700 dark:text-neutral-300"
       aria-hidden="true"
     />
     <span

@@ -15,7 +15,7 @@
  * GET /api/products/search?q=laptop&priceMin=500&priceMax=1500&categories=1,2&attributeValues=10,20&facets=category,final_price,attribute_values
  */
 
-const zSearchProductQuery = zSearchProductRetrieveQuery
+const zSearchProductQuery = zApiV1SearchProductRetrieveQuery
 
 export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()

@@ -30,6 +30,11 @@ export async function useCheckoutForm() {
     street: '',
     streetNumber: '',
     customerNotes: '',
+    // Shipping method (Step 1 — new)
+    shippingMethod: 'home_delivery' as ShippingMethodEnum,
+    boxnowLockerId: '' as string,
+    boxnowLocker: null as BoxNowSelectedLocker | null,
+    boxnowCompartmentSize: 1 as 1 | 2 | 3,
     // Payment
     payWay: undefined as number | undefined,
     payWayId: undefined as number | undefined,
@@ -209,6 +214,42 @@ export async function useCheckoutForm() {
     }
   })
 
+  // Re-fetch pay ways whenever the shopper picks a different shipping
+  // method. Django's PayWayFilter strips ``is_online_payment=False``
+  // pay ways when ``?shipping_method=box_now_locker`` is supplied
+  // (BoxNow lockers don't accept cash-on-delivery — no POS at lockers).
+  // The Nuxt server route's cache key already includes the query so
+  // each shipping method gets its own cached list — we just need to
+  // ask for the right one.
+  watch(() => formState.shippingMethod, async (newMethod) => {
+    try {
+      const fresh = await $fetch<Pagination<PayWay>>('/api/pay-way', {
+        method: 'GET',
+        query: {
+          languageCode: locale.value,
+          shippingMethod: newMethod,
+        },
+        headers: useRequestHeaders(),
+      })
+      payWays.value = fresh
+      // If the previously selected pay way is no longer in the list
+      // (e.g. user picked BoxNow and their COD selection was filtered
+      // out), reset to the first valid option so step 3 doesn't render
+      // with a stale/disabled selection.
+      const stillValid = fresh.results?.some(
+        pw => pw.id === formState.payWayId,
+      )
+      if (!stillValid && fresh.results?.[0]) {
+        formState.payWay = fresh.results[0].id
+        formState.payWayId = fresh.results[0].id
+        selectedPayWay.value = fresh.results[0]
+      }
+    }
+    catch (error) {
+      log.warn('checkout', 'pay-way refetch failed', { error })
+    }
+  })
+
   watch(() => formState.region, (newRegionAlpha) => {
     // Only clear ``regionId`` when the shopper explicitly empties the
     // region — NOT when regions haven't loaded yet. The previous
@@ -231,21 +272,31 @@ export async function useCheckoutForm() {
   })
 
   // Computed properties (also before await)
-  const shippingPrice = computed(() => {
-    if (!shippingSetting.value) return 0
+  // Shipping cost switches on the selected method.
+  // HOME_DELIVERY: reads from the CHECKOUT_SHIPPING_PRICE +
+  //   FREE_SHIPPING_THRESHOLD settings (populated by the parallel fetch
+  //   block below).
+  // BOX_NOW_LOCKER: BoxNow's contractual flat rate (€2.50, free over €30).
+  //   Hard-coded because the rate is fixed by partnership terms; see
+  //   ``useShippingPrice.ts`` docstring for how to make it admin-editable.
+  const BOXNOW_SHIPPING_PRICE = 2.50
+  const BOXNOW_FREE_SHIPPING_THRESHOLD = 30.00
 
+  const shippingPrice = computed(() => {
+    const cartTotal = cart.value?.totalPrice || 0
+
+    if (formState.shippingMethod === 'box_now_locker') {
+      return cartTotal >= BOXNOW_FREE_SHIPPING_THRESHOLD ? 0 : BOXNOW_SHIPPING_PRICE
+    }
+
+    // HOME_DELIVERY
+    if (!shippingSetting.value) return 0
     const baseShippingCost = parseFloat(shippingSetting.value.value)
     const freeShippingThreshold = freeShippingThresholdSetting.value
       ? parseFloat(freeShippingThresholdSetting.value.value)
       : 50.00
 
-    const cartTotal = cart.value?.totalPrice || 0
-
-    if (cartTotal >= freeShippingThreshold) {
-      return 0
-    }
-
-    return baseShippingCost
+    return cartTotal >= freeShippingThreshold ? 0 : baseShippingCost
   })
 
   const countryOptions = computed(() => {
@@ -355,6 +406,20 @@ export async function useCheckoutForm() {
   })
 
   const step2Schema = z.object({
+    shippingMethod: z.enum(['home_delivery', 'box_now_locker']),
+    boxnowLockerId: z.string().optional(),
+    boxnowCompartmentSize: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
+  }).superRefine((data, ctx) => {
+    if (data.shippingMethod === 'box_now_locker' && !data.boxnowLockerId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['boxnowLockerId'],
+        message: t('shipping.boxnow.required_error'),
+      })
+    }
+  })
+
+  const step3Schema = z.object({
     payWay: z.number({ error: t('validation.payment_method.required') }).min(1, {
       error: t('validation.payment_method.required'),
     }),
@@ -539,6 +604,7 @@ export async function useCheckoutForm() {
     payWayOptions,
     step1Schema,
     step2Schema,
+    step3Schema,
     fetchRegions,
     onCountryChange,
     savedAddresses,

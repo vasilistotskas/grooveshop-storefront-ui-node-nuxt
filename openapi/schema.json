@@ -16657,7 +16657,7 @@
         },
         "/api/v1/health": {
             "get": {
-                "operationId": "health_retrieve",
+                "operationId": "api_v1_health_retrieve",
                 "description": "Check the health status of database, Redis, and Celery",
                 "summary": "Check the health status of database, Redis, and Celery",
                 "tags": [
@@ -22579,6 +22579,182 @@
                 }
             }
         },
+        "/api/v1/order/{id}/boxnow_cancel": {
+            "post": {
+                "operationId": "cancelBoxNowShipmentForOrder",
+                "description": "Admin-only. Requests parcel cancellation via the BoxNow API. Only valid when the parcel state is NEW (BoxNow error P420 otherwise). Accepts an optional ``reason`` field in the request body.",
+                "summary": "Cancel the BoxNow shipment for an order",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/order/{id}/boxnow_label": {
+            "get": {
+                "operationId": "getBoxNowLabelForOrder",
+                "description": "Streams the BoxNow label PDF through Django auth. Accessible by the order owner, staff, or a guest with the order UUID. Returns 404 when no BoxNow shipment exists for the order or the parcel ID has not yet been assigned.",
+                "summary": "Download the BoxNow parcel label PDF for an order",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/order/{id}/cancel": {
             "post": {
                 "operationId": "cancelOrder",
@@ -25152,6 +25328,14 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "in": "query",
+                        "name": "shippingMethod",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Filter pay ways compatible with the given shipping method. When 'box_now_locker', only online-payment pay ways are returned."
                     },
                     {
                         "in": "query",
@@ -37830,7 +38014,7 @@
         },
         "/api/v1/search/analytics": {
             "get": {
-                "operationId": "search_analytics_retrieve",
+                "operationId": "api_v1_search_analytics_retrieve",
                 "description": "Retrieve aggregated search analytics including top queries, zero-result queries, search volume by content type and language, average results count, average processing time, and click-through rate. Results can be filtered by date range and content type.",
                 "summary": "Get search analytics metrics",
                 "parameters": [
@@ -37896,7 +38080,7 @@
         },
         "/api/v1/search/blog/post": {
             "get": {
-                "operationId": "search_blog_post_retrieve",
+                "operationId": "api_v1_search_blog_post_retrieve",
                 "description": "Search blog posts using MeiliSearch. Provides full-text search with highlighting, ranking, and faceting capabilities. Results can be filtered by language.",
                 "summary": "Search blog posts",
                 "parameters": [
@@ -37988,7 +38172,7 @@
         },
         "/api/v1/search/federated": {
             "get": {
-                "operationId": "search_federated_retrieve",
+                "operationId": "api_v1_search_federated_retrieve",
                 "description": "Search multiple content types simultaneously using Meilisearch multi_search API with federation mode. Results are weighted and merged with products having weight 1.0 and blog posts having weight 0.7.",
                 "summary": "Federated search across products and blog posts",
                 "parameters": [
@@ -38080,7 +38264,7 @@
         },
         "/api/v1/search/product": {
             "get": {
-                "operationId": "search_product_retrieve",
+                "operationId": "api_v1_search_product_retrieve",
                 "description": "Search products using MeiliSearch with support for full-text search, price range, popularity, view count, and category filters. Returns facet distribution and statistics for dynamic filter UI.",
                 "summary": "Search products with advanced filters",
                 "parameters": [
@@ -38332,7 +38516,7 @@
         },
         "/api/v1/settings": {
             "get": {
-                "operationId": "settings_list",
+                "operationId": "api_v1_settings_list",
                 "description": "Retrieve all settings with their names, values, and types",
                 "summary": "List all available settings",
                 "tags": [
@@ -38375,7 +38559,7 @@
         },
         "/api/v1/settings/get": {
             "get": {
-                "operationId": "settings_get_retrieve",
+                "operationId": "api_v1_settings_get_retrieve",
                 "description": "Retrieve a specific setting value by its key name",
                 "summary": "Get setting by key",
                 "parameters": [
@@ -38431,6 +38615,475 @@
                             }
                         },
                         "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/shipping/boxnow/lockers": {
+            "get": {
+                "operationId": "listBoxNowLocker",
+                "description": "Retrieve a list of BoxNow Lockers with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
+                "summary": "List BoxNow Lockers",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Language code for translations (el, en, de)"
+                    },
+                    {
+                        "name": "ordering",
+                        "in": "query",
+                        "required": false,
+                        "description": "Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: externalId, -externalId, postalCode, -postalCode, lastSyncedAt, -lastSyncedAt, createdAt, -createdAt",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^(?:externalId|\\-externalId|postalCode|\\-postalCode|lastSyncedAt|\\-lastSyncedAt|createdAt|\\-createdAt)(?:,(?:externalId|\\-externalId|postalCode|\\-postalCode|lastSyncedAt|\\-lastSyncedAt|createdAt|\\-createdAt))*$"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Enable or disable pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Pagination strategy type"
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "A search term.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "BoxNow lockers"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedBoxNowLockerList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/shipping/boxnow/lockers/{id}": {
+            "get": {
+                "operationId": "retrieveBoxNowLocker",
+                "description": "Get detailed information about a specific BoxNow Locker.",
+                "summary": "Retrieve a BoxNow Locker",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Language code for translations (el, en, de)"
+                    }
+                ],
+                "tags": [
+                    "BoxNow lockers"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BoxNowLockerDetail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/shipping/boxnow/lockers/nearest": {
+            "post": {
+                "operationId": "nearestBoxNowLocker",
+                "description": "Accepts a delivery address and returns the closest available BoxNow locker by calling the BoxNow address-delivery-check API.",
+                "summary": "Find nearest BoxNow locker",
+                "tags": [
+                    "BoxNow lockers"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BoxNowNearestLockerRequestRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BoxNowNearestLockerRequestRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BoxNowNearestLockerRequestRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BoxNowNearestLockerResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/shipping/boxnow/parcels/{parcel_id}/cancel": {
+            "post": {
+                "operationId": "cancelBoxNowShipment",
+                "description": "Admin-only.  Requests parcel cancellation via the BoxNow API.  Only valid when parcel state is NEW (BoxNow error P420 otherwise).  Accepts an optional ``reason`` field in the request body.",
+                "summary": "Cancel a BoxNow parcel",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "parcelId",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "BoxNow shipments"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    },
+                    "400": {
+                        "description": "No response body"
+                    },
+                    "403": {
+                        "description": "No response body"
+                    },
+                    "404": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
+        "/api/v1/shipping/boxnow/parcels/{parcel_id}/label.pdf": {
+            "get": {
+                "operationId": "getBoxNowLabel",
+                "description": "Fetches the BoxNow label PDF for the given parcel ID and streams it as an attachment.  Accessible by the order owner, staff, or a guest with the order UUID.",
+                "summary": "Download BoxNow parcel label PDF",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "parcelId",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "BoxNow shipments"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "description": "No response body"
+                    },
+                    "404": {
+                        "description": "No response body"
                     }
                 }
             }
@@ -45425,7 +46078,7 @@
                 }
             },
             "post": {
-                "operationId": "user_subscription_confirm_create",
+                "operationId": "api_v1_user_subscription_confirm_create",
                 "description": "Public endpoint for the confirmation link emailed to new subscribers.\n\nThe confirmation token itself is 64 chars of random entropy (sufficient\nauthorization); no login required. Accepts both GET (user clicks the\nlink in a mail client) and POST (for programmatic confirmation).",
                 "parameters": [
                     {
@@ -45438,7 +46091,7 @@
                     }
                 ],
                 "tags": [
-                    "user"
+                    "api"
                 ],
                 "requestBody": {
                     "content": {
@@ -46973,6 +47626,53 @@
                             }
                         },
                         "description": ""
+                    }
+                }
+            }
+        },
+        "/boxnow/webhook/": {
+            "post": {
+                "operationId": "boxnowWebhook",
+                "description": "Public endpoint for BoxNow's machine-to-machine parcel-event notifications. Authenticated by HMAC-SHA256 datasignature verification — no Knox or session auth required. Always returns 200 once the signature is valid (even on duplicate events) to prevent BoxNow retry storms.",
+                "summary": "Receive a BoxNow parcel-event webhook",
+                "tags": [
+                    "BoxNow webhook"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BoxNowWebhookEnvelopeRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BoxNowWebhookEnvelopeRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BoxNowWebhookEnvelopeRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    },
+                    "400": {
+                        "description": "No response body"
+                    },
+                    "401": {
+                        "description": "No response body"
+                    },
+                    "503": {
+                        "description": "No response body"
                     }
                 }
             }
@@ -48956,6 +49656,804 @@
                     "translations"
                 ]
             },
+            "BoxNowCustomerRequest": {
+                "type": "object",
+                "description": "Nested ``customer`` object within a BoxNow webhook payload.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Customer full name"
+                    },
+                    "email": {
+                        "type": "string",
+                        "description": "Customer email address"
+                    },
+                    "phoneNumber": {
+                        "type": "string",
+                        "description": "Customer phone number"
+                    }
+                }
+            },
+            "BoxNowEventLocationRequest": {
+                "type": "object",
+                "description": "Nested ``eventLocation`` object within a BoxNow webhook payload.",
+                "properties": {
+                    "displayName": {
+                        "type": "string",
+                        "description": "Human-readable locker or hub name"
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "description": "Postal code of the event location"
+                    }
+                }
+            },
+            "BoxNowLocker": {
+                "type": "object",
+                "description": "Lightweight serializer for BoxNow locker list endpoints.\n\nLockers are populated exclusively via the ``sync_boxnow_lockers``\nCelery task — all fields are read-only.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "externalId": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "BoxNow APM identifier (string)"
+                    },
+                    "type": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/TypeEnum"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "imageUrl": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "lat": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000,
+                        "minimum": -1000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "title": "Latitude"
+                    },
+                    "lng": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000,
+                        "minimum": -1000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "title": "Longitude"
+                    },
+                    "title": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "addressLine1": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "addressLine2": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "countryCode": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "ISO 3166-1 alpha-2 country code"
+                    },
+                    "note": {
+                        "type": "string",
+                        "readOnly": true,
+                        "title": "Σημείωση"
+                    },
+                    "isActive": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "lastSyncedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true,
+                        "description": "Timestamp of the most recent sync from BoxNow API"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "addressLine1",
+                    "addressLine2",
+                    "countryCode",
+                    "createdAt",
+                    "externalId",
+                    "id",
+                    "imageUrl",
+                    "isActive",
+                    "lastSyncedAt",
+                    "lat",
+                    "lng",
+                    "name",
+                    "note",
+                    "postalCode",
+                    "title",
+                    "type",
+                    "updatedAt",
+                    "uuid"
+                ]
+            },
+            "BoxNowLockerDetail": {
+                "type": "object",
+                "description": "Detail serializer for a single BoxNow locker.\n\nInherits all fields from ``BoxNowLockerSerializer``.\nExtended fields can be added here as requirements grow.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "externalId": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "BoxNow APM identifier (string)"
+                    },
+                    "type": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/TypeEnum"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "imageUrl": {
+                        "type": "string",
+                        "format": "uri",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "lat": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000,
+                        "minimum": -1000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "title": "Latitude"
+                    },
+                    "lng": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000,
+                        "minimum": -1000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "title": "Longitude"
+                    },
+                    "title": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "addressLine1": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "addressLine2": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "countryCode": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "ISO 3166-1 alpha-2 country code"
+                    },
+                    "note": {
+                        "type": "string",
+                        "readOnly": true,
+                        "title": "Σημείωση"
+                    },
+                    "isActive": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "lastSyncedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true,
+                        "description": "Timestamp of the most recent sync from BoxNow API"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "addressLine1",
+                    "addressLine2",
+                    "countryCode",
+                    "createdAt",
+                    "externalId",
+                    "id",
+                    "imageUrl",
+                    "isActive",
+                    "lastSyncedAt",
+                    "lat",
+                    "lng",
+                    "name",
+                    "note",
+                    "postalCode",
+                    "title",
+                    "type",
+                    "updatedAt",
+                    "uuid"
+                ]
+            },
+            "BoxNowNearestLockerRequestRequest": {
+                "type": "object",
+                "description": "Request body for ``POST /lockers/nearest``.\n\nMaps to the BoxNow ``/api/v2/delivery-requests:checkAddressDelivery``\nendpoint parameters.",
+                "properties": {
+                    "city": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "City name for nearest-locker lookup",
+                        "maxLength": 128
+                    },
+                    "street": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Street name and number",
+                        "maxLength": 255
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Postal / ZIP code",
+                        "maxLength": 16
+                    },
+                    "region": {
+                        "type": "string",
+                        "minLength": 1,
+                        "default": "el-GR",
+                        "description": "IETF language tag / region code (default: el-GR)",
+                        "maxLength": 8
+                    },
+                    "compartmentSize": {
+                        "type": "integer",
+                        "maximum": 3,
+                        "minimum": 1,
+                        "default": 1,
+                        "description": "Required compartment size: 1=Small, 2=Medium, 3=Large"
+                    }
+                },
+                "required": [
+                    "city",
+                    "postalCode",
+                    "street"
+                ]
+            },
+            "BoxNowNearestLockerResponse": {
+                "type": "object",
+                "description": "Response shape returned by BoxNow's checkAddressDelivery call.\n\nMirrors ``/api/v2/delivery-requests:checkAddressDelivery`` response.\n``lat`` and ``lng`` are CharField because BoxNow returns them as\nstrings in this endpoint.  ``distance`` is the straight-line\ndistance in kilometres from the supplied address.",
+                "properties": {
+                    "id": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "BoxNow APM identifier"
+                    },
+                    "type": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Locker type (e.g. apm, warehouse)"
+                    },
+                    "image": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "URL of locker image"
+                    },
+                    "lat": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Latitude (string as returned by BoxNow)"
+                    },
+                    "lng": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Longitude (string as returned by BoxNow)"
+                    },
+                    "title": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Short display title"
+                    },
+                    "name": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Full locker name"
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Postal code of the locker"
+                    },
+                    "country": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "ISO 3166-1 alpha-2 country code"
+                    },
+                    "note": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Operational note from BoxNow"
+                    },
+                    "addressLine1": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Primary address line"
+                    },
+                    "addressLine2": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Secondary address line"
+                    },
+                    "region": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "IETF region tag returned by BoxNow"
+                    },
+                    "distance": {
+                        "type": "number",
+                        "format": "double",
+                        "readOnly": true,
+                        "description": "Distance from the supplied address in kilometres"
+                    }
+                },
+                "required": [
+                    "addressLine1",
+                    "addressLine2",
+                    "country",
+                    "distance",
+                    "id",
+                    "image",
+                    "lat",
+                    "lng",
+                    "name",
+                    "note",
+                    "postalCode",
+                    "region",
+                    "title",
+                    "type"
+                ]
+            },
+            "BoxNowParcelEvent": {
+                "type": "object",
+                "description": "Read-only serializer for ``BoxNowParcelEvent`` webhook audit records.\n\nAll fields are read-only — events are written exclusively by the\nwebhook handler and are never modified after creation.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "webhookMessageId": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "CloudEvents 'id' field — idempotency key"
+                    },
+                    "eventType": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/BoxNowParcelState"
+                            }
+                        ],
+                        "readOnly": true,
+                        "description": "BoxNow event mapped from the webhook 'event' field\n\n* `pending_creation` - Pending creation\n* `new` - New\n* `in_depot` - In depot\n* `final_destination` - At locker\n* `delivered` - Delivered\n* `returned` - Returned\n* `expired` - Expired\n* `canceled` - Canceled\n* `accepted_for_return` - Accepted for return\n* `accepted_to_locker` - Accepted to locker\n* `missing` - Missing\n* `lost` - Lost"
+                    },
+                    "eventTypeDisplay": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Human-readable label for the event_type choice"
+                    },
+                    "parcelState": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Raw 'data.parcelState' value from BoxNow webhook payload"
+                    },
+                    "eventTime": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "description": "Timestamp from 'data.time' in the webhook payload"
+                    },
+                    "displayName": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "data.eventLocation.displayName"
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "data.eventLocation.postalCode"
+                    },
+                    "additionalInformation": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "receivedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "description": "Timestamp when GrooveShop received the webhook (separate from event_time)"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "additionalInformation",
+                    "createdAt",
+                    "displayName",
+                    "eventTime",
+                    "eventType",
+                    "eventTypeDisplay",
+                    "id",
+                    "parcelState",
+                    "postalCode",
+                    "receivedAt",
+                    "webhookMessageId"
+                ]
+            },
+            "BoxNowParcelState": {
+                "enum": [
+                    "pending_creation",
+                    "new",
+                    "in_depot",
+                    "final_destination",
+                    "delivered",
+                    "returned",
+                    "expired",
+                    "canceled",
+                    "accepted_for_return",
+                    "accepted_to_locker",
+                    "missing",
+                    "lost"
+                ],
+                "type": "string",
+                "description": "* `pending_creation` - Pending creation\n* `new` - New\n* `in_depot` - In depot\n* `final_destination` - At locker\n* `delivered` - Delivered\n* `returned` - Returned\n* `expired` - Expired\n* `canceled` - Canceled\n* `accepted_for_return` - Accepted for return\n* `accepted_to_locker` - Accepted to locker\n* `missing` - Missing\n* `lost` - Lost"
+            },
+            "BoxNowShipmentDetail": {
+                "type": "object",
+                "description": "Detail serializer for a single BoxNow shipment.\n\nExtends the list serializer with:\n- nested ``locker`` object (``BoxNowLockerSerializer``)\n- ``events`` — last 20 ``BoxNowParcelEvent`` records ordered by\n  ``event_time`` descending\n- ``label_url`` — relative URL for downloading the parcel label PDF\n  via the Django proxy route; ``None`` when ``parcel_id`` is blank\n\nImports of ``BoxNowLockerSerializer`` and\n``BoxNowParcelEventSerializer`` are deferred to method bodies to\nprevent circular import chains between the serializer modules.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "deliveryRequestId": {
+                        "type": "string",
+                        "readOnly": true,
+                        "nullable": true,
+                        "description": "BoxNow delivery-request ID returned from POST /api/v1/delivery-requests"
+                    },
+                    "parcelId": {
+                        "type": "string",
+                        "readOnly": true,
+                        "nullable": true,
+                        "description": "10-digit BoxNow voucher number"
+                    },
+                    "lockerExternalId": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Denormalised BoxNow APM ID — preserved even if the BoxNowLocker row is deleted"
+                    },
+                    "parcelState": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/BoxNowParcelState"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "parcelStateDisplay": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Human-readable label for the parcel_state choice"
+                    },
+                    "compartmentSize": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/CompartmentSizeEnum"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "paymentMode": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PaymentModeEnum"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "lastEventAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                    },
+                    "locker": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/BoxNowLocker"
+                            }
+                        ],
+                        "nullable": true,
+                        "readOnly": true,
+                        "description": "Nested BoxNow locker details"
+                    },
+                    "events": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BoxNowParcelEvent"
+                        },
+                        "readOnly": true,
+                        "description": "Last 20 parcel events ordered by event_time desc"
+                    },
+                    "labelUrl": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Relative URL to download the parcel label PDF via the Django proxy endpoint",
+                        "readOnly": true
+                    },
+                    "weightGrams": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "title": "Weight (grams)"
+                    },
+                    "amountToBeCollected": {
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
+                        "readOnly": true,
+                        "description": "Amount collected at delivery (PoG / COD). Always 0 in Phase 1."
+                    },
+                    "allowReturn": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "cancelRequestedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "metadata": {
+                        "readOnly": true,
+                        "description": "Full delivery-request response and diagnostics from BoxNow"
+                    }
+                },
+                "required": [
+                    "allowReturn",
+                    "amountToBeCollected",
+                    "cancelRequestedAt",
+                    "compartmentSize",
+                    "createdAt",
+                    "deliveryRequestId",
+                    "events",
+                    "id",
+                    "labelUrl",
+                    "lastEventAt",
+                    "locker",
+                    "lockerExternalId",
+                    "metadata",
+                    "parcelId",
+                    "parcelState",
+                    "parcelStateDisplay",
+                    "paymentMode",
+                    "updatedAt",
+                    "uuid",
+                    "weightGrams"
+                ]
+            },
+            "BoxNowWebhookDataRequest": {
+                "type": "object",
+                "description": "``data`` field of a BoxNow CloudEvent webhook envelope.\n\nReflects the payload shape described in the BoxNow webhook PDF.\n``camelCase`` field names are preserved because\n``djangorestframework-camel-case`` is already applied\nproject-wide at the middleware level; no manual aliasing needed.",
+                "properties": {
+                    "parcelId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "10-digit BoxNow voucher/parcel number"
+                    },
+                    "parcelState": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "BoxNow parcel state vocabulary (data.parcelState)"
+                    },
+                    "parcelReferenceNumber": {
+                        "type": "string",
+                        "description": "Optional merchant reference number"
+                    },
+                    "parcelName": {
+                        "type": "string",
+                        "description": "Optional descriptive parcel name"
+                    },
+                    "orderNumber": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Merchant order number sent during delivery-request creation"
+                    },
+                    "event": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "BoxNow event type string (e.g. 'in-depot', 'final-destination', 'delivered')"
+                    },
+                    "eventLocation": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/BoxNowEventLocationRequest"
+                            }
+                        ],
+                        "description": "Location context for this event"
+                    },
+                    "customer": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/BoxNowCustomerRequest"
+                            }
+                        ],
+                        "description": "Customer details associated with the parcel"
+                    },
+                    "additionalInformation": {
+                        "type": "string",
+                        "description": "Free-text additional information from BoxNow"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp when the event occurred at BoxNow"
+                    }
+                },
+                "required": [
+                    "event",
+                    "orderNumber",
+                    "parcelId",
+                    "parcelState",
+                    "time"
+                ]
+            },
+            "BoxNowWebhookEnvelopeRequest": {
+                "type": "object",
+                "description": "Top-level CloudEvent envelope for BoxNow webhook POST requests.\n\nUsed for OpenAPI documentation only — the webhook view reads\nraw bytes before parsing in order to verify the HMAC-SHA256\n``datasignature`` against the unmodified ``data`` JSON substring.\nDRF validation is not applied to the incoming request directly.",
+                "properties": {
+                    "specversion": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "CloudEvents specification version (expected: '1.0')"
+                    },
+                    "type": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Event type (expected: 'gr.boxnow.parcel_event_change')"
+                    },
+                    "source": {
+                        "type": "string",
+                        "format": "uri",
+                        "minLength": 1,
+                        "description": "Origin URL of the event source"
+                    },
+                    "subject": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Subject of the event (typically the parcel ID)"
+                    },
+                    "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Unique CloudEvents ID; used as idempotency key (stored as webhook_message_id)"
+                    },
+                    "time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Timestamp the envelope was generated"
+                    },
+                    "datacontenttype": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "MIME type of the data field (expected: 'application/json')"
+                    },
+                    "datasignature": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "HMAC-SHA256 hex digest of the raw 'data' JSON object; used for signature verification"
+                    },
+                    "data": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/BoxNowWebhookDataRequest"
+                            }
+                        ],
+                        "description": "Parcel event payload"
+                    }
+                },
+                "required": [
+                    "data",
+                    "datacontenttype",
+                    "datasignature",
+                    "id",
+                    "source",
+                    "specversion",
+                    "subject",
+                    "time",
+                    "type"
+                ]
+            },
             "BulkSubscriptionRequest": {
                 "type": "object",
                 "properties": {
@@ -49591,6 +51089,15 @@
                         "nullable": true
                     }
                 }
+            },
+            "CompartmentSizeEnum": {
+                "enum": [
+                    1,
+                    2,
+                    3
+                ],
+                "type": "integer",
+                "description": "* `1` - Μικρό\n* `2` - Μεσαίο\n* `3` - Μεγάλο"
             },
             "ConfirmResponse": {
                 "type": "object",
@@ -51097,6 +52604,9 @@
                         "type": "string",
                         "maxLength": 50
                     },
+                    "shippingMethod": {
+                        "$ref": "#/components/schemas/ShippingMethodEnum"
+                    },
                     "canBeCanceled": {
                         "type": "boolean",
                         "readOnly": true
@@ -51241,6 +52751,27 @@
                         "minimum": 0,
                         "nullable": true,
                         "description": "Number of loyalty points to redeem for discount on this order"
+                    },
+                    "shippingMethod": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ShippingMethodEnum"
+                            }
+                        ],
+                        "default": "home_delivery",
+                        "description": "Shipping method for this order\n\n* `home_delivery` - Home delivery\n* `box_now_locker` - BOX NOW Locker"
+                    },
+                    "boxnowLockerId": {
+                        "type": "string",
+                        "description": "BoxNow APM locker ID from the widget",
+                        "maxLength": 64
+                    },
+                    "boxnowCompartmentSize": {
+                        "type": "integer",
+                        "maximum": 3,
+                        "minimum": 1,
+                        "default": 1,
+                        "description": "BoxNow compartment size: 1=Small, 2=Medium, 3=Large"
                     }
                 },
                 "required": [
@@ -51445,6 +52976,9 @@
                         "type": "string",
                         "maxLength": 50
                     },
+                    "shippingMethod": {
+                        "$ref": "#/components/schemas/ShippingMethodEnum"
+                    },
                     "canBeCanceled": {
                         "type": "boolean",
                         "readOnly": true
@@ -51547,6 +53081,16 @@
                         "readOnly": true,
                         "description": "True when a PDF invoice has been generated — the frontend can show the download CTA without issuing a separate request to the invoice endpoint to find out."
                     },
+                    "boxnowShipment": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/BoxNowShipmentDetail"
+                            }
+                        ],
+                        "nullable": true,
+                        "readOnly": true,
+                        "description": "BoxNow shipment details when shipping_method is 'box_now_locker', else null."
+                    },
                     "trackingNumber": {
                         "type": "string",
                         "maxLength": 255
@@ -51569,6 +53113,7 @@
                     }
                 },
                 "required": [
+                    "boxnowShipment",
                     "canBeCanceled",
                     "city",
                     "country",
@@ -52380,6 +53925,58 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/BlogTag"
+                        }
+                    }
+                }
+            },
+            "PaginatedBoxNowLockerList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "links": {
+                        "type": "object",
+                        "properties": {
+                            "next": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=4"
+                            },
+                            "previous": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=2"
+                            }
+                        }
+                    },
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageTotalResults": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/BoxNowLocker"
                         }
                     }
                 }
@@ -55391,6 +56988,14 @@
                     "cost",
                     "translations"
                 ]
+            },
+            "PaymentModeEnum": {
+                "enum": [
+                    "prepaid",
+                    "cod"
+                ],
+                "type": "string",
+                "description": "* `prepaid` - Prepaid\n* `cod` - Cash on delivery"
             },
             "PaymentStatusEnum": {
                 "enum": [
@@ -58485,6 +60090,14 @@
                     "value"
                 ]
             },
+            "ShippingMethodEnum": {
+                "enum": [
+                    "home_delivery",
+                    "box_now_locker"
+                ],
+                "type": "string",
+                "description": "* `home_delivery` - Home delivery\n* `box_now_locker` - BOX NOW Locker"
+            },
             "SubscriptionStatus": {
                 "enum": [
                     "ACTIVE",
@@ -59259,6 +60872,16 @@
                     "results",
                     "windowHours"
                 ]
+            },
+            "TypeEnum": {
+                "enum": [
+                    "apm",
+                    "any_apm",
+                    "warehouse",
+                    "depot"
+                ],
+                "type": "string",
+                "description": "* `apm` - APM\n* `any_apm` - Any APM\n* `warehouse` - Warehouse\n* `depot` - Depot"
             },
             "UnsubscribeResponse": {
                 "type": "object",
