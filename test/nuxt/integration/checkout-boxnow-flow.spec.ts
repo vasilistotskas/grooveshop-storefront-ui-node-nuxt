@@ -75,7 +75,9 @@ describe('BoxNow Checkout Integration', () => {
       }
 
       const wrapper = await mountSuspended(StepShipping, {
-        props: { formState, schema: null, partnerId: '10391' },
+        // ``boxnowEnabled: true`` mirrors the prod-after-activation
+        // state — the master switch is on so the BoxNow row renders.
+        props: { formState, schema: null, partnerId: '10391', boxnowEnabled: true },
       })
 
       expect(wrapper.exists()).toBe(true)
@@ -91,7 +93,7 @@ describe('BoxNow Checkout Integration', () => {
       })
 
       const wrapper = await mountSuspended(StepShipping, {
-        props: { formState, schema: null, partnerId: '10391' },
+        props: { formState, schema: null, partnerId: '10391', boxnowEnabled: true },
       })
 
       // Initially no picker
@@ -110,6 +112,7 @@ describe('BoxNow Checkout Integration', () => {
           formState: { shippingMethod: 'home_delivery', boxnowLockerId: '', boxnowLocker: null },
           schema: null,
           partnerId: '10391',
+          boxnowEnabled: true,
         },
       })
 
@@ -131,6 +134,7 @@ describe('BoxNow Checkout Integration', () => {
           },
           schema: null,
           partnerId: '10391',
+          boxnowEnabled: true,
         },
       })
 
