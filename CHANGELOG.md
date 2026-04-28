@@ -1,3 +1,15 @@
+# [3.101.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.100.0...v3.101.0) (2026-04-28)
+
+
+### Bug Fixes
+
+* **checkout:** country→region cascade + StepShipping toggle test fixes ([7631fe7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7631fe7d4cdb669d419371ca82a323dfe250069b))
+
+
+### Features
+
+* **checkout:** wire BOXNOW_ENABLED toggle to hide BoxNow option ([cfe9e83](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cfe9e832bbce316b3627b2b4e3abb15185be123a))
+
 # [3.100.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.99.1...v3.100.0) (2026-04-28)
 
 
