@@ -1,3 +1,10 @@
+## [3.99.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.99.0...v3.99.1) (2026-04-28)
+
+
+### Bug Fixes
+
+* **checkout:** include shippingMethod in initial PayWay fetch + cache key ([6c61254](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6c612546fb1667f596b0efd2ec66acfa54213bc6))
+
 # [3.99.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.98.2...v3.99.0) (2026-04-28)
 
 
