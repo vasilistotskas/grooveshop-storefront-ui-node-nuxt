@@ -151,7 +151,6 @@ defineSlots<{
               "
             >
               {{ t('shipping') }}
-              <span class="block text-xs text-neutral-700 dark:text-neutral-200">{{ t('shipping_estimated') }}</span>
             </span>
             <span
               v-if="shippingPrice === 0"
@@ -256,7 +255,6 @@ el:
   title: Ολοκλήρωση αγοράς
   items_unique: Προϊόντα
   shipping: Μεταφορικά
-  shipping_estimated: Εκτιμώμενα — οριστικοποιείται κατά την αγορά
   free: Δωρεάν
   total: Σύνολο
   pay_way_fee: Προμήθεια Τρόπου πληρωμής

@@ -71,6 +71,7 @@ export async function useCheckoutForm() {
   const freeShippingThresholdSetting = ref<{ value: string } | null>(null)
   const boxnowShippingSetting = ref<{ value: string } | null>(null)
   const boxnowFreeShippingThresholdSetting = ref<{ value: string } | null>(null)
+  const boxnowEnabled = ref(false)
   const b2bInvoicingEnabled = ref(true)
   const countries = ref<Pagination<Country> | null>(null)
   const payWays = ref<Pagination<PayWay> | null>(null)
@@ -432,6 +433,7 @@ export async function useCheckoutForm() {
     freeShippingResult,
     boxnowShippingResult,
     boxnowFreeShippingResult,
+    boxnowEnabledResult,
     b2bInvoicingResult,
     countriesResult,
     payWaysResult,
@@ -467,6 +469,14 @@ export async function useCheckoutForm() {
       () => $fetch<{ value: string }>('/api/settings/get', {
         method: 'GET',
         query: { key: 'BOXNOW_FREE_SHIPPING_THRESHOLD' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:boxnow-enabled',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'BOXNOW_ENABLED' },
         headers: useRequestHeaders(),
       }).catch(() => null),
     ),
@@ -552,8 +562,13 @@ export async function useCheckoutForm() {
   boxnowShippingSetting.value = boxnowShippingResult.data.value ?? null
   boxnowFreeShippingThresholdSetting.value = boxnowFreeShippingResult.data.value ?? null
   // extra_settings serialises booleans as the strings "True"/"False".
-  // Default to ``true`` if the endpoint is unreachable so a transient
-  // settings-API failure doesn't silently hide the B2B option.
+  // BoxNow defaults to **disabled** — the master switch starts False
+  // in production so a fresh deploy doesn't expose the option until an
+  // admin (and BoxNow's partner activation) confirm. Stage/dev flips
+  // it on in Django admin once the account is activated.
+  boxnowEnabled.value = boxnowEnabledResult.data.value?.value === 'True'
+  // B2B defaults to ``true`` if the endpoint is unreachable so a
+  // transient settings-API failure doesn't silently hide the option.
   b2bInvoicingEnabled.value = b2bInvoicingResult.data.value?.value !== 'False'
   if (!b2bInvoicingEnabled.value) {
     formState.documentType = zOrderCreateDocumentType.enum.RECEIPT
@@ -633,6 +648,7 @@ export async function useCheckoutForm() {
     addressEntryMode,
     useNewAddress,
     b2bInvoicingEnabled,
+    boxnowEnabled,
     refetchShippingSettings,
   }
 }

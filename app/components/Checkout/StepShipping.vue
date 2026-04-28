@@ -4,6 +4,11 @@ const formState = defineModel<Record<string, any>>('formState', { required: true
 const props = defineProps<{
   schema: any
   partnerId: string
+  // Master switch from the backend `BOXNOW_ENABLED` Setting row.
+  // Defaults to false at the source so a fresh prod deploy hides the
+  // option until BoxNow has activated the partner account; an admin
+  // flips it to true in Django admin once they confirm.
+  boxnowEnabled?: boolean
   // The currently selected PayWay (from useCheckoutForm). Threaded
   // through as a prop so we can disable the BoxNow option when the
   // shopper has a cash-on-delivery PayWay selected — BoxNow lockers
@@ -44,7 +49,7 @@ const isBoxNowDisabled = computed(
 //
 // Brand metadata (logo, icon, optional badge tagline) lives in
 // ``app/utils/shipping-methods.ts`` so adding a carrier is just dropping
-// a logo into ``app/assets/images/shipping/`` + a one-line entry there.
+// a logo into ``public/img/shipping/`` + a one-line entry there.
 const shippingOptions = computed(() => {
   const items: Array<{
     value: ShippingMethodEnum
@@ -63,14 +68,20 @@ const shippingOptions = computed(() => {
       descriptionText: t('shipping.method.home_delivery.description'),
       ...buildBrandMeta('home_delivery'),
     },
-    {
+  ]
+  // BoxNow row is hidden entirely when the master switch is off —
+  // showing a disabled-and-greyed BoxNow card would invite confusion
+  // ("why can't I pick this?"). Once an admin flips the Setting to
+  // True the option appears on the next checkout load.
+  if (props.boxnowEnabled) {
+    items.push({
       value: 'box_now_locker',
       label: t('shipping.method.boxnow.label'),
       descriptionText: t('shipping.method.boxnow.description'),
       disabled: isBoxNowDisabled.value,
       ...buildBrandMeta('box_now_locker'),
-    },
-  ]
+    })
+  }
   return items
 })
 
