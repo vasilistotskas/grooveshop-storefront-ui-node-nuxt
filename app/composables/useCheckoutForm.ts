@@ -472,10 +472,13 @@ export async function useCheckoutForm() {
       }).catch(() => null),
     ),
     useAsyncData<Pagination<PayWay> | null>(
-      () => `checkout:pay-ways:${locale.value}`,
+      () => `checkout:pay-ways:${locale.value}:${formState.shippingMethod}`,
       () => $fetch<Pagination<PayWay>>('/api/pay-way', {
         method: 'GET',
-        query: { languageCode: locale.value },
+        query: {
+          languageCode: locale.value,
+          shippingMethod: formState.shippingMethod,
+        },
         headers: useRequestHeaders(),
       }).catch(() => null),
     ),
