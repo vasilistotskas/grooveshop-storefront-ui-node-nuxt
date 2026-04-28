@@ -1,3 +1,10 @@
+# [3.99.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.98.2...v3.99.0) (2026-04-28)
+
+
+### Features
+
+* **checkout:** BoxNow parcel-locker shipping integration ([3e584f1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3e584f1535a05913acb95f3785d65c80eadc5f43))
+
 ## [3.98.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.98.1...v3.98.2) (2026-04-27)
 
 
