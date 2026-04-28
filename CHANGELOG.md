@@ -1,3 +1,15 @@
+# [3.100.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.99.1...v3.100.0) (2026-04-28)
+
+
+### Bug Fixes
+
+* pnpm lock update ([4a3622a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4a3622aaa1d498d15d043fd244e2576f701959cf))
+
+
+### Features
+
+* Bump Versions ([8b8757c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8b8757c307c41565ffdbf4d42773bbad9d3d372c))
+
 ## [3.99.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.99.0...v3.99.1) (2026-04-28)
 
 
