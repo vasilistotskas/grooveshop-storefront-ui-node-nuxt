@@ -1,3 +1,10 @@
+## [3.102.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.102.0...v3.102.1) (2026-04-29)
+
+
+### Bug Fixes
+
+* **checkout:** drop explicit #shared imports from ACS components ([468bb09](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/468bb0949c7daa058a67440f0db95514ba509789)), closes [#shared](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/shared)
+
 # [3.102.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.101.0...v3.102.0) (2026-04-29)
 
 
