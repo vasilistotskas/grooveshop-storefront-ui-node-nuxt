@@ -1053,9 +1053,16 @@ definePageMeta({
       :order-id="order.id"
     />
 
-    <!-- Home-delivery courier tracking — only shown for home_delivery orders
-         (or pre-BoxNow orders that have no shippingMethod field yet). -->
-    <UCard v-if="order.trackingDetails && order.trackingDetails.hasTracking && order.shippingMethod !== 'box_now_locker'">
+    <!-- ACS tracking card — rendered when the order has an ACS shipment. -->
+    <OrderAcsTracking
+      v-if="order.acsShipment"
+      :shipment="order.acsShipment"
+      :order-id="order.id"
+    />
+
+    <!-- Generic carrier tracking — only shown when no provider-specific
+         widget is rendered above (BoxNow / ACS each show their own). -->
+    <UCard v-if="order.trackingDetails && order.trackingDetails.hasTracking && order.shippingMethod !== 'box_now_locker' && !order.acsShipment">
       <template #header>
         <div class="flex w-full items-center justify-between">
           <UCollapsible v-model:open="sectionsState.trackingInfo" class="flex-1">

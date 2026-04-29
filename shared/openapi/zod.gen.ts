@@ -3,6 +3,83 @@
 import * as z from 'zod'
 
 /**
+ * Free-text address payload — ACS does its own parsing.
+ */
+export const zAcsAddressValidationRequestRequest = z.object({
+  address: z.string().min(1).max(500).register(z.globalRegistry, {
+    description: 'Street + number + optional zip + city, e.g. \'Pireos 25 17778\'.',
+  }),
+  addressId: z.string().max(64).register(z.globalRegistry, {
+    description: 'Optional re-validation key from a previous response.',
+  }).optional(),
+  language: z.string().max(2).optional().default('GR'),
+}).register(z.globalRegistry, {
+  description: 'Free-text address payload — ACS does its own parsing.',
+})
+
+/**
+ * A single resolved address — the first ACSObjectOutput row.
+ */
+export const zAcsAddressValidationResponse = z.object({
+  geoId: z.int().nullish(),
+  resolvedStreet: z.string(),
+  resolvedStreetNum: z.string(),
+  resolvedZip: z.string(),
+  resolvedArea: z.string(),
+  resolvedLong: z.number().nullish(),
+  resolvedLat: z.number().nullish(),
+  resolvedStationId: z.string(),
+  resolvedBranchId: z.int().nullish(),
+  resolvedProvidence: z.string(),
+  addressId: z.string(),
+}).register(z.globalRegistry, {
+  description: 'A single resolved address — the first ACSObjectOutput row.',
+})
+
+/**
+ * * `1` - Prepaid
+ * * `2` - Cash on delivery
+ */
+export const zAcsChargeType = z.union([z.literal(1), z.literal(2)]).register(z.globalRegistry, {
+  description: '* `1` - Prepaid\n* `2` - Cash on delivery',
+})
+
+export const zAcsPickupList = z.object({
+  id: z.int().readonly(),
+  pickupListNo: z.string().register(z.globalRegistry, {
+    description: 'PickupList_No returned by ACS_Issue_Pickup_List.',
+  }).readonly(),
+  issuedAt: z.iso.datetime({ offset: true }).readonly(),
+  issuedBy: z.int().readonly().nullable(),
+  issuedByUsername: z.string().readonly().nullable(),
+  billingCode: z.string().register(z.globalRegistry, {
+    description: 'Billing_Code captured at issuance time so historical manifests stay reprintable even if the env var changes.',
+  }).readonly(),
+  voucherCount: z.int().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+})
+
+export const zAcsTrackingEvent = z.object({
+  id: z.int().readonly(),
+  eventTime: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Checkpoint_Date_Time from ACS_TrackingDetails.',
+  }).readonly(),
+  checkpointAction: z.string().register(z.globalRegistry, {
+    description: 'Checkpoint_Action_Description — human-readable Greek text describing the event.',
+  }).readonly(),
+  checkpointLocation: z.string().register(z.globalRegistry, {
+    description: 'Checkpoint_Location_Description.',
+  }).readonly(),
+  notes: z.string().register(z.globalRegistry, {
+    description: 'ACS Comments field.',
+  }).readonly(),
+  receivedAt: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Wall-clock time when the polling task observed this event.',
+  }).readonly(),
+})
+
+/**
  * * `subscribe` - subscribe
  * * `unsubscribe` - unsubscribe
  */
@@ -3501,11 +3578,51 @@ export const zSettingDetail = z.object({
 })
 
 /**
+ * * `pending_creation` - Pending creation
+ * * `new` - New
+ * * `in_transit` - In transit
+ * * `at_destination` - At destination station
+ * * `out_for_delivery` - Out for delivery
+ * * `delivered` - Delivered
+ * * `attempted` - Delivery attempted
+ * * `returned` - Returned
+ * * `canceled` - Canceled
+ * * `lost` - Lost
+ */
+export const zShipmentStateEnum = z.enum([
+  'pending_creation',
+  'new',
+  'in_transit',
+  'at_destination',
+  'out_for_delivery',
+  'delivered',
+  'attempted',
+  'returned',
+  'canceled',
+  'lost',
+]).register(z.globalRegistry, {
+  description: '* `pending_creation` - Pending creation\n* `new` - New\n* `in_transit` - In transit\n* `at_destination` - At destination station\n* `out_for_delivery` - Out for delivery\n* `delivered` - Delivered\n* `attempted` - Delivery attempted\n* `returned` - Returned\n* `canceled` - Canceled\n* `lost` - Lost',
+})
+
+/**
+ * * `home_delivery` - Home delivery
+ * * `pickup_point` - Pickup point / locker
+ */
+export const zShippingKind = z.enum(['home_delivery', 'pickup_point']).register(z.globalRegistry, {
+  description: '* `home_delivery` - Home delivery\n* `pickup_point` - Pickup point / locker',
+})
+
+/**
  * * `home_delivery` - Home delivery
  * * `box_now_locker` - BOX NOW Locker
+ * * `acs_smartpoint` - ACS Smartpoint
  */
-export const zShippingMethodEnum = z.enum(['home_delivery', 'box_now_locker']).register(z.globalRegistry, {
-  description: '* `home_delivery` - Home delivery\n* `box_now_locker` - BOX NOW Locker',
+export const zShippingMethodEnum = z.enum([
+  'home_delivery',
+  'box_now_locker',
+  'acs_smartpoint',
+]).register(z.globalRegistry, {
+  description: '* `home_delivery` - Home delivery\n* `box_now_locker` - BOX NOW Locker\n* `acs_smartpoint` - ACS Smartpoint',
 })
 
 export const zOrder = z.object({
@@ -3618,6 +3735,17 @@ export const zOrderCreateFromCartRequest = z.object({
   boxnowCompartmentSize: z.int().gte(1).lte(3).register(z.globalRegistry, {
     description: 'BoxNow compartment size: 1=Small, 2=Medium, 3=Large',
   }).optional().default(1),
+  shippingProviderCode: z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+    description: 'Carrier code from /api/v1/shipping/options (e.g. \'acs\').',
+  }).optional(),
+  shippingKind: zShippingKind.optional(),
+  acsStationExternalId: z.string().max(32).register(z.globalRegistry, {
+    description: 'ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).',
+  }).optional(),
+  acsStationBranch: z.string().max(32).register(z.globalRegistry, {
+    description: 'ACS_Station_Branch_Destination value.',
+  }).optional(),
+  acsChargeType: zAcsChargeType.optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',
 })
@@ -3633,6 +3761,213 @@ export const zPaginatedOrderList = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zOrder),
+})
+
+/**
+ * One row in the checkout shipping-method radio.
+ *
+ * Returned by :class:`shipping.views.ShippingOptionsView`.  The
+ * frontend renders one card per row; the ``kind`` value tells it
+ * whether to show a locker picker, and ``provider_code`` tells it
+ * which picker variant (BoxNow widget vs ACS server-side list).
+ */
+export const zShippingOption = z.object({
+  providerCode: z.string(),
+  providerName: z.string(),
+  kind: zShippingKind,
+  price: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  currency: z.string().max(3),
+  liveMode: z.boolean(),
+  priority: z.int(),
+  metadata: z.record(z.string(), z.unknown()),
+}).register(z.globalRegistry, {
+  description: 'One row in the checkout shipping-method radio.\n\nReturned by :class:`shipping.views.ShippingOptionsView`.  The\nfrontend renders one card per row; the ``kind`` value tells it\nwhether to show a locker picker, and ``provider_code`` tells it\nwhich picker variant (BoxNow widget vs ACS server-side list).',
+})
+
+export const zShippingProvider = z.object({
+  id: z.int().readonly(),
+  code: z.string().regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+    description: 'Stable identifier matching the registered carrier adapter (e.g. \'acs\', \'boxnow\').',
+  }).readonly(),
+  name: z.string().register(z.globalRegistry, {
+    description: 'Display name shown to customers (e.g. \'ACS Courier\').',
+  }).readonly(),
+  isActive: z.boolean().register(z.globalRegistry, {
+    description: 'Master switch — when False the provider is hidden from checkout regardless of capability flags.',
+  }).readonly(),
+  supportsHomeDelivery: z.boolean().readonly(),
+  supportsPickupPoint: z.boolean().readonly(),
+  liveMode: z.boolean().register(z.globalRegistry, {
+    description: 'False = sandbox / test credentials. Used by the admin UI to warn operators that vouchers won\'t actually ship.',
+  }).readonly(),
+  priority: z.int().register(z.globalRegistry, {
+    description: 'Sort order in checkout — lower numbers appear first.',
+  }).readonly(),
+  metadata: z.unknown().register(z.globalRegistry, {
+    description: 'Provider-specific configuration (supported countries, feature flags, branding hints).',
+  }),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+})
+
+/**
+ * * `1` - Shop
+ * * `2` - Partner shop (2)
+ * * `3` - Partner shop (3)
+ * * `4` - Xpress Point
+ * * `5` - Kiosk
+ * * `7` - Smartpoint (inbound)
+ * * `8` - Smartpoint (outbound)
+ */
+export const zShopKindEnum = z.union([
+  z.literal(1),
+  z.literal(2),
+  z.literal(3),
+  z.literal(4),
+  z.literal(5),
+  z.literal(7),
+  z.literal(8),
+]).register(z.globalRegistry, {
+  description: '* `1` - Shop\n* `2` - Partner shop (2)\n* `3` - Partner shop (3)\n* `4` - Xpress Point\n* `5` - Kiosk\n* `7` - Smartpoint (inbound)\n* `8` - Smartpoint (outbound)',
+})
+
+/**
+ * List serializer for ACS stations / Smartpoints.
+ *
+ * Includes ``working_hours`` so the checkout picker can render
+ * opening hours inline without requiring a per-row detail fetch.
+ */
+export const zAcsStation = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  externalId: z.string().register(z.globalRegistry, {
+    description: 'ACS_SHOP_STATION_ID — used as Acs_Station_Destination.',
+  }).readonly(),
+  branchCode: z.string().register(z.globalRegistry, {
+    description: 'ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).',
+  }).readonly(),
+  shopKind: zShopKindEnum,
+  name: z.string().readonly(),
+  addressLine1: z.string().readonly(),
+  city: z.string().readonly(),
+  postalCode: z.string().readonly(),
+  countryCode: z.string().register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code.',
+  }).readonly(),
+  lat: z.number().gt(-1000).lt(1000).readonly().nullable(),
+  lng: z.number().gt(-1000).lt(1000).readonly().nullable(),
+  maxWeightKg: z.number().gt(-1000).lt(1000).register(z.globalRegistry, {
+    description: 'Smartpoint lockers cap at 6 kg per ACS docs; non-locker stations have no fixed cap (still stored as 6 by default).',
+  }).readonly(),
+  workingHours: z.string().readonly(),
+  isActive: z.boolean().readonly(),
+  lastSyncedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+}).register(z.globalRegistry, {
+  description: 'List serializer for ACS stations / Smartpoints.\n\nIncludes ``working_hours`` so the checkout picker can render\nopening hours inline without requiring a per-row detail fetch.',
+})
+
+/**
+ * Detail serializer used on the order-detail endpoint.
+ */
+export const zAcsShipmentDetail = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  voucherNo: z.string().readonly().nullable(),
+  shipmentState: zShipmentStateEnum,
+  shipmentStateDisplay: z.string().register(z.globalRegistry, {
+    description: 'Human-readable label for the shipment_state choice',
+  }).readonly(),
+  deliveryKind: zShippingKind,
+  weightGrams: z.int().register(z.globalRegistry, {
+    description: 'Internal grams; converted to kilograms (>= 0.5) at API call time per ACS Weight requirements.',
+  }).readonly(),
+  itemQuantity: z.int().readonly(),
+  chargeType: zAcsChargeType,
+  deliveryProducts: z.string().register(z.globalRegistry, {
+    description: 'Comma-separated Acs_Delivery_Products codes (COD, REC, SAT, RDO …).',
+  }).readonly(),
+  lastEventAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  lastPolledAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  deliveryDate: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  stationDestinationExternalId: z.string().register(z.globalRegistry, {
+    description: 'Denormalised ACS_SHOP_STATION_ID — preserved even if the AcsStation row is deleted.',
+  }).readonly(),
+  stationBranchDestination: z.string().register(z.globalRegistry, {
+    description: 'Acs_Station_Branch_Destination value.',
+  }).readonly(),
+  station: zAcsStation.nullable(),
+  events: z.array(zAcsTrackingEvent).register(z.globalRegistry, {
+    description: 'Last 50 tracking events ordered by event_time desc.',
+  }).readonly(),
+  labelUrl: z.string().readonly().nullable(),
+  deliveryFlag: z.string().register(z.globalRegistry, {
+    description: 'Raw delivery_flag value from ACS_Trackingsummary.',
+  }).readonly(),
+  returnedFlag: z.string().readonly(),
+  rawShipmentStatus: z.string().readonly(),
+  cancelRequestedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  metadata: z.unknown().register(z.globalRegistry, {
+    description: 'Multipart child voucher numbers, last create-voucher response, last error envelope, cached POD URL.',
+  }),
+}).register(z.globalRegistry, {
+  description: 'Detail serializer used on the order-detail endpoint.',
+})
+
+/**
+ * List serializer for ACS stations / Smartpoints.
+ *
+ * Includes ``working_hours`` so the checkout picker can render
+ * opening hours inline without requiring a per-row detail fetch.
+ */
+export const zAcsStationDetail = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  externalId: z.string().register(z.globalRegistry, {
+    description: 'ACS_SHOP_STATION_ID — used as Acs_Station_Destination.',
+  }).readonly(),
+  branchCode: z.string().register(z.globalRegistry, {
+    description: 'ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).',
+  }).readonly(),
+  shopKind: zShopKindEnum,
+  name: z.string().readonly(),
+  addressLine1: z.string().readonly(),
+  city: z.string().readonly(),
+  postalCode: z.string().readonly(),
+  countryCode: z.string().register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code.',
+  }).readonly(),
+  lat: z.number().gt(-1000).lt(1000).readonly().nullable(),
+  lng: z.number().gt(-1000).lt(1000).readonly().nullable(),
+  maxWeightKg: z.number().gt(-1000).lt(1000).register(z.globalRegistry, {
+    description: 'Smartpoint lockers cap at 6 kg per ACS docs; non-locker stations have no fixed cap (still stored as 6 by default).',
+  }).readonly(),
+  workingHours: z.string().readonly(),
+  isActive: z.boolean().readonly(),
+  lastSyncedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  addressLine2: z.string().readonly(),
+  region: z.string().readonly(),
+  phone: z.string().readonly(),
+}).register(z.globalRegistry, {
+  description: 'List serializer for ACS stations / Smartpoints.\n\nIncludes ``working_hours`` so the checkout picker can render\nopening hours inline without requiring a per-row detail fetch.',
+})
+
+export const zPaginatedAcsStationList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zAcsStation),
 })
 
 /**
@@ -4294,6 +4629,9 @@ export const zOrderDetail = z.object({
     description: 'True when a PDF invoice has been generated — the frontend can show the download CTA without issuing a separate request to the invoice endpoint to find out.',
   }).readonly(),
   boxnowShipment: zBoxNowShipmentDetail.nullable(),
+  acsShipment: zAcsShipmentDetail.nullable(),
+  shipment: z.record(z.string(), z.unknown()).readonly().nullable(),
+  shipmentProviderCode: z.string().readonly().nullable(),
   trackingNumber: z.string().max(255).optional(),
   shippingCarrier: z.string().max(255).optional(),
   customerFullName: z.string().readonly(),
@@ -5424,6 +5762,19 @@ export const zOrderItemRefundResponseWritable = z.object({
   detail: z.string(),
   refundedAmount: z.number().gt(-1000000000).lt(1000000000),
   item: zOrderItemWritable,
+})
+
+export const zPaginatedAcsStationListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(z.unknown()),
 })
 
 export const zPaginatedAttributeListWritable = z.object({
@@ -11255,6 +11606,20 @@ export const zUpdateOrderQuery = z.object({
 
 export const zUpdateOrderResponse = zOrderDetail
 
+export const zCancelAcsShipmentForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zGetAcsLabelForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
 export const zAddOrderTrackingBody = zAddTrackingRequest
 
 export const zAddOrderTrackingPath = z.object({
@@ -11357,6 +11722,24 @@ export const zRetryOrderPaymentPath = z.object({
 })
 
 export const zRetryOrderPaymentResponse = zCreatePaymentIntentResponse
+
+export const zCancelShipmentForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zCancelShipmentForOrderResponse = zOrderDetail
+
+export const zGetShipmentLabelForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zGetShipmentLabelForOrderResponse = zOrderDetail
 
 export const zUpdateOrderStatusBody = zUpdateStatusRequest
 
@@ -14442,6 +14825,93 @@ export const zApiV1SettingsGetRetrieveQuery = z.object({
 
 export const zApiV1SettingsGetRetrieveResponse = zSettingDetail
 
+export const zValidateAcsAddressBody = zAcsAddressValidationRequestRequest
+
+export const zValidateAcsAddressResponse = zAcsAddressValidationResponse
+
+export const zGetAcsPickupListManifestPath = z.object({
+  pickupListNo: z.string(),
+})
+
+export const zGetAcsPickupListManifestResponse = z.string()
+
+export const zIssueAcsPickupListResponse = z.union([
+  zAcsPickupList,
+  z.void().register(z.globalRegistry, {
+    description: 'No response body',
+  }),
+])
+
+export const zCancelAcsShipmentPath = z.object({
+  voucherNo: z.string(),
+})
+
+export const zGetAcsLabelPath = z.object({
+  voucherNo: z.string(),
+})
+
+export const zGetAcsLabelResponse = z.string()
+
+export const zGetAcsTrackingPath = z.object({
+  voucherNo: z.string(),
+})
+
+export const zGetAcsTrackingResponse = zAcsShipmentDetail
+
+export const zApiV1ShippingAcsStationsListQuery = z.object({
+  ordering: z.string().register(z.globalRegistry, {
+    description: 'Which field to use when ordering the results.',
+  }).optional(),
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+})
+
+export const zApiV1ShippingAcsStationsListResponse = zPaginatedAcsStationList
+
+export const zApiV1ShippingAcsStationsRetrievePath = z.object({
+  externalId: z.string(),
+})
+
+export const zApiV1ShippingAcsStationsRetrieveResponse = zAcsStationDetail
+
+export const zFindNearestAcsStationsQuery = z.object({
+  city: z.string().register(z.globalRegistry, {
+    description: 'Optional city-name fallback.',
+  }).optional(),
+  ordering: z.string().register(z.globalRegistry, {
+    description: 'Which field to use when ordering the results.',
+  }).optional(),
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  postalCode: z.string().register(z.globalRegistry, {
+    description: 'Greek postcode (5-digit), required.',
+  }),
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+  shopKind: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+})
+
+export const zFindNearestAcsStationsResponse = zPaginatedAcsStationList
+
 export const zListBoxNowLockerQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
     description: 'Cursor for pagination',
@@ -14510,6 +14980,29 @@ export const zGetBoxNowLabelPath = z.object({
 })
 
 export const zGetBoxNowLabelResponse = z.string()
+
+export const zListShippingOptionsQuery = z.object({
+  countryCode: z.string().register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code (e.g. \'GR\').',
+  }).optional(),
+  currency: z.string().register(z.globalRegistry, {
+    description: 'ISO 4217 currency code (default \'EUR\').',
+  }).optional(),
+  orderValueAmount: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+})
+
+export const zListShippingOptionsResponse = z.array(zShippingOption)
+
+export const zApiV1ShippingProvidersListQuery = z.object({
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+})
+
+export const zApiV1ShippingProvidersListResponse = z.array(zShippingProvider)
 
 export const zListTagQuery = z.object({
   active: z.union([

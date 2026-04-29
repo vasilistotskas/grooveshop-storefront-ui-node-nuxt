@@ -217,6 +217,15 @@ function onUseNew() {
               @update:model-value="emit('country-change')"
             />
           </UFormField>
+
+          <!-- ACS address-validation chip (Phase 4b polish).
+               Greece-only because ACS only services GR; failures
+               are silent so a misconfigured / disabled provider
+               never blocks the form. -->
+          <CheckoutAcsAddressSuggestion
+            v-model:formState="formState"
+            :enabled="formState.country === 'GR'"
+          />
         </div>
       </template>
 

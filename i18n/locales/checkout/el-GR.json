@@ -63,6 +63,11 @@
         "cod_blocked_description": "Τα BOX NOW lockers δεν δέχονται πληρωμή με αντικαταβολή (δεν διαθέτουν POS). Άλλαξε πρώτα τρόπο πληρωμής στο επόμενο βήμα για να επιλέξεις παραλαβή από locker.",
         "unconfigured_title": "Η υπηρεσία BOX NOW δεν είναι ενεργή προσωρινά",
         "unconfigured_description": "Η ενσωμάτωση με το δίκτυο BOX NOW δεν έχει ολοκληρωθεί ακόμη. Παρακαλούμε επιλέξτε παράδοση στη διεύθυνσή σας."
+      },
+      "acs_smartpoint": {
+        "label": "ACS Smartpoint Lockers",
+        "tagline": "Παραλαβή σε δικό σας χρόνο",
+        "description": "Παραλάβετε την παραγγελία σας από οποιοδήποτε ACS Smartpoint locker, με βάση τον ταχυδρομικό κώδικα παράδοσης."
       }
     },
     "boxnow": {
@@ -74,6 +79,31 @@
       "selected_locker": {
         "title": "Επιλεγμένο Locker",
         "id_label": "ID Locker"
+      }
+    },
+    "acs": {
+      "select_locker": "Επιλέξτε ACS Smartpoint",
+      "change_locker": "Αλλαγή Smartpoint",
+      "modal_title": "Επιλέξτε ένα ACS Smartpoint",
+      "select": "Επιλογή",
+      "postal_code": "Ταχυδρομικός Κώδικας",
+      "postal_code_placeholder": "π.χ. 11525",
+      "city": "Πόλη / Περιοχή",
+      "city_placeholder": "π.χ. Αθήνα",
+      "required_error": "Παρακαλώ επιλέξτε ένα Smartpoint για να συνεχίσετε",
+      "search_error": "Δεν ήταν δυνατή η αναζήτηση Smartpoints. Δοκιμάστε ξανά.",
+      "empty_title": "Δεν βρέθηκαν Smartpoints",
+      "empty_description": "Δοκιμάστε διαφορετικό ταχυδρομικό κώδικα ή περιοχή.",
+      "idle_title": "Αναζητήστε ένα Smartpoint",
+      "idle_description": "Πληκτρολογήστε ταχυδρομικό κώδικα για να δείτε διαθέσιμα ACS Smartpoint lockers.",
+      "selected_locker": {
+        "title": "Επιλεγμένο Smartpoint",
+        "id_label": "ID Smartpoint"
+      },
+      "address_suggestion": {
+        "title": "Μήπως εννοείτε αυτή τη διεύθυνση;",
+        "apply": "Εφαρμογή",
+        "checking": "Έλεγχος διεύθυνσης..."
       }
     },
     "price": {

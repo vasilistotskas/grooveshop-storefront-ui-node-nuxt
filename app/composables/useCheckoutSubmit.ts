@@ -126,6 +126,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     }
 
     const isBoxNow = formState.shippingMethod === 'box_now_locker'
+    const isAcsSmartpoint = formState.shippingMethod === 'acs_smartpoint'
 
     return {
       payWayId: formState.payWayId,
@@ -152,11 +153,17 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       billingCountry: formState.billingCountry || undefined,
       loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
       // formState.shippingMethod is already lowercase per ShippingMethodEnum
-      // ('home_delivery' | 'box_now_locker') — no transform needed.
+      // (home_delivery | box_now_locker | acs_smartpoint) — no transform.
       shippingMethod: formState.shippingMethod,
       ...(isBoxNow && {
         boxnowLockerId: formState.boxnowLockerId,
         boxnowCompartmentSize: formState.boxnowCompartmentSize,
+      }),
+      // ACS Smartpoint pickup — backend resolves provider+kind from the
+      // legacy enum value and reads station fields off the payload.
+      ...(isAcsSmartpoint && {
+        acsStationExternalId: formState.acsStationExternalId,
+        acsStationBranch: formState.acsStationBranch,
       }),
     } as OrderCreateFromCartRequest
   }

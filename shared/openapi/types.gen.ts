@@ -5,6 +5,288 @@ export type ClientOptions = {
 }
 
 /**
+ * Free-text address payload — ACS does its own parsing.
+ */
+export type AcsAddressValidationRequestRequest = {
+  /**
+     * Street + number + optional zip + city, e.g. 'Pireos 25 17778'.
+     */
+  address: string
+  /**
+     * Optional re-validation key from a previous response.
+     */
+  addressId?: string
+  language?: string
+}
+
+/**
+ * A single resolved address — the first ACSObjectOutput row.
+ */
+export type AcsAddressValidationResponse = {
+  geoId?: number | null
+  resolvedStreet: string
+  resolvedStreetNum: string
+  resolvedZip: string
+  resolvedArea: string
+  resolvedLong?: number | null
+  resolvedLat?: number | null
+  resolvedStationId: string
+  resolvedBranchId?: number | null
+  resolvedProvidence: string
+  addressId: string
+}
+
+/**
+ * * `1` - Prepaid
+ * * `2` - Cash on delivery
+ */
+export type AcsChargeType = 1 | 2
+
+export type AcsPickupList = {
+  readonly id: number
+  /**
+     * Pickup list number
+     *
+     * PickupList_No returned by ACS_Issue_Pickup_List.
+     */
+  readonly pickupListNo: string
+  readonly issuedAt: string
+  /**
+     * Admin who triggered the manual issue. Null when the daily Celery beat task issued the list.
+     */
+  readonly issuedBy: number | null
+  readonly issuedByUsername: string | null
+  /**
+     * Billing_Code captured at issuance time so historical manifests stay reprintable even if the env var changes.
+     */
+  readonly billingCode: string
+  readonly voucherCount: number
+  readonly createdAt: string
+  readonly updatedAt: string
+}
+
+/**
+ * Detail serializer used on the order-detail endpoint.
+ */
+export type AcsShipmentDetail = {
+  readonly id: number
+  readonly uuid: string
+  /**
+     * Voucher number
+     *
+     * 10-digit ACS voucher (Voucher_No from ACS_Create_Voucher).
+     */
+  readonly voucherNo: string | null
+  shipmentState: ShipmentStateEnum
+  /**
+     * Human-readable label for the shipment_state choice
+     */
+  readonly shipmentStateDisplay: string
+  deliveryKind: ShippingKind
+  /**
+     * Weight (grams)
+     *
+     * Internal grams; converted to kilograms (>= 0.5) at API call time per ACS Weight requirements.
+     */
+  readonly weightGrams: number
+  readonly itemQuantity: number
+  chargeType: AcsChargeType
+  /**
+     * Comma-separated Acs_Delivery_Products codes (COD, REC, SAT, RDO …).
+     */
+  readonly deliveryProducts: string
+  readonly lastEventAt: string | null
+  /**
+     * Used by poll_acs_tracking_batch to spread load and skip shipments polled within the last 15 minutes.
+     */
+  readonly lastPolledAt: string | null
+  readonly deliveryDate: string | null
+  readonly createdAt: string
+  readonly updatedAt: string
+  /**
+     * Destination station external ID
+     *
+     * Denormalised ACS_SHOP_STATION_ID — preserved even if the AcsStation row is deleted.
+     */
+  readonly stationDestinationExternalId: string
+  /**
+     * Destination branch
+     *
+     * Acs_Station_Branch_Destination value.
+     */
+  readonly stationBranchDestination: string
+  /**
+     * Destination ACS station details (Smartpoint pickups).
+     */
+  station: AcsStation | null
+  /**
+     * Last 50 tracking events ordered by event_time desc.
+     */
+  readonly events: Array<AcsTrackingEvent>
+  /**
+     * Relative URL to download the voucher PDF via the Django proxy.
+     */
+  readonly labelUrl: string | null
+  /**
+     * Raw delivery_flag value from ACS_Trackingsummary.
+     */
+  readonly deliveryFlag: string
+  readonly returnedFlag: string
+  readonly rawShipmentStatus: string
+  readonly cancelRequestedAt: string | null
+  /**
+     * Multipart child voucher numbers, last create-voucher response, last error envelope, cached POD URL.
+     */
+  readonly metadata: unknown
+}
+
+/**
+ * List serializer for ACS stations / Smartpoints.
+ *
+ * Includes ``working_hours`` so the checkout picker can render
+ * opening hours inline without requiring a per-row detail fetch.
+ */
+export type AcsStation = {
+  readonly id: number
+  readonly uuid: string
+  /**
+     * ACS_SHOP_STATION_ID — used as Acs_Station_Destination.
+     */
+  readonly externalId: string
+  /**
+     * ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).
+     */
+  readonly branchCode: string
+  /**
+     * ACS_SHOP_KIND — 1 shop, 7/8 Smartpoint locker.
+     *
+     * * `1` - Shop
+     * * `2` - Partner shop (2)
+     * * `3` - Partner shop (3)
+     * * `4` - Xpress Point
+     * * `5` - Kiosk
+     * * `7` - Smartpoint (inbound)
+     * * `8` - Smartpoint (outbound)
+     */
+  shopKind: ShopKindEnum
+  readonly name: string
+  readonly addressLine1: string
+  readonly city: string
+  readonly postalCode: string
+  /**
+     * ISO 3166-1 alpha-2 country code.
+     */
+  readonly countryCode: string
+  /**
+     * Latitude
+     */
+  readonly lat: number | null
+  /**
+     * Longitude
+     */
+  readonly lng: number | null
+  /**
+     * Max weight (kg)
+     *
+     * Smartpoint lockers cap at 6 kg per ACS docs; non-locker stations have no fixed cap (still stored as 6 by default).
+     */
+  readonly maxWeightKg: number
+  readonly workingHours: string
+  readonly isActive: boolean
+  readonly lastSyncedAt: string | null
+  readonly createdAt: string
+  readonly updatedAt: string
+}
+
+/**
+ * List serializer for ACS stations / Smartpoints.
+ *
+ * Includes ``working_hours`` so the checkout picker can render
+ * opening hours inline without requiring a per-row detail fetch.
+ */
+export type AcsStationDetail = {
+  readonly id: number
+  readonly uuid: string
+  /**
+     * ACS_SHOP_STATION_ID — used as Acs_Station_Destination.
+     */
+  readonly externalId: string
+  /**
+     * ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).
+     */
+  readonly branchCode: string
+  /**
+     * ACS_SHOP_KIND — 1 shop, 7/8 Smartpoint locker.
+     *
+     * * `1` - Shop
+     * * `2` - Partner shop (2)
+     * * `3` - Partner shop (3)
+     * * `4` - Xpress Point
+     * * `5` - Kiosk
+     * * `7` - Smartpoint (inbound)
+     * * `8` - Smartpoint (outbound)
+     */
+  shopKind: ShopKindEnum
+  readonly name: string
+  readonly addressLine1: string
+  readonly city: string
+  readonly postalCode: string
+  /**
+     * ISO 3166-1 alpha-2 country code.
+     */
+  readonly countryCode: string
+  /**
+     * Latitude
+     */
+  readonly lat: number | null
+  /**
+     * Longitude
+     */
+  readonly lng: number | null
+  /**
+     * Max weight (kg)
+     *
+     * Smartpoint lockers cap at 6 kg per ACS docs; non-locker stations have no fixed cap (still stored as 6 by default).
+     */
+  readonly maxWeightKg: number
+  readonly workingHours: string
+  readonly isActive: boolean
+  readonly lastSyncedAt: string | null
+  readonly createdAt: string
+  readonly updatedAt: string
+  readonly addressLine2: string
+  readonly region: string
+  /**
+     * Τηλέφωνο
+     */
+  readonly phone: string
+}
+
+export type AcsTrackingEvent = {
+  readonly id: number
+  /**
+     * Checkpoint_Date_Time from ACS_TrackingDetails.
+     */
+  readonly eventTime: string
+  /**
+     * Checkpoint_Action_Description — human-readable Greek text describing the event.
+     */
+  readonly checkpointAction: string
+  /**
+     * Checkpoint_Location_Description.
+     */
+  readonly checkpointLocation: string
+  /**
+     * ACS Comments field.
+     */
+  readonly notes: string
+  /**
+     * Wall-clock time when the polling task observed this event.
+     */
+  readonly receivedAt: string
+}
+
+/**
  * * `subscribe` - subscribe
  * * `unsubscribe` - unsubscribe
  */
@@ -1998,6 +2280,13 @@ export type Order = {
   paymentId?: string | null
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
+  /**
+     * Legacy enum kept for backwards compatibility. New code reads the (shipping_provider, shipping_kind) pair instead — both fields are dual-written by OrderService until Phase 3 of the shipping abstraction migration.
+     *
+     * * `home_delivery` - Home delivery
+     * * `box_now_locker` - BOX NOW Locker
+     * * `acs_smartpoint` - ACS Smartpoint
+     */
   shippingMethod?: ShippingMethodEnum
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
@@ -2096,6 +2385,7 @@ export type OrderCreateFromCartRequest = {
      *
      * * `home_delivery` - Home delivery
      * * `box_now_locker` - BOX NOW Locker
+     * * `acs_smartpoint` - ACS Smartpoint
      */
   shippingMethod?: ShippingMethodEnum
   /**
@@ -2106,6 +2396,26 @@ export type OrderCreateFromCartRequest = {
      * BoxNow compartment size: 1=Small, 2=Medium, 3=Large
      */
   boxnowCompartmentSize?: number
+  /**
+     * Carrier code from /api/v1/shipping/options (e.g. 'acs').
+     */
+  shippingProviderCode?: string
+  /**
+     * Generic fulfilment kind, independent of provider.
+     *
+     * * `home_delivery` - Home delivery
+     * * `pickup_point` - Pickup point / locker
+     */
+  shippingKind?: ShippingKind
+  /**
+     * ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).
+     */
+  acsStationExternalId?: string
+  /**
+     * ACS_Station_Branch_Destination value.
+     */
+  acsStationBranch?: string
+  acsChargeType?: AcsChargeType
 }
 
 export type OrderDetail = {
@@ -2149,6 +2459,13 @@ export type OrderDetail = {
   paymentId?: string | null
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
+  /**
+     * Legacy enum kept for backwards compatibility. New code reads the (shipping_provider, shipping_kind) pair instead — both fields are dual-written by OrderService until Phase 3 of the shipping abstraction migration.
+     *
+     * * `home_delivery` - Home delivery
+     * * `box_now_locker` - BOX NOW Locker
+     * * `acs_smartpoint` - ACS Smartpoint
+     */
   shippingMethod?: ShippingMethodEnum
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
@@ -2192,6 +2509,20 @@ export type OrderDetail = {
      * BoxNow shipment details when shipping_method is 'box_now_locker', else null.
      */
   boxnowShipment: BoxNowShipmentDetail | null
+  /**
+     * ACS shipment details when the order's shipping provider is ACS, else null.
+     */
+  acsShipment: AcsShipmentDetail | null
+  /**
+     * Provider-agnostic shipment payload — frontends can read this single field instead of branching on boxnow_shipment / acs_shipment.  Returns the active provider's detail serializer dict (shape depends on the provider) or null when no shipment exists.
+     */
+  readonly shipment: {
+    [key: string]: unknown
+  } | null
+  /**
+     * Identifier of the carrier handling this order — 'acs', 'boxnow', or null when no provider is attached.  Lets frontends switch on a stable code instead of inspecting the shipment shape.
+     */
+  readonly shipmentProviderCode: string | null
   trackingNumber?: string
   shippingCarrier?: string
   readonly customerFullName: string
@@ -2314,6 +2645,19 @@ export type OrderWriteRequest = {
   customerNotes?: string
   items: Array<OrderItemCreateRequest>
   documentType?: OrderDocumentType
+}
+
+export type PaginatedAcsStationList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<AcsStation>
 }
 
 export type PaginatedAttributeList = {
@@ -4546,10 +4890,100 @@ export type SettingDetail = {
 }
 
 /**
+ * * `pending_creation` - Pending creation
+ * * `new` - New
+ * * `in_transit` - In transit
+ * * `at_destination` - At destination station
+ * * `out_for_delivery` - Out for delivery
+ * * `delivered` - Delivered
+ * * `attempted` - Delivery attempted
+ * * `returned` - Returned
+ * * `canceled` - Canceled
+ * * `lost` - Lost
+ */
+export type ShipmentStateEnum = 'pending_creation' | 'new' | 'in_transit' | 'at_destination' | 'out_for_delivery' | 'delivered' | 'attempted' | 'returned' | 'canceled' | 'lost'
+
+/**
+ * * `home_delivery` - Home delivery
+ * * `pickup_point` - Pickup point / locker
+ */
+export type ShippingKind = 'home_delivery' | 'pickup_point'
+
+/**
  * * `home_delivery` - Home delivery
  * * `box_now_locker` - BOX NOW Locker
+ * * `acs_smartpoint` - ACS Smartpoint
  */
-export type ShippingMethodEnum = 'home_delivery' | 'box_now_locker'
+export type ShippingMethodEnum = 'home_delivery' | 'box_now_locker' | 'acs_smartpoint'
+
+/**
+ * One row in the checkout shipping-method radio.
+ *
+ * Returned by :class:`shipping.views.ShippingOptionsView`.  The
+ * frontend renders one card per row; the ``kind`` value tells it
+ * whether to show a locker picker, and ``provider_code`` tells it
+ * which picker variant (BoxNow widget vs ACS server-side list).
+ */
+export type ShippingOption = {
+  providerCode: string
+  providerName: string
+  kind: ShippingKind
+  /**
+     * Null when the provider defers to the global flat rate.
+     */
+  price: number | null
+  currency: string
+  liveMode: boolean
+  priority: number
+  metadata: {
+    [key: string]: unknown
+  }
+}
+
+export type ShippingProvider = {
+  readonly id: number
+  /**
+     * Κωδικός
+     *
+     * Stable identifier matching the registered carrier adapter (e.g. 'acs', 'boxnow').
+     */
+  readonly code: string
+  /**
+     * Display name shown to customers (e.g. 'ACS Courier').
+     */
+  readonly name: string
+  /**
+     * Master switch — when False the provider is hidden from checkout regardless of capability flags.
+     */
+  readonly isActive: boolean
+  readonly supportsHomeDelivery: boolean
+  readonly supportsPickupPoint: boolean
+  /**
+     * False = sandbox / test credentials. Used by the admin UI to warn operators that vouchers won't actually ship.
+     */
+  readonly liveMode: boolean
+  /**
+     * Sort order in checkout — lower numbers appear first.
+     */
+  readonly priority: number
+  /**
+     * Provider-specific configuration (supported countries, feature flags, branding hints).
+     */
+  readonly metadata: unknown
+  readonly createdAt: string
+  readonly updatedAt: string
+}
+
+/**
+ * * `1` - Shop
+ * * `2` - Partner shop (2)
+ * * `3` - Partner shop (3)
+ * * `4` - Xpress Point
+ * * `5` - Kiosk
+ * * `7` - Smartpoint (inbound)
+ * * `8` - Smartpoint (outbound)
+ */
+export type ShopKindEnum = 1 | 2 | 3 | 4 | 5 | 7 | 8
 
 /**
  * * `ACTIVE` - Active
@@ -5734,6 +6168,13 @@ export type OrderWritable = {
   paymentId?: string | null
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
+  /**
+     * Legacy enum kept for backwards compatibility. New code reads the (shipping_provider, shipping_kind) pair instead — both fields are dual-written by OrderService until Phase 3 of the shipping abstraction migration.
+     *
+     * * `home_delivery` - Home delivery
+     * * `box_now_locker` - BOX NOW Locker
+     * * `acs_smartpoint` - ACS Smartpoint
+     */
   shippingMethod?: ShippingMethodEnum
 }
 
@@ -5765,6 +6206,13 @@ export type OrderDetailWritable = {
   paymentId?: string | null
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
+  /**
+     * Legacy enum kept for backwards compatibility. New code reads the (shipping_provider, shipping_kind) pair instead — both fields are dual-written by OrderService until Phase 3 of the shipping abstraction migration.
+     *
+     * * `home_delivery` - Home delivery
+     * * `box_now_locker` - BOX NOW Locker
+     * * `acs_smartpoint` - ACS Smartpoint
+     */
   shippingMethod?: ShippingMethodEnum
   trackingNumber?: string
   shippingCarrier?: string
@@ -5786,6 +6234,19 @@ export type OrderItemRefundResponseWritable = {
   detail: string
   refundedAmount: number
   item: OrderItemWritable
+}
+
+export type PaginatedAcsStationListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<unknown>
 }
 
 export type PaginatedAttributeListWritable = {
@@ -12753,6 +13214,44 @@ export type UpdateOrderResponses = {
 
 export type UpdateOrderResponse = UpdateOrderResponses[keyof UpdateOrderResponses]
 
+export type CancelAcsShipmentForOrderData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/order/{id}/acs_cancel'
+}
+
+export type CancelAcsShipmentForOrderErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type CancelAcsShipmentForOrderError = CancelAcsShipmentForOrderErrors[keyof CancelAcsShipmentForOrderErrors]
+
+export type GetAcsLabelForOrderData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/order/{id}/acs_label'
+}
+
+export type GetAcsLabelForOrderErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type GetAcsLabelForOrderError = GetAcsLabelForOrderErrors[keyof GetAcsLabelForOrderErrors]
+
 export type AddOrderTrackingData = {
   body: AddTrackingRequest
   path: {
@@ -13013,6 +13512,56 @@ export type RetryOrderPaymentResponses = {
 }
 
 export type RetryOrderPaymentResponse = RetryOrderPaymentResponses[keyof RetryOrderPaymentResponses]
+
+export type CancelShipmentForOrderData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/order/{id}/shipment_cancel'
+}
+
+export type CancelShipmentForOrderErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type CancelShipmentForOrderError = CancelShipmentForOrderErrors[keyof CancelShipmentForOrderErrors]
+
+export type CancelShipmentForOrderResponses = {
+  200: OrderDetail
+}
+
+export type CancelShipmentForOrderResponse = CancelShipmentForOrderResponses[keyof CancelShipmentForOrderResponses]
+
+export type GetShipmentLabelForOrderData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/order/{id}/shipment_label'
+}
+
+export type GetShipmentLabelForOrderErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type GetShipmentLabelForOrderError = GetShipmentLabelForOrderErrors[keyof GetShipmentLabelForOrderErrors]
+
+export type GetShipmentLabelForOrderResponses = {
+  200: OrderDetail
+}
+
+export type GetShipmentLabelForOrderResponse = GetShipmentLabelForOrderResponses[keyof GetShipmentLabelForOrderResponses]
 
 export type UpdateOrderStatusData = {
   body: UpdateStatusRequest
@@ -17058,6 +17607,235 @@ export type ApiV1SettingsGetRetrieveResponses = {
 
 export type ApiV1SettingsGetRetrieveResponse = ApiV1SettingsGetRetrieveResponses[keyof ApiV1SettingsGetRetrieveResponses]
 
+export type ValidateAcsAddressData = {
+  body: AcsAddressValidationRequestRequest
+  path?: never
+  query?: never
+  url: '/api/v1/shipping/acs/address-validation'
+}
+
+export type ValidateAcsAddressErrors = {
+  /**
+     * No response body
+     */
+  400: unknown
+  /**
+     * No response body
+     */
+  502: unknown
+}
+
+export type ValidateAcsAddressResponses = {
+  200: AcsAddressValidationResponse
+}
+
+export type ValidateAcsAddressResponse = ValidateAcsAddressResponses[keyof ValidateAcsAddressResponses]
+
+export type GetAcsPickupListManifestData = {
+  body?: never
+  path: {
+    pickupListNo: string
+  }
+  query?: never
+  url: '/api/v1/shipping/acs/pickup-lists/{pickup_list_no}/manifest.pdf'
+}
+
+export type GetAcsPickupListManifestErrors = {
+  /**
+     * No response body
+     */
+  404: unknown
+}
+
+export type GetAcsPickupListManifestResponses = {
+  200: Blob | File
+}
+
+export type GetAcsPickupListManifestResponse = GetAcsPickupListManifestResponses[keyof GetAcsPickupListManifestResponses]
+
+export type IssueAcsPickupListData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/shipping/acs/pickup-lists/issue'
+}
+
+export type IssueAcsPickupListErrors = {
+  /**
+     * No response body
+     */
+  403: unknown
+}
+
+export type IssueAcsPickupListResponses = {
+  201: AcsPickupList
+  /**
+     * No response body
+     */
+  204: void
+}
+
+export type IssueAcsPickupListResponse = IssueAcsPickupListResponses[keyof IssueAcsPickupListResponses]
+
+export type CancelAcsShipmentData = {
+  body?: never
+  path: {
+    voucherNo: string
+  }
+  query?: never
+  url: '/api/v1/shipping/acs/shipments/{voucher_no}/cancel'
+}
+
+export type CancelAcsShipmentErrors = {
+  /**
+     * No response body
+     */
+  400: unknown
+  /**
+     * No response body
+     */
+  403: unknown
+  /**
+     * No response body
+     */
+  404: unknown
+}
+
+export type CancelAcsShipmentResponses = {
+  /**
+     * No response body
+     */
+  200: unknown
+}
+
+export type GetAcsLabelData = {
+  body?: never
+  path: {
+    voucherNo: string
+  }
+  query?: never
+  url: '/api/v1/shipping/acs/shipments/{voucher_no}/label.pdf'
+}
+
+export type GetAcsLabelErrors = {
+  /**
+     * No response body
+     */
+  403: unknown
+  /**
+     * No response body
+     */
+  404: unknown
+}
+
+export type GetAcsLabelResponses = {
+  200: Blob | File
+}
+
+export type GetAcsLabelResponse = GetAcsLabelResponses[keyof GetAcsLabelResponses]
+
+export type GetAcsTrackingData = {
+  body?: never
+  path: {
+    voucherNo: string
+  }
+  query?: never
+  url: '/api/v1/shipping/acs/shipments/{voucher_no}/tracking'
+}
+
+export type GetAcsTrackingResponses = {
+  200: AcsShipmentDetail
+}
+
+export type GetAcsTrackingResponse = GetAcsTrackingResponses[keyof GetAcsTrackingResponses]
+
+export type ApiV1ShippingAcsStationsListData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Which field to use when ordering the results.
+         */
+    ordering?: string
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Number of results to return per page.
+         */
+    pageSize?: string | number
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/shipping/acs/stations'
+}
+
+export type ApiV1ShippingAcsStationsListResponses = {
+  200: PaginatedAcsStationList
+}
+
+export type ApiV1ShippingAcsStationsListResponse = ApiV1ShippingAcsStationsListResponses[keyof ApiV1ShippingAcsStationsListResponses]
+
+export type ApiV1ShippingAcsStationsRetrieveData = {
+  body?: never
+  path: {
+    externalId: string
+  }
+  query?: never
+  url: '/api/v1/shipping/acs/stations/{external_id}'
+}
+
+export type ApiV1ShippingAcsStationsRetrieveResponses = {
+  200: AcsStationDetail
+}
+
+export type ApiV1ShippingAcsStationsRetrieveResponse = ApiV1ShippingAcsStationsRetrieveResponses[keyof ApiV1ShippingAcsStationsRetrieveResponses]
+
+export type FindNearestAcsStationsData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+         * Optional city-name fallback.
+         */
+    city?: string
+    /**
+         * Which field to use when ordering the results.
+         */
+    ordering?: string
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Number of results to return per page.
+         */
+    pageSize?: string | number
+    /**
+         * Greek postcode (5-digit), required.
+         */
+    postalCode: string
+    /**
+         * A search term.
+         */
+    search?: string
+    /**
+         * Optional override (default: lockers 7+8).
+         */
+    shopKind?: string | number
+  }
+  url: '/api/v1/shipping/acs/stations/nearest'
+}
+
+export type FindNearestAcsStationsResponses = {
+  200: PaginatedAcsStationList
+}
+
+export type FindNearestAcsStationsResponse = FindNearestAcsStationsResponses[keyof FindNearestAcsStationsResponses]
+
 export type ListBoxNowLockerData = {
   body?: never
   path?: never
@@ -17222,6 +18000,50 @@ export type GetBoxNowLabelResponses = {
 }
 
 export type GetBoxNowLabelResponse = GetBoxNowLabelResponses[keyof GetBoxNowLabelResponses]
+
+export type ListShippingOptionsData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * ISO 3166-1 alpha-2 country code (e.g. 'GR').
+         */
+    countryCode?: string
+    /**
+         * ISO 4217 currency code (default 'EUR').
+         */
+    currency?: string
+    /**
+         * Cart subtotal — included so providers can return free-shipping pricing when the threshold is hit.
+         */
+    orderValueAmount?: string | number
+  }
+  url: '/api/v1/shipping/options'
+}
+
+export type ListShippingOptionsResponses = {
+  200: Array<ShippingOption>
+}
+
+export type ListShippingOptionsResponse = ListShippingOptionsResponses[keyof ListShippingOptionsResponses]
+
+export type ApiV1ShippingProvidersListData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/shipping/providers'
+}
+
+export type ApiV1ShippingProvidersListResponses = {
+  200: Array<ShippingProvider>
+}
+
+export type ApiV1ShippingProvidersListResponse = ApiV1ShippingProvidersListResponses[keyof ApiV1ShippingProvidersListResponses]
 
 export type ListTagData = {
   body?: never

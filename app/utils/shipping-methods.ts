@@ -46,6 +46,13 @@ export const SHIPPING_METHOD_META: Record<
     taglineKey: 'shipping.method.boxnow.tagline',
     taglineColor: 'info',
   },
+  acs_smartpoint: {
+    logo: '/img/shipping/acs.png',
+    altKey: 'shipping.method.acs_smartpoint.label',
+    icon: 'i-lucide-map-pin',
+    taglineKey: 'shipping.method.acs_smartpoint.tagline',
+    taglineColor: 'info',
+  },
 }
 
 export function getShippingMethodMeta(

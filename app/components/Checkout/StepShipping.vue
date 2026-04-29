@@ -9,6 +9,10 @@ const props = defineProps<{
   // option until BoxNow has activated the partner account; an admin
   // flips it to true in Django admin once they confirm.
   boxnowEnabled?: boolean
+  // Master switch from the backend `ACS_SMARTPOINT_ENABLED` Setting
+  // row.  Defaults to false in production so ops can stage the
+  // AcsStation cache + verify the picker before exposing to shoppers.
+  acsSmartpointEnabled?: boolean
   // The currently selected PayWay (from useCheckoutForm). Threaded
   // through as a prop so we can disable the BoxNow option when the
   // shopper has a cash-on-delivery PayWay selected — BoxNow lockers
@@ -82,6 +86,17 @@ const shippingOptions = computed(() => {
       ...buildBrandMeta('box_now_locker'),
     })
   }
+  // ACS Smartpoint locker pickup. Same hidden-when-disabled treatment
+  // as BoxNow, but with no per-PayWay restriction — ACS supports COD
+  // at Smartpoints so we let the shopper pair it with any pay way.
+  if (props.acsSmartpointEnabled) {
+    items.push({
+      value: 'acs_smartpoint',
+      label: t('shipping.method.acs_smartpoint.label'),
+      descriptionText: t('shipping.method.acs_smartpoint.description'),
+      ...buildBrandMeta('acs_smartpoint'),
+    })
+  }
   return items
 })
 
@@ -97,10 +112,15 @@ function buildBrandMeta(method: ShippingMethodEnum) {
 }
 
 const isBoxNow = computed(() => formState.value.shippingMethod === 'box_now_locker')
+const isAcsSmartpoint = computed(
+  () => formState.value.shippingMethod === 'acs_smartpoint',
+)
 
-const isValid = computed(() =>
-  formState.value.shippingMethod === 'home_delivery'
-  || (isBoxNow.value && !!formState.value.boxnowLockerId),
+const isValid = computed(
+  () =>
+    formState.value.shippingMethod === 'home_delivery'
+    || (isBoxNow.value && !!formState.value.boxnowLockerId)
+    || (isAcsSmartpoint.value && !!formState.value.acsStationExternalId),
 )
 
 // If the shopper had BoxNow selected before, then went to step 3 and
@@ -114,6 +134,20 @@ watch(isCodPaySelected, (cod) => {
     formState.value.boxnowLocker = null
   }
 }, { immediate: true })
+
+// Reset ACS Smartpoint state when the shopper switches away from it
+// — keeps the order payload tidy and avoids a stray locker ID
+// surviving as orphan data on a home-delivery submission.
+watch(
+  () => formState.value.shippingMethod,
+  (method) => {
+    if (method !== 'acs_smartpoint') {
+      formState.value.acsStationExternalId = ''
+      formState.value.acsStationBranch = ''
+      formState.value.acsStation = null
+    }
+  },
+)
 
 function onSubmit() {
   emit('next')
@@ -209,6 +243,25 @@ function onSubmit() {
             <CheckoutSelectedBoxNowLocker
               v-model:formState="formState"
               :partner-id="props.partnerId"
+            />
+            <p
+              v-if="error"
+              class="mt-2 text-sm text-red-500"
+            >
+              {{ error }}
+            </p>
+          </template>
+        </UFormField>
+      </template>
+
+      <!-- ACS Smartpoint locker picker — server-side, no widget. -->
+      <template v-if="isAcsSmartpoint">
+        <UFormField name="acsStationExternalId" class="mt-0">
+          <template #default="{ error }">
+            <CheckoutSelectedAcsLocker
+              v-model:formState="formState"
+              :initial-postal-code="formState.zipcode"
+              :initial-city="formState.city"
             />
             <p
               v-if="error"

@@ -35,6 +35,12 @@ export async function useCheckoutForm() {
     boxnowLockerId: '' as string,
     boxnowLocker: null as BoxNowSelectedLocker | null,
     boxnowCompartmentSize: 1 as 1 | 2 | 3,
+    // ACS Smartpoint locker pickup (Phase 2). Picker UI is server-side
+    // — we hold both the externalId and the AcsStation row so the
+    // selected-locker card can render without a follow-up fetch.
+    acsStationExternalId: '' as string,
+    acsStationBranch: '' as string,
+    acsStation: null as AcsStation | null,
     // Payment
     payWay: undefined as number | undefined,
     payWayId: undefined as number | undefined,
@@ -72,6 +78,13 @@ export async function useCheckoutForm() {
   const boxnowShippingSetting = ref<{ value: string } | null>(null)
   const boxnowFreeShippingThresholdSetting = ref<{ value: string } | null>(null)
   const boxnowEnabled = ref(false)
+  // Per-kind toggle for ACS Smartpoint pickup. Backend returns the
+  // ACS_SMARTPOINT_ENABLED Setting value as a string ("True"/"False");
+  // the StepShipping component coerces to boolean before gating the
+  // radio row.
+  const acsSmartpointEnabled = ref(false)
+  const acsShippingSetting = ref<{ value: string } | null>(null)
+  const acsFreeShippingThresholdSetting = ref<{ value: string } | null>(null)
   const b2bInvoicingEnabled = ref(true)
   const countries = ref<Pagination<Country> | null>(null)
   const payWays = ref<Pagination<PayWay> | null>(null)
@@ -404,15 +417,23 @@ export async function useCheckoutForm() {
   })
 
   const step2Schema = z.object({
-    shippingMethod: z.enum(['home_delivery', 'box_now_locker']),
+    shippingMethod: z.enum(['home_delivery', 'box_now_locker', 'acs_smartpoint']),
     boxnowLockerId: z.string().optional(),
     boxnowCompartmentSize: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
+    acsStationExternalId: z.string().optional(),
   }).superRefine((data, ctx) => {
     if (data.shippingMethod === 'box_now_locker' && !data.boxnowLockerId) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['boxnowLockerId'],
         message: t('shipping.boxnow.required_error'),
+      })
+    }
+    if (data.shippingMethod === 'acs_smartpoint' && !data.acsStationExternalId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['acsStationExternalId'],
+        message: t('shipping.acs.required_error'),
       })
     }
   })
@@ -434,6 +455,9 @@ export async function useCheckoutForm() {
     boxnowShippingResult,
     boxnowFreeShippingResult,
     boxnowEnabledResult,
+    acsSmartpointEnabledResult,
+    acsShippingResult,
+    acsFreeShippingResult,
     b2bInvoicingResult,
     countriesResult,
     payWaysResult,
@@ -477,6 +501,30 @@ export async function useCheckoutForm() {
       () => $fetch<{ value: string }>('/api/settings/get', {
         method: 'GET',
         query: { key: 'BOXNOW_ENABLED' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:acs-smartpoint-enabled',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'ACS_SMARTPOINT_ENABLED' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:acs-shipping-price-setting',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'ACS_SHIPPING_PRICE' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:acs-free-shipping-threshold-setting',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'ACS_FREE_SHIPPING_THRESHOLD' },
         headers: useRequestHeaders(),
       }).catch(() => null),
     ),
@@ -567,6 +615,14 @@ export async function useCheckoutForm() {
   // admin (and BoxNow's partner activation) confirm. Stage/dev flips
   // it on in Django admin once the account is activated.
   boxnowEnabled.value = boxnowEnabledResult.data.value?.value === 'True'
+  // ACS Smartpoint defaults disabled (Phase 2 progressive rollout):
+  // ops flips the Setting to True after the AcsStation cache has been
+  // synced and the picker is verified end-to-end.
+  acsSmartpointEnabled.value
+    = acsSmartpointEnabledResult.data.value?.value === 'True'
+  acsShippingSetting.value = acsShippingResult.data.value ?? null
+  acsFreeShippingThresholdSetting.value
+    = acsFreeShippingResult.data.value ?? null
   // B2B defaults to ``true`` if the endpoint is unreachable so a
   // transient settings-API failure doesn't silently hide the option.
   b2bInvoicingEnabled.value = b2bInvoicingResult.data.value?.value !== 'False'
@@ -649,6 +705,9 @@ export async function useCheckoutForm() {
     useNewAddress,
     b2bInvoicingEnabled,
     boxnowEnabled,
+    acsSmartpointEnabled,
+    acsShippingSetting,
+    acsFreeShippingThresholdSetting,
     refetchShippingSettings,
   }
 }

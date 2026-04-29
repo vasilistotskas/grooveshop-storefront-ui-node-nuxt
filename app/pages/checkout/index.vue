@@ -59,6 +59,7 @@ const {
   useNewAddress,
   b2bInvoicingEnabled,
   boxnowEnabled,
+  acsSmartpointEnabled,
   refetchShippingSettings,
 } = await useCheckoutForm()
 
@@ -207,6 +208,7 @@ definePageMeta({
             :schema="step2Schema"
             :partner-id="boxnowPartnerId"
             :boxnow-enabled="boxnowEnabled"
+            :acs-smartpoint-enabled="acsSmartpointEnabled"
             :selected-pay-way="selectedPayWay"
             @next="nextStep"
             @back="prevStep"
