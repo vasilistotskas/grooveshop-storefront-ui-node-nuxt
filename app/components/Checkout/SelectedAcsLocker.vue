@@ -6,7 +6,6 @@
  * {@link AcsStation} cache via our own server-side picker — there is
  * no third-party widget to embed.
  */
-import type { AcsStation } from '#shared/openapi/types.gen'
 
 const formState = defineModel<Record<string, any>>('formState', {
   required: true,

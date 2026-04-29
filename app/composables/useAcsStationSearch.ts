@@ -12,8 +12,6 @@
  * (Pinia stores, plugins) without crashing.
  */
 
-import type { AcsStation } from '#shared/openapi/types.gen'
-
 const DEFAULT_DEBOUNCE_MS = 300
 
 export function useAcsStationSearch() {

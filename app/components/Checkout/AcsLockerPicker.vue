@@ -9,7 +9,6 @@
  * click ``selected``-emits the chosen ``AcsStation`` row back up to
  * the parent.
  */
-import type { AcsStation } from '#shared/openapi/types.gen'
 
 const open = defineModel<boolean>('open', { required: true })
 
