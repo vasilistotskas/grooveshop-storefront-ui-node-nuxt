@@ -147,6 +147,36 @@ watch(
   { immediate: true },
 )
 
+// UForm template ref so we can re-run validation programmatically.
+// UForm only re-validates in response to native input/change/blur events
+// from form inputs — picking a locker via the modal mutates form state
+// without firing any of those, so the stale "Παρακαλώ επιλέξτε ένα
+// Smartpoint…" error would otherwise stick around even though the
+// schema is now satisfied. The watcher below validates the locker
+// field after every selection so the inline error clears the moment
+// the shopper picks one.
+const formRef = useTemplateRef<{
+  validate: (opts?: { name?: string | string[], silent?: boolean }) => Promise<unknown>
+}>('formRef')
+
+watch(
+  () => activeCarrier.value?.readLockerId(formState.value),
+  async (lockerId) => {
+    if (!lockerId || !activeCarrier.value || !formRef.value) return
+    try {
+      await formRef.value.validate({
+        name: activeCarrier.value.formFieldName,
+        silent: true,
+      })
+    }
+    catch {
+      // ``silent: true`` already swallows surface errors; the
+      // catch is a final guard for unexpected throws so a picker
+      // selection never crashes the whole shipping step.
+    }
+  },
+)
+
 // Clear all carriers' locker state when the shipping method changes
 // to anything that doesn't own them. Prevents orphan locker IDs from
 // leaking into the order payload after the shopper switches options.
@@ -188,7 +218,7 @@ function onSubmit() {
       </p>
     </template>
 
-    <UForm :state="formState" :schema="schema" class="space-y-6" @submit="onSubmit">
+    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6" @submit="onSubmit">
       <!-- Shipping method radio group -->
       <URadioGroup
         v-model="formState.shippingMethod"

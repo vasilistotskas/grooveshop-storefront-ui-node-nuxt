@@ -27,10 +27,10 @@
  * frontend's checkout still groups options under one of these three
  * presentation keys. Auto-imported across ``app/`` and ``shared/``.
  */
-export type ShippingMethodKey =
-  | 'home_delivery'
-  | 'box_now_locker'
-  | 'acs_smartpoint'
+export type ShippingMethodKey
+  = | 'home_delivery'
+    | 'box_now_locker'
+    | 'acs_smartpoint'
 
 export interface ShippingMethodMeta {
   /** Bundled logo URL — emitted by Vite from the import above. */

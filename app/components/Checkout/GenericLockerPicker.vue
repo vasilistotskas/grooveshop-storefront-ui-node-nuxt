@@ -215,10 +215,17 @@ function onClose(): void {
           size="sm"
           :unmount-on-hide="false"
           class="border-b border-neutral-200 dark:border-neutral-800"
-          :ui="{ list: 'm-2', root: 'flex h-full min-h-0 flex-col' }"
+          :ui="{
+            list: 'm-2',
+            root: 'flex h-full min-h-0 flex-col',
+            content: `
+              flex size-full min-h-0 flex-col
+              focus:outline-none
+            `,
+          }"
         >
           <template #content="{ item }">
-            <div v-if="item.value === 'map'" id="locker-map" class="size-full min-h-[24rem] flex-1">
+            <div v-if="item.value === 'map'" id="locker-map" class="size-full min-h-[24rem] flex-1 sm:min-h-[28rem] md:min-h-[32rem] lg:min-h-[40rem]">
               <ClientOnly>
                 <LazyCheckoutSmartpointMap
                   :lockers="mapLockers"
