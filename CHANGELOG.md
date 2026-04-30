@@ -1,3 +1,10 @@
+## [3.105.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.105.1...v3.105.2) (2026-04-30)
+
+
+### Bug Fixes
+
+* **checkout:** re-validate locker field on selection and stretch picker map ([e158a01](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e158a0100dddd774152942544868235fb826506b))
+
 ## [3.105.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.105.0...v3.105.1) (2026-04-30)
 
 
