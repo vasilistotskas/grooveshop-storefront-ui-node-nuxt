@@ -103,6 +103,10 @@ const activeTile = computed<TileLayerSpec>(() => {
 const mapRef = ref<any>(null)
 const clusterReady = ref(false)
 const geolocating = ref(false)
+// Surfaced to the user when the browser denies geolocation or the
+// request times out — the silent ``log.info`` path left users
+// staring at a button that span and stopped with no explanation.
+const geolocateError = ref<string | null>(null)
 
 const markerProps = computed(() =>
   lockersWithCoords.value.map((locker) => {
@@ -214,39 +218,53 @@ useResizeObserver(mapContainerRef, (entries) => {
 // when the locker set changes (country switch, refresh, etc.) —
 // otherwise we'd stack pins on every reload.
 let activeCluster: any = null
+// In-flight guard: ``onMapReady``, ``useResizeObserver``, and the
+// ``props.lockers`` watcher can all call ``ensureClusters`` in the
+// same tick. Without this, two cluster groups would be added to
+// the map and only the latest tracked for removal — orphaned pins.
+let clusterBuilding = false
 
 async function ensureClusters(): Promise<void> {
+  if (clusterBuilding) return
   const map = mapRef.value?.leafletObject
   if (!map || markerProps.value.length === 0) return
-  if (activeCluster) {
-    map.removeLayer(activeCluster)
-    activeCluster = null
+  clusterBuilding = true
+  try {
+    if (activeCluster) {
+      map.removeLayer(activeCluster)
+      activeCluster = null
+    }
+    // ``useLMarkerCluster`` is auto-imported by ``@nuxtjs/leaflet``.
+    // It dynamically imports ``leaflet.markercluster`` so the plugin
+    // attaches to the global ``L`` (which only exists because the
+    // ``<LMap>`` below sets ``:use-global-leaflet="true"``), then
+    // builds and returns the cluster group. We let it own the build
+    // step rather than reaching into Leaflet directly, so future
+    // upstream tweaks land transparently.
+    const { markerCluster } = await useLMarkerCluster({
+      leafletObject: map,
+      markers: markerProps.value,
+      options: {
+        maxClusterRadius: 60,
+        chunkedLoading: true,
+        disableClusteringAtZoom: 15,
+        showCoverageOnHover: false,
+        spiderfyOnMaxZoom: true,
+      },
+    })
+    activeCluster = markerCluster
+    clusterReady.value = true
   }
-  // ``useLMarkerCluster`` is auto-imported by ``@nuxtjs/leaflet``.
-  // It dynamically imports ``leaflet.markercluster`` so the plugin
-  // attaches to the global ``L`` (which only exists because the
-  // ``<LMap>`` below sets ``:use-global-leaflet="true"``), then
-  // builds and returns the cluster group. We let it own the build
-  // step rather than reaching into Leaflet directly, so future
-  // upstream tweaks land transparently.
-  const { markerCluster } = await useLMarkerCluster({
-    leafletObject: map,
-    markers: markerProps.value,
-    options: {
-      maxClusterRadius: 60,
-      chunkedLoading: true,
-      disableClusteringAtZoom: 15,
-      showCoverageOnHover: false,
-      spiderfyOnMaxZoom: true,
-    },
-  })
-  activeCluster = markerCluster
-  clusterReady.value = true
+  finally {
+    clusterBuilding = false
+  }
 }
 
-// Re-cluster when the locker set changes (e.g. country switch).
+// Re-cluster when the locker set changes. Watch the array reference
+// (not just length) so a same-length-different-contents update — e.g.
+// a country switch that returns a fresh page — also triggers rebuild.
 watch(
-  () => props.lockers.length,
+  () => props.lockers,
   () => {
     void ensureClusters()
   },
@@ -274,6 +292,7 @@ async function geolocate(): Promise<void> {
   const map = mapRef.value?.leafletObject
   if (!import.meta.client || !navigator.geolocation || !map) return
   geolocating.value = true
+  geolocateError.value = null
   try {
     await new Promise<void>((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(
@@ -292,6 +311,7 @@ async function geolocate(): Promise<void> {
   }
   catch {
     log.info('shipping/map', 'geolocation denied or timed out')
+    geolocateError.value = t('shipping.locker_picker.geolocate_denied')
   }
   finally {
     geolocating.value = false
@@ -352,6 +372,16 @@ async function geolocate(): Promise<void> {
     >
       {{ t('shipping.locker_picker.geolocate') }}
     </UButton>
+
+    <!-- Geolocate error toast — surfaces denial / timeout instead
+         of leaving the user with a button that "did nothing". -->
+    <p
+      v-if="geolocateError"
+      role="alert"
+      class="absolute right-3 top-16 z-[400] max-w-xs rounded bg-white/95 px-3 py-2 text-xs shadow-lg dark:bg-neutral-900/95"
+    >
+      {{ geolocateError }}
+    </p>
 
     <!-- Empty state — overlay rather than swap so attribution stays. -->
     <div

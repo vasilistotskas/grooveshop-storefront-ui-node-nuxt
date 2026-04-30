@@ -318,12 +318,23 @@ export async function useCheckoutForm() {
   // once the cart total reaches it.
   const shippingPrice = computed(() => {
     const cartTotal = cart.value?.totalPrice || 0
-    const isBoxNow = formState.shippingMethod === 'box_now_locker'
+    const method = formState.shippingMethod
 
-    const priceSetting = isBoxNow ? boxnowShippingSetting : shippingSetting
-    const thresholdSetting = isBoxNow
-      ? boxnowFreeShippingThresholdSetting
-      : freeShippingThresholdSetting
+    let priceSetting: typeof shippingSetting
+    let thresholdSetting: typeof freeShippingThresholdSetting
+
+    if (method === 'box_now_locker') {
+      priceSetting = boxnowShippingSetting
+      thresholdSetting = boxnowFreeShippingThresholdSetting
+    }
+    else if (method === 'acs_smartpoint') {
+      priceSetting = acsShippingSetting
+      thresholdSetting = acsFreeShippingThresholdSetting
+    }
+    else {
+      priceSetting = shippingSetting
+      thresholdSetting = freeShippingThresholdSetting
+    }
 
     if (!priceSetting.value) return 0
     const baseShippingCost = parseFloat(priceSetting.value.value)

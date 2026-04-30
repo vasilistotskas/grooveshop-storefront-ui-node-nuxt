@@ -61,8 +61,17 @@ export interface BoxNowWidgetUrlOptions {
 // ---------------------------------------------------------------------------
 
 /**
- * Explicit allowlist of origins from which BoxNow widget postMessage events
- * are accepted. Mirrors the allowlist in the BoxNow widget loader JS.
+ * Explicit allowlist of origins from which BoxNow widget postMessage
+ * events are accepted. **Must stay in sync with the CSP ``frame-src``**
+ * directive at ``server/middleware/3.csp.ts``. An origin in this list
+ * but missing from ``frame-src`` cannot legitimately host an iframe
+ * on our page, so accepting its postMessage events is dead weight that
+ * widens the attack surface for nothing.
+ *
+ * Active origins:
+ * - ``widget-v5.boxnow.<tld>`` — the version ``buildBoxNowIframeUrl``
+ *   actually loads (gr/cy/bg/hr).
+ * - ``widget.boxnow.gr`` — unversioned alias kept for back-compat.
  */
 export const BOXNOW_ALLOWED_ORIGINS: readonly string[] = [
   'https://widget-v5.boxnow.gr',
@@ -70,10 +79,6 @@ export const BOXNOW_ALLOWED_ORIGINS: readonly string[] = [
   'https://widget-v5.boxnow.bg',
   'https://widget-v5.boxnow.hr',
   'https://widget.boxnow.gr',
-  'https://widget-v1.boxnow.gr',
-  'https://widget-v2.boxnow.gr',
-  'https://widget-v3.boxnow.gr',
-  'https://widget-v4.boxnow.gr',
 ] as const
 
 // ---------------------------------------------------------------------------
@@ -120,17 +125,15 @@ export function buildBoxNowIframeUrl(options: BoxNowWidgetUrlOptions): string {
 }
 
 /**
- * Returns `true` if the given message origin should be trusted for BoxNow
- * postMessage events.
- *
- * Accepts origins from the explicit {@link BOXNOW_ALLOWED_ORIGINS} list,
- * **or** origins matching the pattern `https://(map|widget-new).boxnow.<tld>`.
+ * Returns ``true`` if the given message origin should be trusted for
+ * BoxNow postMessage events. Strictly bounded to {@link BOXNOW_ALLOWED_ORIGINS}
+ * — the previous regex fallback (``map``/``widget-new`` subdomains) was
+ * dropped because the CSP ``frame-src`` doesn't list those origins, so
+ * they can't host an iframe on our page anyway. Trusting their messages
+ * was open surface for nothing.
  */
 export function isBoxNowAllowedOrigin(origin: string): boolean {
-  if ((BOXNOW_ALLOWED_ORIGINS as readonly string[]).includes(origin)) {
-    return true
-  }
-  return /^https:\/\/(map|widget-new)\.boxnow\.[a-z0-9-]+$/i.test(origin)
+  return (BOXNOW_ALLOWED_ORIGINS as readonly string[]).includes(origin)
 }
 
 /**

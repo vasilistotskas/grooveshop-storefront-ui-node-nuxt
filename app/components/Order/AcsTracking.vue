@@ -16,7 +16,7 @@ const { t } = useI18n()
         <h2 class="text-xl font-semibold">
           {{ t('tracking.acs.title') }}
         </h2>
-        <OrderAcsStateBadge :state="shipment.shipmentState as AcsShipmentStateValue" />
+        <OrderAcsStateBadge :state="shipment.shipmentState" />
       </div>
     </template>
 

@@ -264,7 +264,7 @@ function onSubmit() {
            the generic picker — no provider-specific branch survives
            in this template. -->
       <template v-if="activeCarrier && !activeCarrier.usesGenericPicker && isBoxNow">
-        <UFormField name="boxnowLockerId" class="mt-0">
+        <UFormField :name="activeCarrier.formFieldName" class="mt-0">
           <template #default="{ error }">
             <CheckoutSelectedBoxNowLocker
               v-model:formState="formState"
@@ -281,7 +281,7 @@ function onSubmit() {
       </template>
 
       <template v-else-if="activeCarrier?.usesGenericPicker">
-        <UFormField :name="`${activeCarrier.code}LockerId`" class="mt-0">
+        <UFormField :name="activeCarrier.formFieldName" class="mt-0">
           <template #default="{ error }">
             <CheckoutSelectedGenericLocker
               v-model:formState="formState"

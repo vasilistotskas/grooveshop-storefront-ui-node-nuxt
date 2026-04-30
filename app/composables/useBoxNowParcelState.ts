@@ -48,6 +48,15 @@ const STATE_MAP: Record<BoxNowParcelStateValue, StaticPresentation> = {
   lost: { color: 'error', icon: 'i-lucide-search-x' },
 }
 
+// Fallback used when BoxNow emits a state we haven't catalogued yet
+// (their API has historically introduced ``in-transit``,
+// ``wait-for-load``, ``in-final-destination`` etc.). Returning a
+// neutral chip instead of crashing keeps the order page intact.
+const FALLBACK_PRESENTATION: StaticPresentation = {
+  color: 'neutral',
+  icon: 'i-lucide-help-circle',
+}
+
 // ---------------------------------------------------------------------------
 // Composable
 // ---------------------------------------------------------------------------
@@ -60,14 +69,19 @@ export function useBoxNowParcelState() {
 
   /**
    * Returns the full presentation object for the given parcel state,
-   * including the translated label for the active locale.
+   * including the translated label for the active locale. Accepts a
+   * plain ``string`` so unknown upstream states gracefully render
+   * with the fallback chip + the raw key as the label.
    */
-  function presentationFor(state: BoxNowParcelStateValue): BoxNowParcelStatePresentation {
-    const { color, icon } = STATE_MAP[state]
+  function presentationFor(state: string): BoxNowParcelStatePresentation {
+    const entry = STATE_MAP[state as BoxNowParcelStateValue] ?? FALLBACK_PRESENTATION
     return {
-      label: t(`tracking.boxnow.state.${state}`),
-      color,
-      icon,
+      // ``$t(key, fallback)`` returns the key itself when missing —
+      // surfaces something useful for unknown states instead of an
+      // empty chip.
+      label: t(`tracking.boxnow.state.${state}`, state),
+      color: entry.color,
+      icon: entry.icon,
     }
   }
 

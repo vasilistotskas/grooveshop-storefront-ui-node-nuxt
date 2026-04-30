@@ -1,7 +1,10 @@
 <script setup lang="ts">
-// Props
+// Props — ``state`` is typed as ``string`` (not the local enum) so
+// unknown BoxNow states (``in-transit``, ``wait-for-load``, …) reach
+// the composable's fallback path instead of TypeScript-narrowing
+// off a runtime crash.
 const props = defineProps<{
-  state: BoxNowParcelStateValue
+  state: string
 }>()
 
 // Composables

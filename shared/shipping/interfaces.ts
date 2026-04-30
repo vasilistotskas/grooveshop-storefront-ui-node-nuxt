@@ -154,4 +154,10 @@ export interface ShippingCarrier {
    *  own picker component. Resolved at component-render time so
    *  the bundle is split correctly. */
   pickerComponentName?: string
+
+  /** Zod-schema field path used by ``UFormField`` to surface inline
+   *  validation errors below the picker. Must match the field name
+   *  the carrier writes inside ``applyToFormState`` (e.g. ACS writes
+   *  ``acsStationExternalId``; BoxNow writes ``boxnowLockerId``). */
+  readonly formFieldName: string
 }

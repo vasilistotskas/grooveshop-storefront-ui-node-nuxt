@@ -22,6 +22,7 @@ const boxnowCarrier: ShippingCarrier = {
   label: 'BOX NOW',
   usesGenericPicker: false,
   pickerComponentName: 'CheckoutSelectedBoxNowLocker',
+  formFieldName: 'boxnowLockerId',
 
   applyToFormState(formState: Record<string, any>, locker: Locker): void {
     // The BoxNow widget already writes the BoxNow-shaped object to

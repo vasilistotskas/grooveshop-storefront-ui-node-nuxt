@@ -47,6 +47,11 @@ const STATE_MAP: Record<AcsShipmentStateValue, StaticPresentation> = {
   lost: { color: 'error', icon: 'i-lucide-search-x' },
 }
 
+// Fallback used when Django returns a state we haven't catalogued
+// yet. Mirrors the BoxNow composable's defensive pattern — never
+// crash the order detail page on an unrecognised state.
+const FALLBACK_PRESENTATION: StaticPresentation = STATE_MAP.new
+
 // ---------------------------------------------------------------------------
 // Composable
 // ---------------------------------------------------------------------------
@@ -57,10 +62,15 @@ export function useAcsShipmentState() {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
 
-  function presentationFor(state: AcsShipmentStateValue): AcsShipmentStatePresentation {
-    const map = STATE_MAP[state] ?? STATE_MAP.new
+  /**
+   * Accepts a plain ``string`` so an unknown state from Django
+   * (state machine grew but the schema regen lagged) renders the
+   * neutral fallback instead of throwing.
+   */
+  function presentationFor(state: string): AcsShipmentStatePresentation {
+    const map = STATE_MAP[state as AcsShipmentStateValue] ?? FALLBACK_PRESENTATION
     return {
-      label: t(`tracking.acs.state.${state}`),
+      label: t(`tracking.acs.state.${state}`, state),
       color: map.color,
       icon: map.icon,
     }

@@ -104,8 +104,12 @@ watch(open, (val) => {
           </p>
         </div>
 
-        <!-- BoxNow widget iframe -->
+        <!-- BoxNow widget iframe — only render when ``iframeUrl``
+             resolves to a real URL. ``src=""`` triggers a same-origin
+             navigation back to the checkout page (and would also
+             fire ``@load``, hiding the skeleton prematurely). -->
         <iframe
+          v-if="iframeUrl"
           :src="iframeUrl"
           allow="geolocation"
           class="size-full border-0"

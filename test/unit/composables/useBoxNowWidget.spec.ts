@@ -169,21 +169,20 @@ describe('isBoxNowAllowedOrigin', () => {
     })
   })
 
-  describe('regex-matched origins', () => {
-    it('accepts https://map.boxnow.gr', () => {
-      expect(isBoxNowAllowedOrigin('https://map.boxnow.gr')).toBe(true)
+  // The regex fallback for ``map.boxnow.*`` and ``widget-new.boxnow.*``
+  // was removed — those subdomains are not listed in the CSP
+  // ``frame-src`` so they cannot host an iframe on our page anyway.
+  describe('previously-regex-matched origins (now rejected)', () => {
+    it('rejects https://map.boxnow.gr (no longer an iframe origin)', () => {
+      expect(isBoxNowAllowedOrigin('https://map.boxnow.gr')).toBe(false)
     })
 
-    it('accepts https://widget-new.boxnow.gr', () => {
-      expect(isBoxNowAllowedOrigin('https://widget-new.boxnow.gr')).toBe(true)
+    it('rejects https://widget-new.boxnow.gr (not in CSP frame-src)', () => {
+      expect(isBoxNowAllowedOrigin('https://widget-new.boxnow.gr')).toBe(false)
     })
 
-    it('accepts https://map.boxnow.cy', () => {
-      expect(isBoxNowAllowedOrigin('https://map.boxnow.cy')).toBe(true)
-    })
-
-    it('accepts https://map.boxnow.bg', () => {
-      expect(isBoxNowAllowedOrigin('https://map.boxnow.bg')).toBe(true)
+    it('rejects https://widget-v1.boxnow.gr (legacy version not loaded)', () => {
+      expect(isBoxNowAllowedOrigin('https://widget-v1.boxnow.gr')).toBe(false)
     })
   })
 

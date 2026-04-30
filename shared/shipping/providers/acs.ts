@@ -2,9 +2,11 @@
  * ACS Courier carrier adapter — mirror of the Python
  * ``shipping_acs/carrier.py::AcsCarrier``.
  *
- * Auto-registered by ``shared/shipping/registry.ts`` via
- * ``import.meta.glob('./providers/*.ts')`` — drop a sibling file
- * for ELTA / Speedex and the registry picks it up the same way.
+ * Registered by ``shared/shipping/registry.ts`` via static import
+ * (Nitro's rollup bundler can't run Vite's ``import.meta.glob``).
+ * Adding ELTA / Speedex / Geniki: drop a sibling file under
+ * ``shared/shipping/providers/`` and add an import + array entry
+ * to ``registry.ts``.
  *
  * Form-state contract: writes to the existing
  * ``acsStationExternalId`` / ``acsStationBranch`` / ``acsStation``
@@ -13,48 +15,25 @@
  */
 import type { Locker, LockerQuery, ShippingCarrier } from '../interfaces'
 
-interface AcsStationApiRow {
-  id?: number | string
-  externalId?: string | null
-  branchCode?: string | null
-  shopKind?: number
-  name?: string | null
-  addressLine1?: string | null
-  addressLine2?: string | null
-  city?: string | null
-  postalCode?: string | null
-  countryCode?: string | null
-  /** Django serialises Decimal as string; we parse to ``number``. */
-  lat?: string | number | null
-  lng?: string | number | null
-  workingHours?: string | null
-  maxWeightKg?: string | number | null
-  region?: string | null
-  phone?: string | null
-}
-
-function _toNumber(value: string | number | null | undefined): number | null {
-  if (value === null || value === undefined || value === '') return null
-  const n = typeof value === 'number' ? value : Number.parseFloat(value)
-  return Number.isFinite(n) ? n : null
-}
-
-function _normalize(row: AcsStationApiRow): Locker | null {
-  const id = (row.externalId ?? '').trim()
+function _normalize(row: AcsStation): Locker | null {
+  const id = row.externalId.trim()
   if (!id) return null
   return {
     id,
-    branchCode: row.branchCode ?? null,
-    name: row.name ?? id,
-    addressLine1: row.addressLine1 ?? '',
-    addressLine2: row.addressLine2 ?? null,
-    city: row.city ?? '',
-    postalCode: row.postalCode ?? '',
-    countryCode: (row.countryCode ?? 'GR').toUpperCase(),
-    lat: _toNumber(row.lat ?? null),
-    lng: _toNumber(row.lng ?? null),
-    workingHours: row.workingHours ?? null,
-    maxWeightKg: _toNumber(row.maxWeightKg ?? null),
+    branchCode: row.branchCode || null,
+    name: row.name || id,
+    addressLine1: row.addressLine1,
+    // ``AcsStation`` collapses the address into a single line —
+    // keep ``addressLine2`` null so other carriers can still
+    // surface a second line in the future.
+    addressLine2: null,
+    city: row.city,
+    postalCode: row.postalCode,
+    countryCode: (row.countryCode || 'GR').toUpperCase(),
+    lat: row.lat,
+    lng: row.lng,
+    workingHours: row.workingHours || null,
+    maxWeightKg: row.maxWeightKg ?? null,
     raw: row,
   }
 }
@@ -63,6 +42,7 @@ const acsCarrier: ShippingCarrier = {
   code: 'acs',
   label: 'ACS Courier',
   usesGenericPicker: true,
+  formFieldName: 'acsStationExternalId',
 
   async fetchByPostal(query: LockerQuery): Promise<Locker[]> {
     const params: Record<string, string> = {
@@ -72,7 +52,7 @@ const acsCarrier: ShippingCarrier = {
     if (query.country) params.countryCode = query.country
     if (query.shopKind) params.shopKind = String(query.shopKind)
 
-    const rows = await $fetch<AcsStationApiRow[]>(
+    const rows = await $fetch<AcsStation[]>(
       '/api/shipping/acs/nearest',
       {
         method: 'GET',
@@ -84,7 +64,7 @@ const acsCarrier: ShippingCarrier = {
   },
 
   async fetchAll(country: string, signal?: AbortSignal): Promise<Locker[]> {
-    const rows = await $fetch<AcsStationApiRow[]>(
+    const rows = await $fetch<AcsStation[]>(
       `/api/shipping/lockers/${this.code}`,
       {
         method: 'GET',

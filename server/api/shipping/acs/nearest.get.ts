@@ -12,6 +12,10 @@ const zNearestQuery = z.object({
   postalCode: z.string().min(3).max(10),
   city: z.string().optional(),
   shopKind: z.coerce.number().int().optional(),
+  // ISO-2 country code; when omitted Django falls back to the
+  // provider's primary country. Carriers can pass this so a
+  // multi-country deployment doesn't return cross-country lockers.
+  countryCode: z.string().length(2).optional(),
 })
 
 export default defineEventHandler(async (event) => {
@@ -30,6 +34,7 @@ export default defineEventHandler(async (event) => {
           postalCode: query.postalCode,
           city: query.city,
           shopKind: query.shopKind,
+          countryCode: query.countryCode,
         },
         headers,
       },

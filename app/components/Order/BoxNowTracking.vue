@@ -16,7 +16,7 @@ const { t } = useI18n()
         <h2 class="text-xl font-semibold">
           {{ t('tracking.boxnow.title') }}
         </h2>
-        <OrderBoxNowStateBadge :state="shipment.parcelState as BoxNowParcelStateValue" />
+        <OrderBoxNowStateBadge :state="shipment.parcelState" />
       </div>
     </template>
 

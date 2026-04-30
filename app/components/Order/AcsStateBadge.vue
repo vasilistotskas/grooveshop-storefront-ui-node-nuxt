@@ -1,7 +1,9 @@
 <script setup lang="ts">
-// Props
+// Props — typed as ``string`` so unknown Django states fall back
+// to the composable's neutral preset instead of a TypeScript-narrowed
+// runtime crash.
 const props = defineProps<{
-  state: AcsShipmentStateValue
+  state: string
 }>()
 
 // Composables

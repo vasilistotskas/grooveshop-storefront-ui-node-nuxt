@@ -11,7 +11,7 @@ const { presentationFor } = useBoxNowParcelState()
 // Computed
 const timelineItems = computed(() =>
   props.events.map((e) => {
-    const presentation = presentationFor(e.eventType as BoxNowParcelStateValue)
+    const presentation = presentationFor(e.eventType)
     return {
       title: presentation.label,
       description: e.displayName || e.postalCode || '',

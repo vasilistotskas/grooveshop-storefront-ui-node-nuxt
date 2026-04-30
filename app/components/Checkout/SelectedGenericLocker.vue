@@ -20,6 +20,11 @@ const props = defineProps<{
   initialPostalCode?: string
   initialCity?: string
   countryCode?: string
+  /** Optional pre-fetched provider metadata (from the
+   *  ``/api/v1/shipping/options`` response). Forwarded to the
+   *  picker so the map can pick up carrier-specific tile providers,
+   *  default centre, and zoom from ``ShippingProvider.metadata``. */
+  providerMetadata?: CarrierProviderMetadata | null
 }>()
 
 const { t } = useI18n()
@@ -97,6 +102,7 @@ function onSelected(picked: Locker): void {
       :initial-postal-code="initialPostalCode"
       :initial-city="initialCity"
       :country-code="countryCode"
+      :provider-metadata="providerMetadata"
       @selected="onSelected"
     />
   </div>
