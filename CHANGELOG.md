@@ -1,3 +1,10 @@
+## [3.103.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.103.2...v3.103.3) (2026-04-30)
+
+
+### Bug Fixes
+
+* **checkout:** map renders correctly when its tab activates ([f5b63fb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f5b63fb759ae776df4f9d005bd134edee8ef3aed))
+
 ## [3.103.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.103.1...v3.103.2) (2026-04-30)
 
 
