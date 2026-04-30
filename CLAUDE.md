@@ -236,8 +236,9 @@ Active modules in `nuxt.config.ts`:
 11. `@vueuse/nuxt` — VueUse composables (device detection via `useMediaQuery` with UA-based SSR width)
 12. `nuxt-auth-utils` — Session management
 13. `@nuxt/a11y` — Accessibility auditing (alpha)
-14. Custom `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
-15. Custom `modules/purge-comments.ts` — Removes HTML comments in production
+14. `nuxt-ai-ready` — AI/LLM discoverability: serves `/llms.txt`, `/llms-full.txt`, on-demand `/<route>.md`, and emits robots.txt Content Signals (`aiTrain`/`search`/`aiInput` all enabled). Auto-detects `@nuxtjs/i18n` and emits `Link: rel="alternate"; hreflang="el-GR"` headers on `.md` responses. Requires `robots: {}` in `nuxt.config.ts` because v1.3.0 crashes if `nuxt.options.robots` is undefined when `contentSignal` is set. `runtimeSync`/`cron` intentionally **disabled** — with 2 SSR replicas each holding an ephemeral `.data/ai-ready/pages.db`, scheduled background indexing would race and double-submit; SSR pages still index on first visit per pod via the runtime fallback.
+15. Custom `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
+16. Custom `modules/purge-comments.ts` — Removes HTML comments in production
 
 ### CI/CD
 
@@ -279,3 +280,8 @@ Copy `.env.example` to `.env`. Key variables:
 - `NUXT_SITE_URL` / `NUXT_SITE_NAME` / `NUXT_SITE_DESCRIPTION` / `NUXT_SITE_DEFAULT_LOCALE` — SEO site config
 - `NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID` — Google Analytics
 - `NUXT_PUBLIC_SOCIALS_*` — Social media links (Discord, Facebook, Instagram, Pinterest, Reddit, TikTok, Twitter, YouTube)
+
+<!-- skilld -->
+Before modifying code, evaluate each installed skill against the current task.
+For each skill, determine YES/NO relevance and invoke all YES skills before proceeding.
+<!-- /skilld -->

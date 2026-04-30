@@ -15,6 +15,7 @@ const modules = [
   '@pinia/nuxt',
   '@vueuse/nuxt',
   'nuxt-auth-utils',
+  'nuxt-ai-ready',
 ]
 
 if (process.env.NODE_ENV === 'test') {
@@ -363,6 +364,36 @@ export default defineNuxtConfig({
     hoist: ['vite'],
   },
   debug: false,
+  // ``nuxt-ai-ready`` exposes site content to AI agents and crawlers via:
+  //   /llms.txt, /llms-full.txt   — site overview + per-page markdown
+  //   /<route>.md                  — on-demand markdown of any HTML page
+  //   robots.txt Content Signals   — opt-in directives for search/RAG/training
+  //   /__ai-ready/*                — optional MCP/runtime sync endpoints
+  //
+  // Production deployment notes (webside.gr, K8s, 2 SSR replicas):
+  //   - Prerendered routes (about, contact, policy pages, …) get full
+  //     metadata indexed at build time and baked into the image dump.
+  //   - SSR-rendered pages (products, blog, category pages) index on first
+  //     visit per pod. Sitemap-driven URL discovery still works via
+  //     ``/api/__sitemap__/urls``.
+  //   - ``runtimeSync`` + ``cron`` are intentionally **disabled**: with two
+  //     replicas each holding an ephemeral SQLite at ``.data/ai-ready``,
+  //     scheduled background indexing would race and double-submit to
+  //     IndexNow. Enable only when scaled to 1 replica or when migrating to
+  //     shared storage (D1 / LibSQL / Turso).
+  //   - ``autoI18n`` (default ``true``) auto-detects ``@nuxtjs/i18n`` and
+  //     emits ``hreflang`` Link headers + a Greek "Available Languages"
+  //     section in ``/llms.txt``.
+  aiReady: {
+    contentSignal: {
+      // Allow training, search indexing, and RAG/grounding. The site is a
+      // public e-commerce storefront — discoverable AI surfaces are an
+      // acquisition channel, not a leak risk.
+      aiTrain: true,
+      search: true,
+      aiInput: true,
+    },
+  },
   cookieControl: {
     cookies: {
       necessary: [
@@ -569,6 +600,11 @@ export default defineNuxtConfig({
   ogImage: {
     enabled: false,
   },
+  // Empty object initialiser — ``nuxt-ai-ready`` 1.3.0 reads
+  // ``nuxt.options.robots.groups`` when ``aiReady.contentSignal`` is set
+  // and crashes if ``nuxt.options.robots`` is undefined. @nuxtjs/robots
+  // (shipped via @nuxtjs/seo) tolerates an empty config object.
+  robots: {},
   schemaOrg: {
     enabled: true,
     minify: true,
