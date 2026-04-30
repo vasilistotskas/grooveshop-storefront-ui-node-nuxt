@@ -1,3 +1,10 @@
+# [3.104.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.103.6...v3.104.0) (2026-04-30)
+
+
+### Features
+
+* **seo:** integrate nuxt-ai-ready for AI/LLM discoverability ([9104c6e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9104c6e8187ed628543e018c54151a790d30d2af))
+
 ## [3.103.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.103.5...v3.103.6) (2026-04-30)
 
 
