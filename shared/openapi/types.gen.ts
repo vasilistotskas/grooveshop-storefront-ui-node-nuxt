@@ -14033,9 +14033,13 @@ export type ListPayWayData = {
          */
     search?: string
     /**
-         * Filter pay ways compatible with the given shipping method. When 'box_now_locker', only online-payment pay ways are returned.
+         * Pair with ``shippingProviderCode`` to filter pay ways by the carrier's compatibility rules for that kind.
          */
-    shippingMethod?: string
+    shippingKind?: string
+    /**
+         * Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) rejects COD on locker pickup; other carriers pass through unchanged. Pair with ``shippingKind``.
+         */
+    shippingProviderCode?: string
     sortOrder?: string | number
     sortOrder_Gte?: string | number
     sortOrder_Lte?: string | number
@@ -17803,6 +17807,10 @@ export type FindNearestAcsStationsData = {
          */
     city?: string
     /**
+         * Optional ISO-2 country code; narrows the default kind filter to that country's locker catalogue.
+         */
+    countryCode?: string
+    /**
          * Which field to use when ordering the results.
          */
     ordering?: string
@@ -17823,7 +17831,7 @@ export type FindNearestAcsStationsData = {
          */
     search?: string
     /**
-         * Optional override (default: lockers 7+8).
+         * Optional override. Default is the union of locker kinds across configured countries (see ShippingProvider.metadata.shop_kinds_by_country).
          */
     shopKind?: string | number
   }
