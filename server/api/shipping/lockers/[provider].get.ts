@@ -48,14 +48,6 @@ interface AcsStationDjangoRow {
   isActive: boolean
 }
 
-interface PaginatedDjangoResponse<T> {
-  results: T[]
-  count: number
-  totalPages: number
-  page: number
-  pageSize: number
-}
-
 interface NormalisedLocker {
   externalId: string
   branchCode: string | null
@@ -108,7 +100,7 @@ async function _fetchAcsStations(
   // to 10 pages (= 1000 lockers) of headroom for future expansion.
   const maxPages = 10
   while (page <= maxPages) {
-    const response = await $fetch<PaginatedDjangoResponse<AcsStationDjangoRow>>(
+    const response = await $fetch<Pagination<AcsStationDjangoRow>>(
       `${apiBaseUrl}/shipping/acs/stations`,
       {
         method: 'GET',
