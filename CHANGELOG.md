@@ -1,3 +1,10 @@
+## [3.103.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.103.1...v3.103.2) (2026-04-30)
+
+
+### Bug Fixes
+
+* **shipping:** bulk lockers endpoint — match Django's camelCase response ([38de82d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/38de82d26faea526e55003bc4b05cb78126d74af))
+
 ## [3.103.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.103.0...v3.103.1) (2026-04-30)
 
 
