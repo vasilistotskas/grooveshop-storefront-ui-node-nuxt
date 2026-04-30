@@ -56,7 +56,7 @@ const isBoxNowDisabled = computed(
 // a logo into ``public/img/shipping/`` + a one-line entry there.
 const shippingOptions = computed(() => {
   const items: Array<{
-    value: ShippingMethodEnum
+    value: ShippingMethodKey
     label: string
     descriptionText: string
     logo: string
@@ -100,7 +100,7 @@ const shippingOptions = computed(() => {
   return items
 })
 
-function buildBrandMeta(method: ShippingMethodEnum) {
+function buildBrandMeta(method: ShippingMethodKey) {
   const meta = getShippingMethodMeta(method)
   return {
     logo: meta.logo,
@@ -238,9 +238,14 @@ function onSubmit() {
         </template>
       </URadioGroup>
 
-      <!-- COD-incompatible explainer — only when the BoxNow row is disabled -->
+      <!-- COD-incompatible explainer — only when the BoxNow row would
+           otherwise be selectable (i.e. BoxNow master switch is on) AND
+           the shopper has picked a COD pay way. ACS supports COD on both
+           home delivery and Smartpoint pickups, so the alert MUST NOT
+           render when BoxNow is hidden — otherwise it confuses ACS
+           shoppers into thinking their COD + ACS combo is invalid. -->
       <UAlert
-        v-if="isCodPaySelected"
+        v-if="isCodPaySelected && boxnowEnabled"
         color="warning"
         variant="subtle"
         icon="i-heroicons-information-circle"
@@ -248,9 +253,10 @@ function onSubmit() {
         :description="t('shipping.method.boxnow.cod_blocked_description')"
       />
 
-      <!-- Configuration explainer — only in dev when BoxNow partnerId is missing -->
+      <!-- Configuration explainer — only in dev when BoxNow partnerId is
+           missing AND BoxNow is supposed to be visible. -->
       <UAlert
-        v-else-if="!isBoxNowConfigured"
+        v-else-if="!isBoxNowConfigured && boxnowEnabled"
         color="info"
         variant="subtle"
         icon="i-heroicons-information-circle"
@@ -265,38 +271,22 @@ function onSubmit() {
            in this template. -->
       <template v-if="activeCarrier && !activeCarrier.usesGenericPicker && isBoxNow">
         <UFormField :name="activeCarrier.formFieldName" class="mt-0">
-          <template #default="{ error }">
-            <CheckoutSelectedBoxNowLocker
-              v-model:formState="formState"
-              :partner-id="props.partnerId"
-            />
-            <p
-              v-if="error"
-              class="mt-2 text-sm text-red-500"
-            >
-              {{ error }}
-            </p>
-          </template>
+          <CheckoutSelectedBoxNowLocker
+            v-model:formState="formState"
+            :partner-id="props.partnerId"
+          />
         </UFormField>
       </template>
 
       <template v-else-if="activeCarrier?.usesGenericPicker">
         <UFormField :name="activeCarrier.formFieldName" class="mt-0">
-          <template #default="{ error }">
-            <CheckoutSelectedGenericLocker
-              v-model:formState="formState"
-              :carrier="activeCarrier"
-              :initial-postal-code="formState.zipcode"
-              :initial-city="formState.city"
-              :country-code="formState.country"
-            />
-            <p
-              v-if="error"
-              class="mt-2 text-sm text-red-500"
-            >
-              {{ error }}
-            </p>
-          </template>
+          <CheckoutSelectedGenericLocker
+            v-model:formState="formState"
+            :carrier="activeCarrier"
+            :initial-postal-code="formState.zipcode"
+            :initial-city="formState.city"
+            :country-code="formState.country"
+          />
         </UFormField>
       </template>
 

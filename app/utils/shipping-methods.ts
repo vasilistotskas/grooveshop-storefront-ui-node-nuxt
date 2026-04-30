@@ -17,6 +17,21 @@
  * brand assets that change rarely. Add ``?v=N`` if you ever need it.
  */
 
+/**
+ * The set of checkout shipping methods rendered as radio cards.
+ *
+ * This used to be sourced from the Django-generated
+ * ``ShippingMethodEnum`` (when ``Order.shipping_method`` was a real
+ * column). After the column drop, the backend exposes the same shape
+ * via ``order.shippingKind`` + ``order.shippingProvider.code``; the
+ * frontend's checkout still groups options under one of these three
+ * presentation keys. Auto-imported across ``app/`` and ``shared/``.
+ */
+export type ShippingMethodKey =
+  | 'home_delivery'
+  | 'box_now_locker'
+  | 'acs_smartpoint'
+
 export interface ShippingMethodMeta {
   /** Bundled logo URL — emitted by Vite from the import above. */
   logo: string
@@ -30,10 +45,7 @@ export interface ShippingMethodMeta {
   taglineColor?: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
 }
 
-export const SHIPPING_METHOD_META: Record<
-  ShippingMethodEnum,
-  ShippingMethodMeta
-> = {
+export const SHIPPING_METHOD_META: Record<ShippingMethodKey, ShippingMethodMeta> = {
   home_delivery: {
     logo: '/img/shipping/acs.png',
     altKey: 'shipping.method.home_delivery.label',
@@ -56,7 +68,7 @@ export const SHIPPING_METHOD_META: Record<
 }
 
 export function getShippingMethodMeta(
-  method: ShippingMethodEnum,
+  method: ShippingMethodKey,
 ): ShippingMethodMeta {
   return SHIPPING_METHOD_META[method]
 }

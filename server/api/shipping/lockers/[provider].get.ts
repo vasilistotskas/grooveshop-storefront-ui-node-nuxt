@@ -148,11 +148,26 @@ export default defineCachedEventHandler(
     try {
       const query = await getValidatedQuery(event, zQuery.parse)
       const fetcher = PROVIDER_FETCHERS[provider]!
-      return await fetcher(
+      const rows = await fetcher(
         config.apiBaseUrl,
         headers,
         query.country?.toUpperCase(),
       )
+      // Empty-poison guard: an empty upstream response (e.g. Django
+      // pods came up before the AcsStation table was synced) used to
+      // be cached for the full 1h+6h SWR window — leaving the picker
+      // map blank long after the next sync had populated rows. Throw
+      // so the Nitro cache wrapper does NOT store the empty result;
+      // the picker's component-level error state then redirects the
+      // user to the postal-code list view, which hits the live
+      // ``/nearest`` endpoint (uncached) and works.
+      if (rows.length === 0) {
+        throw createError({
+          statusCode: 503,
+          statusMessage: `Bulk locker catalogue for provider '${provider}' is currently empty — refusing to cache.`,
+        })
+      }
+      return rows
     }
     catch (error) {
       await handleError(error)
@@ -162,6 +177,14 @@ export default defineCachedEventHandler(
     maxAge: 60 * 60, // 1h fresh
     staleMaxAge: 60 * 60 * 6, // up to 6h stale-while-revalidate
     name: 'shipping.lockers',
+    // Allow callers to force a fresh upstream hit via ``?refresh=1``.
+    // Useful when ops needs to evict a stale empty cache from prod
+    // without rolling the SSR replicas — curl the URL once and the
+    // next non-bypass request fills with the fresh data.
+    shouldBypassCache: (event) => {
+      const url = new URL(event.node.req.url ?? '/', 'http://internal')
+      return url.searchParams.get('refresh') === '1'
+    },
     getKey: (event) => {
       const provider = getRouterParam(event, 'provider') ?? 'unknown'
       const url = new URL(event.node.req.url ?? '/', 'http://internal')

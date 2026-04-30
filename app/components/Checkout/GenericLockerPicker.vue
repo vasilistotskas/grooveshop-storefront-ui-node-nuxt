@@ -37,8 +37,11 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-// State
-const activeTab = ref<'list' | 'map'>('list')
+// State — default to the map tab whenever the carrier exposes
+// ``fetchAll`` (i.e. the map tab actually renders); otherwise fall
+// back to the list view.
+const defaultTab = (): 'list' | 'map' => (props.carrier.fetchAll ? 'map' : 'list')
+const activeTab = ref<'list' | 'map'>(defaultTab())
 const postal = ref(props.initialPostalCode ?? '')
 const city = ref(props.initialCity ?? '')
 const stations = ref<Locker[]>([])
@@ -105,7 +108,7 @@ watch(open, (val) => {
     if (props.initialPostalCode) postal.value = props.initialPostalCode
     if (props.initialCity) city.value = props.initialCity
     initialSearchDone.value = false
-    activeTab.value = 'list'
+    activeTab.value = defaultTab()
     void runSearch()
   }
   else {

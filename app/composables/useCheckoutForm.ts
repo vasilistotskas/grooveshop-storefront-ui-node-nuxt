@@ -31,7 +31,7 @@ export async function useCheckoutForm() {
     streetNumber: '',
     customerNotes: '',
     // Shipping method (Step 1 — new)
-    shippingMethod: 'home_delivery' as ShippingMethodEnum,
+    shippingMethod: 'home_delivery' as ShippingMethodKey,
     boxnowLockerId: '' as string,
     boxnowLocker: null as BoxNowSelectedLocker | null,
     boxnowCompartmentSize: 1 as 1 | 2 | 3,
@@ -435,7 +435,7 @@ export async function useCheckoutForm() {
     if (data.saveAddress && !(data.addressTitle ?? '').trim()) {
       ctx.addIssue({
         path: ['addressTitle'],
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: t('validation.required'),
       })
     }
@@ -449,7 +449,7 @@ export async function useCheckoutForm() {
       if (!/^\d{9}$/.test(cleaned)) {
         ctx.addIssue({
           path: ['billingVatId'],
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: t('validation.billing_vat.invalid'),
         })
       }
@@ -464,14 +464,14 @@ export async function useCheckoutForm() {
   }).superRefine((data, ctx) => {
     if (data.shippingMethod === 'box_now_locker' && !data.boxnowLockerId) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: ['boxnowLockerId'],
         message: t('shipping.boxnow.required_error'),
       })
     }
     if (data.shippingMethod === 'acs_smartpoint' && !data.acsStationExternalId) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: ['acsStationExternalId'],
         message: t('shipping.acs.required_error'),
       })
