@@ -1,3 +1,17 @@
+# [3.103.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.102.1...v3.103.0) (2026-04-30)
+
+
+### Bug Fixes
+
+* **checkout:** use auto-imported useLMarkerCluster instead of dist path ([58a069d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/58a069d60b33745e83a8cde308e875cf94603c58))
+* **shipping:** static imports in registry — Nitro can't run import.meta.glob ([509d178](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/509d178c67db536d2e1c996c327a9f3cd979b773))
+
+
+### Features
+
+* **checkout:** @nuxtjs/leaflet map view in the locker picker ([06bc902](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/06bc9024aa26985f036a5c4f60b4c0fb8abe6a55))
+* **checkout:** symmetric carrier registry + generic locker picker ([60c8ddb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/60c8ddb9efb23031b5e985f5d6c61044f260d8fc))
+
 ## [3.102.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.102.0...v3.102.1) (2026-04-29)
 
 
