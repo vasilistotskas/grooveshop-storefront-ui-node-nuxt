@@ -10,6 +10,7 @@ const modules = [
   '@nuxt/fonts',
   '@nuxt/icon',
   '@nuxtjs/i18n',
+  '@nuxtjs/leaflet',
   '@nuxtjs/seo',
   '@pinia/nuxt',
   '@vueuse/nuxt',
@@ -336,6 +337,25 @@ export default defineNuxtConfig({
         'isomorphic-dompurify',
       ],
     },
+    build: {
+      rollupOptions: {
+        output: {
+          // Group Leaflet + the marker cluster plugin into a single
+          // chunk so the checkout entry stays small. The chunk only
+          // loads when CheckoutSmartpointMap is mounted (Lazy* +
+          // ClientOnly), so customers who never open the locker
+          // picker pay zero bytes for the map library.
+          manualChunks(id) {
+            if (
+              id.includes('node_modules/leaflet/')
+              || id.includes('node_modules/leaflet.markercluster/')
+            ) {
+              return 'leaflet'
+            }
+          },
+        },
+      },
+    },
   },
   typescript: {
     strict: true,
@@ -529,6 +549,13 @@ export default defineNuxtConfig({
       xl: 1280,
       xxl: 1536,
     },
+  },
+  // ``@nuxtjs/leaflet`` config — markerCluster:true unlocks the
+  // ``useLMarkerCluster`` composable used inside SmartpointMap.client.vue.
+  // Tile providers themselves come from the carrier metadata
+  // (``ShippingProvider.metadata.tile_provider``) — never hardcoded.
+  leaflet: {
+    markerCluster: true,
   },
   linkChecker: {
     report: {
