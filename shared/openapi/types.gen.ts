@@ -2280,14 +2280,6 @@ export type Order = {
   paymentId?: string | null
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
-  /**
-     * Legacy enum kept for backwards compatibility. New code reads the (shipping_provider, shipping_kind) pair instead — both fields are dual-written by OrderService until Phase 3 of the shipping abstraction migration.
-     *
-     * * `home_delivery` - Home delivery
-     * * `box_now_locker` - BOX NOW Locker
-     * * `acs_smartpoint` - ACS Smartpoint
-     */
-  shippingMethod?: ShippingMethodEnum
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
 }
@@ -2381,14 +2373,6 @@ export type OrderCreateFromCartRequest = {
      */
   loyaltyPointsToRedeem?: number | null
   /**
-     * Shipping method for this order
-     *
-     * * `home_delivery` - Home delivery
-     * * `box_now_locker` - BOX NOW Locker
-     * * `acs_smartpoint` - ACS Smartpoint
-     */
-  shippingMethod?: ShippingMethodEnum
-  /**
      * BoxNow APM locker ID from the widget
      */
   boxnowLockerId?: string
@@ -2459,14 +2443,6 @@ export type OrderDetail = {
   paymentId?: string | null
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
-  /**
-     * Legacy enum kept for backwards compatibility. New code reads the (shipping_provider, shipping_kind) pair instead — both fields are dual-written by OrderService until Phase 3 of the shipping abstraction migration.
-     *
-     * * `home_delivery` - Home delivery
-     * * `box_now_locker` - BOX NOW Locker
-     * * `acs_smartpoint` - ACS Smartpoint
-     */
-  shippingMethod?: ShippingMethodEnum
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
   /**
@@ -2506,7 +2482,7 @@ export type OrderDetail = {
      */
   readonly hasInvoice: boolean
   /**
-     * BoxNow shipment details when shipping_method is 'box_now_locker', else null.
+     * BoxNow shipment details when shipping_provider.code is 'boxnow', else null.
      */
   boxnowShipment: BoxNowShipmentDetail | null
   /**
@@ -4910,13 +4886,6 @@ export type ShipmentStateEnum = 'pending_creation' | 'new' | 'in_transit' | 'at_
 export type ShippingKind = 'home_delivery' | 'pickup_point'
 
 /**
- * * `home_delivery` - Home delivery
- * * `box_now_locker` - BOX NOW Locker
- * * `acs_smartpoint` - ACS Smartpoint
- */
-export type ShippingMethodEnum = 'home_delivery' | 'box_now_locker' | 'acs_smartpoint'
-
-/**
  * One row in the checkout shipping-method radio.
  *
  * Returned by :class:`shipping.views.ShippingOptionsView`.  The
@@ -6168,14 +6137,6 @@ export type OrderWritable = {
   paymentId?: string | null
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
-  /**
-     * Legacy enum kept for backwards compatibility. New code reads the (shipping_provider, shipping_kind) pair instead — both fields are dual-written by OrderService until Phase 3 of the shipping abstraction migration.
-     *
-     * * `home_delivery` - Home delivery
-     * * `box_now_locker` - BOX NOW Locker
-     * * `acs_smartpoint` - ACS Smartpoint
-     */
-  shippingMethod?: ShippingMethodEnum
 }
 
 export type OrderDetailWritable = {
@@ -6206,14 +6167,6 @@ export type OrderDetailWritable = {
   paymentId?: string | null
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
-  /**
-     * Legacy enum kept for backwards compatibility. New code reads the (shipping_provider, shipping_kind) pair instead — both fields are dual-written by OrderService until Phase 3 of the shipping abstraction migration.
-     *
-     * * `home_delivery` - Home delivery
-     * * `box_now_locker` - BOX NOW Locker
-     * * `acs_smartpoint` - ACS Smartpoint
-     */
-  shippingMethod?: ShippingMethodEnum
   trackingNumber?: string
   shippingCarrier?: string
 }
@@ -14033,9 +13986,13 @@ export type ListPayWayData = {
          */
     search?: string
     /**
-         * Filter pay ways compatible with the given shipping method. When 'box_now_locker', only online-payment pay ways are returned.
+         * Pair with ``shippingProviderCode`` to filter pay ways by the carrier's compatibility rules for that kind.
          */
-    shippingMethod?: string
+    shippingKind?: string
+    /**
+         * Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) rejects COD on locker pickup; other carriers pass through unchanged. Pair with ``shippingKind``.
+         */
+    shippingProviderCode?: string
     sortOrder?: string | number
     sortOrder_Gte?: string | number
     sortOrder_Lte?: string | number

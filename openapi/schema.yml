@@ -8378,12 +8378,14 @@ paths:
           - anonymous
           - guest
           - user
-        description: |-
-          Filter by cart type
+        description: 'Filter by cart type
+
 
           * `user` - User Cart
+
           * `guest` - Guest Cart
-          * `anonymous` - Anonymous Cart
+
+          * `anonymous` - Anonymous Cart'
       - in: query
         name: createdAfter
         schema:
@@ -9001,16 +9003,22 @@ paths:
           - NA
           - OC
           - SA
-        description: |-
-          Filter by continent (based on ISO codes)
+        description: 'Filter by continent (based on ISO codes)
+
 
           * `AF` - Africa
+
           * `AS` - Asia
+
           * `EU` - Europe
+
           * `NA` - North America
+
           * `OC` - Oceania
+
           * `SA` - South America
-          * `AN` - Antarctica
+
+          * `AN` - Antarctica'
       - in: query
         name: createdAfter
         schema:
@@ -11501,16 +11509,22 @@ paths:
           - PENDING
           - PROCESSING
           - REFUNDED
-        description: |-
-          Filter by payment status
+        description: 'Filter by payment status
+
 
           * `PENDING` - Pending
+
           * `PROCESSING` - Processing
+
           * `COMPLETED` - Completed
+
           * `FAILED` - Failed
+
           * `REFUNDED` - Refunded
+
           * `PARTIALLY_REFUNDED` - Partially Refunded
-          * `CANCELED` - Canceled
+
+          * `CANCELED` - Canceled'
       - in: query
         name: paymentStatus_In
         schema:
@@ -11621,17 +11635,24 @@ paths:
           - REFUNDED
           - RETURNED
           - SHIPPED
-        description: |-
-          Filter by order status
+        description: 'Filter by order status
+
 
           * `PENDING` - Pending
+
           * `PROCESSING` - Processing
+
           * `SHIPPED` - Shipped
+
           * `DELIVERED` - Delivered
+
           * `COMPLETED` - Completed
+
           * `CANCELED` - Canceled
+
           * `RETURNED` - Returned
-          * `REFUNDED` - Refunded
+
+          * `REFUNDED` - Refunded'
       - in: query
         name: status_In
         schema:
@@ -12093,16 +12114,22 @@ paths:
           - PENDING
           - PROCESSING
           - REFUNDED
-        description: |-
-          Filter by order payment status
+        description: 'Filter by order payment status
+
 
           * `PENDING` - Pending
+
           * `PROCESSING` - Processing
+
           * `COMPLETED` - Completed
+
           * `FAILED` - Failed
+
           * `REFUNDED` - Refunded
+
           * `PARTIALLY_REFUNDED` - Partially Refunded
-          * `CANCELED` - Canceled
+
+          * `CANCELED` - Canceled'
       - in: query
         name: order_Region
         schema:
@@ -12121,17 +12148,24 @@ paths:
           - REFUNDED
           - RETURNED
           - SHIPPED
-        description: |-
-          Filter by order status
+        description: 'Filter by order status
+
 
           * `PENDING` - Pending
+
           * `PROCESSING` - Processing
+
           * `SHIPPED` - Shipped
+
           * `DELIVERED` - Delivered
+
           * `COMPLETED` - Completed
+
           * `CANCELED` - Canceled
+
           * `RETURNED` - Returned
-          * `REFUNDED` - Refunded
+
+          * `REFUNDED` - Refunded'
       - in: query
         name: order_User
         schema:
@@ -14491,16 +14525,22 @@ paths:
           - PENDING
           - PROCESSING
           - REFUNDED
-        description: |-
-          Filter by payment status
+        description: 'Filter by payment status
+
 
           * `PENDING` - Pending
+
           * `PROCESSING` - Processing
+
           * `COMPLETED` - Completed
+
           * `FAILED` - Failed
+
           * `REFUNDED` - Refunded
+
           * `PARTIALLY_REFUNDED` - Partially Refunded
-          * `CANCELED` - Canceled
+
+          * `CANCELED` - Canceled'
       - in: query
         name: paymentStatus_In
         schema:
@@ -14611,17 +14651,24 @@ paths:
           - REFUNDED
           - RETURNED
           - SHIPPED
-        description: |-
-          Filter by order status
+        description: 'Filter by order status
+
 
           * `PENDING` - Pending
+
           * `PROCESSING` - Processing
+
           * `SHIPPED` - Shipped
+
           * `DELIVERED` - Delivered
+
           * `COMPLETED` - Completed
+
           * `CANCELED` - Canceled
+
           * `RETURNED` - Returned
-          * `REFUNDED` - Refunded
+
+          * `REFUNDED` - Refunded'
       - in: query
         name: status_In
         schema:
@@ -16718,9 +16765,9 @@ paths:
           enum:
           - price_drop
           - restock
-        description: |-
-          * `restock` - Restock
-          * `price_drop` - Price drop
+        description: '* `restock` - Restock
+
+          * `price_drop` - Price drop'
       - in: query
         name: languageCode
         schema:
@@ -19148,17 +19195,25 @@ paths:
           - PROMOTIONAL
           - SEASONAL
           - THUMBNAIL
-        description: |-
-          * `MAIN` - Main Image
+        description: '* `MAIN` - Main Image
+
           * `BANNER` - Banner Image
+
           * `ICON` - Icon Image
+
           * `THUMBNAIL` - Thumbnail Image
+
           * `GALLERY` - Gallery Image
+
           * `BACKGROUND` - Background Image
+
           * `HERO` - Hero Image
+
           * `FEATURE` - Feature Image
+
           * `PROMOTIONAL` - Promotional Image
-          * `SEASONAL` - Seasonal Image
+
+          * `SEASONAL` - Seasonal Image'
       - in: query
         name: languageCode
         schema:
@@ -19690,17 +19745,25 @@ paths:
           - PROMOTIONAL
           - SEASONAL
           - THUMBNAIL
-        description: |-
-          * `MAIN` - Main Image
+        description: '* `MAIN` - Main Image
+
           * `BANNER` - Banner Image
+
           * `ICON` - Icon Image
+
           * `THUMBNAIL` - Thumbnail Image
+
           * `GALLERY` - Gallery Image
+
           * `BACKGROUND` - Background Image
+
           * `HERO` - Hero Image
+
           * `FEATURE` - Feature Image
+
           * `PROMOTIONAL` - Promotional Image
-          * `SEASONAL` - Seasonal Image
+
+          * `SEASONAL` - Seasonal Image'
       - name: ordering
         in: query
         required: false
@@ -19807,17 +19870,25 @@ paths:
           - PROMOTIONAL
           - SEASONAL
           - THUMBNAIL
-        description: |-
-          * `MAIN` - Main Image
+        description: '* `MAIN` - Main Image
+
           * `BANNER` - Banner Image
+
           * `ICON` - Icon Image
+
           * `THUMBNAIL` - Thumbnail Image
+
           * `GALLERY` - Gallery Image
+
           * `BACKGROUND` - Background Image
+
           * `HERO` - Hero Image
+
           * `FEATURE` - Feature Image
+
           * `PROMOTIONAL` - Promotional Image
-          * `SEASONAL` - Seasonal Image
+
+          * `SEASONAL` - Seasonal Image'
       - name: ordering
         in: query
         required: false
@@ -21315,19 +21386,28 @@ paths:
           - type: string
             pattern: ^-?\d+$
           - type: integer
-        description: |-
-          Filter by exact rating
+        description: 'Filter by exact rating
+
 
           * `1` - One
+
           * `2` - Two
+
           * `3` - Three
+
           * `4` - Four
+
           * `5` - Five
+
           * `6` - Six
+
           * `7` - Seven
+
           * `8` - Eight
+
           * `9` - Nine
-          * `10` - Ten
+
+          * `10` - Ten'
       - in: query
         name: rate_Gte
         schema:
@@ -21380,12 +21460,14 @@ paths:
           - 'FALSE'
           - NEW
           - 'TRUE'
-        description: |-
-          Filter by review status
+        description: 'Filter by review status
+
 
           * `NEW` - New
+
           * `TRUE` - True
-          * `FALSE` - False
+
+          * `FALSE` - False'
       - in: query
         name: updatedAfter
         schema:
@@ -27225,13 +27307,16 @@ paths:
           - BOUNCED
           - PENDING
           - UNSUBSCRIBED
-        description: |-
-          Filter by subscription status
+        description: 'Filter by subscription status
+
 
           * `ACTIVE` - Active
+
           * `PENDING` - Pending Confirmation
+
           * `UNSUBSCRIBED` - Unsubscribed
-          * `BOUNCED` - Bounced
+
+          * `BOUNCED` - Bounced'
       - in: query
         name: subscribedAfter
         schema:
@@ -27279,16 +27364,22 @@ paths:
           - PRODUCT
           - PROMOTIONAL
           - SYSTEM
-        description: |-
-          Filter by topic category
+        description: 'Filter by topic category
+
 
           * `MARKETING` - Marketing Campaigns
+
           * `PRODUCT` - Product Updates
+
           * `ACCOUNT` - Account Updates
+
           * `SYSTEM` - System Notifications
+
           * `NEWSLETTER` - Newsletter
+
           * `PROMOTIONAL` - Promotional
-          * `OTHER` - Other
+
+          * `OTHER` - Other'
       - in: query
         name: topicDescription
         schema:
@@ -27845,12 +27936,14 @@ paths:
   /api/v1/user/subscription/confirm/{token}:
     get:
       operationId: confirmSubscriptionByToken
-      description: |-
-        Public endpoint for the confirmation link emailed to new subscribers.
+      description: 'Public endpoint for the confirmation link emailed to new subscribers.
+
 
         The confirmation token itself is 64 chars of random entropy (sufficient
+
         authorization); no login required. Accepts both GET (user clicks the
-        link in a mail client) and POST (for programmatic confirmation).
+
+        link in a mail client) and POST (for programmatic confirmation).'
       summary: Confirm a pending subscription via email token
       parameters:
       - in: path
@@ -27875,12 +27968,14 @@ paths:
           description: ''
     post:
       operationId: api_v1_user_subscription_confirm_create
-      description: |-
-        Public endpoint for the confirmation link emailed to new subscribers.
+      description: 'Public endpoint for the confirmation link emailed to new subscribers.
+
 
         The confirmation token itself is 64 chars of random entropy (sufficient
+
         authorization); no login required. Accepts both GET (user clicks the
-        link in a mail client) and POST (for programmatic confirmation).
+
+        link in a mail client) and POST (for programmatic confirmation).'
       parameters:
       - in: path
         name: token
@@ -27928,16 +28023,22 @@ paths:
           - PRODUCT
           - PROMOTIONAL
           - SYSTEM
-        description: |-
-          Filter by topic category
+        description: 'Filter by topic category
+
 
           * `MARKETING` - Marketing Campaigns
+
           * `PRODUCT` - Product Updates
+
           * `ACCOUNT` - Account Updates
+
           * `SYSTEM` - System Notifications
+
           * `NEWSLETTER` - Newsletter
+
           * `PROMOTIONAL` - Promotional
-          * `OTHER` - Other
+
+          * `OTHER` - Other'
       - in: query
         name: createdAfter
         schema:
@@ -28695,11 +28796,12 @@ paths:
   /api/v1/user/unsubscribe/{uidb64}/{token}:
     get:
       operationId: unsubscribeFromAllViaLink
-      description: |-
-        Non-topic unsubscribe: `/unsubscribe/<uid>/<token>`.
+      description: 'Non-topic unsubscribe: `/unsubscribe/<uid>/<token>`.
+
 
         Unsubscribes from ALL active subscriptions — used by emails without a
-        topic binding such as re-engagement and abandoned-cart.
+
+        topic binding such as re-engagement and abandoned-cart.'
       summary: Unsubscribe from all topics via email link (GET)
       parameters:
       - in: path
@@ -28751,10 +28853,10 @@ paths:
   /api/v1/user/unsubscribe/{uidb64}/{token}/{topic_slug}:
     get:
       operationId: unsubscribeFromTopicViaLink
-      description: |-
-        Topic-scoped unsubscribe: `/unsubscribe/<uid>/<token>/<topic_slug>`.
+      description: 'Topic-scoped unsubscribe: `/unsubscribe/<uid>/<token>/<topic_slug>`.
 
-        Used by marketing emails with a specific List-ID (newsletter etc.).
+
+        Used by marketing emails with a specific List-ID (newsletter etc.).'
       summary: Unsubscribe from a topic via email link (GET)
       parameters:
       - in: path
@@ -28930,9 +29032,9 @@ components:
       - 1
       - 2
       type: integer
-      description: |-
-        * `1` - Prepaid
-        * `2` - Cash on delivery
+      description: '* `1` - Prepaid
+
+        * `2` - Cash on delivery'
     AcsPickupList:
       type: object
       properties:
@@ -29131,11 +29233,12 @@ components:
       - weightGrams
     AcsStation:
       type: object
-      description: |-
-        List serializer for ACS stations / Smartpoints.
+      description: 'List serializer for ACS stations / Smartpoints.
+
 
         Includes ``working_hours`` so the checkout picker can render
-        opening hours inline without requiring a per-row detail fetch.
+
+        opening hours inline without requiring a per-row detail fetch.'
       properties:
         id:
           type: integer
@@ -29157,16 +29260,22 @@ components:
           allOf:
           - $ref: '#/components/schemas/ShopKindEnum'
           readOnly: true
-          description: |-
-            ACS_SHOP_KIND — 1 shop, 7/8 Smartpoint locker.
+          description: 'ACS_SHOP_KIND — 1 shop, 7/8 Smartpoint locker.
+
 
             * `1` - Shop
+
             * `2` - Partner shop (2)
+
             * `3` - Partner shop (3)
+
             * `4` - Xpress Point
+
             * `5` - Kiosk
+
             * `7` - Smartpoint (inbound)
-            * `8` - Smartpoint (outbound)
+
+            * `8` - Smartpoint (outbound)'
         name:
           type: string
           readOnly: true
@@ -29254,11 +29363,12 @@ components:
       - workingHours
     AcsStationDetail:
       type: object
-      description: |-
-        List serializer for ACS stations / Smartpoints.
+      description: 'List serializer for ACS stations / Smartpoints.
+
 
         Includes ``working_hours`` so the checkout picker can render
-        opening hours inline without requiring a per-row detail fetch.
+
+        opening hours inline without requiring a per-row detail fetch.'
       properties:
         id:
           type: integer
@@ -29280,16 +29390,22 @@ components:
           allOf:
           - $ref: '#/components/schemas/ShopKindEnum'
           readOnly: true
-          description: |-
-            ACS_SHOP_KIND — 1 shop, 7/8 Smartpoint locker.
+          description: 'ACS_SHOP_KIND — 1 shop, 7/8 Smartpoint locker.
+
 
             * `1` - Shop
+
             * `2` - Partner shop (2)
+
             * `3` - Partner shop (3)
+
             * `4` - Xpress Point
+
             * `5` - Kiosk
+
             * `7` - Smartpoint (inbound)
-            * `8` - Smartpoint (outbound)
+
+            * `8` - Smartpoint (outbound)'
         name:
           type: string
           readOnly: true
@@ -29429,9 +29545,9 @@ components:
       - subscribe
       - unsubscribe
       type: string
-      description: |-
-        * `subscribe` - subscribe
-        * `unsubscribe` - unsubscribe
+      description: '* `subscribe` - subscribe
+
+        * `unsubscribe` - unsubscribe'
     AddTrackingRequest:
       type: object
       properties:
@@ -29792,17 +29908,19 @@ components:
           nullable: true
         postCount:
           type: integer
-          description: |-
-            Return post count from annotation if available, otherwise query.
+          description: 'Return post count from annotation if available, otherwise
+            query.
 
-            Uses _post_count annotation from BlogCategoryManager.for_list().
+
+            Uses _post_count annotation from BlogCategoryManager.for_list().'
           readOnly: true
         hasChildren:
           type: boolean
-          description: |-
-            Return has_children from annotation if available, otherwise query.
+          description: 'Return has_children from annotation if available, otherwise
+            query.
 
-            Uses _has_children annotation from BlogCategoryManager.for_list().
+
+            Uses _has_children annotation from BlogCategoryManager.for_list().'
           readOnly: true
         mainImagePath:
           type: string
@@ -29873,17 +29991,19 @@ components:
           nullable: true
         postCount:
           type: integer
-          description: |-
-            Return post count from annotation if available, otherwise query.
+          description: 'Return post count from annotation if available, otherwise
+            query.
 
-            Uses _post_count annotation from BlogCategoryManager.for_list().
+
+            Uses _post_count annotation from BlogCategoryManager.for_list().'
           readOnly: true
         hasChildren:
           type: boolean
-          description: |-
-            Return has_children from annotation if available, otherwise query.
+          description: 'Return has_children from annotation if available, otherwise
+            query.
 
-            Uses _has_children annotation from BlogCategoryManager.for_list().
+
+            Uses _has_children annotation from BlogCategoryManager.for_list().'
           readOnly: true
         mainImagePath:
           type: string
@@ -30882,11 +31002,12 @@ components:
           description: Postal code of the event location
     BoxNowLocker:
       type: object
-      description: |-
-        Lightweight serializer for BoxNow locker list endpoints.
+      description: 'Lightweight serializer for BoxNow locker list endpoints.
+
 
         Lockers are populated exclusively via the ``sync_boxnow_lockers``
-        Celery task — all fields are read-only.
+
+        Celery task — all fields are read-only.'
       properties:
         id:
           type: integer
@@ -30987,11 +31108,12 @@ components:
       - uuid
     BoxNowLockerDetail:
       type: object
-      description: |-
-        Detail serializer for a single BoxNow locker.
+      description: 'Detail serializer for a single BoxNow locker.
+
 
         Inherits all fields from ``BoxNowLockerSerializer``.
-        Extended fields can be added here as requirements grow.
+
+        Extended fields can be added here as requirements grow.'
       properties:
         id:
           type: integer
@@ -31092,11 +31214,12 @@ components:
       - uuid
     BoxNowNearestLockerRequestRequest:
       type: object
-      description: |-
-        Request body for ``POST /lockers/nearest``.
+      description: 'Request body for ``POST /lockers/nearest``.
+
 
         Maps to the BoxNow ``/api/v2/delivery-requests:checkAddressDelivery``
-        endpoint parameters.
+
+        endpoint parameters.'
       properties:
         city:
           type: string
@@ -31131,13 +31254,16 @@ components:
       - street
     BoxNowNearestLockerResponse:
       type: object
-      description: |-
-        Response shape returned by BoxNow's checkAddressDelivery call.
+      description: 'Response shape returned by BoxNow''s checkAddressDelivery call.
+
 
         Mirrors ``/api/v2/delivery-requests:checkAddressDelivery`` response.
+
         ``lat`` and ``lng`` are CharField because BoxNow returns them as
+
         strings in this endpoint.  ``distance`` is the straight-line
-        distance in kilometres from the supplied address.
+
+        distance in kilometres from the supplied address.'
       properties:
         id:
           type: string
@@ -31213,11 +31339,12 @@ components:
       - type
     BoxNowParcelEvent:
       type: object
-      description: |-
-        Read-only serializer for ``BoxNowParcelEvent`` webhook audit records.
+      description: 'Read-only serializer for ``BoxNowParcelEvent`` webhook audit records.
+
 
         All fields are read-only — events are written exclusively by the
-        webhook handler and are never modified after creation.
+
+        webhook handler and are never modified after creation.'
       properties:
         id:
           type: integer
@@ -31230,21 +31357,32 @@ components:
           allOf:
           - $ref: '#/components/schemas/BoxNowParcelState'
           readOnly: true
-          description: |-
-            BoxNow event mapped from the webhook 'event' field
+          description: 'BoxNow event mapped from the webhook ''event'' field
+
 
             * `pending_creation` - Pending creation
+
             * `new` - New
+
             * `in_depot` - In depot
+
             * `final_destination` - At locker
+
             * `delivered` - Delivered
+
             * `returned` - Returned
+
             * `expired` - Expired
+
             * `canceled` - Canceled
+
             * `accepted_for_return` - Accepted for return
+
             * `accepted_to_locker` - Accepted to locker
+
             * `missing` - Missing
-            * `lost` - Lost
+
+            * `lost` - Lost'
         eventTypeDisplay:
           type: string
           readOnly: true
@@ -31306,34 +31444,39 @@ components:
       - missing
       - lost
       type: string
-      description: |-
-        * `pending_creation` - Pending creation
+      description: '* `pending_creation` - Pending creation
+
         * `new` - New
+
         * `in_depot` - In depot
+
         * `final_destination` - At locker
+
         * `delivered` - Delivered
+
         * `returned` - Returned
+
         * `expired` - Expired
+
         * `canceled` - Canceled
+
         * `accepted_for_return` - Accepted for return
+
         * `accepted_to_locker` - Accepted to locker
+
         * `missing` - Missing
-        * `lost` - Lost
+
+        * `lost` - Lost'
     BoxNowShipmentDetail:
       type: object
-      description: |-
-        Detail serializer for a single BoxNow shipment.
-
-        Extends the list serializer with:
-        - nested ``locker`` object (``BoxNowLockerSerializer``)
-        - ``events`` — last 20 ``BoxNowParcelEvent`` records ordered by
-          ``event_time`` descending
-        - ``label_url`` — relative URL for downloading the parcel label PDF
-          via the Django proxy route; ``None`` when ``parcel_id`` is blank
-
-        Imports of ``BoxNowLockerSerializer`` and
-        ``BoxNowParcelEventSerializer`` are deferred to method bodies to
-        prevent circular import chains between the serializer modules.
+      description: "Detail serializer for a single BoxNow shipment.\n\nExtends the\
+        \ list serializer with:\n- nested ``locker`` object (``BoxNowLockerSerializer``)\n\
+        - ``events`` — last 20 ``BoxNowParcelEvent`` records ordered by\n  ``event_time``\
+        \ descending\n- ``label_url`` — relative URL for downloading the parcel label\
+        \ PDF\n  via the Django proxy route; ``None`` when ``parcel_id`` is blank\n\
+        \nImports of ``BoxNowLockerSerializer`` and\n``BoxNowParcelEventSerializer``\
+        \ are deferred to method bodies to\nprevent circular import chains between\
+        \ the serializer modules."
       properties:
         id:
           type: integer
@@ -31452,13 +31595,16 @@ components:
       - weightGrams
     BoxNowWebhookDataRequest:
       type: object
-      description: |-
-        ``data`` field of a BoxNow CloudEvent webhook envelope.
+      description: '``data`` field of a BoxNow CloudEvent webhook envelope.
+
 
         Reflects the payload shape described in the BoxNow webhook PDF.
+
         ``camelCase`` field names are preserved because
+
         ``djangorestframework-camel-case`` is already applied
-        project-wide at the middleware level; no manual aliasing needed.
+
+        project-wide at the middleware level; no manual aliasing needed.'
       properties:
         parcelId:
           type: string
@@ -31506,13 +31652,16 @@ components:
       - time
     BoxNowWebhookEnvelopeRequest:
       type: object
-      description: |-
-        Top-level CloudEvent envelope for BoxNow webhook POST requests.
+      description: 'Top-level CloudEvent envelope for BoxNow webhook POST requests.
+
 
         Used for OpenAPI documentation only — the webhook view reads
+
         raw bytes before parsing in order to verify the HMAC-SHA256
+
         ``datasignature`` against the unmodified ``data`` JSON substring.
-        DRF validation is not applied to the incoming request directly.
+
+        DRF validation is not applied to the incoming request directly.'
       properties:
         specversion:
           type: string
@@ -31573,11 +31722,12 @@ components:
         action:
           allOf:
           - $ref: '#/components/schemas/ActionEnum'
-          description: |-
-            Action to perform on the topics
+          description: 'Action to perform on the topics
+
 
             * `subscribe` - subscribe
-            * `unsubscribe` - unsubscribe
+
+            * `unsubscribe` - unsubscribe'
       required:
       - action
       - topicIds
@@ -31641,19 +31791,21 @@ components:
           - enum:
             - 0
             type: integer
-          description: |-
-            Return the total quantity of all items in the cart.
+          description: 'Return the total quantity of all items in the cart.
+
 
             Uses annotated value if available (from optimized queryset),
-            otherwise calculates from items.
+
+            otherwise calculates from items.'
           readOnly: true
         totalItemsUnique:
           type: integer
-          description: |-
-            Return the number of unique items in the cart.
+          description: 'Return the number of unique items in the cart.
+
 
             Uses annotated value if available (from optimized queryset),
-            otherwise queries the database.
+
+            otherwise queries the database.'
           readOnly: true
         currency:
           type: string
@@ -31732,19 +31884,21 @@ components:
           - enum:
             - 0
             type: integer
-          description: |-
-            Return the total quantity of all items in the cart.
+          description: 'Return the total quantity of all items in the cart.
+
 
             Uses annotated value if available (from optimized queryset),
-            otherwise calculates from items.
+
+            otherwise calculates from items.'
           readOnly: true
         totalItemsUnique:
           type: integer
-          description: |-
-            Return the number of unique items in the cart.
+          description: 'Return the number of unique items in the cart.
+
 
             Uses annotated value if available (from optimized queryset),
-            otherwise queries the database.
+
+            otherwise queries the database.'
           readOnly: true
         currency:
           type: string
@@ -32088,10 +32242,11 @@ components:
       - 2
       - 3
       type: integer
-      description: |-
-        * `1` - Μικρό
+      description: '* `1` - Μικρό
+
         * `2` - Μεσαίο
-        * `3` - Μεγάλο
+
+        * `3` - Μεγάλο'
     ConfirmResponse:
       type: object
       properties:
@@ -32464,9 +32619,9 @@ components:
       - EUR
       - USD
       type: string
-      description: |-
-        * `EUR` - EUR
-        * `USD` - USD
+      description: '* `EUR` - EUR
+
+        * `USD` - USD'
     DateRange:
       type: object
       description: Serializer for date range in analytics.
@@ -32482,12 +32637,14 @@ components:
       - start
     DeleteAccountRequestRequest:
       type: object
-      description: |-
-        Body for ``POST user/account/{id}/delete_account``.
+      description: 'Body for ``POST user/account/{id}/delete_account``.
+
 
         Requires the user to re-type ``DELETE`` as a guardrail. The allauth
+
         re-authentication happens outside this serializer via the session
-        middleware's ``X-Session-Token`` header before the task is queued.
+
+        middleware''s ``X-Session-Token`` header before the task is queued.'
       properties:
         confirmation:
           type: string
@@ -32566,11 +32723,12 @@ components:
       - results
     FederatedSearchResult:
       type: object
-      description: |-
-        Serializer for individual federated search result.
+      description: 'Serializer for individual federated search result.
+
 
         This combines fields from both ProductTranslation and BlogPostTranslation
-        with federation metadata.
+
+        with federation metadata.'
       properties:
         id:
           type: integer
@@ -32668,15 +32826,21 @@ components:
       - FIFTH_FLOOR
       - SIXTH_FLOOR_PLUS
       type: string
-      description: |-
-        * `BASEMENT` - Basement
+      description: '* `BASEMENT` - Basement
+
         * `GROUND_FLOOR` - Ground Floor
+
         * `FIRST_FLOOR` - First Floor
+
         * `SECOND_FLOOR` - Second Floor
+
         * `THIRD_FLOOR` - Third Floor
+
         * `FOURTH_FLOOR` - Fourth Floor
+
         * `FIFTH_FLOOR` - Fifth Floor
-        * `SIXTH_FLOOR_PLUS` - Sixth Floor Plus
+
+        * `SIXTH_FLOOR_PLUS` - Sixth Floor Plus'
     HealthCheckResponse:
       type: object
       properties:
@@ -32703,17 +32867,25 @@ components:
       - PROMOTIONAL
       - SEASONAL
       type: string
-      description: |-
-        * `MAIN` - Main Image
+      description: '* `MAIN` - Main Image
+
         * `BANNER` - Banner Image
+
         * `ICON` - Icon Image
+
         * `THUMBNAIL` - Thumbnail Image
+
         * `GALLERY` - Gallery Image
+
         * `BACKGROUND` - Background Image
+
         * `HERO` - Hero Image
+
         * `FEATURE` - Feature Image
+
         * `PROMOTIONAL` - Promotional Image
-        * `SEASONAL` - Seasonal Image
+
+        * `SEASONAL` - Seasonal Image'
     InvoiceDownloadResponse:
       type: object
       description: Invoice metadata plus an absolute URL to the streaming endpoint.
@@ -32732,15 +32904,20 @@ components:
         downloadUrl:
           type: string
           nullable: true
-          description: |-
-            Absolute URL to ``OrderViewSet.invoice_download``.
+          description: 'Absolute URL to ``OrderViewSet.invoice_download``.
+
 
             Routes every client click through Django so the same
+
             ``IsOwnerOrAdmin`` check applies to the bytes as to the
+
             metadata — avoids the pre-existing leak where
+
             ``document_file.url`` returned either an unsigned S3 URL
+
             (403s without IAM) or a broken ``/media/...`` path (not
-            served in dev).
+
+            served in dev).'
           readOnly: true
         subtotal:
           type: string
@@ -32777,16 +32954,17 @@ components:
       - OFFICE
       - OTHER
       type: string
-      description: |-
-        * `HOME` - Αρχική
+      description: '* `HOME` - Αρχική
+
         * `OFFICE` - Office
-        * `OTHER` - Other
+
+        * `OTHER` - Other'
     LoyaltySummary:
       type: object
-      description: |-
-        Serializer for the user's loyalty summary response.
+      description: 'Serializer for the user''s loyalty summary response.
 
-        Returns computed loyalty data: balance, XP, level, tier, and progress.
+
+        Returns computed loyalty data: balance, XP, level, tier, and progress.'
       properties:
         pointsBalance:
           type: integer
@@ -32922,23 +33100,37 @@ components:
         priority:
           $ref: '#/components/schemas/PriorityEnum'
         notificationType:
-          description: |-
-            Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.
+          description: 'Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum``
+            for the full catalogue. Left blank for ad-hoc admin broadcasts.
+
 
             * `order_created` - Order created
+
             * `order_processing` - Order processing
+
             * `order_shipped` - Order shipped
+
             * `order_delivered` - Order delivered
+
             * `order_completed` - Order completed
+
             * `order_canceled` - Order canceled
+
             * `order_refunded` - Order refunded
+
             * `shipment_dispatched` - Shipment dispatched
+
             * `payment_confirmed` - Payment confirmed
+
             * `payment_failed` - Payment failed
+
             * `price_drop_favourite` - Price drop (favourited product)
+
             * `restock_favourite` - Back in stock (favourited product)
+
             * `loyalty_tier_up` - Loyalty tier promotion
-            * `comment_liked` - Blog comment liked
+
+            * `comment_liked` - Blog comment liked'
           oneOf:
           - $ref: '#/components/schemas/NotificationTypeEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -32982,21 +33174,33 @@ components:
       - NEWSLETTER
       - RECOMMENDATION
       type: string
-      description: |-
-        * `ORDER` - Ταξινόμηση
+      description: '* `ORDER` - Ταξινόμηση
+
         * `PAYMENT` - Payment
+
         * `SHIPPING` - Shipping
+
         * `CART` - Cart
+
         * `PRODUCT` - Product
+
         * `ACCOUNT` - Account
+
         * `SECURITY` - Security
+
         * `PROMOTION` - Promotion
+
         * `SYSTEM` - System
+
         * `REVIEW` - Review
+
         * `WISHLIST` - Wishlist
+
         * `SUPPORT` - Support
+
         * `NEWSLETTER` - Newsletter
-        * `RECOMMENDATION` - Recommendation
+
+        * `RECOMMENDATION` - Recommendation'
     NotificationCountResponse:
       type: object
       properties:
@@ -33022,12 +33226,15 @@ components:
       - WARNING
       - DANGER
       type: string
-      description: |-
-        * `ERROR` - Σφάλμα
+      description: '* `ERROR` - Σφάλμα
+
         * `SUCCESS` - Success
+
         * `INFO` - Info
+
         * `WARNING` - Warning
-        * `DANGER` - Danger
+
+        * `DANGER` - Danger'
     NotificationSuccessResponse:
       type: object
       properties:
@@ -33051,21 +33258,33 @@ components:
       - loyalty_tier_up
       - comment_liked
       type: string
-      description: |-
-        * `order_created` - Order created
+      description: '* `order_created` - Order created
+
         * `order_processing` - Order processing
+
         * `order_shipped` - Order shipped
+
         * `order_delivered` - Order delivered
+
         * `order_completed` - Order completed
+
         * `order_canceled` - Order canceled
+
         * `order_refunded` - Order refunded
+
         * `shipment_dispatched` - Shipment dispatched
+
         * `payment_confirmed` - Payment confirmed
+
         * `payment_failed` - Payment failed
+
         * `price_drop_favourite` - Price drop (favourited product)
+
         * `restock_favourite` - Back in stock (favourited product)
+
         * `loyalty_tier_up` - Loyalty tier promotion
-        * `comment_liked` - Blog comment liked
+
+        * `comment_liked` - Blog comment liked'
     NotificationUser:
       type: object
       properties:
@@ -33300,15 +33519,6 @@ components:
         paymentMethod:
           type: string
           maxLength: 50
-        shippingMethod:
-          allOf:
-          - $ref: '#/components/schemas/ShippingMethodEnum'
-          description: |-
-            Legacy enum kept for backwards compatibility. New code reads the (shipping_provider, shipping_kind) pair instead — both fields are dual-written by OrderService until Phase 3 of the shipping abstraction migration.
-
-            * `home_delivery` - Home delivery
-            * `box_now_locker` - BOX NOW Locker
-            * `acs_smartpoint` - ACS Smartpoint
         canBeCanceled:
           type: boolean
           readOnly: true
@@ -33347,20 +33557,24 @@ components:
       - RECEIPT
       - INVOICE
       type: string
-      description: |-
-        * `RECEIPT` - Receipt
-        * `INVOICE` - Invoice
+      description: '* `RECEIPT` - Receipt
+
+        * `INVOICE` - Invoice'
     OrderCreateFromCartRequest:
       type: object
-      description: |-
-        Serializer for creating orders from cart (dual-flow payment architecture).
+      description: 'Serializer for creating orders from cart (dual-flow payment architecture).
+
 
         This serializer supports two payment flows:
+
         1. Online payments (is_online_payment=True): Requires payment_intent_id
+
         2. Offline payments (is_online_payment=False): No payment_intent_id required
 
+
         The order is created from an existing cart identified via X-Cart-Id header.
-        Cart is NOT sent in request body - it's retrieved from the header using CartService.
+
+        Cart is NOT sent in request body - it''s retrieved from the header using CartService.'
       properties:
         payWayId:
           type: integer
@@ -33434,26 +33648,18 @@ components:
           allOf:
           - $ref: '#/components/schemas/OrderCreateDocumentType'
           default: RECEIPT
-          description: |-
-            RECEIPT (Α.Λ.Π., Tier A — retail) or INVOICE (Τιμολόγιο Πώλησης, Tier B — B2B). Selecting INVOICE requires a valid ``billing_vat_id``.
+          description: 'RECEIPT (Α.Λ.Π., Tier A — retail) or INVOICE (Τιμολόγιο Πώλησης,
+            Tier B — B2B). Selecting INVOICE requires a valid ``billing_vat_id``.
+
 
             * `RECEIPT` - Receipt
-            * `INVOICE` - Invoice
+
+            * `INVOICE` - Invoice'
         loyaltyPointsToRedeem:
           type: integer
           minimum: 0
           nullable: true
           description: Number of loyalty points to redeem for discount on this order
-        shippingMethod:
-          allOf:
-          - $ref: '#/components/schemas/ShippingMethodEnum'
-          default: home_delivery
-          description: |-
-            Shipping method for this order
-
-            * `home_delivery` - Home delivery
-            * `box_now_locker` - BOX NOW Locker
-            * `acs_smartpoint` - ACS Smartpoint
         boxnowLockerId:
           type: string
           description: BoxNow APM locker ID from the widget
@@ -33472,11 +33678,12 @@ components:
         shippingKind:
           allOf:
           - $ref: '#/components/schemas/ShippingKind'
-          description: |-
-            Generic fulfilment kind, independent of provider.
+          description: 'Generic fulfilment kind, independent of provider.
+
 
             * `home_delivery` - Home delivery
-            * `pickup_point` - Pickup point / locker
+
+            * `pickup_point` - Pickup point / locker'
         acsStationExternalId:
           type: string
           description: ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).
@@ -33639,15 +33846,6 @@ components:
         paymentMethod:
           type: string
           maxLength: 50
-        shippingMethod:
-          allOf:
-          - $ref: '#/components/schemas/ShippingMethodEnum'
-          description: |-
-            Legacy enum kept for backwards compatibility. New code reads the (shipping_provider, shipping_kind) pair instead — both fields are dual-written by OrderService until Phase 3 of the shipping abstraction migration.
-
-            * `home_delivery` - Home delivery
-            * `box_now_locker` - BOX NOW Locker
-            * `acs_smartpoint` - ACS Smartpoint
         canBeCanceled:
           type: boolean
           readOnly: true
@@ -33728,7 +33926,7 @@ components:
           - $ref: '#/components/schemas/BoxNowShipmentDetail'
           nullable: true
           readOnly: true
-          description: BoxNow shipment details when shipping_method is 'box_now_locker',
+          description: BoxNow shipment details when shipping_provider.code is 'boxnow',
             else null.
         acsShipment:
           allOf:
@@ -33815,13 +34013,17 @@ components:
       - RETURN_LABEL
       - CREDIT_NOTE
       type: string
-      description: |-
-        * `RECEIPT` - Receipt
+      description: '* `RECEIPT` - Receipt
+
         * `INVOICE` - Invoice
+
         * `PROFORMA` - Proforma Invoice
+
         * `SHIPPING_LABEL` - Shipping Label
+
         * `RETURN_LABEL` - Return Label
-        * `CREDIT_NOTE` - Credit Note
+
+        * `CREDIT_NOTE` - Credit Note'
     OrderItem:
       type: object
       properties:
@@ -34049,15 +34251,21 @@ components:
       - RETURNED
       - REFUNDED
       type: string
-      description: |-
-        * `PENDING` - Pending
+      description: '* `PENDING` - Pending
+
         * `PROCESSING` - Processing
+
         * `SHIPPED` - Shipped
+
         * `DELIVERED` - Delivered
+
         * `COMPLETED` - Completed
+
         * `CANCELED` - Canceled
+
         * `RETURNED` - Returned
-        * `REFUNDED` - Refunded
+
+        * `REFUNDED` - Refunded'
     OrderWriteRequest:
       type: object
       properties:
@@ -36137,16 +36345,22 @@ components:
         category:
           allOf:
           - $ref: '#/components/schemas/TopicCategory'
-          description: |-
-            Category of the subscription topic
+          description: 'Category of the subscription topic
+
 
             * `MARKETING` - Marketing Campaigns
+
             * `PRODUCT` - Product Updates
+
             * `ACCOUNT` - Account Updates
+
             * `SYSTEM` - System Notifications
+
             * `NEWSLETTER` - Newsletter
+
             * `PROMOTIONAL` - Promotional
-            * `OTHER` - Other
+
+            * `OTHER` - Other'
         isActive:
           type: boolean
           title: Active
@@ -36651,9 +36865,9 @@ components:
       - prepaid
       - cod
       type: string
-      description: |-
-        * `prepaid` - Prepaid
-        * `cod` - Cash on delivery
+      description: '* `prepaid` - Prepaid
+
+        * `cod` - Cash on delivery'
     PaymentStatusEnum:
       enum:
       - PENDING
@@ -36664,14 +36878,19 @@ components:
       - PARTIALLY_REFUNDED
       - CANCELED
       type: string
-      description: |-
-        * `PENDING` - Pending
+      description: '* `PENDING` - Pending
+
         * `PROCESSING` - Processing
+
         * `COMPLETED` - Completed
+
         * `FAILED` - Failed
+
         * `REFUNDED` - Refunded
+
         * `PARTIALLY_REFUNDED` - Partially Refunded
-        * `CANCELED` - Canceled
+
+        * `CANCELED` - Canceled'
     PaymentStatusResponse:
       type: object
       properties:
@@ -36760,12 +36979,15 @@ components:
       - URGENT
       - CRITICAL
       type: string
-      description: |-
-        * `LOW` - Low Priority
+      description: '* `LOW` - Low Priority
+
         * `NORMAL` - Normal Priority
+
         * `HIGH` - High Priority
+
         * `URGENT` - Urgent Priority
-        * `CRITICAL` - Critical Priority
+
+        * `CRITICAL` - Critical Priority'
     Product:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -37002,9 +37224,9 @@ components:
       - restock
       - price_drop
       type: string
-      description: |-
-        * `restock` - Restock
-        * `price_drop` - Price drop
+      description: '* `restock` - Restock
+
+        * `price_drop` - Price drop'
     ProductAlertRequest:
       type: object
       properties:
@@ -38578,17 +38800,25 @@ components:
       - 9
       - 10
       type: integer
-      description: |-
-        * `1` - One
+      description: '* `1` - One
+
         * `2` - Two
+
         * `3` - Three
+
         * `4` - Four
+
         * `5` - Five
+
         * `6` - Six
+
         * `7` - Seven
+
         * `8` - Eight
+
         * `9` - Nine
-        * `10` - Ten
+
+        * `10` - Ten'
     RedeemPointsRequestRequest:
       type: object
       description: Serializer for validating a points redemption request.
@@ -38600,11 +38830,12 @@ components:
         currency:
           allOf:
           - $ref: '#/components/schemas/CurrencyEnum'
-          description: |-
-            Currency for the monetary discount (EUR or USD).
+          description: 'Currency for the monetary discount (EUR or USD).
+
 
             * `EUR` - EUR
-            * `USD` - USD
+
+            * `USD` - USD'
         orderId:
           type: integer
           minimum: 1
@@ -38870,10 +39101,11 @@ components:
       - 'TRUE'
       - 'FALSE'
       type: string
-      description: |-
-        * `NEW` - New
+      description: '* `NEW` - New
+
         * `TRUE` - True
-        * `FALSE` - False
+
+        * `FALSE` - False'
     SearchAnalyticsResponse:
       type: object
       description: Serializer for search analytics response.
@@ -38969,44 +39201,45 @@ components:
       - canceled
       - lost
       type: string
-      description: |-
-        * `pending_creation` - Pending creation
+      description: '* `pending_creation` - Pending creation
+
         * `new` - New
+
         * `in_transit` - In transit
+
         * `at_destination` - At destination station
+
         * `out_for_delivery` - Out for delivery
+
         * `delivered` - Delivered
+
         * `attempted` - Delivery attempted
+
         * `returned` - Returned
+
         * `canceled` - Canceled
-        * `lost` - Lost
+
+        * `lost` - Lost'
     ShippingKind:
       enum:
       - home_delivery
       - pickup_point
       type: string
-      description: |-
-        * `home_delivery` - Home delivery
-        * `pickup_point` - Pickup point / locker
-    ShippingMethodEnum:
-      enum:
-      - home_delivery
-      - box_now_locker
-      - acs_smartpoint
-      type: string
-      description: |-
-        * `home_delivery` - Home delivery
-        * `box_now_locker` - BOX NOW Locker
-        * `acs_smartpoint` - ACS Smartpoint
+      description: '* `home_delivery` - Home delivery
+
+        * `pickup_point` - Pickup point / locker'
     ShippingOption:
       type: object
-      description: |-
-        One row in the checkout shipping-method radio.
+      description: 'One row in the checkout shipping-method radio.
+
 
         Returned by :class:`shipping.views.ShippingOptionsView`.  The
+
         frontend renders one card per row; the ``kind`` value tells it
+
         whether to show a locker picker, and ``provider_code`` tells it
-        which picker variant (BoxNow widget vs ACS server-side list).
+
+        which picker variant (BoxNow widget vs ACS server-side list).'
       properties:
         providerCode:
           type: string
@@ -39113,14 +39346,19 @@ components:
       - 7
       - 8
       type: integer
-      description: |-
-        * `1` - Shop
+      description: '* `1` - Shop
+
         * `2` - Partner shop (2)
+
         * `3` - Partner shop (3)
+
         * `4` - Xpress Point
+
         * `5` - Kiosk
+
         * `7` - Smartpoint (inbound)
-        * `8` - Smartpoint (outbound)
+
+        * `8` - Smartpoint (outbound)'
     SubscriptionStatus:
       enum:
       - ACTIVE
@@ -39128,11 +39366,13 @@ components:
       - UNSUBSCRIBED
       - BOUNCED
       type: string
-      description: |-
-        * `ACTIVE` - Active
+      description: '* `ACTIVE` - Active
+
         * `PENDING` - Pending Confirmation
+
         * `UNSUBSCRIBED` - Unsubscribed
-        * `BOUNCED` - Bounced
+
+        * `BOUNCED` - Bounced'
     SubscriptionTopic:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -39176,16 +39416,22 @@ components:
         category:
           allOf:
           - $ref: '#/components/schemas/TopicCategory'
-          description: |-
-            Category of the subscription topic
+          description: 'Category of the subscription topic
+
 
             * `MARKETING` - Marketing Campaigns
+
             * `PRODUCT` - Product Updates
+
             * `ACCOUNT` - Account Updates
+
             * `SYSTEM` - System Notifications
+
             * `NEWSLETTER` - Newsletter
+
             * `PROMOTIONAL` - Promotional
-            * `OTHER` - Other
+
+            * `OTHER` - Other'
         isActive:
           type: boolean
           title: Active
@@ -39249,16 +39495,22 @@ components:
         category:
           allOf:
           - $ref: '#/components/schemas/TopicCategory'
-          description: |-
-            Category of the subscription topic
+          description: 'Category of the subscription topic
+
 
             * `MARKETING` - Marketing Campaigns
+
             * `PRODUCT` - Product Updates
+
             * `ACCOUNT` - Account Updates
+
             * `SYSTEM` - System Notifications
+
             * `NEWSLETTER` - Newsletter
+
             * `PROMOTIONAL` - Promotional
-            * `OTHER` - Other
+
+            * `OTHER` - Other'
         isActive:
           type: boolean
           title: Active
@@ -39326,16 +39578,22 @@ components:
         category:
           allOf:
           - $ref: '#/components/schemas/TopicCategory'
-          description: |-
-            Category of the subscription topic
+          description: 'Category of the subscription topic
+
 
             * `MARKETING` - Marketing Campaigns
+
             * `PRODUCT` - Product Updates
+
             * `ACCOUNT` - Account Updates
+
             * `SYSTEM` - System Notifications
+
             * `NEWSLETTER` - Newsletter
+
             * `PROMOTIONAL` - Promotional
-            * `OTHER` - Other
+
+            * `OTHER` - Other'
         isActive:
           type: boolean
           title: Active
@@ -39667,14 +39925,19 @@ components:
       - PROMOTIONAL
       - OTHER
       type: string
-      description: |-
-        * `MARKETING` - Marketing Campaigns
+      description: '* `MARKETING` - Marketing Campaigns
+
         * `PRODUCT` - Product Updates
+
         * `ACCOUNT` - Account Updates
+
         * `SYSTEM` - System Notifications
+
         * `NEWSLETTER` - Newsletter
+
         * `PROMOTIONAL` - Promotional
-        * `OTHER` - Other
+
+        * `OTHER` - Other'
     TransactionTypeEnum:
       enum:
       - EARN
@@ -39683,12 +39946,15 @@ components:
       - ADJUST
       - BONUS
       type: string
-      description: |-
-        * `EARN` - Earn
+      description: '* `EARN` - Earn
+
         * `REDEEM` - Redeem
+
         * `EXPIRE` - Expire
+
         * `ADJUST` - Adjust
-        * `BONUS` - Bonus
+
+        * `BONUS` - Bonus'
     TrendingSearchItem:
       type: object
       description: 'One trending search result: a query string + its occurrence count.'
@@ -39704,12 +39970,14 @@ components:
       - query
     TrendingSearchResponse:
       type: object
-      description: |-
-        Response payload for ``listTrendingSearches``.
+      description: 'Response payload for ``listTrendingSearches``.
+
 
         The shape mirrors what the view caches in Redis so drf-spectacular
+
         can resolve a concrete schema (otherwise it falls back to
-        ``unable to guess serializer`` and emits a W002 warning).
+
+        ``unable to guess serializer`` and emits a W002 warning).'
       properties:
         windowHours:
           type: integer
@@ -39736,11 +40004,13 @@ components:
       - warehouse
       - depot
       type: string
-      description: |-
-        * `apm` - APM
+      description: '* `apm` - APM
+
         * `any_apm` - Any APM
+
         * `warehouse` - Warehouse
-        * `depot` - Depot
+
+        * `depot` - Depot'
     UnsubscribeResponse:
       type: object
       properties:

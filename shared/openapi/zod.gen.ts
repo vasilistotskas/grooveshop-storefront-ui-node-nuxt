@@ -2646,6 +2646,54 @@ export const zOrderItemDetail = z.object({
   notes: z.string().optional(),
 })
 
+export const zOrder = z.object({
+  id: z.int().readonly(),
+  user: z.int().nullish(),
+  country: z.string().nullable(),
+  region: z.string().nullable(),
+  floor: z.union([
+    zFloorEnum,
+    zBlankEnum,
+  ]).optional(),
+  locationType: z.union([
+    zLocationTypeEnum,
+    zBlankEnum,
+  ]).optional(),
+  street: z.string().max(255),
+  streetNumber: z.string().max(255),
+  payWay: z.int().nullable(),
+  status: zOrderStatus.optional(),
+  statusDisplay: z.string().readonly(),
+  statusUpdatedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  firstName: z.string().max(255),
+  lastName: z.string().max(255),
+  email: z.email().max(255),
+  zipcode: z.string().max(255),
+  place: z.string().max(255).optional(),
+  city: z.string().max(255),
+  phone: z.string(),
+  customerNotes: z.string().optional(),
+  paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  items: z.array(zOrderItemDetail),
+  shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  documentType: zOrderDocumentType.optional(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  fullAddress: z.string().readonly(),
+  paymentId: z.string().max(255).nullish(),
+  paymentStatus: z.union([
+    zPaymentStatusEnum,
+    zBlankEnum,
+  ]).optional(),
+  paymentMethod: z.string().max(50).optional(),
+  canBeCanceled: z.boolean().readonly(),
+  isPaid: z.boolean().readonly(),
+})
+
 export const zPaginatedCartItemList = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -2670,6 +2718,19 @@ export const zPaginatedCartList = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zCart),
+})
+
+export const zPaginatedOrderList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zOrder),
 })
 
 export const zPaginatedProductList = z.object({
@@ -3613,68 +3674,6 @@ export const zShippingKind = z.enum(['home_delivery', 'pickup_point']).register(
 })
 
 /**
- * * `home_delivery` - Home delivery
- * * `box_now_locker` - BOX NOW Locker
- * * `acs_smartpoint` - ACS Smartpoint
- */
-export const zShippingMethodEnum = z.enum([
-  'home_delivery',
-  'box_now_locker',
-  'acs_smartpoint',
-]).register(z.globalRegistry, {
-  description: '* `home_delivery` - Home delivery\n* `box_now_locker` - BOX NOW Locker\n* `acs_smartpoint` - ACS Smartpoint',
-})
-
-export const zOrder = z.object({
-  id: z.int().readonly(),
-  user: z.int().nullish(),
-  country: z.string().nullable(),
-  region: z.string().nullable(),
-  floor: z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ]).optional(),
-  locationType: z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ]).optional(),
-  street: z.string().max(255),
-  streetNumber: z.string().max(255),
-  payWay: z.int().nullable(),
-  status: zOrderStatus.optional(),
-  statusDisplay: z.string().readonly(),
-  statusUpdatedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  firstName: z.string().max(255),
-  lastName: z.string().max(255),
-  email: z.email().max(255),
-  zipcode: z.string().max(255),
-  place: z.string().max(255).optional(),
-  city: z.string().max(255),
-  phone: z.string(),
-  customerNotes: z.string().optional(),
-  paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  items: z.array(zOrderItemDetail),
-  shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  documentType: zOrderDocumentType.optional(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  fullAddress: z.string().readonly(),
-  paymentId: z.string().max(255).nullish(),
-  paymentStatus: z.union([
-    zPaymentStatusEnum,
-    zBlankEnum,
-  ]).optional(),
-  paymentMethod: z.string().max(50).optional(),
-  shippingMethod: zShippingMethodEnum.optional(),
-  canBeCanceled: z.boolean().readonly(),
-  isPaid: z.boolean().readonly(),
-})
-
-/**
  * Serializer for creating orders from cart (dual-flow payment architecture).
  *
  * This serializer supports two payment flows:
@@ -3728,7 +3727,6 @@ export const zOrderCreateFromCartRequest = z.object({
   }).optional(),
   documentType: zOrderCreateDocumentType.optional(),
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
-  shippingMethod: zShippingMethodEnum.optional(),
   boxnowLockerId: z.string().max(64).register(z.globalRegistry, {
     description: 'BoxNow APM locker ID from the widget',
   }).optional(),
@@ -3748,19 +3746,6 @@ export const zOrderCreateFromCartRequest = z.object({
   acsChargeType: zAcsChargeType.optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',
-})
-
-export const zPaginatedOrderList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zOrder),
 })
 
 /**
@@ -4595,7 +4580,6 @@ export const zOrderDetail = z.object({
     zBlankEnum,
   ]).optional(),
   paymentMethod: z.string().max(50).optional(),
-  shippingMethod: zShippingMethodEnum.optional(),
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
   orderTimeline: z.array(z.object({
@@ -5719,7 +5703,6 @@ export const zOrderWritable = z.object({
     zBlankEnum,
   ]).optional(),
   paymentMethod: z.string().max(50).optional(),
-  shippingMethod: zShippingMethodEnum.optional(),
 })
 
 export const zOrderDetailWritable = z.object({
@@ -5753,7 +5736,6 @@ export const zOrderDetailWritable = z.object({
     zBlankEnum,
   ]).optional(),
   paymentMethod: z.string().max(50).optional(),
-  shippingMethod: zShippingMethodEnum.optional(),
   trackingNumber: z.string().max(255).optional(),
   shippingCarrier: z.string().max(255).optional(),
 })
@@ -12209,8 +12191,11 @@ export const zListPayWayQuery = z.object({
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
-  shippingMethod: z.string().register(z.globalRegistry, {
-    description: 'Filter pay ways compatible with the given shipping method. When \'box_now_locker\', only online-payment pay ways are returned.',
+  shippingKind: z.string().register(z.globalRegistry, {
+    description: 'Pair with ``shippingProviderCode`` to filter pay ways by the carrier\'s compatibility rules for that kind.',
+  }).optional(),
+  shippingProviderCode: z.string().register(z.globalRegistry, {
+    description: 'Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) rejects COD on locker pickup; other carriers pass through unchanged. Pair with ``shippingKind``.',
   }).optional(),
   sortOrder: z.union([
     z.string().regex(/^-?\d+$/),

@@ -585,15 +585,28 @@ export async function useCheckoutForm() {
       }).catch(() => null),
     ),
     useAsyncData<Pagination<PayWay> | null>(
-      () => `checkout:pay-ways:${locale.value}:${formState.shippingMethod}`,
-      () => $fetch<Pagination<PayWay>>('/api/pay-way', {
-        method: 'GET',
-        query: {
-          languageCode: locale.value,
-          shippingMethod: formState.shippingMethod,
-        },
-        headers: useRequestHeaders(),
-      }).catch(() => null),
+      () => {
+        const carrier = carrierForMethod(formState.shippingMethod)
+        const kind = formState.shippingMethod === 'home_delivery'
+          ? 'home_delivery'
+          : 'pickup_point'
+        return `checkout:pay-ways:${locale.value}:${carrier?.code ?? '-'}:${kind}`
+      },
+      () => {
+        const carrier = carrierForMethod(formState.shippingMethod)
+        const kind = formState.shippingMethod === 'home_delivery'
+          ? 'home_delivery'
+          : 'pickup_point'
+        return $fetch<Pagination<PayWay>>('/api/pay-way', {
+          method: 'GET',
+          query: {
+            languageCode: locale.value,
+            shippingProviderCode: carrier?.code,
+            shippingKind: kind,
+          },
+          headers: useRequestHeaders(),
+        }).catch(() => null)
+      },
     ),
     useAsyncData<UserAddressDetail | null>(
       'checkout:main-address',

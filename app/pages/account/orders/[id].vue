@@ -1046,9 +1046,10 @@ definePageMeta({
       </UCard>
     </div>
 
-    <!-- BoxNow tracking card — rendered for box_now_locker shipping method. -->
+    <!-- BoxNow tracking card — rendered for orders attached to the
+         BoxNow carrier via the registry-backed shipping_provider FK. -->
     <OrderBoxNowTracking
-      v-if="order.shippingMethod === 'box_now_locker' && order.boxnowShipment"
+      v-if="order.shippingProvider?.code === 'boxnow' && order.boxnowShipment"
       :shipment="order.boxnowShipment"
       :order-id="order.id"
     />
@@ -1062,7 +1063,7 @@ definePageMeta({
 
     <!-- Generic carrier tracking — only shown when no provider-specific
          widget is rendered above (BoxNow / ACS each show their own). -->
-    <UCard v-if="order.trackingDetails && order.trackingDetails.hasTracking && order.shippingMethod !== 'box_now_locker' && !order.acsShipment">
+    <UCard v-if="order.trackingDetails && order.trackingDetails.hasTracking && order.shippingProvider?.code !== 'boxnow' && !order.acsShipment">
       <template #header>
         <div class="flex w-full items-center justify-between">
           <UCollapsible v-model:open="sectionsState.trackingInfo" class="flex-1">

@@ -127,6 +127,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
 
     const isBoxNow = formState.shippingMethod === 'box_now_locker'
     const isAcsSmartpoint = formState.shippingMethod === 'acs_smartpoint'
+    // Map the local UI radio selection to the registry-driven
+    // (provider_code, kind) pair the API expects. Home delivery
+    // sends only ``shipping_kind`` and lets Django's dynamic
+    // auto-router pick the active home-delivery provider.
+    const carrier = carrierForMethod(formState.shippingMethod)
+    const shippingKind = formState.shippingMethod === 'home_delivery'
+      ? 'home_delivery'
+      : 'pickup_point'
 
     return {
       payWayId: formState.payWayId,
@@ -152,15 +160,12 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       billingVatId: formState.billingVatId || undefined,
       billingCountry: formState.billingCountry || undefined,
       loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
-      // formState.shippingMethod is already lowercase per ShippingMethodEnum
-      // (home_delivery | box_now_locker | acs_smartpoint) — no transform.
-      shippingMethod: formState.shippingMethod,
+      shippingProviderCode: carrier?.code,
+      shippingKind,
       ...(isBoxNow && {
         boxnowLockerId: formState.boxnowLockerId,
         boxnowCompartmentSize: formState.boxnowCompartmentSize,
       }),
-      // ACS Smartpoint pickup — backend resolves provider+kind from the
-      // legacy enum value and reads station fields off the payload.
       ...(isAcsSmartpoint && {
         acsStationExternalId: formState.acsStationExternalId,
         acsStationBranch: formState.acsStationBranch,
