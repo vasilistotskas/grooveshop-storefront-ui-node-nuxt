@@ -1,3 +1,10 @@
+## [3.103.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.103.3...v3.103.4) (2026-04-30)
+
+
+### Bug Fixes
+
+* **checkout:** work around @nuxtjs/leaflet markercluster constructor bug ([810adc0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/810adc069cb88ddaa477c49283ec9cb5112ad0c1))
+
 ## [3.103.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.103.2...v3.103.3) (2026-04-30)
 
 
