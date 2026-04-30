@@ -269,7 +269,7 @@ const customerInitials = computed(() => {
                 <UFieldGroup>
                   <UBadge
                     :color="paymentColor"
-                    :label="order.paymentStatus"
+                    :label="order.paymentStatusDisplay || order.paymentStatus"
                     variant="soft"
                     size="md"
                   />

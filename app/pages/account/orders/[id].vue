@@ -148,11 +148,15 @@ const orderAlert = computed(() => {
   // defensively so a stray ``CANCELLED`` in historical metadata doesn't
   // silently fall through.
   if (status === 'canceled' || status === 'cancelled') {
+    // Surface the operator-supplied cancellation reason when the
+    // backend captured one — falls back to the generic copy so we
+    // never render an empty-string description.
+    const reason = order.value?.cancellation?.reason?.trim()
     return {
       show: true,
       color: 'error' as const,
       title: t('order_cancelled'),
-      description: t('order_cancelled_desc'),
+      description: reason || t('order_cancelled_desc'),
       icon: 'i-heroicons-x-circle',
     }
   }
@@ -167,12 +171,23 @@ const orderAlert = computed(() => {
     }
   }
 
-  if (order.value?.pricingBreakdown?.remainingAmount && order.value.pricingBreakdown.remainingAmount > 0) {
+  // ``remainingAmount`` is always positive for cash-on-delivery /
+  // bank-transfer orders because the customer paid €0 at checkout
+  // by design; the alert is only meaningful for online pay ways
+  // where a non-zero remaining balance signals an actual unfinished
+  // payment. Suppress for offline pay ways. ``isOnlinePayment``
+  // ships from OrderDetailSerializer.get_is_online_payment.
+  const remaining = order.value?.pricingBreakdown?.remainingAmount
+  if (
+    remaining
+    && remaining > 0
+    && order.value?.isOnlinePayment
+  ) {
     return {
       show: true,
       color: 'warning' as const,
       title: t('payment_pending'),
-      description: t('payment_pending_desc', { amount: $i18n.n(order.value.pricingBreakdown.remainingAmount, 'currency') }),
+      description: t('payment_pending_desc', { amount: $i18n.n(remaining, 'currency') }),
       icon: 'i-heroicons-credit-card',
     }
   }
@@ -453,7 +468,7 @@ definePageMeta({
         <UBadge
           v-if="order.paymentStatus"
           :color="getPaymentStatusColor(order.paymentStatus)"
-          :label="order.paymentStatus"
+          :label="order.paymentStatusDisplay || order.paymentStatus"
           variant="subtle"
           size="lg"
           icon="i-heroicons-credit-card"

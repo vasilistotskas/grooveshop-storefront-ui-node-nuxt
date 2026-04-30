@@ -19638,6 +19638,7 @@
                         "name": "paymentStatus",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση πληρωμής",
                             "enum": [
                                 "CANCELED",
                                 "COMPLETED",
@@ -19648,7 +19649,7 @@
                                 "REFUNDED"
                             ]
                         },
-                        "description": "Filter by payment status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled"
+                        "description": "Filter by payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε"
                     },
                     {
                         "in": "query",
@@ -19829,6 +19830,7 @@
                         "name": "status",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση",
                             "enum": [
                                 "CANCELED",
                                 "COMPLETED",
@@ -19840,7 +19842,7 @@
                                 "SHIPPED"
                             ]
                         },
-                        "description": "Filter by order status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded"
+                        "description": "Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επεστράφη"
                     },
                     {
                         "in": "query",
@@ -20162,8 +20164,8 @@
             },
             "post": {
                 "operationId": "createOrder",
-                "description": "Create a new Ταξινόμηση. Requires authentication.",
-                "summary": "Create a Ταξινόμηση",
+                "description": "Create a new Παραγγελία. Requires authentication.",
+                "summary": "Create a Παραγγελία",
                 "parameters": [
                     {
                         "in": "query",
@@ -20278,8 +20280,8 @@
         "/api/v1/order-items": {
             "get": {
                 "operationId": "listOrderItem",
-                "description": "Retrieve a list of Order Items with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
-                "summary": "List Order Items",
+                "description": "Retrieve a list of Προϊόντα Παραγγελίας with filtering and search capabilities. Supports multiple pagination strategies: pageNumber (default), cursor, and limitOffset.",
+                "summary": "List Προϊόντα Παραγγελίας",
                 "parameters": [
                     {
                         "in": "query",
@@ -20596,6 +20598,7 @@
                         "name": "order_PaymentStatus",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση πληρωμής",
                             "enum": [
                                 "CANCELED",
                                 "COMPLETED",
@@ -20606,7 +20609,7 @@
                                 "REFUNDED"
                             ]
                         },
-                        "description": "Filter by order payment status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled"
+                        "description": "Filter by order payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε"
                     },
                     {
                         "in": "query",
@@ -20621,6 +20624,7 @@
                         "name": "order_Status",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση",
                             "enum": [
                                 "CANCELED",
                                 "COMPLETED",
@@ -20632,7 +20636,7 @@
                                 "SHIPPED"
                             ]
                         },
-                        "description": "Filter by order status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded"
+                        "description": "Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επεστράφη"
                     },
                     {
                         "in": "query",
@@ -22034,8 +22038,8 @@
         "/api/v1/order/{id}": {
             "get": {
                 "operationId": "retrieveOrder",
-                "description": "Get detailed information about a specific Ταξινόμηση.",
-                "summary": "Retrieve a Ταξινόμηση",
+                "description": "Get detailed information about a specific Παραγγελία.",
+                "summary": "Retrieve a Παραγγελία",
                 "parameters": [
                     {
                         "in": "path",
@@ -22134,8 +22138,8 @@
             },
             "put": {
                 "operationId": "updateOrder",
-                "description": "Update Ταξινόμηση information. Requires authentication.",
-                "summary": "Update a Ταξινόμηση",
+                "description": "Update Παραγγελία information. Requires authentication.",
+                "summary": "Update a Παραγγελία",
                 "parameters": [
                     {
                         "in": "path",
@@ -22264,8 +22268,8 @@
             },
             "patch": {
                 "operationId": "partialUpdateOrder",
-                "description": "Partially update Ταξινόμηση information. Requires authentication.",
-                "summary": "Partially update a Ταξινόμηση",
+                "description": "Partially update Παραγγελία information. Requires authentication.",
+                "summary": "Partially update a Παραγγελία",
                 "parameters": [
                     {
                         "in": "path",
@@ -22393,8 +22397,8 @@
             },
             "delete": {
                 "operationId": "destroyOrder",
-                "description": "Delete a Ταξινόμηση. Requires authentication.",
-                "summary": "Delete a Ταξινόμηση",
+                "description": "Delete a Παραγγελία. Requires authentication.",
+                "summary": "Delete a Παραγγελία",
                 "parameters": [
                     {
                         "in": "path",
@@ -24704,6 +24708,7 @@
                         "name": "paymentStatus",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση πληρωμής",
                             "enum": [
                                 "CANCELED",
                                 "COMPLETED",
@@ -24714,7 +24719,7 @@
                                 "REFUNDED"
                             ]
                         },
-                        "description": "Filter by payment status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled"
+                        "description": "Filter by payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε"
                     },
                     {
                         "in": "query",
@@ -24895,6 +24900,7 @@
                         "name": "status",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση",
                             "enum": [
                                 "CANCELED",
                                 "COMPLETED",
@@ -24906,7 +24912,7 @@
                                 "SHIPPED"
                             ]
                         },
-                        "description": "Filter by order status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded"
+                        "description": "Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επεστράφη"
                     },
                     {
                         "in": "query",
@@ -27383,8 +27389,8 @@
             },
             "post": {
                 "operationId": "createProduct",
-                "description": "Create a new Product. Requires authentication.",
-                "summary": "Create a Product",
+                "description": "Create a new Προϊόν. Requires authentication.",
+                "summary": "Create a Προϊόν",
                 "parameters": [
                     {
                         "in": "query",
@@ -27499,8 +27505,8 @@
         "/api/v1/product/{id}": {
             "get": {
                 "operationId": "retrieveProduct",
-                "description": "Get detailed information about a specific Product.",
-                "summary": "Retrieve a Product",
+                "description": "Get detailed information about a specific Προϊόν.",
+                "summary": "Retrieve a Προϊόν",
                 "parameters": [
                     {
                         "in": "path",
@@ -27600,8 +27606,8 @@
             },
             "put": {
                 "operationId": "updateProduct",
-                "description": "Update Product information. Requires authentication.",
-                "summary": "Update a Product",
+                "description": "Update Προϊόν information. Requires authentication.",
+                "summary": "Update a Προϊόν",
                 "parameters": [
                     {
                         "in": "path",
@@ -27730,8 +27736,8 @@
             },
             "patch": {
                 "operationId": "partialUpdateProduct",
-                "description": "Partially update Product information. Requires authentication.",
-                "summary": "Partially update a Product",
+                "description": "Partially update Προϊόν information. Requires authentication.",
+                "summary": "Partially update a Προϊόν",
                 "parameters": [
                     {
                         "in": "path",
@@ -27859,8 +27865,8 @@
             },
             "delete": {
                 "operationId": "destroyProduct",
-                "description": "Delete a Product. Requires authentication.",
-                "summary": "Delete a Product",
+                "description": "Delete a Προϊόν. Requires authentication.",
+                "summary": "Delete a Προϊόν",
                 "parameters": [
                     {
                         "in": "path",
@@ -36315,6 +36321,7 @@
                         "name": "status",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση",
                             "enum": [
                                 "FALSE",
                                 "NEW",
@@ -46024,6 +46031,7 @@
                         "name": "status",
                         "schema": {
                             "type": "string",
+                            "title": "Κατάσταση",
                             "enum": [
                                 "ACTIVE",
                                 "BOUNCED",
@@ -46031,7 +46039,7 @@
                                 "UNSUBSCRIBED"
                             ]
                         },
-                        "description": "Filter by subscription status\n\n* `ACTIVE` - Active\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced"
+                        "description": "Filter by subscription status\n\n* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced"
                     },
                     {
                         "in": "query",
@@ -46096,6 +46104,7 @@
                         "name": "topicCategory",
                         "schema": {
                             "type": "string",
+                            "title": "Κατηγορία",
                             "enum": [
                                 "ACCOUNT",
                                 "MARKETING",
@@ -46106,7 +46115,7 @@
                                 "SYSTEM"
                             ]
                         },
-                        "description": "Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "description": "Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     {
                         "in": "query",
@@ -47145,6 +47154,7 @@
                         "name": "category",
                         "schema": {
                             "type": "string",
+                            "title": "Κατηγορία",
                             "enum": [
                                 "ACCOUNT",
                                 "MARKETING",
@@ -47155,7 +47165,7 @@
                                 "SYSTEM"
                             ]
                         },
-                        "description": "Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "description": "Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     {
                         "in": "query",
@@ -49410,7 +49420,8 @@
                         }
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "sortOrder": {
                         "type": "integer",
@@ -49498,7 +49509,8 @@
                         }
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "sortOrder": {
                         "type": "integer",
@@ -51161,7 +51173,8 @@
                         }
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "sortOrder": {
                         "type": "integer",
@@ -51237,7 +51250,8 @@
                         }
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "sortOrder": {
                         "type": "integer",
@@ -51309,7 +51323,8 @@
                         }
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     }
                 },
                 "required": [
@@ -51754,7 +51769,7 @@
                             }
                         ],
                         "readOnly": true,
-                        "description": "BoxNow event mapped from the webhook 'event' field\n\n* `pending_creation` - Pending creation\n* `new` - New\n* `in_depot` - In depot\n* `final_destination` - At locker\n* `delivered` - Delivered\n* `returned` - Returned\n* `expired` - Expired\n* `canceled` - Canceled\n* `accepted_for_return` - Accepted for return\n* `accepted_to_locker` - Accepted to locker\n* `missing` - Missing\n* `lost` - Lost"
+                        "description": "BoxNow event mapped from the webhook 'event' field\n\n* `pending_creation` - Pending creation\n* `new` - New\n* `in_depot` - In depot\n* `final_destination` - At locker\n* `delivered` - Παραδόθηκε\n* `returned` - Επιστράφηκε\n* `expired` - Expired\n* `canceled` - Ακυρώθηκε\n* `accepted_for_return` - Accepted for return\n* `accepted_to_locker` - Accepted to locker\n* `missing` - Missing\n* `lost` - Lost"
                     },
                     "eventTypeDisplay": {
                         "type": "string",
@@ -51828,7 +51843,7 @@
                     "lost"
                 ],
                 "type": "string",
-                "description": "* `pending_creation` - Pending creation\n* `new` - New\n* `in_depot` - In depot\n* `final_destination` - At locker\n* `delivered` - Delivered\n* `returned` - Returned\n* `expired` - Expired\n* `canceled` - Canceled\n* `accepted_for_return` - Accepted for return\n* `accepted_to_locker` - Accepted to locker\n* `missing` - Missing\n* `lost` - Lost"
+                "description": "* `pending_creation` - Pending creation\n* `new` - New\n* `in_depot` - In depot\n* `final_destination` - At locker\n* `delivered` - Παραδόθηκε\n* `returned` - Επιστράφηκε\n* `expired` - Expired\n* `canceled` - Ακυρώθηκε\n* `accepted_for_return` - Accepted for return\n* `accepted_to_locker` - Accepted to locker\n* `missing` - Missing\n* `lost` - Lost"
             },
             "BoxNowShipmentDetail": {
                 "type": "object",
@@ -52396,7 +52411,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": 0
+                        "minimum": 0,
+                        "title": "Ποσότητα"
                     },
                     "weightInfo": {
                         "type": "object",
@@ -52532,7 +52548,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": 0
+                        "minimum": 0,
+                        "title": "Ποσότητα"
                     }
                 },
                 "required": [
@@ -52561,7 +52578,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": 0
+                        "minimum": 0,
+                        "title": "Ποσότητα"
                     },
                     "weightInfo": {
                         "type": "object",
@@ -52703,7 +52721,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": 0
+                        "minimum": 0,
+                        "title": "Ποσότητα"
                     }
                 }
             },
@@ -53810,7 +53829,12 @@
                         "$ref": "#/components/schemas/NotificationKindEnum"
                     },
                     "category": {
-                        "$ref": "#/components/schemas/NotificationCategory"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/NotificationCategory"
+                            }
+                        ],
+                        "title": "Κατηγορία"
                     },
                     "priority": {
                         "$ref": "#/components/schemas/PriorityEnum"
@@ -53874,7 +53898,7 @@
                     "RECOMMENDATION"
                 ],
                 "type": "string",
-                "description": "* `ORDER` - Ταξινόμηση\n* `PAYMENT` - Payment\n* `SHIPPING` - Shipping\n* `CART` - Cart\n* `PRODUCT` - Product\n* `ACCOUNT` - Account\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - System\n* `REVIEW` - Review\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation"
+                "description": "* `ORDER` - Παραγγελία\n* `PAYMENT` - Πληρωμή\n* `SHIPPING` - Μεταφορικά\n* `CART` - Cart\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - System\n* `REVIEW` - Review\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation"
             },
             "NotificationCountResponse": {
                 "type": "object",
@@ -54129,7 +54153,12 @@
                         "nullable": true
                     },
                     "status": {
-                        "$ref": "#/components/schemas/OrderStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/OrderStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "statusDisplay": {
                         "type": "string",
@@ -54251,6 +54280,7 @@
                         "maxLength": 255
                     },
                     "paymentStatus": {
+                        "title": "Κατάσταση πληρωμής",
                         "oneOf": [
                             {
                                 "$ref": "#/components/schemas/PaymentStatusEnum"
@@ -54259,6 +54289,11 @@
                                 "$ref": "#/components/schemas/BlankEnum"
                             }
                         ]
+                    },
+                    "paymentStatusDisplay": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Localised label for ``payment_status`` (mirrors ``status_display``). Frontend renders this rather than the raw enum value so Greek/English/German locales all work without per-locale string maps in the UI."
                     },
                     "paymentMethod": {
                         "type": "string",
@@ -54288,6 +54323,7 @@
                     "paidAmount",
                     "payWay",
                     "paymentMethodFee",
+                    "paymentStatusDisplay",
                     "phone",
                     "region",
                     "shippingPrice",
@@ -54520,7 +54556,12 @@
                         "nullable": true
                     },
                     "status": {
-                        "$ref": "#/components/schemas/OrderStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/OrderStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "statusDisplay": {
                         "type": "string",
@@ -54643,6 +54684,7 @@
                         "maxLength": 255
                     },
                     "paymentStatus": {
+                        "title": "Κατάσταση πληρωμής",
                         "oneOf": [
                             {
                                 "$ref": "#/components/schemas/PaymentStatusEnum"
@@ -54651,6 +54693,11 @@
                                 "$ref": "#/components/schemas/BlankEnum"
                             }
                         ]
+                    },
+                    "paymentStatusDisplay": {
+                        "type": "string",
+                        "readOnly": true,
+                        "description": "Localised label for ``payment_status`` (mirrors ``status_display``). Frontend renders this rather than the raw enum value so Greek/English/German locales all work without per-locale string maps in the UI."
                     },
                     "paymentMethod": {
                         "type": "string",
@@ -54791,8 +54838,48 @@
                         "readOnly": true,
                         "description": "Identifier of the carrier handling this order — 'acs', 'boxnow', or null when no provider is attached.  Lets frontends switch on a stable code instead of inspecting the shipment shape."
                     },
+                    "cancellation": {
+                        "type": "object",
+                        "nullable": true,
+                        "properties": {
+                            "reason": {
+                                "type": "string"
+                            },
+                            "canceledAt": {
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "previousStatus": {
+                                "type": "string"
+                            },
+                            "shipmentCancel": {
+                                "type": "object",
+                                "nullable": true,
+                                "properties": {
+                                    "attempted": {
+                                        "type": "boolean"
+                                    },
+                                    "dispatched": {
+                                        "type": "boolean"
+                                    },
+                                    "error": {
+                                        "type": "string",
+                                        "nullable": true
+                                    }
+                                }
+                            }
+                        },
+                        "readOnly": true,
+                        "description": "Cancellation context for CANCELED orders — exposes the operator-supplied reason, timestamp, and shipment-cancel outcome from ``order.metadata['cancellation']``. Returns null when the order was not canceled. Internal flags from the metadata bag (webhook idempotency markers, mint tickets) are intentionally not surfaced."
+                    },
+                    "isOnlinePayment": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "description": "True when the order's PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced so the storefront can suppress misleading \"outstanding amount\" warnings for COD orders where the shopper intentionally paid €0 at checkout."
+                    },
                     "trackingNumber": {
                         "type": "string",
+                        "title": "Αριθμός Παρακολούθησης",
                         "maxLength": 255
                     },
                     "shippingCarrier": {
@@ -54816,6 +54903,7 @@
                     "acsShipment",
                     "boxnowShipment",
                     "canBeCanceled",
+                    "cancellation",
                     "city",
                     "country",
                     "createdAt",
@@ -54827,6 +54915,7 @@
                     "id",
                     "isCanceled",
                     "isCompleted",
+                    "isOnlinePayment",
                     "isPaid",
                     "items",
                     "lastName",
@@ -54834,6 +54923,7 @@
                     "paidAmount",
                     "payWay",
                     "paymentMethodFee",
+                    "paymentStatusDisplay",
                     "phone",
                     "pricingBreakdown",
                     "region",
@@ -54894,7 +54984,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": -2147483648
+                        "minimum": -2147483648,
+                        "title": "Ποσότητα"
                     },
                     "isRefunded": {
                         "type": "boolean",
@@ -54951,7 +55042,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": -2147483648
+                        "minimum": -2147483648,
+                        "title": "Ποσότητα"
                     },
                     "notes": {
                         "type": "string"
@@ -54996,7 +55088,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": -2147483648
+                        "minimum": -2147483648,
+                        "title": "Ποσότητα"
                     },
                     "isRefunded": {
                         "type": "boolean",
@@ -55130,7 +55223,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": -2147483648
+                        "minimum": -2147483648,
+                        "title": "Ποσότητα"
                     },
                     "notes": {
                         "type": "string"
@@ -55153,7 +55247,7 @@
                     "REFUNDED"
                 ],
                 "type": "string",
-                "description": "* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded"
+                "description": "* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επεστράφη"
             },
             "OrderWriteRequest": {
                 "type": "object",
@@ -57304,7 +57398,8 @@
                         }
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     }
                 }
             },
@@ -57314,7 +57409,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": 0
+                        "minimum": 0,
+                        "title": "Ποσότητα"
                     }
                 }
             },
@@ -57412,7 +57508,8 @@
                     "quantity": {
                         "type": "integer",
                         "maximum": 2147483647,
-                        "minimum": -2147483648
+                        "minimum": -2147483648,
+                        "title": "Ποσότητα"
                     },
                     "notes": {
                         "type": "string"
@@ -57573,7 +57670,8 @@
                         }
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "cost": {
                         "type": "number",
@@ -57654,7 +57752,8 @@
                         "default": "MAIN"
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "translations": {
                         "type": "object",
@@ -57745,7 +57844,8 @@
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "parent": {
                         "type": "integer",
@@ -57832,6 +57932,7 @@
                                 "$ref": "#/components/schemas/RateEnum"
                             }
                         ],
+                        "title": "Συντ.",
                         "minimum": 0,
                         "maximum": 32767
                     },
@@ -57970,7 +58071,8 @@
                         "maxLength": 255
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     }
                 }
             },
@@ -58075,11 +58177,12 @@
                                 "$ref": "#/components/schemas/TopicCategory"
                             }
                         ],
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "title": "Κατηγορία",
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     "isActive": {
                         "type": "boolean",
-                        "title": "Active",
+                        "title": "Ενεργή",
                         "description": "Whether this topic is currently available for subscription"
                     },
                     "isDefault": {
@@ -58127,7 +58230,8 @@
                         }
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     }
                 }
             },
@@ -58429,7 +58533,8 @@
                         "readOnly": true
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "cost": {
                         "type": "number",
@@ -58563,7 +58668,8 @@
                         "readOnly": true
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "cost": {
                         "type": "number",
@@ -58697,7 +58803,8 @@
                         }
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "cost": {
                         "type": "number",
@@ -58763,7 +58870,7 @@
                     "CANCELED"
                 ],
                 "type": "string",
-                "description": "* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled"
+                "description": "* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε"
             },
             "PaymentStatusResponse": {
                 "type": "object",
@@ -58857,7 +58964,8 @@
                     },
                     "description": {
                         "type": "string",
-                        "readOnly": true
+                        "readOnly": true,
+                        "title": "Περιγραφή"
                     },
                     "createdAt": {
                         "type": "string",
@@ -58965,7 +59073,8 @@
                         "description": "Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product."
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "weight": {
                         "type": "object",
@@ -59339,7 +59448,8 @@
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "parent": {
                         "type": "integer",
@@ -59432,7 +59542,8 @@
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "parent": {
                         "type": "integer",
@@ -59527,7 +59638,8 @@
                         "default": "MAIN"
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "sortOrder": {
                         "type": "integer",
@@ -59658,7 +59770,8 @@
                         "default": "MAIN"
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "sortOrder": {
                         "type": "integer",
@@ -59762,7 +59875,8 @@
                         "default": "MAIN"
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "translations": {
                         "type": "object",
@@ -59858,7 +59972,8 @@
                         "pattern": "^[-a-zA-Z0-9_]+$"
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "parent": {
                         "type": "integer",
@@ -59962,7 +60077,8 @@
                         "description": "Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product."
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "weight": {
                         "type": "object",
@@ -60190,7 +60306,8 @@
                         "description": "Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product."
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "weight": {
                         "type": "object",
@@ -60984,11 +61101,17 @@
                                 "$ref": "#/components/schemas/RateEnum"
                             }
                         ],
+                        "title": "Συντ.",
                         "minimum": 0,
                         "maximum": 32767
                     },
                     "status": {
-                        "$ref": "#/components/schemas/ReviewStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ReviewStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "isPublished": {
                         "type": "boolean"
@@ -61086,11 +61209,17 @@
                                 "$ref": "#/components/schemas/RateEnum"
                             }
                         ],
+                        "title": "Συντ.",
                         "minimum": 0,
                         "maximum": 32767
                     },
                     "status": {
-                        "$ref": "#/components/schemas/ReviewStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ReviewStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "isPublished": {
                         "type": "boolean"
@@ -61171,6 +61300,7 @@
                                 "$ref": "#/components/schemas/RateEnum"
                             }
                         ],
+                        "title": "Συντ.",
                         "minimum": 0,
                         "maximum": 32767
                     },
@@ -61314,7 +61444,8 @@
                         "maxLength": 255
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     }
                 },
                 "required": [
@@ -61859,7 +61990,7 @@
                     "lost"
                 ],
                 "type": "string",
-                "description": "* `pending_creation` - Pending creation\n* `new` - New\n* `in_transit` - In transit\n* `at_destination` - At destination station\n* `out_for_delivery` - Out for delivery\n* `delivered` - Delivered\n* `attempted` - Delivery attempted\n* `returned` - Returned\n* `canceled` - Canceled\n* `lost` - Lost"
+                "description": "* `pending_creation` - Pending creation\n* `new` - New\n* `in_transit` - In transit\n* `at_destination` - At destination station\n* `out_for_delivery` - Out for delivery\n* `delivered` - Παραδόθηκε\n* `attempted` - Delivery attempted\n* `returned` - Επιστράφηκε\n* `canceled` - Ακυρώθηκε\n* `lost` - Lost"
             },
             "ShippingKind": {
                 "enum": [
@@ -62010,7 +62141,7 @@
                     "BOUNCED"
                 ],
                 "type": "string",
-                "description": "* `ACTIVE` - Active\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced"
+                "description": "* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced"
             },
             "SubscriptionTopic": {
                 "type": "object",
@@ -62075,11 +62206,12 @@
                                 "$ref": "#/components/schemas/TopicCategory"
                             }
                         ],
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "title": "Κατηγορία",
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     "isActive": {
                         "type": "boolean",
-                        "title": "Active",
+                        "title": "Ενεργή",
                         "description": "Whether this topic is currently available for subscription"
                     },
                     "isDefault": {
@@ -62167,11 +62299,12 @@
                                 "$ref": "#/components/schemas/TopicCategory"
                             }
                         ],
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "title": "Κατηγορία",
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     "isActive": {
                         "type": "boolean",
-                        "title": "Active",
+                        "title": "Ενεργή",
                         "description": "Whether this topic is currently available for subscription"
                     },
                     "isDefault": {
@@ -62263,11 +62396,12 @@
                                 "$ref": "#/components/schemas/TopicCategory"
                             }
                         ],
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                        "title": "Κατηγορία",
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
                     },
                     "isActive": {
                         "type": "boolean",
-                        "title": "Active",
+                        "title": "Ενεργή",
                         "description": "Whether this topic is currently available for subscription"
                     },
                     "isDefault": {
@@ -62323,7 +62457,8 @@
                         }
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "sortOrder": {
                         "type": "integer",
@@ -62399,7 +62534,8 @@
                         }
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     },
                     "sortOrder": {
                         "type": "integer",
@@ -62477,7 +62613,8 @@
                         }
                     },
                     "active": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Ενεργή"
                     }
                 },
                 "required": [
@@ -62716,7 +62853,7 @@
                     "OTHER"
                 ],
                 "type": "string",
-                "description": "* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
+                "description": "* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other"
             },
             "TransactionTypeEnum": {
                 "enum": [
@@ -63325,7 +63462,7 @@
                     "isActive": {
                         "type": "boolean",
                         "readOnly": true,
-                        "title": "Active"
+                        "title": "Ενεργή"
                     },
                     "isStaff": {
                         "type": "boolean",
@@ -63402,7 +63539,12 @@
                         "readOnly": true
                     },
                     "status": {
-                        "$ref": "#/components/schemas/SubscriptionStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SubscriptionStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "subscribedAt": {
                         "type": "string",
@@ -63464,7 +63606,12 @@
                         "readOnly": true
                     },
                     "status": {
-                        "$ref": "#/components/schemas/SubscriptionStatus"
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/SubscriptionStatus"
+                            }
+                        ],
+                        "title": "Κατάσταση"
                     },
                     "subscribedAt": {
                         "type": "string",

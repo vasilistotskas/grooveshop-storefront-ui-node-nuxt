@@ -314,6 +314,9 @@ export type Attribute = {
       name?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
   readonly sortOrder: number | null
   readonly valuesCount: number
@@ -344,6 +347,9 @@ export type AttributeValue = {
       value?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
   readonly sortOrder: number | null
   readonly usageCount: number
@@ -922,6 +928,9 @@ export type BlogTag = {
       name?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
   readonly sortOrder: number | null
   /**
@@ -949,6 +958,9 @@ export type BlogTagDetail = {
       name?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
   readonly sortOrder: number | null
   /**
@@ -975,6 +987,9 @@ export type BlogTagWriteRequest = {
       name?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
 }
 
@@ -1215,10 +1230,10 @@ export type BoxNowParcelEvent = {
      * * `new` - New
      * * `in_depot` - In depot
      * * `final_destination` - At locker
-     * * `delivered` - Delivered
-     * * `returned` - Returned
+     * * `delivered` - Παραδόθηκε
+     * * `returned` - Επιστράφηκε
      * * `expired` - Expired
-     * * `canceled` - Canceled
+     * * `canceled` - Ακυρώθηκε
      * * `accepted_for_return` - Accepted for return
      * * `accepted_to_locker` - Accepted to locker
      * * `missing` - Missing
@@ -1258,10 +1273,10 @@ export type BoxNowParcelEvent = {
  * * `new` - New
  * * `in_depot` - In depot
  * * `final_destination` - At locker
- * * `delivered` - Delivered
- * * `returned` - Returned
+ * * `delivered` - Παραδόθηκε
+ * * `returned` - Επιστράφηκε
  * * `expired` - Expired
- * * `canceled` - Canceled
+ * * `canceled` - Ακυρώθηκε
  * * `accepted_for_return` - Accepted for return
  * * `accepted_to_locker` - Accepted to locker
  * * `missing` - Missing
@@ -1529,6 +1544,9 @@ export type CartItem = {
   readonly id: number
   readonly cartId: number
   product: Product
+  /**
+     * Ποσότητα
+     */
   quantity?: number
   /**
      * Weight information for shipping calculations
@@ -1554,6 +1572,9 @@ export type CartItem = {
 
 export type CartItemCreateRequest = {
   product: number
+  /**
+     * Ποσότητα
+     */
   quantity?: number
 }
 
@@ -1561,6 +1582,9 @@ export type CartItemDetail = {
   readonly id: number
   readonly cartId: number
   product: Product
+  /**
+     * Ποσότητα
+     */
   quantity?: number
   /**
      * Weight information for shipping calculations
@@ -1589,6 +1613,9 @@ export type CartItemDetail = {
 }
 
 export type CartItemUpdateRequest = {
+  /**
+     * Ποσότητα
+     */
   quantity?: number
 }
 
@@ -2115,6 +2142,9 @@ export type Notification = {
      */
   readonly link: string | null
   kind?: NotificationKindEnum
+  /**
+     * Κατηγορία
+     */
   category?: NotificationCategory
   priority?: PriorityEnum
   /**
@@ -2143,12 +2173,12 @@ export type Notification = {
 }
 
 /**
- * * `ORDER` - Ταξινόμηση
- * * `PAYMENT` - Payment
- * * `SHIPPING` - Shipping
+ * * `ORDER` - Παραγγελία
+ * * `PAYMENT` - Πληρωμή
+ * * `SHIPPING` - Μεταφορικά
  * * `CART` - Cart
- * * `PRODUCT` - Product
- * * `ACCOUNT` - Account
+ * * `PRODUCT` - Προϊόν
+ * * `ACCOUNT` - Λογαριασμός Ανενεργός
  * * `SECURITY` - Security
  * * `PROMOTION` - Promotion
  * * `SYSTEM` - System
@@ -2255,6 +2285,9 @@ export type Order = {
   street: string
   streetNumber: string
   payWay: number | null
+  /**
+     * Κατάσταση
+     */
   status?: OrderStatus
   readonly statusDisplay: string
   readonly statusUpdatedAt: string | null
@@ -2278,7 +2311,14 @@ export type Order = {
   readonly totalPriceExtra: number
   readonly fullAddress: string
   paymentId?: string | null
+  /**
+     * Κατάσταση πληρωμής
+     */
   paymentStatus?: PaymentStatusEnum | BlankEnum
+  /**
+     * Localised label for ``payment_status`` (mirrors ``status_display``). Frontend renders this rather than the raw enum value so Greek/English/German locales all work without per-locale string maps in the UI.
+     */
+  readonly paymentStatusDisplay: string
   paymentMethod?: string
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
@@ -2418,6 +2458,9 @@ export type OrderDetail = {
   street: string
   streetNumber: string
   payWay: number | null
+  /**
+     * Κατάσταση
+     */
   status?: OrderStatus
   readonly statusDisplay: string
   readonly statusUpdatedAt: string | null
@@ -2441,7 +2484,14 @@ export type OrderDetail = {
   readonly totalPriceExtra: number
   readonly fullAddress: string
   paymentId?: string | null
+  /**
+     * Κατάσταση πληρωμής
+     */
   paymentStatus?: PaymentStatusEnum | BlankEnum
+  /**
+     * Localised label for ``payment_status`` (mirrors ``status_display``). Frontend renders this rather than the raw enum value so Greek/English/German locales all work without per-locale string maps in the UI.
+     */
+  readonly paymentStatusDisplay: string
   paymentMethod?: string
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
@@ -2499,6 +2549,26 @@ export type OrderDetail = {
      * Identifier of the carrier handling this order — 'acs', 'boxnow', or null when no provider is attached.  Lets frontends switch on a stable code instead of inspecting the shipment shape.
      */
   readonly shipmentProviderCode: string | null
+  /**
+     * Cancellation context for CANCELED orders — exposes the operator-supplied reason, timestamp, and shipment-cancel outcome from ``order.metadata['cancellation']``. Returns null when the order was not canceled. Internal flags from the metadata bag (webhook idempotency markers, mint tickets) are intentionally not surfaced.
+     */
+  readonly cancellation: {
+    reason?: string
+    canceledAt?: string
+    previousStatus?: string
+    shipmentCancel?: {
+      attempted?: boolean
+      dispatched?: boolean
+      error?: string | null
+    } | null
+  } | null
+  /**
+     * True when the order's PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced so the storefront can suppress misleading "outstanding amount" warnings for COD orders where the shopper intentionally paid €0 at checkout.
+     */
+  readonly isOnlinePayment: boolean
+  /**
+     * Αριθμός Παρακολούθησης
+     */
   trackingNumber?: string
   shippingCarrier?: string
   readonly customerFullName: string
@@ -2522,6 +2592,9 @@ export type OrderItem = {
   order: number
   product: number
   readonly price: number
+  /**
+     * Ποσότητα
+     */
   quantity?: number
   readonly isRefunded: boolean
   readonly refundedQuantity: number
@@ -2533,6 +2606,9 @@ export type OrderItem = {
 
 export type OrderItemCreateRequest = {
   product: number
+  /**
+     * Ποσότητα
+     */
   quantity?: number
   notes?: string
 }
@@ -2543,6 +2619,9 @@ export type OrderItemDetail = {
   order: number
   product: Product
   readonly price: number
+  /**
+     * Ποσότητα
+     */
   quantity?: number
   readonly isRefunded: boolean
   readonly refundedQuantity: number
@@ -2577,19 +2656,22 @@ export type OrderItemRefundResponse = {
 export type OrderItemWriteRequest = {
   order: number
   product: number
+  /**
+     * Ποσότητα
+     */
   quantity?: number
   notes?: string
 }
 
 /**
- * * `PENDING` - Pending
- * * `PROCESSING` - Processing
- * * `SHIPPED` - Shipped
- * * `DELIVERED` - Delivered
- * * `COMPLETED` - Completed
- * * `CANCELED` - Canceled
- * * `RETURNED` - Returned
- * * `REFUNDED` - Refunded
+ * * `PENDING` - Εκκρεμεί
+ * * `PROCESSING` - Σε επεξεργασία
+ * * `SHIPPED` - Απεστάλη
+ * * `DELIVERED` - Παραδόθηκε
+ * * `COMPLETED` - Ολοκληρώθηκε
+ * * `CANCELED` - Ακυρώθηκε
+ * * `RETURNED` - Επιστράφηκε
+ * * `REFUNDED` - Επεστράφη
  */
 export type OrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'COMPLETED' | 'CANCELED' | 'RETURNED' | 'REFUNDED'
 
@@ -3176,10 +3258,16 @@ export type PatchedBlogTagWriteRequest = {
       name?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
 }
 
 export type PatchedCartItemUpdateRequest = {
+  /**
+     * Ποσότητα
+     */
   quantity?: number
 }
 
@@ -3225,6 +3313,9 @@ export type PatchedNotificationUserWriteRequest = {
 export type PatchedOrderItemWriteRequest = {
   order?: number
   product?: number
+  /**
+     * Ποσότητα
+     */
   quantity?: number
   notes?: string
 }
@@ -3280,6 +3371,9 @@ export type PatchedPayWayWriteRequest = {
       instructions?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
   cost?: number
   freeThreshold?: number
@@ -3320,6 +3414,9 @@ export type PatchedProductCategoryImageWriteRequest = {
      */
   image?: Blob | File
   imageType?: ImageTypeEnum
+  /**
+     * Ενεργή
+     */
   active?: boolean
   translations?: {
     el?: {
@@ -3356,6 +3453,9 @@ export type PatchedProductCategoryWriteRequest = {
     }
   }
   slug?: string
+  /**
+     * Ενεργή
+     */
   active?: boolean
   parent?: number | null
   seoTitle?: string
@@ -3395,6 +3495,9 @@ export type PatchedProductImageWriteRequest = {
  */
 export type PatchedProductReviewWriteRequest = {
   product?: number
+  /**
+     * Συντ.
+     */
   rate?: RateEnum
   translations?: {
     el?: {
@@ -3440,6 +3543,9 @@ export type PatchedProductWriteRequest = {
   seoTitle?: string
   seoDescription?: string
   seoKeywords?: string
+  /**
+     * Ενεργή
+     */
   active?: boolean
 }
 
@@ -3491,11 +3597,13 @@ export type PatchedSubscriptionTopicWriteRequest = {
      */
   slug?: string
   /**
+     * Κατηγορία
+     *
      * Category of the subscription topic
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -3503,7 +3611,7 @@ export type PatchedSubscriptionTopicWriteRequest = {
      */
   category?: TopicCategory
   /**
-     * Active
+     * Ενεργή
      *
      * Whether this topic is currently available for subscription
      */
@@ -3535,6 +3643,9 @@ export type PatchedTagWriteRequest = {
       label?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
 }
 
@@ -3667,6 +3778,9 @@ export type PayWay = {
     }
   }
   readonly id: number
+  /**
+     * Ενεργή
+     */
   active?: boolean
   cost: number
   freeThreshold: number
@@ -3713,6 +3827,9 @@ export type PayWayDetail = {
     }
   }
   readonly id: number
+  /**
+     * Ενεργή
+     */
   active?: boolean
   cost: number
   freeThreshold: number
@@ -3759,6 +3876,9 @@ export type PayWayWriteRequest = {
       instructions?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
   cost: number
   freeThreshold?: number
@@ -3790,13 +3910,13 @@ export type PayWayWriteRequest = {
 export type PaymentModeEnum = 'prepaid' | 'cod'
 
 /**
- * * `PENDING` - Pending
- * * `PROCESSING` - Processing
- * * `COMPLETED` - Completed
- * * `FAILED` - Failed
- * * `REFUNDED` - Refunded
- * * `PARTIALLY_REFUNDED` - Partially Refunded
- * * `CANCELED` - Canceled
+ * * `PENDING` - Εκκρεμεί
+ * * `PROCESSING` - Σε επεξεργασία
+ * * `COMPLETED` - Ολοκληρώθηκε
+ * * `FAILED` - Απέτυχε
+ * * `REFUNDED` - Επεστράφη
+ * * `PARTIALLY_REFUNDED` - Μερική επιστροφή
+ * * `CANCELED` - Ακυρώθηκε
  */
 export type PaymentStatusEnum = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'REFUNDED' | 'PARTIALLY_REFUNDED' | 'CANCELED'
 
@@ -3837,6 +3957,9 @@ export type PointsTransaction = {
   readonly points: number
   transactionType: TransactionTypeEnum
   readonly referenceOrder: number | null
+  /**
+     * Περιγραφή
+     */
   readonly description: string
   readonly createdAt: string
 }
@@ -3879,6 +4002,9 @@ export type Product = {
      * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
      */
   readonly lowStockThreshold: number
+  /**
+     * Ενεργή
+     */
   active?: boolean
   weight?: {
     unit?: string
@@ -3987,6 +4113,9 @@ export type ProductCategory = {
     }
   }
   slug: string
+  /**
+     * Ενεργή
+     */
   active?: boolean
   parent?: number | null
   readonly level: number
@@ -4016,6 +4145,9 @@ export type ProductCategoryDetail = {
     }
   }
   slug: string
+  /**
+     * Ενεργή
+     */
   active?: boolean
   parent?: number | null
   readonly level: number
@@ -4042,6 +4174,9 @@ export type ProductCategoryImage = {
      */
   image: string
   imageType?: ImageTypeEnum
+  /**
+     * Ενεργή
+     */
   active?: boolean
   readonly sortOrder: number | null
   translations: {
@@ -4083,6 +4218,9 @@ export type ProductCategoryImageDetail = {
      */
   image: string
   imageType?: ImageTypeEnum
+  /**
+     * Ενεργή
+     */
   active?: boolean
   readonly sortOrder: number | null
   translations: {
@@ -4116,6 +4254,9 @@ export type ProductCategoryImageWriteRequest = {
      */
   image: Blob | File
   imageType?: ImageTypeEnum
+  /**
+     * Ενεργή
+     */
   active?: boolean
   translations: {
     el?: {
@@ -4152,6 +4293,9 @@ export type ProductCategoryWriteRequest = {
     }
   }
   slug: string
+  /**
+     * Ενεργή
+     */
   active?: boolean
   parent?: number | null
   seoTitle?: string
@@ -4188,6 +4332,9 @@ export type ProductDetail = {
      * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
      */
   readonly lowStockThreshold: number
+  /**
+     * Ενεργή
+     */
   active?: boolean
   weight?: {
     unit?: string
@@ -4254,6 +4401,9 @@ export type ProductDetailResponse = {
      * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
      */
   readonly lowStockThreshold: number
+  /**
+     * Ενεργή
+     */
   active?: boolean
   weight?: {
     unit?: string
@@ -4498,7 +4648,13 @@ export type ProductReview = {
   readonly id: number
   product: ProductBrief
   user: UserDetails
+  /**
+     * Συντ.
+     */
   rate: RateEnum
+  /**
+     * Κατάσταση
+     */
   status?: ReviewStatus
   isPublished?: boolean
   readonly createdAt: string
@@ -4525,7 +4681,13 @@ export type ProductReviewDetail = {
   readonly id: number
   product: Product
   user: UserDetails
+  /**
+     * Συντ.
+     */
   rate: RateEnum
+  /**
+     * Κατάσταση
+     */
   status?: ReviewStatus
   isPublished?: boolean
   readonly createdAt: string
@@ -4550,6 +4712,9 @@ export type ProductReviewDetail = {
  */
 export type ProductReviewWriteRequest = {
   product: number
+  /**
+     * Συντ.
+     */
   rate: RateEnum
   translations: {
     el?: {
@@ -4595,6 +4760,9 @@ export type ProductWriteRequest = {
   seoTitle?: string
   seoDescription?: string
   seoKeywords?: string
+  /**
+     * Ενεργή
+     */
   active?: boolean
 }
 
@@ -4871,10 +5039,10 @@ export type SettingDetail = {
  * * `in_transit` - In transit
  * * `at_destination` - At destination station
  * * `out_for_delivery` - Out for delivery
- * * `delivered` - Delivered
+ * * `delivered` - Παραδόθηκε
  * * `attempted` - Delivery attempted
- * * `returned` - Returned
- * * `canceled` - Canceled
+ * * `returned` - Επιστράφηκε
+ * * `canceled` - Ακυρώθηκε
  * * `lost` - Lost
  */
 export type ShipmentStateEnum = 'pending_creation' | 'new' | 'in_transit' | 'at_destination' | 'out_for_delivery' | 'delivered' | 'attempted' | 'returned' | 'canceled' | 'lost'
@@ -4955,7 +5123,7 @@ export type ShippingProvider = {
 export type ShopKindEnum = 1 | 2 | 3 | 4 | 5 | 7 | 8
 
 /**
- * * `ACTIVE` - Active
+ * * `ACTIVE` - Ενεργή
  * * `PENDING` - Pending Confirmation
  * * `UNSUBSCRIBED` - Unsubscribed
  * * `BOUNCED` - Bounced
@@ -4987,11 +5155,13 @@ export type SubscriptionTopic = {
      */
   slug: string
   /**
+     * Κατηγορία
+     *
      * Category of the subscription topic
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -4999,7 +5169,7 @@ export type SubscriptionTopic = {
      */
   category?: TopicCategory
   /**
-     * Active
+     * Ενεργή
      *
      * Whether this topic is currently available for subscription
      */
@@ -5042,11 +5212,13 @@ export type SubscriptionTopicDetail = {
      */
   slug: string
   /**
+     * Κατηγορία
+     *
      * Category of the subscription topic
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -5054,7 +5226,7 @@ export type SubscriptionTopicDetail = {
      */
   category?: TopicCategory
   /**
-     * Active
+     * Ενεργή
      *
      * Whether this topic is currently available for subscription
      */
@@ -5097,11 +5269,13 @@ export type SubscriptionTopicWriteRequest = {
      */
   slug: string
   /**
+     * Κατηγορία
+     *
      * Category of the subscription topic
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -5109,7 +5283,7 @@ export type SubscriptionTopicWriteRequest = {
      */
   category?: TopicCategory
   /**
-     * Active
+     * Ενεργή
      *
      * Whether this topic is currently available for subscription
      */
@@ -5142,6 +5316,9 @@ export type Tag = {
       label?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
   readonly sortOrder: number | null
   /**
@@ -5169,6 +5346,9 @@ export type TagDetail = {
       label?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
   readonly sortOrder: number | null
   /**
@@ -5199,6 +5379,9 @@ export type TagWriteRequest = {
       label?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
 }
 
@@ -5282,7 +5465,7 @@ export type TopQuery = {
 /**
  * * `MARKETING` - Marketing Campaigns
  * * `PRODUCT` - Product Updates
- * * `ACCOUNT` - Account Updates
+ * * `ACCOUNT` - Λογαριασμός Ανενεργός
  * * `SYSTEM` - System Notifications
  * * `NEWSLETTER` - Newsletter
  * * `PROMOTIONAL` - Promotional
@@ -5529,7 +5712,7 @@ export type UserDetails = {
      */
   languageCode?: string
   /**
-     * Active
+     * Ενεργή
      */
   readonly isActive: boolean
   /**
@@ -5556,6 +5739,9 @@ export type UserSubscription = {
   readonly user: number
   topic: number
   topicDetails: SubscriptionTopic
+  /**
+     * Κατάσταση
+     */
   status?: SubscriptionStatus
   readonly subscribedAt: string
   readonly unsubscribedAt: string | null
@@ -5575,6 +5761,9 @@ export type UserSubscriptionDetail = {
   readonly user: number
   topic: number
   topicDetails: SubscriptionTopic
+  /**
+     * Κατάσταση
+     */
   status?: SubscriptionStatus
   readonly subscribedAt: string
   readonly unsubscribedAt: string | null
@@ -5714,6 +5903,9 @@ export type AttributeWritable = {
       name?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
 }
 
@@ -5733,6 +5925,9 @@ export type AttributeValueWritable = {
       value?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
 }
 
@@ -5922,6 +6117,9 @@ export type BlogTagWritable = {
       name?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
 }
 
@@ -5940,6 +6138,9 @@ export type BlogTagDetailWritable = {
       name?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
 }
 
@@ -5952,10 +6153,16 @@ export type CartDetailWritable = {
 }
 
 export type CartItemWritable = {
+  /**
+     * Ποσότητα
+     */
   quantity?: number
 }
 
 export type CartItemDetailWritable = {
+  /**
+     * Ποσότητα
+     */
   quantity?: number
 }
 
@@ -6074,6 +6281,9 @@ export type NotificationWritable = {
     }
   }
   kind?: NotificationKindEnum
+  /**
+     * Κατηγορία
+     */
   category?: NotificationCategory
   priority?: PriorityEnum
   /**
@@ -6123,6 +6333,9 @@ export type OrderWritable = {
   street: string
   streetNumber: string
   payWay: number | null
+  /**
+     * Κατάσταση
+     */
   status?: OrderStatus
   firstName: string
   lastName: string
@@ -6135,6 +6348,9 @@ export type OrderWritable = {
   items: Array<OrderItemDetailWritable>
   documentType?: OrderDocumentType
   paymentId?: string | null
+  /**
+     * Κατάσταση πληρωμής
+     */
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
 }
@@ -6154,6 +6370,9 @@ export type OrderDetailWritable = {
   street: string
   streetNumber: string
   payWay: number | null
+  /**
+     * Κατάσταση
+     */
   status?: OrderStatus
   firstName: string
   lastName: string
@@ -6165,8 +6384,14 @@ export type OrderDetailWritable = {
   items: Array<OrderItemDetailWritable>
   documentType?: OrderDocumentType
   paymentId?: string | null
+  /**
+     * Κατάσταση πληρωμής
+     */
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
+  /**
+     * Αριθμός Παρακολούθησης
+     */
   trackingNumber?: string
   shippingCarrier?: string
 }
@@ -6174,11 +6399,17 @@ export type OrderDetailWritable = {
 export type OrderItemWritable = {
   order: number
   product: number
+  /**
+     * Ποσότητα
+     */
   quantity?: number
 }
 
 export type OrderItemDetailWritable = {
   order: number
+  /**
+     * Ποσότητα
+     */
   quantity?: number
   notes?: string
 }
@@ -6661,6 +6892,9 @@ export type PayWayWritable = {
       instructions?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
   cost: number
   freeThreshold: number
@@ -6700,6 +6934,9 @@ export type PayWayDetailWritable = {
       instructions?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
   cost: number
   freeThreshold: number
@@ -6741,6 +6978,9 @@ export type ProductWritable = {
   price: number
   vat: number
   stock?: number
+  /**
+     * Ενεργή
+     */
   active?: boolean
   weight?: {
     unit?: string
@@ -6792,6 +7032,9 @@ export type ProductCategoryWritable = {
     }
   }
   slug: string
+  /**
+     * Ενεργή
+     */
   active?: boolean
   parent?: number | null
 }
@@ -6815,6 +7058,9 @@ export type ProductCategoryDetailWritable = {
     }
   }
   slug: string
+  /**
+     * Ενεργή
+     */
   active?: boolean
   parent?: number | null
   seoTitle?: string
@@ -6832,6 +7078,9 @@ export type ProductCategoryImageWritable = {
      */
   image: string
   imageType?: ImageTypeEnum
+  /**
+     * Ενεργή
+     */
   active?: boolean
   translations: {
     el?: {
@@ -6859,6 +7108,9 @@ export type ProductCategoryImageDetailWritable = {
      */
   image: string
   imageType?: ImageTypeEnum
+  /**
+     * Ενεργή
+     */
   active?: boolean
   translations: {
     el?: {
@@ -6899,6 +7151,9 @@ export type ProductDetailWritable = {
   price: number
   vat: number
   stock?: number
+  /**
+     * Ενεργή
+     */
   active?: boolean
   weight?: {
     unit?: string
@@ -6933,6 +7188,9 @@ export type ProductDetailResponseWritable = {
   price: number
   vat: number
   stock?: number
+  /**
+     * Ενεργή
+     */
   active?: boolean
   weight?: {
     unit?: string
@@ -7004,7 +7262,13 @@ export type ProductImageDetailWritable = {
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type ProductReviewWritable = {
+  /**
+     * Συντ.
+     */
   rate: RateEnum
+  /**
+     * Κατάσταση
+     */
   status?: ReviewStatus
   isPublished?: boolean
   translations: {
@@ -7024,7 +7288,13 @@ export type ProductReviewWritable = {
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type ProductReviewDetailWritable = {
+  /**
+     * Συντ.
+     */
   rate: RateEnum
+  /**
+     * Κατάσταση
+     */
   status?: ReviewStatus
   isPublished?: boolean
   translations: {
@@ -7113,11 +7383,13 @@ export type SubscriptionTopicWritable = {
      */
   slug: string
   /**
+     * Κατηγορία
+     *
      * Category of the subscription topic
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -7125,7 +7397,7 @@ export type SubscriptionTopicWritable = {
      */
   category?: TopicCategory
   /**
-     * Active
+     * Ενεργή
      *
      * Whether this topic is currently available for subscription
      */
@@ -7165,11 +7437,13 @@ export type SubscriptionTopicDetailWritable = {
      */
   slug: string
   /**
+     * Κατηγορία
+     *
      * Category of the subscription topic
      *
      * * `MARKETING` - Marketing Campaigns
      * * `PRODUCT` - Product Updates
-     * * `ACCOUNT` - Account Updates
+     * * `ACCOUNT` - Λογαριασμός Ανενεργός
      * * `SYSTEM` - System Notifications
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Promotional
@@ -7177,7 +7451,7 @@ export type SubscriptionTopicDetailWritable = {
      */
   category?: TopicCategory
   /**
-     * Active
+     * Ενεργή
      *
      * Whether this topic is currently available for subscription
      */
@@ -7209,6 +7483,9 @@ export type TagWritable = {
       label?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
 }
 
@@ -7227,6 +7504,9 @@ export type TagDetailWritable = {
       label?: string
     }
   }
+  /**
+     * Ενεργή
+     */
   active?: boolean
 }
 
@@ -7342,6 +7622,9 @@ export type UserDetailsWritable = {
 
 export type UserSubscriptionWritable = {
   topic: number
+  /**
+     * Κατάσταση
+     */
   status?: SubscriptionStatus
   /**
      * Additional subscription preferences or data
@@ -7351,6 +7634,9 @@ export type UserSubscriptionWritable = {
 
 export type UserSubscriptionDetailWritable = {
   topic: number
+  /**
+     * Κατάσταση
+     */
   status?: SubscriptionStatus
   /**
      * Additional subscription preferences or data
@@ -12424,15 +12710,17 @@ export type ListOrderData = {
     paymentMethod?: string
     paymentMethod_Icontains?: string
     /**
+         * Κατάσταση πληρωμής
+         *
          * Filter by payment status
          *
-         * * `PENDING` - Pending
-         * * `PROCESSING` - Processing
-         * * `COMPLETED` - Completed
-         * * `FAILED` - Failed
-         * * `REFUNDED` - Refunded
-         * * `PARTIALLY_REFUNDED` - Partially Refunded
-         * * `CANCELED` - Canceled
+         * * `PENDING` - Εκκρεμεί
+         * * `PROCESSING` - Σε επεξεργασία
+         * * `COMPLETED` - Ολοκληρώθηκε
+         * * `FAILED` - Απέτυχε
+         * * `REFUNDED` - Επεστράφη
+         * * `PARTIALLY_REFUNDED` - Μερική επιστροφή
+         * * `CANCELED` - Ακυρώθηκε
          */
     paymentStatus?: 'CANCELED' | 'COMPLETED' | 'FAILED' | 'PARTIALLY_REFUNDED' | 'PENDING' | 'PROCESSING' | 'REFUNDED'
     /**
@@ -12481,16 +12769,18 @@ export type ListOrderData = {
          */
     shippingPriceMin?: string | number
     /**
+         * Κατάσταση
+         *
          * Filter by order status
          *
-         * * `PENDING` - Pending
-         * * `PROCESSING` - Processing
-         * * `SHIPPED` - Shipped
-         * * `DELIVERED` - Delivered
-         * * `COMPLETED` - Completed
-         * * `CANCELED` - Canceled
-         * * `RETURNED` - Returned
-         * * `REFUNDED` - Refunded
+         * * `PENDING` - Εκκρεμεί
+         * * `PROCESSING` - Σε επεξεργασία
+         * * `SHIPPED` - Απεστάλη
+         * * `DELIVERED` - Παραδόθηκε
+         * * `COMPLETED` - Ολοκληρώθηκε
+         * * `CANCELED` - Ακυρώθηκε
+         * * `RETURNED` - Επιστράφηκε
+         * * `REFUNDED` - Επεστράφη
          */
     status?: 'CANCELED' | 'COMPLETED' | 'DELIVERED' | 'PENDING' | 'PROCESSING' | 'REFUNDED' | 'RETURNED' | 'SHIPPED'
     /**
@@ -12697,15 +12987,17 @@ export type ListOrderItemData = {
          */
     order_LastName?: string
     /**
+         * Κατάσταση πληρωμής
+         *
          * Filter by order payment status
          *
-         * * `PENDING` - Pending
-         * * `PROCESSING` - Processing
-         * * `COMPLETED` - Completed
-         * * `FAILED` - Failed
-         * * `REFUNDED` - Refunded
-         * * `PARTIALLY_REFUNDED` - Partially Refunded
-         * * `CANCELED` - Canceled
+         * * `PENDING` - Εκκρεμεί
+         * * `PROCESSING` - Σε επεξεργασία
+         * * `COMPLETED` - Ολοκληρώθηκε
+         * * `FAILED` - Απέτυχε
+         * * `REFUNDED` - Επεστράφη
+         * * `PARTIALLY_REFUNDED` - Μερική επιστροφή
+         * * `CANCELED` - Ακυρώθηκε
          */
     order_PaymentStatus?: 'CANCELED' | 'COMPLETED' | 'FAILED' | 'PARTIALLY_REFUNDED' | 'PENDING' | 'PROCESSING' | 'REFUNDED'
     /**
@@ -12713,16 +13005,18 @@ export type ListOrderItemData = {
          */
     order_Region?: string
     /**
+         * Κατάσταση
+         *
          * Filter by order status
          *
-         * * `PENDING` - Pending
-         * * `PROCESSING` - Processing
-         * * `SHIPPED` - Shipped
-         * * `DELIVERED` - Delivered
-         * * `COMPLETED` - Completed
-         * * `CANCELED` - Canceled
-         * * `RETURNED` - Returned
-         * * `REFUNDED` - Refunded
+         * * `PENDING` - Εκκρεμεί
+         * * `PROCESSING` - Σε επεξεργασία
+         * * `SHIPPED` - Απεστάλη
+         * * `DELIVERED` - Παραδόθηκε
+         * * `COMPLETED` - Ολοκληρώθηκε
+         * * `CANCELED` - Ακυρώθηκε
+         * * `RETURNED` - Επιστράφηκε
+         * * `REFUNDED` - Επεστράφη
          */
     order_Status?: 'CANCELED' | 'COMPLETED' | 'DELIVERED' | 'PENDING' | 'PROCESSING' | 'REFUNDED' | 'RETURNED' | 'SHIPPED'
     /**
@@ -13704,15 +13998,17 @@ export type ListMyOrdersData = {
     paymentMethod?: string
     paymentMethod_Icontains?: string
     /**
+         * Κατάσταση πληρωμής
+         *
          * Filter by payment status
          *
-         * * `PENDING` - Pending
-         * * `PROCESSING` - Processing
-         * * `COMPLETED` - Completed
-         * * `FAILED` - Failed
-         * * `REFUNDED` - Refunded
-         * * `PARTIALLY_REFUNDED` - Partially Refunded
-         * * `CANCELED` - Canceled
+         * * `PENDING` - Εκκρεμεί
+         * * `PROCESSING` - Σε επεξεργασία
+         * * `COMPLETED` - Ολοκληρώθηκε
+         * * `FAILED` - Απέτυχε
+         * * `REFUNDED` - Επεστράφη
+         * * `PARTIALLY_REFUNDED` - Μερική επιστροφή
+         * * `CANCELED` - Ακυρώθηκε
          */
     paymentStatus?: 'CANCELED' | 'COMPLETED' | 'FAILED' | 'PARTIALLY_REFUNDED' | 'PENDING' | 'PROCESSING' | 'REFUNDED'
     /**
@@ -13761,16 +14057,18 @@ export type ListMyOrdersData = {
          */
     shippingPriceMin?: string | number
     /**
+         * Κατάσταση
+         *
          * Filter by order status
          *
-         * * `PENDING` - Pending
-         * * `PROCESSING` - Processing
-         * * `SHIPPED` - Shipped
-         * * `DELIVERED` - Delivered
-         * * `COMPLETED` - Completed
-         * * `CANCELED` - Canceled
-         * * `RETURNED` - Returned
-         * * `REFUNDED` - Refunded
+         * * `PENDING` - Εκκρεμεί
+         * * `PROCESSING` - Σε επεξεργασία
+         * * `SHIPPED` - Απεστάλη
+         * * `DELIVERED` - Παραδόθηκε
+         * * `COMPLETED` - Ολοκληρώθηκε
+         * * `CANCELED` - Ακυρώθηκε
+         * * `RETURNED` - Επιστράφηκε
+         * * `REFUNDED` - Επεστράφη
          */
     status?: 'CANCELED' | 'COMPLETED' | 'DELIVERED' | 'PENDING' | 'PROCESSING' | 'REFUNDED' | 'RETURNED' | 'SHIPPED'
     /**
@@ -16714,6 +17012,8 @@ export type ListProductReviewData = {
          */
     search?: string
     /**
+         * Κατάσταση
+         *
          * Filter by review status
          *
          * * `NEW` - New
@@ -19613,9 +19913,11 @@ export type ListUserSubscriptionData = {
          */
     search?: string
     /**
+         * Κατάσταση
+         *
          * Filter by subscription status
          *
-         * * `ACTIVE` - Active
+         * * `ACTIVE` - Ενεργή
          * * `PENDING` - Pending Confirmation
          * * `UNSUBSCRIBED` - Unsubscribed
          * * `BOUNCED` - Bounced
@@ -19637,11 +19939,13 @@ export type ListUserSubscriptionData = {
          */
     topic?: string | number
     /**
+         * Κατηγορία
+         *
          * Filter by topic category
          *
          * * `MARKETING` - Marketing Campaigns
          * * `PRODUCT` - Product Updates
-         * * `ACCOUNT` - Account Updates
+         * * `ACCOUNT` - Λογαριασμός Ανενεργός
          * * `SYSTEM` - System Notifications
          * * `NEWSLETTER` - Newsletter
          * * `PROMOTIONAL` - Promotional
@@ -19940,11 +20244,13 @@ export type ListSubscriptionTopicData = {
   path?: never
   query?: {
     /**
+         * Κατηγορία
+         *
          * Filter by topic category
          *
          * * `MARKETING` - Marketing Campaigns
          * * `PRODUCT` - Product Updates
-         * * `ACCOUNT` - Account Updates
+         * * `ACCOUNT` - Λογαριασμός Ανενεργός
          * * `SYSTEM` - System Notifications
          * * `NEWSLETTER` - Newsletter
          * * `PROMOTIONAL` - Promotional
