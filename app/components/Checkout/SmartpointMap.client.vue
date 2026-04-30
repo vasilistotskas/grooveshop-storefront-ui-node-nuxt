@@ -15,6 +15,15 @@
  */
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+// ``leaflet.markercluster`` is a side-effect-only Leaflet plugin —
+// it attaches ``MarkerClusterGroup`` and the ``markerClusterGroup``
+// factory onto the global ``L`` namespace. The package has no
+// named export, so the import is bare. The ``@nuxtjs/leaflet``
+// auto-imported ``useLMarkerCluster`` composable destructures a
+// non-existent named export and throws (v1.3.2); we sidestep that
+// by importing the side-effect ourselves and calling
+// ``L.markerClusterGroup`` directly inside ``ensureClusters``.
+import 'leaflet.markercluster'
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 
@@ -163,7 +172,7 @@ async function onMapReady(): Promise<void> {
     map.options.fadeAnimation = false
     map.options.markerZoomAnimation = false
   }
-  await ensureClusters()
+  ensureClusters()
   // The container may have started sized 0 (modal animation, tab
   // collapsed). Force a recompute on the next frame so tiles
   // resolve cleanly.
@@ -201,28 +210,46 @@ useResizeObserver(mapContainerRef, (entries) => {
     // Re-cluster too in case the markers were skipped on first
     // mount because the container was 0-sized. ``ensureClusters``
     // is idempotent — re-entry is safe.
-    void ensureClusters()
+    ensureClusters()
   }
 })
 
-async function ensureClusters(): Promise<void> {
+// Tracks the current cluster layer so we can swap it out cleanly
+// when the locker set changes (country switch, refresh, etc.) —
+// otherwise we'd stack pins on every reload.
+let activeCluster: any = null
+
+function ensureClusters(): void {
   const map = mapRef.value?.leafletObject
   if (!map || markerProps.value.length === 0) return
-  // ``useLMarkerCluster`` is auto-imported by ``@nuxtjs/leaflet``
-  // when ``leaflet.markerCluster:true`` is set in nuxt.config — no
-  // explicit import needed (and reaching into the module's
-  // ``dist/runtime`` path breaks vue-tsc).
-  await useLMarkerCluster({
-    leafletObject: map,
-    markers: markerProps.value,
-    options: {
-      maxClusterRadius: 60,
-      chunkedLoading: true,
-      disableClusteringAtZoom: 15,
-      showCoverageOnHover: false,
-      spiderfyOnMaxZoom: true,
-    },
+  // Bypass ``useLMarkerCluster`` from ``@nuxtjs/leaflet`` — that
+  // composable destructures a non-existent named export from
+  // ``leaflet.markercluster`` and throws on call. The plugin
+  // attaches ``L.markerClusterGroup`` as a side-effect of the bare
+  // import at the top of this file, which is what the upstream
+  // composable would have used anyway.
+  if (activeCluster) {
+    map.removeLayer(activeCluster)
+    activeCluster = null
+  }
+  const cluster = L.markerClusterGroup({
+    maxClusterRadius: 60,
+    chunkedLoading: true,
+    disableClusteringAtZoom: 15,
+    showCoverageOnHover: false,
+    spiderfyOnMaxZoom: true,
   })
+  for (const m of markerProps.value) {
+    const marker = L.marker([m.lat, m.lng], m.options)
+    if (m.popup) {
+      const popup = L.DomUtil.create('div', 'popup')
+      popup.innerHTML = m.popup
+      marker.bindPopup(popup)
+    }
+    cluster.addLayer(marker)
+  }
+  map.addLayer(cluster)
+  activeCluster = cluster
   clusterReady.value = true
 }
 
@@ -230,7 +257,7 @@ async function ensureClusters(): Promise<void> {
 watch(
   () => props.lockers.length,
   () => {
-    void ensureClusters()
+    ensureClusters()
   },
 )
 
@@ -300,7 +327,7 @@ async function geolocate(): Promise<void> {
       ref="mapRef"
       :zoom="zoom"
       :center="center"
-      :use-global-leaflet="false"
+      :use-global-leaflet="true"
       class="size-full"
       :options="{
         scrollWheelZoom: true,
