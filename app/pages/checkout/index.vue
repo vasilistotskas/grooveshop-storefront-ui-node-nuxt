@@ -51,7 +51,6 @@ const {
   step1Schema,
   step2Schema,
   step3Schema,
-  onCountryChange,
   savedAddresses,
   selectedSavedAddressId,
   selectSavedAddress,
@@ -196,7 +195,6 @@ definePageMeta({
             :mode="addressEntryMode"
             :b2b-invoicing-enabled="b2bInvoicingEnabled"
             @next="nextStep"
-            @country-change="onCountryChange"
             @select-saved-address="selectSavedAddress"
             @use-new-address="useNewAddress"
           />

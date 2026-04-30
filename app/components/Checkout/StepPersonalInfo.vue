@@ -22,7 +22,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'next': []
-  'country-change': []
   'select-saved-address': [addressId: number]
   'use-new-address': []
 }>()
@@ -214,7 +213,6 @@ function onUseNew() {
               :items="countryOptions"
               size="xl"
               class="w-full"
-              @update:model-value="emit('country-change')"
             />
           </UFormField>
 

@@ -110,19 +110,11 @@ export async function useCheckoutForm() {
     }
   }
 
-  const onCountryChange = async () => {
-    formState.region = ''
-    formState.regionId = undefined
-
-    if (formState.country && countries.value?.results) {
-      const selectedCountry = countries.value.results.find(c => c.alpha2 === formState.country)
-      if (selectedCountry) {
-        formState.countryId = selectedCountry.alpha2
-      }
-    }
-
-    await fetchRegions()
-  }
+  // No exported ``onCountryChange`` — the ``watch(() => formState
+  // .country, ...)`` above handles all cascade paths (direct user
+  // click, saved-address prefill, programmatic reset, first-render
+  // fallback). Single source of truth, no event-chain timing
+  // ambiguity.
 
   // Saved addresses exposed to the Step 1 component so users with
   // multiple saved addresses can pick one without re-typing. Only
@@ -219,6 +211,38 @@ export async function useCheckoutForm() {
   }
 
   // Register all watchers/lifecycle hooks BEFORE await (Vue context requirement)
+
+  // Cascade: when ``formState.country`` changes, refresh the region
+  // dropdown options. Watcher (not emit chain) so the cascade fires
+  // for any change path: direct user click on the country select,
+  // saved-address prefill, programmatic reset, the
+  // first-render fallback that picks ``countries[0]``. The previous
+  // ``@update:model-value="emit('country-change')"`` only fired on
+  // direct user interaction, leaving the region dropdown stale on
+  // reset/prefill paths.
+  //
+  // ``immediate: false`` because the bottom-of-setup block already
+  // hydrates regions for the initial country once. ``flush: 'post'``
+  // so we observe the value AFTER v-model has committed it — guards
+  // against timing differences across Reka-ui select implementations.
+  watch(
+    () => formState.country,
+    async (newCountry, oldCountry) => {
+      if (newCountry === oldCountry) return
+      formState.region = ''
+      formState.regionId = undefined
+      if (newCountry && countries.value?.results) {
+        const selectedCountry = countries.value.results.find(
+          c => c.alpha2 === newCountry,
+        )
+        if (selectedCountry) {
+          formState.countryId = selectedCountry.alpha2
+        }
+      }
+      await fetchRegions()
+    },
+    { flush: 'post' },
+  )
 
   watch(() => formState.payWay, (newPayWayId) => {
     if (newPayWayId && payWays.value?.results) {
@@ -697,7 +721,6 @@ export async function useCheckoutForm() {
     step2Schema,
     step3Schema,
     fetchRegions,
-    onCountryChange,
     savedAddresses,
     selectedSavedAddressId,
     selectSavedAddress,
