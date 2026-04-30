@@ -1,9 +1,11 @@
 import * as z from 'zod'
 
 const zAcsCancelPath = z.object({
+  // Order IDs are unsigned integers — reject negative values that
+  // would 404 against Django and just add noise.
   id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
+    z.string().regex(/^\d+$/),
+    z.int().nonnegative(),
   ]),
 })
 
