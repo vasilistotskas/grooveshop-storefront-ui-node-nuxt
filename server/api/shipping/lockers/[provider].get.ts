@@ -24,29 +24,36 @@ const zQuery = z.object({
   country: z.string().length(2).optional(),
 })
 
+// Django auto-converts snake_case → camelCase via the
+// ``djangorestframework-camel-case`` middleware on the response
+// side, so consumers receive ``externalId`` not ``external_id``.
+// Mirror that here — the previous snake_case shape silently
+// short-circuited pagination (``total_pages`` was undefined →
+// loop exited after page 1, capping us at 100 lockers instead of
+// the full catalogue).
 interface AcsStationDjangoRow {
   id: number
-  external_id: string
-  branch_code: string
-  shop_kind: number
+  externalId: string
+  branchCode: string
+  shopKind: number
   name: string
-  address_line_1: string
+  addressLine1: string
   city: string
-  postal_code: string
-  country_code: string
+  postalCode: string
+  countryCode: string
   lat: string | number | null
   lng: string | number | null
-  working_hours: string
-  max_weight_kg: string | number | null
-  is_active: boolean
+  workingHours: string
+  maxWeightKg: string | number | null
+  isActive: boolean
 }
 
 interface PaginatedDjangoResponse<T> {
   results: T[]
   count: number
-  total_pages: number
+  totalPages: number
   page: number
-  page_size: number
+  pageSize: number
 }
 
 interface NormalisedLocker {
@@ -74,18 +81,18 @@ function _toNumber(
 
 function _normalize(row: AcsStationDjangoRow): NormalisedLocker {
   return {
-    externalId: row.external_id,
-    branchCode: row.branch_code || null,
-    shopKind: row.shop_kind,
+    externalId: row.externalId,
+    branchCode: row.branchCode || null,
+    shopKind: row.shopKind,
     name: row.name,
-    addressLine1: row.address_line_1,
+    addressLine1: row.addressLine1,
     city: row.city,
-    postalCode: row.postal_code,
-    countryCode: row.country_code,
+    postalCode: row.postalCode,
+    countryCode: row.countryCode,
     lat: _toNumber(row.lat),
     lng: _toNumber(row.lng),
-    workingHours: row.working_hours || null,
-    maxWeightKg: _toNumber(row.max_weight_kg),
+    workingHours: row.workingHours || null,
+    maxWeightKg: _toNumber(row.maxWeightKg),
   }
 }
 
@@ -116,7 +123,7 @@ async function _fetchAcsStations(
     for (const row of response.results ?? []) {
       collected.push(_normalize(row))
     }
-    if (page >= (response.total_pages ?? 1)) break
+    if (page >= (response.totalPages ?? 1)) break
     page += 1
   }
   return collected
