@@ -12209,11 +12209,8 @@ export const zListPayWayQuery = z.object({
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
-  shippingKind: z.string().register(z.globalRegistry, {
-    description: 'Pair with ``shippingProviderCode`` to filter pay ways by the carrier\'s compatibility rules for that kind.',
-  }).optional(),
-  shippingProviderCode: z.string().register(z.globalRegistry, {
-    description: 'Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) rejects COD on locker pickup; other carriers pass through unchanged. Pair with ``shippingKind``.',
+  shippingMethod: z.string().register(z.globalRegistry, {
+    description: 'Filter pay ways compatible with the given shipping method. When \'box_now_locker\', only online-payment pay ways are returned.',
   }).optional(),
   sortOrder: z.union([
     z.string().regex(/^-?\d+$/),

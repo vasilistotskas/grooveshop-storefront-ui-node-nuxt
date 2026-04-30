@@ -14033,13 +14033,9 @@ export type ListPayWayData = {
          */
     search?: string
     /**
-         * Pair with ``shippingProviderCode`` to filter pay ways by the carrier's compatibility rules for that kind.
+         * Filter pay ways compatible with the given shipping method. When 'box_now_locker', only online-payment pay ways are returned.
          */
-    shippingKind?: string
-    /**
-         * Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) rejects COD on locker pickup; other carriers pass through unchanged. Pair with ``shippingKind``.
-         */
-    shippingProviderCode?: string
+    shippingMethod?: string
     sortOrder?: string | number
     sortOrder_Gte?: string | number
     sortOrder_Lte?: string | number
