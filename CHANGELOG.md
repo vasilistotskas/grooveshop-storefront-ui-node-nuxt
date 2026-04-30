@@ -1,3 +1,10 @@
+## [3.105.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.105.0...v3.105.1) (2026-04-30)
+
+
+### Bug Fixes
+
+* **shipping:** unblock empty Smartpoint map and clean checkout UX bugs ([06dc964](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/06dc964b8f27058eb3936f1e1ff09cec275ebefd)), closes [#default](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/default)
+
 # [3.105.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.104.1...v3.105.0) (2026-04-30)
 
 
