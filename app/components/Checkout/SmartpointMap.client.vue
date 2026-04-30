@@ -88,10 +88,14 @@ const activeTile = computed<TileLayerSpec>(() => {
   return fromProps ?? (isDark ? FALLBACK_TILES.dark : FALLBACK_TILES.light)
 })
 
-// Leaflet map instance — captured via @ready so we can call
-// invalidateSize when the tabs layout snaps the container size,
-// and so we can drive the marker cluster.
-const lMap = shallowRef<L.Map | null>(null)
+// LMap component ref — needed to access ``leafletObject`` (the
+// underlying ``L.Map`` instance) when wiring marker clusters and
+// calling ``invalidateSize()``. Typed as ``any`` because the
+// ``@nuxtjs/leaflet`` LMap component's exposed ``leafletObject``
+// is a loose subtype of the ``L.Map`` we get from
+// ``@types/leaflet``; the official docs use ``ref(null) as any``
+// for this exact reason. Casts isolated to this single ref.
+const mapRef = ref<any>(null)
 const clusterReady = ref(false)
 const geolocating = ref(false)
 
@@ -150,8 +154,9 @@ function escapeAttr(value: string): string {
   return value.replace(/"/g, '&quot;')
 }
 
-async function onMapReady(map: L.Map): Promise<void> {
-  lMap.value = map
+async function onMapReady(): Promise<void> {
+  const map = mapRef.value?.leafletObject
+  if (!map) return
   // Disable animations for users who request reduced motion.
   if (reducedMotion.value === 'reduce') {
     map.options.zoomAnimation = false
@@ -167,12 +172,12 @@ async function onMapReady(map: L.Map): Promise<void> {
 }
 
 async function ensureClusters(): Promise<void> {
-  const map = lMap.value
+  const map = mapRef.value?.leafletObject
   if (!map || markerProps.value.length === 0) return
-  const { useLMarkerCluster } = await import(
-    /* @vite-ignore */ '@nuxtjs/leaflet/dist/runtime/composables/useLMarkerCluster'
-  ).catch(() => ({ useLMarkerCluster: null as any }))
-  if (!useLMarkerCluster) return
+  // ``useLMarkerCluster`` is auto-imported by ``@nuxtjs/leaflet``
+  // when ``leaflet.markerCluster:true`` is set in nuxt.config — no
+  // explicit import needed (and reaching into the module's
+  // ``dist/runtime`` path breaks vue-tsc).
   await useLMarkerCluster({
     leafletObject: map,
     markers: markerProps.value,
@@ -214,13 +219,14 @@ useEventListener(
 )
 
 async function geolocate(): Promise<void> {
-  if (!import.meta.client || !navigator.geolocation || !lMap.value) return
+  const map = mapRef.value?.leafletObject
+  if (!import.meta.client || !navigator.geolocation || !map) return
   geolocating.value = true
   try {
     await new Promise<void>((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          lMap.value?.setView(
+          map.setView(
             [pos.coords.latitude, pos.coords.longitude],
             14,
             { animate: reducedMotion.value !== 'reduce' },
@@ -257,6 +263,7 @@ async function geolocate(): Promise<void> {
     </a>
 
     <LMap
+      ref="mapRef"
       :zoom="zoom"
       :center="center"
       :use-global-leaflet="false"
