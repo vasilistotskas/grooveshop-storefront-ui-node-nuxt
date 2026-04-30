@@ -1,3 +1,10 @@
+## [3.103.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.103.0...v3.103.1) (2026-04-30)
+
+
+### Bug Fixes
+
+* **checkout:** drive country→region cascade from a Vue watcher ([c3e304e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c3e304eabf391a81202c33a0390872dada98fc4f))
+
 # [3.103.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.102.1...v3.103.0) (2026-04-30)
 
 
