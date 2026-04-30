@@ -13,7 +13,6 @@
  * malformed we fall back to CARTO Positron / Dark Matter — both
  * free, both no-API-key, attribution baked in.
  */
-import type { Locker, TileLayerSpec } from '#shared/shipping/interfaces'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.markercluster/dist/MarkerCluster.css'

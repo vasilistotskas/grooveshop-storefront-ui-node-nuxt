@@ -11,8 +11,6 @@
  * the adapter does that via ``adapter.applyToFormState`` when the
  * shopper picks a row.
  */
-import type { Locker, ShippingCarrier, TileLayerSpec } from '#shared/shipping/interfaces'
-
 const open = defineModel<boolean>('open', { required: true })
 
 const props = defineProps<{

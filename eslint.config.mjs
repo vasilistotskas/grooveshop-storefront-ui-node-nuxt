@@ -42,6 +42,58 @@ export default withNuxt(
     },
   },
   {
+    // Mechanical guard for the project rule "never import from
+    // ``#shared/...`` in app/ or server/" — see ~/.claude/projects/
+    // .../memory/feedback_no_shared_imports.md.
+    //
+    // Everything under ``shared/`` is auto-imported by Nuxt's
+    // ``imports.dirs: ['../shared/**']``. Explicit imports cause Vite
+    // "Duplicated imports" warnings, break the test runtime resolver,
+    // and routinely creep back in. Catch them at the lint step.
+    //
+    // Scope: app/** + server/**. ``shared/`` itself is allowed to
+    // re-export internally; ``test/`` keeps explicit imports because
+    // vitest's resolver doesn't honour Nuxt auto-imports.
+    files: ['app/**/*.{ts,vue}', 'server/**/*.{ts,vue}'],
+    rules: {
+      // ``no-restricted-imports`` (the core rule) skips ``import
+      // type`` by default, which is exactly the form that's been
+      // sneaking back in. The typescript-eslint variant checks
+      // both forms — keep both rules on so a pure JS file (rare)
+      // is still caught.
+      'no-restricted-imports': ['error', {
+        patterns: [
+          {
+            // Regex form — glob patterns ('#shared/*', '#shared/**')
+            // didn't match consistently across the eslint+nuxt
+            // resolver chain. ``^#shared(/|$)`` reliably catches
+            // both ``import '#shared'`` and any subpath.
+            regex: '^#shared(/|$)',
+            message:
+              'Auto-imported. Drop the explicit import — Nuxt picks '
+              + 'up everything under shared/ via imports.dirs. '
+              + 'See feedback_no_shared_imports.md.',
+          },
+        ],
+      }],
+      '@typescript-eslint/no-restricted-imports': ['error', {
+        patterns: [
+          {
+            // Regex form — glob patterns ('#shared/*', '#shared/**')
+            // didn't match consistently across the eslint+nuxt
+            // resolver chain. ``^#shared(/|$)`` reliably catches
+            // both ``import '#shared'`` and any subpath.
+            regex: '^#shared(/|$)',
+            message:
+              'Auto-imported. Drop the explicit import — Nuxt picks '
+              + 'up everything under shared/ via imports.dirs. '
+              + 'See feedback_no_shared_imports.md.',
+          },
+        ],
+      }],
+    },
+  },
+  {
     rules: {
       ...eslintPluginBetterTailwindcss.configs['recommended-warn'].rules,
       'better-tailwindcss/no-unknown-classes': ['warn', {

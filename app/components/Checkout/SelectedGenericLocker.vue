@@ -11,8 +11,6 @@
  * means just shipping a new ``shared/shipping/providers/<code>.ts``
  * adapter; this component renders untouched.
  */
-import type { Locker, ShippingCarrier } from '#shared/shipping/interfaces'
-
 const formState = defineModel<Record<string, any>>('formState', {
   required: true,
 })
