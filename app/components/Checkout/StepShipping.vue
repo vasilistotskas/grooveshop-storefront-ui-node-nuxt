@@ -111,40 +111,63 @@ function buildBrandMeta(method: ShippingMethodEnum) {
   }
 }
 
-const isBoxNow = computed(() => formState.value.shippingMethod === 'box_now_locker')
-const isAcsSmartpoint = computed(
-  () => formState.value.shippingMethod === 'acs_smartpoint',
+// Active carrier for the current ``shippingMethod`` (or ``null`` for
+// ``home_delivery``, which has no provider-specific picker). The
+// dispatch lives in the registry — adding a new courier doesn't
+// require any changes here.
+const activeCarrier = computed(() =>
+  carrierForMethod(formState.value.shippingMethod),
 )
 
-const isValid = computed(
-  () =>
-    formState.value.shippingMethod === 'home_delivery'
-    || (isBoxNow.value && !!formState.value.boxnowLockerId)
-    || (isAcsSmartpoint.value && !!formState.value.acsStationExternalId),
+const isBoxNow = computed(
+  () => formState.value.shippingMethod === 'box_now_locker',
 )
+
+const isValid = computed(() => {
+  const method = formState.value.shippingMethod
+  if (method === 'home_delivery') return true
+  const carrier = activeCarrier.value
+  if (!carrier) return false
+  return carrier.readLockerId(formState.value) !== null
+})
 
 // If the shopper had BoxNow selected before, then went to step 3 and
 // switched to a COD PayWay, returning to step 1 leaves the form in an
 // invalid combo (BoxNow + COD). Force it back to home_delivery so the
 // disabled radio doesn't render with the invalid current value.
-watch(isCodPaySelected, (cod) => {
-  if (cod && formState.value.shippingMethod === 'box_now_locker') {
-    formState.value.shippingMethod = 'home_delivery'
-    formState.value.boxnowLockerId = ''
-    formState.value.boxnowLocker = null
-  }
-}, { immediate: true })
+watch(
+  isCodPaySelected,
+  (cod) => {
+    if (cod && formState.value.shippingMethod === 'box_now_locker') {
+      formState.value.shippingMethod = 'home_delivery'
+      formState.value.boxnowLockerId = ''
+      formState.value.boxnowLocker = null
+    }
+  },
+  { immediate: true },
+)
 
-// Reset ACS Smartpoint state when the shopper switches away from it
-// — keeps the order payload tidy and avoids a stray locker ID
-// surviving as orphan data on a home-delivery submission.
+// Clear all carriers' locker state when the shipping method changes
+// to anything that doesn't own them. Prevents orphan locker IDs from
+// leaking into the order payload after the shopper switches options.
+const PROVIDER_FORM_KEYS: Record<string, string[]> = {
+  acs_smartpoint: [
+    'acsStationExternalId',
+    'acsStationBranch',
+    'acsStation',
+  ],
+  box_now_locker: ['boxnowLockerId', 'boxnowLocker'],
+}
+
 watch(
   () => formState.value.shippingMethod,
   (method) => {
-    if (method !== 'acs_smartpoint') {
-      formState.value.acsStationExternalId = ''
-      formState.value.acsStationBranch = ''
-      formState.value.acsStation = null
+    for (const [owningMethod, keys] of Object.entries(PROVIDER_FORM_KEYS)) {
+      if (method === owningMethod) continue
+      for (const key of keys) {
+        formState.value[key]
+          = key.endsWith('Id') || key.endsWith('Branch') ? '' : null
+      }
     }
   },
 )
@@ -235,9 +258,12 @@ function onSubmit() {
         :description="t('shipping.method.boxnow.unconfigured_description')"
       />
 
-      <!-- BoxNow locker picker — shown when box_now_locker is selected -->
-      <template v-if="isBoxNow">
-        <!-- Hidden form field so Zod shows the validation error for missing locker -->
+      <!-- Provider-aware locker picker dispatch.
+           BoxNow keeps its iframe widget (``usesGenericPicker:false``).
+           Every other carrier with ``usesGenericPicker:true`` mounts
+           the generic picker — no provider-specific branch survives
+           in this template. -->
+      <template v-if="activeCarrier && !activeCarrier.usesGenericPicker && isBoxNow">
         <UFormField name="boxnowLockerId" class="mt-0">
           <template #default="{ error }">
             <CheckoutSelectedBoxNowLocker
@@ -254,14 +280,15 @@ function onSubmit() {
         </UFormField>
       </template>
 
-      <!-- ACS Smartpoint locker picker — server-side, no widget. -->
-      <template v-if="isAcsSmartpoint">
-        <UFormField name="acsStationExternalId" class="mt-0">
+      <template v-else-if="activeCarrier?.usesGenericPicker">
+        <UFormField :name="`${activeCarrier.code}LockerId`" class="mt-0">
           <template #default="{ error }">
-            <CheckoutSelectedAcsLocker
+            <CheckoutSelectedGenericLocker
               v-model:formState="formState"
+              :carrier="activeCarrier"
               :initial-postal-code="formState.zipcode"
               :initial-city="formState.city"
+              :country-code="formState.country"
             />
             <p
               v-if="error"
