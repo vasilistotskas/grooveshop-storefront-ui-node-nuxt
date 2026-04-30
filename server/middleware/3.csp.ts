@@ -40,11 +40,20 @@ export default defineEventHandler((event) => {
   //      useHead's script/style transforms can stamp the attribute.
   // Until that wiring is in place 'unsafe-inline' is kept to avoid breaking
   // Nuxt's hydration bootstrap and inline style bindings.
+  // OpenStreetMap-based tile providers used by the checkout
+  // locker map (``CheckoutSmartpointMap.client.vue``). Both
+  // ``cartocdn.com`` (CARTO Positron / Dark Matter) and
+  // ``tile.openstreetmap.org`` are listed so an operator can swap
+  // ``ShippingProvider.metadata.tile_provider.url`` to either
+  // without redeploying. Keep this list in sync with any
+  // additions to the tile-provider whitelist on the Django side.
+  const tileOrigins = 'https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org'
+
   const directives = [
     `default-src 'self'`,
     `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `img-src 'self' data: blob: ${trustedOrigins} https://www.googletagmanager.com`,
+    `img-src 'self' data: blob: ${trustedOrigins} https://www.googletagmanager.com ${tileOrigins}`,
     `font-src 'self' https://fonts.gstatic.com`,
     `connect-src 'self' ${trustedOrigins} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}`,
     // BoxNow widget iframe origins per their CDN: gr (primary), plus

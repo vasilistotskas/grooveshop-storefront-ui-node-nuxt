@@ -171,6 +171,40 @@ async function onMapReady(): Promise<void> {
   map.invalidateSize()
 }
 
+// When the map is mounted inside a hidden tab panel, Leaflet
+// computes its tile grid against a 0×0 container and only renders
+// a single tile. The ``@ready`` callback above fires once at mount;
+// after that, the only signal we get when the panel becomes
+// visible is the container resizing from 0×N to its real
+// dimensions. Watch that via ``useResizeObserver`` and re-call
+// ``invalidateSize`` whenever the width/height transitions through
+// 0 — covers the tab-activate path, the modal-fullscreen-snap
+// path, and any future drawer/sheet animation that changes the
+// visible viewport.
+const mapContainerRef = computed<HTMLElement | null>(
+  () => mapRef.value?.leafletObject?.getContainer?.() ?? null,
+)
+let lastDim = { w: 0, h: 0 }
+useResizeObserver(mapContainerRef, (entries) => {
+  const entry = entries[0]
+  if (!entry) return
+  const { width, height } = entry.contentRect
+  // Only act on a 0 → non-0 transition (or the inverse). Resizing
+  // a visible map repeatedly would trigger redundant work.
+  const wasHidden = lastDim.w === 0 || lastDim.h === 0
+  const isVisible = width > 0 && height > 0
+  lastDim = { w: width, h: height }
+  if (wasHidden && isVisible) {
+    const map = mapRef.value?.leafletObject
+    if (!map) return
+    map.invalidateSize()
+    // Re-cluster too in case the markers were skipped on first
+    // mount because the container was 0-sized. ``ensureClusters``
+    // is idempotent — re-entry is safe.
+    void ensureClusters()
+  }
+})
+
 async function ensureClusters(): Promise<void> {
   const map = mapRef.value?.leafletObject
   if (!map || markerProps.value.length === 0) return
