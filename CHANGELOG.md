@@ -1,3 +1,10 @@
+## [3.104.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.104.0...v3.104.1) (2026-04-30)
+
+
+### Bug Fixes
+
+* openapi schema ([379a2af](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/379a2af2f436da881fbbf5d90e7a292658211cfa))
+
 # [3.104.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.103.6...v3.104.0) (2026-04-30)
 
 
