@@ -1,3 +1,10 @@
+## [3.103.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.103.5...v3.103.6) (2026-04-30)
+
+
+### Bug Fixes
+
+* **shipping:** label routes return Buffer, not Blob, for Nitro binary send ([3f966c2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3f966c27dfbe2320dae48c4f3f843be1eb305d2e))
+
 ## [3.103.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.103.4...v3.103.5) (2026-04-30)
 
 
