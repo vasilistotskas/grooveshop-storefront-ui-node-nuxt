@@ -1,40 +1,38 @@
 /**
- * Auto-discovered registry for {@link ShippingCarrier} adapters.
+ * Registry for {@link ShippingCarrier} adapters.
  *
- * **Mechanism**: ``import.meta.glob`` with ``{ eager: true,
- * import: 'default' }`` pulls every ``./providers/*.ts`` file at
- * build time. Each file's default export is a {@link ShippingCarrier}
- * instance and it gets indexed by ``code``. To add a new courier:
- * drop ``./providers/<code>.ts``. No edits to this file or any
- * consumer.
+ * **Mechanism**: explicit imports indexed by ``code``. To add a new
+ * courier: create ``./providers/<code>.ts`` exporting a
+ * ``ShippingCarrier`` default, then add two lines here (an import
+ * and an array entry). The previous ``import.meta.glob`` approach
+ * was zero-edit but broke the production build because Nitro's
+ * rollup bundler doesn't run Vite's glob transform — and this
+ * module is consumed by Nitro server proxies (e.g.
+ * ``server/api/shipping/lockers/[provider].get.ts``).
  *
- * Works in both Nuxt app (browser/SSR) and Nitro server (server
- * proxies) because this module lives in ``shared/`` — both
- * contexts auto-import from here per ``nuxt.config.ts`` and the
- * Nitro ``imports.dirs``.
+ * Works in both Nuxt app (Vite) and Nitro server (rollup) because
+ * the imports are static.
  *
  * **Tests** can use {@link __registerForTest} / {@link __resetForTest}
- * to swap in stubs — the eager glob keeps the real adapters loaded,
- * the override Map takes priority on lookup.
+ * to swap in stubs — the override Map takes priority on lookup.
  */
 import type { ShippingCarrier } from './interfaces'
+import acsCarrier from './providers/acs'
+import boxnowCarrier from './providers/boxnow'
 
-const _eager = import.meta.glob<ShippingCarrier>(
-  './providers/*.ts',
-  { eager: true, import: 'default' },
-)
+// One line per registered carrier. Adding ELTA / Speedex / Geniki:
+// import their adapter above and append to this list.
+const _ALL_CARRIERS: ShippingCarrier[] = [
+  acsCarrier,
+  boxnowCarrier,
+]
 
 const _registry: Map<string, ShippingCarrier> = new Map()
-
-for (const [path, carrier] of Object.entries(_eager)) {
-  if (!carrier || typeof carrier !== 'object' || !('code' in carrier)) {
-    log.warn('shipping/registry', `Skipping ${path}: default export is not a ShippingCarrier`)
-    continue
-  }
+for (const carrier of _ALL_CARRIERS) {
   if (_registry.has(carrier.code)) {
     log.warn(
       'shipping/registry',
-      `Duplicate carrier code '${carrier.code}' from ${path} — first wins`,
+      `Duplicate carrier code '${carrier.code}' — first registration wins`,
     )
     continue
   }
