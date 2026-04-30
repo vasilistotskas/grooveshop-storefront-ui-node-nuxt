@@ -2320,6 +2320,10 @@ export type Order = {
      */
   readonly paymentStatusDisplay: string
   paymentMethod?: string
+  /**
+     * True when the order's PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading 'outstanding amount' warnings for COD orders where the shopper intentionally paid €0 at checkout.
+     */
+  readonly isOnlinePayment: boolean
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
 }
@@ -2493,6 +2497,10 @@ export type OrderDetail = {
      */
   readonly paymentStatusDisplay: string
   paymentMethod?: string
+  /**
+     * True when the order's PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading 'outstanding amount' warnings for COD orders where the shopper intentionally paid €0 at checkout.
+     */
+  readonly isOnlinePayment: boolean
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
   /**
@@ -2562,10 +2570,6 @@ export type OrderDetail = {
       error?: string | null
     } | null
   } | null
-  /**
-     * True when the order's PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced so the storefront can suppress misleading "outstanding amount" warnings for COD orders where the shopper intentionally paid €0 at checkout.
-     */
-  readonly isOnlinePayment: boolean
   /**
      * Αριθμός Παρακολούθησης
      */

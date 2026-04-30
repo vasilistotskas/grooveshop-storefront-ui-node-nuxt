@@ -2693,6 +2693,9 @@ export const zOrder = z.object({
     description: 'Localised label for ``payment_status`` (mirrors ``status_display``). Frontend renders this rather than the raw enum value so Greek/English/German locales all work without per-locale string maps in the UI.',
   }).readonly(),
   paymentMethod: z.string().max(50).optional(),
+  isOnlinePayment: z.boolean().register(z.globalRegistry, {
+    description: 'True when the order\'s PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading \'outstanding amount\' warnings for COD orders where the shopper intentionally paid €0 at checkout.',
+  }).readonly(),
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
 })
@@ -4586,6 +4589,9 @@ export const zOrderDetail = z.object({
     description: 'Localised label for ``payment_status`` (mirrors ``status_display``). Frontend renders this rather than the raw enum value so Greek/English/German locales all work without per-locale string maps in the UI.',
   }).readonly(),
   paymentMethod: z.string().max(50).optional(),
+  isOnlinePayment: z.boolean().register(z.globalRegistry, {
+    description: 'True when the order\'s PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading \'outstanding amount\' warnings for COD orders where the shopper intentionally paid €0 at checkout.',
+  }).readonly(),
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
   orderTimeline: z.array(z.object({
@@ -4632,9 +4638,6 @@ export const zOrderDetail = z.object({
       error: z.string().nullish(),
     }).nullish(),
   }).readonly().nullable(),
-  isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'True when the order\'s PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced so the storefront can suppress misleading "outstanding amount" warnings for COD orders where the shopper intentionally paid €0 at checkout.',
-  }).readonly(),
   trackingNumber: z.string().max(255).optional(),
   shippingCarrier: z.string().max(255).optional(),
   customerFullName: z.string().readonly(),
