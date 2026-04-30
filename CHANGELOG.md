@@ -1,3 +1,10 @@
+# [3.106.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.105.2...v3.106.0) (2026-04-30)
+
+
+### Features
+
+* **order:** consume paymentStatusDisplay + cancellation + isOnlinePayment ([07d5635](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/07d56350839f2ac7c7b246b464988ae17550a82f))
+
 ## [3.105.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.105.1...v3.105.2) (2026-04-30)
 
 
