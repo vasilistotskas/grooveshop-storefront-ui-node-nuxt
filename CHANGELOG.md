@@ -1,3 +1,10 @@
+# [3.108.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.107.1...v3.108.0) (2026-05-01)
+
+
+### Features
+
+* **checkout:** allow BoxNow + COD combo (PAY ON THE GO) ([8fb8dcb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8fb8dcbc84e4aeff960ccdd465e7ede8a9cb99f1))
+
 ## [3.107.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.107.0...v3.107.1) (2026-05-01)
 
 
