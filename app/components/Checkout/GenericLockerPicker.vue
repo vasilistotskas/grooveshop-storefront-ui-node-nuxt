@@ -144,9 +144,14 @@ async function loadAllLockersForMap(): Promise<void> {
   }
 }
 
+// ``immediate: true`` so the bulk locker fetch fires when the modal
+// opens with the default-map tab already selected (no user interaction
+// has happened yet). Without it the watcher waits for an actual change,
+// so the first open showed an empty map; switching to List then back
+// to Map flipped activeTab and finally triggered the fetch.
 watch(activeTab, (tab) => {
   if (tab === 'map') void loadAllLockersForMap()
-})
+}, { immediate: true })
 
 onUnmounted(() => {
   abortController?.abort()
