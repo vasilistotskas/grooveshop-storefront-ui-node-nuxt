@@ -1,3 +1,16 @@
+# [3.107.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.106.1...v3.107.0) (2026-05-01)
+
+
+### Bug Fixes
+
+* **auth:** thread explicit-logout intent through auth:change hook ([ffb5f03](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ffb5f0363df858cd006d3f6912eff413da721bed))
+* **checkout:** fetch bulk lockers on first modal open with default map tab ([e76bbad](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e76bbad64e8f39108af7b570117981da96684f84)), closes [#5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/5)
+
+
+### Features
+
+* **checkout:** capture ACS routing metadata when shopper applies address suggestion ([c743803](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c743803bfc10d4fc1b6396fe61409613a206bd14))
+
 ## [3.106.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.106.0...v3.106.1) (2026-05-01)
 
 
