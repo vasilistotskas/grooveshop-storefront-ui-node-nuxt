@@ -1,3 +1,10 @@
+## [3.106.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.106.0...v3.106.1) (2026-05-01)
+
+
+### Bug Fixes
+
+* **checkout:** repair empty Smartpoint map + drop duplicate /api/pay-way fetch ([82f6871](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/82f687148fbaad80318d32786b16c5d1f3555b46))
+
 # [3.106.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.105.2...v3.106.0) (2026-04-30)
 
 
