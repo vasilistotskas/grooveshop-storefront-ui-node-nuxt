@@ -22,15 +22,15 @@ export default function () {
     })
   }
 
-  async function deleteSession() {
+  async function deleteSession({ explicit = false }: { explicit?: boolean } = {}) {
     return $fetch(`${API_BASE_URL}/session`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response)
+        await onAllAuthResponse(response, { explicit })
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response)
+        await onAllAuthResponseError(response, { explicit })
       },
     })
   }

@@ -2,12 +2,22 @@ import { withQuery } from 'ufo'
 import type { FetchResponse } from 'ofetch'
 import type { H3Error } from 'h3'
 
-const callAuthChangeHook = async (authData: AllAuthResponse | AllAuthResponseError) => {
-  const nuxtApp = useNuxtApp()
-  await nuxtApp.callHook('auth:change', { detail: authData })
+export interface AuthChangeMeta {
+  explicit?: boolean
 }
 
-export const onAllAuthResponse = async (response: FetchResponse<AllAuthResponse>) => {
+const callAuthChangeHook = async (
+  authData: AllAuthResponse | AllAuthResponseError,
+  meta: AuthChangeMeta = {},
+) => {
+  const nuxtApp = useNuxtApp()
+  await nuxtApp.callHook('auth:change', { detail: authData, ...meta })
+}
+
+export const onAllAuthResponse = async (
+  response: FetchResponse<AllAuthResponse>,
+  meta: AuthChangeMeta = {},
+) => {
   if (!response || !response._data) return
   log.info('auth', 'onAllAuthResponse', { status: response.status })
   // Only fire auth:change for responses that carry auth state (meta.is_authenticated).
@@ -17,16 +27,19 @@ export const onAllAuthResponse = async (response: FetchResponse<AllAuthResponse>
   // LOGGED_OUT event.
   if (response.status === 200 && response._data.meta?.is_authenticated !== undefined) {
     log.info('auth', 'Auth response 200 with meta, calling auth:change hook')
-    await callAuthChangeHook(response._data)
+    await callAuthChangeHook(response._data, meta)
   }
 }
 
-export const onAllAuthResponseError = async (response: FetchResponse<H3Error<AllAuthResponseError>>) => {
+export const onAllAuthResponseError = async (
+  response: FetchResponse<H3Error<AllAuthResponseError>>,
+  meta: AuthChangeMeta = {},
+) => {
   if (!response || !response._data) return
   log.info('auth', 'onAllAuthResponseError', { status: response.status })
   if ([401, 410].includes(response.status) && response._data.data) {
     log.info('auth', 'Status includes 401 or 410')
-    await callAuthChangeHook(response._data.data)
+    await callAuthChangeHook(response._data.data, meta)
   }
 }
 

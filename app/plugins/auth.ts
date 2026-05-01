@@ -20,17 +20,22 @@ export default defineNuxtPlugin({
 
     const authState = useState<AllAuthResponse | AllAuthResponseError>('auth-state')
     const authEvent = useState<AuthChangeEventType>('authEvent')
+    // Set inside the auth:change hook from `explicit` — not by the calling component — so the flag is always visible to the watcher that reads it.
     const userInitiatedLogout = useState<boolean>('auth:userInitiatedLogout', () => false)
 
     const previousAuthState = ref<AllAuthResponse | AllAuthResponseError | null>(
       authState.value,
     )
 
-    nuxtApp.hook('auth:change', async ({ detail: newAuthState }) => {
+    nuxtApp.hook('auth:change', async ({ detail: newAuthState, explicit }) => {
       authState.value = newAuthState
       authEvent.value = determineAuthChangeEvent(authState.value, previousAuthState.value)
 
-      log.info('auth', 'State changed', { event: authEvent.value })
+      if (explicit && authEvent.value === AuthChangeEvent.LOGGED_OUT) {
+        userInitiatedLogout.value = true
+      }
+
+      log.info('auth', 'State changed', { event: authEvent.value, explicit: !!explicit })
 
       if (isAllAuthResponseSuccess(newAuthState) && newAuthState.meta?.is_authenticated) {
         await fetch()
