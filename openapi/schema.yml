@@ -33845,6 +33845,15 @@ components:
             Empty dict when the customer declined marketing cookies — in that case
             the browser should not fire the matching pixel either.
           readOnly: true
+        currency:
+          type: string
+          example: EUR
+          readOnly: true
+          description: ISO 4217 currency code for every monetary field on the order
+            (paidAmount, shippingPrice, totalPriceItems, …). Surfaced as a top-level
+            field because djmoney serialises money fields as bare numbers — without
+            this, the frontend has no way to know whether ``59.98`` is EUR or USD,
+            which breaks ad-pixel attribution and cart totals in multi-currency reports.
       required:
       - acsShipment
       - boxnowShipment
@@ -33853,6 +33862,7 @@ components:
       - city
       - country
       - createdAt
+      - currency
       - customerFullName
       - email
       - firstName

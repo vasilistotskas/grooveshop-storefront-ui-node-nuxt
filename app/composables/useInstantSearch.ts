@@ -66,11 +66,12 @@ export function useInstantSearch<T = any>(
 ): InstantSearchResult<T> {
   const route = useRoute()
   const router = useRouter()
-  // Capture the Meta Pixel proxy at composable-setup time so the
-  // debounced ``executeSearch`` callback (fires asynchronously after
-  // the user stops typing) doesn't re-invoke ``useScriptMetaPixel``
+  // Capture the Meta Pixel + GA4 proxies at composable-setup time so
+  // the debounced ``executeSearch`` callback (fires asynchronously
+  // after the user stops typing) doesn't re-invoke ``useScript*``
   // from a non-setup context.
   const metaPixel = useMetaPixel()
+  const ga4 = useGA4()
 
   // Default options
   const debounceMs = options.debounceMs ?? 150
@@ -195,6 +196,7 @@ export function useInstantSearch<T = any>(
           contentType: 'product',
           contentIds: productIds,
         })
+        ga4.trackSearch({ search_term: query })
       }
       catch (pixelErr) {
         log.warn(

@@ -2,11 +2,12 @@ import { resolveURL, withQuery } from 'ufo'
 
 export default function () {
   const API_BASE_URL = ALLAUTH_AUTH_URL
-  // Capture the Meta Pixel proxy at composable-setup so the signup
-  // ``onResponse`` callback (which runs asynchronously after the
-  // network round-trip) doesn't try to call ``useScriptMetaPixel``
+  // Capture the Meta Pixel + GA4 proxies at composable-setup so the
+  // signup / login ``onResponse`` callbacks (which run asynchronously
+  // after the network round-trip) don't try to call ``useScript*``
   // from outside Nuxt's component setup context.
   const metaPixel = useMetaPixel()
+  const ga4 = useGA4()
   async function getSession(encrypted_token: string | null = null) {
     const headers = useRequestHeaders()
     if (encrypted_token) {
@@ -47,6 +48,25 @@ export default function () {
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response)
+        // GA4: login event. allauth headless returns 200 on
+        // immediate success and 401 with a flow when MFA is
+        // required — we only fire on the terminal success path so
+        // a TOTP-gated user doesn't get a premature login event
+        // before completing 2FA. The auth plugin's
+        // ``LOGGED_IN`` event would be a more accurate hook, but
+        // catching it here keeps the analytics call co-located
+        // with the network call and easy to audit.
+        if (response.ok && response.status === 200) {
+          try {
+            ga4.trackLogin({ method: 'email' })
+          }
+          catch (pixelErr) {
+            log.warn(
+              'auth:ga4Login',
+              String((pixelErr as Error)?.message ?? pixelErr),
+            )
+          }
+        }
       },
       async onResponseError({ response }) {
         await onAllAuthResponseError(response)
@@ -74,10 +94,11 @@ export default function () {
             metaPixel.trackCompleteRegistration({
               status: 'completed',
             })
+            ga4.trackSignUp({ method: 'email' })
           }
           catch (pixelErr) {
             log.warn(
-              'auth:metaPixelCompleteRegistration',
+              'auth:pixelCompleteRegistration',
               String((pixelErr as Error)?.message ?? pixelErr),
             )
           }

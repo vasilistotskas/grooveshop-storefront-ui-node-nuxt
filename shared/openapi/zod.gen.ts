@@ -4646,6 +4646,9 @@ export const zOrderDetail = z.object({
   metaEventIds: z.record(z.string(), z.string()).register(z.globalRegistry, {
     description: 'Meta Pixel ``eventID`` values the browser must reuse when firing the matching pixel call on the success page so Meta dedups the browser event against the server-side Conversions API event. Only the keys minted at order creation are surfaced (purchase, initiate_checkout, add_payment_info). Empty dict when the customer declined marketing cookies — in that case the browser should not fire the matching pixel either.',
   }).readonly(),
+  currency: z.string().register(z.globalRegistry, {
+    description: 'ISO 4217 currency code for every monetary field on the order (paidAmount, shippingPrice, totalPriceItems, …). Surfaced as a top-level field because djmoney serialises money fields as bare numbers — without this, the frontend has no way to know whether ``59.98`` is EUR or USD, which breaks ad-pixel attribution and cart totals in multi-currency reports.',
+  }).readonly(),
 })
 
 export const zPaginatedBoxNowLockerList = z.object({

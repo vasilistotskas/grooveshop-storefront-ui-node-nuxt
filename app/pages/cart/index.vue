@@ -9,6 +9,43 @@ const {
 const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 const { hasStockIssue, getStockStatusMessage } = cartStore
+const ga4 = useGA4()
+const viewCartFired = ref(false)
+
+// GA4: view_cart fires once when the page mounts and the cart has
+// finished loading with at least one item. Browser-only event with
+// no Meta equivalent in the standard funnel — Meta uses the
+// PageView pixel for cart-page attribution and reserves explicit
+// cart events for AddToCart only.
+watch(
+  [pending, () => cart.value?.items?.length ?? 0],
+  ([isPending, count]) => {
+    if (import.meta.server) return
+    if (isPending || count === 0 || viewCartFired.value) return
+    try {
+      ga4.trackViewCart({
+        currency: cart.value?.currency ?? 'EUR',
+        value: Number(cart.value?.totalPrice ?? 0),
+        items:
+          cart.value?.items?.map(item => ({
+            item_id: String(item.product?.id ?? ''),
+            quantity: Number(item.quantity ?? 0),
+            price: Number(
+              item.product?.finalPrice ?? item.product?.price ?? 0,
+            ),
+          })) ?? [],
+      })
+      viewCartFired.value = true
+    }
+    catch (pixelErr) {
+      log.warn(
+        'cart:ga4ViewCart',
+        String((pixelErr as Error)?.message ?? pixelErr),
+      )
+    }
+  },
+  { immediate: true },
+)
 
 // The abandoned-cart recovery route forwards here with ``?recovered=1``.
 // We surface a one-shot welcome banner so the shopper sees affirmation

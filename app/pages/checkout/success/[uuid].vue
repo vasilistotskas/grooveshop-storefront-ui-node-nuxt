@@ -94,8 +94,9 @@ onBeforeUnmount(() => {
 // after a 2s poll); pixel must NOT fire twice for the same order, so
 // a guard ref tracks whether we already sent it.
 // Capture once at setup so the watcher / onMounted callback don't
-// re-invoke ``useScriptMetaPixel`` from outside setup context.
+// re-invoke ``useScript*`` from outside setup context.
 const metaPixel = useMetaPixel()
+const ga4 = useGA4()
 const purchaseEventFired = ref(false)
 function tryFirePurchaseEvent() {
   if (!order.value || purchaseEventFired.value) return
@@ -111,14 +112,20 @@ function tryFirePurchaseEvent() {
   if (!eventId) return
 
   try {
+    // ``order.currency`` is a SerializerMethodField that walks the
+    // order's djmoney fields (paid_amount → total_price_items →
+    // shipping_price) and returns an ISO 4217 code. Defaulting to
+    // 'EUR' here is just paranoia — the field is always populated
+    // server-side per the project's monetary defaults.
+    const currency = order.value.currency ?? 'EUR'
+    const value = Number(paidAmount.value ?? 0)
+    const transactionId = String(order.value.id)
+
     metaPixel.trackPurchase(
       {
-        currency:
-          (order.value.totalPriceItems as { currency?: string } | undefined)
-            ?.currency
-            ?? 'EUR',
-        value: Number(paidAmount.value ?? 0),
-        orderId: String(order.value.id),
+        currency,
+        value,
+        orderId: transactionId,
         contentType: 'product',
         contentIds: orderItems.value
           .map(item => item.product?.id)
@@ -138,11 +145,28 @@ function tryFirePurchaseEvent() {
       },
       { eventID: eventId },
     )
+
+    // GA4: purchase. ``transaction_id`` is the dedup key for GA4's
+    // own server-side dedup; using the order ID here means a Stripe
+    // webhook re-poll re-rendering the success page won't double-
+    // count even if our local ``purchaseEventFired`` guard somehow
+    // misses (e.g. a hard reload).
+    ga4.trackPurchase({
+      transaction_id: transactionId,
+      currency,
+      value,
+      shipping: Number(shippingPrice.value ?? 0),
+      items: orderItems.value.map(item => ({
+        item_id: String(item.product?.id ?? ''),
+        quantity: Number(item.quantity ?? 0),
+        price: Number(item.price ?? 0),
+      })),
+    })
     purchaseEventFired.value = true
   }
   catch (pixelErr) {
     log.warn(
-      'success:metaPixelPurchase',
+      'success:pixelPurchase',
       String((pixelErr as Error)?.message ?? pixelErr),
     )
   }

@@ -1,11 +1,13 @@
 export const useCartStore = defineStore('cart', () => {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
-  // Capture the Meta Pixel proxy at store-setup time so the action
-  // body doesn't call ``useScriptMetaPixel`` from outside Nuxt's
-  // component setup context (Pinia store actions persist across the
-  // app's lifecycle while individual page setups come and go).
+  // Capture the Meta Pixel + GA4 proxies at store-setup time so the
+  // action body doesn't call ``useScriptMetaPixel`` /
+  // ``useScriptGoogleAnalytics`` from outside Nuxt's component setup
+  // context (Pinia store actions persist across the app's lifecycle
+  // while individual page setups come and go).
   const metaPixel = useMetaPixel()
+  const ga4 = useGA4()
   const cart = ref<CartDetail | null>(null)
   const inFlight = reactive(new Set<string>())
   const pending = computed(() => inFlight.size > 0)
@@ -101,9 +103,12 @@ export const useCartStore = defineStore('cart', () => {
             addedItem.product?.finalPrice ?? addedItem.product?.price ?? 0,
           )
           const quantity = Number(body.quantity ?? addedItem.quantity ?? 1)
+          const currency = cart.value?.currency ?? 'EUR'
+          const value = Number((unitPrice * quantity).toFixed(2))
+
           metaPixel.trackAddToCart({
-            currency: cart.value?.currency ?? 'EUR',
-            value: Number((unitPrice * quantity).toFixed(2)),
+            currency,
+            value,
             contentIds: [String(productId)],
             contents: [
               {
@@ -113,6 +118,18 @@ export const useCartStore = defineStore('cart', () => {
               },
             ],
             contentType: 'product',
+          })
+
+          ga4.trackAddToCart({
+            currency,
+            value,
+            items: [
+              {
+                item_id: String(productId),
+                quantity,
+                price: unitPrice,
+              },
+            ],
           })
         }
       }
@@ -159,6 +176,10 @@ export const useCartStore = defineStore('cart', () => {
   async function deleteCartItem(id: number) {
     const opId = crypto.randomUUID()
     inFlight.add(opId)
+    // Snapshot the item BEFORE the DELETE so the analytics event has
+    // accurate price/quantity. Polling the cart afterwards would
+    // miss the row entirely (it's gone).
+    const removedItem = cart.value?.items?.find(item => item.id === id)
     try {
       await $fetch(`/api/cart/items/${id}`, {
         method: 'DELETE',
@@ -166,6 +187,37 @@ export const useCartStore = defineStore('cart', () => {
       })
       await refreshCart()
       error.value = null
+
+      if (removedItem) {
+        try {
+          const productId = removedItem.product?.id
+          const unitPrice = Number(
+            removedItem.product?.finalPrice
+            ?? removedItem.product?.price
+            ?? 0,
+          )
+          const quantity = Number(removedItem.quantity ?? 1)
+          ga4.trackRemoveFromCart({
+            currency: cart.value?.currency ?? 'EUR',
+            value: Number((unitPrice * quantity).toFixed(2)),
+            items: productId
+              ? [
+                  {
+                    item_id: String(productId),
+                    quantity,
+                    price: unitPrice,
+                  },
+                ]
+              : [],
+          })
+        }
+        catch (pixelErr) {
+          log.warn(
+            'cart:ga4RemoveFromCart',
+            String((pixelErr as Error)?.message ?? pixelErr),
+          )
+        }
+      }
     }
     catch (err) {
       log.error({ action: 'cart:deleteItem', error: err })

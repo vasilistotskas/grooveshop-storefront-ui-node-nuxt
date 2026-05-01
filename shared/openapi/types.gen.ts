@@ -2584,6 +2584,10 @@ export type OrderDetail = {
   readonly metaEventIds: {
     [key: string]: string
   }
+  /**
+     * ISO 4217 currency code for every monetary field on the order (paidAmount, shippingPrice, totalPriceItems, …). Surfaced as a top-level field because djmoney serialises money fields as bare numbers — without this, the frontend has no way to know whether ``59.98`` is EUR or USD, which breaks ad-pixel attribution and cart totals in multi-currency reports.
+     */
+  readonly currency: string
 }
 
 /**

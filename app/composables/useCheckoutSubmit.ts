@@ -37,7 +37,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   // the moment the customer enters checkout (InitiateCheckout) and
   // persists across step navigation; submitted to Django in the
   // order body so the server-leg uses the same id and Meta dedups.
+  // GA4 mirrors the same lifecycle but doesn't dedup against a
+  // server leg — separate analytics ecosystem.
   const metaPixel = useMetaPixel()
+  const ga4 = useGA4()
   const cookieControl = useCookieControl()
   const metaEventIds = reactive<{
     initiateCheckout?: string
@@ -627,27 +630,44 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   const nextStep = async () => {
     if (currentStep.value < 2) {
       currentStep.value++
-      // Meta Pixel: AddPaymentInfo fires once when the customer
-      // enters the payment step. Browser-only event (no server-side
-      // dedup), so the composable mints its own eventID.
+      // Meta Pixel: AddPaymentInfo + GA4: add_payment_info both fire
+      // once when the customer enters the payment step. Browser-only
+      // events (no server-side dedup); the Meta composable mints its
+      // own eventID.
       if (currentStep.value === 2 && !metaEventIds.addPaymentInfo) {
         try {
           const value = Number(cart.value?.totalPrice ?? 0)
           const currency = cart.value?.currency ?? 'EUR'
+          const productIds
+            = cart.value?.items
+              ?.map(item => String(item.product?.id ?? ''))
+              .filter(id => !!id) ?? []
           const eventId = metaPixel.trackAddPaymentInfo({
             currency,
             value,
             contentType: 'product',
-            contentIds:
-              cart.value?.items?.map(item => String(item.product?.id ?? ''))
-                .filter(id => !!id) ?? [],
+            contentIds: productIds,
             numItems: cart.value?.totalItems ?? 0,
           })
           if (eventId) metaEventIds.addPaymentInfo = eventId
+
+          ga4.trackAddPaymentInfo({
+            currency,
+            value,
+            payment_type: selectedPayWay.value?.providerCode || undefined,
+            items:
+              cart.value?.items?.map(item => ({
+                item_id: String(item.product?.id ?? ''),
+                quantity: Number(item.quantity ?? 0),
+                price: Number(
+                  item.product?.finalPrice ?? item.product?.price ?? 0,
+                ),
+              })) ?? [],
+          })
         }
         catch (pixelErr) {
           log.warn(
-            'checkout:metaPixelAddPaymentInfo',
+            'checkout:pixelAddPaymentInfo',
             String((pixelErr as Error)?.message ?? pixelErr),
           )
         }
@@ -656,30 +676,45 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   }
 
   /**
-   * Called once when the customer enters the checkout flow. Fires
-   * Meta InitiateCheckout (browser leg) and stashes the eventID on
-   * ``metaEventIds`` so the order POST body can forward it to the
-   * Django side, which will dedup the corresponding server event.
+   * Called once when the customer enters the checkout flow. Fires:
+   * * Meta InitiateCheckout (browser leg, deduped against the Django
+   *   server leg via ``metaEventIds.initiateCheckout``)
+   * * GA4 begin_checkout (browser-only, no dedup)
    */
   const fireInitiateCheckout = () => {
     if (metaEventIds.initiateCheckout) return
     try {
       const value = Number(cart.value?.totalPrice ?? 0)
       const currency = cart.value?.currency ?? 'EUR'
+      const productIds
+        = cart.value?.items
+          ?.map(item => String(item.product?.id ?? ''))
+          .filter(id => !!id) ?? []
       const eventId = metaPixel.trackInitiateCheckout({
         currency,
         value,
         contentType: 'product',
-        contentIds:
-          cart.value?.items?.map(item => String(item.product?.id ?? ''))
-            .filter(id => !!id) ?? [],
+        contentIds: productIds,
         numItems: cart.value?.totalItems ?? 0,
       })
       if (eventId) metaEventIds.initiateCheckout = eventId
+
+      ga4.trackBeginCheckout({
+        currency,
+        value,
+        items:
+          cart.value?.items?.map(item => ({
+            item_id: String(item.product?.id ?? ''),
+            quantity: Number(item.quantity ?? 0),
+            price: Number(
+              item.product?.finalPrice ?? item.product?.price ?? 0,
+            ),
+          })) ?? [],
+      })
     }
     catch (pixelErr) {
       log.warn(
-        'checkout:metaPixelInitiateCheckout',
+        'checkout:pixelInitiateCheckout',
         String((pixelErr as Error)?.message ?? pixelErr),
       )
     }

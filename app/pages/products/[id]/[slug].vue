@@ -31,10 +31,12 @@ if (productId) {
   trackView('product', Number(productId))
 }
 
-// Meta Pixel — ViewContent fires once per product detail load on the
-// client. SSR-safe via ``onMounted`` so the prerender pass never
-// produces a phantom event. Browser-only event (no server-side leg).
+// Meta Pixel — ViewContent / GA4 — view_item, both fire once per
+// product detail load on the client. SSR-safe via ``onMounted`` so
+// the prerender pass never produces a phantom event. Browser-only
+// (no server-side leg for either).
 const metaPixel = useMetaPixel()
+const ga4 = useGA4()
 const viewContentFired = ref(false)
 
 // Client-side recently-viewed rail. We record the visit once the product
@@ -145,6 +147,7 @@ onMounted(() => {
     const price = Number(
       productData.finalPrice ?? productData.price ?? 0,
     )
+    const productName = extractTranslated(productData, 'name', locale.value)
     metaPixel.trackViewContent({
       currency: 'EUR',
       value: price,
@@ -159,7 +162,21 @@ onMounted(() => {
             },
           ]
         : [],
-      contentName: extractTranslated(productData, 'name', locale.value),
+      contentName: productName,
+    })
+    ga4.trackViewItem({
+      currency: 'EUR',
+      value: price,
+      items: pid
+        ? [
+            {
+              item_id: pid,
+              item_name: productName,
+              price,
+              quantity: 1,
+            },
+          ]
+        : [],
     })
     viewContentFired.value = true
   }
