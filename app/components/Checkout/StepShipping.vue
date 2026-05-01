@@ -237,7 +237,7 @@ function onSubmit() {
               :src="item.logo"
               :alt="item.altText"
               width="96"
-              height="40"
+              height="66"
               fit="contain"
               format="webp"
               :modifiers="{ background: 'transparent' }"
