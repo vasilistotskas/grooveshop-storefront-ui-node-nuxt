@@ -7,8 +7,10 @@
  * markup free of brand-asset paths so adding a new carrier is just
  *
  *   1. Drop the logo in ``public/img/shipping/<provider>.png``
- *   2. Add an entry to ``SHIPPING_METHOD_META``.
- *   3. (Backend) extend ``OrderShippingMethod`` enum + Django filter.
+ *   2. Add an entry to ``SHIPPING_METHOD_META`` + the matching key
+ *      in ``ShippingMethodKey``.
+ *   3. (Backend) register a ``ShippingCarrierInterface`` adapter and
+ *      seed a ``ShippingProvider`` row.
  *
  * Logos live in ``public/`` so Nuxt serves them as static assets at
  * ``/img/shipping/...`` — no Vite asset import (those paths would route
@@ -18,14 +20,13 @@
  */
 
 /**
- * The set of checkout shipping methods rendered as radio cards.
- *
- * This used to be sourced from the Django-generated
- * ``ShippingMethodEnum`` (when ``Order.shipping_method`` was a real
- * column). After the column drop, the backend exposes the same shape
- * via ``order.shippingKind`` + ``order.shippingProvider.code``; the
- * frontend's checkout still groups options under one of these three
- * presentation keys. Auto-imported across ``app/`` and ``shared/``.
+ * The set of checkout shipping methods rendered as radio cards. The
+ * backend identifies the same carriers via
+ * ``order.shippingProvider.code`` + ``order.shippingKind`` (see
+ * ``OrderDetail.shipmentProviderCode`` on the API contract); this
+ * union is purely a presentation key for the radio selector and the
+ * brand metadata table below. Auto-imported across ``app/`` and
+ * ``shared/``.
  */
 export type ShippingMethodKey
   = | 'home_delivery'
