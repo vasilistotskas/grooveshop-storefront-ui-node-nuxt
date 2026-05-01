@@ -1,3 +1,10 @@
+# [3.109.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.108.0...v3.109.0) (2026-05-01)
+
+
+### Features
+
+* **meta-capi:** server + browser Meta Pixel integration ([e2de4f6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e2de4f65a8cdc1a8f508dd7e802caff159ca8785))
+
 # [3.108.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.107.1...v3.108.0) (2026-05-01)
 
 
