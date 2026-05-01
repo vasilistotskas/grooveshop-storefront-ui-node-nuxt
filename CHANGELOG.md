@@ -1,3 +1,10 @@
+## [3.107.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.107.0...v3.107.1) (2026-05-01)
+
+
+### Bug Fixes
+
+* **checkout:** map ACS resolvedArea to place (Περιοχή), not city (Πόλη) ([2201045](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2201045087c4480fd0850a5dc2a02f35939a566f))
+
 # [3.107.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.106.1...v3.107.0) (2026-05-01)
 
 
