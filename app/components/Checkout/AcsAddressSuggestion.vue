@@ -116,7 +116,14 @@ function applySuggestion() {
     formState.value.streetNumber = r.resolvedStreetNum
   }
   if (r.resolvedZip) formState.value.zipcode = r.resolvedZip
-  if (r.resolvedArea) formState.value.city = r.resolvedArea
+  // ACS's ``resolvedArea`` is the area/neighborhood label
+  // ("Περιοχή"), not the city ("Πόλη") — these are distinct fields
+  // in the form. Writing ``resolvedArea`` to ``city`` (the old
+  // mapping) would overwrite the broader municipality the shopper
+  // typed with the narrower area/neighborhood ACS resolved to.
+  // Map to ``place`` instead and leave ``city`` to whatever the
+  // shopper entered.
+  if (r.resolvedArea) formState.value.place = r.resolvedArea
 
   // Stash the ACS routing metadata on form state. It's not surfaced
   // in any visible input — Greek περιφέρειες (the modern region
