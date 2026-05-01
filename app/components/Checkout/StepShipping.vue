@@ -27,14 +27,6 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-// True when the chosen PayWay is offline (Αντικαταβολή / cash-on-delivery)
-// and BoxNow can therefore NOT be used. Default to false (BoxNow allowed)
-// when no PayWay is selected yet — the user hasn't reached step 3 in the
-// initial flow.
-const isCodPaySelected = computed(
-  () => props.selectedPayWay?.isOnlinePayment === false,
-)
-
 // True when the BoxNow widget is unconfigured (NUXT_PUBLIC_BOXNOW_PARTNER_ID
 // missing from the deploy environment). We disable the BoxNow option in
 // that case so the shopper never reaches the picker — which would throw
@@ -42,9 +34,13 @@ const isCodPaySelected = computed(
 // generic checkout error toast.
 const isBoxNowConfigured = computed(() => Boolean(props.partnerId))
 
-const isBoxNowDisabled = computed(
-  () => isCodPaySelected.value || !isBoxNowConfigured.value,
-)
+// BoxNow now supports COD on lockers via PAY ON THE GO. Backend wires
+// ``paymentMode='cod'`` + ``amountToBeCollected`` onto the voucher when
+// the order's pay-way is offline (see shipping_boxnow/carrier.py
+// ``create_shipment_row``). The legacy gate that disabled BoxNow when
+// COD was selected is gone; the only thing that still disables the
+// row is a missing ``NUXT_PUBLIC_BOXNOW_PARTNER_ID``.
+const isBoxNowDisabled = computed(() => !isBoxNowConfigured.value)
 
 // Note: ``description`` is rendered inside the custom ``#label`` slot
 // below — we deliberately omit it from the item objects so URadioGroup
@@ -130,22 +126,6 @@ const isValid = computed(() => {
   if (!carrier) return false
   return carrier.readLockerId(formState.value) !== null
 })
-
-// If the shopper had BoxNow selected before, then went to step 3 and
-// switched to a COD PayWay, returning to step 1 leaves the form in an
-// invalid combo (BoxNow + COD). Force it back to home_delivery so the
-// disabled radio doesn't render with the invalid current value.
-watch(
-  isCodPaySelected,
-  (cod) => {
-    if (cod && formState.value.shippingMethod === 'box_now_locker') {
-      formState.value.shippingMethod = 'home_delivery'
-      formState.value.boxnowLockerId = ''
-      formState.value.boxnowLocker = null
-    }
-  },
-  { immediate: true },
-)
 
 // UForm template ref so we can re-run validation programmatically.
 // UForm only re-validates in response to native input/change/blur events
@@ -268,25 +248,10 @@ function onSubmit() {
         </template>
       </URadioGroup>
 
-      <!-- COD-incompatible explainer — only when the BoxNow row would
-           otherwise be selectable (i.e. BoxNow master switch is on) AND
-           the shopper has picked a COD pay way. ACS supports COD on both
-           home delivery and Smartpoint pickups, so the alert MUST NOT
-           render when BoxNow is hidden — otherwise it confuses ACS
-           shoppers into thinking their COD + ACS combo is invalid. -->
-      <UAlert
-        v-if="isCodPaySelected && boxnowEnabled"
-        color="warning"
-        variant="subtle"
-        icon="i-heroicons-information-circle"
-        :title="t('shipping.method.boxnow.cod_blocked_title')"
-        :description="t('shipping.method.boxnow.cod_blocked_description')"
-      />
-
       <!-- Configuration explainer — only in dev when BoxNow partnerId is
            missing AND BoxNow is supposed to be visible. -->
       <UAlert
-        v-else-if="!isBoxNowConfigured && boxnowEnabled"
+        v-if="!isBoxNowConfigured && boxnowEnabled"
         color="info"
         variant="subtle"
         icon="i-heroicons-information-circle"
