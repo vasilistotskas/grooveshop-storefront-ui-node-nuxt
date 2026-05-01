@@ -1,3 +1,11 @@
+# [3.110.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.109.0...v3.110.0) (2026-05-01)
+
+
+### Features
+
+* **analytics:** GA4 ecommerce event tracking ([cdeef4c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cdeef4c356f0f0e83bb65d4d08476309890de0ae))
+* **checkout:** show selected shipping method recap on payment step ([5b85469](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5b854694046025cfa851e846fd3628438db7a317))
+
 # [3.109.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.108.0...v3.109.0) (2026-05-01)
 
 
