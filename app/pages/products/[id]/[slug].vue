@@ -31,6 +31,12 @@ if (productId) {
   trackView('product', Number(productId))
 }
 
+// Meta Pixel — ViewContent fires once per product detail load on the
+// client. SSR-safe via ``onMounted`` so the prerender pass never
+// produces a phantom event. Browser-only event (no server-side leg).
+const metaPixel = useMetaPixel()
+const viewContentFired = ref(false)
+
 // Client-side recently-viewed rail. We record the visit once the product
 // detail lands (below) so we have the translated name + image to show
 // without re-fetching on homepage/PDP rails.
@@ -125,6 +131,44 @@ onMounted(() => {
   watchEffect(() => {
     if (shouldFetchFavouriteProducts.value) fetchFavourites()
   })
+
+  // Meta Pixel: ViewContent. Browser-only event; no server-side
+  // dedup, so the eventID is a fresh UUID minted by the composable.
+  // Fires once per page mount — guard prevents duplicate fires when
+  // the product reactive ref re-resolves on hydration with the same
+  // payload. Uses the translated name + the cheapest active price
+  // so reporting matches what the customer saw.
+  if (viewContentFired.value || !product.value) return
+  try {
+    const productData = product.value
+    const pid = productData.id != null ? String(productData.id) : ''
+    const price = Number(
+      productData.finalPrice ?? productData.price ?? 0,
+    )
+    metaPixel.trackViewContent({
+      currency: 'EUR',
+      value: price,
+      contentType: 'product',
+      contentIds: pid ? [pid] : [],
+      contents: pid
+        ? [
+            {
+              id: pid,
+              quantity: 1,
+              itemPrice: price,
+            },
+          ]
+        : [],
+      contentName: extractTranslated(productData, 'name', locale.value),
+    })
+    viewContentFired.value = true
+  }
+  catch (pixelErr) {
+    log.warn(
+      'product:metaPixelViewContent',
+      String((pixelErr as Error)?.message ?? pixelErr),
+    )
+  }
 })
 
 // User-specific data: client-side only

@@ -33,6 +33,49 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   // (e.g. user corrects a validation error) gets a new key.
   const idempotencyKey = ref<string | null>(null)
 
+  // Meta Pixel event_ids for browser↔server deduplication. Minted at
+  // the moment the customer enters checkout (InitiateCheckout) and
+  // persists across step navigation; submitted to Django in the
+  // order body so the server-leg uses the same id and Meta dedups.
+  const metaPixel = useMetaPixel()
+  const cookieControl = useCookieControl()
+  const metaEventIds = reactive<{
+    initiateCheckout?: string
+    addPaymentInfo?: string
+    purchase?: string
+  }>({})
+
+  /**
+   * Build the ``meta`` payload forwarded to Django at order creation.
+   * Returns ``null`` when consent isn't granted so we don't leak
+   * dedup ids server-side for customers who refused marketing
+   * cookies. The Nuxt server proxy (``server/api/orders/index.post.ts``)
+   * enriches this with fbp/fbc + UA + IP before forwarding.
+   */
+  const buildMetaPayload = () => {
+    const adsConsent = (cookieControl.cookiesEnabledIds.value ?? []).includes(
+      'ad_storage',
+    )
+    if (!adsConsent) return null
+    // Fresh Purchase id every submit so retries don't dedup against
+    // a previous (failed) attempt. The InitiateCheckout id is
+    // sticky for the lifetime of the checkout page.
+    const purchaseId = metaPixel.newEventId()
+    metaEventIds.purchase = purchaseId
+    return {
+      consent: { ads: true },
+      event_ids: {
+        ...(metaEventIds.initiateCheckout
+          ? { initiate_checkout: metaEventIds.initiateCheckout }
+          : {}),
+        ...(metaEventIds.addPaymentInfo
+          ? { add_payment_info: metaEventIds.addPaymentInfo }
+          : {}),
+        purchase: purchaseId,
+      },
+    }
+  }
+
   // Loyalty discount state
   const loyaltyDiscount = ref<{ amount: number, currency: string, points: number } | null>(null)
 
@@ -136,6 +179,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       ? 'home_delivery'
       : 'pickup_point'
 
+    const metaPayload = buildMetaPayload()
+
     return {
       payWayId: formState.payWayId,
       countryId: formState.countryId!,
@@ -170,6 +215,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         acsStationExternalId: formState.acsStationExternalId,
         acsStationBranch: formState.acsStationBranch,
       }),
+      ...(metaPayload ? { meta: metaPayload } : {}),
     } as OrderCreateFromCartRequest
   }
 
@@ -581,6 +627,61 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   const nextStep = async () => {
     if (currentStep.value < 2) {
       currentStep.value++
+      // Meta Pixel: AddPaymentInfo fires once when the customer
+      // enters the payment step. Browser-only event (no server-side
+      // dedup), so the composable mints its own eventID.
+      if (currentStep.value === 2 && !metaEventIds.addPaymentInfo) {
+        try {
+          const value = Number(cart.value?.totalPrice ?? 0)
+          const currency = cart.value?.currency ?? 'EUR'
+          const eventId = metaPixel.trackAddPaymentInfo({
+            currency,
+            value,
+            contentType: 'product',
+            contentIds:
+              cart.value?.items?.map(item => String(item.product?.id ?? ''))
+                .filter(id => !!id) ?? [],
+            numItems: cart.value?.totalItems ?? 0,
+          })
+          if (eventId) metaEventIds.addPaymentInfo = eventId
+        }
+        catch (pixelErr) {
+          log.warn(
+            'checkout:metaPixelAddPaymentInfo',
+            String((pixelErr as Error)?.message ?? pixelErr),
+          )
+        }
+      }
+    }
+  }
+
+  /**
+   * Called once when the customer enters the checkout flow. Fires
+   * Meta InitiateCheckout (browser leg) and stashes the eventID on
+   * ``metaEventIds`` so the order POST body can forward it to the
+   * Django side, which will dedup the corresponding server event.
+   */
+  const fireInitiateCheckout = () => {
+    if (metaEventIds.initiateCheckout) return
+    try {
+      const value = Number(cart.value?.totalPrice ?? 0)
+      const currency = cart.value?.currency ?? 'EUR'
+      const eventId = metaPixel.trackInitiateCheckout({
+        currency,
+        value,
+        contentType: 'product',
+        contentIds:
+          cart.value?.items?.map(item => String(item.product?.id ?? ''))
+            .filter(id => !!id) ?? [],
+        numItems: cart.value?.totalItems ?? 0,
+      })
+      if (eventId) metaEventIds.initiateCheckout = eventId
+    }
+    catch (pixelErr) {
+      log.warn(
+        'checkout:metaPixelInitiateCheckout',
+        String((pixelErr as Error)?.message ?? pixelErr),
+      )
     }
   }
 
@@ -617,5 +718,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     onPaymentError,
     onLoyaltyRedeemed,
     onLoyaltyCleared,
+    fireInitiateCheckout,
   }
 }

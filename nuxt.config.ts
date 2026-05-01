@@ -177,6 +177,12 @@ export default defineNuxtConfig({
           id: process.env.NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID,
         },
       },
+      // Meta Pixel ID lives outside ``public.scripts`` because that
+      // slot is typed by @nuxt/scripts itself (only registered
+      // registry scripts widen its type). Putting our pixel id here
+      // keeps things type-safe without a module-augmentation file.
+      // The ``useMetaPixel`` composable reads from this path.
+      metaPixelId: process.env.NUXT_PUBLIC_SCRIPTS_META_PIXEL_ID,
       titleSeparator: process.env.NUXT_PUBLIC_TITLE_SEPARATOR,
       trailingSlash: String(process.env.NUXT_PUBLIC_TRAILING_SLASH) === 'true',
       static: {

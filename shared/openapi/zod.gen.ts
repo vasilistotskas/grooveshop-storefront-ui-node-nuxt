@@ -4643,6 +4643,9 @@ export const zOrderDetail = z.object({
   customerFullName: z.string().readonly(),
   isCompleted: z.boolean().readonly(),
   isCanceled: z.boolean().readonly(),
+  metaEventIds: z.record(z.string(), z.string()).register(z.globalRegistry, {
+    description: 'Meta Pixel ``eventID`` values the browser must reuse when firing the matching pixel call on the success page so Meta dedups the browser event against the server-side Conversions API event. Only the keys minted at order creation are surfaced (purchase, initiate_checkout, add_payment_info). Empty dict when the customer declined marketing cookies — in that case the browser should not fire the matching pixel either.',
+  }).readonly(),
 })
 
 export const zPaginatedBoxNowLockerList = z.object({
@@ -5679,6 +5682,82 @@ export const zNotificationUserWritable = z.object({
 export const zNotificationUserDetailWritable = z.object({
   seen: z.boolean().optional(),
   seenAt: z.iso.datetime({ offset: true }).nullish(),
+})
+
+/**
+ * Serializer for creating orders from cart (dual-flow payment architecture).
+ *
+ * This serializer supports two payment flows:
+ * 1. Online payments (is_online_payment=True): Requires payment_intent_id
+ * 2. Offline payments (is_online_payment=False): No payment_intent_id required
+ *
+ * The order is created from an existing cart identified via X-Cart-Id header.
+ * Cart is NOT sent in request body - it's retrieved from the header using CartService.
+ */
+export const zOrderCreateFromCartRequestWritable = z.object({
+  payWayId: z.int().register(z.globalRegistry, {
+    description: 'Payment method ID',
+  }),
+  paymentIntentId: z.string().nullish(),
+  firstName: z.string().min(1).max(150).register(z.globalRegistry, {
+    description: 'Customer first name',
+  }),
+  lastName: z.string().min(1).max(150).register(z.globalRegistry, {
+    description: 'Customer last name',
+  }),
+  email: z.email().min(1).register(z.globalRegistry, {
+    description: 'Customer email address',
+  }),
+  street: z.string().min(1).max(255).register(z.globalRegistry, {
+    description: 'Street name',
+  }),
+  streetNumber: z.string().max(50).register(z.globalRegistry, {
+    description: 'Street number',
+  }).optional(),
+  city: z.string().min(1).max(100).register(z.globalRegistry, {
+    description: 'City name',
+  }),
+  zipcode: z.string().min(1).max(20).register(z.globalRegistry, {
+    description: 'Postal/ZIP code',
+  }),
+  countryId: z.string().min(1).register(z.globalRegistry, {
+    description: 'Country alpha-2 code (e.g., \'GR\', \'US\')',
+  }),
+  regionId: z.string().nullish(),
+  phone: z.string().min(1).register(z.globalRegistry, {
+    description: 'Customer phone number',
+  }),
+  customerNotes: z.string().max(500).register(z.globalRegistry, {
+    description: 'Customer notes or special instructions',
+  }).optional(),
+  billingVatId: z.string().max(12).register(z.globalRegistry, {
+    description: 'Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.',
+  }).optional(),
+  billingCountry: z.string().max(2).register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code for the buyer\'s tax identity. Defaults to the order country when blank.',
+  }).optional(),
+  documentType: zOrderCreateDocumentType.optional(),
+  loyaltyPointsToRedeem: z.int().gte(0).nullish(),
+  boxnowLockerId: z.string().max(64).register(z.globalRegistry, {
+    description: 'BoxNow APM locker ID from the widget',
+  }).optional(),
+  boxnowCompartmentSize: z.int().gte(1).lte(3).register(z.globalRegistry, {
+    description: 'BoxNow compartment size: 1=Small, 2=Medium, 3=Large',
+  }).optional().default(1),
+  shippingProviderCode: z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+    description: 'Carrier code from /api/v1/shipping/options (e.g. \'acs\').',
+  }).optional(),
+  shippingKind: zShippingKind.optional(),
+  acsStationExternalId: z.string().max(32).register(z.globalRegistry, {
+    description: 'ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).',
+  }).optional(),
+  acsStationBranch: z.string().max(32).register(z.globalRegistry, {
+    description: 'ACS_Station_Branch_Destination value.',
+  }).optional(),
+  acsChargeType: zAcsChargeType.optional(),
+  meta: z.record(z.string(), z.unknown()).nullish(),
+}).register(z.globalRegistry, {
+  description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',
 })
 
 export const zOrderItemWritable = z.object({
@@ -11111,7 +11190,7 @@ export const zListOrderQuery = z.object({
 
 export const zListOrderResponse = zPaginatedOrderList
 
-export const zCreateOrderBody = zOrderCreateFromCartRequest
+export const zCreateOrderBody = zOrderCreateFromCartRequestWritable
 
 export const zCreateOrderQuery = z.object({
   languageCode: z.enum([

@@ -2578,6 +2578,12 @@ export type OrderDetail = {
   readonly customerFullName: string
   readonly isCompleted: boolean
   readonly isCanceled: boolean
+  /**
+     * Meta Pixel ``eventID`` values the browser must reuse when firing the matching pixel call on the success page so Meta dedups the browser event against the server-side Conversions API event. Only the keys minted at order creation are surfaced (purchase, initiate_checkout, add_payment_info). Empty dict when the customer declined marketing cookies — in that case the browser should not fire the matching pixel either.
+     */
+  readonly metaEventIds: {
+    [key: string]: string
+  }
 }
 
 /**
@@ -6357,6 +6363,124 @@ export type OrderWritable = {
      */
   paymentStatus?: PaymentStatusEnum | BlankEnum
   paymentMethod?: string
+}
+
+/**
+ * Serializer for creating orders from cart (dual-flow payment architecture).
+ *
+ * This serializer supports two payment flows:
+ * 1. Online payments (is_online_payment=True): Requires payment_intent_id
+ * 2. Offline payments (is_online_payment=False): No payment_intent_id required
+ *
+ * The order is created from an existing cart identified via X-Cart-Id header.
+ * Cart is NOT sent in request body - it's retrieved from the header using CartService.
+ */
+export type OrderCreateFromCartRequestWritable = {
+  /**
+     * Payment method ID
+     */
+  payWayId: number
+  /**
+     * Payment intent ID from payment provider (required for online payments)
+     */
+  paymentIntentId?: string | null
+  /**
+     * Customer first name
+     */
+  firstName: string
+  /**
+     * Customer last name
+     */
+  lastName: string
+  /**
+     * Customer email address
+     */
+  email: string
+  /**
+     * Street name
+     */
+  street: string
+  /**
+     * Street number
+     */
+  streetNumber?: string
+  /**
+     * City name
+     */
+  city: string
+  /**
+     * Postal/ZIP code
+     */
+  zipcode: string
+  /**
+     * Country alpha-2 code (e.g., 'GR', 'US')
+     */
+  countryId: string
+  /**
+     * Region alpha code
+     */
+  regionId?: string | null
+  /**
+     * Customer phone number
+     */
+  phone: string
+  /**
+     * Customer notes or special instructions
+     */
+  customerNotes?: string
+  /**
+     * Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.
+     */
+  billingVatId?: string
+  /**
+     * ISO 3166-1 alpha-2 country code for the buyer's tax identity. Defaults to the order country when blank.
+     */
+  billingCountry?: string
+  /**
+     * RECEIPT (Α.Λ.Π., Tier A — retail) or INVOICE (Τιμολόγιο Πώλησης, Tier B — B2B). Selecting INVOICE requires a valid ``billing_vat_id``.
+     *
+     * * `RECEIPT` - Receipt
+     * * `INVOICE` - Invoice
+     */
+  documentType?: OrderCreateDocumentType
+  /**
+     * Number of loyalty points to redeem for discount on this order
+     */
+  loyaltyPointsToRedeem?: number | null
+  /**
+     * BoxNow APM locker ID from the widget
+     */
+  boxnowLockerId?: string
+  /**
+     * BoxNow compartment size: 1=Small, 2=Medium, 3=Large
+     */
+  boxnowCompartmentSize?: number
+  /**
+     * Carrier code from /api/v1/shipping/options (e.g. 'acs').
+     */
+  shippingProviderCode?: string
+  /**
+     * Generic fulfilment kind, independent of provider.
+     *
+     * * `home_delivery` - Home delivery
+     * * `pickup_point` - Pickup point / locker
+     */
+  shippingKind?: ShippingKind
+  /**
+     * ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).
+     */
+  acsStationExternalId?: string
+  /**
+     * ACS_Station_Branch_Destination value.
+     */
+  acsStationBranch?: string
+  acsChargeType?: AcsChargeType
+  /**
+     * Meta Pixel context: keys ``fbp``, ``fbc``, ``client_user_agent``, ``client_ip_address``, ``event_ids`` (dict of {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict with ``ads`` boolean). Empty dict / null when the customer declined marketing cookies; the CAPI dispatcher then skips the send.
+     */
+  meta?: {
+    [key: string]: unknown
+  } | null
 }
 
 export type OrderDetailWritable = {
@@ -12882,7 +13006,7 @@ export type ListOrderResponses = {
 export type ListOrderResponse = ListOrderResponses[keyof ListOrderResponses]
 
 export type CreateOrderData = {
-  body: OrderCreateFromCartRequest
+  body: OrderCreateFromCartRequestWritable
   path?: never
   query?: {
     /**

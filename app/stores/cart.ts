@@ -1,6 +1,11 @@
 export const useCartStore = defineStore('cart', () => {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
+  // Capture the Meta Pixel proxy at store-setup time so the action
+  // body doesn't call ``useScriptMetaPixel`` from outside Nuxt's
+  // component setup context (Pinia store actions persist across the
+  // app's lifecycle while individual page setups come and go).
+  const metaPixel = useMetaPixel()
   const cart = ref<CartDetail | null>(null)
   const inFlight = reactive(new Set<string>())
   const pending = computed(() => inFlight.size > 0)
@@ -80,6 +85,44 @@ export const useCartStore = defineStore('cart', () => {
       })
       await refreshCart()
       error.value = null
+
+      // Meta Pixel: AddToCart fires after the cart was successfully
+      // updated (so a server-side rejection — out of stock, invalid
+      // product — never produces a pixel event). The added item is
+      // looked up from the freshly refreshed cart so the value /
+      // currency reflect the item the server actually persisted.
+      try {
+        const productId = body.product
+        const addedItem = cart.value?.items?.find(
+          item => item.product?.id === productId,
+        )
+        if (addedItem) {
+          const unitPrice = Number(
+            addedItem.product?.finalPrice ?? addedItem.product?.price ?? 0,
+          )
+          const quantity = Number(body.quantity ?? addedItem.quantity ?? 1)
+          metaPixel.trackAddToCart({
+            currency: cart.value?.currency ?? 'EUR',
+            value: Number((unitPrice * quantity).toFixed(2)),
+            contentIds: [String(productId)],
+            contents: [
+              {
+                id: String(productId),
+                quantity,
+                itemPrice: unitPrice,
+              },
+            ],
+            contentType: 'product',
+          })
+        }
+      }
+      catch (pixelErr) {
+        // Telemetry failures must never break the cart UX.
+        log.warn(
+          'cart:metaPixelAddToCart',
+          String((pixelErr as Error)?.message ?? pixelErr),
+        )
+      }
     }
     catch (err) {
       log.error({ action: 'cart:createItem', error: err })

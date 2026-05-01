@@ -123,6 +123,57 @@ export function setupGoogleAnalyticsConsent() {
   )
 }
 
+/**
+ * Initialise the Meta Pixel and bind its consent state to the cookie
+ * banner. Mirrors ``setupGoogleAnalyticsConsent`` so the two scripts
+ * share the same lifecycle:
+ *
+ * * Loaded with ``onNuxtReady`` so the pixel never blocks paint.
+ * * ``defaultConsent: 'denied'`` keeps fbq calls queued silently
+ *   until the visitor accepts marketing cookies.
+ * * Watching ``cookiesEnabledIds`` flips ``consent.grant()`` /
+ *   ``consent.revoke()`` whenever the banner state changes — the
+ *   pixel's queued events drain on grant.
+ *
+ * No-op when ``META_PIXEL_ID`` is not provisioned (the registry
+ * resolves to undefined and ``useScriptMetaPixel`` would warn at
+ * runtime). Composable returns early in that case.
+ */
+export function setupMetaPixelConsent() {
+  const config = useRuntimeConfig()
+  const pixelId = (config.public as { metaPixelId?: string })?.metaPixelId
+  if (!pixelId) return
+
+  const { consent } = useScriptMetaPixel({
+    id: pixelId,
+    defaultConsent: 'denied',
+    scriptOptions: {
+      trigger: 'onNuxtReady',
+    },
+  } as Parameters<typeof useScriptMetaPixel>[0])
+
+  const {
+    cookiesEnabledIds,
+    isConsentGiven,
+  } = useCookieControl()
+
+  watch(
+    () => cookiesEnabledIds.value,
+    (current) => {
+      if (!consent || !isConsentGiven.value) return
+      // The Meta SDK only honours the ``ads`` slot; we mirror
+      // ``ad_storage`` from GA's consent vocabulary.
+      if (current?.includes('ad_storage')) {
+        consent.grant()
+      }
+      else {
+        consent.revoke()
+      }
+    },
+    { immediate: true },
+  )
+}
+
 export function setupSocialLogin() {
   const { enabled } = useAuthPreviewMode()
   const config = useRuntimeConfig()

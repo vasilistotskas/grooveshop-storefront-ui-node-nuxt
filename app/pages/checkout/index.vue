@@ -80,7 +80,15 @@ const {
   onPaymentError,
   onLoyaltyRedeemed,
   onLoyaltyCleared,
+  fireInitiateCheckout,
 } = useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchShippingSettings })
+
+// Meta Pixel: InitiateCheckout fires once when the customer lands on
+// the checkout page. The eventID is stashed inside useCheckoutSubmit
+// so the order POST body forwards it to Django for server-side dedup.
+onMounted(() => {
+  fireInitiateCheckout()
+})
 
 const handleStockRetry = () => {
   stockError.value = null

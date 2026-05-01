@@ -2,6 +2,11 @@ import { resolveURL, withQuery } from 'ufo'
 
 export default function () {
   const API_BASE_URL = ALLAUTH_AUTH_URL
+  // Capture the Meta Pixel proxy at composable-setup so the signup
+  // ``onResponse`` callback (which runs asynchronously after the
+  // network round-trip) doesn't try to call ``useScriptMetaPixel``
+  // from outside Nuxt's component setup context.
+  const metaPixel = useMetaPixel()
   async function getSession(encrypted_token: string | null = null) {
     const headers = useRequestHeaders()
     if (encrypted_token) {
@@ -56,6 +61,27 @@ export default function () {
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response)
+        // Meta Pixel: CompleteRegistration browser-leg. The Django
+        // ``allauth.account.signals.user_signed_up`` receiver fires
+        // the server-leg with rich user_data (email/UA/fbp/fbc) so
+        // the two legs together drive Event Match Quality on
+        // signups. Mints a fresh eventID; we don't dedup because
+        // the server-leg uses its own UUID — Meta will count both
+        // up to the standard 1-event-per-user-per-funnel-step
+        // expectation. Wrapped to never break the signup UX.
+        if (response.ok) {
+          try {
+            metaPixel.trackCompleteRegistration({
+              status: 'completed',
+            })
+          }
+          catch (pixelErr) {
+            log.warn(
+              'auth:metaPixelCompleteRegistration',
+              String((pixelErr as Error)?.message ?? pixelErr),
+            )
+          }
+        }
       },
       async onResponseError({ response }) {
         await onAllAuthResponseError(response)

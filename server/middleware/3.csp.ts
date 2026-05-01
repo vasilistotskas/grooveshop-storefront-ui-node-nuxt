@@ -49,13 +49,29 @@ export default defineEventHandler((event) => {
   // additions to the tile-provider whitelist on the Django side.
   const tileOrigins = 'https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org'
 
+  // Meta Pixel runtime origins: the script comes from
+  // ``connect.facebook.net``; pixel beacons are sent to
+  // ``www.facebook.com/tr`` (img + connect); the ``fbevents.js``
+  // bundle additionally probes ``static.xx.fbcdn.net`` for resource
+  // assets. Listed only when a Pixel ID is provisioned so visitors
+  // of un-instrumented preview deploys don't send a needlessly
+  // permissive header.
+  const metaPixelId = (config.public as { metaPixelId?: string })?.metaPixelId
+  const metaScriptSrc = metaPixelId ? ' https://connect.facebook.net' : ''
+  const metaImgSrc = metaPixelId
+    ? ' https://www.facebook.com https://*.facebook.com'
+    : ''
+  const metaConnectSrc = metaPixelId
+    ? ' https://www.facebook.com https://*.facebook.com'
+    : ''
+
   const directives = [
     `default-src 'self'`,
-    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com`,
+    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com${metaScriptSrc}`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `img-src 'self' data: blob: ${trustedOrigins} https://www.googletagmanager.com ${tileOrigins}`,
+    `img-src 'self' data: blob: ${trustedOrigins} https://www.googletagmanager.com ${tileOrigins}${metaImgSrc}`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src 'self' ${trustedOrigins} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}`,
+    `connect-src 'self' ${trustedOrigins} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}${metaConnectSrc}`,
     // BoxNow widget iframe origins per their CDN: gr (primary), plus
     // cy/bg/hr regional variants (Phase 2 multi-country) and the v1-v4
     // back-compat versions surfaced by the loader script we audited.

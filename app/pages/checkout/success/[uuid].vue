@@ -84,6 +84,82 @@ onBeforeUnmount(() => {
   isActive.value = false
 })
 
+// Meta Pixel — Purchase event. The success page is the canonical
+// browser-side firing point for Purchase. We reuse the event_id the
+// Django side stored on ``order.metaEventIds.purchase`` at order
+// creation so Meta dedups this against the server-side Conversions
+// API event for the same order. ``onMounted`` ensures we never fire
+// during prerender / SSR. The watcher is keyed on ``orderNumber``
+// to handle the live re-fetch flow (Stripe webhook flips status
+// after a 2s poll); pixel must NOT fire twice for the same order, so
+// a guard ref tracks whether we already sent it.
+// Capture once at setup so the watcher / onMounted callback don't
+// re-invoke ``useScriptMetaPixel`` from outside setup context.
+const metaPixel = useMetaPixel()
+const purchaseEventFired = ref(false)
+function tryFirePurchaseEvent() {
+  if (!order.value || purchaseEventFired.value) return
+  // Purchase is only meaningful when the customer landed here via a
+  // real checkout flow (not a deep-link to /checkout/success/<uuid>
+  // from history). Gate on ``fromCheckout`` so direct revisits don't
+  // re-fire the event.
+  if (!fromCheckout.value) return
+  // Only fire after the Django side has minted an event_id (i.e.
+  // ``meta_event_ids.purchase`` exists). Without it the dedup pair
+  // is broken — better to skip the browser leg than double-count.
+  const eventId = order.value.metaEventIds?.purchase
+  if (!eventId) return
+
+  try {
+    metaPixel.trackPurchase(
+      {
+        currency:
+          (order.value.totalPriceItems as { currency?: string } | undefined)
+            ?.currency
+            ?? 'EUR',
+        value: Number(paidAmount.value ?? 0),
+        orderId: String(order.value.id),
+        contentType: 'product',
+        contentIds: orderItems.value
+          .map(item => item.product?.id)
+          .filter(
+            (id): id is number => typeof id === 'number',
+          )
+          .map(id => String(id)),
+        contents: orderItems.value.map(item => ({
+          id: String(item.product?.id ?? ''),
+          quantity: Number(item.quantity ?? 0),
+          itemPrice: Number(item.price ?? 0),
+        })),
+        numItems: orderItems.value.reduce(
+          (acc, item) => acc + Number(item.quantity ?? 0),
+          0,
+        ),
+      },
+      { eventID: eventId },
+    )
+    purchaseEventFired.value = true
+  }
+  catch (pixelErr) {
+    log.warn(
+      'success:metaPixelPurchase',
+      String((pixelErr as Error)?.message ?? pixelErr),
+    )
+  }
+}
+
+watch(
+  () => [orderNumber.value, isPaid.value],
+  () => {
+    if (import.meta.server) return
+    tryFirePurchaseEvent()
+  },
+)
+
+onMounted(() => {
+  tryFirePurchaseEvent()
+})
+
 // Poll order status when coming from a payment provider.
 // Viva Wallet webhooks can be delayed, so poll more aggressively.
 onMounted(async () => {
