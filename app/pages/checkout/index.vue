@@ -90,6 +90,36 @@ onMounted(() => {
   fireInitiateCheckout()
 })
 
+// Summary of the selected shipping method, surfaced on the payment
+// step in the right sidebar so the shopper can verify their pick
+// without scrolling back. ``null`` on earlier steps so the alert
+// stays hidden until shipping has actually been chosen.
+const shippingSummary = computed(() => {
+  if (currentStep.value !== 2) return null
+  const method = formState.shippingMethod
+  if (method === 'box_now_locker') {
+    const locker = formState.boxnowLocker
+    return {
+      method,
+      lockerName: locker?.boxnowLockerName ?? null,
+      lockerId: formState.boxnowLockerId || locker?.boxnowLockerId || null,
+      lockerAddress: locker?.boxnowLockerAddressLine1 ?? null,
+    }
+  }
+  if (method === 'acs_smartpoint') {
+    const station = formState.acsStation
+    return {
+      method,
+      lockerName: station?.name ?? null,
+      lockerId: formState.acsStationExternalId || null,
+      lockerAddress: [station?.addressLine1, station?.city]
+        .filter(Boolean)
+        .join(', ') || null,
+    }
+  }
+  return { method }
+})
+
 const handleStockRetry = () => {
   stockError.value = null
   onSubmit()
@@ -259,6 +289,7 @@ definePageMeta({
             :shipping-price="shippingPrice"
             :show-payment-fee="currentStep === 2"
             :loyalty-discount="loyaltyDiscount?.amount ?? 0"
+            :shipping-summary="shippingSummary"
           >
             <template #items>
               <CheckoutItems />
