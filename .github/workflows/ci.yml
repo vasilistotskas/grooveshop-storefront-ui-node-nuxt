@@ -56,8 +56,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24.x'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@vasilistotskas'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -162,8 +160,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24.x'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@vasilistotskas'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -193,7 +189,6 @@ jobs:
       issues: write
       pull-requests: write
       id-token: write
-      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -210,8 +205,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24.x'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@vasilistotskas'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -226,8 +219,6 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.NUXT_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm run semantic-release
 
       - name: Upload release artifacts
@@ -239,3 +230,4 @@ jobs:
             .output
             CHANGELOG.md
           retention-days: 90
+

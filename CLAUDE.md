@@ -242,9 +242,9 @@ Active modules in `nuxt.config.ts`:
 
 ### CI/CD
 
-- **GitHub Actions CI** (`.github/workflows/ci.yml`): quality (TypeScript check, dependency audit) → test (unit+nuxt with coverage → Coveralls) → build (with Redis 8 service, .env from GitHub vars/secrets) → release (semantic-release, only on main push). All steps use Node 24.x and pnpm with frozen lockfile.
-- **Docker publish** (`.github/workflows/docker.yml`): On release, builds multi-stage Docker image (Node 24.13.0 Alpine), pushes to Docker Hub (`gro0ve/grooveshop-storefront-ui-node-nuxt`) and GHCR. Uses Docker Buildx with GHA caching.
-- **Semantic release**: Conventional commits, auto-versioning, CHANGELOG generation, GitHub release with assets
+- **GitHub Actions CI** (`.github/workflows/ci.yml`): quality (TypeScript check, dependency audit) → test (unit+nuxt with coverage) → build (with Redis 8 service, .env from GitHub vars/secrets) → release (semantic-release on `main` push — versions, CHANGELOG, GitHub Release; **no npm publishing**). All steps use Node 24.x and pnpm with frozen lockfile.
+- **Docker publish** (`.github/workflows/docker.yml`): On GitHub release `published`, builds a multi-stage Docker image (Node 24.13.0 Alpine) and pushes to Docker Hub (`gro0ve/grooveshop-storefront-ui-node-nuxt`) and GHCR. Uses Docker Buildx with GHA caching.
+- **Semantic release**: Conventional commits, auto-versioning, CHANGELOG generation, GitHub release with `.output` asset. Publishing to npm is disabled (`npmPublish: false`); the `@semantic-release/npm` plugin only bumps `package.json` version.
 - **Docker** (`docker/Dockerfile`): Multi-stage build. Build stage installs deps with pnpm cache mount, prepares Nuxt, builds with `NODE_OPTIONS=--max-old-space-size=8192`. Production stage copies only `.output`, runs as non-root `node` user.
 
 ## Conventions

@@ -1,7 +1,7 @@
 {
-  "name": "@vasilistotskas/grooveshop-storefront-ui-node-nuxt",
+  "name": "grooveshop-storefront-ui-node-nuxt",
   "version": "3.106.0",
-  "private": false,
+  "private": true,
   "description": "Grooveshop Storefront UI Node Nuxt",
   "type": "module",
   "repository": {
@@ -40,14 +40,14 @@
     "@nuxt/fonts": "0.14.0",
     "@nuxt/icon": "2.2.1",
     "@nuxt/image": "1.11.0",
-    "@nuxt/scripts": "1.0.4",
+    "@nuxt/scripts": "1.0.5",
     "@nuxt/ui": "4.7.1",
     "@nuxtjs/i18n": "10.3.0",
     "@nuxtjs/leaflet": "1.3.2",
     "@nuxtjs/seo": "5.1.3",
     "@pinia/nuxt": "0.11.3",
     "@tailwindcss/typography": "0.5.19",
-    "@vueuse/nuxt": "14.2.1",
+    "@vueuse/nuxt": "14.3.0",
     "defu": "6.1.7",
     "evlog": "2.14.1",
     "h3": "1.15.11",
@@ -107,9 +107,9 @@
     "@vitest/coverage-v8": "4.1.5",
     "@vitest/ui": "4.1.5",
     "@vue/test-utils": "2.4.10",
-    "@vueuse/core": "14.2.1",
-    "@vueuse/integrations": "14.2.1",
-    "@vueuse/shared": "14.2.1",
+    "@vueuse/core": "14.3.0",
+    "@vueuse/integrations": "14.3.0",
+    "@vueuse/shared": "14.3.0",
     "eslint": "10.2.1",
     "eslint-plugin-better-tailwindcss": "4.5.0",
     "happy-dom": "20.9.0",
@@ -121,9 +121,6 @@
     "vitest": "4.1.5",
     "vue-tsc": "3.2.7"
   },
-  "publishConfig": {
-    "@vasilistotskas:registry": "https://npm.pkg.github.com"
-  },
   "release": {
     "branches": [
       "main"
@@ -132,7 +129,12 @@
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
       "@semantic-release/changelog",
-      "@semantic-release/npm",
+      [
+        "@semantic-release/npm",
+        {
+          "npmPublish": false
+        }
+      ],
       [
         "@semantic-release/git",
         {
@@ -152,13 +154,6 @@
               "label": "Output"
             }
           ]
-        }
-      ],
-      [
-        "@semantic-release/npm",
-        {
-          "npmPublish": false,
-          "tarballDir": ".output"
         }
       ]
     ]
