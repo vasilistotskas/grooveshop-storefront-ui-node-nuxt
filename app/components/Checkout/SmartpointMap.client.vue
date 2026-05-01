@@ -234,24 +234,37 @@ async function ensureClusters(): Promise<void> {
       map.removeLayer(activeCluster)
       activeCluster = null
     }
-    // ``useLMarkerCluster`` is auto-imported by ``@nuxtjs/leaflet``.
-    // It dynamically imports ``leaflet.markercluster`` so the plugin
-    // attaches to the global ``L`` (which only exists because the
-    // ``<LMap>`` below sets ``:use-global-leaflet="true"``), then
-    // builds and returns the cluster group. We let it own the build
-    // step rather than reaching into Leaflet directly, so future
-    // upstream tweaks land transparently.
-    const { markerCluster } = await useLMarkerCluster({
-      leafletObject: map,
-      markers: markerProps.value,
-      options: {
-        maxClusterRadius: 60,
-        chunkedLoading: true,
-        disableClusteringAtZoom: 15,
-        showCoverageOnHover: false,
-        spiderfyOnMaxZoom: true,
-      },
+    // ``@nuxtjs/leaflet@1.3.2``'s ``useLMarkerCluster`` is broken: it
+    // does ``const { MarkerClusterGroup } = await import('leaflet.
+    // markercluster')`` but the plugin is a side-effect module that
+    // patches the global ``L``, not a named export — so the
+    // destructured value is ``undefined`` and the next line throws
+    // "MarkerClusterGroup is not a constructor". Bypass the
+    // composable: side-effect import here so ``L.MarkerClusterGroup``
+    // exists, then build the cluster directly. Drop this workaround
+    // when the upstream composable starts reading ``L.MarkerClusterGroup``
+    // off the global instead of destructuring.
+    await import('leaflet.markercluster')
+    const markerCluster = new L.MarkerClusterGroup({
+      maxClusterRadius: 60,
+      chunkedLoading: true,
+      disableClusteringAtZoom: 15,
+      showCoverageOnHover: false,
+      spiderfyOnMaxZoom: true,
     })
+    for (const m of markerProps.value) {
+      // ``m.options`` already carries ``title`` (set in ``markerProps``
+      // computed) — spread it directly so we don't fight ourselves
+      // over the same key.
+      const marker = L.marker([m.lat, m.lng], m.options)
+      if (m.popup) {
+        const popup = L.DomUtil.create('div', 'popup')
+        popup.innerHTML = m.popup
+        marker.bindPopup(popup)
+      }
+      markerCluster.addLayer(marker)
+    }
+    map.addLayer(markerCluster)
     activeCluster = markerCluster
     clusterReady.value = true
   }

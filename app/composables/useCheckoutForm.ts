@@ -585,13 +585,14 @@ export async function useCheckoutForm() {
       }).catch(() => null),
     ),
     useAsyncData<Pagination<PayWay> | null>(
-      () => {
-        const carrier = carrierForMethod(formState.shippingMethod)
-        const kind = formState.shippingMethod === 'home_delivery'
-          ? 'home_delivery'
-          : 'pickup_point'
-        return `checkout:pay-ways:${locale.value}:${carrier?.code ?? '-'}:${kind}`
-      },
+      // Static key — re-fetch on shipping-method changes is handled by
+      // the dedicated watcher below (line ~264). Including
+      // ``shippingMethod`` here would fire ``/api/pay-way`` twice for
+      // every method change (useAsyncData refetch + the watcher's
+      // explicit ``$fetch``). Initial SSR call uses the form-state's
+      // default ``home_delivery``; the watcher takes over after the
+      // shopper switches.
+      () => `checkout:pay-ways:${locale.value}`,
       () => {
         const carrier = carrierForMethod(formState.shippingMethod)
         const kind = formState.shippingMethod === 'home_delivery'
