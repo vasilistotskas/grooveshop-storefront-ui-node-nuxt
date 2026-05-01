@@ -41,6 +41,21 @@ export async function useCheckoutForm() {
     acsStationExternalId: '' as string,
     acsStationBranch: '' as string,
     acsStation: null as AcsStation | null,
+    // Routing metadata captured when the shopper applies the
+    // "Did you mean…" suggestion in StepPersonalInfo. Forwarded to the
+    // backend so ``ACS_Create_Voucher`` can use these IDs directly
+    // instead of re-running ``ACS_Address_Validation`` server-side.
+    // Null when the shopper either skipped the suggestion or hasn't
+    // typed a complete address yet.
+    acsResolvedAddress: null as {
+      geoId: number | null
+      lat: number | null
+      lng: number | null
+      stationId: string | null
+      branchId: number | null
+      providence: string | null
+      addressId: string | null
+    } | null,
     // Payment
     payWay: undefined as number | undefined,
     payWayId: undefined as number | undefined,

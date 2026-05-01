@@ -109,12 +109,31 @@ const suggestionLine = computed(() => {
 function applySuggestion() {
   const r = resolved.value
   if (!r) return
+
+  // Visible form fields the shopper sees populate.
   if (r.resolvedStreet) formState.value.street = r.resolvedStreet
   if (r.resolvedStreetNum) {
     formState.value.streetNumber = r.resolvedStreetNum
   }
   if (r.resolvedZip) formState.value.zipcode = r.resolvedZip
   if (r.resolvedArea) formState.value.city = r.resolvedArea
+
+  // Stash the ACS routing metadata on form state. It's not surfaced
+  // in any visible input — Greek περιφέρειες (the modern region
+  // selector) don't 1:1 map to ACS's nomos-based ``resolvedProvidence``,
+  // and lat/long + geoId + stationId + branchId aren't address fields
+  // — they're routing hints. Forwarded to the backend on order create
+  // so ACS_Create_Voucher can consume them directly without
+  // re-running ``ACS_Address_Validation`` server-side.
+  formState.value.acsResolvedAddress = {
+    geoId: r.geoId ?? null,
+    lat: r.resolvedLat ?? null,
+    lng: r.resolvedLong ?? null,
+    stationId: r.resolvedStationId || null,
+    branchId: r.resolvedBranchId ?? null,
+    providence: r.resolvedProvidence || null,
+    addressId: r.addressId || null,
+  }
 }
 </script>
 
