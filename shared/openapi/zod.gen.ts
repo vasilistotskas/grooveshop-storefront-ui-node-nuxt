@@ -2569,6 +2569,9 @@ export const zCart = z.object({
   totalItemsUnique: z.int().register(z.globalRegistry, {
     description: 'Return the number of unique items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.',
   }).readonly(),
+  totalWeightGrams: z.int().register(z.globalRegistry, {
+    description: 'Total cart weight in grams. Forwarded to /api/v1/shipping/options at checkout so ACS live pricing quotes against the actual weight bracket the voucher mint will charge.',
+  }).readonly(),
   currency: z.string().register(z.globalRegistry, {
     description: 'ISO 4217 currency code for all monetary values in this cart',
   }).readonly(),
@@ -2591,6 +2594,9 @@ export const zCartDetail = z.object({
   ]),
   totalItemsUnique: z.int().register(z.globalRegistry, {
     description: 'Return the number of unique items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.',
+  }).readonly(),
+  totalWeightGrams: z.int().register(z.globalRegistry, {
+    description: 'Total cart weight in grams. Forwarded to /api/v1/shipping/options at checkout so ACS live pricing quotes against the actual weight bracket the voucher mint will charge.',
   }).readonly(),
   currency: z.string().register(z.globalRegistry, {
     description: 'ISO 4217 currency code for all monetary values in this cart',
@@ -15084,6 +15090,10 @@ export const zListShippingOptionsQuery = z.object({
   orderValueAmount: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
+  ]).optional(),
+  weightGrams: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
   ]).optional(),
 })
 

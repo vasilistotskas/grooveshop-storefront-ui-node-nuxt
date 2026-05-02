@@ -39979,6 +39979,22 @@
                             ]
                         },
                         "description": "Cart subtotal — included so providers can return free-shipping pricing when the threshold is hit."
+                    },
+                    {
+                        "in": "query",
+                        "name": "weightGrams",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Total cart weight in grams. Threaded into the ACS live quote so the displayed price matches the weight-banded tariff bracket the voucher mint will charge. Optional; defaults to ACS's 500g minimum."
                     }
                 ],
                 "tags": [
@@ -52212,6 +52228,11 @@
                         "description": "Return the number of unique items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     },
+                    "totalWeightGrams": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "Total cart weight in grams. Forwarded to /api/v1/shipping/options at checkout so ACS live pricing quotes against the actual weight bracket the voucher mint will charge."
+                    },
                     "currency": {
                         "type": "string",
                         "readOnly": true,
@@ -52244,6 +52265,7 @@
                     "totalItemsUnique",
                     "totalPrice",
                     "totalVatValue",
+                    "totalWeightGrams",
                     "updatedAt",
                     "uuid"
                 ]
@@ -52318,6 +52340,11 @@
                         "description": "Return the number of unique items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.",
                         "readOnly": true
                     },
+                    "totalWeightGrams": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "Total cart weight in grams. Forwarded to /api/v1/shipping/options at checkout so ACS live pricing quotes against the actual weight bracket the voucher mint will charge."
+                    },
                     "currency": {
                         "type": "string",
                         "readOnly": true,
@@ -52359,6 +52386,7 @@
                     "totalItemsUnique",
                     "totalPrice",
                     "totalVatValue",
+                    "totalWeightGrams",
                     "updatedAt",
                     "uuid"
                 ]

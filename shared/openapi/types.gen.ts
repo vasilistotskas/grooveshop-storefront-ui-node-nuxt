@@ -1475,6 +1475,10 @@ export type Cart = {
      */
   readonly totalItemsUnique: number
   /**
+     * Total cart weight in grams. Forwarded to /api/v1/shipping/options at checkout so ACS live pricing quotes against the actual weight bracket the voucher mint will charge.
+     */
+  readonly totalWeightGrams: number
+  /**
      * ISO 4217 currency code for all monetary values in this cart
      */
   readonly currency: string
@@ -1505,6 +1509,10 @@ export type CartDetail = {
      * otherwise queries the database.
      */
   readonly totalItemsUnique: number
+  /**
+     * Total cart weight in grams. Forwarded to /api/v1/shipping/options at checkout so ACS live pricing quotes against the actual weight bracket the voucher mint will charge.
+     */
+  readonly totalWeightGrams: number
   /**
      * ISO 4217 currency code for all monetary values in this cart
      */
@@ -18392,6 +18400,10 @@ export type ListShippingOptionsData = {
          * Cart subtotal — included so providers can return free-shipping pricing when the threshold is hit.
          */
     orderValueAmount?: string | number
+    /**
+         * Total cart weight in grams. Threaded into the ACS live quote so the displayed price matches the weight-banded tariff bracket the voucher mint will charge. Optional; defaults to ACS's 500g minimum.
+         */
+    weightGrams?: string | number
   }
   url: '/api/v1/shipping/options'
 }

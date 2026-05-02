@@ -332,11 +332,94 @@ export async function useCheckoutForm() {
   })
 
   // Computed properties (also before await).
-  // Shipping cost switches on the selected method. All four settings
-  // live in `extra_settings.Setting` on Django and are exposed via
-  // `/api/settings/get`. The free-shipping threshold zeroes the price
-  // once the cart total reaches it.
+  // Live shipping options from the backend — the authoritative source
+  // of truth for per-(provider, kind) pricing. When ``ACS_DYNAMIC_
+  // PRICING_ENABLED`` is on, ACS rows already reflect the live tariff
+  // bucketed against the cart's actual weight; the displayed Μεταφορικά
+  // therefore match what the voucher mint will charge.
+  //
+  // Keyed on (country, total, weight) so the cache invalidates when
+  // the shopper changes country or adds/removes items. Falls back to
+  // ``extra_settings`` (legacy) only when the fetch errors — never
+  // blocks checkout on a transient API failure.
+  const shippingOptions = ref<ShippingOption[]>([])
+  const fetchShippingOptions = async () => {
+    try {
+      const cartTotal = cart.value?.totalPrice || 0
+      const weightGrams = cart.value?.totalWeightGrams ?? 0
+      const country = formState.countryId
+        ? String(formState.countryId).toUpperCase()
+        : undefined
+      shippingOptions.value = await $fetch<ShippingOption[]>(
+        '/api/shipping/options',
+        {
+          method: 'GET',
+          query: {
+            countryCode: country,
+            orderValueAmount: cartTotal,
+            currency: 'EUR',
+            weightGrams,
+          },
+          headers: useRequestHeaders(),
+        },
+      )
+    }
+    catch (error: unknown) {
+      log.warn(
+        'checkout/shippingOptions',
+        'Failed to fetch live options — falling back to flat-rate settings',
+        { error: getErrorDetail(error) },
+      )
+      shippingOptions.value = []
+    }
+  }
+
+  // Re-fetch whenever a dep that affects the price changes. Cart total
+  // and weight cover line-item edits; country covers the address step.
+  watch(
+    () => [
+      cart.value?.totalPrice,
+      cart.value?.totalWeightGrams,
+      formState.countryId,
+    ],
+    () => {
+      void fetchShippingOptions()
+    },
+    { immediate: false },
+  )
+
+  /** Match the live option row for the selected ``shippingMethod``.
+   *  Returns ``undefined`` if the live fetch hasn't populated yet or
+   *  the row is missing — caller falls back to the legacy flat-rate
+   *  Setting so the sidebar never shows a stale or empty Μεταφορικά. */
+  const matchedShippingOption = computed<ShippingOption | undefined>(() => {
+    const method = formState.shippingMethod
+    if (!shippingOptions.value.length) return undefined
+    if (method === 'box_now_locker') {
+      return shippingOptions.value.find(
+        o => o.providerCode === 'boxnow' && o.kind === 'pickup_point',
+      )
+    }
+    if (method === 'acs_smartpoint') {
+      return shippingOptions.value.find(
+        o => o.providerCode === 'acs' && o.kind === 'pickup_point',
+      )
+    }
+    // Home delivery: pick the ACS row when present (ACS supports
+    // home_delivery in the registry); otherwise let the flat-rate
+    // fallback handle it.
+    return shippingOptions.value.find(o => o.kind === 'home_delivery')
+  })
+
+  // Shipping cost — prefers the live backend quote, falls back to
+  // the local ``extra_settings`` flat rate when the fetch hasn't
+  // populated or returned no row for this provider.
   const shippingPrice = computed(() => {
+    const live = matchedShippingOption.value
+    if (live && typeof live.price === 'number') {
+      return live.price
+    }
+
     const cartTotal = cart.value?.totalPrice || 0
     const method = formState.shippingMethod
 
@@ -732,10 +815,16 @@ export async function useCheckoutForm() {
     await fetchRegions()
   }
 
+  // Hydrate shipping options once the country is known so the sidebar
+  // shows the live ACS quote on first render (SSR-safe).
+  await fetchShippingOptions()
+
   /**
    * Re-fetches shipping settings from the server at submit time so the
    * displayed shipping cost is always current even if the page was loaded
-   * hours ago.
+   * hours ago. Also re-fetches the per-(provider, kind) options so any
+   * ACS tariff change since page load is reflected in the sidebar before
+   * the customer commits to the order.
    */
   const refetchShippingSettings = async () => {
     const [freshShipping, freshThreshold] = await Promise.all([
@@ -747,6 +836,7 @@ export async function useCheckoutForm() {
         query: { key: 'FREE_SHIPPING_THRESHOLD' },
         headers: useRequestHeaders(),
       }).catch(() => null),
+      fetchShippingOptions(),
     ])
     if (freshShipping) shippingSetting.value = freshShipping
     if (freshThreshold) freeShippingThresholdSetting.value = freshThreshold
