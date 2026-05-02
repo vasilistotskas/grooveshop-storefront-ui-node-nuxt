@@ -1,3 +1,10 @@
+## [3.110.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.110.0...v3.110.1) (2026-05-02)
+
+
+### Bug Fixes
+
+* comprehensive audit hardening pass ([#4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/4)) ([d4837f9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d4837f9b625c09f140346dbda67c5b7c53341f73))
+
 # [3.110.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.109.0...v3.110.0) (2026-05-01)
 
 
