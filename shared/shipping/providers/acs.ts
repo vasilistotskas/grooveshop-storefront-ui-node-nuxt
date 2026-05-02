@@ -81,7 +81,7 @@ const acsCarrier: ShippingCarrier = {
     return (rows ?? []).map(_normalize).filter(Boolean) as Locker[]
   },
 
-  applyToFormState(formState: Record<string, any>, locker: Locker): void {
+  applyToFormState(formState: Record<string, unknown>, locker: Locker): void {
     // Backwards-compatible shape: the order-create payload + Zod
     // schema both still reference these keys verbatim. Deviate at
     // your peril — see ``app/composables/useCheckoutForm.ts``.
@@ -100,28 +100,60 @@ const acsCarrier: ShippingCarrier = {
     }
   },
 
-  readLockerId(formState: Record<string, any>): string | null {
+  readLockerId(formState: Record<string, unknown>): string | null {
     const id = formState.acsStationExternalId
     return typeof id === 'string' && id.length > 0 ? id : null
   },
 
-  readSelectedLocker(formState: Record<string, any>): Locker | null {
-    const stored = formState.acsStation
+  buildOrderPayload(
+    formState: Record<string, unknown>,
+  ): Partial<OrderCreateFromCartRequestWritable> {
+    const payload: Partial<OrderCreateFromCartRequestWritable> = {}
+    const externalId = formState.acsStationExternalId
+    if (typeof externalId === 'string' && externalId.length > 0) {
+      payload.acsStationExternalId = externalId
+    }
+    const branch = formState.acsStationBranch
+    if (typeof branch === 'string') {
+      payload.acsStationBranch = branch
+    }
+    return payload
+  },
+
+  readSelectedLocker(formState: Record<string, unknown>): Locker | null {
+    const stored = formState.acsStation as
+      | {
+        externalId?: unknown
+        branchCode?: unknown
+        name?: unknown
+        addressLine1?: unknown
+        addressLine2?: unknown
+        city?: unknown
+        postalCode?: unknown
+        countryCode?: unknown
+        workingHours?: unknown
+      }
+      | null
+      | undefined
     if (!stored || typeof stored !== 'object') return null
     const id = stored.externalId
     if (typeof id !== 'string' || id.length === 0) return null
+    const str = (v: unknown, fallback = ''): string =>
+      typeof v === 'string' ? v : fallback
+    const strOrNull = (v: unknown): string | null =>
+      typeof v === 'string' ? v : null
     return {
       id,
-      branchCode: stored.branchCode ?? null,
-      name: stored.name ?? id,
-      addressLine1: stored.addressLine1 ?? '',
-      addressLine2: stored.addressLine2 ?? null,
-      city: stored.city ?? '',
-      postalCode: stored.postalCode ?? '',
-      countryCode: stored.countryCode ?? 'GR',
+      branchCode: strOrNull(stored.branchCode),
+      name: str(stored.name, id),
+      addressLine1: str(stored.addressLine1),
+      addressLine2: strOrNull(stored.addressLine2),
+      city: str(stored.city),
+      postalCode: str(stored.postalCode),
+      countryCode: str(stored.countryCode, 'GR'),
       lat: null,
       lng: null,
-      workingHours: stored.workingHours ?? null,
+      workingHours: strOrNull(stored.workingHours),
       maxWeightKg: null,
       raw: stored,
     }

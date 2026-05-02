@@ -139,16 +139,16 @@ export interface ShippingCarrier {
    *  carrier writes its own provider-specific keys (BoxNow's
    *  ``boxnowLockerId`` vs ACS's ``acsStationExternalId``). The
    *  caller doesn't know or care. */
-  applyToFormState(formState: Record<string, any>, locker: Locker): void
+  applyToFormState(formState: Record<string, unknown>, locker: Locker): void
 
   /** Pull the currently-selected locker ID from the form state.
    *  Used by the Zod superRefine to drive validation per-carrier
    *  without an if-tower. */
-  readLockerId(formState: Record<string, any>): string | null
+  readLockerId(formState: Record<string, unknown>): string | null
 
   /** Detail view used by the selected-locker card. The carrier
    *  knows where it stashed the previous selection. */
-  readSelectedLocker(formState: Record<string, any>): Locker | null
+  readSelectedLocker(formState: Record<string, unknown>): Locker | null
 
   /** When ``usesGenericPicker`` is false, the carrier provides its
    *  own picker component. Resolved at component-render time so
@@ -160,4 +160,17 @@ export interface ShippingCarrier {
    *  the carrier writes inside ``applyToFormState`` (e.g. ACS writes
    *  ``acsStationExternalId``; BoxNow writes ``boxnowLockerId``). */
   readonly formFieldName: string
+
+  /** Extract the carrier-specific subset of the order-create
+   *  payload from the checkout form state. Lets the submit step
+   *  spread the result without an ``isAcsSmartpoint``/``isBoxNow``
+   *  branch — adding ELTA / Speedex doesn't require touching
+   *  ``useCheckoutSubmit.ts``. Optional: omit when the carrier has
+   *  no carrier-specific fields beyond ``shippingProviderCode`` /
+   *  ``shippingKind``. The return type is the auto-generated
+   *  OpenAPI request shape so any drift is caught at type-check
+   *  time. */
+  buildOrderPayload?(
+    formState: Record<string, unknown>,
+  ): Partial<OrderCreateFromCartRequestWritable>
 }

@@ -24,7 +24,7 @@ const boxnowCarrier: ShippingCarrier = {
   pickerComponentName: 'CheckoutSelectedBoxNowLocker',
   formFieldName: 'boxnowLockerId',
 
-  applyToFormState(formState: Record<string, any>, locker: Locker): void {
+  applyToFormState(formState: Record<string, unknown>, locker: Locker): void {
     // The BoxNow widget already writes the BoxNow-shaped object to
     // formState.boxnowLocker when it resolves; we expose the same
     // hook so test code and future callers can drive selection
@@ -40,27 +40,56 @@ const boxnowCarrier: ShippingCarrier = {
     }
   },
 
-  readLockerId(formState: Record<string, any>): string | null {
+  readLockerId(formState: Record<string, unknown>): string | null {
     const id = formState.boxnowLockerId
     return typeof id === 'string' && id.length > 0 ? id : null
   },
 
-  readSelectedLocker(formState: Record<string, any>): Locker | null {
-    const stored = formState.boxnowLocker
+  buildOrderPayload(
+    formState: Record<string, unknown>,
+  ): Partial<OrderCreateFromCartRequestWritable> {
+    const payload: Partial<OrderCreateFromCartRequestWritable> = {}
+    const lockerId = formState.boxnowLockerId
+    if (typeof lockerId === 'string' && lockerId.length > 0) {
+      payload.boxnowLockerId = lockerId
+    }
+    const compartmentSize = formState.boxnowCompartmentSize
+    if (
+      compartmentSize === 1
+      || compartmentSize === 2
+      || compartmentSize === 3
+    ) {
+      payload.boxnowCompartmentSize = compartmentSize
+    }
+    return payload
+  },
+
+  readSelectedLocker(formState: Record<string, unknown>): Locker | null {
+    const stored = formState.boxnowLocker as
+      | {
+        boxnowLockerId?: unknown
+        boxnowLockerName?: unknown
+        boxnowLockerAddressLine1?: unknown
+        boxnowLockerAddressLine2?: unknown
+        boxnowLockerPostalCode?: unknown
+        boxnowLockerNote?: unknown
+      }
+      | null
+      | undefined
     if (!stored || typeof stored !== 'object') return null
     const id = stored.boxnowLockerId
     if (typeof id !== 'string' || id.length === 0) return null
     return {
       id,
-      name: stored.boxnowLockerName ?? id,
-      addressLine1: stored.boxnowLockerAddressLine1 ?? '',
-      addressLine2: stored.boxnowLockerAddressLine2 ?? null,
+      name: typeof stored.boxnowLockerName === 'string' ? stored.boxnowLockerName : id,
+      addressLine1: typeof stored.boxnowLockerAddressLine1 === 'string' ? stored.boxnowLockerAddressLine1 : '',
+      addressLine2: typeof stored.boxnowLockerAddressLine2 === 'string' ? stored.boxnowLockerAddressLine2 : null,
       city: '',
-      postalCode: stored.boxnowLockerPostalCode ?? '',
+      postalCode: typeof stored.boxnowLockerPostalCode === 'string' ? stored.boxnowLockerPostalCode : '',
       countryCode: 'GR',
       lat: null,
       lng: null,
-      workingHours: stored.boxnowLockerNote ?? null,
+      workingHours: typeof stored.boxnowLockerNote === 'string' ? stored.boxnowLockerNote : null,
       raw: stored,
     }
   },
