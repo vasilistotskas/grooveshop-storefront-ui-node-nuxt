@@ -1,3 +1,10 @@
+# [3.111.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.110.3...v3.111.0) (2026-05-02)
+
+
+### Features
+
+* **checkout:** pull Μεταφορικά from /api/v1/shipping/options (live ACS quote) ([a4bd26a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a4bd26a2ede5591736d41d53173a0af7114352ac))
+
 ## [3.110.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.110.2...v3.110.3) (2026-05-02)
 
 
