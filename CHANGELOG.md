@@ -1,3 +1,10 @@
+## [3.110.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.110.1...v3.110.2) (2026-05-02)
+
+
+### Bug Fixes
+
+* types ([9161234](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/916123487bdc0c4cffb28498e11814efd94d7374))
+
 ## [3.110.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.110.0...v3.110.1) (2026-05-02)
 
 
