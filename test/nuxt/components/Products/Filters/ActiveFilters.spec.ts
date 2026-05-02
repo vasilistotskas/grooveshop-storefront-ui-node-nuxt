@@ -13,7 +13,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import ActiveFilters from '~/components/Products/Filters/ActiveFilters.vue'
-import type { FilterChip, ProductFilters } from '~/composables/useProductFilters'
+import type { FilterChip, ProductFilters } from '#shared/types/product-filters'
 
 // Mock useProductFilters at module level
 const mockFilters = ref<ProductFilters>({

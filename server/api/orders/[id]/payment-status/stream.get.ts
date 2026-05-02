@@ -42,22 +42,23 @@ export default defineEventHandler(async (event) => {
   // SSE connection. The response also primes the client with the
   // current status so the UI doesn't wait for the next transition.
   const accessToken = await getAllAuthAccessToken(event)
-  const statusUrl = new URL(`${config.apiBaseUrl}/order/${orderId}/payment_status`)
+  const statusUrl = new URL(`${config.apiBaseUrl}/order/${orderId}/payment_status/`)
   if (query.uuid) statusUrl.searchParams.set('uuid', query.uuid)
 
   let initialStatus: Record<string, unknown>
   try {
     initialStatus = await $fetch(statusUrl.toString(), {
       method: 'GET',
-      ...(accessToken && {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      }),
+      headers: createHeaders(null, accessToken),
     })
   }
   catch (error) {
     await handleError(error)
     return
   }
+
+  setResponseHeader(event, 'X-Accel-Buffering', 'no')
+  setResponseHeader(event, 'Cache-Control', 'no-store')
 
   const eventStream = createEventStream(event)
 
@@ -79,15 +80,8 @@ export default defineEventHandler(async (event) => {
       await subscriber.unsubscribe(channel)
     }
     catch { /* ignore */ }
-    try {
-      await subscriber.quit()
-    }
-    catch { /* ignore */ }
+    await subscriber.quit().catch(() => {})
   }
-
-  eventStream.onClosed(async () => {
-    await cleanup()
-  })
 
   subscriber.on('error', (err) => {
     log.error({ action: 'sse:payment-status:redis-error', orderId, error: err })
@@ -95,19 +89,39 @@ export default defineEventHandler(async (event) => {
 
   try {
     await subscriber.connect()
-    await subscriber.subscribe(channel, async (message) => {
-      if (closed) return
-      try {
-        await eventStream.push({ event: 'payment-status', data: message })
-        const parsed = JSON.parse(message) as { status?: string, paymentStatus?: string }
-        if (parsed.paymentStatus && TERMINAL_STATUSES.has(parsed.paymentStatus)) {
-          await eventStream.close()
-          await cleanup()
+
+    try {
+      await subscriber.subscribe(channel, async (message) => {
+        if (closed) return
+        try {
+          await eventStream.push({ event: 'payment-status', data: message })
+          const parsed = JSON.parse(message) as { status?: string, paymentStatus?: string }
+          if (parsed.paymentStatus && TERMINAL_STATUSES.has(parsed.paymentStatus)) {
+            await eventStream.close()
+            await cleanup()
+          }
         }
+        catch (err) {
+          log.error({ action: 'sse:payment-status:push-error', orderId, error: err })
+        }
+      })
+    }
+    catch (err) {
+      // subscribe() itself failed — quit the client before propagating.
+      log.error({ action: 'sse:payment-status:subscribe-failed', orderId, error: err })
+      await cleanup()
+      try {
+        await eventStream.close()
       }
-      catch (err) {
-        log.error({ action: 'sse:payment-status:push-error', orderId, error: err })
-      }
+      catch { /* ignore */ }
+      return eventStream.send()
+    }
+
+    // Register cleanup on graceful browser disconnect only after subscribe
+    // succeeds, so the subscriber is always in a subscribable state when
+    // onClosed fires.
+    eventStream.onClosed(async () => {
+      await cleanup()
     })
 
     // Prime the client with the current state. If the order is already
@@ -118,25 +132,21 @@ export default defineEventHandler(async (event) => {
       data: JSON.stringify({
         orderId: Number(orderId),
         status: initialStatus.status,
-        paymentStatus: initialStatus.status,
+        paymentStatus: initialStatus.paymentStatus,
         paymentId: initialStatus.paymentId,
       }),
     })
-    if (typeof initialStatus.status === 'string' && TERMINAL_STATUSES.has(initialStatus.status)) {
+    if (typeof initialStatus.paymentStatus === 'string' && TERMINAL_STATUSES.has(initialStatus.paymentStatus)) {
       await eventStream.close()
       await cleanup()
     }
+
+    return eventStream.send()
   }
   catch (err) {
-    log.error({ action: 'sse:payment-status:subscribe-failed', orderId, error: err })
+    // connect() failed — subscriber never entered pub/sub mode; quit cleans up the TCP socket.
+    log.error({ action: 'sse:payment-status:connect-failed', orderId, error: err })
     await cleanup()
-    // We still send the current state so the client has something to
-    // work with, and rely on the polling fallback for updates.
-    try {
-      await eventStream.close()
-    }
-    catch { /* ignore */ }
+    throw err
   }
-
-  return eventStream.send()
 })

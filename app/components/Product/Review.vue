@@ -186,7 +186,7 @@ const schema = z.object({
       error: t('validation.min', { min: 1 }),
     })
     .max(10, {
-      error: t('validation.min', { max: 10 }),
+      error: t('validation.max', { max: 10 }),
     }),
 })
 

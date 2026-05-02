@@ -55,7 +55,11 @@ export default defineNuxtPlugin({
         }
 
         const websocketProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-        const djangoApiHostName = config.public.djangoHostName || `api.${window.location.hostname}`
+        const djangoApiHostName = config.public.djangoHostName
+        if (!djangoApiHostName) {
+          log.warn('ws', 'NUXT_PUBLIC_DJANGO_HOST_NAME is not configured — WebSocket initialization aborted')
+          return
+        }
         const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHostName}/ws/notifications/`, {
           user_id: user.value?.id,
           ticket: response.ticket,

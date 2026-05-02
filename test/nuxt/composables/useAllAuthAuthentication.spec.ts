@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach, afterAll, vi } from 'vitest'
 
 describe('useAllAuthAuthentication', () => {
   let mockFetch: ReturnType<typeof vi.fn>
@@ -6,7 +6,7 @@ describe('useAllAuthAuthentication', () => {
   let mockOnAllAuthResponse: ReturnType<typeof vi.fn>
   let mockOnAllAuthResponseError: ReturnType<typeof vi.fn>
 
-  beforeEach(() => {
+  beforeAll(() => {
     mockFetch = vi.fn()
     mockUseRequestHeaders = vi.fn(() => ({ 'Content-Type': 'application/json' }))
     mockOnAllAuthResponse = vi.fn()
@@ -16,6 +16,17 @@ describe('useAllAuthAuthentication', () => {
     vi.stubGlobal('useRequestHeaders', mockUseRequestHeaders)
     vi.stubGlobal('onAllAuthResponse', mockOnAllAuthResponse)
     vi.stubGlobal('onAllAuthResponseError', mockOnAllAuthResponseError)
+  })
+
+  afterAll(() => {
+    vi.unstubAllGlobals()
+  })
+
+  beforeEach(() => {
+    mockFetch.mockClear()
+    mockUseRequestHeaders.mockClear()
+    mockOnAllAuthResponse.mockClear()
+    mockOnAllAuthResponseError.mockClear()
   })
 
   describe('getSession', () => {
@@ -294,6 +305,98 @@ describe('useAllAuthAuthentication', () => {
           body,
         }),
       )
+    })
+  })
+
+  describe('MFA login flow', () => {
+    // NOTE: The global $fetch mock (vi.fn()) does NOT invoke ofetch's
+    // onResponse / onResponseError callbacks — those are real ofetch
+    // internals that only run with the real implementation.
+    // Therefore these tests only verify:
+    //   (a) the correct endpoint + method + body are sent for each MFA step
+    //   (b) the composable returns the $fetch result unchanged
+    //
+    // Behavioral coverage (onAllAuthResponseError fired, Knox token persisted,
+    // auth:change hook called) requires integration-level testing with a real
+    // backend or a full ofetch mock that invokes the hooks — deferred.
+
+    it('login with MFA-required user sends credentials to the login endpoint', async () => {
+      // allauth returns 401 with pending_flow=mfa when the user has TOTP enabled.
+      // The composable's job is to POST the credentials; the 401 handling
+      // (routing to MFA page) is done by the auth plugin via auth:change hook.
+      const mfaPendingResponse = {
+        status: 401,
+        data: {
+          flows: [{ id: 'mfa', is_pending: true, types: ['totp'] }],
+        },
+        meta: { is_authenticated: false },
+      }
+      mockFetch.mockResolvedValueOnce(mfaPendingResponse)
+
+      const { login } = useAllAuthAuthentication()
+      const result = await login({ email: 'mfa-user@example.com', password: 'password123' })
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/_allauth/app/v1/auth/login',
+        expect.objectContaining({
+          method: 'POST',
+          body: { email: 'mfa-user@example.com', password: 'password123' },
+        }),
+      )
+      // The composable returns the raw 401 response for the caller to handle
+      expect(result).toMatchObject({ status: 401 })
+    })
+
+    it('MFA code submission sends the code to the 2FA authenticate endpoint', async () => {
+      // After login returns a pending MFA flow, the user enters their TOTP code.
+      // The composable POSTs to /2fa/authenticate with the code.
+      // On success, allauth returns 200 with meta.access_token (Knox token).
+      const successResponse = {
+        status: 200,
+        meta: { is_authenticated: true, access_token: 'knox-token-abc' },
+        data: { user: { id: 1, email: 'mfa-user@example.com' } },
+      }
+      mockFetch.mockResolvedValueOnce(successResponse)
+
+      const { twoFaAuthenticate } = useAllAuthAuthentication()
+      const result = await twoFaAuthenticate({ code: '654321' })
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/_allauth/app/v1/auth/2fa/authenticate',
+        expect.objectContaining({
+          method: 'POST',
+          body: { code: '654321' },
+        }),
+      )
+      // The composable returns the raw $fetch result; Knox token storage
+      // is handled downstream by onAllAuthResponse → auth:change → session.
+      expect(result).toMatchObject({
+        status: 200,
+        meta: expect.objectContaining({ is_authenticated: true }),
+      })
+    })
+
+    it('invalid MFA code — $fetch is called with the wrong code and returns a non-200 response', async () => {
+      // allauth returns 400 for a wrong TOTP code. The composable forwards
+      // the response. Rate-limit semantics (whether allauth counts this attempt
+      // against a Redis counter) are not testable without a real backend.
+      const invalidCodeResponse = {
+        status: 400,
+        errors: [{ code: 'enter_a_valid_code', param: 'code' }],
+      }
+      mockFetch.mockResolvedValueOnce(invalidCodeResponse)
+
+      const { twoFaAuthenticate } = useAllAuthAuthentication()
+      const result = await twoFaAuthenticate({ code: '000000' })
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        '/api/_allauth/app/v1/auth/2fa/authenticate',
+        expect.objectContaining({
+          method: 'POST',
+          body: { code: '000000' },
+        }),
+      )
+      expect(result).toMatchObject({ status: 400 })
     })
   })
 

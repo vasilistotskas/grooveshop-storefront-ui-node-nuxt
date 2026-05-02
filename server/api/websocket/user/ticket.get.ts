@@ -26,9 +26,7 @@ export default defineEventHandler(async (event) => {
       `${config.apiBaseUrl}/websocket/ticket`,
       {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: createHeaders(null, accessToken),
       },
     )
     return await parseDataAs(response, zCreateWebSocketTicketResponse)

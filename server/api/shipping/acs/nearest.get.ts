@@ -18,31 +18,50 @@ const zNearestQuery = z.object({
   countryCode: z.string().length(2).optional(),
 })
 
-export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  // Server-side header helper (handles X-Forwarded-Host etc.) — public
-  // endpoint, no auth tokens needed.
-  const headers = createHeaders()
-  try {
-    const query = await getValidatedQuery(event, zNearestQuery.parse)
+export default defineCachedEventHandler(
+  async (event) => {
+    const config = useRuntimeConfig()
+    // Server-side header helper (handles X-Forwarded-Host etc.) — public
+    // endpoint, no auth tokens needed.
+    const headers = createHeaders()
+    try {
+      const query = await getValidatedQuery(event, zNearestQuery.parse)
 
-    const response = await $fetch<AcsStation[]>(
-      `${config.apiBaseUrl}/shipping/acs/stations/nearest`,
-      {
-        method: 'GET',
-        query: {
-          postalCode: query.postalCode,
-          city: query.city,
-          shopKind: query.shopKind,
-          countryCode: query.countryCode,
+      const raw = await $fetch(
+        `${config.apiBaseUrl}/shipping/acs/stations/nearest`,
+        {
+          method: 'GET',
+          query: {
+            postalCode: query.postalCode,
+            city: query.city,
+            shopKind: query.shopKind,
+            countryCode: query.countryCode,
+          },
+          headers,
         },
-        headers,
-      },
-    )
+      )
 
-    return response
-  }
-  catch (error) {
-    await handleError(error)
-  }
-})
+      return parseDataAs(raw, zFindNearestAcsStationsResponse)
+    }
+    catch (error) {
+      await handleError(error)
+    }
+  },
+  {
+    // Same data shape as bulk lockers; nearest is keyed on postcode
+    // so a single popular city pays one Django round-trip per 5min.
+    maxAge: 60 * 5,
+    staleMaxAge: 60 * 30,
+    name: 'shipping.acs.nearest',
+    getKey: (event) => {
+      const url = new URL(event.node.req.url ?? '/', 'http://internal')
+      const p = url.searchParams
+      return [
+        p.get('postalCode') ?? '',
+        p.get('city') ?? '',
+        p.get('shopKind') ?? '',
+        p.get('countryCode') ?? '',
+      ].join('|')
+    },
+  },
+)

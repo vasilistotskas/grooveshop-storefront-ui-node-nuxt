@@ -24,30 +24,6 @@ const zQuery = z.object({
   country: z.string().length(2).optional(),
 })
 
-// Django auto-converts snake_case → camelCase via the
-// ``djangorestframework-camel-case`` middleware on the response
-// side, so consumers receive ``externalId`` not ``external_id``.
-// Mirror that here — the previous snake_case shape silently
-// short-circuited pagination (``total_pages`` was undefined →
-// loop exited after page 1, capping us at 100 lockers instead of
-// the full catalogue).
-interface AcsStationDjangoRow {
-  id: number
-  externalId: string
-  branchCode: string
-  shopKind: number
-  name: string
-  addressLine1: string
-  city: string
-  postalCode: string
-  countryCode: string
-  lat: string | number | null
-  lng: string | number | null
-  workingHours: string
-  maxWeightKg: string | number | null
-  isActive: boolean
-}
-
 interface NormalisedLocker {
   externalId: string
   branchCode: string | null
@@ -71,7 +47,7 @@ function _toNumber(
   return Number.isFinite(n) ? n : null
 }
 
-function _normalize(row: AcsStationDjangoRow): NormalisedLocker {
+function _normalize(row: AcsStation): NormalisedLocker {
   return {
     externalId: row.externalId,
     branchCode: row.branchCode || null,
@@ -100,7 +76,7 @@ async function _fetchAcsStations(
   // to 10 pages (= 1000 lockers) of headroom for future expansion.
   const maxPages = 10
   while (page <= maxPages) {
-    const response = await $fetch<Pagination<AcsStationDjangoRow>>(
+    const response = await $fetch<Pagination<AcsStation>>(
       `${apiBaseUrl}/shipping/acs/stations`,
       {
         method: 'GET',

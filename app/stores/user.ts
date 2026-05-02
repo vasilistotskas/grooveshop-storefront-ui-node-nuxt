@@ -9,6 +9,7 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const clearAccountState = () => {
+    account.value = null
     favouriteProductIds.value = {}
     blogLikedPosts.value = []
     blogLikedComments.value = []

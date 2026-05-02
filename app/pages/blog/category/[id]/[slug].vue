@@ -47,7 +47,7 @@ if (error.value || !category.value) {
 const {
   data: posts,
   status: postStatus,
-} = await useLazyFetch(
+} = useLazyFetch(
   `/api/blog/categories/${categoryId}/posts`,
   {
     key: `blogCategoryPosts${categoryId}`,

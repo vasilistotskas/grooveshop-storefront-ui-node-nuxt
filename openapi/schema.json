@@ -25721,7 +25721,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) rejects COD on locker pickup; other carriers pass through unchanged. Pair with ``shippingKind``."
+                        "description": "Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) supports COD on lockers via PAY ON THE GO and so passes through; ACS passes through unchanged. Pair with ``shippingKind``."
                     },
                     {
                         "in": "query",
@@ -39419,49 +39419,6 @@
                         "description": "Optional ISO-2 country code; narrows the default kind filter to that country's locker catalogue."
                     },
                     {
-                        "name": "ordering",
-                        "required": false,
-                        "in": "query",
-                        "description": "Which field to use when ordering the results.",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "required": false,
-                        "in": "query",
-                        "description": "A page number within the paginated result set.",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "name": "pageSize",
-                        "required": false,
-                        "in": "query",
-                        "description": "Number of results to return per page.",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
-                    },
-                    {
                         "in": "query",
                         "name": "postalCode",
                         "schema": {
@@ -39469,15 +39426,6 @@
                         },
                         "description": "Greek postcode (5-digit), required.",
                         "required": true
-                    },
-                    {
-                        "name": "search",
-                        "required": false,
-                        "in": "query",
-                        "description": "A search term.",
-                        "schema": {
-                            "type": "string"
-                        }
                     },
                     {
                         "in": "query",
@@ -39513,11 +39461,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaginatedAcsStationList"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AcsStation"
+                                    }
                                 }
                             }
                         },
-                        "description": ""
+                        "description": "Bare array of matching ACS station objects — not paginated."
                     }
                 }
             }
@@ -48693,6 +48644,28 @@
                     }
                 }
             }
+        },
+        "/viva-wallet/resolve-order": {
+            "get": {
+                "operationId": "viva_wallet_resolve_order_retrieve",
+                "description": "Resolve a Viva Wallet order code to an order UUID.\n\nUsed by the frontend to redirect from Viva's payment page to the\norder success page. Requires authentication so anonymous callers\ncannot enumerate order UUIDs by brute-forcing order codes.",
+                "tags": [
+                    "viva-wallet"
+                ],
+                "security": [
+                    {
+                        "knoxApiToken": []
+                    },
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "No response body"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -49080,37 +49053,18 @@
                         "description": "ISO 3166-1 alpha-2 country code."
                     },
                     "lat": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000,
-                        "minimum": -1000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "readOnly": true,
+                        "type": "string",
                         "nullable": true,
-                        "title": "Latitude"
+                        "readOnly": true
                     },
                     "lng": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000,
-                        "minimum": -1000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "readOnly": true,
+                        "type": "string",
                         "nullable": true,
-                        "title": "Longitude"
+                        "readOnly": true
                     },
                     "maxWeightKg": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000,
-                        "minimum": -1000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "readOnly": true,
-                        "title": "Max weight (kg)",
-                        "description": "Smartpoint lockers cap at 6 kg per ACS docs; non-locker stations have no fixed cap (still stored as 6 by default)."
+                        "type": "string",
+                        "readOnly": true
                     },
                     "workingHours": {
                         "type": "string",
@@ -49212,37 +49166,18 @@
                         "description": "ISO 3166-1 alpha-2 country code."
                     },
                     "lat": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000,
-                        "minimum": -1000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "readOnly": true,
+                        "type": "string",
                         "nullable": true,
-                        "title": "Latitude"
+                        "readOnly": true
                     },
                     "lng": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000,
-                        "minimum": -1000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "readOnly": true,
+                        "type": "string",
                         "nullable": true,
-                        "title": "Longitude"
+                        "readOnly": true
                     },
                     "maxWeightKg": {
-                        "type": "number",
-                        "format": "double",
-                        "maximum": 1000,
-                        "minimum": -1000,
-                        "exclusiveMaximum": true,
-                        "exclusiveMinimum": true,
-                        "readOnly": true,
-                        "title": "Max weight (kg)",
-                        "description": "Smartpoint lockers cap at 6 kg per ACS docs; non-locker stations have no fixed cap (still stored as 6 by default)."
+                        "type": "string",
+                        "readOnly": true
                     },
                     "workingHours": {
                         "type": "string",
@@ -53840,7 +53775,7 @@
                         "$ref": "#/components/schemas/PriorityEnum"
                     },
                     "notificationType": {
-                        "description": "Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.\n\n* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Shipment dispatched\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Price drop (favourited product)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Blog comment liked",
+                        "description": "Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.\n\n* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Shipment dispatched\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Price drop (favourited product)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Blog comment liked\n* `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker\n* `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered\n* `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery",
                         "oneOf": [
                             {
                                 "$ref": "#/components/schemas/NotificationTypeEnum"
@@ -53961,10 +53896,13 @@
                     "price_drop_favourite",
                     "restock_favourite",
                     "loyalty_tier_up",
-                    "comment_liked"
+                    "comment_liked",
+                    "BOXNOW_PARCEL_AT_LOCKER",
+                    "BOXNOW_PARCEL_DELIVERED",
+                    "ACS_OUT_FOR_DELIVERY"
                 ],
                 "type": "string",
-                "description": "* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Shipment dispatched\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Price drop (favourited product)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Blog comment liked"
+                "description": "* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Shipment dispatched\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Price drop (favourited product)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Blog comment liked\n* `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker\n* `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered\n* `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery"
             },
             "NotificationUser": {
                 "type": "object",

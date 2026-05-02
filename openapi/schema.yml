@@ -15106,8 +15106,9 @@ paths:
         schema:
           type: string
         description: Filter pay ways compatible with the given shipping carrier. Each
-          carrier owns its own compatibility rules — BoxNow (``boxnow``) rejects COD
-          on locker pickup; other carriers pass through unchanged. Pair with ``shippingKind``.
+          carrier owns its own compatibility rules — BoxNow (``boxnow``) supports
+          COD on lockers via PAY ON THE GO and so passes through; ACS passes through
+          unchanged. Pair with ``shippingKind``.
       - in: query
         name: sortOrder
         schema:
@@ -28874,6 +28875,23 @@ paths:
           description: No response body
         '503':
           description: No response body
+  /viva-wallet/resolve-order:
+    get:
+      operationId: viva_wallet_resolve_order_retrieve
+      description: |-
+        Resolve a Viva Wallet order code to an order UUID.
+
+        Used by the frontend to redirect from Viva's payment page to the
+        order success page. Requires authentication so anonymous callers
+        cannot enumerate order UUIDs by brute-forcing order codes.
+      tags:
+      - viva-wallet
+      security:
+      - knoxApiToken: []
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
 components:
   schemas:
     AcsAddressValidationRequestRequest:
@@ -32960,6 +32978,9 @@ components:
             * `restock_favourite` - Back in stock (favourited product)
             * `loyalty_tier_up` - Loyalty tier promotion
             * `comment_liked` - Blog comment liked
+            * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
+            * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+            * `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery
           oneOf:
           - $ref: '#/components/schemas/NotificationTypeEnum'
           - $ref: '#/components/schemas/BlankEnum'
@@ -33071,6 +33092,9 @@ components:
       - restock_favourite
       - loyalty_tier_up
       - comment_liked
+      - BOXNOW_PARCEL_AT_LOCKER
+      - BOXNOW_PARCEL_DELIVERED
+      - ACS_OUT_FOR_DELIVERY
       type: string
       description: |-
         * `order_created` - Order created
@@ -33087,6 +33111,9 @@ components:
         * `restock_favourite` - Back in stock (favourited product)
         * `loyalty_tier_up` - Loyalty tier promotion
         * `comment_liked` - Blog comment liked
+        * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
+        * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+        * `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery
     NotificationUser:
       type: object
       properties:

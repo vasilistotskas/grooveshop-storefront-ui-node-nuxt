@@ -32,8 +32,15 @@ export async function storeOAuthTokensAndRedirect(
   clientId: string | undefined,
   oauthProcess: 'login' | 'connect',
 ) {
+  // Preserve any existing session (e.g. an already-authenticated user
+  // running ``process=connect`` to add a social provider) — a bare
+  // replaceUserSession call would wipe their sessionToken/accessToken
+  // mid-flow and force a re-login on the callback.
+  const current = await getUserSession(event)
   await replaceUserSession(event, {
+    ...current,
     secure: {
+      ...(current.secure ?? {}),
       oauthParams: {
         provider,
         access_token: tokens.access_token ?? undefined,

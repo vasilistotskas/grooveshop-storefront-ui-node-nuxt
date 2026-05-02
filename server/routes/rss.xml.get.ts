@@ -4,8 +4,9 @@ import type { SupportedLocale } from '~~/i18n/locales'
 const RSS_CACHE_AGE = 60 * 60
 
 const cachedBlogCategory = defineCachedFunction(
-  async (url: string): Promise<BlogCategoryDetail> => {
-    return await $fetch<BlogCategoryDetail>(url, { method: 'GET' })
+  async (url: string) => {
+    const raw = await $fetch(url, { method: 'GET' })
+    return parseDataAs(raw, zBlogCategoryDetail)
   },
   {
     maxAge: RSS_CACHE_AGE,
@@ -15,8 +16,9 @@ const cachedBlogCategory = defineCachedFunction(
 )
 
 const cachedProductCategoryDetail = defineCachedFunction(
-  async (url: string): Promise<ProductCategoryDetail> => {
-    return await $fetch<ProductCategoryDetail>(url, { method: 'GET' })
+  async (url: string) => {
+    const raw = await $fetch(url, { method: 'GET' })
+    return parseDataAs(raw, zProductCategoryDetail)
   },
   {
     maxAge: RSS_CACHE_AGE,

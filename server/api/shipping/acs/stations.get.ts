@@ -17,33 +17,55 @@ const zStationsQuery = z.object({
   pageSize: z.coerce.number().int().min(1).max(100).optional(),
 })
 
-export default defineEventHandler(async (event) => {
-  const config = useRuntimeConfig()
-  // Server-side header helper (handles X-Forwarded-Host etc.) — public
-  // endpoint, no auth tokens needed.
-  const headers = createHeaders()
-  try {
-    const query = await getValidatedQuery(event, zStationsQuery.parse)
+export default defineCachedEventHandler(
+  async (event) => {
+    const config = useRuntimeConfig()
+    // Server-side header helper (handles X-Forwarded-Host etc.) — public
+    // endpoint, no auth tokens needed.
+    const headers = createHeaders()
+    try {
+      const query = await getValidatedQuery(event, zStationsQuery.parse)
 
-    const response = await $fetch<PaginatedAcsStationList>(
-      `${config.apiBaseUrl}/shipping/acs/stations`,
-      {
-        method: 'GET',
-        query: {
-          postalCode: query.postalCode,
-          countryCode: query.countryCode,
-          shopKind: query.shopKind,
-          search: query.search,
-          page: query.page,
-          pageSize: query.pageSize,
+      const raw = await $fetch(
+        `${config.apiBaseUrl}/shipping/acs/stations`,
+        {
+          method: 'GET',
+          query: {
+            postalCode: query.postalCode,
+            countryCode: query.countryCode,
+            shopKind: query.shopKind,
+            search: query.search,
+            page: query.page,
+            pageSize: query.pageSize,
+          },
+          headers,
         },
-        headers,
-      },
-    )
+      )
 
-    return response
-  }
-  catch (error) {
-    await handleError(error)
-  }
-})
+      return parseDataAs(raw, zPaginatedAcsStationList)
+    }
+    catch (error) {
+      await handleError(error)
+    }
+  },
+  {
+    // ACS station data is rebuilt by the daily sync_acs_stations beat
+    // task. 10min fresh / 1h SWR keeps the checkout picker snappy
+    // without serving genuinely stale data.
+    maxAge: 60 * 10,
+    staleMaxAge: 60 * 60,
+    name: 'shipping.acs.stations',
+    getKey: (event) => {
+      const url = new URL(event.node.req.url ?? '/', 'http://internal')
+      const p = url.searchParams
+      return [
+        p.get('postalCode') ?? '',
+        p.get('countryCode') ?? '',
+        p.get('shopKind') ?? '',
+        p.get('search') ?? '',
+        p.get('page') ?? '1',
+        p.get('pageSize') ?? '',
+      ].join('|')
+    },
+  },
+)

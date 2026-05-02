@@ -13,6 +13,7 @@ const emit = defineEmits<{
 }>()
 
 const localLoading = ref(false)
+const timeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
 
 const isToggling = computed(() => props.loading || localLoading.value)
 
@@ -28,10 +29,16 @@ const handleToggle = (checked: boolean) => {
     emit('unsubscribe')
   }
 
-  setTimeout(() => {
+  if (timeoutId.value) clearTimeout(timeoutId.value)
+  timeoutId.value = setTimeout(() => {
     localLoading.value = false
+    timeoutId.value = null
   }, 500)
 }
+
+onBeforeUnmount(() => {
+  if (timeoutId.value) clearTimeout(timeoutId.value)
+})
 
 const categoryColor = computed(() => {
   const colorMap: Record<TopicCategory, 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'> = {

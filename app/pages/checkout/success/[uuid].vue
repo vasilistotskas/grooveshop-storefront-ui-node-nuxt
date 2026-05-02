@@ -7,6 +7,10 @@ const { t, locale } = useI18n()
 const route = useRoute(`checkout-success-uuid___${locale.value}`)
 const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
 
+if (!orderUUID || typeof orderUUID !== 'string') {
+  throw createError({ statusCode: 404, statusMessage: 'Missing order UUID' })
+}
+
 const sessionId = computed(() => route.query.session_id as string | undefined)
 const vivaOrderCode = computed(() => route.query.s as string | undefined)
 const fromViva = computed(() => !!vivaOrderCode.value)

@@ -234,25 +234,12 @@ export const useCartStore = defineStore('cart', () => {
     const opId = crypto.randomUUID()
     inFlight.add(opId)
     try {
-      const hasExistingCart = await $fetch('/api/cart/check', {
+      const data = await $fetch('/api/cart', {
         method: 'GET',
         headers,
       })
 
-      if (hasExistingCart) {
-        const data = await $fetch('/api/cart', {
-          method: 'GET',
-          headers,
-        })
-
-        if (data) {
-          cart.value = data
-        }
-      }
-      else {
-        cart.value = null
-      }
-
+      cart.value = data ?? null
       error.value = null
     }
     catch (err) {
