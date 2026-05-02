@@ -1,3 +1,10 @@
+## [3.110.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.110.2...v3.110.3) (2026-05-02)
+
+
+### Bug Fixes
+
+* **openapi:** regenerate Nuxt types from current Django schema ([ae16a5e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ae16a5e215cd35016219b661776dac7bc7a4daea))
+
 ## [3.110.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.110.1...v3.110.2) (2026-05-02)
 
 
