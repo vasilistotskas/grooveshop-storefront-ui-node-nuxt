@@ -6,9 +6,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/order/my_orders`, {
       method: 'GET',
       query,
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: createHeaders(null, accessToken),
     })
     return await parseDataAs(response, zListMyOrdersResponse)
   }

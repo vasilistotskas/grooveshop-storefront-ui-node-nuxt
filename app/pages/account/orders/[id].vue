@@ -477,7 +477,7 @@ definePageMeta({
         <UBadge
           v-if="order.isPaid"
           color="success"
-          label="Paid"
+          :label="t('paid')"
           variant="soft"
           icon="i-heroicons-check-circle"
         />
@@ -1277,6 +1277,7 @@ el:
     error_title: "Αποτυχία ακύρωσης"
     error_description: "Δεν μπορέσαμε να ακυρώσουμε την παραγγελία. Δοκίμασε ξανά."
     error_conflict: "Η παραγγελία δεν μπορεί πλέον να ακυρωθεί στην τρέχουσα κατάστασή της."
+  paid: Πληρωμένη
   reorder:
     cta: "Επανάληψη παραγγελίας"
     success_title: "Προστέθηκαν στο καλάθι"

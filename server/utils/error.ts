@@ -22,10 +22,16 @@ export function handleError(
   }
   if (error instanceof FetchError) {
     log.error({ action: 'upstream:fetch', error: error.message })
+    const statusCode = error.statusCode ?? 500
+    // Forward upstream Django response bodies (DRF validation errors,
+    // allauth detail) only for client errors. 5xx bodies can leak
+    // dependency-internal diagnostics (e.g. dj-stripe, allauth) so
+    // we drop them and surface a generic message instead.
+    const safeData = statusCode < 500 ? error.data : undefined
     throw createError({
-      statusCode: error.statusCode ?? 500,
+      statusCode,
       statusMessage: error.statusMessage ?? error.message,
-      data: error.data,
+      data: safeData,
     })
   }
   if (error instanceof H3Error) {

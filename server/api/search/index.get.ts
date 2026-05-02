@@ -11,14 +11,17 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    const fwdHeaders = createHeaders(null, null)
     const [productResponse, blogPostResponse] = await Promise.all([
       $fetch(`${config.apiBaseUrl}/search/product`, {
         method: 'GET',
         query,
+        headers: fwdHeaders,
       }),
       $fetch(`${config.apiBaseUrl}/search/blog/post`, {
         method: 'GET',
         query,
+        headers: fwdHeaders,
       }),
     ])
 

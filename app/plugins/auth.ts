@@ -15,8 +15,10 @@ export default defineNuxtPlugin({
     const { loggedIn, fetch, clear } = useUserSession()
     const authStore = useAuthStore()
     const userStore = useUserStore()
+    const userNotificationStore = useUserNotificationStore()
     const { clearAuthState } = authStore
     const { clearAccountState } = userStore
+    const { clearNotificationsState } = userNotificationStore
 
     const authState = useState<AllAuthResponse | AllAuthResponseError>('auth-state')
     const authEvent = useState<AuthChangeEventType>('authEvent')
@@ -83,6 +85,7 @@ export default defineNuxtPlugin({
       try {
         clearAuthState()
         clearAccountState()
+        clearNotificationsState()
         if (loggedIn.value) {
           log.info('auth', 'Clearing user session')
           await clear()
@@ -120,7 +123,8 @@ export default defineNuxtPlugin({
         const router = useRouter()
         const route = router.currentRoute.value
         const localePath = useLocalePath()
-        const returnToPath = route.query.next?.toString()
+        const rawNext = route.query.next?.toString()
+        const returnToPath = isSafeRelativePath(rawNext) ? rawNext : undefined
         const loginPath = localePath(RedirectToURLs.LOGIN_URL)
         const isRedirectingToLogin = returnToPath === RedirectToURLs.LOGIN_URL || returnToPath === loginPath
         const redirectTo = isRedirectingToLogin || !returnToPath
@@ -136,8 +140,9 @@ export default defineNuxtPlugin({
     async function handleReauthenticated() {
       try {
         const router = useRouter()
-        const next = router.currentRoute.value.query.next as keyof RouteNamedMapI18n
-        return await navigateToUrl({ path: next || RedirectToURLs.LOGIN_REDIRECT_URL })
+        const rawNext = router.currentRoute.value.query.next?.toString()
+        const safeNext = isSafeRelativePath(rawNext) ? rawNext as keyof RouteNamedMapI18n : undefined
+        return await navigateToUrl({ path: safeNext || RedirectToURLs.LOGIN_REDIRECT_URL })
       }
       catch (error) {
         log.error({ action: 'auth:reauthenticated', error })

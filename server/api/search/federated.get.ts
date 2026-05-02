@@ -13,6 +13,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/search/federated`, {
       method: 'GET',
       query,
+      headers: createHeaders(null, null),
     })
 
     return await parseDataAs(response, zFederatedSearchResponse)

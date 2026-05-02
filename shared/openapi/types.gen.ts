@@ -177,20 +177,9 @@ export type AcsStation = {
      * ISO 3166-1 alpha-2 country code.
      */
   readonly countryCode: string
-  /**
-     * Latitude
-     */
-  readonly lat: number | null
-  /**
-     * Longitude
-     */
-  readonly lng: number | null
-  /**
-     * Max weight (kg)
-     *
-     * Smartpoint lockers cap at 6 kg per ACS docs; non-locker stations have no fixed cap (still stored as 6 by default).
-     */
-  readonly maxWeightKg: number
+  readonly lat: string | null
+  readonly lng: string | null
+  readonly maxWeightKg: string
   readonly workingHours: string
   readonly isActive: boolean
   readonly lastSyncedAt: string | null
@@ -235,20 +224,9 @@ export type AcsStationDetail = {
      * ISO 3166-1 alpha-2 country code.
      */
   readonly countryCode: string
-  /**
-     * Latitude
-     */
-  readonly lat: number | null
-  /**
-     * Longitude
-     */
-  readonly lng: number | null
-  /**
-     * Max weight (kg)
-     *
-     * Smartpoint lockers cap at 6 kg per ACS docs; non-locker stations have no fixed cap (still stored as 6 by default).
-     */
-  readonly maxWeightKg: number
+  readonly lat: string | null
+  readonly lng: string | null
+  readonly maxWeightKg: string
   readonly workingHours: string
   readonly isActive: boolean
   readonly lastSyncedAt: string | null
@@ -2164,6 +2142,9 @@ export type Notification = {
      * * `restock_favourite` - Back in stock (favourited product)
      * * `loyalty_tier_up` - Loyalty tier promotion
      * * `comment_liked` - Blog comment liked
+     * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
+     * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+     * * `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery
      */
   notificationType?: NotificationTypeEnum | BlankEnum
   expiryDate?: string | null
@@ -2232,8 +2213,11 @@ export type NotificationSuccessResponse = {
  * * `restock_favourite` - Back in stock (favourited product)
  * * `loyalty_tier_up` - Loyalty tier promotion
  * * `comment_liked` - Blog comment liked
+ * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
+ * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+ * * `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery
  */
-export type NotificationTypeEnum = 'order_created' | 'order_processing' | 'order_shipped' | 'order_delivered' | 'order_completed' | 'order_canceled' | 'order_refunded' | 'shipment_dispatched' | 'payment_confirmed' | 'payment_failed' | 'price_drop_favourite' | 'restock_favourite' | 'loyalty_tier_up' | 'comment_liked'
+export type NotificationTypeEnum = 'order_created' | 'order_processing' | 'order_shipped' | 'order_delivered' | 'order_completed' | 'order_canceled' | 'order_refunded' | 'shipment_dispatched' | 'payment_confirmed' | 'payment_failed' | 'price_drop_favourite' | 'restock_favourite' | 'loyalty_tier_up' | 'comment_liked' | 'BOXNOW_PARCEL_AT_LOCKER' | 'BOXNOW_PARCEL_DELIVERED' | 'ACS_OUT_FOR_DELIVERY'
 
 export type NotificationUser = {
   readonly id: number
@@ -6317,6 +6301,9 @@ export type NotificationWritable = {
      * * `restock_favourite` - Back in stock (favourited product)
      * * `loyalty_tier_up` - Loyalty tier promotion
      * * `comment_liked` - Blog comment liked
+     * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
+     * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+     * * `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery
      */
   notificationType?: NotificationTypeEnum | BlankEnum
   expiryDate?: string | null
@@ -14420,7 +14407,7 @@ export type ListPayWayData = {
          */
     shippingKind?: string
     /**
-         * Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) rejects COD on locker pickup; other carriers pass through unchanged. Pair with ``shippingKind``.
+         * Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) supports COD on lockers via PAY ON THE GO and so passes through; ACS passes through unchanged. Pair with ``shippingKind``.
          */
     shippingProviderCode?: string
     sortOrder?: string | number
@@ -18196,25 +18183,9 @@ export type FindNearestAcsStationsData = {
          */
     countryCode?: string
     /**
-         * Which field to use when ordering the results.
-         */
-    ordering?: string
-    /**
-         * A page number within the paginated result set.
-         */
-    page?: string | number
-    /**
-         * Number of results to return per page.
-         */
-    pageSize?: string | number
-    /**
          * Greek postcode (5-digit), required.
          */
     postalCode: string
-    /**
-         * A search term.
-         */
-    search?: string
     /**
          * Optional override. Default is the union of locker kinds across configured countries (see ShippingProvider.metadata.shop_kinds_by_country).
          */
@@ -18224,7 +18195,10 @@ export type FindNearestAcsStationsData = {
 }
 
 export type FindNearestAcsStationsResponses = {
-  200: PaginatedAcsStationList
+  /**
+     * Bare array of matching ACS station objects — not paginated.
+     */
+  200: Array<AcsStation>
 }
 
 export type FindNearestAcsStationsResponse = FindNearestAcsStationsResponses[keyof FindNearestAcsStationsResponses]
@@ -20838,6 +20812,20 @@ export type BoxnowWebhookErrors = {
 }
 
 export type BoxnowWebhookResponses = {
+  /**
+     * No response body
+     */
+  200: unknown
+}
+
+export type VivaWalletResolveOrderRetrieveData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/viva-wallet/resolve-order'
+}
+
+export type VivaWalletResolveOrderRetrieveResponses = {
   /**
      * No response body
      */

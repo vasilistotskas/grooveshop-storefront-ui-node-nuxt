@@ -108,45 +108,59 @@ const geolocating = ref(false)
 // staring at a button that span and stopped with no explanation.
 const geolocateError = ref<string | null>(null)
 
+// SVG body is identical for every marker — render once and reuse.
+const PIN_HTML = `
+  <div class="acs-pin-icon" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+      <path d="m7.5 4.27 9 5.15"/>
+      <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+      <path d="m3.3 7 8.7 5 8.7-5"/>
+      <path d="M12 22V12"/>
+    </svg>
+  </div>`
+
+function buildIcon(selected: boolean) {
+  return L.divIcon({
+    html: PIN_HTML,
+    className: 'acs-pin' + (selected ? ' acs-pin--selected' : ''),
+    iconSize: [32, 40],
+    iconAnchor: [16, 40],
+  })
+}
+
+// Pre-build the two icons; we reuse them across renders so a
+// selection change only rewires which marker holds which.
+const ICON_NORMAL = buildIcon(false)
+const ICON_SELECTED = buildIcon(true)
+
+// Marker props are independent of ``selectedId`` — selection state is
+// applied via ``setIcon`` on the affected markers without rebuilding
+// the cluster. The previous implementation re-evaluated the whole
+// computed (and re-instantiated 167 ``L.divIcon`` objects) on every
+// selection change.
 const markerProps = computed(() =>
-  lockersWithCoords.value.map((locker) => {
-    const html = `
-      <div class="acs-pin-icon" aria-hidden="true">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
-          <path d="m7.5 4.27 9 5.15"/>
-          <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
-          <path d="m3.3 7 8.7 5 8.7-5"/>
-          <path d="M12 22V12"/>
-        </svg>
-      </div>`
-    return {
-      name: locker.name,
-      lat: locker.lat,
-      lng: locker.lng,
-      options: {
-        icon: L.divIcon({
-          html,
-          className: 'acs-pin' + (locker.id === props.selectedId ? ' acs-pin--selected' : ''),
-          iconSize: [32, 40],
-          iconAnchor: [16, 40],
-        }),
-        title: locker.name,
-        alt: `${locker.name} — ${locker.addressLine1}`,
-        keyboard: true,
-        riseOnHover: true,
-      },
-      popup: `
-        <div class="acs-popup">
-          <strong class="block">${escapeHtml(locker.name)}</strong>
-          <span class="block text-sm">${escapeHtml(locker.addressLine1)}</span>
-          <span class="block text-xs">${escapeHtml(locker.postalCode)} ${escapeHtml(locker.city)}</span>
-          ${locker.workingHours ? `<span class="block mt-1 text-xs italic">${escapeHtml(locker.workingHours)}</span>` : ''}
-          <button type="button" class="acs-popup-select mt-2" data-locker-id="${escapeAttr(locker.id)}">
-            ${escapeHtml(t('shipping.locker_picker.choose', { carrier: '' }).trim())}
-          </button>
-        </div>`,
-    }
-  }),
+  lockersWithCoords.value.map(locker => ({
+    id: locker.id,
+    name: locker.name,
+    lat: locker.lat,
+    lng: locker.lng,
+    options: {
+      title: locker.name,
+      alt: `${locker.name} — ${locker.addressLine1}`,
+      keyboard: true,
+      riseOnHover: true,
+    },
+    popup: `
+      <div class="acs-popup">
+        <strong class="block">${escapeHtml(locker.name)}</strong>
+        <span class="block text-sm">${escapeHtml(locker.addressLine1)}</span>
+        <span class="block text-xs">${escapeHtml(locker.postalCode)} ${escapeHtml(locker.city)}</span>
+        ${locker.workingHours ? `<span class="block mt-1 text-xs italic">${escapeHtml(locker.workingHours)}</span>` : ''}
+        <button type="button" class="acs-popup-select mt-2" data-locker-id="${escapeAttr(locker.id)}">
+          ${escapeHtml(t('shipping.locker_picker.choose', { carrier: '' }).trim())}
+        </button>
+      </div>`,
+  })),
 )
 
 function escapeHtml(value: string): string {
@@ -218,6 +232,9 @@ useResizeObserver(mapContainerRef, (entries) => {
 // when the locker set changes (country switch, refresh, etc.) —
 // otherwise we'd stack pins on every reload.
 let activeCluster: any = null
+// Cache the built marker per locker id so a selection change can
+// flip its icon in place instead of rebuilding the whole cluster.
+const markersById = new Map<string, any>()
 // In-flight guard: ``onMapReady``, ``useResizeObserver``, and the
 // ``props.lockers`` watcher can all call ``ensureClusters`` in the
 // same tick. Without this, two cluster groups would be added to
@@ -234,6 +251,7 @@ async function ensureClusters(): Promise<void> {
       map.removeLayer(activeCluster)
       activeCluster = null
     }
+    markersById.clear()
     // ``@nuxtjs/leaflet@1.3.2``'s ``useLMarkerCluster`` is broken: it
     // does ``const { MarkerClusterGroup } = await import('leaflet.
     // markercluster')`` but the plugin is a side-effect module that
@@ -253,15 +271,14 @@ async function ensureClusters(): Promise<void> {
       spiderfyOnMaxZoom: true,
     })
     for (const m of markerProps.value) {
-      // ``m.options`` already carries ``title`` (set in ``markerProps``
-      // computed) — spread it directly so we don't fight ourselves
-      // over the same key.
-      const marker = L.marker([m.lat, m.lng], m.options)
+      const icon = m.id === props.selectedId ? ICON_SELECTED : ICON_NORMAL
+      const marker = L.marker([m.lat, m.lng], { ...m.options, icon })
       if (m.popup) {
         const popup = L.DomUtil.create('div', 'popup')
         popup.innerHTML = m.popup
         marker.bindPopup(popup)
       }
+      markersById.set(m.id, marker)
       markerCluster.addLayer(marker)
     }
     map.addLayer(markerCluster)
@@ -280,6 +297,20 @@ watch(
   () => props.lockers,
   () => {
     void ensureClusters()
+  },
+)
+
+// Selection change: flip the icon on just the two affected markers
+// instead of rebuilding 167 of them.
+watch(
+  () => props.selectedId,
+  (newId, oldId) => {
+    if (oldId) {
+      markersById.get(oldId)?.setIcon(ICON_NORMAL)
+    }
+    if (newId) {
+      markersById.get(newId)?.setIcon(ICON_SELECTED)
+    }
   },
 )
 

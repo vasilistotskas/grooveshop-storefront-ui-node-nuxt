@@ -21,6 +21,7 @@ export default defineCachedEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/product/category`, {
       method: 'GET',
       query: backendQuery,
+      headers: createHeaders(null, null),
     })
     return await parseDataAs(response, zListProductCategoryResponse)
   }

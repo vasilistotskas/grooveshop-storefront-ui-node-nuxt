@@ -194,6 +194,17 @@ export const pathForPendingFlow = (
   return pendingFlow ? pathForFlow(pendingFlow) : null
 }
 
+const UNSAFE_PATH_PREFIXES = ['http://', 'https://', '//', 'data:', 'javascript:', 'vbscript:']
+
+export function isSafeRelativePath(value: string | undefined): boolean {
+  if (!value) return false
+  const trimmed = value.trim()
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//')) return false
+  if (trimmed.includes('\\')) return false
+  const lower = trimmed.toLowerCase()
+  return !UNSAFE_PATH_PREFIXES.some(prefix => lower.startsWith(prefix))
+}
+
 export const navigateToPendingFlow = async (
   response: AllAuthResponse | AllAuthResponseError,
 ) => {
@@ -202,8 +213,9 @@ export const navigateToPendingFlow = async (
   const path = pathForPendingFlow(response)
   log.info('auth', 'Navigating to pending flow', { path })
   if (path) {
-    const next = useRouter().currentRoute.value.query.next
-    const url = withQuery(localePath(path), { next })
+    const rawNext = useRouter().currentRoute.value.query.next?.toString()
+    const safeNext = isSafeRelativePath(rawNext) ? rawNext : undefined
+    const url = withQuery(localePath(path), { next: safeNext })
     log.info('auth', 'Navigating to URL', { url })
     return nuxtApp.runWithContext(() => navigateTo(url))
   }

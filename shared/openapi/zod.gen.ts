@@ -1401,6 +1401,9 @@ export const zNotificationSuccessResponse = z.object({
  * * `restock_favourite` - Back in stock (favourited product)
  * * `loyalty_tier_up` - Loyalty tier promotion
  * * `comment_liked` - Blog comment liked
+ * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
+ * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+ * * `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery
  */
 export const zNotificationTypeEnum = z.enum([
   'order_created',
@@ -1417,8 +1420,11 @@ export const zNotificationTypeEnum = z.enum([
   'restock_favourite',
   'loyalty_tier_up',
   'comment_liked',
+  'BOXNOW_PARCEL_AT_LOCKER',
+  'BOXNOW_PARCEL_DELIVERED',
+  'ACS_OUT_FOR_DELIVERY',
 ]).register(z.globalRegistry, {
-  description: '* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Shipment dispatched\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Price drop (favourited product)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Blog comment liked',
+  description: '* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Shipment dispatched\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Price drop (favourited product)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Blog comment liked\n* `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker\n* `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered\n* `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery',
 })
 
 export const zNotificationUser = z.object({
@@ -3845,11 +3851,9 @@ export const zAcsStation = z.object({
   countryCode: z.string().register(z.globalRegistry, {
     description: 'ISO 3166-1 alpha-2 country code.',
   }).readonly(),
-  lat: z.number().gt(-1000).lt(1000).readonly().nullable(),
-  lng: z.number().gt(-1000).lt(1000).readonly().nullable(),
-  maxWeightKg: z.number().gt(-1000).lt(1000).register(z.globalRegistry, {
-    description: 'Smartpoint lockers cap at 6 kg per ACS docs; non-locker stations have no fixed cap (still stored as 6 by default).',
-  }).readonly(),
+  lat: z.string().readonly().nullable(),
+  lng: z.string().readonly().nullable(),
+  maxWeightKg: z.string().readonly(),
   workingHours: z.string().readonly(),
   isActive: z.boolean().readonly(),
   lastSyncedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
@@ -3931,11 +3935,9 @@ export const zAcsStationDetail = z.object({
   countryCode: z.string().register(z.globalRegistry, {
     description: 'ISO 3166-1 alpha-2 country code.',
   }).readonly(),
-  lat: z.number().gt(-1000).lt(1000).readonly().nullable(),
-  lng: z.number().gt(-1000).lt(1000).readonly().nullable(),
-  maxWeightKg: z.number().gt(-1000).lt(1000).register(z.globalRegistry, {
-    description: 'Smartpoint lockers cap at 6 kg per ACS docs; non-locker stations have no fixed cap (still stored as 6 by default).',
-  }).readonly(),
+  lat: z.string().readonly().nullable(),
+  lng: z.string().readonly().nullable(),
+  maxWeightKg: z.string().readonly(),
   workingHours: z.string().readonly(),
   isActive: z.boolean().readonly(),
   lastSyncedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
@@ -12299,7 +12301,7 @@ export const zListPayWayQuery = z.object({
     description: 'Pair with ``shippingProviderCode`` to filter pay ways by the carrier\'s compatibility rules for that kind.',
   }).optional(),
   shippingProviderCode: z.string().register(z.globalRegistry, {
-    description: 'Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) rejects COD on locker pickup; other carriers pass through unchanged. Pair with ``shippingKind``.',
+    description: 'Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) supports COD on lockers via PAY ON THE GO and so passes through; ACS passes through unchanged. Pair with ``shippingKind``.',
   }).optional(),
   sortOrder: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14979,30 +14981,21 @@ export const zFindNearestAcsStationsQuery = z.object({
   countryCode: z.string().register(z.globalRegistry, {
     description: 'Optional ISO-2 country code; narrows the default kind filter to that country\'s locker catalogue.',
   }).optional(),
-  ordering: z.string().register(z.globalRegistry, {
-    description: 'Which field to use when ordering the results.',
-  }).optional(),
-  page: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  pageSize: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
   postalCode: z.string().register(z.globalRegistry, {
     description: 'Greek postcode (5-digit), required.',
   }),
-  search: z.string().register(z.globalRegistry, {
-    description: 'A search term.',
-  }).optional(),
   shopKind: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
 })
 
-export const zFindNearestAcsStationsResponse = zPaginatedAcsStationList
+/**
+ * Bare array of matching ACS station objects — not paginated.
+ */
+export const zFindNearestAcsStationsResponse = z.array(zAcsStation).register(z.globalRegistry, {
+  description: 'Bare array of matching ACS station objects — not paginated.',
+})
 
 export const zListBoxNowLockerQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {

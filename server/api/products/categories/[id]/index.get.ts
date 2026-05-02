@@ -9,6 +9,7 @@ export default defineCachedEventHandler(async (event) => {
       `${config.apiBaseUrl}/product/category/${params.id}`,
       {
         method: 'GET',
+        headers: createHeaders(null, null),
       },
     )
     return await parseDataAs(response, zRetrieveProductCategoryResponse)

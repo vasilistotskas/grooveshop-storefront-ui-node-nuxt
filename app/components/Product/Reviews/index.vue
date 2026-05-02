@@ -35,7 +35,7 @@ const {
   data: productReviews,
   status,
   refresh,
-} = await useLazyFetch(`/api/products/${productId.value}/reviews`, {
+} = useLazyFetch(`/api/products/${productId.value}/reviews`, {
   key: `productReviews${productId.value}`,
   method: 'GET',
   headers: useRequestHeaders(),

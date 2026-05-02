@@ -15,6 +15,12 @@
  */
 import type { Locker, LockerQuery, ShippingCarrier } from '../interfaces'
 
+function _toNumber(value: string | null | undefined): number | null {
+  if (value === null || value === undefined || value === '') return null
+  const n = Number.parseFloat(value)
+  return Number.isFinite(n) ? n : null
+}
+
 function _normalize(row: AcsStation): Locker | null {
   const id = row.externalId.trim()
   if (!id) return null
@@ -30,10 +36,10 @@ function _normalize(row: AcsStation): Locker | null {
     city: row.city,
     postalCode: row.postalCode,
     countryCode: (row.countryCode || 'GR').toUpperCase(),
-    lat: row.lat,
-    lng: row.lng,
+    lat: _toNumber(row.lat),
+    lng: _toNumber(row.lng),
     workingHours: row.workingHours || null,
-    maxWeightKg: row.maxWeightKg ?? null,
+    maxWeightKg: _toNumber(row.maxWeightKg),
     raw: row,
   }
 }

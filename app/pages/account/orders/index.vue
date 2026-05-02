@@ -27,7 +27,7 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: orders, status, error } = await useFetch(
+const { data: orders, status, error, refresh: refreshOrders } = await useFetch(
   `/api/orders/my-orders`,
   {
     key: `userOrders${user.value?.id}`,
@@ -47,23 +47,8 @@ const { data: orders, status, error } = await useFetch(
   },
 )
 
-const refreshOrders = async () => {
-  status.value = 'pending'
-  const orders = await $fetch(`/api/orders/my-orders`, {
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      page: page.value,
-      ordering: ordering.value,
-      pageSize: pageSize.value,
-    },
-  })
-  status.value = 'success'
-  return orders
-}
-
 async function onOrderCancelled() {
-  orders.value = await refreshOrders()
+  await refreshOrders()
 }
 
 const pagination = computed(() => {
@@ -78,7 +63,7 @@ const orderingOptions = computed(() => {
 watch(
   () => route.query,
   async () => {
-    orders.value = await refreshOrders()
+    await refreshOrders()
   },
 )
 
@@ -170,4 +155,11 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Παραγγελίες
+  ordering:
+    status: Κατάσταση
+    created_at: Δημιουργήθηκε
+    updated_at: Ενημερώθηκε
+  empty:
+    title: Δεν υπάρχουν παραγγελίες
+    description: Ξεκινήστε τις αγορές σας
 </i18n>

@@ -21,11 +21,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(url.toString(), {
       method: 'POST',
       body,
-      ...(accessToken && {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }),
+      headers: createHeaders(null, accessToken),
     })
     return await parseDataAs(response, zCancelOrderResponse)
   }
