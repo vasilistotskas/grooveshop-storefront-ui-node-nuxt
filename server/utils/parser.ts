@@ -2,7 +2,7 @@ import type { ZodType } from 'zod'
 import { createError } from 'h3'
 
 const apiValidateWithSchema = <ZodSchema extends ZodType>(
-  data: any,
+  data: unknown,
   schema: ZodSchema,
   statusCode: number,
   statusMessage: string,
@@ -41,13 +41,13 @@ const apiValidateWithSchema = <ZodSchema extends ZodType>(
  * // -> output: `1` (as a number, as `z` also deserializes)
  * ```
  *
- * @param {any | Promise<any>} dataOrPromise - Input to parse using the passed `schema`
+ * @param {unknown | Promise<unknown>} dataOrPromise - Input to parse using the passed `schema`
  * @param {ZodType} schema - Error code of error if parsing fails
  * @param {string} [errorCode=422] - Optional error message if parsing fails
  * @param {string} [errorMessage="Data parsing failed"] - Optional error message if parsing fails
  */
 async function parseDataAs<ZodSchema extends ZodType>(
-  dataOrPromise: any | Promise<any>,
+  dataOrPromise: unknown | Promise<unknown>,
   schema: ZodSchema,
   errorCode = 422,
   errorMessage = 'Data parsing failed',

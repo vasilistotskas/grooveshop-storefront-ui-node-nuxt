@@ -1,4 +1,9 @@
 export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchShippingSettings }: {
+  // The reactive form-state object from ``useCheckoutForm`` —
+  // its inferred shape isn't exported, so we accept a permissive
+  // record here. Field-level reads in ``buildOrderValues`` are
+  // type-narrowed to the auto-generated ``OrderCreateFromCart
+  // RequestWritable`` shape via the carrier registry.
   formState: Record<string, any>
   selectedPayWay: Ref<PayWay | null>
   payWays: Ref<Pagination<PayWay> | null | undefined>
@@ -85,12 +90,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   // Stock error state
   const stockError = ref<{
     show: boolean
-    failedItems: Array<{
-      productId: number
-      productName: string
-      available: number
-      requested: number
-    }>
+    failedItems: FailedStockItem[]
   } | null>(null)
 
   // Computed
@@ -171,16 +171,17 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       return
     }
 
-    const isBoxNow = formState.shippingMethod === 'box_now_locker'
-    const isAcsSmartpoint = formState.shippingMethod === 'acs_smartpoint'
     // Map the local UI radio selection to the registry-driven
     // (provider_code, kind) pair the API expects. Home delivery
     // sends only ``shipping_kind`` and lets Django's dynamic
-    // auto-router pick the active home-delivery provider.
+    // auto-router pick the active home-delivery provider. The
+    // carrier owns its own payload shape via ``buildOrderPayload``
+    // — adding ELTA / Speedex requires no edits here.
     const carrier = carrierForMethod(formState.shippingMethod)
     const shippingKind = formState.shippingMethod === 'home_delivery'
       ? 'home_delivery'
       : 'pickup_point'
+    const carrierPayload = carrier?.buildOrderPayload?.(formState) ?? {}
 
     const metaPayload = buildMetaPayload()
 
@@ -210,14 +211,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
       shippingProviderCode: carrier?.code,
       shippingKind,
-      ...(isBoxNow && {
-        boxnowLockerId: formState.boxnowLockerId,
-        boxnowCompartmentSize: formState.boxnowCompartmentSize,
-      }),
-      ...(isAcsSmartpoint && {
-        acsStationExternalId: formState.acsStationExternalId,
-        acsStationBranch: formState.acsStationBranch,
-      }),
+      ...carrierPayload,
       ...(metaPayload ? { meta: metaPayload } : {}),
     } as OrderCreateFromCartRequest
   }
@@ -363,13 +357,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         },
       })
     }
-    catch (error: any) {
+    catch (error: unknown) {
       log.error({ action: 'checkout:orderCreation', error })
       if (!handledByResponseError) {
         idempotencyKey.value = null
         toast.add({
           title: t('payment_intent_error'),
-          description: error?.data?.message || error?.message || t('payment_intent_error_description'),
+          description: getErrorDetail(error) || t('payment_intent_error_description'),
           color: 'error',
         })
       }
@@ -404,12 +398,12 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         },
       })
     }
-    catch (error: any) {
+    catch (error: unknown) {
       log.error({ action: 'checkout:vivaWalletOrderCreation', error })
       if (!handledByResponseError) {
         toast.add({
           title: t('payment_intent_error'),
-          description: error?.data?.message || error?.message || t('payment_intent_error_description'),
+          description: getErrorDetail(error) || t('payment_intent_error_description'),
           color: 'error',
         })
         // Release any stock reservations held for this checkout attempt
@@ -467,7 +461,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         },
       })
     }
-    catch (error: any) {
+    catch (error: unknown) {
       log.error({ action: 'checkout:orderCreation', error })
     }
   }
@@ -498,12 +492,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
           // Clear any previous stock errors on success
           stockError.value = null
         }
-        catch (error: any) {
+        catch (error: unknown) {
           // Handle stock reservation errors with structured data
-          if (error.code === 'insufficient_stock' && error.failedItems) {
+          const e = error && typeof error === 'object' ? error as Record<string, unknown> : null
+          if (e?.code === 'insufficient_stock' && Array.isArray(e.failedItems)) {
             stockError.value = {
               show: true,
-              failedItems: error.failedItems,
+              failedItems: e.failedItems as FailedStockItem[],
             }
 
             // Scroll to top to show the error alert
@@ -516,7 +511,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
           // Handle other reservation errors
           toast.add({
             title: t('form.submit.error.stock_reservation'),
-            description: error.message || t('form.submit.error.stock_reservation_description'),
+            description: getErrorDetail(error) || t('form.submit.error.stock_reservation_description'),
             color: 'error',
           })
           return
@@ -549,12 +544,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         await handleOfflinePaymentFlow()
       }
     }
-    catch (error: any) {
-      if (!error.response && !error.data) {
+    catch (error: unknown) {
+      const e = error && typeof error === 'object' ? error as Record<string, unknown> : null
+      if (e && !('response' in e) && !('data' in e)) {
         log.error({ action: 'checkout:submit', error })
         toast.add({
           title: t('form.submit.error.general'),
-          description: error.message || t('error_occurred'),
+          description: getErrorDetail(error) || t('error_occurred'),
           color: 'error',
         })
       }

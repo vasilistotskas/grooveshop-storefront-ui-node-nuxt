@@ -10,10 +10,13 @@ export function extractTranslated<T>(
   if (!translation) {
     return undefined
   }
-  const keys = field.split('.') as Array<keyof typeof translation>
-  let result: any = translation
+  const keys = field.split('.')
+  let result: unknown = translation
   for (const key of keys) {
-    result = result[key]
+    if (result === null || typeof result !== 'object') {
+      return undefined
+    }
+    result = (result as Record<string, unknown>)[key]
     if (result === undefined) {
       return undefined
     }

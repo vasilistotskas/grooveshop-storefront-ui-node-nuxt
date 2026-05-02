@@ -152,9 +152,9 @@ const createPaymentIntent = async () => {
 
     currentStep.value = 'confirm'
   }
-  catch (err: any) {
+  catch (err: unknown) {
     log.error({ action: 'stripe:paymentIntent', error: err })
-    error.value = err.data?.detail || t('payment_intent_error')
+    error.value = getErrorDetail(err) || t('payment_intent_error')
     emit('error', error.value)
     currentStep.value = 'card'
   }
@@ -221,9 +221,9 @@ const confirmPayment = async () => {
       })
     }
   }
-  catch (err: any) {
+  catch (err: unknown) {
     log.error({ action: 'stripe:confirmation', error: err })
-    error.value = err.message || t('payment_confirmation_error')
+    error.value = getErrorDetail(err) || t('payment_confirmation_error')
     emit('error', error.value)
   }
   finally {

@@ -44,8 +44,6 @@ const formatFilterValue = (chip: FilterChip): string => {
       return `"${chip.value}"`
     case 'sort':
       return getSortLabel(chip.value)
-    default:
-      return String(chip.value)
   }
 }
 

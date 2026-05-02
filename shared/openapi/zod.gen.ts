@@ -3140,7 +3140,7 @@ export const zPaginatedProductFavouriteList = z.object({
 })
 
 export const zProductFavouriteByProductsRequestRequest = z.object({
-  productIds: z.array(z.int()).register(z.globalRegistry, {
+  productIds: z.array(z.int()).max(100).register(z.globalRegistry, {
     description: 'List of product IDs to check for favorites',
   }),
 })
@@ -3607,6 +3607,14 @@ export const zReserveStockResponse = z.object({
   }),
 }).register(z.globalRegistry, {
   description: 'Serializer for reserve stock response.',
+})
+
+export const zResolveVivaOrderCodeError = z.object({
+  error: z.string(),
+})
+
+export const zResolveVivaOrderCodeResponse = z.object({
+  uuid: z.uuid(),
 })
 
 /**
@@ -16654,3 +16662,11 @@ export const zUnsubscribeFromTopicOneClickPath = z.object({
 export const zCreateWebSocketTicketResponse = zWebSocketTicketResponse
 
 export const zBoxnowWebhookBody = zBoxNowWebhookEnvelopeRequest
+
+export const zResolveVivaOrderCodeQuery = z.object({
+  orderCode: z.string().register(z.globalRegistry, {
+    description: 'Viva Wallet ``OrderCode`` returned to the customer after a successful checkout.',
+  }),
+})
+
+export const zResolveVivaOrderCodeResponse2 = zResolveVivaOrderCodeResponse

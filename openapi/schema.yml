@@ -23253,42 +23253,12 @@ paths:
           type: string
         description: Optional ISO-2 country code; narrows the default kind filter
           to that country's locker catalogue.
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-      - name: pageSize
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
       - in: query
         name: postalCode
         schema:
           type: string
         description: Greek postcode (5-digit), required.
         required: true
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
       - in: query
         name: shopKind
         schema:
@@ -23309,8 +23279,10 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedAcsStationList'
-          description: ''
+                type: array
+                items:
+                  $ref: '#/components/schemas/AcsStation'
+          description: Bare array of matching ACS station objects — not paginated.
   /api/v1/shipping/boxnow/lockers:
     get:
       operationId: listBoxNowLocker
@@ -28877,21 +28849,46 @@ paths:
           description: No response body
   /viva-wallet/resolve-order:
     get:
-      operationId: viva_wallet_resolve_order_retrieve
+      operationId: resolveVivaOrderCode
       description: |-
         Resolve a Viva Wallet order code to an order UUID.
 
         Used by the frontend to redirect from Viva's payment page to the
         order success page. Requires authentication so anonymous callers
         cannot enumerate order UUIDs by brute-forcing order codes.
+      summary: Resolve a Viva Wallet order code to an order UUID
+      parameters:
+      - in: query
+        name: orderCode
+        schema:
+          type: string
+        description: Viva Wallet ``OrderCode`` returned to the customer after a successful
+          checkout.
+        required: true
       tags:
-      - viva-wallet
+      - Viva Wallet
       security:
       - knoxApiToken: []
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolveVivaOrderCodeResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolveVivaOrderCodeError'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResolveVivaOrderCodeError'
+          description: ''
 components:
   schemas:
     AcsAddressValidationRequestRequest:
@@ -29212,36 +29209,16 @@ components:
           readOnly: true
           description: ISO 3166-1 alpha-2 country code.
         lat:
-          type: number
-          format: double
-          maximum: 1000
-          minimum: -1000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          readOnly: true
+          type: string
           nullable: true
-          title: Latitude
+          readOnly: true
         lng:
-          type: number
-          format: double
-          maximum: 1000
-          minimum: -1000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          readOnly: true
+          type: string
           nullable: true
-          title: Longitude
-        maxWeightKg:
-          type: number
-          format: double
-          maximum: 1000
-          minimum: -1000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
           readOnly: true
-          title: Max weight (kg)
-          description: Smartpoint lockers cap at 6 kg per ACS docs; non-locker stations
-            have no fixed cap (still stored as 6 by default).
+        maxWeightKg:
+          type: string
+          readOnly: true
         workingHours:
           type: string
           readOnly: true
@@ -29335,36 +29312,16 @@ components:
           readOnly: true
           description: ISO 3166-1 alpha-2 country code.
         lat:
-          type: number
-          format: double
-          maximum: 1000
-          minimum: -1000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          readOnly: true
+          type: string
           nullable: true
-          title: Latitude
+          readOnly: true
         lng:
-          type: number
-          format: double
-          maximum: 1000
-          minimum: -1000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
-          readOnly: true
+          type: string
           nullable: true
-          title: Longitude
-        maxWeightKg:
-          type: number
-          format: double
-          maximum: 1000
-          minimum: -1000
-          exclusiveMaximum: true
-          exclusiveMinimum: true
           readOnly: true
-          title: Max weight (kg)
-          description: Smartpoint lockers cap at 6 kg per ACS docs; non-locker stations
-            have no fixed cap (still stored as 6 by default).
+        maxWeightKg:
+          type: string
+          readOnly: true
         workingHours:
           type: string
           readOnly: true
@@ -38050,6 +38007,7 @@ components:
           items:
             type: integer
           description: List of product IDs to check for favorites
+          maxItems: 100
       required:
       - productIds
     ProductFavouriteByProductsResponse:
@@ -39017,6 +38975,21 @@ components:
       required:
       - message
       - reservationIds
+    ResolveVivaOrderCodeError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+      - error
+    ResolveVivaOrderCodeResponse:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+      required:
+      - uuid
     ReviewStatus:
       enum:
       - NEW

@@ -17,13 +17,24 @@ export interface ProductFilters {
   attributeValues: string[]
 }
 
-export interface FilterChip {
+/** Chip-value shape for the price-range chip. */
+export interface PriceRangeFilterValue {
+  min: number | undefined
+  max: number | undefined
+}
+
+interface FilterChipBase {
   /** Filter key for removal */
   key: keyof ProductFilters
-  /** Filter type for formatting */
-  type: 'search' | 'price' | 'likes' | 'views' | 'category' | 'sort' | 'attribute'
   /** Display label */
   label: string
-  /** Filter value */
-  value: any
 }
+
+/** Discriminated union of filter chips — narrowing on ``type`` lets
+ *  consumers read ``chip.value`` with the right shape and no casts. */
+export type FilterChip
+  = | (FilterChipBase & { type: 'search' | 'sort' | 'category' | 'attribute', value: string })
+    | (FilterChipBase & { type: 'likes' | 'views', value: number })
+    | (FilterChipBase & { type: 'price', value: PriceRangeFilterValue })
+
+export type FilterChipValue = FilterChip['value']

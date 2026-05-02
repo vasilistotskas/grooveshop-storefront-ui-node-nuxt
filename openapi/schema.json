@@ -48647,10 +48647,22 @@
         },
         "/viva-wallet/resolve-order": {
             "get": {
-                "operationId": "viva_wallet_resolve_order_retrieve",
+                "operationId": "resolveVivaOrderCode",
                 "description": "Resolve a Viva Wallet order code to an order UUID.\n\nUsed by the frontend to redirect from Viva's payment page to the\norder success page. Requires authentication so anonymous callers\ncannot enumerate order UUIDs by brute-forcing order codes.",
+                "summary": "Resolve a Viva Wallet order code to an order UUID",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "orderCode",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Viva Wallet ``OrderCode`` returned to the customer after a successful checkout.",
+                        "required": true
+                    }
+                ],
                 "tags": [
-                    "viva-wallet"
+                    "Viva Wallet"
                 ],
                 "security": [
                     {
@@ -48662,7 +48674,34 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response body"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResolveVivaOrderCodeResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResolveVivaOrderCodeError"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ResolveVivaOrderCodeError"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -60473,7 +60512,8 @@
                         "items": {
                             "type": "integer"
                         },
-                        "description": "List of product IDs to check for favorites"
+                        "description": "List of product IDs to check for favorites",
+                        "maxItems": 100
                     }
                 },
                 "required": [
@@ -61812,6 +61852,29 @@
                 "required": [
                     "message",
                     "reservationIds"
+                ]
+            },
+            "ResolveVivaOrderCodeError": {
+                "type": "object",
+                "properties": {
+                    "error": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "error"
+                ]
+            },
+            "ResolveVivaOrderCodeResponse": {
+                "type": "object",
+                "properties": {
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "uuid"
                 ]
             },
             "ReviewStatus": {

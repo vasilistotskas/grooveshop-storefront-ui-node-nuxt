@@ -4961,6 +4961,14 @@ export type ReserveStockResponse = {
   message: string
 }
 
+export type ResolveVivaOrderCodeError = {
+  error: string
+}
+
+export type ResolveVivaOrderCodeResponse = {
+  uuid: string
+}
+
 /**
  * * `NEW` - New
  * * `TRUE` - True
@@ -20818,16 +20826,27 @@ export type BoxnowWebhookResponses = {
   200: unknown
 }
 
-export type VivaWalletResolveOrderRetrieveData = {
+export type ResolveVivaOrderCodeData = {
   body?: never
   path?: never
-  query?: never
+  query: {
+    /**
+         * Viva Wallet ``OrderCode`` returned to the customer after a successful checkout.
+         */
+    orderCode: string
+  }
   url: '/viva-wallet/resolve-order'
 }
 
-export type VivaWalletResolveOrderRetrieveResponses = {
-  /**
-     * No response body
-     */
-  200: unknown
+export type ResolveVivaOrderCodeErrors = {
+  400: ResolveVivaOrderCodeError
+  404: ResolveVivaOrderCodeError
 }
+
+export type ResolveVivaOrderCodeError2 = ResolveVivaOrderCodeErrors[keyof ResolveVivaOrderCodeErrors]
+
+export type ResolveVivaOrderCodeResponses = {
+  200: ResolveVivaOrderCodeResponse
+}
+
+export type ResolveVivaOrderCodeResponse2 = ResolveVivaOrderCodeResponses[keyof ResolveVivaOrderCodeResponses]

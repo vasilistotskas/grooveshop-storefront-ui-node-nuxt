@@ -205,9 +205,9 @@ export function useInstantSearch<T = any>(
         )
       }
     }
-    catch (error: any) {
+    catch (error: unknown) {
       // Ignore abort errors (expected when cancelling requests)
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         return
       }
 

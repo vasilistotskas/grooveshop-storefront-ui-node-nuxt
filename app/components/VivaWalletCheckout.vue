@@ -59,9 +59,9 @@ const createCheckoutSession = async () => {
 
     window.location.href = response.checkoutUrl
   }
-  catch (err: any) {
+  catch (err: unknown) {
     log.error({ action: 'vivaWallet:checkoutSession', error: err })
-    error.value = err.data?.detail || t('checkout_session_error')
+    error.value = getErrorDetail(err) || t('checkout_session_error')
     emit('error', error.value)
   }
   finally {
