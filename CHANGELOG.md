@@ -1,3 +1,10 @@
+## [3.111.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.111.0...v3.111.1) (2026-05-03)
+
+
+### Bug Fixes
+
+* **checkout:** derive main address from saved-list, drop /api/user/main-address proxy ([ef095f2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ef095f2315b1391c5470c550cf354a371b7e7a72))
+
 # [3.111.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.110.3...v3.111.0) (2026-05-02)
 
 
