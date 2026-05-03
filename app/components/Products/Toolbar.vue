@@ -57,13 +57,16 @@ const formattedCount = computed(() => {
   return new Intl.NumberFormat(locale.value).format(props.totalResults)
 })
 
-// Sort options for the dropdown - using component i18n translations
+// Sort options for the dropdown — values must match Django's
+// ``ProductViewSet.ordering_fields`` (price, created_at, view_count,
+// availability_priority, stock, active). DRF's OrderingFilter silently
+// drops unknown fields and returns the default order, so the previous
+// ``final_price`` / ``likes_count`` values produced no sorting at all.
 const sortOptions = [
   { label: t('sort.recommended'), value: 'recommended' },
   { label: t('sort.newest'), value: '-created_at' },
-  { label: t('sort.priceAsc'), value: 'final_price' },
-  { label: t('sort.priceDesc'), value: '-final_price' },
-  { label: t('sort.popularity'), value: '-likes_count' },
+  { label: t('sort.priceAsc'), value: 'price' },
+  { label: t('sort.priceDesc'), value: '-price' },
   { label: t('sort.mostViewed'), value: '-view_count' },
 ]
 
