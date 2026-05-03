@@ -2,6 +2,14 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
+// Multi-root template (v-if stepper / v-else-if fields) — Vue's
+// implicit ``$attrs`` fall-through behaves inconsistently between SSR
+// and CSR with fragment roots, dropping the parent's class on the
+// server pass and re-applying it after hydration. Disable auto-merge
+// and bind ``$attrs.class`` explicitly on each root branch so SSR and
+// CSR render the same set of classes.
+defineOptions({ inheritAttrs: false })
+
 const { t } = useI18n()
 
 const props = withDefaults(defineProps<{
@@ -250,7 +258,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
 </script>
 
 <template>
-  <div v-if="schema.steps && schema.steps.length > 0" class="space-y-6">
+  <div v-if="schema.steps && schema.steps.length > 0" class="space-y-6" v-bind="$attrs">
     <UStepper
       ref="stepper"
       v-model="currentStepIndex"
@@ -409,7 +417,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
   </div>
 
   <!-- Non-stepper form (single step with fields) -->
-  <div v-else-if="schema.fields && schema.fields.length > 0" class="w-full">
+  <div v-else-if="schema.fields && schema.fields.length > 0" class="w-full" v-bind="$attrs">
     <UForm
       ref="form"
       :state="formState"
