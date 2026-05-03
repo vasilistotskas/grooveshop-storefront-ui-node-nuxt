@@ -32,7 +32,9 @@
     "test:coverage": "vitest run --coverage",
     "openapi-ts": "openapi-ts",
     "semantic-release": "semantic-release",
-    "generate:schema": "node scripts/fetch-schema.mjs"
+    "generate:schema": "node scripts/fetch-schema.mjs",
+    "sync:schema": "node scripts/sync-schema-yml.mjs",
+    "trivy-scan": "trivy fs . --severity HIGH,CRITICAL --skip-dirs node_modules,dist,.output,.nuxt --exit-code 1"
   },
   "dependencies": {
     "@internationalized/date": "3.12.1",

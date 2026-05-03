@@ -81,8 +81,17 @@ export function setupCursorState() {
 
 export function setupGoogleAnalyticsConsent() {
   const config = useRuntimeConfig()
+  const id = config.public.scripts.googleAnalytics.id
+  // Skip the script entirely when the id is missing or still the
+  // placeholder. Otherwise @nuxt/scripts preloads ``gtag.js`` for
+  // every visitor and the resource sits unused (browser warns
+  // "preloaded but not used"). Real GA4 ids are ``G-`` followed by
+  // 10+ alphanumerics — ``G-XXXXXXXXXX`` is the example value.
+  if (!id || !/^G-[A-Z0-9]{8,}$/.test(id) || id === 'G-XXXXXXXXXX') {
+    return
+  }
   const { consent } = useScriptGoogleAnalytics({
-    id: config.public.scripts.googleAnalytics.id,
+    id,
     // Defer loading until after hydration to not block initial render
     scriptOptions: {
       trigger: 'onNuxtReady',

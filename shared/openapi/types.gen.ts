@@ -17027,10 +17027,6 @@ export type ListProductReviewData = {
          */
     hasComment?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by minimum helpful votes (if voting system exists)
-         */
-    helpfulVotesMin?: string | number
-    /**
          * Filter by review ID
          */
     id?: string | number
@@ -17193,7 +17189,7 @@ export type ListProductReviewData = {
     userReviewCountMin?: string | number
     uuid?: string
     /**
-         * Filter reviews from verified purchases (if order system exists)
+         * Filter reviews from verified purchases
          */
     verifiedPurchase?: 'true' | 'false' | '1' | '0' | boolean
   }

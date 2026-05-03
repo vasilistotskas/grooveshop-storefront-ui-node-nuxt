@@ -22,8 +22,37 @@ export function isAllAuthClientError(error: unknown): error is AllAuthClientErro
     || isNotFoundResponseError(error.data) || isConflictResponseError(error.data)
 }
 
+export function isRateLimitedClientError(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) return false
+  const err = error as Record<string, unknown>
+  // H3Error forwarded from the Nuxt proxy: { data: { statusCode: 429, ... } }
+  if ('data' in err && typeof err.data === 'object' && err.data !== null) {
+    const data = err.data as Record<string, unknown>
+    if ('statusCode' in data && data.statusCode === 429) return true
+    // Django allauth rate-limit body forwarded in data.data: { status: 429, ... }
+    if ('data' in data && typeof data.data === 'object' && data.data !== null) {
+      const inner = data.data as Record<string, unknown>
+      if ('status' in inner && inner.status === 429) return true
+    }
+  }
+  // Direct statusCode on error object (e.g. from createError)
+  if ('statusCode' in err && err.statusCode === 429) return true
+  return false
+}
+
 export const handleAllAuthClientError = (error: unknown): void => {
   const { t } = useNuxtApp().$i18n
+
+  if (isRateLimitedClientError(error)) {
+    const toast = useToast()
+    toast.add({
+      title: t('error.rate_limited'),
+      color: 'warning',
+    })
+    log.warn('auth:rateLimited', 'Rate limit hit (429)')
+    return
+  }
+
   if (isAllAuthClientError(error)) {
     const toast = useToast()
 

@@ -54,7 +54,13 @@ export function useGA4() {
     = (config.public.scripts as { googleAnalytics?: { id?: string } })
       ?.googleAnalytics?.id
 
-  const isProvisioned = !!measurementId
+  // Real GA4 ids match ``G-`` followed by 8+ alphanumerics. Treat the
+  // ``G-XXXXXXXXXX`` placeholder (and any other malformed value) as
+  // unprovisioned so @nuxt/scripts never preloads ``gtag.js``.
+  const isProvisioned
+    = !!measurementId
+      && measurementId !== 'G-XXXXXXXXXX'
+      && /^G-[A-Z0-9]{8,}$/.test(measurementId)
 
   // Same as setupGoogleAnalyticsConsent: load on idle so the GA
   // bundle never blocks paint. Multiple ``useScriptGoogleAnalytics``

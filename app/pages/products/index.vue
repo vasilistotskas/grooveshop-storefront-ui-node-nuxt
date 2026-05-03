@@ -1,7 +1,9 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
+const config = useRuntimeConfig()
+const siteConfig = useSiteConfig()
 
 // Ref to control the sidebar drawer
 const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
@@ -19,13 +21,45 @@ const items = computed(() => [
   },
 ])
 
+// Lightweight first-page fetch for Schema.org ItemList.
+// Server-side only (server: true is the default) — this does NOT duplicate
+// the full ProductsList fetch; it fetches page-1 with a small limit purely
+// for structured-data purposes. When more locales activate, replace the
+// hardcoded 'el' with iteration over SUPPORTED_LOCALES.
+const { data: seoProducts } = await useFetch<ProductMeiliSearchResponse>(
+  '/api/products/search',
+  {
+    key: 'products-index-seo',
+    query: { languageCode: locale, limit: 12, offset: 0 },
+    server: true,
+    lazy: false,
+  },
+)
+
 useSeoMeta({
   title: () => t('title'),
   description: () => t('seo.description'),
   ogTitle: () => t('title'),
   ogDescription: () => t('seo.description'),
   ogType: 'website',
+  ogImage: config.public.appLogo,
+  ogImageAlt: () => t('title'),
 })
+
+const baseUrl = siteConfig.url
+
+useSchemaOrg([
+  defineWebPage({ '@type': 'CollectionPage' }),
+  defineItemList({
+    name: () => t('title'),
+    itemListElement: () => (seoProducts.value?.results ?? []).map((p, i) => ({
+      '@type': 'ListItem' as const,
+      'position': i + 1,
+      'url': `${baseUrl}/products/${p.master ?? p.id}/${p.slug}`,
+      'name': p.name,
+    })),
+  }),
+])
 
 definePageMeta({
   layout: 'default',

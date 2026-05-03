@@ -42,6 +42,13 @@ useSeoMeta({
   ogImageWidth: 1200,
   ogImageHeight: 630,
 })
+
+// theme-color must match manifest.webmanifest.get.ts theme_color (#1a202c)
+useHead({
+  meta: [
+    { name: 'theme-color', content: '#1a202c' },
+  ],
+})
 </script>
 
 <template>

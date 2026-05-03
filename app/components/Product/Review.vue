@@ -314,9 +314,14 @@ const createReviewEvent = async (event: Schema) => {
         color: 'success',
       })
     },
-    onResponseError() {
+    onResponseError({ response }) {
+      const errorBody = response?._data
+      const productError = errorBody?.data?.product ?? errorBody?.product
+      const isPurchaseRequired
+        = productError === 'must_have_purchased'
+          || (Array.isArray(productError) && productError.includes('must_have_purchased'))
       toast.add({
-        title: t('add.error'),
+        title: isPurchaseRequired ? t('add.must_purchase_first') : t('add.error'),
         color: 'error',
       })
     },
@@ -591,6 +596,7 @@ el:
   write_review_for_product: Γράψε μια κριτική για το προϊόν {product}
   add:
     error: Σφάλμα δημιουργίας σχολίου
+    must_purchase_first: Μπορείς να γράψεις κριτική μόνο για προϊόντα που έχεις αγοράσει
     success: Η κριτική δημιουργήθηκε με επιτυχία
   update:
     error: Σφάλμα ενημέρωσης σχολίου

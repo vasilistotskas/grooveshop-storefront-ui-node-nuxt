@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { useShare } from '@vueuse/core'
 import type { PropType } from 'vue'
 
 const { productUrl } = useUrls()
@@ -249,7 +248,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           flex items-center gap-2
         "
       >
-        <div v-once class="flex items-center">
+        <div v-memo="[product.reviewAverage]" class="flex items-center">
           <UIcon
             v-for="star in 5"
             :key="star"

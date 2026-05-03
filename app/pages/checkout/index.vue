@@ -150,28 +150,19 @@ useSeoMeta({
 definePageMeta({
   layout: 'default',
   middleware: [
-    async function () {
+    function () {
       const { $i18n } = useNuxtApp()
       const t = $i18n.t.bind($i18n)
       const localePath = useLocalePath()
       const toast = useToast()
-      let cart: CartDetail | null = null
-      try {
-        cart = await $fetch('/api/cart', {
-          method: 'GET',
-          headers: useRequestHeaders(),
-        })
-      }
-      catch {
-        toast.add({
-          title: t('error.default'),
-          description: t('error_occurred'),
-          color: 'error',
-        })
-        return navigateTo(localePath('index'))
-      }
+      // The cart store is already populated by the setup plugin before any
+      // page renders (and before client-side navigations). Re-fetching here
+      // via useRequestHeaders() is both redundant and unsafe — the composable
+      // is not supported inside inline page middleware on the server.
+      const cartStore = useCartStore()
+      const cartItems = cartStore.cart?.items
 
-      if (!cart?.items || cart?.items.length === 0) {
+      if (!cartItems || cartItems.length === 0) {
         toast.add({
           title: t('cart_empty'),
           color: 'error',

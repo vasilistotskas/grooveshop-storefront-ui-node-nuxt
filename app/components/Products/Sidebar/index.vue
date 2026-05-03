@@ -16,7 +16,6 @@
  * @component
  */
 import type { AccordionItem } from '@nuxt/ui'
-import { createReusableTemplate } from '@vueuse/core'
 
 defineOptions({
   inheritAttrs: false,

@@ -9,7 +9,7 @@ export default defineNuxtPlugin({
     const config = useRuntimeConfig()
     const locale = (nuxtApp.$i18n as Composer).locale
     const toast = useToast()
-    const { user, loggedIn } = useUserSession()
+    const { loggedIn } = useUserSession()
     const userNotificationStore = useUserNotificationStore()
     const { setupNotifications } = userNotificationStore
     const debouncedSetupNotifications = useDebounceFn(setupNotifications, 1000)
@@ -61,7 +61,6 @@ export default defineNuxtPlugin({
           return
         }
         const wsEndpoint = withQuery(`${websocketProtocol}://${djangoApiHostName}/ws/notifications/`, {
-          user_id: user.value?.id,
           ticket: response.ticket,
         })
 

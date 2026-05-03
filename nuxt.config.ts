@@ -139,6 +139,8 @@ export default defineNuxtConfig({
       port: Number(process.env.NUXT_REDIS_PORT || 6379),
       ttl: Number(process.env.NUXT_REDIS_TTL || 3600),
       password: process.env.NUXT_REDIS_PASSWORD,
+      // DB 0 = Django, DB 2 = media-stream, DB 3 = Nuxt (default)
+      db: parseInt(process.env.NUXT_REDIS_DB ?? '3', 10),
     },
     scripts: {
       registry: {

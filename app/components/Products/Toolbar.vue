@@ -98,7 +98,7 @@ const handleToggleFilters = () => {
   <div
     class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
     role="toolbar"
-    aria-label="Product browsing controls"
+    :aria-label="t('toolbar.aria.browsing_controls')"
   >
     <!-- Left section: Results count and filter toggle (mobile) -->
     <div class="flex items-center gap-3">
@@ -108,7 +108,7 @@ const handleToggleFilters = () => {
         variant="outline"
         icon="i-heroicons-adjustments-horizontal"
         class="lg:hidden"
-        aria-label="Toggle filters"
+        :aria-label="t('toolbar.aria.toggle_filters')"
         @click="handleToggleFilters"
       >
         <span class="sr-only sm:not-sr-only">{{ t('filters') }}</span>
@@ -146,7 +146,7 @@ const handleToggleFilters = () => {
           :model-value="currentSort || 'recommended'"
           :items="sortOptions"
           class="min-w-[180px]"
-          aria-label="Sort products"
+          :aria-label="t('toolbar.aria.sort_products')"
           @update:model-value="handleSortChange"
         />
       </div>
@@ -164,7 +164,7 @@ const handleToggleFilters = () => {
           :model-value="itemsPerPage"
           :items="itemsPerPageOptions"
           class="min-w-[140px]"
-          aria-label="Items per page"
+          :aria-label="t('toolbar.aria.items_per_page')"
           @update:model-value="handleItemsPerPageChange"
         />
       </div>
@@ -178,6 +178,12 @@ el:
   sortBy: 'Ταξινόμηση'
   show: 'Εμφάνιση'
   filters: 'Φίλτρα'
+  toolbar:
+    aria:
+      browsing_controls: 'Έλεγχοι περιήγησης προϊόντων'
+      toggle_filters: 'Εναλλαγή φίλτρων'
+      sort_products: 'Ταξινόμηση προϊόντων'
+      items_per_page: 'Στοιχεία ανά σελίδα'
   sort:
     recommended: 'Προτεινόμενα'
     newest: 'Νεότερα'

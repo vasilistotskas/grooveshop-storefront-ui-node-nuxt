@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { refDebounced } from '@vueuse/core'
-
 const props = defineProps<{
   open: boolean
   query: string

@@ -14304,10 +14304,6 @@ export const zListProductReviewQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  helpfulVotesMin: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
   id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),

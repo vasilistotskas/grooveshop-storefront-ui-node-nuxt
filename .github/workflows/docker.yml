@@ -15,6 +15,7 @@ jobs:
     permissions:
       packages: write
       contents: read
+      security-events: write
     steps:
       - name: Check out the repo
         uses: actions/checkout@v6
@@ -68,7 +69,39 @@ jobs:
             gro0ve/grooveshop-storefront-ui-node-nuxt
             ghcr.io/${{ github.repository }}
 
-      - name: Build and push Docker images
+      - name: Build Docker image (local load for scanning)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./docker/Dockerfile
+          push: false
+          load: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          target: production
+          build-args: |
+            NODE_VERSION=24.15.0
+
+      - name: Run Trivy image scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: image
+          image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          format: sarif
+          output: trivy-image-results.sarif
+          limit-severities-for-sarif: true
+
+      - name: Upload Trivy image scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: trivy-image-results.sarif
+
+      - name: Push Docker images
         uses: docker/build-push-action@v7
         with:
           context: .

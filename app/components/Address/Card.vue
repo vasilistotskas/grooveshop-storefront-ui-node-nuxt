@@ -93,13 +93,6 @@ const addressDetails = computed(() => {
     })
   }
 
-  if (address.value.phone) {
-    details.push({
-      icon: 'i-heroicons-device-phone-mobile',
-      text: address.value.phone,
-    })
-  }
-
   return details
 })
 </script>
@@ -109,7 +102,7 @@ const addressDetails = computed(() => {
     v-if="address"
     as="li"
     class="relative h-full"
-    varian="soft"
+    variant="soft"
     :ui="{
       body: `
         p-2

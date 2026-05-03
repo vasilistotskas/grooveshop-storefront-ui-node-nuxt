@@ -276,7 +276,7 @@ const orderItemColumns: TableColumn<OrderItemDetail>[] = [
       const item = row.original
       return h(UAvatar, {
         src: getImage(item.product?.mainImagePath),
-        alt: `${extractTranslated(item.product, 'name', locale.value)} image`,
+        alt: `${extractTranslated(item.product, 'name', locale.value)} ${t('image')}`,
         size: '3xl',
         class: 'rounded-md',
       })

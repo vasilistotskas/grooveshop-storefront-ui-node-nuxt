@@ -41,6 +41,20 @@ const quickStats = computed(() => [
   },
 ])
 
+const menuDescriptions: Record<string, string> = {
+  'account': t('account.menu_description.account'),
+  'account-orders': t('account.menu_description.account-orders'),
+  'account-favourites-posts': t('account.menu_description.account-favourites-posts'),
+  'account-favourites-products': t('account.menu_description.account-favourites-products'),
+  'account-notifications': t('account.menu_description.account-notifications'),
+  'account-subscriptions': t('account.menu_description.account-subscriptions'),
+  'account-addresses': t('account.menu_description.account-addresses'),
+  'account-loyalty': t('account.menu_description.account-loyalty'),
+  'account-settings': t('account.menu_description.account-settings'),
+  'account-reviews': t('account.menu_description.account-reviews'),
+  'account-help': t('account.menu_description.account-help'),
+}
+
 const activityStats = computed(() => {
   const stats = []
 
@@ -319,7 +333,7 @@ const activityStats = computed(() => {
                       dark:text-neutral-300
                     "
                   >
-                    {{ t(`account.menu_description.${item.to.replace(/^\//, '').replaceAll('/', '-')}`) }}
+                    {{ menuDescriptions[item.to.replace(/^\//, '').replaceAll('/', '-')] ?? '' }}
                   </p>
                 </div>
                 <UIcon
@@ -658,14 +672,17 @@ el:
     location_description: Η πόλη και χώρα σου
     menu_description:
       account: Δες την επισκόπηση του λογαριασμού σου
+      account-orders: Δες τις παραγγελίες σου
       account-favourites-posts: Δες τις αγαπημένες σου αναρτήσεις
+      account-favourites-products: Δες τα αγαπημένα σου προϊόντα
+      account-notifications: Δες τις ειδοποιήσεις σου
       account-subscriptions: Διαχειρίσου τις εγγραφές σου
+      account-addresses: Διαχειρίσου τις διευθύνσεις σου
       account-loyalty: Δες τους πόντους και το ιστορικό σου
       account-settings: Ρύθμισε τις προτιμήσεις σου
-      account-addresses: Διαχειρίσου τις διευθύνσεις σου
-      account-orders: Δες τις παραγγελίες σου
       account-reviews: Διαχειρίσου τις κριτικές σου
       account-help: Λάβε βοήθεια και υποστήριξη
+  menu: Μενού λογαριασμού
   yes: Ναι
   no: Όχι
 </i18n>

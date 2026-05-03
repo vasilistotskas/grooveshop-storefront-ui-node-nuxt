@@ -57,13 +57,15 @@ const helpfulTips = computed(() => {
       "
     >
       <!--
-        Using the auto-generated <LazyLottie> variant (Nuxt wraps every
-        component under components/ into a `Lazy*` twin that defers its
-        chunk until it actually renders). Paired with the Lottie
-        component's own dynamic lottie-web import, the 404-only path
-        never pulls the animation runtime onto any other page.
+        Lottie itself does the heavy split: its <script setup> dynamic-
+        imports ``lottie-web`` and the JSON only on the client, so the
+        50KB animation runtime never ships in the SSR bundle and never
+        loads on non-error pages. Using ``<Lottie>`` directly (instead
+        of the Lazy* variant) keeps the wrapper in the main chunk so
+        the component reliably mounts inside this error page's
+        non-Suspense render boundary.
       -->
-      <LazyLottie
+      <Lottie
         :data="() => import('~/assets/lotties/404.json')"
         :aria-label="t('error.page.title')"
       >
@@ -81,7 +83,7 @@ const helpfulTips = computed(() => {
             />
           </div>
         </template>
-      </LazyLottie>
+      </Lottie>
     </div>
     <div
       v-else
@@ -115,63 +117,69 @@ const helpfulTips = computed(() => {
       />
     </div>
 
-    <UError
-      :error="error"
-      redirect="/"
-      :clear="false"
-      class="relative z-10 flex min-h-screen items-center justify-center py-8 sm:py-12"
+    <main
+      class="
+        relative z-10 flex min-h-screen flex-col items-center justify-center
+        gap-6 py-8 text-center
+        sm:py-12
+      "
     >
-      <template #message>
-        <UAlert
-          v-if="helpfulTips.length > 0"
-          color="info"
-          variant="soft"
-          :title="t('helpful.tips')"
-          class="mt-6 max-w-2xl text-left"
-        >
-          <template #description>
-            <ul class="mt-2 space-y-1 text-sm">
-              <li
-                v-for="(tip, tipIndex) in helpfulTips"
-                :key="tipIndex"
-                class="flex items-start gap-2"
-              >
-                <UIcon
-                  name="i-heroicons-check-circle"
-                  class="mt-0.5 size-4 shrink-0"
-                />
-                <span>{{ tip }}</span>
-              </li>
-            </ul>
-          </template>
-        </UAlert>
+      <h1 class="text-6xl font-bold text-primary-700 dark:text-primary-300 sm:text-7xl">
+        {{ error.statusCode }}
+      </h1>
+      <p class="mt-4 max-w-2xl text-lg text-balance text-muted">
+        {{ error.statusMessage || error.message }}
+      </p>
 
-        <UCard
-          v-if="showDebug && error.message"
-          variant="outline"
-          class="mt-4 max-w-2xl text-left"
-        >
-          <template #header>
-            <div class="flex items-center gap-2">
-              <UIcon name="i-heroicons-code-bracket" class="size-5" />
-              <span class="font-semibold">{{ t('debug.info') }}</span>
-            </div>
-          </template>
+      <UAlert
+        v-if="helpfulTips.length > 0"
+        color="info"
+        variant="soft"
+        :title="t('helpful.tips')"
+        class="mt-6 max-w-2xl text-left"
+      >
+        <template #description>
+          <ul class="mt-2 space-y-1 text-sm">
+            <li
+              v-for="(tip, tipIndex) in helpfulTips"
+              :key="tipIndex"
+              class="flex items-start gap-2"
+            >
+              <UIcon
+                name="i-heroicons-check-circle"
+                class="mt-0.5 size-4 shrink-0"
+              />
+              <span>{{ tip }}</span>
+            </li>
+          </ul>
+        </template>
+      </UAlert>
 
-          <div class="space-y-2 text-sm">
-            <div v-if="error.message">
-              <span class="font-medium text-gray-700 dark:text-gray-300">{{ t('error.message') }}:</span>
-              <code class="ml-2 text-error-600 dark:text-error-400">{{ error.message }}</code>
-            </div>
-            <div v-if="error.data">
-              <span class="font-medium text-gray-700 dark:text-gray-300">{{ t('error.data') }}:</span>
-              <pre class="mt-1 overflow-auto rounded bg-gray-100 p-2 text-xs dark:bg-gray-800">{{ error.data }}</pre>
-            </div>
+      <UCard
+        v-if="showDebug && error.message"
+        variant="outline"
+        class="mt-4 max-w-2xl text-left"
+      >
+        <template #header>
+          <div class="flex items-center gap-2">
+            <UIcon name="i-heroicons-code-bracket" class="size-5" />
+            <span class="font-semibold">{{ t('debug.info') }}</span>
           </div>
-        </UCard>
-      </template>
+        </template>
 
-      <template #links>
+        <div class="space-y-2 text-sm">
+          <div v-if="error.message">
+            <span class="font-medium text-gray-700 dark:text-gray-300">{{ t('error.message') }}:</span>
+            <code class="ml-2 text-error-600 dark:text-error-400">{{ error.message }}</code>
+          </div>
+          <div v-if="error.data">
+            <span class="font-medium text-gray-700 dark:text-gray-300">{{ t('error.data') }}:</span>
+            <pre class="mt-1 overflow-auto rounded bg-gray-100 p-2 text-xs dark:bg-gray-800">{{ error.data }}</pre>
+          </div>
+        </div>
+      </UCard>
+
+      <div class="mt-8 flex items-center justify-center gap-6">
         <UButton
           size="xl"
           color="neutral"
@@ -193,8 +201,8 @@ const helpfulTips = computed(() => {
         >
           {{ t('go.back') }}
         </UButton>
-      </template>
-    </UError>
+      </div>
+    </main>
   </div>
 </template>
 

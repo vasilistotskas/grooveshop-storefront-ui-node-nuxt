@@ -35879,22 +35879,6 @@
                     },
                     {
                         "in": "query",
-                        "name": "helpfulVotesMin",
-                        "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+(\\.\\d+)?$"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        },
-                        "description": "Filter by minimum helpful votes (if voting system exists)"
-                    },
-                    {
-                        "in": "query",
                         "name": "id",
                         "schema": {
                             "oneOf": [
@@ -36471,7 +36455,7 @@
                                 }
                             ]
                         },
-                        "description": "Filter reviews from verified purchases (if order system exists)"
+                        "description": "Filter reviews from verified purchases"
                     }
                 ],
                 "tags": [

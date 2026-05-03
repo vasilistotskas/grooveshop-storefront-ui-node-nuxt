@@ -26,12 +26,17 @@ export default defineSitemapEventHandler(async () => {
     SITEMAP_CACHE_AGE,
   )
 
-  // Fetch all data in parallel for better performance
+  // Only 'el' is active per i18n config. When more locales activate,
+  // iterate SUPPORTED_LOCALES here and emit hreflang alternates per entry.
+  const ACTIVE_LOCALE = 'el'
+
+  // Fetch all data in parallel for better performance.
+  // languageCode ensures Django returns translations for the active locale.
   const [allPosts, allBlogCategories, allProducts, allProductCategories] = await Promise.all([
-    cachedBlogPosts(`${apiBaseUrl}/blog/post`),
-    cachedBlogCategories(`${apiBaseUrl}/blog/category`),
-    cachedProducts(`${apiBaseUrl}/product`),
-    cachedProductCategories(`${apiBaseUrl}/product/category`),
+    cachedBlogPosts(`${apiBaseUrl}/blog/post?languageCode=${ACTIVE_LOCALE}`),
+    cachedBlogCategories(`${apiBaseUrl}/blog/category?languageCode=${ACTIVE_LOCALE}`),
+    cachedProducts(`${apiBaseUrl}/product?languageCode=${ACTIVE_LOCALE}`),
+    cachedProductCategories(`${apiBaseUrl}/product/category?languageCode=${ACTIVE_LOCALE}`),
   ])
 
   return [
@@ -65,6 +70,16 @@ export default defineSitemapEventHandler(async () => {
       images: product.mainImagePath
         ? [{
             loc: `${config.public.mediaStreamPath}/${product.mainImagePath}`,
+            // Prefer the active locale (el) translation; fall back to any
+            // available locale so the field is never silently empty.
+            title: product.translations?.el?.name
+              || Object.values(product.translations ?? {}).find(t => t?.name)?.name
+              || undefined,
+            // Short product description as the image caption. Truncated at
+            // 160 chars to keep the sitemap lean.
+            caption: product.translations?.el?.description
+              ? product.translations.el.description.replace(/<[^>]+>/g, '').slice(0, 160) || undefined
+              : undefined,
           }]
         : undefined,
     })),
