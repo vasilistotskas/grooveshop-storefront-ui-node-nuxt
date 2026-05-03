@@ -19928,29 +19928,6 @@ export type SetMainUserAddressResponses = {
 
 export type SetMainUserAddressResponse = SetMainUserAddressResponses[keyof SetMainUserAddressResponses]
 
-export type GetMainUserAddressData = {
-  body?: never
-  path?: never
-  query?: never
-  url: '/api/v1/user/address/get_main'
-}
-
-export type GetMainUserAddressErrors = {
-  400: ErrorResponse
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type GetMainUserAddressError = GetMainUserAddressErrors[keyof GetMainUserAddressErrors]
-
-export type GetMainUserAddressResponses = {
-  200: UserAddressDetail
-}
-
-export type GetMainUserAddressResponse = GetMainUserAddressResponses[keyof GetMainUserAddressResponses]
-
 export type DownloadUserDataExportData = {
   body?: never
   path: {

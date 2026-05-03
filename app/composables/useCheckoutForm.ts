@@ -599,7 +599,6 @@ export async function useCheckoutForm() {
     b2bInvoicingResult,
     countriesResult,
     payWaysResult,
-    mainAddressResult,
     savedAddressesResult,
   ] = await Promise.all([
     useAsyncData<{ value: string } | null>(
@@ -707,26 +706,6 @@ export async function useCheckoutForm() {
         }).catch(() => null)
       },
     ),
-    useAsyncData<UserAddressDetail | null>(
-      'checkout:main-address',
-      async () => {
-        if (!loggedIn.value) return null
-        try {
-          return await $fetch<UserAddressDetail>('/api/user/main-address', {
-            method: 'GET',
-            headers: useRequestHeaders(),
-          })
-        }
-        catch (error) {
-          // 404 = no main address yet, not worth logging.
-          const status = (error as { statusCode?: number })?.statusCode
-          if (status && status !== 404) {
-            log.warn('checkout', 'main address fetch failed', { error })
-          }
-          return null
-        }
-      },
-    ),
     useAsyncData<UserAddressDetail[]>(
       'checkout:saved-addresses',
       async () => {
@@ -789,10 +768,15 @@ export async function useCheckoutForm() {
 
   // Apply the main address to form state synchronously so the very
   // first SSR render (and the client's hydration render) already shows
-  // the ``saved`` mode — no guest-form flash.
-  if (mainAddressResult.data.value) {
-    applyAddressToFormState(mainAddressResult.data.value)
-    selectedSavedAddressId.value = mainAddressResult.data.value.id
+  // the ``saved`` mode — no guest-form flash. The saved-addresses
+  // query orders by ``-isMain,-createdAt``, so the first entry is the
+  // main one when present (or the most-recent fallback when no main
+  // is set — matches the behaviour the dedicated ``get_main`` endpoint
+  // used to provide, with one fewer API call and no 404 noise).
+  const mainAddress = savedAddresses.value.find(a => a.isMain)
+  if (mainAddress) {
+    applyAddressToFormState(mainAddress)
+    selectedSavedAddressId.value = mainAddress.id ?? null
     addressEntryMode.value = 'saved'
   }
 

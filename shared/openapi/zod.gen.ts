@@ -16156,8 +16156,6 @@ export const zSetMainUserAddressPath = z.object({
 
 export const zSetMainUserAddressResponse = zUserAddressDetail
 
-export const zGetMainUserAddressResponse = zUserAddressDetail
-
 export const zDownloadUserDataExportPath = z.object({
   token: z.string(),
 })
