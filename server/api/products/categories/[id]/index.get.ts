@@ -15,7 +15,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zRetrieveProductCategoryResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'ProductCategoryDetail',

@@ -20,6 +20,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zUpdateUserAddressResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

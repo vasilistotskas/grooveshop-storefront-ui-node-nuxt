@@ -67,6 +67,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zIncrementBlogPostViewsResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

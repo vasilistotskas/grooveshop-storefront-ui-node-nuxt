@@ -9,7 +9,7 @@ export default defineCachedEventHandler(async () => {
     return await parseDataAs(response, zHealthCheckResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   maxAge: 15,

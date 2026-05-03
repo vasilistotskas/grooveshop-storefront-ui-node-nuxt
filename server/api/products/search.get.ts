@@ -74,7 +74,7 @@ export default defineCachedEventHandler(async (event) => {
     return validatedResponse as ProductMeiliSearchResponse
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'SearchProductViewSet',

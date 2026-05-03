@@ -11,7 +11,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zListProductImagesResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'ProductImagesViewSet',

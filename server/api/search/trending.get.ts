@@ -22,6 +22,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zListTrendingSearchesResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

@@ -33,6 +33,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zRetrieveOrderByUuidResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

@@ -146,7 +146,7 @@ export default defineCachedEventHandler(
       return rows
     }
     catch (error) {
-      await handleError(error)
+      handleError(error)
     }
   },
   {

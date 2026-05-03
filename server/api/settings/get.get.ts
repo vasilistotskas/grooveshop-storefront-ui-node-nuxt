@@ -12,6 +12,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zApiV1SettingsGetRetrieveResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

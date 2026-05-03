@@ -7,6 +7,6 @@ export default defineEventHandler(async (event) => {
     return { success: true }
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

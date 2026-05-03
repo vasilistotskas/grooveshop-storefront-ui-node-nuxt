@@ -9,7 +9,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zListProductReviewsResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'ProductReviewsViewSet',

@@ -41,6 +41,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zReleaseCartReservationsResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

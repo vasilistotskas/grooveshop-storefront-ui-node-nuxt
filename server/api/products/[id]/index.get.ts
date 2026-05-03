@@ -12,7 +12,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zRetrieveProductResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'ProductDetailViewSet',

@@ -35,6 +35,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(data, z.array(zLoyaltyTier))
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

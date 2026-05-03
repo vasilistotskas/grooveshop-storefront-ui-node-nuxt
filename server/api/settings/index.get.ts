@@ -10,7 +10,7 @@ export default defineCachedEventHandler(async () => {
     return await parseDataAs(response, zApiV1SettingsListResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'SettingsViewSet',

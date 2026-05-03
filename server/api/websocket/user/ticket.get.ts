@@ -32,6 +32,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zCreateWebSocketTicketResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

@@ -38,6 +38,6 @@ export default defineEventHandler(async (event) => {
       log.info('cart', `Auth expired (${error.statusCode}), returning empty cart`)
       return null
     }
-    await handleError(error)
+    handleError(error)
   }
 })

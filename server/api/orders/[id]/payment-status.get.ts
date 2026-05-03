@@ -29,6 +29,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zPaymentStatusResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

@@ -9,7 +9,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zListCountryResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'CountryViewSet',

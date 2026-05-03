@@ -16,6 +16,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zRedeemLoyaltyPointsResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

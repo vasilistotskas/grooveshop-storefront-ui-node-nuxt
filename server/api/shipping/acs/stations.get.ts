@@ -45,7 +45,7 @@ export default defineCachedEventHandler(
       return parseDataAs(raw, zPaginatedAcsStationList)
     }
     catch (error) {
-      await handleError(error)
+      handleError(error)
     }
   },
   {
