@@ -90,6 +90,12 @@ jobs:
           scan-type: image
           image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
           severity: HIGH,CRITICAL
+          # Only block the push on CVEs that have an upstream fix
+          # available — base-image CVEs without a patched version
+          # would otherwise gate every release indefinitely. SARIF is
+          # still uploaded so unfixed findings remain visible in the
+          # GitHub Security tab.
+          ignore-unfixed: true
           exit-code: '1'
           format: sarif
           output: trivy-image-results.sarif
