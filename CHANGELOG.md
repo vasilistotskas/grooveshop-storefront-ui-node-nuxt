@@ -1,3 +1,10 @@
+## [3.111.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.111.2...v3.111.3) (2026-05-04)
+
+
+### Bug Fixes
+
+* **ci:** docker trivy scan reports without gating push ([6552818](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6552818dc9cd0a854cbeab03f59a87dbe8b02e29))
+
 ## [3.111.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.111.1...v3.111.2) (2026-05-04)
 
 
