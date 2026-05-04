@@ -1,3 +1,14 @@
+## [3.111.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.111.1...v3.111.2) (2026-05-04)
+
+
+### Bug Fixes
+
+* **deps:** override CVE-fixed transitive packages ([8cf3f8c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8cf3f8c0f7794b23e1cf3fa4826fd41f48dade80))
+* **form:** preserve $attrs.class on DynamicForm SSR pass ([3d0f5e9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3d0f5e9ce6937f22ce2b11c64a45ca0de37db4bc))
+* **products:** align sort dropdown values with Django's ordering_fields ([507ca3b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/507ca3b33162b8a9351c36e105c11d587accbbbe))
+* **security:** override lodash CVE + ignore-unfixed on docker scan ([8c409d6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8c409d6d65c87b4df4788026f36ef67921a9d736))
+* SSR/CSR hardening, SEO, PWA, security pass ([6bb588a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6bb588a0042b92e629b963af6eafd480c524644a)), closes [#fallback](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/fallback)
+
 ## [3.111.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.111.0...v3.111.1) (2026-05-03)
 
 
