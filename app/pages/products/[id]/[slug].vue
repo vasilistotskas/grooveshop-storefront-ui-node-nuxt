@@ -6,6 +6,7 @@ const route = useRoute(`products-id-slug___${locale.value}`)
 const { y: scrollY } = useWindowScroll()
 
 const { isMobileOrTablet } = useDevice()
+const { enabled } = useAuthPreviewMode()
 
 const { user, loggedIn } = useUserSession()
 
@@ -881,7 +882,7 @@ definePageMeta({
       </div>
 
       <div
-        v-if="showStickyAddToCart"
+        v-if="enabled && showStickyAddToCart"
         class="
           fixed right-0 bottom-18 left-0 z-40 border-t border-gray-200
           bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm
@@ -898,7 +899,7 @@ definePageMeta({
               :width="64"
               :height="64"
               class="
-                h-12 w-12 flex-shrink-0 rounded-lg object-contain
+                h-12 w-12 shrink-0 rounded-lg object-contain
                 md:h-16 md:w-16
               "
             />
@@ -942,7 +943,7 @@ definePageMeta({
                 :disabled="selectorQuantity <= 1"
                 @click="decrementQuantity"
               />
-              <span class="min-w-[2rem] text-center text-sm font-medium">
+              <span class="min-w-8 text-center text-sm font-medium">
                 {{ selectorQuantity }}
               </span>
               <UButton
