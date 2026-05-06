@@ -134,6 +134,7 @@ export default defineNuxtConfig({
     turnstile: {
       secretKey: process.env.NUXT_TURNSTILE_SECRET_KEY,
     },
+    cachePurgeToken: process.env.NUXT_CACHE_PURGE_TOKEN,
     redis: {
       host: process.env.NUXT_REDIS_HOST,
       port: Number(process.env.NUXT_REDIS_PORT || 6379),
