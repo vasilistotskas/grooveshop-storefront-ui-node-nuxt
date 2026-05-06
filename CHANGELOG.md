@@ -1,3 +1,15 @@
+# [3.112.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.111.3...v3.112.0) (2026-05-06)
+
+
+### Bug Fixes
+
+* **meta-pixel:** rename env var to match runtimeConfig auto-override path ([2056bbe](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2056bbefb8d9b72ee29b9507e8849e60e5f7bc59))
+
+
+### Features
+
+* **cache:** admin cache purge endpoint ([#5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/5)) ([5d451f5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5d451f5c9de727101eac28df22d0a00d585358e2))
+
 ## [3.111.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.111.2...v3.111.3) (2026-05-04)
 
 
