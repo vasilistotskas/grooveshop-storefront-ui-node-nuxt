@@ -1,3 +1,17 @@
+# [3.113.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.112.0...v3.113.0) (2026-05-06)
+
+
+### Bug Fixes
+
+* **checkout:** preserve saved-address region across country watcher ([ccff56b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ccff56b3b4b2c6053f41a5769287325ca807b105))
+
+
+### Features
+
+* **burger-menu:** add mobile burger menu with logo, register CTA, cart badge ([9d6b271](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9d6b27113c215e1a6b410f39959cc486031319e6))
+* **burger-menu:** mount PageBurgerMenu on mobile/tablet header ([d9de9b7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d9de9b7c1a06dd713416eac26a9318b6622a8a59))
+* **probe:** add Nitro-only /api/_alive endpoint for liveness probes ([ba17886](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ba1788665f3464dd1df9469172a8abea3ca05181))
+
 # [3.112.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.111.3...v3.112.0) (2026-05-06)
 
 
