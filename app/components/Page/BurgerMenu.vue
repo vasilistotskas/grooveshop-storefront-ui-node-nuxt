@@ -10,6 +10,7 @@ const { getCartTotalItems } = storeToRefs(cartStore)
 const { cleanCartState, refreshCart } = cartStore
 const { menus: accountMenus } = useAccountMenus()
 const { deleteSession } = useAllAuthAuthentication()
+const { isModalActive: isCookieModalActive } = useCookieControl()
 const { $routeBaseName } = useNuxtApp()
 
 const open = ref(false)
@@ -97,6 +98,11 @@ const signupTo = computed(() =>
     ? localePath('account-signup')
     : { path: localePath('account-signup'), query: { next: route.path } },
 )
+
+const onClickCookieSettings = () => {
+  open.value = false
+  isCookieModalActive.value = true
+}
 </script>
 
 <template>
@@ -267,6 +273,24 @@ const signupTo = computed(() =>
             />
           </template>
         </UAccordion>
+
+        <div
+          class="
+            mt-auto flex items-center justify-center border-t
+            border-primary-200 px-4 py-3
+            dark:border-primary-800
+          "
+        >
+          <UButton
+            :label="t('cookie_settings')"
+            icon="i-unjs:cookie-es"
+            color="neutral"
+            variant="link"
+            size="sm"
+            class="cursor-pointer"
+            @click="onClickCookieSettings"
+          />
+        </div>
       </div>
     </template>
 
@@ -341,4 +365,5 @@ el:
   navigation: Πλοήγηση
   loading: Φόρτωση
   hello_user: Γεια σου, {name}
+  cookie_settings: Ρυθμίσεις cookies
 </i18n>

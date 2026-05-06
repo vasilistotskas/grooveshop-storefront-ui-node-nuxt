@@ -414,6 +414,7 @@ export default defineNuxtConfig({
     },
   },
   cookieControl: {
+    isControlButtonEnabled: false,
     cookies: {
       necessary: [
         {
