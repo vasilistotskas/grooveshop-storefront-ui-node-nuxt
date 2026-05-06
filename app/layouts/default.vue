@@ -29,9 +29,9 @@ const showUserChrome = computed(
 
 const footerClass = computed(() => {
   if (isProductPage.value) {
-    return 'pb-30 md:pb-0'
+    return 'md:pb-0'
   }
-  return 'pb-12 md:pb-0'
+  return 'md:pb-0'
 })
 </script>
 
@@ -146,7 +146,7 @@ const footerClass = computed(() => {
         />
       </div>
     </slot>
-    <MobileBottomNav :include-cart="enabled && !isAccountRoute" />
+    <MobileBottomNav v-if="enabled" :include-cart="!isAccountRoute" />
   </div>
 </template>
 
