@@ -167,6 +167,32 @@ export async function useCheckoutForm() {
   }
 
   /**
+   * Verify that the address's region exists in the loaded ``regions``
+   * list for the address's country. Saved addresses can carry stale or
+   * invalid alphas (legacy data, region renamed/removed upstream). If
+   * the region is invalid we surface the issue to the shopper instead
+   * of leaving them stuck on a hidden validation error: switch to
+   * ``new`` mode so the form fields are visible, and add a toast
+   * explaining why. Pre-filled values stay so the shopper only needs
+   * to fix the region (and any other invalid field) before continuing.
+   */
+  const validateAppliedAddressRegion = () => {
+    const region = formState.region
+    if (!region) return
+    const validAlphas = regions.value?.results?.map(r => r.alpha) ?? []
+    if (validAlphas.length && !validAlphas.includes(region)) {
+      formState.region = ''
+      formState.regionId = undefined
+      addressEntryMode.value = 'new'
+      toast.add({
+        title: t('saved_address_invalid_title'),
+        description: t('saved_address_invalid_description'),
+        color: 'warning',
+      })
+    }
+  }
+
+  /**
    * User-invoked address picker: set the selected address id, hydrate
    * the form from its values, and flip the form into "saved" mode so
    * the personal-info + address sections collapse into the card summary.
@@ -182,6 +208,7 @@ export async function useCheckoutForm() {
     applyAddressToFormState(address)
     addressEntryMode.value = 'saved'
     await fetchRegions()
+    validateAppliedAddressRegion()
   }
 
   /**
@@ -244,8 +271,6 @@ export async function useCheckoutForm() {
     () => formState.country,
     async (newCountry, oldCountry) => {
       if (newCountry === oldCountry) return
-      formState.region = ''
-      formState.regionId = undefined
       if (newCountry && countries.value?.results) {
         const selectedCountry = countries.value.results.find(
           c => c.alpha2 === newCountry,
@@ -255,6 +280,26 @@ export async function useCheckoutForm() {
         }
       }
       await fetchRegions()
+      // Only clear ``region`` if the previously selected value is no
+      // longer valid for the new country. Unconditionally clearing here
+      // breaks saved-address prefill (which sets ``country`` and
+      // ``region`` together): the watcher would clobber the just-set
+      // region back to '', schema validation would silently fail (the
+      // address fields are hidden in ``saved`` mode so the shopper sees
+      // no error), and clicking "Continue" appears to do nothing.
+      const currentRegion = formState.region
+      if (currentRegion) {
+        const stillValid = regions.value?.results?.some(
+          r => r.alpha === currentRegion,
+        )
+        if (!stillValid) {
+          formState.region = ''
+          formState.regionId = undefined
+        }
+      }
+      else {
+        formState.regionId = undefined
+      }
     },
     { flush: 'post' },
   )
@@ -797,6 +842,13 @@ export async function useCheckoutForm() {
   }
   if (formState.country) {
     await fetchRegions()
+  }
+
+  // After regions have loaded, verify the prefilled main address has a
+  // valid region. Same intent as ``selectSavedAddress`` — see notes on
+  // ``validateAppliedAddressRegion`` for the failure mode this prevents.
+  if (mainAddress) {
+    validateAppliedAddressRegion()
   }
 
   // Hydrate shipping options once the country is known so the sidebar

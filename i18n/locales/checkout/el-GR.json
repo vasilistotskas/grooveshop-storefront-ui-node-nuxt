@@ -30,6 +30,8 @@
   "payment_intent_created_description": "Η πληρωμή σας είναι έτοιμη για επεξεργασία",
   "payment_intent_error": "Σφάλμα πληρωμής",
   "payment_intent_error_description": "Δεν ήταν δυνατή η δημιουργία της πληρωμής. Παρακαλώ δοκιμάστε ξανά.",
+  "saved_address_invalid_title": "Έλεγξε τη διεύθυνση",
+  "saved_address_invalid_description": "Η αποθηκευμένη διεύθυνση έχει νομό που δεν είναι πλέον έγκυρος. Παρακαλώ διάλεξε ξανά τον νομό για να συνεχίσεις.",
   "payment_canceled": "Η πληρωμή ακυρώθηκε",
   "payment_canceled_description": "Η πληρωμή δεν ολοκληρώθηκε. Μπορείς να επιλέξεις διαφορετικό τρόπο πληρωμής ή να δοκιμάσεις ξανά.",
   "payment_error_title": "Σφάλμα πληρωμής",
