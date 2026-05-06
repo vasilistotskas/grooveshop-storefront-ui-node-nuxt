@@ -11,6 +11,12 @@ const items = computed(() => [
   isMobileOrTablet.value ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
 ])
 
+// Mobile shows 6 articles up front (2 columns of 3 cards on tablet,
+// single column on phone) and a Load more button. Desktop ships 9 (a
+// clean 3x3 grid at xl) so the rail looks balanced before the user has
+// to ask for more.
+const blogPageSize = computed(() => isMobileOrTablet.value ? 6 : 9)
+
 const bannerWidth = computed(() => isMobileOrTablet.value ? 510 : 1194)
 const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
 
@@ -124,13 +130,14 @@ useSeoMeta({
         />
 
         <LazyBlogPostsList
-          :page-size="6"
+          :page-size="blogPageSize"
           :show-ordering="false"
           class="
             mx-auto max-w-main
             md:p-0!
           "
           pagination-type="cursor"
+          pagination-strategy="button"
           hydrate-on-visible
         />
       </div>
