@@ -354,6 +354,7 @@ export default defineNuxtConfig({
         '@internationalized/date',
         'zod',
         'isomorphic-dompurify',
+        'lottie-web',
       ],
     },
     build: {
