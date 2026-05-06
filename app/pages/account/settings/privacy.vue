@@ -9,10 +9,6 @@ defineRouteRules({
   robots: false,
 })
 
-definePageMeta({
-  layout: 'user',
-})
-
 const uid = computed(() => user.value?.id)
 
 const exports = ref<UserDataExport[]>([])

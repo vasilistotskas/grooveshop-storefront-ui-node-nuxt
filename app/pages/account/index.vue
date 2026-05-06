@@ -11,10 +11,6 @@ defineRouteRules({
   robots: false,
 })
 
-definePageMeta({
-  layout: 'user',
-})
-
 const quickStats = computed(() => [
   {
     label: t('account.email'),

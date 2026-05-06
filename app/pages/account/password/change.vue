@@ -6,10 +6,6 @@ const { hasCurrentPassword } = storeToRefs(authStore)
 defineRouteRules({
   robots: false,
 })
-
-definePageMeta({
-  layout: 'user',
-})
 </script>
 
 <template>

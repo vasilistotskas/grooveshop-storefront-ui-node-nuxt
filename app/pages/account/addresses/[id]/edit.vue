@@ -174,10 +174,6 @@ async function onSetMain() {
 defineRouteRules({
   robots: false,
 })
-
-definePageMeta({
-  layout: 'user',
-})
 </script>
 
 <template>

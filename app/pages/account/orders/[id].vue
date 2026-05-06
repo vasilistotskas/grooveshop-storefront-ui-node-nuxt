@@ -398,10 +398,6 @@ async function handleReorder() {
 defineRouteRules({
   robots: false,
 })
-
-definePageMeta({
-  layout: 'user',
-})
 </script>
 
 <template>

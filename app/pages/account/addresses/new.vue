@@ -138,10 +138,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 defineRouteRules({
   robots: false,
 })
-
-definePageMeta({
-  layout: 'user',
-})
 </script>
 
 <template>

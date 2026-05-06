@@ -168,10 +168,6 @@ const formatRelative = (value?: string | null) => {
 defineRouteRules({
   robots: false,
 })
-
-definePageMeta({
-  layout: 'user',
-})
 </script>
 
 <template>

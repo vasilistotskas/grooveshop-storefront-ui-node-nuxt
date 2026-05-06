@@ -10,10 +10,6 @@ await setupAuthenticators()
 defineRouteRules({
   robots: false,
 })
-
-definePageMeta({
-  layout: 'user',
-})
 </script>
 
 <template>
