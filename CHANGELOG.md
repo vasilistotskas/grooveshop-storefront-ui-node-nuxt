@@ -1,3 +1,12 @@
+# [3.114.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.113.0...v3.114.0) (2026-05-06)
+
+
+### Features
+
+* Bump Versions ([cbeb619](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cbeb6196dcf0195d43e0017cb6d98f33647b2eac))
+* **cookies:** replace floating control button with footer + burger triggers ([2d73d8a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2d73d8a78ce81a118cd52a78c4ed7ac8394193ac))
+* **home:** replace infinite scroll with load-more + device-aware page size ([86767cf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/86767cf765fe09afe97251d931c90d91bb4f7ba6))
+
 # [3.113.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.112.0...v3.113.0) (2026-05-06)
 
 
