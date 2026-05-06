@@ -184,7 +184,16 @@ export default defineNuxtConfig({
       // registry scripts widen its type). Putting our pixel id here
       // keeps things type-safe without a module-augmentation file.
       // The ``useMetaPixel`` composable reads from this path.
-      metaPixelId: process.env.NUXT_PUBLIC_SCRIPTS_META_PIXEL_ID,
+      //
+      // Env var name MUST be ``NUXT_PUBLIC_META_PIXEL_ID`` (NOT
+      // ``NUXT_PUBLIC_SCRIPTS_META_PIXEL_ID``) — Nuxt's runtime
+      // override maps env vars to runtime config keys by uppercasing
+      // and underscore-splitting the dotted path, so
+      // ``runtimeConfig.public.metaPixelId`` is overridden by
+      // ``NUXT_PUBLIC_META_PIXEL_ID``. Mismatched names mean the
+      // build-time value is baked in (usually undefined in CI) and
+      // the runtime configmap value is silently ignored.
+      metaPixelId: process.env.NUXT_PUBLIC_META_PIXEL_ID,
       titleSeparator: process.env.NUXT_PUBLIC_TITLE_SEPARATOR,
       trailingSlash: String(process.env.NUXT_PUBLIC_TRAILING_SLASH) === 'true',
       static: {
