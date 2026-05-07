@@ -91,13 +91,16 @@ export function useMetaPixel() {
 
   const isProvisioned = !!pixelId
 
-  // ``useScriptMetaPixel`` is auto-imported by @nuxt/scripts. Cast
-  // through ``any`` because the typing for the registry is dynamic
-  // and we already validated the id presence above.
+  // ``useScriptMetaPixel`` is auto-imported by @nuxt/scripts. The
+  // actual registration (with the consent-gated script trigger)
+  // happens once in ``setupMetaPixelConsent`` from ``app.vue`` setup;
+  // calls here dedup against ``head._scripts['metaPixel']`` and
+  // return the same proxy. Passing options here would race with the
+  // setup site if the dedup picks the wrong call's options first
+  // (see comment in ``setups.ts:setupMetaPixelConsent`` for the
+  // historical incident this avoids).
   const proxy = isProvisioned
-
-    ? (useScriptMetaPixel({ id: pixelId, defaultConsent: 'denied' }) as any)
-        .proxy
+    ? useScriptMetaPixel({ id: pixelId }).proxy
     : { fbq: NOOP_PROXY }
 
   const fbq = (
