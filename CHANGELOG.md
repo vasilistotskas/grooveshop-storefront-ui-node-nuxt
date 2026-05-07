@@ -1,3 +1,10 @@
+## [3.114.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.0...v3.114.1) (2026-05-07)
+
+
+### Bug Fixes
+
+* **meta-pixel:** use useScriptTriggerConsent as the binary script-load gate ([#6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/6)) ([5b1882a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5b1882a308bf22d7eb6fddd29cbd951fb45ecf64))
+
 # [3.114.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.113.0...v3.114.0) (2026-05-06)
 
 
