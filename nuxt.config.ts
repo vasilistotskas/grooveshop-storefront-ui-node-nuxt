@@ -425,6 +425,14 @@ export default defineNuxtConfig({
       search: true,
       aiInput: true,
     },
+    // Production runs as the unprivileged ``node`` user (UID 1000) with
+    // ``WORKDIR=/app`` owned by root, so the default ``.data/ai-ready``
+    // path under cwd is read-only. The runtime DB is ephemeral per pod
+    // anyway (we don't enable ``runtimeSync``), so ``/tmp`` — always
+    // writable — is the right choice.
+    database: {
+      filename: '/tmp/ai-ready/pages.db',
+    },
   },
   cookieControl: {
     isControlButtonEnabled: false,
