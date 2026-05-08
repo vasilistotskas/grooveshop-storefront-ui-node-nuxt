@@ -44,7 +44,10 @@ export default defineNitroPlugin((nitro) => {
     const query = url.slice(pathOnly.length)
     const newUrl = `${newPath}${query}`
 
+    // h3 derives ``event.path`` from ``event.node.req.url`` plus the
+    // private ``event._path`` cache; both must be updated for downstream
+    // middleware (Nuxt router, nuxt-ai-ready) to see the rewrite.
+    ;(event as { _path?: string })._path = newUrl
     event.node.req.url = newUrl
-    event.path = newUrl
   })
 })
