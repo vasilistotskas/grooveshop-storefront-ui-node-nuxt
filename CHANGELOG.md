@@ -1,3 +1,10 @@
+## [3.114.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.4...v3.114.5) (2026-05-08)
+
+
+### Bug Fixes
+
+* **ai-ready:** close 2 last-mile gaps from isitagentready scan ([98db047](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/98db0471f9c98e8118e1617c4ecbb2e591cfae33))
+
 ## [3.114.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.3...v3.114.4) (2026-05-08)
 
 
