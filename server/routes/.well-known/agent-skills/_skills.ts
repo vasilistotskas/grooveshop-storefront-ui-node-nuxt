@@ -1,8 +1,11 @@
 /**
  * Agent Skills source-of-truth. The skill body strings are rendered at
- * ``/.well-known/agent-skills/<name>/SKILL.md`` and their sha256 digests
- * are emitted into ``index.json``. The leading underscore on the
- * filename keeps Nitro from picking this file up as a route.
+ * ``/.well-known/agent-skills/<name>/skill`` (no ``.md`` extension —
+ * nuxt-ai-ready's middleware intercepts every ``*.md`` URL globally and
+ * would 404 our skill markdown before it reaches the route handler).
+ * The body is sent as ``text/markdown`` regardless of URL extension.
+ * The leading underscore on this filename keeps Nitro from picking it
+ * up as a route.
  */
 export interface AgentSkill {
   name: string
@@ -17,7 +20,7 @@ export const SKILLS: AgentSkill[] = [
     name: 'webside-search',
     type: 'imperative_api',
     description: 'Search the Webside catalog (products, blog posts, categories) and open the matching results page. Available client-side via navigator.modelContext.',
-    relativeUrl: '/.well-known/agent-skills/webside-search/SKILL.md',
+    relativeUrl: '/.well-known/agent-skills/webside-search/skill',
     body: `# webside-search
 
 Search the Webside catalog and navigate to the results page.
@@ -47,7 +50,7 @@ Triggers client-side router navigation to the search results page.
     name: 'webside-products',
     type: 'browser_navigation',
     description: 'List Webside products by category, or open a single product detail page by slug.',
-    relativeUrl: '/.well-known/agent-skills/webside-products/SKILL.md',
+    relativeUrl: '/.well-known/agent-skills/webside-products/skill',
     body: `# webside-products
 
 Browse the Webside catalog.
