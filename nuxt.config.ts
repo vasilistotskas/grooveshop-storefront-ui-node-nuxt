@@ -342,6 +342,19 @@ export default defineNuxtConfig({
     experimental: {
       asyncContext: true,
     },
+    // Expose the generated OpenAPI artefacts under ``/openapi/*`` so the
+    // RFC 9727 API catalog at ``/.well-known/api-catalog`` has something
+    // real to link to. ``schema.yml`` is the source of truth (Django
+    // exports it via drf-spectacular and ``pnpm generate:schema``
+    // updates it locally); ``schema.json`` is generated alongside.
+    // Path is resolved from ``rootDir`` (Nuxt 4 default = repo root).
+    publicAssets: [
+      {
+        dir: '../openapi',
+        baseURL: '/openapi',
+        maxAge: 3600,
+      },
+    ],
   },
   vite: {
     vue: {
@@ -620,11 +633,49 @@ export default defineNuxtConfig({
   ogImage: {
     enabled: false,
   },
-  // Empty object initialiser — ``nuxt-ai-ready`` 1.3.0 reads
-  // ``nuxt.options.robots.groups`` when ``aiReady.contentSignal`` is set
-  // and crashes if ``nuxt.options.robots`` is undefined. @nuxtjs/robots
-  // (shipped via @nuxtjs/seo) tolerates an empty config object.
-  robots: {},
+  // ``@nuxtjs/robots`` (shipped via @nuxtjs/seo). Defines explicit
+  // User-agent groups so RFC 9309-aware crawlers (and isitagentready.com
+  // checkers) see per-bot rules in addition to the wildcard. The
+  // wildcard allows all paths and Content-Signal directives, controlled
+  // separately by ``aiReady.contentSignal``, opt the site into AI
+  // training/search/RAG. Account/cart/checkout/api are off-limits to
+  // every crawler — they're behind auth and have no value to indexers.
+  robots: {
+    disallow: ['/account/', '/cart', '/checkout', '/api/'],
+    groups: [
+      {
+        userAgent: [
+          'GPTBot',
+          'OAI-SearchBot',
+          'ChatGPT-User',
+          'ClaudeBot',
+          'Claude-Web',
+          'anthropic-ai',
+          'Google-Extended',
+          'PerplexityBot',
+          'Perplexity-User',
+          'Applebot-Extended',
+          'Bytespider',
+          'Amazonbot',
+          'Meta-ExternalAgent',
+          'Meta-ExternalFetcher',
+          'CCBot',
+          'cohere-ai',
+          'Diffbot',
+          'DuckAssistBot',
+          'PetalBot',
+          'YouBot',
+          'Timpibot',
+          'ImagesiftBot',
+          'omgili',
+          'omgilibot',
+          'FriendlyCrawler',
+        ],
+        allow: ['/'],
+        disallow: ['/account/', '/cart', '/checkout', '/api/'],
+      },
+    ],
+  },
   schemaOrg: {
     enabled: true,
     minify: true,
