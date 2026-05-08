@@ -169,6 +169,16 @@
       "picomatch@4": "^4.0.4",
       "lodash": "^4.18.1",
       "simple-git": ">=3.36.0"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@intlify/vue-i18n-bridge",
+      "@intlify/vue-router-bridge",
+      "@parcel/watcher",
+      "better-sqlite3",
+      "esbuild",
+      "sharp",
+      "unrs-resolver",
+      "vue-demi"
+    ]
   }
 }

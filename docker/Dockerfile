@@ -13,7 +13,8 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --prefer-offline
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --prefer-offline \
+  && pnpm rebuild better-sqlite3
 
 COPY . .
 
