@@ -1,3 +1,10 @@
+## [3.114.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.5...v3.114.6) (2026-05-08)
+
+
+### Bug Fixes
+
+* **ai-ready:** serve skill markdown at /skill (not /SKILL.md) ([c238f5b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c238f5b24d540bbc2ae774ee559ac263d141fad2))
+
 ## [3.114.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.4...v3.114.5) (2026-05-08)
 
 
