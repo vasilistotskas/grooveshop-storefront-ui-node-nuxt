@@ -1,3 +1,12 @@
+## [3.114.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.2...v3.114.3) (2026-05-08)
+
+
+### Bug Fixes
+
+* **ai-ready:** set event._path when rewriting URLs in markdown plugin ([bc49dcb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bc49dcb5baa8b7f24e2237ee18e85a9070f3194f))
+* **ai-ready:** unblock CI native build, add OAuth/MCP/WebMCP discovery ([69a81ad](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/69a81ad76e93262028b7e9e814441b07909d18b3))
+* **docker:** also copy pnpm-workspace.yaml in builder stage ([4e08874](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4e08874d6bf3f277604a8ec7608238f6651f812b))
+
 ## [3.114.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.1...v3.114.2) (2026-05-08)
 
 
