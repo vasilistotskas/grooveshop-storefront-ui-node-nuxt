@@ -1,3 +1,10 @@
+## [3.114.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.3...v3.114.4) (2026-05-08)
+
+
+### Bug Fixes
+
+* **ai-ready:** writable SQLite path + working markdown negotiation ([1a87be8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1a87be8074fc7a5212d3daf66d45070fc588822f))
+
 ## [3.114.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.2...v3.114.3) (2026-05-08)
 
 
