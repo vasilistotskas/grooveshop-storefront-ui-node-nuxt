@@ -1,3 +1,10 @@
+## [3.114.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.1...v3.114.2) (2026-05-08)
+
+
+### Bug Fixes
+
+* **ai-ready:** install better-sqlite3 and add agent discovery routes ([32dc178](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/32dc178b108019cecfa9697f6a0332991ac3fb63))
+
 ## [3.114.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.0...v3.114.1) (2026-05-07)
 
 
