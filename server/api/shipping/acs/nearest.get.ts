@@ -56,12 +56,13 @@ export default defineCachedEventHandler(
     getKey: (event) => {
       const url = new URL(event.node.req.url ?? '/', 'http://internal')
       const p = url.searchParams
-      return [
+      const paramsKey = [
         p.get('postalCode') ?? '',
         p.get('city') ?? '',
         p.get('shopKind') ?? '',
         p.get('countryCode') ?? '',
       ].join('|')
+      return tenantCacheKey(event, paramsKey)
     },
   },
 )

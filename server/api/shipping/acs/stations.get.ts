@@ -58,7 +58,7 @@ export default defineCachedEventHandler(
     getKey: (event) => {
       const url = new URL(event.node.req.url ?? '/', 'http://internal')
       const p = url.searchParams
-      return [
+      const paramsKey = [
         p.get('postalCode') ?? '',
         p.get('countryCode') ?? '',
         p.get('shopKind') ?? '',
@@ -66,6 +66,7 @@ export default defineCachedEventHandler(
         p.get('page') ?? '1',
         p.get('pageSize') ?? '',
       ].join('|')
+      return tenantCacheKey(event, paramsKey)
     },
   },
 )

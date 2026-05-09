@@ -165,7 +165,7 @@ export default defineCachedEventHandler(
       const provider = getRouterParam(event, 'provider') ?? 'unknown'
       const url = new URL(event.node.req.url ?? '/', 'http://internal')
       const country = url.searchParams.get('country') ?? 'all'
-      return `${provider}:${country.toUpperCase()}`
+      return tenantCacheKey(event, `${provider}:${country.toUpperCase()}`)
     },
   },
 )
