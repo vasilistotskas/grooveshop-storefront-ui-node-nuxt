@@ -4264,6 +4264,13 @@ export const zTaggedItemWriteRequest = z.object({
   objectId: z.int().gte(0).lte(2147483647),
 })
 
+/**
+ * Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
+ *
+ * Only fields that are safe to expose to unauthenticated callers should
+ * appear here.  Secrets and billing-sensitive data belong exclusively in
+ * TenantAdminSerializer.
+ */
 export const zTenantConfig = z.object({
   schemaName: z.string().readonly(),
   name: z.string().readonly(),
@@ -4286,6 +4293,23 @@ export const zTenantConfig = z.object({
   primaryDomain: z.string().readonly(),
   loyaltyEnabled: z.boolean().readonly(),
   blogEnabled: z.boolean().readonly(),
+  stripePublishableKey: z.string().readonly(),
+  allowedCspSources: z.array(z.string()).readonly(),
+  metaPixelId: z.string().readonly(),
+  gaTrackingId: z.string().readonly(),
+  totpIssuer: z.string().readonly(),
+  turnstileSiteKey: z.string().readonly(),
+  socialsDiscord: z.url().readonly(),
+  socialsFacebook: z.url().readonly(),
+  socialsInstagram: z.url().readonly(),
+  socialsPinterest: z.url().readonly(),
+  socialsReddit: z.url().readonly(),
+  socialsTiktok: z.url().readonly(),
+  socialsTwitter: z.url().readonly(),
+  socialsYoutube: z.url().readonly(),
+  boxNowPartnerId: z.string().readonly(),
+}).register(z.globalRegistry, {
+  description: 'Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.\n\nOnly fields that are safe to expose to unauthenticated callers should\nappear here.  Secrets and billing-sensitive data belong exclusively in\nTenantAdminSerializer.',
 })
 
 /**

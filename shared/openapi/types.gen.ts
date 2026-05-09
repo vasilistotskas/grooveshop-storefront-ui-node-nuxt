@@ -5788,6 +5788,13 @@ export type TaggedItemWriteRequest = {
   objectId: number
 }
 
+/**
+ * Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
+ *
+ * Only fields that are safe to expose to unauthenticated callers should
+ * appear here.  Secrets and billing-sensitive data belong exclusively in
+ * TenantAdminSerializer.
+ */
 export type TenantConfig = {
   readonly schemaName: string
   readonly name: string
@@ -5810,6 +5817,21 @@ export type TenantConfig = {
   readonly primaryDomain: string
   readonly loyaltyEnabled: boolean
   readonly blogEnabled: boolean
+  readonly stripePublishableKey: string
+  readonly allowedCspSources: Array<string>
+  readonly metaPixelId: string
+  readonly gaTrackingId: string
+  readonly totpIssuer: string
+  readonly turnstileSiteKey: string
+  readonly socialsDiscord: string
+  readonly socialsFacebook: string
+  readonly socialsInstagram: string
+  readonly socialsPinterest: string
+  readonly socialsReddit: string
+  readonly socialsTiktok: string
+  readonly socialsTwitter: string
+  readonly socialsYoutube: string
+  readonly boxNowPartnerId: string
 }
 
 /**

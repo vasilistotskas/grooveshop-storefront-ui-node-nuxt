@@ -40041,6 +40041,12 @@ components:
       - tagId
     TenantConfig:
       type: object
+      description: |-
+        Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
+
+        Only fields that are safe to expose to unauthenticated callers should
+        appear here.  Secrets and billing-sensitive data belong exclusively in
+        TenantAdminSerializer.
       properties:
         schemaName:
           type: string
@@ -40107,27 +40113,97 @@ components:
         blogEnabled:
           type: boolean
           readOnly: true
+        stripePublishableKey:
+          type: string
+          readOnly: true
+        allowedCspSources:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        metaPixelId:
+          type: string
+          readOnly: true
+        gaTrackingId:
+          type: string
+          readOnly: true
+        totpIssuer:
+          type: string
+          readOnly: true
+        turnstileSiteKey:
+          type: string
+          readOnly: true
+        socialsDiscord:
+          type: string
+          format: uri
+          readOnly: true
+        socialsFacebook:
+          type: string
+          format: uri
+          readOnly: true
+        socialsInstagram:
+          type: string
+          format: uri
+          readOnly: true
+        socialsPinterest:
+          type: string
+          format: uri
+          readOnly: true
+        socialsReddit:
+          type: string
+          format: uri
+          readOnly: true
+        socialsTiktok:
+          type: string
+          format: uri
+          readOnly: true
+        socialsTwitter:
+          type: string
+          format: uri
+          readOnly: true
+        socialsYoutube:
+          type: string
+          format: uri
+          readOnly: true
+        boxNowPartnerId:
+          type: string
+          readOnly: true
       required:
       - accentHex
+      - allowedCspSources
       - blogEnabled
+      - boxNowPartnerId
       - defaultCurrency
       - defaultLocale
       - errorHex
       - faviconUrl
+      - gaTrackingId
       - infoHex
       - logoDarkUrl
       - logoLightUrl
       - loyaltyEnabled
+      - metaPixelId
       - name
       - neutralColor
       - primaryColor
       - primaryDomain
       - schemaName
+      - socialsDiscord
+      - socialsFacebook
+      - socialsInstagram
+      - socialsPinterest
+      - socialsReddit
+      - socialsTiktok
+      - socialsTwitter
+      - socialsYoutube
       - storeDescription
       - storeName
+      - stripePublishableKey
       - successHex
       - themeMetadata
       - themePreset
+      - totpIssuer
+      - turnstileSiteKey
       - warningHex
     TopQuery:
       type: object
