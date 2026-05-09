@@ -14,7 +14,6 @@ export const useTenantStore = defineStore('tenant', () => {
   const defaultCurrency = computed(() => config.value?.defaultCurrency ?? 'EUR')
   const loyaltyEnabled = computed(() => config.value?.loyaltyEnabled ?? false)
   const blogEnabled = computed(() => config.value?.blogEnabled ?? true)
-  const plan = computed(() => config.value?.plan ?? 'trial')
   const themePreset = computed(() => config.value?.themePreset ?? 'default')
 
   function setConfig(tenantConfig: TenantConfig | null) {
@@ -36,7 +35,6 @@ export const useTenantStore = defineStore('tenant', () => {
     defaultCurrency,
     loyaltyEnabled,
     blogEnabled,
-    plan,
     themePreset,
     setConfig,
   }
