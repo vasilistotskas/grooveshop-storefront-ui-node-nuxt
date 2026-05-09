@@ -26,9 +26,27 @@ export default defineEventHandler((event) => {
     [mediaSrc, staticSrc, djangoUrl].filter(Boolean),
   )].join(' ')
 
-  const djangoHost = (config.public.djangoHostName as string) || 'localhost'
+  // WebSocket connects to the Django backend. In prod the host is the public
+  // API hostname (api.webside.gr); in dev it is whatever Host the browser
+  // sends — we read getRequestHost() rather than the build-time constant so
+  // that multi-tenant dev setups with different local hostnames work without
+  // redeploying. The build-time djangoHostName is kept as the fallback for
+  // SSR contexts where getRequestHost may not be meaningful (prerendering).
+  const requestHost = getRequestHost(event, { xForwardedHost: false })
+  const djangoHost = (config.public.djangoHostName as string) || requestHost || 'localhost'
   // In dev, the WebSocket connection uses ws:// (plain HTTP); in production it uses wss://
   const wsScheme = import.meta.dev ? 'ws' : 'wss'
+
+  // TODO(multi-tenant): Per-tenant CSP source expansion.
+  // When Django exposes an `allowedCspSources` field on TenantConfig, expand
+  // `connect-src`, `img-src`, `script-src`, and `frame-src` with those origins:
+  //
+  //   const tenantSources = event.context.tenant?.allowedCspSources ?? []
+  //   const tenantOrigins = tenantSources.join(' ')
+  //
+  // This requires a Django-side schema change to add `allowedCspSources: string[]`
+  // to the TenantConfig serializer, plus regenerating `shared/openapi/` types.
+  // Until then the CSP is identical for all tenants on the same deployment.
 
   // TODO(csp-nonce): Replace 'unsafe-inline' with a per-request nonce.
   // Doing so requires:
