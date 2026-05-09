@@ -9649,7 +9649,6 @@ paths:
       - Health
       security:
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -15284,7 +15283,6 @@ paths:
       - Payment methods
       security:
       - cookieAuth: []
-      - {}
       responses:
         '400':
           content:
@@ -15415,7 +15413,6 @@ paths:
       - Payment methods
       security:
       - cookieAuth: []
-      - {}
       responses:
         '401':
           content:
@@ -19337,7 +19334,6 @@ paths:
       - Product Category Images
       security:
       - cookieAuth: []
-      - {}
       responses:
         '400':
           content:
@@ -19471,7 +19467,6 @@ paths:
       - Product Category Images
       security:
       - cookieAuth: []
-      - {}
       responses:
         '401':
           content:
@@ -19827,7 +19822,6 @@ paths:
       - Product Category Images
       security:
       - cookieAuth: []
-      - {}
       responses:
         '400':
           content:
@@ -19943,7 +19937,6 @@ paths:
       - Product Category Images
       security:
       - cookieAuth: []
-      - {}
       responses:
         '400':
           content:
@@ -21557,7 +21550,6 @@ paths:
       - Product Reviews
       security:
       - cookieAuth: []
-      - {}
       responses:
         '400':
           content:
@@ -21691,7 +21683,6 @@ paths:
       - Product Reviews
       security:
       - cookieAuth: []
-      - {}
       responses:
         '401':
           content:
@@ -21927,7 +21918,6 @@ paths:
       - Product Reviews
       security:
       - cookieAuth: []
-      - {}
       responses:
         '400':
           content:
@@ -22777,7 +22767,6 @@ paths:
       - Search
       security:
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -22831,7 +22820,6 @@ paths:
       - Search
       security:
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -22937,7 +22925,6 @@ paths:
       - Search
       security:
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -23030,7 +23017,6 @@ paths:
       - Settings
       security:
       - cookieAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -24559,7 +24545,6 @@ paths:
       - Tagged Items
       security:
       - cookieAuth: []
-      - {}
       responses:
         '400':
           content:
@@ -24693,7 +24678,6 @@ paths:
       - Tagged Items
       security:
       - cookieAuth: []
-      - {}
       responses:
         '401':
           content:
@@ -40123,9 +40107,6 @@ components:
         blogEnabled:
           type: boolean
           readOnly: true
-        plan:
-          type: string
-          readOnly: true
       required:
       - accentHex
       - blogEnabled
@@ -40139,7 +40120,6 @@ components:
       - loyaltyEnabled
       - name
       - neutralColor
-      - plan
       - primaryColor
       - primaryDomain
       - schemaName

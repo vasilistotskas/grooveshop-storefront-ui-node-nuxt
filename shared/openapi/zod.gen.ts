@@ -4286,7 +4286,6 @@ export const zTenantConfig = z.object({
   primaryDomain: z.string().readonly(),
   loyaltyEnabled: z.boolean().readonly(),
   blogEnabled: z.boolean().readonly(),
-  plan: z.string().readonly(),
 })
 
 /**

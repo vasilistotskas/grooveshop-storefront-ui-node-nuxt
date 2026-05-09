@@ -5810,7 +5810,6 @@ export type TenantConfig = {
   readonly primaryDomain: string
   readonly loyaltyEnabled: boolean
   readonly blogEnabled: boolean
-  readonly plan: string
 }
 
 /**
