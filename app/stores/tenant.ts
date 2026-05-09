@@ -1,6 +1,7 @@
 export const useTenantStore = defineStore('tenant', () => {
   const config = ref<TenantConfig | null>(null)
 
+  const schemaName = computed(() => config.value?.schemaName ?? '')
   const storeName = computed(() => config.value?.storeName ?? '')
   const primaryDomain = computed(() => config.value?.primaryDomain ?? '')
   const primaryColor = computed(() => config.value?.primaryColor ?? 'neutral')
@@ -9,6 +10,8 @@ export const useTenantStore = defineStore('tenant', () => {
   const logoLightUrl = computed(() => config.value?.logoLightUrl ?? '')
   const logoDarkUrl = computed(() => config.value?.logoDarkUrl ?? '')
   const faviconUrl = computed(() => config.value?.faviconUrl ?? '')
+  const defaultLocale = computed(() => config.value?.defaultLocale ?? '')
+  const defaultCurrency = computed(() => config.value?.defaultCurrency ?? 'EUR')
   const loyaltyEnabled = computed(() => config.value?.loyaltyEnabled ?? false)
   const blogEnabled = computed(() => config.value?.blogEnabled ?? true)
   const plan = computed(() => config.value?.plan ?? 'trial')
@@ -20,6 +23,7 @@ export const useTenantStore = defineStore('tenant', () => {
 
   return {
     config,
+    schemaName,
     storeName,
     primaryDomain,
     primaryColor,
@@ -28,6 +32,8 @@ export const useTenantStore = defineStore('tenant', () => {
     logoLightUrl,
     logoDarkUrl,
     faviconUrl,
+    defaultLocale,
+    defaultCurrency,
     loyaltyEnabled,
     blogEnabled,
     plan,
