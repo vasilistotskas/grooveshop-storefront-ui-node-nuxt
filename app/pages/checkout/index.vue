@@ -5,11 +5,15 @@ const { t } = useI18n()
 const route = useRoute()
 const toast = useToast()
 const config = useRuntimeConfig()
+const tenantStore = useTenantStore()
+// Prefer per-tenant BoxNow partner id; fall back to platform-wide env var.
 // Nuxt's runtimeConfig parser passes env values through destr(), which
 // auto-coerces numeric strings to numbers ('10391' → 10391). Force the
 // downstream prop type back to string so all the BoxNow components keep
 // their strict `partnerId: string` typing.
-const boxnowPartnerId = String(config.public.boxnowPartnerId ?? '')
+const boxnowPartnerId = computed(() =>
+  tenantStore.boxNowPartnerId || String(config.public.boxnowPartnerId ?? ''),
+)
 
 const cartStore = useCartStore()
 const { hasStockIssues, cart } = storeToRefs(cartStore)
