@@ -201,6 +201,9 @@ export default defineNuxtConfig({
         origin: process.env.NUXT_PUBLIC_STATIC_ORIGIN,
       },
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+      // Cloudflare Turnstile site key (public, browser-visible).
+      // Env var: NUXT_PUBLIC_TURNSTILE_SITE_KEY
+      turnstileSiteKey: process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY ?? '',
       boxnowPartnerId: process.env.NUXT_PUBLIC_BOXNOW_PARTNER_ID ?? '',
       boxnowWidgetType: (process.env.NUXT_PUBLIC_BOXNOW_WIDGET_TYPE ?? 'iframe') as 'iframe' | 'popup' | 'navigate' | 'navigateen',
       version,
