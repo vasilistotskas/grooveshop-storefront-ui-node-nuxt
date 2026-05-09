@@ -327,10 +327,9 @@ The `tenant` plugin runs with `enforce: 'pre'` and sets `useState('tenant')` fro
 
 Client-side composables can read `useTenantStore()` or `useTenant()` (`useState('tenant')`) interchangeably; the store exposes convenience computed refs (`schemaName`, `defaultCurrency`, `faviconUrl`, etc.).
 
-### Open gaps (require Django schema changes)
+### Per-tenant runtime config
 
-- **Per-tenant Stripe key**: `stripePublishableKey` not yet on `TenantConfig`. See `TODO(multi-tenant)` in `app/components/StripePayment.vue`.
-- **Per-tenant CSP sources**: `allowedCspSources` not yet on `TenantConfig`. See `TODO(multi-tenant)` in `server/middleware/3.csp.ts`.
+Both `stripePublishableKey` and `allowedCspSources` are part of `TenantConfig`. `StripePayment.vue` reads `useTenantStore().stripePublishableKey` with platform-key fallback; `server/middleware/3.csp.ts` extends `script-src`, `img-src`, `connect-src`, `frame-src` with the validated origins from `event.context.tenant?.allowedCspSources`.
 
 <!-- skilld -->
 Before modifying code, evaluate each installed skill against the current task.
