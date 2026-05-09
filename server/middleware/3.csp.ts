@@ -37,16 +37,22 @@ export default defineEventHandler((event) => {
   // In dev, the WebSocket connection uses ws:// (plain HTTP); in production it uses wss://
   const wsScheme = import.meta.dev ? 'ws' : 'wss'
 
-  // TODO(multi-tenant): Per-tenant CSP source expansion.
-  // When Django exposes an `allowedCspSources` field on TenantConfig, expand
-  // `connect-src`, `img-src`, `script-src`, and `frame-src` with those origins:
+  // Per-tenant CSP source expansion.
+  // Django exposes `allowedCspSources: string[]` on TenantConfig. Each entry is
+  // appended to the four most-commonly-needed directives: connect-src, img-src,
+  // script-src, and frame-src.
   //
-  //   const tenantSources = event.context.tenant?.allowedCspSources ?? []
-  //   const tenantOrigins = tenantSources.join(' ')
-  //
-  // This requires a Django-side schema change to add `allowedCspSources: string[]`
-  // to the TenantConfig serializer, plus regenerating `shared/openapi/` types.
-  // Until then the CSP is identical for all tenants on the same deployment.
+  // Defense-in-depth filter: only https:// origins (and wss:// websocket
+  // endpoints and http://localhost for dev) are accepted — any other scheme
+  // (data:, blob:, http:// in production) is dropped silently so a misconfigured
+  // tenant record cannot weaken the policy.
+  const rawTenantSources: string[] = event.context.tenant?.allowedCspSources ?? []
+  const tenantSources = rawTenantSources.filter(
+    src => src.startsWith('https://')
+      || src.startsWith('wss://')
+      || src.startsWith('http://localhost'),
+  )
+  const tenantExtra = tenantSources.length > 0 ? ` ${tenantSources.join(' ')}` : ''
 
   // TODO(csp-nonce): Replace 'unsafe-inline' with a per-request nonce.
   // Doing so requires:
@@ -85,18 +91,18 @@ export default defineEventHandler((event) => {
 
   const directives = [
     `default-src 'self'`,
-    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com${metaScriptSrc}`,
+    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com${metaScriptSrc}${tenantExtra}`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `img-src 'self' data: blob: ${trustedOrigins} https://www.googletagmanager.com ${tileOrigins}${metaImgSrc}`,
+    `img-src 'self' data: blob: ${trustedOrigins} https://www.googletagmanager.com ${tileOrigins}${metaImgSrc}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src 'self' ${trustedOrigins} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}${metaConnectSrc}`,
+    `connect-src 'self' ${trustedOrigins} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}${metaConnectSrc}${tenantExtra}`,
     // BoxNow widget iframe origins per their CDN: gr (primary), plus
     // cy/bg/hr regional variants (Phase 2 multi-country) and the v1-v4
     // back-compat versions surfaced by the loader script we audited.
     // ``data:`` is added in dev so Nuxt's nitro error overlay (which
     // base64-encodes a stack-trace iframe) can render — production
     // never ships that overlay so the scheme stays out of prod CSP.
-    `frame-src 'self'${import.meta.dev ? ' data:' : ''} https://js.stripe.com https://challenges.cloudflare.com https://accounts.google.com https://widget-v5.boxnow.gr https://widget-v5.boxnow.cy https://widget-v5.boxnow.bg https://widget-v5.boxnow.hr https://widget.boxnow.gr`,
+    `frame-src 'self'${import.meta.dev ? ' data:' : ''} https://js.stripe.com https://challenges.cloudflare.com https://accounts.google.com https://widget-v5.boxnow.gr https://widget-v5.boxnow.cy https://widget-v5.boxnow.bg https://widget-v5.boxnow.hr https://widget.boxnow.gr${tenantExtra}`,
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,

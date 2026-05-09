@@ -15,6 +15,7 @@ export const useTenantStore = defineStore('tenant', () => {
   const loyaltyEnabled = computed(() => config.value?.loyaltyEnabled ?? false)
   const blogEnabled = computed(() => config.value?.blogEnabled ?? true)
   const themePreset = computed(() => config.value?.themePreset ?? 'default')
+  const stripePublishableKey = computed(() => config.value?.stripePublishableKey ?? '')
 
   function setConfig(tenantConfig: TenantConfig | null) {
     config.value = tenantConfig
@@ -36,6 +37,7 @@ export const useTenantStore = defineStore('tenant', () => {
     loyaltyEnabled,
     blogEnabled,
     themePreset,
+    stripePublishableKey,
     setConfig,
   }
 })

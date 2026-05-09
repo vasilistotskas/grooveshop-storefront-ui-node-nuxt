@@ -27,6 +27,16 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const runtimeConfig = useRuntimeConfig()
+const tenantStore = useTenantStore()
+
+/**
+ * Resolved Stripe publishable key: tenant-specific key takes precedence;
+ * the platform build-time key is the fallback for tenants that have not
+ * configured their own.
+ */
+const resolvedStripeKey = computed(() =>
+  tenantStore.stripePublishableKey || (runtimeConfig.public.stripePublishableKey as string),
+)
 
 const stripe = ref<Stripe | null>(null)
 const elements = ref<StripeElements | null>(null)
@@ -64,14 +74,7 @@ const initializeStripe = async () => {
     await new Promise<void>((resolve) => {
       onLoaded(async ({ Stripe }) => {
         try {
-          // TODO(multi-tenant): Use per-tenant Stripe publishable key.
-          // Currently all tenants share NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY (build-time).
-          // Once Django exposes `stripePublishableKey` on TenantConfig, read it from
-          // the tenant store instead:
-          //   const tenantStore = useTenantStore()
-          //   const stripeKey = tenantStore.config?.stripePublishableKey ?? runtimeConfig.public.stripePublishableKey
-          // This requires a Django-side schema change + `pnpm openapi-ts` regen.
-          stripe.value = Stripe(runtimeConfig.public.stripePublishableKey)
+          stripe.value = Stripe(resolvedStripeKey.value)
 
           if (!stripe.value) {
             throw new Error('Failed to initialize Stripe')
