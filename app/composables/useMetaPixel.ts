@@ -87,7 +87,9 @@ function toMetaPayload(data: MetaCommonData | undefined): FbqCustomEventData {
 
 export function useMetaPixel() {
   const config = useRuntimeConfig()
-  const pixelId = (config.public as { metaPixelId?: string })?.metaPixelId
+  const tenantStore = useTenantStore()
+  // Prefer per-tenant pixel id; fall back to platform-wide env var.
+  const pixelId = tenantStore.metaPixelId || (config.public as { metaPixelId?: string })?.metaPixelId
 
   const isProvisioned = !!pixelId
 

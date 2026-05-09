@@ -80,7 +80,10 @@ export default defineEventHandler((event) => {
   // assets. Listed only when a Pixel ID is provisioned so visitors
   // of un-instrumented preview deploys don't send a needlessly
   // permissive header.
-  const metaPixelId = (config.public as { metaPixelId?: string })?.metaPixelId
+  // Prefer per-tenant pixel id; fall back to platform-wide env var.
+  const metaPixelId
+    = event.context.tenant?.metaPixelId
+      || (config.public as { metaPixelId?: string })?.metaPixelId
   const metaScriptSrc = metaPixelId ? ' https://connect.facebook.net' : ''
   const metaImgSrc = metaPixelId
     ? ' https://www.facebook.com https://*.facebook.com'

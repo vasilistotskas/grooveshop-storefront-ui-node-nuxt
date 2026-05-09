@@ -100,7 +100,9 @@ export function setupCursorState() {
 
 export function setupGoogleAnalyticsConsent() {
   const config = useRuntimeConfig()
-  const id = config.public.scripts.googleAnalytics.id
+  const tenantStore = useTenantStore()
+  // Prefer per-tenant GA tracking id; fall back to platform-wide env var.
+  const id = tenantStore.gaTrackingId || config.public.scripts.googleAnalytics.id
   // Skip the script entirely when the id is missing or still the
   // placeholder. Otherwise @nuxt/scripts preloads ``gtag.js`` for
   // every visitor and the resource sits unused (browser warns
@@ -183,7 +185,9 @@ export function setupGoogleAnalyticsConsent() {
  */
 export function setupMetaPixelConsent() {
   const config = useRuntimeConfig()
-  const pixelId = (config.public as { metaPixelId?: string })?.metaPixelId
+  const tenantStore = useTenantStore()
+  // Prefer per-tenant pixel id; fall back to platform-wide env var.
+  const pixelId = tenantStore.metaPixelId || (config.public as { metaPixelId?: string })?.metaPixelId
   if (!pixelId) return
 
   const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
