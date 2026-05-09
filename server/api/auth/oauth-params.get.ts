@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  const session = await getUserSession(event)
+  const session = await requireUserSession(event)
   const oauthParams = session.secure?.oauthParams
 
   if (!oauthParams) {

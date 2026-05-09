@@ -2,7 +2,7 @@
 const { getRecoveryCodes } = useAllAuthAccount()
 const toast = useToast()
 const localePath = useLocalePath()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { copy } = useClipboard()
 
 const { data, refresh, error } = await useAsyncData(
@@ -35,12 +35,12 @@ const statusColor = computed(() => {
 
 const createdDate = computed(() => {
   if (!created_at.value) return ''
-  return new Date(created_at.value * 1000).toLocaleDateString()
+  return new Date(created_at.value * 1000).toLocaleDateString(locale.value)
 })
 
 const lastUsedDate = computed(() => {
   if (!last_used_at.value) return null
-  return new Date(last_used_at.value * 1000).toLocaleString()
+  return new Date(last_used_at.value * 1000).toLocaleString(locale.value)
 })
 
 async function copyAllCodes() {

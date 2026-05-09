@@ -47,7 +47,7 @@ if (error.value || !category.value) {
 const {
   data: posts,
   status: postStatus,
-} = await useLazyFetch(
+} = useLazyFetch(
   `/api/blog/categories/${categoryId}/posts`,
   {
     key: `blogCategoryPosts${categoryId}`,
@@ -114,6 +114,9 @@ const items = computed(() => [
   },
 ])
 
+const siteConfig = useSiteConfig()
+const siteUrl = siteConfig.url
+
 useSeoMeta({
   title: () => categoryTitle.value,
   description: () => categoryDescription.value,
@@ -124,6 +127,21 @@ useSeoMeta({
 
 useHead({
   title: categoryTitle,
+  // Hreflang alternate links. Currently only 'el' is active.
+  // When more locales activate, iterate SUPPORTED_LOCALES and emit one
+  // <link rel="alternate"> per locale using the localised path.
+  link: [
+    {
+      rel: 'alternate',
+      hreflang: 'el',
+      href: () => `${siteUrl}${route.fullPath}`,
+    },
+    {
+      rel: 'alternate',
+      hreflang: 'x-default',
+      href: () => `${siteUrl}${route.fullPath}`,
+    },
+  ],
 })
 
 definePageMeta({

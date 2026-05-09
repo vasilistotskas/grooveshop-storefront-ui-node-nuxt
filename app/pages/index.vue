@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 const config = useRuntimeConfig()
+const siteConfig = useSiteConfig()
 const { isMobileOrTablet } = useDevice()
 const { t } = useI18n()
 const tenantStore = useTenantStore()
+const route = useRoute()
 
 const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 
@@ -10,8 +12,31 @@ const items = computed(() => [
   isMobileOrTablet.value ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
 ])
 
+// Mobile shows 6 articles up front (2 columns of 3 cards on tablet,
+// single column on phone) and a Load more button. Desktop ships 9 (a
+// clean 3x3 grid at xl) so the rail looks balanced before the user has
+// to ask for more.
+const blogPageSize = computed(() => isMobileOrTablet.value ? 6 : 9)
+
 const bannerWidth = computed(() => isMobileOrTablet.value ? 510 : 1194)
 const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
+
+// Admin-toggleable rail — extra-setting RECENTLY_VIEWED_ENABLED.
+// Fetched during SSR with a stale-falls-open fallback so a flaky
+// settings call never silently kills a user-facing rail. Default is
+// ``true`` on the Django side, so legacy behaviour is preserved.
+const headers = useRequestHeaders(['cookie'])
+const { data: recentlyViewedSetting } = await useAsyncData(
+  'home:recently-viewed-enabled',
+  () => $fetch<{ value?: string }>('/api/settings/get', {
+    query: { key: 'RECENTLY_VIEWED_ENABLED' },
+    headers,
+  }).catch(() => ({ value: 'True' })),
+)
+const recentlyViewedEnabled = computed(() => {
+  const raw = (recentlyViewedSetting.value?.value ?? 'true').toString().toLowerCase()
+  return raw === 'true' || raw === '1' || raw === 'yes'
+})
 
 definePageMeta({
   layout: 'default',
@@ -23,6 +48,12 @@ useHead({
 
 useSeoMeta({
   titleTemplate: '%s',
+  title: () => appTitle.value,
+  description: () => siteConfig.description,
+  ogTitle: () => appTitle.value,
+  ogDescription: () => siteConfig.description,
+  ogUrl: `${config.public.baseUrl}${route.path}`,
+  ogType: 'website',
 })
 </script>
 
@@ -54,7 +85,7 @@ useSeoMeta({
           :aria-label="t('carousel.banner')"
           class="
             mx-auto max-w-main
-            md:!p-0
+            md:p-0!
           "
           indicators
         >
@@ -86,8 +117,13 @@ useSeoMeta({
              ``hydrate-on-visible`` has no DOM node to observe, and
              hydration never fires. Plain render ships the component's
              setup on every client load so ``useRecentlyViewed`` can
-             read localStorage and populate the carousel. -->
+             read localStorage and populate the carousel.
+
+             Outer v-if gates on the admin-controlled
+             RECENTLY_VIEWED_ENABLED extra-setting; toggling it off in
+             the Django admin removes the rail without a deploy. -->
         <ProductRecentlyViewed
+          v-if="recentlyViewedEnabled"
           class="
             mx-auto w-full max-w-main
             md:p-0!
@@ -95,13 +131,14 @@ useSeoMeta({
         />
 
         <LazyBlogPostsList
-          :page-size="6"
+          :page-size="blogPageSize"
           :show-ordering="false"
           class="
             mx-auto max-w-main
             md:p-0!
           "
           pagination-type="cursor"
+          pagination-strategy="button"
           hydrate-on-visible
         />
       </div>

@@ -18,7 +18,7 @@ declare module '#app' {
   }
 
   interface RuntimeNuxtHooks {
-    'auth:change': ({ detail }: { detail: AllAuthResponse | AllAuthResponseError }) => HookResult
+    'auth:change': (payload: { detail: AllAuthResponse | AllAuthResponseError, explicit?: boolean }) => HookResult
   }
 }
 

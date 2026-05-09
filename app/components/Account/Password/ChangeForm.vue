@@ -11,6 +11,8 @@ const toast = useToast()
 const localePath = useLocalePath()
 const { t } = useI18n()
 
+const isSubmitting = ref(false)
+
 const state = reactive({
   current_password: '',
   new_password: '',
@@ -89,6 +91,8 @@ const schema = computed(() => {
 })
 
 async function onSubmit() {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
   const body = {
     current_password: state.current_password || '',
     new_password: state.new_password,
@@ -106,6 +110,9 @@ async function onSubmit() {
   }
   catch (error) {
     handleAllAuthClientError(error)
+  }
+  finally {
+    isSubmitting.value = false
   }
 }
 </script>
@@ -267,6 +274,8 @@ async function onSubmit() {
               variant="soft"
               size="lg"
               icon="i-heroicons-check"
+              :loading="isSubmitting"
+              :disabled="isSubmitting"
               :label="hasCurrentPassword ? t('change.submit') : t('set.submit')"
             />
           </div>

@@ -70,6 +70,9 @@ onMounted(() => {
           "
           :class="{ 'justify-between': isMobileOrTablet }"
         >
+          <MobileOrTabletOnly>
+            <PageBurgerMenu />
+          </MobileOrTabletOnly>
           <slot name="title">
             <Component
               :is="titleElement"

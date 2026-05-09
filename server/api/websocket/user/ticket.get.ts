@@ -13,21 +13,25 @@ export default defineEventHandler(async (event) => {
   const accessToken = await requireAllAuthAccessToken(event)
 
   try {
-    const response = await $fetch<{ ticket: string, expires_in: number }>(
+    // Django returns ``{ticket, expires_in}`` but the
+    // ``djangorestframework-camel-case`` middleware on the response
+    // path rewrites the body to camelCase before it leaves the
+    // backend, so by the time it reaches us the field is already
+    // ``expiresIn``. Typing $fetch as snake_case + remapping
+    // ``response.expires_in`` (which is ``undefined`` at runtime since
+    // the property is camelCase) was failing the Zod parse with
+    // "expected number, received undefined". Type as camelCase and
+    // hand the response straight to ``parseDataAs``.
+    const response = await $fetch<{ ticket: string, expiresIn: number }>(
       `${config.apiBaseUrl}/websocket/ticket`,
       {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: createHeaders(null, accessToken),
       },
     )
-    return {
-      ticket: response.ticket,
-      expiresIn: response.expires_in,
-    }
+    return await parseDataAs(response, zCreateWebSocketTicketResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

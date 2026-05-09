@@ -7,6 +7,7 @@
   "loyalty": "Πρόγραμμα Επιβράβευσης",
   "error": {
     "default": "Σφάλμα",
+    "rate_limited": "Πολλές αιτήσεις. Παρακαλώ δοκιμάστε ξανά σε λίγο.",
     "page": {
       "not": {
         "found": "Η σελίδα δεν βρέθηκε"
@@ -283,6 +284,64 @@
     "APPLE_PAY": "Apple Pay",
     "GOOGLE_PAY": "Google Pay",
     "fee": "Προμήθεια {method}"
+  },
+  "tracking": {
+    "boxnow": {
+      "title": "Παρακολούθηση BOX NOW",
+      "voucher": "Αριθμός voucher",
+      "locker": "Locker παραλαβής",
+      "last_update": "Τελευταία ενημέρωση",
+      "open_tracking": "Άνοιγμα στο BOX NOW",
+      "label_download": "Κατεβάστε ετικέτα",
+      "no_events": "Δεν υπάρχουν ακόμη γεγονότα παρακολούθησης",
+      "state": {
+        "pending_creation": "Σε αναμονή δημιουργίας",
+        "new": "Καταχωρήθηκε",
+        "in_depot": "Σε αποθήκη BOX NOW",
+        "final_destination": "Στο locker, έτοιμο για παραλαβή",
+        "delivered": "Παραδόθηκε",
+        "returned": "Επιστράφηκε",
+        "expired": "Έληξε",
+        "canceled": "Ακυρώθηκε",
+        "accepted_for_return": "Παρελήφθη για επιστροφή",
+        "accepted_to_locker": "Σε μεταφορά",
+        "missing": "Δεν βρέθηκε",
+        "lost": "Χάθηκε"
+      },
+      "notification": {
+        "at_locker_title": "Το πακέτο σας έφτασε!",
+        "at_locker_body": "Το πακέτο σας περιμένει στο locker {address}. Voucher: {voucher}",
+        "delivered_title": "Το πακέτο παραλήφθηκε",
+        "delivered_body": "Παραλάβατε το πακέτο σας από το BOX NOW locker"
+      }
+    },
+    "acs": {
+      "title": "Παρακολούθηση ACS",
+      "voucher": "Αριθμός voucher",
+      "station": "Σημείο παραλαβής",
+      "last_update": "Τελευταία ενημέρωση",
+      "open_tracking": "Άνοιγμα στο ACS",
+      "label_download": "Κατεβάστε ετικέτα",
+      "no_events": "Δεν υπάρχουν ακόμη γεγονότα παρακολούθησης",
+      "state": {
+        "pending_creation": "Σε αναμονή δημιουργίας voucher",
+        "new": "Καταχωρήθηκε",
+        "in_transit": "Σε μεταφορά",
+        "at_destination": "Στο κατάστημα προορισμού",
+        "out_for_delivery": "Σε δρομολόγιο παράδοσης",
+        "delivered": "Παραδόθηκε",
+        "attempted": "Αποτυχία παράδοσης",
+        "returned": "Επιστράφηκε",
+        "canceled": "Ακυρώθηκε",
+        "lost": "Δεν βρέθηκε"
+      },
+      "notification": {
+        "out_for_delivery_title": "Το πακέτο σας είναι καθ' οδόν",
+        "out_for_delivery_body": "Voucher: {voucher}. Ο μεταφορέας θα επικοινωνήσει σύντομα.",
+        "delivered_title": "Το πακέτο παραλήφθηκε",
+        "delivered_body": "Παραλάβατε το πακέτο σας από την ACS"
+      }
+    }
   },
   "footer": {
     "about_us": "Σχετικά με εμάς",

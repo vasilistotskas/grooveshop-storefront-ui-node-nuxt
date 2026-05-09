@@ -3,7 +3,7 @@ const formState = defineModel<Record<string, any>>('formState', { required: true
 
 defineProps<{
   schema: any
-  payWayOptions: Array<{ label: string, value: number, mainImagePath?: string }>
+  payWayOptions: Array<{ label: string, value: number, mainImagePath?: string, isOnlinePayment?: boolean }>
   isSubmitting: boolean
 }>()
 

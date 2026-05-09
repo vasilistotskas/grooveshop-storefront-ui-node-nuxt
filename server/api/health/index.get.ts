@@ -15,7 +15,7 @@ export default defineCachedEventHandler(async () => {
     return await parseDataAs(response, zHealthCheckResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'NuxtHealthCheck',

@@ -8,13 +8,11 @@ export default defineEventHandler(async (event) => {
     )
     await $fetch(`${config.apiBaseUrl}/order/${params.id}`, {
       method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: createHeaders(null, accessToken),
     })
     return { success: true }
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

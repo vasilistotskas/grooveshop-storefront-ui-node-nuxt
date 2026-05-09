@@ -21,6 +21,6 @@ export default defineEventHandler(async (event) => {
     return parsedData
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

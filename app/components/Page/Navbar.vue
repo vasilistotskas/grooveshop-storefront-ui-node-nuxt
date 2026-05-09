@@ -31,7 +31,7 @@ const onClickLogout = async () => {
   await cleanCartState()
 
   try {
-    await deleteSession()
+    await deleteSession({ explicit: true })
     await refreshCart()
   }
   catch (error) {

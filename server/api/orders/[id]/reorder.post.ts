@@ -17,14 +17,12 @@ export default defineEventHandler(async (event) => {
       `${config.apiBaseUrl}/order/${params.id}/reorder`,
       {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: createHeaders(null, accessToken),
       },
     )
     return await parseDataAs(response, zReorderOrderResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

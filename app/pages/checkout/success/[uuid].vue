@@ -7,6 +7,10 @@ const { t, locale } = useI18n()
 const route = useRoute(`checkout-success-uuid___${locale.value}`)
 const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
 
+if (!orderUUID || typeof orderUUID !== 'string') {
+  throw createError({ statusCode: 404, statusMessage: 'Missing order UUID' })
+}
+
 const sessionId = computed(() => route.query.session_id as string | undefined)
 const vivaOrderCode = computed(() => route.query.s as string | undefined)
 const fromViva = computed(() => !!vivaOrderCode.value)
@@ -82,6 +86,106 @@ const openTracking = () => {
 
 onBeforeUnmount(() => {
   isActive.value = false
+})
+
+// Meta Pixel — Purchase event. The success page is the canonical
+// browser-side firing point for Purchase. We reuse the event_id the
+// Django side stored on ``order.metaEventIds.purchase`` at order
+// creation so Meta dedups this against the server-side Conversions
+// API event for the same order. ``onMounted`` ensures we never fire
+// during prerender / SSR. The watcher is keyed on ``orderNumber``
+// to handle the live re-fetch flow (Stripe webhook flips status
+// after a 2s poll); pixel must NOT fire twice for the same order, so
+// a guard ref tracks whether we already sent it.
+// Capture once at setup so the watcher / onMounted callback don't
+// re-invoke ``useScript*`` from outside setup context.
+const metaPixel = useMetaPixel()
+const ga4 = useGA4()
+const purchaseEventFired = ref(false)
+function tryFirePurchaseEvent() {
+  if (!order.value || purchaseEventFired.value) return
+  // Purchase is only meaningful when the customer landed here via a
+  // real checkout flow (not a deep-link to /checkout/success/<uuid>
+  // from history). Gate on ``fromCheckout`` so direct revisits don't
+  // re-fire the event.
+  if (!fromCheckout.value) return
+  // Only fire after the Django side has minted an event_id (i.e.
+  // ``meta_event_ids.purchase`` exists). Without it the dedup pair
+  // is broken — better to skip the browser leg than double-count.
+  const eventId = order.value.metaEventIds?.purchase
+  if (!eventId) return
+
+  try {
+    // ``order.currency`` is a SerializerMethodField that walks the
+    // order's djmoney fields (paid_amount → total_price_items →
+    // shipping_price) and returns an ISO 4217 code. Defaulting to
+    // 'EUR' here is just paranoia — the field is always populated
+    // server-side per the project's monetary defaults.
+    const currency = order.value.currency ?? 'EUR'
+    const value = Number(paidAmount.value ?? 0)
+    const transactionId = String(order.value.id)
+
+    metaPixel.trackPurchase(
+      {
+        currency,
+        value,
+        orderId: transactionId,
+        contentType: 'product',
+        contentIds: orderItems.value
+          .map(item => item.product?.id)
+          .filter(
+            (id): id is number => typeof id === 'number',
+          )
+          .map(id => String(id)),
+        contents: orderItems.value.map(item => ({
+          id: String(item.product?.id ?? ''),
+          quantity: Number(item.quantity ?? 0),
+          itemPrice: Number(item.price ?? 0),
+        })),
+        numItems: orderItems.value.reduce(
+          (acc, item) => acc + Number(item.quantity ?? 0),
+          0,
+        ),
+      },
+      { eventID: eventId },
+    )
+
+    // GA4: purchase. ``transaction_id`` is the dedup key for GA4's
+    // own server-side dedup; using the order ID here means a Stripe
+    // webhook re-poll re-rendering the success page won't double-
+    // count even if our local ``purchaseEventFired`` guard somehow
+    // misses (e.g. a hard reload).
+    ga4.trackPurchase({
+      transaction_id: transactionId,
+      currency,
+      value,
+      shipping: Number(shippingPrice.value ?? 0),
+      items: orderItems.value.map(item => ({
+        item_id: String(item.product?.id ?? ''),
+        quantity: Number(item.quantity ?? 0),
+        price: Number(item.price ?? 0),
+      })),
+    })
+    purchaseEventFired.value = true
+  }
+  catch (pixelErr) {
+    log.warn(
+      'success:pixelPurchase',
+      String((pixelErr as Error)?.message ?? pixelErr),
+    )
+  }
+}
+
+watch(
+  () => [orderNumber.value, isPaid.value],
+  () => {
+    if (import.meta.server) return
+    tryFirePurchaseEvent()
+  },
+)
+
+onMounted(() => {
+  tryFirePurchaseEvent()
 })
 
 // Poll order status when coming from a payment provider.
@@ -172,7 +276,7 @@ const orderItemColumns: TableColumn<OrderItemDetail>[] = [
       const item = row.original
       return h(UAvatar, {
         src: getImage(item.product?.mainImagePath),
-        alt: `${extractTranslated(item.product, 'name', locale.value)} image`,
+        alt: `${extractTranslated(item.product, 'name', locale.value)} ${t('image')}`,
         size: '3xl',
         class: 'rounded-md',
       })

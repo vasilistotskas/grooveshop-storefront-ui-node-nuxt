@@ -24,6 +24,7 @@ interface RedisDriverOptions {
   host: string
   port: number
   ttl: number
+  db?: number
   password?: string
 }
 
@@ -31,12 +32,13 @@ interface RedisDriverOptions {
  * Creates a Redis driver with ioredis configuration optimized for graceful error handling.
  * The unstorage redis driver uses ioredis internally.
  */
-function createRedisDriver({ host, port, ttl, password }: RedisDriverOptions): Driver {
+function createRedisDriver({ host, port, ttl, db, password }: RedisDriverOptions): Driver {
   return redisDriver({
     base: CACHE_MOUNT_POINT,
     host,
     port,
     ttl,
+    ...(db !== undefined && { db }),
     ...(password && { password }),
     // ioredis options for graceful error handling
     lazyConnect: true,
@@ -59,7 +61,7 @@ function createRedisDriver({ host, port, ttl, password }: RedisDriverOptions): D
  * Tests Redis connectivity using node-redis client.
  * Returns true if connection successful, false otherwise.
  */
-async function testRedisConnection(host: string, port: number, password?: string): Promise<boolean> {
+async function testRedisConnection(host: string, port: number, db?: number, password?: string): Promise<boolean> {
   const client = createClient({
     socket: {
       host,
@@ -70,6 +72,7 @@ async function testRedisConnection(host: string, port: number, password?: string
         return Math.min(retries * 100, 3000)
       },
     },
+    ...(db !== undefined && { database: db }),
     ...(password && { password }),
   })
 
@@ -95,10 +98,11 @@ export default defineNitroPlugin(async (nitroApp) => {
   const storage = useStorage()
   const config = useRuntimeConfig()
 
-  const { host, port, ttl, password } = config.redis
+  const { host, port, ttl, db, password } = config.redis
   const redisHost = host as string
   const redisPort = Number(port)
   const redisTTL = Number(ttl)
+  const redisDB = Number(db ?? 3)
   const redisPassword = password as string | undefined
   const useRedis = config.cacheBase === 'redis'
 
@@ -118,14 +122,14 @@ export default defineNitroPlugin(async (nitroApp) => {
     await storage.unmount(CACHE_MOUNT_POINT).catch(() => {})
   })
 
-  log.info('cache', `Testing Redis connection at ${redisHost}:${redisPort}...`)
+  log.info('cache', `Testing Redis connection at ${redisHost}:${redisPort} (db: ${redisDB})...`)
 
-  const isConnected = await testRedisConnection(redisHost, redisPort, redisPassword)
+  const isConnected = await testRedisConnection(redisHost, redisPort, redisDB, redisPassword)
 
   if (isConnected) {
-    const driver = createRedisDriver({ host: redisHost, port: redisPort, ttl: redisTTL, password: redisPassword })
+    const driver = createRedisDriver({ host: redisHost, port: redisPort, ttl: redisTTL, db: redisDB, password: redisPassword })
     storage.mount(CACHE_MOUNT_POINT, driver)
-    log.info('cache', `Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort}, TTL: ${redisTTL}s)`)
+    log.info('cache', `Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort} db=${redisDB}, TTL: ${redisTTL}s)`)
   }
   else {
     storage.mount(CACHE_MOUNT_POINT, memoryDriver())

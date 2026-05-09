@@ -5,11 +5,12 @@ export default defineCachedEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/product`, {
       method: 'GET',
       query,
+      headers: createHeaders(null, null),
     })
     return await parseDataAs(response, zListProductResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'ProductViewSet',
@@ -18,14 +19,13 @@ export default defineCachedEventHandler(async (event) => {
   swr: true,
   getKey: (event) => {
     const query = getQuery(event)
-    const keyParts = [
-      query.pageSize || '12',
-      query.page || '1',
-      query.ordering || '-createdAt',
-      query.categoryId || 'all',
-      query.search || '',
-      query.languageCode || getHeader(event, 'accept-language')?.split(',')[0] || 'el',
-    ]
-    return tenantCacheKey(event, `products:${keyParts.join(':')}`)
+    // Build a stable, canonicalized key from every param that affects the response.
+    // Sort keys so that param order in the URL doesn't produce different cache entries.
+    const filtered = Object.entries(query)
+      .filter(([, v]) => v !== undefined && v !== null && v !== '')
+      .map(([k, v]) => `${k}=${Array.isArray(v) ? v.slice().sort().join(',') : v}`)
+      .sort()
+      .join('&')
+    return tenantCacheKey(event, `products:${filtered || 'default'}`)
   },
 })

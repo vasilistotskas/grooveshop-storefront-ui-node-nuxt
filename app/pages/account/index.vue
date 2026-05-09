@@ -11,10 +11,6 @@ defineRouteRules({
   robots: false,
 })
 
-definePageMeta({
-  layout: 'user',
-})
-
 const quickStats = computed(() => [
   {
     label: t('account.email'),
@@ -40,6 +36,20 @@ const quickStats = computed(() => [
     iconClass: 'text-success-600 dark:text-success-400',
   },
 ])
+
+const menuDescriptions: Record<string, string> = {
+  'account': t('account.menu_description.account'),
+  'account-orders': t('account.menu_description.account-orders'),
+  'account-favourites-posts': t('account.menu_description.account-favourites-posts'),
+  'account-favourites-products': t('account.menu_description.account-favourites-products'),
+  'account-notifications': t('account.menu_description.account-notifications'),
+  'account-subscriptions': t('account.menu_description.account-subscriptions'),
+  'account-addresses': t('account.menu_description.account-addresses'),
+  'account-loyalty': t('account.menu_description.account-loyalty'),
+  'account-settings': t('account.menu_description.account-settings'),
+  'account-reviews': t('account.menu_description.account-reviews'),
+  'account-help': t('account.menu_description.account-help'),
+}
 
 const activityStats = computed(() => {
   const stats = []
@@ -71,7 +81,7 @@ const activityStats = computed(() => {
   <PageWrapper
     class="
       flex flex-col gap-4
-      md:mt-1 md:gap-8 md:!p-0
+      md:mt-1 md:gap-8 md:p-0!
     "
   >
     <PageTitle
@@ -87,7 +97,7 @@ const activityStats = computed(() => {
           }"
           variant="subtle"
           class="
-            overflow-hidden bg-gradient-to-br from-primary-50 to-secondary-50
+            overflow-hidden bg-linear-to-br from-primary-50 to-secondary-50
             dark:from-primary-950/30 dark:to-secondary-950/30
           "
         >
@@ -172,7 +182,7 @@ const activityStats = computed(() => {
               <div class="flex w-full flex-col items-center">
                 <p
                   class="
-                    text-xs font-medium tracking-wide text-neutral-500 uppercase
+                    text-xs font-medium tracking-wide text-neutral-700 uppercase
                     dark:text-neutral-300
                   "
                 >
@@ -289,7 +299,7 @@ const activityStats = computed(() => {
                 <div
                   class="
                     flex items-center justify-center rounded-xl
-                    bg-gradient-to-br from-primary-100 to-primary-200 p-3
+                    bg-linear-to-br from-primary-100 to-primary-200 p-3
                     transition-transform duration-200
                     group-hover:scale-105
                     dark:from-primary-900 dark:to-primary-800
@@ -319,7 +329,7 @@ const activityStats = computed(() => {
                       dark:text-neutral-300
                     "
                   >
-                    {{ t(`account.menu_description.${item.to.replace(/^\//, '').replaceAll('/', '-')}`) }}
+                    {{ menuDescriptions[item.to.replace(/^\//, '').replaceAll('/', '-')] ?? '' }}
                   </p>
                 </div>
                 <UIcon
@@ -365,7 +375,7 @@ const activityStats = computed(() => {
                 </div>
                 <div class="flex-1">
                   <LogoutButton
-                    class="!m-0 !p-0"
+                    class="m-0! p-0!"
                     variant="link"
                     size="lg"
                   />
@@ -385,7 +395,7 @@ const activityStats = computed(() => {
           }"
           variant="subtle"
           class="
-            bg-gradient-to-br from-primary-50 to-secondary-50
+            bg-linear-to-br from-primary-50 to-secondary-50
             dark:from-primary-950/30 dark:to-secondary-950/30
           "
         >
@@ -447,7 +457,7 @@ const activityStats = computed(() => {
               <div>
                 <p
                   class="
-                    text-[11px] font-medium tracking-wide text-neutral-500
+                    text-[11px] font-medium tracking-wide text-neutral-700
                     uppercase
                     dark:text-neutral-300
                   "
@@ -572,7 +582,7 @@ const activityStats = computed(() => {
                 <div
                   class="
                     flex items-center justify-center rounded-xl
-                    bg-gradient-to-br from-primary-100 to-primary-200 p-2.5
+                    bg-linear-to-br from-primary-100 to-primary-200 p-2.5
                     dark:from-primary-900 dark:to-primary-800
                   "
                 >
@@ -627,7 +637,7 @@ const activityStats = computed(() => {
                   />
                 </div>
                 <LogoutButton
-                  class="!m-0 !p-0"
+                  class="m-0! p-0!"
                   variant="link"
                   size="xl"
                 />
@@ -658,14 +668,17 @@ el:
     location_description: Η πόλη και χώρα σου
     menu_description:
       account: Δες την επισκόπηση του λογαριασμού σου
+      account-orders: Δες τις παραγγελίες σου
       account-favourites-posts: Δες τις αγαπημένες σου αναρτήσεις
+      account-favourites-products: Δες τα αγαπημένα σου προϊόντα
+      account-notifications: Δες τις ειδοποιήσεις σου
       account-subscriptions: Διαχειρίσου τις εγγραφές σου
+      account-addresses: Διαχειρίσου τις διευθύνσεις σου
       account-loyalty: Δες τους πόντους και το ιστορικό σου
       account-settings: Ρύθμισε τις προτιμήσεις σου
-      account-addresses: Διαχειρίσου τις διευθύνσεις σου
-      account-orders: Δες τις παραγγελίες σου
       account-reviews: Διαχειρίσου τις κριτικές σου
       account-help: Λάβε βοήθεια και υποστήριξη
+  menu: Μενού λογαριασμού
   yes: Ναι
   no: Όχι
 </i18n>

@@ -251,21 +251,13 @@ const scrollToComments = () => {
 }
 
 watch(
-  () => cursorState.value,
-  async (newVal, oldVal) => {
-    if (
-      newVal[PaginationCursorStateEnum.BLOG_POST_COMMENTS]
-      === oldVal[PaginationCursorStateEnum.BLOG_POST_COMMENTS]
-    ) {
-      return
-    }
-
+  () => cursorState.value[PaginationCursorStateEnum.BLOG_POST_COMMENTS],
+  async () => {
     await refresh()
     if (loggedIn.value && commentIds.value && commentIds.value.length > 0) {
       await refreshLikedComments(commentIds.value)
     }
   },
-  { deep: true },
 )
 
 watch(
@@ -284,7 +276,7 @@ watch(
 )
 
 watch(
-  () => route.query,
+  () => route.query.comment_page,
   async () => {
     await refresh()
   },

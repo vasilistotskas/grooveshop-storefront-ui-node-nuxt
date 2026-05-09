@@ -123,6 +123,8 @@ describe('Server Utils - OAuth', () => {
       const mockEvent = {} as any
       const mockReplaceUserSession = vi.fn().mockResolvedValue(undefined)
       const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
+      // getUserSession is called first to read the current session before merging
+      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({}))
       vi.stubGlobal('replaceUserSession', mockReplaceUserSession)
       vi.stubGlobal('sendRedirect', mockSendRedirect)
 
@@ -149,6 +151,7 @@ describe('Server Utils - OAuth', () => {
 
     it('should redirect to /account/provider/callback with provider and process', async () => {
       const mockEvent = {} as any
+      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({}))
       vi.stubGlobal('replaceUserSession', vi.fn().mockResolvedValue(undefined))
       const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
       vi.stubGlobal('sendRedirect', mockSendRedirect)
@@ -178,6 +181,7 @@ describe('Server Utils - OAuth', () => {
     it('should handle null/undefined optional tokens gracefully', async () => {
       const mockEvent = {} as any
       const mockReplaceUserSession = vi.fn().mockResolvedValue(undefined)
+      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({}))
       vi.stubGlobal('replaceUserSession', mockReplaceUserSession)
       vi.stubGlobal('sendRedirect', vi.fn().mockResolvedValue(undefined))
 
@@ -204,6 +208,7 @@ describe('Server Utils - OAuth', () => {
 
     it('should use connect process in redirect URL', async () => {
       const mockEvent = {} as any
+      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue({}))
       vi.stubGlobal('replaceUserSession', vi.fn().mockResolvedValue(undefined))
       const mockSendRedirect = vi.fn().mockResolvedValue(undefined)
       vi.stubGlobal('sendRedirect', mockSendRedirect)
@@ -220,6 +225,49 @@ describe('Server Utils - OAuth', () => {
         mockEvent,
         expect.stringContaining('process=connect'),
       )
+    })
+
+    it('preserves existing session tokens for connect flow (authenticated user adding provider)', async () => {
+      // Regression test for the Wave 1 misdiagnosis: the original implementation
+      // called replaceUserSession({}) which wiped sessionToken + accessToken for
+      // users doing process=connect. The fix merges the current session first.
+      const mockEvent = {} as any
+      const existingSession = {
+        user: { email: 'user@example.com', id: 1 },
+        secure: {
+          sessionToken: 'existing-session-token',
+          accessToken: 'existing-access-token',
+        },
+      }
+      vi.stubGlobal('getUserSession', vi.fn().mockResolvedValue(existingSession))
+      const mockReplaceUserSession = vi.fn().mockResolvedValue(undefined)
+      vi.stubGlobal('replaceUserSession', mockReplaceUserSession)
+      vi.stubGlobal('sendRedirect', vi.fn().mockResolvedValue(undefined))
+
+      await storeOAuthTokensAndRedirect(
+        mockEvent,
+        'google',
+        { access_token: 'new-acc', id_token: null },
+        'google-client',
+        'connect',
+      )
+
+      // The call must spread the existing session AND preserve existing secure fields
+      const [, sessionArg] = mockReplaceUserSession.mock.calls[0]
+
+      // Existing user payload preserved
+      expect(sessionArg.user).toEqual(existingSession.user)
+
+      // Existing secure tokens preserved alongside the new oauthParams
+      expect(sessionArg.secure?.sessionToken).toBe('existing-session-token')
+      expect(sessionArg.secure?.accessToken).toBe('existing-access-token')
+
+      // New oauthParams written
+      expect(sessionArg.secure?.oauthParams).toMatchObject({
+        provider: 'google',
+        access_token: 'new-acc',
+        process: 'connect',
+      })
     })
   })
 

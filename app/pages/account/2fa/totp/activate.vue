@@ -4,17 +4,13 @@ const { t } = useI18n()
 defineRouteRules({
   robots: false,
 })
-
-definePageMeta({
-  layout: 'user',
-})
 </script>
 
 <template>
   <PageWrapper
     class="
       flex flex-col gap-4
-      md:gap-8 md:!p-0
+      md:gap-8 md:p-0!
     "
   >
     <PageTitle

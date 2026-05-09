@@ -23,6 +23,13 @@ export default defineEventHandler((event) => {
     icons: [
       { src: '/favicon/android-icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
       { src: '/favicon/android-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      // Maskable icon: must use the same source until a dedicated asset with
+      // ~10% safe-zone padding on all sides is created.
+      // TODO: Replace with a dedicated maskable icon asset that has at least
+      // 10% safe-zone padding so the visible area is not clipped by the OS
+      // mask shape (circles, squircles, etc.). See:
+      // https://web.dev/maskable-icon/
+      { src: '/favicon/android-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
     ],
   }
 })

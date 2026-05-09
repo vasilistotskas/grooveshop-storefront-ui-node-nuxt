@@ -6,6 +6,7 @@ const route = useRoute(`products-id-slug___${locale.value}`)
 const { y: scrollY } = useWindowScroll()
 
 const { isMobileOrTablet } = useDevice()
+const { enabled } = useAuthPreviewMode()
 
 const { user, loggedIn } = useUserSession()
 
@@ -30,6 +31,14 @@ const { trackView } = useViewCount()
 if (productId) {
   trackView('product', Number(productId))
 }
+
+// Meta Pixel — ViewContent / GA4 — view_item, both fire once per
+// product detail load on the client. SSR-safe via ``onMounted`` so
+// the prerender pass never produces a phantom event. Browser-only
+// (no server-side leg for either).
+const metaPixel = useMetaPixel()
+const ga4 = useGA4()
+const viewContentFired = ref(false)
 
 // Client-side recently-viewed rail. We record the visit once the product
 // detail lands (below) so we have the translated name + image to show
@@ -125,6 +134,59 @@ onMounted(() => {
   watchEffect(() => {
     if (shouldFetchFavouriteProducts.value) fetchFavourites()
   })
+
+  // Meta Pixel: ViewContent. Browser-only event; no server-side
+  // dedup, so the eventID is a fresh UUID minted by the composable.
+  // Fires once per page mount — guard prevents duplicate fires when
+  // the product reactive ref re-resolves on hydration with the same
+  // payload. Uses the translated name + the cheapest active price
+  // so reporting matches what the customer saw.
+  if (viewContentFired.value || !product.value) return
+  try {
+    const productData = product.value
+    const pid = productData.id != null ? String(productData.id) : ''
+    const price = Number(
+      productData.finalPrice ?? productData.price ?? 0,
+    )
+    const productName = extractTranslated(productData, 'name', locale.value)
+    metaPixel.trackViewContent({
+      currency: 'EUR',
+      value: price,
+      contentType: 'product',
+      contentIds: pid ? [pid] : [],
+      contents: pid
+        ? [
+            {
+              id: pid,
+              quantity: 1,
+              itemPrice: price,
+            },
+          ]
+        : [],
+      contentName: productName,
+    })
+    ga4.trackViewItem({
+      currency: 'EUR',
+      value: price,
+      items: pid
+        ? [
+            {
+              item_id: pid,
+              item_name: productName,
+              price,
+              quantity: 1,
+            },
+          ]
+        : [],
+    })
+    viewContentFired.value = true
+  }
+  catch (pixelErr) {
+    log.warn(
+      'product:metaPixelViewContent',
+      String((pixelErr as Error)?.message ?? pixelErr),
+    )
+  }
 })
 
 // User-specific data: client-side only
@@ -364,13 +426,6 @@ const productSpecifications = computed(() => {
   return specs
 })
 
-watch(
-  () => route.query,
-  async () => {
-    await refreshProduct()
-  },
-)
-
 useSeoMeta({
   title: () => productTitle.value,
   description: () => productDescription.value,
@@ -381,7 +436,6 @@ useSeoMeta({
   ogImageWidth: 1200,
   ogImageHeight: 630,
   ogImageAlt: () => productTitle.value,
-  ogType: 'website',
   ogUrl: () => canonicalUrl.value,
   ogSiteName: siteConfig.name,
   ogLocale: () => dateLocale.value,
@@ -392,6 +446,10 @@ useSeoMeta({
   twitterImage: () => ogImage.value,
   twitterImageAlt: () => productTitle.value,
 })
+// 'product' is a valid OG type per the OpenGraph spec for product detail pages;
+// rich structured data is conveyed via Schema.org in useSchemaOrg below.
+// Set via useHead because @unhead/vue's UseSeoMetaInput union omits 'product'.
+useHead({ meta: [{ property: 'og:type', content: 'product' }] })
 
 useHead({
   link: () => {
@@ -766,9 +824,13 @@ definePageMeta({
             <!-- Price-drop subscribers: independent of stock — a shopper
                  may want to watch the price even for out-of-stock items.
                  Target price is validated below the current final price
-                 so the alert doesn't fire immediately. -->
+                 so the alert doesn't fire immediately.
+                 Gated on ``product.priceDropAlertsEnabled``: admins opt
+                 individual SKUs into the feature (default off) so we
+                 don't promise an alert we can't honour for products
+                 whose pricing is too volatile or manually managed. -->
             <ProductNotifyMe
-              v-if="product?.id && (product?.finalPrice ?? 0) > 0"
+              v-if="product?.id && product?.priceDropAlertsEnabled && (product?.finalPrice ?? 0) > 0"
               :product-id="product.id"
               kind="price_drop"
               :current-price="product.finalPrice"
@@ -820,9 +882,9 @@ definePageMeta({
       </div>
 
       <div
-        v-if="showStickyAddToCart"
+        v-if="enabled && showStickyAddToCart"
         class="
-          fixed right-0 bottom-12 left-0 z-40 border-t border-gray-200
+          fixed right-0 bottom-18 left-0 z-40 border-t border-gray-200
           bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm
           md:bottom-0
           dark:border-gray-700 dark:bg-gray-900/95
@@ -837,7 +899,7 @@ definePageMeta({
               :width="64"
               :height="64"
               class="
-                h-12 w-12 flex-shrink-0 rounded-lg object-contain
+                h-12 w-12 shrink-0 rounded-lg object-contain
                 md:h-16 md:w-16
               "
             />
@@ -881,7 +943,7 @@ definePageMeta({
                 :disabled="selectorQuantity <= 1"
                 @click="decrementQuantity"
               />
-              <span class="min-w-[2rem] text-center text-sm font-medium">
+              <span class="min-w-8 text-center text-sm font-medium">
                 {{ selectorQuantity }}
               </span>
               <UButton

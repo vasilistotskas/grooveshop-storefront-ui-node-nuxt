@@ -6,9 +6,15 @@ const { t } = useI18n()
 
 const { cookiesEnabled, cookiesEnabledIds, isConsentGiven, isModalActive, moduleOptions } = useCookieControl()
 
-const expires = new Date(Date.now() + moduleOptions.cookieExpiryOffsetMs)
 const localCookiesEnabled = ref([...(cookiesEnabled.value || [])])
 const allCookieIdsString = getAllCookieIdsString(moduleOptions)
+
+// Compute expires only on the client so Date.now() is stable and does not
+// produce a hydration mismatch between SSR payload and client re-execution.
+const expires = import.meta.client
+  ? new Date(Date.now() + moduleOptions.cookieExpiryOffsetMs)
+  : undefined
+
 const cookieIsConsentGiven = useCookie(moduleOptions.cookieNameIsConsentGiven, {
   expires,
   ...moduleOptions.cookieOptions,

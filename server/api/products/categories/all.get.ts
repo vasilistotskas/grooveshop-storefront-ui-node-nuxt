@@ -8,7 +8,7 @@ export default defineCachedEventHandler(async () => {
     return await parseDataAs(response, zListAllProductCategoryResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'ProductCategoryAll',

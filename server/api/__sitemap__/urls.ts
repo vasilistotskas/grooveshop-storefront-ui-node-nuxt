@@ -32,13 +32,18 @@ export default defineSitemapEventHandler(async (event) => {
   const baseUrl = tenantDomain ? `https://${tenantDomain}` : config.public.baseUrl
   const apiBaseUrl = config.apiBaseUrl
 
+  // Only 'el' is active per i18n config. When more locales activate,
+  // iterate SUPPORTED_LOCALES here and emit hreflang alternates per entry.
+  const ACTIVE_LOCALE = 'el'
+
   // Fetch all data in parallel for better performance — tenant host
   // is passed so each tenant's sitemap has its own cache entry.
+  // languageCode ensures Django returns translations for the active locale.
   const [allPosts, allBlogCategories, allProducts, allProductCategories] = await Promise.all([
-    cachedBlogPosts(host, `${apiBaseUrl}/blog/post`),
-    cachedBlogCategories(host, `${apiBaseUrl}/blog/category`),
-    cachedProducts(host, `${apiBaseUrl}/product`),
-    cachedProductCategories(host, `${apiBaseUrl}/product/category`),
+    cachedBlogPosts(host, `${apiBaseUrl}/blog/post?languageCode=${ACTIVE_LOCALE}`),
+    cachedBlogCategories(host, `${apiBaseUrl}/blog/category?languageCode=${ACTIVE_LOCALE}`),
+    cachedProducts(host, `${apiBaseUrl}/product?languageCode=${ACTIVE_LOCALE}`),
+    cachedProductCategories(host, `${apiBaseUrl}/product/category?languageCode=${ACTIVE_LOCALE}`),
   ])
 
   return [
@@ -72,6 +77,16 @@ export default defineSitemapEventHandler(async (event) => {
       images: product.mainImagePath
         ? [{
             loc: `${config.public.mediaStreamPath}/${product.mainImagePath}`,
+            // Prefer the active locale (el) translation; fall back to any
+            // available locale so the field is never silently empty.
+            title: product.translations?.el?.name
+              || Object.values(product.translations ?? {}).find(t => t?.name)?.name
+              || undefined,
+            // Short product description as the image caption. Truncated at
+            // 160 chars to keep the sitemap lean.
+            caption: product.translations?.el?.description
+              ? product.translations.el.description.replace(/<[^>]+>/g, '').slice(0, 160) || undefined
+              : undefined,
           }]
         : undefined,
     })),

@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { usePreferredReducedMotion } from '@vueuse/core'
-
 /**
  * Reusable Lottie renderer.
  *
@@ -67,6 +65,7 @@ async function resolveAnimationData(): Promise<AnimationSource | null> {
 async function mountLottie() {
   if (!container.value) return
   if (prefersReducedMotion.value) return
+  if (animationInstance) return // already mounted, e.g. via watcher re-fire
   try {
     const [{ default: lottie }, animationData] = await Promise.all([
       import('lottie-web'),
@@ -87,7 +86,16 @@ async function mountLottie() {
   }
 }
 
-onMounted(mountLottie)
+// ``<ClientOnly>`` initially renders its #fallback during SSR and the
+// pre-hydration client pass; the wrapped default slot (which contains
+// our ``ref="container"``) only mounts after hydration swaps slots.
+// onMounted fires before that swap, so ``container.value`` would be
+// null. Watching the ref instead lets us mount Lottie the moment the
+// real DOM node attaches — works for the initial render and any later
+// re-mount (e.g. after HMR or route re-entry).
+watch(container, (el) => {
+  if (el) mountLottie()
+}, { immediate: true })
 
 onBeforeUnmount(() => {
   animationInstance?.destroy()
@@ -98,18 +106,21 @@ onBeforeUnmount(() => {
 <template>
   <ClientOnly>
     <div v-if="!prefersReducedMotion" class="relative">
+      <!-- Fallback ALWAYS renders in flow so the wrapper keeps the
+           canonical height across the SSR → CSR → Lottie-loaded
+           transitions. Once Lottie mounts, ``invisible`` hides the
+           fallback while preserving its layout box, eliminating the
+           page-jump that used to happen when the absolutely-positioned
+           fallback was swapped for an empty 0-height container. -->
+      <div :class="{ invisible: hasMounted }">
+        <slot name="fallback" />
+      </div>
       <div
         ref="container"
         :role="ariaLabel ? 'img' : 'presentation'"
         :aria-label="ariaLabel"
-        class="w-full"
+        class="absolute inset-0 size-full"
       />
-      <!-- Until lottie-web has loaded the animation, render the
-           fallback so the layout height is stable during the async
-           import + JSON parse. -->
-      <div v-if="!hasMounted" class="absolute inset-0">
-        <slot name="fallback" />
-      </div>
     </div>
     <div v-else>
       <slot name="fallback" />

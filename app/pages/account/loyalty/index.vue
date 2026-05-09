@@ -6,7 +6,6 @@ defineRouteRules({
 })
 
 definePageMeta({
-  layout: 'user',
   middleware: ['loyalty-enabled'],
 })
 </script>

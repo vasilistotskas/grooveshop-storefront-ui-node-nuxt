@@ -1,0 +1,171 @@
+/**
+ * Bulk locker-catalogue endpoint, used by the carrier-aware map
+ * view in the checkout. Returns every active locker for the
+ * supplied country in one normalised array — the caller (the
+ * Leaflet map component) doesn't paginate or know about
+ * provider-specific shapes.
+ *
+ * Cache: 1 hour SWR via ``defineCachedEventHandler``. The Django
+ * sync_acs_stations beat task refreshes the underlying rows once a
+ * day, so customers picking a locker get a snapshot at most an
+ * hour stale — perfectly acceptable for a 167-row fixture in
+ * Athens that almost never changes.
+ *
+ * Provider routing: we expose this endpoint at
+ * ``/api/shipping/lockers/<code>`` and switch on the path segment
+ * so each carrier owns its own bulk-fetch contract upstream. Today
+ * only ``acs`` is wired (BoxNow's iframe hides the catalogue from
+ * us); adding ``elta`` / ``speedex`` / ``geniki`` later means
+ * extending the ``PROVIDER_FETCHERS`` table by one entry.
+ */
+import * as z from 'zod'
+
+const zQuery = z.object({
+  country: z.string().length(2).optional(),
+})
+
+interface NormalisedLocker {
+  externalId: string
+  branchCode: string | null
+  shopKind: number
+  name: string
+  addressLine1: string
+  city: string
+  postalCode: string
+  countryCode: string
+  lat: number | null
+  lng: number | null
+  workingHours: string | null
+  maxWeightKg: number | null
+}
+
+function _toNumber(
+  value: string | number | null | undefined,
+): number | null {
+  if (value === null || value === undefined || value === '') return null
+  const n = typeof value === 'number' ? value : Number.parseFloat(value)
+  return Number.isFinite(n) ? n : null
+}
+
+function _normalize(row: AcsStation): NormalisedLocker {
+  return {
+    externalId: row.externalId,
+    branchCode: row.branchCode || null,
+    shopKind: row.shopKind,
+    name: row.name,
+    addressLine1: row.addressLine1,
+    city: row.city,
+    postalCode: row.postalCode,
+    countryCode: row.countryCode,
+    lat: _toNumber(row.lat),
+    lng: _toNumber(row.lng),
+    workingHours: row.workingHours || null,
+    maxWeightKg: _toNumber(row.maxWeightKg),
+  }
+}
+
+async function _fetchAcsStations(
+  apiBaseUrl: string,
+  headers: Record<string, string>,
+  country: string | undefined,
+): Promise<NormalisedLocker[]> {
+  const collected: NormalisedLocker[] = []
+  let page = 1
+  // Hard cap to prevent unbounded paging if Django returns garbage —
+  // 167 stations / 100 page_size = 2 pages today; we still allow up
+  // to 10 pages (= 1000 lockers) of headroom for future expansion.
+  const maxPages = 10
+  while (page <= maxPages) {
+    const response = await $fetch<Pagination<AcsStation>>(
+      `${apiBaseUrl}/shipping/acs/stations`,
+      {
+        method: 'GET',
+        query: {
+          page,
+          pageSize: 100,
+          countryCode: country,
+        },
+        headers,
+      },
+    )
+    for (const row of response.results ?? []) {
+      collected.push(_normalize(row))
+    }
+    if (page >= (response.totalPages ?? 1)) break
+    page += 1
+  }
+  return collected
+}
+
+const PROVIDER_FETCHERS: Record<
+  string,
+  (
+    apiBaseUrl: string,
+    headers: Record<string, string>,
+    country: string | undefined,
+  ) => Promise<NormalisedLocker[]>
+> = {
+  acs: _fetchAcsStations,
+  // Future providers slot in here. ``boxnow`` deliberately omitted —
+  // its iframe widget owns the catalogue.
+}
+
+export default defineCachedEventHandler(
+  async (event) => {
+    const provider = getRouterParam(event, 'provider')?.toLowerCase()
+    if (!provider || !(provider in PROVIDER_FETCHERS)) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: `No bulk-locker fetcher registered for provider '${provider ?? ''}'`,
+      })
+    }
+    const config = useRuntimeConfig()
+    const headers = createHeaders()
+    try {
+      const query = await getValidatedQuery(event, zQuery.parse)
+      const fetcher = PROVIDER_FETCHERS[provider]!
+      const rows = await fetcher(
+        config.apiBaseUrl,
+        headers,
+        query.country?.toUpperCase(),
+      )
+      // Empty-poison guard: an empty upstream response (e.g. Django
+      // pods came up before the AcsStation table was synced) used to
+      // be cached for the full 1h+6h SWR window — leaving the picker
+      // map blank long after the next sync had populated rows. Throw
+      // so the Nitro cache wrapper does NOT store the empty result;
+      // the picker's component-level error state then redirects the
+      // user to the postal-code list view, which hits the live
+      // ``/nearest`` endpoint (uncached) and works.
+      if (rows.length === 0) {
+        throw createError({
+          statusCode: 503,
+          statusMessage: `Bulk locker catalogue for provider '${provider}' is currently empty — refusing to cache.`,
+        })
+      }
+      return rows
+    }
+    catch (error) {
+      handleError(error)
+    }
+  },
+  {
+    maxAge: 60 * 60, // 1h fresh
+    staleMaxAge: 60 * 60 * 6, // up to 6h stale-while-revalidate
+    name: 'shipping.lockers',
+    // Allow callers to force a fresh upstream hit via ``?refresh=1``.
+    // Useful when ops needs to evict a stale empty cache from prod
+    // without rolling the SSR replicas — curl the URL once and the
+    // next non-bypass request fills with the fresh data.
+    shouldBypassCache: (event) => {
+      const url = new URL(event.node.req.url ?? '/', 'http://internal')
+      return url.searchParams.get('refresh') === '1'
+    },
+    getKey: (event) => {
+      const provider = getRouterParam(event, 'provider') ?? 'unknown'
+      const url = new URL(event.node.req.url ?? '/', 'http://internal')
+      const country = url.searchParams.get('country') ?? 'all'
+      return `${provider}:${country.toUpperCase()}`
+    },
+  },
+)

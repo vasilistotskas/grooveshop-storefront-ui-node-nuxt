@@ -13,6 +13,6 @@ export default defineEventHandler(async (event) => {
     return response
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

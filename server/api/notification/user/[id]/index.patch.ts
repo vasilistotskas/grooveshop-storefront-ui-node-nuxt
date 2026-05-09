@@ -20,6 +20,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zPartialUpdateNotificationUserResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

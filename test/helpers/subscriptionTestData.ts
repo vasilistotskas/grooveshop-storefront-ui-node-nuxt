@@ -4,7 +4,6 @@
  * Provides factory functions to create properly typed test data
  * that matches the auto-generated OpenAPI types.
  */
-import type { SubscriptionTopic, UserSubscription, TopicCategory, SubscriptionStatus } from '#shared/openapi/types.gen'
 
 /**
  * Create a mock SubscriptionTopic with proper structure

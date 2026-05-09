@@ -21,15 +21,13 @@ import { z } from 'zod'
  */
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const accessToken = await getAllAuthAccessToken(event)
+  const accessToken = await requireAllAuthAccessToken(event)
 
   try {
     const data = await $fetch(`${config.apiBaseUrl}/loyalty/tiers`, {
       method: 'GET',
       headers: {
-        ...(accessToken && {
-          Authorization: `Bearer ${accessToken}`,
-        }),
+        Authorization: `Bearer ${accessToken}`,
       },
     })
 
@@ -37,6 +35,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(data, z.array(zLoyaltyTier))
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

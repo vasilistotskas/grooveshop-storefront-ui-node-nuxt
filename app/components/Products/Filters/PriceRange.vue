@@ -174,7 +174,7 @@ watch(
       <div class="space-y-1.5">
         <label
           for="price-min-input"
-          class="text-sm font-medium text-neutral-500 dark:text-neutral-300"
+          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
         >
           {{ t('minimum') }}
         </label>
@@ -198,7 +198,7 @@ watch(
       <div class="space-y-1.5">
         <label
           for="price-max-input"
-          class="text-sm font-medium text-neutral-500 dark:text-neutral-300"
+          class="text-sm font-medium text-neutral-700 dark:text-neutral-300"
         >
           {{ t('maximum') }}
         </label>

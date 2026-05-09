@@ -2,8 +2,8 @@
 const { locale, t } = useI18n()
 const route = useRoute()
 
-const { data: categories, status } = await useLazyFetch(`/api/blog/categories`, {
-  key: `blogCategories`,
+const { data: categories, status } = useLazyFetch(`/api/blog/categories`, {
+  key: `blogCategories-sidebar`,
   method: 'GET',
   headers: useRequestHeaders(),
   query: {

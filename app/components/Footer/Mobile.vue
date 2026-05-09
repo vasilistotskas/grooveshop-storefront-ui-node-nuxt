@@ -50,15 +50,5 @@ const items = computed<AccordionItem[]>(() =>
         </div>
       </template>
     </UAccordion>
-
-    <div
-      class="
-        flex flex-col items-center gap-3 border-t border-primary-200 p-4
-        dark:border-primary-800
-      "
-    >
-      <TrustSecureCheckoutBadge />
-      <TrustPaymentBadges />
-    </div>
   </footer>
 </template>

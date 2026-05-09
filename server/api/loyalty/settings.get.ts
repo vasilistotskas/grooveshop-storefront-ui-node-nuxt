@@ -30,7 +30,7 @@ export default defineCachedEventHandler(
       return await parseDataAs(record, zLoyaltySettingsResponse)
     }
     catch (error) {
-      await handleError(error)
+      handleError(error)
     }
   },
   {

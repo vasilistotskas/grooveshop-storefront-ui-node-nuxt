@@ -6,12 +6,13 @@ export default defineCachedEventHandler(async (event) => {
       `${config.apiBaseUrl}/product/${params.id}`,
       {
         method: 'GET',
+        headers: createHeaders(null, null),
       },
     )
     return await parseDataAs(response, zRetrieveProductResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'ProductDetailViewSet',

@@ -33,9 +33,14 @@ export const useUserNotificationStore = defineStore('userNotification', () => {
     }
   }
 
+  const clearNotificationsState = () => {
+    notifications.value = undefined
+  }
+
   return {
     notifications,
     notificationIds,
     setupNotifications,
+    clearNotificationsState,
   }
 })

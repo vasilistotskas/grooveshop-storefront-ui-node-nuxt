@@ -10,10 +10,12 @@ const modules = [
   '@nuxt/fonts',
   '@nuxt/icon',
   '@nuxtjs/i18n',
+  '@nuxtjs/leaflet',
   '@nuxtjs/seo',
   '@pinia/nuxt',
   '@vueuse/nuxt',
   'nuxt-auth-utils',
+  'nuxt-ai-ready',
 ]
 
 if (process.env.NODE_ENV === 'test') {
@@ -132,11 +134,14 @@ export default defineNuxtConfig({
     turnstile: {
       secretKey: process.env.NUXT_TURNSTILE_SECRET_KEY,
     },
+    cachePurgeToken: process.env.NUXT_CACHE_PURGE_TOKEN,
     redis: {
       host: process.env.NUXT_REDIS_HOST,
       port: Number(process.env.NUXT_REDIS_PORT || 6379),
       ttl: Number(process.env.NUXT_REDIS_TTL || 3600),
       password: process.env.NUXT_REDIS_PASSWORD,
+      // DB 0 = Django, DB 2 = media-stream, DB 3 = Nuxt (default)
+      db: parseInt(process.env.NUXT_REDIS_DB ?? '3', 10),
     },
     scripts: {
       registry: {
@@ -175,12 +180,29 @@ export default defineNuxtConfig({
           id: process.env.NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID,
         },
       },
+      // Meta Pixel ID lives outside ``public.scripts`` because that
+      // slot is typed by @nuxt/scripts itself (only registered
+      // registry scripts widen its type). Putting our pixel id here
+      // keeps things type-safe without a module-augmentation file.
+      // The ``useMetaPixel`` composable reads from this path.
+      //
+      // Env var name MUST be ``NUXT_PUBLIC_META_PIXEL_ID`` (NOT
+      // ``NUXT_PUBLIC_SCRIPTS_META_PIXEL_ID``) — Nuxt's runtime
+      // override maps env vars to runtime config keys by uppercasing
+      // and underscore-splitting the dotted path, so
+      // ``runtimeConfig.public.metaPixelId`` is overridden by
+      // ``NUXT_PUBLIC_META_PIXEL_ID``. Mismatched names mean the
+      // build-time value is baked in (usually undefined in CI) and
+      // the runtime configmap value is silently ignored.
+      metaPixelId: process.env.NUXT_PUBLIC_META_PIXEL_ID,
       titleSeparator: process.env.NUXT_PUBLIC_TITLE_SEPARATOR,
       trailingSlash: String(process.env.NUXT_PUBLIC_TRAILING_SLASH) === 'true',
       static: {
         origin: process.env.NUXT_PUBLIC_STATIC_ORIGIN,
       },
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+      boxnowPartnerId: process.env.NUXT_PUBLIC_BOXNOW_PARTNER_ID ?? '',
+      boxnowWidgetType: (process.env.NUXT_PUBLIC_BOXNOW_WIDGET_TYPE ?? 'iframe') as 'iframe' | 'popup' | 'navigate' | 'navigateen',
       version,
     },
   },
@@ -320,6 +342,19 @@ export default defineNuxtConfig({
     experimental: {
       asyncContext: true,
     },
+    // Expose the generated OpenAPI artefacts under ``/openapi/*`` so the
+    // RFC 9727 API catalog at ``/.well-known/api-catalog`` has something
+    // real to link to. ``schema.yml`` is the source of truth (Django
+    // exports it via drf-spectacular and ``pnpm generate:schema``
+    // updates it locally); ``schema.json`` is generated alongside.
+    // Path is resolved from ``rootDir`` (Nuxt 4 default = repo root).
+    publicAssets: [
+      {
+        dir: '../openapi',
+        baseURL: '/openapi',
+        maxAge: 3600,
+      },
+    ],
   },
   vite: {
     vue: {
@@ -332,7 +367,27 @@ export default defineNuxtConfig({
         '@internationalized/date',
         'zod',
         'isomorphic-dompurify',
+        'lottie-web',
       ],
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          // Group Leaflet + the marker cluster plugin into a single
+          // chunk so the checkout entry stays small. The chunk only
+          // loads when CheckoutSmartpointMap is mounted (Lazy* +
+          // ClientOnly), so customers who never open the locker
+          // picker pay zero bytes for the map library.
+          manualChunks(id) {
+            if (
+              id.includes('node_modules/leaflet/')
+              || id.includes('node_modules/leaflet.markercluster/')
+            ) {
+              return 'leaflet'
+            }
+          },
+        },
+      },
     },
   },
   typescript: {
@@ -341,7 +396,46 @@ export default defineNuxtConfig({
     hoist: ['vite'],
   },
   debug: false,
+  // ``nuxt-ai-ready`` exposes site content to AI agents and crawlers via:
+  //   /llms.txt, /llms-full.txt   — site overview + per-page markdown
+  //   /<route>.md                  — on-demand markdown of any HTML page
+  //   robots.txt Content Signals   — opt-in directives for search/RAG/training
+  //   /__ai-ready/*                — optional MCP/runtime sync endpoints
+  //
+  // Production deployment notes (webside.gr, K8s, 2 SSR replicas):
+  //   - Prerendered routes (about, contact, policy pages, …) get full
+  //     metadata indexed at build time and baked into the image dump.
+  //   - SSR-rendered pages (products, blog, category pages) index on first
+  //     visit per pod. Sitemap-driven URL discovery still works via
+  //     ``/api/__sitemap__/urls``.
+  //   - ``runtimeSync`` + ``cron`` are intentionally **disabled**: with two
+  //     replicas each holding an ephemeral SQLite at ``.data/ai-ready``,
+  //     scheduled background indexing would race and double-submit to
+  //     IndexNow. Enable only when scaled to 1 replica or when migrating to
+  //     shared storage (D1 / LibSQL / Turso).
+  //   - ``autoI18n`` (default ``true``) auto-detects ``@nuxtjs/i18n`` and
+  //     emits ``hreflang`` Link headers + a Greek "Available Languages"
+  //     section in ``/llms.txt``.
+  aiReady: {
+    contentSignal: {
+      // Allow training, search indexing, and RAG/grounding. The site is a
+      // public e-commerce storefront — discoverable AI surfaces are an
+      // acquisition channel, not a leak risk.
+      aiTrain: true,
+      search: true,
+      aiInput: true,
+    },
+    // Production runs as the unprivileged ``node`` user (UID 1000) with
+    // ``WORKDIR=/app`` owned by root, so the default ``.data/ai-ready``
+    // path under cwd is read-only. The runtime DB is ephemeral per pod
+    // anyway (we don't enable ``runtimeSync``), so ``/tmp`` — always
+    // writable — is the right choice.
+    database: {
+      filename: '/tmp/ai-ready/pages.db',
+    },
+  },
   cookieControl: {
+    isControlButtonEnabled: false,
     cookies: {
       necessary: [
         {
@@ -528,6 +622,13 @@ export default defineNuxtConfig({
       xxl: 1536,
     },
   },
+  // ``@nuxtjs/leaflet`` config — markerCluster:true unlocks the
+  // ``useLMarkerCluster`` composable used inside SmartpointMap.client.vue.
+  // Tile providers themselves come from the carrier metadata
+  // (``ShippingProvider.metadata.tile_provider``) — never hardcoded.
+  leaflet: {
+    markerCluster: true,
+  },
   linkChecker: {
     report: {
       html: true,
@@ -539,6 +640,49 @@ export default defineNuxtConfig({
   },
   ogImage: {
     enabled: false,
+  },
+  // ``@nuxtjs/robots`` (shipped via @nuxtjs/seo). Defines explicit
+  // User-agent groups so RFC 9309-aware crawlers (and isitagentready.com
+  // checkers) see per-bot rules in addition to the wildcard. The
+  // wildcard allows all paths and Content-Signal directives, controlled
+  // separately by ``aiReady.contentSignal``, opt the site into AI
+  // training/search/RAG. Account/cart/checkout/api are off-limits to
+  // every crawler — they're behind auth and have no value to indexers.
+  robots: {
+    disallow: ['/account/', '/cart', '/checkout', '/api/'],
+    groups: [
+      {
+        userAgent: [
+          'GPTBot',
+          'OAI-SearchBot',
+          'ChatGPT-User',
+          'ClaudeBot',
+          'Claude-Web',
+          'anthropic-ai',
+          'Google-Extended',
+          'PerplexityBot',
+          'Perplexity-User',
+          'Applebot-Extended',
+          'Bytespider',
+          'Amazonbot',
+          'Meta-ExternalAgent',
+          'Meta-ExternalFetcher',
+          'CCBot',
+          'cohere-ai',
+          'Diffbot',
+          'DuckAssistBot',
+          'PetalBot',
+          'YouBot',
+          'Timpibot',
+          'ImagesiftBot',
+          'omgili',
+          'omgilibot',
+          'FriendlyCrawler',
+        ],
+        allow: ['/'],
+        disallow: ['/account/', '/cart', '/checkout', '/api/'],
+      },
+    ],
   },
   schemaOrg: {
     enabled: true,

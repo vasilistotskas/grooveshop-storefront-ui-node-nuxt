@@ -26,6 +26,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zCreateOrderCheckoutSessionResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

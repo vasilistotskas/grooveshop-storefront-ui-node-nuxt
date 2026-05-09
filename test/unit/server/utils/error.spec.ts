@@ -153,6 +153,76 @@ describe('Server Utils - Error', () => {
     })
   })
 
+  describe('429 rate-limit handling', () => {
+    it('handleError preserves 429 status from FetchError', () => {
+      const fetchError = new FetchError('Too Many Requests')
+      fetchError.statusCode = 429
+      fetchError.data = { status: 429, errors: [{ code: 'too_many_requests', message: 'Rate limit exceeded.' }] }
+
+      vi.stubGlobal('log', mockLog)
+      vi.stubGlobal('createError', vi.fn((config) => {
+        const err = new Error(config.statusMessage)
+        Object.assign(err, config)
+        return err
+      }))
+
+      try {
+        handleError(fetchError)
+        expect.fail('Should have thrown')
+      }
+      catch (err: any) {
+        expect(err.statusCode).toBe(429)
+        // data must be forwarded (statusCode < 500)
+        expect(err.data).toEqual({ status: 429, errors: [{ code: 'too_many_requests', message: 'Rate limit exceeded.' }] })
+      }
+      finally {
+        vi.unstubAllGlobals()
+      }
+    })
+
+    it('handleError logs upstream:fetch action for 429 FetchError', () => {
+      const fetchError = new FetchError('Too Many Requests')
+      fetchError.statusCode = 429
+      fetchError.data = { status: 429, errors: [] }
+
+      vi.stubGlobal('log', mockLog)
+      vi.stubGlobal('createError', vi.fn(err => err))
+
+      try { handleError(fetchError) }
+      catch { /* expected */ }
+
+      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
+      vi.unstubAllGlobals()
+    })
+
+    it('handleError does NOT drop 429 data body (statusCode < 500)', () => {
+      const fetchError = new FetchError('Too Many Requests')
+      fetchError.statusCode = 429
+      const rateLimitBody = { status: 429, errors: [{ code: 'too_many_requests', message: 'Slow down.' }] }
+      fetchError.data = rateLimitBody
+
+      vi.stubGlobal('log', mockLog)
+      vi.stubGlobal('createError', vi.fn((config) => {
+        const err = new Error(config.statusMessage)
+        Object.assign(err, config)
+        return err
+      }))
+
+      try {
+        handleError(fetchError)
+        expect.fail('Should have thrown')
+      }
+      catch (err: any) {
+        // safeData = error.data because 429 < 500
+        expect(err.data).toBeDefined()
+        expect(err.data).toEqual(rateLimitBody)
+      }
+      finally {
+        vi.unstubAllGlobals()
+      }
+    })
+  })
+
   describe('handleError', () => {
     it('should throw ZodError', () => {
       const zodError = new ZodError([

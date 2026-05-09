@@ -57,13 +57,16 @@ const formattedCount = computed(() => {
   return new Intl.NumberFormat(locale.value).format(props.totalResults)
 })
 
-// Sort options for the dropdown - using component i18n translations
+// Sort options for the dropdown — values must match Django's
+// ``ProductViewSet.ordering_fields`` (price, created_at, view_count,
+// availability_priority, stock, active). DRF's OrderingFilter silently
+// drops unknown fields and returns the default order, so the previous
+// ``final_price`` / ``likes_count`` values produced no sorting at all.
 const sortOptions = [
   { label: t('sort.recommended'), value: 'recommended' },
   { label: t('sort.newest'), value: '-created_at' },
-  { label: t('sort.priceAsc'), value: 'final_price' },
-  { label: t('sort.priceDesc'), value: '-final_price' },
-  { label: t('sort.popularity'), value: '-likes_count' },
+  { label: t('sort.priceAsc'), value: 'price' },
+  { label: t('sort.priceDesc'), value: '-price' },
   { label: t('sort.mostViewed'), value: '-view_count' },
 ]
 
@@ -98,7 +101,7 @@ const handleToggleFilters = () => {
   <div
     class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
     role="toolbar"
-    aria-label="Product browsing controls"
+    :aria-label="t('toolbar.aria.browsing_controls')"
   >
     <!-- Left section: Results count and filter toggle (mobile) -->
     <div class="flex items-center gap-3">
@@ -108,7 +111,7 @@ const handleToggleFilters = () => {
         variant="outline"
         icon="i-heroicons-adjustments-horizontal"
         class="lg:hidden"
-        aria-label="Toggle filters"
+        :aria-label="t('toolbar.aria.toggle_filters')"
         @click="handleToggleFilters"
       >
         <span class="sr-only sm:not-sr-only">{{ t('filters') }}</span>
@@ -146,7 +149,7 @@ const handleToggleFilters = () => {
           :model-value="currentSort || 'recommended'"
           :items="sortOptions"
           class="min-w-[180px]"
-          aria-label="Sort products"
+          :aria-label="t('toolbar.aria.sort_products')"
           @update:model-value="handleSortChange"
         />
       </div>
@@ -164,7 +167,7 @@ const handleToggleFilters = () => {
           :model-value="itemsPerPage"
           :items="itemsPerPageOptions"
           class="min-w-[140px]"
-          aria-label="Items per page"
+          :aria-label="t('toolbar.aria.items_per_page')"
           @update:model-value="handleItemsPerPageChange"
         />
       </div>
@@ -178,6 +181,12 @@ el:
   sortBy: 'Ταξινόμηση'
   show: 'Εμφάνιση'
   filters: 'Φίλτρα'
+  toolbar:
+    aria:
+      browsing_controls: 'Έλεγχοι περιήγησης προϊόντων'
+      toggle_filters: 'Εναλλαγή φίλτρων'
+      sort_products: 'Ταξινόμηση προϊόντων'
+      items_per_page: 'Στοιχεία ανά σελίδα'
   sort:
     recommended: 'Προτεινόμενα'
     newest: 'Νεότερα'

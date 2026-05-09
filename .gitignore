@@ -35,6 +35,7 @@ coverage
 # AI
 .agents
 .claude/settings.local.json
+.claude/.typecheck-pending
 .cursor
 .cursorrules
 .windsurfrules
@@ -49,3 +50,6 @@ public/.well-known
 
 # Other
 .unlighthouse
+
+# Skilld references (recreated by `skilld install`)
+.skilld

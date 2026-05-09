@@ -1,17 +1,5 @@
 import * as z from 'zod'
 
-const zPaymentStatusResponse = z.object({
-  paymentId: z.string(),
-  status: z.string(),
-  rawStatus: z.string().optional(),
-  provider: z.string(),
-  amount: z.string().optional(),
-  currency: z.string().optional(),
-  created: z.number().int().optional(),
-  lastUpdated: z.string().nullable().optional(),
-  error: z.string().optional(),
-})
-
 const zPaymentStatusParams = z.object({
   id: z.union([z.string().regex(/^-?\d+$/), z.coerce.number().int()]),
 })
@@ -29,21 +17,18 @@ export default defineEventHandler(async (event) => {
       zPaymentStatusParams.parse,
     )
     const query = await getValidatedQuery(event, zGuestQuery.parse)
-    const url = new URL(`${config.apiBaseUrl}/order/${params.id}/payment_status`)
+    const url = new URL(`${config.apiBaseUrl}/order/${params.id}/payment_status/`)
     if (query.uuid) {
       url.searchParams.set('uuid', query.uuid)
     }
     const response = await $fetch(url.toString(), {
       method: 'GET',
-      ...(accessToken && {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }),
+      headers: createHeaders(null, accessToken),
     })
+    // Use the auto-generated schema — amount is a number (not string)
     return await parseDataAs(response, zPaymentStatusResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

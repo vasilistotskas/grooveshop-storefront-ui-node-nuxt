@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { PropType } from 'vue'
-import { useMouseInElement, useElementBounding } from '@vueuse/core'
 
 const props = defineProps({
   images: {

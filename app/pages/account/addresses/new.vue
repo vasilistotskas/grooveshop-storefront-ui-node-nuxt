@@ -6,6 +6,8 @@ const localePath = useLocalePath()
 const { t, locale } = useI18n()
 const toast = useToast()
 
+const isSubmitting = ref(false)
+
 // Use auto-generated Zod schema
 const schema = zUserAddressWriteRequest
 
@@ -101,6 +103,8 @@ watch(
 
 // Form submission
 async function onSubmit(event: FormSubmitEvent<Schema>) {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
   try {
     await $fetch('/api/user/addresses', {
       method: 'POST',
@@ -126,14 +130,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       color: 'error',
     })
   }
+  finally {
+    isSubmitting.value = false
+  }
 }
 
 defineRouteRules({
   robots: false,
-})
-
-definePageMeta({
-  layout: 'user',
 })
 </script>
 
@@ -192,7 +195,7 @@ definePageMeta({
             inputmode="tel"
           >
             <template #leading>
-              <span class="pl-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">+30</span>
+              <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">+30</span>
             </template>
           </UInput>
         </UFormField>
@@ -286,7 +289,7 @@ definePageMeta({
 
         <!-- Submit Button -->
         <div class="md:col-span-2">
-          <UButton type="submit" color="success" block>
+          <UButton type="submit" color="success" block :loading="isSubmitting" :disabled="isSubmitting">
             {{ t('form.submit') }}
           </UButton>
         </div>

@@ -85,11 +85,18 @@ export const useAuthStore = defineStore('auth', () => {
         session.value = data.data
       }
     }
-    catch (err: any) {
+    catch (err: unknown) {
       log.error({ action: 'auth:setupSession', error: err })
       // Only clear the session on definitive auth failures (401/410),
       // not on transient errors (network, 500) which would destroy the access token
-      const status = err?.response?.status || err?.statusCode
+      const e = err && typeof err === 'object' ? err as Record<string, unknown> : null
+      const responseStatus
+        = e?.response && typeof e.response === 'object' && 'status' in e.response
+          ? (e.response as { status: unknown }).status
+          : undefined
+      const status = typeof responseStatus === 'number'
+        ? responseStatus
+        : typeof e?.statusCode === 'number' ? e.statusCode : undefined
       if (status === 401 || status === 410) {
         await clear()
       }

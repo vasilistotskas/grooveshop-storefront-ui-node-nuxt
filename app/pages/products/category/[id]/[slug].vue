@@ -1,12 +1,15 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
 const route = useRoute(`products-category-id-slug___${locale.value}`)
+const config = useRuntimeConfig()
+const img = useImage()
+const siteConfig = useSiteConfig()
 
 const categoryId = 'id' in route.params
   ? route.params.id
   : undefined
 
-const { data: category } = await useFetch(
+const { data: category } = await useFetch<ProductCategoryDetail>(
   `/api/products/categories/${categoryId}`,
   {
     key: `category${categoryId}`,
@@ -25,9 +28,70 @@ if (!category.value) {
   })
 }
 
-defineRouteRules({
-  robots: false,
+// Lightweight first-page fetch for Schema.org ItemList.
+// Server-side only — does NOT duplicate the full ProductsList fetch.
+// When more locales activate, replace hardcoded 'el' with SUPPORTED_LOCALES iteration.
+const { data: seoProducts } = await useFetch<ProductMeiliSearchResponse>(
+  '/api/products/search',
+  {
+    key: `category-seo-products-${categoryId}`,
+    query: { languageCode: locale, categories: categoryId, limit: 12, offset: 0 },
+    server: true,
+    lazy: false,
+  },
+)
+
+const categoryName = computed(() =>
+  extractTranslated(category.value, 'name', locale.value) ?? '',
+)
+
+const categoryDescription = computed(() =>
+  category.value?.seoDescription
+  || extractTranslated(category.value, 'description', locale.value)
+  || '',
+)
+
+// ProductCategoryDetail has no image field — use the first product image
+// from the SEO prefetch if available, otherwise fall back to the site logo.
+const ogImage = computed(() => {
+  const firstProduct = seoProducts.value?.results?.[0]
+  if (firstProduct?.mainImagePath) {
+    return img(firstProduct.mainImagePath, {
+      width: 1200,
+      height: 630,
+      fit: 'cover',
+      format: 'png',
+    }, {
+      provider: 'mediaStream',
+    })
+  }
+  return config.public.appLogo as string
 })
+
+const baseUrl = siteConfig.url
+
+useSeoMeta({
+  title: () => categoryName.value || t('title'),
+  description: () => categoryDescription.value,
+  ogTitle: () => categoryName.value || t('title'),
+  ogDescription: () => categoryDescription.value,
+  ogType: 'website',
+  ogImage: () => ogImage.value,
+  ogImageAlt: () => categoryName.value || t('title'),
+})
+
+useSchemaOrg([
+  defineWebPage({ '@type': 'CollectionPage' }),
+  defineItemList({
+    name: () => categoryName.value || t('title'),
+    itemListElement: () => (seoProducts.value?.results ?? []).map((p, i) => ({
+      '@type': 'ListItem' as const,
+      'position': i + 1,
+      'url': `${baseUrl}/products/${p.master ?? p.id}/${p.slug}`,
+      'name': p.name,
+    })),
+  }),
+])
 
 definePageMeta({
   layout: 'default',

@@ -4,10 +4,6 @@ const { t } = useI18n()
 defineRouteRules({
   robots: false,
 })
-
-definePageMeta({
-  layout: 'user',
-})
 </script>
 
 <template>

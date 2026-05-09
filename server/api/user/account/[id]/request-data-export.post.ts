@@ -19,6 +19,6 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zRequestUserAccountDataExportResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

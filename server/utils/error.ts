@@ -16,28 +16,40 @@ export function handleError(
   error: unknown,
 ): never {
   if (typeof error === 'object' && error !== null && 'data' in error) {
-    if (error.data instanceof ZodError) {
-      log.error({ action: 'validation', error: error.data.message })
+    if ((error as { data: unknown }).data instanceof ZodError) {
+      log.error({ action: 'validation', error: (error as { data: ZodError }).data.message })
     }
   }
-  if (error instanceof ZodError || error instanceof FetchError || error instanceof H3Error) {
-    if (error instanceof ZodError) {
-      log.error({ action: 'validation', error: error.message })
-    }
-    else if (error instanceof FetchError) {
-      log.error({ action: 'upstream:fetch', error: error.message })
-    }
-    else {
-      log.error({ action: 'h3', error: error.message })
-    }
-    throw createError(error)
-  }
-  else {
+  if (error instanceof FetchError) {
+    log.error({ action: 'upstream:fetch', error: error.message })
+    const statusCode = error.statusCode ?? 500
+    // Forward upstream Django response bodies (DRF validation errors,
+    // allauth detail) only for client errors. 5xx bodies can leak
+    // dependency-internal diagnostics (e.g. dj-stripe, allauth) so
+    // we drop them and surface a generic message instead.
+    const safeData = statusCode < 500 ? error.data : undefined
     throw createError({
-      statusCode: 500,
-      statusMessage: 'Internal Server Error',
+      statusCode,
+      statusMessage: error.statusMessage ?? error.message,
+      data: safeData,
     })
   }
+  if (error instanceof H3Error) {
+    log.error({ action: 'h3', error: error.message })
+    throw error
+  }
+  if (error instanceof ZodError) {
+    log.error({ action: 'validation', error: error.message })
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Validation error',
+      data: { issues: error.issues },
+    })
+  }
+  throw createError({
+    statusCode: 500,
+    statusMessage: 'Internal Server Error',
+  })
 }
 
 export async function handleAllAuthError(
@@ -79,5 +91,5 @@ export async function handleAllAuthError(
     log.error({ action: 'auth:unexpected', error })
   }
 
-  await handleError(error)
+  handleError(error)
 }

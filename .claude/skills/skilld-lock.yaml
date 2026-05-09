@@ -1,0 +1,9 @@
+skills:
+  nuxt-ai-ready-skilld:
+    packageName: nuxt-ai-ready
+    version: 1.3.0
+    packages: "nuxt-ai-ready@1.3.0"
+    repo: harlan-zw/nuxt-ai-ready
+    source: "https://nuxtseo.com/llms.txt"
+    syncedAt: 2026-04-30
+    generator: skilld

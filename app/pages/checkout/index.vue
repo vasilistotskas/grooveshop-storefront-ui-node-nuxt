@@ -4,6 +4,12 @@ const localePath = useLocalePath()
 const { t } = useI18n()
 const route = useRoute()
 const toast = useToast()
+const config = useRuntimeConfig()
+// Nuxt's runtimeConfig parser passes env values through destr(), which
+// auto-coerces numeric strings to numbers ('10391' → 10391). Force the
+// downstream prop type back to string so all the BoxNow components keep
+// their strict `partnerId: string` typing.
+const boxnowPartnerId = String(config.public.boxnowPartnerId ?? '')
 
 const cartStore = useCartStore()
 const { hasStockIssues, cart } = storeToRefs(cartStore)
@@ -44,13 +50,16 @@ const {
   payWayOptions,
   step1Schema,
   step2Schema,
-  onCountryChange,
+  step3Schema,
   savedAddresses,
   selectedSavedAddressId,
   selectSavedAddress,
   addressEntryMode,
   useNewAddress,
   b2bInvoicingEnabled,
+  boxnowEnabled,
+  acsSmartpointEnabled,
+  refetchShippingSettings,
 } = await useCheckoutForm()
 
 const {
@@ -71,7 +80,45 @@ const {
   onPaymentError,
   onLoyaltyRedeemed,
   onLoyaltyCleared,
-} = useCheckoutSubmit({ formState, selectedPayWay, payWays })
+  fireInitiateCheckout,
+} = useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchShippingSettings })
+
+// Meta Pixel: InitiateCheckout fires once when the customer lands on
+// the checkout page. The eventID is stashed inside useCheckoutSubmit
+// so the order POST body forwards it to Django for server-side dedup.
+onMounted(() => {
+  fireInitiateCheckout()
+})
+
+// Summary of the selected shipping method, surfaced on the payment
+// step in the right sidebar so the shopper can verify their pick
+// without scrolling back. ``null`` on earlier steps so the alert
+// stays hidden until shipping has actually been chosen.
+const shippingSummary = computed(() => {
+  if (currentStep.value !== 2) return null
+  const method = formState.shippingMethod
+  if (method === 'box_now_locker') {
+    const locker = formState.boxnowLocker
+    return {
+      method,
+      lockerName: locker?.boxnowLockerName ?? null,
+      lockerId: formState.boxnowLockerId || locker?.boxnowLockerId || null,
+      lockerAddress: locker?.boxnowLockerAddressLine1 ?? null,
+    }
+  }
+  if (method === 'acs_smartpoint') {
+    const station = formState.acsStation
+    return {
+      method,
+      lockerName: station?.name ?? null,
+      lockerId: formState.acsStationExternalId || null,
+      lockerAddress: [station?.addressLine1, station?.city]
+        .filter(Boolean)
+        .join(', ') || null,
+    }
+  }
+  return { method }
+})
 
 const handleStockRetry = () => {
   stockError.value = null
@@ -103,28 +150,19 @@ useSeoMeta({
 definePageMeta({
   layout: 'default',
   middleware: [
-    async function () {
+    function () {
       const { $i18n } = useNuxtApp()
       const t = $i18n.t.bind($i18n)
       const localePath = useLocalePath()
       const toast = useToast()
-      let cart: CartDetail | null = null
-      try {
-        cart = await $fetch('/api/cart', {
-          method: 'GET',
-          headers: useRequestHeaders(),
-        })
-      }
-      catch {
-        toast.add({
-          title: t('error.default'),
-          description: t('error_occurred'),
-          color: 'error',
-        })
-        return navigateTo(localePath('index'))
-      }
+      // The cart store is already populated by the setup plugin before any
+      // page renders (and before client-side navigations). Re-fetching here
+      // via useRequestHeaders() is both redundant and unsafe — the composable
+      // is not supported inside inline page middleware on the server.
+      const cartStore = useCartStore()
+      const cartItems = cartStore.cart?.items
 
-      if (!cart?.items || cart?.items.length === 0) {
+      if (!cartItems || cartItems.length === 0) {
         toast.add({
           title: t('cart_empty'),
           color: 'error',
@@ -154,6 +192,7 @@ definePageMeta({
           v-model="currentStep"
           :items="[
             { title: t('steps.info_and_address'), icon: 'i-heroicons-user-circle' },
+            { title: t('shipping.method.title'), icon: 'i-heroicons-truck' },
             { title: t('steps.payment'), icon: 'i-heroicons-credit-card' },
           ]"
           class="mb-6"
@@ -173,7 +212,7 @@ definePageMeta({
             @back-to-form="backToForm"
           />
 
-          <!-- Step 1: Personal Info & Address -->
+          <!-- Step 0: Personal Info & Address -->
           <CheckoutStepPersonalInfo
             v-else-if="currentStep === 0"
             v-model:form-state="formState"
@@ -185,16 +224,28 @@ definePageMeta({
             :mode="addressEntryMode"
             :b2b-invoicing-enabled="b2bInvoicingEnabled"
             @next="nextStep"
-            @country-change="onCountryChange"
             @select-saved-address="selectSavedAddress"
             @use-new-address="useNewAddress"
           />
 
-          <!-- Step 2: Payment -->
-          <CheckoutStepPayment
+          <!-- Step 1: Shipping Method -->
+          <CheckoutStepShipping
             v-else-if="currentStep === 1"
             v-model:form-state="formState"
             :schema="step2Schema"
+            :partner-id="boxnowPartnerId"
+            :boxnow-enabled="boxnowEnabled"
+            :acs-smartpoint-enabled="acsSmartpointEnabled"
+            :selected-pay-way="selectedPayWay"
+            @next="nextStep"
+            @back="prevStep"
+          />
+
+          <!-- Step 2: Payment -->
+          <CheckoutStepPayment
+            v-else-if="currentStep === 2"
+            v-model:form-state="formState"
+            :schema="step3Schema"
             :pay-way-options="payWayOptions"
             :is-submitting="isSubmitting"
             @submit="onSubmit"
@@ -227,8 +278,9 @@ definePageMeta({
         <div class="lg:sticky lg:top-4">
           <CheckoutSidebar
             :shipping-price="shippingPrice"
-            :show-payment-fee="currentStep === 1"
+            :show-payment-fee="currentStep === 2"
             :loyalty-discount="loyaltyDiscount?.amount ?? 0"
+            :shipping-summary="shippingSummary"
           >
             <template #items>
               <CheckoutItems />
@@ -238,7 +290,7 @@ definePageMeta({
               <!-- Loyalty Points Redemption (logged in) -->
               <LoyaltyRedemption
                 v-if="loggedIn"
-                :currency="'EUR'"
+                :currency="cart?.currency ?? 'EUR'"
                 :max-discount-amount="cart?.totalPrice ?? 0"
                 @redeemed="onLoyaltyRedeemed"
                 @cleared="onLoyaltyCleared"

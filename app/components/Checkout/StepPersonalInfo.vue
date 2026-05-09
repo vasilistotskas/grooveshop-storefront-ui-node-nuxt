@@ -22,7 +22,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'next': []
-  'country-change': []
   'select-saved-address': [addressId: number]
   'use-new-address': []
 }>()
@@ -129,7 +128,7 @@ function onUseNew() {
                 class="w-full"
               >
                 <template #leading>
-                  <span class="pl-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">+30</span>
+                  <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">+30</span>
                 </template>
               </UInput>
             </UFormField>
@@ -214,9 +213,17 @@ function onUseNew() {
               :items="countryOptions"
               size="xl"
               class="w-full"
-              @update:model-value="emit('country-change')"
             />
           </UFormField>
+
+          <!-- ACS address-validation chip (Phase 4b polish).
+               Greece-only because ACS only services GR; failures
+               are silent so a misconfigured / disabled provider
+               never blocks the form. -->
+          <CheckoutAcsAddressSuggestion
+            v-model:formState="formState"
+            :enabled="formState.country === 'GR'"
+          />
         </div>
       </template>
 

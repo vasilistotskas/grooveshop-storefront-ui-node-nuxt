@@ -7,6 +7,19 @@ export default defineAppConfig({
     container: {
       base: 'w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8',
     },
+    // Override the default UMain min-height. Nuxt UI v4 ships with
+    // ``min-h-[calc(100vh-var(--ui-header-height))]``, but ``100vh`` on
+    // iOS Safari/Chrome resolves to the *largest* possible viewport
+    // (address-bar collapsed). When the bar is visible, the actual
+    // visible area is shorter than 100vh, so the main element extends
+    // *below* the bar and the page jolts every time the bar shows or
+    // hides. ``100dvh`` (dynamic viewport height) tracks the currently
+    // visible area, eliminating that jolt and the "scrolling looks
+    // broken" feel on mobile. Falls back to 100vh in browsers without
+    // dvh support (Safari <15.4) via the @supports flag layer.
+    main: {
+      base: 'min-h-[calc(100dvh-var(--ui-header-height))]',
+    },
     formField: {
       slots: {
         error: 'text-xs',

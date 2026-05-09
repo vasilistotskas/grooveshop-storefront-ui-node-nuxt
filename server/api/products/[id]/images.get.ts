@@ -6,11 +6,12 @@ export default defineCachedEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/product/${params.id}/images`, {
       method: 'GET',
       query,
+      headers: createHeaders(null, null),
     })
     return await parseDataAs(response, zListProductImagesResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'ProductImagesViewSet',

@@ -32,7 +32,7 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="flex min-h-[calc(100vh-4rem)] items-start justify-center p-4">
+  <div class="flex min-h-[calc(100dvh-4rem)] items-start justify-center p-4">
     <UContainer class="max-w-2xl">
       <UBreadcrumb
         :items="items"

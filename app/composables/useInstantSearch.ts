@@ -66,6 +66,12 @@ export function useInstantSearch<T = any>(
 ): InstantSearchResult<T> {
   const route = useRoute()
   const router = useRouter()
+  // Capture the Meta Pixel + GA4 proxies at composable-setup time so
+  // the debounced ``executeSearch`` callback (fires asynchronously
+  // after the user stops typing) doesn't re-invoke ``useScript*``
+  // from a non-setup context.
+  const metaPixel = useMetaPixel()
+  const ga4 = useGA4()
 
   // Default options
   const debounceMs = options.debounceMs ?? 150
@@ -170,10 +176,38 @@ export function useInstantSearch<T = any>(
       if (typedResponse.facetStats) {
         facetStats.value = typedResponse.facetStats
       }
+
+      // Meta Pixel: Search event. Fired only when the API actually
+      // returned a response (we already debounced, abort-skipped,
+      // and trimmed empty queries above). Browser-only — no
+      // dedup against a server-side leg, so the composable mints
+      // its own eventID. ``search_string`` is the only canonical
+      // payload field; ``contentIds`` enriches reporting when the
+      // results include products. Wrapped in try/catch so a
+      // pixel hiccup never breaks the search UX.
+      try {
+        const productIds = (typedResponse.results || [])
+          .slice(0, 10)
+          .map((entry: any) => entry?.id ?? entry?.productId)
+          .filter((id: unknown): id is number | string => id != null)
+          .map((id: number | string) => String(id))
+        metaPixel.trackSearch({
+          searchString: query,
+          contentType: 'product',
+          contentIds: productIds,
+        })
+        ga4.trackSearch({ search_term: query })
+      }
+      catch (pixelErr) {
+        log.warn(
+          'search:metaPixelSearch',
+          String((pixelErr as Error)?.message ?? pixelErr),
+        )
+      }
     }
-    catch (error: any) {
+    catch (error: unknown) {
       // Ignore abort errors (expected when cancelling requests)
-      if (error.name === 'AbortError') {
+      if (error instanceof Error && error.name === 'AbortError') {
         return
       }
 

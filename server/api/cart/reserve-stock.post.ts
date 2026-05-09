@@ -54,6 +54,6 @@ export default defineEventHandler(async (event) => {
         },
       })
     }
-    await handleError(error)
+    handleError(error)
   }
 })

@@ -10,6 +10,12 @@ export default defineEventHandler(async (event) => {
     })
     const passwordChangeResponse = await parseDataAs(response, ZodSessionResponse)
     await processAllAuthSession(passwordChangeResponse)
+    // ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE=True: Django revokes the Knox token on
+    // password change. Clear the Nuxt encrypted session cookie so the stale
+    // accessToken is not forwarded on subsequent requests.
+    if (passwordChangeResponse.meta?.is_authenticated === false) {
+      await clearUserSession(event)
+    }
     return passwordChangeResponse
   }
   catch (error) {

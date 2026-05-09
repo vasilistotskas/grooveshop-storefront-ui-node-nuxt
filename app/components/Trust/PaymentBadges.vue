@@ -55,7 +55,7 @@ const items = computed(() => {
   >
     <UIcon
       name="i-mdi-credit-card-outline"
-      class="h-5 w-5 text-neutral-500 dark:text-neutral-300"
+      class="h-5 w-5 text-neutral-700 dark:text-neutral-300"
       aria-hidden="true"
     />
     <span
@@ -68,13 +68,17 @@ const items = computed(() => {
         dark:border-neutral-700 dark:bg-neutral-100
       "
     >
-      <NuxtImg
+      <ImgWithFallback
         v-if="item.image"
         :src="item.image"
         :alt="item.name"
-        class="h-4 w-auto object-contain"
-        width="24"
-        height="16"
+        class="h-4 w-auto object-contain dark:invert"
+        :width="24"
+        :height="16"
+        fit="contain"
+        :format="'svg'"
+        :background="'transparent'"
+        provider="mediaStream"
         loading="lazy"
       />
       <span

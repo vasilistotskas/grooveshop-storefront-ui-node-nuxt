@@ -138,7 +138,7 @@ describe('LoyaltySummary Component', () => {
       expect(wrapper.text()).toContain('Ασημένιο')
     })
 
-    it('should display translated tier name for German locale', async () => {
+    it('should display Greek tier name when data also includes German translation', async () => {
       mockSummaryRef.value = {
         pointsBalance: 1500,
         totalXp: 5000,

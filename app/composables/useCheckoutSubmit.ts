@@ -1,7 +1,13 @@
-export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
+export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchShippingSettings }: {
+  // The reactive form-state object from ``useCheckoutForm`` —
+  // its inferred shape isn't exported, so we accept a permissive
+  // record here. Field-level reads in ``buildOrderValues`` are
+  // type-narrowed to the auto-generated ``OrderCreateFromCart
+  // RequestWritable`` shape via the carrier registry.
   formState: Record<string, any>
   selectedPayWay: Ref<PayWay | null>
   payWays: Ref<Pagination<PayWay> | null | undefined>
+  refetchShippingSettings?: () => Promise<void>
 }) {
   const { fetch } = useUserSession()
   const localePath = useLocalePath()
@@ -26,6 +32,57 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
   const MAX_RETRIES = 3
   const paymentIntentId = ref<string | null>(null)
   const retryTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
+  // Idempotency key: generated once per checkout attempt, preserved
+  // across retries so duplicate network submissions never double-charge.
+  // Cleared on success or on non-retryable errors so a fresh attempt
+  // (e.g. user corrects a validation error) gets a new key.
+  const idempotencyKey = ref<string | null>(null)
+
+  // Meta Pixel event_ids for browser↔server deduplication. Minted at
+  // the moment the customer enters checkout (InitiateCheckout) and
+  // persists across step navigation; submitted to Django in the
+  // order body so the server-leg uses the same id and Meta dedups.
+  // GA4 mirrors the same lifecycle but doesn't dedup against a
+  // server leg — separate analytics ecosystem.
+  const metaPixel = useMetaPixel()
+  const ga4 = useGA4()
+  const cookieControl = useCookieControl()
+  const metaEventIds = reactive<{
+    initiateCheckout?: string
+    addPaymentInfo?: string
+    purchase?: string
+  }>({})
+
+  /**
+   * Build the ``meta`` payload forwarded to Django at order creation.
+   * Returns ``null`` when consent isn't granted so we don't leak
+   * dedup ids server-side for customers who refused marketing
+   * cookies. The Nuxt server proxy (``server/api/orders/index.post.ts``)
+   * enriches this with fbp/fbc + UA + IP before forwarding.
+   */
+  const buildMetaPayload = () => {
+    const adsConsent = (cookieControl.cookiesEnabledIds.value ?? []).includes(
+      'ad_storage',
+    )
+    if (!adsConsent) return null
+    // Fresh Purchase id every submit so retries don't dedup against
+    // a previous (failed) attempt. The InitiateCheckout id is
+    // sticky for the lifetime of the checkout page.
+    const purchaseId = metaPixel.newEventId()
+    metaEventIds.purchase = purchaseId
+    return {
+      consent: { ads: true },
+      event_ids: {
+        ...(metaEventIds.initiateCheckout
+          ? { initiate_checkout: metaEventIds.initiateCheckout }
+          : {}),
+        ...(metaEventIds.addPaymentInfo
+          ? { add_payment_info: metaEventIds.addPaymentInfo }
+          : {}),
+        purchase: purchaseId,
+      },
+    }
+  }
 
   // Loyalty discount state
   const loyaltyDiscount = ref<{ amount: number, currency: string, points: number } | null>(null)
@@ -33,12 +90,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
   // Stock error state
   const stockError = ref<{
     show: boolean
-    failedItems: Array<{
-      productId: number
-      productName: string
-      available: number
-      requested: number
-    }>
+    failedItems: FailedStockItem[]
   } | null>(null)
 
   // Computed
@@ -118,6 +170,21 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
       toast.add({ title: t('form.submit.error.general'), color: 'error' })
       return
     }
+
+    // Map the local UI radio selection to the registry-driven
+    // (provider_code, kind) pair the API expects. Home delivery
+    // sends only ``shipping_kind`` and lets Django's dynamic
+    // auto-router pick the active home-delivery provider. The
+    // carrier owns its own payload shape via ``buildOrderPayload``
+    // — adding ELTA / Speedex requires no edits here.
+    const carrier = carrierForMethod(formState.shippingMethod)
+    const shippingKind = formState.shippingMethod === 'home_delivery'
+      ? 'home_delivery'
+      : 'pickup_point'
+    const carrierPayload = carrier?.buildOrderPayload?.(formState) ?? {}
+
+    const metaPayload = buildMetaPayload()
+
     return {
       payWayId: formState.payWayId,
       countryId: formState.countryId!,
@@ -142,6 +209,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
       billingVatId: formState.billingVatId || undefined,
       billingCountry: formState.billingCountry || undefined,
       loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
+      shippingProviderCode: carrier?.code,
+      shippingKind,
+      ...carrierPayload,
+      ...(metaPayload ? { meta: metaPayload } : {}),
     } as OrderCreateFromCartRequest
   }
 
@@ -229,6 +300,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
       return
     }
     let handledByResponseError = false
+    // Generate an idempotency key on first attempt; reuse on retries
+    if (!idempotencyKey.value) {
+      idempotencyKey.value = crypto.randomUUID()
+    }
     try {
       // Create payment intent from cart if not already created
       if (!paymentIntentId.value) {
@@ -237,7 +312,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
           throw new Error('Cart not found')
         }
 
-        const paymentIntent = await createPaymentIntentFromCart(cartId, formState.payWayId)
+        const paymentIntent = await createPaymentIntentFromCart(cartId, formState.payWayId, idempotencyKey.value)
         paymentIntentId.value = paymentIntent.paymentIntentId
       }
 
@@ -249,13 +324,18 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
 
       await $fetch('/api/orders', {
         method: 'POST',
-        headers: useRequestHeaders(),
+        headers: {
+          ...useRequestHeaders(),
+          'Idempotency-Key': idempotencyKey.value,
+        },
         body: submitValues,
         async onResponse({ response }) {
           if (!response.ok) return
 
           createdOrder.value = response._data
           maybeSaveDeliveryAddress()
+          // Clear idempotency key on success so a future checkout starts fresh
+          idempotencyKey.value = null
 
           toast.add({
             title: t('order_created_payment_required'),
@@ -267,16 +347,23 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
           // Clear stale payment intent so the next retry creates a fresh one
           paymentIntentId.value = null
           handledByResponseError = true
-          handleRetryableError(handleOrderError(response))
+          const errorInfo = handleOrderError(response)
+          // Clear idempotency key on non-retryable errors so the next
+          // fresh attempt doesn't reuse a key that maps to a failed intent
+          if (!errorInfo.shouldRetry) {
+            idempotencyKey.value = null
+          }
+          handleRetryableError(errorInfo)
         },
       })
     }
-    catch (error: any) {
+    catch (error: unknown) {
       log.error({ action: 'checkout:orderCreation', error })
       if (!handledByResponseError) {
+        idempotencyKey.value = null
         toast.add({
           title: t('payment_intent_error'),
-          description: error?.data?.message || error?.message || t('payment_intent_error_description'),
+          description: getErrorDetail(error) || t('payment_intent_error_description'),
           color: 'error',
         })
       }
@@ -311,12 +398,12 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
         },
       })
     }
-    catch (error: any) {
+    catch (error: unknown) {
       log.error({ action: 'checkout:vivaWalletOrderCreation', error })
       if (!handledByResponseError) {
         toast.add({
           title: t('payment_intent_error'),
-          description: error?.data?.message || error?.message || t('payment_intent_error_description'),
+          description: getErrorDetail(error) || t('payment_intent_error_description'),
           color: 'error',
         })
         // Release any stock reservations held for this checkout attempt
@@ -351,6 +438,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
             title: t('form.submit.success'),
             color: 'success',
           })
+          // Clear cart server-side after order is confirmed
+          try {
+            await $fetch('/api/cart/clear', { method: 'POST' })
+          }
+          catch (err) {
+            log.error({ action: 'checkout:clearCart', error: err })
+          }
           await cleanCartState()
           await fetch()
           if (!response._data?.uuid) {
@@ -367,7 +461,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
         },
       })
     }
-    catch (error: any) {
+    catch (error: unknown) {
       log.error({ action: 'checkout:orderCreation', error })
     }
   }
@@ -398,12 +492,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
           // Clear any previous stock errors on success
           stockError.value = null
         }
-        catch (error: any) {
+        catch (error: unknown) {
           // Handle stock reservation errors with structured data
-          if (error.code === 'insufficient_stock' && error.failedItems) {
+          const e = error && typeof error === 'object' ? error as Record<string, unknown> : null
+          if (e?.code === 'insufficient_stock' && Array.isArray(e.failedItems)) {
             stockError.value = {
               show: true,
-              failedItems: error.failedItems,
+              failedItems: e.failedItems as FailedStockItem[],
             }
 
             // Scroll to top to show the error alert
@@ -416,14 +511,22 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
           // Handle other reservation errors
           toast.add({
             title: t('form.submit.error.stock_reservation'),
-            description: error.message || t('form.submit.error.stock_reservation_description'),
+            description: getErrorDetail(error) || t('form.submit.error.stock_reservation_description'),
             color: 'error',
           })
           return
         }
       }
 
-      // Step 2: Set selected payment way
+      // Step 2a: Refetch shipping price to ensure the sidebar total
+      // reflects the latest server-side cost before order creation.
+      if (refetchShippingSettings) {
+        await refetchShippingSettings().catch(err =>
+          log.warn('checkout', 'shipping refetch failed, using cached value', { err }),
+        )
+      }
+
+      // Step 2b: Set selected payment way
       payWays.value?.results?.forEach((pw) => {
         if (pw.id === formState.payWay) {
           selectedPayWay.value = pw
@@ -441,12 +544,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
         await handleOfflinePaymentFlow()
       }
     }
-    catch (error: any) {
-      if (!error.response && !error.data) {
+    catch (error: unknown) {
+      const e = error && typeof error === 'object' ? error as Record<string, unknown> : null
+      if (e && !('response' in e) && !('data' in e)) {
         log.error({ action: 'checkout:submit', error })
         toast.add({
           title: t('form.submit.error.general'),
-          description: error.message || t('error_occurred'),
+          description: getErrorDetail(error) || t('error_occurred'),
           color: 'error',
         })
       }
@@ -469,6 +573,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
       description: t('order_completed_successfully'),
       color: 'success',
     })
+    // Clear cart server-side only after payment is confirmed so a failed
+    // Stripe confirmation doesn't wipe the cart before we know it succeeded.
+    try {
+      await $fetch('/api/cart/clear', { method: 'POST' })
+    }
+    catch (err) {
+      log.error({ action: 'checkout:clearCart', error: err })
+    }
     await cleanCartState()
     await fetch()
     await navigateTo(localePath({
@@ -499,7 +611,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
   const backToForm = () => {
     createdOrder.value = null
     selectedPayWay.value = null
-    currentStep.value = 1
+    // Payment is now step 2 in the 3-step flow (0: info, 1: shipping, 2: payment)
+    currentStep.value = 2
   }
 
   const onLoyaltyRedeemed = (discount: { amount: number, currency: string, points: number }) => {
@@ -511,8 +624,95 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
   }
 
   const nextStep = async () => {
-    if (currentStep.value === 0) {
-      currentStep.value = 1
+    if (currentStep.value < 2) {
+      currentStep.value++
+      // Meta Pixel: AddPaymentInfo + GA4: add_payment_info both fire
+      // once when the customer enters the payment step. Browser-only
+      // events (no server-side dedup); the Meta composable mints its
+      // own eventID.
+      if (currentStep.value === 2 && !metaEventIds.addPaymentInfo) {
+        try {
+          const value = Number(cart.value?.totalPrice ?? 0)
+          const currency = cart.value?.currency ?? 'EUR'
+          const productIds
+            = cart.value?.items
+              ?.map(item => String(item.product?.id ?? ''))
+              .filter(id => !!id) ?? []
+          const eventId = metaPixel.trackAddPaymentInfo({
+            currency,
+            value,
+            contentType: 'product',
+            contentIds: productIds,
+            numItems: cart.value?.totalItems ?? 0,
+          })
+          if (eventId) metaEventIds.addPaymentInfo = eventId
+
+          ga4.trackAddPaymentInfo({
+            currency,
+            value,
+            payment_type: selectedPayWay.value?.providerCode || undefined,
+            items:
+              cart.value?.items?.map(item => ({
+                item_id: String(item.product?.id ?? ''),
+                quantity: Number(item.quantity ?? 0),
+                price: Number(
+                  item.product?.finalPrice ?? item.product?.price ?? 0,
+                ),
+              })) ?? [],
+          })
+        }
+        catch (pixelErr) {
+          log.warn(
+            'checkout:pixelAddPaymentInfo',
+            String((pixelErr as Error)?.message ?? pixelErr),
+          )
+        }
+      }
+    }
+  }
+
+  /**
+   * Called once when the customer enters the checkout flow. Fires:
+   * * Meta InitiateCheckout (browser leg, deduped against the Django
+   *   server leg via ``metaEventIds.initiateCheckout``)
+   * * GA4 begin_checkout (browser-only, no dedup)
+   */
+  const fireInitiateCheckout = () => {
+    if (metaEventIds.initiateCheckout) return
+    try {
+      const value = Number(cart.value?.totalPrice ?? 0)
+      const currency = cart.value?.currency ?? 'EUR'
+      const productIds
+        = cart.value?.items
+          ?.map(item => String(item.product?.id ?? ''))
+          .filter(id => !!id) ?? []
+      const eventId = metaPixel.trackInitiateCheckout({
+        currency,
+        value,
+        contentType: 'product',
+        contentIds: productIds,
+        numItems: cart.value?.totalItems ?? 0,
+      })
+      if (eventId) metaEventIds.initiateCheckout = eventId
+
+      ga4.trackBeginCheckout({
+        currency,
+        value,
+        items:
+          cart.value?.items?.map(item => ({
+            item_id: String(item.product?.id ?? ''),
+            quantity: Number(item.quantity ?? 0),
+            price: Number(
+              item.product?.finalPrice ?? item.product?.price ?? 0,
+            ),
+          })) ?? [],
+      })
+    }
+    catch (pixelErr) {
+      log.warn(
+        'checkout:pixelInitiateCheckout',
+        String((pixelErr as Error)?.message ?? pixelErr),
+      )
     }
   }
 
@@ -549,5 +749,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays }: {
     onPaymentError,
     onLoyaltyRedeemed,
     onLoyaltyCleared,
+    fireInitiateCheckout,
   }
 }

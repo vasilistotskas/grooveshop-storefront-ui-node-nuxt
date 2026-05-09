@@ -2,23 +2,26 @@ export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
 
   try {
-    const query = await getValidatedQuery(event, zSearchProductRetrieveQuery.parse)
+    const query = await getValidatedQuery(event, zApiV1SearchProductRetrieveQuery.parse)
 
-    if (!query?.query?.trim()) {
+    if (typeof query?.query !== 'string' || !query.query.trim()) {
       return {
         products: null,
         blogPosts: null,
       }
     }
 
+    const fwdHeaders = createHeaders(null, null)
     const [productResponse, blogPostResponse] = await Promise.all([
       $fetch(`${config.apiBaseUrl}/search/product`, {
         method: 'GET',
         query,
+        headers: fwdHeaders,
       }),
       $fetch(`${config.apiBaseUrl}/search/blog/post`, {
         method: 'GET',
         query,
+        headers: fwdHeaders,
       }),
     ])
 
@@ -33,6 +36,6 @@ export default defineEventHandler(async (event) => {
     }
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

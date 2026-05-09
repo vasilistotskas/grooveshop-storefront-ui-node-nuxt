@@ -186,7 +186,7 @@ const schema = z.object({
       error: t('validation.min', { min: 1 }),
     })
     .max(10, {
-      error: t('validation.min', { max: 10 }),
+      error: t('validation.max', { max: 10 }),
     }),
 })
 
@@ -217,6 +217,41 @@ const foregroundStars = computed(() => {
 const backgroundStars = computed(() => {
   return useTimes(starCountMax, useConstant(starSvg)) as string[]
 })
+
+const onRatingKeydown = (event: KeyboardEvent) => {
+  let newRate = state.rate ?? 0
+  switch (event.key) {
+    case 'ArrowRight':
+    case 'ArrowUp':
+      event.preventDefault()
+      newRate = Math.min(reviewCountMax, newRate + 1)
+      break
+    case 'ArrowLeft':
+    case 'ArrowDown':
+      event.preventDefault()
+      newRate = Math.max(0, newRate - 1)
+      break
+    case 'PageUp':
+      event.preventDefault()
+      newRate = Math.min(reviewCountMax, newRate + 2)
+      break
+    case 'PageDown':
+      event.preventDefault()
+      newRate = Math.max(0, newRate - 2)
+      break
+    case 'Home':
+      event.preventDefault()
+      newRate = 0
+      break
+    case 'End':
+      event.preventDefault()
+      newRate = reviewCountMax
+      break
+    default:
+      return
+  }
+  state.rate = newRate
+}
 
 const lockSelection = (event: TouchEvent | MouseEvent) => {
   updateIsEditable(true)
@@ -279,9 +314,14 @@ const createReviewEvent = async (event: Schema) => {
         color: 'success',
       })
     },
-    onResponseError() {
+    onResponseError({ response }) {
+      const errorBody = response?._data
+      const productError = errorBody?.data?.product ?? errorBody?.product
+      const isPurchaseRequired
+        = productError === 'must_have_purchased'
+          || (Array.isArray(productError) && productError.includes('must_have_purchased'))
       toast.add({
-        title: t('add.error'),
+        title: isPurchaseRequired ? t('add.must_purchase_first') : t('add.error'),
         color: 'error',
       })
     },
@@ -423,6 +463,12 @@ watch(
             <div class="relative grid grid-cols-[auto_1fr] items-center gap-4">
               <div
                 ref="ratingBoard"
+                role="slider"
+                tabindex="0"
+                :aria-valuenow="state.rate"
+                aria-valuemin="0"
+                aria-valuemax="10"
+                :aria-label="t('rating.aria_label')"
                 class="
                   relative z-10 inline-flex h-[26px] flex-row flex-nowrap
                   items-center justify-start
@@ -434,6 +480,7 @@ watch(
                 @touchend.passive="reLockSelection()"
                 @touchmove.passive="updateNewSelectionRatio($event)"
                 @touchstart.passive="unlockSelection()"
+                @keydown="onRatingKeydown"
               >
                 <svg
                   v-for="(star, i) of backgroundStars"
@@ -549,6 +596,7 @@ el:
   write_review_for_product: Γράψε μια κριτική για το προϊόν {product}
   add:
     error: Σφάλμα δημιουργίας σχολίου
+    must_purchase_first: Μπορείς να γράψεις κριτική μόνο για προϊόντα που έχεις αγοράσει
     success: Η κριτική δημιουργήθηκε με επιτυχία
   update:
     error: Σφάλμα ενημέρωσης σχολίου
@@ -558,6 +606,7 @@ el:
     error: Προέκυψε σφάλμα κατά την διαγραφή
   rating:
     title: Βαθμολογία
+    aria_label: Βαθμολογία (0-10)
     bad: Κακό
     not_that_good: Όχι και τόσο καλό
     meh: Meh

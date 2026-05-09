@@ -206,6 +206,24 @@ useSeoMeta({
   twitterCard: 'summary_large_image',
 })
 
+// Hreflang alternate links. Currently only 'el' is active.
+// When more locales activate, iterate SUPPORTED_LOCALES and emit one
+// <link rel="alternate"> per locale using the localised path.
+useHead({
+  link: [
+    {
+      rel: 'alternate',
+      hreflang: 'el',
+      href: () => `${siteUrl}${route.path}`,
+    },
+    {
+      rel: 'alternate',
+      hreflang: 'x-default',
+      href: () => `${siteUrl}${route.path}`,
+    },
+  ],
+})
+
 useSchemaOrg([
   definePerson({
     '@id': '#author',

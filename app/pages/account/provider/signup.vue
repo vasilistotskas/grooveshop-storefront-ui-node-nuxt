@@ -4,6 +4,7 @@ const localePath = useLocalePath()
 
 definePageMeta({
   layout: 'default',
+  middleware: 'guest',
 })
 </script>
 

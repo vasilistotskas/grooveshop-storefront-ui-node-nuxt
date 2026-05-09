@@ -2,12 +2,22 @@ import { withQuery } from 'ufo'
 import type { FetchResponse } from 'ofetch'
 import type { H3Error } from 'h3'
 
-const callAuthChangeHook = async (authData: AllAuthResponse | AllAuthResponseError) => {
-  const nuxtApp = useNuxtApp()
-  await nuxtApp.callHook('auth:change', { detail: authData })
+export interface AuthChangeMeta {
+  explicit?: boolean
 }
 
-export const onAllAuthResponse = async (response: FetchResponse<AllAuthResponse>) => {
+const callAuthChangeHook = async (
+  authData: AllAuthResponse | AllAuthResponseError,
+  meta: AuthChangeMeta = {},
+) => {
+  const nuxtApp = useNuxtApp()
+  await nuxtApp.callHook('auth:change', { detail: authData, ...meta })
+}
+
+export const onAllAuthResponse = async (
+  response: FetchResponse<AllAuthResponse>,
+  meta: AuthChangeMeta = {},
+) => {
   if (!response || !response._data) return
   log.info('auth', 'onAllAuthResponse', { status: response.status })
   // Only fire auth:change for responses that carry auth state (meta.is_authenticated).
@@ -17,16 +27,19 @@ export const onAllAuthResponse = async (response: FetchResponse<AllAuthResponse>
   // LOGGED_OUT event.
   if (response.status === 200 && response._data.meta?.is_authenticated !== undefined) {
     log.info('auth', 'Auth response 200 with meta, calling auth:change hook')
-    await callAuthChangeHook(response._data)
+    await callAuthChangeHook(response._data, meta)
   }
 }
 
-export const onAllAuthResponseError = async (response: FetchResponse<H3Error<AllAuthResponseError>>) => {
+export const onAllAuthResponseError = async (
+  response: FetchResponse<H3Error<AllAuthResponseError>>,
+  meta: AuthChangeMeta = {},
+) => {
   if (!response || !response._data) return
   log.info('auth', 'onAllAuthResponseError', { status: response.status })
   if ([401, 410].includes(response.status) && response._data.data) {
     log.info('auth', 'Status includes 401 or 410')
-    await callAuthChangeHook(response._data.data)
+    await callAuthChangeHook(response._data.data, meta)
   }
 }
 
@@ -63,15 +76,12 @@ export const determineAuthChangeEvent = (
 
   const currentAuthInfo = authInfo(newAuthState)
   const previousAuthInfo = authInfo(previousAuthState)
+  // 410 GONE means the server tore down the session (expired, revoked,
+  // or torn down via explicit logout). Surface as LOGGED_OUT and let the
+  // auth plugin's `handleLoggedOut` decide whether to toast — it already
+  // checks the `userInitiatedLogout` flag so an explicit logout stays
+  // silent and a server-initiated expiry shows exactly one toast.
   if (newAuthState.status === 410) {
-    // useToast/useNuxtApp must be called inside the branch that needs them
-    // to avoid Vue's inject() warning when this function runs outside setup context
-    const toast = useToast()
-    const { t } = useNuxtApp().$i18n
-    toast.add({
-      title: t('auth.error.session.expired'),
-      color: 'warning',
-    })
     return AuthChangeEvent.LOGGED_OUT
   }
 
@@ -184,6 +194,17 @@ export const pathForPendingFlow = (
   return pendingFlow ? pathForFlow(pendingFlow) : null
 }
 
+const UNSAFE_PATH_PREFIXES = ['http://', 'https://', '//', 'data:', 'javascript:', 'vbscript:']
+
+export function isSafeRelativePath(value: string | undefined): boolean {
+  if (!value) return false
+  const trimmed = value.trim()
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//')) return false
+  if (trimmed.includes('\\')) return false
+  const lower = trimmed.toLowerCase()
+  return !UNSAFE_PATH_PREFIXES.some(prefix => lower.startsWith(prefix))
+}
+
 export const navigateToPendingFlow = async (
   response: AllAuthResponse | AllAuthResponseError,
 ) => {
@@ -192,8 +213,9 @@ export const navigateToPendingFlow = async (
   const path = pathForPendingFlow(response)
   log.info('auth', 'Navigating to pending flow', { path })
   if (path) {
-    const next = useRouter().currentRoute.value.query.next
-    const url = withQuery(localePath(path), { next })
+    const rawNext = useRouter().currentRoute.value.query.next?.toString()
+    const safeNext = isSafeRelativePath(rawNext) ? rawNext : undefined
+    const url = withQuery(localePath(path), { next: safeNext })
     log.info('auth', 'Navigating to URL', { url })
     return nuxtApp.runWithContext(() => navigateTo(url))
   }

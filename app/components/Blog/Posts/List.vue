@@ -17,13 +17,19 @@ const props = defineProps({
     required: false,
     default: 10,
   },
+  paginationStrategy: {
+    type: String as PropType<'button' | 'scroll'>,
+    required: false,
+    default: 'scroll',
+    validator: (value: string) => ['button', 'scroll'].includes(value),
+  },
 })
 
 defineSlots<{
   sidebar(props: object): any
 }>()
 
-const { paginationType, pageSize } = toRefs(props)
+const { paginationType, pageSize, paginationStrategy } = toRefs(props)
 
 const route = useRoute()
 const { t, locale } = useI18n()
@@ -174,7 +180,7 @@ watch(
       :page-size="pagination.pageSize"
       :page-total-results="pagination.pageTotalResults"
       :pagination-type="paginationType"
-      :strategy="'scroll'"
+      :strategy="paginationStrategy"
       :total-pages="pagination.totalPages"
     />
     <section
@@ -247,7 +253,7 @@ watch(
       :page-size="pagination.pageSize"
       :page-total-results="pagination.pageTotalResults"
       :pagination-type="paginationType"
-      :strategy="'scroll'"
+      :strategy="paginationStrategy"
       :total-pages="pagination.totalPages"
     />
   </div>

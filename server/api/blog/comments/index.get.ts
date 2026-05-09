@@ -9,7 +9,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zListBlogCommentResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'BlogCommentViewSet',

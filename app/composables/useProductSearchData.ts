@@ -90,10 +90,11 @@ export function useProductSearchData() {
     return `category-facets-${$i18n.locale.value}-${params.toString()}`
   })
 
-  const { data: facetData } = useFetch('/api/products/search', {
-    key: facetKey,
-    query: facetQuery,
-  })
+  const { data: facetData } = useAsyncData(
+    () => `search:facets:${facetKey.value}`,
+    () => $fetch('/api/products/search', { query: facetQuery.value }),
+    { watch: [facetKey, facetQuery] },
+  )
 
   const categoryFacets = computed(() => {
     const distribution = facetData.value?.facetDistribution as FacetDistribution | undefined
@@ -106,9 +107,11 @@ export function useProductSearchData() {
   // Fetch all categories using the dedicated unpaginated endpoint
   // This is needed for both CategoryFilter (list display) and ActiveFilters (name lookup)
   // The /all endpoint returns a flat array without pagination wrapper
-  const { data: allCategories, status: categoriesStatus } = useFetch('/api/products/categories/all', {
-    key: `all-categories-${$i18n.locale.value}`,
-  })
+  const { data: allCategories, status: categoriesStatus } = useAsyncData(
+    () => `all-categories-${$i18n.locale.value}`,
+    () => $fetch('/api/products/categories/all'),
+    { watch: [$i18n.locale] },
+  )
 
   // Computed category name map - derives from allCategories data
   // This ensures the map is always in sync with the fetched data
@@ -138,12 +141,11 @@ export function useProductSearchData() {
   // Fetch all attributes with their values
   // This is needed for AttributeFilter to display available attribute options
   // Uses server-side caching (5 minutes) since attributes don't change frequently
-  const { data: allAttributes, status: attributesStatus } = useFetch('/api/products/attributes', {
-    key: `all-attributes-${$i18n.locale.value}`,
-    query: {
-      languageCode: $i18n.locale.value,
-    },
-  })
+  const { data: allAttributes, status: attributesStatus } = useAsyncData(
+    () => `all-attributes-${$i18n.locale.value}`,
+    () => $fetch('/api/products/attributes', { query: { languageCode: $i18n.locale.value } }),
+    { watch: [$i18n.locale] },
+  )
 
   // ============================================
   // ATTRIBUTE VALUE FACETS (product counts per attribute value)
@@ -176,10 +178,11 @@ export function useProductSearchData() {
     return `attribute-facets-${$i18n.locale.value}-${params.toString()}`
   })
 
-  const { data: attributeFacetData } = useFetch('/api/products/search', {
-    key: attributeFacetKey,
-    query: attributeFacetQuery,
-  })
+  const { data: attributeFacetData } = useAsyncData(
+    () => `search:facets:${attributeFacetKey.value}`,
+    () => $fetch('/api/products/search', { query: attributeFacetQuery.value }),
+    { watch: [attributeFacetKey, attributeFacetQuery] },
+  )
 
   const attributeValueFacets = computed(() => {
     const distribution = attributeFacetData.value?.facetDistribution as FacetDistribution | undefined
@@ -190,12 +193,11 @@ export function useProductSearchData() {
   // ALL ATTRIBUTE VALUES (for AttributeFilter and name lookup)
   // ============================================
   // Fetch all attribute values separately since they're not nested in attributes
-  const { data: allAttributeValues, status: attributeValuesStatus } = useFetch('/api/products/attributes/values', {
-    key: `all-attribute-values-${$i18n.locale.value}`,
-    query: {
-      languageCode: $i18n.locale.value,
-    },
-  })
+  const { data: allAttributeValues, status: attributeValuesStatus } = useAsyncData(
+    () => `all-attribute-values-${$i18n.locale.value}`,
+    () => $fetch('/api/products/attributes/values', { query: { languageCode: $i18n.locale.value } }),
+    { watch: [$i18n.locale] },
+  )
 
   // Computed attribute value name map - derives from allAttributeValues data
   // This ensures the map is always in sync with the fetched data

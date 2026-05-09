@@ -35,7 +35,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zListAttributeValueResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'ProductAttributeValueViewSet',

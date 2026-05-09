@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { watchDebounced } from '@vueuse/core'
-
 /**
  * Cart quantity stepper.
  *

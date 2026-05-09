@@ -30,6 +30,8 @@
   "payment_intent_created_description": "Η πληρωμή σας είναι έτοιμη για επεξεργασία",
   "payment_intent_error": "Σφάλμα πληρωμής",
   "payment_intent_error_description": "Δεν ήταν δυνατή η δημιουργία της πληρωμής. Παρακαλώ δοκιμάστε ξανά.",
+  "saved_address_invalid_title": "Έλεγξε τη διεύθυνση",
+  "saved_address_invalid_description": "Η αποθηκευμένη διεύθυνση έχει νομό που δεν είναι πλέον έγκυρος. Παρακαλώ διάλεξε ξανά τον νομό για να συνεχίσεις.",
   "payment_canceled": "Η πληρωμή ακυρώθηκε",
   "payment_canceled_description": "Η πληρωμή δεν ολοκληρώθηκε. Μπορείς να επιλέξεις διαφορετικό τρόπο πληρωμής ή να δοκιμάσεις ξανά.",
   "payment_error_title": "Σφάλμα πληρωμής",
@@ -46,6 +48,91 @@
   "steps": {
     "info_and_address": "Στοιχεία & Διεύθυνση",
     "payment": "Πληρωμή"
+  },
+  "shipping": {
+    "method": {
+      "title": "Μέθοδος Παράδοσης",
+      "subtitle": "Επιλέξτε πώς θέλετε να παραλάβετε την παραγγελία σας",
+      "home_delivery": {
+        "label": "Παράδοση στη διεύθυνσή σας",
+        "description": "Παράδοση από courier στη διεύθυνση που δηλώσατε"
+      },
+      "boxnow": {
+        "label": "BOX NOW Lockers",
+        "tagline": "Γρήγορη παράδοση, 24/7",
+        "description": "Παραλάβετε την παραγγελία σας από οποιοδήποτε locker της BOX NOW, οποιαδήποτε ώρα",
+        "unconfigured_title": "Η υπηρεσία BOX NOW δεν είναι ενεργή προσωρινά",
+        "unconfigured_description": "Η ενσωμάτωση με το δίκτυο BOX NOW δεν έχει ολοκληρωθεί ακόμη. Παρακαλούμε επιλέξτε παράδοση στη διεύθυνσή σας."
+      },
+      "acs_smartpoint": {
+        "label": "ACS Smartpoint Lockers",
+        "tagline": "Παραλαβή σε δικό σας χρόνο",
+        "description": "Παραλάβετε την παραγγελία σας από οποιοδήποτε ACS Smartpoint locker, με βάση τον ταχυδρομικό κώδικα παράδοσης."
+      }
+    },
+    "boxnow": {
+      "select_locker": "Επιλέξτε Locker",
+      "change_locker": "Αλλαγή Locker",
+      "modal_title": "Επιλέξτε ένα BOX NOW Locker",
+      "iframe_loading": "Φόρτωση χάρτη...",
+      "required_error": "Παρακαλώ επιλέξτε ένα locker για να συνεχίσετε",
+      "selected_locker": {
+        "title": "Επιλεγμένο Locker",
+        "id_label": "ID Locker"
+      }
+    },
+    "acs": {
+      "select_locker": "Επιλέξτε ACS Smartpoint",
+      "change_locker": "Αλλαγή Smartpoint",
+      "modal_title": "Επιλέξτε ένα ACS Smartpoint",
+      "select": "Επιλογή",
+      "postal_code": "Ταχυδρομικός Κώδικας",
+      "postal_code_placeholder": "π.χ. 11525",
+      "city": "Πόλη / Περιοχή",
+      "city_placeholder": "π.χ. Αθήνα",
+      "required_error": "Παρακαλώ επιλέξτε ένα Smartpoint για να συνεχίσετε",
+      "search_error": "Δεν ήταν δυνατή η αναζήτηση Smartpoints. Δοκιμάστε ξανά.",
+      "empty_title": "Δεν βρέθηκαν Smartpoints",
+      "empty_description": "Δοκιμάστε διαφορετικό ταχυδρομικό κώδικα ή περιοχή.",
+      "idle_title": "Αναζητήστε ένα Smartpoint",
+      "idle_description": "Πληκτρολογήστε ταχυδρομικό κώδικα για να δείτε διαθέσιμα ACS Smartpoint lockers.",
+      "selected_locker": {
+        "title": "Επιλεγμένο Smartpoint",
+        "id_label": "ID Smartpoint"
+      },
+      "address_suggestion": {
+        "title": "Μήπως εννοείτε αυτή τη διεύθυνση;",
+        "apply": "Εφαρμογή",
+        "checking": "Έλεγχος διεύθυνσης..."
+      }
+    },
+    "price": {
+      "free": "Δωρεάν",
+      "free_over": "Δωρεάν για παραγγελίες άνω των {amount}"
+    },
+    "locker_picker": {
+      "modal_title": "Επιλέξτε σημείο παραλαβής {carrier}",
+      "choose": "Επιλογή σημείου παραλαβής {carrier}",
+      "change": "Αλλαγή",
+      "id_label": "ID",
+      "postal_placeholder": "Ταχυδρομικός κώδικας",
+      "city_placeholder": "Πόλη (προαιρετικά)",
+      "loading": "Φόρτωση σημείων παραλαβής",
+      "error_title": "Σφάλμα",
+      "error": "Δεν ήταν δυνατή η αναζήτηση σημείων παραλαβής. Δοκιμάστε ξανά.",
+      "empty_title": "Δεν βρέθηκαν σημεία παραλαβής",
+      "empty_description": "Δοκιμάστε διαφορετικό ταχυδρομικό κώδικα ή πόλη.",
+      "search_prompt_title": "Αναζητήστε σημείο παραλαβής",
+      "search_prompt_description": "Πληκτρολογήστε τον ταχυδρομικό σας κώδικα για να δείτε διαθέσιμα σημεία.",
+      "unsupported": "Αυτή η μεταφορική δεν υποστηρίζει αναζήτηση σημείων παραλαβής.",
+      "tab_list": "Λίστα",
+      "tab_map": "Χάρτης",
+      "geolocate": "Βρες με",
+      "geolocate_denied": "Επιτρέψτε τη γεωτοποθεσία στις ρυθμίσεις του browser.",
+      "cluster_aria_label": "{count} σημεία παραλαβής σε αυτή την περιοχή",
+      "skip_to_list": "Παράκαμψη χάρτη — μετάβαση στη λίστα",
+      "no_results_in_area": "Δεν βρέθηκαν σημεία παραλαβής σε αυτή την περιοχή"
+    }
   },
   "form": {
     "select_placeholder": "Επέλεξε",

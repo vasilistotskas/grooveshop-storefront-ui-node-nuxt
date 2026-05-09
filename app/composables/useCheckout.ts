@@ -13,18 +13,36 @@ export const useCheckout = () => {
       })
       return response?.reservationIds || []
     }
-    catch (error: any) {
+    catch (error: unknown) {
       log.error({ action: 'checkout:reserveStock', error })
 
       // Extract structured error data for insufficient stock
       // Server route normalizes 409 errors with {code, detail, failedItems} at error.data.data
-      const errorData = error?.data?.data
-      if (errorData?.code === 'insufficient_stock' && errorData?.failedItems) {
+      const errorData = error
+        && typeof error === 'object'
+        && 'data' in error
+        && error.data
+        && typeof error.data === 'object'
+        && 'data' in error.data
+        ? (error.data as { data: unknown }).data
+        : null
+      if (
+        errorData
+        && typeof errorData === 'object'
+        && 'code' in errorData
+        && (errorData as { code: unknown }).code === 'insufficient_stock'
+        && 'failedItems' in errorData
+      ) {
+        const ed = errorData as {
+          code: string
+          failedItems: unknown
+          detail?: unknown
+        }
         const structuredError = new Error('Insufficient stock for one or more items')
         Object.assign(structuredError, {
-          code: errorData.code,
-          failedItems: errorData.failedItems,
-          detail: errorData.detail,
+          code: ed.code,
+          failedItems: ed.failedItems,
+          detail: ed.detail,
         })
         throw structuredError
       }
@@ -59,6 +77,7 @@ export const useCheckout = () => {
   const createPaymentIntentFromCart = async (
     cartId: string | number,
     payWayId: number,
+    idempotencyKey?: string,
   ): Promise<{ clientSecret: string, paymentIntentId: string }> => {
     try {
       const response = await $fetch<{
@@ -69,6 +88,7 @@ export const useCheckout = () => {
       }>('/api/cart/create-payment-intent', {
         method: 'POST',
         body: { cartId, payWayId },
+        headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
       })
       return {
         clientSecret: response.clientSecret,
@@ -91,13 +111,16 @@ export const useCheckout = () => {
     orderId: string | number,
     orderUuid?: string,
     signal?: AbortSignal,
-  ): Promise<any> => {
+  ): Promise<PaymentStatusResponse> => {
     try {
-      const response = await $fetch(`/api/orders/${orderId}/payment-status`, {
-        method: 'GET',
-        query: orderUuid ? { uuid: orderUuid } : undefined,
-        signal,
-      })
+      const response = await $fetch<PaymentStatusResponse>(
+        `/api/orders/${orderId}/payment-status`,
+        {
+          method: 'GET',
+          query: orderUuid ? { uuid: orderUuid } : undefined,
+          signal,
+        },
+      )
       return response
     }
     catch (error) {
@@ -123,7 +146,7 @@ export const useCheckout = () => {
     interval = 2000,
     orderUuid?: string,
     signal?: AbortSignal,
-  ): Promise<any> => {
+  ): Promise<PaymentStatusResponse> => {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
       const status = await getPaymentStatus(orderId, orderUuid, signal)
@@ -211,7 +234,7 @@ export const useCheckout = () => {
     orderId: string | number,
     orderUuid?: string,
     signal?: AbortSignal,
-  ): Promise<any> => {
+  ): Promise<PaymentStatusResponse> => {
     if (typeof EventSource === 'undefined') {
       return pollPaymentStatus(orderId, 10, 2000, orderUuid, signal)
     }
@@ -222,16 +245,19 @@ export const useCheckout = () => {
     )
     if (orderUuid) url.searchParams.set('uuid', orderUuid)
 
-    return new Promise((resolve, reject) => {
+    return new Promise<PaymentStatusResponse>((resolve, reject) => {
       const source = new EventSource(url.toString(), { withCredentials: true })
       let settled = false
 
-      const finish = (value: any, reason: 'resolve' | 'reject') => {
+      const finish = (
+        value: PaymentStatusResponse | Error,
+        reason: 'resolve' | 'reject',
+      ) => {
         if (settled) return
         settled = true
         source.close()
         signal?.removeEventListener('abort', onAbort)
-        if (reason === 'resolve') resolve(value)
+        if (reason === 'resolve') resolve(value as PaymentStatusResponse)
         else reject(value)
       }
 
@@ -269,7 +295,7 @@ export const useCheckout = () => {
             finish(result, 'resolve')
           }
           catch (err) {
-            finish(err, 'reject')
+            finish(err instanceof Error ? err : new Error(String(err)), 'reject')
           }
         }
       }

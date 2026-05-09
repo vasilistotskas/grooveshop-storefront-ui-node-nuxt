@@ -32,7 +32,18 @@ const deleteCartItemEvent = async ({ cartItemId }: { cartItemId: number }) => {
     name: alt.value,
   }
 
-  await deleteCartItem(cartItemId)
+  try {
+    await deleteCartItem(cartItemId)
+  }
+  catch (err) {
+    log.error({ action: 'cart:deleteItem', error: err })
+    toast.add({
+      title: t('toast.delete_failed'),
+      color: 'error',
+      icon: 'i-heroicons-exclamation-circle',
+    })
+    return
+  }
 
   if (!snapshot.productId) return
 
@@ -192,4 +203,5 @@ el:
     removed_description: Το προϊόν "{name}" αφαιρέθηκε.
     undo: Αναίρεση
     undo_failed: Η αναίρεση απέτυχε
+    delete_failed: Αποτυχία αφαίρεσης από το καλάθι
 </i18n>

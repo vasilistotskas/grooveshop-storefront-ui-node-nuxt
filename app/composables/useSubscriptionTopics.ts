@@ -15,12 +15,21 @@ export function useSubscriptionTopics() {
    * Returns the complete AsyncData result with data, status, error, and refresh.
    */
   const fetchTopics = () => {
+    // Forward the browser cookie so the SSR-side ``$fetch`` to our own
+    // Nuxt server route inherits the user's encrypted nuxt-session
+    // cookie. Without this header, the server-to-server call lands at
+    // ``/api/subscriptions/topics`` anonymously and the route's
+    // ``requireAllAuthAccessToken`` throws 401 — even when the browser
+    // is logged in. The 'cookie' header is the only one we need to
+    // surface; we deliberately don't forward the rest (e.g. range,
+    // if-none-match) which would break Nuxt's payload-cache hash.
+    const headers = useRequestHeaders(['cookie'])
     return useAsyncData<SubscriptionTopic[]>(
       'subscription:topics:list',
       async () => {
         const response = await $fetch('/api/subscriptions/topics', {
           method: 'GET',
-          headers: useRequestHeaders(),
+          headers,
         })
         return response?.results || []
       },

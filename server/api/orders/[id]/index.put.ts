@@ -10,13 +10,11 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/order/${params.id}`, {
       method: 'PUT',
       body,
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: createHeaders(null, accessToken),
     })
     return await parseDataAs(response, zUpdateOrderResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

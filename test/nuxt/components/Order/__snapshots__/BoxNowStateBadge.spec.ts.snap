@@ -1,0 +1,6 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Order/BoxNowStateBadge > snapshot — final_destination state > matches the expected structure for final_destination (warning color, package-check icon) 1`] = `
+"<span data-slot="base" class="font-medium inline-flex items-center text-xs px-2 py-1 gap-1 rounded-md bg-warning/10 text-warning ring ring-inset ring-warning/25"><span class="iconify i-lucide:package-check shrink-0 size-4" aria-hidden="true" data-slot="leadingIcon"></span><span data-slot="label" class="truncate">Στο locker, έτοιμο για παραλαβή</span>
+<!--v-if--></span>"
+`;

@@ -29,7 +29,7 @@ const orderTimeline = computed(() => {
   return order.value.orderTimeline
     .filter(item => item.timestamp && item.description)
     .map(item => ({
-      date: item.timestamp ? new Date(item.timestamp).toLocaleDateString() : '',
+      date: item.timestamp ? new Date(item.timestamp).toLocaleDateString(locale.value) : '',
       title: item.changeType || t('status_change'),
       description: item.description || '',
       icon: getTimelineIcon(item.changeType),
@@ -148,11 +148,15 @@ const orderAlert = computed(() => {
   // defensively so a stray ``CANCELLED`` in historical metadata doesn't
   // silently fall through.
   if (status === 'canceled' || status === 'cancelled') {
+    // Surface the operator-supplied cancellation reason when the
+    // backend captured one — falls back to the generic copy so we
+    // never render an empty-string description.
+    const reason = order.value?.cancellation?.reason?.trim()
     return {
       show: true,
       color: 'error' as const,
       title: t('order_cancelled'),
-      description: t('order_cancelled_desc'),
+      description: reason || t('order_cancelled_desc'),
       icon: 'i-heroicons-x-circle',
     }
   }
@@ -167,12 +171,23 @@ const orderAlert = computed(() => {
     }
   }
 
-  if (order.value?.pricingBreakdown?.remainingAmount && order.value.pricingBreakdown.remainingAmount > 0) {
+  // ``remainingAmount`` is always positive for cash-on-delivery /
+  // bank-transfer orders because the customer paid €0 at checkout
+  // by design; the alert is only meaningful for online pay ways
+  // where a non-zero remaining balance signals an actual unfinished
+  // payment. Suppress for offline pay ways. ``isOnlinePayment``
+  // ships from OrderDetailSerializer.get_is_online_payment.
+  const remaining = order.value?.pricingBreakdown?.remainingAmount
+  if (
+    remaining
+    && remaining > 0
+    && order.value?.isOnlinePayment
+  ) {
     return {
       show: true,
       color: 'warning' as const,
       title: t('payment_pending'),
-      description: t('payment_pending_desc', { amount: $i18n.n(order.value.pricingBreakdown.remainingAmount, 'currency') }),
+      description: t('payment_pending_desc', { amount: $i18n.n(remaining, 'currency') }),
       icon: 'i-heroicons-credit-card',
     }
   }
@@ -383,10 +398,6 @@ async function handleReorder() {
 defineRouteRules({
   robots: false,
 })
-
-definePageMeta({
-  layout: 'user',
-})
 </script>
 
 <template>
@@ -453,7 +464,7 @@ definePageMeta({
         <UBadge
           v-if="order.paymentStatus"
           :color="getPaymentStatusColor(order.paymentStatus)"
-          :label="order.paymentStatus"
+          :label="order.paymentStatusDisplay || order.paymentStatus"
           variant="subtle"
           size="lg"
           icon="i-heroicons-credit-card"
@@ -462,7 +473,7 @@ definePageMeta({
         <UBadge
           v-if="order.isPaid"
           color="success"
-          label="Paid"
+          :label="t('paid')"
           variant="soft"
           icon="i-heroicons-check-circle"
         />
@@ -1046,7 +1057,26 @@ definePageMeta({
       </UCard>
     </div>
 
-    <UCard v-if="order.trackingDetails && order.trackingDetails.hasTracking">
+    <!-- BoxNow tracking card — rendered for orders attached to the
+         BoxNow carrier via the registry-backed shipping_provider FK.
+         The serializer surfaces the carrier identifier as
+         ``shipmentProviderCode`` ('acs' | 'boxnow' | null). -->
+    <OrderBoxNowTracking
+      v-if="order.shipmentProviderCode === 'boxnow' && order.boxnowShipment"
+      :shipment="order.boxnowShipment"
+      :order-id="order.id"
+    />
+
+    <!-- ACS tracking card — rendered when the order has an ACS shipment. -->
+    <OrderAcsTracking
+      v-if="order.acsShipment"
+      :shipment="order.acsShipment"
+      :order-id="order.id"
+    />
+
+    <!-- Generic carrier tracking — only shown when no provider-specific
+         widget is rendered above (BoxNow / ACS each show their own). -->
+    <UCard v-if="order.trackingDetails && order.trackingDetails.hasTracking && order.shipmentProviderCode !== 'boxnow' && !order.acsShipment">
       <template #header>
         <div class="flex w-full items-center justify-between">
           <UCollapsible v-model:open="sectionsState.trackingInfo" class="flex-1">
@@ -1243,6 +1273,7 @@ el:
     error_title: "Αποτυχία ακύρωσης"
     error_description: "Δεν μπορέσαμε να ακυρώσουμε την παραγγελία. Δοκίμασε ξανά."
     error_conflict: "Η παραγγελία δεν μπορεί πλέον να ακυρωθεί στην τρέχουσα κατάστασή της."
+  paid: Πληρωμένη
   reorder:
     cta: "Επανάληψη παραγγελίας"
     success_title: "Προστέθηκαν στο καλάθι"

@@ -1,3 +1,4 @@
+import type { Composer } from 'vue-i18n'
 import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
 
 export default defineNuxtPlugin({
@@ -19,22 +20,29 @@ export default defineNuxtPlugin({
     const { loggedIn, fetch, clear } = useUserSession()
     const authStore = useAuthStore()
     const userStore = useUserStore()
+    const userNotificationStore = useUserNotificationStore()
     const { clearAuthState } = authStore
     const { clearAccountState } = userStore
+    const { clearNotificationsState } = userNotificationStore
 
     const authState = useState<AllAuthResponse | AllAuthResponseError>('auth-state')
     const authEvent = useState<AuthChangeEventType>('authEvent')
+    // Set inside the auth:change hook from `explicit` — not by the calling component — so the flag is always visible to the watcher that reads it.
     const userInitiatedLogout = useState<boolean>('auth:userInitiatedLogout', () => false)
 
     const previousAuthState = ref<AllAuthResponse | AllAuthResponseError | null>(
       authState.value,
     )
 
-    nuxtApp.hook('auth:change', async ({ detail: newAuthState }) => {
+    nuxtApp.hook('auth:change', async ({ detail: newAuthState, explicit }) => {
       authState.value = newAuthState
       authEvent.value = determineAuthChangeEvent(authState.value, previousAuthState.value)
 
-      log.info('auth', 'State changed', { event: authEvent.value })
+      if (explicit && authEvent.value === AuthChangeEvent.LOGGED_OUT) {
+        userInitiatedLogout.value = true
+      }
+
+      log.info('auth', 'State changed', { event: authEvent.value, explicit: !!explicit })
 
       if (isAllAuthResponseSuccess(newAuthState) && newAuthState.meta?.is_authenticated) {
         await fetch()
@@ -82,6 +90,7 @@ export default defineNuxtPlugin({
       try {
         clearAuthState()
         clearAccountState()
+        clearNotificationsState()
         if (loggedIn.value) {
           log.info('auth', 'Clearing user session')
           await clear()
@@ -94,7 +103,7 @@ export default defineNuxtPlugin({
           try {
             nuxtApp.runWithContext(() => {
               const toast = useToast()
-              const { t } = useI18n()
+              const { t } = nuxtApp.$i18n as Composer
               toast.add({
                 title: t('auth.session_expired_title'),
                 description: t('auth.session_expired_description'),
@@ -119,7 +128,8 @@ export default defineNuxtPlugin({
         const router = useRouter()
         const route = router.currentRoute.value
         const localePath = useLocalePath()
-        const returnToPath = route.query.next?.toString()
+        const rawNext = route.query.next?.toString()
+        const returnToPath = isSafeRelativePath(rawNext) ? rawNext : undefined
         const loginPath = localePath(RedirectToURLs.LOGIN_URL)
         const isRedirectingToLogin = returnToPath === RedirectToURLs.LOGIN_URL || returnToPath === loginPath
         const redirectTo = isRedirectingToLogin || !returnToPath
@@ -135,8 +145,9 @@ export default defineNuxtPlugin({
     async function handleReauthenticated() {
       try {
         const router = useRouter()
-        const next = router.currentRoute.value.query.next as keyof RouteNamedMapI18n
-        return await navigateToUrl({ path: next || RedirectToURLs.LOGIN_REDIRECT_URL })
+        const rawNext = router.currentRoute.value.query.next?.toString()
+        const safeNext = isSafeRelativePath(rawNext) ? rawNext as keyof RouteNamedMapI18n : undefined
+        return await navigateToUrl({ path: safeNext || RedirectToURLs.LOGIN_REDIRECT_URL })
       }
       catch (error) {
         log.error({ action: 'auth:reauthenticated', error })

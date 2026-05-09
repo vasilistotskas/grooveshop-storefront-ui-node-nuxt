@@ -5,10 +5,11 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/product/review`, {
       method: 'GET',
       query,
+      headers: createHeaders(null, null),
     })
     return await parseDataAs(response, zListProductReviewResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

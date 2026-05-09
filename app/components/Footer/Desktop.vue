@@ -3,9 +3,15 @@ const siteConfig = useSiteConfig()
 const localePath = useLocalePath()
 const { t } = useI18n()
 const { columns } = useFooterLinks()
+const { isModalActive } = useCookieControl()
 const runtimeConfig = useRuntimeConfig()
 
 const packageVersion = runtimeConfig.public.version
+const currentYear = new Date().getFullYear()
+
+const openCookieModal = () => {
+  isModalActive.value = true
+}
 </script>
 
 <template>
@@ -22,38 +28,39 @@ const packageVersion = runtimeConfig.public.version
           :columns="columns"
           :ui="{ center: 'xl:col-span-3' }"
         />
-        <div
-          class="
-            mt-6 flex flex-col items-center justify-between gap-4 border-t
-            border-primary-200 pt-6
-            md:flex-row
-            dark:border-primary-800
-          "
-        >
-          <TrustSecureCheckoutBadge />
-          <TrustPaymentBadges />
-        </div>
       </UContainer>
     </template>
 
     <template #left>
-      <span
+      <div
         class="
-          text-sm text-primary-950
+          flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-primary-950
           dark:text-primary-100
         "
       >
-        &copy; {{ new Date().getFullYear() }}&nbsp;
+        <span>
+          &copy; {{ currentYear }}&nbsp;
+          <UButton
+            :label="`${siteConfig.name}™.`"
+            :to="localePath('index')"
+            class="p-0 text-primary-950 dark:text-primary-50"
+            color="neutral"
+            size="lg"
+            type="button"
+            variant="link"
+          /> {{ t('all_rights_reserved') }}.
+        </span>
+        <span aria-hidden="true" class="text-primary-400">·</span>
         <UButton
-          :label="`${siteConfig.name}™.`"
-          :to="localePath('index')"
-          class="p-0 text-primary-950 dark:text-primary-50"
+          :label="t('cookie_settings')"
+          icon="i-unjs:cookie-es"
           color="neutral"
-          size="lg"
-          type="button"
           variant="link"
-        /> {{ t('all_rights_reserved') }}.
-      </span>
+          size="sm"
+          class="p-0"
+          @click="openCookieModal"
+        />
+      </div>
     </template>
 
     <template #right>
@@ -76,6 +83,7 @@ const packageVersion = runtimeConfig.public.version
 <i18n lang="yaml">
 el:
   all_rights_reserved: All rights reserved
+  cookie_settings: Ρυθμίσεις cookies
   footer:
     terms_conditions: Όροι και Προϋποθέσεις
     term_of_use: Όροι Χρήσης

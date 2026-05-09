@@ -31,8 +31,8 @@ definePageMeta({
 <template>
   <PageWrapper
     class="
-      mx-auto flex max-w-(--container-2xl) flex-col
-      md:!p-0
+      mx-auto flex max-w-2xl flex-col
+      md:p-0!
     "
   >
     <UBreadcrumb

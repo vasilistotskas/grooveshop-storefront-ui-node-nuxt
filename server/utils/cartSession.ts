@@ -109,8 +109,16 @@ export async function getCartHeaders(event: H3Event): Promise<Record<string, str
   return headers
 }
 
-export async function handleCartResponse(event: H3Event, response: any): Promise<void> {
-  if (response.id) {
+export async function handleCartResponse(event: H3Event, response: unknown): Promise<void> {
+  if (
+    response
+    && typeof response === 'object'
+    && 'id' in response
+    && typeof response.id === 'number'
+    // Cart IDs are positive — 0 is treated as "no cart yet" and
+    // skipped so we don't store a sentinel value.
+    && response.id > 0
+  ) {
     await updateCartSession(event, { cartId: response.id })
   }
 }
@@ -124,7 +132,7 @@ export const useCartSession = (event: H3Event) => {
     getSession: () => getCartSession(event),
     updateSession: (updates: Partial<CartSessionData>) => updateCartSession(event, updates),
     getCartHeaders: () => getCartHeaders(event),
-    handleCartResponse: (response: any) => handleCartResponse(event, response),
+    handleCartResponse: (response: unknown) => handleCartResponse(event, response),
     clearSession: () => clearCartSession(event),
   }
 }

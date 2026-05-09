@@ -273,7 +273,7 @@ async function cancelAlert() {
             class="w-full"
           >
             <template #leading>
-              <span class="pl-1 text-sm font-medium text-neutral-500 dark:text-neutral-400">€</span>
+              <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">€</span>
             </template>
           </UInput>
         </UFormField>

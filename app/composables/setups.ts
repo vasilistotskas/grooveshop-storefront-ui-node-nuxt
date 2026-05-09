@@ -1,4 +1,4 @@
-import * as uiLocales from '@nuxt/ui/locale'
+import { el as uiLocaleEl } from '@nuxt/ui/locale'
 
 export function setupPageHeader() {
   const route = useRoute()
@@ -35,9 +35,9 @@ export function setupPageHeader() {
   // (e.g. legacy locales added without the `language` field).
   const lang = computed(() => {
     const props = $i18n.localeProperties.value as { language?: string, code: string }
-    return props.language || uiLocales[$i18n.locale.value].code
+    return props.language || uiLocaleEl.code
   })
-  const dir = computed(() => uiLocales[$i18n.locale.value].dir)
+  const dir = computed(() => uiLocaleEl.dir)
 
   useSeoMeta({
     title: () => title.value,
@@ -100,8 +100,17 @@ export function setupCursorState() {
 
 export function setupGoogleAnalyticsConsent() {
   const config = useRuntimeConfig()
+  const id = config.public.scripts.googleAnalytics.id
+  // Skip the script entirely when the id is missing or still the
+  // placeholder. Otherwise @nuxt/scripts preloads ``gtag.js`` for
+  // every visitor and the resource sits unused (browser warns
+  // "preloaded but not used"). Real GA4 ids are ``G-`` followed by
+  // 10+ alphanumerics — ``G-XXXXXXXXXX`` is the example value.
+  if (!id || !/^G-[A-Z0-9]{8,}$/.test(id) || id === 'G-XXXXXXXXXX') {
+    return
+  }
   const { consent } = useScriptGoogleAnalytics({
-    id: config.public.scripts.googleAnalytics.id,
+    id,
     // Defer loading until after hydration to not block initial render
     scriptOptions: {
       trigger: 'onNuxtReady',
@@ -140,6 +149,66 @@ export function setupGoogleAnalyticsConsent() {
     },
     { immediate: true },
   )
+}
+
+/**
+ * Initialise the Meta Pixel — single source of truth for the
+ * registration. Called from ``app.vue`` setup once per app instance.
+ *
+ * Loading lifecycle:
+ *
+ * * Reactive ``adConsent`` is the boolean "user has given ad_storage
+ *   consent in the cookie banner" — recomputed when the banner state
+ *   changes.
+ * * ``useScriptTriggerConsent({ consent: adConsent })`` is the
+ *   documented binary script-load gate. The script tag is injected
+ *   into the DOM only after ``adConsent`` flips true; if it later
+ *   flips false, ``useScriptTriggerConsent`` revokes and the script
+ *   is unloaded. This is the gate documented in
+ *   ``https://nuxt.com/scripts/guides/consent`` — replacing the
+ *   previous pattern that combined ``defaultConsent: 'denied'`` with
+ *   a manual ``consent.grant()`` watcher. That older combination
+ *   left the @nuxt/scripts registry stuck in a "loaded-but-empty"
+ *   state (registered with no DOM tag, fbq queue never drained)
+ *   because ``defaultConsent`` is purely a vendor-side flag and
+ *   never gates script injection — the script would still attempt
+ *   to load on ``onNuxtReady`` but the SSR/client dedup of
+ *   ``useScriptMetaPixel`` options dropped ``defaultConsent`` between
+ *   the two call sites, creating subtle races. Single registration
+ *   here + single proxy lookup in ``useMetaPixel`` removes both.
+ *
+ * No-op when ``META_PIXEL_ID`` is not provisioned — the cookie banner
+ * stays untouched and ``useMetaPixel`` consumers receive a no-op
+ * proxy.
+ */
+export function setupMetaPixelConsent() {
+  const config = useRuntimeConfig()
+  const pixelId = (config.public as { metaPixelId?: string })?.metaPixelId
+  if (!pixelId) return
+
+  const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
+
+  // Reactive: the user has explicitly accepted the banner AND the
+  // ad_storage category is enabled. Either gate alone is insufficient:
+  //
+  // * isConsentGiven only flips true after the user clicks the banner
+  //   so we don't fire pixel events for visitors who never made a
+  //   choice.
+  // * Even when the banner is acknowledged, the user can deselect
+  //   ad_storage via "Manage preferences" — we honour that choice.
+  const adConsent = computed(() =>
+    !!(
+      isConsentGiven.value
+      && cookiesEnabledIds.value?.includes('ad_storage')
+    ),
+  )
+
+  const trigger = useScriptTriggerConsent({ consent: adConsent })
+
+  useScriptMetaPixel({
+    id: pixelId,
+    scriptOptions: { trigger },
+  })
 }
 
 export function setupSocialLogin() {

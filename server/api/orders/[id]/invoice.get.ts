@@ -19,15 +19,11 @@ export default defineEventHandler(async (event) => {
     }
     const response = await $fetch(url.toString(), {
       method: 'GET',
-      ...(accessToken && {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }),
+      headers: createHeaders(null, accessToken),
     })
     return await parseDataAs(response, zRetrieveOrderInvoiceResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

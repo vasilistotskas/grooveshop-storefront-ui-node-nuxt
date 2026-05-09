@@ -40,6 +40,37 @@ const currentPage = ref(props.page)
 const maxVisibleButtons = computed(() => (isMobileOrTablet.value ? 2 : 3))
 const items = ref(Array(count.value))
 
+const totalPages = computed(() => Math.ceil(count.value / props.pageSize))
+
+const prevPageUrl = computed(() => {
+  if (currentPage.value <= 1) return null
+  return localePath({
+    path: route.path,
+    query: { ...route.query, page: currentPage.value - 1 },
+  })
+})
+
+const nextPageUrl = computed(() => {
+  if (currentPage.value >= totalPages.value) return null
+  return localePath({
+    path: route.path,
+    query: { ...route.query, page: currentPage.value + 1 },
+  })
+})
+
+useHead({
+  link: () => {
+    const links = []
+    if (prevPageUrl.value) {
+      links.push({ rel: 'prev', href: prevPageUrl.value })
+    }
+    if (nextPageUrl.value) {
+      links.push({ rel: 'next', href: nextPageUrl.value })
+    }
+    return links
+  },
+})
+
 watch(
   () => currentPage.value,
   async () => {

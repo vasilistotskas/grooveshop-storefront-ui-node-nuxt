@@ -9,10 +9,6 @@ defineRouteRules({
   robots: false,
 })
 
-definePageMeta({
-  layout: 'user',
-})
-
 const uid = computed(() => user.value?.id)
 
 const exports = ref<UserDataExport[]>([])
@@ -225,8 +221,8 @@ onBeforeUnmount(stopPolling)
               <span
                 v-if="latest.createdAt"
                 class="
-                  text-xs text-neutral-500
-                  dark:text-neutral-400
+                  text-xs text-neutral-700
+                  dark:text-neutral-200
                 "
               >
                 {{ t('export.requested_at', { at: d(new Date(latest.createdAt), 'short') }) }}
@@ -243,8 +239,8 @@ onBeforeUnmount(stopPolling)
               <span
                 v-if="isReady && fileSizeLabel"
                 class="
-                  text-xs text-neutral-500
-                  dark:text-neutral-400
+                  text-xs text-neutral-700
+                  dark:text-neutral-200
                 "
               >
                 · {{ fileSizeLabel }}

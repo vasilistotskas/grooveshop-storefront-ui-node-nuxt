@@ -236,14 +236,15 @@ Active modules in `nuxt.config.ts`:
 11. `@vueuse/nuxt` — VueUse composables (device detection via `useMediaQuery` with UA-based SSR width)
 12. `nuxt-auth-utils` — Session management
 13. `@nuxt/a11y` — Accessibility auditing (alpha)
-14. Custom `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
-15. Custom `modules/purge-comments.ts` — Removes HTML comments in production
+14. `nuxt-ai-ready` — AI/LLM discoverability: serves `/llms.txt`, `/llms-full.txt`, on-demand `/<route>.md`, and emits robots.txt Content Signals (`aiTrain`/`search`/`aiInput` all enabled). Auto-detects `@nuxtjs/i18n` and emits `Link: rel="alternate"; hreflang="el-GR"` headers on `.md` responses. Requires `robots: {}` in `nuxt.config.ts` because v1.3.0 crashes if `nuxt.options.robots` is undefined when `contentSignal` is set. `runtimeSync`/`cron` intentionally **disabled** — with 2 SSR replicas each holding an ephemeral `.data/ai-ready/pages.db`, scheduled background indexing would race and double-submit; SSR pages still index on first visit per pod via the runtime fallback.
+15. Custom `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
+16. Custom `modules/purge-comments.ts` — Removes HTML comments in production
 
 ### CI/CD
 
-- **GitHub Actions CI** (`.github/workflows/ci.yml`): quality (TypeScript check, dependency audit) → test (unit+nuxt with coverage → Coveralls) → build (with Redis 8 service, .env from GitHub vars/secrets) → release (semantic-release, only on main push). All steps use Node 24.x and pnpm with frozen lockfile.
-- **Docker publish** (`.github/workflows/docker.yml`): On release, builds multi-stage Docker image (Node 24.13.0 Alpine), pushes to Docker Hub (`gro0ve/grooveshop-storefront-ui-node-nuxt`) and GHCR. Uses Docker Buildx with GHA caching.
-- **Semantic release**: Conventional commits, auto-versioning, CHANGELOG generation, GitHub release with assets
+- **GitHub Actions CI** (`.github/workflows/ci.yml`): quality (TypeScript check, dependency audit) → test (unit+nuxt with coverage) → build (with Redis 8 service, .env from GitHub vars/secrets) → release (semantic-release on `main` push — versions, CHANGELOG, GitHub Release; **no npm publishing**). All steps use Node 24.x and pnpm with frozen lockfile.
+- **Docker publish** (`.github/workflows/docker.yml`): On GitHub release `published`, builds a multi-stage Docker image (Node 24.13.0 Alpine) and pushes to Docker Hub (`gro0ve/grooveshop-storefront-ui-node-nuxt`) and GHCR. Uses Docker Buildx with GHA caching.
+- **Semantic release**: Conventional commits, auto-versioning, CHANGELOG generation, GitHub release with `.output` asset. Publishing to npm is disabled (`npmPublish: false`); the `@semantic-release/npm` plugin only bumps `package.json` version.
 - **Docker** (`docker/Dockerfile`): Multi-stage build. Build stage installs deps with pnpm cache mount, prepares Nuxt, builds with `NODE_OPTIONS=--max-old-space-size=8192`. Production stage copies only `.output`, runs as non-root `node` user.
 
 ## Conventions
@@ -279,3 +280,8 @@ Copy `.env.example` to `.env`. Key variables:
 - `NUXT_SITE_URL` / `NUXT_SITE_NAME` / `NUXT_SITE_DESCRIPTION` / `NUXT_SITE_DEFAULT_LOCALE` — SEO site config
 - `NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID` — Google Analytics
 - `NUXT_PUBLIC_SOCIALS_*` — Social media links (Discord, Facebook, Instagram, Pinterest, Reddit, TikTok, Twitter, YouTube)
+
+<!-- skilld -->
+Before modifying code, evaluate each installed skill against the current task.
+For each skill, determine YES/NO relevance and invoke all YES skills before proceeding.
+<!-- /skilld -->

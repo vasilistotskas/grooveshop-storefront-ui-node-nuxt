@@ -91,7 +91,6 @@ onMounted(async () => {
 
 definePageMeta({
   layout: 'default',
-  middleware: 'guest',
 })
 </script>
 

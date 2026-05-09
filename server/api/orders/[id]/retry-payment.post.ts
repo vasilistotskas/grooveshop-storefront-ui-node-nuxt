@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   try {
     const params = await getValidatedRouterParams(
       event,
-      zCreateOrderPaymentIntentPath.parse,
+      zRetryOrderPaymentPath.parse,
     )
     const query = await getValidatedQuery(event, zGuestQuery.parse)
     const body = await readValidatedBody(event, zCreateOrderPaymentIntentBody.parse)
@@ -21,15 +21,11 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(url.toString(), {
       method: 'POST',
       body,
-      ...(accessToken && {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }),
+      headers: createHeaders(null, accessToken),
     })
     return await parseDataAs(response, zCreateOrderPaymentIntentResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 })

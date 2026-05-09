@@ -14,7 +14,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zRetrieveBlogTagResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'BlogTagDetail',

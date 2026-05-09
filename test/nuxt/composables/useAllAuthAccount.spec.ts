@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach, afterAll, vi } from 'vitest'
 
 describe('useAllAuthAccount', () => {
   let mockFetch: ReturnType<typeof vi.fn>
@@ -6,7 +6,7 @@ describe('useAllAuthAccount', () => {
   let mockOnAllAuthResponse: ReturnType<typeof vi.fn>
   let mockOnAllAuthResponseError: ReturnType<typeof vi.fn>
 
-  beforeEach(() => {
+  beforeAll(() => {
     mockFetch = vi.fn()
     mockUseRequestHeaders = vi.fn(() => ({ 'Content-Type': 'application/json' }))
     mockOnAllAuthResponse = vi.fn()
@@ -16,6 +16,17 @@ describe('useAllAuthAccount', () => {
     vi.stubGlobal('useRequestHeaders', mockUseRequestHeaders)
     vi.stubGlobal('onAllAuthResponse', mockOnAllAuthResponse)
     vi.stubGlobal('onAllAuthResponseError', mockOnAllAuthResponseError)
+  })
+
+  afterAll(() => {
+    vi.unstubAllGlobals()
+  })
+
+  beforeEach(() => {
+    mockFetch.mockClear()
+    mockUseRequestHeaders.mockClear()
+    mockOnAllAuthResponse.mockClear()
+    mockOnAllAuthResponseError.mockClear()
   })
 
   describe('getUserAccount', () => {

@@ -21,11 +21,12 @@ export default defineCachedEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/product/category`, {
       method: 'GET',
       query: backendQuery,
+      headers: createHeaders(null, null),
     })
     return await parseDataAs(response, zListProductCategoryResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'ProductCategoryViewSet',

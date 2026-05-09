@@ -93,6 +93,16 @@ export function useBackendFetch(): typeof $fetch {
       if (!options.headers.has('X-Language')) {
         options.headers.set('X-Language', locale || DEFAULT_LOCALE)
       }
+      try {
+        const event = useEvent()
+        const correlationId = event ? getRequestHeader(event, 'x-correlation-id') : undefined
+        if (correlationId && !options.headers.has('X-Correlation-ID')) {
+          options.headers.set('X-Correlation-ID', correlationId)
+        }
+      }
+      catch {
+        // useEvent() unavailable outside active Nitro request — skip
+      }
     },
   }) as typeof $fetch
 

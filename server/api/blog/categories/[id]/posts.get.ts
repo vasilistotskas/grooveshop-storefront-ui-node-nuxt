@@ -13,7 +13,7 @@ export default defineCachedEventHandler(async (event) => {
     return await parseDataAs(response, zListBlogCategoryPostsResponse)
   }
   catch (error) {
-    await handleError(error)
+    handleError(error)
   }
 }, {
   name: 'BlogCategoryPostsViewSet',

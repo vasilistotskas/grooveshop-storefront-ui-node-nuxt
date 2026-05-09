@@ -27,6 +27,35 @@ env:
   SYSTEM_ENV: ci
 
 jobs:
+  security-scan:
+    name: Security Scan (Trivy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: HIGH,CRITICAL
+          exit-code: '1'
+          format: sarif
+          output: trivy-results.sarif
+          skip-dirs: node_modules,dist,.output,.nuxt
+          limit-severities-for-sarif: true
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
+
   ci:
     name: Quality, Test & Build
     runs-on: ubuntu-latest
@@ -56,8 +85,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24.x'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@vasilistotskas'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -162,8 +189,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24.x'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@vasilistotskas'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -172,18 +197,40 @@ jobs:
       - name: Regenerate OpenAPI types
         run: pnpm openapi-ts
 
-      - name: Check for drift in generated files
+      - name: Check for drift in generated TypeScript files
         run: |
           if ! git diff --exit-code shared/openapi/; then
             echo ""
-            echo "ERROR: Generated OpenAPI files are out of date."
+            echo "ERROR: Generated OpenAPI TypeScript files are out of date."
             echo "Run 'pnpm openapi-ts' locally and commit the updated files in shared/openapi/."
+            exit 1
+          fi
+
+      - name: Sync schema YAML files from schema.json
+        run: pnpm sync:schema
+
+      - name: Check for drift in schema YAML files
+        run: |
+          drift=0
+          if ! git diff --exit-code openapi/schema.yml; then
+            echo ""
+            echo "ERROR: openapi/schema.yml is out of sync with openapi/schema.json."
+            drift=1
+          fi
+          if ! git diff --exit-code schema.yml; then
+            echo ""
+            echo "ERROR: schema.yml (root) is out of sync with openapi/schema.json."
+            drift=1
+          fi
+          if [ "$drift" -eq 1 ]; then
+            echo ""
+            echo "Run 'pnpm sync:schema' locally and commit the updated YAML files."
             exit 1
           fi
 
   release:
     name: Release
-    needs: ci
+    needs: [ci, security-scan]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -193,7 +240,6 @@ jobs:
       issues: write
       pull-requests: write
       id-token: write
-      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -210,8 +256,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24.x'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@vasilistotskas'
           cache: 'pnpm'
 
       - name: Install dependencies
@@ -226,8 +270,6 @@ jobs:
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.NUXT_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm run semantic-release
 
       - name: Upload release artifacts
@@ -239,3 +281,4 @@ jobs:
             .output
             CHANGELOG.md
           retention-days: 90
+

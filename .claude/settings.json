@@ -18,6 +18,20 @@
           {
             "type": "command",
             "command": "node .claude/hooks/auto-lint.mjs"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/hooks/track-typecheck.mjs"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/typecheck.mjs"
           }
         ]
       }

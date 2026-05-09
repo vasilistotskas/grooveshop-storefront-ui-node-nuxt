@@ -30,6 +30,32 @@ export async function useCheckoutForm() {
     street: '',
     streetNumber: '',
     customerNotes: '',
+    // Shipping method (Step 1 — new)
+    shippingMethod: 'home_delivery' as ShippingMethodKey,
+    boxnowLockerId: '' as string,
+    boxnowLocker: null as BoxNowSelectedLocker | null,
+    boxnowCompartmentSize: 1 as 1 | 2 | 3,
+    // ACS Smartpoint locker pickup (Phase 2). Picker UI is server-side
+    // — we hold both the externalId and the AcsStation row so the
+    // selected-locker card can render without a follow-up fetch.
+    acsStationExternalId: '' as string,
+    acsStationBranch: '' as string,
+    acsStation: null as AcsStation | null,
+    // Routing metadata captured when the shopper applies the
+    // "Did you mean…" suggestion in StepPersonalInfo. Forwarded to the
+    // backend so ``ACS_Create_Voucher`` can use these IDs directly
+    // instead of re-running ``ACS_Address_Validation`` server-side.
+    // Null when the shopper either skipped the suggestion or hasn't
+    // typed a complete address yet.
+    acsResolvedAddress: null as {
+      geoId: number | null
+      lat: number | null
+      lng: number | null
+      stationId: string | null
+      branchId: number | null
+      providence: string | null
+      addressId: string | null
+    } | null,
     // Payment
     payWay: undefined as number | undefined,
     payWayId: undefined as number | undefined,
@@ -64,6 +90,16 @@ export async function useCheckoutForm() {
   // Declare refs for fetched data (populated after await)
   const shippingSetting = ref<{ value: string } | null>(null)
   const freeShippingThresholdSetting = ref<{ value: string } | null>(null)
+  const boxnowShippingSetting = ref<{ value: string } | null>(null)
+  const boxnowFreeShippingThresholdSetting = ref<{ value: string } | null>(null)
+  const boxnowEnabled = ref(false)
+  // Per-kind toggle for ACS Smartpoint pickup. Backend returns the
+  // ACS_SMARTPOINT_ENABLED Setting value as a string ("True"/"False");
+  // the StepShipping component coerces to boolean before gating the
+  // radio row.
+  const acsSmartpointEnabled = ref(false)
+  const acsShippingSetting = ref<{ value: string } | null>(null)
+  const acsFreeShippingThresholdSetting = ref<{ value: string } | null>(null)
   const b2bInvoicingEnabled = ref(true)
   const countries = ref<Pagination<Country> | null>(null)
   const payWays = ref<Pagination<PayWay> | null>(null)
@@ -89,19 +125,11 @@ export async function useCheckoutForm() {
     }
   }
 
-  const onCountryChange = async () => {
-    formState.region = ''
-    formState.regionId = undefined
-
-    if (formState.country && countries.value?.results) {
-      const selectedCountry = countries.value.results.find(c => c.alpha2 === formState.country)
-      if (selectedCountry) {
-        formState.countryId = selectedCountry.alpha2
-      }
-    }
-
-    await fetchRegions()
-  }
+  // No exported ``onCountryChange`` — the ``watch(() => formState
+  // .country, ...)`` above handles all cascade paths (direct user
+  // click, saved-address prefill, programmatic reset, first-render
+  // fallback). Single source of truth, no event-chain timing
+  // ambiguity.
 
   // Saved addresses exposed to the Step 1 component so users with
   // multiple saved addresses can pick one without re-typing. Only
@@ -139,6 +167,32 @@ export async function useCheckoutForm() {
   }
 
   /**
+   * Verify that the address's region exists in the loaded ``regions``
+   * list for the address's country. Saved addresses can carry stale or
+   * invalid alphas (legacy data, region renamed/removed upstream). If
+   * the region is invalid we surface the issue to the shopper instead
+   * of leaving them stuck on a hidden validation error: switch to
+   * ``new`` mode so the form fields are visible, and add a toast
+   * explaining why. Pre-filled values stay so the shopper only needs
+   * to fix the region (and any other invalid field) before continuing.
+   */
+  const validateAppliedAddressRegion = () => {
+    const region = formState.region
+    if (!region) return
+    const validAlphas = regions.value?.results?.map(r => r.alpha) ?? []
+    if (validAlphas.length && !validAlphas.includes(region)) {
+      formState.region = ''
+      formState.regionId = undefined
+      addressEntryMode.value = 'new'
+      toast.add({
+        title: t('saved_address_invalid_title'),
+        description: t('saved_address_invalid_description'),
+        color: 'warning',
+      })
+    }
+  }
+
+  /**
    * User-invoked address picker: set the selected address id, hydrate
    * the form from its values, and flip the form into "saved" mode so
    * the personal-info + address sections collapse into the card summary.
@@ -154,6 +208,7 @@ export async function useCheckoutForm() {
     applyAddressToFormState(address)
     addressEntryMode.value = 'saved'
     await fetchRegions()
+    validateAppliedAddressRegion()
   }
 
   /**
@@ -199,6 +254,56 @@ export async function useCheckoutForm() {
 
   // Register all watchers/lifecycle hooks BEFORE await (Vue context requirement)
 
+  // Cascade: when ``formState.country`` changes, refresh the region
+  // dropdown options. Watcher (not emit chain) so the cascade fires
+  // for any change path: direct user click on the country select,
+  // saved-address prefill, programmatic reset, the
+  // first-render fallback that picks ``countries[0]``. The previous
+  // ``@update:model-value="emit('country-change')"`` only fired on
+  // direct user interaction, leaving the region dropdown stale on
+  // reset/prefill paths.
+  //
+  // ``immediate: false`` because the bottom-of-setup block already
+  // hydrates regions for the initial country once. ``flush: 'post'``
+  // so we observe the value AFTER v-model has committed it — guards
+  // against timing differences across Reka-ui select implementations.
+  watch(
+    () => formState.country,
+    async (newCountry, oldCountry) => {
+      if (newCountry === oldCountry) return
+      if (newCountry && countries.value?.results) {
+        const selectedCountry = countries.value.results.find(
+          c => c.alpha2 === newCountry,
+        )
+        if (selectedCountry) {
+          formState.countryId = selectedCountry.alpha2
+        }
+      }
+      await fetchRegions()
+      // Only clear ``region`` if the previously selected value is no
+      // longer valid for the new country. Unconditionally clearing here
+      // breaks saved-address prefill (which sets ``country`` and
+      // ``region`` together): the watcher would clobber the just-set
+      // region back to '', schema validation would silently fail (the
+      // address fields are hidden in ``saved`` mode so the shopper sees
+      // no error), and clicking "Continue" appears to do nothing.
+      const currentRegion = formState.region
+      if (currentRegion) {
+        const stillValid = regions.value?.results?.some(
+          r => r.alpha === currentRegion,
+        )
+        if (!stillValid) {
+          formState.region = ''
+          formState.regionId = undefined
+        }
+      }
+      else {
+        formState.regionId = undefined
+      }
+    },
+    { flush: 'post' },
+  )
+
   watch(() => formState.payWay, (newPayWayId) => {
     if (newPayWayId && payWays.value?.results) {
       const payWay = payWays.value.results.find(pw => pw.id === newPayWayId)
@@ -206,6 +311,47 @@ export async function useCheckoutForm() {
         selectedPayWay.value = payWay
         formState.payWayId = payWay.id
       }
+    }
+  })
+
+  // Re-fetch pay ways whenever the shopper picks a different shipping
+  // method. Django's PayWayFilter dispatches through the carrier
+  // registry — BoxNow rejects COD on locker pickup; ACS allows COD
+  // on every kind. The pair ``(shippingProviderCode, shippingKind)``
+  // drives the filter, NOT the legacy ``shippingMethod`` enum.
+  // The Nuxt server route's cache key includes the query so each
+  // (provider, kind) combination gets its own cached list.
+  watch(() => formState.shippingMethod, async (newMethod) => {
+    try {
+      const carrier = carrierForMethod(newMethod)
+      const kind = newMethod === 'home_delivery' ? 'home_delivery' : 'pickup_point'
+      const fresh = await $fetch<Pagination<PayWay>>('/api/pay-way', {
+        method: 'GET',
+        query: {
+          languageCode: locale.value,
+          // Empty for plain home_delivery without a registered carrier
+          // — Django's filter is a no-op then (returns the full set).
+          shippingProviderCode: carrier?.code,
+          shippingKind: kind,
+        },
+        headers: useRequestHeaders(),
+      })
+      payWays.value = fresh
+      // If the previously selected pay way is no longer in the list
+      // (e.g. user picked BoxNow and their COD selection was filtered
+      // out), reset to the first valid option so step 3 doesn't render
+      // with a stale/disabled selection.
+      const stillValid = fresh.results?.some(
+        pw => pw.id === formState.payWayId,
+      )
+      if (!stillValid && fresh.results?.[0]) {
+        formState.payWay = fresh.results[0].id
+        formState.payWayId = fresh.results[0].id
+        selectedPayWay.value = fresh.results[0]
+      }
+    }
+    catch (error) {
+      log.warn('checkout', 'pay-way refetch failed', { error })
     }
   })
 
@@ -230,22 +376,121 @@ export async function useCheckoutForm() {
     formState.regionId = matched?.alpha ?? newRegionAlpha
   })
 
-  // Computed properties (also before await)
+  // Computed properties (also before await).
+  // Live shipping options from the backend — the authoritative source
+  // of truth for per-(provider, kind) pricing. When ``ACS_DYNAMIC_
+  // PRICING_ENABLED`` is on, ACS rows already reflect the live tariff
+  // bucketed against the cart's actual weight; the displayed Μεταφορικά
+  // therefore match what the voucher mint will charge.
+  //
+  // Keyed on (country, total, weight) so the cache invalidates when
+  // the shopper changes country or adds/removes items. Falls back to
+  // ``extra_settings`` (legacy) only when the fetch errors — never
+  // blocks checkout on a transient API failure.
+  const shippingOptions = ref<ShippingOption[]>([])
+  const fetchShippingOptions = async () => {
+    try {
+      const cartTotal = cart.value?.totalPrice || 0
+      const weightGrams = cart.value?.totalWeightGrams ?? 0
+      const country = formState.countryId
+        ? String(formState.countryId).toUpperCase()
+        : undefined
+      shippingOptions.value = await $fetch<ShippingOption[]>(
+        '/api/shipping/options',
+        {
+          method: 'GET',
+          query: {
+            countryCode: country,
+            orderValueAmount: cartTotal,
+            currency: 'EUR',
+            weightGrams,
+          },
+          headers: useRequestHeaders(),
+        },
+      )
+    }
+    catch (error: unknown) {
+      log.warn(
+        'checkout/shippingOptions',
+        'Failed to fetch live options — falling back to flat-rate settings',
+        { error: getErrorDetail(error) },
+      )
+      shippingOptions.value = []
+    }
+  }
+
+  // Re-fetch whenever a dep that affects the price changes. Cart total
+  // and weight cover line-item edits; country covers the address step.
+  watch(
+    () => [
+      cart.value?.totalPrice,
+      cart.value?.totalWeightGrams,
+      formState.countryId,
+    ],
+    () => {
+      void fetchShippingOptions()
+    },
+    { immediate: false },
+  )
+
+  /** Match the live option row for the selected ``shippingMethod``.
+   *  Returns ``undefined`` if the live fetch hasn't populated yet or
+   *  the row is missing — caller falls back to the legacy flat-rate
+   *  Setting so the sidebar never shows a stale or empty Μεταφορικά. */
+  const matchedShippingOption = computed<ShippingOption | undefined>(() => {
+    const method = formState.shippingMethod
+    if (!shippingOptions.value.length) return undefined
+    if (method === 'box_now_locker') {
+      return shippingOptions.value.find(
+        o => o.providerCode === 'boxnow' && o.kind === 'pickup_point',
+      )
+    }
+    if (method === 'acs_smartpoint') {
+      return shippingOptions.value.find(
+        o => o.providerCode === 'acs' && o.kind === 'pickup_point',
+      )
+    }
+    // Home delivery: pick the ACS row when present (ACS supports
+    // home_delivery in the registry); otherwise let the flat-rate
+    // fallback handle it.
+    return shippingOptions.value.find(o => o.kind === 'home_delivery')
+  })
+
+  // Shipping cost — prefers the live backend quote, falls back to
+  // the local ``extra_settings`` flat rate when the fetch hasn't
+  // populated or returned no row for this provider.
   const shippingPrice = computed(() => {
-    if (!shippingSetting.value) return 0
-
-    const baseShippingCost = parseFloat(shippingSetting.value.value)
-    const freeShippingThreshold = freeShippingThresholdSetting.value
-      ? parseFloat(freeShippingThresholdSetting.value.value)
-      : 50.00
-
-    const cartTotal = cart.value?.totalPrice || 0
-
-    if (cartTotal >= freeShippingThreshold) {
-      return 0
+    const live = matchedShippingOption.value
+    if (live && typeof live.price === 'number') {
+      return live.price
     }
 
-    return baseShippingCost
+    const cartTotal = cart.value?.totalPrice || 0
+    const method = formState.shippingMethod
+
+    let priceSetting: typeof shippingSetting
+    let thresholdSetting: typeof freeShippingThresholdSetting
+
+    if (method === 'box_now_locker') {
+      priceSetting = boxnowShippingSetting
+      thresholdSetting = boxnowFreeShippingThresholdSetting
+    }
+    else if (method === 'acs_smartpoint') {
+      priceSetting = acsShippingSetting
+      thresholdSetting = acsFreeShippingThresholdSetting
+    }
+    else {
+      priceSetting = shippingSetting
+      thresholdSetting = freeShippingThresholdSetting
+    }
+
+    if (!priceSetting.value) return 0
+    const baseShippingCost = parseFloat(priceSetting.value.value)
+    const freeShippingThreshold = thresholdSetting.value
+      ? parseFloat(thresholdSetting.value.value)
+      : Number.POSITIVE_INFINITY
+
+    return cartTotal >= freeShippingThreshold ? 0 : baseShippingCost
   })
 
   const countryOptions = computed(() => {
@@ -333,7 +578,7 @@ export async function useCheckoutForm() {
     if (data.saveAddress && !(data.addressTitle ?? '').trim()) {
       ctx.addIssue({
         path: ['addressTitle'],
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         message: t('validation.required'),
       })
     }
@@ -347,7 +592,7 @@ export async function useCheckoutForm() {
       if (!/^\d{9}$/.test(cleaned)) {
         ctx.addIssue({
           path: ['billingVatId'],
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           message: t('validation.billing_vat.invalid'),
         })
       }
@@ -355,6 +600,28 @@ export async function useCheckoutForm() {
   })
 
   const step2Schema = z.object({
+    shippingMethod: z.enum(['home_delivery', 'box_now_locker', 'acs_smartpoint']),
+    boxnowLockerId: z.string().optional(),
+    boxnowCompartmentSize: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
+    acsStationExternalId: z.string().optional(),
+  }).superRefine((data, ctx) => {
+    if (data.shippingMethod === 'box_now_locker' && !data.boxnowLockerId) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['boxnowLockerId'],
+        message: t('shipping.boxnow.required_error'),
+      })
+    }
+    if (data.shippingMethod === 'acs_smartpoint' && !data.acsStationExternalId) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['acsStationExternalId'],
+        message: t('shipping.acs.required_error'),
+      })
+    }
+  })
+
+  const step3Schema = z.object({
     payWay: z.number({ error: t('validation.payment_method.required') }).min(1, {
       error: t('validation.payment_method.required'),
     }),
@@ -368,10 +635,15 @@ export async function useCheckoutForm() {
   const [
     shippingResult,
     freeShippingResult,
+    boxnowShippingResult,
+    boxnowFreeShippingResult,
+    boxnowEnabledResult,
+    acsSmartpointEnabledResult,
+    acsShippingResult,
+    acsFreeShippingResult,
     b2bInvoicingResult,
     countriesResult,
     payWaysResult,
-    mainAddressResult,
     savedAddressesResult,
   ] = await Promise.all([
     useAsyncData<{ value: string } | null>(
@@ -387,6 +659,54 @@ export async function useCheckoutForm() {
       () => $fetch<{ value: string }>('/api/settings/get', {
         method: 'GET',
         query: { key: 'FREE_SHIPPING_THRESHOLD' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:boxnow-shipping-price-setting',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'BOXNOW_SHIPPING_PRICE' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:boxnow-free-shipping-threshold-setting',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'BOXNOW_FREE_SHIPPING_THRESHOLD' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:boxnow-enabled',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'BOXNOW_ENABLED' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:acs-smartpoint-enabled',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'ACS_SMARTPOINT_ENABLED' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:acs-shipping-price-setting',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'ACS_SHIPPING_PRICE' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+    ),
+    useAsyncData<{ value: string } | null>(
+      'checkout:acs-free-shipping-threshold-setting',
+      () => $fetch<{ value: string }>('/api/settings/get', {
+        method: 'GET',
+        query: { key: 'ACS_FREE_SHIPPING_THRESHOLD' },
         headers: useRequestHeaders(),
       }).catch(() => null),
     ),
@@ -407,31 +727,28 @@ export async function useCheckoutForm() {
       }).catch(() => null),
     ),
     useAsyncData<Pagination<PayWay> | null>(
+      // Static key — re-fetch on shipping-method changes is handled by
+      // the dedicated watcher below (line ~264). Including
+      // ``shippingMethod`` here would fire ``/api/pay-way`` twice for
+      // every method change (useAsyncData refetch + the watcher's
+      // explicit ``$fetch``). Initial SSR call uses the form-state's
+      // default ``home_delivery``; the watcher takes over after the
+      // shopper switches.
       () => `checkout:pay-ways:${locale.value}`,
-      () => $fetch<Pagination<PayWay>>('/api/pay-way', {
-        method: 'GET',
-        query: { languageCode: locale.value },
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-    ),
-    useAsyncData<UserAddressDetail | null>(
-      'checkout:main-address',
-      async () => {
-        if (!loggedIn.value) return null
-        try {
-          return await $fetch<UserAddressDetail>('/api/user/main-address', {
-            method: 'GET',
-            headers: useRequestHeaders(),
-          })
-        }
-        catch (error) {
-          // 404 = no main address yet, not worth logging.
-          const status = (error as { statusCode?: number })?.statusCode
-          if (status && status !== 404) {
-            log.warn('checkout', 'main address fetch failed', { error })
-          }
-          return null
-        }
+      () => {
+        const carrier = carrierForMethod(formState.shippingMethod)
+        const kind = formState.shippingMethod === 'home_delivery'
+          ? 'home_delivery'
+          : 'pickup_point'
+        return $fetch<Pagination<PayWay>>('/api/pay-way', {
+          method: 'GET',
+          query: {
+            languageCode: locale.value,
+            shippingProviderCode: carrier?.code,
+            shippingKind: kind,
+          },
+          headers: useRequestHeaders(),
+        }).catch(() => null)
       },
     ),
     useAsyncData<UserAddressDetail[]>(
@@ -466,9 +783,24 @@ export async function useCheckoutForm() {
   // the type back to what the refs expect.
   shippingSetting.value = shippingResult.data.value ?? null
   freeShippingThresholdSetting.value = freeShippingResult.data.value ?? null
+  boxnowShippingSetting.value = boxnowShippingResult.data.value ?? null
+  boxnowFreeShippingThresholdSetting.value = boxnowFreeShippingResult.data.value ?? null
   // extra_settings serialises booleans as the strings "True"/"False".
-  // Default to ``true`` if the endpoint is unreachable so a transient
-  // settings-API failure doesn't silently hide the B2B option.
+  // BoxNow defaults to **disabled** — the master switch starts False
+  // in production so a fresh deploy doesn't expose the option until an
+  // admin (and BoxNow's partner activation) confirm. Stage/dev flips
+  // it on in Django admin once the account is activated.
+  boxnowEnabled.value = boxnowEnabledResult.data.value?.value === 'True'
+  // ACS Smartpoint defaults disabled (Phase 2 progressive rollout):
+  // ops flips the Setting to True after the AcsStation cache has been
+  // synced and the picker is verified end-to-end.
+  acsSmartpointEnabled.value
+    = acsSmartpointEnabledResult.data.value?.value === 'True'
+  acsShippingSetting.value = acsShippingResult.data.value ?? null
+  acsFreeShippingThresholdSetting.value
+    = acsFreeShippingResult.data.value ?? null
+  // B2B defaults to ``true`` if the endpoint is unreachable so a
+  // transient settings-API failure doesn't silently hide the option.
   b2bInvoicingEnabled.value = b2bInvoicingResult.data.value?.value !== 'False'
   if (!b2bInvoicingEnabled.value) {
     formState.documentType = zOrderCreateDocumentType.enum.RECEIPT
@@ -481,10 +813,15 @@ export async function useCheckoutForm() {
 
   // Apply the main address to form state synchronously so the very
   // first SSR render (and the client's hydration render) already shows
-  // the ``saved`` mode — no guest-form flash.
-  if (mainAddressResult.data.value) {
-    applyAddressToFormState(mainAddressResult.data.value)
-    selectedSavedAddressId.value = mainAddressResult.data.value.id
+  // the ``saved`` mode — no guest-form flash. The saved-addresses
+  // query orders by ``-isMain,-createdAt``, so the first entry is the
+  // main one when present (or the most-recent fallback when no main
+  // is set — matches the behaviour the dedicated ``get_main`` endpoint
+  // used to provide, with one fewer API call and no 404 noise).
+  const mainAddress = savedAddresses.value.find(a => a.isMain)
+  if (mainAddress) {
+    applyAddressToFormState(mainAddress)
+    selectedSavedAddressId.value = mainAddress.id ?? null
     addressEntryMode.value = 'saved'
   }
 
@@ -507,6 +844,40 @@ export async function useCheckoutForm() {
     await fetchRegions()
   }
 
+  // After regions have loaded, verify the prefilled main address has a
+  // valid region. Same intent as ``selectSavedAddress`` — see notes on
+  // ``validateAppliedAddressRegion`` for the failure mode this prevents.
+  if (mainAddress) {
+    validateAppliedAddressRegion()
+  }
+
+  // Hydrate shipping options once the country is known so the sidebar
+  // shows the live ACS quote on first render (SSR-safe).
+  await fetchShippingOptions()
+
+  /**
+   * Re-fetches shipping settings from the server at submit time so the
+   * displayed shipping cost is always current even if the page was loaded
+   * hours ago. Also re-fetches the per-(provider, kind) options so any
+   * ACS tariff change since page load is reflected in the sidebar before
+   * the customer commits to the order.
+   */
+  const refetchShippingSettings = async () => {
+    const [freshShipping, freshThreshold] = await Promise.all([
+      $fetch<{ value: string }>('/api/settings/get', {
+        query: { key: 'CHECKOUT_SHIPPING_PRICE' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+      $fetch<{ value: string }>('/api/settings/get', {
+        query: { key: 'FREE_SHIPPING_THRESHOLD' },
+        headers: useRequestHeaders(),
+      }).catch(() => null),
+      fetchShippingOptions(),
+    ])
+    if (freshShipping) shippingSetting.value = freshShipping
+    if (freshThreshold) freeShippingThresholdSetting.value = freshThreshold
+  }
+
   return {
     formState,
     regions,
@@ -519,13 +890,18 @@ export async function useCheckoutForm() {
     payWayOptions,
     step1Schema,
     step2Schema,
+    step3Schema,
     fetchRegions,
-    onCountryChange,
     savedAddresses,
     selectedSavedAddressId,
     selectSavedAddress,
     addressEntryMode,
     useNewAddress,
     b2bInvoicingEnabled,
+    boxnowEnabled,
+    acsSmartpointEnabled,
+    acsShippingSetting,
+    acsFreeShippingThresholdSetting,
+    refetchShippingSettings,
   }
 }

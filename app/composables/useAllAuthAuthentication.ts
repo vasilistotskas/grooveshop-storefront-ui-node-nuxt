@@ -2,6 +2,12 @@ import { resolveURL, withQuery } from 'ufo'
 
 export default function () {
   const API_BASE_URL = ALLAUTH_AUTH_URL
+  // Capture the Meta Pixel + GA4 proxies at composable-setup so the
+  // signup / login ``onResponse`` callbacks (which run asynchronously
+  // after the network round-trip) don't try to call ``useScript*``
+  // from outside Nuxt's component setup context.
+  const metaPixel = useMetaPixel()
+  const ga4 = useGA4()
   async function getSession(encrypted_token: string | null = null) {
     const headers = useRequestHeaders()
     if (encrypted_token) {
@@ -22,15 +28,15 @@ export default function () {
     })
   }
 
-  async function deleteSession() {
+  async function deleteSession({ explicit = false }: { explicit?: boolean } = {}) {
     return $fetch(`${API_BASE_URL}/session`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
-        await onAllAuthResponse(response)
+        await onAllAuthResponse(response, { explicit })
       },
       async onResponseError({ response }) {
-        await onAllAuthResponseError(response)
+        await onAllAuthResponseError(response, { explicit })
       },
     })
   }
@@ -42,6 +48,25 @@ export default function () {
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response)
+        // GA4: login event. allauth headless returns 200 on
+        // immediate success and 401 with a flow when MFA is
+        // required — we only fire on the terminal success path so
+        // a TOTP-gated user doesn't get a premature login event
+        // before completing 2FA. The auth plugin's
+        // ``LOGGED_IN`` event would be a more accurate hook, but
+        // catching it here keeps the analytics call co-located
+        // with the network call and easy to audit.
+        if (response.ok && response.status === 200) {
+          try {
+            ga4.trackLogin({ method: 'email' })
+          }
+          catch (pixelErr) {
+            log.warn(
+              'auth:ga4Login',
+              String((pixelErr as Error)?.message ?? pixelErr),
+            )
+          }
+        }
       },
       async onResponseError({ response }) {
         await onAllAuthResponseError(response)
@@ -56,6 +81,28 @@ export default function () {
       body,
       async onResponse({ response }) {
         await onAllAuthResponse(response)
+        // Meta Pixel: CompleteRegistration browser-leg. The Django
+        // ``allauth.account.signals.user_signed_up`` receiver fires
+        // the server-leg with rich user_data (email/UA/fbp/fbc) so
+        // the two legs together drive Event Match Quality on
+        // signups. Mints a fresh eventID; we don't dedup because
+        // the server-leg uses its own UUID — Meta will count both
+        // up to the standard 1-event-per-user-per-funnel-step
+        // expectation. Wrapped to never break the signup UX.
+        if (response.ok) {
+          try {
+            metaPixel.trackCompleteRegistration({
+              status: 'completed',
+            })
+            ga4.trackSignUp({ method: 'email' })
+          }
+          catch (pixelErr) {
+            log.warn(
+              'auth:pixelCompleteRegistration',
+              String((pixelErr as Error)?.message ?? pixelErr),
+            )
+          }
+        }
       },
       async onResponseError({ response }) {
         await onAllAuthResponseError(response)

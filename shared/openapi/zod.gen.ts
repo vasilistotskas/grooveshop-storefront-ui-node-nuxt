@@ -3,6 +3,83 @@
 import * as z from 'zod'
 
 /**
+ * Free-text address payload — ACS does its own parsing.
+ */
+export const zAcsAddressValidationRequestRequest = z.object({
+  address: z.string().min(1).max(500).register(z.globalRegistry, {
+    description: 'Street + number + optional zip + city, e.g. \'Pireos 25 17778\'.',
+  }),
+  addressId: z.string().max(64).register(z.globalRegistry, {
+    description: 'Optional re-validation key from a previous response.',
+  }).optional(),
+  language: z.string().max(2).optional().default('GR'),
+}).register(z.globalRegistry, {
+  description: 'Free-text address payload — ACS does its own parsing.',
+})
+
+/**
+ * A single resolved address — the first ACSObjectOutput row.
+ */
+export const zAcsAddressValidationResponse = z.object({
+  geoId: z.int().nullish(),
+  resolvedStreet: z.string(),
+  resolvedStreetNum: z.string(),
+  resolvedZip: z.string(),
+  resolvedArea: z.string(),
+  resolvedLong: z.number().nullish(),
+  resolvedLat: z.number().nullish(),
+  resolvedStationId: z.string(),
+  resolvedBranchId: z.int().nullish(),
+  resolvedProvidence: z.string(),
+  addressId: z.string(),
+}).register(z.globalRegistry, {
+  description: 'A single resolved address — the first ACSObjectOutput row.',
+})
+
+/**
+ * * `1` - Prepaid
+ * * `2` - Cash on delivery
+ */
+export const zAcsChargeType = z.union([z.literal(1), z.literal(2)]).register(z.globalRegistry, {
+  description: '* `1` - Prepaid\n* `2` - Cash on delivery',
+})
+
+export const zAcsPickupList = z.object({
+  id: z.int().readonly(),
+  pickupListNo: z.string().register(z.globalRegistry, {
+    description: 'PickupList_No returned by ACS_Issue_Pickup_List.',
+  }).readonly(),
+  issuedAt: z.iso.datetime({ offset: true }).readonly(),
+  issuedBy: z.int().readonly().nullable(),
+  issuedByUsername: z.string().readonly().nullable(),
+  billingCode: z.string().register(z.globalRegistry, {
+    description: 'Billing_Code captured at issuance time so historical manifests stay reprintable even if the env var changes.',
+  }).readonly(),
+  voucherCount: z.int().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+})
+
+export const zAcsTrackingEvent = z.object({
+  id: z.int().readonly(),
+  eventTime: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Checkpoint_Date_Time from ACS_TrackingDetails.',
+  }).readonly(),
+  checkpointAction: z.string().register(z.globalRegistry, {
+    description: 'Checkpoint_Action_Description — human-readable Greek text describing the event.',
+  }).readonly(),
+  checkpointLocation: z.string().register(z.globalRegistry, {
+    description: 'Checkpoint_Location_Description.',
+  }).readonly(),
+  notes: z.string().register(z.globalRegistry, {
+    description: 'ACS Comments field.',
+  }).readonly(),
+  receivedAt: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Wall-clock time when the polling task observed this event.',
+  }).readonly(),
+})
+
+/**
  * * `subscribe` - subscribe
  * * `unsubscribe` - unsubscribe
  */
@@ -91,7 +168,7 @@ export const zBlogAuthor = z.object({
   }),
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
-  user: z.int(),
+  user: z.int().readonly(),
   website: z.string().max(200).readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -481,6 +558,262 @@ export const zBlogTagWriteRequest = z.object({
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
+/**
+ * Nested ``customer`` object within a BoxNow webhook payload.
+ */
+export const zBoxNowCustomerRequest = z.object({
+  name: z.string().register(z.globalRegistry, {
+    description: 'Customer full name',
+  }).optional(),
+  email: z.string().register(z.globalRegistry, {
+    description: 'Email πελάτη',
+  }).optional(),
+  phoneNumber: z.string().register(z.globalRegistry, {
+    description: 'Τηλέφωνο πελάτη',
+  }).optional(),
+}).register(z.globalRegistry, {
+  description: 'Nested ``customer`` object within a BoxNow webhook payload.',
+})
+
+/**
+ * Nested ``eventLocation`` object within a BoxNow webhook payload.
+ */
+export const zBoxNowEventLocationRequest = z.object({
+  displayName: z.string().register(z.globalRegistry, {
+    description: 'Human-readable locker or hub name',
+  }).optional(),
+  postalCode: z.string().register(z.globalRegistry, {
+    description: 'Postal code of the event location',
+  }).optional(),
+}).register(z.globalRegistry, {
+  description: 'Nested ``eventLocation`` object within a BoxNow webhook payload.',
+})
+
+/**
+ * Request body for ``POST /lockers/nearest``.
+ *
+ * Maps to the BoxNow ``/api/v2/delivery-requests:checkAddressDelivery``
+ * endpoint parameters.
+ */
+export const zBoxNowNearestLockerRequestRequest = z.object({
+  city: z.string().min(1).max(128).register(z.globalRegistry, {
+    description: 'City name for nearest-locker lookup',
+  }),
+  street: z.string().min(1).max(255).register(z.globalRegistry, {
+    description: 'Street name and number',
+  }),
+  postalCode: z.string().min(1).max(16).register(z.globalRegistry, {
+    description: 'Postal / ZIP code',
+  }),
+  region: z.string().min(1).max(8).register(z.globalRegistry, {
+    description: 'IETF language tag / region code (default: el-GR)',
+  }).optional().default('el-GR'),
+  compartmentSize: z.int().gte(1).lte(3).register(z.globalRegistry, {
+    description: 'Required compartment size: 1=Small, 2=Medium, 3=Large',
+  }).optional().default(1),
+}).register(z.globalRegistry, {
+  description: 'Request body for ``POST /lockers/nearest``.\n\nMaps to the BoxNow ``/api/v2/delivery-requests:checkAddressDelivery``\nendpoint parameters.',
+})
+
+/**
+ * Response shape returned by BoxNow's checkAddressDelivery call.
+ *
+ * Mirrors ``/api/v2/delivery-requests:checkAddressDelivery`` response.
+ * ``lat`` and ``lng`` are CharField because BoxNow returns them as
+ * strings in this endpoint.  ``distance`` is the straight-line
+ * distance in kilometres from the supplied address.
+ */
+export const zBoxNowNearestLockerResponse = z.object({
+  id: z.string().register(z.globalRegistry, {
+    description: 'BoxNow APM identifier',
+  }).readonly(),
+  type: z.string().register(z.globalRegistry, {
+    description: 'Locker type (e.g. apm, warehouse)',
+  }).readonly(),
+  image: z.string().register(z.globalRegistry, {
+    description: 'URL of locker image',
+  }).readonly(),
+  lat: z.string().register(z.globalRegistry, {
+    description: 'Latitude (string as returned by BoxNow)',
+  }).readonly(),
+  lng: z.string().register(z.globalRegistry, {
+    description: 'Longitude (string as returned by BoxNow)',
+  }).readonly(),
+  title: z.string().register(z.globalRegistry, {
+    description: 'Short display title',
+  }).readonly(),
+  name: z.string().register(z.globalRegistry, {
+    description: 'Full locker name',
+  }).readonly(),
+  postalCode: z.string().register(z.globalRegistry, {
+    description: 'Postal code of the locker',
+  }).readonly(),
+  country: z.string().register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code',
+  }).readonly(),
+  note: z.string().register(z.globalRegistry, {
+    description: 'Operational note from BoxNow',
+  }).readonly(),
+  addressLine1: z.string().register(z.globalRegistry, {
+    description: 'Primary address line',
+  }).readonly(),
+  addressLine2: z.string().register(z.globalRegistry, {
+    description: 'Secondary address line',
+  }).readonly(),
+  region: z.string().register(z.globalRegistry, {
+    description: 'IETF region tag returned by BoxNow',
+  }).readonly(),
+  distance: z.number().register(z.globalRegistry, {
+    description: 'Distance from the supplied address in kilometres',
+  }).readonly(),
+}).register(z.globalRegistry, {
+  description: 'Response shape returned by BoxNow\'s checkAddressDelivery call.\n\nMirrors ``/api/v2/delivery-requests:checkAddressDelivery`` response.\n``lat`` and ``lng`` are CharField because BoxNow returns them as\nstrings in this endpoint.  ``distance`` is the straight-line\ndistance in kilometres from the supplied address.',
+})
+
+/**
+ * * `pending_creation` - Pending creation
+ * * `new` - Νέο
+ * * `in_depot` - In depot
+ * * `final_destination` - At locker
+ * * `delivered` - Παραδόθηκε
+ * * `returned` - Επιστράφηκε
+ * * `expired` - Έληξε
+ * * `canceled` - Ακυρώθηκε
+ * * `accepted_for_return` - Accepted for return
+ * * `accepted_to_locker` - Accepted to locker
+ * * `missing` - Missing
+ * * `lost` - Lost
+ */
+export const zBoxNowParcelState = z.enum([
+  'pending_creation',
+  'new',
+  'in_depot',
+  'final_destination',
+  'delivered',
+  'returned',
+  'expired',
+  'canceled',
+  'accepted_for_return',
+  'accepted_to_locker',
+  'missing',
+  'lost',
+]).register(z.globalRegistry, {
+  description: '* `pending_creation` - Pending creation\n* `new` - Νέο\n* `in_depot` - In depot\n* `final_destination` - At locker\n* `delivered` - Παραδόθηκε\n* `returned` - Επιστράφηκε\n* `expired` - Έληξε\n* `canceled` - Ακυρώθηκε\n* `accepted_for_return` - Accepted for return\n* `accepted_to_locker` - Accepted to locker\n* `missing` - Missing\n* `lost` - Lost',
+})
+
+/**
+ * Read-only serializer for ``BoxNowParcelEvent`` webhook audit records.
+ *
+ * All fields are read-only — events are written exclusively by the
+ * webhook handler and are never modified after creation.
+ */
+export const zBoxNowParcelEvent = z.object({
+  id: z.int().readonly(),
+  webhookMessageId: z.string().register(z.globalRegistry, {
+    description: 'CloudEvents \'id\' field — idempotency key',
+  }).readonly(),
+  eventType: zBoxNowParcelState,
+  eventTypeDisplay: z.string().register(z.globalRegistry, {
+    description: 'Human-readable label for the event_type choice',
+  }).readonly(),
+  parcelState: z.string().register(z.globalRegistry, {
+    description: 'Raw \'data.parcelState\' value from BoxNow webhook payload',
+  }).readonly(),
+  eventTime: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Timestamp from \'data.time\' in the webhook payload',
+  }).readonly(),
+  displayName: z.string().register(z.globalRegistry, {
+    description: 'data.eventLocation.displayName',
+  }).readonly(),
+  postalCode: z.string().register(z.globalRegistry, {
+    description: 'data.eventLocation.postalCode',
+  }).readonly(),
+  additionalInformation: z.string().readonly(),
+  receivedAt: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Timestamp when GrooveShop received the webhook (separate from event_time)',
+  }).readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+}).register(z.globalRegistry, {
+  description: 'Read-only serializer for ``BoxNowParcelEvent`` webhook audit records.\n\nAll fields are read-only — events are written exclusively by the\nwebhook handler and are never modified after creation.',
+})
+
+/**
+ * ``data`` field of a BoxNow CloudEvent webhook envelope.
+ *
+ * Reflects the payload shape described in the BoxNow webhook PDF.
+ * ``camelCase`` field names are preserved because
+ * ``djangorestframework-camel-case`` is already applied
+ * project-wide at the middleware level; no manual aliasing needed.
+ */
+export const zBoxNowWebhookDataRequest = z.object({
+  parcelId: z.string().min(1).register(z.globalRegistry, {
+    description: '10-digit BoxNow voucher/parcel number',
+  }),
+  parcelState: z.string().min(1).register(z.globalRegistry, {
+    description: 'BoxNow parcel state vocabulary (data.parcelState)',
+  }),
+  parcelReferenceNumber: z.string().register(z.globalRegistry, {
+    description: 'Optional merchant reference number',
+  }).optional(),
+  parcelName: z.string().register(z.globalRegistry, {
+    description: 'Optional descriptive parcel name',
+  }).optional(),
+  orderNumber: z.string().min(1).register(z.globalRegistry, {
+    description: 'Merchant order number sent during delivery-request creation',
+  }),
+  event: z.string().min(1).register(z.globalRegistry, {
+    description: 'BoxNow event type string (e.g. \'in-depot\', \'final-destination\', \'delivered\')',
+  }),
+  eventLocation: zBoxNowEventLocationRequest.optional(),
+  customer: zBoxNowCustomerRequest.optional(),
+  additionalInformation: z.string().register(z.globalRegistry, {
+    description: 'Free-text additional information from BoxNow',
+  }).optional(),
+  time: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Timestamp when the event occurred at BoxNow',
+  }),
+}).register(z.globalRegistry, {
+  description: '``data`` field of a BoxNow CloudEvent webhook envelope.\n\nReflects the payload shape described in the BoxNow webhook PDF.\n``camelCase`` field names are preserved because\n``djangorestframework-camel-case`` is already applied\nproject-wide at the middleware level; no manual aliasing needed.',
+})
+
+/**
+ * Top-level CloudEvent envelope for BoxNow webhook POST requests.
+ *
+ * Used for OpenAPI documentation only — the webhook view reads
+ * raw bytes before parsing in order to verify the HMAC-SHA256
+ * ``datasignature`` against the unmodified ``data`` JSON substring.
+ * DRF validation is not applied to the incoming request directly.
+ */
+export const zBoxNowWebhookEnvelopeRequest = z.object({
+  specversion: z.string().min(1).register(z.globalRegistry, {
+    description: 'CloudEvents specification version (expected: \'1.0\')',
+  }),
+  type: z.string().min(1).register(z.globalRegistry, {
+    description: 'Event type (expected: \'gr.boxnow.parcel_event_change\')',
+  }),
+  source: z.url().min(1).register(z.globalRegistry, {
+    description: 'Origin URL of the event source',
+  }),
+  subject: z.string().min(1).register(z.globalRegistry, {
+    description: 'Subject of the event (typically the parcel ID)',
+  }),
+  id: z.string().min(1).register(z.globalRegistry, {
+    description: 'Unique CloudEvents ID; used as idempotency key (stored as webhook_message_id)',
+  }),
+  time: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Timestamp the envelope was generated',
+  }),
+  datacontenttype: z.string().min(1).register(z.globalRegistry, {
+    description: 'MIME type of the data field (expected: \'application/json\')',
+  }),
+  datasignature: z.string().min(1).register(z.globalRegistry, {
+    description: 'HMAC-SHA256 hex digest of the raw \'data\' JSON object; used for signature verification',
+  }),
+  data: zBoxNowWebhookDataRequest,
+}).register(z.globalRegistry, {
+  description: 'Top-level CloudEvent envelope for BoxNow webhook POST requests.\n\nUsed for OpenAPI documentation only — the webhook view reads\nraw bytes before parsing in order to verify the HMAC-SHA256\n``datasignature`` against the unmodified ``data`` JSON substring.\nDRF validation is not applied to the incoming request directly.',
+})
+
 export const zBulkSubscriptionRequest = z.object({
   topicIds: z.array(z.int()).register(z.globalRegistry, {
     description: 'List of topic IDs to subscribe/unsubscribe',
@@ -506,8 +839,41 @@ export const zCartItemUpdateRequest = z.object({
   quantity: z.int().gte(0).lte(2147483647).optional(),
 })
 
+/**
+ * Response body returned by the create-payment-intent cart action.
+ */
+export const zCartPaymentIntentResponse = z.object({
+  clientSecret: z.string().register(z.globalRegistry, {
+    description: 'Stripe PaymentIntent client secret for frontend confirmation',
+  }),
+  paymentIntentId: z.string().register(z.globalRegistry, {
+    description: 'Stripe PaymentIntent ID to be stored on the order',
+  }),
+  amount: z.number().gt(-10000000000).lt(10000000000).register(z.globalRegistry, {
+    description: 'Total charge amount (cart + shipping + payment fee)',
+  }),
+  currency: z.string().max(3).register(z.globalRegistry, {
+    description: 'ISO 4217 currency code (e.g. EUR)',
+  }),
+}).register(z.globalRegistry, {
+  description: 'Response body returned by the create-payment-intent cart action.',
+})
+
 export const zCartWriteRequest = z.object({
   user: z.int().nullish(),
+})
+
+/**
+ * * `1` - Μικρό
+ * * `2` - Μεσαίο
+ * * `3` - Μεγάλο
+ */
+export const zCompartmentSizeEnum = z.union([
+  z.literal(1),
+  z.literal(2),
+  z.literal(3),
+]).register(z.globalRegistry, {
+  description: '* `1` - Μικρό\n* `2` - Μεσαίο\n* `3` - Μεγάλο',
 })
 
 /**
@@ -515,7 +881,7 @@ export const zCartWriteRequest = z.object({
  * * `hero_carousel` - Hero Carousel
  * * `products_slider` - Products Slider
  * * `products_grid` - Products Grid
- * * `featured_products` - Featured Products
+ * * `featured_products` - Προβεβλημένα Προϊόντα
  * * `product_categories` - Product Categories
  * * `blog_posts_carousel` - Blog Posts Carousel
  * * `blog_posts_grid` - Blog Posts Grid
@@ -546,7 +912,7 @@ export const zComponentTypeEnum = z.enum([
   'loyalty_hero',
   'search_bar',
 ]).register(z.globalRegistry, {
-  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Featured Products\n* `product_categories` - Product Categories\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar',
+  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Product Categories\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar',
 })
 
 export const zConfirmResponse = z.object({
@@ -884,7 +1250,7 @@ export const zHealthCheckResponse = z.object({
  * * `GALLERY` - Gallery Image
  * * `BACKGROUND` - Background Image
  * * `HERO` - Hero Image
- * * `FEATURE` - Feature Image
+ * * `FEATURE` - Κεντρική Εικόνα
  * * `PROMOTIONAL` - Promotional Image
  * * `SEASONAL` - Seasonal Image
  */
@@ -900,7 +1266,7 @@ export const zImageTypeEnum = z.enum([
   'PROMOTIONAL',
   'SEASONAL',
 ]).register(z.globalRegistry, {
-  description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+  description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
 })
 
 /**
@@ -992,16 +1358,16 @@ export const zLoyaltySummary = z.object({
 })
 
 /**
- * * `ORDER` - Ταξινόμηση
- * * `PAYMENT` - Payment
- * * `SHIPPING` - Shipping
- * * `CART` - Cart
- * * `PRODUCT` - Product
- * * `ACCOUNT` - Account
+ * * `ORDER` - Παραγγελία
+ * * `PAYMENT` - Πληρωμή
+ * * `SHIPPING` - Μεταφορικά
+ * * `CART` - Καλάθι
+ * * `PRODUCT` - Προϊόν
+ * * `ACCOUNT` - Λογαριασμός Ανενεργός
  * * `SECURITY` - Security
  * * `PROMOTION` - Promotion
- * * `SYSTEM` - System
- * * `REVIEW` - Review
+ * * `SYSTEM` - Σύστημα
+ * * `REVIEW` - Εξέταση
  * * `WISHLIST` - Wishlist
  * * `SUPPORT` - Support
  * * `NEWSLETTER` - Newsletter
@@ -1023,7 +1389,7 @@ export const zNotificationCategory = z.enum([
   'NEWSLETTER',
   'RECOMMENDATION',
 ]).register(z.globalRegistry, {
-  description: '* `ORDER` - Ταξινόμηση\n* `PAYMENT` - Payment\n* `SHIPPING` - Shipping\n* `CART` - Cart\n* `PRODUCT` - Product\n* `ACCOUNT` - Account\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - System\n* `REVIEW` - Review\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation',
+  description: '* `ORDER` - Παραγγελία\n* `PAYMENT` - Πληρωμή\n* `SHIPPING` - Μεταφορικά\n* `CART` - Καλάθι\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - Σύστημα\n* `REVIEW` - Εξέταση\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation',
 })
 
 export const zNotificationCountResponse = z.object({
@@ -1074,6 +1440,9 @@ export const zNotificationSuccessResponse = z.object({
  * * `restock_favourite` - Back in stock (favourited product)
  * * `loyalty_tier_up` - Loyalty tier promotion
  * * `comment_liked` - Blog comment liked
+ * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
+ * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+ * * `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery
  */
 export const zNotificationTypeEnum = z.enum([
   'order_created',
@@ -1090,14 +1459,17 @@ export const zNotificationTypeEnum = z.enum([
   'restock_favourite',
   'loyalty_tier_up',
   'comment_liked',
+  'BOXNOW_PARCEL_AT_LOCKER',
+  'BOXNOW_PARCEL_DELIVERED',
+  'ACS_OUT_FOR_DELIVERY',
 ]).register(z.globalRegistry, {
-  description: '* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Shipment dispatched\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Price drop (favourited product)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Blog comment liked',
+  description: '* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Shipment dispatched\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Price drop (favourited product)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Blog comment liked\n* `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker\n* `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered\n* `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery',
 })
 
 export const zNotificationUser = z.object({
   id: z.int().readonly(),
-  user: z.int(),
-  notification: z.int(),
+  user: z.int().readonly(),
+  notification: z.int().readonly(),
   seen: z.boolean().optional(),
   seenAt: z.iso.datetime({ offset: true }).nullish(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -1112,80 +1484,21 @@ export const zNotificationUserActionRequest = z.object({
 })
 
 export const zNotificationUserWriteRequest = z.object({
-  user: z.int(),
   notification: z.int(),
   seen: z.boolean().optional(),
 })
 
 /**
  * * `RECEIPT` - Receipt
- * * `INVOICE` - Invoice
+ * * `INVOICE` - Τιμολόγιο
  */
 export const zOrderCreateDocumentType = z.enum(['RECEIPT', 'INVOICE']).register(z.globalRegistry, {
-  description: '* `RECEIPT` - Receipt\n* `INVOICE` - Invoice',
-})
-
-/**
- * Serializer for creating orders from cart (dual-flow payment architecture).
- *
- * This serializer supports two payment flows:
- * 1. Online payments (is_online_payment=True): Requires payment_intent_id
- * 2. Offline payments (is_online_payment=False): No payment_intent_id required
- *
- * The order is created from an existing cart identified via X-Cart-Id header.
- * Cart is NOT sent in request body - it's retrieved from the header using CartService.
- */
-export const zOrderCreateFromCartRequest = z.object({
-  payWayId: z.int().register(z.globalRegistry, {
-    description: 'Payment method ID',
-  }),
-  paymentIntentId: z.string().nullish(),
-  firstName: z.string().min(1).max(150).register(z.globalRegistry, {
-    description: 'Customer first name',
-  }),
-  lastName: z.string().min(1).max(150).register(z.globalRegistry, {
-    description: 'Customer last name',
-  }),
-  email: z.email().min(1).register(z.globalRegistry, {
-    description: 'Customer email address',
-  }),
-  street: z.string().min(1).max(255).register(z.globalRegistry, {
-    description: 'Street name',
-  }),
-  streetNumber: z.string().max(50).register(z.globalRegistry, {
-    description: 'Street number',
-  }).optional(),
-  city: z.string().min(1).max(100).register(z.globalRegistry, {
-    description: 'City name',
-  }),
-  zipcode: z.string().min(1).max(20).register(z.globalRegistry, {
-    description: 'Postal/ZIP code',
-  }),
-  countryId: z.string().min(1).register(z.globalRegistry, {
-    description: 'Country alpha-2 code (e.g., \'GR\', \'US\')',
-  }),
-  regionId: z.string().nullish(),
-  phone: z.string().min(1).register(z.globalRegistry, {
-    description: 'Customer phone number',
-  }),
-  customerNotes: z.string().max(500).register(z.globalRegistry, {
-    description: 'Customer notes or special instructions',
-  }).optional(),
-  billingVatId: z.string().max(12).register(z.globalRegistry, {
-    description: 'Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.',
-  }).optional(),
-  billingCountry: z.string().max(2).register(z.globalRegistry, {
-    description: 'ISO 3166-1 alpha-2 country code for the buyer\'s tax identity. Defaults to the order country when blank.',
-  }).optional(),
-  documentType: zOrderCreateDocumentType.optional(),
-  loyaltyPointsToRedeem: z.int().gte(0).nullish(),
-}).register(z.globalRegistry, {
-  description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',
+  description: '* `RECEIPT` - Receipt\n* `INVOICE` - Τιμολόγιο',
 })
 
 /**
  * * `RECEIPT` - Receipt
- * * `INVOICE` - Invoice
+ * * `INVOICE` - Τιμολόγιο
  * * `PROFORMA` - Proforma Invoice
  * * `SHIPPING_LABEL` - Shipping Label
  * * `RETURN_LABEL` - Return Label
@@ -1199,7 +1512,7 @@ export const zOrderDocumentType = z.enum([
   'RETURN_LABEL',
   'CREDIT_NOTE',
 ]).register(z.globalRegistry, {
-  description: '* `RECEIPT` - Receipt\n* `INVOICE` - Invoice\n* `PROFORMA` - Proforma Invoice\n* `SHIPPING_LABEL` - Shipping Label\n* `RETURN_LABEL` - Return Label\n* `CREDIT_NOTE` - Credit Note',
+  description: '* `RECEIPT` - Receipt\n* `INVOICE` - Τιμολόγιο\n* `PROFORMA` - Proforma Invoice\n* `SHIPPING_LABEL` - Shipping Label\n* `RETURN_LABEL` - Return Label\n* `CREDIT_NOTE` - Credit Note',
 })
 
 export const zOrderItem = z.object({
@@ -1246,14 +1559,14 @@ export const zOrderItemWriteRequest = z.object({
 })
 
 /**
- * * `PENDING` - Pending
- * * `PROCESSING` - Processing
- * * `SHIPPED` - Shipped
- * * `DELIVERED` - Delivered
- * * `COMPLETED` - Completed
- * * `CANCELED` - Canceled
- * * `RETURNED` - Returned
- * * `REFUNDED` - Refunded
+ * * `PENDING` - Εκκρεμεί
+ * * `PROCESSING` - Σε επεξεργασία
+ * * `SHIPPED` - Απεστάλη
+ * * `DELIVERED` - Παραδόθηκε
+ * * `COMPLETED` - Ολοκληρώθηκε
+ * * `CANCELED` - Ακυρώθηκε
+ * * `RETURNED` - Επιστράφηκε
+ * * `REFUNDED` - Επιστροφή Χρημάτων
  */
 export const zOrderStatus = z.enum([
   'PENDING',
@@ -1265,7 +1578,7 @@ export const zOrderStatus = z.enum([
   'RETURNED',
   'REFUNDED',
 ]).register(z.globalRegistry, {
-  description: '* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded',
+  description: '* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
 })
 
 export const zOrderWriteRequest = z.object({
@@ -1283,7 +1596,6 @@ export const zOrderWriteRequest = z.object({
   street: z.string().min(1).max(255),
   streetNumber: z.string().min(1).max(255),
   payWay: z.int().nullish(),
-  status: zOrderStatus.optional(),
   firstName: z.string().min(1).max(255),
   lastName: z.string().min(1).max(255),
   email: z.email().min(1).max(255),
@@ -1294,11 +1606,6 @@ export const zOrderWriteRequest = z.object({
   customerNotes: z.string().optional(),
   items: z.array(zOrderItemCreateRequest),
   documentType: zOrderDocumentType.optional(),
-  paymentId: z.string().min(1).optional(),
-  paymentStatus: z.string().min(1).optional(),
-  paymentMethod: z.string().min(1).optional(),
-  trackingNumber: z.string().max(255).optional(),
-  shippingCarrier: z.string().max(255).optional(),
 })
 
 export const zPageLayoutRequest = z.object({
@@ -1643,7 +1950,6 @@ export const zPatchedCountryWriteRequest = z.object({
 })
 
 export const zPatchedNotificationUserWriteRequest = z.object({
-  user: z.int().optional(),
   notification: z.int().optional(),
   seen: z.boolean().optional(),
 })
@@ -1670,7 +1976,6 @@ export const zPatchedOrderWriteRequest = z.object({
   street: z.string().min(1).max(255).optional(),
   streetNumber: z.string().min(1).max(255).optional(),
   payWay: z.int().nullish(),
-  status: zOrderStatus.optional(),
   firstName: z.string().min(1).max(255).optional(),
   lastName: z.string().min(1).max(255).optional(),
   email: z.email().min(1).max(255).optional(),
@@ -1681,11 +1986,6 @@ export const zPatchedOrderWriteRequest = z.object({
   customerNotes: z.string().optional(),
   items: z.array(zOrderItemCreateRequest).optional(),
   documentType: zOrderDocumentType.optional(),
-  paymentId: z.string().min(1).optional(),
-  paymentStatus: z.string().min(1).optional(),
-  paymentMethod: z.string().min(1).optional(),
-  trackingNumber: z.string().max(255).optional(),
-  shippingCarrier: z.string().max(255).optional(),
 })
 
 export const zPatchedPageLayoutRequest = z.object({
@@ -1931,6 +2231,13 @@ export const zPatchedUserAddressWriteRequest = z.object({
   region: z.string().min(1).optional(),
 })
 
+export const zPatchedUserSubscriptionWriteRequest = z.object({
+  topic: z.int().optional(),
+  metadata: z.unknown().register(z.globalRegistry, {
+    description: 'Additional subscription preferences or data',
+  }).optional(),
+})
+
 export const zPatchedUserWriteRequest = z.object({
   email: z.email().min(1).max(254).optional(),
   firstName: z.string().max(255).optional(),
@@ -2104,13 +2411,21 @@ export const zPayWayWriteRequest = z.object({
 })
 
 /**
- * * `PENDING` - Pending
- * * `PROCESSING` - Processing
- * * `COMPLETED` - Completed
- * * `FAILED` - Failed
- * * `REFUNDED` - Refunded
- * * `PARTIALLY_REFUNDED` - Partially Refunded
- * * `CANCELED` - Canceled
+ * * `prepaid` - Prepaid
+ * * `cod` - Cash on delivery
+ */
+export const zPaymentModeEnum = z.enum(['prepaid', 'cod']).register(z.globalRegistry, {
+  description: '* `prepaid` - Prepaid\n* `cod` - Cash on delivery',
+})
+
+/**
+ * * `PENDING` - Εκκρεμεί
+ * * `PROCESSING` - Σε επεξεργασία
+ * * `COMPLETED` - Ολοκληρώθηκε
+ * * `FAILED` - Απέτυχε
+ * * `REFUNDED` - Επιστροφή Χρημάτων
+ * * `PARTIALLY_REFUNDED` - Μερική επιστροφή
+ * * `CANCELED` - Ακυρώθηκε
  */
 export const zPaymentStatusEnum = z.enum([
   'PENDING',
@@ -2121,7 +2436,7 @@ export const zPaymentStatusEnum = z.enum([
   'PARTIALLY_REFUNDED',
   'CANCELED',
 ]).register(z.globalRegistry, {
-  description: '* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled',
+  description: '* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
 })
 
 export const zPaymentStatusResponse = z.object({
@@ -2363,6 +2678,12 @@ export const zCart = z.object({
   totalItemsUnique: z.int().register(z.globalRegistry, {
     description: 'Return the number of unique items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.',
   }).readonly(),
+  totalWeightGrams: z.int().register(z.globalRegistry, {
+    description: 'Total cart weight in grams. Forwarded to /api/v1/shipping/options at checkout so ACS live pricing quotes against the actual weight bracket the voucher mint will charge.',
+  }).readonly(),
+  currency: z.string().register(z.globalRegistry, {
+    description: 'ISO 4217 currency code for all monetary values in this cart',
+  }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   lastActivity: z.iso.datetime({ offset: true }).readonly(),
@@ -2382,6 +2703,12 @@ export const zCartDetail = z.object({
   ]),
   totalItemsUnique: z.int().register(z.globalRegistry, {
     description: 'Return the number of unique items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.',
+  }).readonly(),
+  totalWeightGrams: z.int().register(z.globalRegistry, {
+    description: 'Total cart weight in grams. Forwarded to /api/v1/shipping/options at checkout so ACS live pricing quotes against the actual weight bracket the voucher mint will charge.',
+  }).readonly(),
+  currency: z.string().register(z.globalRegistry, {
+    description: 'ISO 4217 currency code for all monetary values in this cart',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -2483,92 +2810,15 @@ export const zOrder = z.object({
     zPaymentStatusEnum,
     zBlankEnum,
   ]).optional(),
+  paymentStatusDisplay: z.string().register(z.globalRegistry, {
+    description: 'Localised label for ``payment_status`` (mirrors ``status_display``). Frontend renders this rather than the raw enum value so Greek/English/German locales all work without per-locale string maps in the UI.',
+  }).readonly(),
   paymentMethod: z.string().max(50).optional(),
+  isOnlinePayment: z.boolean().register(z.globalRegistry, {
+    description: 'True when the order\'s PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading \'outstanding amount\' warnings for COD orders where the shopper intentionally paid €0 at checkout.',
+  }).readonly(),
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
-})
-
-export const zOrderDetail = z.object({
-  id: z.int().readonly(),
-  user: z.int().nullish(),
-  country: z.string().nullable(),
-  region: z.string().nullable(),
-  floor: z.union([
-    zFloorEnum,
-    zBlankEnum,
-  ]).optional(),
-  locationType: z.union([
-    zLocationTypeEnum,
-    zBlankEnum,
-  ]).optional(),
-  street: z.string().max(255),
-  streetNumber: z.string().max(255),
-  payWay: z.int().nullable(),
-  status: zOrderStatus.optional(),
-  statusDisplay: z.string().readonly(),
-  statusUpdatedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  firstName: z.string().max(255),
-  lastName: z.string().max(255),
-  email: z.email().max(255),
-  zipcode: z.string().max(255),
-  place: z.string().max(255).optional(),
-  city: z.string().max(255),
-  phone: z.string().readonly(),
-  customerNotes: z.string().optional(),
-  paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  items: z.array(zOrderItemDetail),
-  shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  documentType: zOrderDocumentType.optional(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  fullAddress: z.string().readonly(),
-  paymentId: z.string().max(255).nullish(),
-  paymentStatus: z.union([
-    zPaymentStatusEnum,
-    zBlankEnum,
-  ]).optional(),
-  paymentMethod: z.string().max(50).optional(),
-  canBeCanceled: z.boolean().readonly(),
-  isPaid: z.boolean().readonly(),
-  orderTimeline: z.array(z.object({
-    changeType: z.string().optional(),
-    timestamp: z.string().optional(),
-    description: z.string().optional(),
-    user: z.string().nullish(),
-  })).register(z.globalRegistry, {
-    description: 'Order status timeline and history',
-  }).readonly(),
-  pricingBreakdown: z.object({
-    itemsSubtotal: z.number().optional(),
-    shippingCost: z.number().optional(),
-    paymentMethodFee: z.number().optional(),
-    extrasTotal: z.number().optional(),
-    grandTotal: z.number().optional(),
-    currency: z.string().optional(),
-    paidAmount: z.number().optional(),
-    remainingAmount: z.number().optional(),
-  }).register(z.globalRegistry, {
-    description: 'Detailed pricing breakdown',
-  }).readonly(),
-  trackingDetails: z.object({
-    trackingNumber: z.string().nullish(),
-    shippingCarrier: z.string().nullish(),
-    hasTracking: z.boolean().optional(),
-    estimatedDelivery: z.string().nullish(),
-    trackingUrl: z.string().nullish(),
-  }).readonly().nullable(),
-  hasInvoice: z.boolean().register(z.globalRegistry, {
-    description: 'True when a PDF invoice has been generated — the frontend can show the download CTA without issuing a separate request to the invoice endpoint to find out.',
-  }).readonly(),
-  trackingNumber: z.string().max(255).optional(),
-  shippingCarrier: z.string().max(255).optional(),
-  customerFullName: z.string().readonly(),
-  isCompleted: z.boolean().readonly(),
-  isCanceled: z.boolean().readonly(),
 })
 
 export const zPaginatedCartItemList = z.object({
@@ -2912,6 +3162,9 @@ export const zProductDetail = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
   attributes: z.array(zProductAttribute).readonly(),
+  priceDropAlertsEnabled: z.boolean().register(z.globalRegistry, {
+    description: 'When enabled, customers can subscribe to a one-time email when this product\'s price drops below a target. Disabled by default — admins opt products in per SKU.',
+  }).readonly(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
@@ -2972,6 +3225,9 @@ export const zProductDetailResponse = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
   attributes: z.array(zProductAttribute).readonly(),
+  priceDropAlertsEnabled: z.boolean().register(z.globalRegistry, {
+    description: 'When enabled, customers can subscribe to a one-time email when this product\'s price drops below a target. Disabled by default — admins opt products in per SKU.',
+  }).readonly(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
@@ -2999,7 +3255,7 @@ export const zPaginatedProductFavouriteList = z.object({
 })
 
 export const zProductFavouriteByProductsRequestRequest = z.object({
-  productIds: z.array(z.int()).register(z.globalRegistry, {
+  productIds: z.array(z.int()).max(100).register(z.globalRegistry, {
     description: 'List of product IDs to check for favorites',
   }),
 })
@@ -3468,9 +3724,17 @@ export const zReserveStockResponse = z.object({
   description: 'Serializer for reserve stock response.',
 })
 
+export const zResolveVivaOrderCodeError = z.object({
+  error: z.string(),
+})
+
+export const zResolveVivaOrderCodeResponse = z.object({
+  uuid: z.uuid(),
+})
+
 /**
- * * `NEW` - New
- * * `TRUE` - True
+ * * `NEW` - Νέο
+ * * `TRUE` - Ναι
  * * `FALSE` - False
  */
 export const zReviewStatus = z.enum([
@@ -3478,7 +3742,7 @@ export const zReviewStatus = z.enum([
   'TRUE',
   'FALSE',
 ]).register(z.globalRegistry, {
-  description: '* `NEW` - New\n* `TRUE` - True\n* `FALSE` - False',
+  description: '* `NEW` - Νέο\n* `TRUE` - Ναι\n* `FALSE` - False',
 })
 
 /**
@@ -3510,7 +3774,329 @@ export const zSettingDetail = z.object({
 })
 
 /**
- * * `ACTIVE` - Active
+ * * `pending_creation` - Pending creation
+ * * `new` - Νέο
+ * * `in_transit` - In transit
+ * * `at_destination` - At destination station
+ * * `out_for_delivery` - Out for delivery
+ * * `delivered` - Παραδόθηκε
+ * * `attempted` - Delivery attempted
+ * * `returned` - Επιστράφηκε
+ * * `canceled` - Ακυρώθηκε
+ * * `lost` - Lost
+ */
+export const zShipmentStateEnum = z.enum([
+  'pending_creation',
+  'new',
+  'in_transit',
+  'at_destination',
+  'out_for_delivery',
+  'delivered',
+  'attempted',
+  'returned',
+  'canceled',
+  'lost',
+]).register(z.globalRegistry, {
+  description: '* `pending_creation` - Pending creation\n* `new` - Νέο\n* `in_transit` - In transit\n* `at_destination` - At destination station\n* `out_for_delivery` - Out for delivery\n* `delivered` - Παραδόθηκε\n* `attempted` - Delivery attempted\n* `returned` - Επιστράφηκε\n* `canceled` - Ακυρώθηκε\n* `lost` - Lost',
+})
+
+/**
+ * * `home_delivery` - Home delivery
+ * * `pickup_point` - Pickup point / locker
+ */
+export const zShippingKind = z.enum(['home_delivery', 'pickup_point']).register(z.globalRegistry, {
+  description: '* `home_delivery` - Home delivery\n* `pickup_point` - Pickup point / locker',
+})
+
+/**
+ * Serializer for creating orders from cart (dual-flow payment architecture).
+ *
+ * This serializer supports two payment flows:
+ * 1. Online payments (is_online_payment=True): Requires payment_intent_id
+ * 2. Offline payments (is_online_payment=False): No payment_intent_id required
+ *
+ * The order is created from an existing cart identified via X-Cart-Id header.
+ * Cart is NOT sent in request body - it's retrieved from the header using CartService.
+ */
+export const zOrderCreateFromCartRequest = z.object({
+  payWayId: z.int().register(z.globalRegistry, {
+    description: 'Payment method ID',
+  }),
+  paymentIntentId: z.string().nullish(),
+  firstName: z.string().min(1).max(150).register(z.globalRegistry, {
+    description: 'Όνομα πελάτη',
+  }),
+  lastName: z.string().min(1).max(150).register(z.globalRegistry, {
+    description: 'Επώνυμο πελάτη',
+  }),
+  email: z.email().min(1).register(z.globalRegistry, {
+    description: 'Email πελάτη',
+  }),
+  street: z.string().min(1).max(255).register(z.globalRegistry, {
+    description: 'Street name',
+  }),
+  streetNumber: z.string().max(50).register(z.globalRegistry, {
+    description: 'Street number',
+  }).optional(),
+  city: z.string().min(1).max(100).register(z.globalRegistry, {
+    description: 'Όνομα πόλης',
+  }),
+  zipcode: z.string().min(1).max(20).register(z.globalRegistry, {
+    description: 'Postal/ZIP code',
+  }),
+  countryId: z.string().min(1).register(z.globalRegistry, {
+    description: 'Country alpha-2 code (e.g., \'GR\', \'US\')',
+  }),
+  regionId: z.string().nullish(),
+  phone: z.string().min(1).register(z.globalRegistry, {
+    description: 'Τηλέφωνο πελάτη',
+  }),
+  customerNotes: z.string().max(500).register(z.globalRegistry, {
+    description: 'Customer notes or special instructions',
+  }).optional(),
+  floor: z.string().max(50).register(z.globalRegistry, {
+    description: 'Floor number or label (e.g. FIRST_FLOOR)',
+  }).optional(),
+  place: z.string().max(255).register(z.globalRegistry, {
+    description: 'Place or district (optional)',
+  }).optional(),
+  locationType: z.string().max(100).register(z.globalRegistry, {
+    description: 'Location type, e.g. HOME or OFFICE (optional)',
+  }).optional(),
+  billingVatId: z.string().max(12).register(z.globalRegistry, {
+    description: 'Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.',
+  }).optional(),
+  billingCountry: z.string().max(2).register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code for the buyer\'s tax identity. Defaults to the order country when blank.',
+  }).optional(),
+  documentType: zOrderCreateDocumentType.optional(),
+  loyaltyPointsToRedeem: z.int().gte(0).nullish(),
+  boxnowLockerId: z.string().max(64).register(z.globalRegistry, {
+    description: 'BoxNow APM locker ID from the widget',
+  }).optional(),
+  boxnowCompartmentSize: z.int().gte(1).lte(3).register(z.globalRegistry, {
+    description: 'BoxNow compartment size: 1=Small, 2=Medium, 3=Large',
+  }).optional().default(1),
+  shippingProviderCode: z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+    description: 'Carrier code from /api/v1/shipping/options (e.g. \'acs\').',
+  }).optional(),
+  shippingKind: zShippingKind.optional(),
+  acsStationExternalId: z.string().max(32).register(z.globalRegistry, {
+    description: 'ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).',
+  }).optional(),
+  acsStationBranch: z.string().max(32).register(z.globalRegistry, {
+    description: 'ACS_Station_Branch_Destination value.',
+  }).optional(),
+  acsChargeType: zAcsChargeType.optional(),
+}).register(z.globalRegistry, {
+  description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',
+})
+
+/**
+ * One row in the checkout shipping-method radio.
+ *
+ * Returned by :class:`shipping.views.ShippingOptionsView`.  The
+ * frontend renders one card per row; the ``kind`` value tells it
+ * whether to show a locker picker, and ``provider_code`` tells it
+ * which picker variant (BoxNow widget vs ACS server-side list).
+ */
+export const zShippingOption = z.object({
+  providerCode: z.string(),
+  providerName: z.string(),
+  kind: zShippingKind,
+  price: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  currency: z.string().max(3),
+  liveMode: z.boolean(),
+  priority: z.int(),
+  metadata: z.record(z.string(), z.unknown()),
+}).register(z.globalRegistry, {
+  description: 'One row in the checkout shipping-method radio.\n\nReturned by :class:`shipping.views.ShippingOptionsView`.  The\nfrontend renders one card per row; the ``kind`` value tells it\nwhether to show a locker picker, and ``provider_code`` tells it\nwhich picker variant (BoxNow widget vs ACS server-side list).',
+})
+
+export const zShippingProvider = z.object({
+  id: z.int().readonly(),
+  code: z.string().regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+    description: 'Stable identifier matching the registered carrier adapter (e.g. \'acs\', \'boxnow\').',
+  }).readonly(),
+  name: z.string().register(z.globalRegistry, {
+    description: 'Display name shown to customers (e.g. \'ACS Courier\').',
+  }).readonly(),
+  isActive: z.boolean().register(z.globalRegistry, {
+    description: 'Master switch — when False the provider is hidden from checkout regardless of capability flags.',
+  }).readonly(),
+  supportsHomeDelivery: z.boolean().readonly(),
+  supportsPickupPoint: z.boolean().readonly(),
+  liveMode: z.boolean().register(z.globalRegistry, {
+    description: 'False = sandbox / test credentials. Used by the admin UI to warn operators that vouchers won\'t actually ship.',
+  }).readonly(),
+  priority: z.int().register(z.globalRegistry, {
+    description: 'Sort order in checkout — lower numbers appear first.',
+  }).readonly(),
+  metadata: z.unknown().register(z.globalRegistry, {
+    description: 'Provider-specific configuration (supported countries, feature flags, branding hints).',
+  }),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+})
+
+/**
+ * * `1` - Shop
+ * * `2` - Partner shop (2)
+ * * `3` - Partner shop (3)
+ * * `4` - Xpress Point
+ * * `5` - Kiosk
+ * * `7` - Smartpoint (inbound)
+ * * `8` - Smartpoint (outbound)
+ */
+export const zShopKindEnum = z.union([
+  z.literal(1),
+  z.literal(2),
+  z.literal(3),
+  z.literal(4),
+  z.literal(5),
+  z.literal(7),
+  z.literal(8),
+]).register(z.globalRegistry, {
+  description: '* `1` - Shop\n* `2` - Partner shop (2)\n* `3` - Partner shop (3)\n* `4` - Xpress Point\n* `5` - Kiosk\n* `7` - Smartpoint (inbound)\n* `8` - Smartpoint (outbound)',
+})
+
+/**
+ * List serializer for ACS stations / Smartpoints.
+ *
+ * Includes ``working_hours`` so the checkout picker can render
+ * opening hours inline without requiring a per-row detail fetch.
+ */
+export const zAcsStation = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  externalId: z.string().register(z.globalRegistry, {
+    description: 'ACS_SHOP_STATION_ID — used as Acs_Station_Destination.',
+  }).readonly(),
+  branchCode: z.string().register(z.globalRegistry, {
+    description: 'ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).',
+  }).readonly(),
+  shopKind: zShopKindEnum,
+  name: z.string().readonly(),
+  addressLine1: z.string().readonly(),
+  city: z.string().readonly(),
+  postalCode: z.string().readonly(),
+  countryCode: z.string().register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code.',
+  }).readonly(),
+  lat: z.string().readonly().nullable(),
+  lng: z.string().readonly().nullable(),
+  maxWeightKg: z.string().readonly(),
+  workingHours: z.string().readonly(),
+  isActive: z.boolean().readonly(),
+  lastSyncedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+}).register(z.globalRegistry, {
+  description: 'List serializer for ACS stations / Smartpoints.\n\nIncludes ``working_hours`` so the checkout picker can render\nopening hours inline without requiring a per-row detail fetch.',
+})
+
+/**
+ * Detail serializer used on the order-detail endpoint.
+ */
+export const zAcsShipmentDetail = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  voucherNo: z.string().readonly().nullable(),
+  shipmentState: zShipmentStateEnum,
+  shipmentStateDisplay: z.string().register(z.globalRegistry, {
+    description: 'Human-readable label for the shipment_state choice',
+  }).readonly(),
+  deliveryKind: zShippingKind,
+  weightGrams: z.int().register(z.globalRegistry, {
+    description: 'Internal grams; converted to kilograms (>= 0.5) at API call time per ACS Weight requirements.',
+  }).readonly(),
+  itemQuantity: z.int().readonly(),
+  chargeType: zAcsChargeType,
+  deliveryProducts: z.string().register(z.globalRegistry, {
+    description: 'Comma-separated Acs_Delivery_Products codes (COD, REC, SAT, RDO …).',
+  }).readonly(),
+  lastEventAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  lastPolledAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  deliveryDate: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  stationDestinationExternalId: z.string().register(z.globalRegistry, {
+    description: 'Denormalised ACS_SHOP_STATION_ID — preserved even if the AcsStation row is deleted.',
+  }).readonly(),
+  stationBranchDestination: z.string().register(z.globalRegistry, {
+    description: 'Acs_Station_Branch_Destination value.',
+  }).readonly(),
+  station: zAcsStation.nullable(),
+  events: z.array(zAcsTrackingEvent).register(z.globalRegistry, {
+    description: 'Last 50 tracking events ordered by event_time desc.',
+  }).readonly(),
+  labelUrl: z.string().readonly().nullable(),
+  deliveryFlag: z.string().register(z.globalRegistry, {
+    description: 'Raw delivery_flag value from ACS_Trackingsummary.',
+  }).readonly(),
+  returnedFlag: z.string().readonly(),
+  rawShipmentStatus: z.string().readonly(),
+  cancelRequestedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  metadata: z.unknown().register(z.globalRegistry, {
+    description: 'Multipart child voucher numbers, last create-voucher response, last error envelope, cached POD URL.',
+  }),
+}).register(z.globalRegistry, {
+  description: 'Detail serializer used on the order-detail endpoint.',
+})
+
+/**
+ * List serializer for ACS stations / Smartpoints.
+ *
+ * Includes ``working_hours`` so the checkout picker can render
+ * opening hours inline without requiring a per-row detail fetch.
+ */
+export const zAcsStationDetail = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  externalId: z.string().register(z.globalRegistry, {
+    description: 'ACS_SHOP_STATION_ID — used as Acs_Station_Destination.',
+  }).readonly(),
+  branchCode: z.string().register(z.globalRegistry, {
+    description: 'ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).',
+  }).readonly(),
+  shopKind: zShopKindEnum,
+  name: z.string().readonly(),
+  addressLine1: z.string().readonly(),
+  city: z.string().readonly(),
+  postalCode: z.string().readonly(),
+  countryCode: z.string().register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code.',
+  }).readonly(),
+  lat: z.string().readonly().nullable(),
+  lng: z.string().readonly().nullable(),
+  maxWeightKg: z.string().readonly(),
+  workingHours: z.string().readonly(),
+  isActive: z.boolean().readonly(),
+  lastSyncedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  addressLine2: z.string().readonly(),
+  region: z.string().readonly(),
+  phone: z.string().readonly(),
+}).register(z.globalRegistry, {
+  description: 'List serializer for ACS stations / Smartpoints.\n\nIncludes ``working_hours`` so the checkout picker can render\nopening hours inline without requiring a per-row detail fetch.',
+})
+
+export const zPaginatedAcsStationList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zAcsStation),
+})
+
+/**
+ * * `ACTIVE` - Ενεργή
  * * `PENDING` - Pending Confirmation
  * * `UNSUBSCRIBED` - Unsubscribed
  * * `BOUNCED` - Bounced
@@ -3521,15 +4107,7 @@ export const zSubscriptionStatus = z.enum([
   'UNSUBSCRIBED',
   'BOUNCED',
 ]).register(z.globalRegistry, {
-  description: '* `ACTIVE` - Active\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced',
-})
-
-export const zPatchedUserSubscriptionWriteRequest = z.object({
-  topic: z.int().optional(),
-  status: zSubscriptionStatus.optional(),
-  metadata: z.unknown().register(z.globalRegistry, {
-    description: 'Additional subscription preferences or data',
-  }).optional(),
+  description: '* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced',
 })
 
 /**
@@ -3734,7 +4312,7 @@ export const zTopQuery = z.object({
 /**
  * * `MARKETING` - Marketing Campaigns
  * * `PRODUCT` - Product Updates
- * * `ACCOUNT` - Account Updates
+ * * `ACCOUNT` - Λογαριασμός Ανενεργός
  * * `SYSTEM` - System Notifications
  * * `NEWSLETTER` - Newsletter
  * * `PROMOTIONAL` - Promotional
@@ -3749,7 +4327,7 @@ export const zTopicCategory = z.enum([
   'PROMOTIONAL',
   'OTHER',
 ]).register(z.globalRegistry, {
-  description: '* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
+  description: '* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
 })
 
 /**
@@ -3916,8 +4494,8 @@ export const zSubscriptionTopicWriteRequest = z.object({
 /**
  * * `EARN` - Earn
  * * `REDEEM` - Redeem
- * * `EXPIRE` - Expire
- * * `ADJUST` - Adjust
+ * * `EXPIRE` - Λήξη
+ * * `ADJUST` - Προσαρμογή
  * * `BONUS` - Bonus
  */
 export const zTransactionTypeEnum = z.enum([
@@ -3927,7 +4505,7 @@ export const zTransactionTypeEnum = z.enum([
   'ADJUST',
   'BONUS',
 ]).register(z.globalRegistry, {
-  description: '* `EARN` - Earn\n* `REDEEM` - Redeem\n* `EXPIRE` - Expire\n* `ADJUST` - Adjust\n* `BONUS` - Bonus',
+  description: '* `EARN` - Earn\n* `REDEEM` - Redeem\n* `EXPIRE` - Λήξη\n* `ADJUST` - Προσαρμογή\n* `BONUS` - Bonus',
 })
 
 /**
@@ -3991,6 +4569,258 @@ export const zTrendingSearchResponse = z.object({
   results: z.array(zTrendingSearchItem),
 }).register(z.globalRegistry, {
   description: 'Response payload for ``listTrendingSearches``.\n\nThe shape mirrors what the view caches in Redis so drf-spectacular\ncan resolve a concrete schema (otherwise it falls back to\n``unable to guess serializer`` and emits a W002 warning).',
+})
+
+/**
+ * * `apm` - APM
+ * * `any_apm` - Any APM
+ * * `warehouse` - Warehouse
+ * * `depot` - Depot
+ */
+export const zTypeEnum = z.enum([
+  'apm',
+  'any_apm',
+  'warehouse',
+  'depot',
+]).register(z.globalRegistry, {
+  description: '* `apm` - APM\n* `any_apm` - Any APM\n* `warehouse` - Warehouse\n* `depot` - Depot',
+})
+
+/**
+ * Lightweight serializer for BoxNow locker list endpoints.
+ *
+ * Lockers are populated exclusively via the ``sync_boxnow_lockers``
+ * Celery task — all fields are read-only.
+ */
+export const zBoxNowLocker = z.object({
+  id: z.int().readonly(),
+  externalId: z.string().register(z.globalRegistry, {
+    description: 'BoxNow APM identifier (string)',
+  }).readonly(),
+  type: zTypeEnum,
+  imageUrl: z.url().readonly().nullable(),
+  lat: z.number().gt(-1000).lt(1000).readonly(),
+  lng: z.number().gt(-1000).lt(1000).readonly(),
+  title: z.string().readonly(),
+  name: z.string().readonly(),
+  addressLine1: z.string().readonly(),
+  addressLine2: z.string().readonly(),
+  postalCode: z.string().readonly(),
+  countryCode: z.string().register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code',
+  }).readonly(),
+  note: z.string().readonly(),
+  isActive: z.boolean().readonly(),
+  lastSyncedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+}).register(z.globalRegistry, {
+  description: 'Lightweight serializer for BoxNow locker list endpoints.\n\nLockers are populated exclusively via the ``sync_boxnow_lockers``\nCelery task — all fields are read-only.',
+})
+
+/**
+ * Detail serializer for a single BoxNow locker.
+ *
+ * Inherits all fields from ``BoxNowLockerSerializer``.
+ * Extended fields can be added here as requirements grow.
+ */
+export const zBoxNowLockerDetail = z.object({
+  id: z.int().readonly(),
+  externalId: z.string().register(z.globalRegistry, {
+    description: 'BoxNow APM identifier (string)',
+  }).readonly(),
+  type: zTypeEnum,
+  imageUrl: z.url().readonly().nullable(),
+  lat: z.number().gt(-1000).lt(1000).readonly(),
+  lng: z.number().gt(-1000).lt(1000).readonly(),
+  title: z.string().readonly(),
+  name: z.string().readonly(),
+  addressLine1: z.string().readonly(),
+  addressLine2: z.string().readonly(),
+  postalCode: z.string().readonly(),
+  countryCode: z.string().register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code',
+  }).readonly(),
+  note: z.string().readonly(),
+  isActive: z.boolean().readonly(),
+  lastSyncedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+}).register(z.globalRegistry, {
+  description: 'Detail serializer for a single BoxNow locker.\n\nInherits all fields from ``BoxNowLockerSerializer``.\nExtended fields can be added here as requirements grow.',
+})
+
+/**
+ * Detail serializer for a single BoxNow shipment.
+ *
+ * Extends the list serializer with:
+ * - nested ``locker`` object (``BoxNowLockerSerializer``)
+ * - ``events`` — last 20 ``BoxNowParcelEvent`` records ordered by
+ * ``event_time`` descending
+ * - ``label_url`` — relative URL for downloading the parcel label PDF
+ * via the Django proxy route; ``None`` when ``parcel_id`` is blank
+ *
+ * Imports of ``BoxNowLockerSerializer`` and
+ * ``BoxNowParcelEventSerializer`` are deferred to method bodies to
+ * prevent circular import chains between the serializer modules.
+ */
+export const zBoxNowShipmentDetail = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  deliveryRequestId: z.string().readonly().nullable(),
+  parcelId: z.string().readonly().nullable(),
+  lockerExternalId: z.string().register(z.globalRegistry, {
+    description: 'Denormalised BoxNow APM ID — preserved even if the BoxNowLocker row is deleted',
+  }).readonly(),
+  parcelState: zBoxNowParcelState,
+  parcelStateDisplay: z.string().register(z.globalRegistry, {
+    description: 'Human-readable label for the parcel_state choice',
+  }).readonly(),
+  compartmentSize: zCompartmentSizeEnum,
+  paymentMode: zPaymentModeEnum,
+  lastEventAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  locker: zBoxNowLocker.nullable(),
+  events: z.array(zBoxNowParcelEvent).register(z.globalRegistry, {
+    description: 'Last 20 parcel events ordered by event_time desc',
+  }).readonly(),
+  labelUrl: z.string().readonly().nullable(),
+  weightGrams: z.int().readonly(),
+  amountToBeCollected: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'Amount collected at delivery (PoG / COD). Always 0 in Phase 1.',
+  }).readonly(),
+  allowReturn: z.boolean().readonly(),
+  cancelRequestedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  metadata: z.unknown().register(z.globalRegistry, {
+    description: 'Full delivery-request response and diagnostics from BoxNow',
+  }),
+}).register(z.globalRegistry, {
+  description: 'Detail serializer for a single BoxNow shipment.\n\nExtends the list serializer with:\n- nested ``locker`` object (``BoxNowLockerSerializer``)\n- ``events`` — last 20 ``BoxNowParcelEvent`` records ordered by\n  ``event_time`` descending\n- ``label_url`` — relative URL for downloading the parcel label PDF\n  via the Django proxy route; ``None`` when ``parcel_id`` is blank\n\nImports of ``BoxNowLockerSerializer`` and\n``BoxNowParcelEventSerializer`` are deferred to method bodies to\nprevent circular import chains between the serializer modules.',
+})
+
+export const zOrderDetail = z.object({
+  id: z.int().readonly(),
+  user: z.int().nullish(),
+  country: z.string().nullable(),
+  region: z.string().nullable(),
+  floor: z.union([
+    zFloorEnum,
+    zBlankEnum,
+  ]).optional(),
+  locationType: z.union([
+    zLocationTypeEnum,
+    zBlankEnum,
+  ]).optional(),
+  street: z.string().max(255),
+  streetNumber: z.string().max(255),
+  payWay: z.int().nullable(),
+  status: zOrderStatus.optional(),
+  statusDisplay: z.string().readonly(),
+  statusUpdatedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  firstName: z.string().max(255),
+  lastName: z.string().max(255),
+  email: z.email().max(255),
+  zipcode: z.string().max(255),
+  place: z.string().max(255).optional(),
+  city: z.string().max(255),
+  phone: z.string().readonly(),
+  customerNotes: z.string().optional(),
+  paidAmount: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  items: z.array(zOrderItemDetail),
+  shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  documentType: zOrderDocumentType.optional(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  fullAddress: z.string().readonly(),
+  paymentId: z.string().max(255).nullish(),
+  paymentStatus: z.union([
+    zPaymentStatusEnum,
+    zBlankEnum,
+  ]).optional(),
+  paymentStatusDisplay: z.string().register(z.globalRegistry, {
+    description: 'Localised label for ``payment_status`` (mirrors ``status_display``). Frontend renders this rather than the raw enum value so Greek/English/German locales all work without per-locale string maps in the UI.',
+  }).readonly(),
+  paymentMethod: z.string().max(50).optional(),
+  isOnlinePayment: z.boolean().register(z.globalRegistry, {
+    description: 'True when the order\'s PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading \'outstanding amount\' warnings for COD orders where the shopper intentionally paid €0 at checkout.',
+  }).readonly(),
+  canBeCanceled: z.boolean().readonly(),
+  isPaid: z.boolean().readonly(),
+  orderTimeline: z.array(z.object({
+    changeType: z.string().optional(),
+    timestamp: z.string().optional(),
+    description: z.string().optional(),
+    user: z.string().nullish(),
+  })).register(z.globalRegistry, {
+    description: 'Order status timeline and history',
+  }).readonly(),
+  pricingBreakdown: z.object({
+    itemsSubtotal: z.number().optional(),
+    shippingCost: z.number().optional(),
+    paymentMethodFee: z.number().optional(),
+    extrasTotal: z.number().optional(),
+    grandTotal: z.number().optional(),
+    currency: z.string().optional(),
+    paidAmount: z.number().optional(),
+    remainingAmount: z.number().optional(),
+  }).register(z.globalRegistry, {
+    description: 'Detailed pricing breakdown',
+  }).readonly(),
+  trackingDetails: z.object({
+    trackingNumber: z.string().nullish(),
+    shippingCarrier: z.string().nullish(),
+    hasTracking: z.boolean().optional(),
+    estimatedDelivery: z.string().nullish(),
+    trackingUrl: z.string().nullish(),
+  }).readonly().nullable(),
+  hasInvoice: z.boolean().register(z.globalRegistry, {
+    description: 'True when a PDF invoice has been generated — the frontend can show the download CTA without issuing a separate request to the invoice endpoint to find out.',
+  }).readonly(),
+  boxnowShipment: zBoxNowShipmentDetail.nullable(),
+  acsShipment: zAcsShipmentDetail.nullable(),
+  shipment: z.record(z.string(), z.unknown()).readonly().nullable(),
+  shipmentProviderCode: z.string().readonly().nullable(),
+  cancellation: z.object({
+    reason: z.string().optional(),
+    canceledAt: z.iso.datetime({ offset: true }).optional(),
+    previousStatus: z.string().optional(),
+    shipmentCancel: z.object({
+      attempted: z.boolean().optional(),
+      dispatched: z.boolean().optional(),
+      error: z.string().nullish(),
+    }).nullish(),
+  }).readonly().nullable(),
+  trackingNumber: z.string().max(255).optional(),
+  shippingCarrier: z.string().max(255).optional(),
+  customerFullName: z.string().readonly(),
+  isCompleted: z.boolean().readonly(),
+  isCanceled: z.boolean().readonly(),
+  metaEventIds: z.record(z.string(), z.string()).register(z.globalRegistry, {
+    description: 'Meta Pixel ``eventID`` values the browser must reuse when firing the matching pixel call on the success page so Meta dedups the browser event against the server-side Conversions API event. Only the keys minted at order creation are surfaced (purchase, initiate_checkout, add_payment_info). Empty dict when the customer declined marketing cookies — in that case the browser should not fire the matching pixel either.',
+  }).readonly(),
+  currency: z.string().register(z.globalRegistry, {
+    description: 'ISO 4217 currency code for every monetary field on the order (paidAmount, shippingPrice, totalPriceItems, …). Surfaced as a top-level field because djmoney serialises money fields as bare numbers — without this, the frontend has no way to know whether ``59.98`` is EUR or USD, which breaks ad-pixel attribution and cart totals in multi-currency reports.',
+  }).readonly(),
+})
+
+export const zPaginatedBoxNowLockerList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zBoxNowLocker),
 })
 
 export const zUnsubscribeResponse = z.object({
@@ -4518,14 +5348,10 @@ export const zUserSubscriptionDetail = z.object({
   }).optional(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  confirmationToken: z.string().register(z.globalRegistry, {
-    description: 'Token for email confirmation if required',
-  }).readonly(),
 })
 
 export const zUserSubscriptionWriteRequest = z.object({
   topic: z.int(),
-  status: zSubscriptionStatus.optional(),
   metadata: z.unknown().register(z.globalRegistry, {
     description: 'Additional subscription preferences or data',
   }).optional(),
@@ -4668,7 +5494,6 @@ export const zBlogAuthorWritable = z.object({
       bio: z.string().optional(),
     }).optional(),
   }),
-  user: z.int(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
@@ -5012,8 +5837,6 @@ export const zNotificationWritable = z.object({
 })
 
 export const zNotificationUserWritable = z.object({
-  user: z.int(),
-  notification: z.int(),
   seen: z.boolean().optional(),
   seenAt: z.iso.datetime({ offset: true }).nullish(),
 })
@@ -5021,6 +5844,91 @@ export const zNotificationUserWritable = z.object({
 export const zNotificationUserDetailWritable = z.object({
   seen: z.boolean().optional(),
   seenAt: z.iso.datetime({ offset: true }).nullish(),
+})
+
+/**
+ * Serializer for creating orders from cart (dual-flow payment architecture).
+ *
+ * This serializer supports two payment flows:
+ * 1. Online payments (is_online_payment=True): Requires payment_intent_id
+ * 2. Offline payments (is_online_payment=False): No payment_intent_id required
+ *
+ * The order is created from an existing cart identified via X-Cart-Id header.
+ * Cart is NOT sent in request body - it's retrieved from the header using CartService.
+ */
+export const zOrderCreateFromCartRequestWritable = z.object({
+  payWayId: z.int().register(z.globalRegistry, {
+    description: 'Payment method ID',
+  }),
+  paymentIntentId: z.string().nullish(),
+  firstName: z.string().min(1).max(150).register(z.globalRegistry, {
+    description: 'Όνομα πελάτη',
+  }),
+  lastName: z.string().min(1).max(150).register(z.globalRegistry, {
+    description: 'Επώνυμο πελάτη',
+  }),
+  email: z.email().min(1).register(z.globalRegistry, {
+    description: 'Email πελάτη',
+  }),
+  street: z.string().min(1).max(255).register(z.globalRegistry, {
+    description: 'Street name',
+  }),
+  streetNumber: z.string().max(50).register(z.globalRegistry, {
+    description: 'Street number',
+  }).optional(),
+  city: z.string().min(1).max(100).register(z.globalRegistry, {
+    description: 'Όνομα πόλης',
+  }),
+  zipcode: z.string().min(1).max(20).register(z.globalRegistry, {
+    description: 'Postal/ZIP code',
+  }),
+  countryId: z.string().min(1).register(z.globalRegistry, {
+    description: 'Country alpha-2 code (e.g., \'GR\', \'US\')',
+  }),
+  regionId: z.string().nullish(),
+  phone: z.string().min(1).register(z.globalRegistry, {
+    description: 'Τηλέφωνο πελάτη',
+  }),
+  customerNotes: z.string().max(500).register(z.globalRegistry, {
+    description: 'Customer notes or special instructions',
+  }).optional(),
+  floor: z.string().max(50).register(z.globalRegistry, {
+    description: 'Floor number or label (e.g. FIRST_FLOOR)',
+  }).optional(),
+  place: z.string().max(255).register(z.globalRegistry, {
+    description: 'Place or district (optional)',
+  }).optional(),
+  locationType: z.string().max(100).register(z.globalRegistry, {
+    description: 'Location type, e.g. HOME or OFFICE (optional)',
+  }).optional(),
+  billingVatId: z.string().max(12).register(z.globalRegistry, {
+    description: 'Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.',
+  }).optional(),
+  billingCountry: z.string().max(2).register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code for the buyer\'s tax identity. Defaults to the order country when blank.',
+  }).optional(),
+  documentType: zOrderCreateDocumentType.optional(),
+  loyaltyPointsToRedeem: z.int().gte(0).nullish(),
+  boxnowLockerId: z.string().max(64).register(z.globalRegistry, {
+    description: 'BoxNow APM locker ID from the widget',
+  }).optional(),
+  boxnowCompartmentSize: z.int().gte(1).lte(3).register(z.globalRegistry, {
+    description: 'BoxNow compartment size: 1=Small, 2=Medium, 3=Large',
+  }).optional().default(1),
+  shippingProviderCode: z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
+    description: 'Carrier code from /api/v1/shipping/options (e.g. \'acs\').',
+  }).optional(),
+  shippingKind: zShippingKind.optional(),
+  acsStationExternalId: z.string().max(32).register(z.globalRegistry, {
+    description: 'ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).',
+  }).optional(),
+  acsStationBranch: z.string().max(32).register(z.globalRegistry, {
+    description: 'ACS_Station_Branch_Destination value.',
+  }).optional(),
+  acsChargeType: zAcsChargeType.optional(),
+  meta: z.record(z.string(), z.unknown()).nullish(),
+}).register(z.globalRegistry, {
+  description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',
 })
 
 export const zOrderItemWritable = z.object({
@@ -5130,6 +6038,19 @@ export const zPageSectionWritable = z.object({
   }).optional(),
 })
 
+export const zPaginatedAcsStationListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(z.unknown()),
+})
+
 export const zPaginatedAttributeListWritable = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -5219,6 +6140,19 @@ export const zPaginatedBlogTagListWritable = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zBlogTagWritable),
+})
+
+export const zPaginatedBoxNowLockerListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(z.unknown()),
 })
 
 export const zPaginatedCartItemListWritable = z.object({
@@ -8959,6 +9893,8 @@ export const zCreateCartPaymentIntentHeaders = z.object({
   ]).optional(),
 })
 
+export const zCreateCartPaymentIntentResponse = zCartPaymentIntentResponse
+
 export const zListCartItemHeaders = z.object({
   'X-Cart-Id': z.union([
     z.string().regex(/^-?\d+$/),
@@ -9687,7 +10623,7 @@ export const zCreateCountryResponse = zCountryDetail
 
 export const zDestroyCountryPath = z.object({
   alpha2: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Country.',
+    description: 'A unique value identifying this Χώρα.',
   }),
 })
 
@@ -9700,7 +10636,7 @@ export const zDestroyCountryResponse = z.void().register(z.globalRegistry, {
 
 export const zRetrieveCountryPath = z.object({
   alpha2: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Country.',
+    description: 'A unique value identifying this Χώρα.',
   }),
 })
 
@@ -9720,7 +10656,7 @@ export const zPartialUpdateCountryBody = zPatchedCountryWriteRequest
 
 export const zPartialUpdateCountryPath = z.object({
   alpha2: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Country.',
+    description: 'A unique value identifying this Χώρα.',
   }),
 })
 
@@ -9740,7 +10676,7 @@ export const zUpdateCountryBody = zCountryWriteRequest
 
 export const zUpdateCountryPath = z.object({
   alpha2: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Country.',
+    description: 'A unique value identifying this Χώρα.',
   }),
 })
 
@@ -9756,7 +10692,7 @@ export const zUpdateCountryQuery = z.object({
 
 export const zUpdateCountryResponse = zCountryDetail
 
-export const zHealthRetrieveResponse = zHealthCheckResponse
+export const zApiV1HealthRetrieveResponse = zHealthCheckResponse
 
 export const zGetProductLoyaltyPointsPath = z.object({
   id: z.union([
@@ -10324,7 +11260,7 @@ export const zListOrderQuery = z.object({
     'PROCESSING',
     'REFUNDED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by payment status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled',
+    description: 'Filter by payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
   }).optional(),
   paymentStatus_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -10386,7 +11322,7 @@ export const zListOrderQuery = z.object({
     'RETURNED',
     'SHIPPED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded',
+    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
   }).optional(),
   status_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -10458,7 +11394,7 @@ export const zListOrderQuery = z.object({
 
 export const zListOrderResponse = zPaginatedOrderList
 
-export const zCreateOrderBody = zOrderCreateFromCartRequest
+export const zCreateOrderBody = zOrderCreateFromCartRequestWritable
 
 export const zCreateOrderQuery = z.object({
   languageCode: z.enum([
@@ -10580,7 +11516,7 @@ export const zListOrderItemQuery = z.object({
     'PROCESSING',
     'REFUNDED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order payment status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled',
+    description: 'Filter by order payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
   }).optional(),
   order_Region: z.string().register(z.globalRegistry, {
     description: 'Filter by order region code',
@@ -10595,7 +11531,7 @@ export const zListOrderItemQuery = z.object({
     'RETURNED',
     'SHIPPED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded',
+    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
   }).optional(),
   order_User: z.union([
     z.string().regex(/^-?\d+$/),
@@ -10957,6 +11893,20 @@ export const zUpdateOrderQuery = z.object({
 
 export const zUpdateOrderResponse = zOrderDetail
 
+export const zCancelAcsShipmentForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zGetAcsLabelForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
 export const zAddOrderTrackingBody = zAddTrackingRequest
 
 export const zAddOrderTrackingPath = z.object({
@@ -10967,6 +11917,20 @@ export const zAddOrderTrackingPath = z.object({
 })
 
 export const zAddOrderTrackingResponse = zOrderDetail
+
+export const zCancelBoxNowShipmentForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zGetBoxNowLabelForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
 
 export const zCancelOrderBody = zCancelOrderRequestRequest
 
@@ -11045,6 +12009,24 @@ export const zRetryOrderPaymentPath = z.object({
 })
 
 export const zRetryOrderPaymentResponse = zCreatePaymentIntentResponse
+
+export const zCancelShipmentForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zCancelShipmentForOrderResponse = zOrderDetail
+
+export const zGetShipmentLabelForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zGetShipmentLabelForOrderResponse = zOrderDetail
 
 export const zUpdateOrderStatusBody = zUpdateStatusRequest
 
@@ -11258,7 +12240,7 @@ export const zListMyOrdersQuery = z.object({
     'PROCESSING',
     'REFUNDED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by payment status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `COMPLETED` - Completed\n* `FAILED` - Failed\n* `REFUNDED` - Refunded\n* `PARTIALLY_REFUNDED` - Partially Refunded\n* `CANCELED` - Canceled',
+    description: 'Filter by payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
   }).optional(),
   paymentStatus_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -11320,7 +12302,7 @@ export const zListMyOrdersQuery = z.object({
     'RETURNED',
     'SHIPPED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order status\n\n* `PENDING` - Pending\n* `PROCESSING` - Processing\n* `SHIPPED` - Shipped\n* `DELIVERED` - Delivered\n* `COMPLETED` - Completed\n* `CANCELED` - Canceled\n* `RETURNED` - Returned\n* `REFUNDED` - Refunded',
+    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
   }).optional(),
   status_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -11398,13 +12380,13 @@ export const zRetrieveOrderByUuidPath = z.object({
 
 export const zRetrieveOrderByUuidResponse = zOrderDetail
 
-export const zPageConfigRetrievePath = z.object({
+export const zApiV1PageConfigRetrievePath = z.object({
   pageType: z.string(),
 })
 
-export const zPageConfigRetrieveResponse = zPageLayout
+export const zApiV1PageConfigRetrieveResponse = zPageLayout
 
-export const zPageConfigAdminListQuery = z.object({
+export const zApiV1PageConfigAdminListQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
     description: 'Cursor for pagination',
   }).optional(),
@@ -11438,11 +12420,11 @@ export const zPageConfigAdminListQuery = z.object({
   }).optional(),
 })
 
-export const zPageConfigAdminListResponse = zPaginatedPageLayoutList
+export const zApiV1PageConfigAdminListResponse = zPaginatedPageLayoutList
 
-export const zPageConfigAdminCreateBody = zPageLayoutRequest
+export const zApiV1PageConfigAdminCreateBody = zPageLayoutRequest
 
-export const zPageConfigAdminCreateQuery = z.object({
+export const zApiV1PageConfigAdminCreateQuery = z.object({
   languageCode: z.enum([
     'de',
     'el',
@@ -11452,9 +12434,9 @@ export const zPageConfigAdminCreateQuery = z.object({
   }).optional().default('el'),
 })
 
-export const zPageConfigAdminCreateResponse = zPageLayout
+export const zApiV1PageConfigAdminCreateResponse = zPageLayout
 
-export const zPageConfigAdminDestroyPath = z.object({
+export const zApiV1PageConfigAdminDestroyPath = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -11464,18 +12446,18 @@ export const zPageConfigAdminDestroyPath = z.object({
 /**
  * No response body
  */
-export const zPageConfigAdminDestroyResponse = z.void().register(z.globalRegistry, {
+export const zApiV1PageConfigAdminDestroyResponse = z.void().register(z.globalRegistry, {
   description: 'No response body',
 })
 
-export const zPageConfigAdminRetrievePath = z.object({
+export const zApiV1PageConfigAdminRetrievePath = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),
 })
 
-export const zPageConfigAdminRetrieveQuery = z.object({
+export const zApiV1PageConfigAdminRetrieveQuery = z.object({
   languageCode: z.enum([
     'de',
     'el',
@@ -11485,18 +12467,18 @@ export const zPageConfigAdminRetrieveQuery = z.object({
   }).optional().default('el'),
 })
 
-export const zPageConfigAdminRetrieveResponse = zPageLayout
+export const zApiV1PageConfigAdminRetrieveResponse = zPageLayout
 
-export const zPageConfigAdminPartialUpdateBody = zPatchedPageLayoutRequest
+export const zApiV1PageConfigAdminPartialUpdateBody = zPatchedPageLayoutRequest
 
-export const zPageConfigAdminPartialUpdatePath = z.object({
+export const zApiV1PageConfigAdminPartialUpdatePath = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),
 })
 
-export const zPageConfigAdminPartialUpdateQuery = z.object({
+export const zApiV1PageConfigAdminPartialUpdateQuery = z.object({
   languageCode: z.enum([
     'de',
     'el',
@@ -11506,18 +12488,18 @@ export const zPageConfigAdminPartialUpdateQuery = z.object({
   }).optional().default('el'),
 })
 
-export const zPageConfigAdminPartialUpdateResponse = zPageLayout
+export const zApiV1PageConfigAdminPartialUpdateResponse = zPageLayout
 
-export const zPageConfigAdminUpdateBody = zPageLayoutRequest
+export const zApiV1PageConfigAdminUpdateBody = zPageLayoutRequest
 
-export const zPageConfigAdminUpdatePath = z.object({
+export const zApiV1PageConfigAdminUpdatePath = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),
 })
 
-export const zPageConfigAdminUpdateQuery = z.object({
+export const zApiV1PageConfigAdminUpdateQuery = z.object({
   languageCode: z.enum([
     'de',
     'el',
@@ -11527,7 +12509,7 @@ export const zPageConfigAdminUpdateQuery = z.object({
   }).optional().default('el'),
 })
 
-export const zPageConfigAdminUpdateResponse = zPageLayout
+export const zApiV1PageConfigAdminUpdateResponse = zPageLayout
 
 export const zListPayWayQuery = z.object({
   active: z.union([
@@ -11644,6 +12626,12 @@ export const zListPayWayQuery = z.object({
   ]).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
+  }).optional(),
+  shippingKind: z.string().register(z.globalRegistry, {
+    description: 'Pair with ``shippingProviderCode`` to filter pay ways by the carrier\'s compatibility rules for that kind.',
+  }).optional(),
+  shippingProviderCode: z.string().register(z.globalRegistry, {
+    description: 'Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) supports COD on lockers via PAY ON THE GO and so passes through; ACS passes through unchanged. Pair with ``shippingKind``.',
   }).optional(),
   sortOrder: z.union([
     z.string().regex(/^-?\d+$/),
@@ -13042,7 +14030,7 @@ export const zListProductCategoryImageQuery = z.object({
     'SEASONAL',
     'THUMBNAIL',
   ]).register(z.globalRegistry, {
-    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
   }).optional(),
   languageCode: z.enum([
     'de',
@@ -13200,7 +14188,7 @@ export const zGetProductCategoryImagesByCategoryQuery = z.object({
     'SEASONAL',
     'THUMBNAIL',
   ]).register(z.globalRegistry, {
-    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
   }).optional(),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder',
@@ -13240,7 +14228,7 @@ export const zGetProductCategoryImagesByTypeQuery = z.object({
     'SEASONAL',
     'THUMBNAIL',
   ]).register(z.globalRegistry, {
-    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
   }).optional(),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder',
@@ -13632,10 +14620,6 @@ export const zListProductReviewQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  helpfulVotesMin: z.union([
-    z.string().regex(/^-?\d+(\.\d+)?$/),
-    z.number(),
-  ]).optional(),
   id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -13758,7 +14742,7 @@ export const zListProductReviewQuery = z.object({
     'NEW',
     'TRUE',
   ]).register(z.globalRegistry, {
-    description: 'Filter by review status\n\n* `NEW` - New\n* `TRUE` - True\n* `FALSE` - False',
+    description: 'Filter by review status\n\n* `NEW` - Νέο\n* `TRUE` - Ναι\n* `FALSE` - False',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items updated after this date',
@@ -13999,7 +14983,7 @@ export const zCreateRegionResponse = zRegionDetail
 
 export const zDestroyRegionPath = z.object({
   alpha: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Region.',
+    description: 'A unique value identifying this Περιοχή.',
   }),
 })
 
@@ -14012,7 +14996,7 @@ export const zDestroyRegionResponse = z.void().register(z.globalRegistry, {
 
 export const zRetrieveRegionPath = z.object({
   alpha: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Region.',
+    description: 'A unique value identifying this Περιοχή.',
   }),
 })
 
@@ -14032,7 +15016,7 @@ export const zPartialUpdateRegionBody = zPatchedRegionWriteRequest
 
 export const zPartialUpdateRegionPath = z.object({
   alpha: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Region.',
+    description: 'A unique value identifying this Περιοχή.',
   }),
 })
 
@@ -14052,7 +15036,7 @@ export const zUpdateRegionBody = zRegionWriteRequest
 
 export const zUpdateRegionPath = z.object({
   alpha: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Region.',
+    description: 'A unique value identifying this Περιοχή.',
   }),
 })
 
@@ -14070,7 +15054,7 @@ export const zUpdateRegionResponse = zRegionDetail
 
 export const zListRegionsByCountryPath = z.object({
   alpha: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Region.',
+    description: 'A unique value identifying this Περιοχή.',
   }),
 })
 
@@ -14134,7 +15118,7 @@ export const zListRegionsByCountryQuery = z.object({
 
 export const zListRegionsByCountryResponse = zPaginatedRegionList
 
-export const zSearchAnalyticsRetrieveQuery = z.object({
+export const zApiV1SearchAnalyticsRetrieveQuery = z.object({
   contentType: z.string().register(z.globalRegistry, {
     description: 'Filter by content type: \'product\', \'blog_post\', or \'federated\'. If not provided, includes all content types.',
   }).optional(),
@@ -14146,9 +15130,9 @@ export const zSearchAnalyticsRetrieveQuery = z.object({
   }).optional(),
 })
 
-export const zSearchAnalyticsRetrieveResponse = zSearchAnalyticsResponse
+export const zApiV1SearchAnalyticsRetrieveResponse = zSearchAnalyticsResponse
 
-export const zSearchBlogPostRetrieveQuery = z.object({
+export const zApiV1SearchBlogPostRetrieveQuery = z.object({
   languageCode: z.string().register(z.globalRegistry, {
     description: 'Language code to filter results (e.g., \'en\', \'el\', \'de\'). If not provided, searches all languages.',
   }).optional(),
@@ -14165,9 +15149,9 @@ export const zSearchBlogPostRetrieveQuery = z.object({
   }),
 })
 
-export const zSearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse
+export const zApiV1SearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse
 
-export const zSearchFederatedRetrieveQuery = z.object({
+export const zApiV1SearchFederatedRetrieveQuery = z.object({
   languageCode: z.string().register(z.globalRegistry, {
     description: 'Language code to filter results (e.g., \'en\', \'el\', \'de\'). If not provided, searches all languages.',
   }).optional(),
@@ -14184,10 +15168,10 @@ export const zSearchFederatedRetrieveQuery = z.object({
   }),
 })
 
-export const zSearchFederatedRetrieveResponse = zFederatedSearchResponse
+export const zApiV1SearchFederatedRetrieveResponse = zFederatedSearchResponse
 
-export const zSearchProductRetrieveQuery = z.object({
-  attributeValue: z.string().register(z.globalRegistry, {
+export const zApiV1SearchProductRetrieveQuery = z.object({
+  attributeValues: z.string().register(z.globalRegistry, {
     description: 'Comma-separated attribute value IDs (attribute_values IN [ids])',
   }).optional(),
   categories: z.string().register(z.globalRegistry, {
@@ -14231,7 +15215,7 @@ export const zSearchProductRetrieveQuery = z.object({
   ]).optional(),
 })
 
-export const zSearchProductRetrieveResponse = zProductMeiliSearchResponse
+export const zApiV1SearchProductRetrieveResponse = zProductMeiliSearchResponse
 
 export const zListTrendingSearchesQuery = z.object({
   contentType: z.string().register(z.globalRegistry, {
@@ -14248,15 +15232,192 @@ export const zListTrendingSearchesQuery = z.object({
 
 export const zListTrendingSearchesResponse = zTrendingSearchResponse
 
-export const zSettingsListResponse = z.array(zSetting)
+export const zApiV1SettingsListResponse = z.array(zSetting)
 
-export const zSettingsGetRetrieveQuery = z.object({
+export const zApiV1SettingsGetRetrieveQuery = z.object({
   key: z.string().register(z.globalRegistry, {
     description: 'Setting key name (e.g., CHECKOUT_SHIPPING_PRICE)',
   }),
 })
 
-export const zSettingsGetRetrieveResponse = zSettingDetail
+export const zApiV1SettingsGetRetrieveResponse = zSettingDetail
+
+export const zValidateAcsAddressBody = zAcsAddressValidationRequestRequest
+
+export const zValidateAcsAddressResponse = zAcsAddressValidationResponse
+
+export const zGetAcsPickupListManifestPath = z.object({
+  pickupListNo: z.string(),
+})
+
+export const zGetAcsPickupListManifestResponse = z.string()
+
+export const zIssueAcsPickupListResponse = z.union([
+  zAcsPickupList,
+  z.void().register(z.globalRegistry, {
+    description: 'No response body',
+  }),
+])
+
+export const zCancelAcsShipmentPath = z.object({
+  voucherNo: z.string(),
+})
+
+export const zGetAcsLabelPath = z.object({
+  voucherNo: z.string(),
+})
+
+export const zGetAcsLabelResponse = z.string()
+
+export const zGetAcsTrackingPath = z.object({
+  voucherNo: z.string(),
+})
+
+export const zGetAcsTrackingResponse = zAcsShipmentDetail
+
+export const zApiV1ShippingAcsStationsListQuery = z.object({
+  ordering: z.string().register(z.globalRegistry, {
+    description: 'Which field to use when ordering the results.',
+  }).optional(),
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+})
+
+export const zApiV1ShippingAcsStationsListResponse = zPaginatedAcsStationList
+
+export const zApiV1ShippingAcsStationsRetrievePath = z.object({
+  externalId: z.string(),
+})
+
+export const zApiV1ShippingAcsStationsRetrieveResponse = zAcsStationDetail
+
+export const zFindNearestAcsStationsQuery = z.object({
+  city: z.string().register(z.globalRegistry, {
+    description: 'Optional city-name fallback.',
+  }).optional(),
+  countryCode: z.string().register(z.globalRegistry, {
+    description: 'Optional ISO-2 country code; narrows the default kind filter to that country\'s locker catalogue.',
+  }).optional(),
+  postalCode: z.string().register(z.globalRegistry, {
+    description: 'Greek postcode (5-digit), required.',
+  }),
+  shopKind: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+})
+
+/**
+ * Bare array of matching ACS station objects — not paginated.
+ */
+export const zFindNearestAcsStationsResponse = z.array(zAcsStation).register(z.globalRegistry, {
+  description: 'Bare array of matching ACS station objects — not paginated.',
+})
+
+export const zListBoxNowLockerQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Cursor for pagination',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+  ordering: z.string().regex(/^(?:externalId|\-externalId|postalCode|\-postalCode|lastSyncedAt|\-lastSyncedAt|createdAt|\-createdAt)(?:,(?:externalId|\-externalId|postalCode|\-postalCode|lastSyncedAt|\-lastSyncedAt|createdAt|\-createdAt))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: externalId, -externalId, postalCode, -postalCode, lastSyncedAt, -lastSyncedAt, createdAt, -createdAt',
+  }).optional(),
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Enable or disable pagination',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Pagination strategy type',
+  }).optional().default('pageNumber'),
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+})
+
+export const zListBoxNowLockerResponse = zPaginatedBoxNowLockerList
+
+export const zRetrieveBoxNowLockerPath = z.object({
+  id: z.string(),
+})
+
+export const zRetrieveBoxNowLockerQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zRetrieveBoxNowLockerResponse = zBoxNowLockerDetail
+
+export const zNearestBoxNowLockerBody = zBoxNowNearestLockerRequestRequest
+
+export const zNearestBoxNowLockerResponse = zBoxNowNearestLockerResponse
+
+export const zCancelBoxNowShipmentPath = z.object({
+  parcelId: z.string(),
+})
+
+export const zGetBoxNowLabelPath = z.object({
+  parcelId: z.string(),
+})
+
+export const zGetBoxNowLabelResponse = z.string()
+
+export const zListShippingOptionsQuery = z.object({
+  countryCode: z.string().register(z.globalRegistry, {
+    description: 'ISO 3166-1 alpha-2 country code (e.g. \'GR\').',
+  }).optional(),
+  currency: z.string().register(z.globalRegistry, {
+    description: 'ISO 4217 currency code (default \'EUR\').',
+  }).optional(),
+  orderValueAmount: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  weightGrams: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+})
+
+export const zListShippingOptionsResponse = z.array(zShippingOption)
+
+export const zApiV1ShippingProvidersListQuery = z.object({
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+})
+
+export const zApiV1ShippingProvidersListResponse = z.array(zShippingProvider)
 
 export const zListTagQuery = z.object({
   active: z.union([
@@ -14679,7 +15840,7 @@ export const zUpdateTaggedItemQuery = z.object({
 
 export const zUpdateTaggedItemResponse = zTaggedItemDetail
 
-export const zTenantMembershipsMineRetrieveResponse = z.array(z.object({
+export const zApiV1TenantMembershipsMineRetrieveResponse = z.array(z.object({
   schemaName: z.string().optional(),
   name: z.string().optional(),
   storeName: z.string().optional(),
@@ -14692,11 +15853,11 @@ export const zTenantMembershipsMineRetrieveResponse = z.array(z.object({
   ]).optional(),
 }))
 
-export const zTenantResolveRetrieveQuery = z.object({
+export const zApiV1TenantResolveRetrieveQuery = z.object({
   domain: z.string(),
 })
 
-export const zTenantResolveRetrieveResponse = zTenantConfig
+export const zApiV1TenantResolveRetrieveResponse = zTenantConfig
 
 export const zListUserAccountQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
@@ -15326,8 +16487,6 @@ export const zSetMainUserAddressPath = z.object({
 
 export const zSetMainUserAddressResponse = zUserAddressDetail
 
-export const zGetMainUserAddressResponse = zUserAddressDetail
-
 export const zDownloadUserDataExportPath = z.object({
   token: z.string(),
 })
@@ -15406,7 +16565,7 @@ export const zListUserSubscriptionQuery = z.object({
     'PENDING',
     'UNSUBSCRIBED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by subscription status\n\n* `ACTIVE` - Active\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced',
+    description: 'Filter by subscription status\n\n* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced',
   }).optional(),
   subscribedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter subscriptions created after this date',
@@ -15430,7 +16589,7 @@ export const zListUserSubscriptionQuery = z.object({
     'PROMOTIONAL',
     'SYSTEM',
   ]).register(z.globalRegistry, {
-    description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
+    description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
   }).optional(),
   topicDescription: z.string().register(z.globalRegistry, {
     description: 'Filter by topic description (partial match)',
@@ -15573,13 +16732,13 @@ export const zConfirmSubscriptionByTokenPath = z.object({
 
 export const zConfirmSubscriptionByTokenResponse = zConfirmResponse
 
-export const zUserSubscriptionConfirmCreateBody = zConfirmResponseRequest
+export const zApiV1UserSubscriptionConfirmCreateBody = zConfirmResponseRequest
 
-export const zUserSubscriptionConfirmCreatePath = z.object({
+export const zApiV1UserSubscriptionConfirmCreatePath = z.object({
   token: z.string(),
 })
 
-export const zUserSubscriptionConfirmCreateResponse = zConfirmResponse
+export const zApiV1UserSubscriptionConfirmCreateResponse = zConfirmResponse
 
 export const zListSubscriptionTopicQuery = z.object({
   category: z.enum([
@@ -15591,7 +16750,7 @@ export const zListSubscriptionTopicQuery = z.object({
     'PROMOTIONAL',
     'SYSTEM',
   ]).register(z.globalRegistry, {
-    description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Account Updates\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
+    description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
@@ -15840,3 +16999,13 @@ export const zUnsubscribeFromTopicOneClickPath = z.object({
 })
 
 export const zCreateWebSocketTicketResponse = zWebSocketTicketResponse
+
+export const zBoxnowWebhookBody = zBoxNowWebhookEnvelopeRequest
+
+export const zResolveVivaOrderCodeQuery = z.object({
+  orderCode: z.string().register(z.globalRegistry, {
+    description: 'Viva Wallet ``OrderCode`` returned to the customer after a successful checkout.',
+  }),
+})
+
+export const zResolveVivaOrderCodeResponse2 = zResolveVivaOrderCodeResponse
