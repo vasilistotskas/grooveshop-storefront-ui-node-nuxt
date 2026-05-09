@@ -50,9 +50,12 @@ type GA4Payload = Record<string, unknown>
 
 export function useGA4() {
   const config = useRuntimeConfig()
+  const tenantStore = useTenantStore()
+  // Prefer per-tenant GA tracking id; fall back to platform-wide env var.
   const measurementId
-    = (config.public.scripts as { googleAnalytics?: { id?: string } })
-      ?.googleAnalytics?.id
+    = tenantStore.gaTrackingId
+      || (config.public.scripts as { googleAnalytics?: { id?: string } })
+        ?.googleAnalytics?.id
 
   // Real GA4 ids match ``G-`` followed by 8+ alphanumerics. Treat the
   // ``G-XXXXXXXXXX`` placeholder (and any other malformed value) as
