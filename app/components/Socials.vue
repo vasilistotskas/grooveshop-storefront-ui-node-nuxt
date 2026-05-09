@@ -26,6 +26,7 @@ defineProps({
 
 const { t } = useI18n()
 const config = useRuntimeConfig()
+const tenantStore = useTenantStore()
 
 interface SocialItem {
   key: string
@@ -36,52 +37,58 @@ interface SocialItem {
   colorClass: string
 }
 
+// Prefer per-tenant social URL; fall back to platform-wide env var.
+const platformSocials = config.public.socials as Record<string, string | undefined>
+function socialUrl(key: string): string | undefined {
+  return (tenantStore.socials as Record<string, string>)[key] || platformSocials[key] || undefined
+}
+
 const socials = computed<SocialItem[]>(() => [
   {
     key: 'instagram',
-    to: config.public.socials.instagram as string | undefined,
+    to: socialUrl('instagram'),
     icon: 'i-mdi-instagram',
     label: t('instagram'),
     colorClass: 'hover:text-[#E4405F] focus-visible:text-[#E4405F]',
   },
   {
     key: 'tiktok',
-    to: config.public.socials.tiktok as string | undefined,
+    to: socialUrl('tiktok'),
     icon: 'i-ant-design-tik-tok-filled',
     label: t('tiktok'),
     colorClass: 'hover:text-[#010101] focus-visible:text-[#010101] dark:hover:text-white dark:focus-visible:text-white',
   },
   {
     key: 'reddit',
-    to: config.public.socials.reddit as string | undefined,
+    to: socialUrl('reddit'),
     icon: 'i-mdi-reddit',
     label: t('reddit'),
     colorClass: 'hover:text-[#FF4500] focus-visible:text-[#FF4500]',
   },
   {
     key: 'youtube',
-    to: config.public.socials.youtube as string | undefined,
+    to: socialUrl('youtube'),
     icon: 'i-mdi-youtube',
     label: t('youtube'),
     colorClass: 'hover:text-[#FF0000] focus-visible:text-[#FF0000]',
   },
   {
     key: 'pinterest',
-    to: config.public.socials.pinterest as string | undefined,
+    to: socialUrl('pinterest'),
     icon: 'i-mdi-pinterest',
     label: t('pinterest'),
     colorClass: 'hover:text-[#E60023] focus-visible:text-[#E60023]',
   },
   {
     key: 'facebook',
-    to: config.public.socials.facebook as string | undefined,
+    to: socialUrl('facebook'),
     icon: 'i-mdi-facebook',
     label: t('facebook'),
     colorClass: 'hover:text-[#1877F2] focus-visible:text-[#1877F2]',
   },
   {
     key: 'discord',
-    to: config.public.socials.discord as string | undefined,
+    to: socialUrl('discord'),
     icon: 'i-mdi-discord',
     label: t('discord'),
     colorClass: 'hover:text-[#5865F2] focus-visible:text-[#5865F2]',

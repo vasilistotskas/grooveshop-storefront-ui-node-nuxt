@@ -31,6 +31,12 @@ watch([loggedIn, user], ([l, u]) => {
   enabled.value = !!(l && u?.isSuperuser)
 }, { immediate: true })
 
+// Prefer per-tenant social URLs; fall back to platform-wide env vars.
+const platformSocials = config.public.socials as Record<string, string | undefined>
+function orgSocialUrl(key: string): string | undefined {
+  return (tenantStore.socials as Record<string, string>)[key] || platformSocials[key] || undefined
+}
+
 useSchemaOrg([
   defineWebPage(),
   defineWebSite({
@@ -43,10 +49,10 @@ useSchemaOrg([
     name: siteName,
     logo: siteLogo,
     sameAs: [
-      config.public.socials.facebook,
-      config.public.socials.twitter,
-      config.public.socials.instagram,
-    ],
+      orgSocialUrl('facebook'),
+      orgSocialUrl('twitter'),
+      orgSocialUrl('instagram'),
+    ].filter(Boolean) as string[],
   }),
 ])
 useSeoMeta({
