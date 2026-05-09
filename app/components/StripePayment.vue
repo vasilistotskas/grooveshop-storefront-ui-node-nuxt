@@ -64,6 +64,13 @@ const initializeStripe = async () => {
     await new Promise<void>((resolve) => {
       onLoaded(async ({ Stripe }) => {
         try {
+          // TODO(multi-tenant): Use per-tenant Stripe publishable key.
+          // Currently all tenants share NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY (build-time).
+          // Once Django exposes `stripePublishableKey` on TenantConfig, read it from
+          // the tenant store instead:
+          //   const tenantStore = useTenantStore()
+          //   const stripeKey = tenantStore.config?.stripePublishableKey ?? runtimeConfig.public.stripePublishableKey
+          // This requires a Django-side schema change + `pnpm openapi-ts` regen.
           stripe.value = Stripe(runtimeConfig.public.stripePublishableKey)
 
           if (!stripe.value) {
