@@ -28,7 +28,7 @@ const cachedProductCategoryDetail = defineCachedFunction(
 )
 
 const generateRssFeed = defineCachedFunction(
-  async (tenantKey: string, locale: SupportedLocale, siteUrl: string, siteName: string, siteDescription: string, baseUrl: string, apiBaseUrl: string, mediaStreamPath: string): Promise<string> => {
+  async (tenantKey: string, locale: SupportedLocale, siteUrl: string, siteName: string, siteDescription: string, baseUrl: string, apiBaseUrl: string, mediaStreamPath: string, currency: string): Promise<string> => {
     const feed = new RSS({
       title: siteName,
       description: siteDescription,
@@ -60,7 +60,7 @@ const generateRssFeed = defineCachedFunction(
     const activeProducts = allProducts.filter(product => product.active !== false)
 
     const blogItems = await processBlogPosts(blogPosts, locale, baseUrl, apiBaseUrl, mediaStreamPath, tenantKey)
-    const productItems = await processProducts(activeProducts, locale, baseUrl, apiBaseUrl, mediaStreamPath, tenantKey)
+    const productItems = await processProducts(activeProducts, locale, baseUrl, apiBaseUrl, mediaStreamPath, tenantKey, currency)
 
     const allItems = [...blogItems, ...productItems].sort(
       (a, b) => {
@@ -81,7 +81,8 @@ const generateRssFeed = defineCachedFunction(
     maxAge: RSS_CACHE_AGE,
     staleMaxAge: RSS_CACHE_AGE * 24,
     swr: true,
-    getKey: (tenantKey: string, locale: string) => `${tenantKey}:rss-${locale}`,
+    getKey: (tenantKey: string, locale: string, _siteUrl: string, _siteName: string, _siteDesc: string, _baseUrl: string, _apiBaseUrl: string, _mediaPath: string, currency: string) =>
+      `${tenantKey}:rss-${locale}-${currency}`,
   },
 )
 
@@ -99,6 +100,8 @@ export default defineEventHandler(async (event) => {
 
     const locale: SupportedLocale = (event.context.locale || siteConfig.defaultLocale).split('-')[0]
 
+    const currency = (event.context.tenant as TenantConfig | undefined)?.defaultCurrency ?? 'EUR'
+
     const feedString = await generateRssFeed(
       host,
       locale,
@@ -108,6 +111,7 @@ export default defineEventHandler(async (event) => {
       baseUrl,
       apiBaseUrl,
       config.mediaStreamPath,
+      currency,
     )
 
     setHeaders(event, {
@@ -217,6 +221,7 @@ async function processProducts(
   apiBaseUrl: string,
   mediaStreamPath: string,
   tenantKey: string,
+  currency: string,
 ): Promise<RSS.ItemOptions[]> {
   const items: RSS.ItemOptions[] = []
 
@@ -264,7 +269,7 @@ async function processProducts(
     const customElements: Array<Record<string, unknown>> = [
       { 'atom:updated': new Date(product.updatedAt).toISOString() },
       { 'product:price': product.finalPrice },
-      { 'product:currency': 'EUR' },
+      { 'product:currency': currency },
     ]
 
     if (mainImageUrl) {
