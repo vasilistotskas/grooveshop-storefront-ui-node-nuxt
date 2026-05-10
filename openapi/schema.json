@@ -62827,17 +62827,14 @@
                     },
                     "logoLightUrl": {
                         "type": "string",
-                        "format": "uri",
                         "readOnly": true
                     },
                     "logoDarkUrl": {
                         "type": "string",
-                        "format": "uri",
                         "readOnly": true
                     },
                     "faviconUrl": {
                         "type": "string",
-                        "format": "uri",
                         "readOnly": true
                     },
                     "primaryColor": {
@@ -62924,42 +62921,34 @@
                     },
                     "socialsDiscord": {
                         "type": "string",
-                        "format": "uri",
                         "readOnly": true
                     },
                     "socialsFacebook": {
                         "type": "string",
-                        "format": "uri",
                         "readOnly": true
                     },
                     "socialsInstagram": {
                         "type": "string",
-                        "format": "uri",
                         "readOnly": true
                     },
                     "socialsPinterest": {
                         "type": "string",
-                        "format": "uri",
                         "readOnly": true
                     },
                     "socialsReddit": {
                         "type": "string",
-                        "format": "uri",
                         "readOnly": true
                     },
                     "socialsTiktok": {
                         "type": "string",
-                        "format": "uri",
                         "readOnly": true
                     },
                     "socialsTwitter": {
                         "type": "string",
-                        "format": "uri",
                         "readOnly": true
                     },
                     "socialsYoutube": {
                         "type": "string",
-                        "format": "uri",
                         "readOnly": true
                     },
                     "boxNowPartnerId": {
