@@ -2,6 +2,8 @@ export const useAccountMenus = () => {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
 
+  const tenantStore = useTenantStore()
+
   // Fetch loyalty settings using new API
   const { data: settings } = useLoyalty().fetchSettings()
 
@@ -39,8 +41,10 @@ export const useAccountMenus = () => {
       },
     ]
 
-    // Only add loyalty menu if enabled
-    if (settings.value?.enabled) {
+    // Only add loyalty menu when both the tenant plan gate and the runtime
+    // operational toggle are enabled. This mirrors the two-tier gate in
+    // app/middleware/loyalty-enabled.ts.
+    if (tenantStore.loyaltyEnabled && settings.value?.enabled) {
       baseMenus.push({
         label: t('loyalty'),
         to: '/account/loyalty',
