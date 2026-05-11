@@ -36,25 +36,33 @@ export default defineSitemapEventHandler(async (event) => {
   // iterate SUPPORTED_LOCALES here and emit hreflang alternates per entry.
   const ACTIVE_LOCALE = 'el'
 
+  const blogEnabled = event.context.tenant?.blogEnabled ?? true
+
   // Fetch all data in parallel for better performance — tenant host
   // is passed so each tenant's sitemap has its own cache entry.
   // languageCode ensures Django returns translations for the active locale.
+  // Blog data is skipped entirely when blogEnabled is false so disabled
+  // tenants don't leak blog URL surface in the sitemap.
   const [allPosts, allBlogCategories, allProducts, allProductCategories] = await Promise.all([
-    cachedBlogPosts(host, `${apiBaseUrl}/blog/post?languageCode=${ACTIVE_LOCALE}`),
-    cachedBlogCategories(host, `${apiBaseUrl}/blog/category?languageCode=${ACTIVE_LOCALE}`),
+    blogEnabled
+      ? cachedBlogPosts(host, `${apiBaseUrl}/blog/post?languageCode=${ACTIVE_LOCALE}`)
+      : Promise.resolve([]),
+    blogEnabled
+      ? cachedBlogCategories(host, `${apiBaseUrl}/blog/category?languageCode=${ACTIVE_LOCALE}`)
+      : Promise.resolve([]),
     cachedProducts(host, `${apiBaseUrl}/product?languageCode=${ACTIVE_LOCALE}`),
     cachedProductCategories(host, `${apiBaseUrl}/product/category?languageCode=${ACTIVE_LOCALE}`),
   ])
 
   return [
-    // Blog categories
+    // Blog categories — omitted when blog is disabled for this tenant
     ...allBlogCategories.map(category => asSitemapUrl({
       loc: baseUrl + '/blog/category/' + category.id + '/' + category.slug,
       changefreq: 'weekly',
       priority: 0.5,
       lastmod: new Date(category.updatedAt),
     })),
-    // Blog posts
+    // Blog posts — omitted when blog is disabled for this tenant
     ...allPosts.map(post => asSitemapUrl({
       loc: baseUrl + '/blog/post/' + post.id + '/' + post.slug,
       changefreq: 'daily',

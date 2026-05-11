@@ -100,7 +100,17 @@ export default defineEventHandler(async (event) => {
 
     const locale: SupportedLocale = (event.context.locale || siteConfig.defaultLocale).split('-')[0]
 
-    const currency = (event.context.tenant as TenantConfig | undefined)?.defaultCurrency ?? 'EUR'
+    const tenant = event.context.tenant as TenantConfig | undefined
+    const currency = tenant?.defaultCurrency ?? 'EUR'
+    const blogEnabled = tenant?.blogEnabled ?? true
+
+    // When blog is disabled for this tenant, the RSS feed only contains
+    // products — 404 would be too aggressive since the feed still has
+    // product content. An empty feed is returned if somehow blog-only
+    // content is expected, but in practice products are always present.
+    if (!blogEnabled) {
+      throw createError({ statusCode: 404, statusMessage: 'Not Found' })
+    }
 
     const feedString = await generateRssFeed(
       host,
