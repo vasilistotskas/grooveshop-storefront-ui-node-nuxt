@@ -13,6 +13,7 @@ const { loggedIn } = useUserSession()
 const cartStore = useCartStore()
 const { getCartItems } = storeToRefs(cartStore)
 
+const tenantStore = useTenantStore()
 const loyalty = useLoyalty()
 
 // Fetch loyalty settings
@@ -23,7 +24,8 @@ const pointsPerProduct = ref<Map<number, number>>(new Map())
 const loading = ref(false)
 const hasError = ref(false)
 
-const shouldFetch = computed(() => loggedIn.value && settings.value?.enabled)
+// Tenant plan flag is the primary gate; runtime toggle is the operational lever.
+const shouldFetch = computed(() => loggedIn.value && tenantStore.loyaltyEnabled && settings.value?.enabled)
 
 // Total points earned for the entire cart
 const totalPointsEarned = computed(() => {
