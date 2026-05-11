@@ -10,6 +10,8 @@ const localePath = useLocalePath()
 const { $routeBaseName } = useNuxtApp()
 const { isMobileOrTablet } = useDevice()
 
+const tenantStore = useTenantStore()
+
 const routeName = computed(() => $routeBaseName(route))
 
 // Used for the main-nav active-route state. Matches the anchor's
@@ -130,7 +132,10 @@ const items = computed(() => [
                 </Anchor>
               </h2>
             </li>
-            <li class="flex w-full gap-4">
+            <li
+              v-if="tenantStore.blogEnabled"
+              class="flex w-full gap-4"
+            >
               <h2>
                 <Anchor
                   :text="t('blog')"
@@ -184,6 +189,7 @@ const items = computed(() => [
               <LazyLanguageSwitcher />
             </li>
             <li
+              v-if="tenantStore.blogEnabled"
               class="
                   relative grid max-w-6 items-center justify-center
                   justify-items-center

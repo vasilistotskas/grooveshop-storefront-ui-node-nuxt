@@ -245,6 +245,7 @@ useSchemaOrg([
 
 definePageMeta({
   layout: 'default',
+  middleware: ['blog-enabled'],
 })
 </script>
 

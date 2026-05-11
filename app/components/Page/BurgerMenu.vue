@@ -13,6 +13,8 @@ const { deleteSession } = useAllAuthAuthentication()
 const { isModalActive: isCookieModalActive } = useCookieControl()
 const { $routeBaseName } = useNuxtApp()
 
+const tenantStore = useTenantStore()
+
 const open = ref(false)
 
 watch(() => route.fullPath, () => {
@@ -32,34 +34,44 @@ const greetingName = computed(() => {
     || ''
 })
 
-const primaryItems = computed(() => [
-  {
-    label: t('home'),
-    icon: 'i-heroicons-home',
-    to: localePath('index'),
-  },
-  {
-    label: t('shop'),
-    icon: 'i-heroicons-building-storefront',
-    to: localePath('products'),
-  },
-  {
-    label: t('blog'),
-    icon: 'i-heroicons-newspaper',
-    to: localePath('blog'),
-  },
-  {
-    label: t('search.title'),
-    icon: 'i-heroicons-magnifying-glass',
-    to: localePath('search'),
-  },
-  {
-    label: t('cart.title'),
-    icon: 'i-heroicons-shopping-cart',
-    to: localePath('cart'),
-    slot: 'cart' as const,
-  },
-])
+const primaryItems = computed(() => {
+  const base = [
+    {
+      label: t('home'),
+      icon: 'i-heroicons-home',
+      to: localePath('index'),
+    },
+    {
+      label: t('shop'),
+      icon: 'i-heroicons-building-storefront',
+      to: localePath('products'),
+    },
+  ]
+
+  if (tenantStore.blogEnabled) {
+    base.push({
+      label: t('blog'),
+      icon: 'i-heroicons-newspaper',
+      to: localePath('blog'),
+    })
+  }
+
+  base.push(
+    {
+      label: t('search.title'),
+      icon: 'i-heroicons-magnifying-glass',
+      to: localePath('search'),
+    },
+    {
+      label: t('cart.title'),
+      icon: 'i-heroicons-shopping-cart',
+      to: localePath('cart'),
+      slot: 'cart' as const,
+    },
+  )
+
+  return base
+})
 
 const accountAccordionItems = computed(() => [
   {
