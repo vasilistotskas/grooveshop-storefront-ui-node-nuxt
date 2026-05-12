@@ -99,6 +99,17 @@ const currentStatusIndex = computed(() => {
   return ORDER_STATUS_FLOW.indexOf(status as typeof ORDER_STATUS_FLOW[number])
 })
 
+// CANCELED / RETURNED / REFUNDED are off-path terminal states. The
+// happy-path stepper has no place to render them — keeping it visible
+// with progress=0% confusingly suggests the order is still pending
+// even though the alert banner above announces cancellation/refund.
+// Hide the stepper entirely for these states and rely on the alert.
+const isOffPathTerminalStatus = computed(() => {
+  const status = order.value?.status
+  if (!status) return false
+  return !(ORDER_STATUS_FLOW as readonly string[]).includes(status)
+})
+
 const orderSteps = computed(() =>
   ORDER_STATUS_FLOW.map((value, index) => {
     const meta = ORDER_STEP_META[value]
@@ -304,7 +315,10 @@ async function handleCancelOrder() {
 async function handleTrackOrder() {
   const trackingUrl = order.value?.trackingDetails?.trackingUrl
   if (trackingUrl) {
-    window.open(trackingUrl, '_blank')
+    // ``noopener,noreferrer`` blocks tabnabbing: without it the
+    // opened courier site could call ``window.opener.location`` and
+    // redirect the customer's tab to a phishing page.
+    window.open(trackingUrl, '_blank', 'noopener,noreferrer')
   }
 }
 
@@ -540,7 +554,7 @@ defineRouteRules({
       </UButton>
     </div>
 
-    <UCard>
+    <UCard v-if="!isOffPathTerminalStatus">
       <template #header>
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-semibold">

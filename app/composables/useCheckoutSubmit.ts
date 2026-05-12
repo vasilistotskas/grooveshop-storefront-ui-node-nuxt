@@ -114,6 +114,19 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     log.info('checkout', 'handleOrderError response', { status: response?.status })
 
     const errorData = response._data || response.data
+    // When the upstream returns a non-JSON 5xx (gateway crash, Cloudflare
+    // error page, etc.) ``errorData`` is undefined and the structured
+    // branches below all miss — the user sees the generic toast and
+    // ops has no signal in the logs. Capture the raw response shape so
+    // a real outage is grep-able.
+    if (!errorData && response?.status && response.status >= 500) {
+      log.error({
+        action: 'checkout:orderError:nonJson5xx',
+        status: response.status,
+        statusText: response?.statusText,
+        contentType: response?.headers?.get?.('content-type'),
+      })
+    }
     const errorType = errorData?.error?.type
 
     // Handle structured error types
@@ -477,6 +490,12 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
 
     isSubmitting.value = true
 
+    log.info('checkout', 'submit:started', {
+      payWayId: formState.payWayId,
+      shippingMethod: formState.shippingMethod,
+      hasReservations: reservationIds.value.length > 0,
+    })
+
     try {
       // Step 1: Reserve stock before order creation (if not already reserved)
       if (!reservationIds.value.length) {
@@ -556,9 +575,18 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       }
     }
     finally {
-      // Only reset isSubmitting if no retry is pending (retry keeps it true to block double-submit)
+      // Only reset isSubmitting if no retry is pending (retry keeps it
+      // true to block double-submit). When we end up here without an
+      // order created AND no retry is queued, release stock reservations
+      // so a customer who bounces away after a failed checkout doesn't
+      // hold inventory hostage for the full 15-minute TTL.
       if (!retryTimeoutId.value) {
         isSubmitting.value = false
+        if (!createdOrder.value && reservationIds.value.length > 0) {
+          releaseReservations(reservationIds.value)
+            .catch(err => log.error({ action: 'checkout:releaseReservations:onSubmitFail', error: err }))
+          reservationIds.value = []
+        }
       }
     }
   }
