@@ -62,10 +62,14 @@ useSeoMeta({
   ogImageHeight: 630,
 })
 
-// theme-color must match manifest.webmanifest.get.ts theme_color (#1a202c)
+// Per-tenant theme-color: matches manifest.webmanifest.get.ts which
+// already derives from tenant.accentHex. Falling back to the platform
+// neutral hex keeps the Webside look identical when no tenant accent is
+// configured (H13 in MULTI_TENANT_AUDIT.md).
+const themeColor = computed(() => tenantStore.accentHex || '#1a202c')
 useHead({
   meta: [
-    { name: 'theme-color', content: '#1a202c' },
+    { name: 'theme-color', content: themeColor },
   ],
 })
 </script>
