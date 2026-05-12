@@ -106,7 +106,7 @@ describe('BoxNow Checkout Integration', () => {
       expect(wrapper.findComponent({ name: 'CheckoutSelectedBoxNowLocker' }).exists()).toBe(true)
     })
 
-    it('submit with home_delivery selected emits "next"', async () => {
+    it('continue click with home_delivery selected emits "next"', async () => {
       const wrapper = await mountSuspended(StepShipping, {
         props: {
           formState: { shippingMethod: 'home_delivery', boxnowLockerId: '', boxnowLocker: null },
@@ -116,11 +116,15 @@ describe('BoxNow Checkout Integration', () => {
         },
       })
 
-      await wrapper.find('form').trigger('submit')
+      // The Continue button moved from ``type="submit"`` to
+      // ``type="button"`` + ``@click="onSubmit"`` (commit 43f25bfb) so
+      // that the missing-locker case can pop the picker instead of
+      // letting UForm's superRefine abort. Drive the click directly.
+      await wrapper.find('[data-testid="step-shipping-continue"]').trigger('click')
       expect(wrapper.emitted('next')).toBeTruthy()
     })
 
-    it('submit with box_now_locker and a valid lockerId emits "next"', async () => {
+    it('continue click with box_now_locker and a valid lockerId emits "next"', async () => {
       const wrapper = await mountSuspended(StepShipping, {
         props: {
           formState: {
@@ -138,12 +142,14 @@ describe('BoxNow Checkout Integration', () => {
         },
       })
 
-      // Submit button should not be disabled
-      const submitBtn = wrapper.find('[type="submit"]')
-      const disabled = submitBtn.attributes('disabled')
-      expect(disabled === undefined || disabled === 'false').toBe(true)
+      // Continue button is always enabled now — picking a locker is
+      // not gated by ``:disabled``. Clicking with a valid locker
+      // advances to ``next``; clicking without one pops the picker
+      // (covered in StepShipping.spec.ts).
+      const continueBtn = wrapper.find('[data-testid="step-shipping-continue"]')
+      expect(continueBtn.attributes('disabled')).toBeUndefined()
 
-      await wrapper.find('form').trigger('submit')
+      await continueBtn.trigger('click')
       expect(wrapper.emitted('next')).toBeTruthy()
     })
   })
