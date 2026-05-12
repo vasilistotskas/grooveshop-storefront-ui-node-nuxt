@@ -29,14 +29,18 @@
 
 import { DEFAULT_LOCALE } from '~~/i18n/locales'
 
+/**
+ * The `$fetch.create` instance is cached at module level, but the
+ * configuration values it depends on (`internalOrigins`, `fallbackPublicHost`)
+ * are resolved on every onRequest call. Previously these were baked
+ * at first call, so a runtime-config swap (dev hot-reload, test
+ * isolation) silently kept the stale origin list. See H16 in
+ * MULTI_TENANT_AUDIT.md.
+ */
 let _backendFetch: typeof $fetch | undefined
 
-export function useBackendFetch(): typeof $fetch {
-  if (_backendFetch) return _backendFetch
-
-  const config = useRuntimeConfig()
-
-  const internalOrigins = [...new Set(
+function deriveInternalOrigins(config: ReturnType<typeof useRuntimeConfig>): string[] {
+  return [...new Set(
     [config.djangoUrl, config.apiBaseUrl]
       .filter((url): url is string => typeof url === 'string' && url.length > 0)
       .map((url) => {
@@ -48,13 +52,19 @@ export function useBackendFetch(): typeof $fetch {
         }
       }),
   )]
+}
 
-  const fallbackPublicHost = typeof config.public.djangoHostName === 'string'
-    ? config.public.djangoHostName
-    : undefined
+export function useBackendFetch(): typeof $fetch {
+  if (_backendFetch) return _backendFetch
 
   _backendFetch = $fetch.create({
     onRequest({ request, options }) {
+      const config = useRuntimeConfig()
+      const internalOrigins = deriveInternalOrigins(config)
+      const fallbackPublicHost = typeof config.public.djangoHostName === 'string'
+        ? config.public.djangoHostName
+        : undefined
+
       const url = typeof request === 'string'
         ? request
         : request instanceof URL

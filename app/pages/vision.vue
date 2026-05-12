@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const localePath = useLocalePath()
+const config = useRuntimeConfig()
 const tenantStore = useTenantStore()
 
-const storeName = computed(() => tenantStore.storeName || 'Webside')
+const storeName = computed(
+  () => tenantStore.storeName || (config.public.appTitle as string),
+)
 
 const items = computed(() => [
   {

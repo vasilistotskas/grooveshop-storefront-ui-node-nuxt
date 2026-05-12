@@ -1,6 +1,32 @@
-// In-memory cache with 5-minute TTL
-const tenantCache = new Map<string, { config: TenantConfig, expiry: number }>()
+// In-memory cache with 5-minute TTL.
+//
+// Negative results (404 / 5xx) are explicitly NOT cached, so adversarial
+// Host headers can't accumulate entries. A real tenant onboarding event
+// is rare on the timescale of cache TTL, so capping at MAX_ENTRIES with
+// a simple FIFO eviction is enough — anything fancier (LRU library)
+// adds runtime weight for no real-world payoff. Sweep on every set
+// keeps stale entries out without a setInterval (which leaks under
+// Nitro HMR / test isolation). See H17 in MULTI_TENANT_AUDIT.md.
 const TENANT_CACHE_TTL = 5 * 60 * 1000
+const TENANT_CACHE_MAX_ENTRIES = 1000
+const tenantCache = new Map<string, { config: TenantConfig, expiry: number }>()
+
+function rememberTenant(domain: string, config: TenantConfig) {
+  const now = Date.now()
+  // Drop expired entries opportunistically — bounds the map without a
+  // background timer.
+  for (const [key, entry] of tenantCache) {
+    if (entry.expiry <= now) tenantCache.delete(key)
+  }
+  // Hard cap: if we're still above the limit, evict the oldest entry
+  // (Map preserves insertion order so `.keys().next()` is the earliest).
+  while (tenantCache.size >= TENANT_CACHE_MAX_ENTRIES) {
+    const oldest = tenantCache.keys().next().value
+    if (oldest === undefined) break
+    tenantCache.delete(oldest)
+  }
+  tenantCache.set(domain, { config, expiry: now + TENANT_CACHE_TTL })
+}
 
 /**
  * Discriminated-union result so callers can distinguish:
@@ -42,7 +68,7 @@ export async function getTenantConfig(host: string): Promise<TenantResult> {
       return { type: 'not_found', config: null }
     }
 
-    tenantCache.set(domain, { config: tenantConfig, expiry: Date.now() + TENANT_CACHE_TTL })
+    rememberTenant(domain, tenantConfig)
     return { type: 'ok', config: tenantConfig }
   }
   catch (err: unknown) {

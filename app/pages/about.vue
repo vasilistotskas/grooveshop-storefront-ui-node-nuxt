@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const localePath = useLocalePath()
+const config = useRuntimeConfig()
 const tenantStore = useTenantStore()
 
 // Pages like about/vision contain tenant-specific copy (webside.gr
@@ -8,7 +9,11 @@ const tenantStore = useTenantStore()
 // placeholder lets each tenant's i18n override substitute its own
 // brand name without forking the template; full per-tenant content
 // rewrites go through the ``page_config`` API.
-const storeName = computed(() => tenantStore.storeName || 'Webside')
+// Fallback is the platform site name from runtime config — never a
+// hardcoded brand string (N2 in MULTI_TENANT_AUDIT.md).
+const storeName = computed(
+  () => tenantStore.storeName || (config.public.appTitle as string),
+)
 
 const items = computed(() => [
   {
