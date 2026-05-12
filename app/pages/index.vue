@@ -20,6 +20,8 @@ const blogPageSize = computed(() => isMobileOrTablet.value ? 6 : 9)
 const bannerWidth = computed(() => isMobileOrTablet.value ? 510 : 1194)
 const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
 
+const bannerLink = '/products/2/mini-powerbank-5000mah'
+
 // Admin-toggleable rail — extra-setting RECENTLY_VIEWED_ENABLED.
 // Fetched during SSR with a stale-falls-open fallback so a flaky
 // settings call never silently kills a user-facing rail. Default is
@@ -88,22 +90,28 @@ useSeoMeta({
           "
           indicators
         >
-          <NuxtImg
+          <NuxtLink
             v-if="item"
-            :alt="appTitle"
-            :src="item"
-            :height="bannerHeight"
-            :width="bannerWidth"
-            densities="x1"
-            fit="cover"
-            quality="80"
-            class="rounded-lg"
-            style="object-fit: contain; content-visibility: auto;"
-            loading="eager"
-            fetchpriority="high"
-            decoding="async"
-            preload
-          />
+            :to="bannerLink"
+            :aria-label="t('carousel.bannerLink')"
+            class="block"
+          >
+            <NuxtImg
+              :alt="appTitle"
+              :src="item"
+              :height="bannerHeight"
+              :width="bannerWidth"
+              densities="x1"
+              fit="cover"
+              quality="80"
+              class="rounded-lg"
+              style="object-fit: contain; content-visibility: auto;"
+              loading="eager"
+              fetchpriority="high"
+              decoding="async"
+              preload
+            />
+          </NuxtLink>
         </UCarousel>
 
         <!-- Recently viewed rail: rendered client-side from localStorage
@@ -149,4 +157,5 @@ useSeoMeta({
 el:
   carousel:
     banner: Κύριο banner
+    bannerLink: Δείτε το Mini Powerbank 5000mAh
 </i18n>
