@@ -156,7 +156,12 @@ beforeEach(() => {
   mockFetch.mockReset()
   mockNavigateTo.mockReset()
   mockReserveStock.mockReset()
-  mockReleaseReservations.mockReset()
+  // ``releaseReservations`` is called with ``.catch(...)`` from
+  // multiple paths in useCheckoutSubmit (Viva success cleanup, the
+  // onSubmit finally block, onBeforeUnmount). Default to a resolved
+  // Promise so a stray un-stubbed call doesn't TypeError on
+  // ``undefined.catch``.
+  mockReleaseReservations.mockReset().mockResolvedValue(undefined)
   mockCreatePaymentIntentFromCart.mockReset()
   mockCleanCartState.mockReset().mockResolvedValue(undefined)
   mockCartHolder.value = { uuid: 'cart-uuid', id: 1, items: [], totalItems: 0, totalPrice: 0 }
