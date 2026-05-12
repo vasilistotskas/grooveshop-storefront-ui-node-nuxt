@@ -33,7 +33,7 @@ describe('Cart Store', () => {
     items: [
       {
         id: 1,
-        cartId: 1,
+        cartId: '11111111-1111-4111-8111-111111111111',
         product: {
           id: 1,
           name: 'Test Product 1',
@@ -46,7 +46,7 @@ describe('Cart Store', () => {
       },
       {
         id: 2,
-        cartId: 1,
+        cartId: '11111111-1111-4111-8111-111111111111',
         product: {
           id: 2,
           name: 'Test Product 2',
@@ -117,21 +117,21 @@ describe('Cart Store', () => {
         items: [
           {
             id: 1,
-            cartId: 1,
+            cartId: '11111111-1111-4111-8111-111111111111',
             product: { id: 1, stock: 5 },
             quantity: 10, // More than stock
             totalPrice: 100.00,
           },
           {
             id: 2,
-            cartId: 1,
+            cartId: '11111111-1111-4111-8111-111111111111',
             product: { id: 2, stock: 0 },
             quantity: 1,
             totalPrice: 30.00,
           },
           {
             id: 3,
-            cartId: 1,
+            cartId: '11111111-1111-4111-8111-111111111111',
             product: { id: 3, stock: 20 },
             quantity: 5, // Within stock
             totalPrice: 50.00,
@@ -166,7 +166,7 @@ describe('Cart Store', () => {
         items: [
           {
             id: 1,
-            cartId: 1,
+            cartId: '11111111-1111-4111-8111-111111111111',
             product: { id: 1, stock: 20 },
             quantity: 5,
             totalPrice: 100.00,

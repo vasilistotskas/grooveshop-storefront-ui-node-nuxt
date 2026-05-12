@@ -2034,7 +2034,7 @@ export const zPatchedPayWayWriteRequest = z.object({
     description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
   }).optional(),
   configuration: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific configuration (API keys, webhooks, etc.)',
+    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -2404,7 +2404,7 @@ export const zPayWayWriteRequest = z.object({
     description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
   }).optional(),
   configuration: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific configuration (API keys, webhooks, etc.)',
+    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -2639,7 +2639,7 @@ export const zProduct = z.object({
 
 export const zCartItem = z.object({
   id: z.int().readonly(),
-  cartId: z.int().readonly(),
+  cartId: z.string().readonly(),
   product: zProduct,
   quantity: z.int().gte(0).lte(2147483647).optional(),
   weightInfo: z.object({
@@ -2720,7 +2720,7 @@ export const zCartDetail = z.object({
 
 export const zCartItemDetail = z.object({
   id: z.int().readonly(),
-  cartId: z.int().readonly(),
+  cartId: z.string().readonly(),
   product: zProduct,
   quantity: z.int().gte(0).lte(2147483647).optional(),
   weightInfo: z.object({
@@ -9872,17 +9872,15 @@ export const zUpdateBlogTagQuery = z.object({
 export const zUpdateBlogTagResponse = zBlogTagDetail
 
 export const zDestroyCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zRetrieveCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zRetrieveCartResponse = zCartDetail
@@ -9890,10 +9888,9 @@ export const zRetrieveCartResponse = zCartDetail
 export const zPartialUpdateCartBody = zPatchedCartWriteRequest
 
 export const zPartialUpdateCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zPartialUpdateCartResponse = zCartDetail
@@ -9901,28 +9898,25 @@ export const zPartialUpdateCartResponse = zCartDetail
 export const zUpdateCartBody = zCartWriteRequest
 
 export const zUpdateCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zUpdateCartResponse = zCartDetail
 
 export const zCreateCartPaymentIntentHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zCreateCartPaymentIntentResponse = zCartPaymentIntentResponse
 
 export const zListCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zListCartItemQuery = z.object({
@@ -10118,19 +10112,17 @@ export const zListCartItemResponse = zPaginatedCartItemList
 export const zCreateCartItemBody = zCartItemCreateRequest
 
 export const zCreateCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zCreateCartItemResponse = zCartItemDetail
 
 export const zDestroyCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zDestroyCartItemPath = z.object({
@@ -10141,10 +10133,9 @@ export const zDestroyCartItemPath = z.object({
 })
 
 export const zRetrieveCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zRetrieveCartItemPath = z.object({
@@ -10169,10 +10160,9 @@ export const zRetrieveCartItemResponse = zCartItemDetail
 export const zPartialUpdateCartItemBody = zPatchedCartItemUpdateRequest
 
 export const zPartialUpdateCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zPartialUpdateCartItemPath = z.object({
@@ -10197,10 +10187,9 @@ export const zPartialUpdateCartItemResponse = zCartItemDetail
 export const zUpdateCartItemBody = zCartItemUpdateRequest
 
 export const zUpdateCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zUpdateCartItemPath = z.object({
@@ -10213,10 +10202,9 @@ export const zUpdateCartItemPath = z.object({
 export const zUpdateCartItemResponse = zCartItemDetail
 
 export const zListCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zListCartQuery = z.object({
@@ -10396,19 +10384,17 @@ export const zListCartResponse = zPaginatedCartList
 export const zReleaseCartReservationsBody = zReleaseReservationsRequestRequest
 
 export const zReleaseCartReservationsHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zReleaseCartReservationsResponse = zReleaseReservationsResponse
 
 export const zReserveCartStockHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zReserveCartStockResponse = zReserveStockResponse

@@ -1578,7 +1578,7 @@ export type CartDetail = {
 
 export type CartItem = {
   readonly id: number
-  readonly cartId: number
+  readonly cartId: string
   product: Product
   /**
      * Ποσότητα
@@ -1616,7 +1616,7 @@ export type CartItemCreateRequest = {
 
 export type CartItemDetail = {
   readonly id: number
-  readonly cartId: number
+  readonly cartId: string
   product: Product
   /**
      * Ποσότητα
@@ -3670,7 +3670,7 @@ export type PatchedPayWayWriteRequest = {
   /**
      * Provider Configuration
      *
-     * Provider-specific configuration (API keys, webhooks, etc.)
+     * Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
      */
   configuration?: unknown
 }
@@ -4210,7 +4210,7 @@ export type PayWayWriteRequest = {
   /**
      * Provider Configuration
      *
-     * Provider-specific configuration (API keys, webhooks, etc.)
+     * Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
      */
   configuration?: unknown
 }
@@ -11555,9 +11555,9 @@ export type DestroyCartData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -11576,9 +11576,9 @@ export type RetrieveCartData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -11604,9 +11604,9 @@ export type PartialUpdateCartData = {
   body?: PatchedCartWriteRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -11633,9 +11633,9 @@ export type UpdateCartData = {
   body?: CartWriteRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -11662,9 +11662,9 @@ export type CreateCartPaymentIntentData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -11691,9 +11691,9 @@ export type ListCartItemData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: {
@@ -11891,9 +11891,9 @@ export type CreateCartItemData = {
   body: CartItemCreateRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -11920,9 +11920,9 @@ export type DestroyCartItemData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path: {
     id: string | number
@@ -11943,9 +11943,9 @@ export type RetrieveCartItemData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path: {
     id: string | number
@@ -11978,9 +11978,9 @@ export type PartialUpdateCartItemData = {
   body?: PatchedCartItemUpdateRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path: {
     id: string | number
@@ -12014,9 +12014,9 @@ export type UpdateCartItemData = {
   body?: CartItemUpdateRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path: {
     id: string | number
@@ -12045,9 +12045,9 @@ export type ListCartData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: {
@@ -12226,9 +12226,9 @@ export type ReleaseCartReservationsData = {
   body: ReleaseReservationsRequestRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -12255,9 +12255,9 @@ export type ReserveCartStockData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never

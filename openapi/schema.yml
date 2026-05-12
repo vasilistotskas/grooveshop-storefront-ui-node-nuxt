@@ -7236,12 +7236,11 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions. Sequential integer IDs were enumerable metadata, so the public
+          identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
       tags:
       - Cart
       security:
@@ -7287,12 +7286,11 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions. Sequential integer IDs were enumerable metadata, so the public
+          identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
       tags:
       - Cart
       requestBody:
@@ -7355,12 +7353,11 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions. Sequential integer IDs were enumerable metadata, so the public
+          identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
       tags:
       - Cart
       requestBody:
@@ -7423,12 +7420,11 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions. Sequential integer IDs were enumerable metadata, so the public
+          identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
       tags:
       - Cart
       security:
@@ -7465,12 +7461,11 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions. Sequential integer IDs were enumerable metadata, so the public
+          identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
       tags:
       - Cart
       security:
@@ -7523,12 +7518,10 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions (M18 in MULTI_TENANT_AUDIT.md).
       - in: query
         name: cart
         schema:
@@ -7952,12 +7945,10 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions (M18 in MULTI_TENANT_AUDIT.md).
       tags:
       - Cart Items
       requestBody:
@@ -8022,12 +8013,10 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions (M18 in MULTI_TENANT_AUDIT.md).
       - in: path
         name: id
         schema:
@@ -8091,12 +8080,10 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions (M18 in MULTI_TENANT_AUDIT.md).
       - in: path
         name: id
         schema:
@@ -8167,12 +8154,10 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions (M18 in MULTI_TENANT_AUDIT.md).
       - in: path
         name: id
         schema:
@@ -8253,12 +8238,10 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions (M18 in MULTI_TENANT_AUDIT.md).
       - in: path
         name: id
         schema:
@@ -8301,12 +8284,11 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions. Sequential integer IDs were enumerable metadata, so the public
+          identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
       - in: query
         name: cartType
         schema:
@@ -8708,12 +8690,11 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions. Sequential integer IDs were enumerable metadata, so the public
+          identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
       tags:
       - Cart
       requestBody:
@@ -8779,12 +8760,11 @@ paths:
       - in: header
         name: X-Cart-Id
         schema:
-          oneOf:
-          - type: string
-            pattern: ^-?\d+$
-          - type: integer
-        description: Cart ID for guest users. Used to identify and maintain guest
-          cart sessions.
+          type: string
+          format: uuid
+        description: Cart UUID for guest users. Used to identify and maintain guest
+          cart sessions. Sequential integer IDs were enumerable metadata, so the public
+          identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
       tags:
       - Cart
       security:
@@ -31802,7 +31782,7 @@ components:
           type: integer
           readOnly: true
         cartId:
-          type: integer
+          type: string
           readOnly: true
         product:
           allOf:
@@ -31936,7 +31916,7 @@ components:
           type: integer
           readOnly: true
         cartId:
-          type: integer
+          type: string
           readOnly: true
         product:
           allOf:
@@ -36173,7 +36153,12 @@ components:
         configuration:
           nullable: true
           title: Provider Configuration
-          description: Provider-specific configuration (API keys, webhooks, etc.)
+          description: Provider-specific non-secret configuration only (display options,
+            callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth
+            client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*,
+            box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant
+            and rotated independently. Keys matching common secret patterns are rejected
+            at save time.
     PatchedProductCategoryImageBulkUpdateRequest:
       type: object
       properties:
@@ -37007,7 +36992,12 @@ components:
         configuration:
           nullable: true
           title: Provider Configuration
-          description: Provider-specific configuration (API keys, webhooks, etc.)
+          description: Provider-specific non-secret configuration only (display options,
+            callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth
+            client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*,
+            box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant
+            and rotated independently. Keys matching common secret patterns are rejected
+            at save time.
       required:
       - cost
       - translations
