@@ -1,3 +1,16 @@
+# [3.117.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.116.2...v3.117.0) (2026-05-12)
+
+
+### Bug Fixes
+
+* **auth:** assert non-null pathForFlow result in MFA flow callers ([eb08713](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eb0871305bc42b21fc90badd0dd27f75deef2b6e))
+
+
+### Features
+
+* **checkout:** add Viva Wallet return-URL callback page ([8d1d09b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8d1d09b14d5fd7df713025214badeb78889f37a5)), closes [#55](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/55)
+* **home:** link main banner to mini powerbank product ([396c099](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/396c099d1a81181a91c9b13f383f5e137f961365))
+
 ## [3.116.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.116.1...v3.116.2) (2026-05-12)
 
 
