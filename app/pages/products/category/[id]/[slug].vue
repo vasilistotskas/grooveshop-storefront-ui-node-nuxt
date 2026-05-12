@@ -4,6 +4,7 @@ const route = useRoute(`products-category-id-slug___${locale.value}`)
 const config = useRuntimeConfig()
 const img = useImage()
 const siteConfig = useSiteConfig()
+const tenantStore = useTenantStore()
 
 const categoryId = 'id' in route.params
   ? route.params.id
@@ -52,7 +53,9 @@ const categoryDescription = computed(() =>
 )
 
 // ProductCategoryDetail has no image field — use the first product image
-// from the SEO prefetch if available, otherwise fall back to the site logo.
+// from the SEO prefetch if available, otherwise fall back to the
+// tenant's logo (matches setups.ts:17) so OG previews carry the tenant
+// brand, not the platform logo. Final fallback to the platform logo.
 const ogImage = computed(() => {
   const firstProduct = seoProducts.value?.results?.[0]
   if (firstProduct?.mainImagePath) {
@@ -65,7 +68,7 @@ const ogImage = computed(() => {
       provider: 'mediaStream',
     })
   }
-  return config.public.appLogo as string
+  return tenantStore.logoLightUrl || (config.public.appLogo as string)
 })
 
 const baseUrl = siteConfig.url
