@@ -64,8 +64,7 @@ export async function handleAllAuthError(
       log.info('auth', 'Session expired (410), clearing user session')
       await clearUserSession(event)
     }
-
-    if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
+    else if (isNotAuthenticatedResponseError(error) || isInvalidSessionResponseError(error)) {
       log.info('auth', 'Not authenticated or invalid session, updating tokens')
 
       const hasTokens = error.data.meta?.session_token || error.data.meta?.access_token

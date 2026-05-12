@@ -8,10 +8,14 @@ export default defineEventHandler(async (event) => {
       method: 'DELETE',
       headers,
     })
-    await clearUserSession(event)
-    return await parseDataAs(response, ZodPasswordRequestResponse)
+    const parsed = await parseDataAs(response, ZodPasswordRequestResponse)
+    return parsed
   }
   catch (error) {
     await handleAllAuthError(error)
+  }
+  finally {
+    await clearUserSession(event)
+    await clearCartSession(event)
   }
 })

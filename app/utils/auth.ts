@@ -169,6 +169,9 @@ export const pickPreferredAuthenticatorType = (
 }
 
 export const pathForFlow = (flow: Flow, authenticatorType?: string) => {
+  // provider_redirect is an external OAuth redirect, not a Nuxt page.
+  // Return null so navigateToPendingFlow skips navigation.
+  if (flow.id === Flows.PROVIDER_REDIRECT) return null
   const flowKey = flow.types && flow.types.length
     ? `${flow.id}:${authenticatorType ?? pickPreferredAuthenticatorType(flow.types)}`
     : flow.id

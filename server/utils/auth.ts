@@ -137,14 +137,19 @@ export async function fetchUserData(response: AllAuthResponse, accessToken?: str
   const event = useEvent()
   const token = accessToken || response.meta?.access_token
   const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
-  let headers: Record<string, string> = {
-    'Authorization': `Bearer ${token}`,
-    'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
-    'X-Forwarded-Host': config.public.djangoHostName || getRequestHost(event, { xForwardedHost: false }),
-    'X-Language': locale,
-  }
+  let headers: Record<string, string>
   if (response.meta?.is_authenticated && !token) {
     headers = await getAllAuthHeaders()
+  }
+  else {
+    headers = {
+      'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
+      'X-Forwarded-Host': config.public.djangoHostName || getRequestHost(event, { xForwardedHost: false }),
+      'X-Language': locale,
+    }
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
   }
   const user = await $fetch(`${config.apiBaseUrl}/user/account/${response.data.user.id}`, {
     method: 'GET',

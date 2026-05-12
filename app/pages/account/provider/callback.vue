@@ -35,8 +35,7 @@ onMounted(async () => {
   if (encrypted_token) {
     try {
       await refreshSession(String(encrypted_token))
-      const authEvent = useState<AuthChangeEventType>('authEvent')
-      authEvent.value = AuthChangeEvent.LOGGED_IN
+      // auth:change hook fires inside refreshSession → auth plugin drives navigation
     }
     catch {
       error.value = true

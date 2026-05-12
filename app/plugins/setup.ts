@@ -74,7 +74,7 @@ export default defineNuxtPlugin({
       if (value) {
         await setupSession()
 
-        await Promise.all([
+        await Promise.allSettled([
           setupAccount(),
           setupSessions(),
           setupAuthenticators(),
