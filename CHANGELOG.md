@@ -1,3 +1,11 @@
+## [3.116.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.116.1...v3.116.2) (2026-05-12)
+
+
+### Bug Fixes
+
+* **auth:** close audit gaps across error handling, session, MFA, OAuth ([36601e2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/36601e21ff6fe57bc99f1f0f13aa1849895aab56))
+* **checkout:** hide zero-cost suffix on pay-way radio labels ([6d5b1cc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6d5b1cc66305cc302583c6a8451160cfbad10898))
+
 ## [3.116.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.116.0...v3.116.1) (2026-05-12)
 
 
