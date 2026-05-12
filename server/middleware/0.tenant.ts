@@ -15,6 +15,12 @@ const BYPASS_PREFIXES: readonly string[] = [
   '/assets',
   // K8s liveness / readiness probes — hit with pod cluster IP as Host, not a real domain.
   '/api/health',
+  // Dynamic sitemap source — hit by @nuxtjs/sitemap at build/SWR time
+  // without a real tenant Host header. The handler itself opts in to
+  // ``tenantCacheKey`` so per-tenant sitemaps still partition correctly
+  // when the request DOES carry a tenant; the bypass keeps build-time
+  // and probe-time hits from 404'ing (M3 in MULTI_TENANT_AUDIT.md).
+  '/api/__sitemap__',
 ] as const
 
 const BYPASS_EXACT: readonly string[] = [
@@ -32,7 +38,20 @@ const BYPASS_EXACT: readonly string[] = [
   '/openapi',
   // Nuxt health convention — may be polled by infra without a tenant Host header.
   '/_health',
+  // nuxt-ai-ready discoverability endpoints — hit by crawlers / LLMs
+  // before they know which tenant a path belongs to (M3 in
+  // MULTI_TENANT_AUDIT.md). The handler returns the same content
+  // regardless of tenant; tenant-specific content lives at
+  // ``<route>.md`` which is bypassed by suffix below.
+  '/llms.txt',
+  '/llms-full.txt',
 ] as const
+
+// nuxt-ai-ready emits a content-negotiated ``.md`` mirror for every
+// page. Crawlers fetch these directly from the bare hostname without
+// a tenant Host header, so suffix-bypass them too. Bypassed only on
+// GET — POST/PUT/etc. on a ``.md`` path is not a legitimate caller.
+const BYPASS_SUFFIXES: readonly string[] = ['.md'] as const
 
 export default defineEventHandler(async (event) => {
   const path = event.path
@@ -44,6 +63,14 @@ export default defineEventHandler(async (event) => {
 
   // Exact bypass check
   if (BYPASS_EXACT.includes(path)) {
+    return
+  }
+
+  // Suffix bypass — `.md` mirrors emitted by nuxt-ai-ready (M3).
+  if (
+    event.method === 'GET'
+    && BYPASS_SUFFIXES.some(suffix => path.endsWith(suffix))
+  ) {
     return
   }
 
