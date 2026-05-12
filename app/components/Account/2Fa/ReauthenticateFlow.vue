@@ -76,7 +76,7 @@ function flowsToMethods(flows: Flow[]) {
           icon: flowIcons[key] || 'i-heroicons-shield-check',
           iconColor: flowIconColors[key] || 'primary',
           id: flow.id,
-          path: pathForFlow(flow, typ),
+          path: pathForFlow(flow, typ)!,
         })
       })
     }
@@ -87,7 +87,7 @@ function flowsToMethods(flows: Flow[]) {
         icon: flowIcons[flow.id] || 'i-heroicons-shield-check',
         iconColor: flowIconColors[flow.id] || 'primary',
         id: flow.id,
-        path: pathForFlow(flow),
+        path: pathForFlow(flow)!,
       })
     }
   })

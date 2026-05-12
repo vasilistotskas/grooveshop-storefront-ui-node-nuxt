@@ -52,7 +52,7 @@ const filteredFlows = computed(() => {
       label: labels[type],
       id: type,
       icon: icons[type],
-      path: flow.value ? pathForFlow(flow.value, type) : 'index' as FlowPathValue,
+      path: flow.value ? pathForFlow(flow.value, type)! : 'index' as FlowPathValue,
     }
   })
     .filter(f => f.path !== currentPath)
