@@ -1,3 +1,10 @@
+## [3.116.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.116.0...v3.116.1) (2026-05-12)
+
+
+### Bug Fixes
+
+* **auth:** prefer WebAuthn over recovery codes as default 2FA method ([7d298f8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7d298f88e7a83880c79c63eeef619311c899ca41))
+
 # [3.116.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.115.0...v3.116.0) (2026-05-12)
 
 
