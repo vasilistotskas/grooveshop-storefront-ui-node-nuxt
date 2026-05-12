@@ -1,3 +1,16 @@
+# [3.116.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.115.0...v3.116.0) (2026-05-12)
+
+
+### Bug Fixes
+
+* **checkout:** close guest cart-clear 401, release reservations on fail, polish order tracking UX ([2ac869e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2ac869ed9c7d95bb7f285716bdde1e47985d598a))
+* **checkout:** open locker picker when Continue clicked without one selected ([43f25bf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/43f25bfb01e6a96e3e769570daf26742bfc5abae))
+
+
+### Features
+
+* new banners ([fa5d7b8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fa5d7b82d4440e62e50958f22132a8d28596d04a))
+
 # [3.115.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.6...v3.115.0) (2026-05-12)
 
 
