@@ -1,3 +1,15 @@
+# [3.115.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.6...v3.115.0) (2026-05-12)
+
+
+### Bug Fixes
+
+* **security:** override fast-xml-builder to >=1.1.7 (CVE-2026-44665) ([0dcb37f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0dcb37f758ac12bc0f59a881035db38acf07b21c)), closes [HI#severity](https://github.com/HI/issues/severity)
+
+
+### Features
+
+* Bump Versions ([1e837e2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1e837e24da0a0c9f4b52b584ac811be762d8f9ec))
+
 ## [3.114.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.114.5...v3.114.6) (2026-05-08)
 
 
