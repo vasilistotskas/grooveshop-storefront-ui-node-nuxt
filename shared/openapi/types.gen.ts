@@ -135,6 +135,8 @@ export type AcsShipmentDetail = {
   readonly rawShipmentStatus: string
   readonly cancelRequestedAt: string | null
   /**
+     * Μεταδεδομένα
+     *
      * Multipart child voucher numbers, last create-voucher response, last error envelope, cached POD URL.
      */
   readonly metadata: unknown
@@ -171,6 +173,9 @@ export type AcsStation = {
   shopKind: ShopKindEnum
   readonly name: string
   readonly addressLine1: string
+  /**
+     * Πόλη
+     */
   readonly city: string
   readonly postalCode: string
   /**
@@ -218,6 +223,9 @@ export type AcsStationDetail = {
   shopKind: ShopKindEnum
   readonly name: string
   readonly addressLine1: string
+  /**
+     * Πόλη
+     */
   readonly city: string
   readonly postalCode: string
   /**
@@ -233,6 +241,9 @@ export type AcsStationDetail = {
   readonly createdAt: string
   readonly updatedAt: string
   readonly addressLine2: string
+  /**
+     * Περιοχή
+     */
   readonly region: string
   /**
      * Τηλέφωνο
@@ -255,6 +266,8 @@ export type AcsTrackingEvent = {
      */
   readonly checkpointLocation: string
   /**
+     * Σημειώσεις
+     *
      * ACS Comments field.
      */
   readonly notes: string
@@ -587,6 +600,9 @@ export type BlogComment = {
      * Whether this comment has approved replies
      */
   readonly hasReplies: boolean
+  /**
+     * Εγκεκριμένο
+     */
   readonly approved: boolean
   /**
      * Whether this comment has been edited
@@ -633,6 +649,9 @@ export type BlogCommentDetail = {
      * Whether this comment has approved replies
      */
   readonly hasReplies: boolean
+  /**
+     * Εγκεκριμένο
+     */
   readonly approved: boolean
   /**
      * Whether this comment has been edited
@@ -744,6 +763,9 @@ export type BlogPost = {
   author: number
   category: number
   tags: Array<number>
+  /**
+     * Προβεβλημένο
+     */
   featured?: boolean
   readonly viewCount: number
   /**
@@ -795,6 +817,9 @@ export type BlogPostDetail = {
   author: BlogAuthorDetail
   category: BlogCategoryDetail
   readonly tags: Array<BlogTagDetail>
+  /**
+     * Προβεβλημένο
+     */
   featured?: boolean
   readonly viewCount: number
   /**
@@ -883,6 +908,9 @@ export type BlogPostWriteRequest = {
   category: number
   tags?: Array<number>
   author: number
+  /**
+     * Προβεβλημένο
+     */
   featured?: boolean
   isPublished?: boolean
   seoTitle?: string
@@ -980,11 +1008,11 @@ export type BoxNowCustomerRequest = {
      */
   name?: string
   /**
-     * Customer email address
+     * Email πελάτη
      */
   email?: string
   /**
-     * Customer phone number
+     * Τηλέφωνο πελάτη
      */
   phoneNumber?: string
 }
@@ -1015,6 +1043,9 @@ export type BoxNowLocker = {
      * BoxNow APM identifier (string)
      */
   readonly externalId: string
+  /**
+     * Τύπος
+     */
   type: TypeEnum
   readonly imageUrl: string | null
   /**
@@ -1025,10 +1056,16 @@ export type BoxNowLocker = {
      * Longitude
      */
   readonly lng: number
+  /**
+     * Τίτλος
+     */
   readonly title: string
   readonly name: string
   readonly addressLine1: string
   readonly addressLine2: string
+  /**
+     * Ταχ. Κώδικας
+     */
   readonly postalCode: string
   /**
      * ISO 3166-1 alpha-2 country code
@@ -1060,6 +1097,9 @@ export type BoxNowLockerDetail = {
      * BoxNow APM identifier (string)
      */
   readonly externalId: string
+  /**
+     * Τύπος
+     */
   type: TypeEnum
   readonly imageUrl: string | null
   /**
@@ -1070,10 +1110,16 @@ export type BoxNowLockerDetail = {
      * Longitude
      */
   readonly lng: number
+  /**
+     * Τίτλος
+     */
   readonly title: string
   readonly name: string
   readonly addressLine1: string
   readonly addressLine2: string
+  /**
+     * Ταχ. Κώδικας
+     */
   readonly postalCode: string
   /**
      * ISO 3166-1 alpha-2 country code
@@ -1205,12 +1251,12 @@ export type BoxNowParcelEvent = {
      * BoxNow event mapped from the webhook 'event' field
      *
      * * `pending_creation` - Pending creation
-     * * `new` - New
+     * * `new` - Νέο
      * * `in_depot` - In depot
      * * `final_destination` - At locker
      * * `delivered` - Παραδόθηκε
      * * `returned` - Επιστράφηκε
-     * * `expired` - Expired
+     * * `expired` - Έληξε
      * * `canceled` - Ακυρώθηκε
      * * `accepted_for_return` - Accepted for return
      * * `accepted_to_locker` - Accepted to locker
@@ -1235,6 +1281,8 @@ export type BoxNowParcelEvent = {
      */
   readonly displayName: string
   /**
+     * Ταχ. Κώδικας
+     *
      * data.eventLocation.postalCode
      */
   readonly postalCode: string
@@ -1248,12 +1296,12 @@ export type BoxNowParcelEvent = {
 
 /**
  * * `pending_creation` - Pending creation
- * * `new` - New
+ * * `new` - Νέο
  * * `in_depot` - In depot
  * * `final_destination` - At locker
  * * `delivered` - Παραδόθηκε
  * * `returned` - Επιστράφηκε
- * * `expired` - Expired
+ * * `expired` - Έληξε
  * * `canceled` - Ακυρώθηκε
  * * `accepted_for_return` - Accepted for return
  * * `accepted_to_locker` - Accepted to locker
@@ -1324,6 +1372,8 @@ export type BoxNowShipmentDetail = {
   readonly allowReturn: boolean
   readonly cancelRequestedAt: string | null
   /**
+     * Μεταδεδομένα
+     *
      * Full delivery-request response and diagnostics from BoxNow
      */
   readonly metadata: unknown
@@ -1652,6 +1702,9 @@ export type ContactWrite = {
   readonly id: number
   name: string
   email: string
+  /**
+     * Μήνυμα
+     */
   message: string
   readonly createdAt: string
   readonly updatedAt: string
@@ -1661,6 +1714,9 @@ export type ContactWrite = {
 export type ContactWriteRequest = {
   name: string
   email: string
+  /**
+     * Μήνυμα
+     */
   message: string
 }
 
@@ -1680,11 +1736,11 @@ export type Country = {
     }
   }
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   alpha2: string
   /**
-     * Country Code Alpha 3
+     * Κωδικός Χώρας (Alpha 3)
      */
   alpha3: string
   /**
@@ -1715,11 +1771,11 @@ export type CountryDetail = {
     }
   }
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   alpha2: string
   /**
-     * Country Code Alpha 3
+     * Κωδικός Χώρας (Alpha 3)
      */
   alpha3: string
   /**
@@ -1751,11 +1807,11 @@ export type CountryWriteRequest = {
     }
   }
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   alpha2: string
   /**
-     * Country Code Alpha 3
+     * Κωδικός Χώρας (Alpha 3)
      */
   alpha3: string
   /**
@@ -1998,7 +2054,7 @@ export type HealthCheckResponse = {
  * * `GALLERY` - Gallery Image
  * * `BACKGROUND` - Background Image
  * * `HERO` - Hero Image
- * * `FEATURE` - Feature Image
+ * * `FEATURE` - Κεντρική Εικόνα
  * * `PROMOTIONAL` - Promotional Image
  * * `SEASONAL` - Seasonal Image
  */
@@ -2030,6 +2086,9 @@ export type InvoiceDownloadResponse = {
   readonly subtotal: string | null
   readonly totalVat: string | null
   readonly total: string | null
+  /**
+     * Νόμισμα
+     */
   readonly currency: string
   /**
      * Cached list of ``{rate, subtotal, vat, gross}`` rows — frozen at issue time so re-rendering the invoice always yields the same VAT table even if product rates change.
@@ -2132,6 +2191,9 @@ export type Notification = {
      * Κατηγορία
      */
   category?: NotificationCategory
+  /**
+     * Προτεραιότητα
+     */
   priority?: PriorityEnum
   /**
      * Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.
@@ -2155,6 +2217,9 @@ export type Notification = {
      * * `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery
      */
   notificationType?: NotificationTypeEnum | BlankEnum
+  /**
+     * Ημερομηνία Λήξης
+     */
   expiryDate?: string | null
   readonly createdAt: string
   readonly updatedAt: string
@@ -2165,13 +2230,13 @@ export type Notification = {
  * * `ORDER` - Παραγγελία
  * * `PAYMENT` - Πληρωμή
  * * `SHIPPING` - Μεταφορικά
- * * `CART` - Cart
+ * * `CART` - Καλάθι
  * * `PRODUCT` - Προϊόν
  * * `ACCOUNT` - Λογαριασμός Ανενεργός
  * * `SECURITY` - Security
  * * `PROMOTION` - Promotion
- * * `SYSTEM` - System
- * * `REVIEW` - Review
+ * * `SYSTEM` - Σύστημα
+ * * `REVIEW` - Εξέταση
  * * `WISHLIST` - Wishlist
  * * `SUPPORT` - Support
  * * `NEWSLETTER` - Newsletter
@@ -2265,7 +2330,7 @@ export type Order = {
   readonly id: number
   user?: number | null
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string | null
   /**
@@ -2283,18 +2348,33 @@ export type Order = {
   status?: OrderStatus
   readonly statusDisplay: string
   readonly statusUpdatedAt: string | null
+  /**
+     * Όνομα
+     */
   firstName: string
+  /**
+     * Επώνυμο
+     */
   lastName: string
   email: string
   zipcode: string
   place?: string
+  /**
+     * Πόλη
+     */
   city: string
   phone: string
+  /**
+     * Σημειώσεις Πελάτη
+     */
   customerNotes?: string
   readonly paidAmount: number
   items: Array<OrderItemDetail>
   readonly shippingPrice: number
   readonly paymentMethodFee: number
+  /**
+     * Τύπος Εγγράφου
+     */
   documentType?: OrderDocumentType
   readonly createdAt: string
   readonly updatedAt: string
@@ -2322,7 +2402,7 @@ export type Order = {
 
 /**
  * * `RECEIPT` - Receipt
- * * `INVOICE` - Invoice
+ * * `INVOICE` - Τιμολόγιο
  */
 export type OrderCreateDocumentType = 'RECEIPT' | 'INVOICE'
 
@@ -2346,15 +2426,15 @@ export type OrderCreateFromCartRequest = {
      */
   paymentIntentId?: string | null
   /**
-     * Customer first name
+     * Όνομα πελάτη
      */
   firstName: string
   /**
-     * Customer last name
+     * Επώνυμο πελάτη
      */
   lastName: string
   /**
-     * Customer email address
+     * Email πελάτη
      */
   email: string
   /**
@@ -2366,7 +2446,7 @@ export type OrderCreateFromCartRequest = {
      */
   streetNumber?: string
   /**
-     * City name
+     * Όνομα πόλης
      */
   city: string
   /**
@@ -2382,13 +2462,25 @@ export type OrderCreateFromCartRequest = {
      */
   regionId?: string | null
   /**
-     * Customer phone number
+     * Τηλέφωνο πελάτη
      */
   phone: string
   /**
      * Customer notes or special instructions
      */
   customerNotes?: string
+  /**
+     * Floor number or label (e.g. FIRST_FLOOR)
+     */
+  floor?: string
+  /**
+     * Place or district (optional)
+     */
+  place?: string
+  /**
+     * Location type, e.g. HOME or OFFICE (optional)
+     */
+  locationType?: string
   /**
      * Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.
      */
@@ -2401,7 +2493,7 @@ export type OrderCreateFromCartRequest = {
      * RECEIPT (Α.Λ.Π., Tier A — retail) or INVOICE (Τιμολόγιο Πώλησης, Tier B — B2B). Selecting INVOICE requires a valid ``billing_vat_id``.
      *
      * * `RECEIPT` - Receipt
-     * * `INVOICE` - Invoice
+     * * `INVOICE` - Τιμολόγιο
      */
   documentType?: OrderCreateDocumentType
   /**
@@ -2442,7 +2534,7 @@ export type OrderDetail = {
   readonly id: number
   user?: number | null
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string | null
   /**
@@ -2460,18 +2552,33 @@ export type OrderDetail = {
   status?: OrderStatus
   readonly statusDisplay: string
   readonly statusUpdatedAt: string | null
+  /**
+     * Όνομα
+     */
   firstName: string
+  /**
+     * Επώνυμο
+     */
   lastName: string
   email: string
   zipcode: string
   place?: string
+  /**
+     * Πόλη
+     */
   city: string
   readonly phone: string
+  /**
+     * Σημειώσεις Πελάτη
+     */
   customerNotes?: string
   readonly paidAmount: number
   items: Array<OrderItemDetail>
   readonly shippingPrice: number
   readonly paymentMethodFee: number
+  /**
+     * Τύπος Εγγράφου
+     */
   documentType?: OrderDocumentType
   readonly createdAt: string
   readonly updatedAt: string
@@ -2584,7 +2691,7 @@ export type OrderDetail = {
 
 /**
  * * `RECEIPT` - Receipt
- * * `INVOICE` - Invoice
+ * * `INVOICE` - Τιμολόγιο
  * * `PROFORMA` - Proforma Invoice
  * * `SHIPPING_LABEL` - Shipping Label
  * * `RETURN_LABEL` - Return Label
@@ -2616,6 +2723,9 @@ export type OrderItemCreateRequest = {
      * Ποσότητα
      */
   quantity?: number
+  /**
+     * Σημειώσεις
+     */
   notes?: string
 }
 
@@ -2639,6 +2749,9 @@ export type OrderItemDetail = {
   readonly refundedAmount: number
   readonly netPrice: number
   readonly sortOrder: number | null
+  /**
+     * Σημειώσεις
+     */
   notes?: string
 }
 
@@ -2666,6 +2779,9 @@ export type OrderItemWriteRequest = {
      * Ποσότητα
      */
   quantity?: number
+  /**
+     * Σημειώσεις
+     */
   notes?: string
 }
 
@@ -2677,7 +2793,7 @@ export type OrderItemWriteRequest = {
  * * `COMPLETED` - Ολοκληρώθηκε
  * * `CANCELED` - Ακυρώθηκε
  * * `RETURNED` - Επιστράφηκε
- * * `REFUNDED` - Επεστράφη
+ * * `REFUNDED` - Επιστροφή Χρημάτων
  */
 export type OrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'COMPLETED' | 'CANCELED' | 'RETURNED' | 'REFUNDED'
 
@@ -2687,7 +2803,7 @@ export type OrderWriteRequest = {
      */
   user?: number | null
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country?: string | null
   /**
@@ -2699,15 +2815,30 @@ export type OrderWriteRequest = {
   street: string
   streetNumber: string
   payWay?: number | null
+  /**
+     * Όνομα
+     */
   firstName: string
+  /**
+     * Επώνυμο
+     */
   lastName: string
   email: string
   zipcode: string
   place?: string
+  /**
+     * Πόλη
+     */
   city: string
   phone: string
+  /**
+     * Σημειώσεις Πελάτη
+     */
   customerNotes?: string
   items: Array<OrderItemCreateRequest>
+  /**
+     * Τύπος Εγγράφου
+     */
   documentType?: OrderDocumentType
 }
 
@@ -3242,6 +3373,9 @@ export type PatchedBlogPostWriteRequest = {
   category?: number
   tags?: Array<number>
   author?: number
+  /**
+     * Προβεβλημένο
+     */
   featured?: boolean
   isPublished?: boolean
   seoTitle?: string
@@ -3297,11 +3431,11 @@ export type PatchedCountryWriteRequest = {
     }
   }
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   alpha2?: string
   /**
-     * Country Code Alpha 3
+     * Κωδικός Χώρας (Alpha 3)
      */
   alpha3?: string
   /**
@@ -3323,6 +3457,9 @@ export type PatchedOrderItemWriteRequest = {
      * Ποσότητα
      */
   quantity?: number
+  /**
+     * Σημειώσεις
+     */
   notes?: string
 }
 
@@ -3332,7 +3469,7 @@ export type PatchedOrderWriteRequest = {
      */
   user?: number | null
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country?: string | null
   /**
@@ -3344,15 +3481,30 @@ export type PatchedOrderWriteRequest = {
   street?: string
   streetNumber?: string
   payWay?: number | null
+  /**
+     * Όνομα
+     */
   firstName?: string
+  /**
+     * Επώνυμο
+     */
   lastName?: string
   email?: string
   zipcode?: string
   place?: string
+  /**
+     * Πόλη
+     */
   city?: string
   phone?: string
+  /**
+     * Σημειώσεις Πελάτη
+     */
   customerNotes?: string
   items?: Array<OrderItemCreateRequest>
+  /**
+     * Τύπος Εγγράφου
+     */
   documentType?: OrderDocumentType
 }
 
@@ -3540,11 +3692,17 @@ export type PatchedProductWriteRequest = {
   category?: number
   price?: number
   vat?: number
+  /**
+     * Απόθεμα
+     */
   stock?: number
   weight?: {
     unit?: string
     value?: number
   } | null
+  /**
+     * Ποσοστό Έκπτωσης
+     */
   discountPercent?: number
   seoTitle?: string
   seoDescription?: string
@@ -3575,7 +3733,7 @@ export type PatchedRegionWriteRequest = {
      */
   alpha?: string
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country?: string
 }
@@ -3661,23 +3819,38 @@ export type PatchedTaggedItemWriteRequest = {
 }
 
 export type PatchedUserAddressWriteRequest = {
+  /**
+     * Τίτλος
+     */
   title?: string
+  /**
+     * Όνομα
+     */
   firstName?: string
+  /**
+     * Επώνυμο
+     */
   lastName?: string
   street?: string
   streetNumber?: string
+  /**
+     * Πόλη
+     */
   city?: string
   /**
-     * Zip Code
+     * Ταχ. Κώδικας
      */
   zipcode?: string
   floor?: FloorEnum | BlankEnum
   locationType?: LocationTypeEnum | BlankEnum
   phone?: string
+  /**
+     * Σημειώσεις
+     */
   notes?: string
   isMain?: boolean
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country?: string
   /**
@@ -3689,6 +3862,8 @@ export type PatchedUserAddressWriteRequest = {
 export type PatchedUserSubscriptionWriteRequest = {
   topic?: number
   /**
+     * Μεταδεδομένα
+     *
      * Additional subscription preferences or data
      */
   metadata?: unknown
@@ -3696,10 +3871,16 @@ export type PatchedUserSubscriptionWriteRequest = {
 
 export type PatchedUserWriteRequest = {
   /**
-     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
+     * Διεύθυνση Email
      */
   email?: string
+  /**
+     * Όνομα
+     */
   firstName?: string
+  /**
+     * Επώνυμο
+     */
   lastName?: string
   /**
      * Όνομα χρήστη
@@ -3712,15 +3893,21 @@ export type PatchedUserWriteRequest = {
      */
   image?: Blob | File | null
   phone?: string | null
+  /**
+     * Πόλη
+     */
   city?: string
   /**
-     * Zip Code
+     * Ταχ. Κώδικας
      */
   zipcode?: string
+  /**
+     * Διεύθυνση
+     */
   address?: string
   place?: string
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country?: string | null
   /**
@@ -3755,7 +3942,7 @@ export type PatchedUserWriteRequest = {
   github?: string | null
   bio?: string
   /**
-     * Language
+     * Γλώσσα
      *
      * Preferred language for emails and UI messages.
      */
@@ -3920,7 +4107,7 @@ export type PaymentModeEnum = 'prepaid' | 'cod'
  * * `PROCESSING` - Σε επεξεργασία
  * * `COMPLETED` - Ολοκληρώθηκε
  * * `FAILED` - Απέτυχε
- * * `REFUNDED` - Επεστράφη
+ * * `REFUNDED` - Επιστροφή Χρημάτων
  * * `PARTIALLY_REFUNDED` - Μερική επιστροφή
  * * `CANCELED` - Ακυρώθηκε
  */
@@ -4003,6 +4190,9 @@ export type Product = {
   price: number
   vat: number
   readonly viewCount: number
+  /**
+     * Απόθεμα
+     */
   stock?: number
   /**
      * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
@@ -4019,6 +4209,9 @@ export type Product = {
   seoTitle?: string
   seoDescription?: string
   seoKeywords?: string
+  /**
+     * Ποσοστό Έκπτωσης
+     */
   discountPercent?: number
   readonly discountValue: number
   readonly priceSavePercent: number
@@ -4333,6 +4526,9 @@ export type ProductDetail = {
   price: number
   vat: number
   readonly viewCount: number
+  /**
+     * Απόθεμα
+     */
   stock?: number
   /**
      * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
@@ -4349,6 +4545,9 @@ export type ProductDetail = {
   seoTitle?: string
   seoDescription?: string
   seoKeywords?: string
+  /**
+     * Ποσοστό Έκπτωσης
+     */
   discountPercent?: number
   readonly discountValue: number
   readonly priceSavePercent: number
@@ -4402,6 +4601,9 @@ export type ProductDetailResponse = {
   price: number
   vat: number
   readonly viewCount: number
+  /**
+     * Απόθεμα
+     */
   stock?: number
   /**
      * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
@@ -4418,6 +4620,9 @@ export type ProductDetailResponse = {
   seoTitle?: string
   seoDescription?: string
   seoKeywords?: string
+  /**
+     * Ποσοστό Έκπτωσης
+     */
   discountPercent?: number
   readonly discountValue: number
   readonly priceSavePercent: number
@@ -4757,11 +4962,17 @@ export type ProductWriteRequest = {
   category: number
   price: number
   vat: number
+  /**
+     * Απόθεμα
+     */
   stock?: number
   weight?: {
     unit?: string
     value?: number
   } | null
+  /**
+     * Ποσοστό Έκπτωσης
+     */
   discountPercent?: number
   seoTitle?: string
   seoDescription?: string
@@ -4849,7 +5060,7 @@ export type Region = {
      */
   alpha: string
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string
   readonly sortOrder: number | null
@@ -4878,7 +5089,7 @@ export type RegionDetail = {
      */
   alpha: string
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string
   readonly sortOrder: number | null
@@ -4907,7 +5118,7 @@ export type RegionWriteRequest = {
      */
   alpha: string
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string
 }
@@ -4978,8 +5189,8 @@ export type ResolveVivaOrderCodeResponse = {
 }
 
 /**
- * * `NEW` - New
- * * `TRUE` - True
+ * * `NEW` - Νέο
+ * * `TRUE` - Ναι
  * * `FALSE` - False
  */
 export type ReviewStatus = 'NEW' | 'TRUE' | 'FALSE'
@@ -5049,7 +5260,7 @@ export type SettingDetail = {
 
 /**
  * * `pending_creation` - Pending creation
- * * `new` - New
+ * * `new` - Νέο
  * * `in_transit` - In transit
  * * `at_destination` - At destination station
  * * `out_for_delivery` - Out for delivery
@@ -5114,10 +5325,14 @@ export type ShippingProvider = {
      */
   readonly liveMode: boolean
   /**
+     * Προτεραιότητα
+     *
      * Sort order in checkout — lower numbers appear first.
      */
   readonly priority: number
   /**
+     * Μεταδεδομένα
+     *
      * Provider-specific configuration (supported countries, feature flags, branding hints).
      */
   readonly metadata: unknown
@@ -5490,8 +5705,8 @@ export type TopicCategory = 'MARKETING' | 'PRODUCT' | 'ACCOUNT' | 'SYSTEM' | 'NE
 /**
  * * `EARN` - Earn
  * * `REDEEM` - Redeem
- * * `EXPIRE` - Expire
- * * `ADJUST` - Adjust
+ * * `EXPIRE` - Λήξη
+ * * `ADJUST` - Προσαρμογή
  * * `BONUS` - Bonus
  */
 export type TransactionTypeEnum = 'EARN' | 'REDEEM' | 'EXPIRE' | 'ADJUST' | 'BONUS'
@@ -5556,24 +5771,39 @@ export type UpdateStatusRequest = {
 
 export type UserAddress = {
   readonly id: number
+  /**
+     * Τίτλος
+     */
   title: string
+  /**
+     * Όνομα
+     */
   firstName: string
+  /**
+     * Επώνυμο
+     */
   lastName: string
   street: string
   streetNumber: string
+  /**
+     * Πόλη
+     */
   city: string
   /**
-     * Zip Code
+     * Ταχ. Κώδικας
      */
   zipcode: string
   floor?: FloorEnum | BlankEnum
   locationType?: LocationTypeEnum | BlankEnum
   phone: string
+  /**
+     * Σημειώσεις
+     */
   notes?: string
   isMain?: boolean
   readonly user: number
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string
   /**
@@ -5587,24 +5817,39 @@ export type UserAddress = {
 
 export type UserAddressDetail = {
   readonly id: number
+  /**
+     * Τίτλος
+     */
   title: string
+  /**
+     * Όνομα
+     */
   firstName: string
+  /**
+     * Επώνυμο
+     */
   lastName: string
   street: string
   streetNumber: string
+  /**
+     * Πόλη
+     */
   city: string
   /**
-     * Zip Code
+     * Ταχ. Κώδικας
      */
   zipcode: string
   floor?: FloorEnum | BlankEnum
   locationType?: LocationTypeEnum | BlankEnum
   phone: string
+  /**
+     * Σημειώσεις
+     */
   notes?: string
   isMain?: boolean
   readonly user: number
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string
   /**
@@ -5617,23 +5862,38 @@ export type UserAddressDetail = {
 }
 
 export type UserAddressWriteRequest = {
+  /**
+     * Τίτλος
+     */
   title: string
+  /**
+     * Όνομα
+     */
   firstName: string
+  /**
+     * Επώνυμο
+     */
   lastName: string
   street: string
   streetNumber: string
+  /**
+     * Πόλη
+     */
   city: string
   /**
-     * Zip Code
+     * Ταχ. Κώδικας
      */
   zipcode: string
   floor?: FloorEnum | BlankEnum
   locationType?: LocationTypeEnum | BlankEnum
   phone: string
+  /**
+     * Σημειώσεις
+     */
   notes?: string
   isMain?: boolean
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string
   /**
@@ -5661,10 +5921,16 @@ export type UserDetails = {
      */
   readonly pk: number
   /**
-     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
+     * Διεύθυνση Email
      */
   email: string
+  /**
+     * Όνομα
+     */
   firstName?: string
+  /**
+     * Επώνυμο
+     */
   lastName?: string
   readonly id: number
   /**
@@ -5674,15 +5940,21 @@ export type UserDetails = {
      */
   username?: string | null
   phone?: string | null
+  /**
+     * Πόλη
+     */
   city?: string
   /**
-     * Zip Code
+     * Ταχ. Κώδικας
      */
   zipcode?: string
+  /**
+     * Διεύθυνση
+     */
   address?: string
   place?: string
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country?: string | null
   /**
@@ -5720,7 +5992,7 @@ export type UserDetails = {
   readonly github: string | null
   bio?: string
   /**
-     * Language
+     * Γλώσσα
      *
      * Preferred language for emails and UI messages.
      */
@@ -5760,6 +6032,8 @@ export type UserSubscription = {
   readonly subscribedAt: string
   readonly unsubscribedAt: string | null
   /**
+     * Μεταδεδομένα
+     *
      * Additional subscription preferences or data
      */
   metadata?: unknown
@@ -5782,6 +6056,8 @@ export type UserSubscriptionDetail = {
   readonly subscribedAt: string
   readonly unsubscribedAt: string | null
   /**
+     * Μεταδεδομένα
+     *
      * Additional subscription preferences or data
      */
   metadata?: unknown
@@ -5792,6 +6068,8 @@ export type UserSubscriptionDetail = {
 export type UserSubscriptionWriteRequest = {
   topic: number
   /**
+     * Μεταδεδομένα
+     *
      * Additional subscription preferences or data
      */
   metadata?: unknown
@@ -5799,10 +6077,16 @@ export type UserSubscriptionWriteRequest = {
 
 export type UserWriteRequest = {
   /**
-     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
+     * Διεύθυνση Email
      */
   email: string
+  /**
+     * Όνομα
+     */
   firstName?: string
+  /**
+     * Επώνυμο
+     */
   lastName?: string
   /**
      * Όνομα χρήστη
@@ -5815,15 +6099,21 @@ export type UserWriteRequest = {
      */
   image?: Blob | File | null
   phone?: string | null
+  /**
+     * Πόλη
+     */
   city?: string
   /**
-     * Zip Code
+     * Ταχ. Κώδικας
      */
   zipcode?: string
+  /**
+     * Διεύθυνση
+     */
   address?: string
   place?: string
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country?: string | null
   /**
@@ -5858,7 +6148,7 @@ export type UserWriteRequest = {
   github?: string | null
   bio?: string
   /**
-     * Language
+     * Γλώσσα
      *
      * Preferred language for emails and UI messages.
      */
@@ -6083,6 +6373,9 @@ export type BlogPostWritable = {
   author: number
   category: number
   tags: Array<number>
+  /**
+     * Προβεβλημένο
+     */
   featured?: boolean
   isPublished?: boolean
 }
@@ -6109,6 +6402,9 @@ export type BlogPostDetailWritable = {
       body?: string
     }
   }
+  /**
+     * Προβεβλημένο
+     */
   featured?: boolean
   isPublished?: boolean
   seoTitle?: string
@@ -6183,6 +6479,9 @@ export type CartItemDetailWritable = {
 export type ContactWriteWritable = {
   name: string
   email: string
+  /**
+     * Μήνυμα
+     */
   message: string
 }
 
@@ -6202,11 +6501,11 @@ export type CountryWritable = {
     }
   }
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   alpha2: string
   /**
-     * Country Code Alpha 3
+     * Κωδικός Χώρας (Alpha 3)
      */
   alpha3: string
   /**
@@ -6232,11 +6531,11 @@ export type CountryDetailWritable = {
     }
   }
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   alpha2: string
   /**
-     * Country Code Alpha 3
+     * Κωδικός Χώρας (Alpha 3)
      */
   alpha3: string
   /**
@@ -6299,6 +6598,9 @@ export type NotificationWritable = {
      * Κατηγορία
      */
   category?: NotificationCategory
+  /**
+     * Προτεραιότητα
+     */
   priority?: PriorityEnum
   /**
      * Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.
@@ -6322,6 +6624,9 @@ export type NotificationWritable = {
      * * `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery
      */
   notificationType?: NotificationTypeEnum | BlankEnum
+  /**
+     * Ημερομηνία Λήξης
+     */
   expiryDate?: string | null
 }
 
@@ -6338,7 +6643,7 @@ export type NotificationUserDetailWritable = {
 export type OrderWritable = {
   user?: number | null
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string | null
   /**
@@ -6354,15 +6659,30 @@ export type OrderWritable = {
      * Κατάσταση
      */
   status?: OrderStatus
+  /**
+     * Όνομα
+     */
   firstName: string
+  /**
+     * Επώνυμο
+     */
   lastName: string
   email: string
   zipcode: string
   place?: string
+  /**
+     * Πόλη
+     */
   city: string
   phone: string
+  /**
+     * Σημειώσεις Πελάτη
+     */
   customerNotes?: string
   items: Array<OrderItemDetailWritable>
+  /**
+     * Τύπος Εγγράφου
+     */
   documentType?: OrderDocumentType
   paymentId?: string | null
   /**
@@ -6392,15 +6712,15 @@ export type OrderCreateFromCartRequestWritable = {
      */
   paymentIntentId?: string | null
   /**
-     * Customer first name
+     * Όνομα πελάτη
      */
   firstName: string
   /**
-     * Customer last name
+     * Επώνυμο πελάτη
      */
   lastName: string
   /**
-     * Customer email address
+     * Email πελάτη
      */
   email: string
   /**
@@ -6412,7 +6732,7 @@ export type OrderCreateFromCartRequestWritable = {
      */
   streetNumber?: string
   /**
-     * City name
+     * Όνομα πόλης
      */
   city: string
   /**
@@ -6428,13 +6748,25 @@ export type OrderCreateFromCartRequestWritable = {
      */
   regionId?: string | null
   /**
-     * Customer phone number
+     * Τηλέφωνο πελάτη
      */
   phone: string
   /**
      * Customer notes or special instructions
      */
   customerNotes?: string
+  /**
+     * Floor number or label (e.g. FIRST_FLOOR)
+     */
+  floor?: string
+  /**
+     * Place or district (optional)
+     */
+  place?: string
+  /**
+     * Location type, e.g. HOME or OFFICE (optional)
+     */
+  locationType?: string
   /**
      * Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.
      */
@@ -6447,7 +6779,7 @@ export type OrderCreateFromCartRequestWritable = {
      * RECEIPT (Α.Λ.Π., Tier A — retail) or INVOICE (Τιμολόγιο Πώλησης, Tier B — B2B). Selecting INVOICE requires a valid ``billing_vat_id``.
      *
      * * `RECEIPT` - Receipt
-     * * `INVOICE` - Invoice
+     * * `INVOICE` - Τιμολόγιο
      */
   documentType?: OrderCreateDocumentType
   /**
@@ -6493,7 +6825,7 @@ export type OrderCreateFromCartRequestWritable = {
 export type OrderDetailWritable = {
   user?: number | null
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string | null
   /**
@@ -6509,14 +6841,29 @@ export type OrderDetailWritable = {
      * Κατάσταση
      */
   status?: OrderStatus
+  /**
+     * Όνομα
+     */
   firstName: string
+  /**
+     * Επώνυμο
+     */
   lastName: string
   email: string
   zipcode: string
   place?: string
+  /**
+     * Πόλη
+     */
   city: string
+  /**
+     * Σημειώσεις Πελάτη
+     */
   customerNotes?: string
   items: Array<OrderItemDetailWritable>
+  /**
+     * Τύπος Εγγράφου
+     */
   documentType?: OrderDocumentType
   paymentId?: string | null
   /**
@@ -6546,6 +6893,9 @@ export type OrderItemDetailWritable = {
      * Ποσότητα
      */
   quantity?: number
+  /**
+     * Σημειώσεις
+     */
   notes?: string
 }
 
@@ -7112,6 +7462,9 @@ export type ProductWritable = {
   category: number
   price: number
   vat: number
+  /**
+     * Απόθεμα
+     */
   stock?: number
   /**
      * Ενεργή
@@ -7124,6 +7477,9 @@ export type ProductWritable = {
   seoTitle?: string
   seoDescription?: string
   seoKeywords?: string
+  /**
+     * Ποσοστό Έκπτωσης
+     */
   discountPercent?: number
 }
 
@@ -7285,6 +7641,9 @@ export type ProductDetailWritable = {
   category: number
   price: number
   vat: number
+  /**
+     * Απόθεμα
+     */
   stock?: number
   /**
      * Ενεργή
@@ -7297,6 +7656,9 @@ export type ProductDetailWritable = {
   seoTitle?: string
   seoDescription?: string
   seoKeywords?: string
+  /**
+     * Ποσοστό Έκπτωσης
+     */
   discountPercent?: number
 }
 
@@ -7322,6 +7684,9 @@ export type ProductDetailResponseWritable = {
   category: number
   price: number
   vat: number
+  /**
+     * Απόθεμα
+     */
   stock?: number
   /**
      * Ενεργή
@@ -7334,6 +7699,9 @@ export type ProductDetailResponseWritable = {
   seoTitle?: string
   seoDescription?: string
   seoKeywords?: string
+  /**
+     * Ποσοστό Έκπτωσης
+     */
   discountPercent?: number
 }
 
@@ -7465,7 +7833,7 @@ export type RegionWritable = {
      */
   alpha: string
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string
 }
@@ -7490,7 +7858,7 @@ export type RegionDetailWritable = {
      */
   alpha: string
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string
 }
@@ -7665,23 +8033,38 @@ export type TaggedItemWriteRequestWritable = {
 }
 
 export type UserAddressWritable = {
+  /**
+     * Τίτλος
+     */
   title: string
+  /**
+     * Όνομα
+     */
   firstName: string
+  /**
+     * Επώνυμο
+     */
   lastName: string
   street: string
   streetNumber: string
+  /**
+     * Πόλη
+     */
   city: string
   /**
-     * Zip Code
+     * Ταχ. Κώδικας
      */
   zipcode: string
   floor?: FloorEnum | BlankEnum
   locationType?: LocationTypeEnum | BlankEnum
   phone: string
+  /**
+     * Σημειώσεις
+     */
   notes?: string
   isMain?: boolean
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string
   /**
@@ -7691,23 +8074,38 @@ export type UserAddressWritable = {
 }
 
 export type UserAddressDetailWritable = {
+  /**
+     * Τίτλος
+     */
   title: string
+  /**
+     * Όνομα
+     */
   firstName: string
+  /**
+     * Επώνυμο
+     */
   lastName: string
   street: string
   streetNumber: string
+  /**
+     * Πόλη
+     */
   city: string
   /**
-     * Zip Code
+     * Ταχ. Κώδικας
      */
   zipcode: string
   floor?: FloorEnum | BlankEnum
   locationType?: LocationTypeEnum | BlankEnum
   phone: string
+  /**
+     * Σημειώσεις
+     */
   notes?: string
   isMain?: boolean
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country: string
   /**
@@ -7718,10 +8116,16 @@ export type UserAddressDetailWritable = {
 
 export type UserDetailsWritable = {
   /**
-     * Διεύθυνση ηλεκτρονικού ταχυδρομείου
+     * Διεύθυνση Email
      */
   email: string
+  /**
+     * Όνομα
+     */
   firstName?: string
+  /**
+     * Επώνυμο
+     */
   lastName?: string
   /**
      * Όνομα χρήστη
@@ -7730,15 +8134,21 @@ export type UserDetailsWritable = {
      */
   username?: string | null
   phone?: string | null
+  /**
+     * Πόλη
+     */
   city?: string
   /**
-     * Zip Code
+     * Ταχ. Κώδικας
      */
   zipcode?: string
+  /**
+     * Διεύθυνση
+     */
   address?: string
   place?: string
   /**
-     * Country Code Alpha 2
+     * Κωδικός Χώρας (Alpha 2)
      */
   country?: string | null
   /**
@@ -7748,7 +8158,7 @@ export type UserDetailsWritable = {
   birthDate?: string | null
   bio?: string
   /**
-     * Language
+     * Γλώσσα
      *
      * Preferred language for emails and UI messages.
      */
@@ -7762,6 +8172,8 @@ export type UserSubscriptionWritable = {
      */
   status?: SubscriptionStatus
   /**
+     * Μεταδεδομένα
+     *
      * Additional subscription preferences or data
      */
   metadata?: unknown
@@ -7774,6 +8186,8 @@ export type UserSubscriptionDetailWritable = {
      */
   status?: SubscriptionStatus
   /**
+     * Μεταδεδομένα
+     *
      * Additional subscription preferences or data
      */
   metadata?: unknown
@@ -11904,9 +12318,9 @@ export type DestroyCountryData = {
   body?: never
   path: {
     /**
-         * Country Code Alpha 2
+         * Κωδικός Χώρας (Alpha 2)
          *
-         * A unique value identifying this Country.
+         * A unique value identifying this Χώρα.
          */
     alpha2: string
   }
@@ -11935,9 +12349,9 @@ export type RetrieveCountryData = {
   body?: never
   path: {
     /**
-         * Country Code Alpha 2
+         * Κωδικός Χώρας (Alpha 2)
          *
-         * A unique value identifying this Country.
+         * A unique value identifying this Χώρα.
          */
     alpha2: string
   }
@@ -11969,9 +12383,9 @@ export type PartialUpdateCountryData = {
   body?: PatchedCountryWriteRequest
   path: {
     /**
-         * Country Code Alpha 2
+         * Κωδικός Χώρας (Alpha 2)
          *
-         * A unique value identifying this Country.
+         * A unique value identifying this Χώρα.
          */
     alpha2: string
   }
@@ -12004,9 +12418,9 @@ export type UpdateCountryData = {
   body: CountryWriteRequest
   path: {
     /**
-         * Country Code Alpha 2
+         * Κωδικός Χώρας (Alpha 2)
          *
-         * A unique value identifying this Country.
+         * A unique value identifying this Χώρα.
          */
     alpha2: string
   }
@@ -12853,7 +13267,7 @@ export type ListOrderData = {
          * * `PROCESSING` - Σε επεξεργασία
          * * `COMPLETED` - Ολοκληρώθηκε
          * * `FAILED` - Απέτυχε
-         * * `REFUNDED` - Επεστράφη
+         * * `REFUNDED` - Επιστροφή Χρημάτων
          * * `PARTIALLY_REFUNDED` - Μερική επιστροφή
          * * `CANCELED` - Ακυρώθηκε
          */
@@ -12915,7 +13329,7 @@ export type ListOrderData = {
          * * `COMPLETED` - Ολοκληρώθηκε
          * * `CANCELED` - Ακυρώθηκε
          * * `RETURNED` - Επιστράφηκε
-         * * `REFUNDED` - Επεστράφη
+         * * `REFUNDED` - Επιστροφή Χρημάτων
          */
     status?: 'CANCELED' | 'COMPLETED' | 'DELIVERED' | 'PENDING' | 'PROCESSING' | 'REFUNDED' | 'RETURNED' | 'SHIPPED'
     /**
@@ -13130,7 +13544,7 @@ export type ListOrderItemData = {
          * * `PROCESSING` - Σε επεξεργασία
          * * `COMPLETED` - Ολοκληρώθηκε
          * * `FAILED` - Απέτυχε
-         * * `REFUNDED` - Επεστράφη
+         * * `REFUNDED` - Επιστροφή Χρημάτων
          * * `PARTIALLY_REFUNDED` - Μερική επιστροφή
          * * `CANCELED` - Ακυρώθηκε
          */
@@ -13151,7 +13565,7 @@ export type ListOrderItemData = {
          * * `COMPLETED` - Ολοκληρώθηκε
          * * `CANCELED` - Ακυρώθηκε
          * * `RETURNED` - Επιστράφηκε
-         * * `REFUNDED` - Επεστράφη
+         * * `REFUNDED` - Επιστροφή Χρημάτων
          */
     order_Status?: 'CANCELED' | 'COMPLETED' | 'DELIVERED' | 'PENDING' | 'PROCESSING' | 'REFUNDED' | 'RETURNED' | 'SHIPPED'
     /**
@@ -14141,7 +14555,7 @@ export type ListMyOrdersData = {
          * * `PROCESSING` - Σε επεξεργασία
          * * `COMPLETED` - Ολοκληρώθηκε
          * * `FAILED` - Απέτυχε
-         * * `REFUNDED` - Επεστράφη
+         * * `REFUNDED` - Επιστροφή Χρημάτων
          * * `PARTIALLY_REFUNDED` - Μερική επιστροφή
          * * `CANCELED` - Ακυρώθηκε
          */
@@ -14203,7 +14617,7 @@ export type ListMyOrdersData = {
          * * `COMPLETED` - Ολοκληρώθηκε
          * * `CANCELED` - Ακυρώθηκε
          * * `RETURNED` - Επιστράφηκε
-         * * `REFUNDED` - Επεστράφη
+         * * `REFUNDED` - Επιστροφή Χρημάτων
          */
     status?: 'CANCELED' | 'COMPLETED' | 'DELIVERED' | 'PENDING' | 'PROCESSING' | 'REFUNDED' | 'RETURNED' | 'SHIPPED'
     /**
@@ -14324,6 +14738,36 @@ export type RetrieveOrderByUuidResponses = {
 }
 
 export type RetrieveOrderByUuidResponse = RetrieveOrderByUuidResponses[keyof RetrieveOrderByUuidResponses]
+
+export type VivaReturnLookupData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+         * Viva transaction_id (UUID).
+         */
+    t: string
+  }
+  url: '/api/v1/order/viva_return'
+}
+
+export type VivaReturnLookupErrors = {
+  /**
+     * No response body
+     */
+  400: unknown
+  /**
+     * No response body
+     */
+  404: unknown
+}
+
+export type VivaReturnLookupResponses = {
+  /**
+     * No response body
+     */
+  200: unknown
+}
 
 export type ListPayWayData = {
   body?: never
@@ -16175,7 +16619,7 @@ export type ListProductCategoryImageData = {
          * * `GALLERY` - Gallery Image
          * * `BACKGROUND` - Background Image
          * * `HERO` - Hero Image
-         * * `FEATURE` - Feature Image
+         * * `FEATURE` - Κεντρική Εικόνα
          * * `PROMOTIONAL` - Promotional Image
          * * `SEASONAL` - Seasonal Image
          */
@@ -16409,7 +16853,7 @@ export type GetProductCategoryImagesByCategoryData = {
          * * `GALLERY` - Gallery Image
          * * `BACKGROUND` - Background Image
          * * `HERO` - Hero Image
-         * * `FEATURE` - Feature Image
+         * * `FEATURE` - Κεντρική Εικόνα
          * * `PROMOTIONAL` - Promotional Image
          * * `SEASONAL` - Seasonal Image
          */
@@ -16457,7 +16901,7 @@ export type GetProductCategoryImagesByTypeData = {
          * * `GALLERY` - Gallery Image
          * * `BACKGROUND` - Background Image
          * * `HERO` - Hero Image
-         * * `FEATURE` - Feature Image
+         * * `FEATURE` - Κεντρική Εικόνα
          * * `PROMOTIONAL` - Promotional Image
          * * `SEASONAL` - Seasonal Image
          */
@@ -17147,8 +17591,8 @@ export type ListProductReviewData = {
          *
          * Filter by review status
          *
-         * * `NEW` - New
-         * * `TRUE` - True
+         * * `NEW` - Νέο
+         * * `TRUE` - Ναι
          * * `FALSE` - False
          */
     status?: 'FALSE' | 'NEW' | 'TRUE'
@@ -17536,7 +17980,7 @@ export type DestroyRegionData = {
     /**
          * Region Code
          *
-         * A unique value identifying this Region.
+         * A unique value identifying this Περιοχή.
          */
     alpha: string
   }
@@ -17567,7 +18011,7 @@ export type RetrieveRegionData = {
     /**
          * Region Code
          *
-         * A unique value identifying this Region.
+         * A unique value identifying this Περιοχή.
          */
     alpha: string
   }
@@ -17601,7 +18045,7 @@ export type PartialUpdateRegionData = {
     /**
          * Region Code
          *
-         * A unique value identifying this Region.
+         * A unique value identifying this Περιοχή.
          */
     alpha: string
   }
@@ -17636,7 +18080,7 @@ export type UpdateRegionData = {
     /**
          * Region Code
          *
-         * A unique value identifying this Region.
+         * A unique value identifying this Περιοχή.
          */
     alpha: string
   }
@@ -17671,7 +18115,7 @@ export type ListRegionsByCountryData = {
     /**
          * Region Code
          *
-         * A unique value identifying this Region.
+         * A unique value identifying this Περιοχή.
          */
     alpha: string
   }

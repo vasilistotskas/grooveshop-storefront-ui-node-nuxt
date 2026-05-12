@@ -566,10 +566,10 @@ export const zBoxNowCustomerRequest = z.object({
     description: 'Customer full name',
   }).optional(),
   email: z.string().register(z.globalRegistry, {
-    description: 'Customer email address',
+    description: 'Email πελάτη',
   }).optional(),
   phoneNumber: z.string().register(z.globalRegistry, {
-    description: 'Customer phone number',
+    description: 'Τηλέφωνο πελάτη',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Nested ``customer`` object within a BoxNow webhook payload.',
@@ -672,12 +672,12 @@ export const zBoxNowNearestLockerResponse = z.object({
 
 /**
  * * `pending_creation` - Pending creation
- * * `new` - New
+ * * `new` - Νέο
  * * `in_depot` - In depot
  * * `final_destination` - At locker
  * * `delivered` - Παραδόθηκε
  * * `returned` - Επιστράφηκε
- * * `expired` - Expired
+ * * `expired` - Έληξε
  * * `canceled` - Ακυρώθηκε
  * * `accepted_for_return` - Accepted for return
  * * `accepted_to_locker` - Accepted to locker
@@ -698,7 +698,7 @@ export const zBoxNowParcelState = z.enum([
   'missing',
   'lost',
 ]).register(z.globalRegistry, {
-  description: '* `pending_creation` - Pending creation\n* `new` - New\n* `in_depot` - In depot\n* `final_destination` - At locker\n* `delivered` - Παραδόθηκε\n* `returned` - Επιστράφηκε\n* `expired` - Expired\n* `canceled` - Ακυρώθηκε\n* `accepted_for_return` - Accepted for return\n* `accepted_to_locker` - Accepted to locker\n* `missing` - Missing\n* `lost` - Lost',
+  description: '* `pending_creation` - Pending creation\n* `new` - Νέο\n* `in_depot` - In depot\n* `final_destination` - At locker\n* `delivered` - Παραδόθηκε\n* `returned` - Επιστράφηκε\n* `expired` - Έληξε\n* `canceled` - Ακυρώθηκε\n* `accepted_for_return` - Accepted for return\n* `accepted_to_locker` - Accepted to locker\n* `missing` - Missing\n* `lost` - Lost',
 })
 
 /**
@@ -1211,7 +1211,7 @@ export const zHealthCheckResponse = z.object({
  * * `GALLERY` - Gallery Image
  * * `BACKGROUND` - Background Image
  * * `HERO` - Hero Image
- * * `FEATURE` - Feature Image
+ * * `FEATURE` - Κεντρική Εικόνα
  * * `PROMOTIONAL` - Promotional Image
  * * `SEASONAL` - Seasonal Image
  */
@@ -1227,7 +1227,7 @@ export const zImageTypeEnum = z.enum([
   'PROMOTIONAL',
   'SEASONAL',
 ]).register(z.globalRegistry, {
-  description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+  description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
 })
 
 /**
@@ -1322,13 +1322,13 @@ export const zLoyaltySummary = z.object({
  * * `ORDER` - Παραγγελία
  * * `PAYMENT` - Πληρωμή
  * * `SHIPPING` - Μεταφορικά
- * * `CART` - Cart
+ * * `CART` - Καλάθι
  * * `PRODUCT` - Προϊόν
  * * `ACCOUNT` - Λογαριασμός Ανενεργός
  * * `SECURITY` - Security
  * * `PROMOTION` - Promotion
- * * `SYSTEM` - System
- * * `REVIEW` - Review
+ * * `SYSTEM` - Σύστημα
+ * * `REVIEW` - Εξέταση
  * * `WISHLIST` - Wishlist
  * * `SUPPORT` - Support
  * * `NEWSLETTER` - Newsletter
@@ -1350,7 +1350,7 @@ export const zNotificationCategory = z.enum([
   'NEWSLETTER',
   'RECOMMENDATION',
 ]).register(z.globalRegistry, {
-  description: '* `ORDER` - Παραγγελία\n* `PAYMENT` - Πληρωμή\n* `SHIPPING` - Μεταφορικά\n* `CART` - Cart\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - System\n* `REVIEW` - Review\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation',
+  description: '* `ORDER` - Παραγγελία\n* `PAYMENT` - Πληρωμή\n* `SHIPPING` - Μεταφορικά\n* `CART` - Καλάθι\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - Σύστημα\n* `REVIEW` - Εξέταση\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation',
 })
 
 export const zNotificationCountResponse = z.object({
@@ -1451,15 +1451,15 @@ export const zNotificationUserWriteRequest = z.object({
 
 /**
  * * `RECEIPT` - Receipt
- * * `INVOICE` - Invoice
+ * * `INVOICE` - Τιμολόγιο
  */
 export const zOrderCreateDocumentType = z.enum(['RECEIPT', 'INVOICE']).register(z.globalRegistry, {
-  description: '* `RECEIPT` - Receipt\n* `INVOICE` - Invoice',
+  description: '* `RECEIPT` - Receipt\n* `INVOICE` - Τιμολόγιο',
 })
 
 /**
  * * `RECEIPT` - Receipt
- * * `INVOICE` - Invoice
+ * * `INVOICE` - Τιμολόγιο
  * * `PROFORMA` - Proforma Invoice
  * * `SHIPPING_LABEL` - Shipping Label
  * * `RETURN_LABEL` - Return Label
@@ -1473,7 +1473,7 @@ export const zOrderDocumentType = z.enum([
   'RETURN_LABEL',
   'CREDIT_NOTE',
 ]).register(z.globalRegistry, {
-  description: '* `RECEIPT` - Receipt\n* `INVOICE` - Invoice\n* `PROFORMA` - Proforma Invoice\n* `SHIPPING_LABEL` - Shipping Label\n* `RETURN_LABEL` - Return Label\n* `CREDIT_NOTE` - Credit Note',
+  description: '* `RECEIPT` - Receipt\n* `INVOICE` - Τιμολόγιο\n* `PROFORMA` - Proforma Invoice\n* `SHIPPING_LABEL` - Shipping Label\n* `RETURN_LABEL` - Return Label\n* `CREDIT_NOTE` - Credit Note',
 })
 
 export const zOrderItem = z.object({
@@ -1527,7 +1527,7 @@ export const zOrderItemWriteRequest = z.object({
  * * `COMPLETED` - Ολοκληρώθηκε
  * * `CANCELED` - Ακυρώθηκε
  * * `RETURNED` - Επιστράφηκε
- * * `REFUNDED` - Επεστράφη
+ * * `REFUNDED` - Επιστροφή Χρημάτων
  */
 export const zOrderStatus = z.enum([
   'PENDING',
@@ -1539,7 +1539,7 @@ export const zOrderStatus = z.enum([
   'RETURNED',
   'REFUNDED',
 ]).register(z.globalRegistry, {
-  description: '* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επεστράφη',
+  description: '* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
 })
 
 export const zOrderWriteRequest = z.object({
@@ -2314,7 +2314,7 @@ export const zPaymentModeEnum = z.enum(['prepaid', 'cod']).register(z.globalRegi
  * * `PROCESSING` - Σε επεξεργασία
  * * `COMPLETED` - Ολοκληρώθηκε
  * * `FAILED` - Απέτυχε
- * * `REFUNDED` - Επεστράφη
+ * * `REFUNDED` - Επιστροφή Χρημάτων
  * * `PARTIALLY_REFUNDED` - Μερική επιστροφή
  * * `CANCELED` - Ακυρώθηκε
  */
@@ -2327,7 +2327,7 @@ export const zPaymentStatusEnum = z.enum([
   'PARTIALLY_REFUNDED',
   'CANCELED',
 ]).register(z.globalRegistry, {
-  description: '* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
+  description: '* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
 })
 
 export const zPaymentStatusResponse = z.object({
@@ -3624,8 +3624,8 @@ export const zResolveVivaOrderCodeResponse = z.object({
 })
 
 /**
- * * `NEW` - New
- * * `TRUE` - True
+ * * `NEW` - Νέο
+ * * `TRUE` - Ναι
  * * `FALSE` - False
  */
 export const zReviewStatus = z.enum([
@@ -3633,7 +3633,7 @@ export const zReviewStatus = z.enum([
   'TRUE',
   'FALSE',
 ]).register(z.globalRegistry, {
-  description: '* `NEW` - New\n* `TRUE` - True\n* `FALSE` - False',
+  description: '* `NEW` - Νέο\n* `TRUE` - Ναι\n* `FALSE` - False',
 })
 
 /**
@@ -3666,7 +3666,7 @@ export const zSettingDetail = z.object({
 
 /**
  * * `pending_creation` - Pending creation
- * * `new` - New
+ * * `new` - Νέο
  * * `in_transit` - In transit
  * * `at_destination` - At destination station
  * * `out_for_delivery` - Out for delivery
@@ -3688,7 +3688,7 @@ export const zShipmentStateEnum = z.enum([
   'canceled',
   'lost',
 ]).register(z.globalRegistry, {
-  description: '* `pending_creation` - Pending creation\n* `new` - New\n* `in_transit` - In transit\n* `at_destination` - At destination station\n* `out_for_delivery` - Out for delivery\n* `delivered` - Παραδόθηκε\n* `attempted` - Delivery attempted\n* `returned` - Επιστράφηκε\n* `canceled` - Ακυρώθηκε\n* `lost` - Lost',
+  description: '* `pending_creation` - Pending creation\n* `new` - Νέο\n* `in_transit` - In transit\n* `at_destination` - At destination station\n* `out_for_delivery` - Out for delivery\n* `delivered` - Παραδόθηκε\n* `attempted` - Delivery attempted\n* `returned` - Επιστράφηκε\n* `canceled` - Ακυρώθηκε\n* `lost` - Lost',
 })
 
 /**
@@ -3715,13 +3715,13 @@ export const zOrderCreateFromCartRequest = z.object({
   }),
   paymentIntentId: z.string().nullish(),
   firstName: z.string().min(1).max(150).register(z.globalRegistry, {
-    description: 'Customer first name',
+    description: 'Όνομα πελάτη',
   }),
   lastName: z.string().min(1).max(150).register(z.globalRegistry, {
-    description: 'Customer last name',
+    description: 'Επώνυμο πελάτη',
   }),
   email: z.email().min(1).register(z.globalRegistry, {
-    description: 'Customer email address',
+    description: 'Email πελάτη',
   }),
   street: z.string().min(1).max(255).register(z.globalRegistry, {
     description: 'Street name',
@@ -3730,7 +3730,7 @@ export const zOrderCreateFromCartRequest = z.object({
     description: 'Street number',
   }).optional(),
   city: z.string().min(1).max(100).register(z.globalRegistry, {
-    description: 'City name',
+    description: 'Όνομα πόλης',
   }),
   zipcode: z.string().min(1).max(20).register(z.globalRegistry, {
     description: 'Postal/ZIP code',
@@ -3740,10 +3740,19 @@ export const zOrderCreateFromCartRequest = z.object({
   }),
   regionId: z.string().nullish(),
   phone: z.string().min(1).register(z.globalRegistry, {
-    description: 'Customer phone number',
+    description: 'Τηλέφωνο πελάτη',
   }),
   customerNotes: z.string().max(500).register(z.globalRegistry, {
     description: 'Customer notes or special instructions',
+  }).optional(),
+  floor: z.string().max(50).register(z.globalRegistry, {
+    description: 'Floor number or label (e.g. FIRST_FLOOR)',
+  }).optional(),
+  place: z.string().max(255).register(z.globalRegistry, {
+    description: 'Place or district (optional)',
+  }).optional(),
+  locationType: z.string().max(100).register(z.globalRegistry, {
+    description: 'Location type, e.g. HOME or OFFICE (optional)',
   }).optional(),
   billingVatId: z.string().max(12).register(z.globalRegistry, {
     description: 'Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.',
@@ -4351,8 +4360,8 @@ export const zSubscriptionTopicWriteRequest = z.object({
 /**
  * * `EARN` - Earn
  * * `REDEEM` - Redeem
- * * `EXPIRE` - Expire
- * * `ADJUST` - Adjust
+ * * `EXPIRE` - Λήξη
+ * * `ADJUST` - Προσαρμογή
  * * `BONUS` - Bonus
  */
 export const zTransactionTypeEnum = z.enum([
@@ -4362,7 +4371,7 @@ export const zTransactionTypeEnum = z.enum([
   'ADJUST',
   'BONUS',
 ]).register(z.globalRegistry, {
-  description: '* `EARN` - Earn\n* `REDEEM` - Redeem\n* `EXPIRE` - Expire\n* `ADJUST` - Adjust\n* `BONUS` - Bonus',
+  description: '* `EARN` - Earn\n* `REDEEM` - Redeem\n* `EXPIRE` - Λήξη\n* `ADJUST` - Προσαρμογή\n* `BONUS` - Bonus',
 })
 
 /**
@@ -5719,13 +5728,13 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   }),
   paymentIntentId: z.string().nullish(),
   firstName: z.string().min(1).max(150).register(z.globalRegistry, {
-    description: 'Customer first name',
+    description: 'Όνομα πελάτη',
   }),
   lastName: z.string().min(1).max(150).register(z.globalRegistry, {
-    description: 'Customer last name',
+    description: 'Επώνυμο πελάτη',
   }),
   email: z.email().min(1).register(z.globalRegistry, {
-    description: 'Customer email address',
+    description: 'Email πελάτη',
   }),
   street: z.string().min(1).max(255).register(z.globalRegistry, {
     description: 'Street name',
@@ -5734,7 +5743,7 @@ export const zOrderCreateFromCartRequestWritable = z.object({
     description: 'Street number',
   }).optional(),
   city: z.string().min(1).max(100).register(z.globalRegistry, {
-    description: 'City name',
+    description: 'Όνομα πόλης',
   }),
   zipcode: z.string().min(1).max(20).register(z.globalRegistry, {
     description: 'Postal/ZIP code',
@@ -5744,10 +5753,19 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   }),
   regionId: z.string().nullish(),
   phone: z.string().min(1).register(z.globalRegistry, {
-    description: 'Customer phone number',
+    description: 'Τηλέφωνο πελάτη',
   }),
   customerNotes: z.string().max(500).register(z.globalRegistry, {
     description: 'Customer notes or special instructions',
+  }).optional(),
+  floor: z.string().max(50).register(z.globalRegistry, {
+    description: 'Floor number or label (e.g. FIRST_FLOOR)',
+  }).optional(),
+  place: z.string().max(255).register(z.globalRegistry, {
+    description: 'Place or district (optional)',
+  }).optional(),
+  locationType: z.string().max(100).register(z.globalRegistry, {
+    description: 'Location type, e.g. HOME or OFFICE (optional)',
   }).optional(),
   billingVatId: z.string().max(12).register(z.globalRegistry, {
     description: 'Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.',
@@ -10438,7 +10456,7 @@ export const zCreateCountryResponse = zCountryDetail
 
 export const zDestroyCountryPath = z.object({
   alpha2: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Country.',
+    description: 'A unique value identifying this Χώρα.',
   }),
 })
 
@@ -10451,7 +10469,7 @@ export const zDestroyCountryResponse = z.void().register(z.globalRegistry, {
 
 export const zRetrieveCountryPath = z.object({
   alpha2: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Country.',
+    description: 'A unique value identifying this Χώρα.',
   }),
 })
 
@@ -10471,7 +10489,7 @@ export const zPartialUpdateCountryBody = zPatchedCountryWriteRequest
 
 export const zPartialUpdateCountryPath = z.object({
   alpha2: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Country.',
+    description: 'A unique value identifying this Χώρα.',
   }),
 })
 
@@ -10491,7 +10509,7 @@ export const zUpdateCountryBody = zCountryWriteRequest
 
 export const zUpdateCountryPath = z.object({
   alpha2: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Country.',
+    description: 'A unique value identifying this Χώρα.',
   }),
 })
 
@@ -11075,7 +11093,7 @@ export const zListOrderQuery = z.object({
     'PROCESSING',
     'REFUNDED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
+    description: 'Filter by payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
   }).optional(),
   paymentStatus_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -11137,7 +11155,7 @@ export const zListOrderQuery = z.object({
     'RETURNED',
     'SHIPPED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επεστράφη',
+    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
   }).optional(),
   status_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -11331,7 +11349,7 @@ export const zListOrderItemQuery = z.object({
     'PROCESSING',
     'REFUNDED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
+    description: 'Filter by order payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
   }).optional(),
   order_Region: z.string().register(z.globalRegistry, {
     description: 'Filter by order region code',
@@ -11346,7 +11364,7 @@ export const zListOrderItemQuery = z.object({
     'RETURNED',
     'SHIPPED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επεστράφη',
+    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
   }).optional(),
   order_User: z.union([
     z.string().regex(/^-?\d+$/),
@@ -12055,7 +12073,7 @@ export const zListMyOrdersQuery = z.object({
     'PROCESSING',
     'REFUNDED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επεστράφη\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
+    description: 'Filter by payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
   }).optional(),
   paymentStatus_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -12117,7 +12135,7 @@ export const zListMyOrdersQuery = z.object({
     'RETURNED',
     'SHIPPED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επεστράφη',
+    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
   }).optional(),
   status_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -12194,6 +12212,12 @@ export const zRetrieveOrderByUuidPath = z.object({
 })
 
 export const zRetrieveOrderByUuidResponse = zOrderDetail
+
+export const zVivaReturnLookupQuery = z.object({
+  t: z.string().register(z.globalRegistry, {
+    description: 'Viva transaction_id (UUID).',
+  }),
+})
 
 export const zListPayWayQuery = z.object({
   active: z.union([
@@ -13714,7 +13738,7 @@ export const zListProductCategoryImageQuery = z.object({
     'SEASONAL',
     'THUMBNAIL',
   ]).register(z.globalRegistry, {
-    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
   }).optional(),
   languageCode: z.enum([
     'de',
@@ -13872,7 +13896,7 @@ export const zGetProductCategoryImagesByCategoryQuery = z.object({
     'SEASONAL',
     'THUMBNAIL',
   ]).register(z.globalRegistry, {
-    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
   }).optional(),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder',
@@ -13912,7 +13936,7 @@ export const zGetProductCategoryImagesByTypeQuery = z.object({
     'SEASONAL',
     'THUMBNAIL',
   ]).register(z.globalRegistry, {
-    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Feature Image\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
   }).optional(),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder',
@@ -14426,7 +14450,7 @@ export const zListProductReviewQuery = z.object({
     'NEW',
     'TRUE',
   ]).register(z.globalRegistry, {
-    description: 'Filter by review status\n\n* `NEW` - New\n* `TRUE` - True\n* `FALSE` - False',
+    description: 'Filter by review status\n\n* `NEW` - Νέο\n* `TRUE` - Ναι\n* `FALSE` - False',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items updated after this date',
@@ -14667,7 +14691,7 @@ export const zCreateRegionResponse = zRegionDetail
 
 export const zDestroyRegionPath = z.object({
   alpha: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Region.',
+    description: 'A unique value identifying this Περιοχή.',
   }),
 })
 
@@ -14680,7 +14704,7 @@ export const zDestroyRegionResponse = z.void().register(z.globalRegistry, {
 
 export const zRetrieveRegionPath = z.object({
   alpha: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Region.',
+    description: 'A unique value identifying this Περιοχή.',
   }),
 })
 
@@ -14700,7 +14724,7 @@ export const zPartialUpdateRegionBody = zPatchedRegionWriteRequest
 
 export const zPartialUpdateRegionPath = z.object({
   alpha: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Region.',
+    description: 'A unique value identifying this Περιοχή.',
   }),
 })
 
@@ -14720,7 +14744,7 @@ export const zUpdateRegionBody = zRegionWriteRequest
 
 export const zUpdateRegionPath = z.object({
   alpha: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Region.',
+    description: 'A unique value identifying this Περιοχή.',
   }),
 })
 
@@ -14738,7 +14762,7 @@ export const zUpdateRegionResponse = zRegionDetail
 
 export const zListRegionsByCountryPath = z.object({
   alpha: z.string().register(z.globalRegistry, {
-    description: 'A unique value identifying this Region.',
+    description: 'A unique value identifying this Περιοχή.',
   }),
 })
 
