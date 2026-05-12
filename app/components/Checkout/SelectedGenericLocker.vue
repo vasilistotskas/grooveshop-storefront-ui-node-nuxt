@@ -29,7 +29,11 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const isOpen = ref(false)
+// Picker state is exposed via ``v-model:open`` so the parent
+// (StepShipping) can open the modal when the shopper clicks Continue
+// without first picking a locker — replaces the previous disabled
+// Continue button, which gave no signal about what was missing.
+const isOpen = defineModel<boolean>('open', { default: false })
 
 const locker = computed<Locker | null>(
   () => props.carrier.readSelectedLocker(formState.value),

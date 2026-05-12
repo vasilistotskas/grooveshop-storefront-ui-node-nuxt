@@ -119,12 +119,17 @@ const isBoxNow = computed(
   () => formState.value.shippingMethod === 'box_now_locker',
 )
 
-const isValid = computed(() => {
-  const method = formState.value.shippingMethod
-  if (method === 'home_delivery') return true
+// Single source of truth for the active carrier's picker modal. The
+// child wrappers (CheckoutSelectedBoxNowLocker /
+// CheckoutSelectedGenericLocker) only render one at a time, so a
+// shared ref is safe and lets the Continue button open the right
+// picker when the shopper hasn't picked a locker yet.
+const pickerOpen = ref(false)
+
+const isLockerMissing = computed(() => {
   const carrier = activeCarrier.value
   if (!carrier) return false
-  return carrier.readLockerId(formState.value) !== null
+  return carrier.readLockerId(formState.value) === null
 })
 
 // UForm template ref so we can re-run validation programmatically.
@@ -183,6 +188,15 @@ watch(
 )
 
 function onSubmit() {
+  // Continue clicked without picking a locker → pop the picker
+  // instead of silently failing. The previous UX disabled the button
+  // entirely, which gave no signal about what was missing — a real
+  // customer (order 53, 2026-05-12) bounced to ACS after staring at
+  // a disabled BoxNow Continue button for ~50 minutes.
+  if (isLockerMissing.value) {
+    pickerOpen.value = true
+    return
+  }
   emit('next')
 }
 </script>
@@ -198,7 +212,13 @@ function onSubmit() {
       </p>
     </template>
 
-    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6" @submit="onSubmit">
+    <!-- ``@submit`` is intentionally absent: the Continue button uses
+         ``type="button"`` + ``@click`` because the Zod
+         ``superRefine`` would otherwise abort submit on a missing
+         locker before our handler could pop the picker. The schema
+         still drives inline error rendering for the locker field via
+         the watcher below. -->
+    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6">
       <!-- Shipping method radio group -->
       <URadioGroup
         v-model="formState.shippingMethod"
@@ -268,6 +288,7 @@ function onSubmit() {
         <UFormField :name="activeCarrier.formFieldName" class="mt-0">
           <CheckoutSelectedBoxNowLocker
             v-model:formState="formState"
+            v-model:open="pickerOpen"
             :partner-id="props.partnerId"
           />
         </UFormField>
@@ -277,6 +298,7 @@ function onSubmit() {
         <UFormField :name="activeCarrier.formFieldName" class="mt-0">
           <CheckoutSelectedGenericLocker
             v-model:formState="formState"
+            v-model:open="pickerOpen"
             :carrier="activeCarrier"
             :initial-postal-code="formState.zipcode"
             :initial-city="formState.city"
@@ -298,12 +320,13 @@ function onSubmit() {
         </UButton>
 
         <UButton
-          type="submit"
+          type="button"
           size="lg"
           color="success"
-          :disabled="!isValid"
           icon="i-heroicons-arrow-right"
+          data-testid="step-shipping-continue"
           trailing
+          @click="onSubmit"
         >
           {{ t('continue') }}
         </UButton>

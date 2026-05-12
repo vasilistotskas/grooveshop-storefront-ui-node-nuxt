@@ -98,8 +98,12 @@ describe('Checkout/StepShipping', () => {
     })
   })
 
-  describe('submit button state', () => {
-    it('submit button is disabled when box_now_locker is selected but no lockerId is set', async () => {
+  describe('continue button behaviour', () => {
+    // The Continue button is never disabled — clicking it with a
+    // missing locker pops the picker instead of silently failing.
+    // Previous UX (disabled button + inline schema error) lost a real
+    // customer (order 53, 2026-05-12) to ACS.
+    it('continue button is never disabled, regardless of locker state', async () => {
       const wrapper = await mountSuspended(StepShipping, {
         props: makeProps({
           formState: makeFormState({
@@ -109,25 +113,48 @@ describe('Checkout/StepShipping', () => {
         }),
       })
 
-      // The continue / submit UButton has :disabled="!isValid"
-      const submitBtn = wrapper.find('[type="submit"]')
-      expect(submitBtn.attributes('disabled')).toBeDefined()
+      const submitBtn = wrapper.find('[data-testid="step-shipping-continue"]')
+      expect(submitBtn.exists()).toBe(true)
+      expect(submitBtn.attributes('disabled')).toBeUndefined()
     })
 
-    it('submit button is enabled when home_delivery is selected (no locker required)', async () => {
+    it('clicking continue without a locker opens the picker instead of emitting next', async () => {
       const wrapper = await mountSuspended(StepShipping, {
         props: makeProps({
-          formState: makeFormState({ shippingMethod: 'home_delivery', boxnowLockerId: '' }),
+          formState: makeFormState({
+            shippingMethod: 'box_now_locker',
+            boxnowLockerId: '',
+          }),
         }),
       })
 
-      const submitBtn = wrapper.find('[type="submit"]')
-      // disabled attribute should not be present (or should be absent / "false")
-      const disabled = submitBtn.attributes('disabled')
-      expect(disabled === undefined || disabled === 'false').toBe(true)
+      await wrapper.find('[data-testid="step-shipping-continue"]').trigger('click')
+
+      // No advance to the next step yet — the shopper still has to
+      // pick a locker.
+      expect(wrapper.emitted('next')).toBeFalsy()
+      // The picker is mounted (BoxNow keeps its iframe widget hidden
+      // until ``pickerOpen`` flips true). Asserting via the child
+      // component's open-model prop is the cleanest cross-cut.
+      const picker = wrapper.findComponent({ name: 'CheckoutSelectedBoxNowLocker' })
+      expect(picker.props('open')).toBe(true)
+    })
+  })
+
+  describe('event emissions', () => {
+    it('emits "next" when continue is clicked with a valid home_delivery selection', async () => {
+      const wrapper = await mountSuspended(StepShipping, {
+        props: makeProps({
+          formState: makeFormState({ shippingMethod: 'home_delivery' }),
+        }),
+      })
+
+      await wrapper.find('[data-testid="step-shipping-continue"]').trigger('click')
+      expect(wrapper.emitted('next')).toBeTruthy()
+      expect(wrapper.emitted('next')!.length).toBeGreaterThanOrEqual(1)
     })
 
-    it('submit button is enabled when box_now_locker is selected AND lockerId is set', async () => {
+    it('emits "next" when continue is clicked with box_now_locker AND a selected locker', async () => {
       const wrapper = await mountSuspended(StepShipping, {
         props: makeProps({
           formState: makeFormState({
@@ -137,23 +164,8 @@ describe('Checkout/StepShipping', () => {
         }),
       })
 
-      const submitBtn = wrapper.find('[type="submit"]')
-      const disabled = submitBtn.attributes('disabled')
-      expect(disabled === undefined || disabled === 'false').toBe(true)
-    })
-  })
-
-  describe('event emissions', () => {
-    it('emits "next" when the form is submitted with a valid home_delivery selection', async () => {
-      const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps({
-          formState: makeFormState({ shippingMethod: 'home_delivery' }),
-        }),
-      })
-
-      await wrapper.find('form').trigger('submit')
+      await wrapper.find('[data-testid="step-shipping-continue"]').trigger('click')
       expect(wrapper.emitted('next')).toBeTruthy()
-      expect(wrapper.emitted('next')!.length).toBeGreaterThanOrEqual(1)
     })
 
     it('emits "back" when the back button is clicked', async () => {
