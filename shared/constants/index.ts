@@ -93,6 +93,15 @@ export const AuthenticatorType = {
   WEBAUTHN: 'webauthn',
 } as const
 
+// Preference order when more than one authenticator is enabled: prefer the
+// security key (phishing-resistant, one-tap on supported devices), then the
+// authenticator app, with recovery codes last as a break-glass option.
+export const AUTHENTICATOR_TYPE_PRIORITY = [
+  AuthenticatorType.WEBAUTHN,
+  AuthenticatorType.TOTP,
+  AuthenticatorType.RECOVERY_CODES,
+] as const satisfies readonly AuthenticatorTypeValues[]
+
 export const Flow2path = {
   [Flows.LOGIN]: 'account-login',
   [Flows.LOGIN_BY_CODE]: 'account-login-code-confirm',

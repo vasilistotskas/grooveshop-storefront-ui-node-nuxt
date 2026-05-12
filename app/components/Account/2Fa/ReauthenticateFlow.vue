@@ -63,7 +63,12 @@ function flowsToMethods(flows: Flow[]) {
   const methods: { label: string, description: string, icon: string, iconColor: string, id: Flow['id'], path: FlowPathValue }[] = []
   flows.forEach((flow) => {
     if (flow.id === Flows.MFA_REAUTHENTICATE) {
-      flow.types?.forEach((typ) => {
+      const sortedTypes = [...(flow.types ?? [])].sort((a, b) => {
+        const ai = AUTHENTICATOR_TYPE_PRIORITY.indexOf(a)
+        const bi = AUTHENTICATOR_TYPE_PRIORITY.indexOf(b)
+        return (ai === -1 ? Number.MAX_SAFE_INTEGER : ai) - (bi === -1 ? Number.MAX_SAFE_INTEGER : bi)
+      })
+      sortedTypes.forEach((typ) => {
         const key = `${flow.id}:${typ}`
         methods.push({
           label: flowLabels[key] || flow.id,

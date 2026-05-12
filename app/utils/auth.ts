@@ -160,9 +160,17 @@ function hasFlowUpdated(
   return currentFlow?.is_pending ?? false
 }
 
+export const pickPreferredAuthenticatorType = (
+  types: readonly string[] | undefined | null,
+): string | undefined => {
+  if (!types || !types.length) return undefined
+  const preferred = AUTHENTICATOR_TYPE_PRIORITY.find(t => types.includes(t))
+  return preferred ?? types[0]
+}
+
 export const pathForFlow = (flow: Flow, authenticatorType?: string) => {
   const flowKey = flow.types && flow.types.length
-    ? `${flow.id}:${authenticatorType ?? flow.types[0]}`
+    ? `${flow.id}:${authenticatorType ?? pickPreferredAuthenticatorType(flow.types)}`
     : flow.id
   const path = Flow2path[flowKey] ?? Flow2path[flow.id]
   if (!path) {
