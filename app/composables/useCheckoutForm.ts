@@ -517,10 +517,15 @@ export async function useCheckoutForm() {
 
       const cartTotal = cart.value?.totalPrice || 0
       const threshold = payWay.freeThreshold || 0
-      const displayCost = (threshold > 0 && cartTotal >= threshold) ? 0 : payWay.cost
+      const displayCost = (threshold > 0 && cartTotal >= threshold) ? 0 : (payWay.cost || 0)
+      // Only show the surcharge suffix when it's a real charge — a
+      // zero-cost pay-way (e.g. CREDIT_CARD) rendered as
+      // ``Πληρωμή με Κάρτα (+0,00 €)`` reads as a fee the customer
+      // doesn't pay.
+      const costSuffix = displayCost > 0 ? ` (+${n(displayCost, 'currency')})` : ''
 
       return {
-        label: `${name} (+${n(displayCost, 'currency')})`,
+        label: `${name ?? ''}${costSuffix}`,
         value: payWay.id,
         mainImagePath: payWay.mainImagePath,
       }
