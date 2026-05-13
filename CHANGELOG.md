@@ -1,3 +1,10 @@
+## [3.117.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.117.3...v3.117.4) (2026-05-13)
+
+
+### Bug Fixes
+
+* **account/orders:** trim title-keys to curated timeline types ([7f38744](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7f38744dd7b37089e0bc7572163c2caa72602c06))
+
 ## [3.117.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.117.2...v3.117.3) (2026-05-13)
 
 
