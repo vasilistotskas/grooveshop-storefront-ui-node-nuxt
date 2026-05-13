@@ -159,7 +159,10 @@ export default defineNuxtPlugin({
       catch (error) {
         const statusCode = (error as { statusCode?: number })?.statusCode
         if (statusCode === 401 || statusCode === 403) {
-          await useUserSession().clear()
+          // Route through the canonical auth:change pipeline so Pinia stores
+          // clear, navigation happens, and the user sees the session-expired
+          // toast. Bare useUserSession().clear() would leave the UI half-stale.
+          await callAuthChangeHook(SYNTHETIC_EXPIRED_SESSION)
         }
         log.error({ action: 'ws:init', error })
       }
@@ -171,7 +174,12 @@ export default defineNuxtPlugin({
       watch(broadcastData, async (msg) => {
         if (msg?.type === 'logout') {
           closeWebSocket()
-          await useUserSession().clear()
+          // Same as the WS-ticket 401 case — go through auth:change so the
+          // other tab's logout fully tears down state here. Setting
+          // explicit:false surfaces the session-expired toast, which is
+          // the right UX for a background-tab logout the user didn't
+          // initiate in this tab.
+          await callAuthChangeHook(SYNTHETIC_EXPIRED_SESSION, { explicit: false })
         }
       })
     }

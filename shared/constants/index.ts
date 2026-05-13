@@ -57,6 +57,32 @@ export const AuthenticatedRoutes = [
 
 export const AuthenticatedRoutesSet = new Set<keyof RouteNamedMapI18n>(AuthenticatedRoutes)
 
+// Routes that live under /account/* but are part of an *unauthenticated*
+// flow (login, signup, OAuth callback, email/password reset, MFA challenge).
+// `default.vue` uses this to suppress the user-account chrome (sidebar +
+// avatar banner) on these pages, because otherwise a logged-in user who
+// somehow lands on /account/login would see their account UI wrapped
+// around the login form.
+export const AuthFlowRoutes = [
+  'account-login',
+  'account-login-code',
+  'account-login-code-confirm',
+  'account-signup',
+  'account-signup-passkey',
+  'account-signup-passkey-create',
+  'account-provider-callback',
+  'account-provider-signup',
+  'account-verify-email',
+  'account-verify-email-key',
+  'account-password-reset',
+  'account-password-reset-key-key',
+  'account-2fa-authenticate-totp',
+  'account-2fa-authenticate-webauthn',
+  'account-2fa-authenticate-recovery-codes',
+] as const satisfies readonly (keyof RouteNamedMapI18n)[]
+
+export const AuthFlowRoutesSet = new Set<keyof RouteNamedMapI18n>(AuthFlowRoutes)
+
 export const THEME_COLORS = {
   themeDark: '#1a202c',
   themeLight: '#ffffff',

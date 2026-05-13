@@ -22,12 +22,19 @@ const items = computed(() => [
   },
 ])
 
-if (authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
+// Only redirect if authEvent is defined and is the wrong event. On hard
+// refresh authEvent.value is undefined (useState has no SSR value); without
+// the defined-check, every direct visit would bounce to home.
+if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
   await navigateTo(localePath('index'))
 }
 
 definePageMeta({
   layout: 'default',
+  // Fully-authenticated users have no pending MFA flow — kick them to home.
+  // Mid-MFA users have loggedIn=false (user not yet set in session) so they
+  // can access the page.
+  middleware: 'guest',
 })
 </script>
 

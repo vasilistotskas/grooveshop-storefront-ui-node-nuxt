@@ -15,7 +15,12 @@ export default defineEventHandler(async (event) => {
     await handleAllAuthError(error)
   }
   finally {
-    await clearUserSession(event)
-    await clearCartSession(event)
+    // Promise.allSettled so a throw in clearUserSession (e.g. seal failure
+    // during a NUXT_SESSION_PASSWORD rotation) doesn't abort clearCartSession,
+    // leaving a stale cart cookie behind after logout.
+    await Promise.allSettled([
+      clearUserSession(event),
+      clearCartSession(event),
+    ])
   }
 })

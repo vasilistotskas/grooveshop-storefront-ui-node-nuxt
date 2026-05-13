@@ -6,13 +6,24 @@ export interface AuthChangeMeta {
   explicit?: boolean
 }
 
-const callAuthChangeHook = async (
+export const callAuthChangeHook = async (
   authData: AllAuthResponse | AllAuthResponseError,
   meta: AuthChangeMeta = {},
 ) => {
   const nuxtApp = useNuxtApp()
   await nuxtApp.callHook('auth:change', { detail: authData, ...meta })
 }
+
+// Synthetic 410 response — for surfacing a server-driven session expiry
+// (e.g. WebSocket ticket 401/403, cross-tab logout) through the canonical
+// auth:change pipeline so all stores clear and navigation happens. Calling
+// useUserSession().clear() in isolation leaves Pinia stores stale and
+// skips the LOGOUT_REDIRECT_URL navigation.
+export const SYNTHETIC_EXPIRED_SESSION: AllAuthResponseError = Object.freeze({
+  status: 410,
+  data: { flows: [] },
+  meta: { is_authenticated: false },
+}) as unknown as AllAuthResponseError
 
 export const onAllAuthResponse = async (
   response: FetchResponse<AllAuthResponse>,

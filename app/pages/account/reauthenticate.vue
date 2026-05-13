@@ -10,7 +10,7 @@ const localePath = useLocalePath()
 const loading = ref(false)
 const password = ref('')
 
-if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
+if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
   await navigateTo(localePath('index'))
 }
 

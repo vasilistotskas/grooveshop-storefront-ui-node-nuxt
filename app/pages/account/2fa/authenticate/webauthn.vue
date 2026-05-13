@@ -27,7 +27,7 @@ const items = computed(() => [
   },
 ])
 
-if (authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
+if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
   await navigateTo(localePath('index'))
 }
 
@@ -80,6 +80,7 @@ async function onSubmit(): Promise<void> {
 
 definePageMeta({
   layout: 'default',
+  middleware: 'guest',
 })
 </script>
 

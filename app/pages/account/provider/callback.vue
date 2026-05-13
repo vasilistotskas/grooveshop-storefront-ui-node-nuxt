@@ -16,9 +16,10 @@ const {
   messages,
   encrypted_token,
 } = route.query
-// NOTE: access_token, id_token, client_id are now fetched from session API, not URL
-
-const authInfo = useAuthInfo()
+// NOTE: access_token, id_token, client_id are fetched from session API, not URL.
+// authInfo intentionally NOT imported: navigation is fully driven by the
+// auth plugin's auth:change → handleLoggedIn chain. A guard here would be
+// dead-code at best and a duplicate navigateTo race at worst.
 
 const url = ref<typeof RedirectToURLs[keyof typeof RedirectToURLs]>(RedirectToURLs.LOGIN_URL)
 const error = ref(false)
@@ -35,17 +36,14 @@ onMounted(async () => {
   if (encrypted_token) {
     try {
       await refreshSession(String(encrypted_token))
-      // auth:change hook fires inside refreshSession → auth plugin drives navigation
+      // auth:change hook (fired inside refreshSession) drives navigation
+      // via the auth plugin's handleLoggedIn. No duplicate navigateTo here.
+      return
     }
     catch {
       error.value = true
+      return
     }
-  }
-
-  if (authInfo.isAuthenticated) {
-    url.value = RedirectToURLs.LOGIN_REDIRECT_URL
-    await navigateTo(localePath(url.value))
-    return
   }
 
   if (apiError) {

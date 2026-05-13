@@ -12,7 +12,7 @@ export default defineNuxtPlugin({
       return
     }
 
-    const { loggedIn, fetch, clear } = useUserSession()
+    const { fetch, clear } = useUserSession()
     const authStore = useAuthStore()
     const userStore = useUserStore()
     const userNotificationStore = useUserNotificationStore()
@@ -32,55 +32,62 @@ export default defineNuxtPlugin({
     nuxtApp.hook('auth:change', async ({ detail: newAuthState, explicit }) => {
       authState.value = newAuthState
 
-      // Sync nuxt-auth-utils' `loggedIn` ref from the server BEFORE firing
-      // the event that triggers the navigation watcher. Otherwise the
-      // route-change handler (auth.global.ts) reads a stale `loggedIn`
-      // and bounces a freshly-logged-in user to /account/login?next=/account.
+      // Sync nuxt-auth-utils' `loggedIn` ref from the server BEFORE
+      // dispatching the navigation handler. Otherwise the route-change
+      // handler (auth.global.ts) reads a stale `loggedIn` and bounces
+      // a freshly-logged-in user to /account/login?next=/account.
       if (isAllAuthResponseSuccess(newAuthState) && newAuthState.meta?.is_authenticated) {
         await fetch()
       }
 
-      authEvent.value = determineAuthChangeEvent(authState.value, previousAuthState.value)
+      const newEvent = determineAuthChangeEvent(authState.value, previousAuthState.value)
+      previousAuthState.value = newAuthState
 
-      if (explicit && authEvent.value === AuthChangeEvent.LOGGED_OUT) {
+      if (newEvent === null) {
+        // Equivalent steady state — nothing actionable. Don't write to
+        // authEvent (avoids "Unhandled auth event" log spam on every
+        // page load when SSR carried LOGGED_IN over and the client's
+        // setupSession reconciles identical state).
+        return
+      }
+
+      authEvent.value = newEvent
+
+      if (explicit && newEvent === AuthChangeEvent.LOGGED_OUT) {
         userInitiatedLogout.value = true
       }
 
-      log.info('auth', 'State changed', { event: authEvent.value, explicit: !!explicit })
+      log.info('auth', 'State changed', { event: newEvent, explicit: !!explicit })
 
-      previousAuthState.value = newAuthState
+      // Dispatch directly inside the hook body — NOT via watch(authEvent).
+      // Vue's `watch` collapses consecutive equal values, so two same-event
+      // dispatches in quick succession (e.g. WebAuthn signup: GET options
+      // → PUT credential → POST signup, where intermediate steps may emit
+      // identical FLOW_UPDATED events) would silently drop the second
+      // navigation. Dispatching in the hook body fires every time.
+      switch (newEvent) {
+        case AuthChangeEvent.LOGGED_OUT:
+          log.info('auth', 'Logged out')
+          await handleLoggedOut()
+          break
+        case AuthChangeEvent.LOGGED_IN:
+          log.info('auth', 'Logged in')
+          await handleLoggedIn()
+          break
+        case AuthChangeEvent.REAUTHENTICATED:
+          log.info('auth', 'Reauthenticated')
+          await handleReauthenticated()
+          break
+        case AuthChangeEvent.REAUTHENTICATION_REQUIRED:
+          log.info('auth', 'Reauthentication required')
+          await handleReauthenticationRequired()
+          break
+        case AuthChangeEvent.FLOW_UPDATED:
+          log.info('auth', 'Flow updated')
+          await navigateToPendingFlow(authState.value)
+          break
+      }
     })
-
-    watch(
-      () => authEvent.value,
-      async (authEventVal) => {
-        switch (authEventVal) {
-          case AuthChangeEvent.LOGGED_OUT:
-            log.info('auth', 'Logged out')
-            await handleLoggedOut()
-            break
-          case AuthChangeEvent.LOGGED_IN:
-            log.info('auth', 'Logged in')
-            await handleLoggedIn()
-            break
-          case AuthChangeEvent.REAUTHENTICATED:
-            log.info('auth', 'Reauthenticated')
-            await handleReauthenticated()
-            break
-          case AuthChangeEvent.REAUTHENTICATION_REQUIRED:
-            log.info('auth', 'Reauthentication required')
-            await handleReauthenticationRequired()
-            break
-          case AuthChangeEvent.FLOW_UPDATED:
-            log.info('auth', 'Flow updated')
-            await navigateToPendingFlow(authState.value)
-            break
-          default:
-            log.info('auth', 'Unhandled auth event', { event: authEventVal })
-            break
-        }
-      },
-    )
 
     nuxtApp.provide('authState', authState)
 
@@ -91,10 +98,13 @@ export default defineNuxtPlugin({
         clearAuthState()
         clearAccountState()
         clearNotificationsState()
-        if (loggedIn.value) {
-          log.info('auth', 'Clearing user session')
-          await clear()
-        }
+        // No `loggedIn.value` guard — when this fires from a server-driven
+        // 410, the session.delete.ts finally block has already cleared
+        // the server cookie, but the client `loggedIn` ref may not have
+        // synced yet. `clear()` is idempotent, so calling it unconditionally
+        // is safe and ensures the client state catches up.
+        log.info('auth', 'Clearing user session')
+        await clear()
         if (!wasExplicit && import.meta.client) {
           // Session was killed by the server (410/401) — surface it so the
           // user isn't silently redirected mid-task. Composables need the

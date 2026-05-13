@@ -9,7 +9,7 @@ const localePath = useLocalePath()
 const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
 
-if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
+if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
   await navigateTo(localePath('index'))
 }
 

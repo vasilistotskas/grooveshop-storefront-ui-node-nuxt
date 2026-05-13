@@ -7,7 +7,7 @@ const localePath = useLocalePath()
 
 const recoveryCode = ref('')
 
-if (authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
+if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.REAUTHENTICATION_REQUIRED) {
   await navigateTo(localePath('index'))
 }
 
