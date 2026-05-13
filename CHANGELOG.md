@@ -1,3 +1,10 @@
+## [3.117.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.117.1...v3.117.2) (2026-05-13)
+
+
+### Bug Fixes
+
+* **order:** correct tracking URLs + readable history timeline ([0613624](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0613624a28076166992beb0c4b42cbaad8b255e8))
+
 ## [3.117.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.117.0...v3.117.1) (2026-05-13)
 
 
