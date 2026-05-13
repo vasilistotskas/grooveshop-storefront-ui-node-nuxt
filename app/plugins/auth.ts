@@ -31,6 +31,15 @@ export default defineNuxtPlugin({
 
     nuxtApp.hook('auth:change', async ({ detail: newAuthState, explicit }) => {
       authState.value = newAuthState
+
+      // Sync nuxt-auth-utils' `loggedIn` ref from the server BEFORE firing
+      // the event that triggers the navigation watcher. Otherwise the
+      // route-change handler (auth.global.ts) reads a stale `loggedIn`
+      // and bounces a freshly-logged-in user to /account/login?next=/account.
+      if (isAllAuthResponseSuccess(newAuthState) && newAuthState.meta?.is_authenticated) {
+        await fetch()
+      }
+
       authEvent.value = determineAuthChangeEvent(authState.value, previousAuthState.value)
 
       if (explicit && authEvent.value === AuthChangeEvent.LOGGED_OUT) {
@@ -38,10 +47,6 @@ export default defineNuxtPlugin({
       }
 
       log.info('auth', 'State changed', { event: authEvent.value, explicit: !!explicit })
-
-      if (isAllAuthResponseSuccess(newAuthState) && newAuthState.meta?.is_authenticated) {
-        await fetch()
-      }
 
       previousAuthState.value = newAuthState
     })
