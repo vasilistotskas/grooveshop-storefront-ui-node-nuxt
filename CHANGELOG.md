@@ -1,3 +1,11 @@
+## [3.117.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.117.0...v3.117.1) (2026-05-13)
+
+
+### Bug Fixes
+
+* **auth:** await fetch() before firing the navigation watcher ([8d86635](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8d86635b40c2f4ff1010db004cd0093d698873ff))
+* **auth:** close race + interaction bugs surfaced by post-OAuth deep audit ([3b50cce](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3b50cce93a5887b87a092f552709822be5983b3e))
+
 # [3.117.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.116.2...v3.117.0) (2026-05-12)
 
 
