@@ -24,31 +24,24 @@ const { productUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()
 
 // Map raw OrderHistory.change_type values to user-friendly i18n
-// labels. The backend serialises the raw enum value (``NOTE``,
-// ``PAYMENT``, ``STATUS``, ``SHIPPING``, ``REFUND``, ``CREATED``…)
-// — rendering it verbatim produced the "NOTE / Note added to
-// order" wall of identical rows. This map (a) translates the
-// label, (b) lets each entry carry its own icon override so the
-// existing icon switch in ``getTimelineIcon`` can stay focused on
-// status/lifecycle types.
+// labels. The customer-facing payload is already curated by the
+// backend (synthetic CREATED + STATUS/PAYMENT/SHIPPING/REFUND
+// transitions — operational NOTE rows stay in the admin audit
+// log). This map gives each kept type a localised title; the
+// per-row description carries the actual transition.
 const TIMELINE_TITLE_KEYS: Record<string, string> = {
   CREATED: 'timeline.title.created',
   STATUS: 'timeline.title.status',
   PAYMENT: 'timeline.title.payment',
   SHIPPING: 'timeline.title.shipping',
-  CUSTOMER: 'timeline.title.customer',
-  ITEMS: 'timeline.title.items',
-  ADDRESS: 'timeline.title.address',
-  NOTE: 'timeline.title.note',
   REFUND: 'timeline.title.refund',
-  OTHER: 'timeline.title.other',
 }
 
 const orderTimeline = computed(() => {
   if (!order.value?.orderTimeline) return []
 
   return order.value.orderTimeline
-    .filter(item => item.timestamp && item.description)
+    .filter(item => Boolean(item.timestamp))
     .map((item) => {
       const ts = item.timestamp ? new Date(item.timestamp) : null
       // Include time alongside the date so a customer can tell
