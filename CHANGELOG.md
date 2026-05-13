@@ -1,3 +1,10 @@
+## [3.117.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.117.2...v3.117.3) (2026-05-13)
+
+
+### Bug Fixes
+
+* **order:** restore ACS Open Tracking button with correct deep-link URL ([4a2d271](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4a2d271c8ae4079056ef869f2549c231311d3208))
+
 ## [3.117.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.117.1...v3.117.2) (2026-05-13)
 
 
