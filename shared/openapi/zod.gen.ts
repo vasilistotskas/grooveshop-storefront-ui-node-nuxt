@@ -3779,6 +3779,9 @@ export const zOrderCreateFromCartRequest = z.object({
     description: 'ACS_Station_Branch_Destination value.',
   }).optional(),
   acsChargeType: zAcsChargeType.optional(),
+  acsItemQuantity: z.int().gte(1).lte(20).register(z.globalRegistry, {
+    description: 'Optional per-order override for ACS Item_Quantity (number of physical parcels in the shipment). Defaults to 1. Must NOT be set for Smartpoint pickup — ACS rejects multipart vouchers on lockers.',
+  }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',
 })
@@ -5792,6 +5795,9 @@ export const zOrderCreateFromCartRequestWritable = z.object({
     description: 'ACS_Station_Branch_Destination value.',
   }).optional(),
   acsChargeType: zAcsChargeType.optional(),
+  acsItemQuantity: z.int().gte(1).lte(20).register(z.globalRegistry, {
+    description: 'Optional per-order override for ACS Item_Quantity (number of physical parcels in the shipment). Defaults to 1. Must NOT be set for Smartpoint pickup — ACS rejects multipart vouchers on lockers.',
+  }).optional(),
   meta: z.record(z.string(), z.unknown()).nullish(),
 }).register(z.globalRegistry, {
   description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',

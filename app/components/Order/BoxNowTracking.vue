@@ -63,7 +63,7 @@ const { t } = useI18n()
       <div class="flex flex-wrap justify-end gap-2">
         <UButton
           v-if="shipment.parcelId"
-          :to="`https://tracking.boxnow.gr/track/${shipment.parcelId}`"
+          :to="`https://boxnow.gr/en?track=${shipment.parcelId}`"
           target="_blank"
           rel="noopener noreferrer"
           variant="outline"

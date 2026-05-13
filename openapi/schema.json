@@ -53659,7 +53659,13 @@
                                 "$ref": "#/components/schemas/AcsChargeType"
                             }
                         ],
-                        "default": 1
+                        "description": "Optional per-order ACS Charge_Type override. Leave unset to use the carrier-level default (COD on a COD-only contract). Setting this here only makes sense if the ACS commercial contract permits the chosen value — invalid combinations are rejected by ACS_Create_Voucher.\n\n* `1` - Prepaid\n* `2` - Cash on delivery"
+                    },
+                    "acsItemQuantity": {
+                        "type": "integer",
+                        "maximum": 20,
+                        "minimum": 1,
+                        "description": "Optional per-order override for ACS Item_Quantity (number of physical parcels in the shipment). Defaults to 1. Must NOT be set for Smartpoint pickup — ACS rejects multipart vouchers on lockers."
                     },
                     "meta": {
                         "type": "object",

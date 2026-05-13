@@ -60,17 +60,15 @@ const { t } = useI18n()
     </div>
 
     <template #footer>
+      <!-- ACS does NOT publish a public deep-link URL for a single
+           voucher — both ``/el/track-and-trace/`` and the
+           ``anazitisi-apostolwn`` page are JS-only search forms
+           that ignore query parameters. We don't render an
+           "Open tracking" button because clicking it would just
+           dump the customer on a generic search page with no
+           context. The voucher number is shown above; the
+           customer copies it into ACS's site manually. -->
       <div class="flex flex-wrap justify-end gap-2">
-        <UButton
-          v-if="shipment.voucherNo"
-          :to="`https://www.acscourier.net/el/track-and-trace/?p=${shipment.voucherNo}`"
-          target="_blank"
-          rel="noopener noreferrer"
-          variant="outline"
-          icon="i-lucide-external-link"
-        >
-          {{ t('tracking.acs.open_tracking') }}
-        </UButton>
         <UButton
           v-if="shipment.voucherNo"
           :to="`/api/orders/${orderId}/acs-label`"

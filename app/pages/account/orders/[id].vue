@@ -23,18 +23,51 @@ const localePath = useLocalePath()
 const { productUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()
 
+// Map raw OrderHistory.change_type values to user-friendly i18n
+// labels. The backend serialises the raw enum value (``NOTE``,
+// ``PAYMENT``, ``STATUS``, ``SHIPPING``, ``REFUND``, ``CREATED``…)
+// — rendering it verbatim produced the "NOTE / Note added to
+// order" wall of identical rows. This map (a) translates the
+// label, (b) lets each entry carry its own icon override so the
+// existing icon switch in ``getTimelineIcon`` can stay focused on
+// status/lifecycle types.
+const TIMELINE_TITLE_KEYS: Record<string, string> = {
+  CREATED: 'timeline.title.created',
+  STATUS: 'timeline.title.status',
+  PAYMENT: 'timeline.title.payment',
+  SHIPPING: 'timeline.title.shipping',
+  CUSTOMER: 'timeline.title.customer',
+  ITEMS: 'timeline.title.items',
+  ADDRESS: 'timeline.title.address',
+  NOTE: 'timeline.title.note',
+  REFUND: 'timeline.title.refund',
+  OTHER: 'timeline.title.other',
+}
+
 const orderTimeline = computed(() => {
   if (!order.value?.orderTimeline) return []
 
   return order.value.orderTimeline
     .filter(item => item.timestamp && item.description)
-    .map(item => ({
-      date: item.timestamp ? new Date(item.timestamp).toLocaleDateString(locale.value) : '',
-      title: item.changeType || t('status_change'),
-      description: item.description || '',
-      icon: getTimelineIcon(item.changeType),
-      user: item.user,
-    }))
+    .map((item) => {
+      const ts = item.timestamp ? new Date(item.timestamp) : null
+      // Include time alongside the date so a customer can tell
+      // apart the half-dozen events that fire within a second of
+      // each other right after order creation.
+      const formatted = ts
+        ? `${ts.toLocaleDateString(locale.value)} ${ts.toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' })}`
+        : ''
+      const titleKey = item.changeType
+        ? TIMELINE_TITLE_KEYS[item.changeType]
+        : undefined
+      return {
+        date: formatted,
+        title: titleKey ? t(titleKey) : (item.changeType || t('status_change')),
+        description: item.description || '',
+        icon: getTimelineIcon(item.changeType),
+        user: item.user,
+      }
+    })
     .reverse()
 })
 
@@ -1266,6 +1299,18 @@ el:
   shipping_carrier: Εταιρία Μεταφορών
   order_history: Ιστορικό Παραγγελίας
   status_change: Αλλαγή Κατάστασης
+  timeline:
+    title:
+      created: Δημιουργία παραγγελίας
+      status: Αλλαγή κατάστασης
+      payment: Πληρωμή
+      shipping: Αποστολή
+      customer: Στοιχεία πελάτη
+      items: Προϊόντα
+      address: Διεύθυνση
+      note: Σημείωση
+      refund: Επιστροφή χρημάτων
+      other: Άλλη ενέργεια
   by: από
   cancel_order: Ακύρωση Παραγγελίας
   track_order: Παρακολούθηση Παραγγελίας

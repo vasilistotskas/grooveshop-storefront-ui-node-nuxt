@@ -2527,7 +2527,17 @@ export type OrderCreateFromCartRequest = {
      * ACS_Station_Branch_Destination value.
      */
   acsStationBranch?: string
+  /**
+     * Optional per-order ACS Charge_Type override. Leave unset to use the carrier-level default (COD on a COD-only contract). Setting this here only makes sense if the ACS commercial contract permits the chosen value — invalid combinations are rejected by ACS_Create_Voucher.
+     *
+     * * `1` - Prepaid
+     * * `2` - Cash on delivery
+     */
   acsChargeType?: AcsChargeType
+  /**
+     * Optional per-order override for ACS Item_Quantity (number of physical parcels in the shipment). Defaults to 1. Must NOT be set for Smartpoint pickup — ACS rejects multipart vouchers on lockers.
+     */
+  acsItemQuantity?: number
 }
 
 export type OrderDetail = {
@@ -6813,7 +6823,17 @@ export type OrderCreateFromCartRequestWritable = {
      * ACS_Station_Branch_Destination value.
      */
   acsStationBranch?: string
+  /**
+     * Optional per-order ACS Charge_Type override. Leave unset to use the carrier-level default (COD on a COD-only contract). Setting this here only makes sense if the ACS commercial contract permits the chosen value — invalid combinations are rejected by ACS_Create_Voucher.
+     *
+     * * `1` - Prepaid
+     * * `2` - Cash on delivery
+     */
   acsChargeType?: AcsChargeType
+  /**
+     * Optional per-order override for ACS Item_Quantity (number of physical parcels in the shipment). Defaults to 1. Must NOT be set for Smartpoint pickup — ACS rejects multipart vouchers on lockers.
+     */
+  acsItemQuantity?: number
   /**
      * Meta Pixel context: keys ``fbp``, ``fbc``, ``client_user_agent``, ``client_ip_address``, ``event_ids`` (dict of {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict with ``ads`` boolean). Empty dict / null when the customer declined marketing cookies; the CAPI dispatcher then skips the send.
      */
