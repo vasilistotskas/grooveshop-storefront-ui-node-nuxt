@@ -123,6 +123,7 @@ onMounted(() => {
               "
             >
               <LazySearchInput />
+              <CartButton size="md" />
               <LazyLanguageSwitcher v-if="locales.length > 1" />
               <UColorModeButton
                 class="w-6"

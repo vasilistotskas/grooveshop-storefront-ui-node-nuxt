@@ -6,7 +6,6 @@ const { loggedIn, user } = useUserSession()
 const userStore = useUserStore()
 const { account } = storeToRefs(userStore)
 const cartStore = useCartStore()
-const { getCartTotalItems } = storeToRefs(cartStore)
 const { cleanCartState, refreshCart } = cartStore
 const { menus: accountMenus } = useAccountMenus()
 const { deleteSession } = useAllAuthAuthentication()
@@ -17,12 +16,6 @@ const open = ref(false)
 
 watch(() => route.fullPath, () => {
   open.value = false
-})
-
-const cartCountDisplay = computed<string | null>(() => {
-  const n = Number(getCartTotalItems.value) || 0
-  if (n === 0) return null
-  return n > 99 ? '99+' : String(n)
 })
 
 const greetingName = computed(() => {
@@ -52,12 +45,6 @@ const primaryItems = computed(() => [
     label: t('search.title'),
     icon: 'i-heroicons-magnifying-glass',
     to: localePath('search'),
-  },
-  {
-    label: t('cart.title'),
-    icon: 'i-heroicons-shopping-cart',
-    to: localePath('cart'),
-    slot: 'cart' as const,
   },
 ])
 
@@ -225,19 +212,7 @@ const onClickCookieSettings = () => {
             linkLabel: 'text-base font-semibold capitalize',
             linkTrailing: 'ms-auto',
           }"
-        >
-          <template #cart-trailing>
-            <ClientOnly>
-              <UBadge
-                v-if="cartCountDisplay"
-                :label="cartCountDisplay"
-                color="success"
-                variant="solid"
-                size="sm"
-              />
-            </ClientOnly>
-          </template>
-        </UNavigationMenu>
+        />
 
         <UAccordion
           v-if="loggedIn"
