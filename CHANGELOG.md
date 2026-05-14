@@ -1,3 +1,10 @@
+## [3.118.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.118.0...v3.118.1) (2026-05-14)
+
+
+### Bug Fixes
+
+* **navbar:** size mobile cart icon to match sibling icons ([813d489](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/813d489f6e5ab7d9cb4c86c93452c6b87a51f65b))
+
 # [3.118.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.117.4...v3.118.0) (2026-05-14)
 
 
