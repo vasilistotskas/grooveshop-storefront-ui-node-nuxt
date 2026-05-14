@@ -1,3 +1,10 @@
+# [3.118.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.117.4...v3.118.0) (2026-05-14)
+
+
+### Features
+
+* **storefront:** mobile cart placement, add-to-cart toast, hide VAT in checkout ([a808c77](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a808c779f34b5a3c725da07b20dfcc05660a9182))
+
 ## [3.117.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.117.3...v3.117.4) (2026-05-13)
 
 
