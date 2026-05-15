@@ -1,3 +1,11 @@
+## [3.118.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.118.1...v3.118.2) (2026-05-15)
+
+
+### Bug Fixes
+
+* **deps:** pin devalue >=5.8.1 to mitigate CVE-2026-42570 ([15fc37c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/15fc37c6ee71fac4d43e8ec2115fd1214ff977ab)), closes [HI#severity](https://github.com/HI/issues/severity)
+* **time:** render all datetimes via <NuxtTime> ([53157a2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/53157a24fb30dc5513ce60013ef93242e78eb6b3))
+
 ## [3.118.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.118.0...v3.118.1) (2026-05-14)
 
 
