@@ -1,3 +1,9 @@
+overrides:
+  # CVE-2026-42570 — devalue <5.8.1 has a prototype-pollution
+  # vulnerability. Pulled in transitively by @nuxtjs/i18n,
+  # nuxt-og-image, @nuxt/hints, and Nitro server. Pin until
+  # those packages bump their direct dep.
+  'devalue@<5.8.1': '>=5.8.1'
 allowBuilds:
   '@parcel/watcher': true
   better-sqlite3: true
