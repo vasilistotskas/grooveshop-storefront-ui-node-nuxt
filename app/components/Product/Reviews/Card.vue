@@ -120,6 +120,8 @@ const reviewComment = computed(() => {
           <NuxtTime
             :datetime="review.createdAt"
             :locale="locale"
+            relative
+            numeric="auto"
           />
         </div>
       </div>

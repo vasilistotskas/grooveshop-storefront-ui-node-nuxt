@@ -5,16 +5,17 @@ const props = defineProps<{
 }>()
 
 // Composables
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 // Computed — ACS events come straight from polling, so we render the
 // raw checkpoint_action / checkpoint_location text the courier
-// returned. Date formatting reuses the shared util.
+// returned. Date carries the raw ISO timestamp and is formatted via
+// <NuxtTime> in the #date slot below.
 const timelineItems = computed(() =>
   props.events.map(e => ({
     title: e.checkpointAction,
     description: e.checkpointLocation || e.notes || '',
-    date: formatDate(e.eventTime),
+    date: e.eventTime,
     icon: 'i-lucide-truck',
     value: e.checkpointAction,
   })),
@@ -35,6 +36,15 @@ const timelineItems = computed(() =>
       orientation="vertical"
       :items="timelineItems"
       size="md"
-    />
+    >
+      <template #date="{ item }">
+        <NuxtTime
+          :datetime="item.date"
+          :locale="locale"
+          date-style="medium"
+          time-style="short"
+        />
+      </template>
+    </UTimeline>
   </div>
 </template>

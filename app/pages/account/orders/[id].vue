@@ -43,18 +43,14 @@ const orderTimeline = computed(() => {
   return order.value.orderTimeline
     .filter(item => Boolean(item.timestamp))
     .map((item) => {
-      const ts = item.timestamp ? new Date(item.timestamp) : null
-      // Include time alongside the date so a customer can tell
-      // apart the half-dozen events that fire within a second of
-      // each other right after order creation.
-      const formatted = ts
-        ? `${ts.toLocaleDateString(locale.value)} ${ts.toLocaleTimeString(locale.value, { hour: '2-digit', minute: '2-digit' })}`
-        : ''
       const titleKey = item.changeType
         ? TIMELINE_TITLE_KEYS[item.changeType]
         : undefined
       return {
-        date: formatted,
+        // Raw ISO timestamp — formatted via <NuxtTime> in the
+        // UTimeline `#date` slot for SSR-safe localised output.
+        // The upstream `.filter` guarantees `timestamp` is defined.
+        date: item.timestamp!,
         title: titleKey ? t(titleKey) : (item.changeType || t('status_change')),
         description: item.description || '',
         icon: getTimelineIcon(item.changeType),
@@ -1211,7 +1207,12 @@ defineRouteRules({
                     dark:text-gray-200
                   "
                 >
-                  {{ item.date }}
+                  <NuxtTime
+                    :datetime="item.date"
+                    :locale="locale"
+                    date-style="medium"
+                    time-style="short"
+                  />
                 </span>
               </template>
 

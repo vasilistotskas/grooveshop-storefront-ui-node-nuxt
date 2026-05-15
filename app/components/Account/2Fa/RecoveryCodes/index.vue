@@ -33,14 +33,14 @@ const statusColor = computed(() => {
   return 'success'
 })
 
+const createdDateMs = computed(() => (created_at.value ? created_at.value * 1000 : null))
+const lastUsedDateMs = computed(() => (last_used_at.value ? last_used_at.value * 1000 : null))
+
+// String form is only used for the print/download Blob payloads —
+// the in-DOM display uses <NuxtTime> below.
 const createdDate = computed(() => {
   if (!created_at.value) return ''
   return new Date(created_at.value * 1000).toLocaleDateString(locale.value)
-})
-
-const lastUsedDate = computed(() => {
-  if (!last_used_at.value) return null
-  return new Date(last_used_at.value * 1000).toLocaleString(locale.value)
 })
 
 async function copyAllCodes() {
@@ -255,7 +255,15 @@ onReactivated(async () => {
                   dark:text-white
                 "
               >
-                {{ createdDate || t('unused') }}
+                <NuxtTime
+                  v-if="createdDateMs"
+                  :datetime="createdDateMs"
+                  :locale="locale"
+                  date-style="medium"
+                />
+                <template v-else>
+                  {{ t('unused') }}
+                </template>
               </p>
             </div>
 
@@ -278,9 +286,18 @@ onReactivated(async () => {
               </div>
               <p
                 class="mt-2 text-lg font-semibold"
-                :class="lastUsedDate ? 'text-warning' : 'text-success'"
+                :class="lastUsedDateMs ? 'text-warning' : 'text-success'"
               >
-                {{ lastUsedDate || t('unused') }}
+                <NuxtTime
+                  v-if="lastUsedDateMs"
+                  :datetime="lastUsedDateMs"
+                  :locale="locale"
+                  date-style="medium"
+                  time-style="short"
+                />
+                <template v-else>
+                  {{ t('unused') }}
+                </template>
               </p>
             </div>
           </div>

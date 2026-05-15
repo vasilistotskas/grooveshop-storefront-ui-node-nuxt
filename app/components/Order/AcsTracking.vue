@@ -6,7 +6,7 @@ defineProps<{
 }>()
 
 // Composables
-const { t } = useI18n()
+const { t, locale } = useI18n()
 </script>
 
 <template>
@@ -50,7 +50,12 @@ const { t } = useI18n()
         class="flex justify-between gap-4"
       >
         <span class="text-muted">{{ t('tracking.acs.last_update') }}</span>
-        <span>{{ formatDate(shipment.lastEventAt) }}</span>
+        <NuxtTime
+          :datetime="shipment.lastEventAt"
+          :locale="locale"
+          relative
+          numeric="auto"
+        />
       </div>
 
       <USeparator />

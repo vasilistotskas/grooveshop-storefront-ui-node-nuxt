@@ -3,6 +3,7 @@ import { h, resolveComponent } from 'vue'
 import type { TableColumn } from '@nuxt/ui'
 
 const UBadge = resolveComponent('UBadge')
+const NuxtTime = resolveComponent('NuxtTime')
 
 const { t, locale } = useI18n()
 
@@ -61,18 +62,6 @@ const transactionTypeOptions = computed(() => [
   { label: t('filter.bonus'), value: 'BONUS' },
 ])
 
-// Format date
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString)
-  return date.toLocaleDateString(locale.value, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
 // Format points with sign
 const formatPoints = (points: number) => {
   return points > 0 ? `+${points}` : points.toString()
@@ -128,7 +117,17 @@ const columns: TableColumn<PointsTransaction>[] = [
     accessorKey: 'createdAt',
     header: t('table.date'),
     cell: ({ row }) => {
-      return h('span', { class: 'text-sm text-muted' }, formatDate(row.getValue('createdAt') as string))
+      return h('span', { class: 'text-sm text-muted' }, [
+        h(NuxtTime, {
+          datetime: row.getValue('createdAt') as string,
+          locale: locale.value,
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+      ])
     },
   },
 ]

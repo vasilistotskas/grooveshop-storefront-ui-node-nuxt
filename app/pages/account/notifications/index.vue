@@ -154,17 +154,6 @@ async function onMarkAllSeen() {
   }
 }
 
-const formatRelative = (value?: string | null) => {
-  if (!value) return ''
-  try {
-    return new Intl.RelativeTimeFormat(locale.value, { numeric: 'auto' })
-      .format(Math.round((new Date(value).getTime() - Date.now()) / 60000), 'minute')
-  }
-  catch {
-    return new Date(value).toLocaleString(locale.value)
-  }
-}
-
 defineRouteRules({
   robots: false,
 })
@@ -297,7 +286,12 @@ defineRouteRules({
                 dark:text-neutral-200
               "
               >
-                <ClientOnly><span>{{ formatRelative(row.createdAt) }}</span></ClientOnly>
+                <NuxtTime
+                  :datetime="row.createdAt"
+                  :locale="locale"
+                  relative
+                  numeric="auto"
+                />
                 <span v-if="row.notification?.link" class="inline-flex items-center gap-1">
                   <UIcon name="i-heroicons-arrow-top-right-on-square" class="size-3" />
                   <span>{{ t('card.open') }}</span>
