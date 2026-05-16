@@ -1,3 +1,16 @@
+# [3.119.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.118.2...v3.119.0) (2026-05-16)
+
+
+### Bug Fixes
+
+* **analytics:** always pass explicit TTL on rate-limit setItem ([301cff3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/301cff3d7e2a39024c2758790bfb8fe873b56265))
+* **blog:** always pass explicit TTL on view-count rate-limit setItem ([2043975](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/20439756fb4518e0109d4017a482b7c783422104))
+
+
+### Features
+
+* **analytics:** track cookie banner accept rate via evlog wide events ([b81e10d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b81e10d683f93697502447344ecdea1fd48f4312))
+
 ## [3.118.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.118.1...v3.118.2) (2026-05-15)
 
 
