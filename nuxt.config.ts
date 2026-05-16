@@ -39,6 +39,7 @@ export default defineNuxtConfig({
           { path: '/api/cart/**' },
           { path: '/api/_allauth/**' },
           { path: '/api/orders/**' },
+          { path: '/api/analytics/**' },
         ],
       },
     },

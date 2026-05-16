@@ -192,6 +192,79 @@ export function setupMetaPixelConsent() {
   })
 }
 
+/**
+ * Telemetry hook for the cookie banner — emits two server-side wide
+ * events so the team can measure banner acceptance.
+ *
+ * * ``banner_shown`` — fires once per browser session whenever the
+ *   banner is on screen (``isConsentGiven !== true``). Covers both
+ *   first-time visitors (``undefined``) and returning visitors who
+ *   previously declined (``false``). Per-session dedup via
+ *   ``sessionStorage`` so a single visit with N pageviews counts as
+ *   one impression, not N. Forms the denominator of the accept-rate
+ *   metric.
+ * * ``consent_decision`` — fires the first time the user resolves the
+ *   banner in this page (transition to ``true``). Carries the derived
+ *   decision (``accept_all`` / ``accept_partial`` / ``decline_all``)
+ *   computed from how many optional categories ended up enabled.
+ *
+ * Subsequent preference changes via the floating control button (the
+ * ``true → true`` modal-save path) are intentionally not re-emitted —
+ * the metric we care about is the banner resolution, not running
+ * churn.
+ */
+const COOKIE_BANNER_SEEN_KEY = 'cookie_banner_seen'
+
+export function setupCookieConsentTracking() {
+  if (import.meta.server) return
+
+  const { isConsentGiven, cookiesEnabledIds, moduleOptions } = useCookieControl()
+
+  const post = (body: CookieConsentEventBody) =>
+    $fetch('/api/analytics/cookie-consent', {
+      method: 'POST',
+      body,
+      // ``keepalive`` lets the browser flush the request even if the
+      // user navigates away immediately after clicking accept/decline.
+      keepalive: true,
+    }).catch(() => {})
+
+  const deriveDecision = (): Extract<CookieConsentEventBody, { decision: unknown }>['decision'] => {
+    const optionalIds = moduleOptions.cookies.optional.map(c => c.id)
+    const enabled = cookiesEnabledIds.value ?? []
+    const optionalEnabled = enabled.filter(id => optionalIds.includes(id))
+    if (optionalEnabled.length === 0) return 'decline_all'
+    if (optionalEnabled.length === optionalIds.length) return 'accept_all'
+    return 'accept_partial'
+  }
+
+  onMounted(() => {
+    if (isConsentGiven.value === true) return
+    try {
+      if (window.sessionStorage.getItem(COOKIE_BANNER_SEEN_KEY)) return
+      window.sessionStorage.setItem(COOKIE_BANNER_SEEN_KEY, '1')
+    }
+    catch {
+      // Private-mode browsers may throw on sessionStorage access —
+      // proceed without dedup rather than miss the impression.
+    }
+    void post({ event: 'banner_shown' })
+  })
+
+  watch(isConsentGiven, (current, previous) => {
+    // Emit on the resolution transition — anything → true — and skip
+    // the modal "save preferences" path where the user was already
+    // consented before opening the modal.
+    if (current !== true) return
+    if (previous === true) return
+    void post({
+      event: 'consent_decision',
+      decision: deriveDecision(),
+      enabledIds: cookiesEnabledIds.value ?? [],
+    })
+  })
+}
+
 export function setupSocialLogin() {
   const { enabled } = useAuthPreviewMode()
   const config = useRuntimeConfig()
