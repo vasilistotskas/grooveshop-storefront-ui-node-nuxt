@@ -148,6 +148,7 @@
     "street": "Οδός",
     "street_number": "Αριθμός Οδού",
     "customer_notes": "Σημειώσεις",
+    "customer_notes_help": "Προαιρετικές οδηγίες παράδοσης που θα τυπωθούν στο voucher του courier (π.χ. «χτυπήστε 2 φορές», «παράδοση στον θυρωρό»).",
     "payment_method": "Τρόπος πληρωμής",
     "invoice": {
       "toggle_label": "Θέλω τιμολόγιο (Β2Β)",

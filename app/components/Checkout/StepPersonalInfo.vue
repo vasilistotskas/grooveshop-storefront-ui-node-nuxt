@@ -246,12 +246,17 @@ function onUseNew() {
           />
         </UFormField>
 
-        <UFormField :label="t('form.customer_notes')" name="customerNotes">
+        <UFormField
+          :label="t('form.customer_notes')"
+          :help="t('form.customer_notes_help')"
+          name="customerNotes"
+        >
           <UTextarea
             v-model="formState.customerNotes"
             :rows="3"
             size="xl"
             autoresize
+            :maxlength="500"
             class="w-full"
           />
         </UFormField>
