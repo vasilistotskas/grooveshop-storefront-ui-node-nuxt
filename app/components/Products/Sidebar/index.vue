@@ -179,7 +179,7 @@ watch(slideoverOpen, (isOpen) => {
 
   <!-- Desktop: Sticky Sidebar -->
   <div
-    v-else
+    v-if="!isMobileOrTablet"
     ref="sidebar"
     v-bind="attrs"
     role="region"
