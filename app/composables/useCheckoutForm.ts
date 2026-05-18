@@ -92,7 +92,6 @@ export async function useCheckoutForm() {
   const freeShippingThresholdSetting = ref<{ value: string } | null>(null)
   const boxnowShippingSetting = ref<{ value: string } | null>(null)
   const boxnowFreeShippingThresholdSetting = ref<{ value: string } | null>(null)
-  const boxnowEnabled = ref(false)
   // Per-kind toggle for ACS Smartpoint pickup. Backend returns the
   // ACS_SMARTPOINT_ENABLED Setting value as a string ("True"/"False");
   // the StepShipping component coerces to boolean before gating the
@@ -388,6 +387,14 @@ export async function useCheckoutForm() {
   // ``extra_settings`` (legacy) only when the fetch errors — never
   // blocks checkout on a transient API failure.
   const shippingOptions = ref<ShippingOption[]>([])
+  // BoxNow visibility derives from the live ``/api/v1/shipping/options``
+  // response — the backend already filters by
+  // ``ShippingProvider.is_active``, so a single check against the
+  // returned options replaces the legacy ``BOXNOW_ENABLED``
+  // ``extra_settings`` lookup. One source of truth, one round trip.
+  const boxnowEnabled = computed(() =>
+    shippingOptions.value.some(o => o.providerCode === 'boxnow'),
+  )
   const fetchShippingOptions = async () => {
     try {
       const cartTotal = cart.value?.totalPrice || 0
@@ -642,7 +649,6 @@ export async function useCheckoutForm() {
     freeShippingResult,
     boxnowShippingResult,
     boxnowFreeShippingResult,
-    boxnowEnabledResult,
     acsSmartpointEnabledResult,
     acsShippingResult,
     acsFreeShippingResult,
@@ -680,14 +686,6 @@ export async function useCheckoutForm() {
       () => $fetch<{ value: string }>('/api/settings/get', {
         method: 'GET',
         query: { key: 'BOXNOW_FREE_SHIPPING_THRESHOLD' },
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-    ),
-    useAsyncData<{ value: string } | null>(
-      'checkout:boxnow-enabled',
-      () => $fetch<{ value: string }>('/api/settings/get', {
-        method: 'GET',
-        query: { key: 'BOXNOW_ENABLED' },
         headers: useRequestHeaders(),
       }).catch(() => null),
     ),
@@ -790,12 +788,6 @@ export async function useCheckoutForm() {
   freeShippingThresholdSetting.value = freeShippingResult.data.value ?? null
   boxnowShippingSetting.value = boxnowShippingResult.data.value ?? null
   boxnowFreeShippingThresholdSetting.value = boxnowFreeShippingResult.data.value ?? null
-  // extra_settings serialises booleans as the strings "True"/"False".
-  // BoxNow defaults to **disabled** — the master switch starts False
-  // in production so a fresh deploy doesn't expose the option until an
-  // admin (and BoxNow's partner activation) confirm. Stage/dev flips
-  // it on in Django admin once the account is activated.
-  boxnowEnabled.value = boxnowEnabledResult.data.value?.value === 'True'
   // ACS Smartpoint defaults disabled (Phase 2 progressive rollout):
   // ops flips the Setting to True after the AcsStation cache has been
   // synced and the picker is verified end-to-end.

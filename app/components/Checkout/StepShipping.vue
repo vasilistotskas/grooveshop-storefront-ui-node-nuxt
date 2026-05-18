@@ -4,10 +4,11 @@ const formState = defineModel<Record<string, any>>('formState', { required: true
 const props = defineProps<{
   schema: any
   partnerId: string
-  // Master switch from the backend `BOXNOW_ENABLED` Setting row.
-  // Defaults to false at the source so a fresh prod deploy hides the
-  // option until BoxNow has activated the partner account; an admin
-  // flips it to true in Django admin once they confirm.
+  // Derived in ``useCheckoutForm`` from the live
+  // ``/api/v1/shipping/options`` response — true when the backend
+  // has an active ``ShippingProvider(code='boxnow')`` row. An admin
+  // ticks the row's "Is Active" flag in Django admin to expose the
+  // option to shoppers.
   boxnowEnabled?: boolean
   // Master switch from the backend `ACS_SMARTPOINT_ENABLED` Setting
   // row.  Defaults to false in production so ops can stage the
