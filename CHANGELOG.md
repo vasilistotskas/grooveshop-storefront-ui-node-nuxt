@@ -1,3 +1,10 @@
+## [3.121.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.0...v3.121.1) (2026-05-18)
+
+
+### Bug Fixes
+
+* **ai-ready:** disable autoI18n and contentSignal ([447c647](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/447c64708d523b43f52d8ddf89fc986a6d3359e5))
+
 # [3.121.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.120.0...v3.121.0) (2026-05-18)
 
 
