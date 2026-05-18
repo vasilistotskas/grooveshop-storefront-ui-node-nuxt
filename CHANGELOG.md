@@ -1,3 +1,17 @@
+# [3.121.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.120.0...v3.121.0) (2026-05-18)
+
+
+### Bug Fixes
+
+* **checkout:** hide shipping cost until method is selected ([945d9bf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/945d9bf66b57ffc6627ae462a2c089b5a5df0216))
+* **products:** restore desktop-only guard on filter sidebar after mobile removal ([77ac1d1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/77ac1d1876fb992949739cb5b107ae7e97f04b5c))
+* remove product category mobile filters ([1033618](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/10336186fade1b55b73e03bb1e161558cb27ab58))
+
+
+### Features
+
+* **checkout:** clarify that customer notes go on the courier voucher ([5e80532](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5e805329fe2ce6ed4e36c7e446a9414ebf4f7348))
+
 # [3.120.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.119.0...v3.120.0) (2026-05-18)
 
 
