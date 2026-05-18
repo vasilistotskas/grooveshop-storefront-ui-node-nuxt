@@ -1,3 +1,10 @@
+## [3.121.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.1...v3.121.2) (2026-05-18)
+
+
+### Bug Fixes
+
+* **rss:** correct media-stream URL shape (quality.format, not format/quality) ([06985c3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/06985c357e569c4049d0cee21646bd0ecc1cc244))
+
 ## [3.121.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.0...v3.121.1) (2026-05-18)
 
 
