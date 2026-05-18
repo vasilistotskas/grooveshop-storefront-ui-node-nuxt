@@ -400,7 +400,6 @@ export default defineNuxtConfig({
   // ``nuxt-ai-ready`` exposes site content to AI agents and crawlers via:
   //   /llms.txt, /llms-full.txt   — site overview + per-page markdown
   //   /<route>.md                  — on-demand markdown of any HTML page
-  //   robots.txt Content Signals   — opt-in directives for search/RAG/training
   //   /__ai-ready/*                — optional MCP/runtime sync endpoints
   //
   // Production deployment notes (webside.gr, K8s, 2 SSR replicas):
@@ -414,18 +413,21 @@ export default defineNuxtConfig({
   //     scheduled background indexing would race and double-submit to
   //     IndexNow. Enable only when scaled to 1 replica or when migrating to
   //     shared storage (D1 / LibSQL / Turso).
-  //   - ``autoI18n`` (default ``true``) auto-detects ``@nuxtjs/i18n`` and
-  //     emits ``hreflang`` Link headers + a Greek "Available Languages"
-  //     section in ``/llms.txt``.
   aiReady: {
-    contentSignal: {
-      // Allow training, search indexing, and RAG/grounding. The site is a
-      // public e-commerce storefront — discoverable AI surfaces are an
-      // acquisition channel, not a leak risk.
-      aiTrain: true,
-      search: true,
-      aiInput: true,
-    },
+    // Single-locale site (only ``el``). nuxt-ai-ready v1.3 ``autoI18n`` emits
+    // an HTTP ``link: </>; rel="alternate"; hreflang="el-GR"`` header with a
+    // **relative** href (see ``node_modules/nuxt-ai-ready/dist/runtime/server/
+    // utils/link-header.js`` — never joins with site.url), which Lighthouse
+    // rejects as "Relative href value" in the hreflang audit. With one locale
+    // the alternate is pointing at itself anyway, so the header is pure noise.
+    // Re-enable if a second locale ships AND upstream fixes the URL building.
+    autoI18n: false,
+    // ``contentSignal`` (Cloudflare's Content Signals Policy, CC0 — not RFC
+    // 9309) would emit ``Content-Signal:`` / ``Content-Usage:`` lines into
+    // robots.txt. Google added both to its unsupported-directives list in
+    // April 2026, and PageSpeed/Lighthouse flags every occurrence as
+    // "Unknown directive". The 25-bot user-agent groups in ``robots.groups``
+    // below already gate AI access via standards-compliant Allow/Disallow.
     // Production runs as the unprivileged ``node`` user (UID 1000) with
     // ``WORKDIR=/app`` owned by root, so the default ``.data/ai-ready``
     // path under cwd is read-only. The runtime DB is ephemeral per pod
