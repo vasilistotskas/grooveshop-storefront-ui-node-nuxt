@@ -69,7 +69,8 @@ const payWayName = computed(() => {
 const checkoutTotal = computed(() => {
   if (!cart.value) return 0
   const paymentFee = props.showPaymentFee ? payWayCost.value : 0
-  return Math.max(0, cart.value.totalPrice + props.shippingPrice + paymentFee - props.loyaltyDiscount)
+  const shipping = shippingSummaryView.value ? props.shippingPrice : 0
+  return Math.max(0, cart.value.totalPrice + shipping + paymentFee - props.loyaltyDiscount)
 })
 
 defineSlots<{
@@ -200,7 +201,10 @@ defineSlots<{
               "
             >{{ cart?.totalItemsUnique }}</span>
           </div>
-          <div class="flex items-center justify-between">
+          <div
+            v-if="shippingSummaryView"
+            class="flex items-center justify-between"
+          >
             <span
               class="
                 text-primary-950
