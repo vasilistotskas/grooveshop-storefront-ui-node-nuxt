@@ -271,7 +271,6 @@ defineSlots<{
             "
           >{{ $i18n.n(checkoutTotal, 'currency') }}</span>
         </div>
-
       </div>
 
       <template #footer>
