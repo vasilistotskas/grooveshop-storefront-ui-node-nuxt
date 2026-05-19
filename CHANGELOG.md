@@ -1,3 +1,10 @@
+## [3.121.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.3...v3.121.4) (2026-05-19)
+
+
+### Bug Fixes
+
+* **cart:** show product name in add-to-cart toast for search results ([d139dbd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d139dbdd1094d32b5a9a063caaa91b4d077c1781))
+
 ## [3.121.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.2...v3.121.3) (2026-05-19)
 
 
