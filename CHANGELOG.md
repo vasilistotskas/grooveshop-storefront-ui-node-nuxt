@@ -1,3 +1,15 @@
+# [3.122.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.7...v3.122.0) (2026-05-19)
+
+
+### Bug Fixes
+
+* **toaster:** push toast viewport below the sticky header ([a2f251e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a2f251e281435e0382971de2471be124caddeddb))
+
+
+### Features
+
+* Bump Version ([cd249e5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cd249e5f6ac886a78b51ebaeef5dc7b3d6e142e3))
+
 ## [3.121.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.6...v3.121.7) (2026-05-19)
 
 
