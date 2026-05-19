@@ -160,17 +160,5 @@
       ]
     ]
   },
-  "packageManager": "pnpm@11.1.3",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@intlify/vue-i18n-bridge",
-      "@intlify/vue-router-bridge",
-      "@parcel/watcher",
-      "better-sqlite3",
-      "esbuild",
-      "sharp",
-      "unrs-resolver",
-      "vue-demi"
-    ]
-  }
+  "packageManager": "pnpm@11.1.3"
 }

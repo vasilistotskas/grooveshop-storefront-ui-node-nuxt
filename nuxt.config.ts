@@ -299,35 +299,27 @@ export default defineNuxtConfig({
     '/what-is-microlearning': { prerender: true },
     '/why-microlearning': { prerender: true },
   },
-  sourcemap: { client: true, server: false },
+  sourcemap: {
+    client: 'hidden',
+    server: false,
+  },
+  future: {
+    compatibilityVersion: 5,
+  },
   experimental: {
-    typedPages: true,
     asyncContext: true,
+    typedPages: true,
     inlineRouteRules: true,
     viteEnvironmentApi: process.env.NODE_ENV !== 'test',
     crossOriginPrefetch: true,
-    defaults: {
-      nuxtLink: {
-        // Prefetch on viewport visibility so hot listings (products, blog,
-        // category grids) warm the route bundles before the user clicks.
-        // Interaction still triggers immediate prefetch on hover/focus.
-        prefetchOn: {
-          visibility: true,
-          interaction: true,
-        },
-      },
-    },
+    nitroAutoImports: true,
+    emitRouteChunkError: 'automatic-immediate',
   },
   compatibilityDate: 'latest',
   nitro: {
     prerender: {
       crawlLinks: false,
       ignore: ['/_ipx/'],
-    },
-    esbuild: {
-      options: {
-        target: 'esnext',
-      },
     },
     imports: {
       dirs: [
@@ -363,9 +355,25 @@ export default defineNuxtConfig({
         optionsAPI: false,
       },
     },
+    plugins: [
+      {
+        name: 'force-leaflet-esm',
+        enforce: 'pre',
+        async resolveId(source) {
+          if (source !== 'leaflet') return null
+          const resolved = await this.resolve(
+            'leaflet/dist/leaflet-src.esm.js',
+            undefined,
+            { skipSelf: true },
+          )
+          return resolved
+        },
+      },
+    ],
     optimizeDeps: {
       include: [
         '@internationalized/date',
+        'leaflet/dist/leaflet-src.esm.js',
         'zod',
         'isomorphic-dompurify',
         'lottie-web',
@@ -394,7 +402,6 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: true,
-    hoist: ['vite'],
   },
   debug: false,
   // ``nuxt-ai-ready`` exposes site content to AI agents and crawlers via:
@@ -497,7 +504,7 @@ export default defineNuxtConfig({
   eslint: {
     checker: {
       eslintPath: 'eslint',
-      lintOnStart: true,
+      lintOnStart: process.env.NODE_ENV !== 'production',
     },
     config: {
       stylistic: true,
@@ -510,7 +517,7 @@ export default defineNuxtConfig({
     transport: { enabled: true },
   },
   i18n: {
-    defaultLocale: DEFAULT_LOCALE as any,
+    defaultLocale: DEFAULT_LOCALE,
     debug: false,
     restructureDir: 'i18n',
     detectBrowserLanguage: {

@@ -50,21 +50,14 @@ overrides:
   # patched in 5.7.0.
   fast-xml-parser: '>=5.7.0'
 allowBuilds:
+  '@intlify/vue-i18n-bridge': true
+  '@intlify/vue-router-bridge': true
   '@parcel/watcher': true
   better-sqlite3: true
   esbuild: true
   sharp: true
   unrs-resolver: true
   vue-demi: true
-onlyBuiltDependencies:
-  - '@intlify/vue-i18n-bridge'
-  - '@intlify/vue-router-bridge'
-  - '@parcel/watcher'
-  - better-sqlite3
-  - esbuild
-  - sharp
-  - unrs-resolver
-  - vue-demi
 minimumReleaseAgeExclude:
   - '@types/node@25.9.1'
   - '@vue/language-core@3.3.1'
