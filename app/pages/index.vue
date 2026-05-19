@@ -24,8 +24,9 @@ const bannerLink = '/products/2/mini-powerbank-5000mah'
 
 // Admin-toggleable rail — extra-setting RECENTLY_VIEWED_ENABLED.
 // Fetched during SSR with a stale-falls-open fallback so a flaky
-// settings call never silently kills a user-facing rail. Default is
-// ``true`` on the Django side, so legacy behaviour is preserved.
+// settings call never silently kills a user-facing rail. Default
+// on the Django side is ``true``, so the rail shows unless an
+// admin explicitly disables it.
 const headers = useRequestHeaders(['cookie'])
 const { data: recentlyViewedSetting } = await useAsyncData(
   'home:recently-viewed-enabled',

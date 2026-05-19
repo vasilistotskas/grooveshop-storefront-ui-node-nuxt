@@ -35,12 +35,12 @@ const { t } = useI18n()
 // generic checkout error toast.
 const isBoxNowConfigured = computed(() => Boolean(props.partnerId))
 
-// BoxNow now supports COD on lockers via PAY ON THE GO. Backend wires
-// ``paymentMode='cod'`` + ``amountToBeCollected`` onto the voucher when
-// the order's pay-way is offline (see shipping_boxnow/carrier.py
-// ``create_shipment_row``). The legacy gate that disabled BoxNow when
-// COD was selected is gone; the only thing that still disables the
-// row is a missing ``NUXT_PUBLIC_BOXNOW_PARTNER_ID``.
+// BoxNow supports COD on lockers via PAY ON THE GO — the backend
+// wires ``paymentMode='cod'`` + ``amountToBeCollected`` onto the
+// voucher when the order's pay-way is offline (see
+// ``shipping_boxnow/carrier.py:create_shipment_row``). The row is
+// only disabled when ``NUXT_PUBLIC_BOXNOW_PARTNER_ID`` is missing
+// from the deploy env.
 const isBoxNowDisabled = computed(() => !isBoxNowConfigured.value)
 
 // Note: ``description`` is rendered inside the custom ``#label`` slot

@@ -384,15 +384,16 @@ export async function useCheckoutForm() {
   // therefore match what the voucher mint will charge.
   //
   // Keyed on (country, total, weight) so the cache invalidates when
-  // the shopper changes country or adds/removes items. Falls back to
-  // ``extra_settings`` (legacy) only when the fetch errors — never
-  // blocks checkout on a transient API failure.
+  // the shopper changes country or adds/removes items. The
+  // ``extra_settings`` flat-rate Settings (``shippingSetting`` /
+  // ``boxnowShippingSetting`` / ``acsShippingSetting``) act as a
+  // fallback when this fetch errors so checkout never blocks on a
+  // transient API failure — see ``shippingPrice`` below.
   const shippingOptions = ref<ShippingOption[]>([])
-  // BoxNow visibility derives from the live ``/api/v1/shipping/options``
-  // response — the backend already filters by
-  // ``ShippingProvider.is_active``, so a single check against the
-  // returned options replaces the legacy ``BOXNOW_ENABLED``
-  // ``extra_settings`` lookup. One source of truth, one round trip.
+  // BoxNow visibility — true when the backend's
+  // ``ShippingProvider(code='boxnow').is_active`` flag is set, which
+  // is the registry-side master switch and the same query
+  // ``/api/v1/shipping/options`` already filters by.
   const boxnowEnabled = computed(() =>
     shippingOptions.value.some(o => o.providerCode === 'boxnow'),
   )
@@ -443,8 +444,9 @@ export async function useCheckoutForm() {
 
   /** Match the live option row for the selected ``shippingMethod``.
    *  Returns ``undefined`` if the live fetch hasn't populated yet or
-   *  the row is missing — caller falls back to the legacy flat-rate
-   *  Setting so the sidebar never shows a stale or empty Μεταφορικά. */
+   *  the row is missing — caller falls back to the flat-rate
+   *  ``extra_settings`` Setting so the sidebar never shows a stale
+   *  or empty Μεταφορικά. */
   const matchedShippingOption = computed<ShippingOption | undefined>(() => {
     const method = formState.shippingMethod
     if (!shippingOptions.value.length) return undefined
