@@ -1,3 +1,10 @@
+## [3.121.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.4...v3.121.5) (2026-05-19)
+
+
+### Bug Fixes
+
+* **checkout:** forward Viva eventId so success-page redirect survives webhook race ([0cc7ffc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0cc7ffc223c57212c5eb77ba573b3df6e2ed44a3)), closes [#71](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/71)
+
 ## [3.121.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.3...v3.121.4) (2026-05-19)
 
 
