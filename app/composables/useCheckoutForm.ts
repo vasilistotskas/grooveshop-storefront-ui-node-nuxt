@@ -903,5 +903,11 @@ export async function useCheckoutForm() {
     acsShippingSetting,
     acsFreeShippingThresholdSetting,
     refetchShippingSettings,
+    // Live, priority-sorted carrier options from
+    // ``/api/v1/shipping/options``. Exposed so the StepShipping
+    // component can render rows in the backend's declared order
+    // (``ShippingProvider.priority`` ascending) instead of a
+    // hardcoded UI sequence.
+    shippingOptions,
   }
 }

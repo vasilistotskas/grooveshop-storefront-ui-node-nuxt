@@ -4,16 +4,14 @@ const formState = defineModel<Record<string, any>>('formState', { required: true
 const props = defineProps<{
   schema: any
   partnerId: string
-  // Derived in ``useCheckoutForm`` from the live
-  // ``/api/v1/shipping/options`` response — true when the backend
-  // has an active ``ShippingProvider(code='boxnow')`` row. An admin
-  // ticks the row's "Is Active" flag in Django admin to expose the
-  // option to shoppers.
-  boxnowEnabled?: boolean
-  // Master switch from the backend `ACS_SMARTPOINT_ENABLED` Setting
-  // row.  Defaults to false in production so ops can stage the
-  // AcsStation cache + verify the picker before exposing to shoppers.
-  acsSmartpointEnabled?: boolean
+  // Live, priority-sorted carrier options from
+  // ``/api/v1/shipping/options`` (already filtered by the backend
+  // to active ``ShippingProvider`` rows + per-kind feature flags
+  // like ``ACS_SMARTPOINT_ENABLED``). The display order here mirrors
+  // ``ShippingProvider.priority`` ascending — admins control which
+  // method appears first by editing the provider rows in Django
+  // admin instead of editing this component.
+  apiOptions: ShippingOption[]
   // The currently selected PayWay (from useCheckoutForm). Threaded
   // through as a prop so we can disable the BoxNow option when the
   // shopper has a cash-on-delivery PayWay selected — BoxNow lockers
@@ -35,6 +33,14 @@ const { t } = useI18n()
 // generic checkout error toast.
 const isBoxNowConfigured = computed(() => Boolean(props.partnerId))
 
+// Mirrors the visibility decision in ``useCheckoutForm`` so the
+// "BoxNow is unconfigured" alert below only renders when the
+// shopper actually has BoxNow as a candidate method (otherwise
+// it'd surface on every checkout in environments without BoxNow).
+const boxnowAvailable = computed(() =>
+  props.apiOptions.some(o => o.providerCode === 'boxnow'),
+)
+
 // BoxNow supports COD on lockers via PAY ON THE GO — the backend
 // wires ``paymentMode='cod'`` + ``amountToBeCollected`` onto the
 // voucher when the order's pay-way is offline (see
@@ -51,50 +57,68 @@ const isBoxNowDisabled = computed(() => !isBoxNowConfigured.value)
 // Brand metadata (logo, icon, optional badge tagline) lives in
 // ``app/utils/shipping-methods.ts`` so adding a carrier is just dropping
 // a logo into ``public/img/shipping/`` + a one-line entry there.
-const shippingOptions = computed(() => {
-  const items: Array<{
-    value: ShippingMethodKey
-    label: string
-    descriptionText: string
-    logo: string
-    altText: string
-    icon: string
-    taglineKey?: string
-    taglineColor?: ShippingMethodMeta['taglineColor']
-    disabled?: boolean
-  }> = [
-    {
+type ShippingOptionItem = {
+  value: ShippingMethodKey
+  label: string
+  descriptionText: string
+  logo: string
+  altText: string
+  icon: string
+  taglineKey?: string
+  taglineColor?: ShippingMethodMeta['taglineColor']
+  disabled?: boolean
+}
+
+// Per-method UI metadata (i18n labels + brand assets +
+// per-instance ``disabled`` reasons). Methods absent from
+// ``apiOptions`` are filtered out below — Django decides which
+// rows to surface based on ``ShippingProvider.is_active`` and any
+// per-kind Setting flags (``ACS_SMARTPOINT_ENABLED``, etc.). The
+// UI only handles rendering + ``disabled`` reasons local to the
+// browser environment (e.g. missing BoxNow ``partnerId``).
+const itemsByKey = computed<Record<ShippingMethodKey, ShippingOptionItem>>(
+  () => ({
+    home_delivery: {
       value: 'home_delivery',
       label: t('shipping.method.home_delivery.label'),
       descriptionText: t('shipping.method.home_delivery.description'),
       ...buildBrandMeta('home_delivery'),
     },
-  ]
-  // BoxNow row is hidden entirely when the master switch is off —
-  // showing a disabled-and-greyed BoxNow card would invite confusion
-  // ("why can't I pick this?"). Once an admin flips the Setting to
-  // True the option appears on the next checkout load.
-  if (props.boxnowEnabled) {
-    items.push({
+    box_now_locker: {
       value: 'box_now_locker',
       label: t('shipping.method.boxnow.label'),
       descriptionText: t('shipping.method.boxnow.description'),
       disabled: isBoxNowDisabled.value,
       ...buildBrandMeta('box_now_locker'),
-    })
-  }
-  // ACS Smartpoint locker pickup. Same hidden-when-disabled treatment
-  // as BoxNow, but with no per-PayWay restriction — ACS supports COD
-  // at Smartpoints so we let the shopper pair it with any pay way.
-  if (props.acsSmartpointEnabled) {
-    items.push({
+    },
+    acs_smartpoint: {
       value: 'acs_smartpoint',
       label: t('shipping.method.acs_smartpoint.label'),
       descriptionText: t('shipping.method.acs_smartpoint.description'),
       ...buildBrandMeta('acs_smartpoint'),
-    })
+    },
+  }),
+)
+
+// Render in the priority order the backend already produced. The
+// backend sorts ``/api/v1/shipping/options`` by
+// ``(ShippingProvider.priority, provider_code)`` ascending — admins
+// reorder the picker by editing those priority values in Django
+// admin. Duplicate ``methodKey`` values are de-duped (only the
+// first occurrence wins) because we collapse all home-delivery
+// providers to a single ``'home_delivery'`` UI row.
+const shippingOptions = computed(() => {
+  const seen = new Set<ShippingMethodKey>()
+  const ordered: ShippingOptionItem[] = []
+  for (const option of props.apiOptions) {
+    const key = methodKeyForOption(option) as ShippingMethodKey | null
+    if (!key || seen.has(key)) continue
+    const item = itemsByKey.value[key]
+    if (!item) continue
+    seen.add(key)
+    ordered.push(item)
   }
-  return items
+  return ordered
 })
 
 function buildBrandMeta(method: ShippingMethodKey) {
@@ -272,7 +296,7 @@ function onSubmit() {
       <!-- Configuration explainer — only in dev when BoxNow partnerId is
            missing AND BoxNow is supposed to be visible. -->
       <UAlert
-        v-if="!isBoxNowConfigured && boxnowEnabled"
+        v-if="!isBoxNowConfigured && boxnowAvailable"
         color="info"
         variant="subtle"
         icon="i-heroicons-information-circle"

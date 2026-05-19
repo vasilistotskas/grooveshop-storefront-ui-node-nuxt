@@ -22,6 +22,33 @@ import { describe, it, expect, vi } from 'vitest'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import StepShipping from '~/components/Checkout/StepShipping.vue'
 
+// Default ``apiOptions`` matching prod-after-activation: BoxNow active
+// (priority=5, shown first per the owner's requirement) + ACS home
+// delivery (priority=10). Tests covering the hidden-row case override
+// ``apiOptions`` to drop the relevant provider row.
+const DEFAULT_API_OPTIONS: ShippingOption[] = [
+  {
+    providerCode: 'boxnow',
+    providerName: 'BOX NOW',
+    kind: 'pickup_point',
+    price: 2.99,
+    currency: 'EUR',
+    liveMode: true,
+    priority: 5,
+    metadata: {},
+  },
+  {
+    providerCode: 'acs',
+    providerName: 'ACS Courier',
+    kind: 'home_delivery',
+    price: 2.99,
+    currency: 'EUR',
+    liveMode: true,
+    priority: 10,
+    metadata: {},
+  },
+]
+
 // partnerId is now a required prop on StepShipping → no `useRuntimeConfig`
 // mock needed here. Module-level `mockNuxtImport('useRuntimeConfig', ...)`
 // breaks `@nuxt/test-utils` setupNuxt() — it reads
@@ -75,9 +102,9 @@ describe('BoxNow Checkout Integration', () => {
       }
 
       const wrapper = await mountSuspended(StepShipping, {
-        // ``boxnowEnabled: true`` mirrors the prod-after-activation
+        // ``apiOptions: DEFAULT_API_OPTIONS`` mirrors the prod-after-activation
         // state — the master switch is on so the BoxNow row renders.
-        props: { formState, schema: null, partnerId: '10391', boxnowEnabled: true },
+        props: { formState, schema: null, partnerId: '10391', apiOptions: DEFAULT_API_OPTIONS },
       })
 
       expect(wrapper.exists()).toBe(true)
@@ -93,7 +120,7 @@ describe('BoxNow Checkout Integration', () => {
       })
 
       const wrapper = await mountSuspended(StepShipping, {
-        props: { formState, schema: null, partnerId: '10391', boxnowEnabled: true },
+        props: { formState, schema: null, partnerId: '10391', apiOptions: DEFAULT_API_OPTIONS },
       })
 
       // Initially no picker
@@ -112,7 +139,7 @@ describe('BoxNow Checkout Integration', () => {
           formState: { shippingMethod: 'home_delivery', boxnowLockerId: '', boxnowLocker: null },
           schema: null,
           partnerId: '10391',
-          boxnowEnabled: true,
+          apiOptions: DEFAULT_API_OPTIONS,
         },
       })
 
@@ -138,7 +165,7 @@ describe('BoxNow Checkout Integration', () => {
           },
           schema: null,
           partnerId: '10391',
-          boxnowEnabled: true,
+          apiOptions: DEFAULT_API_OPTIONS,
         },
       })
 

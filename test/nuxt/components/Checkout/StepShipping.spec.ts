@@ -24,14 +24,44 @@ function makeFormState(overrides: Record<string, unknown> = {}) {
   }
 }
 
+// Default ``apiOptions`` mirroring the production
+// ``/api/v1/shipping/options`` response — BoxNow + ACS active, sorted
+// by ``ShippingProvider.priority`` ascending (BoxNow priority=5 first
+// since the owner asked for it as the leading option). Tests covering
+// the hidden-row case override ``apiOptions`` to drop the relevant
+// provider row.
+const DEFAULT_API_OPTIONS: ShippingOption[] = [
+  {
+    providerCode: 'boxnow',
+    providerName: 'BOX NOW',
+    kind: 'pickup_point',
+    price: 2.99,
+    currency: 'EUR',
+    liveMode: true,
+    priority: 5,
+    metadata: {},
+  },
+  {
+    providerCode: 'acs',
+    providerName: 'ACS Courier',
+    kind: 'home_delivery',
+    price: 2.99,
+    currency: 'EUR',
+    liveMode: true,
+    priority: 10,
+    metadata: {},
+  },
+]
+
 function makeProps(overrides: Record<string, unknown> = {}) {
   return {
     formState: makeFormState(),
     schema: null,
     partnerId: '10391',
-    // Master switch — almost every test needs the BoxNow option
-    // visible. Tests covering the hidden case override this to false.
-    boxnowEnabled: true,
+    // Live carrier rows — the component renders one entry per option
+    // in this order. Tests that need a row hidden drop it from this
+    // list rather than toggling a separate boolean flag.
+    apiOptions: DEFAULT_API_OPTIONS,
     ...overrides,
   }
 }
@@ -61,9 +91,15 @@ describe('Checkout/StepShipping', () => {
       expect(html).toContain('box_now_locker')
     })
 
-    it('omits the BoxNow row when boxnowEnabled is false (admin master switch)', async () => {
+    it('omits the BoxNow row when no boxnow option in apiOptions (admin master switch)', async () => {
       const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps({ boxnowEnabled: false }),
+        props: makeProps({
+          // Backend has ``ShippingProvider(code='boxnow').is_active=False``,
+          // so ``/api/v1/shipping/options`` drops the boxnow row.
+          apiOptions: DEFAULT_API_OPTIONS.filter(
+            o => o.providerCode !== 'boxnow',
+          ),
+        }),
       })
 
       const html = wrapper.html()

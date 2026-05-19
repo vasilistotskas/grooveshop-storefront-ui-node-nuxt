@@ -57,9 +57,8 @@ const {
   addressEntryMode,
   useNewAddress,
   b2bInvoicingEnabled,
-  boxnowEnabled,
-  acsSmartpointEnabled,
   refetchShippingSettings,
+  shippingOptions,
 } = await useCheckoutForm()
 
 const {
@@ -239,8 +238,7 @@ definePageMeta({
             v-model:form-state="formState"
             :schema="step2Schema"
             :partner-id="boxnowPartnerId"
-            :boxnow-enabled="boxnowEnabled"
-            :acs-smartpoint-enabled="acsSmartpointEnabled"
+            :api-options="shippingOptions"
             :selected-pay-way="selectedPayWay"
             @next="nextStep"
             @back="prevStep"
