@@ -1,3 +1,10 @@
+## [3.121.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.2...v3.121.3) (2026-05-19)
+
+
+### Bug Fixes
+
+* **release:** cut patch release after legacy-checkout-comment + DynamicForm refactor ([54b49f3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/54b49f37151cc888bb00e6e8ed88c809d52ed65d))
+
 ## [3.121.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.1...v3.121.2) (2026-05-18)
 
 
