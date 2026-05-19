@@ -17,6 +17,16 @@ const transactionId = computed(() => {
   return typeof raw === 'string' && raw ? raw : ''
 })
 
+// ``eventId`` echoes the ``merchantTrns`` we sent to Viva at
+// session creation. The Django backend sets it to ``order.uuid`` so
+// the return lookup can succeed even before the webhook has set
+// ``payment_id`` on the row (race window: customer browser redirect
+// vs. Viva server → our webhook can lag by tens of seconds).
+const eventId = computed(() => {
+  const raw = route.query.eventId
+  return typeof raw === 'string' && raw ? raw : ''
+})
+
 const vivaStatus = computed(() => {
   const raw = route.query.s
   return typeof raw === 'string' ? raw : ''
@@ -33,7 +43,7 @@ const isFailure = computed(() => {
 const errorMessage = ref('')
 
 onMounted(async () => {
-  if (!transactionId.value) {
+  if (!transactionId.value && !eventId.value) {
     errorMessage.value = t('error.missing_transaction_id')
     return
   }
@@ -57,7 +67,7 @@ onMounted(async () => {
       status: string
       paymentStatus: string
     }>('/api/checkout/viva-return', {
-      query: { t: transactionId.value },
+      query: { t: transactionId.value, eventId: eventId.value },
     })
 
     if (!data?.uuid) {
