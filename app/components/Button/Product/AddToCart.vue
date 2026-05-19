@@ -18,7 +18,12 @@ const { t, locale } = useI18n()
 const toast = useToast()
 const localePath = useLocalePath()
 
-const productName = computed(() => extractTranslated(product.value, 'name', locale.value))
+const productName = computed(() => {
+  if ('name' in product.value && typeof product.value.name === 'string') {
+    return product.value.name
+  }
+  return extractTranslated(product.value, 'name', locale.value)
+})
 
 // Get the correct product ID for URLs and API calls
 // For search results (ProductMeiliSearchResult), use 'master' field
