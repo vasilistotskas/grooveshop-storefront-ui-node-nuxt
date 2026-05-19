@@ -187,9 +187,14 @@ definePageMeta({
           @retry="handleStockRetry"
         />
 
-        <!-- Stepper -->
+        <!-- Stepper. ``disabled`` blocks click-navigation on the step
+             headers so the only way forward is the per-step "Συνέχεια"
+             submit button, which runs the Zod schema for that step.
+             The ref is still controlled via ``v-model`` from the
+             ``nextStep``/``prevStep`` helpers in ``useCheckoutSubmit``. -->
         <UStepper
           v-model="currentStep"
+          disabled
           :items="[
             { title: t('steps.info_and_address'), icon: 'i-heroicons-user-circle' },
             { title: t('shipping.method.title'), icon: 'i-heroicons-truck' },
