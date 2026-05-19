@@ -1,3 +1,11 @@
+## [3.121.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.5...v3.121.6) (2026-05-19)
+
+
+### Bug Fixes
+
+* **cart:** stop auto-navigating to checkout when first item is added ([9e7c1c2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9e7c1c25d8f6a878618aadc7676a2fdd019461a7))
+* checkout navigation ([eb56fa5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eb56fa5d3e38fef844f273b803e522ee7e975abe))
+
 ## [3.121.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.4...v3.121.5) (2026-05-19)
 
 
