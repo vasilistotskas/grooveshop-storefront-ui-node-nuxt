@@ -12,11 +12,10 @@ const props = defineProps({
 
 const cartStore = useCartStore()
 const { createCartItem, updateCartItem, getCartItemByProductId } = cartStore
-const { error, getCartTotalItems } = storeToRefs(cartStore)
+const { error } = storeToRefs(cartStore)
 const { product, quantity, text } = toRefs(props)
 const { t, locale } = useI18n()
 const toast = useToast()
-const localePath = useLocalePath()
 
 const productName = computed(() => {
   if ('name' in product.value && typeof product.value.name === 'string') {
@@ -59,7 +58,6 @@ const label = computed(() => {
 
 const addToCartEvent = async () => {
   const existingCartItem = getCartItemByProductId(productId.value)
-  const wasCartEmpty = getCartTotalItems.value === 0
   let failed = false
 
   try {
@@ -99,11 +97,6 @@ const addToCartEvent = async () => {
     color: 'success',
     icon: 'i-heroicons-shopping-cart',
   })
-
-  // Navigate to checkout if cart was empty before adding this item
-  if (wasCartEmpty && getCartTotalItems.value > 0) {
-    await navigateTo(localePath('checkout'))
-  }
 }
 </script>
 
