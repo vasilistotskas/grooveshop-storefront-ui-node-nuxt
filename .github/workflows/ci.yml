@@ -15,6 +15,7 @@ on:
       - 'docs/**'
       - 'LICENSE'
       - '.editorconfig'
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
