@@ -316,10 +316,11 @@ export async function useCheckoutForm() {
   // Re-fetch pay ways whenever the shopper picks a different shipping
   // method. Django's PayWayFilter dispatches through the carrier
   // registry — BoxNow rejects COD on locker pickup; ACS allows COD
-  // on every kind. The pair ``(shippingProviderCode, shippingKind)``
-  // drives the filter, NOT the legacy ``shippingMethod`` enum.
-  // The Nuxt server route's cache key includes the query so each
-  // (provider, kind) combination gets its own cached list.
+  // on every kind. The filter request sends the API contract pair
+  // ``(shippingProviderCode, shippingKind)`` derived from the local
+  // ``shippingMethod`` UI key. The Nuxt server route's cache key
+  // includes the query so each (provider, kind) combination gets
+  // its own cached list.
   watch(() => formState.shippingMethod, async (newMethod) => {
     try {
       const carrier = carrierForMethod(newMethod)
