@@ -1,3 +1,10 @@
+## [3.121.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.6...v3.121.7) (2026-05-19)
+
+
+### Bug Fixes
+
+* **checkout:** render shipping methods in backend priority order ([064d1c2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/064d1c2fc31406f079602ee05d7defeaff46df9a))
+
 ## [3.121.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.121.5...v3.121.6) (2026-05-19)
 
 
