@@ -1,3 +1,10 @@
+## [3.123.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.123.1...v3.123.2) (2026-05-20)
+
+
+### Bug Fixes
+
+* **map:** revert force-leaflet-esm + leaflet refactor — restore working leaflet/markercluster bundling ([eb6331d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eb6331dfbc74da590d3ce4072bd601723cd8feb6))
+
 ## [3.123.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.123.0...v3.123.1) (2026-05-20)
 
 
