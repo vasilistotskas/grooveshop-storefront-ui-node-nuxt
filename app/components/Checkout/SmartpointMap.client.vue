@@ -134,21 +134,38 @@ const PIN_HTML = `
     </svg>
   </div>`
 
-// Leaflet runtime — populated by a client-only dynamic import below.
-// ``isLeafletReady`` gates the template so ``<LMap>`` (and every
-// downstream ``leaflet`` API call) only mount after the module is
-// available. This mirrors the seajets reference implementation
-// (``app/components/Map/Agencies.vue``) and is the pattern
-// ``@nuxtjs/leaflet`` documents for ``.client`` components: keep
-// ``leaflet`` out of the static module graph and load it lazily
-// so the build doesn't trip on the package's named-only ESM shape.
+// Leaflet runtime — populated by a client-only dynamic import inside
+// ``onMounted`` below. ``isLeafletReady`` gates the template so
+// ``<LMap>`` (and every downstream ``leaflet`` API call) only mount
+// after the module is available. This mirrors the seajets reference
+// implementation (``app/components/Map/Agencies.vue``).
+//
+// CRITICAL: the load MUST happen inside ``onMounted``, NOT at module
+// scope. Loading at module scope makes the leaflet chunk a transitive
+// dependency of every component that auto-imports
+// ``CheckoutSmartpointMap`` — Nuxt's manifest then preloads the
+// chunk on every page, which in turn pulls the markercluster plugin
+// chunk in (via its export-name resolution graph), and the plugin's
+// UMD wrapper does a bare ``L`` lookup at module-eval time. Without
+// ``window.L`` seeded first, that lookup throws ``L is not defined``
+// and freezes the page (production outage at v3.123.0, fixed in
+// v3.123.x by deferring to ``onMounted`` + seeding ``window.L``).
 let leaflet: typeof Leaflet | null = null
 let iconNormal: Leaflet.DivIcon | null = null
 let iconSelected: Leaflet.DivIcon | null = null
 const isLeafletReady = ref(false)
 
-void (async () => {
+onMounted(async () => {
   leaflet = await import('leaflet')
+  // Seed ``window.L`` immediately so any subsequent dynamic import
+  // of ``leaflet.markercluster`` (or any other UMD plugin that does
+  // ``L.X = L.Y.extend(...)`` at module load) can resolve the bare
+  // ``L`` lookup through global scope. vue-leaflet does the same
+  // assignment when ``<LMap :use-global-leaflet="true">`` mounts,
+  // but the markercluster chunk can be evaluated before that point
+  // if Vite has emitted a modulepreload for it — pre-seeding here
+  // is defence in depth.
+  ;(window as unknown as { L: typeof Leaflet }).L = leaflet
   iconNormal = leaflet.divIcon({
     html: PIN_HTML,
     className: 'acs-pin',
@@ -162,7 +179,7 @@ void (async () => {
     iconAnchor: [16, 40],
   })
   isLeafletReady.value = true
-})()
+})
 
 // Marker props are independent of ``selectedId`` — selection state is
 // applied via ``setIcon`` on the affected markers without rebuilding
@@ -283,26 +300,25 @@ async function ensureClusters(): Promise<void> {
       activeCluster = null
     }
     markersById.clear()
-    // ``leaflet.markercluster``'s UMD wrapper writes the constructor
-    // both onto ``window.L.MarkerClusterGroup`` AND onto its module
-    // ``exports`` (verified against
-    // ``node_modules/leaflet.markercluster/dist/leaflet.markercluster.js``).
-    // The dynamic-import path lets us destructure ``MarkerClusterGroup``
-    // straight off the resolved module — no ``window.L`` reach-through,
-    // no namespace-frozen workaround. ``@nuxtjs/leaflet``'s
-    // ``useLMarkerCluster`` does the same destructure but expects the
-    // caller to have wired vue-leaflet's ``:use-global-leaflet="true"``
-    // first (otherwise its ``window.L`` lookup is undefined); we bypass
-    // the composable to keep marker/popup construction colocated with
-    // our cluster setup.
+    // ``leaflet.markercluster`` is a UMD plugin: the top of its
+    // wrapper does ``var t = L.MarkerClusterGroup = L.FeatureGroup.extend(...)``
+    // with **bare ``L``** — resolved via JS scope walk. Inside a
+    // Vite-bundled chunk that scope walk lands on a chunk-level ``L``
+    // binding only when something in the same chunk statically does
+    // ``import L from 'leaflet'``. With the dynamic-import refactor
+    // there's no such static binding, so the walk falls through to
+    // ``globalThis.L`` — undefined unless something else has seeded
+    // it. Seed ``window.L`` from the freshly-loaded module so the
+    // plugin's top-level statements can resolve it. vue-leaflet does
+    // the same when ``<LMap :use-global-leaflet="true">`` mounts, but
+    // by the time ``ensureClusters`` runs ``onMapReady`` has fired and
+    // it's already done — this assignment is a no-op then.
+    ;(window as unknown as { L: typeof Leaflet }).L = leaflet
     // The ``@types/leaflet.markercluster`` package only declares
-    // ``MarkerClusterGroup`` as an ambient ``L.MarkerClusterGroup``
-    // (consumed via the global ``L`` namespace), not as a module-
-    // level export. The runtime module DOES expose it (verified in
-    // ``leaflet.markercluster/dist/leaflet.markercluster.js``: the
-    // UMD wrapper does ``e.MarkerClusterGroup = t``), so cast through
-    // ``unknown`` to surface the constructor the destructure already
-    // resolves to.
+    // ``MarkerClusterGroup`` as an ambient ``L.MarkerClusterGroup``,
+    // not as a module-level export. The runtime module DOES expose
+    // it (verified in ``leaflet.markercluster/dist/leaflet.markercluster.js``:
+    // ``e.MarkerClusterGroup = t``), so cast through ``unknown``.
     const { MarkerClusterGroup } = (await import('leaflet.markercluster')) as unknown as {
       MarkerClusterGroup: new (opts: object) => Leaflet.FeatureGroup
     }

@@ -382,16 +382,31 @@ export default defineNuxtConfig({
     build: {
       rollupOptions: {
         output: {
-          // Group Leaflet + the marker cluster plugin into a single
-          // chunk so the checkout entry stays small. The chunk only
-          // loads when CheckoutSmartpointMap is mounted (Lazy* +
-          // ClientOnly), so customers who never open the locker
-          // picker pay zero bytes for the map library.
+          // Two separate chunks: ``leaflet`` (the core library) and
+          // ``leaflet-markercluster`` (the UMD plugin that mutates
+          // ``L``). They MUST stay separate — bundling them merges
+          // the plugin's top-level ``var t = L.MarkerClusterGroup =
+          // L.FeatureGroup.extend(...)`` into whichever chunk picks
+          // up ``leaflet`` first, and that statement does a bare
+          // ``L`` lookup. Vite synthesises a chunk-level ``L``
+          // binding only when something statically does ``import L
+          // from 'leaflet'``; under our dynamic-import pattern there
+          // IS no such binding, so the plugin's bare lookup falls
+          // through to ``window.L`` — which is undefined the first
+          // time the chunk loads (prod outage at v3.123.0, fixed by
+          // splitting the chunks back out and seeding ``window.L``
+          // from inside ``ensureClusters`` before the plugin import
+          // resolves).
+          //
+          // Both chunks only load via the dynamic imports in
+          // ``CheckoutSmartpointMap`` (Lazy* + ClientOnly), so
+          // customers who never open the locker picker still pay
+          // zero bytes for either.
           manualChunks(id) {
-            if (
-              id.includes('node_modules/leaflet/')
-              || id.includes('node_modules/leaflet.markercluster/')
-            ) {
+            if (id.includes('node_modules/leaflet.markercluster/')) {
+              return 'leaflet-markercluster'
+            }
+            if (id.includes('node_modules/leaflet/')) {
               return 'leaflet'
             }
           },
