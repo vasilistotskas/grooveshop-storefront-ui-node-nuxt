@@ -1,20 +1,17 @@
-import { z } from 'zod'
-
-const bodySchema = z.object({ payWayId: z.number().int().positive() })
-
 /**
  * Create a Stripe payment intent from cart for online payment checkout.
  *
- * This endpoint creates a payment intent based on the cart total before order creation.
- * The payment_intent_id is then used when creating the order.
- *
- * Flow:
- * 1. Get cart from session/auth
- * 2. Calculate total amount from cart
- * 3. Create Stripe payment intent
- * 4. Return client_secret and payment_intent_id
- *
+ * Forwards the chosen shipping provider/kind so the PaymentIntent
+ * amount is computed against the SAME per-carrier free-shipping
+ * threshold the order-create verification step uses. Without these
+ * fields, the backend silently falls back to the generic
+ * ``FREE_SHIPPING_THRESHOLD`` / ``CHECKOUT_SHIPPING_PRICE`` pair —
+ * disagreeing with the carrier adapters whenever the thresholds
+ * differ and raising ``PaymentAmountMismatchError`` at order-create
+ * time.
  */
+const bodySchema = zCartCreatePaymentIntentRequestRequest
+
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const accessToken = await getAllAuthAccessToken(event)
@@ -25,10 +22,8 @@ export default defineEventHandler(async (event) => {
     wideLog.set({ payment: { method: 'stripe' } })
     const body = await readValidatedBody(event, bodySchema.parse)
 
-    // Get cart headers (includes cart UUID for guest users)
     const cartHeaders = await cartSession.getCartHeaders()
 
-    // Call backend to create payment intent from cart
     const response = await $fetch(`${config.apiBaseUrl}/cart/create-payment-intent`, {
       method: 'POST',
       headers: {
@@ -37,9 +32,7 @@ export default defineEventHandler(async (event) => {
           Authorization: `Bearer ${accessToken}`,
         }),
       },
-      body: {
-        payWayId: body.payWayId,
-      },
+      body,
     })
 
     return await parseDataAs(response, zCreateCartPaymentIntentResponse)

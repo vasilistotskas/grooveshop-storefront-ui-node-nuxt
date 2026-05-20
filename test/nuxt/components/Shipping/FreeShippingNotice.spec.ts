@@ -39,14 +39,14 @@ describe('FreeShippingNotice', () => {
     })
     // 30 - 22 = 8 €
     expect(wrapper.text()).toContain('8')
-    expect(wrapper.text()).toContain('Προσθέστε')
+    expect(wrapper.text()).toContain('Πρόσθεσε')
   })
 
   it('shows the qualified state when cartTotal meets or exceeds the threshold', async () => {
     const wrapper = await mountSuspended(FreeShippingNotice, {
       props: { cartTotal: 50 },
     })
-    expect(wrapper.text()).toContain('Έχετε εξασφαλίσει')
+    expect(wrapper.text()).toContain('Έχεις')
   })
 })
 

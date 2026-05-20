@@ -1763,6 +1763,49 @@ export type Cart = {
   readonly lastActivity: string
 }
 
+/**
+ * Request body for ``POST /api/v1/cart/create-payment-intent``.
+ *
+ * The shipping fields are required so the PaymentIntent amount uses
+ * the same per-carrier shipping calculation the order-create
+ * verification step runs.  Without them the view falls back to the
+ * generic ``FREE_SHIPPING_THRESHOLD`` / ``CHECKOUT_SHIPPING_PRICE``
+ * pair which silently disagrees with the carrier adapters whenever
+ * the per-carrier thresholds differ — producing a
+ * ``PaymentAmountMismatchError`` at order-create time.
+ */
+export type CartCreatePaymentIntentRequestRequest = {
+  /**
+     * ID of the selected PayWay (must be online Stripe).
+     */
+  payWayId: number
+  /**
+     * Carrier code matching a registered shipping adapter (e.g. 'acs', 'boxnow'). Used to compute shipping cost with the same per-carrier free-shipping threshold the order-create path will apply.
+     */
+  shippingProviderCode: string
+  /**
+     * Fulfilment kind for the carrier (home_delivery or pickup_point). Required so the per-kind feature flags (e.g. ACS_SMARTPOINT_ENABLED) and BoxNow's PICKUP_POINT gate are honoured.
+     *
+     * * `home_delivery` - home_delivery
+     * * `pickup_point` - pickup_point
+     */
+  shippingKind: CartCreatePaymentIntentRequestShippingKindEnum
+  /**
+     * Optional ISO 3166-1 alpha-2 country code — drives the country-level shipping multiplier. Match what the order-create body will carry.
+     */
+  countryId?: string
+  /**
+     * Optional region code — drives the region-level shipping adjustment.
+     */
+  regionId?: string
+}
+
+/**
+ * * `home_delivery` - home_delivery
+ * * `pickup_point` - pickup_point
+ */
+export type CartCreatePaymentIntentRequestShippingKindEnum = 'home_delivery' | 'pickup_point'
+
 export type CartDetail = {
   readonly id: number
   user?: number | null
@@ -12522,7 +12565,7 @@ export type UpdateCartResponses = {
 export type UpdateCartResponse = UpdateCartResponses[keyof UpdateCartResponses]
 
 export type CreateCartPaymentIntentData = {
-  body?: never
+  body: CartCreatePaymentIntentRequestRequest
   headers?: {
     /**
          * Cart ID for guest users. Used to identify and maintain guest cart sessions.

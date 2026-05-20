@@ -830,6 +830,43 @@ export const zCancelOrderRequestRequest = z.object({
   }).optional().default(true),
 })
 
+/**
+ * * `home_delivery` - home_delivery
+ * * `pickup_point` - pickup_point
+ */
+export const zCartCreatePaymentIntentRequestShippingKindEnum = z.enum(['home_delivery', 'pickup_point']).register(z.globalRegistry, {
+  description: '* `home_delivery` - home_delivery\n* `pickup_point` - pickup_point',
+})
+
+/**
+ * Request body for ``POST /api/v1/cart/create-payment-intent``.
+ *
+ * The shipping fields are required so the PaymentIntent amount uses
+ * the same per-carrier shipping calculation the order-create
+ * verification step runs.  Without them the view falls back to the
+ * generic ``FREE_SHIPPING_THRESHOLD`` / ``CHECKOUT_SHIPPING_PRICE``
+ * pair which silently disagrees with the carrier adapters whenever
+ * the per-carrier thresholds differ — producing a
+ * ``PaymentAmountMismatchError`` at order-create time.
+ */
+export const zCartCreatePaymentIntentRequestRequest = z.object({
+  payWayId: z.int().gte(1).register(z.globalRegistry, {
+    description: 'ID of the selected PayWay (must be online Stripe).',
+  }),
+  shippingProviderCode: z.string().min(1).max(32).register(z.globalRegistry, {
+    description: 'Carrier code matching a registered shipping adapter (e.g. \'acs\', \'boxnow\'). Used to compute shipping cost with the same per-carrier free-shipping threshold the order-create path will apply.',
+  }),
+  shippingKind: zCartCreatePaymentIntentRequestShippingKindEnum,
+  countryId: z.string().max(2).register(z.globalRegistry, {
+    description: 'Optional ISO 3166-1 alpha-2 country code — drives the country-level shipping multiplier. Match what the order-create body will carry.',
+  }).optional(),
+  regionId: z.string().max(16).register(z.globalRegistry, {
+    description: 'Optional region code — drives the region-level shipping adjustment.',
+  }).optional(),
+}).register(z.globalRegistry, {
+  description: 'Request body for ``POST /api/v1/cart/create-payment-intent``.\n\nThe shipping fields are required so the PaymentIntent amount uses\nthe same per-carrier shipping calculation the order-create\nverification step runs.  Without them the view falls back to the\ngeneric ``FREE_SHIPPING_THRESHOLD`` / ``CHECKOUT_SHIPPING_PRICE``\npair which silently disagrees with the carrier adapters whenever\nthe per-carrier thresholds differ — producing a\n``PaymentAmountMismatchError`` at order-create time.',
+})
+
 export const zCartItemCreateRequest = z.object({
   product: z.int(),
   quantity: z.int().gte(0).lte(2147483647).optional(),
@@ -9751,6 +9788,8 @@ export const zUpdateCartHeaders = z.object({
 })
 
 export const zUpdateCartResponse = zCartDetail
+
+export const zCreateCartPaymentIntentBody = zCartCreatePaymentIntentRequestRequest
 
 export const zCreateCartPaymentIntentHeaders = z.object({
   'X-Cart-Id': z.union([

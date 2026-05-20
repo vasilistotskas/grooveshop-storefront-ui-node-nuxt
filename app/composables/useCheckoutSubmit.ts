@@ -318,14 +318,32 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       idempotencyKey.value = crypto.randomUUID()
     }
     try {
-      // Create payment intent from cart if not already created
+      // Create payment intent from cart if not already created.
+      // The PI amount MUST be computed against the per-carrier
+      // free-shipping threshold the order-create step will verify
+      // against, so forward the carrier + kind + address codes the
+      // shopper has already picked. ``buildOrderValues`` is the
+      // single source of truth for how those are derived from the
+      // form state — reuse it so any future field rename flows here
+      // automatically.
       if (!paymentIntentId.value) {
-        const cartId = cart.value?.uuid || cart.value?.id
-        if (!cartId) {
-          throw new Error('Cart not found')
+        const orderValues = buildOrderValues()
+        if (!orderValues) return
+        if (!orderValues.shippingProviderCode) {
+          toast.add({ title: t('form.submit.error.general'), color: 'error' })
+          return
         }
 
-        const paymentIntent = await createPaymentIntentFromCart(cartId, formState.payWayId, idempotencyKey.value)
+        const paymentIntent = await createPaymentIntentFromCart(
+          {
+            payWayId: orderValues.payWayId,
+            shippingProviderCode: orderValues.shippingProviderCode,
+            shippingKind: orderValues.shippingKind as CartCreatePaymentIntentRequestShippingKindEnum,
+            countryId: orderValues.countryId || undefined,
+            regionId: orderValues.regionId || undefined,
+          },
+          idempotencyKey.value,
+        )
         paymentIntentId.value = paymentIntent.paymentIntentId
       }
 
