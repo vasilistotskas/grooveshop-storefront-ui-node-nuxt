@@ -115,22 +115,29 @@ export default defineAppConfig({
     // Push the toast viewport past the sticky header so success /
     // error toasts (e.g. "Προστέθηκε στο καλάθι") don't overlap the
     // header action buttons (cart, user, search). The default
-    // ``top-4`` from the ``top-right`` compound variant in
-    // ``.nuxt/ui/toaster.ts`` puts the viewport 1rem from the top
-    // edge — well inside the header strip. Anchoring to
-    // ``--ui-header-height`` (the same var Nuxt UI uses for
-    // ``UMain``) plus a 1rem gap keeps the toast immediately below
-    // the header at any viewport size and survives header-height
-    // changes without manual tuning. ``tailwind-merge`` resolves
-    // the conflict with the compound variant in favour of this
-    // override (last-class-wins). Only set when the toaster is at a
-    // ``top-*`` position; if the project ever switches to
-    // ``bottom-*`` this override is inert because ``bottom`` wins.
+    // ``top-4`` lives in a compound variant inside
+    // ``.nuxt/ui/toaster.ts`` ({ position: top-*, class: { viewport:
+    // 'top-4' } }). We override THAT compound variant rather than the
+    // viewport slot itself — slot-level overrides land BEFORE compound-
+    // variant classes in ``tv()``'s merge order, so the default
+    // ``top-4`` wins via ``tailwind-merge``'s last-class-wins (the
+    // problem we hit when shipping the slot-only override earlier).
+    //
+    // User-supplied ``compoundVariants`` concat AFTER the theme's
+    // defaults, so this entry's ``viewport: 'top-[calc(...)]'`` wins
+    // the ``top-*`` conflict cleanly. The CSS variable
+    // ``--ui-header-height`` is the same one Nuxt UI exposes for
+    // ``UMain`` — anchoring to it keeps the toast immediately below
+    // the header at any viewport size without hand-tuned breakpoints.
     toaster: {
-      slots: {
-        viewport:
-          'top-[calc(var(--ui-header-height)+1rem)]',
-      },
+      compoundVariants: [
+        {
+          position: ['top-left', 'top-center', 'top-right'],
+          class: {
+            viewport: 'top-[calc(var(--ui-header-height)+1rem)]',
+          },
+        },
+      ],
     },
   },
   icon: {
