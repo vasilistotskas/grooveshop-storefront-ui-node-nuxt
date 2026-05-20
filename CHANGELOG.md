@@ -1,3 +1,12 @@
+## [3.124.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.124.1...v3.124.2) (2026-05-20)
+
+
+### Bug Fixes
+
+* **checkout:** allow home_delivery PI without provider code ([ebf7773](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ebf7773a97b6c18b93121ccafcb04849adfa916b))
+* **checkout:** forward shipping carrier to create-payment-intent ([b67cd1b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b67cd1b946383f9cba1a6052d1bb62074293523c))
+* locales ([300355c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/300355c5a6700ac76e9cf2789c7469b72329ee70))
+
 ## [3.124.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.124.0...v3.124.1) (2026-05-20)
 
 
