@@ -96,7 +96,15 @@ beforeAll(() => {
     warn: vi.fn(),
     error: vi.fn(),
   })
-  vi.stubGlobal('carrierForMethod', (_method: string) => null)
+  // Map the shipping method to a registered carrier so
+  // ``buildOrderValues`` and the PI flow can resolve a
+  // ``shippingProviderCode`` — mirrors production where
+  // ``home_delivery`` maps to ACS and ``box_now_locker`` to BoxNow.
+  vi.stubGlobal('carrierForMethod', (method: string) => {
+    if (method === 'home_delivery') return { code: 'acs' }
+    if (method === 'box_now_locker') return { code: 'boxnow' }
+    return null
+  })
   vi.stubGlobal('normalizeGreekPhone', (phone: string) => phone)
 })
 
@@ -208,10 +216,16 @@ describe('useCheckoutSubmit', () => {
 
       await onSubmit()
 
-      // createPaymentIntentFromCart must be called with the idempotency key
+      // ``createPaymentIntentFromCart`` is called with the carrier
+      // context (so the PI amount uses the per-carrier free-shipping
+      // threshold the order-create step verifies against) plus the
+      // idempotency key.
       expect(mockCreatePaymentIntentFromCart).toHaveBeenCalledWith(
-        'cart-uuid',
-        1,
+        expect.objectContaining({
+          payWayId: 1,
+          shippingProviderCode: 'acs',
+          shippingKind: 'home_delivery',
+        }),
         deterministicUUID,
       )
 
