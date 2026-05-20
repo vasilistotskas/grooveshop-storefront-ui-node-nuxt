@@ -94,6 +94,6 @@ const shouldRender = computed(() => {
 <i18n lang="yaml">
 el:
   idle: Δωρεάν μεταφορικά σε αγορές άνω των {amount}
-  progress: Προσθέστε ακόμα {amount} για δωρεάν μεταφορικά
-  qualified: Έχετε εξασφαλίσει δωρεάν μεταφορικά
+  progress: Πρόσθεσε ακόμα {amount} για δωρεάν μεταφορικά
+  qualified: Έχεις δωρεάν μεταφορικά
 </i18n>
