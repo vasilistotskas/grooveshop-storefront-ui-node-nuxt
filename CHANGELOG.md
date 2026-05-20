@@ -1,3 +1,10 @@
+## [3.123.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.123.2...v3.123.3) (2026-05-20)
+
+
+### Bug Fixes
+
+* **toaster:** override compoundVariant instead of slot to actually push viewport down ([23bae04](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/23bae0464e0af5ffcdb668bb12f0fdc21ae49ec2))
+
 ## [3.123.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.123.1...v3.123.2) (2026-05-20)
 
 
