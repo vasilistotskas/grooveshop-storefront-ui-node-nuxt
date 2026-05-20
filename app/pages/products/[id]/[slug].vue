@@ -812,6 +812,8 @@ definePageMeta({
               </div>
             </div>
 
+            <ShippingFreeShippingNotice />
+
             <!-- Out-of-stock subscribers: let the shopper opt into a
                  restock email. The backend ProductAlert infra handles
                  one-shot delivery + dedupe per user/email+kind. -->
