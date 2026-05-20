@@ -1,3 +1,10 @@
+## [3.123.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.123.0...v3.123.1) (2026-05-20)
+
+
+### Bug Fixes
+
+* **map:** defer leaflet load + split markercluster chunk to stop prod outage ([89d4f93](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/89d4f93f871a33bff07581059120ce923edbd652))
+
 # [3.123.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.122.0...v3.123.0) (2026-05-20)
 
 
