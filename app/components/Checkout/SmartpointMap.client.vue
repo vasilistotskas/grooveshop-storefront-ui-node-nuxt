@@ -13,27 +13,13 @@
  * malformed we fall back to CARTO Positron / Dark Matter — both
  * free, both no-API-key, attribution baked in.
  */
-// Leaflet 1.9.4 ships an ESM build with **named exports only** — no
-// ``export default``. Under ``future.compatibilityVersion: 5`` Vite
-// no longer adds a synthetic default-export interop, so any
-// top-level ``import L from 'leaflet'`` (or ``import * as L``)
-// triggers the build error or hits the read-only-namespace problem
-// when ``leaflet.markercluster`` tries to patch ``L`` at runtime.
-//
-// Match the upstream pattern (see ``@nuxtjs/leaflet``'s reference
-// usage at https://nuxt.com/modules/leaflet): keep ``leaflet`` out
-// of the static module graph via ``import type`` so the type system
-// has the shape; load the runtime module via dynamic ``import()``
-// on the client and gate the template on ``isLeafletReady`` so no
-// Leaflet API is read before the module resolves.
-import type * as Leaflet from 'leaflet'
+import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 // ``leaflet.markercluster`` CSS is intentionally imported here
-// (the JS side-effect is handled inside ``ensureClusters`` via a
-// dynamic ``import()`` — manually importing the JS at the top of
-// the script section races the ``<LMap>`` mount that seeds
-// ``window.L`` and breaks the plugin's ``L.FeatureGroup.extend``
-// call).
+// (the JS side-effect is handled by ``useLMarkerCluster`` via a
+// dynamic import — manually importing the JS at the top of the
+// script section races the global ``L`` setup and breaks the
+// ``L.FeatureGroup.extend`` call inside the plugin).
 import 'leaflet.markercluster/dist/MarkerCluster.css'
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
 
@@ -117,7 +103,6 @@ const activeTile = computed<TileLayerSpec>(() => {
 const mapRef = ref<any>(null)
 const clusterReady = ref(false)
 const geolocating = ref(false)
-
 // Surfaced to the user when the browser denies geolocation or the
 // request times out — the silent ``log.info`` path left users
 // staring at a button that span and stopped with no explanation.
@@ -134,52 +119,19 @@ const PIN_HTML = `
     </svg>
   </div>`
 
-// Leaflet runtime — populated by a client-only dynamic import inside
-// ``onMounted`` below. ``isLeafletReady`` gates the template so
-// ``<LMap>`` (and every downstream ``leaflet`` API call) only mount
-// after the module is available. This mirrors the seajets reference
-// implementation (``app/components/Map/Agencies.vue``).
-//
-// CRITICAL: the load MUST happen inside ``onMounted``, NOT at module
-// scope. Loading at module scope makes the leaflet chunk a transitive
-// dependency of every component that auto-imports
-// ``CheckoutSmartpointMap`` — Nuxt's manifest then preloads the
-// chunk on every page, which in turn pulls the markercluster plugin
-// chunk in (via its export-name resolution graph), and the plugin's
-// UMD wrapper does a bare ``L`` lookup at module-eval time. Without
-// ``window.L`` seeded first, that lookup throws ``L is not defined``
-// and freezes the page (production outage at v3.123.0, fixed in
-// v3.123.x by deferring to ``onMounted`` + seeding ``window.L``).
-let leaflet: typeof Leaflet | null = null
-let iconNormal: Leaflet.DivIcon | null = null
-let iconSelected: Leaflet.DivIcon | null = null
-const isLeafletReady = ref(false)
+function buildIcon(selected: boolean) {
+  return L.divIcon({
+    html: PIN_HTML,
+    className: 'acs-pin' + (selected ? ' acs-pin--selected' : ''),
+    iconSize: [32, 40],
+    iconAnchor: [16, 40],
+  })
+}
 
-onMounted(async () => {
-  leaflet = await import('leaflet')
-  // Seed ``window.L`` immediately so any subsequent dynamic import
-  // of ``leaflet.markercluster`` (or any other UMD plugin that does
-  // ``L.X = L.Y.extend(...)`` at module load) can resolve the bare
-  // ``L`` lookup through global scope. vue-leaflet does the same
-  // assignment when ``<LMap :use-global-leaflet="true">`` mounts,
-  // but the markercluster chunk can be evaluated before that point
-  // if Vite has emitted a modulepreload for it — pre-seeding here
-  // is defence in depth.
-  ;(window as unknown as { L: typeof Leaflet }).L = leaflet
-  iconNormal = leaflet.divIcon({
-    html: PIN_HTML,
-    className: 'acs-pin',
-    iconSize: [32, 40],
-    iconAnchor: [16, 40],
-  })
-  iconSelected = leaflet.divIcon({
-    html: PIN_HTML,
-    className: 'acs-pin acs-pin--selected',
-    iconSize: [32, 40],
-    iconAnchor: [16, 40],
-  })
-  isLeafletReady.value = true
-})
+// Pre-build the two icons; we reuse them across renders so a
+// selection change only rewires which marker holds which.
+const ICON_NORMAL = buildIcon(false)
+const ICON_SELECTED = buildIcon(true)
 
 // Marker props are independent of ``selectedId`` — selection state is
 // applied via ``setIcon`` on the affected markers without rebuilding
@@ -292,7 +244,7 @@ let clusterBuilding = false
 async function ensureClusters(): Promise<void> {
   if (clusterBuilding) return
   const map = mapRef.value?.leafletObject
-  if (!map || markerProps.value.length === 0 || !leaflet || !iconNormal || !iconSelected) return
+  if (!map || markerProps.value.length === 0) return
   clusterBuilding = true
   try {
     if (activeCluster) {
@@ -300,29 +252,18 @@ async function ensureClusters(): Promise<void> {
       activeCluster = null
     }
     markersById.clear()
-    // ``leaflet.markercluster`` is a UMD plugin: the top of its
-    // wrapper does ``var t = L.MarkerClusterGroup = L.FeatureGroup.extend(...)``
-    // with **bare ``L``** — resolved via JS scope walk. Inside a
-    // Vite-bundled chunk that scope walk lands on a chunk-level ``L``
-    // binding only when something in the same chunk statically does
-    // ``import L from 'leaflet'``. With the dynamic-import refactor
-    // there's no such static binding, so the walk falls through to
-    // ``globalThis.L`` — undefined unless something else has seeded
-    // it. Seed ``window.L`` from the freshly-loaded module so the
-    // plugin's top-level statements can resolve it. vue-leaflet does
-    // the same when ``<LMap :use-global-leaflet="true">`` mounts, but
-    // by the time ``ensureClusters`` runs ``onMapReady`` has fired and
-    // it's already done — this assignment is a no-op then.
-    ;(window as unknown as { L: typeof Leaflet }).L = leaflet
-    // The ``@types/leaflet.markercluster`` package only declares
-    // ``MarkerClusterGroup`` as an ambient ``L.MarkerClusterGroup``,
-    // not as a module-level export. The runtime module DOES expose
-    // it (verified in ``leaflet.markercluster/dist/leaflet.markercluster.js``:
-    // ``e.MarkerClusterGroup = t``), so cast through ``unknown``.
-    const { MarkerClusterGroup } = (await import('leaflet.markercluster')) as unknown as {
-      MarkerClusterGroup: new (opts: object) => Leaflet.FeatureGroup
-    }
-    const markerCluster = new MarkerClusterGroup({
+    // ``@nuxtjs/leaflet@1.3.2``'s ``useLMarkerCluster`` is broken: it
+    // does ``const { MarkerClusterGroup } = await import('leaflet.
+    // markercluster')`` but the plugin is a side-effect module that
+    // patches the global ``L``, not a named export — so the
+    // destructured value is ``undefined`` and the next line throws
+    // "MarkerClusterGroup is not a constructor". Bypass the
+    // composable: side-effect import here so ``L.MarkerClusterGroup``
+    // exists, then build the cluster directly. Drop this workaround
+    // when the upstream composable starts reading ``L.MarkerClusterGroup``
+    // off the global instead of destructuring.
+    await import('leaflet.markercluster')
+    const markerCluster = new L.MarkerClusterGroup({
       maxClusterRadius: 60,
       chunkedLoading: true,
       disableClusteringAtZoom: 15,
@@ -330,10 +271,10 @@ async function ensureClusters(): Promise<void> {
       spiderfyOnMaxZoom: true,
     })
     for (const m of markerProps.value) {
-      const icon = m.id === props.selectedId ? iconSelected : iconNormal
-      const marker = leaflet.marker([m.lat, m.lng], { ...m.options, icon })
+      const icon = m.id === props.selectedId ? ICON_SELECTED : ICON_NORMAL
+      const marker = L.marker([m.lat, m.lng], { ...m.options, icon })
       if (m.popup) {
-        const popup = leaflet.DomUtil.create('div', 'popup')
+        const popup = L.DomUtil.create('div', 'popup')
         popup.innerHTML = m.popup
         marker.bindPopup(popup)
       }
@@ -364,12 +305,11 @@ watch(
 watch(
   () => props.selectedId,
   (newId, oldId) => {
-    if (!iconNormal || !iconSelected) return
     if (oldId) {
-      markersById.get(oldId)?.setIcon(iconNormal)
+      markersById.get(oldId)?.setIcon(ICON_NORMAL)
     }
     if (newId) {
-      markersById.get(newId)?.setIcon(iconSelected)
+      markersById.get(newId)?.setIcon(ICON_SELECTED)
     }
   },
 )
@@ -439,7 +379,6 @@ async function geolocate(): Promise<void> {
     </a>
 
     <LMap
-      v-if="isLeafletReady"
       ref="mapRef"
       :zoom="zoom"
       :center="center"

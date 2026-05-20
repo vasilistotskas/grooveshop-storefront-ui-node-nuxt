@@ -355,25 +355,9 @@ export default defineNuxtConfig({
         optionsAPI: false,
       },
     },
-    plugins: [
-      {
-        name: 'force-leaflet-esm',
-        enforce: 'pre',
-        async resolveId(source) {
-          if (source !== 'leaflet') return null
-          const resolved = await this.resolve(
-            'leaflet/dist/leaflet-src.esm.js',
-            undefined,
-            { skipSelf: true },
-          )
-          return resolved
-        },
-      },
-    ],
     optimizeDeps: {
       include: [
         '@internationalized/date',
-        'leaflet/dist/leaflet-src.esm.js',
         'zod',
         'isomorphic-dompurify',
         'lottie-web',
@@ -382,31 +366,39 @@ export default defineNuxtConfig({
     build: {
       rollupOptions: {
         output: {
-          // Two separate chunks: ``leaflet`` (the core library) and
-          // ``leaflet-markercluster`` (the UMD plugin that mutates
-          // ``L``). They MUST stay separate — bundling them merges
-          // the plugin's top-level ``var t = L.MarkerClusterGroup =
-          // L.FeatureGroup.extend(...)`` into whichever chunk picks
-          // up ``leaflet`` first, and that statement does a bare
-          // ``L`` lookup. Vite synthesises a chunk-level ``L``
-          // binding only when something statically does ``import L
-          // from 'leaflet'``; under our dynamic-import pattern there
-          // IS no such binding, so the plugin's bare lookup falls
-          // through to ``window.L`` — which is undefined the first
-          // time the chunk loads (prod outage at v3.123.0, fixed by
-          // splitting the chunks back out and seeding ``window.L``
-          // from inside ``ensureClusters`` before the plugin import
-          // resolves).
+          // Group Leaflet + the marker cluster plugin into a single
+          // chunk so the checkout entry stays small. CRITICAL: they
+          // MUST live together. ``leaflet.markercluster`` is a UMD
+          // plugin whose top-level code does ``L.MarkerClusterGroup =
+          // L.FeatureGroup.extend(...)`` — bare ``L`` resolved via
+          // global scope (== ``window.L``). The leaflet UMD/CJS file
+          // (``leaflet/dist/leaflet-src.js``) seeds ``window.L =
+          // exports`` as a side effect at line 14509 of the package
+          // — bundling them in the same chunk guarantees that
+          // initialiser runs BEFORE the markercluster plugin's
+          // top-level code, so the bare ``L`` lookup resolves.
           //
-          // Both chunks only load via the dynamic imports in
-          // ``CheckoutSmartpointMap`` (Lazy* + ClientOnly), so
-          // customers who never open the locker picker still pay
-          // zero bytes for either.
+          // History: an earlier ``force-leaflet-esm`` Vite plugin
+          // here mapped ``leaflet`` → ``leaflet/dist/leaflet-src.esm.js``
+          // to make tree-shaking work under
+          // ``future.compatibilityVersion: 5``. That ESM build does
+          // NOT contain the ``window.L = exports`` line, so
+          // markercluster's bare ``L`` lookup fell through to
+          // ``undefined`` and crashed the page on every route that
+          // preloaded the chunk (prod outage at v3.123.0/v3.123.1).
+          // The plugin was removed in v3.123.2; ``leaflet`` resolves
+          // to its CJS entry, which Vite pre-bundles via esbuild
+          // (gives us both the default-export interop AND the
+          // ``window.L`` side effect).
+          //
+          // The chunk only loads when ``CheckoutSmartpointMap`` is
+          // mounted (Lazy* + ClientOnly), so customers who never
+          // open the locker picker still pay zero bytes for it.
           manualChunks(id) {
-            if (id.includes('node_modules/leaflet.markercluster/')) {
-              return 'leaflet-markercluster'
-            }
-            if (id.includes('node_modules/leaflet/')) {
+            if (
+              id.includes('node_modules/leaflet/')
+              || id.includes('node_modules/leaflet.markercluster/')
+            ) {
               return 'leaflet'
             }
           },
