@@ -1,3 +1,10 @@
+# [3.124.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.123.3...v3.124.0) (2026-05-20)
+
+
+### Features
+
+* **shipping:** show "Δωρεάν μεταφορικά άνω των X €" on PDP + cart ([e0eec69](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e0eec69b23fc70456bced635ad20db9606436729))
+
 ## [3.123.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.123.2...v3.123.3) (2026-05-20)
 
 
