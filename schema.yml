@@ -31134,23 +31134,21 @@ components:
       description: |-
         Request body for ``POST /api/v1/cart/create-payment-intent``.
 
-        The shipping fields are required so the PaymentIntent amount uses
-        the same per-carrier shipping calculation the order-create
-        verification step runs.  Without them the view falls back to the
-        generic ``FREE_SHIPPING_THRESHOLD`` / ``CHECKOUT_SHIPPING_PRICE``
-        pair which silently disagrees with the carrier adapters whenever
-        the per-carrier thresholds differ — producing a
-        ``PaymentAmountMismatchError`` at order-create time.
+        ``shipping_kind`` is required so the view's shipping calculation
+        follows the same code path the order-create verification runs.
+        ``shipping_provider_code`` is required for ``pickup_point`` (the
+        carrier identity drives the locker quote + per-carrier threshold)
+        but **omitted for ``home_delivery``** — home delivery is
+        provider-agnostic in checkout per the frontend's
+        ``shared/shipping/index.ts::carrierForMethod`` contract, and the
+        backend resolves the active home-delivery provider at order
+        creation. Sending whatever the frontend has guarantees both calc
+        paths agree.
       properties:
         payWayId:
           type: integer
           minimum: 1
           description: ID of the selected PayWay (must be online Stripe).
-        shippingProviderCode:
-          type: string
-          minLength: 1
-          description: Carrier code matching a registered shipping adapter (e.g. 'acs', 'boxnow'). Used to compute shipping cost with the same per-carrier free-shipping threshold the order-create path will apply.
-          maxLength: 32
         shippingKind:
           allOf:
             - $ref: '#/components/schemas/CartCreatePaymentIntentRequestShippingKindEnum'
@@ -31159,6 +31157,10 @@ components:
 
             * `home_delivery` - home_delivery
             * `pickup_point` - pickup_point
+        shippingProviderCode:
+          type: string
+          description: Carrier code matching a registered shipping adapter (e.g. 'acs', 'boxnow'). Required for ``pickup_point``; omit/empty for ``home_delivery`` (the backend uses the generic flat rate, matching what the order-create verification will compute for the same body).
+          maxLength: 32
         countryId:
           type: string
           description: Optional ISO 3166-1 alpha-2 country code — drives the country-level shipping multiplier. Match what the order-create body will carry.
@@ -31170,7 +31172,6 @@ components:
       required:
         - payWayId
         - shippingKind
-        - shippingProviderCode
     CartCreatePaymentIntentRequestShippingKindEnum:
       enum:
         - home_delivery

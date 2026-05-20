@@ -841,22 +841,25 @@ export const zCartCreatePaymentIntentRequestShippingKindEnum = z.enum(['home_del
 /**
  * Request body for ``POST /api/v1/cart/create-payment-intent``.
  *
- * The shipping fields are required so the PaymentIntent amount uses
- * the same per-carrier shipping calculation the order-create
- * verification step runs.  Without them the view falls back to the
- * generic ``FREE_SHIPPING_THRESHOLD`` / ``CHECKOUT_SHIPPING_PRICE``
- * pair which silently disagrees with the carrier adapters whenever
- * the per-carrier thresholds differ — producing a
- * ``PaymentAmountMismatchError`` at order-create time.
+ * ``shipping_kind`` is required so the view's shipping calculation
+ * follows the same code path the order-create verification runs.
+ * ``shipping_provider_code`` is required for ``pickup_point`` (the
+ * carrier identity drives the locker quote + per-carrier threshold)
+ * but **omitted for ``home_delivery``** — home delivery is
+ * provider-agnostic in checkout per the frontend's
+ * ``shared/shipping/index.ts::carrierForMethod`` contract, and the
+ * backend resolves the active home-delivery provider at order
+ * creation. Sending whatever the frontend has guarantees both calc
+ * paths agree.
  */
 export const zCartCreatePaymentIntentRequestRequest = z.object({
   payWayId: z.int().gte(1).register(z.globalRegistry, {
     description: 'ID of the selected PayWay (must be online Stripe).',
   }),
-  shippingProviderCode: z.string().min(1).max(32).register(z.globalRegistry, {
-    description: 'Carrier code matching a registered shipping adapter (e.g. \'acs\', \'boxnow\'). Used to compute shipping cost with the same per-carrier free-shipping threshold the order-create path will apply.',
-  }),
   shippingKind: zCartCreatePaymentIntentRequestShippingKindEnum,
+  shippingProviderCode: z.string().max(32).register(z.globalRegistry, {
+    description: 'Carrier code matching a registered shipping adapter (e.g. \'acs\', \'boxnow\'). Required for ``pickup_point``; omit/empty for ``home_delivery`` (the backend uses the generic flat rate, matching what the order-create verification will compute for the same body).',
+  }).optional(),
   countryId: z.string().max(2).register(z.globalRegistry, {
     description: 'Optional ISO 3166-1 alpha-2 country code — drives the country-level shipping multiplier. Match what the order-create body will carry.',
   }).optional(),
@@ -864,7 +867,7 @@ export const zCartCreatePaymentIntentRequestRequest = z.object({
     description: 'Optional region code — drives the region-level shipping adjustment.',
   }).optional(),
 }).register(z.globalRegistry, {
-  description: 'Request body for ``POST /api/v1/cart/create-payment-intent``.\n\nThe shipping fields are required so the PaymentIntent amount uses\nthe same per-carrier shipping calculation the order-create\nverification step runs.  Without them the view falls back to the\ngeneric ``FREE_SHIPPING_THRESHOLD`` / ``CHECKOUT_SHIPPING_PRICE``\npair which silently disagrees with the carrier adapters whenever\nthe per-carrier thresholds differ — producing a\n``PaymentAmountMismatchError`` at order-create time.',
+  description: 'Request body for ``POST /api/v1/cart/create-payment-intent``.\n\n``shipping_kind`` is required so the view\'s shipping calculation\nfollows the same code path the order-create verification runs.\n``shipping_provider_code`` is required for ``pickup_point`` (the\ncarrier identity drives the locker quote + per-carrier threshold)\nbut **omitted for ``home_delivery``** — home delivery is\nprovider-agnostic in checkout per the frontend\'s\n``shared/shipping/index.ts::carrierForMethod`` contract, and the\nbackend resolves the active home-delivery provider at order\ncreation. Sending whatever the frontend has guarantees both calc\npaths agree.',
 })
 
 export const zCartItemCreateRequest = z.object({

@@ -96,13 +96,14 @@ beforeAll(() => {
     warn: vi.fn(),
     error: vi.fn(),
   })
-  // Map the shipping method to a registered carrier so
-  // ``buildOrderValues`` and the PI flow can resolve a
-  // ``shippingProviderCode`` — mirrors production where
-  // ``home_delivery`` maps to ACS and ``box_now_locker`` to BoxNow.
+  // Mirrors ``shared/shipping/index.ts::carrierForMethod`` — home
+  // delivery is intentionally provider-agnostic in checkout, so this
+  // helper returns null for that path. Pickup-point methods get a
+  // real carrier code. The PI body must agree with the order-create
+  // body about this, so the test stubs both honestly.
   vi.stubGlobal('carrierForMethod', (method: string) => {
-    if (method === 'home_delivery') return { code: 'acs' }
     if (method === 'box_now_locker') return { code: 'boxnow' }
+    if (method === 'acs_smartpoint') return { code: 'acs' }
     return null
   })
   vi.stubGlobal('normalizeGreekPhone', (phone: string) => phone)
@@ -217,14 +218,17 @@ describe('useCheckoutSubmit', () => {
       await onSubmit()
 
       // ``createPaymentIntentFromCart`` is called with the carrier
-      // context (so the PI amount uses the per-carrier free-shipping
+      // context (so the PI amount uses the same free-shipping
       // threshold the order-create step verifies against) plus the
-      // idempotency key.
+      // idempotency key. For ``home_delivery`` the provider code is
+      // intentionally absent — home delivery is provider-agnostic in
+      // checkout and both calc paths fall through to the generic
+      // shipping rule, which keeps them in sync.
       expect(mockCreatePaymentIntentFromCart).toHaveBeenCalledWith(
         expect.objectContaining({
           payWayId: 1,
-          shippingProviderCode: 'acs',
           shippingKind: 'home_delivery',
+          shippingProviderCode: undefined,
         }),
         deterministicUUID,
       )

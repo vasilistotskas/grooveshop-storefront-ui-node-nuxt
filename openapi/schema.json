@@ -51552,18 +51552,12 @@
             },
             "CartCreatePaymentIntentRequestRequest": {
                 "type": "object",
-                "description": "Request body for ``POST /api/v1/cart/create-payment-intent``.\n\nThe shipping fields are required so the PaymentIntent amount uses\nthe same per-carrier shipping calculation the order-create\nverification step runs.  Without them the view falls back to the\ngeneric ``FREE_SHIPPING_THRESHOLD`` / ``CHECKOUT_SHIPPING_PRICE``\npair which silently disagrees with the carrier adapters whenever\nthe per-carrier thresholds differ — producing a\n``PaymentAmountMismatchError`` at order-create time.",
+                "description": "Request body for ``POST /api/v1/cart/create-payment-intent``.\n\n``shipping_kind`` is required so the view's shipping calculation\nfollows the same code path the order-create verification runs.\n``shipping_provider_code`` is required for ``pickup_point`` (the\ncarrier identity drives the locker quote + per-carrier threshold)\nbut **omitted for ``home_delivery``** — home delivery is\nprovider-agnostic in checkout per the frontend's\n``shared/shipping/index.ts::carrierForMethod`` contract, and the\nbackend resolves the active home-delivery provider at order\ncreation. Sending whatever the frontend has guarantees both calc\npaths agree.",
                 "properties": {
                     "payWayId": {
                         "type": "integer",
                         "minimum": 1,
                         "description": "ID of the selected PayWay (must be online Stripe)."
-                    },
-                    "shippingProviderCode": {
-                        "type": "string",
-                        "minLength": 1,
-                        "description": "Carrier code matching a registered shipping adapter (e.g. 'acs', 'boxnow'). Used to compute shipping cost with the same per-carrier free-shipping threshold the order-create path will apply.",
-                        "maxLength": 32
                     },
                     "shippingKind": {
                         "allOf": [
@@ -51572,6 +51566,11 @@
                             }
                         ],
                         "description": "Fulfilment kind for the carrier (home_delivery or pickup_point). Required so the per-kind feature flags (e.g. ACS_SMARTPOINT_ENABLED) and BoxNow's PICKUP_POINT gate are honoured.\n\n* `home_delivery` - home_delivery\n* `pickup_point` - pickup_point"
+                    },
+                    "shippingProviderCode": {
+                        "type": "string",
+                        "description": "Carrier code matching a registered shipping adapter (e.g. 'acs', 'boxnow'). Required for ``pickup_point``; omit/empty for ``home_delivery`` (the backend uses the generic flat rate, matching what the order-create verification will compute for the same body).",
+                        "maxLength": 32
                     },
                     "countryId": {
                         "type": "string",
@@ -51586,8 +51585,7 @@
                 },
                 "required": [
                     "payWayId",
-                    "shippingKind",
-                    "shippingProviderCode"
+                    "shippingKind"
                 ]
             },
             "CartCreatePaymentIntentRequestShippingKindEnum": {

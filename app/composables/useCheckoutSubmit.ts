@@ -326,19 +326,22 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       // single source of truth for how those are derived from the
       // form state — reuse it so any future field rename flows here
       // automatically.
+      //
+      // ``shippingProviderCode`` is optional on the PI request:
+      // ``home_delivery`` is provider-agnostic in checkout (the
+      // backend resolves the active home-delivery provider at order
+      // creation), so for that path we send no code and the
+      // backend's generic-fallback shipping calc agrees with what
+      // the order-create verification will compute.
       if (!paymentIntentId.value) {
         const orderValues = buildOrderValues()
         if (!orderValues) return
-        if (!orderValues.shippingProviderCode) {
-          toast.add({ title: t('form.submit.error.general'), color: 'error' })
-          return
-        }
 
         const paymentIntent = await createPaymentIntentFromCart(
           {
             payWayId: orderValues.payWayId,
-            shippingProviderCode: orderValues.shippingProviderCode,
             shippingKind: orderValues.shippingKind as CartCreatePaymentIntentRequestShippingKindEnum,
+            shippingProviderCode: orderValues.shippingProviderCode || undefined,
             countryId: orderValues.countryId || undefined,
             regionId: orderValues.regionId || undefined,
           },

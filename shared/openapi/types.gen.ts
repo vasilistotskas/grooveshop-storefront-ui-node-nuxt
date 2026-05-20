@@ -1766,13 +1766,16 @@ export type Cart = {
 /**
  * Request body for ``POST /api/v1/cart/create-payment-intent``.
  *
- * The shipping fields are required so the PaymentIntent amount uses
- * the same per-carrier shipping calculation the order-create
- * verification step runs.  Without them the view falls back to the
- * generic ``FREE_SHIPPING_THRESHOLD`` / ``CHECKOUT_SHIPPING_PRICE``
- * pair which silently disagrees with the carrier adapters whenever
- * the per-carrier thresholds differ — producing a
- * ``PaymentAmountMismatchError`` at order-create time.
+ * ``shipping_kind`` is required so the view's shipping calculation
+ * follows the same code path the order-create verification runs.
+ * ``shipping_provider_code`` is required for ``pickup_point`` (the
+ * carrier identity drives the locker quote + per-carrier threshold)
+ * but **omitted for ``home_delivery``** — home delivery is
+ * provider-agnostic in checkout per the frontend's
+ * ``shared/shipping/index.ts::carrierForMethod`` contract, and the
+ * backend resolves the active home-delivery provider at order
+ * creation. Sending whatever the frontend has guarantees both calc
+ * paths agree.
  */
 export type CartCreatePaymentIntentRequestRequest = {
   /**
@@ -1780,16 +1783,16 @@ export type CartCreatePaymentIntentRequestRequest = {
      */
   payWayId: number
   /**
-     * Carrier code matching a registered shipping adapter (e.g. 'acs', 'boxnow'). Used to compute shipping cost with the same per-carrier free-shipping threshold the order-create path will apply.
-     */
-  shippingProviderCode: string
-  /**
      * Fulfilment kind for the carrier (home_delivery or pickup_point). Required so the per-kind feature flags (e.g. ACS_SMARTPOINT_ENABLED) and BoxNow's PICKUP_POINT gate are honoured.
      *
      * * `home_delivery` - home_delivery
      * * `pickup_point` - pickup_point
      */
   shippingKind: CartCreatePaymentIntentRequestShippingKindEnum
+  /**
+     * Carrier code matching a registered shipping adapter (e.g. 'acs', 'boxnow'). Required for ``pickup_point``; omit/empty for ``home_delivery`` (the backend uses the generic flat rate, matching what the order-create verification will compute for the same body).
+     */
+  shippingProviderCode?: string
   /**
      * Optional ISO 3166-1 alpha-2 country code — drives the country-level shipping multiplier. Match what the order-create body will carry.
      */
