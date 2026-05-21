@@ -1,3 +1,10 @@
+# [3.125.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.124.2...v3.125.0) (2026-05-21)
+
+
+### Features
+
+* **blog:** show homepage banner under related sections on post page ([279cb14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/279cb14c03d81bd3de4628dc50d5f9e0eedd015f))
+
 ## [3.124.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.124.1...v3.124.2) (2026-05-20)
 
 
