@@ -183,9 +183,10 @@ defineSlots<{
 
         <div
           class="
-            space-y-3 border-t border-primary-200 pt-4
+            border-t border-primary-200 pt-4
             dark:border-primary-800
           "
+          :class="shippingSummaryView || (showPaymentFee && payWayCost) || loyaltyDiscount > 0 ? 'space-y-3' : ''"
         >
           <div class="flex items-center justify-between">
             <span
@@ -252,9 +253,9 @@ defineSlots<{
         </div>
 
         <!-- Points Earned Slot -->
-        <div v-if="$slots['points-earned']" class="pt-1">
+        <template v-if="$slots['points-earned']">
           <slot name="points-earned" />
-        </div>
+        </template>
 
         <div
           class="

@@ -124,6 +124,30 @@ const handleStockRetry = () => {
   onSubmit()
 }
 
+// Active step component exposes `submit()` (see StepPersonalInfo /
+// StepShipping / StepPayment). The sidebar CTA proxies through this
+// ref so the primary action lives next to the order total without
+// losing the per-step Zod validation that used to gate the in-card
+// button.
+const stepRef = ref<{ submit: () => void | Promise<void> } | null>(null)
+
+const sidebarCtaLabel = computed(() =>
+  currentStep.value === 2 ? t('place_order') : t('continue'),
+)
+const sidebarCtaIcon = computed(() =>
+  currentStep.value === 2 ? undefined : 'i-heroicons-arrow-right',
+)
+const sidebarCtaDisabled = computed(() =>
+  currentStep.value === 2 && !formState.payWay,
+)
+// Hide the sidebar CTA while the online-payment view owns the main
+// column — that view ships its own Pay / Back controls.
+const showSidebarCta = computed(() => !(createdOrder.value && isOnlinePayment.value))
+
+const onSidebarCta = async () => {
+  await stepRef.value?.submit()
+}
+
 const onBoundaryError = (error: unknown) => {
   log.error({ action: 'checkout:boundary', error })
   toast.add({
@@ -219,6 +243,7 @@ definePageMeta({
           <!-- Step 0: Personal Info & Address -->
           <CheckoutStepPersonalInfo
             v-else-if="currentStep === 0"
+            ref="stepRef"
             v-model:form-state="formState"
             :schema="step1Schema"
             :country-options="countryOptions"
@@ -235,6 +260,7 @@ definePageMeta({
           <!-- Step 1: Shipping Method -->
           <CheckoutStepShipping
             v-else-if="currentStep === 1"
+            ref="stepRef"
             v-model:form-state="formState"
             :schema="step2Schema"
             :partner-id="boxnowPartnerId"
@@ -247,6 +273,7 @@ definePageMeta({
           <!-- Step 2: Payment -->
           <CheckoutStepPayment
             v-else-if="currentStep === 2"
+            ref="stepRef"
             v-model:form-state="formState"
             :schema="step3Schema"
             :pay-way-options="payWayOptions"
@@ -305,6 +332,24 @@ definePageMeta({
             <template #points-earned>
               <!-- Loyalty Points Earned Preview -->
               <CheckoutPointsEarned />
+            </template>
+
+            <template #button>
+              <UButton
+                v-if="showSidebarCta"
+                size="lg"
+                color="success"
+                block
+                trailing
+                :icon="sidebarCtaIcon"
+                :loading="isSubmitting"
+                :disabled="sidebarCtaDisabled"
+                data-testid="checkout-sidebar-cta"
+                :ui="{ trailingIcon: 'ms-0' }"
+                @click="onSidebarCta"
+              >
+                {{ sidebarCtaLabel }}
+              </UButton>
             </template>
           </CheckoutSidebar>
         </div>

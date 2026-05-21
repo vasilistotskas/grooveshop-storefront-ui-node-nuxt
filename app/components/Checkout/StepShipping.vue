@@ -224,6 +224,10 @@ function onSubmit() {
   }
   emit('next')
 }
+
+// Surfaces the existing onSubmit to the page-level CTA in the
+// sidebar so it can drive the locker-aware validation flow.
+defineExpose({ submit: onSubmit })
 </script>
 
 <template>
@@ -332,8 +336,9 @@ function onSubmit() {
         </UFormField>
       </template>
 
-      <!-- Footer navigation -->
-      <div class="flex items-center justify-between pt-4">
+      <!-- Footer navigation. Continue lives in the checkout sidebar
+           so the primary CTA sits next to the order total. -->
+      <div class="flex items-center pt-4">
         <UButton
           variant="ghost"
           icon="i-heroicons-arrow-left"
@@ -342,18 +347,6 @@ function onSubmit() {
           @click="emit('back')"
         >
           {{ t('back') }}
-        </UButton>
-
-        <UButton
-          type="button"
-          size="lg"
-          color="success"
-          icon="i-heroicons-arrow-right"
-          data-testid="step-shipping-continue"
-          trailing
-          @click="onSubmit"
-        >
-          {{ t('continue') }}
         </UButton>
       </div>
     </UForm>
@@ -364,5 +357,4 @@ function onSubmit() {
 el:
   subtitle: Επιλέξτε πώς θέλετε να παραλάβετε την παραγγελία σας
   back: Πίσω
-  continue: Συνέχεια
 </i18n>

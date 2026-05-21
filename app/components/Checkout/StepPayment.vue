@@ -13,6 +13,13 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+// Expose the form's submit() so the primary CTA (now living in
+// the checkout sidebar) can trigger Zod validation + emit `submit`.
+const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef')
+defineExpose({
+  submit: () => formRef.value?.submit(),
+})
 </script>
 
 <template>
@@ -23,7 +30,7 @@ const { t } = useI18n()
       </h2>
     </template>
 
-    <UForm :state="formState" :schema="schema" class="space-y-6" @submit="emit('submit')">
+    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6" @submit="emit('submit')">
       <UFormField
         :label="t('form.payment_method')"
         name="payWay"
@@ -79,7 +86,9 @@ const { t } = useI18n()
         </URadioGroup>
       </UFormField>
 
-      <div class="flex items-center justify-between pt-4">
+      <!-- Place-order CTA lives in the checkout sidebar so it sits
+           next to the order total. -->
+      <div class="flex items-center pt-4">
         <UButton
           variant="ghost"
           icon="i-heroicons-arrow-left"
@@ -87,16 +96,6 @@ const { t } = useI18n()
           @click="emit('back')"
         >
           {{ t('back') }}
-        </UButton>
-
-        <UButton
-          type="submit"
-          size="lg"
-          color="success"
-          :loading="isSubmitting"
-          :disabled="!formState.payWay"
-        >
-          {{ t('place_order') }}
         </UButton>
       </div>
     </UForm>
@@ -110,5 +109,4 @@ el:
   form:
     payment_method: Τρόπος πληρωμής
   back: Πίσω
-  place_order: Ολοκλήρωση Παραγγελίας
 </i18n>

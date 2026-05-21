@@ -44,6 +44,14 @@ function onSelectSaved(id: number) {
 function onUseNew() {
   emit('use-new-address')
 }
+
+// Expose the form's submit() so the primary CTA (now living in
+// the checkout sidebar) can trigger Zod validation + emit `next`
+// just like the in-card button used to.
+const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef')
+defineExpose({
+  submit: () => formRef.value?.submit(),
+})
 </script>
 
 <template>
@@ -54,7 +62,7 @@ function onUseNew() {
       </h2>
     </template>
 
-    <UForm :state="formState" :schema="schema" class="space-y-6" @submit="emit('next')">
+    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6" @submit="emit('next')">
       <!-- Saved-address picker — renders visual cards and a "new
            address" option. Only shown when the shopper actually has
            saved addresses. Guests never see this section. -->
@@ -330,18 +338,6 @@ function onUseNew() {
           </UFormField>
         </template>
       </div>
-
-      <div class="flex justify-end">
-        <UButton
-          type="submit"
-          size="lg"
-          color="success"
-          icon="i-heroicons-arrow-right"
-          trailing
-        >
-          {{ t('continue') }}
-        </UButton>
-      </div>
     </UForm>
   </UCard>
 </template>
@@ -356,7 +352,6 @@ el:
     label: "Επίλεξε αποθηκευμένη διεύθυνση"
     placeholder: "Επίλεξε διεύθυνση"
     help: "Διάλεξε μία από τις διευθύνσεις σου για να συμπληρωθούν αυτόματα τα πεδία."
-  continue: Συνέχεια
   form:
     place_help_saved: "Προαιρετικό — προσθήκη περιοχής/γειτονιάς αν δεν υπάρχει ήδη στην αποθηκευμένη διεύθυνση."
   save_address:
