@@ -592,7 +592,7 @@ definePageMeta({
     >
       <h2
         class="
-          mb-6 text-balance text-2xl font-bold text-primary-950
+          mb-6 text-center text-balance text-2xl font-bold text-primary-950
           md:text-3xl
           dark:text-primary-50
         "
