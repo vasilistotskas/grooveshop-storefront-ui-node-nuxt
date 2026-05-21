@@ -84,6 +84,20 @@ const openTracking = () => {
   window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank', 'noopener,noreferrer')
 }
 
+const { data: recommendedPosts } = useLazyAsyncData(
+  `success-recommended-posts:${locale.value}`,
+  () => $fetch('/api/blog/posts', {
+    query: {
+      languageCode: locale.value,
+      paginationType: 'pageNumber',
+      pageSize: 8,
+      ordering: '-featured,-publishedAt',
+    },
+  }),
+  { default: () => null },
+)
+const recommendedPostsList = computed(() => recommendedPosts.value?.results ?? [])
+
 onBeforeUnmount(() => {
   isActive.value = false
 })
@@ -567,6 +581,26 @@ definePageMeta({
         </UCard>
       </div>
     </div>
+
+    <section
+      v-if="recommendedPostsList.length"
+      class="
+        mt-12
+        md:mt-16
+      "
+      :aria-label="t('recommended.title')"
+    >
+      <h2
+        class="
+          mb-6 text-balance text-2xl font-bold text-primary-950
+          md:text-3xl
+          dark:text-primary-50
+        "
+      >
+        {{ t('recommended.title') }}
+      </h2>
+      <LazyBlogPostsCarousel :posts="recommendedPostsList" />
+    </section>
   </PageWrapper>
 </template>
 
@@ -620,6 +654,8 @@ el:
     cancel: Ακύρωση Παραγγελίας
     home: Πίσω στην Αρχική
     track: Παρακολούθηση Παραγγελίας
+  recommended:
+    title: Μέχρι να έρθει η παραγγελία σου, ρίξε μια ματιά στα άρθρα μας
   image: Εικόνα
   product: Προϊόν
   quantity: Ποσότητα
