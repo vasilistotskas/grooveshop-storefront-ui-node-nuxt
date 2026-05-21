@@ -148,6 +148,39 @@ const onSidebarCta = async () => {
   await stepRef.value?.submit()
 }
 
+// Click handler for the stepper headers. The stepper itself is no
+// longer ``disabled``, so headers receive native clicks — but we
+// can't let raw clicks bypass Zod. Backward jumps are free (the
+// shopper has already passed the checks for prior steps); forward
+// jumps route through the active step's ``submit()`` so the
+// per-step schema gates the advance exactly like the sidebar CTA.
+// Reka's ``linear: true`` already blocks 2-step skips forward, so
+// only the immediate-next case needs handling.
+const onStepperUpdate = async (target: number | string | undefined) => {
+  if (typeof target !== 'number') return
+  if (target === currentStep.value) return
+  if (target < currentStep.value) {
+    currentStep.value = target
+    return
+  }
+  await stepRef.value?.submit()
+}
+
+// After every step change snap the viewport to the absolute top.
+// On mobile the sidebar CTA lives below the order summary; firing it
+// leaves the viewport at the bottom of the page, so the user lands
+// on the new step's bottom edge and has to scroll back up to start
+// filling the form. ``scrollIntoView({ block: 'start' })`` was the
+// first attempt but the layout's ``sticky top-0`` header overlapped
+// the stepper, so the user landed slightly below the page top. A
+// plain ``window.scrollTo(0, 0)`` puts them at the unambiguous top
+// of the page (just under the sticky header) every time.
+watch(currentStep, async () => {
+  if (!import.meta.client) return
+  await nextTick()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+})
+
 const onBoundaryError = (error: unknown) => {
   log.error({ action: 'checkout:boundary', error })
   toast.add({
@@ -210,20 +243,23 @@ definePageMeta({
           @retry="handleStockRetry"
         />
 
-        <!-- Stepper. ``disabled`` blocks click-navigation on the step
-             headers so the only way forward is the per-step "Συνέχεια"
-             submit button, which runs the Zod schema for that step.
-             The ref is still controlled via ``v-model`` from the
-             ``nextStep``/``prevStep`` helpers in ``useCheckoutSubmit``. -->
+        <!-- Stepper. Header clicks go through ``onStepperUpdate`` so
+             the per-step Zod schema gates forward jumps the same way
+             the sidebar "Συνέχεια" / "Ολοκλήρωση Παραγγελίας" CTA
+             does, while backward jumps are free. ``:linear="false"``
+             is required: Reka's linear mode silently swallows clicks
+             on future steps in ``mousedown.left`` before our handler
+             runs, so we keep all the gating server-side. -->
         <UStepper
-          v-model="currentStep"
-          disabled
+          :model-value="currentStep"
+          :linear="false"
           :items="[
             { title: t('steps.info_and_address'), icon: 'i-heroicons-user-circle' },
             { title: t('shipping.method.title'), icon: 'i-heroicons-truck' },
             { title: t('steps.payment'), icon: 'i-heroicons-credit-card' },
           ]"
           class="mb-6"
+          @update:model-value="onStepperUpdate"
         />
 
         <NuxtErrorBoundary @error="onBoundaryError">
