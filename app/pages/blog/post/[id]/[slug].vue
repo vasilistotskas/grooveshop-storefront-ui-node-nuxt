@@ -4,11 +4,21 @@ const route = useRoute(`blog-post-id-slug___${locale.value}`)
 const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const siteConfig = useSiteConfig()
+const config = useRuntimeConfig()
 const { updateLikedPosts } = userStore
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
 const siteUrl = siteConfig.url
+
+const appTitle = computed(() => config.public.appTitle as string)
+
+const bannerItems = computed(() => [
+  isMobileOrTablet.value ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
+])
+const bannerWidth = computed(() => isMobileOrTablet.value ? 510 : 1194)
+const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
+const bannerLink = '/products/2/mini-powerbank-5000mah'
 
 const blogPostId = computed(() => Number(route.params.id) || null)
 
@@ -426,6 +436,39 @@ definePageMeta({
           />
         </div>
       </div>
+
+      <UCarousel
+        v-slot="{ item }"
+        :items="bannerItems"
+        :ui="{ item: `basis-full place-items-center justify-center` }"
+        :aria-label="t('carousel.banner')"
+        class="
+          mx-auto mt-8 max-w-main
+          md:p-0!
+        "
+        indicators
+      >
+        <NuxtLink
+          v-if="item"
+          :to="bannerLink"
+          :aria-label="t('carousel.bannerLink')"
+          class="block"
+        >
+          <NuxtImg
+            :alt="appTitle"
+            :src="item"
+            :height="bannerHeight"
+            :width="bannerWidth"
+            densities="x1"
+            fit="cover"
+            quality="80"
+            class="rounded-lg"
+            style="object-fit: contain; content-visibility: auto;"
+            loading="lazy"
+            decoding="async"
+          />
+        </NuxtLink>
+      </UCarousel>
     </div>
   </PageWrapper>
 </template>
@@ -439,4 +482,7 @@ el:
     items:
       blog:
         label: Blog
+  carousel:
+    banner: Κύριο banner
+    bannerLink: Δείτε το Mini Powerbank 5000mAh
 </i18n>
