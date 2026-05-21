@@ -147,7 +147,7 @@ useSeoMeta({
 })
 
 definePageMeta({
-  layout: 'default',
+  layout: 'checkout',
   middleware: [
     function () {
       const { $i18n } = useNuxtApp()
