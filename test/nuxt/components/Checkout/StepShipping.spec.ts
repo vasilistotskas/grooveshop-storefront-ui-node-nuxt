@@ -154,7 +154,7 @@ describe('Checkout/StepShipping', () => {
         }),
       })
 
-      ;((wrapper.vm as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+      ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
       await wrapper.vm.$nextTick()
 
       // No advance to the next step yet — the shopper still has to
@@ -176,7 +176,7 @@ describe('Checkout/StepShipping', () => {
         }),
       })
 
-      ;((wrapper.vm as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+      ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
       await wrapper.vm.$nextTick()
       expect(wrapper.emitted('next')).toBeTruthy()
       expect(wrapper.emitted('next')!.length).toBeGreaterThanOrEqual(1)
@@ -192,7 +192,7 @@ describe('Checkout/StepShipping', () => {
         }),
       })
 
-      ;((wrapper.vm as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+      ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
       await wrapper.vm.$nextTick()
       expect(wrapper.emitted('next')).toBeTruthy()
     })

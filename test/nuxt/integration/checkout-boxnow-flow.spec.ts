@@ -148,7 +148,7 @@ describe('BoxNow Checkout Integration', () => {
       // total). The page calls ``stepRef.value.submit()`` on click —
       // which runs the locker-aware ``onSubmit`` handler the in-card
       // button used to call. Drive that exposed method directly.
-      ;((wrapper.vm as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+      ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
       await wrapper.vm.$nextTick()
       expect(wrapper.emitted('next')).toBeTruthy()
     })
@@ -174,7 +174,7 @@ describe('BoxNow Checkout Integration', () => {
       // Submit emits ``next`` when a locker is selected; the
       // missing-locker case (which pops the picker) is covered in
       // StepShipping.spec.ts.
-      ;((wrapper.vm as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+      ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
       await wrapper.vm.$nextTick()
       expect(wrapper.emitted('next')).toBeTruthy()
     })
