@@ -1,3 +1,10 @@
+## [3.130.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.130.0...v3.130.1) (2026-05-21)
+
+
+### Bug Fixes
+
+* checkout success carousel UI ([c018c57](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c018c57f3b897e785c132889957079997af005af))
+
 # [3.130.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.129.0...v3.130.0) (2026-05-21)
 
 
