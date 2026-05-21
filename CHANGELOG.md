@@ -1,3 +1,10 @@
+# [3.126.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.125.0...v3.126.0) (2026-05-21)
+
+
+### Features
+
+* **checkout:** dedicated layout with minimal header, no footer ([87af2b0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/87af2b085ef2a039c4102c0fefb619d3be2a6c6a))
+
 # [3.125.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.124.2...v3.125.0) (2026-05-21)
 
 
