@@ -1,3 +1,10 @@
+# [3.128.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.127.0...v3.128.0) (2026-05-21)
+
+
+### Features
+
+* **checkout:** make stepper headers click-navigable and scroll to top on step change ([0b7ad57](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0b7ad57e705e16f5bc9d89f727b419f454323bd1))
+
 # [3.127.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.126.0...v3.127.0) (2026-05-21)
 
 
