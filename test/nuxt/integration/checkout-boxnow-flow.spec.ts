@@ -133,7 +133,7 @@ describe('BoxNow Checkout Integration', () => {
       expect(wrapper.findComponent({ name: 'CheckoutSelectedBoxNowLocker' }).exists()).toBe(true)
     })
 
-    it('continue click with home_delivery selected emits "next"', async () => {
+    it('submit() with home_delivery selected emits "next"', async () => {
       const wrapper = await mountSuspended(StepShipping, {
         props: {
           formState: { shippingMethod: 'home_delivery', boxnowLockerId: '', boxnowLocker: null },
@@ -143,15 +143,17 @@ describe('BoxNow Checkout Integration', () => {
         },
       })
 
-      // The Continue button moved from ``type="submit"`` to
-      // ``type="button"`` + ``@click="onSubmit"`` (commit 43f25bfb) so
-      // that the missing-locker case can pop the picker instead of
-      // letting UForm's superRefine abort. Drive the click directly.
-      await wrapper.find('[data-testid="step-shipping-continue"]').trigger('click')
+      // The Continue button was hoisted out of StepShipping and now
+      // lives in the page-level checkout sidebar (next to the order
+      // total). The page calls ``stepRef.value.submit()`` on click —
+      // which runs the locker-aware ``onSubmit`` handler the in-card
+      // button used to call. Drive that exposed method directly.
+      ;((wrapper.vm as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('next')).toBeTruthy()
     })
 
-    it('continue click with box_now_locker and a valid lockerId emits "next"', async () => {
+    it('submit() with box_now_locker and a valid lockerId emits "next"', async () => {
       const wrapper = await mountSuspended(StepShipping, {
         props: {
           formState: {
@@ -169,14 +171,11 @@ describe('BoxNow Checkout Integration', () => {
         },
       })
 
-      // Continue button is always enabled now — picking a locker is
-      // not gated by ``:disabled``. Clicking with a valid locker
-      // advances to ``next``; clicking without one pops the picker
-      // (covered in StepShipping.spec.ts).
-      const continueBtn = wrapper.find('[data-testid="step-shipping-continue"]')
-      expect(continueBtn.attributes('disabled')).toBeUndefined()
-
-      await continueBtn.trigger('click')
+      // Submit emits ``next`` when a locker is selected; the
+      // missing-locker case (which pops the picker) is covered in
+      // StepShipping.spec.ts.
+      ;((wrapper.vm as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('next')).toBeTruthy()
     })
   })
