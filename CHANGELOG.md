@@ -1,3 +1,10 @@
+# [3.127.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.126.0...v3.127.0) (2026-05-21)
+
+
+### Features
+
+* **checkout:** move primary CTA into sidebar next to order total ([2672f50](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2672f500e71e7c2b4807ad281394516d808b87ba)), closes [#button](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/button)
+
 # [3.126.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.125.0...v3.126.0) (2026-05-21)
 
 
