@@ -1,3 +1,10 @@
+# [3.129.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.128.0...v3.129.0) (2026-05-21)
+
+
+### Features
+
+* **pages:** UI/UX refresh for about, vision, microlearning and legal pages ([07ef1eb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/07ef1ebeed21d2b9c5231e6f0d1fa6df5cda4bb7))
+
 # [3.128.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.127.0...v3.128.0) (2026-05-21)
 
 
