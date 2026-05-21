@@ -1,3 +1,10 @@
+# [3.130.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.129.0...v3.130.0) (2026-05-21)
+
+
+### Features
+
+* **checkout:** recommend featured blog posts on success page ([aa5d899](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/aa5d899ef7ac1f342654ed4b239891a00a0d781c))
+
 # [3.129.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.128.0...v3.129.0) (2026-05-21)
 
 
