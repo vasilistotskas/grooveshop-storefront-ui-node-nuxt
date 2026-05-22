@@ -3869,6 +3869,10 @@ export const zShippingOption = z.object({
   currency: z.string().max(3),
   liveMode: z.boolean(),
   priority: z.int(),
+  logoUrl: z.url().nullish(),
+  mainImagePath: z.string().register(z.globalRegistry, {
+    description: 'Relative ``media/uploads/shipping/<filename>`` path. Empty string when no logo is uploaded. Mirrors the PayWay.icon path contract.',
+  }).optional(),
   metadata: z.record(z.string(), z.unknown()),
 }).register(z.globalRegistry, {
   description: 'One row in the checkout shipping-method radio.\n\nReturned by :class:`shipping.views.ShippingOptionsView`.  The\nfrontend renders one card per row; the ``kind`` value tells it\nwhether to show a locker picker, and ``provider_code`` tells it\nwhich picker variant (BoxNow widget vs ACS server-side list).',
@@ -3892,6 +3896,15 @@ export const zShippingProvider = z.object({
   }).readonly(),
   priority: z.int().register(z.globalRegistry, {
     description: 'Sort order in checkout — lower numbers appear first.',
+  }).readonly(),
+  logo: z.url().register(z.globalRegistry, {
+    description: 'Absolute storage URL for the uploaded brand logo. ``null`` when the operator hasn\'t uploaded one — the storefront falls back to its bundled default for the carrier.',
+  }).readonly(),
+  mainImagePath: z.string().register(z.globalRegistry, {
+    description: 'Relative ``media/uploads/shipping/<filename>`` path; empty string when no logo is uploaded. Mirrors the PayWay.icon contract so the storefront can use the same URL-building convention for both.',
+  }).readonly(),
+  logoFilename: z.string().register(z.globalRegistry, {
+    description: 'Filename of the uploaded logo (or empty string).',
   }).readonly(),
   metadata: z.unknown().register(z.globalRegistry, {
     description: 'Provider-specific configuration (supported countries, feature flags, branding hints).',

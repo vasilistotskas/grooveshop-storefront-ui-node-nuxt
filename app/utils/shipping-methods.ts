@@ -1,22 +1,21 @@
 /**
- * Centralised metadata for the checkout shipping-method radio.
+ * Centralised FALLBACK metadata for the checkout shipping-method radio.
  *
- * Why this lives here and not in a Vue component
- * ---------------------------------------------
- * StepShipping renders one card per option and we want to keep the
- * markup free of brand-asset paths so adding a new carrier is just
+ * Source of truth for logos at runtime is now the backend —
+ * ``ShippingProvider.logo`` (uploaded via Django admin) is surfaced on
+ * every ``/api/v1/shipping/options`` row as ``logoUrl``. The map below
+ * is the bundled fallback the storefront uses when:
+ *  - the operator hasn't uploaded a logo yet (fresh deploy), OR
+ *  - the API call fails / a test env has no live backend.
  *
- *   1. Drop the logo in ``public/img/shipping/<provider>.png``
- *   2. Add an entry to ``SHIPPING_METHOD_META`` + the matching key
- *      in ``ShippingMethodKey``.
- *   3. (Backend) register a ``ShippingCarrierInterface`` adapter and
- *      seed a ``ShippingProvider`` row.
+ * The icon (Heroicons name) and the optional tagline keys are kept
+ * static here on purpose — they're tiny presentation hints, not brand
+ * assets the operator would tune from the admin.
  *
- * Logos live in ``public/`` so Nuxt serves them as static assets at
- * ``/img/shipping/...`` — no Vite asset import (those paths would route
- * through ``_nuxt/@fs/...`` and be rejected by IPX as a forbidden path).
- * Trade-off: no content-hash cache busting on the URL; acceptable for
- * brand assets that change rarely. Add ``?v=N`` if you ever need it.
+ * Adding a new carrier now: register the ``ShippingCarrierInterface``
+ * adapter, seed a ``ShippingProvider`` row, upload its logo via Django
+ * admin. Adding an entry here is only needed when you want a bundled
+ * fallback PNG/SVG for the static-asset case.
  */
 
 /**
@@ -34,7 +33,7 @@ export type ShippingMethodKey
     | 'acs_smartpoint'
 
 export interface ShippingMethodMeta {
-  /** Bundled logo URL — emitted by Vite from the import above. */
+  /** Bundled fallback logo URL — used when the API doesn't return one. */
   logo: string
   /** Alt text i18n key — read at render time via `t()`. */
   altKey: string
@@ -44,6 +43,24 @@ export interface ShippingMethodMeta {
   taglineKey?: string
   /** Optional brand color for the tagline badge. */
   taglineColor?: 'primary' | 'secondary' | 'success' | 'info' | 'warning' | 'error' | 'neutral'
+}
+
+/**
+ * Resolve the logo URL for a method, preferring the operator-uploaded
+ * value from the API and falling back to the bundled default.
+ *
+ * Pass the matching ``ShippingOption.logoUrl`` from the API response
+ * (or ``null``/``undefined`` if the row hasn't been fetched yet). The
+ * fallback keeps the picker rendering during SSR before the options
+ * call resolves AND during tests / dev environments without a live
+ * backend.
+ */
+export function resolveShippingMethodLogo(
+  method: ShippingMethodKey,
+  apiLogoUrl?: string | null,
+): string {
+  if (apiLogoUrl) return apiLogoUrl
+  return SHIPPING_METHOD_META[method].logo
 }
 
 export const SHIPPING_METHOD_META: Record<ShippingMethodKey, ShippingMethodMeta> = {

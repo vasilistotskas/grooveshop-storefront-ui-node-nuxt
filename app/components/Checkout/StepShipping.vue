@@ -107,16 +107,27 @@ const itemsByKey = computed<Record<ShippingMethodKey, ShippingOptionItem>>(
 // admin. Duplicate ``methodKey`` values are de-duped (only the
 // first occurrence wins) because we collapse all home-delivery
 // providers to a single ``'home_delivery'`` UI row.
+//
+// The logo is sourced from the API row's ``logoUrl`` (operator
+// upload via Django admin) and falls back to the bundled
+// ``SHIPPING_METHOD_META[key].logo`` when the backend hasn't
+// supplied one. The first-occurrence-wins rule applies to both the
+// row identity AND the logo source, so swapping the active
+// home-delivery carrier propagates the new brand asset
+// automatically.
 const shippingOptions = computed(() => {
   const seen = new Set<ShippingMethodKey>()
   const ordered: ShippingOptionItem[] = []
   for (const option of props.apiOptions) {
     const key = methodKeyForOption(option) as ShippingMethodKey | null
     if (!key || seen.has(key)) continue
-    const item = itemsByKey.value[key]
-    if (!item) continue
+    const baseItem = itemsByKey.value[key]
+    if (!baseItem) continue
     seen.add(key)
-    ordered.push(item)
+    ordered.push({
+      ...baseItem,
+      logo: resolveShippingMethodLogo(key, option.logoUrl),
+    })
   }
   return ordered
 })

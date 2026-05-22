@@ -13,6 +13,13 @@ const props = defineProps({
       lockerName?: string | null
       lockerId?: string | null
       lockerAddress?: string | null
+      /**
+       * Operator-uploaded logo URL from ``/api/v1/shipping/options``.
+       * Pass ``ShippingOption.logoUrl`` here so the summary mirrors
+       * the picker. Falls back to the bundled per-method default
+       * when null/undefined.
+       */
+      logoUrl?: string | null
     } | null>,
     default: null,
   },
@@ -33,7 +40,7 @@ const shippingSummaryView = computed(() => {
   const titleKey = `shipping_method_label.${summary.method}`
   return {
     icon: meta.icon,
-    logo: meta.logo,
+    logo: resolveShippingMethodLogo(summary.method, summary.logoUrl),
     altText: t(meta.altKey),
     title: t(titleKey),
     lockerName: summary.lockerName ?? null,

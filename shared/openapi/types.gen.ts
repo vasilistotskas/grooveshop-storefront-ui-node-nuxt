@@ -6105,6 +6105,14 @@ export type ShippingOption = {
   currency: string
   liveMode: boolean
   priority: number
+  /**
+     * Absolute storage URL for the operator-uploaded brand logo. Null when no logo has been uploaded — the storefront then falls back to its bundled default for the carrier so a fresh deploy without uploaded assets still renders.
+     */
+  logoUrl?: string | null
+  /**
+     * Relative ``media/uploads/shipping/<filename>`` path. Empty string when no logo is uploaded. Mirrors the PayWay.icon path contract.
+     */
+  mainImagePath?: string
   metadata: {
     [key: string]: unknown
   }
@@ -6140,6 +6148,18 @@ export type ShippingProvider = {
      * Sort order in checkout — lower numbers appear first.
      */
   readonly priority: number
+  /**
+     * Absolute storage URL for the uploaded brand logo. ``null`` when the operator hasn't uploaded one — the storefront falls back to its bundled default for the carrier.
+     */
+  readonly logo: string
+  /**
+     * Relative ``media/uploads/shipping/<filename>`` path; empty string when no logo is uploaded. Mirrors the PayWay.icon contract so the storefront can use the same URL-building convention for both.
+     */
+  readonly mainImagePath: string
+  /**
+     * Filename of the uploaded logo (or empty string).
+     */
+  readonly logoFilename: string
   /**
      * Μεταδεδομένα
      *
