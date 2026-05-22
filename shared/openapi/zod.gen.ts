@@ -3898,7 +3898,7 @@ export const zShippingProvider = z.object({
     description: 'Sort order in checkout — lower numbers appear first.',
   }).readonly(),
   logo: z.url().register(z.globalRegistry, {
-    description: 'Absolute storage URL for the uploaded brand logo. ``null`` when the operator hasn\'t uploaded one — the storefront falls back to its bundled default for the carrier.',
+    description: 'Absolute URL for the operator-uploaded brand logo. ``null`` when the operator hasn\'t uploaded one — the storefront falls back to its bundled default for the carrier. ``settings.MEDIA_URL`` is absolute in every environment, so ``ImageField.url`` is always a full URL here.',
   }).readonly(),
   mainImagePath: z.string().register(z.globalRegistry, {
     description: 'Relative ``media/uploads/shipping/<filename>`` path; empty string when no logo is uploaded. Mirrors the PayWay.icon contract so the storefront can use the same URL-building convention for both.',

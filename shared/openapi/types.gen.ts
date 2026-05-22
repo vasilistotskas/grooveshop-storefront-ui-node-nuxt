@@ -6106,7 +6106,7 @@ export type ShippingOption = {
   liveMode: boolean
   priority: number
   /**
-     * Absolute storage URL for the operator-uploaded brand logo. Null when no logo has been uploaded — the storefront then falls back to its bundled default for the carrier so a fresh deploy without uploaded assets still renders.
+     * Absolute URL for the operator-uploaded brand logo. Null when no logo has been uploaded — the storefront then falls back to its bundled default for the carrier so a fresh deploy without uploaded assets still renders. Note: ``settings.MEDIA_URL`` is absolute in every environment (including local dev via ``STATIC_BASE_URL``) so ``ImageField.url`` is always a full URL here.
      */
   logoUrl?: string | null
   /**
@@ -6149,7 +6149,7 @@ export type ShippingProvider = {
      */
   readonly priority: number
   /**
-     * Absolute storage URL for the uploaded brand logo. ``null`` when the operator hasn't uploaded one — the storefront falls back to its bundled default for the carrier.
+     * Absolute URL for the operator-uploaded brand logo. ``null`` when the operator hasn't uploaded one — the storefront falls back to its bundled default for the carrier. ``settings.MEDIA_URL`` is absolute in every environment, so ``ImageField.url`` is always a full URL here.
      */
   readonly logo: string
   /**

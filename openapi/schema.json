@@ -61771,7 +61771,7 @@
                         "type": "string",
                         "format": "uri",
                         "nullable": true,
-                        "description": "Absolute storage URL for the operator-uploaded brand logo. Null when no logo has been uploaded — the storefront then falls back to its bundled default for the carrier so a fresh deploy without uploaded assets still renders."
+                        "description": "Absolute URL for the operator-uploaded brand logo. Null when no logo has been uploaded — the storefront then falls back to its bundled default for the carrier so a fresh deploy without uploaded assets still renders. Note: ``settings.MEDIA_URL`` is absolute in every environment (including local dev via ``STATIC_BASE_URL``) so ``ImageField.url`` is always a full URL here."
                     },
                     "mainImagePath": {
                         "type": "string",
@@ -61841,7 +61841,7 @@
                         "type": "string",
                         "format": "uri",
                         "readOnly": true,
-                        "description": "Absolute storage URL for the uploaded brand logo. ``null`` when the operator hasn't uploaded one — the storefront falls back to its bundled default for the carrier."
+                        "description": "Absolute URL for the operator-uploaded brand logo. ``null`` when the operator hasn't uploaded one — the storefront falls back to its bundled default for the carrier. ``settings.MEDIA_URL`` is absolute in every environment, so ``ImageField.url`` is always a full URL here."
                     },
                     "mainImagePath": {
                         "type": "string",
