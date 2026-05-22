@@ -1,3 +1,10 @@
+# [3.131.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.130.1...v3.131.0) (2026-05-22)
+
+
+### Features
+
+* **checkout:** source shipping carrier logos from the API ([eeff8ea](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eeff8ea7ee06d5a91754438af9d80e6951f6dedf))
+
 ## [3.130.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.130.0...v3.130.1) (2026-05-21)
 
 
