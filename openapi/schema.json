@@ -61771,11 +61771,7 @@
                         "type": "string",
                         "format": "uri",
                         "nullable": true,
-                        "description": "Absolute URL for the operator-uploaded brand logo. Null when no logo has been uploaded — the storefront then falls back to its bundled default for the carrier so a fresh deploy without uploaded assets still renders. Note: ``settings.MEDIA_URL`` is absolute in every environment (including local dev via ``STATIC_BASE_URL``) so ``ImageField.url`` is always a full URL here."
-                    },
-                    "mainImagePath": {
-                        "type": "string",
-                        "description": "Relative ``media/uploads/shipping/<filename>`` path. Empty string when no logo is uploaded. Mirrors the PayWay.icon path contract."
+                        "description": "Absolute URL for the operator-uploaded brand logo, resolved per (provider, kind) so the home-delivery row and the pickup-point row of the same carrier can show different images. Null when no logo is uploaded — the storefront then falls back to its bundled default. ``settings.MEDIA_URL`` is absolute in every environment so this is always a full URL when present."
                     },
                     "metadata": {
                         "type": "object",

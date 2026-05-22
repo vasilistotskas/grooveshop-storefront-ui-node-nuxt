@@ -3870,9 +3870,6 @@ export const zShippingOption = z.object({
   liveMode: z.boolean(),
   priority: z.int(),
   logoUrl: z.url().nullish(),
-  mainImagePath: z.string().register(z.globalRegistry, {
-    description: 'Relative ``media/uploads/shipping/<filename>`` path. Empty string when no logo is uploaded. Mirrors the PayWay.icon path contract.',
-  }).optional(),
   metadata: z.record(z.string(), z.unknown()),
 }).register(z.globalRegistry, {
   description: 'One row in the checkout shipping-method radio.\n\nReturned by :class:`shipping.views.ShippingOptionsView`.  The\nfrontend renders one card per row; the ``kind`` value tells it\nwhether to show a locker picker, and ``provider_code`` tells it\nwhich picker variant (BoxNow widget vs ACS server-side list).',
