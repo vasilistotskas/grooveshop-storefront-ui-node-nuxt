@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 66" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" role="img">
+  <title>Shipping method</title>
+  <rect x="6" y="18" width="48" height="32" rx="2"/>
+  <path d="M54 28h18l10 10v12H54z"/>
+  <path d="M54 38h28"/>
+  <circle cx="22" cy="54" r="6"/>
+  <circle cx="22" cy="54" r="2"/>
+  <circle cx="68" cy="54" r="6"/>
+  <circle cx="68" cy="54" r="2"/>
+</svg>

@@ -1,31 +1,32 @@
 /**
- * Centralised FALLBACK metadata for the checkout shipping-method radio.
+ * Per-method UI hints (label / icon / tagline) for the checkout
+ * shipping-method radio, plus a single bundled fallback logo.
  *
- * Source of truth for logos at runtime is now the backend —
- * ``ShippingProvider.logo`` (uploaded via Django admin) is surfaced on
- * every ``/api/v1/shipping/options`` row as ``logoUrl``. The map below
- * is the bundled fallback the storefront uses when:
- *  - the operator hasn't uploaded a logo yet (fresh deploy), OR
- *  - the API call fails / a test env has no live backend.
+ * Brand logos at runtime come from the backend —
+ * ``ShippingProvider.logo`` (uploaded via Django admin) is surfaced
+ * on every ``/api/v1/shipping/options`` row as ``logoUrl``. This
+ * module only owns:
  *
- * The icon (Heroicons name) and the optional tagline keys are kept
- * static here on purpose — they're tiny presentation hints, not brand
- * assets the operator would tune from the admin.
+ *   1. ``DEFAULT_SHIPPING_LOGO`` — a single neutral SVG used when
+ *      the API hasn't returned a logo (fresh deploy without uploaded
+ *      assets, SSR before the options call resolves, tests / dev
+ *      environments without a live backend).
+ *   2. ``SHIPPING_METHOD_META`` — i18n keys + Heroicons name +
+ *      optional tagline metadata that aren't brand assets, so they
+ *      don't belong in the admin upload surface.
  *
- * Adding a new carrier now: register the ``ShippingCarrierInterface``
- * adapter, seed a ``ShippingProvider`` row, upload its logo via Django
- * admin. Adding an entry here is only needed when you want a bundled
- * fallback PNG/SVG for the static-asset case.
+ * Adding a new carrier means: register the ``ShippingCarrierInterface``
+ * adapter on the backend, seed a ``ShippingProvider`` row, upload its
+ * logo via Django admin. The frontend picks up the new row through
+ * the existing options endpoint without code changes here.
  */
 
 /**
  * The set of checkout shipping methods rendered as radio cards. The
  * backend identifies the same carriers via
- * ``order.shippingProvider.code`` + ``order.shippingKind`` (see
- * ``OrderDetail.shipmentProviderCode`` on the API contract); this
- * union is purely a presentation key for the radio selector and the
- * brand metadata table below. Auto-imported across ``app/`` and
- * ``shared/``.
+ * ``order.shippingProvider.code`` + ``order.shippingKind``; this
+ * union is purely a presentation key for the radio selector. Auto-
+ * imported across ``app/`` and ``shared/``.
  */
 export type ShippingMethodKey
   = | 'home_delivery'
@@ -33,8 +34,6 @@ export type ShippingMethodKey
     | 'acs_smartpoint'
 
 export interface ShippingMethodMeta {
-  /** Bundled fallback logo URL — used when the API doesn't return one. */
-  logo: string
   /** Alt text i18n key — read at render time via `t()`. */
   altKey: string
   /** Lucide / Heroicons name for the small inline glyph next to the label. */
@@ -46,38 +45,26 @@ export interface ShippingMethodMeta {
 }
 
 /**
- * Resolve the logo URL for a method, preferring the operator-uploaded
- * value from the API and falling back to the bundled default.
- *
- * Pass the matching ``ShippingOption.logoUrl`` from the API response
- * (or ``null``/``undefined`` if the row hasn't been fetched yet). The
- * fallback keeps the picker rendering during SSR before the options
- * call resolves AND during tests / dev environments without a live
- * backend.
+ * Bundled neutral fallback logo. Served as a static asset at
+ * ``/img/shipping/default.svg`` (no Vite import — keeps the URL
+ * out of ``_nuxt/@fs/...`` which IPX refuses to process). Used
+ * by ``resolveShippingLogo`` whenever the backend hasn't supplied
+ * a per-provider URL.
  */
-export function resolveShippingMethodLogo(
-  method: ShippingMethodKey,
-  apiLogoUrl?: string | null,
-): string {
-  if (apiLogoUrl) return apiLogoUrl
-  return SHIPPING_METHOD_META[method].logo
-}
+export const DEFAULT_SHIPPING_LOGO = '/img/shipping/default.svg'
 
 export const SHIPPING_METHOD_META: Record<ShippingMethodKey, ShippingMethodMeta> = {
   home_delivery: {
-    logo: '/img/shipping/acs.png',
     altKey: 'shipping.method.home_delivery.label',
     icon: 'i-heroicons-truck',
   },
   box_now_locker: {
-    logo: '/img/shipping/boxnow.png',
     altKey: 'shipping.method.boxnow.label',
     icon: 'i-lucide-map-pin',
     taglineKey: 'shipping.method.boxnow.tagline',
     taglineColor: 'info',
   },
   acs_smartpoint: {
-    logo: '/img/shipping/acs.png',
     altKey: 'shipping.method.acs_smartpoint.label',
     icon: 'i-lucide-map-pin',
     taglineKey: 'shipping.method.acs_smartpoint.tagline',
@@ -89,4 +76,15 @@ export function getShippingMethodMeta(
   method: ShippingMethodKey,
 ): ShippingMethodMeta {
   return SHIPPING_METHOD_META[method]
+}
+
+/**
+ * Resolve the logo URL for a shipping option: API-supplied value
+ * wins, the bundled neutral SVG fills in when the backend hasn't
+ * returned one. Pass the matching ``ShippingOption.logoUrl`` from
+ * the ``/api/v1/shipping/options`` response (or ``null``/``undefined``
+ * if the row hasn't been fetched yet).
+ */
+export function resolveShippingLogo(apiLogoUrl?: string | null): string {
+  return apiLogoUrl || DEFAULT_SHIPPING_LOGO
 }

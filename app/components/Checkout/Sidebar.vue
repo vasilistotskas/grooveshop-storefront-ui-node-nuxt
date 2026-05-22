@@ -40,7 +40,7 @@ const shippingSummaryView = computed(() => {
   const titleKey = `shipping_method_label.${summary.method}`
   return {
     icon: meta.icon,
-    logo: resolveShippingMethodLogo(summary.method, summary.logoUrl),
+    logo: resolveShippingLogo(summary.logoUrl),
     altText: t(meta.altKey),
     title: t(titleKey),
     lockerName: summary.lockerName ?? null,

@@ -54,19 +54,23 @@ const isBoxNowDisabled = computed(() => !isBoxNowConfigured.value)
 // doesn't ALSO render it as a separate ``data-slot="description"``
 // paragraph (which would duplicate the text on the card).
 //
-// Brand metadata (logo, icon, optional badge tagline) lives in
-// ``app/utils/shipping-methods.ts`` so adding a carrier is just dropping
-// a logo into ``public/img/shipping/`` + a one-line entry there.
-type ShippingOptionItem = {
+// Brand metadata (icon, optional badge tagline) lives in
+// ``app/utils/shipping-methods.ts``. ``logo`` is sourced per-API-row
+// from ``ShippingOption.logoUrl`` (operator upload via Django admin)
+// with a single bundled fallback — see ``resolveShippingLogo``.
+type ShippingOptionItemBase = {
   value: ShippingMethodKey
   label: string
   descriptionText: string
-  logo: string
   altText: string
   icon: string
   taglineKey?: string
   taglineColor?: ShippingMethodMeta['taglineColor']
   disabled?: boolean
+}
+
+type ShippingOptionItem = ShippingOptionItemBase & {
+  logo: string
 }
 
 // Per-method UI metadata (i18n labels + brand assets +
@@ -76,7 +80,7 @@ type ShippingOptionItem = {
 // per-kind Setting flags (``ACS_SMARTPOINT_ENABLED``, etc.). The
 // UI only handles rendering + ``disabled`` reasons local to the
 // browser environment (e.g. missing BoxNow ``partnerId``).
-const itemsByKey = computed<Record<ShippingMethodKey, ShippingOptionItem>>(
+const itemsByKey = computed<Record<ShippingMethodKey, ShippingOptionItemBase>>(
   () => ({
     home_delivery: {
       value: 'home_delivery',
@@ -109,12 +113,11 @@ const itemsByKey = computed<Record<ShippingMethodKey, ShippingOptionItem>>(
 // providers to a single ``'home_delivery'`` UI row.
 //
 // The logo is sourced from the API row's ``logoUrl`` (operator
-// upload via Django admin) and falls back to the bundled
-// ``SHIPPING_METHOD_META[key].logo`` when the backend hasn't
-// supplied one. The first-occurrence-wins rule applies to both the
-// row identity AND the logo source, so swapping the active
-// home-delivery carrier propagates the new brand asset
-// automatically.
+// upload via Django admin) and falls back to the single bundled
+// ``DEFAULT_SHIPPING_LOGO`` SVG when the backend hasn't supplied
+// one. The first-occurrence-wins rule applies to both the row
+// identity AND the logo source, so swapping the active home-
+// delivery carrier propagates the new brand asset automatically.
 const shippingOptions = computed(() => {
   const seen = new Set<ShippingMethodKey>()
   const ordered: ShippingOptionItem[] = []
@@ -126,7 +129,7 @@ const shippingOptions = computed(() => {
     seen.add(key)
     ordered.push({
       ...baseItem,
-      logo: resolveShippingMethodLogo(key, option.logoUrl),
+      logo: resolveShippingLogo(option.logoUrl),
     })
   }
   return ordered
@@ -134,8 +137,12 @@ const shippingOptions = computed(() => {
 
 function buildBrandMeta(method: ShippingMethodKey) {
   const meta = getShippingMethodMeta(method)
+  // ``logo`` is filled in by the caller from the matching
+  // ``ShippingOption.logoUrl`` (via ``resolveShippingLogo``) so this
+  // helper only emits the static i18n + icon hints; the brand asset
+  // is whatever the operator uploaded in Django admin, or the single
+  // bundled default when nothing is uploaded.
   return {
-    logo: meta.logo,
     altText: t(meta.altKey),
     icon: meta.icon,
     taglineKey: meta.taglineKey,
