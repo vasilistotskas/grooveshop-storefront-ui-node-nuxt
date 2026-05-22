@@ -3898,13 +3898,19 @@ export const zShippingProvider = z.object({
     description: 'Sort order in checkout — lower numbers appear first.',
   }).readonly(),
   logo: z.url().register(z.globalRegistry, {
-    description: 'Absolute URL for the operator-uploaded brand logo. ``null`` when the operator hasn\'t uploaded one — the storefront falls back to its bundled default for the carrier. ``settings.MEDIA_URL`` is absolute in every environment, so ``ImageField.url`` is always a full URL here.',
+    description: 'Absolute URL for the operator-uploaded primary brand logo (home-delivery rows + fallback for pickup_point when no pickup-specific variant is set). ``null`` when no upload — the storefront falls back to its bundled default.',
+  }).readonly(),
+  logoPickupPoint: z.url().register(z.globalRegistry, {
+    description: 'Absolute URL for the optional pickup-point-specific logo (e.g. a locker illustration distinct from the carrier\'s home-delivery brand mark). Surfaced on the pickup_point row\'s ``logoUrl`` when uploaded; otherwise the row falls back to ``logo``.',
   }).readonly(),
   mainImagePath: z.string().register(z.globalRegistry, {
-    description: 'Relative ``media/uploads/shipping/<filename>`` path; empty string when no logo is uploaded. Mirrors the PayWay.icon contract so the storefront can use the same URL-building convention for both.',
+    description: 'Relative ``media/uploads/shipping/<filename>`` path for the primary logo; empty string when no logo is uploaded. Mirrors the PayWay.icon contract.',
   }).readonly(),
   logoFilename: z.string().register(z.globalRegistry, {
-    description: 'Filename of the uploaded logo (or empty string).',
+    description: 'Filename of the primary uploaded logo (or empty).',
+  }).readonly(),
+  logoPickupPointFilename: z.string().register(z.globalRegistry, {
+    description: 'Filename of the pickup-point logo (or empty).',
   }).readonly(),
   metadata: z.unknown().register(z.globalRegistry, {
     description: 'Provider-specific configuration (supported countries, feature flags, branding hints).',
