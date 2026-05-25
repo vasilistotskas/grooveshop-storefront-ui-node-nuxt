@@ -1,3 +1,10 @@
+# [3.133.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.132.0...v3.133.0) (2026-05-25)
+
+
+### Features
+
+* **checkout:** remove place (Περιοχή) field, keep region ([f927360](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f92736008b280048a9e4ddad06d115515908a31a))
+
 # [3.132.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.131.0...v3.132.0) (2026-05-22)
 
 
