@@ -22,13 +22,14 @@ const items = computed(() => [
   },
 ])
 
-if (authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
+if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
   log.info('auth', 'Redirecting to index', { event: authEvent.value })
   await navigateTo(localePath('index'))
 }
 
 definePageMeta({
   layout: 'default',
+  middleware: 'guest',
 })
 </script>
 

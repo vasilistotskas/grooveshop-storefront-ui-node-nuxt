@@ -337,6 +337,8 @@ definePageMeta({
               <span>{{ t('total') }}</span>
               <span>{{ $i18n.n(cart.totalPrice, 'currency') }}</span>
             </div>
+
+            <ShippingFreeShippingNotice :cart-total="cart.totalPrice" />
           </div>
 
           <template #footer>

@@ -1,16 +1,76 @@
+overrides:
+  # All overrides live here — pnpm 11 silently ignores
+  # `pnpm.overrides` in package.json. Pin via `<vulnerable':
+  # '>=patched'` so a future native bump is still allowed once
+  # all consumers catch up.
+
+  # CVE-2026-42570 — prototype pollution in devalue <5.8.1.
+  # Transitively via @nuxtjs/i18n, nuxt-og-image, @nuxt/hints,
+  # Nitro server.
+  'devalue@<5.8.1': '>=5.8.1'
+
+  # NOTE — sharp is intentionally NOT overridden. The legacy
+  # exact pin `sharp: 0.33.5` was never enforced (pnpm 11
+  # ignored it), and the tree currently ships two patched
+  # branches: 0.32.6 (via ipx → @nuxt/image) and 0.34.5 (via
+  # nuxt-og-image). Both are above the GHSA-54xq-cgqr-rpm3
+  # libwebp floor. Adding a `>=0.33.5` override forces ipx
+  # onto 0.34.x which crosses the 0.34.0 breaking-change line
+  # (C++17, removeAlpha semantics, metadata fields, GIF default)
+  # without runtime validation. Re-evaluate when @nuxt/image
+  # bumps its sharp range above 0.33.
+
+  # Mar-2026 cluster: GHSA-q67f-28xg-22rw (Ed25519 forgery),
+  # GHSA-ppp5-5v6c-4jwp (RSA-PKCS forgery), GHSA-5m6q-g25r-mvwx
+  # (modInverse DoS). All fixed in node-forge@1.4.0.
+  node-forge: '>=1.4.0'
+
+  # GHSA-c2c7-rcm5-vvqj (extglob ReDoS) +
+  # GHSA-3v7f-55p6-f55p (POSIX class injection). Patched in
+  # 2.3.2 on the dormant v2 line and 4.0.4 on the active line.
+  'picomatch@<2.3.2': '>=2.3.2'
+  'picomatch@<4.0.4': '>=4.0.4'
+
+  # CVE-2026-4800 (_.template injection), CVE-2026-2950 +
+  # CVE-2025-13465 (prototype pollution). lodash quietly resumed
+  # publishing in 2025 — 4.18.0 is the patch floor.
+  lodash: '>=4.18.0'
+
+  # GHSA-hffm-xvc3-vprc (RCE) + GHSA-jcxm-m3jx-f287
+  # (option-parse command injection).
+  simple-git: '>=3.36.0'
+
+  # GHSA-5wm8-gmm8-39j9 (attribute-quote bypass) +
+  # GHSA-45c6-75p6-83cc (comment regex bypass).
+  fast-xml-builder: '>=1.1.7'
+
+  # NEW — was missing from the legacy package.json overrides.
+  # Tree currently has fast-xml-parser@5.5.11 via @nuxtjs/sitemap
+  # → @nuxtjs/seo. GHSA-gh4j-gqv2-49f6 + GHSA-fj3w-jwp8-x2g3
+  # patched in 5.7.0.
+  fast-xml-parser: '>=5.7.0'
 allowBuilds:
+  '@intlify/vue-i18n-bridge': true
+  '@intlify/vue-router-bridge': true
   '@parcel/watcher': true
   better-sqlite3: true
   esbuild: true
   sharp: true
   unrs-resolver: true
   vue-demi: true
-onlyBuiltDependencies:
-  - '@intlify/vue-i18n-bridge'
-  - '@intlify/vue-router-bridge'
-  - '@parcel/watcher'
-  - better-sqlite3
-  - esbuild
-  - sharp
-  - unrs-resolver
-  - vue-demi
+minimumReleaseAgeExclude:
+  - '@types/node@25.9.1'
+  - '@vue/language-core@3.3.1'
+  - isomorphic-dompurify@3.14.0
+  - vue-tsc@3.3.1
+  - '@vitest/coverage-v8@4.1.7'
+  - '@vitest/expect@4.1.7'
+  - '@vitest/mocker@4.1.7'
+  - '@vitest/pretty-format@4.1.7'
+  - '@vitest/runner@4.1.7'
+  - '@vitest/snapshot@4.1.7'
+  - '@vitest/spy@4.1.7'
+  - '@vitest/ui@4.1.7'
+  - '@vitest/utils@4.1.7'
+  - vitest@4.1.7
+  - '@nuxt/ui@4.8.0'

@@ -139,19 +139,26 @@ export async function fetchUserData(response: AllAuthResponse, accessToken?: str
   const event = useEvent()
   const token = accessToken || response.meta?.access_token
   const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
-  let headers: Record<string, string> = {
-    'Authorization': `Bearer ${token}`,
-    'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
-    'X-Language': locale,
-  }
-  // Include X-Forwarded-Host for tenant resolution (honors the actual
-  // request host so Django's TenantMainMiddleware picks the right schema).
-  const host = getRequestHost(event, { xForwardedHost: false })
-  if (host) {
-    headers['X-Forwarded-Host'] = host
-  }
+  let headers: Record<string, string>
   if (response.meta?.is_authenticated && !token) {
+    // getAllAuthHeaders → createHeaders, which already sets the
+    // tenant-aware X-Forwarded-Host (actual request host, falling back
+    // to djangoHostName only outside a request context).
     headers = await getAllAuthHeaders()
+  }
+  else {
+    headers = {
+      'X-Forwarded-Proto': getRequestProtocol(event, { xForwardedProto: true }),
+      // Tenant resolution: prefer the actual request host so Django's
+      // TenantMainMiddleware picks the right schema; fall back to the
+      // configured public hostname only when outside a request context
+      // (prerender/startup). Matches the createHeaders() convention.
+      'X-Forwarded-Host': getRequestHost(event, { xForwardedHost: false }) || config.public.djangoHostName,
+      'X-Language': locale,
+    }
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
   }
   const user = await $fetch(`${config.apiBaseUrl}/user/account/${response.data.user.id}`, {
     method: 'GET',

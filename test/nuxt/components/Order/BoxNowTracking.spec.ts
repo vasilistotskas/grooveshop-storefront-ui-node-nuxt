@@ -116,7 +116,10 @@ describe('Order/BoxNowTracking', () => {
       })
 
       const html = wrapper.html()
-      expect(html).toContain('https://tracking.boxnow.gr/track/9219709201')
+      // BoxNow's public tracking page is at boxnow.gr/en?track=<parcelId>.
+      // The old subdomain (tracking.boxnow.gr/track/<id>) was an
+      // internal one that customers couldn't reach.
+      expect(html).toContain('https://boxnow.gr/en?track=9219709201')
     })
 
     it('does NOT render the tracking link when parcelId is null', async () => {
@@ -127,7 +130,7 @@ describe('Order/BoxNowTracking', () => {
         },
       })
 
-      expect(wrapper.html()).not.toContain('tracking.boxnow.gr')
+      expect(wrapper.html()).not.toContain('boxnow.gr/en?track')
     })
   })
 
@@ -178,7 +181,7 @@ describe('Order/BoxNowTracking', () => {
 
       // Should mount without error; no voucher or label links shown
       expect(wrapper.exists()).toBe(true)
-      expect(wrapper.html()).not.toContain('tracking.boxnow.gr')
+      expect(wrapper.html()).not.toContain('boxnow.gr/en?track')
       expect(wrapper.html()).not.toContain('boxnow-label')
     })
   })

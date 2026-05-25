@@ -61,9 +61,8 @@ const {
   addressEntryMode,
   useNewAddress,
   b2bInvoicingEnabled,
-  boxnowEnabled,
-  acsSmartpointEnabled,
   refetchShippingSettings,
+  shippingOptions,
 } = await useCheckoutForm()
 
 const {
@@ -98,13 +97,29 @@ onMounted(() => {
 // step in the right sidebar so the shopper can verify their pick
 // without scrolling back. ``null`` on earlier steps so the alert
 // stays hidden until shipping has actually been chosen.
+//
+// ``logoUrl`` is sourced from the matching ``/api/v1/shipping/options``
+// row (the same source the picker uses) so the sidebar mirrors what
+// the shopper saw at step 2 — and the operator gets a single edit
+// surface in Django admin that propagates everywhere.
+const shippingLogoUrl = computed(() => {
+  const method = formState.shippingMethod
+  if (!method) return null
+  const match = shippingOptions.value.find(
+    o => methodKeyForOption(o) === method,
+  )
+  return match?.logoUrl ?? null
+})
+
 const shippingSummary = computed(() => {
   if (currentStep.value !== 2) return null
   const method = formState.shippingMethod
+  const logoUrl = shippingLogoUrl.value
   if (method === 'box_now_locker') {
     const locker = formState.boxnowLocker
     return {
       method,
+      logoUrl,
       lockerName: locker?.boxnowLockerName ?? null,
       lockerId: formState.boxnowLockerId || locker?.boxnowLockerId || null,
       lockerAddress: locker?.boxnowLockerAddressLine1 ?? null,
@@ -114,6 +129,7 @@ const shippingSummary = computed(() => {
     const station = formState.acsStation
     return {
       method,
+      logoUrl,
       lockerName: station?.name ?? null,
       lockerId: formState.acsStationExternalId || null,
       lockerAddress: [station?.addressLine1, station?.city]
@@ -121,13 +137,70 @@ const shippingSummary = computed(() => {
         .join(', ') || null,
     }
   }
-  return { method }
+  return { method, logoUrl }
 })
 
 const handleStockRetry = () => {
   stockError.value = null
   onSubmit()
 }
+
+// Active step component exposes `submit()` (see StepPersonalInfo /
+// StepShipping / StepPayment). The sidebar CTA proxies through this
+// ref so the primary action lives next to the order total without
+// losing the per-step Zod validation that used to gate the in-card
+// button.
+const stepRef = ref<{ submit: () => void | Promise<void> } | null>(null)
+
+const sidebarCtaLabel = computed(() =>
+  currentStep.value === 2 ? t('place_order') : t('continue'),
+)
+const sidebarCtaIcon = computed(() =>
+  currentStep.value === 2 ? undefined : 'i-heroicons-arrow-right',
+)
+const sidebarCtaDisabled = computed(() =>
+  currentStep.value === 2 && !formState.payWay,
+)
+// Hide the sidebar CTA while the online-payment view owns the main
+// column — that view ships its own Pay / Back controls.
+const showSidebarCta = computed(() => !(createdOrder.value && isOnlinePayment.value))
+
+const onSidebarCta = async () => {
+  await stepRef.value?.submit()
+}
+
+// Click handler for the stepper headers. The stepper itself is no
+// longer ``disabled``, so headers receive native clicks — but we
+// can't let raw clicks bypass Zod. Backward jumps are free (the
+// shopper has already passed the checks for prior steps); forward
+// jumps route through the active step's ``submit()`` so the
+// per-step schema gates the advance exactly like the sidebar CTA.
+// Reka's ``linear: true`` already blocks 2-step skips forward, so
+// only the immediate-next case needs handling.
+const onStepperUpdate = async (target: number | string | undefined) => {
+  if (typeof target !== 'number') return
+  if (target === currentStep.value) return
+  if (target < currentStep.value) {
+    currentStep.value = target
+    return
+  }
+  await stepRef.value?.submit()
+}
+
+// After every step change snap the viewport to the absolute top.
+// On mobile the sidebar CTA lives below the order summary; firing it
+// leaves the viewport at the bottom of the page, so the user lands
+// on the new step's bottom edge and has to scroll back up to start
+// filling the form. ``scrollIntoView({ block: 'start' })`` was the
+// first attempt but the layout's ``sticky top-0`` header overlapped
+// the stepper, so the user landed slightly below the page top. A
+// plain ``window.scrollTo(0, 0)`` puts them at the unambiguous top
+// of the page (just under the sticky header) every time.
+watch(currentStep, async () => {
+  if (!import.meta.client) return
+  await nextTick()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+})
 
 const onBoundaryError = (error: unknown) => {
   log.error({ action: 'checkout:boundary', error })
@@ -152,7 +225,7 @@ useSeoMeta({
 })
 
 definePageMeta({
-  layout: 'default',
+  layout: 'checkout',
   middleware: [
     function () {
       const { $i18n } = useNuxtApp()
@@ -191,15 +264,23 @@ definePageMeta({
           @retry="handleStockRetry"
         />
 
-        <!-- Stepper -->
+        <!-- Stepper. Header clicks go through ``onStepperUpdate`` so
+             the per-step Zod schema gates forward jumps the same way
+             the sidebar "Συνέχεια" / "Ολοκλήρωση Παραγγελίας" CTA
+             does, while backward jumps are free. ``:linear="false"``
+             is required: Reka's linear mode silently swallows clicks
+             on future steps in ``mousedown.left`` before our handler
+             runs, so we keep all the gating server-side. -->
         <UStepper
-          v-model="currentStep"
+          :model-value="currentStep"
+          :linear="false"
           :items="[
             { title: t('steps.info_and_address'), icon: 'i-heroicons-user-circle' },
             { title: t('shipping.method.title'), icon: 'i-heroicons-truck' },
             { title: t('steps.payment'), icon: 'i-heroicons-credit-card' },
           ]"
           class="mb-6"
+          @update:model-value="onStepperUpdate"
         />
 
         <NuxtErrorBoundary @error="onBoundaryError">
@@ -219,6 +300,7 @@ definePageMeta({
           <!-- Step 0: Personal Info & Address -->
           <CheckoutStepPersonalInfo
             v-else-if="currentStep === 0"
+            ref="stepRef"
             v-model:form-state="formState"
             :schema="step1Schema"
             :country-options="countryOptions"
@@ -235,11 +317,11 @@ definePageMeta({
           <!-- Step 1: Shipping Method -->
           <CheckoutStepShipping
             v-else-if="currentStep === 1"
+            ref="stepRef"
             v-model:form-state="formState"
             :schema="step2Schema"
             :partner-id="boxnowPartnerId"
-            :boxnow-enabled="boxnowEnabled"
-            :acs-smartpoint-enabled="acsSmartpointEnabled"
+            :api-options="shippingOptions"
             :selected-pay-way="selectedPayWay"
             @next="nextStep"
             @back="prevStep"
@@ -248,6 +330,7 @@ definePageMeta({
           <!-- Step 2: Payment -->
           <CheckoutStepPayment
             v-else-if="currentStep === 2"
+            ref="stepRef"
             v-model:form-state="formState"
             :schema="step3Schema"
             :pay-way-options="payWayOptions"
@@ -306,6 +389,24 @@ definePageMeta({
             <template #points-earned>
               <!-- Loyalty Points Earned Preview -->
               <CheckoutPointsEarned />
+            </template>
+
+            <template #button>
+              <UButton
+                v-if="showSidebarCta"
+                size="lg"
+                color="success"
+                block
+                trailing
+                :icon="sidebarCtaIcon"
+                :loading="isSubmitting"
+                :disabled="sidebarCtaDisabled"
+                data-testid="checkout-sidebar-cta"
+                :ui="{ trailingIcon: 'ms-0' }"
+                @click="onSidebarCta"
+              >
+                {{ sidebarCtaLabel }}
+              </UButton>
             </template>
           </CheckoutSidebar>
         </div>

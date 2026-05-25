@@ -6,7 +6,7 @@ defineProps<{
 }>()
 
 // Composables
-const { t } = useI18n()
+const { t, locale } = useI18n()
 </script>
 
 <template>
@@ -50,7 +50,12 @@ const { t } = useI18n()
         class="flex justify-between gap-4"
       >
         <span class="text-muted">{{ t('tracking.boxnow.last_update') }}</span>
-        <span>{{ formatDate(shipment.lastEventAt) }}</span>
+        <NuxtTime
+          :datetime="shipment.lastEventAt"
+          :locale="locale"
+          relative
+          numeric="auto"
+        />
       </div>
 
       <USeparator />
@@ -63,7 +68,7 @@ const { t } = useI18n()
       <div class="flex flex-wrap justify-end gap-2">
         <UButton
           v-if="shipment.parcelId"
-          :to="`https://tracking.boxnow.gr/track/${shipment.parcelId}`"
+          :to="`https://boxnow.gr/en?track=${shipment.parcelId}`"
           target="_blank"
           rel="noopener noreferrer"
           variant="outline"

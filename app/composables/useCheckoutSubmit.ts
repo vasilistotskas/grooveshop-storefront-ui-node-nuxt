@@ -114,6 +114,19 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     log.info('checkout', 'handleOrderError response', { status: response?.status })
 
     const errorData = response._data || response.data
+    // When the upstream returns a non-JSON 5xx (gateway crash, Cloudflare
+    // error page, etc.) ``errorData`` is undefined and the structured
+    // branches below all miss — the user sees the generic toast and
+    // ops has no signal in the logs. Capture the raw response shape so
+    // a real outage is grep-able.
+    if (!errorData && response?.status && response.status >= 500) {
+      log.error({
+        action: 'checkout:orderError:nonJson5xx',
+        status: response.status,
+        statusText: response?.statusText,
+        contentType: response?.headers?.get?.('content-type'),
+      })
+    }
     const errorType = errorData?.error?.type
 
     // Handle structured error types
@@ -240,7 +253,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       zipcode: formState.zipcode,
       country: formState.country,
       region: formState.region,
-      notes: formState.place || undefined,
     }
 
     $fetch('/api/user/addresses', {
@@ -305,14 +317,35 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       idempotencyKey.value = crypto.randomUUID()
     }
     try {
-      // Create payment intent from cart if not already created
+      // Create payment intent from cart if not already created.
+      // The PI amount MUST be computed against the per-carrier
+      // free-shipping threshold the order-create step will verify
+      // against, so forward the carrier + kind + address codes the
+      // shopper has already picked. ``buildOrderValues`` is the
+      // single source of truth for how those are derived from the
+      // form state — reuse it so any future field rename flows here
+      // automatically.
+      //
+      // ``shippingProviderCode`` is optional on the PI request:
+      // ``home_delivery`` is provider-agnostic in checkout (the
+      // backend resolves the active home-delivery provider at order
+      // creation), so for that path we send no code and the
+      // backend's generic-fallback shipping calc agrees with what
+      // the order-create verification will compute.
       if (!paymentIntentId.value) {
-        const cartId = cart.value?.uuid || cart.value?.id
-        if (!cartId) {
-          throw new Error('Cart not found')
-        }
+        const orderValues = buildOrderValues()
+        if (!orderValues) return
 
-        const paymentIntent = await createPaymentIntentFromCart(cartId, formState.payWayId, idempotencyKey.value)
+        const paymentIntent = await createPaymentIntentFromCart(
+          {
+            payWayId: orderValues.payWayId,
+            shippingKind: orderValues.shippingKind as CartCreatePaymentIntentRequestShippingKindEnum,
+            shippingProviderCode: orderValues.shippingProviderCode || undefined,
+            countryId: orderValues.countryId || undefined,
+            regionId: orderValues.regionId || undefined,
+          },
+          idempotencyKey.value,
+        )
         paymentIntentId.value = paymentIntent.paymentIntentId
       }
 
@@ -477,6 +510,12 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
 
     isSubmitting.value = true
 
+    log.info('checkout', 'submit:started', {
+      payWayId: formState.payWayId,
+      shippingMethod: formState.shippingMethod,
+      hasReservations: reservationIds.value.length > 0,
+    })
+
     try {
       // Step 1: Reserve stock before order creation (if not already reserved)
       if (!reservationIds.value.length) {
@@ -556,9 +595,18 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       }
     }
     finally {
-      // Only reset isSubmitting if no retry is pending (retry keeps it true to block double-submit)
+      // Only reset isSubmitting if no retry is pending (retry keeps it
+      // true to block double-submit). When we end up here without an
+      // order created AND no retry is queued, release stock reservations
+      // so a customer who bounces away after a failed checkout doesn't
+      // hold inventory hostage for the full 15-minute TTL.
       if (!retryTimeoutId.value) {
         isSubmitting.value = false
+        if (!createdOrder.value && reservationIds.value.length > 0) {
+          releaseReservations(reservationIds.value)
+            .catch(err => log.error({ action: 'checkout:releaseReservations:onSubmitFail', error: err }))
+          reservationIds.value = []
+        }
       }
     }
   }

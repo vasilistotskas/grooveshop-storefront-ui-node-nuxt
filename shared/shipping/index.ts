@@ -49,3 +49,27 @@ export function methodForCarrier(code: string): string | null {
   }
   return null
 }
+
+/** Map a live ``/api/v1/shipping/options`` row to the
+ *  checkout-flow ``shipping_method`` enum value that the UI uses.
+ *
+ *  - ``home_delivery`` is provider-agnostic so we collapse any
+ *    home-delivery option to the single ``'home_delivery'`` key
+ *    regardless of which provider serves it.
+ *  - Pickup-point options are provider-specific
+ *    (``'boxnow' + 'pickup_point' → 'box_now_locker'``;
+ *    ``'acs'    + 'pickup_point' → 'acs_smartpoint'``).
+ *
+ *  Returns ``null`` for unknown combinations so callers can skip
+ *  options the UI doesn't have brand metadata for. Pair with
+ *  ``getShippingMethodMeta`` for label/icon lookup. */
+export function methodKeyForOption(option: {
+  providerCode: string
+  kind: string
+}): string | null {
+  if (option.kind === 'home_delivery') return 'home_delivery'
+  if (option.kind === 'pickup_point') {
+    return methodForCarrier(option.providerCode)
+  }
+  return null
+}

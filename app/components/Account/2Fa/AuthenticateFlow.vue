@@ -42,12 +42,17 @@ const isCurrentPath = (path: FlowPathValue) => {
 const filteredFlows = computed(() => {
   const currentPath = router.currentRoute.value.path
   if (!flow.value || !flow.value.types) return []
-  return flow.value.types.map((type) => {
+  const sortedTypes = [...flow.value.types].sort((a, b) => {
+    const ai = AUTHENTICATOR_TYPE_PRIORITY.indexOf(a)
+    const bi = AUTHENTICATOR_TYPE_PRIORITY.indexOf(b)
+    return (ai === -1 ? Number.MAX_SAFE_INTEGER : ai) - (bi === -1 ? Number.MAX_SAFE_INTEGER : bi)
+  })
+  return sortedTypes.map((type) => {
     return {
       label: labels[type],
       id: type,
       icon: icons[type],
-      path: flow.value ? pathForFlow(flow.value, type) : 'index' as FlowPathValue,
+      path: flow.value ? pathForFlow(flow.value, type)! : 'index' as FlowPathValue,
     }
   })
     .filter(f => f.path !== currentPath)

@@ -12,11 +12,17 @@ const props = defineProps({
 
 const cartStore = useCartStore()
 const { createCartItem, updateCartItem, getCartItemByProductId } = cartStore
-const { error, getCartTotalItems } = storeToRefs(cartStore)
+const { error } = storeToRefs(cartStore)
 const { product, quantity, text } = toRefs(props)
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const toast = useToast()
-const localePath = useLocalePath()
+
+const productName = computed(() => {
+  if ('name' in product.value && typeof product.value.name === 'string') {
+    return product.value.name
+  }
+  return extractTranslated(product.value, 'name', locale.value)
+})
 
 // Get the correct product ID for URLs and API calls
 // For search results (ProductMeiliSearchResult), use 'master' field
@@ -52,7 +58,7 @@ const label = computed(() => {
 
 const addToCartEvent = async () => {
   const existingCartItem = getCartItemByProductId(productId.value)
-  const wasCartEmpty = getCartTotalItems.value === 0
+  let failed = false
 
   try {
     if (existingCartItem) {
@@ -68,7 +74,7 @@ const addToCartEvent = async () => {
     }
   }
   catch {
-    //
+    failed = true
   }
 
   const errorData = error.value?.data?.data as Record<string, unknown> | undefined
@@ -80,13 +86,17 @@ const addToCartEvent = async () => {
         color: 'error',
       })
     })
+    return
   }
-  else {
-    // Navigate to checkout if cart was empty before adding this item
-    if (wasCartEmpty && getCartTotalItems.value > 0) {
-      await navigateTo(localePath('checkout'))
-    }
-  }
+
+  if (failed) return
+
+  toast.add({
+    title: t('toast.added_title'),
+    description: t('toast.added_description', { name: productName.value }),
+    color: 'success',
+    icon: 'i-heroicons-shopping-cart',
+  })
 }
 </script>
 
@@ -110,4 +120,7 @@ const addToCartEvent = async () => {
 <i18n lang="yaml">
 el:
   unavailable: Μή Διαθέσιμο
+  toast:
+    added_title: Προστέθηκε στο καλάθι
+    added_description: Το προϊόν "{name}" προστέθηκε στο καλάθι.
 </i18n>

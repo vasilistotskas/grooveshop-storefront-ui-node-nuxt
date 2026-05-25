@@ -13,7 +13,7 @@ export default defineEventHandler(async () => {
       if (error.data.status === 404 && 'meta' in error.data) {
         return await parseDataAs(error.data, ZodTotpGetResponseError)
       }
-      await handleAllAuthError(error)
     }
+    await handleAllAuthError(error)
   }
 })

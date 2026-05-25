@@ -6,7 +6,7 @@ defineProps<{
 }>()
 
 // Composables
-const { t } = useI18n()
+const { t, locale } = useI18n()
 </script>
 
 <template>
@@ -50,7 +50,12 @@ const { t } = useI18n()
         class="flex justify-between gap-4"
       >
         <span class="text-muted">{{ t('tracking.acs.last_update') }}</span>
-        <span>{{ formatDate(shipment.lastEventAt) }}</span>
+        <NuxtTime
+          :datetime="shipment.lastEventAt"
+          :locale="locale"
+          relative
+          numeric="auto"
+        />
       </div>
 
       <USeparator />
@@ -60,10 +65,16 @@ const { t } = useI18n()
     </div>
 
     <template #footer>
+      <!-- ACS's customer-facing tracking SPA lives at
+           ``webapp.acscourier.net`` and reads the voucher from the
+           URL path (NOT a query string — that's why the older
+           ``/el/track-and-trace/?p=`` URL didn't deep-link). The
+           path-based form opens straight onto the customer's
+           shipment with sender/recipient pre-populated. -->
       <div class="flex flex-wrap justify-end gap-2">
         <UButton
           v-if="shipment.voucherNo"
-          :to="`https://www.acscourier.net/el/track-and-trace/?p=${shipment.voucherNo}`"
+          :to="`https://webapp.acscourier.net/track-shipment/${shipment.voucherNo}`"
           target="_blank"
           rel="noopener noreferrer"
           variant="outline"

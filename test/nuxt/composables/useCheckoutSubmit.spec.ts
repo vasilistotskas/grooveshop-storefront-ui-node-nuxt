@@ -96,7 +96,16 @@ beforeAll(() => {
     warn: vi.fn(),
     error: vi.fn(),
   })
-  vi.stubGlobal('carrierForMethod', (_method: string) => null)
+  // Mirrors ``shared/shipping/index.ts::carrierForMethod`` — home
+  // delivery is intentionally provider-agnostic in checkout, so this
+  // helper returns null for that path. Pickup-point methods get a
+  // real carrier code. The PI body must agree with the order-create
+  // body about this, so the test stubs both honestly.
+  vi.stubGlobal('carrierForMethod', (method: string) => {
+    if (method === 'box_now_locker') return { code: 'boxnow' }
+    if (method === 'acs_smartpoint') return { code: 'acs' }
+    return null
+  })
   vi.stubGlobal('normalizeGreekPhone', (phone: string) => phone)
 })
 
@@ -156,7 +165,12 @@ beforeEach(() => {
   mockFetch.mockReset()
   mockNavigateTo.mockReset()
   mockReserveStock.mockReset()
-  mockReleaseReservations.mockReset()
+  // ``releaseReservations`` is called with ``.catch(...)`` from
+  // multiple paths in useCheckoutSubmit (Viva success cleanup, the
+  // onSubmit finally block, onBeforeUnmount). Default to a resolved
+  // Promise so a stray un-stubbed call doesn't TypeError on
+  // ``undefined.catch``.
+  mockReleaseReservations.mockReset().mockResolvedValue(undefined)
   mockCreatePaymentIntentFromCart.mockReset()
   mockCleanCartState.mockReset().mockResolvedValue(undefined)
   mockCartHolder.value = { uuid: 'cart-uuid', id: 1, items: [], totalItems: 0, totalPrice: 0 }
@@ -203,10 +217,19 @@ describe('useCheckoutSubmit', () => {
 
       await onSubmit()
 
-      // createPaymentIntentFromCart must be called with the idempotency key
+      // ``createPaymentIntentFromCart`` is called with the carrier
+      // context (so the PI amount uses the same free-shipping
+      // threshold the order-create step verifies against) plus the
+      // idempotency key. For ``home_delivery`` the provider code is
+      // intentionally absent — home delivery is provider-agnostic in
+      // checkout and both calc paths fall through to the generic
+      // shipping rule, which keeps them in sync.
       expect(mockCreatePaymentIntentFromCart).toHaveBeenCalledWith(
-        'cart-uuid',
-        1,
+        expect.objectContaining({
+          payWayId: 1,
+          shippingKind: 'home_delivery',
+          shippingProviderCode: undefined,
+        }),
         deterministicUUID,
       )
 

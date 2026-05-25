@@ -63,7 +63,12 @@ function flowsToMethods(flows: Flow[]) {
   const methods: { label: string, description: string, icon: string, iconColor: string, id: Flow['id'], path: FlowPathValue }[] = []
   flows.forEach((flow) => {
     if (flow.id === Flows.MFA_REAUTHENTICATE) {
-      flow.types?.forEach((typ) => {
+      const sortedTypes = [...(flow.types ?? [])].sort((a, b) => {
+        const ai = AUTHENTICATOR_TYPE_PRIORITY.indexOf(a)
+        const bi = AUTHENTICATOR_TYPE_PRIORITY.indexOf(b)
+        return (ai === -1 ? Number.MAX_SAFE_INTEGER : ai) - (bi === -1 ? Number.MAX_SAFE_INTEGER : bi)
+      })
+      sortedTypes.forEach((typ) => {
         const key = `${flow.id}:${typ}`
         methods.push({
           label: flowLabels[key] || flow.id,
@@ -71,7 +76,7 @@ function flowsToMethods(flows: Flow[]) {
           icon: flowIcons[key] || 'i-heroicons-shield-check',
           iconColor: flowIconColors[key] || 'primary',
           id: flow.id,
-          path: pathForFlow(flow, typ),
+          path: pathForFlow(flow, typ)!,
         })
       })
     }
@@ -82,7 +87,7 @@ function flowsToMethods(flows: Flow[]) {
         icon: flowIcons[flow.id] || 'i-heroicons-shield-check',
         iconColor: flowIconColors[flow.id] || 'primary',
         id: flow.id,
-        path: pathForFlow(flow),
+        path: pathForFlow(flow)!,
       })
     }
   })

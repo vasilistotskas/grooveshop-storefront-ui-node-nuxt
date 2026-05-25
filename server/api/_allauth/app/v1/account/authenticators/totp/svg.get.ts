@@ -6,7 +6,7 @@ export default defineEventHandler(async () => {
       method: 'GET',
       headers,
     })
-    return await parseDataAs(response, ZodTotpGetResponse)
+    return await parseDataAs(response, ZodTotpGetResponseError)
   }
   catch (error) {
     if (isAllAuthError(error)) {

@@ -69,14 +69,17 @@ export const useCheckout = () => {
   }
 
   /**
-   * Create payment intent from cart before order creation (for online payments)
-   * @param cartId - The cart UUID or ID
-   * @param payWayId - The payment method ID
-   * @returns Payment intent details including client_secret and payment_intent_id
+   * Create payment intent from cart before order creation (for online payments).
+   *
+   * The shipping fields are required because the backend uses them to
+   * compute the PaymentIntent amount against the SAME per-carrier
+   * free-shipping threshold the order-create step will verify against.
+   * Without them, the server falls back to the generic threshold and
+   * order-create fails with ``PaymentAmountMismatchError`` whenever
+   * the thresholds diverge.
    */
   const createPaymentIntentFromCart = async (
-    cartId: string | number,
-    payWayId: number,
+    args: CartCreatePaymentIntentRequestRequest,
     idempotencyKey?: string,
   ): Promise<{ clientSecret: string, paymentIntentId: string }> => {
     try {
@@ -87,7 +90,7 @@ export const useCheckout = () => {
         currency: string
       }>('/api/cart/create-payment-intent', {
         method: 'POST',
-        body: { cartId, payWayId },
+        body: args,
         headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : undefined,
       })
       return {

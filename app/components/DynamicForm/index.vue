@@ -79,30 +79,6 @@ const currentStepIndex = ref(0)
 const stepper = useTemplateRef<{ hasNext: boolean, hasPrev: boolean, next: () => void, prev: () => void }>('stepper')
 const form = useTemplateRef<{ validate: (options?: { name?: string[], silent?: boolean }) => Promise<void> }>('form')
 
-// Expose fields for parent component access (for backward compatibility)
-interface FieldExport {
-  value: any
-}
-
-const fields = computed(() => {
-  const fieldsMap: Record<string, FieldExport[]> = {}
-
-  const allFields = props.schema.steps
-    ? props.schema.steps.flatMap(step => step.fields)
-    : props.schema.fields || []
-
-  for (const field of allFields) {
-    if (!fieldsMap[field.name]) {
-      fieldsMap[field.name] = []
-    }
-    fieldsMap[field.name]!.push({
-      value: formState[field.name],
-    })
-  }
-
-  return fieldsMap
-})
-
 // Methods to get/set field values
 function getFieldValue(fieldName: string): any {
   return formState[fieldName]
@@ -123,7 +99,6 @@ function resetForm(): void {
 }
 
 defineExpose({
-  fields,
   formState,
   getFieldValue,
   setFieldValue,

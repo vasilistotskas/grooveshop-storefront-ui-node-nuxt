@@ -5,17 +5,18 @@ const props = defineProps<{
 }>()
 
 // Composables
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { presentationFor } = useBoxNowParcelState()
 
-// Computed
+// Computed — `date` carries the raw ISO timestamp; rendering happens
+// in the `#date` slot via <NuxtTime> for SSR-safe localised output.
 const timelineItems = computed(() =>
   props.events.map((e) => {
     const presentation = presentationFor(e.eventType)
     return {
       title: presentation.label,
       description: e.displayName || e.postalCode || '',
-      date: formatDate(e.eventTime),
+      date: e.eventTime,
       icon: presentation.icon,
       value: presentation.label,
     }
@@ -37,6 +38,15 @@ const timelineItems = computed(() =>
       orientation="vertical"
       :items="timelineItems"
       size="md"
-    />
+    >
+      <template #date="{ item }">
+        <NuxtTime
+          :datetime="item.date"
+          :locale="locale"
+          date-style="medium"
+          time-style="short"
+        />
+      </template>
+    </UTimeline>
   </div>
 </template>

@@ -30,14 +30,13 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  // Set with TTL only on first hit to start the window; subsequent hits
-  // just increment the counter (TTL remains from the first set).
-  if (count === 1) {
-    await storage.setItem(rateLimitKey, count, { ttl: RATE_LIMIT_WINDOW_SECONDS })
-  }
-  else {
-    await storage.setItem(rateLimitKey, count)
-  }
+  // Always pass an explicit TTL so the rate-limit window stays at
+  // ``RATE_LIMIT_WINDOW_SECONDS``. Falling back to the driver default
+  // (the long ``NUXT_REDIS_TTL`` for the cache mount) on subsequent
+  // ``setItem`` calls would silently extend the rate-limit window to
+  // an hour in production. Refreshing the TTL on every hit gives a
+  // sliding window — acceptable for a counter.
+  await storage.setItem(rateLimitKey, count, { ttl: RATE_LIMIT_WINDOW_SECONDS })
 
   // Per-session deduplication: skip the upstream call if this session has
   // already incremented the view count for this post.

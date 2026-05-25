@@ -112,6 +112,33 @@ export default defineAppConfig({
         trigger: 'cursor-pointer',
       },
     },
+    // Push the toast viewport past the sticky header so success /
+    // error toasts (e.g. "Προστέθηκε στο καλάθι") don't overlap the
+    // header action buttons (cart, user, search). The default
+    // ``top-4`` lives in a compound variant inside
+    // ``.nuxt/ui/toaster.ts`` ({ position: top-*, class: { viewport:
+    // 'top-4' } }). We override THAT compound variant rather than the
+    // viewport slot itself — slot-level overrides land BEFORE compound-
+    // variant classes in ``tv()``'s merge order, so the default
+    // ``top-4`` wins via ``tailwind-merge``'s last-class-wins (the
+    // problem we hit when shipping the slot-only override earlier).
+    //
+    // User-supplied ``compoundVariants`` concat AFTER the theme's
+    // defaults, so this entry's ``viewport: 'top-[calc(...)]'`` wins
+    // the ``top-*`` conflict cleanly. The CSS variable
+    // ``--ui-header-height`` is the same one Nuxt UI exposes for
+    // ``UMain`` — anchoring to it keeps the toast immediately below
+    // the header at any viewport size without hand-tuned breakpoints.
+    toaster: {
+      compoundVariants: [
+        {
+          position: ['top-left', 'top-center', 'top-right'],
+          class: {
+            viewport: 'top-[calc(var(--ui-header-height)+1rem)]',
+          },
+        },
+      ],
+    },
   },
   icon: {
     mode: 'css',

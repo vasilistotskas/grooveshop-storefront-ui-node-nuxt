@@ -13,6 +13,13 @@ const props = defineProps({
       lockerName?: string | null
       lockerId?: string | null
       lockerAddress?: string | null
+      /**
+       * Operator-uploaded logo URL from ``/api/v1/shipping/options``.
+       * Pass ``ShippingOption.logoUrl`` here so the summary mirrors
+       * the picker. Falls back to the bundled per-method default
+       * when null/undefined.
+       */
+      logoUrl?: string | null
     } | null>,
     default: null,
   },
@@ -33,7 +40,7 @@ const shippingSummaryView = computed(() => {
   const titleKey = `shipping_method_label.${summary.method}`
   return {
     icon: meta.icon,
-    logo: meta.logo,
+    logo: resolveShippingLogo(summary.logoUrl),
     altText: t(meta.altKey),
     title: t(titleKey),
     lockerName: summary.lockerName ?? null,
@@ -69,15 +76,8 @@ const payWayName = computed(() => {
 const checkoutTotal = computed(() => {
   if (!cart.value) return 0
   const paymentFee = props.showPaymentFee ? payWayCost.value : 0
-  return Math.max(0, cart.value.totalPrice + props.shippingPrice + paymentFee - props.loyaltyDiscount)
-})
-
-// VAT is baked into the cart's `totalPrice` (Greek retail convention).
-// Surface the breakdown so customers see what they're paying in tax.
-const vatAmount = computed(() => cart.value?.totalVatValue ?? 0)
-const subtotalExclVat = computed(() => {
-  const total = cart.value?.totalPrice ?? 0
-  return Math.max(0, total - vatAmount.value)
+  const shipping = shippingSummaryView.value ? props.shippingPrice : 0
+  return Math.max(0, cart.value.totalPrice + shipping + paymentFee - props.loyaltyDiscount)
 })
 
 defineSlots<{
@@ -190,9 +190,10 @@ defineSlots<{
 
         <div
           class="
-            space-y-3 border-t border-primary-200 pt-4
+            border-t border-primary-200 pt-4
             dark:border-primary-800
           "
+          :class="shippingSummaryView || (showPaymentFee && payWayCost) || loyaltyDiscount > 0 ? 'space-y-3' : ''"
         >
           <div class="flex items-center justify-between">
             <span
@@ -209,20 +210,9 @@ defineSlots<{
             >{{ cart?.totalItemsUnique }}</span>
           </div>
           <div
-            v-if="vatAmount > 0"
+            v-if="shippingSummaryView"
             class="flex items-center justify-between"
           >
-            <span class="text-neutral-600 dark:text-neutral-300">{{ t('subtotal_excl_vat') }}</span>
-            <span class="text-primary-950 dark:text-primary-50">{{ $i18n.n(subtotalExclVat, 'currency') }}</span>
-          </div>
-          <div
-            v-if="vatAmount > 0"
-            class="flex items-center justify-between"
-          >
-            <span class="text-neutral-600 dark:text-neutral-300">{{ t('vat') }}</span>
-            <span class="text-primary-950 dark:text-primary-50">{{ $i18n.n(vatAmount, 'currency') }}</span>
-          </div>
-          <div class="flex items-center justify-between">
             <span
               class="
                 text-primary-950
@@ -270,9 +260,9 @@ defineSlots<{
         </div>
 
         <!-- Points Earned Slot -->
-        <div v-if="$slots['points-earned']" class="pt-1">
+        <template v-if="$slots['points-earned']">
           <slot name="points-earned" />
-        </div>
+        </template>
 
         <div
           class="
@@ -292,19 +282,6 @@ defineSlots<{
               dark:text-primary-400
             "
           >{{ $i18n.n(checkoutTotal, 'currency') }}</span>
-        </div>
-
-        <div
-          class="
-            flex items-center gap-2 text-sm text-primary-600 pb-2
-            dark:text-primary-400
-          "
-        >
-          <UIcon
-            name="i-heroicons-shield-check"
-            class="size-6 text-green-500"
-          />
-          <span>{{ t('vat_included') }}</span>
         </div>
       </div>
 
@@ -338,9 +315,6 @@ el:
   total: Σύνολο
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
   loyalty_discount: Έκπτωση πόντων
-  vat_included: Στις τιμές συμπεριλαμβάνεται Φ.Π.Α.
-  subtotal_excl_vat: Υποσύνολο (χωρίς Φ.Π.Α.)
-  vat: Φ.Π.Α.
   need_help: Χρειάζεσαι βοήθεια;
   shipping_method_label:
     home_delivery: Παράδοση στη διεύθυνσή σας

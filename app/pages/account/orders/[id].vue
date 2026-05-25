@@ -23,18 +23,40 @@ const localePath = useLocalePath()
 const { productUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()
 
+// Map raw OrderHistory.change_type values to user-friendly i18n
+// labels. The customer-facing payload is already curated by the
+// backend (synthetic CREATED + STATUS/PAYMENT/SHIPPING/REFUND
+// transitions — operational NOTE rows stay in the admin audit
+// log). This map gives each kept type a localised title; the
+// per-row description carries the actual transition.
+const TIMELINE_TITLE_KEYS: Record<string, string> = {
+  CREATED: 'timeline.title.created',
+  STATUS: 'timeline.title.status',
+  PAYMENT: 'timeline.title.payment',
+  SHIPPING: 'timeline.title.shipping',
+  REFUND: 'timeline.title.refund',
+}
+
 const orderTimeline = computed(() => {
   if (!order.value?.orderTimeline) return []
 
   return order.value.orderTimeline
-    .filter(item => item.timestamp && item.description)
-    .map(item => ({
-      date: item.timestamp ? new Date(item.timestamp).toLocaleDateString(locale.value) : '',
-      title: item.changeType || t('status_change'),
-      description: item.description || '',
-      icon: getTimelineIcon(item.changeType),
-      user: item.user,
-    }))
+    .filter(item => Boolean(item.timestamp))
+    .map((item) => {
+      const titleKey = item.changeType
+        ? TIMELINE_TITLE_KEYS[item.changeType]
+        : undefined
+      return {
+        // Raw ISO timestamp — formatted via <NuxtTime> in the
+        // UTimeline `#date` slot for SSR-safe localised output.
+        // The upstream `.filter` guarantees `timestamp` is defined.
+        date: item.timestamp!,
+        title: titleKey ? t(titleKey) : (item.changeType || t('status_change')),
+        description: item.description || '',
+        icon: getTimelineIcon(item.changeType),
+        user: item.user,
+      }
+    })
     .reverse()
 })
 
@@ -97,6 +119,17 @@ const currentStatusIndex = computed(() => {
   const status = order.value?.status
   if (!status) return 0
   return ORDER_STATUS_FLOW.indexOf(status as typeof ORDER_STATUS_FLOW[number])
+})
+
+// CANCELED / RETURNED / REFUNDED are off-path terminal states. The
+// happy-path stepper has no place to render them — keeping it visible
+// with progress=0% confusingly suggests the order is still pending
+// even though the alert banner above announces cancellation/refund.
+// Hide the stepper entirely for these states and rely on the alert.
+const isOffPathTerminalStatus = computed(() => {
+  const status = order.value?.status
+  if (!status) return false
+  return !(ORDER_STATUS_FLOW as readonly string[]).includes(status)
 })
 
 const orderSteps = computed(() =>
@@ -304,7 +337,10 @@ async function handleCancelOrder() {
 async function handleTrackOrder() {
   const trackingUrl = order.value?.trackingDetails?.trackingUrl
   if (trackingUrl) {
-    window.open(trackingUrl, '_blank')
+    // ``noopener,noreferrer`` blocks tabnabbing: without it the
+    // opened courier site could call ``window.opener.location`` and
+    // redirect the customer's tab to a phishing page.
+    window.open(trackingUrl, '_blank', 'noopener,noreferrer')
   }
 }
 
@@ -540,7 +576,7 @@ defineRouteRules({
       </UButton>
     </div>
 
-    <UCard>
+    <UCard v-if="!isOffPathTerminalStatus">
       <template #header>
         <div class="flex items-center justify-between">
           <h2 class="text-lg font-semibold">
@@ -1171,7 +1207,12 @@ defineRouteRules({
                     dark:text-gray-200
                   "
                 >
-                  {{ item.date }}
+                  <NuxtTime
+                    :datetime="item.date"
+                    :locale="locale"
+                    date-style="medium"
+                    time-style="short"
+                  />
                 </span>
               </template>
 
@@ -1252,6 +1293,18 @@ el:
   shipping_carrier: Εταιρία Μεταφορών
   order_history: Ιστορικό Παραγγελίας
   status_change: Αλλαγή Κατάστασης
+  timeline:
+    title:
+      created: Δημιουργία παραγγελίας
+      status: Αλλαγή κατάστασης
+      payment: Πληρωμή
+      shipping: Αποστολή
+      customer: Στοιχεία πελάτη
+      items: Προϊόντα
+      address: Διεύθυνση
+      note: Σημείωση
+      refund: Επιστροφή χρημάτων
+      other: Άλλη ενέργεια
   by: από
   cancel_order: Ακύρωση Παραγγελίας
   track_order: Παρακολούθηση Παραγγελίας

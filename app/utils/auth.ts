@@ -6,13 +6,24 @@ export interface AuthChangeMeta {
   explicit?: boolean
 }
 
-const callAuthChangeHook = async (
+export const callAuthChangeHook = async (
   authData: AllAuthResponse | AllAuthResponseError,
   meta: AuthChangeMeta = {},
 ) => {
   const nuxtApp = useNuxtApp()
   await nuxtApp.callHook('auth:change', { detail: authData, ...meta })
 }
+
+// Synthetic 410 response — for surfacing a server-driven session expiry
+// (e.g. WebSocket ticket 401/403, cross-tab logout) through the canonical
+// auth:change pipeline so all stores clear and navigation happens. Calling
+// useUserSession().clear() in isolation leaves Pinia stores stale and
+// skips the LOGOUT_REDIRECT_URL navigation.
+export const SYNTHETIC_EXPIRED_SESSION: AllAuthResponseError = Object.freeze({
+  status: 410,
+  data: { flows: [] },
+  meta: { is_authenticated: false },
+}) as unknown as AllAuthResponseError
 
 export const onAllAuthResponse = async (
   response: FetchResponse<AllAuthResponse>,
@@ -160,9 +171,20 @@ function hasFlowUpdated(
   return currentFlow?.is_pending ?? false
 }
 
+export const pickPreferredAuthenticatorType = (
+  types: readonly string[] | undefined | null,
+): string | undefined => {
+  if (!types || !types.length) return undefined
+  const preferred = AUTHENTICATOR_TYPE_PRIORITY.find(t => types.includes(t))
+  return preferred ?? types[0]
+}
+
 export const pathForFlow = (flow: Flow, authenticatorType?: string) => {
+  // provider_redirect is an external OAuth redirect, not a Nuxt page.
+  // Return null so navigateToPendingFlow skips navigation.
+  if (flow.id === Flows.PROVIDER_REDIRECT) return null
   const flowKey = flow.types && flow.types.length
-    ? `${flow.id}:${authenticatorType ?? flow.types[0]}`
+    ? `${flow.id}:${authenticatorType ?? pickPreferredAuthenticatorType(flow.types)}`
     : flow.id
   const path = Flow2path[flowKey] ?? Flow2path[flow.id]
   if (!path) {

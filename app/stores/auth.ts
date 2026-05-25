@@ -72,7 +72,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const setupSession = async () => {
-    const { loggedIn, clear } = useUserSession()
+    const { loggedIn } = useUserSession()
     if (!loggedIn.value) {
       return
     }
@@ -87,19 +87,10 @@ export const useAuthStore = defineStore('auth', () => {
     }
     catch (err: unknown) {
       log.error({ action: 'auth:setupSession', error: err })
-      // Only clear the session on definitive auth failures (401/410),
-      // not on transient errors (network, 500) which would destroy the access token
-      const e = err && typeof err === 'object' ? err as Record<string, unknown> : null
-      const responseStatus
-        = e?.response && typeof e.response === 'object' && 'status' in e.response
-          ? (e.response as { status: unknown }).status
-          : undefined
-      const status = typeof responseStatus === 'number'
-        ? responseStatus
-        : typeof e?.statusCode === 'number' ? e.statusCode : undefined
-      if (status === 401 || status === 410) {
-        await clear()
-      }
+      // No clear() here on 401/410 — getSession's onAllAuthResponseError
+      // already fires auth:change which routes through handleLoggedOut →
+      // clear(). Calling clear() a second time triggers the setup.ts
+      // loggedIn watcher twice and double-fires cleanCartState.
     }
   }
 
@@ -145,6 +136,11 @@ export const useAuthStore = defineStore('auth', () => {
     const { getSession } = useAllAuthAuthentication()
     const response = await getSession(encrypted_token)
     if (response) {
+      // Set BEFORE the function resolves so the destination page (after
+      // auth:change → handleLoggedIn → navigateTo) sees populated
+      // session.value on first render. The auth plugin's hook fires
+      // INSIDE getSession's onResponse, so by the time this line runs,
+      // navigation may have already been dispatched.
       session.value = response.data
     }
   }

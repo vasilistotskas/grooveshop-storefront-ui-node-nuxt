@@ -4,15 +4,14 @@ const formState = defineModel<Record<string, any>>('formState', { required: true
 const props = defineProps<{
   schema: any
   partnerId: string
-  // Master switch from the backend `BOXNOW_ENABLED` Setting row.
-  // Defaults to false at the source so a fresh prod deploy hides the
-  // option until BoxNow has activated the partner account; an admin
-  // flips it to true in Django admin once they confirm.
-  boxnowEnabled?: boolean
-  // Master switch from the backend `ACS_SMARTPOINT_ENABLED` Setting
-  // row.  Defaults to false in production so ops can stage the
-  // AcsStation cache + verify the picker before exposing to shoppers.
-  acsSmartpointEnabled?: boolean
+  // Live, priority-sorted carrier options from
+  // ``/api/v1/shipping/options`` (already filtered by the backend
+  // to active ``ShippingProvider`` rows + per-kind feature flags
+  // like ``ACS_SMARTPOINT_ENABLED``). The display order here mirrors
+  // ``ShippingProvider.priority`` ascending — admins control which
+  // method appears first by editing the provider rows in Django
+  // admin instead of editing this component.
+  apiOptions: ShippingOption[]
   // The currently selected PayWay (from useCheckoutForm). Threaded
   // through as a prop so we can disable the BoxNow option when the
   // shopper has a cash-on-delivery PayWay selected — BoxNow lockers
@@ -34,12 +33,20 @@ const { t } = useI18n()
 // generic checkout error toast.
 const isBoxNowConfigured = computed(() => Boolean(props.partnerId))
 
-// BoxNow now supports COD on lockers via PAY ON THE GO. Backend wires
-// ``paymentMode='cod'`` + ``amountToBeCollected`` onto the voucher when
-// the order's pay-way is offline (see shipping_boxnow/carrier.py
-// ``create_shipment_row``). The legacy gate that disabled BoxNow when
-// COD was selected is gone; the only thing that still disables the
-// row is a missing ``NUXT_PUBLIC_BOXNOW_PARTNER_ID``.
+// Mirrors the visibility decision in ``useCheckoutForm`` so the
+// "BoxNow is unconfigured" alert below only renders when the
+// shopper actually has BoxNow as a candidate method (otherwise
+// it'd surface on every checkout in environments without BoxNow).
+const boxnowAvailable = computed(() =>
+  props.apiOptions.some(o => o.providerCode === 'boxnow'),
+)
+
+// BoxNow supports COD on lockers via PAY ON THE GO — the backend
+// wires ``paymentMode='cod'`` + ``amountToBeCollected`` onto the
+// voucher when the order's pay-way is offline (see
+// ``shipping_boxnow/carrier.py:create_shipment_row``). The row is
+// only disabled when ``NUXT_PUBLIC_BOXNOW_PARTNER_ID`` is missing
+// from the deploy env.
 const isBoxNowDisabled = computed(() => !isBoxNowConfigured.value)
 
 // Note: ``description`` is rendered inside the custom ``#label`` slot
@@ -47,59 +54,95 @@ const isBoxNowDisabled = computed(() => !isBoxNowConfigured.value)
 // doesn't ALSO render it as a separate ``data-slot="description"``
 // paragraph (which would duplicate the text on the card).
 //
-// Brand metadata (logo, icon, optional badge tagline) lives in
-// ``app/utils/shipping-methods.ts`` so adding a carrier is just dropping
-// a logo into ``public/img/shipping/`` + a one-line entry there.
-const shippingOptions = computed(() => {
-  const items: Array<{
-    value: ShippingMethodKey
-    label: string
-    descriptionText: string
-    logo: string
-    altText: string
-    icon: string
-    taglineKey?: string
-    taglineColor?: ShippingMethodMeta['taglineColor']
-    disabled?: boolean
-  }> = [
-    {
+// Brand metadata (icon, optional badge tagline) lives in
+// ``app/utils/shipping-methods.ts``. ``logo`` is sourced per-API-row
+// from ``ShippingOption.logoUrl`` (operator upload via Django admin)
+// with a single bundled fallback — see ``resolveShippingLogo``.
+type ShippingOptionItemBase = {
+  value: ShippingMethodKey
+  label: string
+  descriptionText: string
+  altText: string
+  icon: string
+  taglineKey?: string
+  taglineColor?: ShippingMethodMeta['taglineColor']
+  disabled?: boolean
+}
+
+type ShippingOptionItem = ShippingOptionItemBase & {
+  logo: string
+}
+
+// Per-method UI metadata (i18n labels + brand assets +
+// per-instance ``disabled`` reasons). Methods absent from
+// ``apiOptions`` are filtered out below — Django decides which
+// rows to surface based on ``ShippingProvider.is_active`` and any
+// per-kind Setting flags (``ACS_SMARTPOINT_ENABLED``, etc.). The
+// UI only handles rendering + ``disabled`` reasons local to the
+// browser environment (e.g. missing BoxNow ``partnerId``).
+const itemsByKey = computed<Record<ShippingMethodKey, ShippingOptionItemBase>>(
+  () => ({
+    home_delivery: {
       value: 'home_delivery',
       label: t('shipping.method.home_delivery.label'),
       descriptionText: t('shipping.method.home_delivery.description'),
       ...buildBrandMeta('home_delivery'),
     },
-  ]
-  // BoxNow row is hidden entirely when the master switch is off —
-  // showing a disabled-and-greyed BoxNow card would invite confusion
-  // ("why can't I pick this?"). Once an admin flips the Setting to
-  // True the option appears on the next checkout load.
-  if (props.boxnowEnabled) {
-    items.push({
+    box_now_locker: {
       value: 'box_now_locker',
       label: t('shipping.method.boxnow.label'),
       descriptionText: t('shipping.method.boxnow.description'),
       disabled: isBoxNowDisabled.value,
       ...buildBrandMeta('box_now_locker'),
-    })
-  }
-  // ACS Smartpoint locker pickup. Same hidden-when-disabled treatment
-  // as BoxNow, but with no per-PayWay restriction — ACS supports COD
-  // at Smartpoints so we let the shopper pair it with any pay way.
-  if (props.acsSmartpointEnabled) {
-    items.push({
+    },
+    acs_smartpoint: {
       value: 'acs_smartpoint',
       label: t('shipping.method.acs_smartpoint.label'),
       descriptionText: t('shipping.method.acs_smartpoint.description'),
       ...buildBrandMeta('acs_smartpoint'),
+    },
+  }),
+)
+
+// Render in the priority order the backend already produced. The
+// backend sorts ``/api/v1/shipping/options`` by
+// ``(ShippingProvider.priority, provider_code)`` ascending — admins
+// reorder the picker by editing those priority values in Django
+// admin. Duplicate ``methodKey`` values are de-duped (only the
+// first occurrence wins) because we collapse all home-delivery
+// providers to a single ``'home_delivery'`` UI row.
+//
+// The logo is sourced from the API row's ``logoUrl`` (operator
+// upload via Django admin) and falls back to the single bundled
+// ``DEFAULT_SHIPPING_LOGO`` SVG when the backend hasn't supplied
+// one. The first-occurrence-wins rule applies to both the row
+// identity AND the logo source, so swapping the active home-
+// delivery carrier propagates the new brand asset automatically.
+const shippingOptions = computed(() => {
+  const seen = new Set<ShippingMethodKey>()
+  const ordered: ShippingOptionItem[] = []
+  for (const option of props.apiOptions) {
+    const key = methodKeyForOption(option) as ShippingMethodKey | null
+    if (!key || seen.has(key)) continue
+    const baseItem = itemsByKey.value[key]
+    if (!baseItem) continue
+    seen.add(key)
+    ordered.push({
+      ...baseItem,
+      logo: resolveShippingLogo(option.logoUrl),
     })
   }
-  return items
+  return ordered
 })
 
 function buildBrandMeta(method: ShippingMethodKey) {
   const meta = getShippingMethodMeta(method)
+  // ``logo`` is filled in by the caller from the matching
+  // ``ShippingOption.logoUrl`` (via ``resolveShippingLogo``) so this
+  // helper only emits the static i18n + icon hints; the brand asset
+  // is whatever the operator uploaded in Django admin, or the single
+  // bundled default when nothing is uploaded.
   return {
-    logo: meta.logo,
     altText: t(meta.altKey),
     icon: meta.icon,
     taglineKey: meta.taglineKey,
@@ -119,12 +162,17 @@ const isBoxNow = computed(
   () => formState.value.shippingMethod === 'box_now_locker',
 )
 
-const isValid = computed(() => {
-  const method = formState.value.shippingMethod
-  if (method === 'home_delivery') return true
+// Single source of truth for the active carrier's picker modal. The
+// child wrappers (CheckoutSelectedBoxNowLocker /
+// CheckoutSelectedGenericLocker) only render one at a time, so a
+// shared ref is safe and lets the Continue button open the right
+// picker when the shopper hasn't picked a locker yet.
+const pickerOpen = ref(false)
+
+const isLockerMissing = computed(() => {
   const carrier = activeCarrier.value
   if (!carrier) return false
-  return carrier.readLockerId(formState.value) !== null
+  return carrier.readLockerId(formState.value) === null
 })
 
 // UForm template ref so we can re-run validation programmatically.
@@ -183,8 +231,21 @@ watch(
 )
 
 function onSubmit() {
+  // Continue clicked without picking a locker → pop the picker
+  // instead of silently failing. The previous UX disabled the button
+  // entirely, which gave no signal about what was missing — a real
+  // customer (order 53, 2026-05-12) bounced to ACS after staring at
+  // a disabled BoxNow Continue button for ~50 minutes.
+  if (isLockerMissing.value) {
+    pickerOpen.value = true
+    return
+  }
   emit('next')
 }
+
+// Surfaces the existing onSubmit to the page-level CTA in the
+// sidebar so it can drive the locker-aware validation flow.
+defineExpose({ submit: onSubmit })
 </script>
 
 <template>
@@ -198,7 +259,13 @@ function onSubmit() {
       </p>
     </template>
 
-    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6" @submit="onSubmit">
+    <!-- ``@submit`` is intentionally absent: the Continue button uses
+         ``type="button"`` + ``@click`` because the Zod
+         ``superRefine`` would otherwise abort submit on a missing
+         locker before our handler could pop the picker. The schema
+         still drives inline error rendering for the locker field via
+         the watcher below. -->
+    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6">
       <!-- Shipping method radio group -->
       <URadioGroup
         v-model="formState.shippingMethod"
@@ -251,7 +318,7 @@ function onSubmit() {
       <!-- Configuration explainer — only in dev when BoxNow partnerId is
            missing AND BoxNow is supposed to be visible. -->
       <UAlert
-        v-if="!isBoxNowConfigured && boxnowEnabled"
+        v-if="!isBoxNowConfigured && boxnowAvailable"
         color="info"
         variant="subtle"
         icon="i-heroicons-information-circle"
@@ -268,6 +335,7 @@ function onSubmit() {
         <UFormField :name="activeCarrier.formFieldName" class="mt-0">
           <CheckoutSelectedBoxNowLocker
             v-model:formState="formState"
+            v-model:open="pickerOpen"
             :partner-id="props.partnerId"
           />
         </UFormField>
@@ -277,6 +345,7 @@ function onSubmit() {
         <UFormField :name="activeCarrier.formFieldName" class="mt-0">
           <CheckoutSelectedGenericLocker
             v-model:formState="formState"
+            v-model:open="pickerOpen"
             :carrier="activeCarrier"
             :initial-postal-code="formState.zipcode"
             :initial-city="formState.city"
@@ -285,8 +354,9 @@ function onSubmit() {
         </UFormField>
       </template>
 
-      <!-- Footer navigation -->
-      <div class="flex items-center justify-between pt-4">
+      <!-- Footer navigation. Continue lives in the checkout sidebar
+           so the primary CTA sits next to the order total. -->
+      <div class="flex items-center pt-4">
         <UButton
           variant="ghost"
           icon="i-heroicons-arrow-left"
@@ -295,17 +365,6 @@ function onSubmit() {
           @click="emit('back')"
         >
           {{ t('back') }}
-        </UButton>
-
-        <UButton
-          type="submit"
-          size="lg"
-          color="success"
-          :disabled="!isValid"
-          icon="i-heroicons-arrow-right"
-          trailing
-        >
-          {{ t('continue') }}
         </UButton>
       </div>
     </UForm>
@@ -316,5 +375,4 @@ function onSubmit() {
 el:
   subtitle: Επιλέξτε πώς θέλετε να παραλάβετε την παραγγελία σας
   back: Πίσω
-  continue: Συνέχεια
 </i18n>

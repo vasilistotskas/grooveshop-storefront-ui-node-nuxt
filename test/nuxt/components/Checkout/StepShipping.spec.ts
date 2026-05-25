@@ -24,14 +24,44 @@ function makeFormState(overrides: Record<string, unknown> = {}) {
   }
 }
 
+// Default ``apiOptions`` mirroring the production
+// ``/api/v1/shipping/options`` response — BoxNow + ACS active, sorted
+// by ``ShippingProvider.priority`` ascending (BoxNow priority=5 first
+// since the owner asked for it as the leading option). Tests covering
+// the hidden-row case override ``apiOptions`` to drop the relevant
+// provider row.
+const DEFAULT_API_OPTIONS: ShippingOption[] = [
+  {
+    providerCode: 'boxnow',
+    providerName: 'BOX NOW',
+    kind: 'pickup_point',
+    price: 2.99,
+    currency: 'EUR',
+    liveMode: true,
+    priority: 5,
+    metadata: {},
+  },
+  {
+    providerCode: 'acs',
+    providerName: 'ACS Courier',
+    kind: 'home_delivery',
+    price: 2.99,
+    currency: 'EUR',
+    liveMode: true,
+    priority: 10,
+    metadata: {},
+  },
+]
+
 function makeProps(overrides: Record<string, unknown> = {}) {
   return {
     formState: makeFormState(),
     schema: null,
     partnerId: '10391',
-    // Master switch — almost every test needs the BoxNow option
-    // visible. Tests covering the hidden case override this to false.
-    boxnowEnabled: true,
+    // Live carrier rows — the component renders one entry per option
+    // in this order. Tests that need a row hidden drop it from this
+    // list rather than toggling a separate boolean flag.
+    apiOptions: DEFAULT_API_OPTIONS,
     ...overrides,
   }
 }
@@ -61,9 +91,15 @@ describe('Checkout/StepShipping', () => {
       expect(html).toContain('box_now_locker')
     })
 
-    it('omits the BoxNow row when boxnowEnabled is false (admin master switch)', async () => {
+    it('omits the BoxNow row when no boxnow option in apiOptions (admin master switch)', async () => {
       const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps({ boxnowEnabled: false }),
+        props: makeProps({
+          // Backend has ``ShippingProvider(code='boxnow').is_active=False``,
+          // so ``/api/v1/shipping/options`` drops the boxnow row.
+          apiOptions: DEFAULT_API_OPTIONS.filter(
+            o => o.providerCode !== 'boxnow',
+          ),
+        }),
       })
 
       const html = wrapper.html()
@@ -98,8 +134,17 @@ describe('Checkout/StepShipping', () => {
     })
   })
 
-  describe('submit button state', () => {
-    it('submit button is disabled when box_now_locker is selected but no lockerId is set', async () => {
+  describe('submit() behaviour', () => {
+    // The primary CTA was hoisted into the page-level checkout
+    // sidebar so it sits next to the order total. The page calls
+    // ``stepRef.value.submit()`` on click — which runs StepShipping's
+    // locker-aware ``onSubmit`` handler. These tests drive that
+    // exposed method directly instead of a removed in-card button.
+    //
+    // Locker-missing behaviour: pops the picker instead of silently
+    // failing. Previous UX (disabled button + inline schema error)
+    // lost a real customer (order 53, 2026-05-12) to ACS.
+    it('submit() without a locker opens the picker instead of emitting next', async () => {
       const wrapper = await mountSuspended(StepShipping, {
         props: makeProps({
           formState: makeFormState({
@@ -109,25 +154,35 @@ describe('Checkout/StepShipping', () => {
         }),
       })
 
-      // The continue / submit UButton has :disabled="!isValid"
-      const submitBtn = wrapper.find('[type="submit"]')
-      expect(submitBtn.attributes('disabled')).toBeDefined()
-    })
+      ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+      await wrapper.vm.$nextTick()
 
-    it('submit button is enabled when home_delivery is selected (no locker required)', async () => {
+      // No advance to the next step yet — the shopper still has to
+      // pick a locker.
+      expect(wrapper.emitted('next')).toBeFalsy()
+      // The picker is mounted (BoxNow keeps its iframe widget hidden
+      // until ``pickerOpen`` flips true). Asserting via the child
+      // component's open-model prop is the cleanest cross-cut.
+      const picker = wrapper.findComponent({ name: 'CheckoutSelectedBoxNowLocker' })
+      expect(picker.props('open')).toBe(true)
+    })
+  })
+
+  describe('event emissions', () => {
+    it('emits "next" when submit() runs with a valid home_delivery selection', async () => {
       const wrapper = await mountSuspended(StepShipping, {
         props: makeProps({
-          formState: makeFormState({ shippingMethod: 'home_delivery', boxnowLockerId: '' }),
+          formState: makeFormState({ shippingMethod: 'home_delivery' }),
         }),
       })
 
-      const submitBtn = wrapper.find('[type="submit"]')
-      // disabled attribute should not be present (or should be absent / "false")
-      const disabled = submitBtn.attributes('disabled')
-      expect(disabled === undefined || disabled === 'false').toBe(true)
+      ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+      await wrapper.vm.$nextTick()
+      expect(wrapper.emitted('next')).toBeTruthy()
+      expect(wrapper.emitted('next')!.length).toBeGreaterThanOrEqual(1)
     })
 
-    it('submit button is enabled when box_now_locker is selected AND lockerId is set', async () => {
+    it('emits "next" when submit() runs with box_now_locker AND a selected locker', async () => {
       const wrapper = await mountSuspended(StepShipping, {
         props: makeProps({
           formState: makeFormState({
@@ -137,23 +192,9 @@ describe('Checkout/StepShipping', () => {
         }),
       })
 
-      const submitBtn = wrapper.find('[type="submit"]')
-      const disabled = submitBtn.attributes('disabled')
-      expect(disabled === undefined || disabled === 'false').toBe(true)
-    })
-  })
-
-  describe('event emissions', () => {
-    it('emits "next" when the form is submitted with a valid home_delivery selection', async () => {
-      const wrapper = await mountSuspended(StepShipping, {
-        props: makeProps({
-          formState: makeFormState({ shippingMethod: 'home_delivery' }),
-        }),
-      })
-
-      await wrapper.find('form').trigger('submit')
+      ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+      await wrapper.vm.$nextTick()
       expect(wrapper.emitted('next')).toBeTruthy()
-      expect(wrapper.emitted('next')!.length).toBeGreaterThanOrEqual(1)
     })
 
     it('emits "back" when the back button is clicked', async () => {

@@ -8,10 +8,19 @@ export default defineEventHandler(async (event) => {
       method: 'DELETE',
       headers,
     })
-    await clearUserSession(event)
-    return await parseDataAs(response, ZodPasswordRequestResponse)
+    const parsed = await parseDataAs(response, ZodPasswordRequestResponse)
+    return parsed
   }
   catch (error) {
     await handleAllAuthError(error)
+  }
+  finally {
+    // Promise.allSettled so a throw in clearUserSession (e.g. seal failure
+    // during a NUXT_SESSION_PASSWORD rotation) doesn't abort clearCartSession,
+    // leaving a stale cart cookie behind after logout.
+    await Promise.allSettled([
+      clearUserSession(event),
+      clearCartSession(event),
+    ])
   }
 })

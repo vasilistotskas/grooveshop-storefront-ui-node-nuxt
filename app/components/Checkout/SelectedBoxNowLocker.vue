@@ -15,8 +15,12 @@ const props = defineProps<{
 // Composables
 const { t } = useI18n()
 
-// State
-const pickerOpen = ref(false)
+// State — exposed via ``v-model:open`` so the parent (StepShipping)
+// can pop the picker when the shopper clicks Continue without first
+// having picked a locker. Without this, the previous UX disabled the
+// Continue button and gave no signal that a locker was the missing
+// piece — a real customer hit this and bounced to ACS instead.
+const pickerOpen = defineModel<boolean>('open', { default: false })
 
 // Computed
 const hasLocker = computed(() => !!formState.value.boxnowLockerId)

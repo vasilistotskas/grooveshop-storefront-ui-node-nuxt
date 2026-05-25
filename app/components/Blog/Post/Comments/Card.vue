@@ -320,6 +320,8 @@ watch(
           <NuxtTime
             :datetime="comment.createdAt"
             :locale="locale"
+            relative
+            numeric="auto"
             class="
               w-full text-end text-xs text-primary-400
               dark:text-primary-400

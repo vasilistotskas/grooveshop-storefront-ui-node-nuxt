@@ -23,8 +23,18 @@ const isAccountRoute = computed(() => {
   return name === 'account' || name.startsWith('account-')
 })
 
+// Auth-flow pages (login, signup, OAuth callback, password reset, MFA
+// challenge) live under /account/* but must NOT render the user chrome
+// even if the user is logged in — otherwise a stale loggedIn state
+// during a guest-redirect race would wrap the login form in the user's
+// account sidebar.
+const onAuthFlowRoute = computed(() => {
+  const name = routeName.value
+  return typeof name === 'string' && isAuthFlowRoute(name)
+})
+
 const showUserChrome = computed(
-  () => isAccountRoute.value && loggedIn.value && user.value,
+  () => isAccountRoute.value && !onAuthFlowRoute.value && loggedIn.value && user.value,
 )
 
 const footerClass = computed(() => {

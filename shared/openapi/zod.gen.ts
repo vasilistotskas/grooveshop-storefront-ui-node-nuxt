@@ -37,11 +37,11 @@ export const zAcsAddressValidationResponse = z.object({
 })
 
 /**
- * * `1` - Prepaid
+ * * `1` - Προπληρωμένο
  * * `2` - Cash on delivery
  */
 export const zAcsChargeType = z.union([z.literal(1), z.literal(2)]).register(z.globalRegistry, {
-  description: '* `1` - Prepaid\n* `2` - Cash on delivery',
+  description: '* `1` - Προπληρωμένο\n* `2` - Cash on delivery',
 })
 
 export const zAcsPickupList = z.object({
@@ -72,7 +72,7 @@ export const zAcsTrackingEvent = z.object({
     description: 'Checkpoint_Location_Description.',
   }).readonly(),
   notes: z.string().register(z.globalRegistry, {
-    description: 'ACS Comments field.',
+    description: 'Πεδίο σχολίων ACS.',
   }).readonly(),
   receivedAt: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Wall-clock time when the polling task observed this event.',
@@ -284,7 +284,7 @@ export const zBlogCategoryDetail = z.object({
 
 export const zBlogCategoryReorderItemRequest = z.object({
   id: z.int().register(z.globalRegistry, {
-    description: 'Category ID',
+    description: 'ID κατηγορίας',
   }),
   sortOrder: z.int().register(z.globalRegistry, {
     description: 'New sort order value',
@@ -299,7 +299,7 @@ export const zBlogCategoryReorderRequestRequest = z.object({
 
 export const zBlogCategoryReorderResponse = z.object({
   updatedCount: z.int().register(z.globalRegistry, {
-    description: 'Number of categories updated',
+    description: 'Αριθμός ενημερωμένων κατηγοριών',
   }),
   message: z.string().register(z.globalRegistry, {
     description: 'Success message',
@@ -631,7 +631,7 @@ export const zBoxNowNearestLockerResponse = z.object({
     description: 'Locker type (e.g. apm, warehouse)',
   }).readonly(),
   image: z.string().register(z.globalRegistry, {
-    description: 'URL of locker image',
+    description: 'URL εικόνας locker',
   }).readonly(),
   lat: z.string().register(z.globalRegistry, {
     description: 'Latitude (string as returned by BoxNow)',
@@ -646,13 +646,13 @@ export const zBoxNowNearestLockerResponse = z.object({
     description: 'Full locker name',
   }).readonly(),
   postalCode: z.string().register(z.globalRegistry, {
-    description: 'Postal code of the locker',
+    description: 'Ταχ. κώδικας του locker',
   }).readonly(),
   country: z.string().register(z.globalRegistry, {
-    description: 'ISO 3166-1 alpha-2 country code',
+    description: 'ISO 3166-1 alpha-2 κωδικός χώρας',
   }).readonly(),
   note: z.string().register(z.globalRegistry, {
-    description: 'Operational note from BoxNow',
+    description: 'Λειτουργική σημείωση από BoxNow',
   }).readonly(),
   addressLine1: z.string().register(z.globalRegistry, {
     description: 'Primary address line',
@@ -673,16 +673,16 @@ export const zBoxNowNearestLockerResponse = z.object({
 /**
  * * `pending_creation` - Pending creation
  * * `new` - Νέο
- * * `in_depot` - In depot
+ * * `in_depot` - Σε αποθήκη
  * * `final_destination` - At locker
  * * `delivered` - Παραδόθηκε
  * * `returned` - Επιστράφηκε
  * * `expired` - Έληξε
  * * `canceled` - Ακυρώθηκε
- * * `accepted_for_return` - Accepted for return
- * * `accepted_to_locker` - Accepted to locker
- * * `missing` - Missing
- * * `lost` - Lost
+ * * `accepted_for_return` - Αποδεκτό για επιστροφή
+ * * `accepted_to_locker` - Αποδεκτό σε locker
+ * * `missing` - Λείπει
+ * * `lost` - Χάθηκε
  */
 export const zBoxNowParcelState = z.enum([
   'pending_creation',
@@ -698,7 +698,7 @@ export const zBoxNowParcelState = z.enum([
   'missing',
   'lost',
 ]).register(z.globalRegistry, {
-  description: '* `pending_creation` - Pending creation\n* `new` - Νέο\n* `in_depot` - In depot\n* `final_destination` - At locker\n* `delivered` - Παραδόθηκε\n* `returned` - Επιστράφηκε\n* `expired` - Έληξε\n* `canceled` - Ακυρώθηκε\n* `accepted_for_return` - Accepted for return\n* `accepted_to_locker` - Accepted to locker\n* `missing` - Missing\n* `lost` - Lost',
+  description: '* `pending_creation` - Pending creation\n* `new` - Νέο\n* `in_depot` - Σε αποθήκη\n* `final_destination` - At locker\n* `delivered` - Παραδόθηκε\n* `returned` - Επιστράφηκε\n* `expired` - Έληξε\n* `canceled` - Ακυρώθηκε\n* `accepted_for_return` - Αποδεκτό για επιστροφή\n* `accepted_to_locker` - Αποδεκτό σε locker\n* `missing` - Λείπει\n* `lost` - Χάθηκε',
 })
 
 /**
@@ -756,7 +756,7 @@ export const zBoxNowWebhookDataRequest = z.object({
     description: 'Optional merchant reference number',
   }).optional(),
   parcelName: z.string().register(z.globalRegistry, {
-    description: 'Optional descriptive parcel name',
+    description: 'Προαιρετικό όνομα δέματος',
   }).optional(),
   orderNumber: z.string().min(1).register(z.globalRegistry, {
     description: 'Merchant order number sent during delivery-request creation',
@@ -792,7 +792,7 @@ export const zBoxNowWebhookEnvelopeRequest = z.object({
     description: 'Event type (expected: \'gr.boxnow.parcel_event_change\')',
   }),
   source: z.url().min(1).register(z.globalRegistry, {
-    description: 'Origin URL of the event source',
+    description: 'URL προέλευσης πηγής συμβάντος',
   }),
   subject: z.string().min(1).register(z.globalRegistry, {
     description: 'Subject of the event (typically the parcel ID)',
@@ -828,6 +828,46 @@ export const zCancelOrderRequestRequest = z.object({
   refundPayment: z.boolean().register(z.globalRegistry, {
     description: 'Whether to automatically refund the payment if the order is paid',
   }).optional().default(true),
+})
+
+/**
+ * * `home_delivery` - home_delivery
+ * * `pickup_point` - pickup_point
+ */
+export const zCartCreatePaymentIntentRequestShippingKindEnum = z.enum(['home_delivery', 'pickup_point']).register(z.globalRegistry, {
+  description: '* `home_delivery` - home_delivery\n* `pickup_point` - pickup_point',
+})
+
+/**
+ * Request body for ``POST /api/v1/cart/create-payment-intent``.
+ *
+ * ``shipping_kind`` is required so the view's shipping calculation
+ * follows the same code path the order-create verification runs.
+ * ``shipping_provider_code`` is required for ``pickup_point`` (the
+ * carrier identity drives the locker quote + per-carrier threshold)
+ * but **omitted for ``home_delivery``** — home delivery is
+ * provider-agnostic in checkout per the frontend's
+ * ``shared/shipping/index.ts::carrierForMethod`` contract, and the
+ * backend resolves the active home-delivery provider at order
+ * creation. Sending whatever the frontend has guarantees both calc
+ * paths agree.
+ */
+export const zCartCreatePaymentIntentRequestRequest = z.object({
+  payWayId: z.int().gte(1).register(z.globalRegistry, {
+    description: 'ID of the selected PayWay (must be online Stripe).',
+  }),
+  shippingKind: zCartCreatePaymentIntentRequestShippingKindEnum,
+  shippingProviderCode: z.string().max(32).register(z.globalRegistry, {
+    description: 'Carrier code matching a registered shipping adapter (e.g. \'acs\', \'boxnow\'). Required for ``pickup_point``; omit/empty for ``home_delivery`` (the backend uses the generic flat rate, matching what the order-create verification will compute for the same body).',
+  }).optional(),
+  countryId: z.string().max(2).register(z.globalRegistry, {
+    description: 'Optional ISO 3166-1 alpha-2 country code — drives the country-level shipping multiplier. Match what the order-create body will carry.',
+  }).optional(),
+  regionId: z.string().max(16).register(z.globalRegistry, {
+    description: 'Optional region code — drives the region-level shipping adjustment.',
+  }).optional(),
+}).register(z.globalRegistry, {
+  description: 'Request body for ``POST /api/v1/cart/create-payment-intent``.\n\n``shipping_kind`` is required so the view\'s shipping calculation\nfollows the same code path the order-create verification runs.\n``shipping_provider_code`` is required for ``pickup_point`` (the\ncarrier identity drives the locker quote + per-carrier threshold)\nbut **omitted for ``home_delivery``** — home delivery is\nprovider-agnostic in checkout per the frontend\'s\n``shared/shipping/index.ts::carrierForMethod`` contract, and the\nbackend resolves the active home-delivery provider at order\ncreation. Sending whatever the frontend has guarantees both calc\npaths agree.',
 })
 
 export const zCartItemCreateRequest = z.object({
@@ -874,45 +914,6 @@ export const zCompartmentSizeEnum = z.union([
   z.literal(3),
 ]).register(z.globalRegistry, {
   description: '* `1` - Μικρό\n* `2` - Μεσαίο\n* `3` - Μεγάλο',
-})
-
-/**
- * * `hero_banner` - Hero Banner
- * * `hero_carousel` - Hero Carousel
- * * `products_slider` - Products Slider
- * * `products_grid` - Products Grid
- * * `featured_products` - Προβεβλημένα Προϊόντα
- * * `product_categories` - Product Categories
- * * `blog_posts_carousel` - Blog Posts Carousel
- * * `blog_posts_grid` - Blog Posts Grid
- * * `rich_text` - Rich Text Block
- * * `cta_banner` - Call to Action Banner
- * * `newsletter_signup` - Newsletter Signup
- * * `testimonials` - Testimonials
- * * `spacer` - Spacer
- * * `divider` - Divider
- * * `loyalty_hero` - Loyalty Program Hero
- * * `search_bar` - Search Bar
- */
-export const zComponentTypeEnum = z.enum([
-  'hero_banner',
-  'hero_carousel',
-  'products_slider',
-  'products_grid',
-  'featured_products',
-  'product_categories',
-  'blog_posts_carousel',
-  'blog_posts_grid',
-  'rich_text',
-  'cta_banner',
-  'newsletter_signup',
-  'testimonials',
-  'spacer',
-  'divider',
-  'loyalty_hero',
-  'search_bar',
-]).register(z.globalRegistry, {
-  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Product Categories\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar',
 })
 
 export const zConfirmResponse = z.object({
@@ -1049,13 +1050,13 @@ export const zCreatePaymentIntentResponse = z.object({
     description: 'Payment intent ID from the payment provider',
   }),
   status: z.string().register(z.globalRegistry, {
-    description: 'Payment status',
+    description: 'Κατάσταση πληρωμής',
   }),
   amount: z.string().register(z.globalRegistry, {
-    description: 'Payment amount',
+    description: 'Ποσό πληρωμής',
   }),
   currency: z.string().register(z.globalRegistry, {
-    description: 'Payment currency',
+    description: 'Νόμισμα πληρωμής',
   }),
   provider: z.string().register(z.globalRegistry, {
     description: 'Payment provider name',
@@ -1214,14 +1215,14 @@ export const zFederatedSearchResponse = z.object({
 })
 
 /**
- * * `BASEMENT` - Basement
- * * `GROUND_FLOOR` - Ground Floor
- * * `FIRST_FLOOR` - First Floor
- * * `SECOND_FLOOR` - Second Floor
- * * `THIRD_FLOOR` - Third Floor
- * * `FOURTH_FLOOR` - Fourth Floor
- * * `FIFTH_FLOOR` - Fifth Floor
- * * `SIXTH_FLOOR_PLUS` - Sixth Floor Plus
+ * * `BASEMENT` - Υπόγειο
+ * * `GROUND_FLOOR` - Ισόγειο
+ * * `FIRST_FLOOR` - 1ος όροφος
+ * * `SECOND_FLOOR` - 2ος όροφος
+ * * `THIRD_FLOOR` - 3ος όροφος
+ * * `FOURTH_FLOOR` - 4ος όροφος
+ * * `FIFTH_FLOOR` - 5ος όροφος
+ * * `SIXTH_FLOOR_PLUS` - 6ος όροφος +
  */
 export const zFloorEnum = z.enum([
   'BASEMENT',
@@ -1233,7 +1234,7 @@ export const zFloorEnum = z.enum([
   'FIFTH_FLOOR',
   'SIXTH_FLOOR_PLUS',
 ]).register(z.globalRegistry, {
-  description: '* `BASEMENT` - Basement\n* `GROUND_FLOOR` - Ground Floor\n* `FIRST_FLOOR` - First Floor\n* `SECOND_FLOOR` - Second Floor\n* `THIRD_FLOOR` - Third Floor\n* `FOURTH_FLOOR` - Fourth Floor\n* `FIFTH_FLOOR` - Fifth Floor\n* `SIXTH_FLOOR_PLUS` - Sixth Floor Plus',
+  description: '* `BASEMENT` - Υπόγειο\n* `GROUND_FLOOR` - Ισόγειο\n* `FIRST_FLOOR` - 1ος όροφος\n* `SECOND_FLOOR` - 2ος όροφος\n* `THIRD_FLOOR` - 3ος όροφος\n* `FOURTH_FLOOR` - 4ος όροφος\n* `FIFTH_FLOOR` - 5ος όροφος\n* `SIXTH_FLOOR_PLUS` - 6ος όροφος +',
 })
 
 export const zHealthCheckResponse = z.object({
@@ -1243,16 +1244,16 @@ export const zHealthCheckResponse = z.object({
 })
 
 /**
- * * `MAIN` - Main Image
- * * `BANNER` - Banner Image
- * * `ICON` - Icon Image
- * * `THUMBNAIL` - Thumbnail Image
- * * `GALLERY` - Gallery Image
- * * `BACKGROUND` - Background Image
- * * `HERO` - Hero Image
+ * * `MAIN` - Κύρια εικόνα
+ * * `BANNER` - Banner
+ * * `ICON` - Εικονίδιο
+ * * `THUMBNAIL` - Μικρογραφία
+ * * `GALLERY` - Εικόνα συλλογής
+ * * `BACKGROUND` - Εικόνα φόντου
+ * * `HERO` - Κεντρική εικόνα
  * * `FEATURE` - Κεντρική Εικόνα
- * * `PROMOTIONAL` - Promotional Image
- * * `SEASONAL` - Seasonal Image
+ * * `PROMOTIONAL` - Προωθητική εικόνα
+ * * `SEASONAL` - Εποχιακή εικόνα
  */
 export const zImageTypeEnum = z.enum([
   'MAIN',
@@ -1266,7 +1267,7 @@ export const zImageTypeEnum = z.enum([
   'PROMOTIONAL',
   'SEASONAL',
 ]).register(z.globalRegistry, {
-  description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+  description: '* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικονίδιο\n* `THUMBNAIL` - Μικρογραφία\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Κεντρική εικόνα\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα',
 })
 
 /**
@@ -1292,16 +1293,16 @@ export const zInvoiceDownloadResponse = z.object({
 })
 
 /**
- * * `HOME` - Αρχική
- * * `OFFICE` - Office
- * * `OTHER` - Other
+ * * `HOME` - Σπίτι
+ * * `OFFICE` - Γραφείο
+ * * `OTHER` - Άλλο
  */
 export const zLocationTypeEnum = z.enum([
   'HOME',
   'OFFICE',
   'OTHER',
 ]).register(z.globalRegistry, {
-  description: '* `HOME` - Αρχική\n* `OFFICE` - Office\n* `OTHER` - Other',
+  description: '* `HOME` - Σπίτι\n* `OFFICE` - Γραφείο\n* `OTHER` - Άλλο',
 })
 
 /**
@@ -1364,14 +1365,14 @@ export const zLoyaltySummary = z.object({
  * * `CART` - Καλάθι
  * * `PRODUCT` - Προϊόν
  * * `ACCOUNT` - Λογαριασμός Ανενεργός
- * * `SECURITY` - Security
- * * `PROMOTION` - Promotion
+ * * `SECURITY` - Ασφάλεια
+ * * `PROMOTION` - Προσφορά
  * * `SYSTEM` - Σύστημα
  * * `REVIEW` - Εξέταση
- * * `WISHLIST` - Wishlist
- * * `SUPPORT` - Support
+ * * `WISHLIST` - Λίστα επιθυμιών
+ * * `SUPPORT` - Υποστήριξη
  * * `NEWSLETTER` - Newsletter
- * * `RECOMMENDATION` - Recommendation
+ * * `RECOMMENDATION` - Σύσταση
  */
 export const zNotificationCategory = z.enum([
   'ORDER',
@@ -1389,12 +1390,12 @@ export const zNotificationCategory = z.enum([
   'NEWSLETTER',
   'RECOMMENDATION',
 ]).register(z.globalRegistry, {
-  description: '* `ORDER` - Παραγγελία\n* `PAYMENT` - Πληρωμή\n* `SHIPPING` - Μεταφορικά\n* `CART` - Καλάθι\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SECURITY` - Security\n* `PROMOTION` - Promotion\n* `SYSTEM` - Σύστημα\n* `REVIEW` - Εξέταση\n* `WISHLIST` - Wishlist\n* `SUPPORT` - Support\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Recommendation',
+  description: '* `ORDER` - Παραγγελία\n* `PAYMENT` - Πληρωμή\n* `SHIPPING` - Μεταφορικά\n* `CART` - Καλάθι\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SECURITY` - Ασφάλεια\n* `PROMOTION` - Προσφορά\n* `SYSTEM` - Σύστημα\n* `REVIEW` - Εξέταση\n* `WISHLIST` - Λίστα επιθυμιών\n* `SUPPORT` - Υποστήριξη\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Σύσταση',
 })
 
 export const zNotificationCountResponse = z.object({
   count: z.int().register(z.globalRegistry, {
-    description: 'Number of unseen notifications',
+    description: 'Αριθμός μη ορατών ειδοποιήσεων',
   }),
 })
 
@@ -1404,10 +1405,10 @@ export const zNotificationIdsRequest = z.object({
 
 /**
  * * `ERROR` - Σφάλμα
- * * `SUCCESS` - Success
- * * `INFO` - Info
- * * `WARNING` - Warning
- * * `DANGER` - Danger
+ * * `SUCCESS` - Επιτυχία
+ * * `INFO` - Πληροφορία
+ * * `WARNING` - Προειδοποίηση
+ * * `DANGER` - Κίνδυνος
  */
 export const zNotificationKindEnum = z.enum([
   'ERROR',
@@ -1416,7 +1417,7 @@ export const zNotificationKindEnum = z.enum([
   'WARNING',
   'DANGER',
 ]).register(z.globalRegistry, {
-  description: '* `ERROR` - Σφάλμα\n* `SUCCESS` - Success\n* `INFO` - Info\n* `WARNING` - Warning\n* `DANGER` - Danger',
+  description: '* `ERROR` - Σφάλμα\n* `SUCCESS` - Επιτυχία\n* `INFO` - Πληροφορία\n* `WARNING` - Προειδοποίηση\n* `DANGER` - Κίνδυνος',
 })
 
 export const zNotificationSuccessResponse = z.object({
@@ -1433,16 +1434,16 @@ export const zNotificationSuccessResponse = z.object({
  * * `order_completed` - Order completed
  * * `order_canceled` - Order canceled
  * * `order_refunded` - Order refunded
- * * `shipment_dispatched` - Shipment dispatched
+ * * `shipment_dispatched` - Αποστολή απεστάλη
  * * `payment_confirmed` - Payment confirmed
  * * `payment_failed` - Payment failed
- * * `price_drop_favourite` - Price drop (favourited product)
+ * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
  * * `restock_favourite` - Back in stock (favourited product)
  * * `loyalty_tier_up` - Loyalty tier promotion
- * * `comment_liked` - Blog comment liked
+ * * `comment_liked` - Επισήμανση σχολίου blog
  * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
  * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
- * * `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery
+ * * `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση
  */
 export const zNotificationTypeEnum = z.enum([
   'order_created',
@@ -1463,7 +1464,7 @@ export const zNotificationTypeEnum = z.enum([
   'BOXNOW_PARCEL_DELIVERED',
   'ACS_OUT_FOR_DELIVERY',
 ]).register(z.globalRegistry, {
-  description: '* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Shipment dispatched\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Price drop (favourited product)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Blog comment liked\n* `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker\n* `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered\n* `ACS_OUT_FOR_DELIVERY` - ACS parcel out for delivery',
+  description: '* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker\n* `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση',
 })
 
 export const zNotificationUser = z.object({
@@ -1489,20 +1490,20 @@ export const zNotificationUserWriteRequest = z.object({
 })
 
 /**
- * * `RECEIPT` - Receipt
+ * * `RECEIPT` - Απόδειξη
  * * `INVOICE` - Τιμολόγιο
  */
 export const zOrderCreateDocumentType = z.enum(['RECEIPT', 'INVOICE']).register(z.globalRegistry, {
-  description: '* `RECEIPT` - Receipt\n* `INVOICE` - Τιμολόγιο',
+  description: '* `RECEIPT` - Απόδειξη\n* `INVOICE` - Τιμολόγιο',
 })
 
 /**
- * * `RECEIPT` - Receipt
+ * * `RECEIPT` - Απόδειξη
  * * `INVOICE` - Τιμολόγιο
- * * `PROFORMA` - Proforma Invoice
- * * `SHIPPING_LABEL` - Shipping Label
- * * `RETURN_LABEL` - Return Label
- * * `CREDIT_NOTE` - Credit Note
+ * * `PROFORMA` - Προτιμολόγιο
+ * * `SHIPPING_LABEL` - Ετικέτα αποστολής
+ * * `RETURN_LABEL` - Ετικέτα επιστροφής
+ * * `CREDIT_NOTE` - Πιστωτικό
  */
 export const zOrderDocumentType = z.enum([
   'RECEIPT',
@@ -1512,7 +1513,7 @@ export const zOrderDocumentType = z.enum([
   'RETURN_LABEL',
   'CREDIT_NOTE',
 ]).register(z.globalRegistry, {
-  description: '* `RECEIPT` - Receipt\n* `INVOICE` - Τιμολόγιο\n* `PROFORMA` - Proforma Invoice\n* `SHIPPING_LABEL` - Shipping Label\n* `RETURN_LABEL` - Return Label\n* `CREDIT_NOTE` - Credit Note',
+  description: '* `RECEIPT` - Απόδειξη\n* `INVOICE` - Τιμολόγιο\n* `PROFORMA` - Προτιμολόγιο\n* `SHIPPING_LABEL` - Ετικέτα αποστολής\n* `RETURN_LABEL` - Ετικέτα επιστροφής\n* `CREDIT_NOTE` - Πιστωτικό',
 })
 
 export const zOrderItem = z.object({
@@ -1541,7 +1542,7 @@ export const zOrderItemRefundRequest = z.object({
     description: 'Quantity to refund. If not provided, refunds all.',
   }).optional(),
   reason: z.string().max(255).register(z.globalRegistry, {
-    description: 'Optional reason for the refund',
+    description: 'Προαιρετική αιτία επιστροφής',
   }).optional(),
 })
 
@@ -1606,52 +1607,6 @@ export const zOrderWriteRequest = z.object({
   customerNotes: z.string().optional(),
   items: z.array(zOrderItemCreateRequest),
   documentType: zOrderDocumentType.optional(),
-})
-
-export const zPageLayoutRequest = z.object({
-  pageType: z.string().min(1).max(50).register(z.globalRegistry, {
-    description: 'Identifier for the page (e.g. "home", "products", "blog").',
-  }),
-  title: z.string().min(1).max(200).register(z.globalRegistry, {
-    description: 'Admin display name for this layout.',
-  }),
-  isPublished: z.boolean().optional(),
-  metadata: z.unknown().optional(),
-})
-
-export const zPageSection = z.object({
-  id: z.int().readonly(),
-  uuid: z.uuid().readonly(),
-  componentType: zComponentTypeEnum,
-  title: z.string().max(200).optional(),
-  isVisible: z.boolean().optional(),
-  props: z.unknown().register(z.globalRegistry, {
-    description: 'Component-specific configuration as JSON.',
-  }).optional(),
-  sortOrder: z.int().readonly().nullable(),
-})
-
-export const zPageLayout = z.object({
-  id: z.int().readonly(),
-  uuid: z.uuid().readonly(),
-  pageType: z.string().max(50).register(z.globalRegistry, {
-    description: 'Identifier for the page (e.g. "home", "products", "blog").',
-  }),
-  title: z.string().max(200).register(z.globalRegistry, {
-    description: 'Admin display name for this layout.',
-  }),
-  isPublished: z.boolean().optional(),
-  metadata: z.unknown().optional(),
-  sections: z.array(zPageSection).readonly(),
-})
-
-export const zPageSectionRequest = z.object({
-  componentType: zComponentTypeEnum,
-  title: z.string().max(200).optional(),
-  isVisible: z.boolean().optional(),
-  props: z.unknown().register(z.globalRegistry, {
-    description: 'Component-specific configuration as JSON.',
-  }).optional(),
 })
 
 export const zPaginatedAttributeList = z.object({
@@ -1782,19 +1737,6 @@ export const zPaginatedOrderItemList = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zOrderItem),
-})
-
-export const zPaginatedPageLayoutList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zPageLayout),
 })
 
 /**
@@ -1988,17 +1930,6 @@ export const zPatchedOrderWriteRequest = z.object({
   documentType: zOrderDocumentType.optional(),
 })
 
-export const zPatchedPageLayoutRequest = z.object({
-  pageType: z.string().min(1).max(50).register(z.globalRegistry, {
-    description: 'Identifier for the page (e.g. "home", "products", "blog").',
-  }).optional(),
-  title: z.string().min(1).max(200).register(z.globalRegistry, {
-    description: 'Admin display name for this layout.',
-  }).optional(),
-  isPublished: z.boolean().optional(),
-  metadata: z.unknown().optional(),
-})
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -2034,7 +1965,7 @@ export const zPatchedPayWayWriteRequest = z.object({
     description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
   }).optional(),
   configuration: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
+    description: 'Provider-specific configuration (API keys, webhooks, etc.)',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -2404,18 +2335,18 @@ export const zPayWayWriteRequest = z.object({
     description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
   }).optional(),
   configuration: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
+    description: 'Provider-specific configuration (API keys, webhooks, etc.)',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
 /**
- * * `prepaid` - Prepaid
+ * * `prepaid` - Προπληρωμένο
  * * `cod` - Cash on delivery
  */
 export const zPaymentModeEnum = z.enum(['prepaid', 'cod']).register(z.globalRegistry, {
-  description: '* `prepaid` - Prepaid\n* `cod` - Cash on delivery',
+  description: '* `prepaid` - Προπληρωμένο\n* `cod` - Cash on delivery',
 })
 
 /**
@@ -2466,11 +2397,11 @@ export const zPerformanceMetrics = z.object({
 })
 
 /**
- * * `LOW` - Low Priority
- * * `NORMAL` - Normal Priority
- * * `HIGH` - High Priority
- * * `URGENT` - Urgent Priority
- * * `CRITICAL` - Critical Priority
+ * * `LOW` - Χαμηλή προτεραιότητα
+ * * `NORMAL` - Κανονική προτεραιότητα
+ * * `HIGH` - Υψηλή προτεραιότητα
+ * * `URGENT` - Επείγουσα προτεραιότητα
+ * * `CRITICAL` - Κρίσιμη προτεραιότητα
  */
 export const zPriorityEnum = z.enum([
   'LOW',
@@ -2479,7 +2410,7 @@ export const zPriorityEnum = z.enum([
   'URGENT',
   'CRITICAL',
 ]).register(z.globalRegistry, {
-  description: '* `LOW` - Low Priority\n* `NORMAL` - Normal Priority\n* `HIGH` - High Priority\n* `URGENT` - Urgent Priority\n* `CRITICAL` - Critical Priority',
+  description: '* `LOW` - Χαμηλή προτεραιότητα\n* `NORMAL` - Κανονική προτεραιότητα\n* `HIGH` - Υψηλή προτεραιότητα\n* `URGENT` - Επείγουσα προτεραιότητα\n* `CRITICAL` - Κρίσιμη προτεραιότητα',
 })
 
 /**
@@ -2518,11 +2449,11 @@ export const zNotification = z.object({
 })
 
 /**
- * * `restock` - Restock
+ * * `restock` - Αναπλήρωση
  * * `price_drop` - Price drop
  */
 export const zProductAlertKindEnum = z.enum(['restock', 'price_drop']).register(z.globalRegistry, {
-  description: '* `restock` - Restock\n* `price_drop` - Price drop',
+  description: '* `restock` - Αναπλήρωση\n* `price_drop` - Price drop',
 })
 
 export const zProductAlert = z.object({
@@ -2639,7 +2570,7 @@ export const zProduct = z.object({
 
 export const zCartItem = z.object({
   id: z.int().readonly(),
-  cartId: z.string().readonly(),
+  cartId: z.int().readonly(),
   product: zProduct,
   quantity: z.int().gte(0).lte(2147483647).optional(),
   weightInfo: z.object({
@@ -2720,7 +2651,7 @@ export const zCartDetail = z.object({
 
 export const zCartItemDetail = z.object({
   id: z.int().readonly(),
-  cartId: z.string().readonly(),
+  cartId: z.int().readonly(),
   product: zProduct,
   quantity: z.int().gte(0).lte(2147483647).optional(),
   weightInfo: z.object({
@@ -3482,16 +3413,16 @@ export const zProductWriteRequest = z.object({
 })
 
 /**
- * * `1` - One
- * * `2` - Two
- * * `3` - Three
- * * `4` - Four
- * * `5` - Five
- * * `6` - Six
- * * `7` - Seven
- * * `8` - Eight
- * * `9` - Nine
- * * `10` - Ten
+ * * `1` - Ένα
+ * * `2` - Δύο
+ * * `3` - Τρία
+ * * `4` - Τέσσερα
+ * * `5` - Πέντε
+ * * `6` - Έξι
+ * * `7` - Επτά
+ * * `8` - Οκτώ
+ * * `9` - Εννέα
+ * * `10` - Δέκα
  */
 export const zRateEnum = z.union([
   z.literal(1),
@@ -3505,7 +3436,7 @@ export const zRateEnum = z.union([
   z.literal(9),
   z.literal(10),
 ]).register(z.globalRegistry, {
-  description: '* `1` - One\n* `2` - Two\n* `3` - Three\n* `4` - Four\n* `5` - Five\n* `6` - Six\n* `7` - Seven\n* `8` - Eight\n* `9` - Nine\n* `10` - Ten',
+  description: '* `1` - Ένα\n* `2` - Δύο\n* `3` - Τρία\n* `4` - Τέσσερα\n* `5` - Πέντε\n* `6` - Έξι\n* `7` - Επτά\n* `8` - Οκτώ\n* `9` - Εννέα\n* `10` - Δέκα',
 })
 
 /**
@@ -3688,7 +3619,7 @@ export const zReleaseReservationsResponse = z.object({
     description: 'Success message',
   }),
   releasedCount: z.int().register(z.globalRegistry, {
-    description: 'Number of reservations released',
+    description: 'Αριθμός αποδεσμευμένων κρατήσεων',
   }),
   failedReleases: z.array(z.record(z.string(), z.unknown())).register(z.globalRegistry, {
     description: 'List of failed releases with error details',
@@ -3776,14 +3707,14 @@ export const zSettingDetail = z.object({
 /**
  * * `pending_creation` - Pending creation
  * * `new` - Νέο
- * * `in_transit` - In transit
- * * `at_destination` - At destination station
+ * * `in_transit` - Σε μεταφορά
+ * * `at_destination` - Στο κατάστημα παράδοσης
  * * `out_for_delivery` - Out for delivery
  * * `delivered` - Παραδόθηκε
  * * `attempted` - Delivery attempted
  * * `returned` - Επιστράφηκε
  * * `canceled` - Ακυρώθηκε
- * * `lost` - Lost
+ * * `lost` - Χάθηκε
  */
 export const zShipmentStateEnum = z.enum([
   'pending_creation',
@@ -3797,7 +3728,7 @@ export const zShipmentStateEnum = z.enum([
   'canceled',
   'lost',
 ]).register(z.globalRegistry, {
-  description: '* `pending_creation` - Pending creation\n* `new` - Νέο\n* `in_transit` - In transit\n* `at_destination` - At destination station\n* `out_for_delivery` - Out for delivery\n* `delivered` - Παραδόθηκε\n* `attempted` - Delivery attempted\n* `returned` - Επιστράφηκε\n* `canceled` - Ακυρώθηκε\n* `lost` - Lost',
+  description: '* `pending_creation` - Pending creation\n* `new` - Νέο\n* `in_transit` - Σε μεταφορά\n* `at_destination` - Στο κατάστημα παράδοσης\n* `out_for_delivery` - Out for delivery\n* `delivered` - Παραδόθηκε\n* `attempted` - Delivery attempted\n* `returned` - Επιστράφηκε\n* `canceled` - Ακυρώθηκε\n* `lost` - Χάθηκε',
 })
 
 /**
@@ -3806,6 +3737,33 @@ export const zShipmentStateEnum = z.enum([
  */
 export const zShippingKind = z.enum(['home_delivery', 'pickup_point']).register(z.globalRegistry, {
   description: '* `home_delivery` - Home delivery\n* `pickup_point` - Pickup point / locker',
+})
+
+/**
+ * One (provider, kind) row in the free-shipping-info response.
+ */
+export const zFreeShippingProviderEntry = z.object({
+  providerCode: z.string(),
+  providerName: z.string(),
+  kind: zShippingKind,
+  threshold: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'Cart subtotal in the response\'s currency above which this (provider, kind) ships free.',
+  }),
+  priority: z.int(),
+}).register(z.globalRegistry, {
+  description: 'One (provider, kind) row in the free-shipping-info response.',
+})
+
+/**
+ * Response payload for the free-shipping-info endpoint.
+ */
+export const zFreeShippingInfo = z.object({
+  providers: z.array(zFreeShippingProviderEntry),
+  minThreshold: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  maxThreshold: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  currency: z.string().max(3),
+}).register(z.globalRegistry, {
+  description: 'Response payload for the free-shipping-info endpoint.',
 })
 
 /**
@@ -3820,7 +3778,7 @@ export const zShippingKind = z.enum(['home_delivery', 'pickup_point']).register(
  */
 export const zOrderCreateFromCartRequest = z.object({
   payWayId: z.int().register(z.globalRegistry, {
-    description: 'Payment method ID',
+    description: 'ID μεθόδου πληρωμής',
   }),
   paymentIntentId: z.string().nullish(),
   firstName: z.string().min(1).max(150).register(z.globalRegistry, {
@@ -3842,7 +3800,7 @@ export const zOrderCreateFromCartRequest = z.object({
     description: 'Όνομα πόλης',
   }),
   zipcode: z.string().min(1).max(20).register(z.globalRegistry, {
-    description: 'Postal/ZIP code',
+    description: 'Ταχυδρομικός κώδικας',
   }),
   countryId: z.string().min(1).register(z.globalRegistry, {
     description: 'Country alpha-2 code (e.g., \'GR\', \'US\')',
@@ -3856,9 +3814,6 @@ export const zOrderCreateFromCartRequest = z.object({
   }).optional(),
   floor: z.string().max(50).register(z.globalRegistry, {
     description: 'Floor number or label (e.g. FIRST_FLOOR)',
-  }).optional(),
-  place: z.string().max(255).register(z.globalRegistry, {
-    description: 'Place or district (optional)',
   }).optional(),
   locationType: z.string().max(100).register(z.globalRegistry, {
     description: 'Location type, e.g. HOME or OFFICE (optional)',
@@ -3888,6 +3843,9 @@ export const zOrderCreateFromCartRequest = z.object({
     description: 'ACS_Station_Branch_Destination value.',
   }).optional(),
   acsChargeType: zAcsChargeType.optional(),
+  acsItemQuantity: z.int().gte(1).lte(20).register(z.globalRegistry, {
+    description: 'Optional per-order override for ACS Item_Quantity (number of physical parcels in the shipment). Defaults to 1. Must NOT be set for Smartpoint pickup — ACS rejects multipart vouchers on lockers.',
+  }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',
 })
@@ -3908,6 +3866,7 @@ export const zShippingOption = z.object({
   currency: z.string().max(3),
   liveMode: z.boolean(),
   priority: z.int(),
+  logoUrl: z.url().nullish(),
   metadata: z.record(z.string(), z.unknown()),
 }).register(z.globalRegistry, {
   description: 'One row in the checkout shipping-method radio.\n\nReturned by :class:`shipping.views.ShippingOptionsView`.  The\nfrontend renders one card per row; the ``kind`` value tells it\nwhether to show a locker picker, and ``provider_code`` tells it\nwhich picker variant (BoxNow widget vs ACS server-side list).',
@@ -3932,6 +3891,21 @@ export const zShippingProvider = z.object({
   priority: z.int().register(z.globalRegistry, {
     description: 'Sort order in checkout — lower numbers appear first.',
   }).readonly(),
+  logo: z.url().register(z.globalRegistry, {
+    description: 'Absolute URL for the operator-uploaded primary brand logo (home-delivery rows + fallback for pickup_point when no pickup-specific variant is set). ``null`` when no upload — the storefront falls back to its bundled default.',
+  }).readonly(),
+  logoPickupPoint: z.url().register(z.globalRegistry, {
+    description: 'Absolute URL for the optional pickup-point-specific logo (e.g. a locker illustration distinct from the carrier\'s home-delivery brand mark). Surfaced on the pickup_point row\'s ``logoUrl`` when uploaded; otherwise the row falls back to ``logo``.',
+  }).readonly(),
+  mainImagePath: z.string().register(z.globalRegistry, {
+    description: 'Relative ``media/uploads/shipping/<filename>`` path for the primary logo; empty string when no logo is uploaded. Mirrors the PayWay.icon contract.',
+  }).readonly(),
+  logoFilename: z.string().register(z.globalRegistry, {
+    description: 'Filename of the primary uploaded logo (or empty).',
+  }).readonly(),
+  logoPickupPointFilename: z.string().register(z.globalRegistry, {
+    description: 'Filename of the pickup-point logo (or empty).',
+  }).readonly(),
   metadata: z.unknown().register(z.globalRegistry, {
     description: 'Provider-specific configuration (supported countries, feature flags, branding hints).',
   }),
@@ -3940,9 +3914,9 @@ export const zShippingProvider = z.object({
 })
 
 /**
- * * `1` - Shop
- * * `2` - Partner shop (2)
- * * `3` - Partner shop (3)
+ * * `1` - Κατάστημα
+ * * `2` - Συνεργαζόμενο κατάστημα (2)
+ * * `3` - Συνεργαζόμενο κατάστημα (3)
  * * `4` - Xpress Point
  * * `5` - Kiosk
  * * `7` - Smartpoint (inbound)
@@ -3957,7 +3931,7 @@ export const zShopKindEnum = z.union([
   z.literal(7),
   z.literal(8),
 ]).register(z.globalRegistry, {
-  description: '* `1` - Shop\n* `2` - Partner shop (2)\n* `3` - Partner shop (3)\n* `4` - Xpress Point\n* `5` - Kiosk\n* `7` - Smartpoint (inbound)\n* `8` - Smartpoint (outbound)',
+  description: '* `1` - Κατάστημα\n* `2` - Συνεργαζόμενο κατάστημα (2)\n* `3` - Συνεργαζόμενο κατάστημα (3)\n* `4` - Xpress Point\n* `5` - Kiosk\n* `7` - Smartpoint (inbound)\n* `8` - Smartpoint (outbound)',
 })
 
 /**
@@ -3981,7 +3955,7 @@ export const zAcsStation = z.object({
   city: z.string().readonly(),
   postalCode: z.string().readonly(),
   countryCode: z.string().register(z.globalRegistry, {
-    description: 'ISO 3166-1 alpha-2 country code.',
+    description: 'ISO 3166-1 alpha-2 κωδικός χώρας.',
   }).readonly(),
   lat: z.string().readonly().nullable(),
   lng: z.string().readonly().nullable(),
@@ -4065,7 +4039,7 @@ export const zAcsStationDetail = z.object({
   city: z.string().readonly(),
   postalCode: z.string().readonly(),
   countryCode: z.string().register(z.globalRegistry, {
-    description: 'ISO 3166-1 alpha-2 country code.',
+    description: 'ISO 3166-1 alpha-2 κωδικός χώρας.',
   }).readonly(),
   lat: z.string().readonly().nullable(),
   lng: z.string().readonly().nullable(),
@@ -4098,8 +4072,8 @@ export const zPaginatedAcsStationList = z.object({
 /**
  * * `ACTIVE` - Ενεργή
  * * `PENDING` - Pending Confirmation
- * * `UNSUBSCRIBED` - Unsubscribed
- * * `BOUNCED` - Bounced
+ * * `UNSUBSCRIBED` - Διαγραφή
+ * * `BOUNCED` - Επιστράφηκε
  */
 export const zSubscriptionStatus = z.enum([
   'ACTIVE',
@@ -4107,7 +4081,7 @@ export const zSubscriptionStatus = z.enum([
   'UNSUBSCRIBED',
   'BOUNCED',
 ]).register(z.globalRegistry, {
-  description: '* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced',
+  description: '* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Διαγραφή\n* `BOUNCED` - Επιστράφηκε',
 })
 
 /**
@@ -4129,7 +4103,7 @@ export const zTag = z.object({
   active: z.boolean().optional(),
   sortOrder: z.int().readonly().nullable(),
   usageCount: z.string().register(z.globalRegistry, {
-    description: 'Number of times this tag is used',
+    description: 'Πόσες φορές χρησιμοποιείται η ετικέτα',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -4170,7 +4144,7 @@ export const zTagDetail = z.object({
   active: z.boolean().optional(),
   sortOrder: z.int().readonly().nullable(),
   usageCount: z.string().register(z.globalRegistry, {
-    description: 'Number of times this tag is used',
+    description: 'Πόσες φορές χρησιμοποιείται η ετικέτα',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -4207,7 +4181,7 @@ export const zTaggedItem = z.object({
   tag: zTag,
   contentType: z.int(),
   contentTypeName: z.string().register(z.globalRegistry, {
-    description: 'Name of the content type',
+    description: 'Όνομα τύπου περιεχομένου',
   }).readonly(),
   objectId: z.int().gte(0).lte(2147483647),
   contentObject: z.object({
@@ -4242,7 +4216,7 @@ export const zTaggedItemDetail = z.object({
   tag: zTagDetail,
   contentType: z.int(),
   contentTypeName: z.string().register(z.globalRegistry, {
-    description: 'Name of the content type',
+    description: 'Όνομα τύπου περιεχομένου',
   }).readonly(),
   objectId: z.int().gte(0).lte(2147483647),
   contentObject: z.object({
@@ -4262,54 +4236,6 @@ export const zTaggedItemDetail = z.object({
 export const zTaggedItemWriteRequest = z.object({
   contentType: z.int(),
   objectId: z.int().gte(0).lte(2147483647),
-})
-
-/**
- * Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
- *
- * Only fields that are safe to expose to unauthenticated callers should
- * appear here.  Secrets and billing-sensitive data belong exclusively in
- * TenantAdminSerializer.
- */
-export const zTenantConfig = z.object({
-  schemaName: z.string().readonly(),
-  name: z.string().readonly(),
-  storeName: z.string().readonly(),
-  storeDescription: z.string().readonly(),
-  logoLightUrl: z.string().readonly(),
-  logoDarkUrl: z.string().readonly(),
-  faviconUrl: z.string().readonly(),
-  primaryColor: z.string().readonly(),
-  neutralColor: z.string().readonly(),
-  accentHex: z.string().readonly(),
-  successHex: z.string().readonly(),
-  warningHex: z.string().readonly(),
-  errorHex: z.string().readonly(),
-  infoHex: z.string().readonly(),
-  themePreset: z.string().readonly(),
-  themeMetadata: z.unknown(),
-  defaultLocale: z.string().readonly(),
-  defaultCurrency: z.string().readonly(),
-  primaryDomain: z.string().readonly(),
-  loyaltyEnabled: z.boolean().readonly(),
-  blogEnabled: z.boolean().readonly(),
-  stripePublishableKey: z.string().readonly(),
-  allowedCspSources: z.array(z.string()).readonly(),
-  metaPixelId: z.string().readonly(),
-  gaTrackingId: z.string().readonly(),
-  totpIssuer: z.string().readonly(),
-  turnstileSiteKey: z.string().readonly(),
-  socialsDiscord: z.string().readonly(),
-  socialsFacebook: z.string().readonly(),
-  socialsInstagram: z.string().readonly(),
-  socialsPinterest: z.string().readonly(),
-  socialsReddit: z.string().readonly(),
-  socialsTiktok: z.string().readonly(),
-  socialsTwitter: z.string().readonly(),
-  socialsYoutube: z.string().readonly(),
-  boxNowPartnerId: z.string().readonly(),
-}).register(z.globalRegistry, {
-  description: 'Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.\n\nOnly fields that are safe to expose to unauthenticated callers should\nappear here.  Secrets and billing-sensitive data belong exclusively in\nTenantAdminSerializer.',
 })
 
 /**
@@ -4333,13 +4259,13 @@ export const zTopQuery = z.object({
 })
 
 /**
- * * `MARKETING` - Marketing Campaigns
- * * `PRODUCT` - Product Updates
+ * * `MARKETING` - Καμπάνιες marketing
+ * * `PRODUCT` - Ενημερώσεις προϊόντων
  * * `ACCOUNT` - Λογαριασμός Ανενεργός
  * * `SYSTEM` - System Notifications
  * * `NEWSLETTER` - Newsletter
- * * `PROMOTIONAL` - Promotional
- * * `OTHER` - Other
+ * * `PROMOTIONAL` - Προωθητικό
+ * * `OTHER` - Άλλο
  */
 export const zTopicCategory = z.enum([
   'MARKETING',
@@ -4350,7 +4276,7 @@ export const zTopicCategory = z.enum([
   'PROMOTIONAL',
   'OTHER',
 ]).register(z.globalRegistry, {
-  description: '* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
+  description: '* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
 })
 
 /**
@@ -4515,8 +4441,8 @@ export const zSubscriptionTopicWriteRequest = z.object({
 })
 
 /**
- * * `EARN` - Earn
- * * `REDEEM` - Redeem
+ * * `EARN` - Κερδίστε
+ * * `REDEEM` - Εξαργύρωση
  * * `EXPIRE` - Λήξη
  * * `ADJUST` - Προσαρμογή
  * * `BONUS` - Bonus
@@ -4528,7 +4454,7 @@ export const zTransactionTypeEnum = z.enum([
   'ADJUST',
   'BONUS',
 ]).register(z.globalRegistry, {
-  description: '* `EARN` - Earn\n* `REDEEM` - Redeem\n* `EXPIRE` - Λήξη\n* `ADJUST` - Προσαρμογή\n* `BONUS` - Bonus',
+  description: '* `EARN` - Κερδίστε\n* `REDEEM` - Εξαργύρωση\n* `EXPIRE` - Λήξη\n* `ADJUST` - Προσαρμογή\n* `BONUS` - Bonus',
 })
 
 /**
@@ -4596,9 +4522,9 @@ export const zTrendingSearchResponse = z.object({
 
 /**
  * * `apm` - APM
- * * `any_apm` - Any APM
- * * `warehouse` - Warehouse
- * * `depot` - Depot
+ * * `any_apm` - Οποιοδήποτε APM
+ * * `warehouse` - Αποθήκη
+ * * `depot` - Αποθήκη
  */
 export const zTypeEnum = z.enum([
   'apm',
@@ -4606,7 +4532,7 @@ export const zTypeEnum = z.enum([
   'warehouse',
   'depot',
 ]).register(z.globalRegistry, {
-  description: '* `apm` - APM\n* `any_apm` - Any APM\n* `warehouse` - Warehouse\n* `depot` - Depot',
+  description: '* `apm` - APM\n* `any_apm` - Οποιοδήποτε APM\n* `warehouse` - Αποθήκη\n* `depot` - Αποθήκη',
 })
 
 /**
@@ -4630,7 +4556,7 @@ export const zBoxNowLocker = z.object({
   addressLine2: z.string().readonly(),
   postalCode: z.string().readonly(),
   countryCode: z.string().register(z.globalRegistry, {
-    description: 'ISO 3166-1 alpha-2 country code',
+    description: 'ISO 3166-1 alpha-2 κωδικός χώρας',
   }).readonly(),
   note: z.string().readonly(),
   isActive: z.boolean().readonly(),
@@ -4663,7 +4589,7 @@ export const zBoxNowLockerDetail = z.object({
   addressLine2: z.string().readonly(),
   postalCode: z.string().readonly(),
   countryCode: z.string().register(z.globalRegistry, {
-    description: 'ISO 3166-1 alpha-2 country code',
+    description: 'ISO 3166-1 alpha-2 κωδικός χώρας',
   }).readonly(),
   note: z.string().readonly(),
   isActive: z.boolean().readonly(),
@@ -5409,7 +5335,7 @@ export const zUserWriteRequest = z.object({
 
 export const zUsernameUpdateRequest = z.object({
   username: z.string().min(1).max(150).register(z.globalRegistry, {
-    description: 'New username',
+    description: 'Νέο όνομα χρήστη',
   }),
 })
 
@@ -5881,7 +5807,7 @@ export const zNotificationUserDetailWritable = z.object({
  */
 export const zOrderCreateFromCartRequestWritable = z.object({
   payWayId: z.int().register(z.globalRegistry, {
-    description: 'Payment method ID',
+    description: 'ID μεθόδου πληρωμής',
   }),
   paymentIntentId: z.string().nullish(),
   firstName: z.string().min(1).max(150).register(z.globalRegistry, {
@@ -5903,7 +5829,7 @@ export const zOrderCreateFromCartRequestWritable = z.object({
     description: 'Όνομα πόλης',
   }),
   zipcode: z.string().min(1).max(20).register(z.globalRegistry, {
-    description: 'Postal/ZIP code',
+    description: 'Ταχυδρομικός κώδικας',
   }),
   countryId: z.string().min(1).register(z.globalRegistry, {
     description: 'Country alpha-2 code (e.g., \'GR\', \'US\')',
@@ -5917,9 +5843,6 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   }).optional(),
   floor: z.string().max(50).register(z.globalRegistry, {
     description: 'Floor number or label (e.g. FIRST_FLOOR)',
-  }).optional(),
-  place: z.string().max(255).register(z.globalRegistry, {
-    description: 'Place or district (optional)',
   }).optional(),
   locationType: z.string().max(100).register(z.globalRegistry, {
     description: 'Location type, e.g. HOME or OFFICE (optional)',
@@ -5949,6 +5872,9 @@ export const zOrderCreateFromCartRequestWritable = z.object({
     description: 'ACS_Station_Branch_Destination value.',
   }).optional(),
   acsChargeType: zAcsChargeType.optional(),
+  acsItemQuantity: z.int().gte(1).lte(20).register(z.globalRegistry, {
+    description: 'Optional per-order override for ACS Item_Quantity (number of physical parcels in the shipment). Defaults to 1. Must NOT be set for Smartpoint pickup — ACS rejects multipart vouchers on lockers.',
+  }).optional(),
   meta: z.record(z.string(), z.unknown()).nullish(),
 }).register(z.globalRegistry, {
   description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',
@@ -6039,26 +5965,6 @@ export const zOrderItemRefundResponseWritable = z.object({
   detail: z.string(),
   refundedAmount: z.number().gt(-1000000000).lt(1000000000),
   item: zOrderItemWritable,
-})
-
-export const zPageLayoutWritable = z.object({
-  pageType: z.string().max(50).register(z.globalRegistry, {
-    description: 'Identifier for the page (e.g. "home", "products", "blog").',
-  }),
-  title: z.string().max(200).register(z.globalRegistry, {
-    description: 'Admin display name for this layout.',
-  }),
-  isPublished: z.boolean().optional(),
-  metadata: z.unknown().optional(),
-})
-
-export const zPageSectionWritable = z.object({
-  componentType: zComponentTypeEnum,
-  title: z.string().max(200).optional(),
-  isVisible: z.boolean().optional(),
-  props: z.unknown().register(z.globalRegistry, {
-    description: 'Component-specific configuration as JSON.',
-  }).optional(),
 })
 
 export const zPaginatedAcsStationListWritable = z.object({
@@ -6282,19 +6188,6 @@ export const zPaginatedOrderListWritable = z.object({
   results: z.array(zOrderWritable),
 })
 
-export const zPaginatedPageLayoutListWritable = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zPageLayoutWritable),
-})
-
 export const zPaginatedPointsTransactionListWritable = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -6323,7 +6216,7 @@ export const zPaginatedUserDataExportListWritable = z.object({
 
 export const zPatchedTaggedItemWriteRequestWritable = z.object({
   tagId: z.int().register(z.globalRegistry, {
-    description: 'ID of the tag to assign',
+    description: 'ID ετικέτας προς ανάθεση',
   }).optional(),
   contentType: z.int().optional(),
   objectId: z.int().gte(0).lte(2147483647).optional(),
@@ -7057,7 +6950,7 @@ export const zTaggedItemDetailWritable = z.object({
 
 export const zTaggedItemWriteRequestWritable = z.object({
   tagId: z.int().register(z.globalRegistry, {
-    description: 'ID of the tag to assign',
+    description: 'ID ετικέτας προς ανάθεση',
   }),
   contentType: z.int(),
   objectId: z.int().gte(0).lte(2147483647),
@@ -7206,14 +7099,14 @@ export const zListBlogAuthorQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -7357,14 +7250,14 @@ export const zListBlogCategoryQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -7787,14 +7680,14 @@ export const zListBlogCommentQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   parent: z.union([
     z.string().regex(/^-?\d+$/),
@@ -7820,7 +7713,7 @@ export const zListBlogCommentQuery = z.object({
     z.int(),
   ]).optional(),
   post_Category_Slug: z.string().register(z.globalRegistry, {
-    description: 'Filter by blog post category slug',
+    description: 'Φίλτρο ανά slug κατηγορίας άρθρου',
   }).optional(),
   post_IsPublished: z.union([
     z.literal('true'),
@@ -7830,10 +7723,10 @@ export const zListBlogCommentQuery = z.object({
     z.boolean(),
   ]).optional(),
   post_Slug: z.string().register(z.globalRegistry, {
-    description: 'Filter by blog post slug',
+    description: 'Φίλτρο ανά slug άρθρου',
   }).optional(),
   post_Title: z.string().register(z.globalRegistry, {
-    description: 'Filter by blog post title',
+    description: 'Φίλτρο ανά τίτλο άρθρου',
   }).optional(),
   rght: z.union([
     z.string().regex(/^-?\d+$/),
@@ -7868,7 +7761,7 @@ export const zListBlogCommentQuery = z.object({
     z.int(),
   ]).optional(),
   user_Email: z.string().register(z.globalRegistry, {
-    description: 'Filter by user email',
+    description: 'Φίλτρο ανά email χρήστη',
   }).optional(),
   user_IsActive: z.union([
     z.literal('true'),
@@ -8172,7 +8065,7 @@ export const zListBlogCommentRepliesQuery = z.object({
     z.int(),
   ]).optional(),
   post_Category_Slug: z.string().register(z.globalRegistry, {
-    description: 'Filter by blog post category slug',
+    description: 'Φίλτρο ανά slug κατηγορίας άρθρου',
   }).optional(),
   post_IsPublished: z.union([
     z.literal('true'),
@@ -8182,10 +8075,10 @@ export const zListBlogCommentRepliesQuery = z.object({
     z.boolean(),
   ]).optional(),
   post_Slug: z.string().register(z.globalRegistry, {
-    description: 'Filter by blog post slug',
+    description: 'Φίλτρο ανά slug άρθρου',
   }).optional(),
   post_Title: z.string().register(z.globalRegistry, {
-    description: 'Filter by blog post title',
+    description: 'Φίλτρο ανά τίτλο άρθρου',
   }).optional(),
   rght: z.union([
     z.string().regex(/^-?\d+$/),
@@ -8220,7 +8113,7 @@ export const zListBlogCommentRepliesQuery = z.object({
     z.int(),
   ]).optional(),
   user_Email: z.string().register(z.globalRegistry, {
-    description: 'Filter by user email',
+    description: 'Φίλτρο ανά email χρήστη',
   }).optional(),
   user_IsActive: z.union([
     z.literal('true'),
@@ -8426,7 +8319,7 @@ export const zGetBlogCommentThreadQuery = z.object({
     z.int(),
   ]).optional(),
   post_Category_Slug: z.string().register(z.globalRegistry, {
-    description: 'Filter by blog post category slug',
+    description: 'Φίλτρο ανά slug κατηγορίας άρθρου',
   }).optional(),
   post_IsPublished: z.union([
     z.literal('true'),
@@ -8436,10 +8329,10 @@ export const zGetBlogCommentThreadQuery = z.object({
     z.boolean(),
   ]).optional(),
   post_Slug: z.string().register(z.globalRegistry, {
-    description: 'Filter by blog post slug',
+    description: 'Φίλτρο ανά slug άρθρου',
   }).optional(),
   post_Title: z.string().register(z.globalRegistry, {
-    description: 'Filter by blog post title',
+    description: 'Φίλτρο ανά τίτλο άρθρου',
   }).optional(),
   rght: z.union([
     z.string().regex(/^-?\d+$/),
@@ -8474,7 +8367,7 @@ export const zGetBlogCommentThreadQuery = z.object({
     z.int(),
   ]).optional(),
   user_Email: z.string().register(z.globalRegistry, {
-    description: 'Filter by user email',
+    description: 'Φίλτρο ανά email χρήστη',
   }).optional(),
   user_IsActive: z.union([
     z.literal('true'),
@@ -8686,7 +8579,7 @@ export const zListMyBlogCommentsQuery = z.object({
     z.int(),
   ]).optional(),
   post_Category_Slug: z.string().register(z.globalRegistry, {
-    description: 'Filter by blog post category slug',
+    description: 'Φίλτρο ανά slug κατηγορίας άρθρου',
   }).optional(),
   post_IsPublished: z.union([
     z.literal('true'),
@@ -8696,10 +8589,10 @@ export const zListMyBlogCommentsQuery = z.object({
     z.boolean(),
   ]).optional(),
   post_Slug: z.string().register(z.globalRegistry, {
-    description: 'Filter by blog post slug',
+    description: 'Φίλτρο ανά slug άρθρου',
   }).optional(),
   post_Title: z.string().register(z.globalRegistry, {
-    description: 'Filter by blog post title',
+    description: 'Φίλτρο ανά τίτλο άρθρου',
   }).optional(),
   rght: z.union([
     z.string().regex(/^-?\d+$/),
@@ -8734,7 +8627,7 @@ export const zListMyBlogCommentsQuery = z.object({
     z.int(),
   ]).optional(),
   user_Email: z.string().register(z.globalRegistry, {
-    description: 'Filter by user email',
+    description: 'Φίλτρο ανά email χρήστη',
   }).optional(),
   user_IsActive: z.union([
     z.literal('true'),
@@ -8851,14 +8744,14 @@ export const zListBlogPostQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   publishedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items published after this date',
@@ -9698,7 +9591,7 @@ export const zListBlogTagQuery = z.object({
     description: 'Filter by tag name (partial match)',
   }).optional(),
   name_Exact: z.string().register(z.globalRegistry, {
-    description: 'Filter by exact tag name',
+    description: 'Φίλτρο ανά ακριβές όνομα ετικέτας',
   }).optional(),
   name_Startswith: z.string().register(z.globalRegistry, {
     description: 'Filter tags with names starting with',
@@ -9715,14 +9608,14 @@ export const zListBlogTagQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   post: z.union([
     z.string().regex(/^-?\d+$/),
@@ -9872,15 +9765,17 @@ export const zUpdateBlogTagQuery = z.object({
 export const zUpdateBlogTagResponse = zBlogTagDetail
 
 export const zDestroyCartHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zRetrieveCartHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zRetrieveCartResponse = zCartDetail
@@ -9888,9 +9783,10 @@ export const zRetrieveCartResponse = zCartDetail
 export const zPartialUpdateCartBody = zPatchedCartWriteRequest
 
 export const zPartialUpdateCartHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zPartialUpdateCartResponse = zCartDetail
@@ -9898,25 +9794,30 @@ export const zPartialUpdateCartResponse = zCartDetail
 export const zUpdateCartBody = zCartWriteRequest
 
 export const zUpdateCartHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zUpdateCartResponse = zCartDetail
 
+export const zCreateCartPaymentIntentBody = zCartCreatePaymentIntentRequestRequest
+
 export const zCreateCartPaymentIntentHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zCreateCartPaymentIntentResponse = zCartPaymentIntentResponse
 
 export const zListCartItemHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zListCartItemQuery = z.object({
@@ -9942,7 +9843,7 @@ export const zListCartItemQuery = z.object({
     description: 'Filter by cart user name (first or last)',
   }).optional(),
   cart_Uuid: z.uuid().register(z.globalRegistry, {
-    description: 'Filter by cart UUID',
+    description: 'Φίλτρο ανά UUID καλαθιού',
   }).optional(),
   cartLastActivityAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter by cart last activity after date',
@@ -10037,14 +9938,14 @@ export const zListCartItemQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   product: z.union([
     z.string().regex(/^-?\d+$/),
@@ -10062,7 +9963,7 @@ export const zListCartItemQuery = z.object({
     z.int(),
   ]).optional(),
   product_Category_Slug: z.string().register(z.globalRegistry, {
-    description: 'Filter by product category slug',
+    description: 'Φίλτρο ανά slug κατηγορίας προϊόντος',
   }).optional(),
   product_Name: z.string().register(z.globalRegistry, {
     description: 'Filter by product name (partial match)',
@@ -10112,17 +10013,19 @@ export const zListCartItemResponse = zPaginatedCartItemList
 export const zCreateCartItemBody = zCartItemCreateRequest
 
 export const zCreateCartItemHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zCreateCartItemResponse = zCartItemDetail
 
 export const zDestroyCartItemHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zDestroyCartItemPath = z.object({
@@ -10133,9 +10036,10 @@ export const zDestroyCartItemPath = z.object({
 })
 
 export const zRetrieveCartItemHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zRetrieveCartItemPath = z.object({
@@ -10160,9 +10064,10 @@ export const zRetrieveCartItemResponse = zCartItemDetail
 export const zPartialUpdateCartItemBody = zPatchedCartItemUpdateRequest
 
 export const zPartialUpdateCartItemHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zPartialUpdateCartItemPath = z.object({
@@ -10187,9 +10092,10 @@ export const zPartialUpdateCartItemResponse = zCartItemDetail
 export const zUpdateCartItemBody = zCartItemUpdateRequest
 
 export const zUpdateCartItemHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zUpdateCartItemPath = z.object({
@@ -10202,9 +10108,10 @@ export const zUpdateCartItemPath = z.object({
 export const zUpdateCartItemResponse = zCartItemDetail
 
 export const zListCartHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zListCartQuery = z.object({
@@ -10213,7 +10120,7 @@ export const zListCartQuery = z.object({
     'guest',
     'user',
   ]).register(z.globalRegistry, {
-    description: 'Filter by cart type\n\n* `user` - User Cart\n* `guest` - Guest Cart\n* `anonymous` - Anonymous Cart',
+    description: 'Φίλτρο ανά τύπο καλαθιού\n\n* `user` - User Cart\n* `guest` - Guest Cart\n* `anonymous` - Anonymous Cart',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
@@ -10331,14 +10238,14 @@ export const zListCartQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -10384,17 +10291,19 @@ export const zListCartResponse = zPaginatedCartList
 export const zReleaseCartReservationsBody = zReleaseReservationsRequestRequest
 
 export const zReleaseCartReservationsHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zReleaseCartReservationsResponse = zReleaseReservationsResponse
 
 export const zReserveCartStockHeaders = z.object({
-  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
-  }).optional(),
+  'X-Cart-Id': z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
 })
 
 export const zReserveCartStockResponse = zReserveStockResponse
@@ -10535,7 +10444,7 @@ export const zListCountryQuery = z.object({
     description: 'Filter by country name (partial match)',
   }).optional(),
   name_Exact: z.string().register(z.globalRegistry, {
-    description: 'Filter by exact country name',
+    description: 'Φίλτρο ανά ακριβές όνομα χώρας',
   }).optional(),
   name_Startswith: z.string().register(z.globalRegistry, {
     description: 'Filter countries with names starting with',
@@ -10552,14 +10461,14 @@ export const zListCountryQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   phoneCode: z.union([
     z.string().regex(/^-?\d+$/),
@@ -10813,7 +10722,7 @@ export const zListNotificationUserQuery = z.object({
     z.int(),
   ]).optional(),
   notification_Category: z.string().register(z.globalRegistry, {
-    description: 'Filter by notification category',
+    description: 'Φίλτρο ανά κατηγορία ειδοποίησης',
   }).optional(),
   notification_ExpiresAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter notifications expiring after this date',
@@ -10829,7 +10738,7 @@ export const zListNotificationUserQuery = z.object({
     z.boolean(),
   ]).optional(),
   notification_Kind: z.string().register(z.globalRegistry, {
-    description: 'Filter by notification kind',
+    description: 'Φίλτρο ανά τύπο ειδοποίησης',
   }).optional(),
   notification_Link: z.string().register(z.globalRegistry, {
     description: 'Filter by notification link (case-insensitive)',
@@ -10838,7 +10747,7 @@ export const zListNotificationUserQuery = z.object({
     description: 'Filter by notification message (case-insensitive)',
   }).optional(),
   notification_Priority: z.string().register(z.globalRegistry, {
-    description: 'Filter by notification priority',
+    description: 'Φίλτρο ανά προτεραιότητα ειδοποίησης',
   }).optional(),
   notification_Title: z.string().register(z.globalRegistry, {
     description: 'Filter by notification title (case-insensitive)',
@@ -10850,7 +10759,7 @@ export const zListNotificationUserQuery = z.object({
     description: 'Filter by multiple notification IDs (comma-separated)',
   }).optional(),
   notificationKind: z.string().register(z.globalRegistry, {
-    description: 'Filter by notification kind',
+    description: 'Φίλτρο ανά τύπο ειδοποίησης',
   }).optional(),
   ordering: z.string().regex(/^(?:id|\-id|user|\-user|user_Email|\-user_Email|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|notification|\-notification|notification_Kind|\-notification_Kind|notification_Category|\-notification_Category|notification_Priority|\-notification_Priority|notification_CreatedAt|\-notification_CreatedAt|seen|\-seen|seenAt|\-seenAt|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|user|\-user|user_Email|\-user_Email|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|notification|\-notification|notification_Kind|\-notification_Kind|notification_Category|\-notification_Category|notification_Priority|\-notification_Priority|notification_CreatedAt|\-notification_CreatedAt|seen|\-seen|seenAt|\-seenAt|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, user, -user, user_Email, -user_Email, user_FirstName, -user_FirstName, user_LastName, -user_LastName, notification, -notification, notification_Kind, -notification_Kind, notification_Category, -notification_Category, notification_Priority, -notification_Priority, notification_CreatedAt, -notification_CreatedAt, seen, -seen, seenAt, -seenAt, createdAt, -createdAt, updatedAt, -updatedAt',
@@ -10864,14 +10773,14 @@ export const zListNotificationUserQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   recentNotifications: z.union([
     z.literal('true'),
@@ -11064,14 +10973,14 @@ export const zListOrderQuery = z.object({
     z.boolean(),
   ]).optional(),
   city: z.string().register(z.globalRegistry, {
-    description: 'Filter by city (case-insensitive)',
+    description: 'Φίλτρο ανά πόλη (χωρίς πεζά/κεφαλαία)',
   }).optional(),
   city_Icontains: z.string().optional(),
   country: z.string().register(z.globalRegistry, {
     description: 'Filter by country code',
   }).optional(),
   country_Alpha2: z.string().register(z.globalRegistry, {
-    description: 'Filter by country alpha-2 code',
+    description: 'Φίλτρο ανά alpha-2 κωδικό χώρας',
   }).optional(),
   country_Name: z.string().register(z.globalRegistry, {
     description: 'Filter by country name (case-insensitive)',
@@ -11112,7 +11021,7 @@ export const zListOrderQuery = z.object({
   }).optional(),
   firstName_Icontains: z.string().optional(),
   floor: z.string().register(z.globalRegistry, {
-    description: 'Filter by floor',
+    description: 'Φίλτρο ανά όροφο',
   }).optional(),
   hasCustomerNotes: z.union([
     z.literal('true'),
@@ -11213,14 +11122,14 @@ export const zListOrderQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   paidAmount_Gte: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -11253,11 +11162,11 @@ export const zListOrderQuery = z.object({
     description: 'Filter by payment method name (case-insensitive)',
   }).optional(),
   paymentId: z.string().register(z.globalRegistry, {
-    description: 'Filter by payment ID',
+    description: 'Φίλτρο ανά ID πληρωμής',
   }).optional(),
   paymentId_Icontains: z.string().optional(),
   paymentMethod: z.string().register(z.globalRegistry, {
-    description: 'Filter by payment method',
+    description: 'Φίλτρο ανά μέθοδο πληρωμής',
   }).optional(),
   paymentMethod_Icontains: z.string().optional(),
   paymentStatus: z.enum([
@@ -11269,7 +11178,7 @@ export const zListOrderQuery = z.object({
     'PROCESSING',
     'REFUNDED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
+    description: 'Φίλτρο ανά κατάσταση πληρωμής\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
   }).optional(),
   paymentStatus_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -11302,7 +11211,7 @@ export const zListOrderQuery = z.object({
     description: 'A search term.',
   }).optional(),
   shippingCarrier: z.string().register(z.globalRegistry, {
-    description: 'Filter by shipping carrier',
+    description: 'Φίλτρο ανά εταιρεία μεταφοράς',
   }).optional(),
   shippingCarrier_Icontains: z.string().optional(),
   shippingPrice_Gte: z.union([
@@ -11356,11 +11265,11 @@ export const zListOrderQuery = z.object({
   }).optional(),
   street_Icontains: z.string().optional(),
   streetNumber: z.string().register(z.globalRegistry, {
-    description: 'Filter by street number',
+    description: 'Φίλτρο ανά αριθμό',
   }).optional(),
   streetNumber_Icontains: z.string().optional(),
   trackingNumber: z.string().register(z.globalRegistry, {
-    description: 'Filter by tracking number',
+    description: 'Φίλτρο ανά αριθμό παρακολούθησης',
   }).optional(),
   trackingNumber_Icontains: z.string().optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
@@ -11397,7 +11306,7 @@ export const zListOrderQuery = z.object({
   }).optional(),
   uuid: z.uuid().optional(),
   zipcode: z.string().register(z.globalRegistry, {
-    description: 'Filter by zipcode',
+    description: 'Φίλτρο ανά Τ.Κ.',
   }).optional(),
 })
 
@@ -11505,7 +11414,7 @@ export const zListOrderItemQuery = z.object({
     z.int(),
   ]).optional(),
   order_Country: z.string().register(z.globalRegistry, {
-    description: 'Filter by order country code',
+    description: 'Φίλτρο ανά κωδικό χώρας παραγγελίας',
   }).optional(),
   order_Email: z.string().register(z.globalRegistry, {
     description: 'Filter by order customer email (case-insensitive)',
@@ -11525,10 +11434,10 @@ export const zListOrderItemQuery = z.object({
     'PROCESSING',
     'REFUNDED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
+    description: 'Φίλτρο ανά κατάσταση πληρωμής παραγγελίας\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
   }).optional(),
   order_Region: z.string().register(z.globalRegistry, {
-    description: 'Filter by order region code',
+    description: 'Φίλτρο ανά κωδικό περιφέρειας παραγγελίας',
   }).optional(),
   order_Status: z.enum([
     'CANCELED',
@@ -11587,14 +11496,14 @@ export const zListOrderItemQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   price: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -12064,14 +11973,14 @@ export const zListMyOrdersQuery = z.object({
     z.boolean(),
   ]).optional(),
   city: z.string().register(z.globalRegistry, {
-    description: 'Filter by city (case-insensitive)',
+    description: 'Φίλτρο ανά πόλη (χωρίς πεζά/κεφαλαία)',
   }).optional(),
   city_Icontains: z.string().optional(),
   country: z.string().register(z.globalRegistry, {
     description: 'Filter by country code',
   }).optional(),
   country_Alpha2: z.string().register(z.globalRegistry, {
-    description: 'Filter by country alpha-2 code',
+    description: 'Φίλτρο ανά alpha-2 κωδικό χώρας',
   }).optional(),
   country_Name: z.string().register(z.globalRegistry, {
     description: 'Filter by country name (case-insensitive)',
@@ -12109,7 +12018,7 @@ export const zListMyOrdersQuery = z.object({
   }).optional(),
   firstName_Icontains: z.string().optional(),
   floor: z.string().register(z.globalRegistry, {
-    description: 'Filter by floor',
+    description: 'Φίλτρο ανά όροφο',
   }).optional(),
   hasCustomerNotes: z.union([
     z.literal('true'),
@@ -12233,11 +12142,11 @@ export const zListMyOrdersQuery = z.object({
     description: 'Filter by payment method name (case-insensitive)',
   }).optional(),
   paymentId: z.string().register(z.globalRegistry, {
-    description: 'Filter by payment ID',
+    description: 'Φίλτρο ανά ID πληρωμής',
   }).optional(),
   paymentId_Icontains: z.string().optional(),
   paymentMethod: z.string().register(z.globalRegistry, {
-    description: 'Filter by payment method',
+    description: 'Φίλτρο ανά μέθοδο πληρωμής',
   }).optional(),
   paymentMethod_Icontains: z.string().optional(),
   paymentStatus: z.enum([
@@ -12249,7 +12158,7 @@ export const zListMyOrdersQuery = z.object({
     'PROCESSING',
     'REFUNDED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by payment status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
+    description: 'Φίλτρο ανά κατάσταση πληρωμής\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `COMPLETED` - Ολοκληρώθηκε\n* `FAILED` - Απέτυχε\n* `REFUNDED` - Επιστροφή Χρημάτων\n* `PARTIALLY_REFUNDED` - Μερική επιστροφή\n* `CANCELED` - Ακυρώθηκε',
   }).optional(),
   paymentStatus_In: z.union([
     z.string().register(z.globalRegistry, {
@@ -12282,7 +12191,7 @@ export const zListMyOrdersQuery = z.object({
     description: 'A search term.',
   }).optional(),
   shippingCarrier: z.string().register(z.globalRegistry, {
-    description: 'Filter by shipping carrier',
+    description: 'Φίλτρο ανά εταιρεία μεταφοράς',
   }).optional(),
   shippingCarrier_Icontains: z.string().optional(),
   shippingPrice_Gte: z.union([
@@ -12336,11 +12245,11 @@ export const zListMyOrdersQuery = z.object({
   }).optional(),
   street_Icontains: z.string().optional(),
   streetNumber: z.string().register(z.globalRegistry, {
-    description: 'Filter by street number',
+    description: 'Φίλτρο ανά αριθμό',
   }).optional(),
   streetNumber_Icontains: z.string().optional(),
   trackingNumber: z.string().register(z.globalRegistry, {
-    description: 'Filter by tracking number',
+    description: 'Φίλτρο ανά αριθμό παρακολούθησης',
   }).optional(),
   trackingNumber_Icontains: z.string().optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
@@ -12377,7 +12286,7 @@ export const zListMyOrdersQuery = z.object({
   }).optional(),
   uuid: z.uuid().optional(),
   zipcode: z.string().register(z.globalRegistry, {
-    description: 'Filter by zipcode',
+    description: 'Φίλτρο ανά Τ.Κ.',
   }).optional(),
 })
 
@@ -12389,136 +12298,11 @@ export const zRetrieveOrderByUuidPath = z.object({
 
 export const zRetrieveOrderByUuidResponse = zOrderDetail
 
-export const zApiV1PageConfigRetrievePath = z.object({
-  pageType: z.string(),
+export const zVivaReturnLookupQuery = z.object({
+  t: z.string().register(z.globalRegistry, {
+    description: 'Viva transaction_id (UUID).',
+  }),
 })
-
-export const zApiV1PageConfigRetrieveResponse = zPageLayout
-
-export const zApiV1PageConfigAdminListQuery = z.object({
-  cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
-  }).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
-  }).optional().default('el'),
-  page: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  pageSize: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
-  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
-  }).optional().default('true'),
-  paginationType: z.enum([
-    'cursor',
-    'limitOffset',
-    'pageNumber',
-  ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
-  }).optional().default('pageNumber'),
-  search: z.string().register(z.globalRegistry, {
-    description: 'A search term.',
-  }).optional(),
-})
-
-export const zApiV1PageConfigAdminListResponse = zPaginatedPageLayoutList
-
-export const zApiV1PageConfigAdminCreateBody = zPageLayoutRequest
-
-export const zApiV1PageConfigAdminCreateQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
-  }).optional().default('el'),
-})
-
-export const zApiV1PageConfigAdminCreateResponse = zPageLayout
-
-export const zApiV1PageConfigAdminDestroyPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-/**
- * No response body
- */
-export const zApiV1PageConfigAdminDestroyResponse = z.void().register(z.globalRegistry, {
-  description: 'No response body',
-})
-
-export const zApiV1PageConfigAdminRetrievePath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zApiV1PageConfigAdminRetrieveQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
-  }).optional().default('el'),
-})
-
-export const zApiV1PageConfigAdminRetrieveResponse = zPageLayout
-
-export const zApiV1PageConfigAdminPartialUpdateBody = zPatchedPageLayoutRequest
-
-export const zApiV1PageConfigAdminPartialUpdatePath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zApiV1PageConfigAdminPartialUpdateQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
-  }).optional().default('el'),
-})
-
-export const zApiV1PageConfigAdminPartialUpdateResponse = zPageLayout
-
-export const zApiV1PageConfigAdminUpdateBody = zPageLayoutRequest
-
-export const zApiV1PageConfigAdminUpdatePath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-export const zApiV1PageConfigAdminUpdateQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
-  }).optional().default('el'),
-})
-
-export const zApiV1PageConfigAdminUpdateResponse = zPageLayout
 
 export const zListPayWayQuery = z.object({
   active: z.union([
@@ -12599,7 +12383,7 @@ export const zListPayWayQuery = z.object({
     description: 'Language code for translations (el, en, de)',
   }).optional().default('el'),
   name: z.string().register(z.globalRegistry, {
-    description: 'Filter by name (partial match)',
+    description: 'Φίλτρο ανά όνομα (μερική αντιστοίχιση)',
   }).optional(),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|cost|\-cost|freeThreshold|\-freeThreshold|providerCode|\-providerCode|isOnlinePayment|\-isOnlinePayment|requiresConfirmation|\-requiresConfirmation|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, cost, -cost, freeThreshold, -freeThreshold, providerCode, -providerCode, isOnlinePayment, -isOnlinePayment, requiresConfirmation, -requiresConfirmation, sortOrder, -sortOrder',
@@ -12613,14 +12397,14 @@ export const zListPayWayQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   providerCode: z.string().register(z.globalRegistry, {
     description: 'Filter by provider code (partial match)',
@@ -12914,14 +12698,14 @@ export const zListProductQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   price: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -13124,14 +12908,14 @@ export const zListProductReviewsQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -13179,7 +12963,7 @@ export const zListProductAlertQuery = z.object({
     z.boolean(),
   ]).optional(),
   kind: z.enum(['price_drop', 'restock']).register(z.globalRegistry, {
-    description: '* `restock` - Restock\n* `price_drop` - Price drop',
+    description: '* `restock` - Αναπλήρωση\n* `price_drop` - Price drop',
   }).optional(),
   languageCode: z.enum([
     'de',
@@ -13200,14 +12984,14 @@ export const zListProductAlertQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   product: z.union([
     z.string().regex(/^-?\d+$/),
@@ -13317,14 +13101,14 @@ export const zListAttributeQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -13497,14 +13281,14 @@ export const zListAttributeValueQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -13732,14 +13516,14 @@ export const zListProductCategoryQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   parent: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14039,7 +13823,7 @@ export const zListProductCategoryImageQuery = z.object({
     'SEASONAL',
     'THUMBNAIL',
   ]).register(z.globalRegistry, {
-    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+    description: '* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικονίδιο\n* `THUMBNAIL` - Μικρογραφία\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Κεντρική εικόνα\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα',
   }).optional(),
   languageCode: z.enum([
     'de',
@@ -14060,14 +13844,14 @@ export const zListProductCategoryImageQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -14197,7 +13981,7 @@ export const zGetProductCategoryImagesByCategoryQuery = z.object({
     'SEASONAL',
     'THUMBNAIL',
   ]).register(z.globalRegistry, {
-    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+    description: '* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικονίδιο\n* `THUMBNAIL` - Μικρογραφία\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Κεντρική εικόνα\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα',
   }).optional(),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder',
@@ -14237,7 +14021,7 @@ export const zGetProductCategoryImagesByTypeQuery = z.object({
     'SEASONAL',
     'THUMBNAIL',
   ]).register(z.globalRegistry, {
-    description: '* `MAIN` - Main Image\n* `BANNER` - Banner Image\n* `ICON` - Icon Image\n* `THUMBNAIL` - Thumbnail Image\n* `GALLERY` - Gallery Image\n* `BACKGROUND` - Background Image\n* `HERO` - Hero Image\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Promotional Image\n* `SEASONAL` - Seasonal Image',
+    description: '* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικονίδιο\n* `THUMBNAIL` - Μικρογραφία\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Κεντρική εικόνα\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα',
   }).optional(),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder',
@@ -14282,14 +14066,14 @@ export const zListProductFavouriteQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   product: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14485,14 +14269,14 @@ export const zListProductImageQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   product: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14667,14 +14451,14 @@ export const zListProductReviewQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   product: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -14905,7 +14689,7 @@ export const zListRegionQuery = z.object({
     description: 'Filter by exact region alpha code',
   }).optional(),
   country: z.string().register(z.globalRegistry, {
-    description: 'Filter by country alpha-2 code',
+    description: 'Φίλτρο ανά alpha-2 κωδικό χώρας',
   }).optional(),
   countryName: z.string().register(z.globalRegistry, {
     description: 'Filter by country name (partial match)',
@@ -14941,14 +14725,14 @@ export const zListRegionQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -15076,7 +14860,7 @@ export const zListRegionsByCountryQuery = z.object({
     description: 'Filter by exact region alpha code',
   }).optional(),
   country: z.string().register(z.globalRegistry, {
-    description: 'Filter by country alpha-2 code',
+    description: 'Φίλτρο ανά alpha-2 κωδικό χώρας',
   }).optional(),
   countryName: z.string().register(z.globalRegistry, {
     description: 'Filter by country name (partial match)',
@@ -15154,7 +14938,7 @@ export const zApiV1SearchBlogPostRetrieveQuery = z.object({
     z.int(),
   ]).optional(),
   query: z.string().register(z.globalRegistry, {
-    description: 'Search query string',
+    description: 'String αναζήτησης',
   }),
 })
 
@@ -15173,7 +14957,7 @@ export const zApiV1SearchFederatedRetrieveQuery = z.object({
     z.int(),
   ]).optional(),
   query: z.string().register(z.globalRegistry, {
-    description: 'Search query string',
+    description: 'String αναζήτησης',
   }),
 })
 
@@ -15355,14 +15139,14 @@ export const zListBoxNowLockerQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -15400,6 +15184,17 @@ export const zGetBoxNowLabelPath = z.object({
 })
 
 export const zGetBoxNowLabelResponse = z.string()
+
+export const zGetFreeShippingInfoQuery = z.object({
+  countryCode: z.string().register(z.globalRegistry, {
+    description: 'Optional ISO 3166-1 alpha-2 filter. Carriers with a ``metadata[\'supported_countries\']`` list that excludes the code are dropped.',
+  }).optional(),
+  currency: z.string().register(z.globalRegistry, {
+    description: 'Currency the response should advertise. Defaults to settings.DEFAULT_CURRENCY (EUR).',
+  }).optional(),
+})
+
+export const zGetFreeShippingInfoResponse = zFreeShippingInfo
 
 export const zListShippingOptionsQuery = z.object({
   countryCode: z.string().register(z.globalRegistry, {
@@ -15482,7 +15277,7 @@ export const zListTagQuery = z.object({
     description: 'Filter by tag label (partial match)',
   }).optional(),
   label_Exact: z.string().register(z.globalRegistry, {
-    description: 'Filter by exact tag label',
+    description: 'Φίλτρο ανά ακριβή ετικέτα',
   }).optional(),
   label_Startswith: z.string().register(z.globalRegistry, {
     description: 'Filter tags with labels starting with',
@@ -15525,14 +15320,14 @@ export const zListTagQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -15664,10 +15459,10 @@ export const zUpdateTagResponse = zTagDetail
 
 export const zListTaggedItemQuery = z.object({
   contentType: z.string().register(z.globalRegistry, {
-    description: 'Filter by content type model name',
+    description: 'Φίλτρο ανά όνομα model τύπου περιεχομένου',
   }).optional(),
   contentType_AppLabel: z.string().register(z.globalRegistry, {
-    description: 'Filter by content type app label',
+    description: 'Φίλτρο ανά app label τύπου περιεχομένου',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
@@ -15720,14 +15515,14 @@ export const zListTaggedItemQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -15849,25 +15644,6 @@ export const zUpdateTaggedItemQuery = z.object({
 
 export const zUpdateTaggedItemResponse = zTaggedItemDetail
 
-export const zApiV1TenantMembershipsMineRetrieveResponse = z.array(z.object({
-  schemaName: z.string().optional(),
-  name: z.string().optional(),
-  storeName: z.string().optional(),
-  primaryDomain: z.string().optional(),
-  role: z.enum([
-    'member',
-    'staff',
-    'admin',
-    'owner',
-  ]).optional(),
-}))
-
-export const zApiV1TenantResolveRetrieveQuery = z.object({
-  domain: z.string(),
-})
-
-export const zApiV1TenantResolveRetrieveResponse = zTenantConfig
-
 export const zListUserAccountQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
     description: 'Cursor for pagination',
@@ -15891,14 +15667,14 @@ export const zListUserAccountQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -16248,7 +16024,7 @@ export const zListUserAddressQuery = z.object({
   }).optional(),
   city_Icontains: z.string().optional(),
   country: z.string().register(z.globalRegistry, {
-    description: 'Filter by country alpha_2 code',
+    description: 'Φίλτρο ανά alpha_2 κωδικό χώρας',
   }).optional(),
   countryCode: z.string().register(z.globalRegistry, {
     description: 'Filter by country code (e.g., \'US\', \'CA\')',
@@ -16283,7 +16059,7 @@ export const zListUserAddressQuery = z.object({
     'SIXTH_FLOOR_PLUS',
     'THIRD_FLOOR',
   ]).register(z.globalRegistry, {
-    description: 'Filter by floor',
+    description: 'Φίλτρο ανά όροφο',
   }).optional(),
   fullName: z.string().register(z.globalRegistry, {
     description: 'Filter by full name (first + last name)',
@@ -16342,21 +16118,21 @@ export const zListUserAddressQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   phone: z.string().register(z.globalRegistry, {
     description: 'Filter by phone number (partial match)',
   }).optional(),
   phone_Icontains: z.string().optional(),
   region: z.string().register(z.globalRegistry, {
-    description: 'Filter by region alpha code',
+    description: 'Φίλτρο ανά αλφαριθμητικό κωδικό περιφέρειας',
   }).optional(),
   regionCode: z.string().register(z.globalRegistry, {
     description: 'Filter by region code',
@@ -16372,7 +16148,7 @@ export const zListUserAddressQuery = z.object({
   }).optional(),
   street_Icontains: z.string().optional(),
   streetNumber: z.string().register(z.globalRegistry, {
-    description: 'Filter by street number',
+    description: 'Φίλτρο ανά αριθμό',
   }).optional(),
   streetNumber_Icontains: z.string().optional(),
   title: z.string().optional(),
@@ -16556,14 +16332,14 @@ export const zListUserSubscriptionQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -16574,7 +16350,7 @@ export const zListUserSubscriptionQuery = z.object({
     'PENDING',
     'UNSUBSCRIBED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by subscription status\n\n* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Unsubscribed\n* `BOUNCED` - Bounced',
+    description: 'Φίλτρο ανά κατάσταση συνδρομής\n\n* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Διαγραφή\n* `BOUNCED` - Επιστράφηκε',
   }).optional(),
   subscribedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter subscriptions created after this date',
@@ -16598,7 +16374,7 @@ export const zListUserSubscriptionQuery = z.object({
     'PROMOTIONAL',
     'SYSTEM',
   ]).register(z.globalRegistry, {
-    description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
+    description: 'Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
   }).optional(),
   topicDescription: z.string().register(z.globalRegistry, {
     description: 'Filter by topic description (partial match)',
@@ -16610,7 +16386,7 @@ export const zListUserSubscriptionQuery = z.object({
     description: 'Filter by topic slug (partial match)',
   }).optional(),
   topicSlugExact: z.string().register(z.globalRegistry, {
-    description: 'Filter by exact topic slug',
+    description: 'Φίλτρο ανά ακριβές slug θέματος',
   }).optional(),
   unsubscribedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter subscriptions unsubscribed after this date',
@@ -16759,7 +16535,7 @@ export const zListSubscriptionTopicQuery = z.object({
     'PROMOTIONAL',
     'SYSTEM',
   ]).register(z.globalRegistry, {
-    description: 'Filter by topic category\n\n* `MARKETING` - Marketing Campaigns\n* `PRODUCT` - Product Updates\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Promotional\n* `OTHER` - Other',
+    description: 'Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
@@ -16815,7 +16591,7 @@ export const zListSubscriptionTopicQuery = z.object({
     description: 'Language code for translations (el, en, de)',
   }).optional().default('el'),
   name: z.string().register(z.globalRegistry, {
-    description: 'Filter by name (partial match)',
+    description: 'Φίλτρο ανά όνομα (μερική αντιστοίχιση)',
   }).optional(),
   ordering: z.string().regex(/^(?:category|\-category|createdAt|\-createdAt|updatedAt|\-updatedAt|slug|\-slug)(?:,(?:category|\-category|createdAt|\-createdAt|updatedAt|\-updatedAt|slug|\-slug))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: category, -category, createdAt, -createdAt, updatedAt, -updatedAt, slug, -slug',
@@ -16829,14 +16605,14 @@ export const zListSubscriptionTopicQuery = z.object({
     z.int(),
   ]).optional(),
   pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Enable or disable pagination',
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
   }).optional().default('true'),
   paginationType: z.enum([
     'cursor',
     'limitOffset',
     'pageNumber',
   ]).register(z.globalRegistry, {
-    description: 'Pagination strategy type',
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   requiresConfirmation: z.union([
     z.literal('true'),
@@ -16849,11 +16625,11 @@ export const zListSubscriptionTopicQuery = z.object({
     description: 'A search term.',
   }).optional(),
   slug: z.string().register(z.globalRegistry, {
-    description: 'Filter by slug (partial match)',
+    description: 'Φίλτρο ανά slug (μερική αντιστοίχιση)',
   }).optional(),
   slug_Icontains: z.string().optional(),
   slugExact: z.string().register(z.globalRegistry, {
-    description: 'Filter by exact slug',
+    description: 'Φίλτρο ανά ακριβές slug',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items updated after this date',

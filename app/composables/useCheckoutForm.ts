@@ -25,7 +25,6 @@ export async function useCheckoutForm() {
     region: '',
     regionId: undefined as string | undefined,
     city: '',
-    place: '',
     zipcode: '',
     street: '',
     streetNumber: '',
@@ -92,7 +91,6 @@ export async function useCheckoutForm() {
   const freeShippingThresholdSetting = ref<{ value: string } | null>(null)
   const boxnowShippingSetting = ref<{ value: string } | null>(null)
   const boxnowFreeShippingThresholdSetting = ref<{ value: string } | null>(null)
-  const boxnowEnabled = ref(false)
   // Per-kind toggle for ACS Smartpoint pickup. Backend returns the
   // ACS_SMARTPOINT_ENABLED Setting value as a string ("True"/"False");
   // the StepShipping component coerces to boolean before gating the
@@ -232,7 +230,6 @@ export async function useCheckoutForm() {
     formState.street = ''
     formState.streetNumber = ''
     formState.city = ''
-    formState.place = ''
     formState.zipcode = ''
     formState.region = ''
     formState.regionId = undefined
@@ -317,10 +314,11 @@ export async function useCheckoutForm() {
   // Re-fetch pay ways whenever the shopper picks a different shipping
   // method. Django's PayWayFilter dispatches through the carrier
   // registry — BoxNow rejects COD on locker pickup; ACS allows COD
-  // on every kind. The pair ``(shippingProviderCode, shippingKind)``
-  // drives the filter, NOT the legacy ``shippingMethod`` enum.
-  // The Nuxt server route's cache key includes the query so each
-  // (provider, kind) combination gets its own cached list.
+  // on every kind. The filter request sends the API contract pair
+  // ``(shippingProviderCode, shippingKind)`` derived from the local
+  // ``shippingMethod`` UI key. The Nuxt server route's cache key
+  // includes the query so each (provider, kind) combination gets
+  // its own cached list.
   watch(() => formState.shippingMethod, async (newMethod) => {
     try {
       const carrier = carrierForMethod(newMethod)
@@ -384,10 +382,19 @@ export async function useCheckoutForm() {
   // therefore match what the voucher mint will charge.
   //
   // Keyed on (country, total, weight) so the cache invalidates when
-  // the shopper changes country or adds/removes items. Falls back to
-  // ``extra_settings`` (legacy) only when the fetch errors — never
-  // blocks checkout on a transient API failure.
+  // the shopper changes country or adds/removes items. The
+  // ``extra_settings`` flat-rate Settings (``shippingSetting`` /
+  // ``boxnowShippingSetting`` / ``acsShippingSetting``) act as a
+  // fallback when this fetch errors so checkout never blocks on a
+  // transient API failure — see ``shippingPrice`` below.
   const shippingOptions = ref<ShippingOption[]>([])
+  // BoxNow visibility — true when the backend's
+  // ``ShippingProvider(code='boxnow').is_active`` flag is set, which
+  // is the registry-side master switch and the same query
+  // ``/api/v1/shipping/options`` already filters by.
+  const boxnowEnabled = computed(() =>
+    shippingOptions.value.some(o => o.providerCode === 'boxnow'),
+  )
   const fetchShippingOptions = async () => {
     try {
       const cartTotal = cart.value?.totalPrice || 0
@@ -435,8 +442,9 @@ export async function useCheckoutForm() {
 
   /** Match the live option row for the selected ``shippingMethod``.
    *  Returns ``undefined`` if the live fetch hasn't populated yet or
-   *  the row is missing — caller falls back to the legacy flat-rate
-   *  Setting so the sidebar never shows a stale or empty Μεταφορικά. */
+   *  the row is missing — caller falls back to the flat-rate
+   *  ``extra_settings`` Setting so the sidebar never shows a stale
+   *  or empty Μεταφορικά. */
   const matchedShippingOption = computed<ShippingOption | undefined>(() => {
     const method = formState.shippingMethod
     if (!shippingOptions.value.length) return undefined
@@ -517,10 +525,15 @@ export async function useCheckoutForm() {
 
       const cartTotal = cart.value?.totalPrice || 0
       const threshold = payWay.freeThreshold || 0
-      const displayCost = (threshold > 0 && cartTotal >= threshold) ? 0 : payWay.cost
+      const displayCost = (threshold > 0 && cartTotal >= threshold) ? 0 : (payWay.cost || 0)
+      // Only show the surcharge suffix when it's a real charge — a
+      // zero-cost pay-way (e.g. CREDIT_CARD) rendered as
+      // ``Πληρωμή με Κάρτα (+0,00 €)`` reads as a fee the customer
+      // doesn't pay.
+      const costSuffix = displayCost > 0 ? ` (+${n(displayCost, 'currency')})` : ''
 
       return {
-        label: `${name} (+${n(displayCost, 'currency')})`,
+        label: `${name ?? ''}${costSuffix}`,
         value: payWay.id,
         mainImagePath: payWay.mainImagePath,
       }
@@ -548,12 +561,6 @@ export async function useCheckoutForm() {
     city: z.string({ error: t('validation.required') }).min(3, {
       error: t('validation.city.min', { min: 3 }),
     }),
-    // `place` (neighborhood / area) is optional: UserAddress doesn't
-    // carry it, so forcing it here would reject valid saved addresses.
-    // When the user types it in the form we still validate the minimum
-    // length; empty or absent values pass through as "" (matches the
-    // Django Order.place ``blank=True, default=""`` column).
-    place: z.string().min(3, { error: t('validation.place.min', { min: 3 }) }).or(z.literal('')).optional(),
     zipcode: z.string({ error: t('validation.required') }).min(3, {
       error: t('validation.zipcode.min', { min: 3 }),
     }),
@@ -637,7 +644,6 @@ export async function useCheckoutForm() {
     freeShippingResult,
     boxnowShippingResult,
     boxnowFreeShippingResult,
-    boxnowEnabledResult,
     acsSmartpointEnabledResult,
     acsShippingResult,
     acsFreeShippingResult,
@@ -675,14 +681,6 @@ export async function useCheckoutForm() {
       () => $fetch<{ value: string }>('/api/settings/get', {
         method: 'GET',
         query: { key: 'BOXNOW_FREE_SHIPPING_THRESHOLD' },
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-    ),
-    useAsyncData<{ value: string } | null>(
-      'checkout:boxnow-enabled',
-      () => $fetch<{ value: string }>('/api/settings/get', {
-        method: 'GET',
-        query: { key: 'BOXNOW_ENABLED' },
         headers: useRequestHeaders(),
       }).catch(() => null),
     ),
@@ -785,12 +783,6 @@ export async function useCheckoutForm() {
   freeShippingThresholdSetting.value = freeShippingResult.data.value ?? null
   boxnowShippingSetting.value = boxnowShippingResult.data.value ?? null
   boxnowFreeShippingThresholdSetting.value = boxnowFreeShippingResult.data.value ?? null
-  // extra_settings serialises booleans as the strings "True"/"False".
-  // BoxNow defaults to **disabled** — the master switch starts False
-  // in production so a fresh deploy doesn't expose the option until an
-  // admin (and BoxNow's partner activation) confirm. Stage/dev flips
-  // it on in Django admin once the account is activated.
-  boxnowEnabled.value = boxnowEnabledResult.data.value?.value === 'True'
   // ACS Smartpoint defaults disabled (Phase 2 progressive rollout):
   // ops flips the Setting to True after the AcsStation cache has been
   // synced and the picker is verified end-to-end.
@@ -903,5 +895,11 @@ export async function useCheckoutForm() {
     acsShippingSetting,
     acsFreeShippingThresholdSetting,
     refetchShippingSettings,
+    // Live, priority-sorted carrier options from
+    // ``/api/v1/shipping/options``. Exposed so the StepShipping
+    // component can render rows in the backend's declared order
+    // (``ShippingProvider.priority`` ascending) instead of a
+    // hardcoded UI sequence.
+    shippingOptions,
   }
 }

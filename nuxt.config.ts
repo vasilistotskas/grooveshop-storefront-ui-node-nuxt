@@ -39,6 +39,7 @@ export default defineNuxtConfig({
           { path: '/api/cart/**' },
           { path: '/api/_allauth/**' },
           { path: '/api/orders/**' },
+          { path: '/api/analytics/**' },
         ],
       },
     },
@@ -301,35 +302,27 @@ export default defineNuxtConfig({
     '/what-is-microlearning': { prerender: true },
     '/why-microlearning': { prerender: true },
   },
-  sourcemap: { client: true, server: false },
+  sourcemap: {
+    client: 'hidden',
+    server: false,
+  },
+  future: {
+    compatibilityVersion: 5,
+  },
   experimental: {
-    typedPages: true,
     asyncContext: true,
+    typedPages: true,
     inlineRouteRules: true,
     viteEnvironmentApi: process.env.NODE_ENV !== 'test',
     crossOriginPrefetch: true,
-    defaults: {
-      nuxtLink: {
-        // Prefetch on viewport visibility so hot listings (products, blog,
-        // category grids) warm the route bundles before the user clicks.
-        // Interaction still triggers immediate prefetch on hover/focus.
-        prefetchOn: {
-          visibility: true,
-          interaction: true,
-        },
-      },
-    },
+    nitroAutoImports: true,
+    emitRouteChunkError: 'automatic-immediate',
   },
   compatibilityDate: 'latest',
   nitro: {
     prerender: {
       crawlLinks: false,
       ignore: ['/_ipx/'],
-    },
-    esbuild: {
-      options: {
-        target: 'esnext',
-      },
     },
     imports: {
       dirs: [
@@ -377,10 +370,33 @@ export default defineNuxtConfig({
       rollupOptions: {
         output: {
           // Group Leaflet + the marker cluster plugin into a single
-          // chunk so the checkout entry stays small. The chunk only
-          // loads when CheckoutSmartpointMap is mounted (Lazy* +
-          // ClientOnly), so customers who never open the locker
-          // picker pay zero bytes for the map library.
+          // chunk so the checkout entry stays small. CRITICAL: they
+          // MUST live together. ``leaflet.markercluster`` is a UMD
+          // plugin whose top-level code does ``L.MarkerClusterGroup =
+          // L.FeatureGroup.extend(...)`` — bare ``L`` resolved via
+          // global scope (== ``window.L``). The leaflet UMD/CJS file
+          // (``leaflet/dist/leaflet-src.js``) seeds ``window.L =
+          // exports`` as a side effect at line 14509 of the package
+          // — bundling them in the same chunk guarantees that
+          // initialiser runs BEFORE the markercluster plugin's
+          // top-level code, so the bare ``L`` lookup resolves.
+          //
+          // History: an earlier ``force-leaflet-esm`` Vite plugin
+          // here mapped ``leaflet`` → ``leaflet/dist/leaflet-src.esm.js``
+          // to make tree-shaking work under
+          // ``future.compatibilityVersion: 5``. That ESM build does
+          // NOT contain the ``window.L = exports`` line, so
+          // markercluster's bare ``L`` lookup fell through to
+          // ``undefined`` and crashed the page on every route that
+          // preloaded the chunk (prod outage at v3.123.0/v3.123.1).
+          // The plugin was removed in v3.123.2; ``leaflet`` resolves
+          // to its CJS entry, which Vite pre-bundles via esbuild
+          // (gives us both the default-export interop AND the
+          // ``window.L`` side effect).
+          //
+          // The chunk only loads when ``CheckoutSmartpointMap`` is
+          // mounted (Lazy* + ClientOnly), so customers who never
+          // open the locker picker still pay zero bytes for it.
           manualChunks(id) {
             if (
               id.includes('node_modules/leaflet/')
@@ -396,13 +412,11 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: true,
-    hoist: ['vite'],
   },
   debug: false,
   // ``nuxt-ai-ready`` exposes site content to AI agents and crawlers via:
   //   /llms.txt, /llms-full.txt   — site overview + per-page markdown
   //   /<route>.md                  — on-demand markdown of any HTML page
-  //   robots.txt Content Signals   — opt-in directives for search/RAG/training
   //   /__ai-ready/*                — optional MCP/runtime sync endpoints
   //
   // Production deployment notes (webside.gr, K8s, 2 SSR replicas):
@@ -416,18 +430,21 @@ export default defineNuxtConfig({
   //     scheduled background indexing would race and double-submit to
   //     IndexNow. Enable only when scaled to 1 replica or when migrating to
   //     shared storage (D1 / LibSQL / Turso).
-  //   - ``autoI18n`` (default ``true``) auto-detects ``@nuxtjs/i18n`` and
-  //     emits ``hreflang`` Link headers + a Greek "Available Languages"
-  //     section in ``/llms.txt``.
   aiReady: {
-    contentSignal: {
-      // Allow training, search indexing, and RAG/grounding. The site is a
-      // public e-commerce storefront — discoverable AI surfaces are an
-      // acquisition channel, not a leak risk.
-      aiTrain: true,
-      search: true,
-      aiInput: true,
-    },
+    // Single-locale site (only ``el``). nuxt-ai-ready v1.3 ``autoI18n`` emits
+    // an HTTP ``link: </>; rel="alternate"; hreflang="el-GR"`` header with a
+    // **relative** href (see ``node_modules/nuxt-ai-ready/dist/runtime/server/
+    // utils/link-header.js`` — never joins with site.url), which Lighthouse
+    // rejects as "Relative href value" in the hreflang audit. With one locale
+    // the alternate is pointing at itself anyway, so the header is pure noise.
+    // Re-enable if a second locale ships AND upstream fixes the URL building.
+    autoI18n: false,
+    // ``contentSignal`` (Cloudflare's Content Signals Policy, CC0 — not RFC
+    // 9309) would emit ``Content-Signal:`` / ``Content-Usage:`` lines into
+    // robots.txt. Google added both to its unsupported-directives list in
+    // April 2026, and PageSpeed/Lighthouse flags every occurrence as
+    // "Unknown directive". The 25-bot user-agent groups in ``robots.groups``
+    // below already gate AI access via standards-compliant Allow/Disallow.
     // Production runs as the unprivileged ``node`` user (UID 1000) with
     // ``WORKDIR=/app`` owned by root, so the default ``.data/ai-ready``
     // path under cwd is read-only. The runtime DB is ephemeral per pod
@@ -497,7 +514,7 @@ export default defineNuxtConfig({
   eslint: {
     checker: {
       eslintPath: 'eslint',
-      lintOnStart: true,
+      lintOnStart: process.env.NODE_ENV !== 'production',
     },
     config: {
       stylistic: true,
@@ -510,7 +527,7 @@ export default defineNuxtConfig({
     transport: { enabled: true },
   },
   i18n: {
-    defaultLocale: DEFAULT_LOCALE as any,
+    defaultLocale: DEFAULT_LOCALE,
     debug: false,
     restructureDir: 'i18n',
     detectBrowserLanguage: {
