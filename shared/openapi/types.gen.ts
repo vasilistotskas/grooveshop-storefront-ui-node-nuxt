@@ -83,6 +83,9 @@ export type AcsShipmentDetail = {
      * 10-digit ACS voucher (Voucher_No from ACS_Create_Voucher).
      */
   readonly voucherNo: string | null
+  /**
+     * Κατάσταση αποστολής
+     */
   shipmentState: ShipmentStateEnum
   /**
      * Human-readable label for the shipment_state choice
@@ -912,6 +915,9 @@ export type BlogPost = {
      * Return tags count from annotation or query database.
      */
   readonly tagsCount: number
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
   /**
      * Δημοσιεύθηκε στις
@@ -978,6 +984,9 @@ export type BlogPostDetail = {
      * Return tags count from annotation or query database.
      */
   readonly tagsCount: number
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
   /**
      * Δημοσιεύθηκε στις
@@ -995,8 +1004,17 @@ export type BlogPostDetail = {
   readonly readingTime: number
   readonly contentPreview: string
   readonly userHasLiked: boolean
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -1065,9 +1083,21 @@ export type BlogPostWriteRequest = {
      * Προβεβλημένο
      */
   featured?: boolean
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -1468,6 +1498,8 @@ export type BoxNowParcelEvent = {
      */
   readonly eventTypeDisplay: string
   /**
+     * Κατάσταση Δέματος
+     *
      * Raw 'data.parcelState' value from BoxNow webhook payload
      */
   readonly parcelState: string
@@ -1487,6 +1519,9 @@ export type BoxNowParcelEvent = {
      * data.eventLocation.postalCode
      */
   readonly postalCode: string
+  /**
+     * Πρόσθετες Πληροφορίες
+     */
   readonly additionalInformation: string
   /**
      * Timestamp when GrooveShop received the webhook (separate from event_time)
@@ -1547,6 +1582,9 @@ export type BoxNowShipmentDetail = {
      * Denormalised BoxNow APM ID — preserved even if the BoxNowLocker row is deleted
      */
   readonly lockerExternalId: string
+  /**
+     * Κατάσταση Δέματος
+     */
   parcelState: BoxNowParcelState
   /**
      * Human-readable label for the parcel_state choice
@@ -1859,7 +1897,7 @@ export type CartDetail = {
 
 export type CartItem = {
   readonly id: number
-  readonly cartId: number
+  readonly cartId: string
   product: Product
   /**
      * Ποσότητα
@@ -1903,7 +1941,7 @@ export type CartItemCreateRequest = {
 
 export type CartItemDetail = {
   readonly id: number
-  readonly cartId: number
+  readonly cartId: string
   product: Product
   /**
      * Ποσότητα
@@ -1980,6 +2018,26 @@ export type CartWriteRequest = {
  * * `3` - Μεγάλο
  */
 export type CompartmentSizeEnum = 1 | 2 | 3
+
+/**
+ * * `hero_banner` - Hero Banner
+ * * `hero_carousel` - Hero Carousel
+ * * `products_slider` - Products Slider
+ * * `products_grid` - Products Grid
+ * * `featured_products` - Προβεβλημένα Προϊόντα
+ * * `product_categories` - Κατηγορίες προϊόντος
+ * * `blog_posts_carousel` - Blog Posts Carousel
+ * * `blog_posts_grid` - Blog Posts Grid
+ * * `rich_text` - Rich Text Block
+ * * `cta_banner` - Call to Action Banner
+ * * `newsletter_signup` - Newsletter Signup
+ * * `testimonials` - Testimonials
+ * * `spacer` - Spacer
+ * * `divider` - Divider
+ * * `loyalty_hero` - Loyalty Program Hero
+ * * `search_bar` - Search Bar
+ */
+export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar'
 
 export type ConfirmResponse = {
   status: string
@@ -2572,22 +2630,22 @@ export type Notification = {
      *
      * Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.
      *
-     * * `order_created` - Order created
-     * * `order_processing` - Order processing
-     * * `order_shipped` - Order shipped
-     * * `order_delivered` - Order delivered
-     * * `order_completed` - Order completed
-     * * `order_canceled` - Order canceled
-     * * `order_refunded` - Order refunded
+     * * `order_created` - Η παραγγελία δημιουργήθηκε
+     * * `order_processing` - Επεξεργασία παραγγελίας
+     * * `order_shipped` - Η παραγγελία απεστάλη
+     * * `order_delivered` - Η παραγγελία παραδόθηκε
+     * * `order_completed` - Η παραγγελία ολοκληρώθηκε
+     * * `order_canceled` - Η παραγγελία ακυρώθηκε
+     * * `order_refunded` - Επιστροφή χρημάτων παραγγελίας
      * * `shipment_dispatched` - Αποστολή απεστάλη
-     * * `payment_confirmed` - Payment confirmed
-     * * `payment_failed` - Payment failed
+     * * `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε
+     * * `payment_failed` - Η πληρωμή απέτυχε
      * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
-     * * `restock_favourite` - Back in stock (favourited product)
-     * * `loyalty_tier_up` - Loyalty tier promotion
+     * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
+     * * `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης
      * * `comment_liked` - Επισήμανση σχολίου blog
-     * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
-     * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+     * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
+     * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
      * * `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση
      */
   notificationType?: NotificationTypeEnum | BlankEnum
@@ -2652,22 +2710,22 @@ export type NotificationSuccessResponse = {
 }
 
 /**
- * * `order_created` - Order created
- * * `order_processing` - Order processing
- * * `order_shipped` - Order shipped
- * * `order_delivered` - Order delivered
- * * `order_completed` - Order completed
- * * `order_canceled` - Order canceled
- * * `order_refunded` - Order refunded
+ * * `order_created` - Η παραγγελία δημιουργήθηκε
+ * * `order_processing` - Επεξεργασία παραγγελίας
+ * * `order_shipped` - Η παραγγελία απεστάλη
+ * * `order_delivered` - Η παραγγελία παραδόθηκε
+ * * `order_completed` - Η παραγγελία ολοκληρώθηκε
+ * * `order_canceled` - Η παραγγελία ακυρώθηκε
+ * * `order_refunded` - Επιστροφή χρημάτων παραγγελίας
  * * `shipment_dispatched` - Αποστολή απεστάλη
- * * `payment_confirmed` - Payment confirmed
- * * `payment_failed` - Payment failed
+ * * `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε
+ * * `payment_failed` - Η πληρωμή απέτυχε
  * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
- * * `restock_favourite` - Back in stock (favourited product)
- * * `loyalty_tier_up` - Loyalty tier promotion
+ * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
+ * * `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης
  * * `comment_liked` - Επισήμανση σχολίου blog
- * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
- * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+ * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
+ * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
  * * `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση
  */
 export type NotificationTypeEnum = 'order_created' | 'order_processing' | 'order_shipped' | 'order_delivered' | 'order_completed' | 'order_canceled' | 'order_refunded' | 'shipment_dispatched' | 'payment_confirmed' | 'payment_failed' | 'price_drop_favourite' | 'restock_favourite' | 'loyalty_tier_up' | 'comment_liked' | 'BOXNOW_PARCEL_AT_LOCKER' | 'BOXNOW_PARCEL_DELIVERED' | 'ACS_OUT_FOR_DELIVERY'
@@ -3372,6 +3430,87 @@ export type OrderWriteRequest = {
   documentType?: OrderDocumentType
 }
 
+export type PageLayout = {
+  readonly id: number
+  readonly uuid: string
+  /**
+     * Identifier for the page (e.g. "home", "products", "blog").
+     */
+  pageType: string
+  /**
+     * Τίτλος
+     *
+     * Admin display name for this layout.
+     */
+  title: string
+  /**
+     * Δημοσιευμένο
+     */
+  isPublished?: boolean
+  /**
+     * Μεταδεδομένα
+     */
+  metadata?: unknown
+  readonly sections: Array<PageSection>
+}
+
+export type PageLayoutRequest = {
+  /**
+     * Identifier for the page (e.g. "home", "products", "blog").
+     */
+  pageType: string
+  /**
+     * Τίτλος
+     *
+     * Admin display name for this layout.
+     */
+  title: string
+  /**
+     * Δημοσιευμένο
+     */
+  isPublished?: boolean
+  /**
+     * Μεταδεδομένα
+     */
+  metadata?: unknown
+}
+
+export type PageSection = {
+  readonly id: number
+  readonly uuid: string
+  componentType: ComponentTypeEnum
+  /**
+     * Τίτλος
+     */
+  title?: string
+  isVisible?: boolean
+  /**
+     * Component-specific configuration as JSON.
+     */
+  props?: unknown
+  /**
+     * Σειρά ταξινόμησης
+     */
+  sortOrder?: number | null
+}
+
+export type PageSectionRequest = {
+  componentType: ComponentTypeEnum
+  /**
+     * Τίτλος
+     */
+  title?: string
+  isVisible?: boolean
+  /**
+     * Component-specific configuration as JSON.
+     */
+  props?: unknown
+  /**
+     * Σειρά ταξινόμησης
+     */
+  sortOrder?: number | null
+}
+
 export type PaginatedAcsStationList = {
   links?: {
     next?: string | null
@@ -3591,6 +3730,19 @@ export type PaginatedOrderList = {
   pageTotalResults?: number
   page?: number
   results: Array<Order>
+}
+
+export type PaginatedPageLayoutList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<PageLayout>
 }
 
 export type PaginatedPayWayList = {
@@ -3910,9 +4062,21 @@ export type PatchedBlogPostWriteRequest = {
      * Προβεβλημένο
      */
   featured?: boolean
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -4065,6 +4229,27 @@ export type PatchedOrderWriteRequest = {
   documentType?: OrderDocumentType
 }
 
+export type PatchedPageLayoutRequest = {
+  /**
+     * Identifier for the page (e.g. "home", "products", "blog").
+     */
+  pageType?: string
+  /**
+     * Τίτλος
+     *
+     * Admin display name for this layout.
+     */
+  title?: string
+  /**
+     * Δημοσιευμένο
+     */
+  isPublished?: boolean
+  /**
+     * Μεταδεδομένα
+     */
+  metadata?: unknown
+}
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -4099,23 +4284,25 @@ export type PatchedPayWayWriteRequest = {
   /**
      * Κωδικός παρόχου
      *
-     * Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')
+     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
      */
   providerCode?: string
   /**
      * Είναι online πληρωμή
      *
-     * Whether this payment method is processed online
+     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
      */
   isOnlinePayment?: boolean
   /**
-     * Whether this payment method requires manual confirmation (e.g., bank transfer)
+     * Απαιτείται Επιβεβαίωση
+     *
+     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
      */
   requiresConfirmation?: boolean
   /**
-     * Provider Configuration
+     * Διαμόρφωση Παρόχου
      *
-     * Provider-specific configuration (API keys, webhooks, etc.)
+     * Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
      */
   configuration?: unknown
 }
@@ -4183,8 +4370,17 @@ export type PatchedProductCategoryWriteRequest = {
      */
   active?: boolean
   parent?: number | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -4274,8 +4470,17 @@ export type PatchedProductWriteRequest = {
      * Ποσοστό Έκπτωσης
      */
   discountPercent?: number
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ενεργή
@@ -4338,7 +4543,7 @@ export type PatchedSubscriptionTopicWriteRequest = {
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
      * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
+     * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
      * * `OTHER` - Άλλο
@@ -4357,6 +4562,8 @@ export type PatchedSubscriptionTopicWriteRequest = {
      */
   isDefault?: boolean
   /**
+     * Απαιτείται Επιβεβαίωση
+     *
      * Whether subscription to this topic requires email confirmation
      */
   requiresConfirmation?: boolean
@@ -4596,17 +4803,19 @@ export type PayWay = {
   /**
      * Κωδικός παρόχου
      *
-     * Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')
+     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
      */
   providerCode?: string
   /**
      * Είναι online πληρωμή
      *
-     * Whether this payment method is processed online
+     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
      */
   isOnlinePayment?: boolean
   /**
-     * Whether this payment method requires manual confirmation (e.g., bank transfer)
+     * Απαιτείται Επιβεβαίωση
+     *
+     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
      */
   requiresConfirmation?: boolean
 }
@@ -4661,17 +4870,19 @@ export type PayWayDetail = {
   /**
      * Κωδικός παρόχου
      *
-     * Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')
+     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
      */
   providerCode?: string
   /**
      * Είναι online πληρωμή
      *
-     * Whether this payment method is processed online
+     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
      */
   isOnlinePayment?: boolean
   /**
-     * Whether this payment method requires manual confirmation (e.g., bank transfer)
+     * Απαιτείται Επιβεβαίωση
+     *
+     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
      */
   requiresConfirmation?: boolean
   readonly configuration: unknown
@@ -4711,23 +4922,25 @@ export type PayWayWriteRequest = {
   /**
      * Κωδικός παρόχου
      *
-     * Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')
+     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
      */
   providerCode?: string
   /**
      * Είναι online πληρωμή
      *
-     * Whether this payment method is processed online
+     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
      */
   isOnlinePayment?: boolean
   /**
-     * Whether this payment method requires manual confirmation (e.g., bank transfer)
+     * Απαιτείται Επιβεβαίωση
+     *
+     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
      */
   requiresConfirmation?: boolean
   /**
-     * Provider Configuration
+     * Διαμόρφωση Παρόχου
      *
-     * Provider-specific configuration (API keys, webhooks, etc.)
+     * Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
      */
   configuration?: unknown
 }
@@ -4852,8 +5065,17 @@ export type Product = {
     unit?: string
     value?: number
   } | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
@@ -5038,8 +5260,17 @@ export type ProductCategoryDetail = {
   readonly uuid: string
   readonly children: Array<ProductCategory>
   readonly recursiveProductCount: number
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -5206,8 +5437,17 @@ export type ProductCategoryWriteRequest = {
      */
   active?: boolean
   parent?: number | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -5256,8 +5496,17 @@ export type ProductDetail = {
     unit?: string
     value?: number
   } | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
@@ -5344,8 +5593,17 @@ export type ProductDetailResponse = {
     unit?: string
     value?: number
   } | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
@@ -5635,6 +5893,9 @@ export type ProductReview = {
      * Κατάσταση
      */
   status?: ReviewStatus
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
   /**
      * Δημιουργήθηκε στις
@@ -5677,6 +5938,9 @@ export type ProductReviewDetail = {
      * Κατάσταση
      */
   status?: ReviewStatus
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
   /**
      * Δημιουργήθηκε στις
@@ -5760,8 +6024,17 @@ export type ProductWriteRequest = {
      * Ποσοστό Έκπτωσης
      */
   discountPercent?: number
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ενεργή
@@ -6227,7 +6500,7 @@ export type SubscriptionTopic = {
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
      * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
+     * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
      * * `OTHER` - Άλλο
@@ -6246,6 +6519,8 @@ export type SubscriptionTopic = {
      */
   isDefault?: boolean
   /**
+     * Απαιτείται Επιβεβαίωση
+     *
      * Whether subscription to this topic requires email confirmation
      */
   requiresConfirmation?: boolean
@@ -6284,7 +6559,7 @@ export type SubscriptionTopicDetail = {
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
      * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
+     * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
      * * `OTHER` - Άλλο
@@ -6303,6 +6578,8 @@ export type SubscriptionTopicDetail = {
      */
   isDefault?: boolean
   /**
+     * Απαιτείται Επιβεβαίωση
+     *
      * Whether subscription to this topic requires email confirmation
      */
   requiresConfirmation?: boolean
@@ -6347,7 +6624,7 @@ export type SubscriptionTopicWriteRequest = {
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
      * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
+     * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
      * * `OTHER` - Άλλο
@@ -6366,6 +6643,8 @@ export type SubscriptionTopicWriteRequest = {
      */
   isDefault?: boolean
   /**
+     * Απαιτείται Επιβεβαίωση
+     *
      * Whether subscription to this topic requires email confirmation
      */
   requiresConfirmation?: boolean
@@ -6542,6 +6821,52 @@ export type TaggedItemWriteRequest = {
 }
 
 /**
+ * Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
+ *
+ * Only fields that are safe to expose to unauthenticated callers should
+ * appear here.  Secrets and billing-sensitive data belong exclusively in
+ * TenantAdminSerializer.
+ */
+export type TenantConfig = {
+  readonly schemaName: string
+  readonly name: string
+  readonly storeName: string
+  readonly storeDescription: string
+  readonly logoLightUrl: string
+  readonly logoDarkUrl: string
+  readonly faviconUrl: string
+  readonly primaryColor: string
+  readonly neutralColor: string
+  readonly accentHex: string
+  readonly successHex: string
+  readonly warningHex: string
+  readonly errorHex: string
+  readonly infoHex: string
+  readonly themePreset: string
+  readonly themeMetadata: unknown
+  readonly defaultLocale: string
+  readonly defaultCurrency: string
+  readonly primaryDomain: string
+  readonly loyaltyEnabled: boolean
+  readonly blogEnabled: boolean
+  readonly stripePublishableKey: string
+  readonly allowedCspSources: Array<string>
+  readonly metaPixelId: string
+  readonly gaTrackingId: string
+  readonly totpIssuer: string
+  readonly turnstileSiteKey: string
+  readonly socialsDiscord: string
+  readonly socialsFacebook: string
+  readonly socialsInstagram: string
+  readonly socialsPinterest: string
+  readonly socialsReddit: string
+  readonly socialsTiktok: string
+  readonly socialsTwitter: string
+  readonly socialsYoutube: string
+  readonly boxNowPartnerId: string
+}
+
+/**
  * Serializer for top query analytics.
  */
 export type TopQuery = {
@@ -6567,7 +6892,7 @@ export type TopQuery = {
  * * `MARKETING` - Καμπάνιες marketing
  * * `PRODUCT` - Ενημερώσεις προϊόντων
  * * `ACCOUNT` - Λογαριασμός Ανενεργός
- * * `SYSTEM` - System Notifications
+ * * `SYSTEM` - Ειδοποιήσεις Συστήματος
  * * `NEWSLETTER` - Newsletter
  * * `PROMOTIONAL` - Προωθητικό
  * * `OTHER` - Άλλο
@@ -7357,6 +7682,9 @@ export type BlogPostWritable = {
      * Προβεβλημένο
      */
   featured?: boolean
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
 }
 
@@ -7386,9 +7714,21 @@ export type BlogPostDetailWritable = {
      * Προβεβλημένο
      */
   featured?: boolean
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -7602,22 +7942,22 @@ export type NotificationWritable = {
      *
      * Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.
      *
-     * * `order_created` - Order created
-     * * `order_processing` - Order processing
-     * * `order_shipped` - Order shipped
-     * * `order_delivered` - Order delivered
-     * * `order_completed` - Order completed
-     * * `order_canceled` - Order canceled
-     * * `order_refunded` - Order refunded
+     * * `order_created` - Η παραγγελία δημιουργήθηκε
+     * * `order_processing` - Επεξεργασία παραγγελίας
+     * * `order_shipped` - Η παραγγελία απεστάλη
+     * * `order_delivered` - Η παραγγελία παραδόθηκε
+     * * `order_completed` - Η παραγγελία ολοκληρώθηκε
+     * * `order_canceled` - Η παραγγελία ακυρώθηκε
+     * * `order_refunded` - Επιστροφή χρημάτων παραγγελίας
      * * `shipment_dispatched` - Αποστολή απεστάλη
-     * * `payment_confirmed` - Payment confirmed
-     * * `payment_failed` - Payment failed
+     * * `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε
+     * * `payment_failed` - Η πληρωμή απέτυχε
      * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
-     * * `restock_favourite` - Back in stock (favourited product)
-     * * `loyalty_tier_up` - Loyalty tier promotion
+     * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
+     * * `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης
      * * `comment_liked` - Επισήμανση σχολίου blog
-     * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
-     * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+     * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
+     * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
      * * `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση
      */
   notificationType?: NotificationTypeEnum | BlankEnum
@@ -7971,6 +8311,44 @@ export type OrderItemRefundResponseWritable = {
   item: OrderItemWritable
 }
 
+export type PageLayoutWritable = {
+  /**
+     * Identifier for the page (e.g. "home", "products", "blog").
+     */
+  pageType: string
+  /**
+     * Τίτλος
+     *
+     * Admin display name for this layout.
+     */
+  title: string
+  /**
+     * Δημοσιευμένο
+     */
+  isPublished?: boolean
+  /**
+     * Μεταδεδομένα
+     */
+  metadata?: unknown
+}
+
+export type PageSectionWritable = {
+  componentType: ComponentTypeEnum
+  /**
+     * Τίτλος
+     */
+  title?: string
+  isVisible?: boolean
+  /**
+     * Component-specific configuration as JSON.
+     */
+  props?: unknown
+  /**
+     * Σειρά ταξινόμησης
+     */
+  sortOrder?: number | null
+}
+
 export type PaginatedAcsStationListWritable = {
   links?: {
     next?: string | null
@@ -8190,6 +8568,19 @@ export type PaginatedOrderListWritable = {
   pageTotalResults?: number
   page?: number
   results: Array<OrderWritable>
+}
+
+export type PaginatedPageLayoutListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<PageLayoutWritable>
 }
 
 export type PaginatedPayWayListWritable = {
@@ -8456,17 +8847,19 @@ export type PayWayWritable = {
   /**
      * Κωδικός παρόχου
      *
-     * Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')
+     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
      */
   providerCode?: string
   /**
      * Είναι online πληρωμή
      *
-     * Whether this payment method is processed online
+     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
      */
   isOnlinePayment?: boolean
   /**
-     * Whether this payment method requires manual confirmation (e.g., bank transfer)
+     * Απαιτείται Επιβεβαίωση
+     *
+     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
      */
   requiresConfirmation?: boolean
 }
@@ -8505,17 +8898,19 @@ export type PayWayDetailWritable = {
   /**
      * Κωδικός παρόχου
      *
-     * Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')
+     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
      */
   providerCode?: string
   /**
      * Είναι online πληρωμή
      *
-     * Whether this payment method is processed online
+     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
      */
   isOnlinePayment?: boolean
   /**
-     * Whether this payment method requires manual confirmation (e.g., bank transfer)
+     * Απαιτείται Επιβεβαίωση
+     *
+     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
      */
   requiresConfirmation?: boolean
 }
@@ -8554,8 +8949,17 @@ export type ProductWritable = {
     unit?: string
     value?: number
   } | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
@@ -8637,8 +9041,17 @@ export type ProductCategoryDetailWritable = {
      */
   active?: boolean
   parent?: number | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -8742,8 +9155,17 @@ export type ProductDetailWritable = {
     unit?: string
     value?: number
   } | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
@@ -8785,8 +9207,17 @@ export type ProductDetailResponseWritable = {
     unit?: string
     value?: number
   } | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
@@ -8868,6 +9299,9 @@ export type ProductReviewWritable = {
      * Κατάσταση
      */
   status?: ReviewStatus
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
   translations: {
     el?: {
@@ -8894,6 +9328,9 @@ export type ProductReviewDetailWritable = {
      * Κατάσταση
      */
   status?: ReviewStatus
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
   translations: {
     el?: {
@@ -8988,7 +9425,7 @@ export type SubscriptionTopicWritable = {
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
      * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
+     * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
      * * `OTHER` - Άλλο
@@ -9007,6 +9444,8 @@ export type SubscriptionTopicWritable = {
      */
   isDefault?: boolean
   /**
+     * Απαιτείται Επιβεβαίωση
+     *
      * Whether subscription to this topic requires email confirmation
      */
   requiresConfirmation?: boolean
@@ -9042,7 +9481,7 @@ export type SubscriptionTopicDetailWritable = {
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
      * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
+     * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
      * * `OTHER` - Άλλο
@@ -9061,6 +9500,8 @@ export type SubscriptionTopicDetailWritable = {
      */
   isDefault?: boolean
   /**
+     * Απαιτείται Επιβεβαίωση
+     *
      * Whether subscription to this topic requires email confirmation
      */
   requiresConfirmation?: boolean
@@ -12480,9 +12921,9 @@ export type DestroyCartData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -12501,9 +12942,9 @@ export type RetrieveCartData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -12529,9 +12970,9 @@ export type PartialUpdateCartData = {
   body?: PatchedCartWriteRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -12558,9 +12999,9 @@ export type UpdateCartData = {
   body?: CartWriteRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -12587,9 +13028,9 @@ export type CreateCartPaymentIntentData = {
   body: CartCreatePaymentIntentRequestRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -12616,9 +13057,9 @@ export type ListCartItemData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: {
@@ -12816,9 +13257,9 @@ export type CreateCartItemData = {
   body: CartItemCreateRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -12845,9 +13286,9 @@ export type DestroyCartItemData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path: {
     id: string | number
@@ -12868,9 +13309,9 @@ export type RetrieveCartItemData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path: {
     id: string | number
@@ -12903,9 +13344,9 @@ export type PartialUpdateCartItemData = {
   body?: PatchedCartItemUpdateRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path: {
     id: string | number
@@ -12939,9 +13380,9 @@ export type UpdateCartItemData = {
   body?: CartItemUpdateRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path: {
     id: string | number
@@ -12970,9 +13411,9 @@ export type ListCartData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: {
@@ -13151,9 +13592,9 @@ export type ReleaseCartReservationsData = {
   body: ReleaseReservationsRequestRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -13180,9 +13621,9 @@ export type ReserveCartStockData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -15902,6 +16343,159 @@ export type VivaReturnLookupResponses = {
      */
   200: unknown
 }
+
+export type ApiV1PageConfigRetrieveData = {
+  body?: never
+  path: {
+    pageType: string
+  }
+  query?: never
+  url: '/api/v1/page-config/{page_type}'
+}
+
+export type ApiV1PageConfigRetrieveResponses = {
+  200: PageLayout
+}
+
+export type ApiV1PageConfigRetrieveResponse = ApiV1PageConfigRetrieveResponses[keyof ApiV1PageConfigRetrieveResponses]
+
+export type ApiV1PageConfigAdminListData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Cursor for pagination
+         */
+    cursor?: string
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Number of results to return per page
+         */
+    pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/page-config/admin'
+}
+
+export type ApiV1PageConfigAdminListResponses = {
+  200: PaginatedPageLayoutList
+}
+
+export type ApiV1PageConfigAdminListResponse = ApiV1PageConfigAdminListResponses[keyof ApiV1PageConfigAdminListResponses]
+
+export type ApiV1PageConfigAdminCreateData = {
+  body: PageLayoutRequest
+  path?: never
+  query?: {
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/page-config/admin'
+}
+
+export type ApiV1PageConfigAdminCreateResponses = {
+  201: PageLayout
+}
+
+export type ApiV1PageConfigAdminCreateResponse = ApiV1PageConfigAdminCreateResponses[keyof ApiV1PageConfigAdminCreateResponses]
+
+export type ApiV1PageConfigAdminDestroyData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/page-config/admin/{id}'
+}
+
+export type ApiV1PageConfigAdminDestroyResponses = {
+  /**
+     * No response body
+     */
+  204: void
+}
+
+export type ApiV1PageConfigAdminDestroyResponse = ApiV1PageConfigAdminDestroyResponses[keyof ApiV1PageConfigAdminDestroyResponses]
+
+export type ApiV1PageConfigAdminRetrieveData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: {
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/page-config/admin/{id}'
+}
+
+export type ApiV1PageConfigAdminRetrieveResponses = {
+  200: PageLayout
+}
+
+export type ApiV1PageConfigAdminRetrieveResponse = ApiV1PageConfigAdminRetrieveResponses[keyof ApiV1PageConfigAdminRetrieveResponses]
+
+export type ApiV1PageConfigAdminPartialUpdateData = {
+  body?: PatchedPageLayoutRequest
+  path: {
+    id: string | number
+  }
+  query?: {
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/page-config/admin/{id}'
+}
+
+export type ApiV1PageConfigAdminPartialUpdateResponses = {
+  200: PageLayout
+}
+
+export type ApiV1PageConfigAdminPartialUpdateResponse = ApiV1PageConfigAdminPartialUpdateResponses[keyof ApiV1PageConfigAdminPartialUpdateResponses]
+
+export type ApiV1PageConfigAdminUpdateData = {
+  body: PageLayoutRequest
+  path: {
+    id: string | number
+  }
+  query?: {
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/page-config/admin/{id}'
+}
+
+export type ApiV1PageConfigAdminUpdateResponses = {
+  200: PageLayout
+}
+
+export type ApiV1PageConfigAdminUpdateResponse = ApiV1PageConfigAdminUpdateResponses[keyof ApiV1PageConfigAdminUpdateResponses]
 
 export type ListPayWayData = {
   body?: never
@@ -20576,6 +21170,40 @@ export type UpdateTaggedItemResponses = {
 
 export type UpdateTaggedItemResponse = UpdateTaggedItemResponses[keyof UpdateTaggedItemResponses]
 
+export type ApiV1TenantMembershipsMineRetrieveData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/tenant/memberships/mine'
+}
+
+export type ApiV1TenantMembershipsMineRetrieveResponses = {
+  200: Array<{
+    schemaName?: string
+    name?: string
+    storeName?: string
+    primaryDomain?: string
+    role?: 'member' | 'staff' | 'admin' | 'owner'
+  }>
+}
+
+export type ApiV1TenantMembershipsMineRetrieveResponse = ApiV1TenantMembershipsMineRetrieveResponses[keyof ApiV1TenantMembershipsMineRetrieveResponses]
+
+export type ApiV1TenantResolveRetrieveData = {
+  body?: never
+  path?: never
+  query: {
+    domain: string
+  }
+  url: '/api/v1/tenant/resolve'
+}
+
+export type ApiV1TenantResolveRetrieveResponses = {
+  200: TenantConfig
+}
+
+export type ApiV1TenantResolveRetrieveResponse = ApiV1TenantResolveRetrieveResponses[keyof ApiV1TenantResolveRetrieveResponses]
+
 export type ListUserAccountData = {
   body?: never
   path?: never
@@ -21655,7 +22283,7 @@ export type ListUserSubscriptionData = {
          * * `MARKETING` - Καμπάνιες marketing
          * * `PRODUCT` - Ενημερώσεις προϊόντων
          * * `ACCOUNT` - Λογαριασμός Ανενεργός
-         * * `SYSTEM` - System Notifications
+         * * `SYSTEM` - Ειδοποιήσεις Συστήματος
          * * `NEWSLETTER` - Newsletter
          * * `PROMOTIONAL` - Προωθητικό
          * * `OTHER` - Άλλο
@@ -21960,7 +22588,7 @@ export type ListSubscriptionTopicData = {
          * * `MARKETING` - Καμπάνιες marketing
          * * `PRODUCT` - Ενημερώσεις προϊόντων
          * * `ACCOUNT` - Λογαριασμός Ανενεργός
-         * * `SYSTEM` - System Notifications
+         * * `SYSTEM` - Ειδοποιήσεις Συστήματος
          * * `NEWSLETTER` - Newsletter
          * * `PROMOTIONAL` - Προωθητικό
          * * `OTHER` - Άλλο

@@ -12414,17 +12414,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md)."
                     }
                 ],
                 "tags": [
@@ -12498,17 +12491,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md)."
                     }
                 ],
                 "tags": [
@@ -12611,17 +12597,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md)."
                     }
                 ],
                 "tags": [
@@ -12724,17 +12703,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md)."
                     }
                 ],
                 "tags": [
@@ -12790,17 +12762,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md)."
                     }
                 ],
                 "tags": [
@@ -12906,17 +12871,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md)."
                     },
                     {
                         "in": "query",
@@ -13648,17 +13606,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md)."
                     }
                 ],
                 "tags": [
@@ -13764,17 +13715,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md)."
                     },
                     {
                         "in": "path",
@@ -13878,17 +13822,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md)."
                     },
                     {
                         "in": "path",
@@ -14007,17 +13944,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md)."
                     },
                     {
                         "in": "path",
@@ -14150,17 +14080,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md)."
                     },
                     {
                         "in": "path",
@@ -14232,17 +14155,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md)."
                     },
                     {
                         "in": "query",
@@ -14911,17 +14827,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md)."
                     }
                 ],
                 "tags": [
@@ -15027,17 +14936,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md)."
                     }
                 ],
                 "tags": [
@@ -16467,8 +16369,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -25015,6 +24916,459 @@
                 }
             }
         },
+        "/api/v1/page-config/{page_type}": {
+            "get": {
+                "operationId": "api_v1_page_config_retrieve",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "pageType",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Page Config"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageLayout"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/page-config/admin": {
+            "get": {
+                "operationId": "api_v1_page_config_admin_list",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Cursor for pagination"
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Language code for translations (el, en, de)"
+                    },
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Number of results to return per page"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "A search term.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedPageLayoutList"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "api_v1_page_config_admin_create",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Language code for translations (el, en, de)"
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PageLayoutRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PageLayoutRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PageLayoutRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageLayout"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/page-config/admin/{id}": {
+            "get": {
+                "operationId": "api_v1_page_config_admin_retrieve",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Language code for translations (el, en, de)"
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageLayout"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "put": {
+                "operationId": "api_v1_page_config_admin_update",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Language code for translations (el, en, de)"
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PageLayoutRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PageLayoutRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PageLayoutRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageLayout"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "patch": {
+                "operationId": "api_v1_page_config_admin_partial_update",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Language code for translations (el, en, de)"
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedPageLayoutRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedPageLayoutRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedPageLayoutRequest"
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageLayout"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "delete": {
+                "operationId": "api_v1_page_config_admin_destroy",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No response body"
+                    }
+                }
+            }
+        },
         "/api/v1/pay_way": {
             "get": {
                 "operationId": "listPayWay",
@@ -25474,8 +25828,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -25687,8 +26040,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "401": {
@@ -32326,8 +32678,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -32547,8 +32898,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "401": {
@@ -33122,8 +33472,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -33295,8 +33644,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -35973,8 +36321,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -36194,8 +36541,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "401": {
@@ -36591,8 +36937,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -37972,8 +38317,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -38061,8 +38405,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -38245,8 +38588,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -38396,8 +38738,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -40934,8 +41275,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "400": {
@@ -41155,8 +41495,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "401": {
@@ -41523,6 +41862,94 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/tenant/memberships/mine": {
+            "get": {
+                "operationId": "api_v1_tenant_memberships_mine_retrieve",
+                "description": "List the tenants the authenticated user has active access to.\n\nThe storefront uses this to decide which tenant admin links to\nrender (OWNER/ADMIN/STAFF roles unlock different surfaces) and to\nbuild a tenant switcher for users who belong to multiple stores.\nAlways queried from the public schema — memberships are platform-\nwide data.",
+                "tags": [
+                    "Tenant"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "schemaName": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "storeName": {
+                                                "type": "string"
+                                            },
+                                            "primaryDomain": {
+                                                "type": "string"
+                                            },
+                                            "role": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "member",
+                                                    "staff",
+                                                    "admin",
+                                                    "owner"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
+        "/api/v1/tenant/resolve": {
+            "get": {
+                "operationId": "api_v1_tenant_resolve_retrieve",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "domain",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Tenant"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TenantConfig"
                                 }
                             }
                         },
@@ -45320,7 +45747,7 @@
                                 "SYSTEM"
                             ]
                         },
-                        "description": "Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                        "description": "Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
                     },
                     {
                         "in": "query",
@@ -46346,7 +46773,7 @@
                                 "SYSTEM"
                             ]
                         },
-                        "description": "Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                        "description": "Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
                     },
                     {
                         "in": "query",
@@ -48082,7 +48509,8 @@
                                 "$ref": "#/components/schemas/ShipmentStateEnum"
                             }
                         ],
-                        "readOnly": true
+                        "readOnly": true,
+                        "title": "Κατάσταση αποστολής"
                     },
                     "shipmentStateDisplay": {
                         "type": "string",
@@ -49918,7 +50346,8 @@
                         "readOnly": true
                     },
                     "isPublished": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Δημοσιευμένο"
                     },
                     "publishedAt": {
                         "type": "string",
@@ -50093,7 +50522,8 @@
                         "readOnly": true
                     },
                     "isPublished": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Δημοσιευμένο"
                     },
                     "publishedAt": {
                         "type": "string",
@@ -50132,14 +50562,17 @@
                     },
                     "seoTitle": {
                         "type": "string",
+                        "title": "Τίτλος SEO",
                         "maxLength": 70
                     },
                     "seoDescription": {
                         "type": "string",
+                        "title": "Περιγραφή SEO",
                         "maxLength": 300
                     },
                     "seoKeywords": {
                         "type": "string",
+                        "title": "Λέξεις-κλειδιά SEO",
                         "maxLength": 255
                     }
                 },
@@ -50348,18 +50781,22 @@
                         "title": "Προβεβλημένο"
                     },
                     "isPublished": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Δημοσιευμένο"
                     },
                     "seoTitle": {
                         "type": "string",
+                        "title": "Τίτλος SEO",
                         "maxLength": 70
                     },
                     "seoDescription": {
                         "type": "string",
+                        "title": "Περιγραφή SEO",
                         "maxLength": 300
                     },
                     "seoKeywords": {
                         "type": "string",
+                        "title": "Λέξεις-κλειδιά SEO",
                         "maxLength": 255
                     }
                 },
@@ -51037,6 +51474,7 @@
                     "parcelState": {
                         "type": "string",
                         "readOnly": true,
+                        "title": "Κατάσταση Δέματος",
                         "description": "Raw 'data.parcelState' value from BoxNow webhook payload"
                     },
                     "eventTime": {
@@ -51059,7 +51497,8 @@
                     },
                     "additionalInformation": {
                         "type": "string",
-                        "readOnly": true
+                        "readOnly": true,
+                        "title": "Πρόσθετες Πληροφορίες"
                     },
                     "receivedAt": {
                         "type": "string",
@@ -51144,7 +51583,8 @@
                                 "$ref": "#/components/schemas/BoxNowParcelState"
                             }
                         ],
-                        "readOnly": true
+                        "readOnly": true,
+                        "title": "Κατάσταση Δέματος"
                     },
                     "parcelStateDisplay": {
                         "type": "string",
@@ -51728,7 +52168,7 @@
                         "readOnly": true
                     },
                     "cartId": {
-                        "type": "integer",
+                        "type": "string",
                         "readOnly": true
                     },
                     "product": {
@@ -51897,7 +52337,7 @@
                         "readOnly": true
                     },
                     "cartId": {
-                        "type": "integer",
+                        "type": "string",
                         "readOnly": true
                     },
                     "product": {
@@ -52112,6 +52552,28 @@
                 ],
                 "type": "integer",
                 "description": "* `1` - Μικρό\n* `2` - Μεσαίο\n* `3` - Μεγάλο"
+            },
+            "ComponentTypeEnum": {
+                "enum": [
+                    "hero_banner",
+                    "hero_carousel",
+                    "products_slider",
+                    "products_grid",
+                    "featured_products",
+                    "product_categories",
+                    "blog_posts_carousel",
+                    "blog_posts_grid",
+                    "rich_text",
+                    "cta_banner",
+                    "newsletter_signup",
+                    "testimonials",
+                    "spacer",
+                    "divider",
+                    "loyalty_hero",
+                    "search_bar"
+                ],
+                "type": "string",
+                "description": "* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar"
             },
             "ConfirmResponse": {
                 "type": "object",
@@ -53281,7 +53743,7 @@
                     },
                     "notificationType": {
                         "title": "Τύπος ειδοποίησης",
-                        "description": "Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.\n\n* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker\n* `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση",
+                        "description": "Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.\n\n* `order_created` - Η παραγγελία δημιουργήθηκε\n* `order_processing` - Επεξεργασία παραγγελίας\n* `order_shipped` - Η παραγγελία απεστάλη\n* `order_delivered` - Η παραγγελία παραδόθηκε\n* `order_completed` - Η παραγγελία ολοκληρώθηκε\n* `order_canceled` - Η παραγγελία ακυρώθηκε\n* `order_refunded` - Επιστροφή χρημάτων παραγγελίας\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε\n* `payment_failed` - Η πληρωμή απέτυχε\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)\n* `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker\n* `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση",
                         "oneOf": [
                             {
                                 "$ref": "#/components/schemas/NotificationTypeEnum"
@@ -53411,7 +53873,7 @@
                     "ACS_OUT_FOR_DELIVERY"
                 ],
                 "type": "string",
-                "description": "* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker\n* `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση"
+                "description": "* `order_created` - Η παραγγελία δημιουργήθηκε\n* `order_processing` - Επεξεργασία παραγγελίας\n* `order_shipped` - Η παραγγελία απεστάλη\n* `order_delivered` - Η παραγγελία παραδόθηκε\n* `order_completed` - Η παραγγελία ολοκληρώθηκε\n* `order_canceled` - Η παραγγελία ακυρώθηκε\n* `order_refunded` - Επιστροφή χρημάτων παραγγελίας\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε\n* `payment_failed` - Η πληρωμή απέτυχε\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)\n* `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker\n* `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση"
             },
             "NotificationUser": {
                 "type": "object",
@@ -54932,6 +55394,150 @@
                     "zipcode"
                 ]
             },
+            "PageLayout": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "pageType": {
+                        "type": "string",
+                        "description": "Identifier for the page (e.g. \"home\", \"products\", \"blog\").",
+                        "maxLength": 50
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Τίτλος",
+                        "description": "Admin display name for this layout.",
+                        "maxLength": 200
+                    },
+                    "isPublished": {
+                        "type": "boolean",
+                        "title": "Δημοσιευμένο"
+                    },
+                    "metadata": {
+                        "title": "Μεταδεδομένα"
+                    },
+                    "sections": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PageSection"
+                        },
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "pageType",
+                    "sections",
+                    "title",
+                    "uuid"
+                ]
+            },
+            "PageLayoutRequest": {
+                "type": "object",
+                "properties": {
+                    "pageType": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Identifier for the page (e.g. \"home\", \"products\", \"blog\").",
+                        "maxLength": 50
+                    },
+                    "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Τίτλος",
+                        "description": "Admin display name for this layout.",
+                        "maxLength": 200
+                    },
+                    "isPublished": {
+                        "type": "boolean",
+                        "title": "Δημοσιευμένο"
+                    },
+                    "metadata": {
+                        "title": "Μεταδεδομένα"
+                    }
+                },
+                "required": [
+                    "pageType",
+                    "title"
+                ]
+            },
+            "PageSection": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "componentType": {
+                        "$ref": "#/components/schemas/ComponentTypeEnum"
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Τίτλος",
+                        "maxLength": 200
+                    },
+                    "isVisible": {
+                        "type": "boolean"
+                    },
+                    "props": {
+                        "description": "Component-specific configuration as JSON."
+                    },
+                    "sortOrder": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": -2147483648,
+                        "nullable": true,
+                        "title": "Σειρά ταξινόμησης"
+                    }
+                },
+                "required": [
+                    "componentType",
+                    "id",
+                    "uuid"
+                ]
+            },
+            "PageSectionRequest": {
+                "type": "object",
+                "properties": {
+                    "componentType": {
+                        "$ref": "#/components/schemas/ComponentTypeEnum"
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Τίτλος",
+                        "maxLength": 200
+                    },
+                    "isVisible": {
+                        "type": "boolean"
+                    },
+                    "props": {
+                        "description": "Component-specific configuration as JSON."
+                    },
+                    "sortOrder": {
+                        "type": "integer",
+                        "maximum": 2147483647,
+                        "minimum": -2147483648,
+                        "nullable": true,
+                        "title": "Σειρά ταξινόμησης"
+                    }
+                },
+                "required": [
+                    "componentType"
+                ]
+            },
             "PaginatedAcsStationList": {
                 "type": "object",
                 "required": [
@@ -55812,6 +56418,58 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/Order"
+                        }
+                    }
+                }
+            },
+            "PaginatedPageLayoutList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "links": {
+                        "type": "object",
+                        "properties": {
+                            "next": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=4"
+                            },
+                            "previous": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=2"
+                            }
+                        }
+                    },
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageTotalResults": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PageLayout"
                         }
                     }
                 }
@@ -56920,18 +57578,22 @@
                         "title": "Προβεβλημένο"
                     },
                     "isPublished": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Δημοσιευμένο"
                     },
                     "seoTitle": {
                         "type": "string",
+                        "title": "Τίτλος SEO",
                         "maxLength": 70
                     },
                     "seoDescription": {
                         "type": "string",
+                        "title": "Περιγραφή SEO",
                         "maxLength": 300
                     },
                     "seoKeywords": {
                         "type": "string",
+                        "title": "Λέξεις-κλειδιά SEO",
                         "maxLength": 255
                     }
                 }
@@ -57208,6 +57870,31 @@
                     }
                 }
             },
+            "PatchedPageLayoutRequest": {
+                "type": "object",
+                "properties": {
+                    "pageType": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Identifier for the page (e.g. \"home\", \"products\", \"blog\").",
+                        "maxLength": 50
+                    },
+                    "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "title": "Τίτλος",
+                        "description": "Admin display name for this layout.",
+                        "maxLength": 200
+                    },
+                    "isPublished": {
+                        "type": "boolean",
+                        "title": "Δημοσιευμένο"
+                    },
+                    "metadata": {
+                        "title": "Μεταδεδομένα"
+                    }
+                }
+            },
             "PatchedPayWayWriteRequest": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -57288,22 +57975,23 @@
                     "providerCode": {
                         "type": "string",
                         "title": "Κωδικός παρόχου",
-                        "description": "Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')",
+                        "description": "Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')",
                         "maxLength": 50
                     },
                     "isOnlinePayment": {
                         "type": "boolean",
                         "title": "Είναι online πληρωμή",
-                        "description": "Whether this payment method is processed online"
+                        "description": "Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online"
                     },
                     "requiresConfirmation": {
                         "type": "boolean",
-                        "description": "Whether this payment method requires manual confirmation (e.g., bank transfer)"
+                        "title": "Απαιτείται Επιβεβαίωση",
+                        "description": "Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)"
                     },
                     "configuration": {
                         "nullable": true,
-                        "title": "Provider Configuration",
-                        "description": "Provider-specific configuration (API keys, webhooks, etc.)"
+                        "title": "Διαμόρφωση Παρόχου",
+                        "description": "Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time."
                     }
                 }
             },
@@ -57447,14 +58135,17 @@
                     },
                     "seoTitle": {
                         "type": "string",
+                        "title": "Τίτλος SEO",
                         "maxLength": 70
                     },
                     "seoDescription": {
                         "type": "string",
+                        "title": "Περιγραφή SEO",
                         "maxLength": 300
                     },
                     "seoKeywords": {
                         "type": "string",
+                        "title": "Λέξεις-κλειδιά SEO",
                         "maxLength": 255
                     }
                 }
@@ -57657,14 +58348,17 @@
                     },
                     "seoTitle": {
                         "type": "string",
+                        "title": "Τίτλος SEO",
                         "maxLength": 70
                     },
                     "seoDescription": {
                         "type": "string",
+                        "title": "Περιγραφή SEO",
                         "maxLength": 300
                     },
                     "seoKeywords": {
                         "type": "string",
+                        "title": "Λέξεις-κλειδιά SEO",
                         "maxLength": 255
                     },
                     "active": {
@@ -57775,7 +58469,7 @@
                             }
                         ],
                         "title": "Κατηγορία",
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -57789,6 +58483,7 @@
                     },
                     "requiresConfirmation": {
                         "type": "boolean",
+                        "title": "Απαιτείται Επιβεβαίωση",
                         "description": "Whether subscription to this topic requires email confirmation"
                     }
                 }
@@ -58208,17 +58903,18 @@
                     "providerCode": {
                         "type": "string",
                         "title": "Κωδικός παρόχου",
-                        "description": "Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')",
+                        "description": "Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')",
                         "maxLength": 50
                     },
                     "isOnlinePayment": {
                         "type": "boolean",
                         "title": "Είναι online πληρωμή",
-                        "description": "Whether this payment method is processed online"
+                        "description": "Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online"
                     },
                     "requiresConfirmation": {
                         "type": "boolean",
-                        "description": "Whether this payment method requires manual confirmation (e.g., bank transfer)"
+                        "title": "Απαιτείται Επιβεβαίωση",
+                        "description": "Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)"
                     }
                 },
                 "required": [
@@ -58349,17 +59045,18 @@
                     "providerCode": {
                         "type": "string",
                         "title": "Κωδικός παρόχου",
-                        "description": "Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')",
+                        "description": "Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')",
                         "maxLength": 50
                     },
                     "isOnlinePayment": {
                         "type": "boolean",
                         "title": "Είναι online πληρωμή",
-                        "description": "Whether this payment method is processed online"
+                        "description": "Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online"
                     },
                     "requiresConfirmation": {
                         "type": "boolean",
-                        "description": "Whether this payment method requires manual confirmation (e.g., bank transfer)"
+                        "title": "Απαιτείται Επιβεβαίωση",
+                        "description": "Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)"
                     },
                     "configuration": {
                         "readOnly": true
@@ -58459,22 +59156,23 @@
                     "providerCode": {
                         "type": "string",
                         "title": "Κωδικός παρόχου",
-                        "description": "Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')",
+                        "description": "Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')",
                         "maxLength": 50
                     },
                     "isOnlinePayment": {
                         "type": "boolean",
                         "title": "Είναι online πληρωμή",
-                        "description": "Whether this payment method is processed online"
+                        "description": "Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online"
                     },
                     "requiresConfirmation": {
                         "type": "boolean",
-                        "description": "Whether this payment method requires manual confirmation (e.g., bank transfer)"
+                        "title": "Απαιτείται Επιβεβαίωση",
+                        "description": "Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)"
                     },
                     "configuration": {
                         "nullable": true,
-                        "title": "Provider Configuration",
-                        "description": "Provider-specific configuration (API keys, webhooks, etc.)"
+                        "title": "Διαμόρφωση Παρόχου",
+                        "description": "Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time."
                     }
                 },
                 "required": [
@@ -58730,14 +59428,17 @@
                     },
                     "seoTitle": {
                         "type": "string",
+                        "title": "Τίτλος SEO",
                         "maxLength": 70
                     },
                     "seoDescription": {
                         "type": "string",
+                        "title": "Περιγραφή SEO",
                         "maxLength": 300
                     },
                     "seoKeywords": {
                         "type": "string",
+                        "title": "Λέξεις-κλειδιά SEO",
                         "maxLength": 255
                     },
                     "discountPercent": {
@@ -59242,14 +59943,17 @@
                     },
                     "seoTitle": {
                         "type": "string",
+                        "title": "Τίτλος SEO",
                         "maxLength": 70
                     },
                     "seoDescription": {
                         "type": "string",
+                        "title": "Περιγραφή SEO",
                         "maxLength": 300
                     },
                     "seoKeywords": {
                         "type": "string",
+                        "title": "Λέξεις-κλειδιά SEO",
                         "maxLength": 255
                     }
                 },
@@ -59647,14 +60351,17 @@
                     },
                     "seoTitle": {
                         "type": "string",
+                        "title": "Τίτλος SEO",
                         "maxLength": 70
                     },
                     "seoDescription": {
                         "type": "string",
+                        "title": "Περιγραφή SEO",
                         "maxLength": 300
                     },
                     "seoKeywords": {
                         "type": "string",
+                        "title": "Λέξεις-κλειδιά SEO",
                         "maxLength": 255
                     }
                 },
@@ -59767,14 +60474,17 @@
                     },
                     "seoTitle": {
                         "type": "string",
+                        "title": "Τίτλος SEO",
                         "maxLength": 70
                     },
                     "seoDescription": {
                         "type": "string",
+                        "title": "Περιγραφή SEO",
                         "maxLength": 300
                     },
                     "seoKeywords": {
                         "type": "string",
+                        "title": "Λέξεις-κλειδιά SEO",
                         "maxLength": 255
                     },
                     "discountPercent": {
@@ -60003,14 +60713,17 @@
                     },
                     "seoTitle": {
                         "type": "string",
+                        "title": "Τίτλος SEO",
                         "maxLength": 70
                     },
                     "seoDescription": {
                         "type": "string",
+                        "title": "Περιγραφή SEO",
                         "maxLength": 300
                     },
                     "seoKeywords": {
                         "type": "string",
+                        "title": "Λέξεις-κλειδιά SEO",
                         "maxLength": 255
                     },
                     "discountPercent": {
@@ -60806,7 +61519,8 @@
                         "title": "Κατάσταση"
                     },
                     "isPublished": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Δημοσιευμένο"
                     },
                     "createdAt": {
                         "type": "string",
@@ -60917,7 +61631,8 @@
                         "title": "Κατάσταση"
                     },
                     "isPublished": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "title": "Δημοσιευμένο"
                     },
                     "createdAt": {
                         "type": "string",
@@ -61133,14 +61848,17 @@
                     },
                     "seoTitle": {
                         "type": "string",
+                        "title": "Τίτλος SEO",
                         "maxLength": 70
                     },
                     "seoDescription": {
                         "type": "string",
+                        "title": "Περιγραφή SEO",
                         "maxLength": 300
                     },
                     "seoKeywords": {
                         "type": "string",
+                        "title": "Λέξεις-κλειδιά SEO",
                         "maxLength": 255
                     },
                     "active": {
@@ -61979,7 +62697,7 @@
                             }
                         ],
                         "title": "Κατηγορία",
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -61993,6 +62711,7 @@
                     },
                     "requiresConfirmation": {
                         "type": "boolean",
+                        "title": "Απαιτείται Επιβεβαίωση",
                         "description": "Whether subscription to this topic requires email confirmation"
                     },
                     "subscriberCount": {
@@ -62072,7 +62791,7 @@
                             }
                         ],
                         "title": "Κατηγορία",
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -62086,6 +62805,7 @@
                     },
                     "requiresConfirmation": {
                         "type": "boolean",
+                        "title": "Απαιτείται Επιβεβαίωση",
                         "description": "Whether subscription to this topic requires email confirmation"
                     },
                     "subscriberCount": {
@@ -62171,7 +62891,7 @@
                             }
                         ],
                         "title": "Κατηγορία",
-                        "description": "Category of the subscription topic\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                        "description": "Category of the subscription topic\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -62185,6 +62905,7 @@
                     },
                     "requiresConfirmation": {
                         "type": "boolean",
+                        "title": "Απαιτείται Επιβεβαίωση",
                         "description": "Whether subscription to this topic requires email confirmation"
                     }
                 },
@@ -62596,6 +63317,196 @@
                     "tagId"
                 ]
             },
+            "TenantConfig": {
+                "type": "object",
+                "description": "Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.\n\nOnly fields that are safe to expose to unauthenticated callers should\nappear here.  Secrets and billing-sensitive data belong exclusively in\nTenantAdminSerializer.",
+                "properties": {
+                    "schemaName": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "storeName": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "storeDescription": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "logoLightUrl": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "logoDarkUrl": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "faviconUrl": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "primaryColor": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "neutralColor": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "accentHex": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "successHex": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "warningHex": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "errorHex": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "infoHex": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "themePreset": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "themeMetadata": {
+                        "readOnly": true
+                    },
+                    "defaultLocale": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "defaultCurrency": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "primaryDomain": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "loyaltyEnabled": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "blogEnabled": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "stripePublishableKey": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "allowedCspSources": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true
+                    },
+                    "metaPixelId": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "gaTrackingId": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "totpIssuer": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "turnstileSiteKey": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsDiscord": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsFacebook": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsInstagram": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsPinterest": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsReddit": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsTiktok": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsTwitter": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsYoutube": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "boxNowPartnerId": {
+                        "type": "string",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "accentHex",
+                    "allowedCspSources",
+                    "blogEnabled",
+                    "boxNowPartnerId",
+                    "defaultCurrency",
+                    "defaultLocale",
+                    "errorHex",
+                    "faviconUrl",
+                    "gaTrackingId",
+                    "infoHex",
+                    "logoDarkUrl",
+                    "logoLightUrl",
+                    "loyaltyEnabled",
+                    "metaPixelId",
+                    "name",
+                    "neutralColor",
+                    "primaryColor",
+                    "primaryDomain",
+                    "schemaName",
+                    "socialsDiscord",
+                    "socialsFacebook",
+                    "socialsInstagram",
+                    "socialsPinterest",
+                    "socialsReddit",
+                    "socialsTiktok",
+                    "socialsTwitter",
+                    "socialsYoutube",
+                    "storeDescription",
+                    "storeName",
+                    "stripePublishableKey",
+                    "successHex",
+                    "themeMetadata",
+                    "themePreset",
+                    "totpIssuer",
+                    "turnstileSiteKey",
+                    "warningHex"
+                ]
+            },
             "TopQuery": {
                 "type": "object",
                 "description": "Serializer for top query analytics.",
@@ -62637,7 +63548,7 @@
                     "OTHER"
                 ],
                 "type": "string",
-                "description": "* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                "description": "* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
             },
             "TransactionTypeEnum": {
                 "enum": [

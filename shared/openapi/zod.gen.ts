@@ -916,6 +916,45 @@ export const zCompartmentSizeEnum = z.union([
   description: '* `1` - Μικρό\n* `2` - Μεσαίο\n* `3` - Μεγάλο',
 })
 
+/**
+ * * `hero_banner` - Hero Banner
+ * * `hero_carousel` - Hero Carousel
+ * * `products_slider` - Products Slider
+ * * `products_grid` - Products Grid
+ * * `featured_products` - Προβεβλημένα Προϊόντα
+ * * `product_categories` - Κατηγορίες προϊόντος
+ * * `blog_posts_carousel` - Blog Posts Carousel
+ * * `blog_posts_grid` - Blog Posts Grid
+ * * `rich_text` - Rich Text Block
+ * * `cta_banner` - Call to Action Banner
+ * * `newsletter_signup` - Newsletter Signup
+ * * `testimonials` - Testimonials
+ * * `spacer` - Spacer
+ * * `divider` - Divider
+ * * `loyalty_hero` - Loyalty Program Hero
+ * * `search_bar` - Search Bar
+ */
+export const zComponentTypeEnum = z.enum([
+  'hero_banner',
+  'hero_carousel',
+  'products_slider',
+  'products_grid',
+  'featured_products',
+  'product_categories',
+  'blog_posts_carousel',
+  'blog_posts_grid',
+  'rich_text',
+  'cta_banner',
+  'newsletter_signup',
+  'testimonials',
+  'spacer',
+  'divider',
+  'loyalty_hero',
+  'search_bar',
+]).register(z.globalRegistry, {
+  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar',
+})
+
 export const zConfirmResponse = z.object({
   status: z.string(),
   topic: z.string().optional(),
@@ -1427,22 +1466,22 @@ export const zNotificationSuccessResponse = z.object({
 })
 
 /**
- * * `order_created` - Order created
- * * `order_processing` - Order processing
- * * `order_shipped` - Order shipped
- * * `order_delivered` - Order delivered
- * * `order_completed` - Order completed
- * * `order_canceled` - Order canceled
- * * `order_refunded` - Order refunded
+ * * `order_created` - Η παραγγελία δημιουργήθηκε
+ * * `order_processing` - Επεξεργασία παραγγελίας
+ * * `order_shipped` - Η παραγγελία απεστάλη
+ * * `order_delivered` - Η παραγγελία παραδόθηκε
+ * * `order_completed` - Η παραγγελία ολοκληρώθηκε
+ * * `order_canceled` - Η παραγγελία ακυρώθηκε
+ * * `order_refunded` - Επιστροφή χρημάτων παραγγελίας
  * * `shipment_dispatched` - Αποστολή απεστάλη
- * * `payment_confirmed` - Payment confirmed
- * * `payment_failed` - Payment failed
+ * * `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε
+ * * `payment_failed` - Η πληρωμή απέτυχε
  * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
- * * `restock_favourite` - Back in stock (favourited product)
- * * `loyalty_tier_up` - Loyalty tier promotion
+ * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
+ * * `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης
  * * `comment_liked` - Επισήμανση σχολίου blog
- * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
- * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+ * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
+ * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
  * * `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση
  */
 export const zNotificationTypeEnum = z.enum([
@@ -1464,7 +1503,7 @@ export const zNotificationTypeEnum = z.enum([
   'BOXNOW_PARCEL_DELIVERED',
   'ACS_OUT_FOR_DELIVERY',
 ]).register(z.globalRegistry, {
-  description: '* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker\n* `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση',
+  description: '* `order_created` - Η παραγγελία δημιουργήθηκε\n* `order_processing` - Επεξεργασία παραγγελίας\n* `order_shipped` - Η παραγγελία απεστάλη\n* `order_delivered` - Η παραγγελία παραδόθηκε\n* `order_completed` - Η παραγγελία ολοκληρώθηκε\n* `order_canceled` - Η παραγγελία ακυρώθηκε\n* `order_refunded` - Επιστροφή χρημάτων παραγγελίας\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε\n* `payment_failed` - Η πληρωμή απέτυχε\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)\n* `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker\n* `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση',
 })
 
 export const zNotificationUser = z.object({
@@ -1609,6 +1648,53 @@ export const zOrderWriteRequest = z.object({
   documentType: zOrderDocumentType.optional(),
 })
 
+export const zPageLayoutRequest = z.object({
+  pageType: z.string().min(1).max(50).register(z.globalRegistry, {
+    description: 'Identifier for the page (e.g. "home", "products", "blog").',
+  }),
+  title: z.string().min(1).max(200).register(z.globalRegistry, {
+    description: 'Admin display name for this layout.',
+  }),
+  isPublished: z.boolean().optional(),
+  metadata: z.unknown().optional(),
+})
+
+export const zPageSection = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  componentType: zComponentTypeEnum,
+  title: z.string().max(200).optional(),
+  isVisible: z.boolean().optional(),
+  props: z.unknown().register(z.globalRegistry, {
+    description: 'Component-specific configuration as JSON.',
+  }).optional(),
+  sortOrder: z.int().gte(-2147483648).lte(2147483647).nullish(),
+})
+
+export const zPageLayout = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  pageType: z.string().max(50).register(z.globalRegistry, {
+    description: 'Identifier for the page (e.g. "home", "products", "blog").',
+  }),
+  title: z.string().max(200).register(z.globalRegistry, {
+    description: 'Admin display name for this layout.',
+  }),
+  isPublished: z.boolean().optional(),
+  metadata: z.unknown().optional(),
+  sections: z.array(zPageSection).readonly(),
+})
+
+export const zPageSectionRequest = z.object({
+  componentType: zComponentTypeEnum,
+  title: z.string().max(200).optional(),
+  isVisible: z.boolean().optional(),
+  props: z.unknown().register(z.globalRegistry, {
+    description: 'Component-specific configuration as JSON.',
+  }).optional(),
+  sortOrder: z.int().gte(-2147483648).lte(2147483647).nullish(),
+})
+
 export const zPaginatedAttributeList = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -1737,6 +1823,19 @@ export const zPaginatedOrderItemList = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zOrderItem),
+})
+
+export const zPaginatedPageLayoutList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zPageLayout),
 })
 
 /**
@@ -1930,6 +2029,17 @@ export const zPatchedOrderWriteRequest = z.object({
   documentType: zOrderDocumentType.optional(),
 })
 
+export const zPatchedPageLayoutRequest = z.object({
+  pageType: z.string().min(1).max(50).register(z.globalRegistry, {
+    description: 'Identifier for the page (e.g. "home", "products", "blog").',
+  }).optional(),
+  title: z.string().min(1).max(200).register(z.globalRegistry, {
+    description: 'Admin display name for this layout.',
+  }).optional(),
+  isPublished: z.boolean().optional(),
+  metadata: z.unknown().optional(),
+})
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -1956,16 +2066,16 @@ export const zPatchedPayWayWriteRequest = z.object({
   freeThreshold: z.number().gt(-1000000000).lt(1000000000).optional(),
   icon: z.string().nullish(),
   providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method is processed online',
+    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
   configuration: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific configuration (API keys, webhooks, etc.)',
+    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -2229,13 +2339,13 @@ export const zPayWay = z.object({
   uuid: z.uuid().readonly(),
   iconFilename: z.string().readonly(),
   providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method is processed online',
+    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -2287,13 +2397,13 @@ export const zPayWayDetail = z.object({
   uuid: z.uuid().readonly(),
   iconFilename: z.string().readonly(),
   providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method is processed online',
+    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
   configuration: z.unknown(),
 }).register(z.globalRegistry, {
@@ -2326,16 +2436,16 @@ export const zPayWayWriteRequest = z.object({
   freeThreshold: z.number().gt(-1000000000).lt(1000000000).optional(),
   icon: z.string().nullish(),
   providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method is processed online',
+    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
   configuration: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific configuration (API keys, webhooks, etc.)',
+    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -2570,7 +2680,7 @@ export const zProduct = z.object({
 
 export const zCartItem = z.object({
   id: z.int().readonly(),
-  cartId: z.int().readonly(),
+  cartId: z.string().readonly(),
   product: zProduct,
   quantity: z.int().gte(0).lte(2147483647).optional(),
   weightInfo: z.object({
@@ -2651,7 +2761,7 @@ export const zCartDetail = z.object({
 
 export const zCartItemDetail = z.object({
   id: z.int().readonly(),
-  cartId: z.int().readonly(),
+  cartId: z.string().readonly(),
   product: zProduct,
   quantity: z.int().gte(0).lte(2147483647).optional(),
   weightInfo: z.object({
@@ -4239,6 +4349,54 @@ export const zTaggedItemWriteRequest = z.object({
 })
 
 /**
+ * Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
+ *
+ * Only fields that are safe to expose to unauthenticated callers should
+ * appear here.  Secrets and billing-sensitive data belong exclusively in
+ * TenantAdminSerializer.
+ */
+export const zTenantConfig = z.object({
+  schemaName: z.string().readonly(),
+  name: z.string().readonly(),
+  storeName: z.string().readonly(),
+  storeDescription: z.string().readonly(),
+  logoLightUrl: z.string().readonly(),
+  logoDarkUrl: z.string().readonly(),
+  faviconUrl: z.string().readonly(),
+  primaryColor: z.string().readonly(),
+  neutralColor: z.string().readonly(),
+  accentHex: z.string().readonly(),
+  successHex: z.string().readonly(),
+  warningHex: z.string().readonly(),
+  errorHex: z.string().readonly(),
+  infoHex: z.string().readonly(),
+  themePreset: z.string().readonly(),
+  themeMetadata: z.unknown(),
+  defaultLocale: z.string().readonly(),
+  defaultCurrency: z.string().readonly(),
+  primaryDomain: z.string().readonly(),
+  loyaltyEnabled: z.boolean().readonly(),
+  blogEnabled: z.boolean().readonly(),
+  stripePublishableKey: z.string().readonly(),
+  allowedCspSources: z.array(z.string()).readonly(),
+  metaPixelId: z.string().readonly(),
+  gaTrackingId: z.string().readonly(),
+  totpIssuer: z.string().readonly(),
+  turnstileSiteKey: z.string().readonly(),
+  socialsDiscord: z.string().readonly(),
+  socialsFacebook: z.string().readonly(),
+  socialsInstagram: z.string().readonly(),
+  socialsPinterest: z.string().readonly(),
+  socialsReddit: z.string().readonly(),
+  socialsTiktok: z.string().readonly(),
+  socialsTwitter: z.string().readonly(),
+  socialsYoutube: z.string().readonly(),
+  boxNowPartnerId: z.string().readonly(),
+}).register(z.globalRegistry, {
+  description: 'Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.\n\nOnly fields that are safe to expose to unauthenticated callers should\nappear here.  Secrets and billing-sensitive data belong exclusively in\nTenantAdminSerializer.',
+})
+
+/**
  * Serializer for top query analytics.
  */
 export const zTopQuery = z.object({
@@ -4262,7 +4420,7 @@ export const zTopQuery = z.object({
  * * `MARKETING` - Καμπάνιες marketing
  * * `PRODUCT` - Ενημερώσεις προϊόντων
  * * `ACCOUNT` - Λογαριασμός Ανενεργός
- * * `SYSTEM` - System Notifications
+ * * `SYSTEM` - Ειδοποιήσεις Συστήματος
  * * `NEWSLETTER` - Newsletter
  * * `PROMOTIONAL` - Προωθητικό
  * * `OTHER` - Άλλο
@@ -4276,7 +4434,7 @@ export const zTopicCategory = z.enum([
   'PROMOTIONAL',
   'OTHER',
 ]).register(z.globalRegistry, {
-  description: '* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
+  description: '* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
 })
 
 /**
@@ -5967,6 +6125,27 @@ export const zOrderItemRefundResponseWritable = z.object({
   item: zOrderItemWritable,
 })
 
+export const zPageLayoutWritable = z.object({
+  pageType: z.string().max(50).register(z.globalRegistry, {
+    description: 'Identifier for the page (e.g. "home", "products", "blog").',
+  }),
+  title: z.string().max(200).register(z.globalRegistry, {
+    description: 'Admin display name for this layout.',
+  }),
+  isPublished: z.boolean().optional(),
+  metadata: z.unknown().optional(),
+})
+
+export const zPageSectionWritable = z.object({
+  componentType: zComponentTypeEnum,
+  title: z.string().max(200).optional(),
+  isVisible: z.boolean().optional(),
+  props: z.unknown().register(z.globalRegistry, {
+    description: 'Component-specific configuration as JSON.',
+  }).optional(),
+  sortOrder: z.int().gte(-2147483648).lte(2147483647).nullish(),
+})
+
 export const zPaginatedAcsStationListWritable = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -6188,6 +6367,19 @@ export const zPaginatedOrderListWritable = z.object({
   results: z.array(zOrderWritable),
 })
 
+export const zPaginatedPageLayoutListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zPageLayoutWritable),
+})
+
 export const zPaginatedPointsTransactionListWritable = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -6248,13 +6440,13 @@ export const zPayWayWritable = z.object({
   freeThreshold: z.number().gt(-1000000000).lt(1000000000),
   icon: z.url().nullish(),
   providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method is processed online',
+    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -6299,13 +6491,13 @@ export const zPayWayDetailWritable = z.object({
   freeThreshold: z.number().gt(-1000000000).lt(1000000000),
   icon: z.url().nullish(),
   providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method is processed online',
+    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -9765,17 +9957,15 @@ export const zUpdateBlogTagQuery = z.object({
 export const zUpdateBlogTagResponse = zBlogTagDetail
 
 export const zDestroyCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zRetrieveCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zRetrieveCartResponse = zCartDetail
@@ -9783,10 +9973,9 @@ export const zRetrieveCartResponse = zCartDetail
 export const zPartialUpdateCartBody = zPatchedCartWriteRequest
 
 export const zPartialUpdateCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zPartialUpdateCartResponse = zCartDetail
@@ -9794,10 +9983,9 @@ export const zPartialUpdateCartResponse = zCartDetail
 export const zUpdateCartBody = zCartWriteRequest
 
 export const zUpdateCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zUpdateCartResponse = zCartDetail
@@ -9805,19 +9993,17 @@ export const zUpdateCartResponse = zCartDetail
 export const zCreateCartPaymentIntentBody = zCartCreatePaymentIntentRequestRequest
 
 export const zCreateCartPaymentIntentHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zCreateCartPaymentIntentResponse = zCartPaymentIntentResponse
 
 export const zListCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zListCartItemQuery = z.object({
@@ -10013,19 +10199,17 @@ export const zListCartItemResponse = zPaginatedCartItemList
 export const zCreateCartItemBody = zCartItemCreateRequest
 
 export const zCreateCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zCreateCartItemResponse = zCartItemDetail
 
 export const zDestroyCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zDestroyCartItemPath = z.object({
@@ -10036,10 +10220,9 @@ export const zDestroyCartItemPath = z.object({
 })
 
 export const zRetrieveCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zRetrieveCartItemPath = z.object({
@@ -10064,10 +10247,9 @@ export const zRetrieveCartItemResponse = zCartItemDetail
 export const zPartialUpdateCartItemBody = zPatchedCartItemUpdateRequest
 
 export const zPartialUpdateCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zPartialUpdateCartItemPath = z.object({
@@ -10092,10 +10274,9 @@ export const zPartialUpdateCartItemResponse = zCartItemDetail
 export const zUpdateCartItemBody = zCartItemUpdateRequest
 
 export const zUpdateCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zUpdateCartItemPath = z.object({
@@ -10108,10 +10289,9 @@ export const zUpdateCartItemPath = z.object({
 export const zUpdateCartItemResponse = zCartItemDetail
 
 export const zListCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zListCartQuery = z.object({
@@ -10291,19 +10471,17 @@ export const zListCartResponse = zPaginatedCartList
 export const zReleaseCartReservationsBody = zReleaseReservationsRequestRequest
 
 export const zReleaseCartReservationsHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zReleaseCartReservationsResponse = zReleaseReservationsResponse
 
 export const zReserveCartStockHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
 })
 
 export const zReserveCartStockResponse = zReserveStockResponse
@@ -12303,6 +12481,137 @@ export const zVivaReturnLookupQuery = z.object({
     description: 'Viva transaction_id (UUID).',
   }),
 })
+
+export const zApiV1PageConfigRetrievePath = z.object({
+  pageType: z.string(),
+})
+
+export const zApiV1PageConfigRetrieveResponse = zPageLayout
+
+export const zApiV1PageConfigAdminListQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Cursor for pagination',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+})
+
+export const zApiV1PageConfigAdminListResponse = zPaginatedPageLayoutList
+
+export const zApiV1PageConfigAdminCreateBody = zPageLayoutRequest
+
+export const zApiV1PageConfigAdminCreateQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zApiV1PageConfigAdminCreateResponse = zPageLayout
+
+export const zApiV1PageConfigAdminDestroyPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+/**
+ * No response body
+ */
+export const zApiV1PageConfigAdminDestroyResponse = z.void().register(z.globalRegistry, {
+  description: 'No response body',
+})
+
+export const zApiV1PageConfigAdminRetrievePath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zApiV1PageConfigAdminRetrieveQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zApiV1PageConfigAdminRetrieveResponse = zPageLayout
+
+export const zApiV1PageConfigAdminPartialUpdateBody = zPatchedPageLayoutRequest
+
+export const zApiV1PageConfigAdminPartialUpdatePath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zApiV1PageConfigAdminPartialUpdateQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zApiV1PageConfigAdminPartialUpdateResponse = zPageLayout
+
+export const zApiV1PageConfigAdminUpdateBody = zPageLayoutRequest
+
+export const zApiV1PageConfigAdminUpdatePath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zApiV1PageConfigAdminUpdateQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zApiV1PageConfigAdminUpdateResponse = zPageLayout
 
 export const zListPayWayQuery = z.object({
   active: z.union([
@@ -15644,6 +15953,25 @@ export const zUpdateTaggedItemQuery = z.object({
 
 export const zUpdateTaggedItemResponse = zTaggedItemDetail
 
+export const zApiV1TenantMembershipsMineRetrieveResponse = z.array(z.object({
+  schemaName: z.string().optional(),
+  name: z.string().optional(),
+  storeName: z.string().optional(),
+  primaryDomain: z.string().optional(),
+  role: z.enum([
+    'member',
+    'staff',
+    'admin',
+    'owner',
+  ]).optional(),
+}))
+
+export const zApiV1TenantResolveRetrieveQuery = z.object({
+  domain: z.string(),
+})
+
+export const zApiV1TenantResolveRetrieveResponse = zTenantConfig
+
 export const zListUserAccountQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
     description: 'Cursor for pagination',
@@ -16374,7 +16702,7 @@ export const zListUserSubscriptionQuery = z.object({
     'PROMOTIONAL',
     'SYSTEM',
   ]).register(z.globalRegistry, {
-    description: 'Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
+    description: 'Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
   }).optional(),
   topicDescription: z.string().register(z.globalRegistry, {
     description: 'Filter by topic description (partial match)',
@@ -16535,7 +16863,7 @@ export const zListSubscriptionTopicQuery = z.object({
     'PROMOTIONAL',
     'SYSTEM',
   ]).register(z.globalRegistry, {
-    description: 'Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
+    description: 'Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
