@@ -3491,7 +3491,7 @@ export type PageSection = {
   /**
      * Σειρά ταξινόμησης
      */
-  sortOrder?: number | null
+  readonly sortOrder: number | null
 }
 
 export type PageSectionRequest = {
@@ -3505,10 +3505,6 @@ export type PageSectionRequest = {
      * Component-specific configuration as JSON.
      */
   props?: unknown
-  /**
-     * Σειρά ταξινόμησης
-     */
-  sortOrder?: number | null
 }
 
 export type PaginatedAcsStationList = {
@@ -8343,10 +8339,6 @@ export type PageSectionWritable = {
      * Component-specific configuration as JSON.
      */
   props?: unknown
-  /**
-     * Σειρά ταξινόμησης
-     */
-  sortOrder?: number | null
 }
 
 export type PaginatedAcsStationListWritable = {

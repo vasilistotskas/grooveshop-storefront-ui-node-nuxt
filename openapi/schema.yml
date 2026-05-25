@@ -34277,13 +34277,13 @@ components:
           description: Component-specific configuration as JSON.
         sortOrder:
           type: integer
-          maximum: 2147483647
-          minimum: -2147483648
+          readOnly: true
           nullable: true
           title: Σειρά ταξινόμησης
       required:
         - componentType
         - id
+        - sortOrder
         - uuid
     PageSectionRequest:
       type: object
@@ -34298,12 +34298,6 @@ components:
           type: boolean
         props:
           description: Component-specific configuration as JSON.
-        sortOrder:
-          type: integer
-          maximum: 2147483647
-          minimum: -2147483648
-          nullable: true
-          title: Σειρά ταξινόμησης
       required:
         - componentType
     PaginatedAcsStationList:

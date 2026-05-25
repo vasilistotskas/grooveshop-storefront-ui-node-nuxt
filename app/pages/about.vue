@@ -110,11 +110,10 @@ definePageMeta({
       ` }"
     >
       <template #headline>
-        <span class="text-sm font-medium">{{ t('about.headline') }}</span>
+        <span class="text-sm font-medium">{{ t('about.headline', { storeName }) }}</span>
       </template>
       <template #description>
-        Χρησιμοποιώντας ως γνώμονα το μοντέλο ηλεκτρονικής μάθησης «Microlearning», ολοκληρώθηκε η δημιουργία της
-        τελικής μορφής της εφαρμογής «Webside».
+        {{ t('body.p1', { storeName }) }}
       </template>
 
       <NuxtImg
@@ -144,26 +143,10 @@ definePageMeta({
       <h2 class="text-balance text-2xl font-bold md:text-3xl">
         {{ t('about.platform.title') }}
       </h2>
-      <p>
-        To Webside, είναι μία ηλεκτρονική πλατφόρμα Microlearning και ηλεκτρονικού εμπορίου, όπου μπορείς να
-        εκπαιδευτείς και να λάβεις χρήσιμες πληροφορίες σχετικά με την ηλεκτρονική προστασία σου από ηλεκτρονικές
-        απειλές και να ενημερωθείς – εκπαιδευτείς δωρεάν σχετικά με βέλτιστες πρακτικές, συμβουλές και tips σχετικά με
-        τον κλάδο της τεχνολογίας (PC, Mobile, AI κ.α.).
-      </p>
-      <p>
-        Ο σκοπός του Webside είναι η οικοδόμηση μίας κουλτούρας τεχνολογικής γνώσης και ηλεκτρονικής ασφάλειας, στα
-        πλαίσια της αυξητικής τάσης χρήσης της τεχνολογίας σε καθημερινή βάση.
-      </p>
-      <p>
-        Για την δημιουργία και παροχή του περιεχομένου σε όλα τα ψηφιακά κανάλια (ιστοσελίδα, social media κ.α.),
-        γίνεται η χρήση διάφορων εκπαιδευτικών μεθόδων όπως το Microlearning, με τέτοιο τρόπο ώστε ο κάθε χρήστης να
-        μπορεί να αφομοιώσει το συγκεκριμένο περιεχόμενο εύκολα και γρήγορα με μικρές δόσεις πληροφορίας.
-      </p>
-      <p>
-        Παράλληλα, το Webside περιλαμβάνει και ηλεκτρονικό κατάστημα τεχνολογικών προιόντων, μέσω του οποίου μπορείς να
-        αγοράσεις χρήσιμα tech gadgets τα οποία κατά κύριο λόγο θα συνδέονται άμεσα με το αντικείμενο των εκπαιδευτικών
-        ενοτήτων (PC, Mobile, AI κ.α.).
-      </p>
+      <p>{{ t('body.p2', { storeName }) }}</p>
+      <p>{{ t('body.p3', { storeName }) }}</p>
+      <p>{{ t('body.p4', { storeName }) }}</p>
+      <p>{{ t('body.p5', { storeName }) }}</p>
     </section>
 
     <UPageSection
@@ -180,8 +163,8 @@ definePageMeta({
 el:
   title: Τι Είναι Το {storeName}
   about:
-    headline: Webside
-    brand_alt: Η εφαρμογή Webside σε φορητές συσκευές
+    headline: '{storeName}'
+    brand_alt: Η εφαρμογή {storeName} σε φορητές συσκευές
     platform:
       title: Η πλατφόρμα με μια ματιά
     pillars:

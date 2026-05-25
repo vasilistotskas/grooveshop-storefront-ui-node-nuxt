@@ -71,8 +71,11 @@ describe('Server Utils - API', () => {
       const result = await fetcher('webside.gr', 'https://api.example.com/data')
 
       expect(result).toEqual([{ id: 1 }, { id: 2 }])
+      // The tenantKey is forwarded as X-Forwarded-Host so Django resolves
+      // the caller's schema (otherwise sitemap/RSS hit the public schema).
       expect($fetch).toHaveBeenCalledWith('https://api.example.com/data', {
         method: 'GET',
+        headers: { 'X-Forwarded-Host': 'webside.gr' },
       })
     })
 

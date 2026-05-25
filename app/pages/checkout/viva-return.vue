@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-// Viva Wallet hosted-checkout callback. The merchant portal's source
-// success URL must be set to ``https://webside.gr/{locale}/checkout/viva-return``
+// Viva Wallet hosted-checkout callback. Each tenant's Viva merchant
+// portal source success URL must be set to
+// ``https://<tenant-primary-domain>/{locale}/checkout/viva-return``
 // because Viva's ``POST /checkout/v2/orders`` only accepts a per-order
 // ``urlFail`` — there is no per-order success URL field. After payment
 // Viva appends ``?t=<transaction_id>&s=<F|...>&eventId=<merchantTrns>&lang=...``

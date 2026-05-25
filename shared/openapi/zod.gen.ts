@@ -1668,7 +1668,7 @@ export const zPageSection = z.object({
   props: z.unknown().register(z.globalRegistry, {
     description: 'Component-specific configuration as JSON.',
   }).optional(),
-  sortOrder: z.int().gte(-2147483648).lte(2147483647).nullish(),
+  sortOrder: z.int().readonly().nullable(),
 })
 
 export const zPageLayout = z.object({
@@ -1692,7 +1692,6 @@ export const zPageSectionRequest = z.object({
   props: z.unknown().register(z.globalRegistry, {
     description: 'Component-specific configuration as JSON.',
   }).optional(),
-  sortOrder: z.int().gte(-2147483648).lte(2147483647).nullish(),
 })
 
 export const zPaginatedAttributeList = z.object({
@@ -6143,7 +6142,6 @@ export const zPageSectionWritable = z.object({
   props: z.unknown().register(z.globalRegistry, {
     description: 'Component-specific configuration as JSON.',
   }).optional(),
-  sortOrder: z.int().gte(-2147483648).lte(2147483647).nullish(),
 })
 
 export const zPaginatedAcsStationListWritable = z.object({

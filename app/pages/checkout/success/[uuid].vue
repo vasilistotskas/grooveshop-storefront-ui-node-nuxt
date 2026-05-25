@@ -4,6 +4,7 @@ import type { TableColumn } from '#ui/types'
 const UAvatar = resolveComponent('UAvatar')
 
 const { t, locale } = useI18n()
+const tenantStore = useTenantStore()
 const route = useRoute(`checkout-success-uuid___${locale.value}`)
 const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
 
@@ -84,19 +85,26 @@ const openTracking = () => {
   window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank', 'noopener,noreferrer')
 }
 
+// Only fetch + show recommended blog posts when the tenant has the
+// blog feature enabled — a blog-disabled store must not fire the blog
+// API or render the carousel on its success page.
 const { data: recommendedPosts } = useLazyAsyncData(
   `success-recommended-posts:${locale.value}`,
-  () => $fetch('/api/blog/posts', {
-    query: {
-      languageCode: locale.value,
-      paginationType: 'pageNumber',
-      pageSize: 8,
-      ordering: '-featured,-publishedAt',
-    },
-  }),
+  () => tenantStore.blogEnabled
+    ? $fetch('/api/blog/posts', {
+        query: {
+          languageCode: locale.value,
+          paginationType: 'pageNumber',
+          pageSize: 8,
+          ordering: '-featured,-publishedAt',
+        },
+      })
+    : Promise.resolve(null),
   { default: () => null },
 )
-const recommendedPostsList = computed(() => recommendedPosts.value?.results ?? [])
+const recommendedPostsList = computed(() =>
+  tenantStore.blogEnabled ? (recommendedPosts.value?.results ?? []) : [],
+)
 
 onBeforeUnmount(() => {
   isActive.value = false

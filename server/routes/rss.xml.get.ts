@@ -1,4 +1,5 @@
 import RSS from 'rss'
+import { H3Error } from 'h3'
 import type { SupportedLocale } from '~~/i18n/locales'
 
 const RSS_CACHE_AGE = 60 * 60
@@ -104,10 +105,9 @@ export default defineEventHandler(async (event) => {
     const currency = tenant?.defaultCurrency ?? 'EUR'
     const blogEnabled = tenant?.blogEnabled ?? true
 
-    // When blog is disabled for this tenant, the RSS feed only contains
-    // products — 404 would be too aggressive since the feed still has
-    // product content. An empty feed is returned if somehow blog-only
-    // content is expected, but in practice products are always present.
+    // The RSS feed is a blog feed; when the tenant has blog disabled
+    // there's nothing to syndicate, so 404. (Re-thrown intact by the
+    // catch below — see the H3Error guard.)
     if (!blogEnabled) {
       throw createError({ statusCode: 404, statusMessage: 'Not Found' })
     }
@@ -132,6 +132,11 @@ export default defineEventHandler(async (event) => {
     return feedString
   }
   catch (error) {
+    // Preserve intentional HTTP errors (e.g. the blogEnabled 404) —
+    // without this guard h3 wraps them as a generic 500.
+    if (error instanceof H3Error) {
+      throw error
+    }
     log.error({ action: 'rss:generate', error })
     throw createError({ statusCode: 500, statusMessage: 'Failed to generate RSS feed' })
   }

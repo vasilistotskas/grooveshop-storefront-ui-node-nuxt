@@ -52,7 +52,13 @@ export default defineCachedEventHandler(
     getKey: (event) => {
       const url = new URL(event.node.req.url ?? '/', 'http://internal')
       const p = url.searchParams
-      return [p.get('countryCode') ?? '', p.get('currency') ?? ''].join('|')
+      // tenantCacheKey prefix is mandatory: thresholds come from each
+      // tenant's extra_settings schema, so two tenants sharing the same
+      // (country, currency) must NOT share a cache slot.
+      return tenantCacheKey(
+        event,
+        `shipping-free-info:${p.get('countryCode') ?? ''}|${p.get('currency') ?? ''}`,
+      )
     },
   },
 )

@@ -36,7 +36,17 @@ export function createCachedFetcher<T>(
   maxAge: number,
 ): (tenantKey: string, url: string) => Promise<T[]> {
   return defineCachedFunction(
-    async (_tenantKey: string, url: string): Promise<T[]> => {
+    async (tenantKey: string, url: string): Promise<T[]> => {
+      // Forward the caller's storefront host as X-Forwarded-Host so
+      // Django's TenantMainMiddleware resolves the right schema. Without
+      // it the fetch falls back to the public schema and every tenant's
+      // sitemap/RSS would be built from public-schema data (then cached
+      // under the tenant key, so the wrong data sticks). The tenantKey
+      // IS the request host (callers pass getRequestHost(event)).
+      const headers = tenantKey
+        ? { 'X-Forwarded-Host': tenantKey }
+        : undefined
+
       const fetchAll = async (
         currentUrl: string,
         accumulatedItems: T[] = [],
@@ -46,6 +56,7 @@ export function createCachedFetcher<T>(
 
         const response = await $fetch<Pagination<T>>(currentUrl, {
           method: 'GET',
+          headers,
         })
 
         const { results, links } = response

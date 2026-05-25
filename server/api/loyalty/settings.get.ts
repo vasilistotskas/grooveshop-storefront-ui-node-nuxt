@@ -13,11 +13,16 @@ export default defineCachedEventHandler(
       const { keys } = await getValidatedQuery(event, zLoyaltySettingsQuery.parse)
       const keyList = keys.split(',').map(k => k.trim()).filter(Boolean)
 
+      // createHeaders() injects X-Forwarded-Host so Django's
+      // TenantMainMiddleware resolves the caller's schema — without it
+      // the settings/get lookup falls back to the public schema and
+      // every tenant caches the platform-default loyalty values.
+      const headers = createHeaders()
       const results = await Promise.all(
         keyList.map(key =>
           $fetch<{ name: string, value: string }>(
             `${config.apiBaseUrl}/settings/get`,
-            { method: 'GET', query: { key } },
+            { method: 'GET', query: { key }, headers },
           ).catch(() => ({ name: key, value: '' })),
         ),
       )

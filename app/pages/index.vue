@@ -75,6 +75,7 @@ useSeoMeta({
         "
       >
         <BlogCategoriesSlider
+          v-if="tenantStore.blogEnabled"
           :class="[
             'mx-auto max-w-main',
             isMobileOrTablet ? 'py-0!' : 'md:p-0!',
@@ -140,6 +141,7 @@ useSeoMeta({
         />
 
         <LazyBlogPostsList
+          v-if="tenantStore.blogEnabled"
           :page-size="blogPageSize"
           :show-ordering="false"
           class="
