@@ -3815,9 +3815,6 @@ export const zOrderCreateFromCartRequest = z.object({
   floor: z.string().max(50).register(z.globalRegistry, {
     description: 'Floor number or label (e.g. FIRST_FLOOR)',
   }).optional(),
-  place: z.string().max(255).register(z.globalRegistry, {
-    description: 'Τόπος ή περιοχή (προαιρετικό)',
-  }).optional(),
   locationType: z.string().max(100).register(z.globalRegistry, {
     description: 'Location type, e.g. HOME or OFFICE (optional)',
   }).optional(),
@@ -5846,9 +5843,6 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   }).optional(),
   floor: z.string().max(50).register(z.globalRegistry, {
     description: 'Floor number or label (e.g. FIRST_FLOOR)',
-  }).optional(),
-  place: z.string().max(255).register(z.globalRegistry, {
-    description: 'Τόπος ή περιοχή (προαιρετικό)',
   }).optional(),
   locationType: z.string().max(100).register(z.globalRegistry, {
     description: 'Location type, e.g. HOME or OFFICE (optional)',

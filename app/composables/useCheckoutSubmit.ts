@@ -253,7 +253,6 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       zipcode: formState.zipcode,
       country: formState.country,
       region: formState.region,
-      notes: formState.place || undefined,
     }
 
     $fetch('/api/user/addresses', {

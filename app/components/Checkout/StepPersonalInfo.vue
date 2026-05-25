@@ -194,26 +194,15 @@ defineExpose({
             </UFormField>
           </div>
 
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <UFormField :label="t('form.place')" name="place">
-              <UInput
-                v-model="formState.place"
-                size="xl"
-                leading-icon="i-heroicons-map-pin"
-                class="w-full"
-              />
-            </UFormField>
-
-            <UFormField :label="t('form.region')" name="region" required>
-              <USelect
-                v-model="formState.region"
-                :items="regionOptions"
-                size="xl"
-                class="w-full"
-                :disabled="!regionOptions.length"
-              />
-            </UFormField>
-          </div>
+          <UFormField :label="t('form.region')" name="region" required>
+            <USelect
+              v-model="formState.region"
+              :items="regionOptions"
+              size="xl"
+              class="w-full"
+              :disabled="!regionOptions.length"
+            />
+          </UFormField>
 
           <UFormField :label="t('form.country')" name="country" required>
             <USelect
@@ -236,24 +225,8 @@ defineExpose({
       </template>
 
       <!-- Order-level extras: always visible. ``customerNotes`` is an
-           order annotation (not an address field), and ``place`` is the
-           Greek neighborhood / area — not stored on UserAddress so it
-           shows even in saved mode for folks who want to add a hint. -->
+           order annotation (not an address field). -->
       <div class="space-y-4">
-        <UFormField
-          v-if="isSavedMode"
-          :label="t('form.place')"
-          name="place"
-          :help="t('form.place_help_saved')"
-        >
-          <UInput
-            v-model="formState.place"
-            size="xl"
-            leading-icon="i-heroicons-map-pin"
-            class="w-full"
-          />
-        </UFormField>
-
         <UFormField
           :label="t('form.customer_notes')"
           :help="t('form.customer_notes_help')"
@@ -352,8 +325,6 @@ el:
     label: "Επίλεξε αποθηκευμένη διεύθυνση"
     placeholder: "Επίλεξε διεύθυνση"
     help: "Διάλεξε μία από τις διευθύνσεις σου για να συμπληρωθούν αυτόματα τα πεδία."
-  form:
-    place_help_saved: "Προαιρετικό — προσθήκη περιοχής/γειτονιάς αν δεν υπάρχει ήδη στην αποθηκευμένη διεύθυνση."
   save_address:
     label: "Αποθήκευση της διεύθυνσης στον λογαριασμό μου"
     description: "Θα είναι διαθέσιμη σε επόμενες παραγγελίες για γρήγορη επιλογή."

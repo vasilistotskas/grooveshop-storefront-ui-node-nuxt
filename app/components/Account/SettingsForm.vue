@@ -45,7 +45,7 @@ const schema = z.object({
     : t('validation.string.invalid') }),
   place: z.string({ error: issue => issue.input === undefined
     ? t('validation.required')
-    : t('validation.string.invalid') }),
+    : t('validation.string.invalid') }).optional(),
   birthDate: z.preprocess(
     (input) => {
       if (typeof input === 'string' || input instanceof Date) {

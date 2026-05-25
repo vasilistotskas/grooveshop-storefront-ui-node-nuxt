@@ -25,7 +25,6 @@ export async function useCheckoutForm() {
     region: '',
     regionId: undefined as string | undefined,
     city: '',
-    place: '',
     zipcode: '',
     street: '',
     streetNumber: '',
@@ -231,7 +230,6 @@ export async function useCheckoutForm() {
     formState.street = ''
     formState.streetNumber = ''
     formState.city = ''
-    formState.place = ''
     formState.zipcode = ''
     formState.region = ''
     formState.regionId = undefined
@@ -563,12 +561,6 @@ export async function useCheckoutForm() {
     city: z.string({ error: t('validation.required') }).min(3, {
       error: t('validation.city.min', { min: 3 }),
     }),
-    // `place` (neighborhood / area) is optional: UserAddress doesn't
-    // carry it, so forcing it here would reject valid saved addresses.
-    // When the user types it in the form we still validate the minimum
-    // length; empty or absent values pass through as "" (matches the
-    // Django Order.place ``blank=True, default=""`` column).
-    place: z.string().min(3, { error: t('validation.place.min', { min: 3 }) }).or(z.literal('')).optional(),
     zipcode: z.string({ error: t('validation.required') }).min(3, {
       error: t('validation.zipcode.min', { min: 3 }),
     }),

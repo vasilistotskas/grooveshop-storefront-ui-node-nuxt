@@ -2914,10 +2914,6 @@ export type OrderCreateFromCartRequest = {
      */
   floor?: string
   /**
-     * Τόπος ή περιοχή (προαιρετικό)
-     */
-  place?: string
-  /**
      * Location type, e.g. HOME or OFFICE (optional)
      */
   locationType?: string
@@ -7796,10 +7792,6 @@ export type OrderCreateFromCartRequestWritable = {
      * Floor number or label (e.g. FIRST_FLOOR)
      */
   floor?: string
-  /**
-     * Τόπος ή περιοχή (προαιρετικό)
-     */
-  place?: string
   /**
      * Location type, e.g. HOME or OFFICE (optional)
      */

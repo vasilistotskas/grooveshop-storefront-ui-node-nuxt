@@ -53907,11 +53907,6 @@
                         "description": "Floor number or label (e.g. FIRST_FLOOR)",
                         "maxLength": 50
                     },
-                    "place": {
-                        "type": "string",
-                        "description": "Τόπος ή περιοχή (προαιρετικό)",
-                        "maxLength": 255
-                    },
                     "locationType": {
                         "type": "string",
                         "description": "Location type, e.g. HOME or OFFICE (optional)",
