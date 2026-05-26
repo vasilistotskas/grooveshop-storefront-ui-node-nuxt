@@ -1,3 +1,10 @@
+## [3.134.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.5...v3.134.6) (2026-05-26)
+
+
+### Bug Fixes
+
+* **image:** route media-origin SVGs through mediaStream, not none ([defbc11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/defbc11992be84340cae8034314de5a9983755ec))
+
 ## [3.134.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.4...v3.134.5) (2026-05-26)
 
 
