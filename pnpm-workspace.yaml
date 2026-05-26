@@ -74,3 +74,5 @@ minimumReleaseAgeExclude:
   - '@vitest/utils@4.1.7'
   - vitest@4.1.7
   - '@nuxt/ui@4.8.0'
+  - '@vue/language-core@3.3.2'
+  - vue-tsc@3.3.2
