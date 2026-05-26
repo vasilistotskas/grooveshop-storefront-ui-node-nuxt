@@ -55,12 +55,20 @@ const handleError = (error: string | Event) => {
   hasError.value = true
 }
 
+// SVGs are vectors (or, worse, raster wrapped in SVG) and rasterizing them
+// through an image pipeline destroys quality — always serve them untouched
+// unless the caller explicitly chose a provider.
+const isSvg = (src: string) => /\.svg(\?|#|$)/i.test(src)
+
 const provider = computed<keyof ConfiguredImageProviders>(() => {
   if (!props.src) {
     return 'ipx'
   }
   if (mainImageProps.value.provider) {
     return mainImageProps.value.provider
+  }
+  if (isSvg(imgSrc.value)) {
+    return 'none'
   }
   if (imgSrc.value.startsWith('media/uploads') || imgSrc.value.startsWith('/media/uploads') || imgSrc.value.startsWith('static/images') || imgSrc.value.startsWith('/static/images')) {
     return 'mediaStream'
