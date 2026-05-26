@@ -1,3 +1,10 @@
+## [3.134.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.0...v3.134.1) (2026-05-26)
+
+
+### Bug Fixes
+
+* **checkout:** handle payment_verification order error type ([f8e8ce7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f8e8ce7a9f4b13b44f2e26b822b1a6aa9f30b4e4))
+
 # [3.134.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.133.0...v3.134.0) (2026-05-26)
 
 
