@@ -40,7 +40,7 @@
     "@internationalized/date": "3.12.1",
     "@nuxt/fonts": "0.14.0",
     "@nuxt/icon": "2.2.2",
-    "@nuxt/image": "1.11.0",
+    "@nuxt/image": "2.0.0",
     "@nuxt/scripts": "1.1.1",
     "@nuxt/ui": "4.8.0",
     "@nuxtjs/i18n": "10.4.0",

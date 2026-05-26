@@ -1,8 +1,27 @@
-import type { ProviderGetImage } from '@nuxt/image'
+import type { ImageModifiers } from '@nuxt/image'
+import { defineProvider } from '@nuxt/image/runtime'
 import { joinURL } from 'ufo'
 
 /**
- * Custom Nuxt Image provider for the Media Stream service
+ * Media Stream service modifiers — the standard {@link ImageModifiers} plus the
+ * two service-specific knobs encoded in the URL path (`position`, `trimThreshold`).
+ */
+export interface MediaStreamModifiers extends ImageModifiers {
+  position: string
+  trimThreshold: number | string
+}
+
+/**
+ * Provider options supplied via `image.providers.mediaStream.options` in
+ * `nuxt.config.ts`. `baseURL` points at the Media Stream service origin/path.
+ */
+export interface MediaStreamOptions {
+  baseURL: string
+  modifiers: Partial<MediaStreamModifiers>
+}
+
+/**
+ * Custom Nuxt Image provider for the Media Stream service.
  *
  * Generates optimized image URLs with the following structure:
  * /media/uploads/{imageType}/{image}/{width}/{height}/{fit}/{position}/{background}/{trimThreshold}/{quality}.{format}
@@ -11,43 +30,40 @@ import { joinURL } from 'ufo'
  *
  * @see https://image.nuxt.com/advanced/custom-provider
  */
-export const getImage: ProviderGetImage = (src, { modifiers = {}, baseURL } = {}) => {
-  if (!baseURL) {
-    throw new Error('Media Stream base URL is not configured. Set NUXT_PUBLIC_MEDIA_STREAM_PATH in your environment.')
-  }
+export default defineProvider<Partial<MediaStreamOptions>>({
+  getImage(src, { modifiers, baseURL }) {
+    if (!baseURL) {
+      throw new Error('Media Stream base URL is not configured. Set NUXT_PUBLIC_MEDIA_STREAM_PATH in your environment.')
+    }
 
-  const mediaStreamBaseURL = baseURL
+    // Defaults applied when a modifier is not supplied per-image.
+    const width = modifiers.width || 100
+    const height = modifiers.height || 100
+    const fit = modifiers.fit || 'contain'
+    const position = normalizePosition(modifiers.position)
+    const background = normalizeBackground(modifiers.background)
+    const trimThreshold = modifiers.trimThreshold ?? 5
+    const quality = modifiers.quality || 80
+    const format = modifiers.format || 'avif'
 
-  // Default modifiers
-  const width = modifiers.width || 100
-  const height = modifiers.height || 100
-  const fit = modifiers.fit || 'contain'
-  const position = normalizePosition(modifiers.position)
-  const background = normalizeBackground(modifiers.background)
-  const trimThreshold = modifiers.trimThreshold || 5
-  const quality = modifiers.quality || 80
-  const format = modifiers.format || 'avif'
+    // Pattern: /{src}/{width}/{height}/{fit}/{position}/{background}/{trimThreshold}/{quality}.{format}
+    const url = joinURL(
+      baseURL,
+      src,
+      width.toString(),
+      height.toString(),
+      fit,
+      position,
+      background,
+      trimThreshold.toString(),
+      `${quality}.${format}`,
+    )
 
-  // Pattern: /{src}/{width}/{height}/{fit}/{position}/{background}/{trimThreshold}/{quality}.{format}
-  const pathSegments = [
-    src,
-    width.toString(),
-    height.toString(),
-    fit,
-    position,
-    background,
-    trimThreshold.toString(),
-    `${quality}.${format}`,
-  ]
-
-  const url = joinURL(mediaStreamBaseURL, ...pathSegments)
-
-  const encodedUrl = encodeImageUrl(url)
-
-  return {
-    url: encodedUrl,
-  }
-}
+    return {
+      url: encodeImageUrl(url),
+    }
+  },
+})
 
 /**
  * Encode image URL to handle Unicode characters for social media crawlers

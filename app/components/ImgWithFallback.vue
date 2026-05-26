@@ -1,12 +1,23 @@
 <script lang="ts" setup>
-import type { ExtractPropTypes } from 'vue'
-import type { baseImageProps } from '#image/components/_base'
+import type { ConfiguredImageProviders, ImageModifiers } from '@nuxt/image'
 
-interface Props extends /* @vue-ignore */ Omit<ExtractPropTypes<typeof baseImageProps>, 'ismap'> {
+// NuxtImg props this wrapper types and forwards explicitly; any other native
+// `<img>`/NuxtImg attribute still flows through `useAttrs()` below.
+interface Props {
   src?: string
   fallback?: string
-  ismap?: boolean
+  provider?: keyof ConfiguredImageProviders
+  width?: string | number
+  height?: string | number
+  sizes?: string
+  densities?: string
+  format?: string
+  quality?: string | number
+  fit?: string
+  background?: string
+  modifiers?: Partial<ImageModifiers> & Record<string, unknown>
   preload?: boolean
+  ismap?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -44,11 +55,11 @@ const handleError = (error: string | Event) => {
   hasError.value = true
 }
 
-const provider = computed(() => {
+const provider = computed<keyof ConfiguredImageProviders>(() => {
   if (!props.src) {
     return 'ipx'
   }
-  if (mainImageProps.value?.provider !== undefined && mainImageProps.value.provider !== '') {
+  if (mainImageProps.value.provider) {
     return mainImageProps.value.provider
   }
   if (imgSrc.value.startsWith('media/uploads') || imgSrc.value.startsWith('/media/uploads') || imgSrc.value.startsWith('static/images') || imgSrc.value.startsWith('/static/images')) {
