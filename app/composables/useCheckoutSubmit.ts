@@ -150,7 +150,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       errorTitle = t('form.submit.error.insufficient_stock')
       errorDescription = errorData?.detail || t('form.submit.error.insufficient_stock_description')
     }
-    else if (errorType === 'payment_not_found') {
+    else if (errorType === 'payment_not_found' || errorType === 'payment_verification') {
       errorTitle = t('form.submit.error.payment_verification')
       errorDescription = errorData?.detail || t('form.submit.error.payment_verification_description')
     }
