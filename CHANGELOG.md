@@ -1,3 +1,10 @@
+## [3.134.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.1...v3.134.2) (2026-05-26)
+
+
+### Bug Fixes
+
+* **logging:** log client (4xx) errors as warn, not error ([0bef179](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0bef1798a0f30cc541dce8384902a118e6f01b7a))
+
 ## [3.134.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.0...v3.134.1) (2026-05-26)
 
 
