@@ -1,3 +1,15 @@
+## [3.134.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.4...v3.134.5) (2026-05-26)
+
+
+### Bug Fixes
+
+* **image:** never rasterize SVGs in ImgWithFallback ([0b36328](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0b36328dd5719e8241df18defc7c9e007dd83fde))
+
+
+### Performance Improvements
+
+* **image:** replace navbar logo with optimized raster master ([9d4089a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9d4089a6aacb189e0afbeb5019fc0294df8406f9))
+
 ## [3.134.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.3...v3.134.4) (2026-05-26)
 
 
