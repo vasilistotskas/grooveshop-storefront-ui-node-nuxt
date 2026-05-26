@@ -97,6 +97,7 @@ Uses `evlog/nuxt` module for structured logging. `log` is auto-imported on both 
 - **Wide events** (server only): `const wideLog = useLogger(event)` → `wideLog.set({ key: value })` — one rich event per request, auto-emitted at request end
 - **Enrichers**: `server/plugins/evlog-enrichers.ts` (user-agent, geo, request size, trace context), `server/middleware/2.evlog-auth.ts` (auth session user ID via `useLogger`)
 - **Sampling**: Production-only via `$production.evlog.sampling` in `nuxt.config.ts`
+- **Client-error log level**: evlog logs every *errored* request at `error` level (`level = manualLevel ?? hasError ? 'error' : …`), with no 4xx/5xx distinction — so benign client errors (unknown-route 404s, allauth 401 "not authenticated, here are your flows") drown out real 5xx faults. `server/plugins/evlog-client-error-level.ts` downgrades 4xx → `warn` via a Nitro `error` hook + `useLogger(event).setLevel('warn')` (`isClientError` in `server/utils/http-status.ts`); 5xx stays `error`. 4xx remain visible via the `evlog.sampling.keep: [{ status: 400 }]` rule. Mirrors evlog's own Datadog severity mapping.
 - **ESLint**: `no-console: 'error'` enforced — use `log.*` instead of `console.*`
 - **Scope limitation**: `log` is NOT auto-imported in `i18n/` directory (outside Nitro/Nuxt auto-import scope)
 
