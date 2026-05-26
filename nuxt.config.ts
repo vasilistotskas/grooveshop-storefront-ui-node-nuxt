@@ -520,7 +520,7 @@ export default defineNuxtConfig({
   evlog: {
     env: { service: 'grooveshop-storefront' },
     include: ['/api/**'],
-    exclude: ['/api/_nuxt_icon/**', '/api/health', '/api/__sitemap__/**'],
+    exclude: ['/api/_nuxt_icon/**', '/api/_alive', '/api/health', '/api/__sitemap__/**'],
     transport: { enabled: true },
   },
   i18n: {
