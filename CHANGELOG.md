@@ -1,3 +1,17 @@
+# [3.134.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.133.0...v3.134.0) (2026-05-26)
+
+
+### Bug Fixes
+
+* **i18n:** resolve route type errors in v10.4.0 ([d8ce066](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d8ce066c5e1f0bca5a120cdcd84cdcb58e70c027))
+* pnpm workspace ([035e266](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/035e2662266844ba2521d78012b1062ad22f30a7))
+* pnpm workspace ([f5d757f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f5d757f7da8e80df8bb9343f787ffc585e5b3b7f))
+
+
+### Features
+
+* Bump Versions ([a0c9517](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a0c9517ef48d82d751bbeecb924f7a8dd8210de8))
+
 # [3.133.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.132.0...v3.133.0) (2026-05-25)
 
 
