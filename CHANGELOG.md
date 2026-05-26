@@ -1,3 +1,10 @@
+## [3.134.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.2...v3.134.3) (2026-05-26)
+
+
+### Bug Fixes
+
+* **server:** shorten regions/countries proxy cache TTL so admin reorders surface ([8d1a932](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8d1a932568bc14384afea68f22f327f0ee070abd))
+
 ## [3.134.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.1...v3.134.2) (2026-05-26)
 
 
