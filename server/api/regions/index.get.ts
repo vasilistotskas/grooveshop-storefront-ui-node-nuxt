@@ -13,8 +13,12 @@ export default defineCachedEventHandler(async (event) => {
   }
 }, {
   name: 'RegionViewSet',
-  maxAge: 60 * 60 * 24, // 24 hours - regions are static data
-  staleMaxAge: 60 * 60 * 24, // Serve stale for 24 hours while revalidating
+  // Regions are admin-reorderable (unfold drag-drop edits ``sort_order``),
+  // so the list is NOT static — a 24h TTL hid admin reorders for up to a
+  // day because ``maxAge`` is the no-revalidation window. Match the
+  // pay-way window so an admin change surfaces within minutes.
+  maxAge: 60 * 5, // 5 minutes
+  staleMaxAge: 60 * 30, // serve stale up to 30 min while revalidating
   swr: true,
   // The query param is named ``country`` (alpha-2 code) — the OpenAPI
   // spec for the Django RegionViewSet filter exposes that exact name and
