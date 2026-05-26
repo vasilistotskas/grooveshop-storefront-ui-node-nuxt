@@ -1,3 +1,10 @@
+## [3.134.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.3...v3.134.4) (2026-05-26)
+
+
+### Bug Fixes
+
+* **image:** serve navbar logo SVG raw to avoid IPX rasterization ([7e04e9c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7e04e9c44ffa9808e82611e171f74efbce8b4525))
+
 ## [3.134.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.2...v3.134.3) (2026-05-26)
 
 
