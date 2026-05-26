@@ -55,9 +55,6 @@ const handleError = (error: string | Event) => {
   hasError.value = true
 }
 
-// SVGs are vectors (or, worse, raster wrapped in SVG) and rasterizing them
-// through an image pipeline destroys quality — always serve them untouched
-// unless the caller explicitly chose a provider.
 const isSvg = (src: string) => /\.svg(\?|#|$)/i.test(src)
 
 const provider = computed<keyof ConfiguredImageProviders>(() => {
@@ -67,11 +64,17 @@ const provider = computed<keyof ConfiguredImageProviders>(() => {
   if (mainImageProps.value.provider) {
     return mainImageProps.value.provider
   }
-  if (isSvg(imgSrc.value)) {
-    return 'none'
-  }
+  // Media/static-origin assets must resolve through the mediaStream provider,
+  // which prepends the service origin — a bare ``none`` pass-through would
+  // serve the relative path against the site origin and 404. This applies to
+  // SVGs too, so it must come before the SVG bypass below.
   if (imgSrc.value.startsWith('media/uploads') || imgSrc.value.startsWith('/media/uploads') || imgSrc.value.startsWith('static/images') || imgSrc.value.startsWith('/static/images')) {
     return 'mediaStream'
+  }
+  // Local/public SVGs are served raw (never rasterized through IPX, which
+  // destroys vector — or embedded-raster — quality).
+  if (isSvg(imgSrc.value)) {
+    return 'none'
   }
   return 'ipx'
 })
