@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
+import type { RouteNamedMap } from 'vue-router/auto-routes'
 
 import type { RouteLocationAsRelativeI18n } from 'vue-router'
 
@@ -9,7 +9,7 @@ defineProps({
     default: '',
   },
   to: {
-    type: [String, Object] as PropType<keyof RouteNamedMapI18n | (Omit<RouteLocationAsRelativeI18n, 'path'> & { path?: string | undefined })>,
+    type: [String, Object] as PropType<keyof RouteNamedMap | (Omit<RouteLocationAsRelativeI18n, 'path'> & { path?: string | undefined })>,
     default: undefined,
   },
   href: {

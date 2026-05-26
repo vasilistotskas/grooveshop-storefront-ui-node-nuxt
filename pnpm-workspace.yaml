@@ -60,9 +60,9 @@ allowBuilds:
   vue-demi: true
 minimumReleaseAgeExclude:
   - '@types/node@25.9.1'
-  - '@vue/language-core@3.3.1'
+  - '@vue/language-core@3.3.2'
   - isomorphic-dompurify@3.14.0
-  - vue-tsc@3.3.1
+  - vue-tsc@3.3.2
   - '@vitest/coverage-v8@4.1.7'
   - '@vitest/expect@4.1.7'
   - '@vitest/mocker@4.1.7'
@@ -74,5 +74,3 @@ minimumReleaseAgeExclude:
   - '@vitest/utils@4.1.7'
   - vitest@4.1.7
   - '@nuxt/ui@4.8.0'
-  - '@vue/language-core@3.3.2'
-  - vue-tsc@3.3.2
