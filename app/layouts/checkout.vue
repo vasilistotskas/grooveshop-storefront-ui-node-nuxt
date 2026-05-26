@@ -63,11 +63,11 @@ const appTitle = computed(() => config.public.appTitle as string)
         >
           <NuxtImg
             :style="{ objectFit: 'contain' }"
+            provider="none"
             :src="'/img/logo-navbar.svg'"
             :width="145"
             :height="30"
             alt=""
-            quality="80"
             fetch-priority="high"
             preload
           />

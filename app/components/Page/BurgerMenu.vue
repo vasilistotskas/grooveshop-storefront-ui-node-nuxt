@@ -118,12 +118,12 @@ const onClickCookieSettings = () => {
         class="flex items-center"
       >
         <NuxtImg
+          provider="none"
           :src="'/img/logo-navbar.svg'"
           :style="{ objectFit: 'contain' }"
           :width="125"
           :height="26"
           alt=""
-          quality="80"
         />
         <span class="sr-only">{{ t('menu') }}</span>
       </NuxtLink>

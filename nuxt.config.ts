@@ -629,6 +629,13 @@ export default defineNuxtConfig({
           trimThreshold: 5,
         },
       },
+      // Pass-through provider: returns the URL untouched (no IPX/sharp
+      // rasterization). Used via ``provider="none"`` for vector SVG logos
+      // so they stay crisp instead of being rasterized to a tiny bitmap.
+      none: {
+        name: 'none',
+        provider: 'none',
+      },
     },
     screens: {
       xs: 320,
