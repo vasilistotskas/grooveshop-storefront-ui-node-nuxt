@@ -1,4 +1,4 @@
-import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
+import type { RouteMapI18n } from 'vue-router'
 
 export const ALLAUTH_API_PREFIX = '/api/_allauth/app/v1' as const
 export const ALLAUTH_AUTH_URL = `${ALLAUTH_API_PREFIX}/auth` as const
@@ -53,9 +53,9 @@ export const AuthenticatedRoutes = [
   // through login with ``next=/cart/recover/<uuid>`` and lands back
   // here after sign-in.
   'cart-recover-uuid',
-] as const satisfies readonly (keyof RouteNamedMapI18n)[]
+] as const satisfies readonly (keyof RouteMapI18n)[]
 
-export const AuthenticatedRoutesSet = new Set<keyof RouteNamedMapI18n>(AuthenticatedRoutes)
+export const AuthenticatedRoutesSet = new Set<keyof RouteMapI18n>(AuthenticatedRoutes)
 
 // Routes that live under /account/* but are part of an *unauthenticated*
 // flow (login, signup, OAuth callback, email/password reset, MFA challenge).
@@ -79,9 +79,9 @@ export const AuthFlowRoutes = [
   'account-2fa-authenticate-totp',
   'account-2fa-authenticate-webauthn',
   'account-2fa-authenticate-recovery-codes',
-] as const satisfies readonly (keyof RouteNamedMapI18n)[]
+] as const satisfies readonly (keyof RouteMapI18n)[]
 
-export const AuthFlowRoutesSet = new Set<keyof RouteNamedMapI18n>(AuthFlowRoutes)
+export const AuthFlowRoutesSet = new Set<keyof RouteMapI18n>(AuthFlowRoutes)
 
 export const THEME_COLORS = {
   themeDark: '#1a202c',
