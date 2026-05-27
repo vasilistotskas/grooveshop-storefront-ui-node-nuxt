@@ -35,10 +35,10 @@ const { data: recentlyViewedSetting } = await useAsyncData(
   'home:recently-viewed-enabled',
   () => $fetch<{ value?: string }>('/api/settings/get', {
     query: { key: 'RECENTLY_VIEWED_ENABLED' },
-  }).catch(() => ({ value: 'True' })),
+  }).catch(() => ({ value: 'False' })),
   {
     server: false,
-    default: () => ({ value: 'True' }),
+    default: () => ({ value: 'False' }),
   },
 )
 const recentlyViewedEnabled = computed(() => {
