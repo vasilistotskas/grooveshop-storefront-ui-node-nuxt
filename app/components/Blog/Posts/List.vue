@@ -23,6 +23,17 @@ const props = defineProps({
     default: 'scroll',
     validator: (value: string) => ['button', 'scroll'].includes(value),
   },
+  // When this list is the primary above-the-fold content (the /blog
+  // page) the first card's image is the LCP, so it's eager-loaded,
+  // fetchpriority=high and <link rel=preload>. When the list is
+  // rendered below the fold (e.g. the homepage rail under the hero
+  // banner) those hints steal bandwidth from the real LCP — pass
+  // false there so every card lazy-loads at default priority.
+  eagerFirstImages: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
 })
 
 defineSlots<{
@@ -119,21 +130,21 @@ const BlogPostCard = computed(() =>
 )
 
 const imgLoading = (index: number) => {
-  if (index < 3) {
+  if (props.eagerFirstImages && index < 3) {
     return 'eager'
   }
   return 'lazy'
 }
 
 const imgFetchPriority = (index: number) => {
-  if (index === 0) {
+  if (props.eagerFirstImages && index === 0) {
     return 'high'
   }
   return 'auto'
 }
 
 const shouldPreload = (index: number) => {
-  return index === 0
+  return props.eagerFirstImages && index === 0
 }
 
 watch(

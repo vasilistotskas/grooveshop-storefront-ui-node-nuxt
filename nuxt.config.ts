@@ -394,10 +394,25 @@ export default defineNuxtConfig({
           // The chunk only loads when ``CheckoutSmartpointMap`` is
           // mounted (Lazy* + ClientOnly), so customers who never
           // open the locker picker still pay zero bytes for it.
+          //
+          // ``.css`` is excluded from the matcher on purpose. The
+          // leaflet stylesheets (``leaflet/dist/leaflet.css`` +
+          // markercluster CSS) live under the same ``node_modules/
+          // leaflet*`` paths, so without the guard they were folded
+          // into this named ``leaflet`` chunk — which made Nuxt emit a
+          // render-blocking ``<link rel="stylesheet">`` for it in the
+          // entry HTML of EVERY page (homepage hero included, ~973ms
+          // wasted on mobile), even though the map only mounts at
+          // checkout. Excluding CSS lets it stay code-split with the
+          // async ``SmartpointMap.client`` chunk so it loads only when
+          // the locker picker mounts.
           manualChunks(id) {
             if (
-              id.includes('node_modules/leaflet/')
-              || id.includes('node_modules/leaflet.markercluster/')
+              !id.endsWith('.css')
+              && (
+                id.includes('node_modules/leaflet/')
+                || id.includes('node_modules/leaflet.markercluster/')
+              )
             ) {
               return 'leaflet'
             }
