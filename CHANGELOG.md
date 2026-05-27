@@ -1,3 +1,10 @@
+## [3.134.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.7...v3.134.8) (2026-05-27)
+
+
+### Bug Fixes
+
+* RECENTLY_VIEWED_ENABLED false by default ([cda8bd5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cda8bd54377c3b6a631de51a80d46542f9a44cba))
+
 ## [3.134.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.6...v3.134.7) (2026-05-27)
 
 
