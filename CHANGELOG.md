@@ -1,3 +1,15 @@
+## [3.134.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.6...v3.134.7) (2026-05-27)
+
+
+### Bug Fixes
+
+* **csp:** allow GA4 analytics + remarketing origins ([200a4c1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/200a4c1b0b86769c24151d7a755afa5784e5f4f9))
+
+
+### Performance Improvements
+
+* **home:** speed up mobile LCP/FCP for PageSpeed ([07aced8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/07aced8c673ad20b94f6b9da6fb5fe8bcbd3464c))
+
 ## [3.134.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.5...v3.134.6) (2026-05-26)
 
 
