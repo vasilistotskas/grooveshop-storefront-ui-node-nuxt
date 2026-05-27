@@ -65,13 +65,24 @@ export default defineEventHandler((event) => {
     ? ' https://www.facebook.com https://*.facebook.com'
     : ''
 
+  // GA4 with Google Signals enabled fires a remarketing pixel to
+  // ``www.google.<tld>/ads/ga-audiences`` (an <img>, sometimes a beacon).
+  // The ccTLD follows the visitor's locale — ``.gr`` for Greek users,
+  // ``.com`` for Google's own PageSpeed/Lighthouse runners. Without these
+  // origins the pixel is CSP-blocked, which surfaces as a console error +
+  // a DevTools "Issues" entry and (non-deterministically, depending on
+  // whether the beacon fires that run) drops the Lighthouse Best-Practices
+  // score below 100. Scoped to img/connect only — Google never serves our
+  // scripts from these hosts.
+  const googleAdsOrigins = 'https://www.google.com https://www.google.gr'
+
   const directives = [
     `default-src 'self'`,
     `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com${metaScriptSrc}`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `img-src 'self' data: blob: ${trustedOrigins} https://www.googletagmanager.com ${tileOrigins}${metaImgSrc}`,
+    `img-src 'self' data: blob: ${trustedOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${tileOrigins}${metaImgSrc}`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src 'self' ${trustedOrigins} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://www.google.com https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}${metaConnectSrc}`,
+    `connect-src 'self' ${trustedOrigins} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}${metaConnectSrc}`,
     // BoxNow widget iframe origins per their CDN: gr (primary), plus
     // cy/bg/hr regional variants (Phase 2 multi-country) and the v1-v4
     // back-compat versions surfaced by the loader script we audited.
