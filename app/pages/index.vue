@@ -31,7 +31,12 @@ const bannerLink = '/products/2/mini-powerbank-5000mah'
 // explicitly disabled it; the client fetch reconciles that shortly
 // after hydration. Keeping this off SSR removes a blocking backend
 // round-trip from the homepage TTFB.
-const { data: recentlyViewedSetting } = await useAsyncData(
+// Explicit ``useAsyncData<T>`` annotation: Nuxt 4.4.8 tightened the
+// default-factory inference and the chained ``.catch(() => ({ value }))``
+// causes the resolved-union to collapse to ``string`` — making the
+// ``default`` factory fail the overload check. Pinning the generic
+// restores the intended ``{ value?: string }`` shape.
+const { data: recentlyViewedSetting } = await useAsyncData<{ value?: string }>(
   'home:recently-viewed-enabled',
   () => $fetch<{ value?: string }>('/api/settings/get', {
     query: { key: 'RECENTLY_VIEWED_ENABLED' },

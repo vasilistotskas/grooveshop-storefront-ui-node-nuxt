@@ -99,7 +99,17 @@ export function useMetaPixel() {
   // setup site if the dedup picks the wrong call's options first
   // (see comment in ``setups.ts:setupMetaPixelConsent`` for the
   // historical incident this avoids).
-  const proxy = isProvisioned
+  //
+  // SSR guard: ``@nuxt/scripts >= 1.2`` removed the implicit SSR
+  // no-op posture of the registry proxy — accessing ``.proxy.fbq``
+  // now eagerly invokes the registry's ``use()`` which dereferences
+  // ``window.fbq`` and throws ``Cannot read properties of undefined``
+  // during prerender / SSR. We restore the documented no-op posture
+  // by short-circuiting to ``NOOP_PROXY`` on the server. All tracking
+  // events are browser-side anyway (events fired from stores/pages
+  // run after hydration; server-side Conversions API events are
+  // dispatched independently via the backend).
+  const proxy = isProvisioned && import.meta.client
     ? useScriptMetaPixel({ id: pixelId }).proxy
     : { fbq: NOOP_PROXY }
 

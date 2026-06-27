@@ -167,6 +167,16 @@ export function setupMetaPixelConsent() {
   const pixelId = (config.public as { metaPixelId?: string })?.metaPixelId
   if (!pixelId) return
 
+  // SSR guard: ``@nuxt/scripts >= 1.2`` removed the SSR-safe posture of
+  // the meta-pixel registry — calling ``useScriptMetaPixel`` (even
+  // without proxy access) eagerly invokes its ``use()`` callback which
+  // dereferences ``window.fbq`` and throws during prerender. The pixel
+  // only needs to load in the browser anyway, so skip the entire
+  // registration on the server. The cookie-consent reactivity below is
+  // also client-only by design (the banner state lives in client
+  // storage).
+  if (import.meta.server) return
+
   const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
 
   // Reactive: the user has explicitly accepted the banner AND the
@@ -269,6 +279,14 @@ export function setupSocialLogin() {
   const { enabled } = useAuthPreviewMode()
   const config = useRuntimeConfig()
   if (!config.public.googleGsiEnable || enabled.value) return
+
+  // SSR guard: ``useScript`` (from @nuxt/scripts >= 1.2) eagerly
+  // invokes the ``use()`` callback below at registration, which
+  // dereferences ``window.google`` and throws during prerender / SSR.
+  // GSI is client-only anyway — the GSI button + ``onLoaded`` callback
+  // are meaningless on the server — so skip the entire setup.
+  if (import.meta.server) return
+
   const { loggedIn } = useUserSession()
   const { config: authConfig } = storeToRefs(useAuthStore())
   const {

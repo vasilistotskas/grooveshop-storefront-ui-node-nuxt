@@ -49,6 +49,13 @@ overrides:
   # → @nuxtjs/seo. GHSA-gh4j-gqv2-49f6 + GHSA-fj3w-jwp8-x2g3
   # patched in 5.7.0.
   fast-xml-parser: '>=5.7.0'
+
+  # Registry-yank workaround — @hey-api/openapi-ts@0.99.0 transitively
+  # pins js-yaml@4.2.0 via @hey-api/json-schema-ref-parser@1.4.4, but
+  # js-yaml 4.2.0/4.3.0/5.x were unpublished and the registry's
+  # `latest` dist-tag resolves to 4.1.1. Remove once
+  # @hey-api/json-schema-ref-parser drops the exact-pin.
+  js-yaml: 4.1.1
 allowBuilds:
   '@intlify/vue-i18n-bridge': true
   '@intlify/vue-router-bridge': true
@@ -74,3 +81,6 @@ minimumReleaseAgeExclude:
   - '@vitest/utils@4.1.7'
   - vitest@4.1.7
   - '@nuxt/ui@4.8.0'
+  - '@iconify-json/ant-design@1.2.6'
+  - eslint@10.6.0
+  - nuxt-ai-ready@1.5.2
