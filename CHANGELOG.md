@@ -1,3 +1,10 @@
+## [3.135.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.135.0...v3.135.1) (2026-06-28)
+
+
+### Bug Fixes
+
+* **deps:** cap undici override at <8 to keep jsdom working ([42848bd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/42848bd0864675ae640429e776d3f396212aaba0))
+
 # [3.135.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.8...v3.135.0) (2026-06-28)
 
 
