@@ -1,3 +1,15 @@
+# [3.135.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.8...v3.135.0) (2026-06-28)
+
+
+### Bug Fixes
+
+* **deps:** patch HIGH-severity CVEs flagged by Trivy ([aa7065e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/aa7065ead0cb3750ca6f9edc57e2858151b43655)), closes [HI#severity](https://github.com/HI/issues/severity)
+
+
+### Features
+
+* Bump Versions ([4792b1a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4792b1a395673aa34b74a26cd6c4a4973ac599d9))
+
 ## [3.134.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.134.7...v3.134.8) (2026-05-27)
 
 
