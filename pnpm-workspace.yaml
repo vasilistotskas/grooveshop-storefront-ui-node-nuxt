@@ -56,6 +56,21 @@ overrides:
   # `latest` dist-tag resolves to 4.1.1. Remove once
   # @hey-api/json-schema-ref-parser drops the exact-pin.
   js-yaml: 4.1.1
+
+  # CVE-2026-48779 — ws DoS, patched in 8.21.0 on the 8.x line.
+  'ws@<8.21.0': '>=8.21.0'
+
+  # CVE-2026-53571 — vite, patched in 7.3.5 on the 7.x line
+  # (8.1.0 is already above the 8.0.16 floor).
+  'vite@<7.3.5': '>=7.3.5'
+
+  # CVE-2026-9697, CVE-2026-6734, CVE-2026-12151 — undici 7.x
+  # patched in 7.28.0. Scoped to 7.x so the safe 6.x and 8.x
+  # copies are untouched.
+  'undici@>=7.0.0 <7.28.0': '>=7.28.0'
+
+  # CVE-2026-9277 — shell-quote, patched in 1.8.4.
+  'shell-quote@<1.8.4': '>=1.8.4'
 allowBuilds:
   '@intlify/vue-i18n-bridge': true
   '@intlify/vue-router-bridge': true
