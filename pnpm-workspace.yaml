@@ -65,9 +65,11 @@ overrides:
   'vite@<7.3.5': '>=7.3.5'
 
   # CVE-2026-9697, CVE-2026-6734, CVE-2026-12151 — undici 7.x
-  # patched in 7.28.0. Scoped to 7.x so the safe 6.x and 8.x
-  # copies are untouched.
-  'undici@>=7.0.0 <7.28.0': '>=7.28.0'
+  # patched in 7.28.0. Capped at <8 because jsdom 29 deep-imports
+  # undici/lib/handler/wrap-handler.js, which undici 8.0 removed —
+  # bumping jsdom's copy to 8.x breaks the test env. The safe 6.x
+  # and the pre-existing 8.x copies are untouched.
+  'undici@>=7.0.0 <7.28.0': '>=7.28.0 <8'
 
   # CVE-2026-9277 — shell-quote, patched in 1.8.4.
   'shell-quote@<1.8.4': '>=1.8.4'
