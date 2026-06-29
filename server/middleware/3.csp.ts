@@ -19,16 +19,25 @@ export default defineEventHandler((event) => {
 
   const mediaSrc = (config.public.mediaStreamOrigin as string) || ''
   const staticSrc = (config.public.static as Record<string, string>)?.origin || ''
-  const djangoUrl = (config.djangoUrl as string) || ''
 
-  // Build trusted origins list (deduplicated, non-empty)
-  const trustedOrigins = [...new Set(
-    [mediaSrc, staticSrc, djangoUrl].filter(Boolean),
+  // Browser-fetchable asset origins: the media-stream service and the static
+  // host. Deduplicated, non-empty. Used for img-src (and connect-src so client
+  // fetch()/prefetch of these assets is allowed).
+  //
+  // NOTE: `config.djangoUrl` (NUXT_DJANGO_URL) is the INTERNAL SSR upstream —
+  // in production it is the in-cluster service URL (e.g. http://backend-service:80)
+  // and MUST NOT appear in a browser-facing CSP: the browser never talks to it
+  // directly (it reaches Django only via same-origin '/api/**' proxy routes and
+  // the wss:// notification socket below). Use the PUBLIC API origin instead.
+  const assetOrigins = [...new Set(
+    [mediaSrc, staticSrc].filter(Boolean),
   )].join(' ')
 
   const djangoHost = (config.public.djangoHostName as string) || 'localhost'
-  // In dev, the WebSocket connection uses ws:// (plain HTTP); in production it uses wss://
+  // In dev the API/WebSocket use plain http/ws; in production https/wss.
+  const httpScheme = import.meta.dev ? 'http' : 'https'
   const wsScheme = import.meta.dev ? 'ws' : 'wss'
+  const apiOrigin = `${httpScheme}://${djangoHost}`
 
   // TODO(csp-nonce): Replace 'unsafe-inline' with a per-request nonce.
   // Doing so requires:
@@ -80,9 +89,9 @@ export default defineEventHandler((event) => {
     `default-src 'self'`,
     `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com${metaScriptSrc}`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `img-src 'self' data: blob: ${trustedOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${tileOrigins}${metaImgSrc}`,
+    `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${tileOrigins}${metaImgSrc}`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src 'self' ${trustedOrigins} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}${metaConnectSrc}`,
+    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}${metaConnectSrc}`,
     // BoxNow widget iframe origins per their CDN: gr (primary), plus
     // cy/bg/hr regional variants (Phase 2 multi-country) and the v1-v4
     // back-compat versions surfaced by the loader script we audited.
