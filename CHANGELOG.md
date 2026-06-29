@@ -1,3 +1,10 @@
+## [3.135.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.135.1...v3.135.2) (2026-06-29)
+
+
+### Bug Fixes
+
+* **csp:** use public API origin instead of internal SSR upstream ([c8685fd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c8685fd3938452085fd83f0045f60f889e9587e2))
+
 ## [3.135.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.135.0...v3.135.1) (2026-06-28)
 
 
