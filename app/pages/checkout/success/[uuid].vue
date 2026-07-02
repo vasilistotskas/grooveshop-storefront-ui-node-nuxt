@@ -14,7 +14,15 @@ if (!orderUUID || typeof orderUUID !== 'string') {
 const sessionId = computed(() => route.query.session_id as string | undefined)
 const vivaOrderCode = computed(() => route.query.s as string | undefined)
 const fromViva = computed(() => !!vivaOrderCode.value)
-const fromCheckout = computed(() => !!sessionId.value || fromViva.value)
+// Offline pay-ways (COD) navigate here with ``?placed=1`` — there is no
+// provider redirect param to key on, but the purchase pixels (Meta +
+// GA4) and the cart cleanup still need the "arrived via a real
+// checkout" signal. Unlike the online params it must NOT trigger the
+// payment-status polling below: a COD order is legitimately unpaid.
+const placedOffline = computed(() => route.query.placed === '1')
+const fromCheckout = computed(
+  () => !!sessionId.value || fromViva.value || placedOffline.value,
+)
 const sessionVerified = ref(false)
 const verifyingSession = ref(false)
 const pollAttempt = ref(0)
@@ -217,7 +225,9 @@ onMounted(async () => {
 
   if (!fromCheckout.value || !order.value) return
 
-  if (order.value.isPaid) {
+  if (order.value.isPaid || placedOffline.value) {
+    // Paid already, or a COD order that will stay unpaid until the
+    // courier remits — either way there is no session to poll.
     sessionVerified.value = true
     return
   }

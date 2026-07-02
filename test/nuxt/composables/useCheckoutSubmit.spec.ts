@@ -308,7 +308,13 @@ describe('useCheckoutSubmit', () => {
       expect(clearCall?.[1]).toMatchObject({ method: 'POST' })
 
       expect(mockNavigateTo).toHaveBeenCalledWith(
-        expect.objectContaining({ name: expect.stringContaining('checkout-success') }),
+        expect.objectContaining({
+          name: expect.stringContaining('checkout-success'),
+          // ``placed=1`` is the success page's "arrived via a real
+          // checkout" marker for offline pay-ways — it gates the Meta
+          // Purchase / GA4 purchase browser events and cart cleanup.
+          query: { placed: '1' },
+        }),
       )
     })
   })

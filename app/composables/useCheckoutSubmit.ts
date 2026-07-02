@@ -484,9 +484,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
             log.error({ action: 'checkout:offlinePayment', error: 'No order UUID' })
             return
           }
+          // ``placed=1`` marks a real checkout arrival for the success
+          // page (purchase pixels + cart cleanup) — offline pay-ways
+          // have no provider redirect param (session_id / s) to key on.
           await navigateTo(localePath({
             name: 'checkout-success-uuid',
             params: { uuid: response._data.uuid },
+            query: { placed: '1' },
           }))
         },
         onResponseError({ response }) {
