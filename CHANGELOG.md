@@ -1,3 +1,10 @@
+# [3.140.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.139.3...v3.140.0) (2026-07-02)
+
+
+### Features
+
+* **analytics:** add consent-gated TikTok Pixel ([0ae54d2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0ae54d26049465a4b09c24581e863239217c5feb))
+
 ## [3.139.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.139.2...v3.139.3) (2026-07-02)
 
 
