@@ -71,19 +71,37 @@ async function onSelect(axisId: number, rawValue: unknown) {
         {{ group.name }}:
       </span>
 
+      <!-- Mobile renders as a swipe carousel: 3 snap-aligned cards per
+           viewport, scrollbar hidden. Kept inside the URadioGroup (rather
+           than UCarousel) so the radiogroup semantics and arrow-key
+           navigation survive. min-w-0 defeats the fieldset's intrinsic
+           min-inline-size so it can scroll instead of overflowing. -->
       <URadioGroup
         :default-value="currentValueFor(group.id)"
         :items="group.items"
         variant="card"
         orientation="horizontal"
         indicator="hidden"
-        :ui="{ fieldset: 'flex flex-wrap gap-3', item: 'p-3' }"
+        :ui="{
+          fieldset: `
+            flex min-w-0 gap-3
+            max-sm:snap-x max-sm:snap-mandatory max-sm:scrollbar-none
+            max-sm:overflow-x-auto
+            sm:flex-wrap
+            max-sm:[&::-webkit-scrollbar]:hidden
+          `,
+          item: `
+            p-3
+            max-sm:shrink-0 max-sm:basis-[calc((100%-1.5rem)/3)]
+            max-sm:snap-start
+          `,
+        }"
         @update:model-value="value => onSelect(group.id, value)"
       >
         <template #label="{ item }">
           <span
-            class="relative flex flex-col gap-1"
-            :class="group.visual ? 'w-24' : 'min-w-28'"
+            class="relative flex w-full flex-col gap-1"
+            :class="group.visual ? 'sm:w-24' : 'sm:min-w-28'"
           >
             <UIcon
               v-if="isCurrentValue(group.id, Number(item.value))"
