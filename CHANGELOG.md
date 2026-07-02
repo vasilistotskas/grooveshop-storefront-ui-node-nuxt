@@ -1,3 +1,15 @@
+# [3.139.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.138.1...v3.139.0) (2026-07-02)
+
+
+### Bug Fixes
+
+* **product:** stop variant carousel blowing out mobile layout ([31b8ea6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/31b8ea691d0b02ecf49a8c4a5f7c3f779b1b50a6))
+
+
+### Features
+
+* **blog:** display author byline on article page ([cf847dd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cf847dd4b5d381695a718021bef6f876fe67a19f))
+
 ## [3.138.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.138.0...v3.138.1) (2026-07-02)
 
 
