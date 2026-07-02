@@ -1,3 +1,10 @@
+## [3.137.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.137.0...v3.137.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* **csp:** unblock Meta Pixel iframe and form POST ([abab994](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/abab994a4d488178303b52acd8fc4456c72eabc1))
+
 # [3.137.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.136.0...v3.137.0) (2026-07-02)
 
 
