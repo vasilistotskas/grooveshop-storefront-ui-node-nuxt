@@ -1,3 +1,10 @@
+## [3.138.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.138.0...v3.138.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* **ssr:** degrade gracefully when backend blips ([838ecd8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/838ecd888c68c6096395c2b0dfb2774889e6bdf9))
+
 # [3.138.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.137.1...v3.138.0) (2026-07-02)
 
 
