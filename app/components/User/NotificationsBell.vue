@@ -201,7 +201,7 @@ onClickOutside(dropdown, () => {
               trailing
               block
               class="mt-1"
-              @click="isDropdownVisible = false"
+              @click="() => { isDropdownVisible = false }"
             >
               {{ t('notifications.view_all') }}
             </UButton>

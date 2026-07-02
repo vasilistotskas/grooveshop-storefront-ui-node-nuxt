@@ -359,7 +359,7 @@ onMounted(() => {
             :ui="{
               base: 'w-auto',
             }"
-            @click="isOpen = true"
+            @click="() => { isOpen = true }"
           />
           <LazyAccountLoginFormModal
             v-if="isOpen"
@@ -394,7 +394,7 @@ onMounted(() => {
         size="md"
         color="secondary"
         variant="outline"
-        @click="isOpen = true"
+        @click="() => { isOpen = true }"
       />
       <LazyAccountLoginFormModal
         v-if="isOpen"

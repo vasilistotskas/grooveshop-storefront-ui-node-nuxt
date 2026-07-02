@@ -95,7 +95,7 @@ const isCategoryDisabled = (categoryId: string) => {
           variant="ghost"
           size="sm"
           :aria-label="t('clear_search')"
-          @click="searchQuery = ''"
+          @click="() => { searchQuery = '' }"
         />
       </template>
     </UInput>

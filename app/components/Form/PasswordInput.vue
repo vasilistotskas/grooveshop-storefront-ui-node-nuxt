@@ -28,7 +28,7 @@ const showPassword = ref(false)
         :icon="showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
         :aria-label="toggleAriaLabel || (showPassword ? t('password.hide') : t('password.show'))"
         :aria-pressed="showPassword"
-        @click="showPassword = !showPassword"
+        @click="() => { showPassword = !showPassword }"
       />
     </template>
   </UInput>

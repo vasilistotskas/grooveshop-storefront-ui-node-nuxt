@@ -284,7 +284,7 @@ async function cancelAlert() {
             color="neutral"
             variant="outline"
             :disabled="submitting"
-            @click="open = false"
+            @click="() => { open = false }"
           >
             {{ t('cancel') }}
           </UButton>

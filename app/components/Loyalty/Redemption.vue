@@ -264,7 +264,7 @@ const clearRedemption = () => {
                   md:block
                 `,
               }"
-              @click="formState.pointsToRedeem = maxRedeemablePoints"
+              @click="() => { formState.pointsToRedeem = maxRedeemablePoints }"
             >
               {{ t('redeem_all') }}
             </UButton>

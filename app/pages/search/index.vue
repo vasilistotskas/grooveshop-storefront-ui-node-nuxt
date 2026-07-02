@@ -198,7 +198,7 @@ useHead({
                     color="neutral"
                     variant="ghost"
                     size="sm"
-                    @click="query = ''"
+                    @click="() => { query = '' }"
                   />
                 </div>
               </template>
@@ -373,7 +373,7 @@ useHead({
         <UButton
           icon="i-heroicons-arrow-path"
           color="neutral"
-          @click="query = ''"
+          @click="() => { query = '' }"
         >
           {{ t('page.no_results.clear_search') }}
         </UButton>
