@@ -665,9 +665,14 @@ definePageMeta({
         >
           <ProductImages :product="product" />
 
+          <!-- min-w-0: below lg this is a grid item in an implicit ``auto``
+               track, whose min-width:auto otherwise inflates the track to the
+               min-content of the non-wrapping variant carousel (5 cards ≈
+               600px) and blows the page out sideways on mobile. Zeroing it
+               lets the carousel scroll inside the viewport instead. -->
           <div
             class="
-              flex flex-col gap-4
+              flex min-w-0 flex-col gap-4
               md:gap-6
             "
           >
