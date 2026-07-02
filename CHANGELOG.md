@@ -1,3 +1,10 @@
+## [3.139.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.139.0...v3.139.1) (2026-07-02)
+
+
+### Bug Fixes
+
+* **checkout:** route Viva card payments to the order success page ([33982a7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/33982a722480ba0a8c75de214b461b0282c62a87))
+
 # [3.139.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.138.1...v3.139.0) (2026-07-02)
 
 
