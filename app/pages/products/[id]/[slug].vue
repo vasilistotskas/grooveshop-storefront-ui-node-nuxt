@@ -45,7 +45,7 @@ const viewContentFired = ref(false)
 // without re-fetching on homepage/PDP rails.
 const recentlyViewed = useRecentlyViewed()
 
-const { data: product, refresh: refreshProduct } = await useFetch<ProductDetail>(
+const { data: product, error: productError, refresh: refreshProduct } = await useFetch<ProductDetail>(
   `/api/products/${productId}`,
   {
     key: `product${productId}`,
@@ -58,10 +58,17 @@ const { data: product, refresh: refreshProduct } = await useFetch<ProductDetail>
 )
 
 if (!product.value) {
-  throw createError({
-    statusCode: 404,
-    message: t('error.page.not.found'),
-  })
+  // Distinguish "row really absent" (404) from "backend unavailable"
+  // (5xx / timeout): a transient upstream failure must surface as 503
+  // so crawlers treat it as temporary — a 404 here de-indexes live
+  // products during backend blips — and so error.vue's one-shot
+  // reload can self-heal the visit.
+  const upstreamStatus = productError.value?.statusCode ?? 404
+  throw createError(
+    upstreamStatus >= 500
+      ? { statusCode: 503, message: t('error.service.unavailable') }
+      : { statusCode: 404, message: t('error.page.not.found') },
+  )
 }
 
 // Fetch images and reviews in parallel (both needed for SSR/Schema.org)

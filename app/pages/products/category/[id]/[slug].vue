@@ -9,7 +9,7 @@ const categoryId = 'id' in route.params
   ? route.params.id
   : undefined
 
-const { data: category } = await useFetch<ProductCategoryDetail>(
+const { data: category, error: categoryError } = await useFetch<ProductCategoryDetail>(
   `/api/products/categories/${categoryId}`,
   {
     key: `category${categoryId}`,
@@ -22,10 +22,14 @@ const { data: category } = await useFetch<ProductCategoryDetail>(
 )
 
 if (!category.value) {
-  throw createError({
-    statusCode: 404,
-    message: t('error.page.not.found'),
-  })
+  // Normalize upstream 5xx to 503 (see products/[id]/[slug].vue):
+  // temporary for crawlers + retryable by error.vue's one-shot reload.
+  const upstreamStatus = categoryError.value?.statusCode ?? 404
+  throw createError(
+    upstreamStatus >= 500
+      ? { statusCode: 503, message: t('error.service.unavailable') }
+      : { statusCode: 404, message: t('error.page.not.found') },
+  )
 }
 
 // Lightweight first-page fetch for Schema.org ItemList.

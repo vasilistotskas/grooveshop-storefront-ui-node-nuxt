@@ -22,6 +22,20 @@ useHead({
   title: t('error.page.title'),
 })
 
+// Transient SSR failures (backend readiness gaps during HPA churn —
+// prod audit 2026-07-02) reach the visitor as a 5xx error page even
+// though the backend recovers within seconds. Retry ONCE via
+// reloadNuxtApp: its built-in ttl guard (sessionStorage) ignores a
+// second reload request within the window, so a real outage settles
+// on this page instead of looping. Skipped in dev so errors stay
+// visible while debugging.
+onMounted(() => {
+  const statusCode = props.error?.statusCode ?? 0
+  if (!import.meta.dev && statusCode >= 500) {
+    reloadNuxtApp({ ttl: 30000 })
+  }
+})
+
 const helpfulTips = computed(() => {
   if (props.error?.statusCode === 404) {
     return [

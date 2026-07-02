@@ -42,10 +42,17 @@ const { data: blogPost, refresh, error: blogPostError } = await useFetch(
 )
 
 if (blogPostError.value || !blogPost.value) {
-  throw createError({
-    statusCode: blogPostError.value?.statusCode || 404,
-    message: blogPostError.value?.message || t('error.page.not.found'),
-  })
+  // Normalize upstream 5xx to 503 (see products/[id]/[slug].vue):
+  // temporary for crawlers + retryable by error.vue's one-shot reload.
+  const upstreamStatus = blogPostError.value?.statusCode ?? 404
+  throw createError(
+    upstreamStatus >= 500
+      ? { statusCode: 503, message: t('error.service.unavailable') }
+      : {
+          statusCode: upstreamStatus,
+          message: blogPostError.value?.message || t('error.page.not.found'),
+        },
+  )
 }
 
 // Critical data: category and author (needed for initial render)

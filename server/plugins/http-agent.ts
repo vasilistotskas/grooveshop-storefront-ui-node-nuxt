@@ -18,6 +18,16 @@ export default defineNitroPlugin((nitroApp) => {
     keepAliveMaxTimeout: 60000, // Max 60 seconds
     connections: 100, // Max concurrent connections per origin
     pipelining: 1, // Sequential requests per connection (safer default)
+    // Undici defaults both response timeouts to 300s, which let a
+    // stalled Django upstream pin an SSR render far past the edge
+    // (Traefik) timeout — the user saw a dead document, we saw
+    // nothing. 15s to first header byte / 30s of body inactivity
+    // bound every server-side $fetch centrally, so an upstream blip
+    // degrades the page (guarded fetch chains, 503 on the document)
+    // instead of hanging it. Prod audit 2026-07-02: backend readiness
+    // gaps under CPU load are the trigger.
+    headersTimeout: 15000,
+    bodyTimeout: 30000,
     connect: {
       timeout: 10000, // 10 second connection timeout
       rejectUnauthorized: true, // Verify SSL in production

@@ -110,8 +110,15 @@ export default defineNitroPlugin(async (nitroApp) => {
   // This is required because Nitro auto-mounts before plugins run
   await storage.unmount(CACHE_MOUNT_POINT).catch(() => {})
 
+  // Mount memory immediately so the pod can serve (and pass its first
+  // readiness render) without waiting on the Redis probe below. Nitro
+  // awaits plugin init before handling any request, so awaiting the
+  // ~5s connectTimeout here delayed every scale-up pod's readiness —
+  // the prod audit (2026-07-02) caught fresh replicas failing startup
+  // probes with "context deadline exceeded" during HPA churn.
+  storage.mount(CACHE_MOUNT_POINT, memoryDriver())
+
   if (!useRedis) {
-    storage.mount(CACHE_MOUNT_POINT, memoryDriver())
     log.info('cache', `Using memory driver (NUXT_CACHE_BASE=${config.cacheBase})`)
     return
   }
@@ -124,15 +131,19 @@ export default defineNitroPlugin(async (nitroApp) => {
 
   log.info('cache', `Testing Redis connection at ${redisHost}:${redisPort} (db: ${redisDB})...`)
 
-  const isConnected = await testRedisConnection(redisHost, redisPort, redisDB, redisPassword)
-
-  if (isConnected) {
-    const driver = createRedisDriver({ host: redisHost, port: redisPort, ttl: redisTTL, db: redisDB, password: redisPassword })
-    storage.mount(CACHE_MOUNT_POINT, driver)
-    log.info('cache', `Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort} db=${redisDB}, TTL: ${redisTTL}s)`)
-  }
-  else {
-    storage.mount(CACHE_MOUNT_POINT, memoryDriver())
-    log.warn('cache', `Redis unavailable, using memory driver (not shared across pods!)`)
-  }
+  // Deliberately NOT awaited: the probe runs in the background and
+  // swaps Redis in when it succeeds. Cache entries written to memory
+  // during that window are simply lost on swap — an acceptable cost;
+  // Nitro's cached handlers already tolerate cache-layer errors.
+  void testRedisConnection(redisHost, redisPort, redisDB, redisPassword).then(async (isConnected) => {
+    if (isConnected) {
+      const driver = createRedisDriver({ host: redisHost, port: redisPort, ttl: redisTTL, db: redisDB, password: redisPassword })
+      await storage.unmount(CACHE_MOUNT_POINT).catch(() => {})
+      storage.mount(CACHE_MOUNT_POINT, driver)
+      log.info('cache', `Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort} db=${redisDB}, TTL: ${redisTTL}s)`)
+    }
+    else {
+      log.warn('cache', `Redis unavailable, keeping memory driver (not shared across pods!)`)
+    }
+  })
 })
