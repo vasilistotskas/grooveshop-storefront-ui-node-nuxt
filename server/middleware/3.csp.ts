@@ -93,12 +93,17 @@ export default defineEventHandler((event) => {
     `font-src 'self' https://fonts.gstatic.com`,
     `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}${metaConnectSrc}`,
     // BoxNow widget iframe origins per their CDN: gr (primary), plus
-    // cy/bg/hr regional variants (Phase 2 multi-country) and the v1-v4
-    // back-compat versions surfaced by the loader script we audited.
+    // cy/bg/hr regional variants (Phase 2 multi-country).
+    // ``widget-v4.boxnow.gr`` is required even though we load the v5 URL:
+    // BoxNow's CDN HTTP-redirects ``widget-v5.boxnow.gr/iframe.html`` to
+    // widget-v4, and CSP validates every hop of a frame's redirect chain
+    // against frame-src — without it the checkout locker modal is blocked.
+    // Keep in sync with ``BOXNOW_ALLOWED_ORIGINS`` in
+    // ``app/composables/useBoxNowWidget.ts``.
     // ``data:`` is added in dev so Nuxt's nitro error overlay (which
     // base64-encodes a stack-trace iframe) can render — production
     // never ships that overlay so the scheme stays out of prod CSP.
-    `frame-src 'self'${import.meta.dev ? ' data:' : ''} https://js.stripe.com https://challenges.cloudflare.com https://accounts.google.com https://widget-v5.boxnow.gr https://widget-v5.boxnow.cy https://widget-v5.boxnow.bg https://widget-v5.boxnow.hr https://widget.boxnow.gr`,
+    `frame-src 'self'${import.meta.dev ? ' data:' : ''} https://js.stripe.com https://challenges.cloudflare.com https://accounts.google.com https://widget-v5.boxnow.gr https://widget-v5.boxnow.cy https://widget-v5.boxnow.bg https://widget-v5.boxnow.hr https://widget-v4.boxnow.gr https://widget.boxnow.gr`,
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'`,
