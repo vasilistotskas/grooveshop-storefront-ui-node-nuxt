@@ -1,3 +1,10 @@
+## [3.139.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.139.1...v3.139.2) (2026-07-02)
+
+
+### Performance Improvements
+
+* **pdp:** fetchpriority LCP image, cache scripts ([9f94a20](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9f94a206a4b20449753161a6c703fbcb1f9cc501))
+
 ## [3.139.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.139.0...v3.139.1) (2026-07-02)
 
 
