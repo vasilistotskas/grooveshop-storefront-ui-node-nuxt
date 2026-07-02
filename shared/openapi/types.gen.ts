@@ -6183,14 +6183,6 @@ export type ReserveStockResponse = {
   message: string
 }
 
-export type ResolveVivaOrderCodeError = {
-  error: string
-}
-
-export type ResolveVivaOrderCodeResponse = {
-  uuid: string
-}
-
 /**
  * * `NEW` - Νέο
  * * `TRUE` - Ναι
@@ -7370,6 +7362,16 @@ export type VariantAxis = {
 export type VariantAxisValue = {
   id: number
   value: string
+}
+
+/**
+ * Minimal, PII-free payload for the Viva post-payment redirect hop.
+ */
+export type VivaReturnLookupResponse = {
+  id: number
+  uuid: string
+  status: string
+  paymentStatus: string
 }
 
 export type WebSocketTicketResponse = {
@@ -16195,11 +16197,15 @@ export type RetrieveOrderByUuidResponse = RetrieveOrderByUuidResponses[keyof Ret
 export type VivaReturnLookupData = {
   body?: never
   path?: never
-  query: {
+  query?: {
+    /**
+         * Viva order code (16-digit id of the payment order).
+         */
+    s?: string
     /**
          * Viva transaction_id (UUID).
          */
-    t: string
+    t?: string
   }
   url: '/api/v1/order/viva_return'
 }
@@ -16216,11 +16222,10 @@ export type VivaReturnLookupErrors = {
 }
 
 export type VivaReturnLookupResponses = {
-  /**
-     * No response body
-     */
-  200: unknown
+  200: VivaReturnLookupResponse
 }
+
+export type VivaReturnLookupResponse2 = VivaReturnLookupResponses[keyof VivaReturnLookupResponses]
 
 export type ListPayWayData = {
   body?: never
@@ -22772,28 +22777,3 @@ export type BoxnowWebhookResponses = {
      */
   200: unknown
 }
-
-export type ResolveVivaOrderCodeData = {
-  body?: never
-  path?: never
-  query: {
-    /**
-         * Viva Wallet ``OrderCode`` returned to the customer after a successful checkout.
-         */
-    orderCode: string
-  }
-  url: '/viva-wallet/resolve-order'
-}
-
-export type ResolveVivaOrderCodeErrors = {
-  400: ResolveVivaOrderCodeError
-  404: ResolveVivaOrderCodeError
-}
-
-export type ResolveVivaOrderCodeError2 = ResolveVivaOrderCodeErrors[keyof ResolveVivaOrderCodeErrors]
-
-export type ResolveVivaOrderCodeResponses = {
-  200: ResolveVivaOrderCodeResponse
-}
-
-export type ResolveVivaOrderCodeResponse2 = ResolveVivaOrderCodeResponses[keyof ResolveVivaOrderCodeResponses]

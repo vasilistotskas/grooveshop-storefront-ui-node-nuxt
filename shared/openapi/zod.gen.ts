@@ -3691,14 +3691,6 @@ export const zReserveStockResponse = z.object({
   description: 'Serializer for reserve stock response.',
 })
 
-export const zResolveVivaOrderCodeError = z.object({
-  error: z.string(),
-})
-
-export const zResolveVivaOrderCodeResponse = z.object({
-  uuid: z.uuid(),
-})
-
 /**
  * * `NEW` - Νέο
  * * `TRUE` - Ναι
@@ -5412,6 +5404,18 @@ export const zProductVariantsResponse = z.object({
   variants: z.array(zProductVariant),
 }).register(z.globalRegistry, {
   description: 'Payload for ``GET /product/{id}/variants`` — the axes to render and the\nsibling products that fill them.',
+})
+
+/**
+ * Minimal, PII-free payload for the Viva post-payment redirect hop.
+ */
+export const zVivaReturnLookupResponse = z.object({
+  id: z.int(),
+  uuid: z.uuid(),
+  status: z.string(),
+  paymentStatus: z.string(),
+}).register(z.globalRegistry, {
+  description: 'Minimal, PII-free payload for the Viva post-payment redirect hop.',
 })
 
 export const zWebSocketTicketResponse = z.object({
@@ -12403,10 +12407,15 @@ export const zRetrieveOrderByUuidPath = z.object({
 export const zRetrieveOrderByUuidResponse = zOrderDetail
 
 export const zVivaReturnLookupQuery = z.object({
+  s: z.string().register(z.globalRegistry, {
+    description: 'Viva order code (16-digit id of the payment order).',
+  }).optional(),
   t: z.string().register(z.globalRegistry, {
     description: 'Viva transaction_id (UUID).',
-  }),
+  }).optional(),
 })
+
+export const zVivaReturnLookupResponse2 = zVivaReturnLookupResponse
 
 export const zListPayWayQuery = z.object({
   active: z.union([
@@ -16909,11 +16918,3 @@ export const zUnsubscribeFromTopicOneClickPath = z.object({
 export const zCreateWebSocketTicketResponse = zWebSocketTicketResponse
 
 export const zBoxnowWebhookBody = zBoxNowWebhookEnvelopeRequest
-
-export const zResolveVivaOrderCodeQuery = z.object({
-  orderCode: z.string().register(z.globalRegistry, {
-    description: 'Viva Wallet ``OrderCode`` returned to the customer after a successful checkout.',
-  }),
-})
-
-export const zResolveVivaOrderCodeResponse2 = zResolveVivaOrderCodeResponse

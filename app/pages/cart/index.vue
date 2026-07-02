@@ -75,6 +75,24 @@ watch(showRecoveredBanner, (isShown) => {
     .catch(() => {})
 })
 
+// The Viva return route forwards here with ``?paymentError=<code>``
+// when it cannot resolve the post-payment redirect to an order
+// (garbage/forged params). Surface a toast instead of dropping the
+// shopper silently — /checkout can't host this feedback because its
+// empty-cart middleware bounces to the homepage before any toast
+// renders.
+onMounted(() => {
+  if (!route.query.paymentError) return
+  const toast = useToast()
+  toast.add({
+    title: t('payment_lookup_failed_title'),
+    description: t('payment_lookup_failed_description'),
+    color: 'error',
+  })
+  router.replace({ query: { ...route.query, paymentError: undefined } })
+    .catch(() => {})
+})
+
 const breadcrumb = computed(() => [
   {
     label: t('home'),
@@ -398,6 +416,8 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   home: Αρχική
+  payment_lookup_failed_title: Σφάλμα επαλήθευσης πληρωμής
+  payment_lookup_failed_description: Δεν μπορέσαμε να εντοπίσουμε την παραγγελία σου. Αν χρεώθηκες, θα λάβεις email επιβεβαίωσης — αλλιώς επικοινώνησε με την υποστήριξη.
   shopping_cart: Καλάθι Αγορών
   items_in_cart: "{count} προϊόντα"
   empty:
