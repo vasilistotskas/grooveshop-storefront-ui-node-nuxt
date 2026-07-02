@@ -219,6 +219,17 @@ export default defineNuxtConfig({
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
     },
+    // @nuxt/scripts bundled third-party assets (gtag, fbevents). The
+    // filenames are content-hashed but the module's handler serves
+    // them with NO Cache-Control (the '/**/*.{css,js}' rule below
+    // doesn't reach it), so every visit re-downloaded ~210KiB of
+    // analytics bundles — Lighthouse cache-insight flagged 273KiB.
+    // Immutable is safe: the hash changes whenever content does.
+    '/_scripts/**': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    },
     '/**/*.{png,jpg,jpeg,gif,avif,webp,svg,ico}': {
       headers: {
         'Cache-Control': 'public, max-age=31536000, immutable',
