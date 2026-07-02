@@ -32,11 +32,12 @@ if (productId) {
   trackView('product', Number(productId))
 }
 
-// Meta Pixel — ViewContent / GA4 — view_item, both fire once per
-// product detail load on the client. SSR-safe via ``onMounted`` so
-// the prerender pass never produces a phantom event. Browser-only
-// (no server-side leg for either).
+// Meta/TikTok Pixel — ViewContent / GA4 — view_item, all fire once
+// per product detail load on the client. SSR-safe via ``onMounted``
+// so the prerender pass never produces a phantom event. Browser-only
+// (no server-side leg for any of them).
 const metaPixel = useMetaPixel()
+const tiktokPixel = useTikTokPixel()
 const ga4 = useGA4()
 const viewContentFired = ref(false)
 
@@ -171,6 +172,22 @@ onMounted(() => {
           ]
         : [],
       contentName: productName,
+    })
+    tiktokPixel.trackViewContent({
+      currency: 'EUR',
+      value: price,
+      contentType: 'product',
+      contentName: productName,
+      contents: pid
+        ? [
+            {
+              contentId: pid,
+              contentName: productName,
+              quantity: 1,
+              price,
+            },
+          ]
+        : [],
     })
     ga4.trackViewItem({
       currency: 'EUR',

@@ -196,6 +196,11 @@ export default defineNuxtConfig({
       // build-time value is baked in (usually undefined in CI) and
       // the runtime configmap value is silently ignored.
       metaPixelId: process.env.NUXT_PUBLIC_META_PIXEL_ID,
+      // TikTok Pixel — same placement + env-naming rationale as
+      // ``metaPixelId`` above; overridden at runtime by
+      // ``NUXT_PUBLIC_TIKTOK_PIXEL_ID``. The ``useTikTokPixel``
+      // composable reads from this path.
+      tiktokPixelId: process.env.NUXT_PUBLIC_TIKTOK_PIXEL_ID,
       titleSeparator: process.env.NUXT_PUBLIC_TITLE_SEPARATOR,
       trailingSlash: String(process.env.NUXT_PUBLIC_TRAILING_SLASH) === 'true',
       static: {

@@ -30,6 +30,7 @@ beforeAll(async () => {
       static: { origin: 'https://static.webside.gr' },
       djangoHostName: 'api.webside.gr',
       metaPixelId: 'PIXEL123',
+      tiktokPixelId: 'TTPIXEL123',
     },
   }))
   vi.stubGlobal('setResponseHeader', (_event: unknown, name: string, value: string) => {
@@ -69,6 +70,16 @@ describe('csp middleware', () => {
     expect(imgSrc).toContain('https://static.webside.gr')
     // The API host is for XHR/WebSocket, not <img> — it should not be in img-src.
     expect(imgSrc).not.toContain('api.webside.gr')
+  })
+
+  it('allows the TikTok Pixel origins when a pixel id is provisioned', () => {
+    const csp = runWith('/products/3/some-product')['Content-Security-Policy']
+    const directive = (name: string) =>
+      csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
+    expect(directive('script-src')).toContain('https://analytics.tiktok.com')
+    expect(directive('connect-src')).toContain('https://analytics.tiktok.com')
+    expect(directive('connect-src')).toContain('https://*.tiktok.com')
+    expect(directive('img-src')).toContain('https://*.tiktok.com')
   })
 
   it('skips API, _nuxt and _ipx routes (no CSP header set)', () => {

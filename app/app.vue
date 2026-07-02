@@ -4,6 +4,7 @@ import * as uiLocales from '@nuxt/ui/locale'
 setupPageHeader()
 setupGoogleAnalyticsConsent()
 setupMetaPixelConsent()
+setupTikTokPixelConsent()
 setupCookieConsentTracking()
 setupCursorState()
 setupSocialLogin()

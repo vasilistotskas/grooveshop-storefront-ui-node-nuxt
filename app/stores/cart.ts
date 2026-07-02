@@ -1,12 +1,14 @@
 export const useCartStore = defineStore('cart', () => {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
-  // Capture the Meta Pixel + GA4 proxies at store-setup time so the
+  // Capture the pixel + GA4 proxies at store-setup time so the
   // action body doesn't call ``useScriptMetaPixel`` /
-  // ``useScriptGoogleAnalytics`` from outside Nuxt's component setup
-  // context (Pinia store actions persist across the app's lifecycle
-  // while individual page setups come and go).
+  // ``useScriptTikTokPixel`` / ``useScriptGoogleAnalytics`` from
+  // outside Nuxt's component setup context (Pinia store actions
+  // persist across the app's lifecycle while individual page setups
+  // come and go).
   const metaPixel = useMetaPixel()
+  const tiktokPixel = useTikTokPixel()
   const ga4 = useGA4()
   const cart = ref<CartDetail | null>(null)
   const inFlight = reactive(new Set<string>())
@@ -118,6 +120,19 @@ export const useCartStore = defineStore('cart', () => {
               },
             ],
             contentType: 'product',
+          })
+
+          tiktokPixel.trackAddToCart({
+            currency,
+            value,
+            contentType: 'product',
+            contents: [
+              {
+                contentId: String(productId),
+                quantity,
+                price: unitPrice,
+              },
+            ],
           })
 
           ga4.trackAddToCart({

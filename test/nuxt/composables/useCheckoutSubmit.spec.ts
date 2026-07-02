@@ -28,6 +28,7 @@ const {
   mockCleanCartState,
   mockNavigateTo,
   mockMetaPixelImpl,
+  mockTikTokPixelImpl,
   mockGA4Impl,
 } = vi.hoisted(() => ({
   mockReserveStock: vi.fn(),
@@ -39,6 +40,10 @@ const {
     newEventId: vi.fn().mockReturnValue('pixel-event-id'),
     trackInitiateCheckout: vi.fn().mockReturnValue('pixel-event-id'),
     trackAddPaymentInfo: vi.fn().mockReturnValue('pixel-event-id'),
+  },
+  mockTikTokPixelImpl: {
+    trackInitiateCheckout: vi.fn(),
+    trackAddPaymentInfo: vi.fn(),
   },
   mockGA4Impl: {
     trackBeginCheckout: vi.fn(),
@@ -81,6 +86,7 @@ mockNuxtImport('storeToRefs', () => (_store: any) => ({
 }))
 
 mockNuxtImport('useMetaPixel', () => () => mockMetaPixelImpl)
+mockNuxtImport('useTikTokPixel', () => () => mockTikTokPixelImpl)
 mockNuxtImport('useGA4', () => () => mockGA4Impl)
 mockNuxtImport('useCookieControl', () => () => ({
   cookiesEnabledIds: { value: [] },

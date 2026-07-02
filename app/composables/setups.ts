@@ -133,6 +133,28 @@ export function setupGoogleAnalyticsConsent() {
 }
 
 /**
+ * Reactive "the customer granted ad consent" gate shared by the ad
+ * pixels (Meta, TikTok): the user has explicitly accepted the banner
+ * AND the ``ad_storage`` category is enabled. Either gate alone is
+ * insufficient:
+ *
+ * * isConsentGiven only flips true after the user clicks the banner
+ *   so we don't fire pixel events for visitors who never made a
+ *   choice.
+ * * Even when the banner is acknowledged, the user can deselect
+ *   ad_storage via "Manage preferences" — we honour that choice.
+ */
+function useAdStorageConsent() {
+  const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
+  return computed(() =>
+    !!(
+      isConsentGiven.value
+      && cookiesEnabledIds.value?.includes('ad_storage')
+    ),
+  )
+}
+
+/**
  * Initialise the Meta Pixel — single source of truth for the
  * registration. Called from ``app.vue`` setup once per app instance.
  *
@@ -177,26 +199,36 @@ export function setupMetaPixelConsent() {
   // storage).
   if (import.meta.server) return
 
-  const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
-
-  // Reactive: the user has explicitly accepted the banner AND the
-  // ad_storage category is enabled. Either gate alone is insufficient:
-  //
-  // * isConsentGiven only flips true after the user clicks the banner
-  //   so we don't fire pixel events for visitors who never made a
-  //   choice.
-  // * Even when the banner is acknowledged, the user can deselect
-  //   ad_storage via "Manage preferences" — we honour that choice.
-  const adConsent = computed(() =>
-    !!(
-      isConsentGiven.value
-      && cookiesEnabledIds.value?.includes('ad_storage')
-    ),
-  )
-
-  const trigger = useScriptTriggerConsent({ consent: adConsent })
+  const trigger = useScriptTriggerConsent({ consent: useAdStorageConsent() })
 
   useScriptMetaPixel({
+    id: pixelId,
+    scriptOptions: { trigger },
+  })
+}
+
+/**
+ * Initialise the TikTok Pixel — single source of truth for the
+ * registration, mirroring ``setupMetaPixelConsent`` above: same
+ * consent-trigger lifecycle (the script tag is injected only after
+ * the customer grants ``ad_storage``) and same client-only posture
+ * (the registry's ``use()`` dereferences ``window.ttq`` and would
+ * throw during prerender / SSR). Called from ``app.vue`` setup once
+ * per app instance.
+ *
+ * No-op when ``NUXT_PUBLIC_TIKTOK_PIXEL_ID`` is not provisioned — the
+ * cookie banner stays untouched and ``useTikTokPixel`` consumers
+ * receive a no-op proxy.
+ */
+export function setupTikTokPixelConsent() {
+  const config = useRuntimeConfig()
+  const pixelId = (config.public as { tiktokPixelId?: string })?.tiktokPixelId
+  if (!pixelId) return
+  if (import.meta.server) return
+
+  const trigger = useScriptTriggerConsent({ consent: useAdStorageConsent() })
+
+  useScriptTikTokPixel({
     id: pixelId,
     scriptOptions: { trigger },
   })

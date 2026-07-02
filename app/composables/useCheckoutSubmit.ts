@@ -45,6 +45,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   // GA4 mirrors the same lifecycle but doesn't dedup against a
   // server leg — separate analytics ecosystem.
   const metaPixel = useMetaPixel()
+  const tiktokPixel = useTikTokPixel()
   const ga4 = useGA4()
   const cookieControl = useCookieControl()
   const metaEventIds = reactive<{
@@ -699,6 +700,20 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
           })
           if (eventId) metaEventIds.addPaymentInfo = eventId
 
+          tiktokPixel.trackAddPaymentInfo({
+            currency,
+            value,
+            contentType: 'product',
+            contents:
+              cart.value?.items?.map(item => ({
+                contentId: String(item.product?.id ?? ''),
+                quantity: Number(item.quantity ?? 0),
+                price: Number(
+                  item.product?.finalPrice ?? item.product?.price ?? 0,
+                ),
+              })) ?? [],
+          })
+
           ga4.trackAddPaymentInfo({
             currency,
             value,
@@ -727,6 +742,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
    * Called once when the customer enters the checkout flow. Fires:
    * * Meta InitiateCheckout (browser leg, deduped against the Django
    *   server leg via ``metaEventIds.initiateCheckout``)
+   * * TikTok InitiateCheckout (browser-only, no dedup)
    * * GA4 begin_checkout (browser-only, no dedup)
    */
   const fireInitiateCheckout = () => {
@@ -746,6 +762,20 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         numItems: cart.value?.totalItems ?? 0,
       })
       if (eventId) metaEventIds.initiateCheckout = eventId
+
+      tiktokPixel.trackInitiateCheckout({
+        currency,
+        value,
+        contentType: 'product',
+        contents:
+          cart.value?.items?.map(item => ({
+            contentId: String(item.product?.id ?? ''),
+            quantity: Number(item.quantity ?? 0),
+            price: Number(
+              item.product?.finalPrice ?? item.product?.price ?? 0,
+            ),
+          })) ?? [],
+      })
 
       ga4.trackBeginCheckout({
         currency,

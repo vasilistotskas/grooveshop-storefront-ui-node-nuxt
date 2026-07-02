@@ -122,6 +122,7 @@ onBeforeUnmount(() => {
 // Capture once at setup so the watcher / onMounted callback don't
 // re-invoke ``useScript*`` from outside setup context.
 const metaPixel = useMetaPixel()
+const tiktokPixel = useTikTokPixel()
 const ga4 = useGA4()
 const purchaseEventFired = ref(false)
 function tryFirePurchaseEvent() {
@@ -171,6 +172,23 @@ function tryFirePurchaseEvent() {
       },
       { eventID: eventId },
     )
+
+    // TikTok: CompletePayment — TikTok's web purchase event
+    // (``Purchase`` is a separate offline/shop event). Browser-only,
+    // no server-side Events API leg, so no event_id dedup; the
+    // ``purchaseEventFired`` guard + ``fromCheckout`` gate above
+    // prevent re-fires.
+    tiktokPixel.trackCompletePayment({
+      currency,
+      value,
+      orderId: transactionId,
+      contentType: 'product',
+      contents: orderItems.value.map(item => ({
+        contentId: String(item.product?.id ?? ''),
+        quantity: Number(item.quantity ?? 0),
+        price: Number(item.price ?? 0),
+      })),
+    })
 
     // GA4: purchase. ``transaction_id`` is the dedup key for GA4's
     // own server-side dedup; using the order ID here means a Stripe

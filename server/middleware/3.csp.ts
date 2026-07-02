@@ -81,6 +81,20 @@ export default defineEventHandler((event) => {
   const metaFrameSrc = metaPixelId ? ' https://www.facebook.com' : ''
   const metaFormAction = metaPixelId ? ' https://www.facebook.com' : ''
 
+  // TikTok Pixel runtime origins: ``events.js`` (and its secondary
+  // chunks) load from ``analytics.tiktok.com``; event beacons post to
+  // the same host but may be re-routed to regional endpoints (e.g.
+  // ``analytics-sg.tiktok.com``), hence the wildcard on img/connect.
+  // Same gating rationale as the Meta block above.
+  const tiktokPixelId = (config.public as { tiktokPixelId?: string })?.tiktokPixelId
+  const tiktokScriptSrc = tiktokPixelId ? ' https://analytics.tiktok.com' : ''
+  const tiktokImgSrc = tiktokPixelId
+    ? ' https://analytics.tiktok.com https://*.tiktok.com'
+    : ''
+  const tiktokConnectSrc = tiktokPixelId
+    ? ' https://analytics.tiktok.com https://*.tiktok.com'
+    : ''
+
   // GA4 with Google Signals enabled fires a remarketing pixel to
   // ``www.google.<tld>/ads/ga-audiences`` (an <img>, sometimes a beacon).
   // The ccTLD follows the visitor's locale — ``.gr`` for Greek users,
@@ -94,11 +108,11 @@ export default defineEventHandler((event) => {
 
   const directives = [
     `default-src 'self'`,
-    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com${metaScriptSrc}`,
+    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com${metaScriptSrc}${tiktokScriptSrc}`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${tileOrigins}${metaImgSrc}`,
+    `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${tileOrigins}${metaImgSrc}${tiktokImgSrc}`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}${metaConnectSrc}`,
+    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHost}${metaConnectSrc}${tiktokConnectSrc}`,
     // BoxNow widget iframe origins per their CDN: gr (primary), plus
     // cy/bg/hr regional variants (Phase 2 multi-country).
     // ``widget-v4.boxnow.gr`` is required even though we load the v5 URL:
