@@ -1,3 +1,10 @@
+# [3.138.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.137.1...v3.138.0) (2026-07-02)
+
+
+### Features
+
+* **product:** mobile carousel for variant cards ([78f7aa7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/78f7aa779b12c1fd887bde345835dee20796b5c4))
+
 ## [3.137.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.137.0...v3.137.1) (2026-07-02)
 
 
