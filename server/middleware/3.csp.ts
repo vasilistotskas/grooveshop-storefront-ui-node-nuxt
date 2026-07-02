@@ -73,6 +73,13 @@ export default defineEventHandler((event) => {
   const metaConnectSrc = metaPixelId
     ? ' https://www.facebook.com https://*.facebook.com'
     : ''
+  // fbevents.js additionally creates a hidden www.facebook.com iframe
+  // (browser-feature probing) and falls back to a <form> POST to
+  // ``www.facebook.com/tr/`` when an event payload exceeds beacon/img
+  // URL limits — both were CSP-blocked in production (visible in
+  // Lighthouse console errors), silently dropping those events.
+  const metaFrameSrc = metaPixelId ? ' https://www.facebook.com' : ''
+  const metaFormAction = metaPixelId ? ' https://www.facebook.com' : ''
 
   // GA4 with Google Signals enabled fires a remarketing pixel to
   // ``www.google.<tld>/ads/ga-audiences`` (an <img>, sometimes a beacon).
@@ -103,10 +110,10 @@ export default defineEventHandler((event) => {
     // ``data:`` is added in dev so Nuxt's nitro error overlay (which
     // base64-encodes a stack-trace iframe) can render — production
     // never ships that overlay so the scheme stays out of prod CSP.
-    `frame-src 'self'${import.meta.dev ? ' data:' : ''} https://js.stripe.com https://challenges.cloudflare.com https://accounts.google.com https://widget-v5.boxnow.gr https://widget-v5.boxnow.cy https://widget-v5.boxnow.bg https://widget-v5.boxnow.hr https://widget-v4.boxnow.gr https://widget.boxnow.gr`,
+    `frame-src 'self'${import.meta.dev ? ' data:' : ''} https://js.stripe.com https://challenges.cloudflare.com https://accounts.google.com https://widget-v5.boxnow.gr https://widget-v5.boxnow.cy https://widget-v5.boxnow.bg https://widget-v5.boxnow.hr https://widget-v4.boxnow.gr https://widget.boxnow.gr${metaFrameSrc}`,
     `object-src 'none'`,
     `base-uri 'self'`,
-    `form-action 'self'`,
+    `form-action 'self'${metaFormAction}`,
     `frame-ancestors 'none'`,
   ]
 
