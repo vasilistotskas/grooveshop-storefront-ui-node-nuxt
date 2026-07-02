@@ -101,3 +101,7 @@ minimumReleaseAgeExclude:
   - '@iconify-json/ant-design@1.2.6'
   - eslint@10.6.0
   - nuxt-ai-ready@1.5.2
+  - '@nuxt/icon@2.3.1'
+  - '@semantic-release/github@12.0.9'
+  - '@stripe/stripe-js@9.9.0'
+  - vite@8.1.3
