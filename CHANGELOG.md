@@ -1,3 +1,17 @@
+# [3.137.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.136.0...v3.137.0) (2026-07-02)
+
+
+### Bug Fixes
+
+* **build:** drop class-shaped token from comment ([52aac1b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/52aac1bc6dca0c920be939a4379cd81004eee99f))
+* **checkout:** allow BoxNow v4 widget origin in CSP ([d99a566](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d99a56625d76ee6f8cbf57025a4db4e346879dae))
+* **ui:** return void from UButton click handlers ([94538da](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/94538dac3c9e16916e76f7b8fe420b3099c6fbc5))
+
+
+### Features
+
+* **product:** add variant selector on PDP ([7deef6a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7deef6a3e3d209ab12c31ec81ce361abd23d5e52))
+
 # [3.136.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.135.2...v3.136.0) (2026-07-02)
 
 
