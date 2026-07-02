@@ -733,6 +733,10 @@ definePageMeta({
               </div>
             </div>
 
+            <!-- Variant selectors (colour / memory / …). Renders nothing
+                 unless the product belongs to a variant group. -->
+            <ProductVariantSelector v-if="product" :product="product" />
+
             <!-- Loyalty Points Badge (logged in) / Guest CTA -->
             <LoyaltyPointsBadge
               v-if="loggedIn && product?.id"

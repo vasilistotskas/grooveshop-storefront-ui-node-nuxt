@@ -83,6 +83,9 @@ export type AcsShipmentDetail = {
      * 10-digit ACS voucher (Voucher_No from ACS_Create_Voucher).
      */
   readonly voucherNo: string | null
+  /**
+     * Κατάσταση αποστολής
+     */
   shipmentState: ShipmentStateEnum
   /**
      * Human-readable label for the shipment_state choice
@@ -912,6 +915,9 @@ export type BlogPost = {
      * Return tags count from annotation or query database.
      */
   readonly tagsCount: number
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
   /**
      * Δημοσιεύθηκε στις
@@ -978,6 +984,9 @@ export type BlogPostDetail = {
      * Return tags count from annotation or query database.
      */
   readonly tagsCount: number
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
   /**
      * Δημοσιεύθηκε στις
@@ -995,8 +1004,17 @@ export type BlogPostDetail = {
   readonly readingTime: number
   readonly contentPreview: string
   readonly userHasLiked: boolean
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -1065,9 +1083,21 @@ export type BlogPostWriteRequest = {
      * Προβεβλημένο
      */
   featured?: boolean
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -1468,6 +1498,8 @@ export type BoxNowParcelEvent = {
      */
   readonly eventTypeDisplay: string
   /**
+     * Κατάσταση Δέματος
+     *
      * Raw 'data.parcelState' value from BoxNow webhook payload
      */
   readonly parcelState: string
@@ -1487,6 +1519,9 @@ export type BoxNowParcelEvent = {
      * data.eventLocation.postalCode
      */
   readonly postalCode: string
+  /**
+     * Πρόσθετες Πληροφορίες
+     */
   readonly additionalInformation: string
   /**
      * Timestamp when GrooveShop received the webhook (separate from event_time)
@@ -1547,6 +1582,9 @@ export type BoxNowShipmentDetail = {
      * Denormalised BoxNow APM ID — preserved even if the BoxNowLocker row is deleted
      */
   readonly lockerExternalId: string
+  /**
+     * Κατάσταση Δέματος
+     */
   parcelState: BoxNowParcelState
   /**
      * Human-readable label for the parcel_state choice
@@ -2572,22 +2610,22 @@ export type Notification = {
      *
      * Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.
      *
-     * * `order_created` - Order created
-     * * `order_processing` - Order processing
-     * * `order_shipped` - Order shipped
-     * * `order_delivered` - Order delivered
-     * * `order_completed` - Order completed
-     * * `order_canceled` - Order canceled
-     * * `order_refunded` - Order refunded
+     * * `order_created` - Η παραγγελία δημιουργήθηκε
+     * * `order_processing` - Επεξεργασία παραγγελίας
+     * * `order_shipped` - Η παραγγελία απεστάλη
+     * * `order_delivered` - Η παραγγελία παραδόθηκε
+     * * `order_completed` - Η παραγγελία ολοκληρώθηκε
+     * * `order_canceled` - Η παραγγελία ακυρώθηκε
+     * * `order_refunded` - Επιστροφή χρημάτων παραγγελίας
      * * `shipment_dispatched` - Αποστολή απεστάλη
-     * * `payment_confirmed` - Payment confirmed
-     * * `payment_failed` - Payment failed
+     * * `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε
+     * * `payment_failed` - Η πληρωμή απέτυχε
      * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
-     * * `restock_favourite` - Back in stock (favourited product)
-     * * `loyalty_tier_up` - Loyalty tier promotion
+     * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
+     * * `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης
      * * `comment_liked` - Επισήμανση σχολίου blog
-     * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
-     * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+     * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
+     * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
      * * `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση
      */
   notificationType?: NotificationTypeEnum | BlankEnum
@@ -2652,22 +2690,22 @@ export type NotificationSuccessResponse = {
 }
 
 /**
- * * `order_created` - Order created
- * * `order_processing` - Order processing
- * * `order_shipped` - Order shipped
- * * `order_delivered` - Order delivered
- * * `order_completed` - Order completed
- * * `order_canceled` - Order canceled
- * * `order_refunded` - Order refunded
+ * * `order_created` - Η παραγγελία δημιουργήθηκε
+ * * `order_processing` - Επεξεργασία παραγγελίας
+ * * `order_shipped` - Η παραγγελία απεστάλη
+ * * `order_delivered` - Η παραγγελία παραδόθηκε
+ * * `order_completed` - Η παραγγελία ολοκληρώθηκε
+ * * `order_canceled` - Η παραγγελία ακυρώθηκε
+ * * `order_refunded` - Επιστροφή χρημάτων παραγγελίας
  * * `shipment_dispatched` - Αποστολή απεστάλη
- * * `payment_confirmed` - Payment confirmed
- * * `payment_failed` - Payment failed
+ * * `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε
+ * * `payment_failed` - Η πληρωμή απέτυχε
  * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
- * * `restock_favourite` - Back in stock (favourited product)
- * * `loyalty_tier_up` - Loyalty tier promotion
+ * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
+ * * `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης
  * * `comment_liked` - Επισήμανση σχολίου blog
- * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
- * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+ * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
+ * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
  * * `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση
  */
 export type NotificationTypeEnum = 'order_created' | 'order_processing' | 'order_shipped' | 'order_delivered' | 'order_completed' | 'order_canceled' | 'order_refunded' | 'shipment_dispatched' | 'payment_confirmed' | 'payment_failed' | 'price_drop_favourite' | 'restock_favourite' | 'loyalty_tier_up' | 'comment_liked' | 'BOXNOW_PARCEL_AT_LOCKER' | 'BOXNOW_PARCEL_DELIVERED' | 'ACS_OUT_FOR_DELIVERY'
@@ -3910,9 +3948,21 @@ export type PatchedBlogPostWriteRequest = {
      * Προβεβλημένο
      */
   featured?: boolean
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -4099,23 +4149,25 @@ export type PatchedPayWayWriteRequest = {
   /**
      * Κωδικός παρόχου
      *
-     * Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')
+     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
      */
   providerCode?: string
   /**
      * Είναι online πληρωμή
      *
-     * Whether this payment method is processed online
+     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
      */
   isOnlinePayment?: boolean
   /**
-     * Whether this payment method requires manual confirmation (e.g., bank transfer)
+     * Απαιτείται Επιβεβαίωση
+     *
+     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
      */
   requiresConfirmation?: boolean
   /**
-     * Provider Configuration
+     * Διαμόρφωση Παρόχου
      *
-     * Provider-specific configuration (API keys, webhooks, etc.)
+     * Διαμόρφωση ειδική για τον πάροχο (κλειδιά API, webhooks κ.λπ.)
      */
   configuration?: unknown
 }
@@ -4183,8 +4235,17 @@ export type PatchedProductCategoryWriteRequest = {
      */
   active?: boolean
   parent?: number | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -4274,8 +4335,17 @@ export type PatchedProductWriteRequest = {
      * Ποσοστό Έκπτωσης
      */
   discountPercent?: number
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ενεργή
@@ -4338,7 +4408,7 @@ export type PatchedSubscriptionTopicWriteRequest = {
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
      * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
+     * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
      * * `OTHER` - Άλλο
@@ -4357,6 +4427,8 @@ export type PatchedSubscriptionTopicWriteRequest = {
      */
   isDefault?: boolean
   /**
+     * Απαιτείται Επιβεβαίωση
+     *
      * Whether subscription to this topic requires email confirmation
      */
   requiresConfirmation?: boolean
@@ -4596,17 +4668,19 @@ export type PayWay = {
   /**
      * Κωδικός παρόχου
      *
-     * Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')
+     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
      */
   providerCode?: string
   /**
      * Είναι online πληρωμή
      *
-     * Whether this payment method is processed online
+     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
      */
   isOnlinePayment?: boolean
   /**
-     * Whether this payment method requires manual confirmation (e.g., bank transfer)
+     * Απαιτείται Επιβεβαίωση
+     *
+     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
      */
   requiresConfirmation?: boolean
 }
@@ -4661,17 +4735,19 @@ export type PayWayDetail = {
   /**
      * Κωδικός παρόχου
      *
-     * Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')
+     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
      */
   providerCode?: string
   /**
      * Είναι online πληρωμή
      *
-     * Whether this payment method is processed online
+     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
      */
   isOnlinePayment?: boolean
   /**
-     * Whether this payment method requires manual confirmation (e.g., bank transfer)
+     * Απαιτείται Επιβεβαίωση
+     *
+     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
      */
   requiresConfirmation?: boolean
   readonly configuration: unknown
@@ -4711,23 +4787,25 @@ export type PayWayWriteRequest = {
   /**
      * Κωδικός παρόχου
      *
-     * Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')
+     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
      */
   providerCode?: string
   /**
      * Είναι online πληρωμή
      *
-     * Whether this payment method is processed online
+     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
      */
   isOnlinePayment?: boolean
   /**
-     * Whether this payment method requires manual confirmation (e.g., bank transfer)
+     * Απαιτείται Επιβεβαίωση
+     *
+     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
      */
   requiresConfirmation?: boolean
   /**
-     * Provider Configuration
+     * Διαμόρφωση Παρόχου
      *
-     * Provider-specific configuration (API keys, webhooks, etc.)
+     * Διαμόρφωση ειδική για τον πάροχο (κλειδιά API, webhooks κ.λπ.)
      */
   configuration?: unknown
 }
@@ -4828,6 +4906,10 @@ export type Product = {
   }
   slug: string
   category: number
+  /**
+     * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
+     */
+  readonly variantGroup: number | null
   price: number
   vat: number
   /**
@@ -4852,8 +4934,17 @@ export type Product = {
     unit?: string
     value?: number
   } | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
@@ -5038,8 +5129,17 @@ export type ProductCategoryDetail = {
   readonly uuid: string
   readonly children: Array<ProductCategory>
   readonly recursiveProductCount: number
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -5206,8 +5306,17 @@ export type ProductCategoryWriteRequest = {
      */
   active?: boolean
   parent?: number | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -5232,6 +5341,10 @@ export type ProductDetail = {
   }
   slug: string
   category: number
+  /**
+     * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
+     */
+  readonly variantGroup: number | null
   price: number
   vat: number
   /**
@@ -5256,8 +5369,17 @@ export type ProductDetail = {
     unit?: string
     value?: number
   } | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
@@ -5320,6 +5442,10 @@ export type ProductDetailResponse = {
   }
   slug: string
   category: number
+  /**
+     * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
+     */
+  readonly variantGroup: number | null
   price: number
   vat: number
   /**
@@ -5344,8 +5470,17 @@ export type ProductDetailResponse = {
     unit?: string
     value?: number
   } | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
@@ -5635,6 +5770,9 @@ export type ProductReview = {
      * Κατάσταση
      */
   status?: ReviewStatus
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
   /**
      * Δημιουργήθηκε στις
@@ -5677,6 +5815,9 @@ export type ProductReviewDetail = {
      * Κατάσταση
      */
   status?: ReviewStatus
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
   /**
      * Δημιουργήθηκε στις
@@ -5727,6 +5868,55 @@ export type ProductReviewWriteRequest = {
 }
 
 /**
+ * A single sibling product within a variant group, trimmed to what a
+ * storefront swatch card needs: identity, image, price and its
+ * variant-axis attribute values (Colour, Memory, …).
+ */
+export type ProductVariant = {
+  readonly id: number
+  translations: {
+    el?: {
+      name?: string
+      description?: string
+    }
+    en?: {
+      name?: string
+      description?: string
+    }
+    de?: {
+      name?: string
+      description?: string
+    }
+  }
+  readonly slug: string
+  /**
+     * Ενεργή
+     */
+  readonly active: boolean
+  /**
+     * Απόθεμα
+     */
+  readonly stock: number
+  readonly price: number
+  readonly finalPrice: number
+  /**
+     * Ποσοστό Έκπτωσης
+     */
+  readonly discountPercent: number
+  readonly mainImagePath: string
+  readonly attributeValues: Array<ProductAttribute>
+}
+
+/**
+ * Payload for ``GET /product/{id}/variants`` — the axes to render and the
+ * sibling products that fill them.
+ */
+export type ProductVariantsResponse = {
+  axes: Array<VariantAxis>
+  variants: Array<ProductVariant>
+}
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type ProductWriteRequest = {
@@ -5760,8 +5950,17 @@ export type ProductWriteRequest = {
      * Ποσοστό Έκπτωσης
      */
   discountPercent?: number
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ενεργή
@@ -6227,7 +6426,7 @@ export type SubscriptionTopic = {
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
      * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
+     * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
      * * `OTHER` - Άλλο
@@ -6246,6 +6445,8 @@ export type SubscriptionTopic = {
      */
   isDefault?: boolean
   /**
+     * Απαιτείται Επιβεβαίωση
+     *
      * Whether subscription to this topic requires email confirmation
      */
   requiresConfirmation?: boolean
@@ -6284,7 +6485,7 @@ export type SubscriptionTopicDetail = {
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
      * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
+     * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
      * * `OTHER` - Άλλο
@@ -6303,6 +6504,8 @@ export type SubscriptionTopicDetail = {
      */
   isDefault?: boolean
   /**
+     * Απαιτείται Επιβεβαίωση
+     *
      * Whether subscription to this topic requires email confirmation
      */
   requiresConfirmation?: boolean
@@ -6347,7 +6550,7 @@ export type SubscriptionTopicWriteRequest = {
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
      * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
+     * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
      * * `OTHER` - Άλλο
@@ -6366,6 +6569,8 @@ export type SubscriptionTopicWriteRequest = {
      */
   isDefault?: boolean
   /**
+     * Απαιτείται Επιβεβαίωση
+     *
      * Whether subscription to this topic requires email confirmation
      */
   requiresConfirmation?: boolean
@@ -6567,7 +6772,7 @@ export type TopQuery = {
  * * `MARKETING` - Καμπάνιες marketing
  * * `PRODUCT` - Ενημερώσεις προϊόντων
  * * `ACCOUNT` - Λογαριασμός Ανενεργός
- * * `SYSTEM` - System Notifications
+ * * `SYSTEM` - Ειδοποιήσεις Συστήματος
  * * `NEWSLETTER` - Newsletter
  * * `PROMOTIONAL` - Προωθητικό
  * * `OTHER` - Άλλο
@@ -7149,6 +7354,24 @@ export type UsernameUpdateResponse = {
   detail: string
 }
 
+/**
+ * A variant axis (an ``Attribute`` flagged ``is_variant``) plus the
+ * distinct values present across the group, both ordered by ``sort_order``.
+ */
+export type VariantAxis = {
+  id: number
+  name: string
+  values: Array<VariantAxisValue>
+}
+
+/**
+ * One selectable value on a variant axis (an ``AttributeValue``).
+ */
+export type VariantAxisValue = {
+  id: number
+  value: string
+}
+
 export type WebSocketTicketResponse = {
   ticket: string
   expiresIn: number
@@ -7357,6 +7580,9 @@ export type BlogPostWritable = {
      * Προβεβλημένο
      */
   featured?: boolean
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
 }
 
@@ -7386,9 +7612,21 @@ export type BlogPostDetailWritable = {
      * Προβεβλημένο
      */
   featured?: boolean
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -7602,22 +7840,22 @@ export type NotificationWritable = {
      *
      * Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.
      *
-     * * `order_created` - Order created
-     * * `order_processing` - Order processing
-     * * `order_shipped` - Order shipped
-     * * `order_delivered` - Order delivered
-     * * `order_completed` - Order completed
-     * * `order_canceled` - Order canceled
-     * * `order_refunded` - Order refunded
+     * * `order_created` - Η παραγγελία δημιουργήθηκε
+     * * `order_processing` - Επεξεργασία παραγγελίας
+     * * `order_shipped` - Η παραγγελία απεστάλη
+     * * `order_delivered` - Η παραγγελία παραδόθηκε
+     * * `order_completed` - Η παραγγελία ολοκληρώθηκε
+     * * `order_canceled` - Η παραγγελία ακυρώθηκε
+     * * `order_refunded` - Επιστροφή χρημάτων παραγγελίας
      * * `shipment_dispatched` - Αποστολή απεστάλη
-     * * `payment_confirmed` - Payment confirmed
-     * * `payment_failed` - Payment failed
+     * * `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε
+     * * `payment_failed` - Η πληρωμή απέτυχε
      * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
-     * * `restock_favourite` - Back in stock (favourited product)
-     * * `loyalty_tier_up` - Loyalty tier promotion
+     * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
+     * * `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης
      * * `comment_liked` - Επισήμανση σχολίου blog
-     * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
-     * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+     * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
+     * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
      * * `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση
      */
   notificationType?: NotificationTypeEnum | BlankEnum
@@ -8456,17 +8694,19 @@ export type PayWayWritable = {
   /**
      * Κωδικός παρόχου
      *
-     * Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')
+     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
      */
   providerCode?: string
   /**
      * Είναι online πληρωμή
      *
-     * Whether this payment method is processed online
+     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
      */
   isOnlinePayment?: boolean
   /**
-     * Whether this payment method requires manual confirmation (e.g., bank transfer)
+     * Απαιτείται Επιβεβαίωση
+     *
+     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
      */
   requiresConfirmation?: boolean
 }
@@ -8505,17 +8745,19 @@ export type PayWayDetailWritable = {
   /**
      * Κωδικός παρόχου
      *
-     * Code used to identify the payment provider in the system (e.g., 'stripe', 'paypal')
+     * Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
      */
   providerCode?: string
   /**
      * Είναι online πληρωμή
      *
-     * Whether this payment method is processed online
+     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
      */
   isOnlinePayment?: boolean
   /**
-     * Whether this payment method requires manual confirmation (e.g., bank transfer)
+     * Απαιτείται Επιβεβαίωση
+     *
+     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
      */
   requiresConfirmation?: boolean
 }
@@ -8554,8 +8796,17 @@ export type ProductWritable = {
     unit?: string
     value?: number
   } | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
@@ -8637,8 +8888,17 @@ export type ProductCategoryDetailWritable = {
      */
   active?: boolean
   parent?: number | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
 }
 
@@ -8742,8 +9002,17 @@ export type ProductDetailWritable = {
     unit?: string
     value?: number
   } | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
@@ -8785,8 +9054,17 @@ export type ProductDetailResponseWritable = {
     unit?: string
     value?: number
   } | null
+  /**
+     * Τίτλος SEO
+     */
   seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
   seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
   seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
@@ -8868,6 +9146,9 @@ export type ProductReviewWritable = {
      * Κατάσταση
      */
   status?: ReviewStatus
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
   translations: {
     el?: {
@@ -8894,6 +9175,9 @@ export type ProductReviewDetailWritable = {
      * Κατάσταση
      */
   status?: ReviewStatus
+  /**
+     * Δημοσιευμένο
+     */
   isPublished?: boolean
   translations: {
     el?: {
@@ -8906,6 +9190,37 @@ export type ProductReviewDetailWritable = {
       comment?: string
     }
   }
+}
+
+/**
+ * A single sibling product within a variant group, trimmed to what a
+ * storefront swatch card needs: identity, image, price and its
+ * variant-axis attribute values (Colour, Memory, …).
+ */
+export type ProductVariantWritable = {
+  translations: {
+    el?: {
+      name?: string
+      description?: string
+    }
+    en?: {
+      name?: string
+      description?: string
+    }
+    de?: {
+      name?: string
+      description?: string
+    }
+  }
+}
+
+/**
+ * Payload for ``GET /product/{id}/variants`` — the axes to render and the
+ * sibling products that fill them.
+ */
+export type ProductVariantsResponseWritable = {
+  axes: Array<VariantAxis>
+  variants: Array<ProductVariantWritable>
 }
 
 /**
@@ -8988,7 +9303,7 @@ export type SubscriptionTopicWritable = {
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
      * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
+     * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
      * * `OTHER` - Άλλο
@@ -9007,6 +9322,8 @@ export type SubscriptionTopicWritable = {
      */
   isDefault?: boolean
   /**
+     * Απαιτείται Επιβεβαίωση
+     *
      * Whether subscription to this topic requires email confirmation
      */
   requiresConfirmation?: boolean
@@ -9042,7 +9359,7 @@ export type SubscriptionTopicDetailWritable = {
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
      * * `ACCOUNT` - Λογαριασμός Ανενεργός
-     * * `SYSTEM` - System Notifications
+     * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
      * * `OTHER` - Άλλο
@@ -9061,6 +9378,8 @@ export type SubscriptionTopicDetailWritable = {
      */
   isDefault?: boolean
   /**
+     * Απαιτείται Επιβεβαίωση
+     *
      * Whether subscription to this topic requires email confirmation
      */
   requiresConfirmation?: boolean
@@ -16676,6 +16995,39 @@ export type IncrementProductViewsResponses = {
 
 export type IncrementProductViewsResponse = IncrementProductViewsResponses[keyof IncrementProductViewsResponses]
 
+export type ListProductVariantsData = {
+  body?: never
+  path: {
+    /**
+         * Product ID
+         */
+    id: string | number
+  }
+  query?: {
+    /**
+         * Language code for translations (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/product/{id}/variants'
+}
+
+export type ListProductVariantsErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListProductVariantsError = ListProductVariantsErrors[keyof ListProductVariantsErrors]
+
+export type ListProductVariantsResponses = {
+  200: ProductVariantsResponse
+}
+
+export type ListProductVariantsResponse = ListProductVariantsResponses[keyof ListProductVariantsResponses]
+
 export type ListProductAlertData = {
   body?: never
   path?: never
@@ -21655,7 +22007,7 @@ export type ListUserSubscriptionData = {
          * * `MARKETING` - Καμπάνιες marketing
          * * `PRODUCT` - Ενημερώσεις προϊόντων
          * * `ACCOUNT` - Λογαριασμός Ανενεργός
-         * * `SYSTEM` - System Notifications
+         * * `SYSTEM` - Ειδοποιήσεις Συστήματος
          * * `NEWSLETTER` - Newsletter
          * * `PROMOTIONAL` - Προωθητικό
          * * `OTHER` - Άλλο
@@ -21960,7 +22312,7 @@ export type ListSubscriptionTopicData = {
          * * `MARKETING` - Καμπάνιες marketing
          * * `PRODUCT` - Ενημερώσεις προϊόντων
          * * `ACCOUNT` - Λογαριασμός Ανενεργός
-         * * `SYSTEM` - System Notifications
+         * * `SYSTEM` - Ειδοποιήσεις Συστήματος
          * * `NEWSLETTER` - Newsletter
          * * `PROMOTIONAL` - Προωθητικό
          * * `OTHER` - Άλλο

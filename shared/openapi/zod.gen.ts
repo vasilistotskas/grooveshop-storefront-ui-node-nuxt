@@ -1427,22 +1427,22 @@ export const zNotificationSuccessResponse = z.object({
 })
 
 /**
- * * `order_created` - Order created
- * * `order_processing` - Order processing
- * * `order_shipped` - Order shipped
- * * `order_delivered` - Order delivered
- * * `order_completed` - Order completed
- * * `order_canceled` - Order canceled
- * * `order_refunded` - Order refunded
+ * * `order_created` - Η παραγγελία δημιουργήθηκε
+ * * `order_processing` - Επεξεργασία παραγγελίας
+ * * `order_shipped` - Η παραγγελία απεστάλη
+ * * `order_delivered` - Η παραγγελία παραδόθηκε
+ * * `order_completed` - Η παραγγελία ολοκληρώθηκε
+ * * `order_canceled` - Η παραγγελία ακυρώθηκε
+ * * `order_refunded` - Επιστροφή χρημάτων παραγγελίας
  * * `shipment_dispatched` - Αποστολή απεστάλη
- * * `payment_confirmed` - Payment confirmed
- * * `payment_failed` - Payment failed
+ * * `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε
+ * * `payment_failed` - Η πληρωμή απέτυχε
  * * `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)
- * * `restock_favourite` - Back in stock (favourited product)
- * * `loyalty_tier_up` - Loyalty tier promotion
+ * * `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)
+ * * `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης
  * * `comment_liked` - Επισήμανση σχολίου blog
- * * `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker
- * * `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered
+ * * `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker
+ * * `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε
  * * `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση
  */
 export const zNotificationTypeEnum = z.enum([
@@ -1464,7 +1464,7 @@ export const zNotificationTypeEnum = z.enum([
   'BOXNOW_PARCEL_DELIVERED',
   'ACS_OUT_FOR_DELIVERY',
 ]).register(z.globalRegistry, {
-  description: '* `order_created` - Order created\n* `order_processing` - Order processing\n* `order_shipped` - Order shipped\n* `order_delivered` - Order delivered\n* `order_completed` - Order completed\n* `order_canceled` - Order canceled\n* `order_refunded` - Order refunded\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Payment confirmed\n* `payment_failed` - Payment failed\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Back in stock (favourited product)\n* `loyalty_tier_up` - Loyalty tier promotion\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - BoxNow parcel arrived at locker\n* `BOXNOW_PARCEL_DELIVERED` - BoxNow parcel delivered\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση',
+  description: '* `order_created` - Η παραγγελία δημιουργήθηκε\n* `order_processing` - Επεξεργασία παραγγελίας\n* `order_shipped` - Η παραγγελία απεστάλη\n* `order_delivered` - Η παραγγελία παραδόθηκε\n* `order_completed` - Η παραγγελία ολοκληρώθηκε\n* `order_canceled` - Η παραγγελία ακυρώθηκε\n* `order_refunded` - Επιστροφή χρημάτων παραγγελίας\n* `shipment_dispatched` - Αποστολή απεστάλη\n* `payment_confirmed` - Η πληρωμή επιβεβαιώθηκε\n* `payment_failed` - Η πληρωμή απέτυχε\n* `price_drop_favourite` - Πτώση τιμής (αγαπημένο προϊόν)\n* `restock_favourite` - Διαθέσιμο ξανά (αγαπημένο προϊόν)\n* `loyalty_tier_up` - Αναβάθμιση επιπέδου επιβράβευσης\n* `comment_liked` - Επισήμανση σχολίου blog\n* `BOXNOW_PARCEL_AT_LOCKER` - Το δέμα BoxNow έφτασε στο locker\n* `BOXNOW_PARCEL_DELIVERED` - Το δέμα BoxNow παραδόθηκε\n* `ACS_OUT_FOR_DELIVERY` - Δέμα ACS προς παράδοση',
 })
 
 export const zNotificationUser = z.object({
@@ -1956,16 +1956,16 @@ export const zPatchedPayWayWriteRequest = z.object({
   freeThreshold: z.number().gt(-1000000000).lt(1000000000).optional(),
   icon: z.string().nullish(),
   providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method is processed online',
+    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
   configuration: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific configuration (API keys, webhooks, etc.)',
+    description: 'Διαμόρφωση ειδική για τον πάροχο (κλειδιά API, webhooks κ.λπ.)',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -2229,13 +2229,13 @@ export const zPayWay = z.object({
   uuid: z.uuid().readonly(),
   iconFilename: z.string().readonly(),
   providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method is processed online',
+    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -2287,13 +2287,13 @@ export const zPayWayDetail = z.object({
   uuid: z.uuid().readonly(),
   iconFilename: z.string().readonly(),
   providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method is processed online',
+    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
   configuration: z.unknown(),
 }).register(z.globalRegistry, {
@@ -2326,16 +2326,16 @@ export const zPayWayWriteRequest = z.object({
   freeThreshold: z.number().gt(-1000000000).lt(1000000000).optional(),
   icon: z.string().nullish(),
   providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method is processed online',
+    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
   configuration: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific configuration (API keys, webhooks, etc.)',
+    description: 'Διαμόρφωση ειδική για τον πάροχο (κλειδιά API, webhooks κ.λπ.)',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -2529,6 +2529,7 @@ export const zProduct = z.object({
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   category: z.int(),
+  variantGroup: z.int().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int(),
   viewCount: z.int().readonly(),
@@ -3058,6 +3059,7 @@ export const zProductDetail = z.object({
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   category: z.int(),
+  variantGroup: z.int().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int(),
   viewCount: z.int().readonly(),
@@ -3121,6 +3123,7 @@ export const zProductDetailResponse = z.object({
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   category: z.int(),
+  variantGroup: z.int().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int(),
   viewCount: z.int().readonly(),
@@ -3374,6 +3377,39 @@ export const zProductPoints = z.object({
   }).readonly(),
 }).register(z.globalRegistry, {
   description: 'Serializer for product points preview response.',
+})
+
+/**
+ * A single sibling product within a variant group, trimmed to what a
+ * storefront swatch card needs: identity, image, price and its
+ * variant-axis attribute values (Colour, Memory, …).
+ */
+export const zProductVariant = z.object({
+  id: z.int().readonly(),
+  translations: z.object({
+    el: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().regex(/^[-a-zA-Z0-9_]+$/).readonly(),
+  active: z.boolean().readonly(),
+  stock: z.int().readonly(),
+  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  discountPercent: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  mainImagePath: z.string().readonly(),
+  attributeValues: z.array(zProductAttribute).readonly(),
+}).register(z.globalRegistry, {
+  description: 'A single sibling product within a variant group, trimmed to what a\nstorefront swatch card needs: identity, image, price and its\nvariant-axis attribute values (Colour, Memory, …).',
 })
 
 /**
@@ -4262,7 +4298,7 @@ export const zTopQuery = z.object({
  * * `MARKETING` - Καμπάνιες marketing
  * * `PRODUCT` - Ενημερώσεις προϊόντων
  * * `ACCOUNT` - Λογαριασμός Ανενεργός
- * * `SYSTEM` - System Notifications
+ * * `SYSTEM` - Ειδοποιήσεις Συστήματος
  * * `NEWSLETTER` - Newsletter
  * * `PROMOTIONAL` - Προωθητικό
  * * `OTHER` - Άλλο
@@ -4276,7 +4312,7 @@ export const zTopicCategory = z.enum([
   'PROMOTIONAL',
   'OTHER',
 ]).register(z.globalRegistry, {
-  description: '* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
+  description: '* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
 })
 
 /**
@@ -5345,6 +5381,39 @@ export const zUsernameUpdateResponse = z.object({
   }),
 })
 
+/**
+ * One selectable value on a variant axis (an ``AttributeValue``).
+ */
+export const zVariantAxisValue = z.object({
+  id: z.int(),
+  value: z.string(),
+}).register(z.globalRegistry, {
+  description: 'One selectable value on a variant axis (an ``AttributeValue``).',
+})
+
+/**
+ * A variant axis (an ``Attribute`` flagged ``is_variant``) plus the
+ * distinct values present across the group, both ordered by ``sort_order``.
+ */
+export const zVariantAxis = z.object({
+  id: z.int(),
+  name: z.string(),
+  values: z.array(zVariantAxisValue),
+}).register(z.globalRegistry, {
+  description: 'A variant axis (an ``Attribute`` flagged ``is_variant``) plus the\ndistinct values present across the group, both ordered by ``sort_order``.',
+})
+
+/**
+ * Payload for ``GET /product/{id}/variants`` — the axes to render and the
+ * sibling products that fill them.
+ */
+export const zProductVariantsResponse = z.object({
+  axes: z.array(zVariantAxis),
+  variants: z.array(zProductVariant),
+}).register(z.globalRegistry, {
+  description: 'Payload for ``GET /product/{id}/variants`` — the axes to render and the\nsibling products that fill them.',
+})
+
 export const zWebSocketTicketResponse = z.object({
   ticket: z.string(),
   expiresIn: z.int(),
@@ -6248,13 +6317,13 @@ export const zPayWayWritable = z.object({
   freeThreshold: z.number().gt(-1000000000).lt(1000000000),
   icon: z.url().nullish(),
   providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method is processed online',
+    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -6299,13 +6368,13 @@ export const zPayWayDetailWritable = z.object({
   freeThreshold: z.number().gt(-1000000000).lt(1000000000),
   icon: z.url().nullish(),
   providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Code used to identify the payment provider in the system (e.g., \'stripe\', \'paypal\')',
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method is processed online',
+    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this payment method requires manual confirmation (e.g., bank transfer)',
+    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -6732,6 +6801,41 @@ export const zProductReviewDetailWritable = z.object({
   }),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * A single sibling product within a variant group, trimmed to what a
+ * storefront swatch card needs: identity, image, price and its
+ * variant-axis attribute values (Colour, Memory, …).
+ */
+export const zProductVariantWritable = z.object({
+  translations: z.object({
+    el: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+}).register(z.globalRegistry, {
+  description: 'A single sibling product within a variant group, trimmed to what a\nstorefront swatch card needs: identity, image, price and its\nvariant-axis attribute values (Colour, Memory, …).',
+})
+
+/**
+ * Payload for ``GET /product/{id}/variants`` — the axes to render and the
+ * sibling products that fill them.
+ */
+export const zProductVariantsResponseWritable = z.object({
+  axes: z.array(zVariantAxis),
+  variants: z.array(zProductVariantWritable),
+}).register(z.globalRegistry, {
+  description: 'Payload for ``GET /product/{id}/variants`` — the axes to render and the\nsibling products that fill them.',
 })
 
 /**
@@ -12951,6 +13055,25 @@ export const zIncrementProductViewsPath = z.object({
 
 export const zIncrementProductViewsResponse = zProductDetail
 
+export const zListProductVariantsPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zListProductVariantsQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Language code for translations (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zListProductVariantsResponse = zProductVariantsResponse
+
 export const zListProductAlertQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
     description: 'Cursor for pagination',
@@ -16374,7 +16497,7 @@ export const zListUserSubscriptionQuery = z.object({
     'PROMOTIONAL',
     'SYSTEM',
   ]).register(z.globalRegistry, {
-    description: 'Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
+    description: 'Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
   }).optional(),
   topicDescription: z.string().register(z.globalRegistry, {
     description: 'Filter by topic description (partial match)',
@@ -16535,7 +16658,7 @@ export const zListSubscriptionTopicQuery = z.object({
     'PROMOTIONAL',
     'SYSTEM',
   ]).register(z.globalRegistry, {
-    description: 'Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - System Notifications\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
+    description: 'Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
