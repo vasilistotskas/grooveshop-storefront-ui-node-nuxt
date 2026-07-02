@@ -1,3 +1,10 @@
+## [3.139.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.139.2...v3.139.3) (2026-07-02)
+
+
+### Bug Fixes
+
+* **checkout:** fire purchase pixels for COD orders ([fe48711](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fe48711e7a285053fe4c0e9ac85d36b3475d5e7f))
+
 ## [3.139.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.139.1...v3.139.2) (2026-07-02)
 
 
