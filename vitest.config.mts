@@ -70,9 +70,21 @@ export default defineConfig({
                 experimental: {
                   appManifest: false,
                 },
+                // SEO modules are meaningless in the SPA test harness and only
+                // emit "SPA mode detected" / robots warnings into test output.
+                aiReady: {
+                  enabled: false,
+                },
+                robots: {
+                  enabled: false,
+                },
               },
             },
           },
+          // setupNuxt() (the per-file app boot) can exceed vitest's default
+          // 10s hook timeout on slower/cold runs — same env raciness the
+          // retry/testTimeout mitigations below exist for.
+          hookTimeout: 60000,
         },
         resolve: {
           alias: {
@@ -102,6 +114,14 @@ export default defineConfig({
                 experimental: {
                   appManifest: false,
                 },
+                // SEO modules are meaningless in the SPA test harness and only
+                // emit "SPA mode detected" / robots warnings into test output.
+                aiReady: {
+                  enabled: false,
+                },
+                robots: {
+                  enabled: false,
+                },
                 // Load test-only i18n fallback plugin so useNuxtApp().$i18n and
                 // useI18n() work even when the real @nuxtjs/i18n module fails to
                 // fully initialise in the vitest environment.
@@ -113,6 +133,10 @@ export default defineConfig({
           retry: 2,
           // Increase test timeout
           testTimeout: 15000,
+          // setupNuxt() (the per-file app boot) can exceed vitest's default
+          // 10s hook timeout on slower/cold runs — same env raciness the
+          // retry/testTimeout mitigations above exist for.
+          hookTimeout: 60000,
         },
         resolve: {
           alias: {
