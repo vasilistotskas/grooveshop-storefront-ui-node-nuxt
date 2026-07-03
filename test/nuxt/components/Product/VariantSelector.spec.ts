@@ -148,6 +148,26 @@ describe('ProductVariantSelector', () => {
     await currentColour!.get('[role="radio"]').trigger('click')
     expect(navigateToMock).not.toHaveBeenCalled()
   })
+
+  it('scrolls via a wrapper div, never the radiogroup fieldset', async () => {
+    // Regression pin for the mobile horizontal-page-scroll bug: Chromium
+    // lays <fieldset> content out in an anonymous box that neither shrinks
+    // nor clips, so overflow-x on the fieldset leaks and stretches the
+    // page. The scroll container must be the wrapper div around the
+    // radiogroup, with the fieldset content-sized (max-sm:w-max) inside.
+    const wrapper = await mountForProduct()
+    const fieldsets = wrapper.findAll('fieldset')
+    expect(fieldsets.length).toBeGreaterThan(0)
+    for (const fieldset of fieldsets) {
+      expect(fieldset.classes().join(' ')).not.toContain('overflow-x-auto')
+      expect(fieldset.classes()).toContain('max-sm:w-max')
+    }
+    for (const group of wrapper.findAll('[role="radiogroup"]')) {
+      const scroller = group.element.parentElement
+      expect(scroller?.className).toContain('max-sm:overflow-x-auto')
+      expect(scroller?.className).toContain('max-sm:snap-x')
+    }
+  })
 })
 
 describe('ProductVariantSelector — no group', () => {

@@ -71,63 +71,72 @@ async function onSelect(axisId: number, rawValue: unknown) {
         {{ group.name }}:
       </span>
 
-      <!-- Mobile renders as a swipe carousel: 3 snap-aligned cards per
-           viewport, scrollbar hidden. Kept inside the URadioGroup (rather
-           than UCarousel) so the radiogroup semantics and arrow-key
-           navigation survive. min-w-0 defeats the fieldset's intrinsic
-           min-inline-size so it can scroll instead of overflowing. -->
-      <URadioGroup
-        :default-value="currentValueFor(group.id)"
-        :items="group.items"
-        variant="card"
-        orientation="horizontal"
-        indicator="hidden"
-        :ui="{
-          fieldset: `
-            flex min-w-0 gap-3
-            max-sm:snap-x max-sm:snap-mandatory max-sm:scrollbar-none
-            max-sm:overflow-x-auto
-            sm:flex-wrap
-            max-sm:[&::-webkit-scrollbar]:hidden
-          `,
-          item: `
-            p-3
-            max-sm:shrink-0 max-sm:basis-[calc((100%-1.5rem)/3)]
-            max-sm:snap-start
-          `,
-        }"
-        @update:model-value="value => onSelect(group.id, value)"
+      <!-- Mobile renders as a swipe strip: snap-aligned cards, hidden
+           scrollbar. The scroll container is this wrapper div, NOT the
+           URadioGroup's <fieldset>: Chromium lays fieldset content out
+           in a special anonymous box that neither shrinks nor clips
+           reliably, so overflow-x:auto on the fieldset itself computed
+           but its content still painted past it and stretched the whole
+           page sideways (the mobile horizontal-scroll bug — min-w-0
+           did not defeat it). Radiogroup semantics and arrow-key
+           navigation live on the fieldset inside, unaffected. -->
+      <div
+        class="
+          max-sm:snap-x max-sm:snap-mandatory max-sm:overflow-x-auto
+          max-sm:scrollbar-none
+          max-sm:[&::-webkit-scrollbar]:hidden
+        "
       >
-        <template #label="{ item }">
-          <span
-            class="relative flex w-full flex-col gap-1"
-            :class="group.visual ? 'sm:w-24' : 'sm:min-w-28'"
-          >
-            <UIcon
-              v-if="isCurrentValue(group.id, Number(item.value))"
-              name="i-lucide-circle-check"
-              class="absolute end-0 top-0 size-5 text-primary"
-            />
-            <ImgWithFallback
-              v-if="group.visual && item.image"
-              :src="item.image"
-              :alt="item.alt"
-              :width="96"
-              :height="96"
-              fit="contain"
-              background="transparent"
-              quality="100"
-              class="aspect-square w-full rounded-md bg-white object-contain"
-            />
-            <span class="truncate text-sm font-medium text-highlighted">
-              {{ item.label }}
+        <URadioGroup
+          :default-value="currentValueFor(group.id)"
+          :items="group.items"
+          variant="card"
+          orientation="horizontal"
+          indicator="hidden"
+          :ui="{
+            fieldset: `
+              flex gap-3
+              max-sm:w-max
+              sm:flex-wrap
+            `,
+            item: `
+              p-3
+              max-sm:w-28 max-sm:shrink-0 max-sm:snap-start
+            `,
+          }"
+          @update:model-value="value => onSelect(group.id, value)"
+        >
+          <template #label="{ item }">
+            <span
+              class="relative flex w-full flex-col gap-1"
+              :class="group.visual ? 'sm:w-24' : 'sm:min-w-28'"
+            >
+              <UIcon
+                v-if="isCurrentValue(group.id, Number(item.value))"
+                name="i-lucide-circle-check"
+                class="absolute end-0 top-0 size-5 text-primary"
+              />
+              <ImgWithFallback
+                v-if="group.visual && item.image"
+                :src="item.image"
+                :alt="item.alt"
+                :width="96"
+                :height="96"
+                fit="contain"
+                background="transparent"
+                quality="100"
+                class="aspect-square w-full rounded-md bg-white object-contain"
+              />
+              <span class="truncate text-sm font-medium text-highlighted">
+                {{ item.label }}
+              </span>
+              <span class="text-xs text-muted">
+                <template v-if="item.showFrom">{{ t('from') }} </template>{{ formatPrice(item.price) }}
+              </span>
             </span>
-            <span class="text-xs text-muted">
-              <template v-if="item.showFrom">{{ t('from') }} </template>{{ formatPrice(item.price) }}
-            </span>
-          </span>
-        </template>
-      </URadioGroup>
+          </template>
+        </URadioGroup>
+      </div>
     </div>
   </div>
 </template>
