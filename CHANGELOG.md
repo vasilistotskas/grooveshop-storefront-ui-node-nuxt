@@ -1,3 +1,10 @@
+## [3.140.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.140.0...v3.140.1) (2026-07-03)
+
+
+### Bug Fixes
+
+* **product:** stop variant strip stretching page sideways ([a78c4b1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a78c4b1dbe6e45e85d629142d317075513c2255d))
+
 # [3.140.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.139.3...v3.140.0) (2026-07-02)
 
 
