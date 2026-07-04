@@ -35836,6 +35836,9 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         category:
           type: integer
+        brand:
+          type: integer
+          nullable: true
         price:
           type: number
           format: double
@@ -36662,6 +36665,14 @@ components:
           readOnly: true
           nullable: true
           description: Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
+        brand:
+          type: integer
+          readOnly: true
+          nullable: true
+        brandName:
+          type: string
+          readOnly: true
+          nullable: true
         price:
           type: number
           format: double
@@ -36788,6 +36799,8 @@ components:
           readOnly: true
       required:
         - attributes
+        - brand
+        - brandName
         - category
         - createdAt
         - discountValue
@@ -37447,6 +37460,14 @@ components:
           readOnly: true
           nullable: true
           description: Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
+        brand:
+          type: integer
+          readOnly: true
+          nullable: true
+        brandName:
+          type: string
+          readOnly: true
+          nullable: true
         price:
           type: number
           format: double
@@ -37578,6 +37599,8 @@ components:
           description: When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU.
       required:
         - attributes
+        - brand
+        - brandName
         - category
         - createdAt
         - discountValue
@@ -37642,6 +37665,14 @@ components:
           readOnly: true
           nullable: true
           description: Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
+        brand:
+          type: integer
+          readOnly: true
+          nullable: true
+        brandName:
+          type: string
+          readOnly: true
+          nullable: true
         price:
           type: number
           format: double
@@ -37773,6 +37804,8 @@ components:
           description: When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU.
       required:
         - attributes
+        - brand
+        - brandName
         - category
         - createdAt
         - discountValue
@@ -38580,6 +38613,9 @@ components:
           pattern: ^[-a-zA-Z0-9_]+$
         category:
           type: integer
+        brand:
+          type: integer
+          nullable: true
         price:
           type: number
           format: double
