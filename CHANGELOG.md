@@ -1,3 +1,10 @@
+# [3.141.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.140.1...v3.141.0) (2026-07-04)
+
+
+### Features
+
+* **feeds:** add Meta and TikTok XML product catalog feeds ([0014ffc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0014ffcea4e7cc41d5c48893f4a51c1eb1e9c1ba))
+
 ## [3.140.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.140.0...v3.140.1) (2026-07-03)
 
 
