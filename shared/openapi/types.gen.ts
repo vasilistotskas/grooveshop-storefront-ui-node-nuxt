@@ -4321,6 +4321,7 @@ export type PatchedProductWriteRequest = {
   }
   slug?: string
   category?: number
+  brand?: number | null
   price?: number
   vat?: number
   /**
@@ -4910,6 +4911,8 @@ export type Product = {
      * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
      */
   readonly variantGroup: number | null
+  readonly brand: number | null
+  readonly brandName: string | null
   price: number
   vat: number
   /**
@@ -5345,6 +5348,8 @@ export type ProductDetail = {
      * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
      */
   readonly variantGroup: number | null
+  readonly brand: number | null
+  readonly brandName: string | null
   price: number
   vat: number
   /**
@@ -5446,6 +5451,8 @@ export type ProductDetailResponse = {
      * Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront.
      */
   readonly variantGroup: number | null
+  readonly brand: number | null
+  readonly brandName: string | null
   price: number
   vat: number
   /**
@@ -5936,6 +5943,7 @@ export type ProductWriteRequest = {
   }
   slug: string
   category: number
+  brand?: number | null
   price: number
   vat: number
   /**

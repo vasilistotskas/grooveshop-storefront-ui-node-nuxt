@@ -57701,6 +57701,10 @@
                     "category": {
                         "type": "integer"
                     },
+                    "brand": {
+                        "type": "integer",
+                        "nullable": true
+                    },
                     "price": {
                         "type": "number",
                         "format": "double",
@@ -58781,6 +58785,16 @@
                         "nullable": true,
                         "description": "Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront."
                     },
+                    "brand": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "brandName": {
+                        "type": "string",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "price": {
                         "type": "number",
                         "format": "double",
@@ -58937,6 +58951,8 @@
                 },
                 "required": [
                     "attributes",
+                    "brand",
+                    "brandName",
                     "category",
                     "createdAt",
                     "discountValue",
@@ -59834,6 +59850,16 @@
                         "nullable": true,
                         "description": "Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront."
                     },
+                    "brand": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "brandName": {
+                        "type": "string",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "price": {
                         "type": "number",
                         "format": "double",
@@ -59996,6 +60022,8 @@
                 },
                 "required": [
                     "attributes",
+                    "brand",
+                    "brandName",
                     "category",
                     "createdAt",
                     "discountValue",
@@ -60080,6 +60108,16 @@
                         "nullable": true,
                         "description": "Links this product to its sibling variations (e.g. the same item in other colours). Members share variant selectors on the storefront."
                     },
+                    "brand": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "nullable": true
+                    },
+                    "brandName": {
+                        "type": "string",
+                        "readOnly": true,
+                        "nullable": true
+                    },
                     "price": {
                         "type": "number",
                         "format": "double",
@@ -60242,6 +60280,8 @@
                 },
                 "required": [
                     "attributes",
+                    "brand",
+                    "brandName",
                     "category",
                     "createdAt",
                     "discountValue",
@@ -61357,6 +61397,10 @@
                     },
                     "category": {
                         "type": "integer"
+                    },
+                    "brand": {
+                        "type": "integer",
+                        "nullable": true
                     },
                     "price": {
                         "type": "number",
