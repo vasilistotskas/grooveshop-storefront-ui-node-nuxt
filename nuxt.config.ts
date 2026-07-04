@@ -752,7 +752,18 @@ export default defineNuxtConfig({
     redirectToCanonicalSiteUrl: true,
   },
   sitemap: {
-    sitemaps: true,
+    // Single-sitemap mode (a plain <urlset> at /sitemap.xml). ``true``
+    // produced a /sitemap_index.xml + per-locale /__sitemap__/el-GR.xml
+    // split — pointless at ~110 URLs / one locale (chunking matters
+    // near the 1k-per-sitemap default), and it broke nuxt-ai-ready's
+    // sitemap discovery: @nuxtjs/sitemap v8 moved the ``sitemaps`` map
+    // out of runtimeConfig into a virtual module, so nuxt-ai-ready
+    // falls back to probing /sitemap.xml, which in index mode is a 307
+    // redirect it can't parse → /llms.txt shipped with NO pages list.
+    // Must stay explicitly ``false``: the i18n auto-mapping only backs
+    // off when ``sitemaps !== false`` fails, an absent key re-enables
+    // the per-locale split. robots.txt Sitemap: line updates itself.
+    sitemaps: false,
     exclude: [
       '/account',
       '/account/2fa',
