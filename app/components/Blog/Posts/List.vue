@@ -98,16 +98,21 @@ const pagination = computed(() => {
 const postIds = computed(() => posts.value?.results?.map(post => post.id) || [])
 const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.length > 0)
 
-// User-specific data: client-side only to avoid blocking SSR
-await useFetch(
+// User-specific data: client-side only to avoid blocking SSR.
+// `watch: false` is required — the reactive `postIds` body would
+// otherwise auto-refetch on every pagination change even for
+// anonymous visitors (`immediate` only gates the first call),
+// spamming the auth-required endpoint with 401s.
+const { execute: fetchLikedPosts } = await useFetch(
   '/api/blog/posts/liked-posts',
   {
     key: `likedBlogPosts${user.value?.id}`,
     method: 'POST',
     headers: useRequestHeaders(),
     body: { postIds: postIds },
-    immediate: shouldFetchLikedPosts.value,
+    immediate: false,
     server: false, // Client-side only - user-specific data
+    watch: false,
     onResponse({ response }) {
       if (!response.ok) {
         return
@@ -116,6 +121,16 @@ await useFetch(
       updateLikedPosts(likedPostsIds)
     },
   },
+)
+
+watch(
+  postIds,
+  () => {
+    if (shouldFetchLikedPosts.value) {
+      fetchLikedPosts()
+    }
+  },
+  { immediate: import.meta.client },
 )
 
 const showResults = computed(() => {
