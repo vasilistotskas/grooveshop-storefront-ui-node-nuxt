@@ -1,3 +1,11 @@
+## [3.141.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.141.0...v3.141.1) (2026-07-04)
+
+
+### Bug Fixes
+
+* **blog:** skip liked-posts fetch when logged out ([d066999](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d066999b0904fbdcfe37ba246bee9cc1e77d76d1))
+* **sitemap:** use single mode for llms.txt pages ([9c77e81](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9c77e81e75d55a2895494f86b160f0c10a762c68))
+
 # [3.141.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.140.1...v3.141.0) (2026-07-04)
 
 
