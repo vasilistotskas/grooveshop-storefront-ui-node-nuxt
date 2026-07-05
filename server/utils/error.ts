@@ -21,7 +21,16 @@ export function handleError(
     }
   }
   if (error instanceof FetchError) {
-    log.error({ action: 'upstream:fetch', error: error.message })
+    // A 4xx from Django is client behaviour (wrong password, spam-filtered
+    // form, unknown id) — warn, not error, or it drowns genuine 5xx faults.
+    // Same 4xx/5xx split the evlog-client-error-level plugin applies to the
+    // request's wide event.
+    if (isClientError(error)) {
+      log.warn({ action: 'upstream:fetch', error: error.message })
+    }
+    else {
+      log.error({ action: 'upstream:fetch', error: error.message })
+    }
     const statusCode = error.statusCode ?? 500
     // Forward upstream Django response bodies (DRF validation errors,
     // allauth detail) only for client errors. 5xx bodies can leak
@@ -35,7 +44,12 @@ export function handleError(
     })
   }
   if (error instanceof H3Error) {
-    log.error({ action: 'h3', error: error.message })
+    if (isClientError(error)) {
+      log.warn({ action: 'h3', error: error.message })
+    }
+    else {
+      log.error({ action: 'h3', error: error.message })
+    }
     throw error
   }
   if (error instanceof ZodError) {
