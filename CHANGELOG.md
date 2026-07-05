@@ -1,3 +1,10 @@
+## [3.141.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.141.1...v3.141.2) (2026-07-05)
+
+
+### Bug Fixes
+
+* **server:** log upstream 4xx at warn instead of error ([55214a9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/55214a9838da8a731a3ca9afa7e86e0e89d83a36))
+
 ## [3.141.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.141.0...v3.141.1) (2026-07-04)
 
 
