@@ -144,11 +144,6 @@ export default defineNuxtConfig({
       // DB 0 = Django, DB 2 = media-stream, DB 3 = Nuxt (default)
       db: parseInt(process.env.NUXT_REDIS_DB ?? '3', 10),
     },
-    scripts: {
-      registry: {
-        stripe: true,
-      },
-    },
     public: {
       appKeywords: process.env.NUXT_PUBLIC_APP_KEYWORDS,
       appLogo: process.env.NUXT_PUBLIC_APP_LOGO,
@@ -746,6 +741,14 @@ export default defineNuxtConfig({
   scripts: {
     assets: {
       integrity: 'sha384',
+    },
+    // Registry entries are infrastructure-only (types, env-var runtime
+    // config, bundling) — no `trigger` means NO global auto-load, so
+    // consent gating in ``setupGoogleAnalyticsConsent``/``useGA4`` is
+    // unaffected. Loading stays composable-driven.
+    registry: {
+      googleAnalytics: {},
+      stripe: {},
     },
   },
   seo: {
