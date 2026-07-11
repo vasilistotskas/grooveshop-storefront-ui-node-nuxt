@@ -1,3 +1,10 @@
+## [3.142.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.0...v3.142.1) (2026-07-11)
+
+
+### Bug Fixes
+
+* **scripts:** register googleAnalytics and stripe ([b1be4fe](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b1be4fe95c74d33dac02da1efe6064cc663e92cc))
+
 # [3.142.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.141.2...v3.142.0) (2026-07-11)
 
 
