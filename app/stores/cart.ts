@@ -92,6 +92,10 @@ export const useCartStore = defineStore('cart', () => {
    * to GA4's ``remove_from_cart`` only: Meta and TikTok define no
    * standard removal event. Tracking must never break the cart UX —
    * failures are logged and swallowed.
+   *
+   * Exposed on the store for flows that mutate the cart server-side
+   * (e.g. order reorder) and therefore bypass the create/update/delete
+   * actions above.
    */
   function trackCartQuantityChange(
     productId: number,
@@ -365,5 +369,6 @@ export const useCartStore = defineStore('cart', () => {
     updateCartItem,
     deleteCartItem,
     cleanCartState,
+    trackCartQuantityChange,
   }
 })

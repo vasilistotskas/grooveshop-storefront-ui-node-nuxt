@@ -509,6 +509,26 @@ describe('Cart Store', () => {
         expect(ga4TrackRemoveFromCart).not.toHaveBeenCalled()
       })
 
+      it('should expose trackCartQuantityChange for server-side cart mutations (reorder)', () => {
+        store.cart = mockCartData
+
+        store.trackCartQuantityChange(1, 3, 50)
+
+        expect(metaTrackAddToCart).toHaveBeenCalledWith({
+          currency: 'EUR',
+          value: 150,
+          contentIds: ['1'],
+          contents: [{ id: '1', quantity: 3, itemPrice: 50 }],
+          contentType: 'product',
+        })
+        expect(tiktokTrackAddToCart).toHaveBeenCalledTimes(1)
+        expect(ga4TrackAddToCart).toHaveBeenCalledWith({
+          currency: 'EUR',
+          value: 150,
+          items: [{ item_id: '1', quantity: 3, price: 50 }],
+        })
+      })
+
       it('should fire remove_from_cart with the full quantity when deleting a cart item', async () => {
         store.cart = mockCartData
         const cartAfterDelete = {

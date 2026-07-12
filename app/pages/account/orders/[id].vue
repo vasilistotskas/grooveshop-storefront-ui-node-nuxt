@@ -395,6 +395,20 @@ async function handleReorder() {
     })
     await cartStore.refreshCart()
 
+    // Reorder adds cart lines server-side, bypassing the store's
+    // create/update actions — report each added line so add_to_cart
+    // analytics stay complete. Prices come from the refreshed cart.
+    for (const item of result.addedItems ?? []) {
+      const addedQuantity = Number(
+        item.addedQuantity ?? item.requestedQuantity ?? 0,
+      )
+      const cartItem = cartStore.getCartItemByProductId(item.productId)
+      const unitPrice = Number(
+        cartItem?.product?.finalPrice ?? cartItem?.product?.price ?? 0,
+      )
+      cartStore.trackCartQuantityChange(item.productId, addedQuantity, unitPrice)
+    }
+
     const skippedCount = result.skippedItems?.length ?? 0
     const addedCount = result.addedItems?.length ?? 0
     if (addedCount === 0) {
