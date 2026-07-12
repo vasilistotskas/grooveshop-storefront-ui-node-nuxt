@@ -409,14 +409,14 @@ useHead({
           class="flex justify-center pt-6"
         >
           <UPagination
-            v-model="page"
+            :page="page"
             :total="totalResults"
-            :page-count="limit"
-            show-first
-            show-last
+            :items-per-page="limit"
+            show-edges
             :ui="{
               root: 'flex items-center gap-1',
             }"
+            @update:page="page = $event"
           />
         </div>
 
@@ -431,7 +431,7 @@ useHead({
           </span>
           <USelectMenu
             v-model="limit"
-            :options="[12, 24, 48, 96]"
+            :items="[12, 24, 48, 96]"
             size="sm"
             class="w-20"
             @change="page = 1"
