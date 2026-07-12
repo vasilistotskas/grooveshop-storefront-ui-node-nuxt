@@ -3,9 +3,16 @@ import type { PropType } from 'vue'
 import * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
-defineProps({
+const props = defineProps({
   authenticatorType: { type: String as PropType<AuthenticatorTypeValues>, required: true },
 })
+
+// Recovery codes are 8 digits (allauth MFA_RECOVERY_CODE_DIGITS default),
+// TOTP codes are 6. Drive the whole input off this so recovery-code login
+// isn't stuck behind a 6-slot field it can never fill.
+const codeLength = computed(() =>
+  props.authenticatorType === AuthenticatorType.RECOVERY_CODES ? 8 : 6,
+)
 
 defineSlots<{
   default(props: object): any
@@ -34,7 +41,7 @@ if (authInfo?.pendingFlow?.id !== Flows.MFA_AUTHENTICATE) {
 const schema = z.object({
   code: z.string()
     .min(1, t('validation.required'))
-    .length(6, t('validation.code.length')),
+    .length(codeLength.value, t('validation.code.length')),
 })
 
 type Schema = z.output<typeof schema>
@@ -66,7 +73,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
 
 // Auto-submit when code is complete
 watch(codeString, (newCode) => {
-  if (newCode.length === 6) {
+  if (newCode.length === codeLength.value) {
     onSubmit({ data: { code: newCode } } as FormSubmitEvent<Schema>)
   }
 })
@@ -101,7 +108,7 @@ watch(codeString, (newCode) => {
           <div class="flex justify-center">
             <UPinInput
               v-model="code"
-              :length="6"
+              :length="codeLength"
               type="text"
               otp
               size="xl"
@@ -119,7 +126,7 @@ watch(codeString, (newCode) => {
 
         <UButton
           type="submit"
-          :disabled="codeString.length !== 6"
+          :disabled="codeString.length !== codeLength"
           block
           size="lg"
           icon="i-heroicons-arrow-right-on-rectangle"
