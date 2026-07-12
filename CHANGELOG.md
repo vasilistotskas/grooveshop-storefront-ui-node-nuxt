@@ -1,3 +1,10 @@
+## [3.142.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.3...v3.142.4) (2026-07-12)
+
+
+### Bug Fixes
+
+* **scripts:** disable bundling for Meta and TikTok pixels ([db00933](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/db0093385e57b1268f33b5b80c51d020285aad6f))
+
 ## [3.142.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.2...v3.142.3) (2026-07-12)
 
 
