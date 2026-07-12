@@ -201,17 +201,18 @@ export function setupMetaPixelConsent() {
 
   const trigger = useScriptTriggerConsent({ consent: useAdStorageConsent() })
 
-  // ``proxy: false``: the v1 first-party proxy AST-rewrites fbevents'
-  // dynamic ``connect.facebook.net/signals/config/<id>`` fetch to
-  // ``/_scripts/p/...``, which our Nitro serves with an
-  // ``application/json`` MIME (and intermittent 503s) — the browser
-  // refuses to execute it and the pixel never initialises
-  // (prod 2026-07-12). Loading direct restores the pre-v1 behaviour;
-  // GA keeps the proxy because its proxied calls are beacons, not
-  // executable scripts.
+  // ``bundle: false`` (build-time switch): the v1 bundler AST-rewrites
+  // fbevents' dynamic ``connect.facebook.net/signals/config/<id>``
+  // fetch into ``/_scripts/p/...`` INSIDE the bundled asset, but the
+  // runtime proxy allowlist only covers registry-registered domains —
+  // facebook gets a 403 "Domain not allowed" JSON that the browser
+  // refuses to execute (prod 2026-07-12). A runtime
+  // ``proxy: false`` cannot un-rewrite the baked asset (verified on
+  // v3.142.3); only disabling bundling keeps the vendor script and
+  // all its chain-loads on their original domains.
   useScriptMetaPixel({
     id: pixelId,
-    scriptOptions: { trigger, proxy: false },
+    scriptOptions: { trigger, bundle: false },
   })
 }
 
@@ -236,12 +237,12 @@ export function setupTikTokPixelConsent() {
 
   const trigger = useScriptTriggerConsent({ consent: useAdStorageConsent() })
 
-  // Same proxy opt-out rationale as ``setupMetaPixelConsent`` above —
-  // ttq also chain-loads secondary resources that must not be routed
-  // through the first-party proxy.
+  // Same bundle opt-out rationale as ``setupMetaPixelConsent`` above —
+  // ttq also chain-loads secondary resources that must stay on their
+  // original domains.
   useScriptTikTokPixel({
     id: pixelId,
-    scriptOptions: { trigger, proxy: false },
+    scriptOptions: { trigger, bundle: false },
   })
 }
 
