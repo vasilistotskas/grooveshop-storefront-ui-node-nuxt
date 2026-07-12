@@ -201,18 +201,14 @@ export function setupMetaPixelConsent() {
 
   const trigger = useScriptTriggerConsent({ consent: useAdStorageConsent() })
 
-  // ``bundle: false`` (build-time switch): the v1 bundler AST-rewrites
-  // fbevents' dynamic ``connect.facebook.net/signals/config/<id>``
-  // fetch into ``/_scripts/p/...`` INSIDE the bundled asset, but the
-  // runtime proxy allowlist only covers registry-registered domains —
-  // facebook gets a 403 "Domain not allowed" JSON that the browser
-  // refuses to execute (prod 2026-07-12). A runtime
-  // ``proxy: false`` cannot un-rewrite the baked asset (verified on
-  // v3.142.3); only disabling bundling keeps the vendor script and
-  // all its chain-loads on their original domains.
+  // NOTE: do not add proxy/bundle opt-outs here — the module's
+  // build transform and ``isProxyDisabled`` only read the
+  // ``scripts.registry`` entries in nuxt.config, never composable
+  // call sites (verified against @nuxt/scripts 1.3.0 source,
+  // 2026-07-12). The proxy is disabled globally in nuxt.config.
   useScriptMetaPixel({
     id: pixelId,
-    scriptOptions: { trigger, bundle: false },
+    scriptOptions: { trigger },
   })
 }
 
@@ -237,12 +233,9 @@ export function setupTikTokPixelConsent() {
 
   const trigger = useScriptTriggerConsent({ consent: useAdStorageConsent() })
 
-  // Same bundle opt-out rationale as ``setupMetaPixelConsent`` above —
-  // ttq also chain-loads secondary resources that must stay on their
-  // original domains.
   useScriptTikTokPixel({
     id: pixelId,
-    scriptOptions: { trigger, bundle: false },
+    scriptOptions: { trigger },
   })
 }
 

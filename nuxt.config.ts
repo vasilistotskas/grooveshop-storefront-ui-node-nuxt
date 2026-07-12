@@ -749,9 +749,19 @@ export default defineNuxtConfig({
     // ``useScript*`` call reuses that instance IGNORING its own
     // options — which silently dropped the consumers' id/trigger/
     // defaultConsent and killed GA page tracking (2026-07-12).
+    // ``proxy: false`` on EVERY entry keeps the module's first-party
+    // proxy infrastructure fully disabled (``anyNeedsProxy`` in the
+    // module is computed ONLY from these registry entries). With the
+    // proxy on, the bundler AST-rewrites vendor URLs inside bundled
+    // scripts to ``/_scripts/p/<domain>`` — but the runtime allowlist
+    // only covers registry-registered domains, so non-registry bundled
+    // scripts (Meta/TikTok pixels) chain-loaded resources that 403'd
+    // ("Domain not allowed") and were refused by strict MIME checking
+    // (prod 2026-07-12). Composable-level opt-outs CANNOT fix this:
+    // ``isProxyDisabled`` reads exclusively from these config entries.
     registry: {
-      googleAnalytics: { trigger: false },
-      stripe: { trigger: false },
+      googleAnalytics: { trigger: false, proxy: false },
+      stripe: { trigger: false, proxy: false },
     },
   },
   seo: {
