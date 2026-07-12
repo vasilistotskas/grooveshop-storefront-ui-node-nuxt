@@ -13,6 +13,11 @@ export const useCartStore = defineStore('cart', () => {
   const cart = ref<CartDetail | null>(null)
   const inFlight = reactive(new Set<string>())
   const pending = computed(() => inFlight.size > 0)
+  // True only while the cart is being loaded for the first time (no data yet).
+  // Use this to gate loading skeletons so item mutations — which also flip
+  // `pending` — don't unmount the list and destroy the quantity selector
+  // mid-interaction.
+  const initialLoading = computed(() => pending.value && cart.value === null)
   const error = ref<SerializedError | null>(null)
 
   const getCartItems = computed(() => cart.value?.items ?? [])
@@ -299,6 +304,7 @@ export const useCartStore = defineStore('cart', () => {
   return {
     cart,
     pending,
+    initialLoading,
     error,
     getCartItems,
     getCartTotalItems,

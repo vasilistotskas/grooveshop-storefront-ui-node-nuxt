@@ -4,6 +4,7 @@ const localePath = useLocalePath()
 const {
   cart,
   pending,
+  initialLoading,
   hasStockIssues,
 } = storeToRefs(cartStore)
 const { t } = useI18n()
@@ -159,7 +160,7 @@ definePageMeta({
     />
 
     <UAlert
-      v-if="!pending && hasStockIssues"
+      v-if="!initialLoading && hasStockIssues"
       color="warning"
       variant="soft"
       icon="i-heroicons-exclamation-triangle"
@@ -187,7 +188,7 @@ definePageMeta({
             {{ t('shopping_cart') }}
           </h1>
           <p
-            v-if="!pending && cart?.totalItems"
+            v-if="!initialLoading && cart?.totalItems"
             class="text-gray-500"
           >
             {{ t('items_in_cart', { count: cart.totalItems }) }}
@@ -199,7 +200,7 @@ definePageMeta({
         </div>
 
         <div
-          v-if="!pending && cart?.items?.length"
+          v-if="!initialLoading && cart?.items?.length"
           class="flex w-full flex-col gap-4"
         >
           <UCard
@@ -236,7 +237,7 @@ definePageMeta({
         </div>
 
         <LazyEmptyState
-          v-else-if="!pending && !cart?.items?.length"
+          v-else-if="!initialLoading && !cart?.items?.length"
           class="w-full"
           :title="t('empty.title')"
           :description="t('empty.description_long')"
@@ -313,7 +314,7 @@ definePageMeta({
       </div>
 
       <div
-        v-if="!pending && cart?.items?.length"
+        v-if="!initialLoading && cart?.items?.length"
         class="
           w-full
           lg:max-w-md
