@@ -83,6 +83,89 @@ export const useCartStore = defineStore('cart', () => {
     return null
   }
 
+  /**
+   * Fan out add_to_cart / remove_from_cart analytics for a signed
+   * cart quantity change (``+2`` = two units added). EVERY quantity
+   * increase is an add_to_cart — including bumping a product that is
+   * already in the cart (that path previously fired nothing, so only
+   * the first-ever add of a product produced events). Decreases map
+   * to GA4's ``remove_from_cart`` only: Meta and TikTok define no
+   * standard removal event. Tracking must never break the cart UX —
+   * failures are logged and swallowed.
+   */
+  function trackCartQuantityChange(
+    productId: number,
+    delta: number,
+    unitPrice: number,
+  ) {
+    if (!delta) return
+    try {
+      const quantity = Math.abs(delta)
+      const currency = cart.value?.currency ?? 'EUR'
+      const value = Number((unitPrice * quantity).toFixed(2))
+
+      if (delta > 0) {
+        metaPixel.trackAddToCart({
+          currency,
+          value,
+          contentIds: [String(productId)],
+          contents: [
+            {
+              id: String(productId),
+              quantity,
+              itemPrice: unitPrice,
+            },
+          ],
+          contentType: 'product',
+        })
+
+        tiktokPixel.trackAddToCart({
+          currency,
+          value,
+          contentType: 'product',
+          contents: [
+            {
+              contentId: String(productId),
+              quantity,
+              price: unitPrice,
+            },
+          ],
+        })
+
+        ga4.trackAddToCart({
+          currency,
+          value,
+          items: [
+            {
+              item_id: String(productId),
+              quantity,
+              price: unitPrice,
+            },
+          ],
+        })
+      }
+      else {
+        ga4.trackRemoveFromCart({
+          currency,
+          value,
+          items: [
+            {
+              item_id: String(productId),
+              quantity,
+              price: unitPrice,
+            },
+          ],
+        })
+      }
+    }
+    catch (pixelErr) {
+      log.warn(
+        'cart:trackQuantityChange',
+        String((pixelErr as Error)?.message ?? pixelErr),
+      )
+    }
+  }
+
   async function createCartItem(body: CartItemCreateRequest) {
     const opId = crypto.randomUUID()
     inFlight.add(opId)
@@ -95,69 +178,31 @@ export const useCartStore = defineStore('cart', () => {
       await refreshCart()
       error.value = null
 
-      // Meta Pixel: AddToCart fires after the cart was successfully
-      // updated (so a server-side rejection — out of stock, invalid
-      // product — never produces a pixel event). The added item is
-      // looked up from the freshly refreshed cart so the value /
-      // currency reflect the item the server actually persisted.
-      try {
-        const productId = body.product
-        const addedItem = cart.value?.items?.find(
-          item => item.product?.id === productId,
+      // Analytics fire only after the cart was successfully updated
+      // (so a server-side rejection — out of stock, invalid product —
+      // never produces a pixel event). The added item is looked up
+      // from the freshly refreshed cart so value/currency reflect
+      // what the server actually persisted.
+      const productId = body.product
+      const addedItem = cart.value?.items?.find(
+        item => item.product?.id === productId,
+      )
+      if (addedItem) {
+        const unitPrice = Number(
+          addedItem.product?.finalPrice ?? addedItem.product?.price ?? 0,
         )
-        if (addedItem) {
-          const unitPrice = Number(
-            addedItem.product?.finalPrice ?? addedItem.product?.price ?? 0,
-          )
-          const quantity = Number(body.quantity ?? addedItem.quantity ?? 1)
-          const currency = cart.value?.currency ?? 'EUR'
-          const value = Number((unitPrice * quantity).toFixed(2))
-
-          metaPixel.trackAddToCart({
-            currency,
-            value,
-            contentIds: [String(productId)],
-            contents: [
-              {
-                id: String(productId),
-                quantity,
-                itemPrice: unitPrice,
-              },
-            ],
-            contentType: 'product',
-          })
-
-          tiktokPixel.trackAddToCart({
-            currency,
-            value,
-            contentType: 'product',
-            contents: [
-              {
-                contentId: String(productId),
-                quantity,
-                price: unitPrice,
-              },
-            ],
-          })
-
-          ga4.trackAddToCart({
-            currency,
-            value,
-            items: [
-              {
-                item_id: String(productId),
-                quantity,
-                price: unitPrice,
-              },
-            ],
-          })
-        }
+        trackCartQuantityChange(
+          productId,
+          Number(body.quantity ?? addedItem.quantity ?? 1),
+          unitPrice,
+        )
       }
-      catch (pixelErr) {
-        // Telemetry failures must never break the cart UX.
+      else {
+        // A silent miss here is indistinguishable from "analytics
+        // broken" — make the skip observable.
         log.warn(
-          'cart:metaPixelAddToCart',
-          String((pixelErr as Error)?.message ?? pixelErr),
+          'cart:trackQuantityChange',
+          `product ${productId} not found in refreshed cart — add_to_cart not tracked`,
         )
       }
     }
@@ -174,6 +219,10 @@ export const useCartStore = defineStore('cart', () => {
   async function updateCartItem(id: number, body: CartItemUpdateRequest) {
     const opId = crypto.randomUUID()
     inFlight.add(opId)
+    // Snapshot BEFORE the PUT — the quantity delta decides whether
+    // this update tracks as add_to_cart (increase) or
+    // remove_from_cart (decrease).
+    const prevQuantity = Number(getCartItemById(id)?.quantity ?? 0)
     try {
       await $fetch(`/api/cart/items/${id}`, {
         method: 'PUT',
@@ -182,6 +231,19 @@ export const useCartStore = defineStore('cart', () => {
       })
       await refreshCart()
       error.value = null
+
+      const updatedItem = getCartItemById(id)
+      if (updatedItem?.product?.id) {
+        const newQuantity = Number(updatedItem.quantity ?? body.quantity ?? 0)
+        const unitPrice = Number(
+          updatedItem.product?.finalPrice ?? updatedItem.product?.price ?? 0,
+        )
+        trackCartQuantityChange(
+          updatedItem.product.id,
+          newQuantity - prevQuantity,
+          unitPrice,
+        )
+      }
     }
     catch (err) {
       log.error({ action: 'cart:updateItem', error: err })
@@ -208,35 +270,15 @@ export const useCartStore = defineStore('cart', () => {
       await refreshCart()
       error.value = null
 
-      if (removedItem) {
-        try {
-          const productId = removedItem.product?.id
-          const unitPrice = Number(
-            removedItem.product?.finalPrice
-            ?? removedItem.product?.price
-            ?? 0,
-          )
-          const quantity = Number(removedItem.quantity ?? 1)
-          ga4.trackRemoveFromCart({
-            currency: cart.value?.currency ?? 'EUR',
-            value: Number((unitPrice * quantity).toFixed(2)),
-            items: productId
-              ? [
-                  {
-                    item_id: String(productId),
-                    quantity,
-                    price: unitPrice,
-                  },
-                ]
-              : [],
-          })
-        }
-        catch (pixelErr) {
-          log.warn(
-            'cart:ga4RemoveFromCart',
-            String((pixelErr as Error)?.message ?? pixelErr),
-          )
-        }
+      if (removedItem?.product?.id) {
+        const unitPrice = Number(
+          removedItem.product?.finalPrice ?? removedItem.product?.price ?? 0,
+        )
+        trackCartQuantityChange(
+          removedItem.product.id,
+          -Number(removedItem.quantity ?? 1),
+          unitPrice,
+        )
       }
     }
     catch (err) {
