@@ -1,3 +1,10 @@
+## [3.142.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.6...v3.142.7) (2026-07-12)
+
+
+### Bug Fixes
+
+* **cart:** track add_to_cart for reordered items ([27ed06e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/27ed06e1a7c9373ee6bffbae97c3b80a3f8f85da))
+
 ## [3.142.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.5...v3.142.6) (2026-07-12)
 
 
