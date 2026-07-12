@@ -56,45 +56,6 @@ export default defineConfig({
 
       await defineVitestProject({
         test: {
-          name: 'e2e',
-          include: ['test/e2e/**/*.{test,spec}.ts'],
-          environment: 'nuxt',
-          environmentOptions: {
-            nuxt: {
-              mock: {
-                intersectionObserver: true,
-                indexedDb: true,
-              },
-              overrides: {
-                // Disable manifest fetching during tests to prevent timeout errors
-                experimental: {
-                  appManifest: false,
-                },
-                // SEO modules are meaningless in the SPA test harness and only
-                // emit "SPA mode detected" / robots warnings into test output.
-                aiReady: {
-                  enabled: false,
-                },
-                robots: {
-                  enabled: false,
-                },
-              },
-            },
-          },
-          // setupNuxt() (the per-file app boot) can exceed vitest's default
-          // 10s hook timeout on slower/cold runs — same env raciness the
-          // retry/testTimeout mitigations below exist for.
-          hookTimeout: 60000,
-        },
-        resolve: {
-          alias: {
-            'bun:test': 'vitest',
-          },
-        },
-      }),
-
-      await defineVitestProject({
-        test: {
           name: 'nuxt',
           include: ['test/nuxt/**/*.{test,spec}.ts'],
           environment: 'nuxt',

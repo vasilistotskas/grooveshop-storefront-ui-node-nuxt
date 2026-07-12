@@ -54,7 +54,6 @@ export default defineEventHandler(async (event) => {
   }
   catch (error) {
     handleError(error)
-    return
   }
 
   setResponseHeader(event, 'X-Accel-Buffering', 'no')
