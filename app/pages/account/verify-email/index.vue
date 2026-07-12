@@ -75,7 +75,6 @@ watch(codeString, (newCode) => {
 
 definePageMeta({
   layout: 'default',
-  middleware: 'guest',
 })
 </script>
 
