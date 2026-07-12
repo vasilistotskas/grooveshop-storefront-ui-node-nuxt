@@ -41,7 +41,7 @@ const availableBalance = computed(() => summary.value?.pointsBalance || 0)
 
 // Max redeemable points: capped by both balance and products total
 const maxRedeemablePoints = computed(() => {
-  const ratio = 100 // 100 points = 1 EUR
+  const ratio = settings.value?.redemptionRatioEur ?? 100 // points per 1 EUR
   const maxFromProductsTotal = Math.floor(props.maxDiscountAmount * ratio)
   return Math.min(availableBalance.value, maxFromProductsTotal)
 })
@@ -57,10 +57,10 @@ const displayedBalance = computed(() => {
   return availableBalance.value
 })
 
-// Calculate discount based on points (assuming 100 points = 1 EUR)
+// Calculate discount based on points using the admin-configured ratio
 const calculateDiscount = (points: number) => {
   if (points === 0) return '0.00'
-  const ratio = 100 // 100 points = 1 EUR (adjust based on your backend setting)
+  const ratio = settings.value?.redemptionRatioEur ?? 100 // points per 1 EUR
   const discount = points / ratio
   return discount.toFixed(2)
 }
