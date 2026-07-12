@@ -743,12 +743,15 @@ export default defineNuxtConfig({
       integrity: 'sha384',
     },
     // Registry entries are infrastructure-only (types, env-var runtime
-    // config, bundling) — no `trigger` means NO global auto-load, so
-    // consent gating in ``setupGoogleAnalyticsConsent``/``useGA4`` is
-    // unaffected. Loading stays composable-driven.
+    // config, bundling). ``trigger: false`` is the documented v1 form
+    // for composable-driven scripts: a bare ``{}`` makes the registry
+    // plugin initialize the script instance at boot and every later
+    // ``useScript*`` call reuses that instance IGNORING its own
+    // options — which silently dropped the consumers' id/trigger/
+    // defaultConsent and killed GA page tracking (2026-07-12).
     registry: {
-      googleAnalytics: {},
-      stripe: {},
+      googleAnalytics: { trigger: false },
+      stripe: { trigger: false },
     },
   },
   seo: {
