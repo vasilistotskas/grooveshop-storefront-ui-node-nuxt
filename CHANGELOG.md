@@ -1,3 +1,10 @@
+## [3.142.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.1...v3.142.2) (2026-07-12)
+
+
+### Bug Fixes
+
+* **scripts:** trigger false for composable-driven registry entries ([1cc7b43](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1cc7b43e32986f485f49310d3e6ffcc171b1b639))
+
 ## [3.142.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.0...v3.142.1) (2026-07-11)
 
 
