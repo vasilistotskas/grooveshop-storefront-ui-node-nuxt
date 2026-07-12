@@ -1,3 +1,10 @@
+## [3.142.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.4...v3.142.5) (2026-07-12)
+
+
+### Bug Fixes
+
+* **scripts:** disable first-party proxy via registry entries ([e6aba14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e6aba1499726b1cef79bf5dd3c7e914988a3dee4))
+
 ## [3.142.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.3...v3.142.4) (2026-07-12)
 
 
