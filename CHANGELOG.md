@@ -1,3 +1,19 @@
+## [3.142.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.2...v3.142.3) (2026-07-12)
+
+
+### Bug Fixes
+
+* **2fa:** allow recovery-code login and fix WebAuthn page redirect ([00a676a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/00a676ada10862db7d600da99fdafad7ab8758d5))
+* **account:** handle cross-device email verification and unblock code entry ([f3aab78](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f3aab78e31cc3ca805f463ab6d7db4c6a5925700))
+* **account:** stop birth-date day-shift and show real order total ([d3685c5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d3685c5ed7274ef5089c68e049cd6f8e153bb28e))
+* **blog:** apply liked state on initial load for posts and comments ([7c436f2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7c436f2f59f830df2915e79e989ada93fbc48ae3))
+* **cart:** keep list mounted during mutations instead of flashing skeletons ([ede3513](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ede351363c4433b64974d65b271de238bb139aa4))
+* **checkout:** stop retry deadlock that permanently bricks submit ([5935519](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/593551972c1f0d1dd5b08fe8934dbbe2dc3b2985))
+* **loyalty:** use configured redemption ratio instead of hardcoded 100 ([868d0a9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/868d0a9b4b6f7c7ad20db32fe35b5570345311e1))
+* **products:** correct star rating scale and sort field values ([b40c2e1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b40c2e19eb042c4ecd2ff5bcf981f5eea40521b3))
+* **scripts:** load Meta and TikTok pixels without the proxy ([9844581](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9844581ac1c62c757c2f72d116c3b1ff4143dde6))
+* **search:** migrate pagination and per-page controls to Nuxt UI v4 API ([f09749c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f09749c6a929496a6c7d9aa6104c5b82b0ad1e3d))
+
 ## [3.142.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.1...v3.142.2) (2026-07-12)
 
 
