@@ -151,33 +151,21 @@ const loadMoreComments = async () => {
   }
 }
 
-const loggedInAndHasComments = computed(() => {
-  return loggedIn.value && hasComments.value
-})
-
 const commentIds = computed(() => {
   if (!comments.value) return []
   return comments.value?.results?.map(comment => comment.id) || []
 })
 
-// User-specific data: client-side only to avoid blocking SSR
-if (loggedInAndHasComments.value) {
-  await useFetch('/api/blog/comments/liked-comments', {
-    key: `likedComments${blogPostId.value}`,
-    method: 'POST',
-    body: {
-      commentIds: commentIds,
-    },
-    server: false, // Client-side only - user-specific data
-    onResponse({ response }) {
-      if (!response.ok) {
-        return
-      }
-      const likedCommentIds = response._data?.likedCommentIds || []
-      updateLikedComments(likedCommentIds)
-    },
-  })
-}
+// Load like state for the initially rendered comments. `commentIds` is empty
+// during setup (allComments is filled by the `comments` watcher below), so this
+// must react to the ids arriving rather than run once — otherwise the initial
+// page of comments never gets its like state and toggling silently removes an
+// existing like.
+watch(commentIds, (ids) => {
+  if (loggedIn.value && ids.length > 0) {
+    refreshLikedComments(ids)
+  }
+}, { immediate: import.meta.client })
 
 const onReplyAdd = async (data: BlogComment) => {
   emit('reply-add', data)

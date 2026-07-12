@@ -96,9 +96,14 @@ const { data: relatedPosts, status: relatedPostsStatus } = useLazyFetch(`/api/bl
   method: 'GET',
 })
 
-if (likedPostsData.value) {
-  updateLikedPosts(likedPostsData.value.postIds)
-}
+// `likedPostsData` resolves client-side only (server: false), so it is null
+// during setup on a hard load — apply the liked state reactively when it
+// arrives instead of reading it once synchronously.
+watch(likedPostsData, (value) => {
+  if (value) {
+    updateLikedPosts(value.postIds)
+  }
+}, { immediate: true })
 
 const { transformImages } = useHtmlContent()
 
