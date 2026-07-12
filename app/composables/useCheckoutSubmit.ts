@@ -29,6 +29,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   const isSubmitting = ref(false)
   const reservationIds = ref<number[]>([])
   const retryCount = ref(0)
+  // Set when the retry timer re-enters onSubmit, so a fresh user-initiated
+  // submit resets the retry counter but an automatic retry keeps it.
+  const isRetryReentry = ref(false)
   const MAX_RETRIES = 3
   const paymentIntentId = ref<string | null>(null)
   const retryTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
@@ -291,10 +294,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         return
       }
       retryCount.value++
-      // Keep isSubmitting true during retry window to block double-submit
+      // Keep isSubmitting true during the retry window to block double-submit,
+      // then release it right before re-entering onSubmit — otherwise the
+      // re-entrant call hits the `if (isSubmitting.value) return` guard and the
+      // checkout deadlocks with the CTA spinning forever.
       isSubmitting.value = true
       retryTimeoutId.value = setTimeout(() => {
         retryTimeoutId.value = null
+        isSubmitting.value = false
+        isRetryReentry.value = true
         onSubmit()
       }, 500)
     }
@@ -505,6 +513,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   }
 
   const onSubmit = async () => {
+    // Capture and clear the re-entry flag first: a fresh (user-initiated)
+    // submit resets the retry counter, an automatic retry preserves it.
+    const wasRetry = isRetryReentry.value
+    isRetryReentry.value = false
+
     // Cancel any pending retry before checking isSubmitting
     if (retryTimeoutId.value) {
       clearTimeout(retryTimeoutId.value)
@@ -514,6 +527,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     if (isSubmitting.value) return
 
     isSubmitting.value = true
+
+    if (!wasRetry) retryCount.value = 0
 
     log.info('checkout', 'submit:started', {
       payWayId: formState.payWayId,
