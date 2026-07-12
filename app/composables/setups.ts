@@ -201,9 +201,17 @@ export function setupMetaPixelConsent() {
 
   const trigger = useScriptTriggerConsent({ consent: useAdStorageConsent() })
 
+  // ``proxy: false``: the v1 first-party proxy AST-rewrites fbevents'
+  // dynamic ``connect.facebook.net/signals/config/<id>`` fetch to
+  // ``/_scripts/p/...``, which our Nitro serves with an
+  // ``application/json`` MIME (and intermittent 503s) — the browser
+  // refuses to execute it and the pixel never initialises
+  // (prod 2026-07-12). Loading direct restores the pre-v1 behaviour;
+  // GA keeps the proxy because its proxied calls are beacons, not
+  // executable scripts.
   useScriptMetaPixel({
     id: pixelId,
-    scriptOptions: { trigger },
+    scriptOptions: { trigger, proxy: false },
   })
 }
 
@@ -228,9 +236,12 @@ export function setupTikTokPixelConsent() {
 
   const trigger = useScriptTriggerConsent({ consent: useAdStorageConsent() })
 
+  // Same proxy opt-out rationale as ``setupMetaPixelConsent`` above —
+  // ttq also chain-loads secondary resources that must not be routed
+  // through the first-party proxy.
   useScriptTikTokPixel({
     id: pixelId,
-    scriptOptions: { trigger },
+    scriptOptions: { trigger, proxy: false },
   })
 }
 
