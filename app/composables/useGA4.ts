@@ -66,11 +66,33 @@ export function useGA4() {
   // bundle never blocks paint. Multiple ``useScriptGoogleAnalytics``
   // calls dedup at the @nuxt/scripts registry level — they all
   // resolve to the same global proxy.
-  const proxy = isProvisioned
-
+  //
+  // This composable is captured at Pinia-store setup (``stores/cart.ts``
+  // → ``plugins/setup.ts`` runs during the plugin phase, BEFORE
+  // ``app.vue`` setup calls ``setupGoogleAnalyticsConsent``). If this
+  // first registration omitted ``defaultConsent``, the @nuxt/scripts
+  // dedup would win with a granted-by-default consent posture and
+  // ``gtag.js`` would set ``_ga``/``_gid`` and send hits before the
+  // cookie banner is answered — the same GDPR leak already fixed for
+  // the Meta/TikTok pixels. So carry the identical denied consent block
+  // here (keep in sync with ``setupGoogleAnalyticsConsent`` in
+  // ``setups.ts``); the consent-update watcher there grants it once the
+  // visitor accepts. ``import.meta.client`` mirrors useMetaPixel /
+  // useTikTokPixel for SSR safety.
+  const proxy = isProvisioned && import.meta.client
     ? (useScriptGoogleAnalytics({
         id: measurementId,
         scriptOptions: { trigger: 'onNuxtReady' },
+        defaultConsent: {
+          ad_user_data: 'denied',
+          ad_personalization: 'denied',
+          ad_storage: 'denied',
+          analytics_storage: 'denied',
+          functionality_storage: 'granted',
+          personalization_storage: 'denied',
+          security_storage: 'denied',
+          wait_for_update: 500,
+        },
       }) as any).proxy
     : { gtag: NOOP_PROXY }
 
