@@ -1,3 +1,10 @@
+## [3.142.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.7...v3.142.8) (2026-07-13)
+
+
+### Bug Fixes
+
+* **cart:** anchor mobile remove button inside its item card ([9c11c5b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9c11c5b1e18b9408fd25b032d08556ad983b3891))
+
 ## [3.142.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.6...v3.142.7) (2026-07-12)
 
 
