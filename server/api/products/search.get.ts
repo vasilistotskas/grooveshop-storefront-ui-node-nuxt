@@ -78,9 +78,12 @@ export default defineCachedEventHandler(async (event) => {
   }
 }, {
   name: 'SearchProductViewSet',
+  // Search results are sort/filter-sensitive: never serve them stale. A
+  // stale-while-revalidate entry can surface the wrong order after a backend
+  // change (e.g. a sort-mapping fix) until it revalidates. Cache identical
+  // queries briefly for load relief, but always fetch fresh on expiry.
   maxAge: 60, // Cache for 1 minute — Meilisearch is near-real-time
-  staleMaxAge: 300, // Serve stale for 5 minutes while revalidating
-  swr: true,
+  swr: false,
   getKey: (event) => {
     const query = getQuery(event)
     const keyParts = [
