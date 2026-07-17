@@ -1,3 +1,11 @@
+## [3.142.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.8...v3.142.9) (2026-07-17)
+
+
+### Bug Fixes
+
+* **analytics:** gate GA4 behind denied consent defaults before the cookie banner ([f15e0cb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f15e0cb79fb740f9c82ee5cdd141385f1fb46a30))
+* **cart:** send guest cart UUID in X-Cart-Id (backend IDOR fix) ([e156dc2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e156dc29060cf0f2d991d79787a7df79c1836a6e))
+
 ## [3.142.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.7...v3.142.8) (2026-07-13)
 
 
