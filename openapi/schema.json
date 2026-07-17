@@ -12414,17 +12414,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     }
                 ],
                 "tags": [
@@ -12498,17 +12491,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     }
                 ],
                 "tags": [
@@ -12611,17 +12597,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     }
                 ],
                 "tags": [
@@ -12724,17 +12703,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     }
                 ],
                 "tags": [
@@ -12790,17 +12762,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     }
                 ],
                 "tags": [
@@ -12906,17 +12871,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     },
                     {
                         "in": "query",
@@ -13648,17 +13606,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     }
                 ],
                 "tags": [
@@ -13764,17 +13715,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     },
                     {
                         "in": "path",
@@ -13878,17 +13822,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     },
                     {
                         "in": "path",
@@ -14007,17 +13944,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     },
                     {
                         "in": "path",
@@ -14150,17 +14080,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     },
                     {
                         "in": "path",
@@ -14232,17 +14155,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     },
                     {
                         "in": "query",
@@ -14911,17 +14827,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     }
                 ],
                 "tags": [
@@ -15027,17 +14936,10 @@
                         "in": "header",
                         "name": "X-Cart-Id",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
+                            "type": "string",
+                            "format": "uuid"
                         },
-                        "description": "Cart ID for guest users. Used to identify and maintain guest cart sessions."
+                        "description": "Guest cart UUID. Used to identify and maintain guest cart sessions."
                     }
                 ],
                 "tags": [
@@ -51808,7 +51710,8 @@
                         "readOnly": true
                     },
                     "cartId": {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "readOnly": true
                     },
                     "product": {
@@ -51977,7 +51880,8 @@
                         "readOnly": true
                     },
                     "cartId": {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "readOnly": true
                     },
                     "product": {
@@ -61826,7 +61730,8 @@
                 "type": "object",
                 "properties": {
                     "cartId": {
-                        "type": "integer",
+                        "type": "string",
+                        "format": "uuid",
                         "nullable": true
                     },
                     "addedItems": {

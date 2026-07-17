@@ -239,12 +239,12 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
       zipcode: values.zipcode,
       address: values.address,
       place: values.place,
-      // Serialize the picked calendar day from local components — never via
-      // toISOString(), which shifts the date back a day for UTC+ timezones
-      // (e.g. Europe/Athens) and compounds on every save.
-      birthDate: values.birthDate
-        ? `${values.birthDate.getFullYear()}-${String(values.birthDate.getMonth() + 1).padStart(2, '0')}-${String(values.birthDate.getDate()).padStart(2, '0')}`
-        : null,
+      // Serialize the picked day straight from the timezone-agnostic
+      // CalendarDate — its toString() yields 'YYYY-MM-DD' directly. Never go
+      // via Date.toISOString(), which converts local midnight to UTC and
+      // shifts the day back for UTC+ timezones (e.g. Europe/Athens),
+      // compounding one day per save.
+      birthDate: calendarDate.value ? calendarDate.value.toString() : null,
       country: values.country,
       region: values.region,
       languageCode: nextLanguage,

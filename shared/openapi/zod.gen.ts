@@ -2574,7 +2574,7 @@ export const zProduct = z.object({
 
 export const zCartItem = z.object({
   id: z.int().readonly(),
-  cartId: z.int().readonly(),
+  cartId: z.uuid().readonly(),
   product: zProduct,
   quantity: z.int().gte(0).lte(2147483647).optional(),
   weightInfo: z.object({
@@ -2655,7 +2655,7 @@ export const zCartDetail = z.object({
 
 export const zCartItemDetail = z.object({
   id: z.int().readonly(),
-  cartId: z.int().readonly(),
+  cartId: z.uuid().readonly(),
   product: zProduct,
   quantity: z.int().gte(0).lte(2147483647).optional(),
   weightInfo: z.object({
@@ -3680,7 +3680,7 @@ export const zReorderItem = z.object({
 })
 
 export const zReorderResponse = z.object({
-  cartId: z.int().nullable(),
+  cartId: z.uuid().nullable(),
   addedItems: z.array(zReorderItem),
   skippedItems: z.array(zReorderItem),
 })
@@ -9881,17 +9881,15 @@ export const zUpdateBlogTagQuery = z.object({
 export const zUpdateBlogTagResponse = zBlogTagDetail
 
 export const zDestroyCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zRetrieveCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zRetrieveCartResponse = zCartDetail
@@ -9899,10 +9897,9 @@ export const zRetrieveCartResponse = zCartDetail
 export const zPartialUpdateCartBody = zPatchedCartWriteRequest
 
 export const zPartialUpdateCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zPartialUpdateCartResponse = zCartDetail
@@ -9910,10 +9907,9 @@ export const zPartialUpdateCartResponse = zCartDetail
 export const zUpdateCartBody = zCartWriteRequest
 
 export const zUpdateCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zUpdateCartResponse = zCartDetail
@@ -9921,19 +9917,17 @@ export const zUpdateCartResponse = zCartDetail
 export const zCreateCartPaymentIntentBody = zCartCreatePaymentIntentRequestRequest
 
 export const zCreateCartPaymentIntentHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zCreateCartPaymentIntentResponse = zCartPaymentIntentResponse
 
 export const zListCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zListCartItemQuery = z.object({
@@ -10129,19 +10123,17 @@ export const zListCartItemResponse = zPaginatedCartItemList
 export const zCreateCartItemBody = zCartItemCreateRequest
 
 export const zCreateCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zCreateCartItemResponse = zCartItemDetail
 
 export const zDestroyCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zDestroyCartItemPath = z.object({
@@ -10152,10 +10144,9 @@ export const zDestroyCartItemPath = z.object({
 })
 
 export const zRetrieveCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zRetrieveCartItemPath = z.object({
@@ -10180,10 +10171,9 @@ export const zRetrieveCartItemResponse = zCartItemDetail
 export const zPartialUpdateCartItemBody = zPatchedCartItemUpdateRequest
 
 export const zPartialUpdateCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zPartialUpdateCartItemPath = z.object({
@@ -10208,10 +10198,9 @@ export const zPartialUpdateCartItemResponse = zCartItemDetail
 export const zUpdateCartItemBody = zCartItemUpdateRequest
 
 export const zUpdateCartItemHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zUpdateCartItemPath = z.object({
@@ -10224,10 +10213,9 @@ export const zUpdateCartItemPath = z.object({
 export const zUpdateCartItemResponse = zCartItemDetail
 
 export const zListCartHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zListCartQuery = z.object({
@@ -10407,19 +10395,17 @@ export const zListCartResponse = zPaginatedCartList
 export const zReleaseCartReservationsBody = zReleaseReservationsRequestRequest
 
 export const zReleaseCartReservationsHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zReleaseCartReservationsResponse = zReleaseReservationsResponse
 
 export const zReserveCartStockHeaders = z.object({
-  'X-Cart-Id': z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]).optional(),
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
+  }).optional(),
 })
 
 export const zReserveCartStockResponse = zReserveStockResponse

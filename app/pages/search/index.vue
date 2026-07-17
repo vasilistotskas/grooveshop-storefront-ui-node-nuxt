@@ -409,14 +409,13 @@ useHead({
           class="flex justify-center pt-6"
         >
           <UPagination
-            :page="page"
+            v-model:page="page"
             :total="totalResults"
             :items-per-page="limit"
             show-edges
             :ui="{
               root: 'flex items-center gap-1',
             }"
-            @update:page="page = $event"
           />
         </div>
 

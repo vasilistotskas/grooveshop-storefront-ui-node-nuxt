@@ -1897,7 +1897,7 @@ export type CartDetail = {
 
 export type CartItem = {
   readonly id: number
-  readonly cartId: number
+  readonly cartId: string
   product: Product
   /**
      * Ποσότητα
@@ -1941,7 +1941,7 @@ export type CartItemCreateRequest = {
 
 export type CartItemDetail = {
   readonly id: number
-  readonly cartId: number
+  readonly cartId: string
   product: Product
   /**
      * Ποσότητα
@@ -6172,7 +6172,7 @@ export type ReorderItem = {
 }
 
 export type ReorderResponse = {
-  cartId: number | null
+  cartId: string | null
   addedItems: Array<ReorderItem>
   skippedItems: Array<ReorderItem>
 }
@@ -12809,9 +12809,9 @@ export type DestroyCartData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -12830,9 +12830,9 @@ export type RetrieveCartData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -12858,9 +12858,9 @@ export type PartialUpdateCartData = {
   body?: PatchedCartWriteRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -12887,9 +12887,9 @@ export type UpdateCartData = {
   body?: CartWriteRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -12916,9 +12916,9 @@ export type CreateCartPaymentIntentData = {
   body: CartCreatePaymentIntentRequestRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -12945,9 +12945,9 @@ export type ListCartItemData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: {
@@ -13145,9 +13145,9 @@ export type CreateCartItemData = {
   body: CartItemCreateRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -13174,9 +13174,9 @@ export type DestroyCartItemData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path: {
     id: string | number
@@ -13197,9 +13197,9 @@ export type RetrieveCartItemData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path: {
     id: string | number
@@ -13232,9 +13232,9 @@ export type PartialUpdateCartItemData = {
   body?: PatchedCartItemUpdateRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path: {
     id: string | number
@@ -13268,9 +13268,9 @@ export type UpdateCartItemData = {
   body?: CartItemUpdateRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path: {
     id: string | number
@@ -13299,9 +13299,9 @@ export type ListCartData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: {
@@ -13480,9 +13480,9 @@ export type ReleaseCartReservationsData = {
   body: ReleaseReservationsRequestRequest
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never
@@ -13509,9 +13509,9 @@ export type ReserveCartStockData = {
   body?: never
   headers?: {
     /**
-         * Cart ID for guest users. Used to identify and maintain guest cart sessions.
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
-    'X-Cart-Id'?: string | number
+    'X-Cart-Id'?: string
   }
   path?: never
   query?: never

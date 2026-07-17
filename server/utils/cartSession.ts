@@ -6,13 +6,15 @@ import { deleteCookie, getCookie, setCookie } from 'h3'
 import { DEFAULT_LOCALE } from '~~/i18n/locales'
 
 interface CartSessionData {
-  cartId?: number
+  // The guest cart UUID (unguessable). The backend addresses guest carts by
+  // UUID, not the sequential PK, so integer ids are rejected.
+  cartId?: string
 }
 
-// Fallback cookie stores the bare cart id as a string so we can recover if
-// the encrypted ``nuxt-session`` cookie is cleared/rotated mid-browse. The
-// value is non-sensitive — it's just a lookup key the backend already
-// validates against the X-Cart-Id permission path.
+// Fallback cookie stores the bare cart UUID so we can recover if the
+// encrypted ``nuxt-session`` cookie is cleared/rotated mid-browse. The value
+// is non-sensitive — it's just a lookup key the backend already validates
+// against the X-Cart-Id permission path.
 const CART_ID_FALLBACK_COOKIE = 'cart-id'
 const CART_ID_MAX_AGE = 60 * 60 * 24 * 30
 
@@ -30,19 +32,19 @@ async function getSession(event: H3Event) {
   })
 }
 
-function readFallbackCartId(event: H3Event): number | undefined {
+function readFallbackCartId(event: H3Event): string | undefined {
   const raw = getCookie(event, CART_ID_FALLBACK_COOKIE)
   if (!raw) return undefined
-  const parsed = Number.parseInt(raw, 10)
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined
+  const trimmed = raw.trim()
+  return trimmed.length > 0 ? trimmed : undefined
 }
 
-function writeFallbackCartId(event: H3Event, cartId: number | undefined): void {
+function writeFallbackCartId(event: H3Event, cartId: string | undefined): void {
   if (cartId === undefined) {
     deleteCookie(event, CART_ID_FALLBACK_COOKIE, { path: '/' })
     return
   }
-  setCookie(event, CART_ID_FALLBACK_COOKIE, String(cartId), {
+  setCookie(event, CART_ID_FALLBACK_COOKIE, cartId, {
     httpOnly: false,
     secure: !import.meta.dev,
     sameSite: 'lax',
@@ -79,7 +81,7 @@ export async function updateCartSession(event: H3Event, updates: Partial<CartSes
     ...updates,
   })
 
-  if ('cartId' in updates && typeof updates.cartId === 'number') {
+  if ('cartId' in updates && typeof updates.cartId === 'string') {
     writeFallbackCartId(event, updates.cartId)
   }
 }
@@ -110,13 +112,13 @@ export async function handleCartResponse(event: H3Event, response: unknown): Pro
   if (
     response
     && typeof response === 'object'
-    && 'id' in response
-    && typeof response.id === 'number'
-    // Cart IDs are positive — 0 is treated as "no cart yet" and
-    // skipped so we don't store a sentinel value.
-    && response.id > 0
+    && 'uuid' in response
+    && typeof response.uuid === 'string'
+    // Guest carts are addressed by their UUID; an empty value means
+    // "no cart yet" and is skipped so we don't store a sentinel.
+    && response.uuid.length > 0
   ) {
-    await updateCartSession(event, { cartId: response.id })
+    await updateCartSession(event, { cartId: response.uuid })
   }
 }
 
