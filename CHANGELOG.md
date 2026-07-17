@@ -1,3 +1,10 @@
+## [3.142.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.9...v3.142.10) (2026-07-17)
+
+
+### Bug Fixes
+
+* **cache:** don't serve stale results for sort/filter product listings ([b2b215d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b2b215dce13ca5559a8a829636764392633e01ae))
+
 ## [3.142.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.8...v3.142.9) (2026-07-17)
 
 
