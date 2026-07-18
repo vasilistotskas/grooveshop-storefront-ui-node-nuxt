@@ -1,3 +1,10 @@
+## [3.142.13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.12...v3.142.13) (2026-07-18)
+
+
+### Bug Fixes
+
+* **openapi:** realign full schema with Django to eliminate contract drift ([#12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/12)) ([776735f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/776735f8d0e8f4e15dcf2c25d1c1fef85f658941))
+
 ## [3.142.12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.11...v3.142.12) (2026-07-18)
 
 
