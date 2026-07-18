@@ -7,6 +7,7 @@ import {
   getPendingFlow,
   extractAllAuthError,
   pendingFlowRouteNameFromError,
+  tryAdvanceToPendingFlow,
 } from '../../../app/utils/auth'
 
 const mockLog = {
@@ -338,6 +339,56 @@ describe('Utils - Auth', () => {
 
     it('returns null for a non-allauth error', () => {
       expect(pendingFlowRouteNameFromError(new Error('network'))).toBeNull()
+    })
+  })
+
+  describe('tryAdvanceToPendingFlow', () => {
+    let navigateToMock: ReturnType<typeof vi.fn>
+
+    const stubRoute = (path: string) => {
+      vi.stubGlobal('useRouter', () => ({
+        currentRoute: { value: { path, query: {} } },
+      }))
+    }
+
+    beforeEach(() => {
+      navigateToMock = vi.fn()
+      vi.stubGlobal('navigateTo', navigateToMock)
+      // Identity-ish localePath: route name -> "/<name>".
+      vi.stubGlobal('useLocalePath', () => (name: string) => `/${name}`)
+    })
+
+    it('advances to a pending flow on a different route', async () => {
+      stubRoute('/account-login-code')
+      const error = wrapAllAuthError({
+        status: 401,
+        data: { flows: [{ id: 'login_by_code', is_pending: true }] },
+        meta: { is_authenticated: false },
+      })
+
+      expect(await tryAdvanceToPendingFlow(error)).toBe(true)
+      expect(navigateToMock).toHaveBeenCalledWith({
+        path: '/account-login-code-confirm',
+        query: undefined,
+      })
+    })
+
+    it('does NOT advance when the pending flow is the current route (wrong-code retry)', async () => {
+      stubRoute('/account-2fa-authenticate-webauthn')
+      const error = wrapAllAuthError({
+        status: 401,
+        data: { flows: [{ id: 'mfa_authenticate', is_pending: true, types: ['webauthn'] }] },
+        meta: { is_authenticated: false },
+      })
+
+      expect(await tryAdvanceToPendingFlow(error)).toBe(false)
+      expect(navigateToMock).not.toHaveBeenCalled()
+    })
+
+    it('does not advance for a non-flow error', async () => {
+      stubRoute('/whatever')
+      expect(await tryAdvanceToPendingFlow(new Error('boom'))).toBe(false)
+      expect(navigateToMock).not.toHaveBeenCalled()
     })
   })
 })
