@@ -1,3 +1,10 @@
+## [3.142.14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.13...v3.142.14) (2026-07-18)
+
+
+### Bug Fixes
+
+* **auth:** advance to the pending flow on allauth 401 (login MFA + login-by-code) ([#13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/13)) ([abbc8da](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/abbc8daa2afbdc51eb42270ca39d684ee3ef019c))
+
 ## [3.142.13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.12...v3.142.13) (2026-07-18)
 
 
