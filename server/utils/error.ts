@@ -107,9 +107,17 @@ async function syncAllAuthSessionFromError(error: unknown, event: H3Event) {
         },
       })
     }
-    else if (!error.data.meta?.is_authenticated) {
-      log.info('auth', 'No tokens in error response, clearing user session')
-      await clearUserSession(event)
+    // No tokens in meta means KEEP the stored token, never clear: allauth's
+    // expose_session_token only emits meta.session_token when the Django
+    // session was modified AND the token CHANGED — an absent token on an
+    // app-client response means "keep using the one you sent". Clearing here
+    // wiped the pending-flow session mid-2FA (valid login code → 401
+    // mfa_authenticate pending WITHOUT a token change → cookie cleared →
+    // the WebAuthn options call went out anonymous and instantly 401'd).
+    // Session teardown has exactly two owners: the 410 branch above, and
+    // session.delete.ts's own finally block on explicit logout.
+    else {
+      log.info('auth', 'No token change in allauth response, keeping stored session token')
     }
   }
 
