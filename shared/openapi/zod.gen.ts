@@ -197,7 +197,10 @@ export const zBlogAuthorWriteRequest = z.object({
     }).optional(),
   }),
   user: z.int(),
-  website: z.url().max(200).optional(),
+  website: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
@@ -899,10 +902,6 @@ export const zCartPaymentIntentResponse = z.object({
   description: 'Response body returned by the create-payment-intent cart action.',
 })
 
-export const zCartWriteRequest = z.object({
-  user: z.int().nullish(),
-})
-
 /**
  * * `1` - Μικρό
  * * `2` - Μεσαίο
@@ -1485,7 +1484,6 @@ export const zNotificationUserActionRequest = z.object({
 })
 
 export const zNotificationUserWriteRequest = z.object({
-  notification: z.int(),
   seen: z.boolean().optional(),
 })
 
@@ -1752,7 +1750,10 @@ export const zPatchedBlogAuthorWriteRequest = z.object({
     }).optional(),
   }).optional(),
   user: z.int().optional(),
-  website: z.url().max(200).optional(),
+  website: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
@@ -1861,10 +1862,6 @@ export const zPatchedCartItemUpdateRequest = z.object({
   quantity: z.int().gte(0).lte(2147483647).optional(),
 })
 
-export const zPatchedCartWriteRequest = z.object({
-  user: z.int().nullish(),
-})
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -1889,7 +1886,6 @@ export const zPatchedCountryWriteRequest = z.object({
 })
 
 export const zPatchedNotificationUserWriteRequest = z.object({
-  notification: z.int().optional(),
   seen: z.boolean().optional(),
 })
 
@@ -2168,7 +2164,10 @@ export const zPatchedUserWriteRequest = z.object({
   email: z.email().min(1).max(254).optional(),
   firstName: z.string().max(255).optional(),
   lastName: z.string().max(255).optional(),
-  username: z.string().max(30).regex(/^[\w.@+#-]+$/).nullish(),
+  username: z.union([
+    z.string().max(30).regex(/^[\w.@+#-]+$/),
+    z.string().max(0),
+  ]).nullish(),
   image: z.string().nullish(),
   phone: z.string().nullish(),
   city: z.string().max(255).optional(),
@@ -2178,13 +2177,34 @@ export const zPatchedUserWriteRequest = z.object({
   country: z.string().min(1).nullish(),
   region: z.string().min(1).nullish(),
   birthDate: z.iso.date().nullish(),
-  twitter: z.url().max(200).nullish(),
-  linkedin: z.url().max(200).nullish(),
-  facebook: z.url().max(200).nullish(),
-  instagram: z.url().max(200).nullish(),
-  website: z.url().max(200).nullish(),
-  youtube: z.url().max(200).nullish(),
-  github: z.url().max(200).nullish(),
+  twitter: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  linkedin: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  facebook: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  instagram: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  website: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  youtube: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  github: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
   bio: z.string().optional(),
   languageCode: z.string().min(1).max(10).register(z.globalRegistry, {
     description: 'Preferred language for emails and UI messages.',
@@ -2568,7 +2588,7 @@ export const zProduct = z.object({
 
 export const zCartItem = z.object({
   id: z.int().readonly(),
-  cartId: z.uuid().readonly(),
+  cartId: z.string().readonly(),
   product: zProduct,
   quantity: z.int().gte(0).lte(2147483647).optional(),
   weightInfo: z.object({
@@ -2649,7 +2669,7 @@ export const zCartDetail = z.object({
 
 export const zCartItemDetail = z.object({
   id: z.int().readonly(),
-  cartId: z.uuid().readonly(),
+  cartId: z.string().readonly(),
   product: zProduct,
   quantity: z.int().gte(0).lte(2147483647).optional(),
   weightInfo: z.object({
@@ -3674,7 +3694,7 @@ export const zReorderItem = z.object({
 })
 
 export const zReorderResponse = z.object({
-  cartId: z.uuid().nullable(),
+  cartId: z.int().nullable(),
   addedItems: z.array(zReorderItem),
   skippedItems: z.array(zReorderItem),
 })
@@ -3862,9 +3882,10 @@ export const zOrderCreateFromCartRequest = z.object({
   boxnowCompartmentSize: z.int().gte(1).lte(3).register(z.globalRegistry, {
     description: 'BoxNow compartment size: 1=Small, 2=Medium, 3=Large',
   }).optional().default(1),
-  shippingProviderCode: z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-    description: 'Carrier code from /api/v1/shipping/options (e.g. \'acs\').',
-  }).optional(),
+  shippingProviderCode: z.union([
+    z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/),
+    z.string().max(0),
+  ]).optional(),
   shippingKind: zShippingKind.optional(),
   acsStationExternalId: z.string().max(32).register(z.globalRegistry, {
     description: 'ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).',
@@ -3921,12 +3942,8 @@ export const zShippingProvider = z.object({
   priority: z.int().register(z.globalRegistry, {
     description: 'Sort order in checkout — lower numbers appear first.',
   }).readonly(),
-  logo: z.url().register(z.globalRegistry, {
-    description: 'Absolute URL for the operator-uploaded primary brand logo (home-delivery rows + fallback for pickup_point when no pickup-specific variant is set). ``null`` when no upload — the storefront falls back to its bundled default.',
-  }).readonly(),
-  logoPickupPoint: z.url().register(z.globalRegistry, {
-    description: 'Absolute URL for the optional pickup-point-specific logo (e.g. a locker illustration distinct from the carrier\'s home-delivery brand mark). Surfaced on the pickup_point row\'s ``logoUrl`` when uploaded; otherwise the row falls back to ``logo``.',
-  }).readonly(),
+  logo: z.url().readonly().nullable(),
+  logoPickupPoint: z.url().readonly().nullable(),
   mainImagePath: z.string().register(z.globalRegistry, {
     description: 'Relative ``media/uploads/shipping/<filename>`` path for the primary logo; empty string when no logo is uploaded. Mirrors the PayWay.icon contract.',
   }).readonly(),
@@ -4930,7 +4947,10 @@ export const zUserDetails = z.object({
   firstName: z.string().max(255).optional(),
   lastName: z.string().max(255).optional(),
   id: z.int().readonly(),
-  username: z.string().max(30).regex(/^[\w.@+#-]+$/).nullish(),
+  username: z.union([
+    z.string().max(30).regex(/^[\w.@+#-]+$/),
+    z.string().max(0),
+  ]).nullish(),
   phone: z.string().nullish(),
   city: z.string().max(255).optional(),
   zipcode: z.string().max(255).optional(),
@@ -5329,7 +5349,10 @@ export const zUserWriteRequest = z.object({
   email: z.email().min(1).max(254),
   firstName: z.string().max(255).optional(),
   lastName: z.string().max(255).optional(),
-  username: z.string().max(30).regex(/^[\w.@+#-]+$/).nullish(),
+  username: z.union([
+    z.string().max(30).regex(/^[\w.@+#-]+$/),
+    z.string().max(0),
+  ]).nullish(),
   image: z.string().nullish(),
   phone: z.string().nullish(),
   city: z.string().max(255).optional(),
@@ -5339,13 +5362,34 @@ export const zUserWriteRequest = z.object({
   country: z.string().min(1).nullish(),
   region: z.string().min(1).nullish(),
   birthDate: z.iso.date().nullish(),
-  twitter: z.url().max(200).nullish(),
-  linkedin: z.url().max(200).nullish(),
-  facebook: z.url().max(200).nullish(),
-  instagram: z.url().max(200).nullish(),
-  website: z.url().max(200).nullish(),
-  youtube: z.url().max(200).nullish(),
-  github: z.url().max(200).nullish(),
+  twitter: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  linkedin: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  facebook: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  instagram: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  website: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  youtube: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  github: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
   bio: z.string().optional(),
   languageCode: z.string().min(1).max(10).register(z.globalRegistry, {
     description: 'Preferred language for emails and UI messages.',
@@ -5925,9 +5969,10 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   boxnowCompartmentSize: z.int().gte(1).lte(3).register(z.globalRegistry, {
     description: 'BoxNow compartment size: 1=Small, 2=Medium, 3=Large',
   }).optional().default(1),
-  shippingProviderCode: z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-    description: 'Carrier code from /api/v1/shipping/options (e.g. \'acs\').',
-  }).optional(),
+  shippingProviderCode: z.union([
+    z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/),
+    z.string().max(0),
+  ]).optional(),
   shippingKind: zShippingKind.optional(),
   acsStationExternalId: z.string().max(32).register(z.globalRegistry, {
     description: 'ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).',
@@ -7118,7 +7163,10 @@ export const zUserDetailsWritable = z.object({
   email: z.email().max(254),
   firstName: z.string().max(255).optional(),
   lastName: z.string().max(255).optional(),
-  username: z.string().max(30).regex(/^[\w.@+#-]+$/).nullish(),
+  username: z.union([
+    z.string().max(30).regex(/^[\w.@+#-]+$/),
+    z.string().max(0),
+  ]).nullish(),
   phone: z.string().nullish(),
   city: z.string().max(255).optional(),
   zipcode: z.string().max(255).optional(),
@@ -9877,7 +9925,7 @@ export const zRetrieveCartHeaders = z.object({
 
 export const zRetrieveCartResponse = zCartDetail
 
-export const zPartialUpdateCartBody = zPatchedCartWriteRequest
+export const zPartialUpdateCartBody = z.unknown()
 
 export const zPartialUpdateCartHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
@@ -9887,7 +9935,7 @@ export const zPartialUpdateCartHeaders = z.object({
 
 export const zPartialUpdateCartResponse = zCartDetail
 
-export const zUpdateCartBody = zCartWriteRequest
+export const zUpdateCartBody = z.unknown()
 
 export const zUpdateCartHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {

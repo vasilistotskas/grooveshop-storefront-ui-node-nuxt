@@ -514,7 +514,7 @@ export type BlogAuthorWriteRequest = {
   /**
      * Ιστότοπος
      */
-  website?: string
+  website?: string | string
 }
 
 /**
@@ -1990,10 +1990,6 @@ export type CartPaymentIntentResponse = {
   currency: string
 }
 
-export type CartWriteRequest = {
-  user?: number | null
-}
-
 /**
  * * `1` - Μικρό
  * * `2` - Μεσαίο
@@ -2746,7 +2742,6 @@ export type NotificationUserDetail = {
 }
 
 export type NotificationUserWriteRequest = {
-  notification: number
   /**
      * Ορατό
      */
@@ -2967,7 +2962,7 @@ export type OrderCreateFromCartRequest = {
   /**
      * Carrier code from /api/v1/shipping/options (e.g. 'acs').
      */
-  shippingProviderCode?: string
+  shippingProviderCode?: string | string
   /**
      * Generic fulfilment kind, independent of provider.
      *
@@ -3844,7 +3839,7 @@ export type PatchedBlogAuthorWriteRequest = {
   /**
      * Ιστότοπος
      */
-  website?: string
+  website?: string | string
 }
 
 /**
@@ -3967,10 +3962,6 @@ export type PatchedCartItemUpdateRequest = {
   quantity?: number
 }
 
-export type PatchedCartWriteRequest = {
-  user?: number | null
-}
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -4005,7 +3996,6 @@ export type PatchedCountryWriteRequest = {
 }
 
 export type PatchedNotificationUserWriteRequest = {
-  notification?: number
   /**
      * Ορατό
      */
@@ -4509,7 +4499,7 @@ export type PatchedUserWriteRequest = {
      *
      * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
      */
-  username?: string | null
+  username?: string | string | null
   /**
      * Εικόνα
      */
@@ -4546,31 +4536,31 @@ export type PatchedUserWriteRequest = {
   /**
      * Προφίλ Twitter
      */
-  twitter?: string | null
+  twitter?: string | string | null
   /**
      * Προφίλ LinkedIn
      */
-  linkedin?: string | null
+  linkedin?: string | string | null
   /**
      * Προφίλ Facebook
      */
-  facebook?: string | null
+  facebook?: string | string | null
   /**
      * Προφίλ Instagram
      */
-  instagram?: string | null
+  instagram?: string | string | null
   /**
      * Ιστότοπος
      */
-  website?: string | null
+  website?: string | string | null
   /**
      * Προφίλ Youtube
      */
-  youtube?: string | null
+  youtube?: string | string | null
   /**
      * Προφίλ Github
      */
-  github?: string | null
+  github?: string | string | null
   /**
      * Βιογραφικό
      */
@@ -6136,7 +6126,7 @@ export type ReorderItem = {
 }
 
 export type ReorderResponse = {
-  cartId: string | null
+  cartId: number | null
   addedItems: Array<ReorderItem>
   skippedItems: Array<ReorderItem>
 }
@@ -6306,11 +6296,11 @@ export type ShippingProvider = {
   /**
      * Absolute URL for the operator-uploaded primary brand logo (home-delivery rows + fallback for pickup_point when no pickup-specific variant is set). ``null`` when no upload — the storefront falls back to its bundled default.
      */
-  readonly logo: string
+  readonly logo: string | null
   /**
      * Absolute URL for the optional pickup-point-specific logo (e.g. a locker illustration distinct from the carrier's home-delivery brand mark). Surfaced on the pickup_point row's ``logoUrl`` when uploaded; otherwise the row falls back to ``logo``.
      */
-  readonly logoPickupPoint: string
+  readonly logoPickupPoint: string | null
   /**
      * Relative ``media/uploads/shipping/<filename>`` path for the primary logo; empty string when no logo is uploaded. Mirrors the PayWay.icon contract.
      */
@@ -7036,7 +7026,7 @@ export type UserDetails = {
      *
      * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
      */
-  username?: string | null
+  username?: string | string | null
   phone?: string | null
   /**
      * Πόλη
@@ -7230,7 +7220,7 @@ export type UserWriteRequest = {
      *
      * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
      */
-  username?: string | null
+  username?: string | string | null
   /**
      * Εικόνα
      */
@@ -7267,31 +7257,31 @@ export type UserWriteRequest = {
   /**
      * Προφίλ Twitter
      */
-  twitter?: string | null
+  twitter?: string | string | null
   /**
      * Προφίλ LinkedIn
      */
-  linkedin?: string | null
+  linkedin?: string | string | null
   /**
      * Προφίλ Facebook
      */
-  facebook?: string | null
+  facebook?: string | string | null
   /**
      * Προφίλ Instagram
      */
-  instagram?: string | null
+  instagram?: string | string | null
   /**
      * Ιστότοπος
      */
-  website?: string | null
+  website?: string | string | null
   /**
      * Προφίλ Youtube
      */
-  youtube?: string | null
+  youtube?: string | string | null
   /**
      * Προφίλ Github
      */
-  github?: string | null
+  github?: string | string | null
   /**
      * Βιογραφικό
      */
@@ -8038,7 +8028,7 @@ export type OrderCreateFromCartRequestWritable = {
   /**
      * Carrier code from /api/v1/shipping/options (e.g. 'acs').
      */
-  shippingProviderCode?: string
+  shippingProviderCode?: string | string
   /**
      * Generic fulfilment kind, independent of provider.
      *
@@ -9550,7 +9540,7 @@ export type UserDetailsWritable = {
      *
      * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
      */
-  username?: string | null
+  username?: string | string | null
   phone?: string | null
   /**
      * Πόλη
@@ -12819,7 +12809,7 @@ export type RetrieveCartResponses = {
 export type RetrieveCartResponse = RetrieveCartResponses[keyof RetrieveCartResponses]
 
 export type PartialUpdateCartData = {
-  body?: PatchedCartWriteRequest
+  body?: unknown
   headers?: {
     /**
          * Guest cart UUID. Used to identify and maintain guest cart sessions.
@@ -12848,7 +12838,7 @@ export type PartialUpdateCartResponses = {
 export type PartialUpdateCartResponse = PartialUpdateCartResponses[keyof PartialUpdateCartResponses]
 
 export type UpdateCartData = {
-  body?: CartWriteRequest
+  body?: unknown
   headers?: {
     /**
          * Guest cart UUID. Used to identify and maintain guest cart sessions.
