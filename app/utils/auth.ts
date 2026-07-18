@@ -216,6 +216,49 @@ export const pathForPendingFlow = (
   return pendingFlow ? pathForFlow(pendingFlow) : null
 }
 
+// The Nuxt allauth proxy re-throws Django's response via
+// `createError({ data })`, so a thrown `$fetch` error carries the allauth
+// payload (`{ status, data: { flows }, meta }`) at `error.data.data`. Pull
+// it back out so a caller can inspect the flow it represents.
+export function extractAllAuthError(
+  error: unknown,
+): AllAuthResponseError | null {
+  if (typeof error !== 'object' || error === null || !('data' in error)) {
+    return null
+  }
+  const outer = (error as { data?: unknown }).data
+  if (
+    typeof outer !== 'object' || outer === null
+    || !('data' in outer) || !('status' in outer)
+  ) {
+    return null
+  }
+  return outer as AllAuthResponseError
+}
+
+// A 401 carrying a *pending* flow is allauth's "advance to the next step"
+// signal — login-by-code: code sent → confirm; password OK but 2FA on →
+// mfa_authenticate — NOT a failure. But `$fetch` surfaces every 401 as a
+// throw, so form submit handlers must inspect the error themselves and
+// route to the pending flow. (The global `auth:change` hook attempts this
+// too, but navigating from deep inside the fetch-error interceptor is
+// unreliable; doing it from the form's own context is not.) Returns the
+// target route name for `useLocalePath`, or null when there is no
+// actionable pending flow (i.e. a genuine error the caller should surface).
+export function pendingFlowRouteNameFromError(error: unknown) {
+  const authData = extractAllAuthError(error)
+  if (!authData) return null
+  const pendingFlow = getPendingFlow(authData)
+  if (!pendingFlow) return null
+  try {
+    return pathForFlow(pendingFlow)
+  }
+  catch {
+    log.warn('auth', 'Pending flow has no known route', { flow: pendingFlow.id })
+    return null
+  }
+}
+
 const UNSAFE_PATH_PREFIXES = ['http://', 'https://', '//', 'data:', 'javascript:', 'vbscript:']
 
 export function isSafeRelativePath(value: string | undefined): boolean {
