@@ -1,3 +1,10 @@
+## [3.142.18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.17...v3.142.18) (2026-07-18)
+
+
+### Bug Fixes
+
+* **auth:** resolve interceptor/form navigation race + forward all allauth 4xx bodies ([#17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/17)) ([438e087](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/438e087567fb1742eeff82e801af989960a598e3))
+
 ## [3.142.17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.16...v3.142.17) (2026-07-18)
 
 
