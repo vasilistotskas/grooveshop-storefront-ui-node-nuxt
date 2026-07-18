@@ -33,10 +33,24 @@ watch(serverQuantity, (v) => {
 })
 
 const isUpdating = ref(false)
+// Latest target queued while a write is in flight; flushed when the
+// running commit finishes so writes stay strictly serialized.
+let pendingValue: number | null = null
 
 async function commit(value: number) {
   if (value < 1 || value > props.max) return
   if (value === serverQuantity.value) return
+
+  // Serialize writes: the 400ms debounce only coalesces clicks WITHIN
+  // its window, not commits that outlive it (maxWait forces one every
+  // 2s). Two concurrent updateCartItem+refreshCart pairs race, and
+  // whichever refresh resolves LAST wins — so a slow round-trip could
+  // leave the stepper disagreeing with the cart total. If a write is
+  // already in flight, stash the newest target and let it flush below.
+  if (isUpdating.value) {
+    pendingValue = value
+    return
+  }
 
   isUpdating.value = true
   try {
@@ -57,6 +71,14 @@ async function commit(value: number) {
     nonFieldErrors.forEach((e: string) => {
       toast.add({ title: e, color: 'error' })
     })
+  }
+
+  // Flush the newest value the shopper set while this write was in
+  // flight (if it still differs from what the server now holds).
+  if (pendingValue !== null) {
+    const next = pendingValue
+    pendingValue = null
+    if (next !== serverQuantity.value) await commit(next)
   }
 }
 

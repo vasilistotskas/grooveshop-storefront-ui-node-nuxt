@@ -54791,11 +54791,6 @@
             "OrderWriteRequest": {
                 "type": "object",
                 "properties": {
-                    "user": {
-                        "type": "integer",
-                        "nullable": true,
-                        "description": "User ID. Leave empty for guest orders."
-                    },
                     "country": {
                         "type": "string",
                         "minLength": 1,
@@ -54841,10 +54836,6 @@
                         "minLength": 1,
                         "title": "Αριθμός",
                         "maxLength": 255
-                    },
-                    "payWay": {
-                        "type": "integer",
-                        "nullable": true
                     },
                     "firstName": {
                         "type": "string",
@@ -54894,14 +54885,6 @@
                         "items": {
                             "$ref": "#/components/schemas/OrderItemCreateRequest"
                         }
-                    },
-                    "documentType": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/OrderDocumentType"
-                            }
-                        ],
-                        "title": "Τύπος Εγγράφου"
                     }
                 },
                 "required": [
@@ -57082,11 +57065,6 @@
             "PatchedOrderWriteRequest": {
                 "type": "object",
                 "properties": {
-                    "user": {
-                        "type": "integer",
-                        "nullable": true,
-                        "description": "User ID. Leave empty for guest orders."
-                    },
                     "country": {
                         "type": "string",
                         "minLength": 1,
@@ -57132,10 +57110,6 @@
                         "minLength": 1,
                         "title": "Αριθμός",
                         "maxLength": 255
-                    },
-                    "payWay": {
-                        "type": "integer",
-                        "nullable": true
                     },
                     "firstName": {
                         "type": "string",
@@ -57185,14 +57159,6 @@
                         "items": {
                             "$ref": "#/components/schemas/OrderItemCreateRequest"
                         }
-                    },
-                    "documentType": {
-                        "allOf": [
-                            {
-                                "$ref": "#/components/schemas/OrderDocumentType"
-                            }
-                        ],
-                        "title": "Τύπος Εγγράφου"
                     }
                 }
             },

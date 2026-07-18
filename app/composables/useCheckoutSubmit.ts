@@ -676,9 +676,33 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     }
   }
 
-  const backToForm = () => {
+  const backToForm = async () => {
     createdOrder.value = null
     selectedPayWay.value = null
+    // Fully reset the payment intent + idempotency key so a resubmit
+    // mints a FRESH intent rather than reusing the one bound to the
+    // now-consumed cart / created order. Reusing it skipped the
+    // ``if (!paymentIntentId.value)`` guard in handleOnlinePaymentFlow
+    // and produced an orphaned PENDING order + unrecoverable errors.
+    // Release any held reservations and resync the cart (order creation
+    // already cleared it server-side) so the sidebar reflects reality.
+    paymentIntentId.value = null
+    idempotencyKey.value = null
+    if (reservationIds.value.length > 0) {
+      try {
+        await releaseReservations(reservationIds.value)
+        reservationIds.value = []
+      }
+      catch (err) {
+        log.error({ action: 'checkout:releaseReservations', error: err })
+      }
+    }
+    try {
+      await cartStore.refreshCart()
+    }
+    catch (err) {
+      log.error({ action: 'checkout:backToForm:refreshCart', error: err })
+    }
     // Payment is now step 2 in the 3-step flow (0: info, 1: shipping, 2: payment)
     currentStep.value = 2
   }

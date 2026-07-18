@@ -3349,10 +3349,6 @@ export type OrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | '
 
 export type OrderWriteRequest = {
   /**
-     * User ID. Leave empty for guest orders.
-     */
-  user?: number | null
-  /**
      * Κωδικός Χώρας (Alpha 2)
      */
   country?: string | null
@@ -3376,7 +3372,6 @@ export type OrderWriteRequest = {
      * Αριθμός
      */
   streetNumber: string
-  payWay?: number | null
   /**
      * Όνομα
      */
@@ -3404,10 +3399,6 @@ export type OrderWriteRequest = {
      */
   customerNotes?: string
   items: Array<OrderItemCreateRequest>
-  /**
-     * Τύπος Εγγράφου
-     */
-  documentType?: OrderDocumentType
 }
 
 export type PaginatedAcsStationList = {
@@ -4054,10 +4045,6 @@ export type PatchedOrderItemWriteRequest = {
 
 export type PatchedOrderWriteRequest = {
   /**
-     * User ID. Leave empty for guest orders.
-     */
-  user?: number | null
-  /**
      * Κωδικός Χώρας (Alpha 2)
      */
   country?: string | null
@@ -4081,7 +4068,6 @@ export type PatchedOrderWriteRequest = {
      * Αριθμός
      */
   streetNumber?: string
-  payWay?: number | null
   /**
      * Όνομα
      */
@@ -4109,10 +4095,6 @@ export type PatchedOrderWriteRequest = {
      */
   customerNotes?: string
   items?: Array<OrderItemCreateRequest>
-  /**
-     * Τύπος Εγγράφου
-     */
-  documentType?: OrderDocumentType
 }
 
 /**

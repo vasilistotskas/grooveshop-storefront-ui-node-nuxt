@@ -223,7 +223,7 @@ useSeoMeta({
 definePageMeta({
   layout: 'checkout',
   middleware: [
-    function () {
+    function (to) {
       const { $i18n } = useNuxtApp()
       const t = $i18n.t.bind($i18n)
       const localePath = useLocalePath()
@@ -236,10 +236,32 @@ definePageMeta({
       const cartItems = cartStore.cart?.items
 
       if (!cartItems || cartItems.length === 0) {
-        toast.add({
-          title: t('cart_empty'),
-          color: 'error',
-        })
+        // A shopper returning from a cancelled/failed hosted-checkout
+        // redirect (?canceled / ?error) has a legitimately empty cart —
+        // the order was already created and the cart consumed
+        // server-side. Bouncing them home with "cart empty" hid WHY the
+        // payment didn't complete (the onMounted toast never ran because
+        // this middleware bounced first). Surface the real reason.
+        if (to.query.canceled) {
+          toast.add({
+            title: t('payment_canceled'),
+            description: t('payment_canceled_description'),
+            color: 'warning',
+          })
+        }
+        else if (to.query.error) {
+          toast.add({
+            title: t('payment_error_title'),
+            description: t('payment_error_description'),
+            color: 'error',
+          })
+        }
+        else {
+          toast.add({
+            title: t('cart_empty'),
+            color: 'error',
+          })
+        }
         return navigateTo(localePath('index'))
       }
     },
