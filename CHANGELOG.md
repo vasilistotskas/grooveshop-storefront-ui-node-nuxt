@@ -1,3 +1,10 @@
+## [3.142.12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.11...v3.142.12) (2026-07-18)
+
+
+### Bug Fixes
+
+* **openapi:** drop internal-only fields from Acs/BoxNow shipment detail schema ([#11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/11)) ([edac951](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/edac9517d4f03fd42de4168d7aceccc4e3934734))
+
 ## [3.142.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.10...v3.142.11) (2026-07-18)
 
 
