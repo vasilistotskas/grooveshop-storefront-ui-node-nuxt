@@ -1583,7 +1583,6 @@ export const zOrderStatus = z.enum([
 })
 
 export const zOrderWriteRequest = z.object({
-  user: z.int().nullish(),
   country: z.string().min(1).nullish(),
   region: z.string().min(1).nullish(),
   floor: z.union([
@@ -1596,7 +1595,6 @@ export const zOrderWriteRequest = z.object({
   ]).optional(),
   street: z.string().min(1).max(255),
   streetNumber: z.string().min(1).max(255),
-  payWay: z.int().nullish(),
   firstName: z.string().min(1).max(255),
   lastName: z.string().min(1).max(255),
   email: z.email().min(1).max(255),
@@ -1606,7 +1604,6 @@ export const zOrderWriteRequest = z.object({
   phone: z.string().min(1),
   customerNotes: z.string().optional(),
   items: z.array(zOrderItemCreateRequest),
-  documentType: zOrderDocumentType.optional(),
 })
 
 export const zPaginatedAttributeList = z.object({
@@ -1904,7 +1901,6 @@ export const zPatchedOrderItemWriteRequest = z.object({
 })
 
 export const zPatchedOrderWriteRequest = z.object({
-  user: z.int().nullish(),
   country: z.string().min(1).nullish(),
   region: z.string().min(1).nullish(),
   floor: z.union([
@@ -1917,7 +1913,6 @@ export const zPatchedOrderWriteRequest = z.object({
   ]).optional(),
   street: z.string().min(1).max(255).optional(),
   streetNumber: z.string().min(1).max(255).optional(),
-  payWay: z.int().nullish(),
   firstName: z.string().min(1).max(255).optional(),
   lastName: z.string().min(1).max(255).optional(),
   email: z.email().min(1).max(255).optional(),
@@ -1927,7 +1922,6 @@ export const zPatchedOrderWriteRequest = z.object({
   phone: z.string().min(1).optional(),
   customerNotes: z.string().optional(),
   items: z.array(zOrderItemCreateRequest).optional(),
-  documentType: zOrderDocumentType.optional(),
 })
 
 /**

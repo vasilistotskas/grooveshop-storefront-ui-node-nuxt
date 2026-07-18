@@ -86,7 +86,7 @@ export const useCheckout = () => {
       const response = await $fetch<{
         clientSecret: string
         paymentIntentId: string
-        amount: string
+        amount: number
         currency: string
       }>('/api/cart/create-payment-intent', {
         method: 'POST',

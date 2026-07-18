@@ -237,8 +237,19 @@ onMounted(async () => {
   // data. Calling cleanCartState() here ensures the cart badge resets regardless
   // of the payment method used. The server-side cart session is already cleared
   // by orders/index.post.ts on order creation.
+  //
+  // Guard it to run at most ONCE per order: ``fromCheckout`` is derived
+  // from URL query params that persist in history/bookmarks, so without
+  // this a shopper who completes this order, builds a NEW cart, then
+  // reopens the success URL would have that unrelated cart's session
+  // wiped. Keyed on the order UUID and persisted in localStorage so the
+  // one-shot holds across tabs/reloads.
   if (fromCheckout.value) {
-    cleanCartState().catch(err => log.error({ action: 'success:cleanCartState', error: err }))
+    const cleanedKey = `checkout_cleaned_${orderUUID}`
+    if (!localStorage.getItem(cleanedKey)) {
+      localStorage.setItem(cleanedKey, '1')
+      cleanCartState().catch(err => log.error({ action: 'success:cleanCartState', error: err }))
+    }
   }
 
   if (!fromCheckout.value || !order.value) return

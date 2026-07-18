@@ -26,6 +26,7 @@ const {
   mockReleaseReservations,
   mockCreatePaymentIntentFromCart,
   mockCleanCartState,
+  mockRefreshCart,
   mockNavigateTo,
   mockMetaPixelImpl,
   mockTikTokPixelImpl,
@@ -35,6 +36,7 @@ const {
   mockReleaseReservations: vi.fn(),
   mockCreatePaymentIntentFromCart: vi.fn(),
   mockCleanCartState: vi.fn().mockResolvedValue(undefined),
+  mockRefreshCart: vi.fn().mockResolvedValue(undefined),
   mockNavigateTo: vi.fn().mockResolvedValue(undefined),
   mockMetaPixelImpl: {
     newEventId: vi.fn().mockReturnValue('pixel-event-id'),
@@ -78,6 +80,7 @@ mockNuxtImport('useCheckout', () => () => ({
 
 mockNuxtImport('useCartStore', () => () => ({
   cleanCartState: mockCleanCartState,
+  refreshCart: mockRefreshCart,
   cart: mockCartHolder.value,
 }))
 
@@ -179,6 +182,7 @@ beforeEach(() => {
   mockReleaseReservations.mockReset().mockResolvedValue(undefined)
   mockCreatePaymentIntentFromCart.mockReset()
   mockCleanCartState.mockReset().mockResolvedValue(undefined)
+  mockRefreshCart.mockReset().mockResolvedValue(undefined)
   mockCartHolder.value = { uuid: 'cart-uuid', id: 1, items: [], totalItems: 0, totalPrice: 0 }
   mockMetaPixelImpl.newEventId.mockReturnValue('pixel-event-id')
   mockGA4Impl.trackBeginCheckout.mockReset()
@@ -242,6 +246,69 @@ describe('useCheckoutSubmit', () => {
       // Order creation must carry Idempotency-Key and payment intent id
       expect(orderOpts?.headers?.['Idempotency-Key']).toBe(deterministicUUID)
       expect(orderOpts?.body).toMatchObject({ paymentIntentId: 'pi_abc123' })
+    })
+
+    it('backToForm resets payment state, releases reservations, refreshes the cart, and a resubmit mints a FRESH intent', async () => {
+      vi.stubGlobal('crypto', {
+        randomUUID: vi.fn().mockReturnValue('idem-back'),
+      })
+
+      const stripePayWay = makePayWay('stripe')
+      const selectedPayWay = ref<PayWay | null>(stripePayWay)
+      const payWays = makePayWaysRef(stripePayWay)
+
+      mockReserveStock.mockResolvedValue([42])
+      mockCreatePaymentIntentFromCart.mockResolvedValue({
+        clientSecret: 'sk_secret',
+        paymentIntentId: 'pi_first',
+      })
+      mockFetch.mockImplementation((_url: string, opts: any) => {
+        if (opts?.onResponse) {
+          opts.onResponse({ response: { ok: true, _data: { uuid: 'order-uuid' } } })
+        }
+        return Promise.resolve({ uuid: 'order-uuid' })
+      })
+
+      const { onSubmit, backToForm } = useCheckoutSubmit({
+        formState: makeFormState(),
+        selectedPayWay,
+        payWays,
+      })
+
+      await onSubmit()
+      expect(mockCreatePaymentIntentFromCart).toHaveBeenCalledTimes(1)
+
+      mockRefreshCart.mockClear()
+      mockReleaseReservations.mockClear()
+
+      await backToForm()
+
+      // Reservations released, cart resynced from the server.
+      expect(mockReleaseReservations).toHaveBeenCalledWith([42])
+      expect(mockRefreshCart).toHaveBeenCalled()
+
+      // Resubmit must mint a NEW intent — the stale one is no longer
+      // reused (which had produced an orphaned PENDING order).
+      mockReserveStock.mockResolvedValue([43])
+      mockCreatePaymentIntentFromCart.mockResolvedValue({
+        clientSecret: 'sk_secret2',
+        paymentIntentId: 'pi_second',
+      })
+      selectedPayWay.value = stripePayWay
+
+      let secondOrderOpts: any
+      mockFetch.mockImplementation((_url: string, opts: any) => {
+        secondOrderOpts = opts
+        if (opts?.onResponse) {
+          opts.onResponse({ response: { ok: true, _data: { uuid: 'order-uuid-2' } } })
+        }
+        return Promise.resolve({ uuid: 'order-uuid-2' })
+      })
+
+      await onSubmit()
+
+      expect(mockCreatePaymentIntentFromCart).toHaveBeenCalledTimes(2)
+      expect(secondOrderOpts?.body).toMatchObject({ paymentIntentId: 'pi_second' })
     })
   })
 
