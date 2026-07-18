@@ -1,3 +1,10 @@
+## [3.142.19](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.18...v3.142.19) (2026-07-18)
+
+
+### Bug Fixes
+
+* **auth:** keep the stored session token when allauth omits it from an error response ([#18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/18)) ([d867800](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d86780000144fb92b78dc57d10290340769a3d46))
+
 ## [3.142.18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.17...v3.142.18) (2026-07-18)
 
 
