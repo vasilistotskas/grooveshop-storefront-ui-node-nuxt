@@ -48953,10 +48953,18 @@
                         "type": "integer"
                     },
                     "website": {
-                        "type": "string",
-                        "format": "uri",
                         "title": "Ιστότοπος",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     }
                 },
                 "required": [
@@ -51683,7 +51691,6 @@
                     },
                     "cartId": {
                         "type": "string",
-                        "format": "uuid",
                         "readOnly": true
                     },
                     "product": {
@@ -51853,7 +51860,6 @@
                     },
                     "cartId": {
                         "type": "string",
-                        "format": "uuid",
                         "readOnly": true
                     },
                     "product": {
@@ -52050,15 +52056,6 @@
                     "currency",
                     "paymentIntentId"
                 ]
-            },
-            "CartWriteRequest": {
-                "type": "object",
-                "properties": {
-                    "user": {
-                        "type": "integer",
-                        "nullable": true
-                    }
-                }
             },
             "CompartmentSizeEnum": {
                 "enum": [
@@ -53499,17 +53496,11 @@
             "NotificationUserWriteRequest": {
                 "type": "object",
                 "properties": {
-                    "notification": {
-                        "type": "integer"
-                    },
                     "seen": {
                         "type": "boolean",
                         "title": "Ορατό"
                     }
-                },
-                "required": [
-                    "notification"
-                ]
+                }
             },
             "Order": {
                 "type": "object",
@@ -53906,10 +53897,18 @@
                         "description": "BoxNow compartment size: 1=Small, 2=Medium, 3=Large"
                     },
                     "shippingProviderCode": {
-                        "type": "string",
                         "description": "Carrier code from /api/v1/shipping/options (e.g. 'acs').",
-                        "maxLength": 32,
-                        "pattern": "^[-a-zA-Z0-9_]+$"
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "maxLength": 32,
+                                "pattern": "^[-a-zA-Z0-9_]+$"
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "shippingKind": {
                         "allOf": [
@@ -56676,10 +56675,18 @@
                         "type": "integer"
                     },
                     "website": {
-                        "type": "string",
-                        "format": "uri",
                         "title": "Ιστότοπος",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     }
                 }
             },
@@ -56929,15 +56936,6 @@
                     }
                 }
             },
-            "PatchedCartWriteRequest": {
-                "type": "object",
-                "properties": {
-                    "user": {
-                        "type": "integer",
-                        "nullable": true
-                    }
-                }
-            },
             "PatchedCountryWriteRequest": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -57004,9 +57002,6 @@
             "PatchedNotificationUserWriteRequest": {
                 "type": "object",
                 "properties": {
-                    "notification": {
-                        "type": "integer"
-                    },
                     "seen": {
                         "type": "boolean",
                         "title": "Ορατό"
@@ -57914,12 +57909,20 @@
                         "maxLength": 255
                     },
                     "username": {
-                        "type": "string",
                         "nullable": true,
                         "title": "Όνομα χρήστη",
                         "description": "Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.",
-                        "pattern": "^[\\w.@+#-]+$",
-                        "maxLength": 30
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^[\\w.@+#-]+$",
+                                "maxLength": 30
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "image": {
                         "type": "string",
@@ -57970,53 +57973,109 @@
                         "title": "Ημ/νία γέννησης"
                     },
                     "twitter": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Προφίλ Twitter",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "linkedin": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Προφίλ LinkedIn",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "facebook": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Προφίλ Facebook",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "instagram": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Προφίλ Instagram",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "website": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Ιστότοπος",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "youtube": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Προφίλ Youtube",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "github": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Προφίλ Github",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "bio": {
                         "type": "string",
@@ -61668,8 +61727,7 @@
                 "type": "object",
                 "properties": {
                     "cartId": {
-                        "type": "string",
-                        "format": "uuid",
+                        "type": "integer",
                         "nullable": true
                     },
                     "addedItems": {
@@ -61967,12 +62025,14 @@
                     "logo": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "readOnly": true,
                         "description": "Absolute URL for the operator-uploaded primary brand logo (home-delivery rows + fallback for pickup_point when no pickup-specific variant is set). ``null`` when no upload — the storefront falls back to its bundled default."
                     },
                     "logoPickupPoint": {
                         "type": "string",
                         "format": "uri",
+                        "nullable": true,
                         "readOnly": true,
                         "description": "Absolute URL for the optional pickup-point-specific logo (e.g. a locker illustration distinct from the carrier's home-delivery brand mark). Surfaced on the pickup_point row's ``logoUrl`` when uploaded; otherwise the row falls back to ``logo``."
                     },
@@ -63317,12 +63377,20 @@
                         "readOnly": true
                     },
                     "username": {
-                        "type": "string",
                         "nullable": true,
                         "title": "Όνομα χρήστη",
                         "description": "Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.",
-                        "pattern": "^[\\w.@+#-]+$",
-                        "maxLength": 30
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^[\\w.@+#-]+$",
+                                "maxLength": 30
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "phone": {
                         "type": "string",
@@ -63661,12 +63729,20 @@
                         "maxLength": 255
                     },
                     "username": {
-                        "type": "string",
                         "nullable": true,
                         "title": "Όνομα χρήστη",
                         "description": "Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.",
-                        "pattern": "^[\\w.@+#-]+$",
-                        "maxLength": 30
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "pattern": "^[\\w.@+#-]+$",
+                                "maxLength": 30
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "image": {
                         "type": "string",
@@ -63717,53 +63793,109 @@
                         "title": "Ημ/νία γέννησης"
                     },
                     "twitter": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Προφίλ Twitter",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "linkedin": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Προφίλ LinkedIn",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "facebook": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Προφίλ Facebook",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "instagram": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Προφίλ Instagram",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "website": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Ιστότοπος",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "youtube": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Προφίλ Youtube",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "github": {
-                        "type": "string",
-                        "format": "uri",
                         "nullable": true,
                         "title": "Προφίλ Github",
-                        "maxLength": 200
+                        "oneOf": [
+                            {
+                                "type": "string",
+                                "format": "uri",
+                                "maxLength": 200
+                            },
+                            {
+                                "type": "string",
+                                "maxLength": 0
+                            }
+                        ]
                     },
                     "bio": {
                         "type": "string",
