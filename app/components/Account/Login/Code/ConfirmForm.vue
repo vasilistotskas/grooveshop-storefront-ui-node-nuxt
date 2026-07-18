@@ -41,6 +41,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     await router.push(localePath('index'))
   }
   catch (err) {
+    // A valid code on a 2FA-enabled account doesn't finish login — allauth
+    // consumes login_by_code and replies 401 with mfa_authenticate pending.
+    // That is not an invalid code: advance to the second-factor challenge.
+    if (await tryAdvanceToPendingFlow(err)) return
     hasError.value = true
     handleAllAuthClientError(err)
   }

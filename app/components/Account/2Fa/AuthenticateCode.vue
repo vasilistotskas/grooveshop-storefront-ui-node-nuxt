@@ -66,6 +66,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
     emit('twoFaAuthenticate')
   }
   catch (error) {
+    // Advance if 2FA leads to a further pending step; a wrong code keeps the
+    // same mfa_authenticate flow pending (same route), so the guard in
+    // tryAdvanceToPendingFlow returns false and the error is shown.
+    if (await tryAdvanceToPendingFlow(error)) return
     showError.value = true
     handleAllAuthClientError(error)
   }

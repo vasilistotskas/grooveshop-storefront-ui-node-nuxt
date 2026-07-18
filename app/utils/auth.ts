@@ -267,6 +267,27 @@ export function pendingFlowRouteNameFromError(error: unknown) {
   }
 }
 
+// A pending-flow 4xx from allauth means "advance to the next step" (2FA after a
+// correct password or code, confirm after a code request) — not a failure.
+// Route there from the caller's own context and report whether we did, so a
+// form can suppress its error message and let the flow continue. Does NOT
+// navigate when the pending flow maps to the page we are already on — that's a
+// retry/error on the *same* step (e.g. a wrong 2FA code), which the caller must
+// still surface as an error.
+export async function tryAdvanceToPendingFlow(error: unknown): Promise<boolean> {
+  const routeName = pendingFlowRouteNameFromError(error)
+  if (!routeName) return false
+  const localePath = useLocalePath()
+  const router = useRouter()
+  const target = localePath(routeName)
+  if (router.currentRoute.value.path === target) return false
+  const rawNext = router.currentRoute.value.query.next?.toString()
+  const safeNext = isSafeRelativePath(rawNext) ? rawNext : undefined
+  log.info('auth', 'Advancing to pending flow', { route: routeName })
+  await navigateTo({ path: target, query: safeNext ? { next: safeNext } : undefined })
+  return true
+}
+
 const UNSAFE_PATH_PREFIXES = ['http://', 'https://', '//', 'data:', 'javascript:', 'vbscript:']
 
 export function isSafeRelativePath(value: string | undefined): boolean {

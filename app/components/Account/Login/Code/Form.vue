@@ -48,13 +48,11 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     emit('requestLoginCode')
   }
   catch (err) {
-    // allauth accepts the request and emails the code, then signals the
-    // next step as a 401 with `login_by_code` pending — which `$fetch`
-    // throws. That is success, not failure: advance to the confirm step
-    // instead of surfacing a false "could not send the code".
-    const flowRoute = pendingFlowRouteNameFromError(err)
-    if (flowRoute) {
-      log.info('auth', 'Login code sent, advancing to confirm', { route: flowRoute })
+    // allauth accepts the request and emails the code, then signals the next
+    // step as a 401 with `login_by_code` pending — which `$fetch` throws. That
+    // is success, not failure: advance to the confirm step instead of
+    // surfacing a false "could not send the code".
+    if (await tryAdvanceToPendingFlow(err)) {
       toast.add({
         title: t('success.title'),
         description: t('success.description'),
@@ -62,7 +60,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         icon: 'i-heroicons-check-circle',
       })
       emit('requestLoginCode')
-      await navigateTo(localePath(flowRoute))
       return
     }
     hasError.value = true

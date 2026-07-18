@@ -53,19 +53,11 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     session.value = response?.data
   }
   catch (error) {
-    // A correct password on a 2FA-enabled account does not sign the user
-    // in outright — allauth replies 401 with `mfa_authenticate` pending,
-    // which `$fetch` throws. That is not a login failure: route to the
-    // second-factor challenge (carrying `next`) instead of leaving the
-    // form silent.
-    const flowRoute = pendingFlowRouteNameFromError(error)
-    if (flowRoute) {
-      const rawNext = router.currentRoute.value.query.next?.toString()
-      const safeNext = isSafeRelativePath(rawNext) ? rawNext : undefined
-      log.info('auth', 'Password accepted, advancing to pending flow', { route: flowRoute })
-      await navigateTo({ path: localePath(flowRoute), query: safeNext ? { next: safeNext } : undefined })
-      return
-    }
+    // A correct password on a 2FA-enabled account does not sign the user in
+    // outright — allauth replies 401 with `mfa_authenticate` pending. That is
+    // not a login failure: route to the second-factor challenge instead of
+    // leaving the form silent.
+    if (await tryAdvanceToPendingFlow(error)) return
     handleAllAuthClientError(error)
   }
   finally {
