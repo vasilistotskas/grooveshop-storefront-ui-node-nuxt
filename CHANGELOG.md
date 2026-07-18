@@ -1,3 +1,10 @@
+## [3.142.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.10...v3.142.11) (2026-07-18)
+
+
+### Bug Fixes
+
+* **checkout,cart:** resolve 2026-07 cart & order flow audit findings ([5cd11ee](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5cd11eefc9353ac0efce6c146e47f21cc98e1c85))
+
 ## [3.142.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.9...v3.142.10) (2026-07-17)
 
 
