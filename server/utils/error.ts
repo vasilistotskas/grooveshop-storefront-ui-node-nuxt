@@ -72,7 +72,17 @@ export async function handleAllAuthError(
   const event = useEvent()
 
   if (isAllAuthError(error)) {
-    log.info('auth', `handleAllAuthError: status ${error.data.status}`)
+    // Surface the pending flow (if any) so a 401 that is really allauth's
+    // "advance to next step" signal (login_by_code code sent, mfa pending)
+    // is distinguishable in logs from a genuine auth failure — both come
+    // through here as a 401.
+    const flows = (error.data as { data?: { flows?: Array<{ id: string, is_pending?: boolean }> } }).data?.flows
+    const pendingFlow = flows?.find(flow => flow.is_pending)
+    log.info(
+      'auth',
+      `handleAllAuthError: status ${error.data.status}`,
+      pendingFlow ? { pendingFlow: pendingFlow.id } : {},
+    )
 
     if (error.data.status === 410) {
       log.info('auth', 'Session expired (410), clearing user session')

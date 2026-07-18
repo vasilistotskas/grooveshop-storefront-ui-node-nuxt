@@ -5,6 +5,8 @@ import {
   isAllAuthResponseError,
   getPendingFlows,
   getPendingFlow,
+  extractAllAuthError,
+  pendingFlowRouteNameFromError,
 } from '../../../app/utils/auth'
 
 const mockLog = {
@@ -17,6 +19,21 @@ describe('Utils - Auth', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.stubGlobal('log', mockLog)
+    // pathForFlow() relies on these auto-imported constants, which are not
+    // present in the bare unit env — stub them with their real values so
+    // the flow-routing helpers can be exercised (mirrors app/shared).
+    vi.stubGlobal('Flows', {
+      PROVIDER_REDIRECT: 'provider_redirect',
+      LOGIN_BY_CODE: 'login_by_code',
+      MFA_AUTHENTICATE: 'mfa_authenticate',
+    })
+    vi.stubGlobal('AUTHENTICATOR_TYPE_PRIORITY', ['webauthn', 'totp', 'recovery_codes'])
+    vi.stubGlobal('Flow2path', {
+      login_by_code: 'account-login-code-confirm',
+      'mfa_authenticate:webauthn': 'account-2fa-authenticate-webauthn',
+      'mfa_authenticate:totp': 'account-2fa-authenticate-totp',
+      'mfa_authenticate:recovery_codes': 'account-2fa-authenticate-recovery-codes',
+    })
   })
 
   describe('authInfo', () => {
@@ -243,6 +260,76 @@ describe('Utils - Auth', () => {
       const result = getPendingFlow(response)
 
       expect(result).toBeNull()
+    })
+  })
+
+  describe('extractAllAuthError', () => {
+    it('unwraps the allauth payload nested at error.data.data', () => {
+      const payload = {
+        status: 401,
+        data: { flows: [{ id: 'login_by_code', is_pending: true }] },
+        meta: { is_authenticated: false },
+      }
+      // Shape produced by the Nuxt proxy: createError({ data: payload })
+      // surfaces on the thrown $fetch error as error.data === payload.
+      const error = { data: payload }
+
+      expect(extractAllAuthError(error)).toEqual(payload)
+    })
+
+    it('returns null for a non-allauth error shape', () => {
+      expect(extractAllAuthError({ data: { message: 'boom' } })).toBeNull()
+      expect(extractAllAuthError(new Error('nope'))).toBeNull()
+      expect(extractAllAuthError(null)).toBeNull()
+    })
+  })
+
+  describe('pendingFlowRouteNameFromError', () => {
+    it('routes a login_by_code pending flow to the confirm page', () => {
+      const error = {
+        data: {
+          status: 401,
+          data: { flows: [{ id: 'login_by_code', is_pending: true }] },
+          meta: { is_authenticated: false },
+        },
+      }
+
+      expect(pendingFlowRouteNameFromError(error)).toBe('account-login-code-confirm')
+    })
+
+    it('routes a pending mfa_authenticate flow to the preferred second factor', () => {
+      const error = {
+        data: {
+          status: 401,
+          data: {
+            flows: [{
+              id: 'mfa_authenticate',
+              is_pending: true,
+              types: ['recovery_codes', 'webauthn'],
+            }],
+          },
+          meta: { is_authenticated: false },
+        },
+      }
+
+      // webauthn outranks recovery_codes in AUTHENTICATOR_TYPE_PRIORITY.
+      expect(pendingFlowRouteNameFromError(error)).toBe('account-2fa-authenticate-webauthn')
+    })
+
+    it('returns null when the 401 carries no pending flow (a genuine error)', () => {
+      const error = {
+        data: {
+          status: 401,
+          data: { flows: [{ id: 'login', is_pending: false }] },
+          meta: { is_authenticated: false },
+        },
+      }
+
+      expect(pendingFlowRouteNameFromError(error)).toBeNull()
+    })
+
+    it('returns null for a non-allauth error', () => {
+      expect(pendingFlowRouteNameFromError(new Error('network'))).toBeNull()
     })
   })
 })
