@@ -1,3 +1,10 @@
+## [3.142.15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.14...v3.142.15) (2026-07-18)
+
+
+### Bug Fixes
+
+* **auth:** unwrap the allauth payload from the Nitro error wrapper ([#14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/14)) ([940b8ad](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/940b8ada96b6c587145caf636d7b185e6cf7a115))
+
 ## [3.142.14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.13...v3.142.14) (2026-07-18)
 
 
