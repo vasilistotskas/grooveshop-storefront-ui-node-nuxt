@@ -13,6 +13,9 @@ export default defineEventHandler(async (event) => {
     return requestResponse
   }
   catch (error) {
-    await handleAllAuthError(error)
+    // allauth signals "code emailed, now confirm it" as a 401 with a pending
+    // login_by_code flow. Forward that payload so the client can advance to
+    // the confirm step; genuine errors still throw.
+    return await forwardAllAuthFlow(error)
   }
 })
