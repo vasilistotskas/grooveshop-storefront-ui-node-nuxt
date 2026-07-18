@@ -15,6 +15,11 @@ const img = useImage()
 const authStore = useAuthStore()
 const { session, status, hasSocialAccountProviders } = storeToRefs(authStore)
 
+// Captured at setup — the race-free reference point for
+// tryAdvanceToPendingFlow (the auth:change hook may navigate before our
+// catch runs, so the live route is not trustworthy there).
+const formPath = router.currentRoute.value.path
+
 const isSubmitting = ref(false)
 
 const schema = z.object({
@@ -57,7 +62,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     // outright — allauth replies 401 with `mfa_authenticate` pending. That is
     // not a login failure: route to the second-factor challenge instead of
     // leaving the form silent.
-    if (await tryAdvanceToPendingFlow(error)) return
+    if (await tryAdvanceToPendingFlow(error, { fromPath: formPath })) return
     handleAllAuthClientError(error)
   }
   finally {

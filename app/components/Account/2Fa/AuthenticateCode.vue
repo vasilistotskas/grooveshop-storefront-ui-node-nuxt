@@ -27,6 +27,9 @@ const authStore = useAuthStore()
 const { t } = useI18n()
 const { session } = storeToRefs(authStore)
 
+// Race-free reference for tryAdvanceToPendingFlow (see app/utils/auth.ts).
+const formPath = useRoute().path
+
 const showError = ref(false)
 const code = ref<string[]>([])
 
@@ -69,7 +72,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
     // Advance if 2FA leads to a further pending step; a wrong code keeps the
     // same mfa_authenticate flow pending (same route), so the guard in
     // tryAdvanceToPendingFlow returns false and the error is shown.
-    if (await tryAdvanceToPendingFlow(error)) return
+    if (await tryAdvanceToPendingFlow(error, { fromPath: formPath })) return
     showError.value = true
     handleAllAuthClientError(error)
   }

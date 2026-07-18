@@ -9,6 +9,9 @@ const localePath = useLocalePath()
 const { requestLoginCode } = useAllAuthAuthentication()
 const toast = useToast()
 
+// Race-free reference for tryAdvanceToPendingFlow (see app/utils/auth.ts).
+const formPath = useRoute().path
+
 const loading = ref(false)
 const hasError = ref(false)
 
@@ -52,7 +55,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     // step as a 401 with `login_by_code` pending — which `$fetch` throws. That
     // is success, not failure: advance to the confirm step instead of
     // surfacing a false "could not send the code".
-    if (await tryAdvanceToPendingFlow(err)) {
+    if (await tryAdvanceToPendingFlow(err, { fromPath: formPath })) {
       toast.add({
         title: t('success.title'),
         description: t('success.description'),
