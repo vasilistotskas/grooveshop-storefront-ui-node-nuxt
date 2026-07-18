@@ -263,18 +263,32 @@ describe('Utils - Auth', () => {
     })
   })
 
+  // The thrown $fetch error's real shape: error.data is Nitro's error wrapper
+  // (`statusCode`, not `status`), and the allauth payload sits at
+  // error.data.data. Build it that way so the tests match production.
+  const wrapAllAuthError = (payload: unknown) => ({
+    data: { statusCode: 401, statusMessage: 'Unauthorized', data: payload },
+  })
+
   describe('extractAllAuthError', () => {
-    it('unwraps the allauth payload nested at error.data.data', () => {
+    it('unwraps the allauth payload from the Nitro error wrapper (error.data.data)', () => {
       const payload = {
         status: 401,
         data: { flows: [{ id: 'login_by_code', is_pending: true }] },
         meta: { is_authenticated: false },
       }
-      // Shape produced by the Nuxt proxy: createError({ data: payload })
-      // surfaces on the thrown $fetch error as error.data === payload.
-      const error = { data: payload }
 
-      expect(extractAllAuthError(error)).toEqual(payload)
+      expect(extractAllAuthError(wrapAllAuthError(payload))).toEqual(payload)
+    })
+
+    it('also accepts a payload exposed directly at error.data', () => {
+      const payload = {
+        status: 401,
+        data: { flows: [] },
+        meta: { is_authenticated: false },
+      }
+
+      expect(extractAllAuthError({ data: payload })).toEqual(payload)
     })
 
     it('returns null for a non-allauth error shape', () => {
@@ -286,44 +300,38 @@ describe('Utils - Auth', () => {
 
   describe('pendingFlowRouteNameFromError', () => {
     it('routes a login_by_code pending flow to the confirm page', () => {
-      const error = {
-        data: {
-          status: 401,
-          data: { flows: [{ id: 'login_by_code', is_pending: true }] },
-          meta: { is_authenticated: false },
-        },
-      }
+      const error = wrapAllAuthError({
+        status: 401,
+        data: { flows: [{ id: 'login_by_code', is_pending: true }] },
+        meta: { is_authenticated: false },
+      })
 
       expect(pendingFlowRouteNameFromError(error)).toBe('account-login-code-confirm')
     })
 
     it('routes a pending mfa_authenticate flow to the preferred second factor', () => {
-      const error = {
+      const error = wrapAllAuthError({
+        status: 401,
         data: {
-          status: 401,
-          data: {
-            flows: [{
-              id: 'mfa_authenticate',
-              is_pending: true,
-              types: ['recovery_codes', 'webauthn'],
-            }],
-          },
-          meta: { is_authenticated: false },
+          flows: [{
+            id: 'mfa_authenticate',
+            is_pending: true,
+            types: ['recovery_codes', 'webauthn'],
+          }],
         },
-      }
+        meta: { is_authenticated: false },
+      })
 
       // webauthn outranks recovery_codes in AUTHENTICATOR_TYPE_PRIORITY.
       expect(pendingFlowRouteNameFromError(error)).toBe('account-2fa-authenticate-webauthn')
     })
 
     it('returns null when the 401 carries no pending flow (a genuine error)', () => {
-      const error = {
-        data: {
-          status: 401,
-          data: { flows: [{ id: 'login', is_pending: false }] },
-          meta: { is_authenticated: false },
-        },
-      }
+      const error = wrapAllAuthError({
+        status: 401,
+        data: { flows: [{ id: 'login', is_pending: false }] },
+        meta: { is_authenticated: false },
+      })
 
       expect(pendingFlowRouteNameFromError(error)).toBeNull()
     })

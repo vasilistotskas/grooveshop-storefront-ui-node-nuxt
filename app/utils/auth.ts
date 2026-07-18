@@ -216,24 +216,32 @@ export const pathForPendingFlow = (
   return pendingFlow ? pathForFlow(pendingFlow) : null
 }
 
-// The Nuxt allauth proxy re-throws Django's response via
-// `createError({ data })`, so a thrown `$fetch` error carries the allauth
-// payload (`{ status, data: { flows }, meta }`) at `error.data.data`. Pull
-// it back out so a caller can inspect the flow it represents.
+// The allauth payload is `{ status, data: { flows }, meta }`. The Nuxt proxy
+// re-throws Django's body via `createError({ data: payload })`, so the thrown
+// `$fetch` error exposes it at `error.data.data` — `error.data` is Nitro's
+// wrapper (`{ statusCode, statusMessage, data: payload }`), which carries
+// `statusCode`, NOT `status`. Pull the real payload out, tolerating a path
+// that exposes it directly at `error.data`.
+function isAllAuthPayload(value: unknown): value is AllAuthResponseError {
+  return typeof value === 'object' && value !== null
+    && 'status' in value && 'data' in value
+    && typeof (value as { data?: unknown }).data === 'object'
+}
+
 export function extractAllAuthError(
   error: unknown,
 ): AllAuthResponseError | null {
   if (typeof error !== 'object' || error === null || !('data' in error)) {
     return null
   }
-  const outer = (error as { data?: unknown }).data
-  if (
-    typeof outer !== 'object' || outer === null
-    || !('data' in outer) || !('status' in outer)
-  ) {
+  const wrapper = (error as { data?: unknown }).data
+  if (typeof wrapper !== 'object' || wrapper === null) {
     return null
   }
-  return outer as AllAuthResponseError
+  const nested = (wrapper as { data?: unknown }).data
+  if (isAllAuthPayload(nested)) return nested
+  if (isAllAuthPayload(wrapper)) return wrapper
+  return null
 }
 
 // A 401 carrying a *pending* flow is allauth's "advance to the next step"
