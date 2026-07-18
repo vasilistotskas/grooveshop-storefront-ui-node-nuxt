@@ -10,6 +10,9 @@ const { t } = useI18n()
 const localePath = useLocalePath()
 const router = useRouter()
 
+// Race-free reference for tryAdvanceToPendingFlow (see app/utils/auth.ts).
+const formPath = router.currentRoute.value.path
+
 const hasError = ref(false)
 const code = ref<string[]>([])
 
@@ -44,7 +47,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     // A valid code on a 2FA-enabled account doesn't finish login — allauth
     // consumes login_by_code and replies 401 with mfa_authenticate pending.
     // That is not an invalid code: advance to the second-factor challenge.
-    if (await tryAdvanceToPendingFlow(err)) return
+    if (await tryAdvanceToPendingFlow(err, { fromPath: formPath })) return
     hasError.value = true
     handleAllAuthClientError(err)
   }

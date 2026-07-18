@@ -70,7 +70,12 @@ onMounted(async () => {
         process: oauthParams.process === 'login' ? 'login' : 'connect',
       })
     }
-    catch {
+    catch (err) {
+      // A first-time OAuth user gets a 401 with `provider_signup` pending —
+      // the expected "complete your signup" hand-off, not a failure. The
+      // auth:change hook usually navigates there first; this guard makes the
+      // hand-off explicit and keeps the error page for genuine errors only.
+      if (await tryAdvanceToPendingFlow(err, { fromPath: route.path })) return
       error.value = true
     }
     finally {

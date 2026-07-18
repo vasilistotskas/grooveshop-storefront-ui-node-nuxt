@@ -269,18 +269,31 @@ export function pendingFlowRouteNameFromError(error: unknown) {
 
 // A pending-flow 4xx from allauth means "advance to the next step" (2FA after a
 // correct password or code, confirm after a code request) — not a failure.
-// Route there from the caller's own context and report whether we did, so a
-// form can suppress its error message and let the flow continue. Does NOT
-// navigate when the pending flow maps to the page we are already on — that's a
-// retry/error on the *same* step (e.g. a wrong 2FA code), which the caller must
-// still surface as an error.
-export async function tryAdvanceToPendingFlow(error: unknown): Promise<boolean> {
+// Report whether the flow advanced so a form can suppress its error message,
+// and navigate if needed. Callers MUST pass `fromPath` (their page's path,
+// captured at setup): ofetch awaits the `auth:change` interceptor before
+// rejecting, so the global hook has usually ALREADY navigated to the pending
+// flow by the time a form's catch runs — comparing against the live route
+// would misread that fresh advance as a same-route retry. Against `fromPath`,
+// a pending flow mapping back to the form's own page is a genuine retry on the
+// *same* step, which the caller must still surface as an error.
+export async function tryAdvanceToPendingFlow(
+  error: unknown,
+  opts: { fromPath?: string } = {},
+): Promise<boolean> {
   const routeName = pendingFlowRouteNameFromError(error)
   if (!routeName) return false
   const localePath = useLocalePath()
   const router = useRouter()
   const target = localePath(routeName)
-  if (router.currentRoute.value.path === target) return false
+  const fromPath = opts.fromPath ?? router.currentRoute.value.path
+  if (fromPath === target) return false
+  if (router.currentRoute.value.path === target) {
+    // The auth:change hook already landed us on the flow page — nothing to
+    // navigate, but this IS an advance, not an error.
+    log.info('auth', 'Pending flow already reached via auth:change hook', { route: routeName })
+    return true
+  }
   const rawNext = router.currentRoute.value.query.next?.toString()
   const safeNext = isSafeRelativePath(rawNext) ? rawNext : undefined
   log.info('auth', 'Advancing to pending flow', { route: routeName })

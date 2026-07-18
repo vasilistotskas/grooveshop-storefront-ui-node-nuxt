@@ -373,7 +373,7 @@ describe('Utils - Auth', () => {
       })
     })
 
-    it('does NOT advance when the pending flow is the current route (wrong-code retry)', async () => {
+    it('does NOT advance when the pending flow maps back to the submitting form (wrong-code retry)', async () => {
       stubRoute('/account-2fa-authenticate-webauthn')
       const error = wrapAllAuthError({
         status: 401,
@@ -381,7 +381,23 @@ describe('Utils - Auth', () => {
         meta: { is_authenticated: false },
       })
 
-      expect(await tryAdvanceToPendingFlow(error)).toBe(false)
+      expect(await tryAdvanceToPendingFlow(error, { fromPath: '/account-2fa-authenticate-webauthn' })).toBe(false)
+      expect(navigateToMock).not.toHaveBeenCalled()
+    })
+
+    it('treats it as an advance (without re-navigating) when the auth:change hook already landed on the flow page', async () => {
+      // ofetch awaits onResponseError before rejecting, so by the time a
+      // form's catch runs, the global hook has often already navigated to
+      // the pending flow. With fromPath = the form's own page, that must
+      // read as success — not as a same-route retry.
+      stubRoute('/account-2fa-authenticate-webauthn')
+      const error = wrapAllAuthError({
+        status: 401,
+        data: { flows: [{ id: 'mfa_authenticate', is_pending: true, types: ['webauthn'] }] },
+        meta: { is_authenticated: false },
+      })
+
+      expect(await tryAdvanceToPendingFlow(error, { fromPath: '/account-login' })).toBe(true)
       expect(navigateToMock).not.toHaveBeenCalled()
     })
 

@@ -124,14 +124,26 @@ export async function handleAllAuthError(
   handleError(error)
 }
 
-// allauth headless replies to a login on a 2FA account, or a login-by-code
-// request, with HTTP 401 carrying a *pending* flow — its normal "advance to
-// the next step" signal, not a failure. The flow payload lives in
-// `createError`'s `data`, but Nitro strips that from thrown-error responses,
-// so the client never sees the flow and cannot route to it. For a pending-flow
-// 4xx we therefore RETURN the payload (returned bodies are not stripped),
-// mirroring the wrapper shape the client reads (`error.data.data === payload`).
-// Genuine errors (no pending flow, or 5xx) still throw via handleAllAuthError.
+const HTTP_STATUS_TEXT: Record<number, string> = {
+  400: 'Bad Request',
+  401: 'Unauthorized',
+  403: 'Forbidden',
+  404: 'Not Found',
+  409: 'Conflict',
+  410: 'Gone',
+}
+
+// allauth 4xx bodies ARE the API contract, not incidental error noise: a 401
+// with a *pending* flow means "advance to the next step" (2FA after a correct
+// password, confirm after a code request), and a 400 carries the `errors`
+// array the client translates into specific toasts (incorrect_code,
+// invalid_login, ...). Those payloads travel in `createError`'s `data`, which
+// Nitro strips from thrown-error responses — so the client saw none of it.
+// For any allauth 4xx we therefore RETURN the payload (returned bodies are not
+// stripped) with the upstream status, mirroring the wrapper shape the client
+// reads (`error.data.data === payload`). Only non-allauth errors and 5xx still
+// throw via handleAllAuthError. The client-side `auth:change` interceptor only
+// reacts to 401/410, so forwarding a 400 cannot trigger navigation.
 // Return type is `undefined` on purpose: the client only ever receives this
 // body via a thrown $fetch error (the response status is 4xx, so `$fetch`
 // rejects) — never as a resolved value — so keeping it out of the handler's
@@ -141,11 +153,23 @@ export async function forwardAllAuthFlow(error: unknown): Promise<undefined> {
   const event = useEvent()
   if (isAllAuthError(error)) {
     const status = error.data.status
-    const pendingFlow = pendingFlowOf(error)
-    if (pendingFlow && typeof status === 'number' && status < 500) {
+    // A 401 WITHOUT a pending flow is allauth's terminal "you are not signed
+    // in" state — e.g. the success response of a completed password reset or
+    // email verification when auto-login is off. Forwarding it would make the
+    // client's 401 interceptor emit a spurious LOGGED_OUT (session-expired
+    // toast + navigation) for an anonymous user mid-flow, so only 401s that
+    // carry a pending flow are forwarded; the rest keep the throw path.
+    const forwardable = typeof status === 'number'
+      && status >= 400 && status < 500
+      && (status !== 401 || Boolean(pendingFlowOf(error)))
+    if (forwardable) {
       await syncAllAuthSessionFromError(error, event)
       setResponseStatus(event, status)
-      return { statusCode: status, statusMessage: 'Unauthorized', data: error.data } as unknown as undefined
+      return {
+        statusCode: status,
+        statusMessage: HTTP_STATUS_TEXT[status] ?? 'Error',
+        data: error.data,
+      } as unknown as undefined
     }
   }
   await handleAllAuthError(error)
