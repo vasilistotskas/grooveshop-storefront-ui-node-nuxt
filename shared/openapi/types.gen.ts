@@ -150,19 +150,7 @@ export type AcsShipmentDetail = {
      * Relative URL to download the voucher PDF via the Django proxy.
      */
   readonly labelUrl: string | null
-  /**
-     * Raw delivery_flag value from ACS_Trackingsummary.
-     */
-  readonly deliveryFlag: string
-  readonly returnedFlag: string
-  readonly rawShipmentStatus: string
   readonly cancelRequestedAt: string | null
-  /**
-     * Μεταδεδομένα
-     *
-     * Multipart child voucher numbers, last create-voucher response, last error envelope, cached POD URL.
-     */
-  readonly metadata: unknown
 }
 
 /**
@@ -1626,12 +1614,6 @@ export type BoxNowShipmentDetail = {
   readonly amountToBeCollected: number
   readonly allowReturn: boolean
   readonly cancelRequestedAt: string | null
-  /**
-     * Μεταδεδομένα
-     *
-     * Full delivery-request response and diagnostics from BoxNow
-     */
-  readonly metadata: unknown
 }
 
 /**

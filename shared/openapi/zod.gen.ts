@@ -4035,15 +4035,7 @@ export const zAcsShipmentDetail = z.object({
     description: 'Last 50 tracking events ordered by event_time desc.',
   }).readonly(),
   labelUrl: z.string().readonly().nullable(),
-  deliveryFlag: z.string().register(z.globalRegistry, {
-    description: 'Raw delivery_flag value from ACS_Trackingsummary.',
-  }).readonly(),
-  returnedFlag: z.string().readonly(),
-  rawShipmentStatus: z.string().readonly(),
   cancelRequestedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  metadata: z.unknown().register(z.globalRegistry, {
-    description: 'Multipart child voucher numbers, last create-voucher response, last error envelope, cached POD URL.',
-  }),
 }).register(z.globalRegistry, {
   description: 'Detail serializer used on the order-detail endpoint.',
 })
@@ -4673,9 +4665,6 @@ export const zBoxNowShipmentDetail = z.object({
   }).readonly(),
   allowReturn: z.boolean().readonly(),
   cancelRequestedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  metadata: z.unknown().register(z.globalRegistry, {
-    description: 'Full delivery-request response and diagnostics from BoxNow',
-  }),
 }).register(z.globalRegistry, {
   description: 'Detail serializer for a single BoxNow shipment.\n\nExtends the list serializer with:\n- nested ``locker`` object (``BoxNowLockerSerializer``)\n- ``events`` — last 20 ``BoxNowParcelEvent`` records ordered by\n  ``event_time`` descending\n- ``label_url`` — relative URL for downloading the parcel label PDF\n  via the Django proxy route; ``None`` when ``parcel_id`` is blank\n\nImports of ``BoxNowLockerSerializer`` and\n``BoxNowParcelEventSerializer`` are deferred to method bodies to\nprevent circular import chains between the serializer modules.',
 })

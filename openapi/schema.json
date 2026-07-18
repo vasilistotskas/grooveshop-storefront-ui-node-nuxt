@@ -48160,29 +48160,11 @@
                         "description": "Relative URL to download the voucher PDF via the Django proxy.",
                         "readOnly": true
                     },
-                    "deliveryFlag": {
-                        "type": "string",
-                        "readOnly": true,
-                        "description": "Raw delivery_flag value from ACS_Trackingsummary."
-                    },
-                    "returnedFlag": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "rawShipmentStatus": {
-                        "type": "string",
-                        "readOnly": true
-                    },
                     "cancelRequestedAt": {
                         "type": "string",
                         "format": "date-time",
                         "readOnly": true,
                         "nullable": true
-                    },
-                    "metadata": {
-                        "readOnly": true,
-                        "title": "Μεταδεδομένα",
-                        "description": "Multipart child voucher numbers, last create-voucher response, last error envelope, cached POD URL."
                     }
                 },
                 "required": [
@@ -48190,7 +48172,6 @@
                     "chargeType",
                     "createdAt",
                     "deliveryDate",
-                    "deliveryFlag",
                     "deliveryKind",
                     "deliveryProducts",
                     "events",
@@ -48199,9 +48180,6 @@
                     "labelUrl",
                     "lastEventAt",
                     "lastPolledAt",
-                    "metadata",
-                    "rawShipmentStatus",
-                    "returnedFlag",
                     "shipmentState",
                     "shipmentStateDisplay",
                     "station",
@@ -51216,11 +51194,6 @@
                         "format": "date-time",
                         "readOnly": true,
                         "nullable": true
-                    },
-                    "metadata": {
-                        "readOnly": true,
-                        "title": "Μεταδεδομένα",
-                        "description": "Full delivery-request response and diagnostics from BoxNow"
                     }
                 },
                 "required": [
@@ -51236,7 +51209,6 @@
                     "lastEventAt",
                     "locker",
                     "lockerExternalId",
-                    "metadata",
                     "parcelId",
                     "parcelState",
                     "parcelStateDisplay",
