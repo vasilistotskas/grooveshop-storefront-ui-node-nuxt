@@ -1,3 +1,10 @@
+## [3.142.16](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.15...v3.142.16) (2026-07-18)
+
+
+### Bug Fixes
+
+* **auth:** forward allauth pending-flow payload to the client (Nitro strips createError data) ([#15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/15)) ([06b9df2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/06b9df24386be1b3ee6eafebc39b0e264ff0f2a8))
+
 ## [3.142.15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.14...v3.142.15) (2026-07-18)
 
 
