@@ -4,7 +4,12 @@ import type { Product } from '../../../../shared/openapi/types.gen'
 
 // feed.ts registers cached functions at module scope and leans on Nitro
 // auto-imports — provide them as globals before the dynamic import below.
-vi.stubGlobal('defineCachedFunction', (fn: unknown) => fn)
+// The stub captures `getKey` (rather than discarding the options object) so
+// tenant-cache-key tests below can call it directly.
+vi.stubGlobal('defineCachedFunction', (fn: unknown, options?: { getKey?: (...args: any[]) => string }) => {
+  if (options?.getKey) Object.assign(fn as object, { getKey: options.getKey })
+  return fn
+})
 vi.stubGlobal('stripHtmlTags', stripHtmlTags)
 vi.stubGlobal('encodeMediaStreamPath', encodeMediaStreamPath)
 vi.stubGlobal('log', { info: vi.fn(), warn: vi.fn(), error: vi.fn() })
@@ -15,8 +20,10 @@ const {
   escapeXml,
   formatFeedPrice,
   productToFeedItem,
+  generateProductFeed,
 } = await import('../../../../server/utils/feed')
 type FeedItemContext = import('../../../../server/utils/feed').FeedItemContext
+type FeedKind = import('../../../../server/utils/feed').FeedKind
 
 function makeProduct(overrides: Record<string, unknown> = {}): Product {
   return {
@@ -214,5 +221,18 @@ describe('buildProductFeedXml', () => {
     expect(xml).toContain('<description>Το κατάστημά μας</description>')
     expect(xml).toContain('<g:id>1</g:id>')
     expect(xml.trimEnd().endsWith('</rss>')).toBe(true)
+  })
+})
+
+describe('generateProductFeed cache key', () => {
+  it('differentiates keys for two tenants requesting the same feed kind', () => {
+    const getKey = (generateProductFeed as unknown as { getKey: (tenantKey: string, kind: FeedKind) => string }).getKey
+
+    const keyA = getKey('tenant-a.example', 'meta')
+    const keyB = getKey('tenant-b.example', 'meta')
+
+    expect(keyA).not.toBe(keyB)
+    expect(keyA).toBe('tenant-a.example:feed-meta')
+    expect(keyB).toBe('tenant-b.example:feed-meta')
   })
 })

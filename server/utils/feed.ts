@@ -148,19 +148,20 @@ export function buildProductFeedXml(
 // register the same logical fetches under different TTLs (see the note in
 // server/routes/rss.xml.get.ts).
 const cachedFeedCategory = defineCachedFunction(
-  async (url: string) => {
+  async (_tenantKey: string, url: string) => {
     const raw = await $fetch(url, { method: 'GET' })
     return parseDataAs(raw, zProductCategoryDetail)
   },
   {
     maxAge: FEED_CACHE_AGE,
     name: 'feeds:product-category',
-    getKey: (url: string) => url,
+    getKey: (tenantKey: string, url: string) => `${tenantKey}:${url}`,
   },
 )
 
 export const generateProductFeed = defineCachedFunction(
   async (
+    tenantKey: string,
     kind: FeedKind,
     siteUrl: string,
     siteName: string,
@@ -177,6 +178,7 @@ export const generateProductFeed = defineCachedFunction(
     // page_size=100 is the paginator max; createCachedFetcher follows next
     // links for at most 100 pages → 10k-product ceiling.
     const allProducts = await cachedProducts(
+      tenantKey,
       `${apiBaseUrl}/product?page_size=100`,
     )
     if (allProducts.length >= 10_000) {
@@ -190,7 +192,7 @@ export const generateProductFeed = defineCachedFunction(
     ]
     const categoryResults = await Promise.allSettled(
       uniqueCategoryIds.map(id =>
-        cachedFeedCategory(`${apiBaseUrl}/product/category/${id}`),
+        cachedFeedCategory(tenantKey, `${apiBaseUrl}/product/category/${id}`),
       ),
     )
     const categoryNames = new Map<number, string>()
@@ -235,6 +237,6 @@ export const generateProductFeed = defineCachedFunction(
     maxAge: FEED_CACHE_AGE,
     staleMaxAge: FEED_CACHE_AGE * 24,
     swr: true,
-    getKey: (kind: FeedKind) => `feed-${kind}`,
+    getKey: (tenantKey: string, kind: FeedKind) => `${tenantKey}:feed-${kind}`,
   },
 )

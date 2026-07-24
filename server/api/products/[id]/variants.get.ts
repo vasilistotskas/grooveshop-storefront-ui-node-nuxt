@@ -19,5 +19,5 @@ export default defineCachedEventHandler(async (event) => {
   maxAge: 60 * 10,
   staleMaxAge: 60 * 60,
   swr: true,
-  getKey: event => `product-variants:${getRouterParam(event, 'id')}`,
+  getKey: event => tenantCacheKey(event, `product-variants:${getRouterParam(event, 'id')}`),
 })
