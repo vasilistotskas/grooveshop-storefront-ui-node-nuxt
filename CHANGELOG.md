@@ -1,3 +1,15 @@
+# [3.143.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.19...v3.143.0) (2026-07-24)
+
+
+### Bug Fixes
+
+* **deps:** patch HIGH/CRITICAL CVEs blocking the Trivy gate ([7219625](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7219625d08921253b01e14c7a685bbfed4a9e702))
+
+
+### Features
+
+* bump nuxt 4.5 stack + fix upgrade breakages ([bac0a1a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bac0a1accee6c6a39505a936074f6d234253c4c0)), closes [typescript-eslint#12518](https://github.com/typescript-eslint/issues/12518)
+
 ## [3.142.19](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.18...v3.142.19) (2026-07-18)
 
 
