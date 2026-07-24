@@ -82,7 +82,9 @@ export default defineEventHandler(async (event) => {
   const supplied = getRequestHeader(event, 'x-cache-purge-token') || ''
 
   if (!expected || !supplied || !timingSafeEqual(expected, supplied)) {
-    log.warn('cache-purge', 'Rejected: invalid token', {
+    log.warn({
+      tag: 'cache-purge',
+      message: 'Rejected: invalid token',
       ip: getRequestIP(event, { xForwardedFor: true }),
     })
     throw createError({ statusCode: 401, statusMessage: 'Unauthorized' })
@@ -103,7 +105,9 @@ export default defineEventHandler(async (event) => {
       keys = await storage.getKeys(prefix)
     }
     catch (error) {
-      log.warn('cache-purge', 'getKeys failed', {
+      log.warn({
+        tag: 'cache-purge',
+        message: 'getKeys failed',
         prefix,
         error: error instanceof Error ? error.message : String(error),
       })
@@ -125,7 +129,9 @@ export default defineEventHandler(async (event) => {
           deleted += 1
         }
         catch (error) {
-          log.warn('cache-purge', 'removeItem failed', {
+          log.warn({
+            tag: 'cache-purge',
+            message: 'removeItem failed',
             key,
             error: error instanceof Error ? error.message : String(error),
           })
@@ -134,7 +140,9 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  log.info('cache-purge', 'Completed', {
+  log.info({
+    tag: 'cache-purge',
+    message: 'Completed',
     patterns: body.patterns,
     matched,
     deleted,

@@ -41,7 +41,7 @@ function readFromStorage(): RecentlyViewedProduct[] {
     return (parsed as RecentlyViewedProduct[]).slice(0, MAX_ITEMS)
   }
   catch (error) {
-    log.warn('recently-viewed', 'read failed', { error })
+    log.warn({ tag: 'recently-viewed', message: 'read failed', error })
     return []
   }
 }
@@ -52,7 +52,7 @@ function writeToStorage(next: RecentlyViewedProduct[]) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
   }
   catch (error) {
-    log.warn('recently-viewed', 'write failed', { error })
+    log.warn({ tag: 'recently-viewed', message: 'write failed', error })
   }
 }
 

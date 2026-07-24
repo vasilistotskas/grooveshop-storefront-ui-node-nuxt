@@ -29,6 +29,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   const isSubmitting = ref(false)
   const reservationIds = ref<number[]>([])
   const retryCount = ref(0)
+  // Set when the retry timer re-enters onSubmit, so a fresh user-initiated
+  // submit resets the retry counter but an automatic retry keeps it.
+  const isRetryReentry = ref(false)
   const MAX_RETRIES = 3
   const paymentIntentId = ref<string | null>(null)
   const retryTimeoutId = ref<ReturnType<typeof setTimeout> | null>(null)
@@ -45,6 +48,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   // GA4 mirrors the same lifecycle but doesn't dedup against a
   // server leg — separate analytics ecosystem.
   const metaPixel = useMetaPixel()
+  const tiktokPixel = useTikTokPixel()
   const ga4 = useGA4()
   const cookieControl = useCookieControl()
   const metaEventIds = reactive<{
@@ -111,7 +115,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     let errorTitle = t('form.submit.error.general')
     let errorDescription: string | undefined
 
-    log.info('checkout', 'handleOrderError response', { status: response?.status })
+    log.info({ tag: 'checkout', message: 'handleOrderError response', status: response?.status })
 
     const errorData = response._data || response.data
     // When the upstream returns a non-JSON 5xx (gateway crash, Cloudflare
@@ -150,7 +154,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       errorTitle = t('form.submit.error.insufficient_stock')
       errorDescription = errorData?.detail || t('form.submit.error.insufficient_stock_description')
     }
-    else if (errorType === 'payment_not_found') {
+    else if (errorType === 'payment_not_found' || errorType === 'payment_verification') {
       errorTitle = t('form.submit.error.payment_verification')
       errorDescription = errorData?.detail || t('form.submit.error.payment_verification_description')
     }
@@ -269,7 +273,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         })
       })
       .catch((error) => {
-        log.warn('checkout', 'save address failed', { error })
+        log.warn({ tag: 'checkout', message: 'save address failed', error })
         toast.add({
           title: t('form.submit.address_save_failed_title'),
           description: t('form.submit.address_save_failed_description'),
@@ -290,10 +294,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         return
       }
       retryCount.value++
-      // Keep isSubmitting true during retry window to block double-submit
+      // Keep isSubmitting true during the retry window to block double-submit,
+      // then release it right before re-entering onSubmit — otherwise the
+      // re-entrant call hits the `if (isSubmitting.value) return` guard and the
+      // checkout deadlocks with the CTA spinning forever.
       isSubmitting.value = true
       retryTimeoutId.value = setTimeout(() => {
         retryTimeoutId.value = null
+        isSubmitting.value = false
+        isRetryReentry.value = true
         onSubmit()
       }, 500)
     }
@@ -484,9 +493,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
             log.error({ action: 'checkout:offlinePayment', error: 'No order UUID' })
             return
           }
+          // ``placed=1`` marks a real checkout arrival for the success
+          // page (purchase pixels + cart cleanup) — offline pay-ways
+          // have no provider redirect param (session_id / s) to key on.
           await navigateTo(localePath({
             name: 'checkout-success-uuid',
             params: { uuid: response._data.uuid },
+            query: { placed: '1' },
           }))
         },
         onResponseError({ response }) {
@@ -500,6 +513,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   }
 
   const onSubmit = async () => {
+    // Capture and clear the re-entry flag first: a fresh (user-initiated)
+    // submit resets the retry counter, an automatic retry preserves it.
+    const wasRetry = isRetryReentry.value
+    isRetryReentry.value = false
+
     // Cancel any pending retry before checking isSubmitting
     if (retryTimeoutId.value) {
       clearTimeout(retryTimeoutId.value)
@@ -510,7 +528,11 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
 
     isSubmitting.value = true
 
-    log.info('checkout', 'submit:started', {
+    if (!wasRetry) retryCount.value = 0
+
+    log.info({
+      tag: 'checkout',
+      message: 'submit:started',
       payWayId: formState.payWayId,
       shippingMethod: formState.shippingMethod,
       hasReservations: reservationIds.value.length > 0,
@@ -561,7 +583,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       // reflects the latest server-side cost before order creation.
       if (refetchShippingSettings) {
         await refetchShippingSettings().catch(err =>
-          log.warn('checkout', 'shipping refetch failed, using cached value', { err }),
+          log.warn({ tag: 'checkout', message: 'shipping refetch failed, using cached value', err }),
         )
       }
 
@@ -656,9 +678,33 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     }
   }
 
-  const backToForm = () => {
+  const backToForm = async () => {
     createdOrder.value = null
     selectedPayWay.value = null
+    // Fully reset the payment intent + idempotency key so a resubmit
+    // mints a FRESH intent rather than reusing the one bound to the
+    // now-consumed cart / created order. Reusing it skipped the
+    // ``if (!paymentIntentId.value)`` guard in handleOnlinePaymentFlow
+    // and produced an orphaned PENDING order + unrecoverable errors.
+    // Release any held reservations and resync the cart (order creation
+    // already cleared it server-side) so the sidebar reflects reality.
+    paymentIntentId.value = null
+    idempotencyKey.value = null
+    if (reservationIds.value.length > 0) {
+      try {
+        await releaseReservations(reservationIds.value)
+        reservationIds.value = []
+      }
+      catch (err) {
+        log.error({ action: 'checkout:releaseReservations', error: err })
+      }
+    }
+    try {
+      await cartStore.refreshCart()
+    }
+    catch (err) {
+      log.error({ action: 'checkout:backToForm:refreshCart', error: err })
+    }
     // Payment is now step 2 in the 3-step flow (0: info, 1: shipping, 2: payment)
     currentStep.value = 2
   }
@@ -695,6 +741,20 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
           })
           if (eventId) metaEventIds.addPaymentInfo = eventId
 
+          tiktokPixel.trackAddPaymentInfo({
+            currency,
+            value,
+            contentType: 'product',
+            contents:
+              cart.value?.items?.map(item => ({
+                contentId: String(item.product?.id ?? ''),
+                quantity: Number(item.quantity ?? 0),
+                price: Number(
+                  item.product?.finalPrice ?? item.product?.price ?? 0,
+                ),
+              })) ?? [],
+          })
+
           ga4.trackAddPaymentInfo({
             currency,
             value,
@@ -723,6 +783,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
    * Called once when the customer enters the checkout flow. Fires:
    * * Meta InitiateCheckout (browser leg, deduped against the Django
    *   server leg via ``metaEventIds.initiateCheckout``)
+   * * TikTok InitiateCheckout (browser-only, no dedup)
    * * GA4 begin_checkout (browser-only, no dedup)
    */
   const fireInitiateCheckout = () => {
@@ -742,6 +803,20 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         numItems: cart.value?.totalItems ?? 0,
       })
       if (eventId) metaEventIds.initiateCheckout = eventId
+
+      tiktokPixel.trackInitiateCheckout({
+        currency,
+        value,
+        contentType: 'product',
+        contents:
+          cart.value?.items?.map(item => ({
+            contentId: String(item.product?.id ?? ''),
+            quantity: Number(item.quantity ?? 0),
+            price: Number(
+              item.product?.finalPrice ?? item.product?.price ?? 0,
+            ),
+          })) ?? [],
+      })
 
       ga4.trackBeginCheckout({
         currency,

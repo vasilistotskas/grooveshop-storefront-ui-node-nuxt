@@ -94,15 +94,39 @@ export function useMetaPixel() {
   const isProvisioned = !!pixelId
 
   // ``useScriptMetaPixel`` is auto-imported by @nuxt/scripts. The
-  // actual registration (with the consent-gated script trigger)
-  // happens once in ``setupMetaPixelConsent`` from ``app.vue`` setup;
-  // calls here dedup against ``head._scripts['metaPixel']`` and
-  // return the same proxy. Passing options here would race with the
-  // setup site if the dedup picks the wrong call's options first
-  // (see comment in ``setups.ts:setupMetaPixelConsent`` for the
-  // historical incident this avoids).
-  const proxy = isProvisioned
-    ? useScriptMetaPixel({ id: pixelId }).proxy
+  // consent-gated registration happens once in
+  // ``setupMetaPixelConsent`` from ``app.vue`` setup; calls here
+  // dedup against ``head._scripts['metaPixel']`` and return the same
+  // proxy.
+  //
+  // ``trigger: 'manual'`` is load-bearing: unhead re-arms the trigger
+  // of EVERY duplicate ``useScript`` call on the existing script
+  // (``prevScript.setupTriggerHandler(options.trigger)``), and a call
+  // without an explicit trigger inherits @nuxt/scripts' module
+  // default ``'onNuxtReady'``. This composable is captured at
+  // Pinia-store setup (``plugins/setup.ts`` instantiates the cart
+  // store during the plugin phase, BEFORE ``app.vue`` setup), so
+  // omitting the trigger here attached an unconditional app-ready
+  // load that silently bypassed the cookie-consent gate — fbevents.js
+  // loaded and fired PageView before the banner was answered
+  // (observed in production, 2026-07-02). ``'manual'`` arms nothing,
+  // so only the consent trigger from ``setups.ts`` can ever initiate
+  // the load; events queue on the ``window.fbq`` stub until then.
+  //
+  // SSR guard: ``@nuxt/scripts >= 1.2`` removed the implicit SSR
+  // no-op posture of the registry proxy — accessing ``.proxy.fbq``
+  // now eagerly invokes the registry's ``use()`` which dereferences
+  // ``window.fbq`` and throws ``Cannot read properties of undefined``
+  // during prerender / SSR. We restore the documented no-op posture
+  // by short-circuiting to ``NOOP_PROXY`` on the server. All tracking
+  // events are browser-side anyway (events fired from stores/pages
+  // run after hydration; server-side Conversions API events are
+  // dispatched independently via the backend).
+  const proxy = isProvisioned && import.meta.client
+    ? useScriptMetaPixel({
+      id: pixelId,
+      scriptOptions: { trigger: 'manual' },
+    }).proxy
     : { fbq: NOOP_PROXY }
 
   const fbq = (

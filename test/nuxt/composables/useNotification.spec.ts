@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
+// Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
+// `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
+// mocked via mockNuxtImport like any other auto-import.
+const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
+
+mockNuxtImport('$fetch', () => mockFetch)
+
 mockNuxtImport('useRequestHeaders', () => {
   return vi.fn(() => ({}))
 })
@@ -11,8 +18,7 @@ describe('useNotification', () => {
   })
 
   it('should fetch notifications with default seen parameter', async () => {
-    const mockFetch = vi.fn().mockResolvedValue({ data: [] })
-    vi.stubGlobal('$fetch', mockFetch)
+    mockFetch.mockResolvedValue({ data: [] })
 
     const { getNotifications } = useNotification()
     const ids = [1, 2, 3]
@@ -28,8 +34,7 @@ describe('useNotification', () => {
   })
 
   it('should fetch notifications with seen parameter true', async () => {
-    const mockFetch = vi.fn().mockResolvedValue({ data: [] })
-    vi.stubGlobal('$fetch', mockFetch)
+    mockFetch.mockResolvedValue({ data: [] })
 
     const { getNotifications } = useNotification()
     const ids = [4, 5, 6]
@@ -45,8 +50,7 @@ describe('useNotification', () => {
   })
 
   it('should handle empty ids array', async () => {
-    const mockFetch = vi.fn().mockResolvedValue({ data: [] })
-    vi.stubGlobal('$fetch', mockFetch)
+    mockFetch.mockResolvedValue({ data: [] })
 
     const { getNotifications } = useNotification()
 
@@ -62,8 +66,7 @@ describe('useNotification', () => {
 
   it('should return notifications data', async () => {
     const mockData = { data: [{ id: 1, message: 'Test' }] }
-    const mockFetch = vi.fn().mockResolvedValue(mockData)
-    vi.stubGlobal('$fetch', mockFetch)
+    mockFetch.mockResolvedValue(mockData)
 
     const { getNotifications } = useNotification()
     const result = await getNotifications([1])

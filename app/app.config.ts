@@ -124,8 +124,10 @@ export default defineAppConfig({
     // problem we hit when shipping the slot-only override earlier).
     //
     // User-supplied ``compoundVariants`` concat AFTER the theme's
-    // defaults, so this entry's ``viewport: 'top-[calc(...)]'`` wins
-    // the ``top-*`` conflict cleanly. The CSS variable
+    // defaults, so this entry's calc()-based ``viewport`` class wins
+    // the top-offset conflict cleanly. (Avoid writing class-shaped
+    // tokens in comments — Tailwind's scanner reads raw file text and
+    // emits broken CSS for them.) The CSS variable
     // ``--ui-header-height`` is the same one Nuxt UI exposes for
     // ``UMain`` — anchoring to it keeps the toast immediately below
     // the header at any viewport size without hand-tuned breakpoints.

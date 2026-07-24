@@ -13,6 +13,6 @@ export default defineEventHandler(async (event) => {
     return tokenResponse
   }
   catch (error) {
-    await handleAllAuthError(error)
+    return await forwardAllAuthFlow(error)
   }
 })

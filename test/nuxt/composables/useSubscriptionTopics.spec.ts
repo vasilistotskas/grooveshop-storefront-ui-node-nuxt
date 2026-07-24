@@ -1,23 +1,18 @@
-import { describe, it, expect, beforeAll, afterAll, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { createMockTopic } from '../../helpers/subscriptionTestData'
 
-const mockFetch = vi.fn()
-
-beforeAll(() => {
-  vi.stubGlobal('$fetch', mockFetch)
-})
-
-afterAll(() => {
-  vi.unstubAllGlobals()
-})
-
 // Use vi.hoisted to ensure mocks are available before mockNuxtImport is called
-const { mockUseAsyncDataFn } = vi.hoisted(() => ({
+const { mockFetch, mockUseAsyncDataFn } = vi.hoisted(() => ({
+  // Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
+  // `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
+  // mocked via mockNuxtImport like any other auto-import.
+  mockFetch: vi.fn(),
   mockUseAsyncDataFn: vi.fn(),
 }))
 
 // Mock Nuxt composables using mockNuxtImport
+mockNuxtImport('$fetch', () => mockFetch)
 mockNuxtImport('useAsyncData', () => mockUseAsyncDataFn)
 mockNuxtImport('useRequestHeaders', () => () => ({}))
 

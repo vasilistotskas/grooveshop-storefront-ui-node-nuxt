@@ -255,7 +255,7 @@ if (localQuery.value && localQuery.value.length >= 2) {
           :label="t('search.tabs.all')"
           :variant="activeTab === 'all' ? 'soft' : 'ghost'"
           size="sm"
-          @click="activeTab = 'all'"
+          @click="() => { activeTab = 'all' }"
         />
         <UButton
           :label="
@@ -265,7 +265,7 @@ if (localQuery.value && localQuery.value.length >= 2) {
           "
           :variant="activeTab === 'products' ? 'soft' : 'ghost'"
           size="sm"
-          @click="activeTab = 'products'"
+          @click="() => { activeTab = 'products' }"
         />
         <UButton
           :label="
@@ -275,7 +275,7 @@ if (localQuery.value && localQuery.value.length >= 2) {
           "
           :variant="activeTab === 'blogPosts' ? 'soft' : 'ghost'"
           size="sm"
-          @click="activeTab = 'blogPosts'"
+          @click="() => { activeTab = 'blogPosts' }"
         />
       </div>
 

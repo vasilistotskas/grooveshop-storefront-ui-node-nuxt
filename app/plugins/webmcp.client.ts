@@ -48,7 +48,7 @@ export default defineNuxtPlugin(() => {
         const query = String(input?.query || '').trim()
         if (!query)
           return { error: 'query is required' }
-        await router.push({ path: localePath('/search'), query: { query } })
+        await router.push({ path: localePath({ path: '/search' }), query: { query } })
         return { ok: true, navigatedTo: `/search?query=${encodeURIComponent(query)}` }
       },
     },
@@ -69,7 +69,7 @@ export default defineNuxtPlugin(() => {
         const slug = String(input?.slug || '').trim()
         if (!slug)
           return { error: 'slug is required' }
-        await router.push(localePath(`/products/${encodeURIComponent(slug)}`))
+        await router.push(localePath({ path: `/products/${encodeURIComponent(slug)}` }))
         return { ok: true, navigatedTo: `/products/${slug}` }
       },
     },
@@ -90,7 +90,7 @@ export default defineNuxtPlugin(() => {
         const target = category
           ? `/products?category=${encodeURIComponent(category)}`
           : '/products'
-        await router.push(localePath(target))
+        await router.push(localePath({ path: target }))
         return { ok: true, navigatedTo: target }
       },
     },
@@ -99,7 +99,7 @@ export default defineNuxtPlugin(() => {
       description: 'Open the shopping cart page.',
       inputSchema: { type: 'object', properties: {} },
       execute: async () => {
-        await router.push(localePath('/cart'))
+        await router.push(localePath({ path: '/cart' }))
         return { ok: true, navigatedTo: '/cart' }
       },
     },

@@ -2,11 +2,12 @@ import { resolveURL, withQuery } from 'ufo'
 
 export default function () {
   const API_BASE_URL = ALLAUTH_AUTH_URL
-  // Capture the Meta Pixel + GA4 proxies at composable-setup so the
+  // Capture the pixel + GA4 proxies at composable-setup so the
   // signup / login ``onResponse`` callbacks (which run asynchronously
   // after the network round-trip) don't try to call ``useScript*``
   // from outside Nuxt's component setup context.
   const metaPixel = useMetaPixel()
+  const tiktokPixel = useTikTokPixel()
   const ga4 = useGA4()
   async function getSession(encrypted_token: string | null = null) {
     const headers = useRequestHeaders()
@@ -94,6 +95,7 @@ export default function () {
             metaPixel.trackCompleteRegistration({
               status: 'completed',
             })
+            tiktokPixel.trackCompleteRegistration()
             ga4.trackSignUp({ method: 'email' })
           }
           catch (pixelErr) {

@@ -15,6 +15,8 @@ export default defineEventHandler(async (event) => {
     return loginResponse
   }
   catch (error) {
-    await handleAllAuthError(error)
+    // A pending-flow 401 (2FA required) is forwarded to the client so it can
+    // route to the second factor; genuine errors still throw.
+    return await forwardAllAuthFlow(error)
   }
 })

@@ -81,7 +81,7 @@ function onSelected(picked: Locker): void {
         variant="ghost"
         icon="i-lucide-pencil"
         :aria-label="t('shipping.locker_picker.change')"
-        @click="isOpen = true"
+        @click="() => { isOpen = true }"
       >
         {{ t('shipping.locker_picker.change') }}
       </UButton>
@@ -94,7 +94,7 @@ function onSelected(picked: Locker): void {
       size="lg"
       color="primary"
       icon="i-lucide-map-pin"
-      @click="isOpen = true"
+      @click="() => { isOpen = true }"
     >
       {{ t('shipping.locker_picker.choose', { carrier: carrier.label }) }}
     </UButton>

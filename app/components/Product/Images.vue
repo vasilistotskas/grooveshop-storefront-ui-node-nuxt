@@ -87,9 +87,18 @@ const hasMultipleImages = computed(() => images.value && images.value.length > 1
           :aria-label="t('viewFullSizeImage')"
           @click="openModal()"
         >
+          <!--
+            fetchpriority: this is the PDP's LCP element. It's SSR'd
+            into the initial HTML and eager-loaded, but browsers still
+            queue it at default image priority behind render-critical
+            resources — Lighthouse's LCP-discovery audit flags exactly
+            this (the blog hero got the same treatment). The attr falls
+            through ImgWithFallback's useAttrs() onto the <img>.
+          -->
           <ProductImage
             :image="selectedImage"
             img-loading="eager"
+            fetchpriority="high"
             class="w-full rounded-md transition-transform duration-300"
           />
 

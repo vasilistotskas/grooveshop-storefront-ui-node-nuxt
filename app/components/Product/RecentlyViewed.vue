@@ -94,7 +94,7 @@ const carouselUI = {
         "
       >
         <NuxtLinkLocale
-          :to="productUrl(item.id, item.slug ?? '')"
+          :to="{ path: productUrl(item.id, item.slug ?? '') }"
           class="
             group flex h-full flex-col gap-2 rounded-lg border border-neutral-200
             bg-white p-3 transition-shadow

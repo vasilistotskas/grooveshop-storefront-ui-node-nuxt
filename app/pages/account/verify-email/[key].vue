@@ -42,7 +42,7 @@ async function onSubmit(): Promise<void> {
     loading.value = true
     const data = await emailVerify({ key: String(key) })
 
-    if (data && [200, 401].includes(data.status)) {
+    if (data && data.status === 200) {
       toast.add({
         title: t('auth.email.verified'),
         description: t('success.description'),
@@ -55,6 +55,21 @@ async function onSubmit(): Promise<void> {
     }
   }
   catch (error) {
+    // django-allauth returns HTTP 401 when the email was verified but the
+    // request carried no pending session — the common case of opening the
+    // link on a different device/browser. $fetch rejects on 401, so this
+    // success path only ever surfaces in catch.
+    if (isAllAuthClientError(error) && error.data.data.status === 401) {
+      toast.add({
+        title: t('auth.email.verified'),
+        description: t('success.description'),
+        color: 'success',
+        icon: 'i-heroicons-check-circle',
+      })
+      emit('emailVerify')
+      await router.push(localePath('account'))
+      return
+    }
     handleAllAuthClientError(error)
   }
   finally {

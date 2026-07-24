@@ -101,11 +101,11 @@ onMounted(() => {
                   >
                     <NuxtImg
                       :style="{ objectFit: 'contain' }"
-                      :src="tenantStore.logoLightUrl || '/img/logo-navbar.svg'"
+                      :src="tenantStore.logoLightUrl || '/img/logo-navbar.png'"
                       :width="145"
                       :height="30"
                       alt=""
-                      quality="80"
+                      quality="90"
                       fetch-priority="high"
                       preload
                     />

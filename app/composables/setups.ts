@@ -82,7 +82,7 @@ export function setupPageHeader() {
       // its own favicon; otherwise let the static files in
       // nuxt.config.ts app.head.link serve the platform default.
       ...(favicon.value
-        ? [{ rel: 'icon', type: 'image/x-icon', href: favicon.value }]
+        ? [{ rel: 'icon' as const, type: 'image/x-icon', href: favicon.value }]
         : []),
     ],
     meta: [...(i18nHead.value.meta || []),
@@ -154,6 +154,28 @@ export function setupGoogleAnalyticsConsent() {
 }
 
 /**
+ * Reactive "the customer granted ad consent" gate shared by the ad
+ * pixels (Meta, TikTok): the user has explicitly accepted the banner
+ * AND the ``ad_storage`` category is enabled. Either gate alone is
+ * insufficient:
+ *
+ * * isConsentGiven only flips true after the user clicks the banner
+ *   so we don't fire pixel events for visitors who never made a
+ *   choice.
+ * * Even when the banner is acknowledged, the user can deselect
+ *   ad_storage via "Manage preferences" — we honour that choice.
+ */
+function useAdStorageConsent() {
+  const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
+  return computed(() =>
+    !!(
+      isConsentGiven.value
+      && cookiesEnabledIds.value?.includes('ad_storage')
+    ),
+  )
+}
+
+/**
  * Initialise the Meta Pixel — single source of truth for the
  * registration. Called from ``app.vue`` setup once per app instance.
  *
@@ -190,26 +212,51 @@ export function setupMetaPixelConsent() {
   const pixelId = tenantStore.metaPixelId || (config.public as { metaPixelId?: string })?.metaPixelId
   if (!pixelId) return
 
-  const { cookiesEnabledIds, isConsentGiven } = useCookieControl()
+  // SSR guard: ``@nuxt/scripts >= 1.2`` removed the SSR-safe posture of
+  // the meta-pixel registry — calling ``useScriptMetaPixel`` (even
+  // without proxy access) eagerly invokes its ``use()`` callback which
+  // dereferences ``window.fbq`` and throws during prerender. The pixel
+  // only needs to load in the browser anyway, so skip the entire
+  // registration on the server. The cookie-consent reactivity below is
+  // also client-only by design (the banner state lives in client
+  // storage).
+  if (import.meta.server) return
 
-  // Reactive: the user has explicitly accepted the banner AND the
-  // ad_storage category is enabled. Either gate alone is insufficient:
-  //
-  // * isConsentGiven only flips true after the user clicks the banner
-  //   so we don't fire pixel events for visitors who never made a
-  //   choice.
-  // * Even when the banner is acknowledged, the user can deselect
-  //   ad_storage via "Manage preferences" — we honour that choice.
-  const adConsent = computed(() =>
-    !!(
-      isConsentGiven.value
-      && cookiesEnabledIds.value?.includes('ad_storage')
-    ),
-  )
+  const trigger = useScriptTriggerConsent({ consent: useAdStorageConsent() })
 
-  const trigger = useScriptTriggerConsent({ consent: adConsent })
-
+  // NOTE: do not add proxy/bundle opt-outs here — the module's
+  // build transform and ``isProxyDisabled`` only read the
+  // ``scripts.registry`` entries in nuxt.config, never composable
+  // call sites (verified against @nuxt/scripts 1.3.0 source,
+  // 2026-07-12). The proxy is disabled globally in nuxt.config.
   useScriptMetaPixel({
+    id: pixelId,
+    scriptOptions: { trigger },
+  })
+}
+
+/**
+ * Initialise the TikTok Pixel — single source of truth for the
+ * registration, mirroring ``setupMetaPixelConsent`` above: same
+ * consent-trigger lifecycle (the script tag is injected only after
+ * the customer grants ``ad_storage``) and same client-only posture
+ * (the registry's ``use()`` dereferences ``window.ttq`` and would
+ * throw during prerender / SSR). Called from ``app.vue`` setup once
+ * per app instance.
+ *
+ * No-op when ``NUXT_PUBLIC_TIKTOK_PIXEL_ID`` is not provisioned — the
+ * cookie banner stays untouched and ``useTikTokPixel`` consumers
+ * receive a no-op proxy.
+ */
+export function setupTikTokPixelConsent() {
+  const config = useRuntimeConfig()
+  const pixelId = (config.public as { tiktokPixelId?: string })?.tiktokPixelId
+  if (!pixelId) return
+  if (import.meta.server) return
+
+  const trigger = useScriptTriggerConsent({ consent: useAdStorageConsent() })
+
+  useScriptTikTokPixel({
     id: pixelId,
     scriptOptions: { trigger },
   })
@@ -292,6 +339,14 @@ export function setupSocialLogin() {
   const { enabled } = useAuthPreviewMode()
   const config = useRuntimeConfig()
   if (!config.public.googleGsiEnable || enabled.value) return
+
+  // SSR guard: ``useScript`` (from @nuxt/scripts >= 1.2) eagerly
+  // invokes the ``use()`` callback below at registration, which
+  // dereferences ``window.google`` and throws during prerender / SSR.
+  // GSI is client-only anyway — the GSI button + ``onLoaded`` callback
+  // are meaningless on the server — so skip the entire setup.
+  if (import.meta.server) return
+
   const { loggedIn } = useUserSession()
   const { config: authConfig } = storeToRefs(useAuthStore())
   const {

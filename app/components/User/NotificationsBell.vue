@@ -16,7 +16,7 @@ const { loggedIn } = useUserSession()
 onMounted(() => {
   if (!loggedIn.value) return
   if (notifications.value && notifications.value.results?.length) return
-  setupNotifications().catch(err => log.warn('notifications:bell', 'self-bootstrap failed', { error: err }))
+  setupNotifications().catch(err => log.warn({ tag: 'notifications:bell', message: 'self-bootstrap failed', error: err }))
 })
 
 const isDropdownVisible = ref(false)
@@ -201,7 +201,7 @@ onClickOutside(dropdown, () => {
               trailing
               block
               class="mt-1"
-              @click="isDropdownVisible = false"
+              @click="() => { isDropdownVisible = false }"
             >
               {{ t('notifications.view_all') }}
             </UButton>

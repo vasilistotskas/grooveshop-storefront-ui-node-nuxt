@@ -32,11 +32,12 @@ if (productId) {
   trackView('product', Number(productId))
 }
 
-// Meta Pixel — ViewContent / GA4 — view_item, both fire once per
-// product detail load on the client. SSR-safe via ``onMounted`` so
-// the prerender pass never produces a phantom event. Browser-only
-// (no server-side leg for either).
+// Meta/TikTok Pixel — ViewContent / GA4 — view_item, all fire once
+// per product detail load on the client. SSR-safe via ``onMounted``
+// so the prerender pass never produces a phantom event. Browser-only
+// (no server-side leg for any of them).
 const metaPixel = useMetaPixel()
+const tiktokPixel = useTikTokPixel()
 const ga4 = useGA4()
 const viewContentFired = ref(false)
 
@@ -45,7 +46,7 @@ const viewContentFired = ref(false)
 // without re-fetching on homepage/PDP rails.
 const recentlyViewed = useRecentlyViewed()
 
-const { data: product, refresh: refreshProduct } = await useFetch<ProductDetail>(
+const { data: product, error: productError, refresh: refreshProduct } = await useFetch<ProductDetail>(
   `/api/products/${productId}`,
   {
     key: `product${productId}`,
@@ -58,10 +59,17 @@ const { data: product, refresh: refreshProduct } = await useFetch<ProductDetail>
 )
 
 if (!product.value) {
-  throw createError({
-    statusCode: 404,
-    message: t('error.page.not.found'),
-  })
+  // Distinguish "row really absent" (404) from "backend unavailable"
+  // (5xx / timeout): a transient upstream failure must surface as 503
+  // so crawlers treat it as temporary — a 404 here de-indexes live
+  // products during backend blips — and so error.vue's one-shot
+  // reload can self-heal the visit.
+  const upstreamStatus = productError.value?.statusCode ?? 404
+  throw createError(
+    upstreamStatus >= 500
+      ? { statusCode: 503, message: t('error.service.unavailable') }
+      : { statusCode: 404, message: t('error.page.not.found') },
+  )
 }
 
 // Fetch images and reviews in parallel (both needed for SSR/Schema.org)
@@ -164,6 +172,22 @@ onMounted(() => {
           ]
         : [],
       contentName: productName,
+    })
+    tiktokPixel.trackViewContent({
+      currency: 'EUR',
+      value: price,
+      contentType: 'product',
+      contentName: productName,
+      contents: pid
+        ? [
+            {
+              contentId: pid,
+              contentName: productName,
+              quantity: 1,
+              price,
+            },
+          ]
+        : [],
     })
     ga4.trackViewItem({
       currency: 'EUR',
@@ -334,7 +358,7 @@ const items = computed(() => [
   {
     to: localePath({
       name: 'products-id-slug',
-      params: { id: productId, slug: product.value?.slug },
+      params: { id: productId ?? '', slug: product.value?.slug ?? '' },
     }),
     label: productTitle.value,
   },
@@ -663,9 +687,14 @@ definePageMeta({
         >
           <ProductImages :product="product" />
 
+          <!-- min-w-0: below lg this is a grid item in an implicit ``auto``
+               track, whose min-width:auto otherwise inflates the track to the
+               min-content of the non-wrapping variant carousel (5 cards ≈
+               600px) and blows the page out sideways on mobile. Zeroing it
+               lets the carousel scroll inside the viewport instead. -->
           <div
             class="
-              flex flex-col gap-4
+              flex min-w-0 flex-col gap-4
               md:gap-6
             "
           >
@@ -737,6 +766,10 @@ definePageMeta({
                 </span>
               </div>
             </div>
+
+            <!-- Variant selectors (colour / memory / …). Renders nothing
+                 unless the product belongs to a variant group. -->
+            <ProductVariantSelector v-if="product" :product="product" />
 
             <!-- Loyalty Points Badge (logged in) / Guest CTA -->
             <LoyaltyPointsBadge

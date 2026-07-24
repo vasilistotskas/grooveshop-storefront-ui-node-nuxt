@@ -256,6 +256,20 @@ describe('Server Utils - Cart Session', () => {
       expect(mockSession.update).not.toHaveBeenCalled()
     })
 
+    it('should not update session for an empty UUID', async () => {
+      const event = createMockEvent()
+      const mockSession = createMockSession({})
+      const response = { uuid: '', items: [] }
+
+      vi.stubGlobal('useSession', vi.fn().mockResolvedValue(mockSession))
+
+      await handleCartResponse(event, response)
+
+      // An empty UUID means "no cart yet" and also fails the UUID format
+      // check, so it won't update.
+      expect(mockSession.update).not.toHaveBeenCalled()
+    })
+
     it('should update session with new cart UUID', async () => {
       const event = createMockEvent()
       const mockSession = createMockSession({ cartId: CART_UUID_A })

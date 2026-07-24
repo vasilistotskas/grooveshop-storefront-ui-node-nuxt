@@ -23,7 +23,7 @@ const items = computed(() => [
 ])
 
 if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.FLOW_UPDATED) {
-  log.info('auth', 'Redirecting to index', { event: authEvent.value })
+  log.info({ tag: 'auth', message: 'Redirecting to index', event: authEvent.value })
   await navigateTo(localePath('index'))
 }
 

@@ -252,7 +252,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           <UIcon
             v-for="star in 5"
             :key="star"
-            :name="star <= Math.round(product.reviewAverage) ? 'i-heroicons-star-solid' : 'i-heroicons-star'"
+            :name="star <= Math.round(product.reviewAverage / 2) ? 'i-heroicons-star-solid' : 'i-heroicons-star'"
             class="size-4 text-warning"
           />
         </div>

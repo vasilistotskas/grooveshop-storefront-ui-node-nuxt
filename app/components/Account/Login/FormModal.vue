@@ -43,7 +43,7 @@ watch(loggedIn, () => {
               hover:bg-transparent
             `,
           }"
-          @click="isOpen = false"
+          @click="() => { isOpen = false }"
         />
         <AccountLoginForm
           class="

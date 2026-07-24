@@ -24,17 +24,28 @@ const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
 const bannerLink = '/products/2/mini-powerbank-5000mah'
 
 // Admin-toggleable rail — extra-setting RECENTLY_VIEWED_ENABLED.
-// Fetched during SSR with a stale-falls-open fallback so a flaky
-// settings call never silently kills a user-facing rail. Default
-// on the Django side is ``true``, so the rail shows unless an
-// admin explicitly disables it.
-const headers = useRequestHeaders(['cookie'])
-const { data: recentlyViewedSetting } = await useAsyncData(
+// Resolved client-side only (``server: false``) with a default of
+// ``True``: the rail it gates — ``ProductRecentlyViewed`` — is itself
+// client-only (reads localStorage), so the flag has no effect on the
+// SSR'd markup and never needs to be on the critical render path. The
+// Django default is ``true``, so the rail shows unless an admin
+// explicitly disabled it; the client fetch reconciles that shortly
+// after hydration. Keeping this off SSR removes a blocking backend
+// round-trip from the homepage TTFB.
+// Explicit ``useAsyncData<T>`` annotation: Nuxt 4.4.8 tightened the
+// default-factory inference and the chained ``.catch(() => ({ value }))``
+// causes the resolved-union to collapse to ``string`` — making the
+// ``default`` factory fail the overload check. Pinning the generic
+// restores the intended ``{ value?: string }`` shape.
+const { data: recentlyViewedSetting } = await useAsyncData<{ value?: string }>(
   'home:recently-viewed-enabled',
   () => $fetch<{ value?: string }>('/api/settings/get', {
     query: { key: 'RECENTLY_VIEWED_ENABLED' },
-    headers,
-  }).catch(() => ({ value: 'True' })),
+  }).catch(() => ({ value: 'False' })),
+  {
+    server: false,
+    default: () => ({ value: 'False' }),
+  },
 )
 const recentlyViewedEnabled = computed(() => {
   const raw = (recentlyViewedSetting.value?.value ?? 'true').toString().toLowerCase()
@@ -112,7 +123,7 @@ useSeoMeta({
               loading="eager"
               fetchpriority="high"
               decoding="async"
-              preload
+              :preload="{ fetchPriority: 'high' }"
             />
           </NuxtLink>
         </UCarousel>
@@ -144,6 +155,7 @@ useSeoMeta({
           v-if="tenantStore.blogEnabled"
           :page-size="blogPageSize"
           :show-ordering="false"
+          :eager-first-images="false"
           class="
             mx-auto max-w-main
             md:p-0!

@@ -1,12 +1,23 @@
 <script lang="ts" setup>
-import type { ExtractPropTypes } from 'vue'
-import type { baseImageProps } from '#image/components/_base'
+import type { ConfiguredImageProviders, ImageModifiers } from '@nuxt/image'
 
-interface Props extends /* @vue-ignore */ Omit<ExtractPropTypes<typeof baseImageProps>, 'ismap'> {
+// NuxtImg props this wrapper types and forwards explicitly; any other native
+// `<img>`/NuxtImg attribute still flows through `useAttrs()` below.
+interface Props {
   src?: string
   fallback?: string
-  ismap?: boolean
+  provider?: keyof ConfiguredImageProviders
+  width?: string | number
+  height?: string | number
+  sizes?: string
+  densities?: string
+  format?: string
+  quality?: string | number
+  fit?: string
+  background?: string
+  modifiers?: Partial<ImageModifiers> & Record<string, unknown>
   preload?: boolean
+  ismap?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -44,20 +55,29 @@ const handleError = (error: string | Event) => {
   hasError.value = true
 }
 
-const provider = computed(() => {
+const isSvg = (src: string) => /\.svg(\?|#|$)/i.test(src)
+
+const provider = computed<keyof ConfiguredImageProviders>(() => {
   if (!props.src) {
     return 'ipx'
   }
-  if (mainImageProps.value?.provider !== undefined && mainImageProps.value.provider !== '') {
+  if (mainImageProps.value.provider) {
     return mainImageProps.value.provider
   }
-  // `media/{schema}/uploads/...` is the tenant-scoped path produced by
-  // Django's ``image_to_media_path`` under TenantFileSystemStorage; the
-  // older `media/uploads/...` is the legacy single-tenant path kept for
-  // assets uploaded before the storage switch. Both route to the
-  // media-stream provider so background processing / caching kicks in.
+  // Media/static-origin assets must resolve through the mediaStream provider,
+  // which prepends the service origin — a bare ``none`` pass-through would
+  // serve the relative path against the site origin and 404. This applies to
+  // SVGs too, so it must come before the SVG bypass below. `media/{schema}/uploads/...`
+  // is the tenant-scoped path produced by Django's ``image_to_media_path`` under
+  // TenantFileSystemStorage; the plain `media/uploads/...` prefix is the legacy
+  // single-tenant path kept for assets uploaded before the storage switch.
   if (/^\/?media\/[^/]+\/uploads(\/|$)/.test(imgSrc.value) || imgSrc.value.startsWith('media/uploads') || imgSrc.value.startsWith('/media/uploads') || imgSrc.value.startsWith('static/images') || imgSrc.value.startsWith('/static/images')) {
     return 'mediaStream'
+  }
+  // Local/public SVGs are served raw (never rasterized through IPX, which
+  // destroys vector — or embedded-raster — quality).
+  if (isSvg(imgSrc.value)) {
+    return 'none'
   }
   return 'ipx'
 })

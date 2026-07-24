@@ -64,7 +64,7 @@ export async function getTenantConfig(host: string): Promise<TenantResult> {
       tenantConfig = await parseDataAs(response, zTenantConfig)
     }
     catch (parseError) {
-      log.warn('tenant', 'getTenantConfig: response failed Zod validation', { domain, parseError })
+      log.warn({ tag: 'tenant', message: 'getTenantConfig: response failed Zod validation', domain, parseError })
       return { type: 'not_found', config: null }
     }
 
@@ -78,7 +78,7 @@ export async function getTenantConfig(host: string): Promise<TenantResult> {
     if (status >= 500) {
       // Do NOT cache — we want every subsequent request to retry so
       // the store recovers automatically once Django is healthy again.
-      log.warn('tenant', 'getTenantConfig: backend returned 5xx, not caching', { domain, status })
+      log.warn({ tag: 'tenant', message: 'getTenantConfig: backend returned 5xx, not caching', domain, status })
       return { type: 'error_5xx', config: null }
     }
     // 404 or network-level error (treated as unknown domain).

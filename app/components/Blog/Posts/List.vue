@@ -23,6 +23,17 @@ const props = defineProps({
     default: 'scroll',
     validator: (value: string) => ['button', 'scroll'].includes(value),
   },
+  // When this list is the primary above-the-fold content (the /blog
+  // page) the first card's image is the LCP, so it's eager-loaded,
+  // fetchpriority=high and <link rel=preload>. When the list is
+  // rendered below the fold (e.g. the homepage rail under the hero
+  // banner) those hints steal bandwidth from the real LCP — pass
+  // false there so every card lazy-loads at default priority.
+  eagerFirstImages: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
 })
 
 defineSlots<{
@@ -87,16 +98,21 @@ const pagination = computed(() => {
 const postIds = computed(() => posts.value?.results?.map(post => post.id) || [])
 const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.length > 0)
 
-// User-specific data: client-side only to avoid blocking SSR
-await useFetch(
+// User-specific data: client-side only to avoid blocking SSR.
+// `watch: false` is required — the reactive `postIds` body would
+// otherwise auto-refetch on every pagination change even for
+// anonymous visitors (`immediate` only gates the first call),
+// spamming the auth-required endpoint with 401s.
+const { execute: fetchLikedPosts } = await useFetch(
   '/api/blog/posts/liked-posts',
   {
     key: `likedBlogPosts${user.value?.id}`,
     method: 'POST',
     headers: useRequestHeaders(),
     body: { postIds: postIds },
-    immediate: shouldFetchLikedPosts.value,
+    immediate: false,
     server: false, // Client-side only - user-specific data
+    watch: false,
     onResponse({ response }) {
       if (!response.ok) {
         return
@@ -105,6 +121,16 @@ await useFetch(
       updateLikedPosts(likedPostsIds)
     },
   },
+)
+
+watch(
+  postIds,
+  () => {
+    if (shouldFetchLikedPosts.value) {
+      fetchLikedPosts()
+    }
+  },
+  { immediate: import.meta.client },
 )
 
 const showResults = computed(() => {
@@ -119,21 +145,21 @@ const BlogPostCard = computed(() =>
 )
 
 const imgLoading = (index: number) => {
-  if (index < 3) {
+  if (props.eagerFirstImages && index < 3) {
     return 'eager'
   }
   return 'lazy'
 }
 
 const imgFetchPriority = (index: number) => {
-  if (index === 0) {
+  if (props.eagerFirstImages && index === 0) {
     return 'high'
   }
   return 'auto'
 }
 
 const shouldPreload = (index: number) => {
-  return index === 0
+  return props.eagerFirstImages && index === 0
 }
 
 watch(

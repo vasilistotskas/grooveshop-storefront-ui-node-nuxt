@@ -1,5 +1,5 @@
 import type { Composer } from 'vue-i18n'
-import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
+import type { RouteMapI18n } from 'vue-router'
 
 export default defineNuxtPlugin({
   name: 'auth',
@@ -62,7 +62,7 @@ export default defineNuxtPlugin({
         userInitiatedLogout.value = true
       }
 
-      log.info('auth', 'State changed', { event: newEvent, explicit: !!explicit })
+      log.info({ tag: 'auth', message: 'State changed', event: newEvent, explicit: !!explicit })
 
       // Dispatch directly inside the hook body — NOT via watch(authEvent).
       // Vue's `watch` collapses consecutive equal values, so two same-event
@@ -128,7 +128,7 @@ export default defineNuxtPlugin({
             })
           }
           catch (toastError) {
-            log.warn('auth', 'Failed to surface session-expired toast', { error: toastError })
+            log.warn({ tag: 'auth', message: 'Failed to surface session-expired toast', error: toastError })
           }
         }
         return await navigateToUrl({ path: RedirectToURLs.LOGOUT_REDIRECT_URL })
@@ -149,7 +149,7 @@ export default defineNuxtPlugin({
         const isRedirectingToLogin = returnToPath === RedirectToURLs.LOGIN_URL || returnToPath === loginPath
         const redirectTo = isRedirectingToLogin || !returnToPath
           ? RedirectToURLs.LOGIN_REDIRECT_URL
-          : returnToPath as keyof RouteNamedMapI18n
+          : returnToPath as keyof RouteMapI18n
         return await navigateToUrl({ path: redirectTo })
       }
       catch (error) {
@@ -161,7 +161,7 @@ export default defineNuxtPlugin({
       try {
         const router = useRouter()
         const rawNext = router.currentRoute.value.query.next?.toString()
-        const safeNext = isSafeRelativePath(rawNext) ? rawNext as keyof RouteNamedMapI18n : undefined
+        const safeNext = isSafeRelativePath(rawNext) ? rawNext as keyof RouteMapI18n : undefined
         return await navigateToUrl({ path: safeNext || RedirectToURLs.LOGIN_REDIRECT_URL })
       }
       catch (error) {
@@ -186,11 +186,11 @@ export default defineNuxtPlugin({
       }
     }
 
-    async function navigateToUrl({ path, query, replace = false }: { path: keyof RouteNamedMapI18n, query?: Record<string, string>, replace?: boolean }) {
+    async function navigateToUrl({ path, query, replace = false }: { path: keyof RouteMapI18n, query?: Record<string, string>, replace?: boolean }) {
       try {
         const localePath = useLocalePath()
         const url = localePath(path)
-        log.info('auth', 'Navigating to URL', { url })
+        log.info({ tag: 'auth', message: 'Navigating to URL', url })
         return nuxtApp.runWithContext(() => navigateTo({ path: url, query }, { replace }))
       }
       catch (error) {

@@ -42,10 +42,17 @@ const { data: blogPost, refresh, error: blogPostError } = await useFetch(
 )
 
 if (blogPostError.value || !blogPost.value) {
-  throw createError({
-    statusCode: blogPostError.value?.statusCode || 404,
-    message: blogPostError.value?.message || t('error.page.not.found'),
-  })
+  // Normalize upstream 5xx to 503 (see products/[id]/[slug].vue):
+  // temporary for crawlers + retryable by error.vue's one-shot reload.
+  const upstreamStatus = blogPostError.value?.statusCode ?? 404
+  throw createError(
+    upstreamStatus >= 500
+      ? { statusCode: 503, message: t('error.service.unavailable') }
+      : {
+          statusCode: upstreamStatus,
+          message: blogPostError.value?.message || t('error.page.not.found'),
+        },
+  )
 }
 
 // Critical data: category and author (needed for initial render)
@@ -89,9 +96,14 @@ const { data: relatedPosts, status: relatedPostsStatus } = useLazyFetch(`/api/bl
   method: 'GET',
 })
 
-if (likedPostsData.value) {
-  updateLikedPosts(likedPostsData.value.postIds)
-}
+// `likedPostsData` resolves client-side only (server: false), so it is null
+// during setup on a hard load — apply the liked state reactively when it
+// arrives instead of reading it once synchronously.
+watch(likedPostsData, (value) => {
+  if (value) {
+    updateLikedPosts(value.postIds)
+  }
+}, { immediate: true })
 
 const { transformImages } = useHtmlContent()
 
@@ -119,8 +131,8 @@ const blogPostCategoryName = computed(() =>
 
 const blogAuthorFullName = computed(() => {
   const author = blogPostAuthor.value
-  if (!author?.user) return 'Anonymous'
-  return `${author.user.firstName || ''} ${author.user.lastName || ''}`.trim() || 'Anonymous'
+  if (!author?.user) return ''
+  return `${author.user.firstName || ''} ${author.user.lastName || ''}`.trim()
 })
 
 const ogImage = computed(() => {
@@ -151,8 +163,8 @@ const items = computed(() => [
     to: localePath({
       name: 'blog-post-id-slug',
       params: {
-        id: blogPostId.value,
-        slug: blogPost.value?.slug,
+        id: blogPostId.value ?? '',
+        slug: blogPost.value?.slug ?? '',
       },
     }),
     label: blogPostTitle.value,
@@ -237,7 +249,7 @@ useHead({
 useSchemaOrg([
   definePerson({
     '@id': '#author',
-    'name': blogAuthorFullName.value,
+    'name': blogAuthorFullName.value || undefined,
     'url': blogPostAuthor.value?.website || undefined,
     'image': blogPostAuthor.value?.user?.mainImagePath || undefined,
   }),
@@ -296,6 +308,19 @@ definePageMeta({
           >
             {{ blogPostTitle }}
           </h1>
+
+          <div
+            v-if="blogAuthorFullName"
+            class="flex items-center gap-2 text-sm text-muted"
+          >
+            <UIcon
+              name="i-heroicons-user-circle"
+              class="size-5"
+              aria-hidden="true"
+            />
+            <span class="sr-only">{{ t('author') }}: </span>
+            <span class="font-medium">{{ blogAuthorFullName }}</span>
+          </div>
 
           <div
             class="
@@ -476,6 +501,7 @@ definePageMeta({
 
 <i18n lang="yaml">
 el:
+  author: Συντάκτης
   published: Δημοσιεύθηκε
   related:
     sections: Σχετικές ενότητες

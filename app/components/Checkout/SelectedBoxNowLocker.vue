@@ -49,7 +49,7 @@ function onSelected(selected: BoxNowSelectedLocker) {
         size="lg"
         icon="i-lucide-map-pin"
         color="primary"
-        @click="pickerOpen = true"
+        @click="() => { pickerOpen = true }"
       >
         {{ t('shipping.boxnow.select_locker') }}
       </UButton>
@@ -90,7 +90,7 @@ function onSelected(selected: BoxNowSelectedLocker) {
             variant="outline"
             icon="i-lucide-map-pin"
             size="sm"
-            @click="pickerOpen = true"
+            @click="() => { pickerOpen = true }"
           >
             {{ t('shipping.boxnow.change_locker') }}
           </UButton>

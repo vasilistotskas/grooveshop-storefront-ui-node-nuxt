@@ -15,7 +15,15 @@ if (!orderUUID || typeof orderUUID !== 'string') {
 const sessionId = computed(() => route.query.session_id as string | undefined)
 const vivaOrderCode = computed(() => route.query.s as string | undefined)
 const fromViva = computed(() => !!vivaOrderCode.value)
-const fromCheckout = computed(() => !!sessionId.value || fromViva.value)
+// Offline pay-ways (COD) navigate here with ``?placed=1`` — there is no
+// provider redirect param to key on, but the purchase pixels (Meta +
+// GA4) and the cart cleanup still need the "arrived via a real
+// checkout" signal. Unlike the online params it must NOT trigger the
+// payment-status polling below: a COD order is legitimately unpaid.
+const placedOffline = computed(() => route.query.placed === '1')
+const fromCheckout = computed(
+  () => !!sessionId.value || fromViva.value || placedOffline.value,
+)
 const sessionVerified = ref(false)
 const verifyingSession = ref(false)
 const pollAttempt = ref(0)
@@ -122,6 +130,7 @@ onBeforeUnmount(() => {
 // Capture once at setup so the watcher / onMounted callback don't
 // re-invoke ``useScript*`` from outside setup context.
 const metaPixel = useMetaPixel()
+const tiktokPixel = useTikTokPixel()
 const ga4 = useGA4()
 const purchaseEventFired = ref(false)
 function tryFirePurchaseEvent() {
@@ -172,6 +181,23 @@ function tryFirePurchaseEvent() {
       { eventID: eventId },
     )
 
+    // TikTok: CompletePayment — TikTok's web purchase event
+    // (``Purchase`` is a separate offline/shop event). Browser-only,
+    // no server-side Events API leg, so no event_id dedup; the
+    // ``purchaseEventFired`` guard + ``fromCheckout`` gate above
+    // prevent re-fires.
+    tiktokPixel.trackCompletePayment({
+      currency,
+      value,
+      orderId: transactionId,
+      contentType: 'product',
+      contents: orderItems.value.map(item => ({
+        contentId: String(item.product?.id ?? ''),
+        quantity: Number(item.quantity ?? 0),
+        price: Number(item.price ?? 0),
+      })),
+    })
+
     // GA4: purchase. ``transaction_id`` is the dedup key for GA4's
     // own server-side dedup; using the order ID here means a Stripe
     // webhook re-poll re-rendering the success page won't double-
@@ -219,13 +245,26 @@ onMounted(async () => {
   // data. Calling cleanCartState() here ensures the cart badge resets regardless
   // of the payment method used. The server-side cart session is already cleared
   // by orders/index.post.ts on order creation.
+  //
+  // Guard it to run at most ONCE per order: ``fromCheckout`` is derived
+  // from URL query params that persist in history/bookmarks, so without
+  // this a shopper who completes this order, builds a NEW cart, then
+  // reopens the success URL would have that unrelated cart's session
+  // wiped. Keyed on the order UUID and persisted in localStorage so the
+  // one-shot holds across tabs/reloads.
   if (fromCheckout.value) {
-    cleanCartState().catch(err => log.error({ action: 'success:cleanCartState', error: err }))
+    const cleanedKey = `checkout_cleaned_${orderUUID}`
+    if (!localStorage.getItem(cleanedKey)) {
+      localStorage.setItem(cleanedKey, '1')
+      cleanCartState().catch(err => log.error({ action: 'success:cleanCartState', error: err }))
+    }
   }
 
   if (!fromCheckout.value || !order.value) return
 
-  if (order.value.isPaid) {
+  if (order.value.isPaid || placedOffline.value) {
+    // Paid already, or a COD order that will stay unpaid until the
+    // courier remits — either way there is no session to poll.
     sessionVerified.value = true
     return
   }

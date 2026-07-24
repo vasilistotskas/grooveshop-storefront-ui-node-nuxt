@@ -63,7 +63,7 @@ export default defineNuxtPlugin({
             results.forEach((r, i) => {
               if (r.status === 'rejected') {
                 const name = ['setupSessions', 'setupAuthenticators', 'setupNotifications'][i]
-                log.warn('setup', `deferred ${name} failed`, { error: r.reason })
+                log.warn({ tag: 'setup', message: `deferred ${name} failed`, error: r.reason })
               }
             })
           })

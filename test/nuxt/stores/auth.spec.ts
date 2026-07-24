@@ -1,6 +1,14 @@
-import { describe, it, expect, vi, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { useAuthStore } from '~/stores/auth'
+
+// Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
+// `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
+// mocked via mockNuxtImport like any other auto-import.
+const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
+
+mockNuxtImport('$fetch', () => mockFetch)
 
 vi.mock('#app', async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>()
@@ -32,16 +40,6 @@ vi.mock('~/composables/useAllAuthAccount', () => ({
     getAuthenticators: vi.fn(),
   }),
 }))
-
-const mockFetch = vi.fn()
-
-beforeAll(() => {
-  vi.stubGlobal('$fetch', mockFetch)
-})
-
-afterAll(() => {
-  vi.unstubAllGlobals()
-})
 
 describe('Auth Store', () => {
   let store: ReturnType<typeof useAuthStore>

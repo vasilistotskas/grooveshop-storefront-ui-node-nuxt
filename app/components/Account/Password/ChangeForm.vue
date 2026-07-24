@@ -266,7 +266,7 @@ async function onSubmit() {
               size="lg"
               icon="i-heroicons-arrow-left"
               :label="t('common.cancel')"
-              @click="navigateTo(localePath('account'))"
+              @click="() => { navigateTo(localePath('account')) }"
             />
             <UButton
               type="submit"

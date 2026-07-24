@@ -3,6 +3,7 @@ import { ZodError } from 'zod'
 import { FetchError } from 'ofetch'
 import { H3Error } from 'h3'
 import { isAllAuthError, handleError } from '../../../../server/utils/error'
+import { isClientError } from '../../../../server/utils/http-status'
 
 const mockLog = {
   info: vi.fn(),
@@ -14,6 +15,9 @@ describe('Server Utils - Error', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.stubGlobal('log', mockLog)
+    // handleError routes 4xx to warn via the auto-imported isClientError —
+    // stub with the real implementation so level routing is exercised.
+    vi.stubGlobal('isClientError', isClientError)
   })
 
   describe('isAllAuthError', () => {
@@ -180,18 +184,20 @@ describe('Server Utils - Error', () => {
       }
     })
 
-    it('handleError logs upstream:fetch action for 429 FetchError', () => {
+    it('handleError logs upstream:fetch at warn for 429 FetchError (client error)', () => {
       const fetchError = new FetchError('Too Many Requests')
       fetchError.statusCode = 429
       fetchError.data = { status: 429, errors: [] }
 
       vi.stubGlobal('log', mockLog)
+      vi.stubGlobal('isClientError', isClientError)
       vi.stubGlobal('createError', vi.fn(err => err))
 
       try { handleError(fetchError) }
       catch { /* expected */ }
 
-      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
+      expect(mockLog.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
+      expect(mockLog.error).not.toHaveBeenCalled()
       vi.unstubAllGlobals()
     })
 
@@ -220,6 +226,80 @@ describe('Server Utils - Error', () => {
       finally {
         vi.unstubAllGlobals()
       }
+    })
+  })
+
+  describe('4xx/5xx log-level routing', () => {
+    it('logs upstream 4xx at warn (wrong-password login, spam-filtered form)', () => {
+      const fetchError = new FetchError('[POST] "login": 400 Bad Request')
+      fetchError.statusCode = 400
+
+      vi.stubGlobal('createError', vi.fn(err => err))
+
+      try { handleError(fetchError) }
+      catch { /* expected */ }
+
+      expect(mockLog.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
+      expect(mockLog.error).not.toHaveBeenCalled()
+      vi.unstubAllGlobals()
+    })
+
+    it('logs upstream 5xx at error', () => {
+      const fetchError = new FetchError('[GET] "products": 502 Bad Gateway')
+      fetchError.statusCode = 502
+
+      vi.stubGlobal('createError', vi.fn(err => err))
+
+      try { handleError(fetchError) }
+      catch { /* expected */ }
+
+      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
+      expect(mockLog.warn).not.toHaveBeenCalled()
+      vi.unstubAllGlobals()
+    })
+
+    it('treats an upstream error without a status as a server fault', () => {
+      const fetchError = new FetchError('socket hang up')
+
+      vi.stubGlobal('createError', vi.fn(err => err))
+
+      try { handleError(fetchError) }
+      catch { /* expected */ }
+
+      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'upstream:fetch' }))
+      expect(mockLog.warn).not.toHaveBeenCalled()
+      vi.unstubAllGlobals()
+    })
+
+    it('logs h3 4xx at warn and rethrows the same error', () => {
+      const h3Error = new H3Error('Not Found')
+      h3Error.statusCode = 404
+
+      expect(() => handleError(h3Error)).toThrow(h3Error)
+      expect(mockLog.warn).toHaveBeenCalledWith(expect.objectContaining({ action: 'h3' }))
+      expect(mockLog.error).not.toHaveBeenCalled()
+    })
+
+    it('logs h3 5xx at error', () => {
+      const h3Error = new H3Error('Service Unavailable')
+      h3Error.statusCode = 503
+
+      expect(() => handleError(h3Error)).toThrow(h3Error)
+      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'h3' }))
+      expect(mockLog.warn).not.toHaveBeenCalled()
+    })
+
+    it('keeps response-contract (Zod) failures at error', () => {
+      const zodError = new ZodError([])
+
+      vi.stubGlobal('createError', vi.fn(err => err))
+
+      try { handleError(zodError) }
+      catch { /* expected */ }
+
+      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation' }))
+      expect(mockLog.warn).not.toHaveBeenCalled()
+      vi.unstubAllGlobals()
     })
   })
 

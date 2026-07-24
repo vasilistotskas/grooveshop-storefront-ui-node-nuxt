@@ -71,6 +71,9 @@ export interface BoxNowWidgetUrlOptions {
  * Active origins:
  * - ``widget-v5.boxnow.<tld>`` — the version ``buildBoxNowIframeUrl``
  *   actually loads (gr/cy/bg/hr).
+ * - ``widget-v4.boxnow.gr`` — BoxNow's CDN currently HTTP-redirects the
+ *   v5 iframe URL here, so the frame the user interacts with (and that
+ *   posts the locker-selected message) has this origin.
  * - ``widget.boxnow.gr`` — unversioned alias kept for back-compat.
  */
 export const BOXNOW_ALLOWED_ORIGINS: readonly string[] = [
@@ -78,6 +81,7 @@ export const BOXNOW_ALLOWED_ORIGINS: readonly string[] = [
   'https://widget-v5.boxnow.cy',
   'https://widget-v5.boxnow.bg',
   'https://widget-v5.boxnow.hr',
+  'https://widget-v4.boxnow.gr',
   'https://widget.boxnow.gr',
 ] as const
 

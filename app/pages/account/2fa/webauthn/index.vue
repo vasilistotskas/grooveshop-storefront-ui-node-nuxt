@@ -1,5 +1,11 @@
 <script lang="ts" setup>
 const { t } = useI18n()
+const { setupAuthenticators } = useAuthStore()
+
+// Populate authenticators before the list renders. Without this the store is
+// only hydrated client-side after idle, so WebAuthnList's setup snapshot is
+// empty and its watchEffect redirects every direct visit / hard refresh away.
+await setupAuthenticators()
 
 defineRouteRules({
   robots: false,

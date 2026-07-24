@@ -57,17 +57,18 @@ const formattedCount = computed(() => {
   return new Intl.NumberFormat(locale.value).format(props.totalResults)
 })
 
-// Sort options for the dropdown — values must match Django's
-// ``ProductViewSet.ordering_fields`` (price, created_at, view_count,
-// availability_priority, stock, active). DRF's OrderingFilter silently
-// drops unknown fields and returns the default order, so the previous
-// ``final_price`` / ``likes_count`` values produced no sorting at all.
+// Sort options for the dropdown — values must match the Meilisearch search
+// endpoint's allowlist (``_ALLOWED_PRODUCT_SORT_FIELDS`` in the Django
+// ``search`` app): finalPrice, likesCount, viewCount, createdAt (each with an
+// optional ``-`` prefix for descending). Unknown fields are silently dropped
+// and the default order is returned, so these must stay camelCase to match the
+// backend and ``ActiveFilters.getSortLabel``.
 const sortOptions = [
   { label: t('sort.recommended'), value: 'recommended' },
-  { label: t('sort.newest'), value: '-created_at' },
-  { label: t('sort.priceAsc'), value: 'price' },
-  { label: t('sort.priceDesc'), value: '-price' },
-  { label: t('sort.mostViewed'), value: '-view_count' },
+  { label: t('sort.newest'), value: '-createdAt' },
+  { label: t('sort.priceAsc'), value: 'finalPrice' },
+  { label: t('sort.priceDesc'), value: '-finalPrice' },
+  { label: t('sort.mostViewed'), value: '-viewCount' },
 ]
 
 // Items per page options - using component i18n translations

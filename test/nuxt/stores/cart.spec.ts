@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll, beforeEach, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useCartStore } from '~/stores/cart'
 
@@ -7,20 +7,52 @@ import { useCartStore } from '~/stores/cart'
 // useRequestHeaders is mocked via mockNuxtImport below.
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
+// Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
+// `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
+// mocked via mockNuxtImport like any other auto-import.
+//
+// The default `Promise.resolve({})` implementation matters: the mock is
+// active during Nuxt bootstrap (session/config/cart fetches). A bare
+// vi.fn() returns undefined there, which crashes nuxt-auth-utils'
+// session plugin and blocks @nuxtjs/i18n — leaving nuxtApp.$i18n
+// undefined, which the cart store needs.
+const { mockFetch } = vi.hoisted(() => ({
+  mockFetch: vi.fn(() => Promise.resolve({})),
+}))
+
+mockNuxtImport('$fetch', () => mockFetch)
+
 mockNuxtImport('useRequestHeaders', () => () => ({}))
 
-// Stub $fetch in beforeAll (not at module level) so the Nuxt app initialises
-// with the real $fetch — this allows @nuxtjs/i18n to load locale messages and
-// provide $i18n on nuxtApp before tests replace $fetch with the mock.
-const mockFetch = vi.fn()
+// Analytics fan-out spies — the store captures these composables at
+// setup time, so the mocks must be registered before useCartStore().
+const {
+  metaTrackAddToCart,
+  tiktokTrackAddToCart,
+  ga4TrackAddToCart,
+  ga4TrackRemoveFromCart,
+} = vi.hoisted(() => ({
+  metaTrackAddToCart: vi.fn(),
+  tiktokTrackAddToCart: vi.fn(),
+  ga4TrackAddToCart: vi.fn(),
+  ga4TrackRemoveFromCart: vi.fn(),
+}))
 
-beforeAll(() => {
-  vi.stubGlobal('$fetch', mockFetch)
-})
+mockNuxtImport('useMetaPixel', () => () => ({
+  isProvisioned: true,
+  trackAddToCart: metaTrackAddToCart,
+}))
 
-afterAll(() => {
-  vi.unstubAllGlobals()
-})
+mockNuxtImport('useTikTokPixel', () => () => ({
+  isProvisioned: true,
+  trackAddToCart: tiktokTrackAddToCart,
+}))
+
+mockNuxtImport('useGA4', () => () => ({
+  isProvisioned: true,
+  trackAddToCart: ga4TrackAddToCart,
+  trackRemoveFromCart: ga4TrackRemoveFromCart,
+}))
 
 describe('Cart Store', () => {
   let store: ReturnType<typeof useCartStore>
@@ -371,6 +403,152 @@ describe('Cart Store', () => {
 
         // Should not throw, just log error
         expect(store.cart).toBeNull()
+      })
+    })
+
+    describe('analytics tracking', () => {
+      it('should fire add_to_cart on all vendors when creating a cart item', async () => {
+        mockFetch.mockResolvedValueOnce({})
+        mockFetch.mockResolvedValueOnce(mockCartData)
+
+        await store.createCartItem({ product: 1, quantity: 2 })
+
+        expect(metaTrackAddToCart).toHaveBeenCalledWith({
+          currency: 'EUR',
+          value: 100,
+          contentIds: ['1'],
+          contents: [{ id: '1', quantity: 2, itemPrice: 50 }],
+          contentType: 'product',
+        })
+        expect(tiktokTrackAddToCart).toHaveBeenCalledWith({
+          currency: 'EUR',
+          value: 100,
+          contentType: 'product',
+          contents: [{ contentId: '1', quantity: 2, price: 50 }],
+        })
+        expect(ga4TrackAddToCart).toHaveBeenCalledWith({
+          currency: 'EUR',
+          value: 100,
+          items: [{ item_id: '1', quantity: 2, price: 50 }],
+        })
+      })
+
+      it('should not fire add_to_cart when the created product is missing from the refreshed cart', async () => {
+        mockFetch.mockResolvedValueOnce({})
+        mockFetch.mockResolvedValueOnce(mockCartData)
+
+        await store.createCartItem({ product: 999, quantity: 1 })
+
+        expect(metaTrackAddToCart).not.toHaveBeenCalled()
+        expect(tiktokTrackAddToCart).not.toHaveBeenCalled()
+        expect(ga4TrackAddToCart).not.toHaveBeenCalled()
+      })
+
+      it('should fire add_to_cart with the quantity delta when an update increases quantity', async () => {
+        store.cart = mockCartData
+        const updatedCart = {
+          ...mockCartData,
+          items: mockCartData.items.map(item =>
+            item.id === 1 ? { ...item, quantity: 5 } : item,
+          ),
+        } as unknown as CartDetail
+        mockFetch.mockResolvedValueOnce({})
+        mockFetch.mockResolvedValueOnce(updatedCart)
+
+        await store.updateCartItem(1, { quantity: 5 })
+
+        // Previous quantity 2 → new quantity 5 → delta +3
+        expect(metaTrackAddToCart).toHaveBeenCalledWith({
+          currency: 'EUR',
+          value: 150,
+          contentIds: ['1'],
+          contents: [{ id: '1', quantity: 3, itemPrice: 50 }],
+          contentType: 'product',
+        })
+        expect(tiktokTrackAddToCart).toHaveBeenCalledTimes(1)
+        expect(ga4TrackAddToCart).toHaveBeenCalledWith({
+          currency: 'EUR',
+          value: 150,
+          items: [{ item_id: '1', quantity: 3, price: 50 }],
+        })
+        expect(ga4TrackRemoveFromCart).not.toHaveBeenCalled()
+      })
+
+      it('should fire remove_from_cart on GA4 only when an update decreases quantity', async () => {
+        store.cart = mockCartData
+        const updatedCart = {
+          ...mockCartData,
+          items: mockCartData.items.map(item =>
+            item.id === 1 ? { ...item, quantity: 1 } : item,
+          ),
+        } as unknown as CartDetail
+        mockFetch.mockResolvedValueOnce({})
+        mockFetch.mockResolvedValueOnce(updatedCart)
+
+        await store.updateCartItem(1, { quantity: 1 })
+
+        // Previous quantity 2 → new quantity 1 → delta -1
+        expect(ga4TrackRemoveFromCart).toHaveBeenCalledWith({
+          currency: 'EUR',
+          value: 50,
+          items: [{ item_id: '1', quantity: 1, price: 50 }],
+        })
+        expect(metaTrackAddToCart).not.toHaveBeenCalled()
+        expect(tiktokTrackAddToCart).not.toHaveBeenCalled()
+        expect(ga4TrackAddToCart).not.toHaveBeenCalled()
+      })
+
+      it('should fire nothing when an update keeps the quantity unchanged', async () => {
+        store.cart = mockCartData
+        mockFetch.mockResolvedValueOnce({})
+        mockFetch.mockResolvedValueOnce(mockCartData)
+
+        await store.updateCartItem(1, { quantity: 2 })
+
+        expect(metaTrackAddToCart).not.toHaveBeenCalled()
+        expect(tiktokTrackAddToCart).not.toHaveBeenCalled()
+        expect(ga4TrackAddToCart).not.toHaveBeenCalled()
+        expect(ga4TrackRemoveFromCart).not.toHaveBeenCalled()
+      })
+
+      it('should expose trackCartQuantityChange for server-side cart mutations (reorder)', () => {
+        store.cart = mockCartData
+
+        store.trackCartQuantityChange(1, 3, 50)
+
+        expect(metaTrackAddToCart).toHaveBeenCalledWith({
+          currency: 'EUR',
+          value: 150,
+          contentIds: ['1'],
+          contents: [{ id: '1', quantity: 3, itemPrice: 50 }],
+          contentType: 'product',
+        })
+        expect(tiktokTrackAddToCart).toHaveBeenCalledTimes(1)
+        expect(ga4TrackAddToCart).toHaveBeenCalledWith({
+          currency: 'EUR',
+          value: 150,
+          items: [{ item_id: '1', quantity: 3, price: 50 }],
+        })
+      })
+
+      it('should fire remove_from_cart with the full quantity when deleting a cart item', async () => {
+        store.cart = mockCartData
+        const cartAfterDelete = {
+          ...mockCartData,
+          items: mockCartData.items.filter(item => item.id !== 1),
+        } as unknown as CartDetail
+        mockFetch.mockResolvedValueOnce({})
+        mockFetch.mockResolvedValueOnce(cartAfterDelete)
+
+        await store.deleteCartItem(1)
+
+        expect(ga4TrackRemoveFromCart).toHaveBeenCalledWith({
+          currency: 'EUR',
+          value: 100,
+          items: [{ item_id: '1', quantity: 2, price: 50 }],
+        })
+        expect(metaTrackAddToCart).not.toHaveBeenCalled()
+        expect(tiktokTrackAddToCart).not.toHaveBeenCalled()
       })
     })
 

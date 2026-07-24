@@ -5,6 +5,9 @@ import {
   isAllAuthResponseError,
   getPendingFlows,
   getPendingFlow,
+  extractAllAuthError,
+  pendingFlowRouteNameFromError,
+  tryAdvanceToPendingFlow,
 } from '../../../app/utils/auth'
 
 const mockLog = {
@@ -17,6 +20,21 @@ describe('Utils - Auth', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.stubGlobal('log', mockLog)
+    // pathForFlow() relies on these auto-imported constants, which are not
+    // present in the bare unit env — stub them with their real values so
+    // the flow-routing helpers can be exercised (mirrors app/shared).
+    vi.stubGlobal('Flows', {
+      PROVIDER_REDIRECT: 'provider_redirect',
+      LOGIN_BY_CODE: 'login_by_code',
+      MFA_AUTHENTICATE: 'mfa_authenticate',
+    })
+    vi.stubGlobal('AUTHENTICATOR_TYPE_PRIORITY', ['webauthn', 'totp', 'recovery_codes'])
+    vi.stubGlobal('Flow2path', {
+      login_by_code: 'account-login-code-confirm',
+      'mfa_authenticate:webauthn': 'account-2fa-authenticate-webauthn',
+      'mfa_authenticate:totp': 'account-2fa-authenticate-totp',
+      'mfa_authenticate:recovery_codes': 'account-2fa-authenticate-recovery-codes',
+    })
   })
 
   describe('authInfo', () => {
@@ -243,6 +261,150 @@ describe('Utils - Auth', () => {
       const result = getPendingFlow(response)
 
       expect(result).toBeNull()
+    })
+  })
+
+  // The thrown $fetch error's real shape: error.data is Nitro's error wrapper
+  // (`statusCode`, not `status`), and the allauth payload sits at
+  // error.data.data. Build it that way so the tests match production.
+  const wrapAllAuthError = (payload: unknown) => ({
+    data: { statusCode: 401, statusMessage: 'Unauthorized', data: payload },
+  })
+
+  describe('extractAllAuthError', () => {
+    it('unwraps the allauth payload from the Nitro error wrapper (error.data.data)', () => {
+      const payload = {
+        status: 401,
+        data: { flows: [{ id: 'login_by_code', is_pending: true }] },
+        meta: { is_authenticated: false },
+      }
+
+      expect(extractAllAuthError(wrapAllAuthError(payload))).toEqual(payload)
+    })
+
+    it('also accepts a payload exposed directly at error.data', () => {
+      const payload = {
+        status: 401,
+        data: { flows: [] },
+        meta: { is_authenticated: false },
+      }
+
+      expect(extractAllAuthError({ data: payload })).toEqual(payload)
+    })
+
+    it('returns null for a non-allauth error shape', () => {
+      expect(extractAllAuthError({ data: { message: 'boom' } })).toBeNull()
+      expect(extractAllAuthError(new Error('nope'))).toBeNull()
+      expect(extractAllAuthError(null)).toBeNull()
+    })
+  })
+
+  describe('pendingFlowRouteNameFromError', () => {
+    it('routes a login_by_code pending flow to the confirm page', () => {
+      const error = wrapAllAuthError({
+        status: 401,
+        data: { flows: [{ id: 'login_by_code', is_pending: true }] },
+        meta: { is_authenticated: false },
+      })
+
+      expect(pendingFlowRouteNameFromError(error)).toBe('account-login-code-confirm')
+    })
+
+    it('routes a pending mfa_authenticate flow to the preferred second factor', () => {
+      const error = wrapAllAuthError({
+        status: 401,
+        data: {
+          flows: [{
+            id: 'mfa_authenticate',
+            is_pending: true,
+            types: ['recovery_codes', 'webauthn'],
+          }],
+        },
+        meta: { is_authenticated: false },
+      })
+
+      // webauthn outranks recovery_codes in AUTHENTICATOR_TYPE_PRIORITY.
+      expect(pendingFlowRouteNameFromError(error)).toBe('account-2fa-authenticate-webauthn')
+    })
+
+    it('returns null when the 401 carries no pending flow (a genuine error)', () => {
+      const error = wrapAllAuthError({
+        status: 401,
+        data: { flows: [{ id: 'login', is_pending: false }] },
+        meta: { is_authenticated: false },
+      })
+
+      expect(pendingFlowRouteNameFromError(error)).toBeNull()
+    })
+
+    it('returns null for a non-allauth error', () => {
+      expect(pendingFlowRouteNameFromError(new Error('network'))).toBeNull()
+    })
+  })
+
+  describe('tryAdvanceToPendingFlow', () => {
+    let navigateToMock: ReturnType<typeof vi.fn>
+
+    const stubRoute = (path: string) => {
+      vi.stubGlobal('useRouter', () => ({
+        currentRoute: { value: { path, query: {} } },
+      }))
+    }
+
+    beforeEach(() => {
+      navigateToMock = vi.fn()
+      vi.stubGlobal('navigateTo', navigateToMock)
+      // Identity-ish localePath: route name -> "/<name>".
+      vi.stubGlobal('useLocalePath', () => (name: string) => `/${name}`)
+    })
+
+    it('advances to a pending flow on a different route', async () => {
+      stubRoute('/account-login-code')
+      const error = wrapAllAuthError({
+        status: 401,
+        data: { flows: [{ id: 'login_by_code', is_pending: true }] },
+        meta: { is_authenticated: false },
+      })
+
+      expect(await tryAdvanceToPendingFlow(error)).toBe(true)
+      expect(navigateToMock).toHaveBeenCalledWith({
+        path: '/account-login-code-confirm',
+        query: undefined,
+      })
+    })
+
+    it('does NOT advance when the pending flow maps back to the submitting form (wrong-code retry)', async () => {
+      stubRoute('/account-2fa-authenticate-webauthn')
+      const error = wrapAllAuthError({
+        status: 401,
+        data: { flows: [{ id: 'mfa_authenticate', is_pending: true, types: ['webauthn'] }] },
+        meta: { is_authenticated: false },
+      })
+
+      expect(await tryAdvanceToPendingFlow(error, { fromPath: '/account-2fa-authenticate-webauthn' })).toBe(false)
+      expect(navigateToMock).not.toHaveBeenCalled()
+    })
+
+    it('treats it as an advance (without re-navigating) when the auth:change hook already landed on the flow page', async () => {
+      // ofetch awaits onResponseError before rejecting, so by the time a
+      // form's catch runs, the global hook has often already navigated to
+      // the pending flow. With fromPath = the form's own page, that must
+      // read as success — not as a same-route retry.
+      stubRoute('/account-2fa-authenticate-webauthn')
+      const error = wrapAllAuthError({
+        status: 401,
+        data: { flows: [{ id: 'mfa_authenticate', is_pending: true, types: ['webauthn'] }] },
+        meta: { is_authenticated: false },
+      })
+
+      expect(await tryAdvanceToPendingFlow(error, { fromPath: '/account-login' })).toBe(true)
+      expect(navigateToMock).not.toHaveBeenCalled()
+    })
+
+    it('does not advance for a non-flow error', async () => {
+      stubRoute('/whatever')
+      expect(await tryAdvanceToPendingFlow(new Error('boom'))).toBe(false)
+      expect(navigateToMock).not.toHaveBeenCalled()
     })
   })
 })

@@ -15,6 +15,13 @@ import { nextTick, ref } from 'vue'
 import { useInstantSearch, type InstantSearchOptions } from '~/composables/useInstantSearch'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
+// Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so assigning
+// `global.$fetch` no longer intercepts it — it must be mocked via
+// mockNuxtImport like any other auto-import.
+const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
+
+mockNuxtImport('$fetch', () => mockFetch)
+
 // Mock router and route at module level
 const mockRouteQuery = ref<Record<string, any>>({})
 
@@ -53,11 +60,12 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
     mockRouter.replace.mockClear()
     vi.clearAllTimers()
 
-    // Mock global $fetch with default empty response to prevent undefined errors
-    global.$fetch = vi.fn().mockResolvedValue({
+    // Default empty response to prevent undefined errors
+    mockFetch.mockReset()
+    mockFetch.mockResolvedValue({
       results: [],
       estimatedTotalHits: 0,
-    }) as any
+    })
   })
 
   afterEach(() => {
@@ -90,8 +98,8 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       mockRouteQuery.value = { q: 'laptop' };
 
       // Mock successful search response - need to clear first since beforeEach sets a default
-      (global.$fetch as any).mockClear();
-      (global.$fetch as any).mockResolvedValueOnce({
+      mockFetch.mockClear();
+      mockFetch.mockResolvedValueOnce({
         results: [{ id: 1, name: 'Laptop 1' }],
         estimatedTotalHits: 1,
       })
@@ -104,11 +112,11 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
 
       // Wait for watcher to execute
       await nextTick()
-      await vi.waitFor(() => expect(global.$fetch).toHaveBeenCalled(), { timeout: 1000 })
+      await vi.waitFor(() => expect(mockFetch).toHaveBeenCalled(), { timeout: 1000 })
 
       // Verify search was executed with URL query
       expect(searchQuery.value).toBe('laptop')
-      expect(global.$fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         '/api/products/search',
         expect.objectContaining({
           method: 'GET',
@@ -133,13 +141,13 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       // No search should be executed
       expect(searchQuery.value).toBe('')
       expect(results.value).toEqual([])
-      expect(global.$fetch).not.toHaveBeenCalled()
+      expect(mockFetch).not.toHaveBeenCalled()
     })
 
     it('should handle URL changes reactively', async () => {
       mockRouteQuery.value = {};
 
-      (global.$fetch as any).mockResolvedValue({
+      mockFetch.mockResolvedValue({
         results: [{ id: 1, name: 'Product 1' }],
         estimatedTotalHits: 1,
       })
@@ -159,7 +167,7 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       await vi.waitFor(() => expect(searchQuery.value).toBe('phone'))
 
       // Verify search was executed with new query
-      expect(global.$fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         '/api/products/search',
         expect.objectContaining({
           query: expect.objectContaining({
@@ -174,7 +182,7 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
     it('should execute search with correct parameters', async () => {
       mockRouteQuery.value = {};
 
-      (global.$fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         results: [{ id: 1, name: 'Laptop 1' }],
         estimatedTotalHits: 1,
       })
@@ -188,9 +196,9 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       await search('laptop')
 
       // Wait for debounce
-      await vi.waitFor(() => expect(global.$fetch).toHaveBeenCalled())
+      await vi.waitFor(() => expect(mockFetch).toHaveBeenCalled())
 
-      expect(global.$fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         '/api/products/search',
         expect.objectContaining({
           method: 'GET',
@@ -241,7 +249,7 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
 
       const abortError = new Error('AbortError')
       abortError.name = 'AbortError';
-            (global.$fetch as any).mockRejectedValueOnce(abortError)
+            mockFetch.mockRejectedValueOnce(abortError)
 
       const { search, results, isSearching } = createTrackedComposable({
         endpoint: 'products',
@@ -263,7 +271,7 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       mockRouteQuery.value = {};
 
       const searchError = new Error('Network error');
-      (global.$fetch as any).mockRejectedValueOnce(searchError)
+      mockFetch.mockRejectedValueOnce(searchError)
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -277,9 +285,14 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       await nextTick()
       await vi.waitFor(() => expect(consoleErrorSpy).toHaveBeenCalled())
 
-      // Error should be logged (evlog client transport outputs JSON string via console.error)
+      // Error should be logged (evlog ≥2.22 client transport outputs
+      // `%c[client]%c error`, two CSS style strings, then the structured
+      // event object via console.error)
       expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('"action":"search:execute"'),
+        expect.stringContaining('%c[client]%c error'),
+        expect.any(String),
+        expect.any(String),
+        expect.objectContaining({ action: 'search:execute' }),
       )
 
       // Results should be cleared
@@ -295,8 +308,8 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       abortError.name = 'AbortError';
 
       // Clear previous calls and set up fresh mock
-      (global.$fetch as any).mockClear();
-      (global.$fetch as any).mockRejectedValueOnce(abortError)
+      mockFetch.mockClear();
+      mockFetch.mockRejectedValueOnce(abortError)
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
@@ -321,8 +334,8 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       mockRouteQuery.value = { q: 'laptop' };
 
       // Clear previous calls and set up fresh mock
-      (global.$fetch as any).mockClear();
-      (global.$fetch as any).mockResolvedValueOnce({
+      mockFetch.mockClear();
+      mockFetch.mockResolvedValueOnce({
         results: [{ id: 1, name: 'Laptop 1' }],
         estimatedTotalHits: 1,
       })
@@ -363,7 +376,7 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
     it('should use correct endpoint for products', async () => {
       mockRouteQuery.value = {};
 
-      (global.$fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         results: [],
         estimatedTotalHits: 0,
       })
@@ -374,9 +387,9 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       })
 
       await search('test')
-      await vi.waitFor(() => expect(global.$fetch).toHaveBeenCalled())
+      await vi.waitFor(() => expect(mockFetch).toHaveBeenCalled())
 
-      expect(global.$fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         '/api/products/search',
         expect.any(Object)
       )
@@ -385,7 +398,7 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
     it('should use correct endpoint for blog posts', async () => {
       mockRouteQuery.value = {};
 
-      (global.$fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         results: [],
         estimatedTotalHits: 0,
       })
@@ -396,9 +409,9 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       })
 
       await search('test')
-      await vi.waitFor(() => expect(global.$fetch).toHaveBeenCalled())
+      await vi.waitFor(() => expect(mockFetch).toHaveBeenCalled())
 
-      expect(global.$fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         '/api/blog/search',
         expect.any(Object)
       )
@@ -407,7 +420,7 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
     it('should use correct endpoint for federated search', async () => {
       mockRouteQuery.value = {};
 
-      (global.$fetch as any).mockResolvedValueOnce({
+      mockFetch.mockResolvedValueOnce({
         results: [],
         estimatedTotalHits: 0,
       })
@@ -418,9 +431,9 @@ describe('Feature: data-fetching-migration - useInstantSearch composable', () =>
       })
 
       await search('test')
-      await vi.waitFor(() => expect(global.$fetch).toHaveBeenCalled())
+      await vi.waitFor(() => expect(mockFetch).toHaveBeenCalled())
 
-      expect(global.$fetch).toHaveBeenCalledWith(
+      expect(mockFetch).toHaveBeenCalledWith(
         '/api/search/federated',
         expect.any(Object)
       )

@@ -96,5 +96,5 @@ export default defineNitroPlugin(() => {
     },
   }) as typeof globalThis.$fetch
 
-  log.info('forwarded-headers', 'Backend header interceptor active', { origins: internalOrigins, publicHost })
+  log.info({ tag: 'forwarded-headers', message: 'Backend header interceptor active', origins: internalOrigins, publicHost })
 })

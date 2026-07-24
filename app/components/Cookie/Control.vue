@@ -208,7 +208,7 @@ defineExpose({
             color="secondary"
             variant="solid"
             size="lg"
-            @click="isModalActive = true"
+            @click="() => { isModalActive = true }"
           />
           <UButton
             type="button"

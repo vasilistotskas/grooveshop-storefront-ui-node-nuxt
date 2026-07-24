@@ -1,21 +1,18 @@
-import { describe, it, expect, beforeAll, beforeEach, afterAll, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
-// Stub $fetch in beforeAll (not at module level) so the Nuxt app initialises
-// with the real $fetch — this allows @nuxtjs/i18n to load locale messages and
-// provide $i18n on nuxtApp before tests replace $fetch with the mock.
-const mockFetch = vi.fn()
-
-beforeAll(() => {
-  vi.stubGlobal('$fetch', mockFetch)
-})
-
-afterAll(() => {
-  vi.unstubAllGlobals()
-})
-
 // Use vi.hoisted to ensure mocks are available before mockNuxtImport is called
-const { mockUseAsyncDataFn, mockRefreshNuxtDataFn, mockUseToastFn } = vi.hoisted(() => ({
+const { mockFetch, mockUseAsyncDataFn, mockRefreshNuxtDataFn, mockUseToastFn } = vi.hoisted(() => ({
+  // Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
+  // `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
+  // mocked via mockNuxtImport like any other auto-import.
+  //
+  // The default `Promise.resolve({})` implementation matters: the mock is
+  // active during Nuxt bootstrap (session/config/cart fetches). A bare
+  // vi.fn() returns undefined there, which crashes nuxt-auth-utils'
+  // session plugin and blocks @nuxtjs/i18n — leaving nuxtApp.$i18n
+  // undefined, which this composable needs.
+  mockFetch: vi.fn(() => Promise.resolve<any>({})),
   mockUseAsyncDataFn: vi.fn(),
   mockRefreshNuxtDataFn: vi.fn(),
   mockUseToastFn: vi.fn(),
@@ -24,6 +21,7 @@ const { mockUseAsyncDataFn, mockRefreshNuxtDataFn, mockUseToastFn } = vi.hoisted
 // Mock Nuxt composables using mockNuxtImport
 // Note: Do NOT mock useNuxtApp — it breaks the Nuxt test environment.
 // $i18n is provided by the test-fixtures/plugins/mock-i18n.ts plugin.
+mockNuxtImport('$fetch', () => mockFetch)
 mockNuxtImport('useAsyncData', () => mockUseAsyncDataFn)
 mockNuxtImport('useRequestHeaders', () => () => ({}))
 mockNuxtImport('refreshNuxtData', () => mockRefreshNuxtDataFn)

@@ -1,9 +1,9 @@
-import type { RouteNamedMapI18n } from 'vue-router/auto-routes'
+import type { RouteMapI18n } from 'vue-router'
 
 export const isRouteProtected = (route: string) => {
-  return AuthenticatedRoutesSet.has(route as keyof RouteNamedMapI18n)
+  return AuthenticatedRoutesSet.has(route as keyof RouteMapI18n)
 }
 
 export const isAuthFlowRoute = (route: string) => {
-  return AuthFlowRoutesSet.has(route as keyof RouteNamedMapI18n)
+  return AuthFlowRoutesSet.has(route as keyof RouteMapI18n)
 }

@@ -144,11 +144,6 @@ export default defineNuxtConfig({
       // DB 0 = Django, DB 2 = media-stream, DB 3 = Nuxt (default)
       db: parseInt(process.env.NUXT_REDIS_DB ?? '3', 10),
     },
-    scripts: {
-      registry: {
-        stripe: true,
-      },
-    },
     public: {
       appKeywords: process.env.NUXT_PUBLIC_APP_KEYWORDS,
       appLogo: process.env.NUXT_PUBLIC_APP_LOGO,
@@ -196,6 +191,11 @@ export default defineNuxtConfig({
       // build-time value is baked in (usually undefined in CI) and
       // the runtime configmap value is silently ignored.
       metaPixelId: process.env.NUXT_PUBLIC_META_PIXEL_ID,
+      // TikTok Pixel — same placement + env-naming rationale as
+      // ``metaPixelId`` above; overridden at runtime by
+      // ``NUXT_PUBLIC_TIKTOK_PIXEL_ID``. The ``useTikTokPixel``
+      // composable reads from this path.
+      tiktokPixelId: process.env.NUXT_PUBLIC_TIKTOK_PIXEL_ID,
       titleSeparator: process.env.NUXT_PUBLIC_TITLE_SEPARATOR,
       trailingSlash: String(process.env.NUXT_PUBLIC_TRAILING_SLASH) === 'true',
       static: {
@@ -218,6 +218,17 @@ export default defineNuxtConfig({
       },
     },
     '/assets/**': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    },
+    // @nuxt/scripts bundled third-party assets (gtag, fbevents). The
+    // filenames are content-hashed but the module's handler serves
+    // them with NO Cache-Control (the '/**/*.{css,js}' rule below
+    // doesn't reach it), so every visit re-downloaded ~210KiB of
+    // analytics bundles — Lighthouse cache-insight flagged 273KiB.
+    // Immutable is safe: the hash changes whenever content does.
+    '/_scripts/**': {
       headers: {
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
@@ -368,6 +379,18 @@ export default defineNuxtConfig({
     },
     build: {
       rollupOptions: {
+        // Silence rolldown's ``[EVAL]`` check for lottie-web only. Its
+        // expressions engine genuinely needs direct ``eval`` and our
+        // animations use expressions (``heart.json`` carries ``$bm_rt``
+        // markers), so the eval path cannot be dropped by switching to
+        // ``lottie_light``. EVAL warnings from any other module still
+        // surface.
+        onwarn(warning, defaultHandler) {
+          if (warning.code === 'EVAL' && warning.id?.includes('lottie-web')) {
+            return
+          }
+          defaultHandler(warning)
+        },
         output: {
           // Group Leaflet + the marker cluster plugin into a single
           // chunk so the checkout entry stays small. CRITICAL: they
@@ -397,10 +420,25 @@ export default defineNuxtConfig({
           // The chunk only loads when ``CheckoutSmartpointMap`` is
           // mounted (Lazy* + ClientOnly), so customers who never
           // open the locker picker still pay zero bytes for it.
+          //
+          // ``.css`` is excluded from the matcher on purpose. The
+          // leaflet stylesheets (``leaflet/dist/leaflet.css`` +
+          // markercluster CSS) live under the same ``node_modules/
+          // leaflet*`` paths, so without the guard they were folded
+          // into this named ``leaflet`` chunk — which made Nuxt emit a
+          // render-blocking ``<link rel="stylesheet">`` for it in the
+          // entry HTML of EVERY page (homepage hero included, ~973ms
+          // wasted on mobile), even though the map only mounts at
+          // checkout. Excluding CSS lets it stay code-split with the
+          // async ``SmartpointMap.client`` chunk so it loads only when
+          // the locker picker mounts.
           manualChunks(id) {
             if (
-              id.includes('node_modules/leaflet/')
-              || id.includes('node_modules/leaflet.markercluster/')
+              !id.endsWith('.css')
+              && (
+                id.includes('node_modules/leaflet/')
+                || id.includes('node_modules/leaflet.markercluster/')
+              )
             ) {
               return 'leaflet'
             }
@@ -523,7 +561,7 @@ export default defineNuxtConfig({
   evlog: {
     env: { service: 'grooveshop-storefront' },
     include: ['/api/**'],
-    exclude: ['/api/_nuxt_icon/**', '/api/health', '/api/__sitemap__/**'],
+    exclude: ['/api/_nuxt_icon/**', '/api/_alive', '/api/health', '/api/__sitemap__/**'],
     transport: { enabled: true },
   },
   i18n: {
@@ -632,6 +670,13 @@ export default defineNuxtConfig({
           trimThreshold: 5,
         },
       },
+      // Pass-through provider: returns the URL untouched (no IPX/sharp
+      // rasterization). Used via ``provider="none"`` for vector SVG logos
+      // so they stay crisp instead of being rasterized to a tiny bitmap.
+      none: {
+        name: 'none',
+        provider: 'none',
+      },
     },
     screens: {
       xs: 320,
@@ -712,12 +757,44 @@ export default defineNuxtConfig({
     assets: {
       integrity: 'sha384',
     },
+    // Registry entries are infrastructure-only (types, env-var runtime
+    // config, bundling). ``trigger: false`` is the documented v1 form
+    // for composable-driven scripts: a bare ``{}`` makes the registry
+    // plugin initialize the script instance at boot and every later
+    // ``useScript*`` call reuses that instance IGNORING its own
+    // options — which silently dropped the consumers' id/trigger/
+    // defaultConsent and killed GA page tracking (2026-07-12).
+    // ``proxy: false`` on EVERY entry keeps the module's first-party
+    // proxy infrastructure fully disabled (``anyNeedsProxy`` in the
+    // module is computed ONLY from these registry entries). With the
+    // proxy on, the bundler AST-rewrites vendor URLs inside bundled
+    // scripts to ``/_scripts/p/<domain>`` — but the runtime allowlist
+    // only covers registry-registered domains, so non-registry bundled
+    // scripts (Meta/TikTok pixels) chain-loaded resources that 403'd
+    // ("Domain not allowed") and were refused by strict MIME checking
+    // (prod 2026-07-12). Composable-level opt-outs CANNOT fix this:
+    // ``isProxyDisabled`` reads exclusively from these config entries.
+    registry: {
+      googleAnalytics: { trigger: false, proxy: false },
+      stripe: { trigger: false, proxy: false },
+    },
   },
   seo: {
     redirectToCanonicalSiteUrl: true,
   },
   sitemap: {
-    sitemaps: true,
+    // Single-sitemap mode (a plain <urlset> at /sitemap.xml). ``true``
+    // produced a /sitemap_index.xml + per-locale /__sitemap__/el-GR.xml
+    // split — pointless at ~110 URLs / one locale (chunking matters
+    // near the 1k-per-sitemap default), and it broke nuxt-ai-ready's
+    // sitemap discovery: @nuxtjs/sitemap v8 moved the ``sitemaps`` map
+    // out of runtimeConfig into a virtual module, so nuxt-ai-ready
+    // falls back to probing /sitemap.xml, which in index mode is a 307
+    // redirect it can't parse → /llms.txt shipped with NO pages list.
+    // Must stay explicitly ``false``: the i18n auto-mapping only backs
+    // off when ``sitemaps !== false`` fails, an absent key re-enables
+    // the per-locale split. robots.txt Sitemap: line updates itself.
+    sitemaps: false,
     exclude: [
       '/account',
       '/account/2fa',

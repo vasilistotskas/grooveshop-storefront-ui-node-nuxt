@@ -9,10 +9,17 @@
  * calls one Nuxt server proxy.
  */
 
-import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest'
-import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
+import { describe, it, expect, vi } from 'vitest'
+import { mountSuspended, registerEndpoint, mockNuxtImport } from '@nuxt/test-utils/runtime'
 import { reactive, nextTick } from 'vue'
 import AcsAddressSuggestion from '~/components/Checkout/AcsAddressSuggestion.vue'
+
+// Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
+// `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
+// mocked via mockNuxtImport like any other auto-import.
+const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
+
+mockNuxtImport('$fetch', () => mockFetch)
 
 // ACS proxy stub — every test that exercises the watcher swaps in
 // the desired response via the `addressValidationResponse` ref so
@@ -23,6 +30,17 @@ const addressValidationResponse = {
 registerEndpoint('/api/shipping/acs/address-validation', {
   method: 'POST',
   handler: () => addressValidationResponse.current,
+})
+
+// The mock is also active during Nuxt bootstrap (session/config/cart
+// fetches), where returning undefined/null crashes nuxt-auth-utils'
+// session plugin and blocks @nuxtjs/i18n. Answer the ACS validate
+// call with the test-controlled response and everything else with {}.
+mockFetch.mockImplementation(async (url: unknown) => {
+  if (String(url).includes('/api/shipping/acs/address-validation')) {
+    return addressValidationResponse.current
+  }
+  return {}
 })
 
 // Mock useAcsAddressValidation so we control its behaviour directly
@@ -45,18 +63,6 @@ vi.mock('~/composables/useAcsAddressValidation', () => ({
     cancel: cancelMock,
   }),
 }))
-
-beforeAll(() => {
-  // Required because the component composable usually pulls $i18n via
-  // useNuxtApp inside its imports — the @nuxt/test-utils runtime
-  // injects $i18n already, but the dependency chain mocks need the
-  // global stub for $fetch to be a no-op when the validate call ends
-  // up reaching it.  Stubbed at suite level (not module level) so it
-  // doesn't break Nuxt env init.
-  vi.stubGlobal('$fetch', vi.fn(async () => addressValidationResponse.current))
-})
-
-afterAll(() => vi.unstubAllGlobals())
 
 describe('CheckoutAcsAddressSuggestion', () => {
   it('does not render when enabled=false', async () => {

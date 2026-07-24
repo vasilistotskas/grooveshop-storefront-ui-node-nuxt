@@ -14,9 +14,11 @@ export default defineCachedEventHandler(async (event) => {
   }
 }, {
   name: 'ProductViewSet',
+  // Sort/filter-sensitive listing: never serve stale results (a stale entry
+  // can show the wrong order after a backend change). Cache identical queries
+  // for load relief, but always fetch fresh on expiry rather than SWR.
   maxAge: 300, // Cache for 5 minutes
-  staleMaxAge: 600, // Serve stale for 10 minutes while revalidating
-  swr: true,
+  swr: false,
   getKey: (event) => {
     const query = getQuery(event)
     // Build a stable, canonicalized key from every param that affects the response.

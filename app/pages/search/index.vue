@@ -198,7 +198,7 @@ useHead({
                     color="neutral"
                     variant="ghost"
                     size="sm"
-                    @click="query = ''"
+                    @click="() => { query = '' }"
                   />
                 </div>
               </template>
@@ -373,7 +373,7 @@ useHead({
         <UButton
           icon="i-heroicons-arrow-path"
           color="neutral"
-          @click="query = ''"
+          @click="() => { query = '' }"
         >
           {{ t('page.no_results.clear_search') }}
         </UButton>
@@ -409,11 +409,10 @@ useHead({
           class="flex justify-center pt-6"
         >
           <UPagination
-            v-model="page"
+            v-model:page="page"
             :total="totalResults"
-            :page-count="limit"
-            show-first
-            show-last
+            :items-per-page="limit"
+            show-edges
             :ui="{
               root: 'flex items-center gap-1',
             }"
@@ -431,7 +430,7 @@ useHead({
           </span>
           <USelectMenu
             v-model="limit"
-            :options="[12, 24, 48, 96]"
+            :items="[12, 24, 48, 96]"
             size="sm"
             class="w-20"
             @change="page = 1"

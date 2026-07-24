@@ -22,23 +22,35 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 // ── Hoist mocks so they are available inside mockNuxtImport factories ──────
 const {
+  mockFetch,
   mockReserveStock,
   mockReleaseReservations,
   mockCreatePaymentIntentFromCart,
   mockCleanCartState,
+  mockRefreshCart,
   mockNavigateTo,
   mockMetaPixelImpl,
+  mockTikTokPixelImpl,
   mockGA4Impl,
 } = vi.hoisted(() => ({
+  // Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
+  // `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
+  // mocked via mockNuxtImport like any other auto-import.
+  mockFetch: vi.fn(),
   mockReserveStock: vi.fn(),
   mockReleaseReservations: vi.fn(),
   mockCreatePaymentIntentFromCart: vi.fn(),
   mockCleanCartState: vi.fn().mockResolvedValue(undefined),
+  mockRefreshCart: vi.fn().mockResolvedValue(undefined),
   mockNavigateTo: vi.fn().mockResolvedValue(undefined),
   mockMetaPixelImpl: {
     newEventId: vi.fn().mockReturnValue('pixel-event-id'),
     trackInitiateCheckout: vi.fn().mockReturnValue('pixel-event-id'),
     trackAddPaymentInfo: vi.fn().mockReturnValue('pixel-event-id'),
+  },
+  mockTikTokPixelImpl: {
+    trackInitiateCheckout: vi.fn(),
+    trackAddPaymentInfo: vi.fn(),
   },
   mockGA4Impl: {
     trackBeginCheckout: vi.fn(),
@@ -54,6 +66,7 @@ const {
 const mockCartHolder = { value: null as any }
 
 // ── Nuxt auto-import mocks ─────────────────────────────────────────────────
+mockNuxtImport('$fetch', () => mockFetch)
 mockNuxtImport('useRequestHeaders', () => () => ({}))
 mockNuxtImport('useLocalePath', () => () => (route: any) => route)
 mockNuxtImport('navigateTo', () => mockNavigateTo)
@@ -73,6 +86,7 @@ mockNuxtImport('useCheckout', () => () => ({
 
 mockNuxtImport('useCartStore', () => () => ({
   cleanCartState: mockCleanCartState,
+  refreshCart: mockRefreshCart,
   cart: mockCartHolder.value,
 }))
 
@@ -81,16 +95,13 @@ mockNuxtImport('storeToRefs', () => (_store: any) => ({
 }))
 
 mockNuxtImport('useMetaPixel', () => () => mockMetaPixelImpl)
+mockNuxtImport('useTikTokPixel', () => () => mockTikTokPixelImpl)
 mockNuxtImport('useGA4', () => () => mockGA4Impl)
 mockNuxtImport('useCookieControl', () => () => ({
   cookiesEnabledIds: { value: [] },
 }))
 
-// ── $fetch stub — in beforeAll so Nuxt init first runs with real $fetch ────
-const mockFetch = vi.fn()
-
 beforeAll(() => {
-  vi.stubGlobal('$fetch', mockFetch)
   vi.stubGlobal('log', {
     info: vi.fn(),
     warn: vi.fn(),
@@ -173,6 +184,7 @@ beforeEach(() => {
   mockReleaseReservations.mockReset().mockResolvedValue(undefined)
   mockCreatePaymentIntentFromCart.mockReset()
   mockCleanCartState.mockReset().mockResolvedValue(undefined)
+  mockRefreshCart.mockReset().mockResolvedValue(undefined)
   mockCartHolder.value = { uuid: 'cart-uuid', id: 1, items: [], totalItems: 0, totalPrice: 0 }
   mockMetaPixelImpl.newEventId.mockReturnValue('pixel-event-id')
   mockGA4Impl.trackBeginCheckout.mockReset()
@@ -236,6 +248,69 @@ describe('useCheckoutSubmit', () => {
       // Order creation must carry Idempotency-Key and payment intent id
       expect(orderOpts?.headers?.['Idempotency-Key']).toBe(deterministicUUID)
       expect(orderOpts?.body).toMatchObject({ paymentIntentId: 'pi_abc123' })
+    })
+
+    it('backToForm resets payment state, releases reservations, refreshes the cart, and a resubmit mints a FRESH intent', async () => {
+      vi.stubGlobal('crypto', {
+        randomUUID: vi.fn().mockReturnValue('idem-back'),
+      })
+
+      const stripePayWay = makePayWay('stripe')
+      const selectedPayWay = ref<PayWay | null>(stripePayWay)
+      const payWays = makePayWaysRef(stripePayWay)
+
+      mockReserveStock.mockResolvedValue([42])
+      mockCreatePaymentIntentFromCart.mockResolvedValue({
+        clientSecret: 'sk_secret',
+        paymentIntentId: 'pi_first',
+      })
+      mockFetch.mockImplementation((_url: string, opts: any) => {
+        if (opts?.onResponse) {
+          opts.onResponse({ response: { ok: true, _data: { uuid: 'order-uuid' } } })
+        }
+        return Promise.resolve({ uuid: 'order-uuid' })
+      })
+
+      const { onSubmit, backToForm } = useCheckoutSubmit({
+        formState: makeFormState(),
+        selectedPayWay,
+        payWays,
+      })
+
+      await onSubmit()
+      expect(mockCreatePaymentIntentFromCart).toHaveBeenCalledTimes(1)
+
+      mockRefreshCart.mockClear()
+      mockReleaseReservations.mockClear()
+
+      await backToForm()
+
+      // Reservations released, cart resynced from the server.
+      expect(mockReleaseReservations).toHaveBeenCalledWith([42])
+      expect(mockRefreshCart).toHaveBeenCalled()
+
+      // Resubmit must mint a NEW intent — the stale one is no longer
+      // reused (which had produced an orphaned PENDING order).
+      mockReserveStock.mockResolvedValue([43])
+      mockCreatePaymentIntentFromCart.mockResolvedValue({
+        clientSecret: 'sk_secret2',
+        paymentIntentId: 'pi_second',
+      })
+      selectedPayWay.value = stripePayWay
+
+      let secondOrderOpts: any
+      mockFetch.mockImplementation((_url: string, opts: any) => {
+        secondOrderOpts = opts
+        if (opts?.onResponse) {
+          opts.onResponse({ response: { ok: true, _data: { uuid: 'order-uuid-2' } } })
+        }
+        return Promise.resolve({ uuid: 'order-uuid-2' })
+      })
+
+      await onSubmit()
+
+      expect(mockCreatePaymentIntentFromCart).toHaveBeenCalledTimes(2)
+      expect(secondOrderOpts?.body).toMatchObject({ paymentIntentId: 'pi_second' })
     })
   })
 
@@ -308,7 +383,13 @@ describe('useCheckoutSubmit', () => {
       expect(clearCall?.[1]).toMatchObject({ method: 'POST' })
 
       expect(mockNavigateTo).toHaveBeenCalledWith(
-        expect.objectContaining({ name: expect.stringContaining('checkout-success') }),
+        expect.objectContaining({
+          name: expect.stringContaining('checkout-success'),
+          // ``placed=1`` is the success page's "arrived via a real
+          // checkout" marker for offline pay-ways — it gates the Meta
+          // Purchase / GA4 purchase browser events and cart cleanup.
+          query: { placed: '1' },
+        }),
       )
     })
   })

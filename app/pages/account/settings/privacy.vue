@@ -371,7 +371,7 @@ onBeforeUnmount(stopPolling)
             color="neutral"
             variant="ghost"
             :disabled="deleting"
-            @click="isDeleteModalOpen = false"
+            @click="() => { isDeleteModalOpen = false }"
           >
             {{ t('delete.cancel') }}
           </UButton>

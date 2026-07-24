@@ -14,6 +14,9 @@ const { isMobileOrTablet } = useDevice()
 const img = useImage()
 const tenantStore = useTenantStore()
 
+// Race-free reference for tryAdvanceToPendingFlow (see app/utils/auth.ts).
+const formPath = useRoute().path
+
 const selected = ref(false)
 const isSubmitting = ref(false)
 
@@ -58,6 +61,10 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     })
   }
   catch (error) {
+    // Signup with mandatory email verification replies 401 with a pending
+    // verify_email flow — the account was created; route to the verification
+    // step instead of surfacing an error.
+    if (await tryAdvanceToPendingFlow(error, { fromPath: formPath })) return
     handleAllAuthClientError(error)
   }
   finally {
