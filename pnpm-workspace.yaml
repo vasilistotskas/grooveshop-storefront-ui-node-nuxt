@@ -9,16 +9,13 @@ overrides:
   # Nitro server.
   'devalue@<5.8.1': '>=5.8.1'
 
-  # NOTE — sharp is intentionally NOT overridden. The legacy
-  # exact pin `sharp: 0.33.5` was never enforced (pnpm 11
-  # ignored it), and the tree currently ships two patched
-  # branches: 0.32.6 (via ipx → @nuxt/image) and 0.34.5 (via
-  # nuxt-og-image). Both are above the GHSA-54xq-cgqr-rpm3
-  # libwebp floor. Adding a `>=0.33.5` override forces ipx
-  # onto 0.34.x which crosses the 0.34.0 breaking-change line
-  # (C++17, removeAlpha semantics, metadata fields, GIF default)
-  # without runtime validation. Re-evaluate when @nuxt/image
-  # bumps its sharp range above 0.33.
+  # GHSA-f88m-g3jw-g9cj — sharp, patched in 0.35.0. The old
+  # "don't override sharp" note is obsolete: @nuxt/image v2
+  # dropped the legacy ipx sharp 0.32.6, and the tree already
+  # ships a clean 0.35.3 branch, so collapsing the vulnerable
+  # 0.34.x branch (nuxt-og-image — module disabled anyway) onto
+  # 0.35 carries no extra runtime surface.
+  'sharp@>=0.34.0 <0.35.0': '>=0.35.0'
 
   # Mar-2026 cluster: GHSA-q67f-28xg-22rw (Ed25519 forgery),
   # GHSA-ppp5-5v6c-4jwp (RSA-PKCS forgery), GHSA-5m6q-g25r-mvwx
@@ -50,12 +47,13 @@ overrides:
   # patched in 5.7.0.
   fast-xml-parser: '>=5.7.0'
 
-  # Registry-yank workaround — @hey-api/openapi-ts@0.99.0 transitively
-  # pins js-yaml@4.2.0 via @hey-api/json-schema-ref-parser@1.4.4, but
-  # js-yaml 4.2.0/4.3.0/5.x were unpublished and the registry's
-  # `latest` dist-tag resolves to 4.1.1. Remove once
-  # @hey-api/json-schema-ref-parser drops the exact-pin.
-  js-yaml: 4.1.1
+  # CVE-2026-59869 — js-yaml, patched in 4.3.0 (and 3.15.0 on the
+  # dormant v3 line). Supersedes the old registry-yank exact pin
+  # `js-yaml: 4.1.1`: 4.3.0 has since been republished (v4-legacy
+  # dist-tag), so the floor also absorbs @hey-api/json-schema-ref-parser's
+  # exact js-yaml@4.2.0 pin (still unpublished). Capped <5 to keep
+  # consumers off the js-yaml 5 API line.
+  'js-yaml@<4.3.0': '>=4.3.0 <5'
 
   # CVE-2026-48779 — ws DoS, patched in 8.21.0 on the 8.x line.
   'ws@<8.21.0': '>=8.21.0'
@@ -73,6 +71,18 @@ overrides:
 
   # CVE-2026-9277 — shell-quote, patched in 1.8.4.
   'shell-quote@<1.8.4': '>=1.8.4'
+
+  # CVE-2026-59873 (CRITICAL) + CVE-2026-59874 — tar 7.x, both
+  # patched by 7.5.19.
+  'tar@>=7.0.0 <7.5.19': '>=7.5.19'
+
+  # CVE-2026-13149 — brace-expansion ReDoS, patched in 1.1.16 /
+  # 2.1.2 / 5.0.7 per line. Tree ships the 2.x and 5.x lines.
+  'brace-expansion@>=2.0.0 <2.1.2': '>=2.1.2 <3'
+  'brace-expansion@>=5.0.0 <5.0.7': '>=5.0.7'
+
+  # GHSA-2p49-hgcm-8545 — svgo, patched in 4.0.2 on the 4.x line.
+  'svgo@>=4.0.0 <4.0.2': '>=4.0.2'
 allowBuilds:
   '@intlify/vue-i18n-bridge': true
   '@intlify/vue-router-bridge': true
