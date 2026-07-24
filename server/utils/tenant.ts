@@ -61,7 +61,14 @@ export async function getTenantConfig(host: string): Promise<TenantResult> {
     // partial/corrupt data.
     let tenantConfig: TenantConfig
     try {
-      tenantConfig = await parseDataAs(response, zTenantConfig)
+      // Cast: @hey-api/openapi-ts's zod plugin marks OpenAPI `readOnly`
+      // array properties (e.g. allowedCspSources) as `.readonly()`, so
+      // zTenantConfig infers `readonly string[]`; the typescript plugin
+      // instead marks the *property* readonly and keeps the array itself
+      // mutable (`Array<string>`). The two generated artifacts disagree
+      // structurally on this one point — the value is identical at
+      // runtime, so the cast is safe.
+      tenantConfig = await parseDataAs(response, zTenantConfig) as TenantConfig
     }
     catch (parseError) {
       log.warn({ tag: 'tenant', message: 'getTenantConfig: response failed Zod validation', domain, parseError })

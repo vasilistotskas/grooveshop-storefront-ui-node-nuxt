@@ -38,28 +38,38 @@ export type AcsAddressValidationResponse = {
 
 /**
  * * `1` - Προπληρωμένο
- * * `2` - Cash on delivery
+ * * `2` - Αντικαταβολή
  */
 export type AcsChargeType = 1 | 2
 
 export type AcsPickupList = {
   readonly id: number
   /**
-     * Pickup list number
+     * Αριθμός λίστας παραλαβής
      *
-     * PickupList_No returned by ACS_Issue_Pickup_List.
+     * PickupList_No που επιστρέφεται από το ACS_Issue_Pickup_List.
      */
   readonly pickupListNo: string
+  /**
+     * Εκδόθηκε στις
+     */
   readonly issuedAt: string
   /**
-     * Admin who triggered the manual issue. Null when the daily Celery beat task issued the list.
+     * Εκδόθηκε από
+     *
+     * Διαχειριστής που ενεργοποίησε τη χειροκίνητη έκδοση. Null όταν η λίστα εκδόθηκε από την καθημερινή εργασία Celery beat.
      */
   readonly issuedBy: number | null
   readonly issuedByUsername: string | null
   /**
-     * Billing_Code captured at issuance time so historical manifests stay reprintable even if the env var changes.
+     * Κωδικός χρέωσης
+     *
+     * Billing_Code που καταγράφεται τη στιγμή της έκδοσης, ώστε τα ιστορικά manifest να παραμένουν επανεκτυπώσιμα ακόμη κι αν αλλάξει η μεταβλητή περιβάλλοντος.
      */
   readonly billingCode: string
+  /**
+     * Πλήθος vouchers
+     */
   readonly voucherCount: number
   /**
      * Δημιουργήθηκε στις
@@ -78,9 +88,9 @@ export type AcsShipmentDetail = {
   readonly id: number
   readonly uuid: string
   /**
-     * Voucher number
+     * Αριθμός voucher
      *
-     * 10-digit ACS voucher (Voucher_No from ACS_Create_Voucher).
+     * 10ψήφιο voucher ACS (Voucher_No από το ACS_Create_Voucher).
      */
   readonly voucherNo: string | null
   /**
@@ -88,23 +98,31 @@ export type AcsShipmentDetail = {
      */
   shipmentState: ShipmentStateEnum
   /**
-     * Human-readable label for the shipment_state choice
+     * Ετικέτα σε αναγνώσιμη μορφή για την τιμή shipment_state
      */
   readonly shipmentStateDisplay: string
+  /**
+     * Τρόπος παράδοσης
+     */
   deliveryKind: ShippingKind
   /**
-     * Weight (grams)
+     * Βάρος (γραμμάρια)
      *
-     * Internal grams; converted to kilograms (>= 0.5) at API call time per ACS Weight requirements.
+     * Εσωτερικά γραμμάρια· μετατρέπονται σε κιλά (>= 0,5) κατά την κλήση API σύμφωνα με τις απαιτήσεις βάρους της ACS.
      */
   readonly weightGrams: number
+  /**
+     * Ποσότητα ειδών
+     */
   readonly itemQuantity: number
   /**
      * Τύπος χρέωσης
      */
   chargeType: AcsChargeType
   /**
-     * Comma-separated Acs_Delivery_Products codes (COD, REC, SAT, RDO …).
+     * Προϊόντα παράδοσης
+     *
+     * Κωδικοί Acs_Delivery_Products διαχωρισμένοι με κόμμα (COD, REC, SAT, RDO …).
      */
   readonly deliveryProducts: string
   /**
@@ -114,9 +132,12 @@ export type AcsShipmentDetail = {
   /**
      * Τελευταία ανάκτηση
      *
-     * Used by poll_acs_tracking_batch to spread load and skip shipments polled within the last 15 minutes.
+     * Χρησιμοποιείται από το poll_acs_tracking_batch για κατανομή φορτίου και παράλειψη αποστολών που ελέγχθηκαν τα τελευταία 15 λεπτά.
      */
   readonly lastPolledAt: string | null
+  /**
+     * Ημερομηνία παράδοσης
+     */
   readonly deliveryDate: string | null
   /**
      * Δημιουργήθηκε στις
@@ -127,42 +148,33 @@ export type AcsShipmentDetail = {
      */
   readonly updatedAt: string
   /**
-     * Destination station external ID
+     * Εξωτερικό ID καταστήματος προορισμού
      *
-     * Denormalised ACS_SHOP_STATION_ID — preserved even if the AcsStation row is deleted.
+     * Μη κανονικοποιημένο ACS_SHOP_STATION_ID — διατηρείται ακόμη κι αν διαγραφεί η εγγραφή AcsStation.
      */
   readonly stationDestinationExternalId: string
   /**
      * Υποκατάστημα προορισμού
      *
-     * Acs_Station_Branch_Destination value.
+     * Τιμή Acs_Station_Branch_Destination.
      */
   readonly stationBranchDestination: string
   /**
-     * Destination ACS station details (Smartpoint pickups).
+     * Στοιχεία καταστήματος προορισμού ACS (παραλαβές Smartpoint).
      */
   station: AcsStation | null
   /**
-     * Last 50 tracking events ordered by event_time desc.
+     * Τελευταία 50 συμβάντα παρακολούθησης ταξινομημένα κατά event_time φθίνουσα.
      */
   readonly events: Array<AcsTrackingEvent>
   /**
-     * Relative URL to download the voucher PDF via the Django proxy.
+     * Σχετικό URL για λήψη του PDF voucher μέσω του proxy Django.
      */
   readonly labelUrl: string | null
   /**
-     * Raw delivery_flag value from ACS_Trackingsummary.
+     * Αίτημα ακύρωσης στις
      */
-  readonly deliveryFlag: string
-  readonly returnedFlag: string
-  readonly rawShipmentStatus: string
   readonly cancelRequestedAt: string | null
-  /**
-     * Μεταδεδομένα
-     *
-     * Multipart child voucher numbers, last create-voucher response, last error envelope, cached POD URL.
-     */
-  readonly metadata: unknown
 }
 
 /**
@@ -177,40 +189,48 @@ export type AcsStation = {
   /**
      * Εξωτερικό ID
      *
-     * ACS_SHOP_STATION_ID — used as Acs_Station_Destination.
+     * ACS_SHOP_STATION_ID — χρησιμοποιείται ως Acs_Station_Destination.
      */
   readonly externalId: string
   /**
      * Κωδικός υποκαταστήματος
      *
-     * ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).
+     * ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination).
      */
   readonly branchCode: string
   /**
      * Είδος καταστήματος
      *
-     * ACS_SHOP_KIND — 1 shop, 7/8 Smartpoint locker.
+     * ACS_SHOP_KIND — 1 κατάστημα, 7/8 locker Smartpoint.
      *
      * * `1` - Κατάστημα
      * * `2` - Συνεργαζόμενο κατάστημα (2)
      * * `3` - Συνεργαζόμενο κατάστημα (3)
      * * `4` - Xpress Point
      * * `5` - Kiosk
-     * * `7` - Smartpoint (inbound)
-     * * `8` - Smartpoint (outbound)
+     * * `7` - Smartpoint (εισερχόμενα)
+     * * `8` - Smartpoint (εξερχόμενα)
      */
   shopKind: ShopKindEnum
   /**
      * Όνομα
      */
   readonly name: string
+  /**
+     * Διεύθυνση γραμμή 1
+     */
   readonly addressLine1: string
   /**
      * Πόλη
      */
   readonly city: string
+  /**
+     * Ταχυδρομικός κώδικας
+     */
   readonly postalCode: string
   /**
+     * Κωδικός χώρας
+     *
      * ISO 3166-1 alpha-2 κωδικός χώρας.
      */
   readonly countryCode: string
@@ -221,6 +241,9 @@ export type AcsStation = {
      * Ωράριο λειτουργίας
      */
   readonly workingHours: string
+  /**
+     * Ενεργό
+     */
   readonly isActive: boolean
   /**
      * Τελευταίος συγχρονισμός
@@ -248,40 +271,48 @@ export type AcsStationDetail = {
   /**
      * Εξωτερικό ID
      *
-     * ACS_SHOP_STATION_ID — used as Acs_Station_Destination.
+     * ACS_SHOP_STATION_ID — χρησιμοποιείται ως Acs_Station_Destination.
      */
   readonly externalId: string
   /**
      * Κωδικός υποκαταστήματος
      *
-     * ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).
+     * ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination).
      */
   readonly branchCode: string
   /**
      * Είδος καταστήματος
      *
-     * ACS_SHOP_KIND — 1 shop, 7/8 Smartpoint locker.
+     * ACS_SHOP_KIND — 1 κατάστημα, 7/8 locker Smartpoint.
      *
      * * `1` - Κατάστημα
      * * `2` - Συνεργαζόμενο κατάστημα (2)
      * * `3` - Συνεργαζόμενο κατάστημα (3)
      * * `4` - Xpress Point
      * * `5` - Kiosk
-     * * `7` - Smartpoint (inbound)
-     * * `8` - Smartpoint (outbound)
+     * * `7` - Smartpoint (εισερχόμενα)
+     * * `8` - Smartpoint (εξερχόμενα)
      */
   shopKind: ShopKindEnum
   /**
      * Όνομα
      */
   readonly name: string
+  /**
+     * Διεύθυνση γραμμή 1
+     */
   readonly addressLine1: string
   /**
      * Πόλη
      */
   readonly city: string
+  /**
+     * Ταχυδρομικός κώδικας
+     */
   readonly postalCode: string
   /**
+     * Κωδικός χώρας
+     *
      * ISO 3166-1 alpha-2 κωδικός χώρας.
      */
   readonly countryCode: string
@@ -292,6 +323,9 @@ export type AcsStationDetail = {
      * Ωράριο λειτουργίας
      */
   readonly workingHours: string
+  /**
+     * Ενεργό
+     */
   readonly isActive: boolean
   /**
      * Τελευταίος συγχρονισμός
@@ -305,6 +339,9 @@ export type AcsStationDetail = {
      * Ενημερώθηκε στις
      */
   readonly updatedAt: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
   readonly addressLine2: string
   /**
      * Περιοχή
@@ -321,11 +358,13 @@ export type AcsTrackingEvent = {
   /**
      * Ώρα συμβάντος
      *
-     * Checkpoint_Date_Time from ACS_TrackingDetails.
+     * Checkpoint_Date_Time από το ACS_TrackingDetails.
      */
   readonly eventTime: string
   /**
-     * Checkpoint_Action_Description — human-readable Greek text describing the event.
+     * Ενέργεια σημείου ελέγχου
+     *
+     * Checkpoint_Action_Description — κείμενο στα ελληνικά σε αναγνώσιμη μορφή που περιγράφει το συμβάν.
      */
   readonly checkpointAction: string
   /**
@@ -341,7 +380,9 @@ export type AcsTrackingEvent = {
      */
   readonly notes: string
   /**
-     * Wall-clock time when the polling task observed this event.
+     * Παραλήφθηκε στις
+     *
+     * Πραγματικός χρόνος κατά τον οποίο η εργασία παρακολούθησης παρατήρησε αυτό το συμβάν.
      */
   readonly receivedAt: string
 }
@@ -456,7 +497,7 @@ export type BlogAuthor = {
   readonly uuid: string
   readonly user: number
   /**
-     * URL link or empty string
+     * Σύνδεσμος URL ή κενή τιμή
      */
   readonly website: string | null
   /**
@@ -490,7 +531,7 @@ export type BlogAuthorDetail = {
   readonly uuid: string
   user: UserDetails
   /**
-     * URL link or empty string
+     * Σύνδεσμος URL ή κενή τιμή
      */
   readonly website: string | null
   /**
@@ -526,7 +567,7 @@ export type BlogAuthorWriteRequest = {
   /**
      * Ιστότοπος
      */
-  website?: string
+  website?: string | string
 }
 
 /**
@@ -641,14 +682,14 @@ export type BlogCategoryReorderItemRequest = {
      */
   id: number
   /**
-     * New sort order value
+     * Νέα τιμή σειράς ταξινόμησης
      */
   sortOrder: number
 }
 
 export type BlogCategoryReorderRequestRequest = {
   /**
-     * List of categories with new sort orders
+     * Λίστα κατηγοριών με νέες σειρές ταξινόμησης
      */
   categories: Array<BlogCategoryReorderItemRequest>
 }
@@ -659,7 +700,7 @@ export type BlogCategoryReorderResponse = {
      */
   updatedCount: number
   /**
-     * Success message
+     * Μήνυμα επιτυχίας
      */
   message: string
 }
@@ -708,16 +749,16 @@ export type BlogComment = {
   }
   user: UserDetails
   /**
-     * First 150 characters of the comment content
+     * Οι πρώτοι 150 χαρακτήρες του περιεχομένου του σχολίου
      */
   readonly contentPreview: string | null
   /**
-     * Whether this comment is a reply to another comment
+     * Αν αυτό το σχόλιο είναι απάντηση σε άλλο σχόλιο
      */
   readonly isReply: boolean
   readonly parent: number | null
   /**
-     * Whether this comment has approved replies
+     * Αν αυτό το σχόλιο έχει εγκεκριμένες απαντήσεις
      */
   readonly hasReplies: boolean
   /**
@@ -725,13 +766,13 @@ export type BlogComment = {
      */
   readonly approved: boolean
   /**
-     * Whether this comment has been edited
+     * Αν αυτό το σχόλιο έχει επεξεργαστεί
      */
   readonly isEdited: boolean
   readonly likesCount: number
   readonly repliesCount: number
   /**
-     * Whether the current user has liked this comment
+     * Αν ο τρέχων χρήστης έχει επισημάνει αυτό το σχόλιο
      */
   readonly userHasLiked: boolean
   /**
@@ -763,16 +804,16 @@ export type BlogCommentDetail = {
   }
   user: UserDetails
   /**
-     * First 150 characters of the comment content
+     * Οι πρώτοι 150 χαρακτήρες του περιεχομένου του σχολίου
      */
   readonly contentPreview: string | null
   /**
-     * Whether this comment is a reply to another comment
+     * Αν αυτό το σχόλιο είναι απάντηση σε άλλο σχόλιο
      */
   readonly isReply: boolean
   readonly parent: number | null
   /**
-     * Whether this comment has approved replies
+     * Αν αυτό το σχόλιο έχει εγκεκριμένες απαντήσεις
      */
   readonly hasReplies: boolean
   /**
@@ -780,13 +821,13 @@ export type BlogCommentDetail = {
      */
   readonly approved: boolean
   /**
-     * Whether this comment has been edited
+     * Αν αυτό το σχόλιο έχει επεξεργαστεί
      */
   readonly isEdited: boolean
   readonly likesCount: number
   readonly repliesCount: number
   /**
-     * Whether the current user has liked this comment
+     * Αν ο τρέχων χρήστης έχει επισημάνει αυτό το σχόλιο
      */
   readonly userHasLiked: boolean
   /**
@@ -799,11 +840,11 @@ export type BlogCommentDetail = {
   readonly updatedAt: string
   readonly uuid: string
   /**
-     * Basic information about the blog post
+     * Βασικές πληροφορίες για το άρθρο
      */
   post: BlogPost
   /**
-     * Parent comment if this is a reply
+     * Γονικό σχόλιο, αν πρόκειται για απάντηση
      */
   readonly parentComment: {
     id: number
@@ -812,11 +853,11 @@ export type BlogCommentDetail = {
     createdAt: string
   } | null
   /**
-     * Direct approved child comments (replies)
+     * Άμεσα εγκεκριμένα θυγατρικά σχόλια (απαντήσεις)
      */
   readonly childrenComments: Array<BlogComment>
   /**
-     * Path from root comment to this comment
+     * Διαδρομή από το ριζικό σχόλιο έως αυτό
      */
   readonly ancestorsPath: Array<{
     id: number
@@ -824,7 +865,7 @@ export type BlogCommentDetail = {
     user: UserDetails
   }>
   /**
-     * Position information in the comment tree
+     * Πληροφορίες θέσης στο δέντρο σχολίων
      */
   readonly treePosition: {
     level: number
@@ -836,14 +877,14 @@ export type BlogCommentDetail = {
 
 export type BlogCommentLikedCommentsRequestRequest = {
   /**
-     * List of comment IDs to check like status for
+     * Λίστα ID σχολίων για έλεγχο κατάστασης επισήμανσης
      */
   commentIds: Array<number>
 }
 
 export type BlogCommentLikedCommentsResponse = {
   /**
-     * List of comment IDs that are liked by the current user
+     * Λίστα ID σχολίων που έχει επισημάνει ο τρέχων χρήστης
      */
   likedCommentIds: Array<number>
 }
@@ -1020,14 +1061,14 @@ export type BlogPostDetail = {
 
 export type BlogPostLikedPostsRequestRequest = {
   /**
-     * List of post IDs to check for likes
+     * Λίστα ID άρθρων για έλεγχο επισημάνσεων
      */
   postIds: Array<number>
 }
 
 export type BlogPostLikedPostsResponse = {
   /**
-     * List of liked post IDs
+     * Λίστα ID άρθρων με επισήμανση
      */
   postIds: Array<number>
 }
@@ -1126,7 +1167,7 @@ export type BlogTag = {
      */
   readonly sortOrder: number | null
   /**
-     * Number of blog posts using this tag
+     * Αριθμός άρθρων που χρησιμοποιούν αυτή την ετικέτα
      */
   readonly postsCount: string
   /**
@@ -1165,7 +1206,7 @@ export type BlogTagDetail = {
      */
   readonly sortOrder: number | null
   /**
-     * Number of blog posts using this tag
+     * Αριθμός άρθρων που χρησιμοποιούν αυτή την ετικέτα
      */
   readonly postsCount: string
   /**
@@ -1205,7 +1246,7 @@ export type BlogTagWriteRequest = {
  */
 export type BoxNowCustomerRequest = {
   /**
-     * Customer full name
+     * Πλήρες όνομα πελάτη
      */
   name?: string
   /**
@@ -1223,11 +1264,11 @@ export type BoxNowCustomerRequest = {
  */
 export type BoxNowEventLocationRequest = {
   /**
-     * Human-readable locker or hub name
+     * Όνομα locker ή hub σε αναγνώσιμη μορφή
      */
   displayName?: string
   /**
-     * Postal code of the event location
+     * Ταχυδρομικός κώδικας της τοποθεσίας του συμβάντος
      */
   postalCode?: string
 }
@@ -1250,6 +1291,9 @@ export type BoxNowLocker = {
      * Τύπος
      */
   type: TypeEnum
+  /**
+     * URL εικόνας
+     */
   readonly imageUrl: string | null
   /**
      * Γεωγραφικό πλάτος
@@ -1267,13 +1311,21 @@ export type BoxNowLocker = {
      * Όνομα
      */
   readonly name: string
+  /**
+     * Διεύθυνση γραμμή 1
+     */
   readonly addressLine1: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
   readonly addressLine2: string
   /**
      * Ταχ. Κώδικας
      */
   readonly postalCode: string
   /**
+     * Κωδικός χώρας
+     *
      * ISO 3166-1 alpha-2 κωδικός χώρας
      */
   readonly countryCode: string
@@ -1281,11 +1333,14 @@ export type BoxNowLocker = {
      * Σημείωση
      */
   readonly note: string
+  /**
+     * Ενεργό
+     */
   readonly isActive: boolean
   /**
      * Τελευταίος συγχρονισμός
      *
-     * Timestamp of the most recent sync from BoxNow API
+     * Χρονοσήμανση του πιο πρόσφατου συγχρονισμού από το API του BoxNow
      */
   readonly lastSyncedAt: string | null
   /**
@@ -1317,6 +1372,9 @@ export type BoxNowLockerDetail = {
      * Τύπος
      */
   type: TypeEnum
+  /**
+     * URL εικόνας
+     */
   readonly imageUrl: string | null
   /**
      * Γεωγραφικό πλάτος
@@ -1334,13 +1392,21 @@ export type BoxNowLockerDetail = {
      * Όνομα
      */
   readonly name: string
+  /**
+     * Διεύθυνση γραμμή 1
+     */
   readonly addressLine1: string
+  /**
+     * Διεύθυνση γραμμή 2
+     */
   readonly addressLine2: string
   /**
      * Ταχ. Κώδικας
      */
   readonly postalCode: string
   /**
+     * Κωδικός χώρας
+     *
      * ISO 3166-1 alpha-2 κωδικός χώρας
      */
   readonly countryCode: string
@@ -1348,11 +1414,14 @@ export type BoxNowLockerDetail = {
      * Σημείωση
      */
   readonly note: string
+  /**
+     * Ενεργό
+     */
   readonly isActive: boolean
   /**
      * Τελευταίος συγχρονισμός
      *
-     * Timestamp of the most recent sync from BoxNow API
+     * Χρονοσήμανση του πιο πρόσφατου συγχρονισμού από το API του BoxNow
      */
   readonly lastSyncedAt: string | null
   /**
@@ -1374,23 +1443,23 @@ export type BoxNowLockerDetail = {
  */
 export type BoxNowNearestLockerRequestRequest = {
   /**
-     * City name for nearest-locker lookup
+     * Όνομα πόλης για αναζήτηση πλησιέστερου locker
      */
   city: string
   /**
-     * Street name and number
+     * Οδός και αριθμός
      */
   street: string
   /**
-     * Postal / ZIP code
+     * Ταχυδρομικός κώδικας
      */
   postalCode: string
   /**
-     * IETF language tag / region code (default: el-GR)
+     * Ετικέτα γλώσσας IETF / κωδικός περιφέρειας (προεπιλογή: el-GR)
      */
   region?: string
   /**
-     * Required compartment size: 1=Small, 2=Medium, 3=Large
+     * Απαιτούμενο μέγεθος θυρίδας: 1=Μικρό, 2=Μεσαίο, 3=Μεγάλο
      */
   compartmentSize?: number
 }
@@ -1405,11 +1474,11 @@ export type BoxNowNearestLockerRequestRequest = {
  */
 export type BoxNowNearestLockerResponse = {
   /**
-     * BoxNow APM identifier
+     * Αναγνωριστικό APM BoxNow
      */
   readonly id: string
   /**
-     * Locker type (e.g. apm, warehouse)
+     * Τύπος locker (π.χ. apm, warehouse)
      */
   readonly type: string
   /**
@@ -1417,19 +1486,19 @@ export type BoxNowNearestLockerResponse = {
      */
   readonly image: string
   /**
-     * Latitude (string as returned by BoxNow)
+     * Γεωγραφικό πλάτος (συμβολοσειρά όπως επιστρέφεται από το BoxNow)
      */
   readonly lat: string
   /**
-     * Longitude (string as returned by BoxNow)
+     * Γεωγραφικό μήκος (συμβολοσειρά όπως επιστρέφεται από το BoxNow)
      */
   readonly lng: string
   /**
-     * Short display title
+     * Σύντομος τίτλος εμφάνισης
      */
   readonly title: string
   /**
-     * Full locker name
+     * Πλήρες όνομα locker
      */
   readonly name: string
   /**
@@ -1445,19 +1514,19 @@ export type BoxNowNearestLockerResponse = {
      */
   readonly note: string
   /**
-     * Primary address line
+     * Κύρια γραμμή διεύθυνσης
      */
   readonly addressLine1: string
   /**
-     * Secondary address line
+     * Δευτερεύουσα γραμμή διεύθυνσης
      */
   readonly addressLine2: string
   /**
-     * IETF region tag returned by BoxNow
+     * Ετικέτα περιφέρειας IETF που επιστρέφεται από το BoxNow
      */
   readonly region: string
   /**
-     * Distance from the supplied address in kilometres
+     * Απόσταση από τη δεδομένη διεύθυνση σε χιλιόμετρα
      */
   readonly distance: number
 }
@@ -1473,16 +1542,18 @@ export type BoxNowParcelEvent = {
   /**
      * ID μηνύματος webhook
      *
-     * CloudEvents 'id' field — idempotency key
+     * Πεδίο 'id' του CloudEvents — κλειδί ιδεμποτεντίας
      */
   readonly webhookMessageId: string
   /**
-     * BoxNow event mapped from the webhook 'event' field
+     * Τύπος συμβάντος
      *
-     * * `pending_creation` - Pending creation
+     * Συμβάν BoxNow αντιστοιχισμένο από το πεδίο 'event' του webhook
+     *
+     * * `pending_creation` - Εκκρεμής δημιουργία
      * * `new` - Νέο
      * * `in_depot` - Σε αποθήκη
-     * * `final_destination` - At locker
+     * * `final_destination` - Στο locker
      * * `delivered` - Παραδόθηκε
      * * `returned` - Επιστράφηκε
      * * `expired` - Έληξε
@@ -1494,22 +1565,24 @@ export type BoxNowParcelEvent = {
      */
   eventType: BoxNowParcelState
   /**
-     * Human-readable label for the event_type choice
+     * Ετικέτα σε αναγνώσιμη μορφή για την τιμή event_type
      */
   readonly eventTypeDisplay: string
   /**
      * Κατάσταση Δέματος
      *
-     * Raw 'data.parcelState' value from BoxNow webhook payload
+     * Ακατέργαστη τιμή 'data.parcelState' από το payload του webhook BoxNow
      */
   readonly parcelState: string
   /**
      * Ώρα συμβάντος
      *
-     * Timestamp from 'data.time' in the webhook payload
+     * Χρονοσήμανση από το 'data.time' στο payload του webhook
      */
   readonly eventTime: string
   /**
+     * Εμφανιζόμενο όνομα
+     *
      * data.eventLocation.displayName
      */
   readonly displayName: string
@@ -1524,7 +1597,9 @@ export type BoxNowParcelEvent = {
      */
   readonly additionalInformation: string
   /**
-     * Timestamp when GrooveShop received the webhook (separate from event_time)
+     * Παραλήφθηκε στις
+     *
+     * Χρονοσήμανση λήψης του webhook από το GrooveShop (διαφορετική από το event_time)
      */
   readonly receivedAt: string
   /**
@@ -1534,10 +1609,10 @@ export type BoxNowParcelEvent = {
 }
 
 /**
- * * `pending_creation` - Pending creation
+ * * `pending_creation` - Εκκρεμής δημιουργία
  * * `new` - Νέο
  * * `in_depot` - Σε αποθήκη
- * * `final_destination` - At locker
+ * * `final_destination` - Στο locker
  * * `delivered` - Παραδόθηκε
  * * `returned` - Επιστράφηκε
  * * `expired` - Έληξε
@@ -1567,7 +1642,9 @@ export type BoxNowShipmentDetail = {
   readonly id: number
   readonly uuid: string
   /**
-     * BoxNow delivery-request ID returned from POST /api/v1/delivery-requests
+     * Αναγνωριστικό αιτήματος παράδοσης
+     *
+     * ID αιτήματος παράδοσης BoxNow που επιστρέφεται από το POST /api/v1/delivery-requests
      */
   readonly deliveryRequestId: string | null
   /**
@@ -1579,7 +1656,7 @@ export type BoxNowShipmentDetail = {
   /**
      * Εξωτερικό ID locker
      *
-     * Denormalised BoxNow APM ID — preserved even if the BoxNowLocker row is deleted
+     * Μη κανονικοποιημένο ID APM BoxNow — διατηρείται ακόμη κι αν διαγραφεί η εγγραφή BoxNowLocker
      */
   readonly lockerExternalId: string
   /**
@@ -1587,10 +1664,16 @@ export type BoxNowShipmentDetail = {
      */
   parcelState: BoxNowParcelState
   /**
-     * Human-readable label for the parcel_state choice
+     * Ετικέτα σε αναγνώσιμη μορφή για την τιμή parcel_state
      */
   readonly parcelStateDisplay: string
+  /**
+     * Μέγεθος θυρίδας
+     */
   compartmentSize: CompartmentSizeEnum
+  /**
+     * Τρόπος πληρωμής
+     */
   paymentMode: PaymentModeEnum
   /**
      * Τελευταίο συμβάν
@@ -1605,33 +1688,35 @@ export type BoxNowShipmentDetail = {
      */
   readonly updatedAt: string
   /**
-     * Nested BoxNow locker details
+     * Ενσωματωμένα στοιχεία locker BoxNow
      */
   locker: BoxNowLocker | null
   /**
-     * Last 20 parcel events ordered by event_time desc
+     * Τελευταία 20 συμβάντα δέματος ταξινομημένα κατά event_time φθίνουσα
      */
   readonly events: Array<BoxNowParcelEvent>
   /**
-     * Relative URL to download the parcel label PDF via the Django proxy endpoint
+     * Σχετικό URL για λήψη του PDF ετικέτας δέματος μέσω του endpoint proxy Django
      */
   readonly labelUrl: string | null
   /**
-     * Weight (grams)
+     * Βάρος (γραμμάρια)
      */
   readonly weightGrams: number
   /**
-     * Amount collected at delivery (PoG / COD). Always 0 in Phase 1.
+     * Ποσό προς Είσπραξη
+     *
+     * Ποσό που εισπράττεται κατά την παράδοση (PoG / COD). Πάντα 0 στη Φάση 1.
      */
   readonly amountToBeCollected: number
-  readonly allowReturn: boolean
-  readonly cancelRequestedAt: string | null
   /**
-     * Μεταδεδομένα
-     *
-     * Full delivery-request response and diagnostics from BoxNow
+     * Επιτρέπεται επιστροφή
      */
-  readonly metadata: unknown
+  readonly allowReturn: boolean
+  /**
+     * Ημερομηνία αιτήματος ακύρωσης
+     */
+  readonly cancelRequestedAt: string | null
 }
 
 /**
@@ -1644,15 +1729,15 @@ export type BoxNowShipmentDetail = {
  */
 export type BoxNowWebhookDataRequest = {
   /**
-     * 10-digit BoxNow voucher/parcel number
+     * 10ψήφιος αριθμός voucher/δέματος BoxNow
      */
   parcelId: string
   /**
-     * BoxNow parcel state vocabulary (data.parcelState)
+     * Λεξιλόγιο κατάστασης δέματος BoxNow (data.parcelState)
      */
   parcelState: string
   /**
-     * Optional merchant reference number
+     * Προαιρετικός αριθμός αναφοράς εμπόρου
      */
   parcelReferenceNumber?: string
   /**
@@ -1660,11 +1745,11 @@ export type BoxNowWebhookDataRequest = {
      */
   parcelName?: string
   /**
-     * Merchant order number sent during delivery-request creation
+     * Αριθμός παραγγελίας εμπόρου που αποστέλλεται κατά τη δημιουργία αιτήματος παράδοσης
      */
   orderNumber: string
   /**
-     * BoxNow event type string (e.g. 'in-depot', 'final-destination', 'delivered')
+     * Συμβολοσειρά τύπου συμβάντος BoxNow (π.χ. 'in-depot', 'final-destination', 'delivered')
      */
   event: string
   /**
@@ -1672,15 +1757,15 @@ export type BoxNowWebhookDataRequest = {
      */
   eventLocation?: BoxNowEventLocationRequest
   /**
-     * Customer details associated with the parcel
+     * Στοιχεία πελάτη που σχετίζονται με το δέμα
      */
   customer?: BoxNowCustomerRequest
   /**
-     * Free-text additional information from BoxNow
+     * Ελεύθερο κείμενο με επιπλέον πληροφορίες από το BoxNow
      */
   additionalInformation?: string
   /**
-     * Timestamp when the event occurred at BoxNow
+     * Χρονοσήμανση όταν συνέβη το συμβάν στο BoxNow
      */
   time: string
 }
@@ -1695,11 +1780,11 @@ export type BoxNowWebhookDataRequest = {
  */
 export type BoxNowWebhookEnvelopeRequest = {
   /**
-     * CloudEvents specification version (expected: '1.0')
+     * Έκδοση προδιαγραφής CloudEvents (αναμενόμενη: '1.0')
      */
   specversion: string
   /**
-     * Event type (expected: 'gr.boxnow.parcel_event_change')
+     * Τύπος συμβάντος (αναμενόμενος: 'gr.boxnow.parcel_event_change')
      */
   type: string
   /**
@@ -1707,34 +1792,34 @@ export type BoxNowWebhookEnvelopeRequest = {
      */
   source: string
   /**
-     * Subject of the event (typically the parcel ID)
+     * Θέμα του συμβάντος (συνήθως το ID δέματος)
      */
   subject: string
   /**
-     * Unique CloudEvents ID; used as idempotency key (stored as webhook_message_id)
+     * Μοναδικό ID CloudEvents· χρησιμοποιείται ως κλειδί ιδεμποτεντίας (αποθηκεύεται ως webhook_message_id)
      */
   id: string
   /**
-     * Timestamp the envelope was generated
+     * Χρονοσήμανση δημιουργίας του φακέλου
      */
   time: string
   /**
-     * MIME type of the data field (expected: 'application/json')
+     * Τύπος MIME του πεδίου data (αναμενόμενος: 'application/json')
      */
   datacontenttype: string
   /**
-     * HMAC-SHA256 hex digest of the raw 'data' JSON object; used for signature verification
+     * Δεκαεξαδικό digest HMAC-SHA256 του ακατέργαστου JSON αντικειμένου 'data'· χρησιμοποιείται για επαλήθευση υπογραφής
      */
   datasignature: string
   /**
-     * Parcel event payload
+     * Payload συμβάντος δέματος
      */
   data: BoxNowWebhookDataRequest
 }
 
 export type BulkSubscriptionRequest = {
   /**
-     * List of topic IDs to subscribe/unsubscribe
+     * Λίστα ID θεμάτων για εγγραφή/διαγραφή
      */
   topicIds: Array<number>
   /**
@@ -1780,11 +1865,11 @@ export type Cart = {
      */
   readonly totalItemsUnique: number
   /**
-     * Total cart weight in grams. Forwarded to /api/v1/shipping/options at checkout so ACS live pricing quotes against the actual weight bracket the voucher mint will charge.
+     * Συνολικό βάρος καλαθιού σε γραμμάρια. Προωθείται στο /api/v1/shipping/options κατά το checkout ώστε η ζωντανή τιμολόγηση ACS να υπολογίζει βάσει του πραγματικού εύρους βάρους που θα χρεώσει η έκδοση voucher.
      */
   readonly totalWeightGrams: number
   /**
-     * ISO 4217 currency code for all monetary values in this cart
+     * Κωδικός νομίσματος ISO 4217 για όλες τις χρηματικές τιμές αυτού του καλαθιού
      */
   readonly currency: string
   /**
@@ -1817,26 +1902,26 @@ export type Cart = {
  */
 export type CartCreatePaymentIntentRequestRequest = {
   /**
-     * ID of the selected PayWay (must be online Stripe).
+     * ID της επιλεγμένης μεθόδου πληρωμής (πρέπει να είναι online Stripe).
      */
   payWayId: number
   /**
-     * Fulfilment kind for the carrier (home_delivery or pickup_point). Required so the per-kind feature flags (e.g. ACS_SMARTPOINT_ENABLED) and BoxNow's PICKUP_POINT gate are honoured.
+     * Τύπος εκπλήρωσης για τον μεταφορέα (home_delivery ή pickup_point). Απαιτείται ώστε να τηρούνται οι επιμέρους σημαίες λειτουργίας (π.χ. ACS_SMARTPOINT_ENABLED) και ο έλεγχος PICKUP_POINT του BoxNow.
      *
      * * `home_delivery` - home_delivery
      * * `pickup_point` - pickup_point
      */
   shippingKind: CartCreatePaymentIntentRequestShippingKindEnum
   /**
-     * Carrier code matching a registered shipping adapter (e.g. 'acs', 'boxnow'). Required for ``pickup_point``; omit/empty for ``home_delivery`` (the backend uses the generic flat rate, matching what the order-create verification will compute for the same body).
+     * Κωδικός μεταφορέα που αντιστοιχεί σε καταχωρημένο προσαρμογέα αποστολής (π.χ. 'acs', 'boxnow'). Απαιτείται για ``pickup_point``· παραλείψτε/αφήστε κενό για ``home_delivery`` (το backend χρησιμοποιεί τη γενική πάγια χρέωση, αντίστοιχη με αυτή που θα υπολογίσει η επαλήθευση δημιουργίας παραγγελίας για το ίδιο αίτημα).
      */
   shippingProviderCode?: string
   /**
-     * Optional ISO 3166-1 alpha-2 country code — drives the country-level shipping multiplier. Match what the order-create body will carry.
+     * Προαιρετικός κωδικός χώρας ISO 3166-1 alpha-2 — καθορίζει τον συντελεστή αποστολής σε επίπεδο χώρας. Πρέπει να ταιριάζει με αυτόν που θα φέρει το αίτημα δημιουργίας παραγγελίας.
      */
   countryId?: string
   /**
-     * Optional region code — drives the region-level shipping adjustment.
+     * Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.
      */
   regionId?: string
 }
@@ -1870,11 +1955,11 @@ export type CartDetail = {
      */
   readonly totalItemsUnique: number
   /**
-     * Total cart weight in grams. Forwarded to /api/v1/shipping/options at checkout so ACS live pricing quotes against the actual weight bracket the voucher mint will charge.
+     * Συνολικό βάρος καλαθιού σε γραμμάρια. Προωθείται στο /api/v1/shipping/options κατά το checkout ώστε η ζωντανή τιμολόγηση ACS να υπολογίζει βάσει του πραγματικού εύρους βάρους που θα χρεώσει η έκδοση voucher.
      */
   readonly totalWeightGrams: number
   /**
-     * ISO 4217 currency code for all monetary values in this cart
+     * Κωδικός νομίσματος ISO 4217 για όλες τις χρηματικές τιμές αυτού του καλαθιού
      */
   readonly currency: string
   /**
@@ -1890,7 +1975,7 @@ export type CartDetail = {
      */
   readonly lastActivity: string
   /**
-     * Product recommendations based on cart contents
+     * Προτάσεις προϊόντων βάσει περιεχομένου καλαθιού
      */
   readonly recommendations: Array<Product>
 }
@@ -1904,7 +1989,7 @@ export type CartItem = {
      */
   quantity?: number
   /**
-     * Weight information for shipping calculations
+     * Πληροφορίες βάρους για υπολογισμούς αποστολής
      */
   readonly weightInfo: {
     unitWeight: number
@@ -1948,7 +2033,7 @@ export type CartItemDetail = {
      */
   quantity?: number
   /**
-     * Weight information for shipping calculations
+     * Πληροφορίες βάρους για υπολογισμούς αποστολής
      */
   readonly weightInfo: {
     unitWeight: number
@@ -1974,7 +2059,7 @@ export type CartItemDetail = {
   readonly updatedAt: string
   readonly uuid: string
   /**
-     * Related products that might interest the customer
+     * Σχετικά προϊόντα που ίσως ενδιαφέρουν τον πελάτη
      */
   readonly recommendations: Array<Product>
 }
@@ -1991,25 +2076,21 @@ export type CartItemUpdateRequest = {
  */
 export type CartPaymentIntentResponse = {
   /**
-     * Stripe PaymentIntent client secret for frontend confirmation
+     * Client secret του Stripe PaymentIntent για επιβεβαίωση στο frontend
      */
   clientSecret: string
   /**
-     * Stripe PaymentIntent ID to be stored on the order
+     * ID του Stripe PaymentIntent προς αποθήκευση στην παραγγελία
      */
   paymentIntentId: string
   /**
-     * Total charge amount (cart + shipping + payment fee)
+     * Συνολικό ποσό χρέωσης (καλάθι + αποστολή + έξοδα πληρωμής)
      */
   amount: number
   /**
-     * ISO 4217 currency code (e.g. EUR)
+     * Κωδικός νομίσματος ISO 4217 (π.χ. EUR)
      */
   currency: string
-}
-
-export type CartWriteRequest = {
-  user?: number | null
 }
 
 /**
@@ -2230,7 +2311,7 @@ export type CreateCheckoutSessionResponse = {
 
 export type CreatePaymentIntentRequestRequest = {
   /**
-     * Additional payment data required by the payment provider
+     * Επιπλέον δεδομένα πληρωμής που απαιτούνται από τον πάροχο πληρωμών
      */
   paymentData?: {
     [key: string]: string
@@ -2239,7 +2320,7 @@ export type CreatePaymentIntentRequestRequest = {
 
 export type CreatePaymentIntentResponse = {
   /**
-     * Payment intent ID from the payment provider
+     * ID payment intent από τον πάροχο πληρωμών
      */
   paymentId: string
   /**
@@ -2255,19 +2336,19 @@ export type CreatePaymentIntentResponse = {
      */
   currency: string
   /**
-     * Payment provider name
+     * Όνομα παρόχου πληρωμών
      */
   provider: string
   /**
-     * Stripe PaymentIntent client secret for frontend confirmation
+     * Client secret του Stripe PaymentIntent για επιβεβαίωση στο frontend
      */
   clientSecret?: string
   /**
-     * Whether the payment requires additional action (3D Secure, etc.)
+     * Αν η πληρωμή απαιτεί επιπλέον ενέργεια (3D Secure κ.λπ.)
      */
   requiresAction?: boolean
   /**
-     * Next action required for payment completion
+     * Επόμενη ενέργεια που απαιτείται για την ολοκλήρωση της πληρωμής
      */
   nextAction?: {
     [key: string]: unknown
@@ -2303,7 +2384,7 @@ export type DateRange = {
  */
 export type DeleteAccountRequestRequest = {
   /**
-     * Must equal the literal string "DELETE".
+     * Πρέπει να ισούται ακριβώς με τη συμβολοσειρά "DELETE".
      */
   confirmation: string
 }
@@ -2436,11 +2517,11 @@ export type FloorEnum = 'BASEMENT' | 'GROUND_FLOOR' | 'FIRST_FLOOR' | 'SECOND_FL
 export type FreeShippingInfo = {
   providers: Array<FreeShippingProviderEntry>
   /**
-     * Lowest threshold across active providers — the headline 'free shipping from X €' number. Null when no active provider advertises a threshold.
+     * Χαμηλότερο όριο μεταξύ των ενεργών παρόχων — ο κύριος αριθμός 'δωρεάν αποστολή από X €'. Null όταν κανένας ενεργός πάροχος δεν δηλώνει όριο.
      */
   minThreshold: number | null
   /**
-     * Highest threshold across active providers — the subtotal at which every carrier ships free. Null when no active provider advertises a threshold.
+     * Υψηλότερο όριο μεταξύ των ενεργών παρόχων — το υποσύνολο στο οποίο κάθε μεταφορέας αποστέλλει δωρεάν. Null όταν κανένας ενεργός πάροχος δεν δηλώνει όριο.
      */
   maxThreshold: number | null
   currency: string
@@ -2454,7 +2535,7 @@ export type FreeShippingProviderEntry = {
   providerName: string
   kind: ShippingKind
   /**
-     * Cart subtotal in the response's currency above which this (provider, kind) ships free.
+     * Υποσύνολο καλαθιού στο νόμισμα της απόκρισης πάνω από το οποίο αυτός ο συνδυασμός (πάροχος, τύπος) αποστέλλει δωρεάν.
      */
   threshold: number
   priority: number
@@ -2485,11 +2566,15 @@ export type ImageTypeEnum = 'MAIN' | 'BANNER' | 'ICON' | 'THUMBNAIL' | 'GALLERY'
  */
 export type InvoiceDownloadResponse = {
   /**
-     * Sequential identifier in the form ``INV-{YEAR}-{NNNNNN}``. Gaps are not allowed by Greek tax law.
+     * Αριθμός τιμολογίου
+     *
+     * Διαδοχικό αναγνωριστικό στη μορφή ``INV-{YEAR}-{NNNNNN}``. Δεν επιτρέπονται κενά βάσει της ελληνικής φορολογικής νομοθεσίας.
      */
   readonly invoiceNumber: string
   /**
-     * Fiscal date of issue. Immutable once the invoice is rendered — used for sequential numbering and reporting.
+     * Ημερομηνία έκδοσης
+     *
+     * Φορολογική ημερομηνία έκδοσης. Αμετάβλητη μόλις εκδοθεί το τιμολόγιο — χρησιμοποιείται για διαδοχική αρίθμηση και αναφορές.
      */
   readonly issueDate: string
   /**
@@ -2511,7 +2596,9 @@ export type InvoiceDownloadResponse = {
      */
   readonly currency: string
   /**
-     * Cached list of ``{rate, subtotal, vat, gross}`` rows — frozen at issue time so re-rendering the invoice always yields the same VAT table even if product rates change.
+     * Ανάλυση ΦΠΑ
+     *
+     * Λίστα σε cache από γραμμές ``{rate, subtotal, vat, gross}`` — παγιωμένη τη στιγμή της έκδοσης, ώστε η εκ νέου απόδοση του τιμολογίου να δίνει πάντα τον ίδιο πίνακα ΦΠΑ ακόμη κι αν αλλάξουν οι συντελεστές των προϊόντων.
      */
   readonly vatBreakdown: unknown
 }
@@ -2573,13 +2660,13 @@ export type LoyaltyTier = {
   /**
      * Απαιτούμενο επίπεδο
      *
-     * Minimum level to achieve this tier
+     * Ελάχιστο επίπεδο για την επίτευξη αυτού του tier
      */
   readonly requiredLevel: number
   /**
      * Πολλαπλασιαστής πόντων
      *
-     * Multiplier applied to earned points for users in this tier
+     * Πολλαπλασιαστής που εφαρμόζεται στους πόντους που κερδίζουν οι χρήστες σε αυτό το tier
      */
   readonly pointsMultiplier: number
   /**
@@ -2610,7 +2697,7 @@ export type Notification = {
   }
   readonly id: number
   /**
-     * URL link or empty string
+     * Σύνδεσμος URL ή κενή τιμή
      */
   readonly link: string | null
   /**
@@ -2628,7 +2715,7 @@ export type Notification = {
   /**
      * Τύπος ειδοποίησης
      *
-     * Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.
+     * Λεπτομερές αναγνωριστικό συμβάντος. Δείτε ``notification.enum.NotificationTypeEnum`` για τον πλήρη κατάλογο. Αφήνεται κενό για περιστασιακές ανακοινώσεις διαχειριστή.
      *
      * * `order_created` - Η παραγγελία δημιουργήθηκε
      * * `order_processing` - Επεξεργασία παραγγελίας
@@ -2704,7 +2791,7 @@ export type NotificationKindEnum = 'ERROR' | 'SUCCESS' | 'INFO' | 'WARNING' | 'D
 
 export type NotificationSuccessResponse = {
   /**
-     * Whether the operation was successful
+     * Αν η λειτουργία ήταν επιτυχής
      */
   success?: boolean
 }
@@ -2755,7 +2842,7 @@ export type NotificationUser = {
 
 export type NotificationUserActionRequest = {
   /**
-     * List of notification user IDs to mark as seen/unseen
+     * Λίστα ID χρηστών ειδοποίησης προς σήμανση ως ορατά/μη ορατά
      */
   notificationUserIds: Array<number>
 }
@@ -2784,7 +2871,6 @@ export type NotificationUserDetail = {
 }
 
 export type NotificationUserWriteRequest = {
-  notification: number
   /**
      * Ορατό
      */
@@ -2920,7 +3006,7 @@ export type OrderCreateFromCartRequest = {
      */
   payWayId: number
   /**
-     * Payment intent ID from payment provider (required for online payments)
+     * ID payment intent από τον πάροχο πληρωμών (υποχρεωτικό για online πληρωμές)
      */
   paymentIntentId?: string | null
   /**
@@ -2936,11 +3022,11 @@ export type OrderCreateFromCartRequest = {
      */
   email: string
   /**
-     * Street name
+     * Όνομα οδού
      */
   street: string
   /**
-     * Street number
+     * Αριθμός οδού
      */
   streetNumber?: string
   /**
@@ -2952,7 +3038,7 @@ export type OrderCreateFromCartRequest = {
      */
   zipcode: string
   /**
-     * Country alpha-2 code (e.g., 'GR', 'US')
+     * Κωδικός χώρας alpha-2 (π.χ. 'GR', 'US')
      */
   countryId: string
   /**
@@ -2964,72 +3050,72 @@ export type OrderCreateFromCartRequest = {
      */
   phone: string
   /**
-     * Customer notes or special instructions
+     * Σημειώσεις πελάτη ή ειδικές οδηγίες
      */
   customerNotes?: string
   /**
-     * Floor number or label (e.g. FIRST_FLOOR)
+     * Αριθμός ή ένδειξη ορόφου (π.χ. FIRST_FLOOR)
      */
   floor?: string
   /**
-     * Location type, e.g. HOME or OFFICE (optional)
+     * Τύπος τοποθεσίας, π.χ. HOME ή OFFICE (προαιρετικό)
      */
   locationType?: string
   /**
-     * Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.
+     * ΑΦΜ αγοραστή. Υποχρεωτικό όταν το ``document_type`` είναι INVOICE· 9 ψηφία για ελληνικό ΑΦΜ, το αρχικό πρόθεμα EL/GR αφαιρείται αυτόματα.
      */
   billingVatId?: string
   /**
-     * ISO 3166-1 alpha-2 country code for the buyer's tax identity. Defaults to the order country when blank.
+     * Κωδικός χώρας ISO 3166-1 alpha-2 για τη φορολογική ταυτότητα του αγοραστή. Προεπιλογή η χώρα της παραγγελίας όταν είναι κενό.
      */
   billingCountry?: string
   /**
-     * RECEIPT (Α.Λ.Π., Tier A — retail) or INVOICE (Τιμολόγιο Πώλησης, Tier B — B2B). Selecting INVOICE requires a valid ``billing_vat_id``.
+     * RECEIPT (Α.Λ.Π., Tier A — λιανική) ή INVOICE (Τιμολόγιο Πώλησης, Tier B — B2B). Η επιλογή INVOICE απαιτεί έγκυρο ``billing_vat_id``.
      *
      * * `RECEIPT` - Απόδειξη
      * * `INVOICE` - Τιμολόγιο
      */
   documentType?: OrderCreateDocumentType
   /**
-     * Number of loyalty points to redeem for discount on this order
+     * Αριθμός πόντων πιστότητας προς εξαργύρωση για έκπτωση σε αυτή την παραγγελία
      */
   loyaltyPointsToRedeem?: number | null
   /**
-     * BoxNow APM locker ID from the widget
+     * ID locker APM BoxNow από το widget
      */
   boxnowLockerId?: string
   /**
-     * BoxNow compartment size: 1=Small, 2=Medium, 3=Large
+     * Μέγεθος θυρίδας BoxNow: 1=Μικρό, 2=Μεσαίο, 3=Μεγάλο
      */
   boxnowCompartmentSize?: number
   /**
-     * Carrier code from /api/v1/shipping/options (e.g. 'acs').
+     * Κωδικός μεταφορέα από /api/v1/shipping/options (π.χ. 'acs').
      */
-  shippingProviderCode?: string
+  shippingProviderCode?: string | string
   /**
-     * Generic fulfilment kind, independent of provider.
+     * Γενικός τύπος εκπλήρωσης, ανεξάρτητος από τον πάροχο.
      *
-     * * `home_delivery` - Home delivery
-     * * `pickup_point` - Pickup point / locker
+     * * `home_delivery` - Κατ' οίκον παράδοση
+     * * `pickup_point` - Σημείο παραλαβής / locker
      */
   shippingKind?: ShippingKind
   /**
-     * ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).
+     * Εξωτερικό ID καταστήματος/Smartpoint ACS (ροή σημείου παραλαβής Φάσης 2).
      */
   acsStationExternalId?: string
   /**
-     * ACS_Station_Branch_Destination value.
+     * Τιμή ACS_Station_Branch_Destination.
      */
   acsStationBranch?: string
   /**
-     * Optional per-order ACS Charge_Type override. Leave unset to use the carrier-level default (COD on a COD-only contract). Setting this here only makes sense if the ACS commercial contract permits the chosen value — invalid combinations are rejected by ACS_Create_Voucher.
+     * Προαιρετική παράκαμψη του ACS Charge_Type ανά παραγγελία. Αφήστε το κενό για χρήση της προεπιλογής σε επίπεδο μεταφορέα (COD σε σύμβαση μόνο-COD). Ο ορισμός εδώ έχει νόημα μόνο αν η εμπορική σύμβαση με την ACS επιτρέπει την επιλεγμένη τιμή — μη έγκυροι συνδυασμοί απορρίπτονται από το ACS_Create_Voucher.
      *
      * * `1` - Προπληρωμένο
-     * * `2` - Cash on delivery
+     * * `2` - Αντικαταβολή
      */
   acsChargeType?: AcsChargeType
   /**
-     * Optional per-order override for ACS Item_Quantity (number of physical parcels in the shipment). Defaults to 1. Must NOT be set for Smartpoint pickup — ACS rejects multipart vouchers on lockers.
+     * Προαιρετική παράκαμψη ανά παραγγελία για το ACS Item_Quantity (αριθμός φυσικών δεμάτων στην αποστολή). Προεπιλογή 1. ΔΕΝ πρέπει να οριστεί για παραλαβή Smartpoint — η ACS απορρίπτει vouchers πολλαπλών δεμάτων σε lockers.
      */
   acsItemQuantity?: number
 }
@@ -3327,7 +3413,7 @@ export type OrderItemDetail = {
 
 export type OrderItemRefundRequest = {
   /**
-     * Quantity to refund. If not provided, refunds all.
+     * Ποσότητα προς επιστροφή. Αν δεν δοθεί, επιστρέφονται όλα.
      */
   quantity?: number
   /**
@@ -3369,10 +3455,6 @@ export type OrderStatus = 'PENDING' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | '
 
 export type OrderWriteRequest = {
   /**
-     * User ID. Leave empty for guest orders.
-     */
-  user?: number | null
-  /**
      * Κωδικός Χώρας (Alpha 2)
      */
   country?: string | null
@@ -3396,7 +3478,6 @@ export type OrderWriteRequest = {
      * Αριθμός
      */
   streetNumber: string
-  payWay?: number | null
   /**
      * Όνομα
      */
@@ -3424,10 +3505,6 @@ export type OrderWriteRequest = {
      */
   customerNotes?: string
   items: Array<OrderItemCreateRequest>
-  /**
-     * Τύπος Εγγράφου
-     */
-  documentType?: OrderDocumentType
 }
 
 export type PageLayout = {
@@ -3981,7 +4058,7 @@ export type PatchedBlogAuthorWriteRequest = {
   /**
      * Ιστότοπος
      */
-  website?: string
+  website?: string | string
 }
 
 /**
@@ -4104,10 +4181,6 @@ export type PatchedCartItemUpdateRequest = {
   quantity?: number
 }
 
-export type PatchedCartWriteRequest = {
-  user?: number | null
-}
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -4142,7 +4215,6 @@ export type PatchedCountryWriteRequest = {
 }
 
 export type PatchedNotificationUserWriteRequest = {
-  notification?: number
   /**
      * Ορατό
      */
@@ -4163,10 +4235,6 @@ export type PatchedOrderItemWriteRequest = {
 }
 
 export type PatchedOrderWriteRequest = {
-  /**
-     * User ID. Leave empty for guest orders.
-     */
-  user?: number | null
   /**
      * Κωδικός Χώρας (Alpha 2)
      */
@@ -4191,7 +4259,6 @@ export type PatchedOrderWriteRequest = {
      * Αριθμός
      */
   streetNumber?: string
-  payWay?: number | null
   /**
      * Όνομα
      */
@@ -4219,10 +4286,6 @@ export type PatchedOrderWriteRequest = {
      */
   customerNotes?: string
   items?: Array<OrderItemCreateRequest>
-  /**
-     * Τύπος Εγγράφου
-     */
-  documentType?: OrderDocumentType
 }
 
 export type PatchedPageLayoutRequest = {
@@ -4452,6 +4515,7 @@ export type PatchedProductWriteRequest = {
   }
   slug?: string
   category?: number
+  brand?: number | null
   price?: number
   vat?: number
   /**
@@ -4528,13 +4592,13 @@ export type PatchedSubscriptionTopicWriteRequest = {
     }
   }
   /**
-     * Unique identifier for the topic (e.g., 'weekly-newsletter')
+     * Μοναδικό αναγνωριστικό για το θέμα (π.χ. 'weekly-newsletter')
      */
   slug?: string
   /**
      * Κατηγορία
      *
-     * Category of the subscription topic
+     * Κατηγορία του θέματος εγγραφής
      *
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
@@ -4548,19 +4612,19 @@ export type PatchedSubscriptionTopicWriteRequest = {
   /**
      * Ενεργή
      *
-     * Whether this topic is currently available for subscription
+     * Αν αυτό το θέμα είναι επί του παρόντος διαθέσιμο για εγγραφή
      */
   isActive?: boolean
   /**
      * Προεπιλεγμένη συνδρομή
      *
-     * Whether new users are automatically subscribed to this topic
+     * Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
      */
   isDefault?: boolean
   /**
      * Απαιτείται Επιβεβαίωση
      *
-     * Whether subscription to this topic requires email confirmation
+     * Αν η εγγραφή σε αυτό το θέμα απαιτεί επιβεβαίωση email
      */
   requiresConfirmation?: boolean
 }
@@ -4652,7 +4716,7 @@ export type PatchedUserSubscriptionWriteRequest = {
   /**
      * Μεταδεδομένα
      *
-     * Additional subscription preferences or data
+     * Επιπλέον προτιμήσεις ή δεδομένα εγγραφής
      */
   metadata?: unknown
 }
@@ -4675,7 +4739,7 @@ export type PatchedUserWriteRequest = {
      *
      * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
      */
-  username?: string | null
+  username?: string | string | null
   /**
      * Εικόνα
      */
@@ -4712,31 +4776,31 @@ export type PatchedUserWriteRequest = {
   /**
      * Προφίλ Twitter
      */
-  twitter?: string | null
+  twitter?: string | string | null
   /**
      * Προφίλ LinkedIn
      */
-  linkedin?: string | null
+  linkedin?: string | string | null
   /**
      * Προφίλ Facebook
      */
-  facebook?: string | null
+  facebook?: string | string | null
   /**
      * Προφίλ Instagram
      */
-  instagram?: string | null
+  instagram?: string | string | null
   /**
      * Ιστότοπος
      */
-  website?: string | null
+  website?: string | string | null
   /**
      * Προφίλ Youtube
      */
-  youtube?: string | null
+  youtube?: string | string | null
   /**
      * Προφίλ Github
      */
-  github?: string | null
+  github?: string | string | null
   /**
      * Βιογραφικό
      */
@@ -4744,7 +4808,7 @@ export type PatchedUserWriteRequest = {
   /**
      * Γλώσσα
      *
-     * Preferred language for emails and UI messages.
+     * Προτιμώμενη γλώσσα για emails και μηνύματα διεπαφής.
      */
   languageCode?: string
 }
@@ -4943,7 +5007,7 @@ export type PayWayWriteRequest = {
 
 /**
  * * `prepaid` - Προπληρωμένο
- * * `cod` - Cash on delivery
+ * * `cod` - Αντικαταβολή
  */
 export type PaymentModeEnum = 'prepaid' | 'cod'
 
@@ -4992,9 +5056,12 @@ export type PointsTransaction = {
   /**
      * Πόντοι
      *
-     * Positive for earn/bonus, negative for redeem/expire/adjust
+     * Θετικό για κέρδος/μπόνους, αρνητικό για εξαργύρωση/λήξη/προσαρμογή
      */
   readonly points: number
+  /**
+     * Τύπος συναλλαγής
+     */
   transactionType: TransactionTypeEnum
   readonly referenceOrder: number | null
   /**
@@ -5037,6 +5104,12 @@ export type Product = {
   }
   slug: string
   category: number
+  /**
+     * Συνδέει αυτό το προϊόν με τις αδερφές παραλλαγές του (π.χ. το ίδιο είδος σε άλλα χρώματα). Τα μέλη μοιράζονται επιλογείς παραλλαγής στο κατάστημα.
+     */
+  readonly variantGroup: number | null
+  readonly brand: number | null
+  readonly brandName: string | null
   price: number
   vat: number
   /**
@@ -5050,7 +5123,7 @@ export type Product = {
   /**
      * Όριο χαμηλού αποθέματος
      *
-     * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
+     * Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.
      */
   readonly lowStockThreshold: number
   /**
@@ -5118,6 +5191,9 @@ export type ProductAlert = {
   readonly user: number | null
   email?: string | null
   targetPrice?: number | null
+  /**
+     * Ενεργό
+     */
   readonly isActive: boolean
   /**
      * Ειδοποιήθηκε στις
@@ -5135,7 +5211,7 @@ export type ProductAlert = {
 
 /**
  * * `restock` - Αναπλήρωση
- * * `price_drop` - Price drop
+ * * `price_drop` - Πτώση τιμής
  */
 export type ProductAlertKindEnum = 'restock' | 'price_drop'
 
@@ -5468,6 +5544,12 @@ export type ProductDetail = {
   }
   slug: string
   category: number
+  /**
+     * Συνδέει αυτό το προϊόν με τις αδερφές παραλλαγές του (π.χ. το ίδιο είδος σε άλλα χρώματα). Τα μέλη μοιράζονται επιλογείς παραλλαγής στο κατάστημα.
+     */
+  readonly variantGroup: number | null
+  readonly brand: number | null
+  readonly brandName: string | null
   price: number
   vat: number
   /**
@@ -5481,7 +5563,7 @@ export type ProductDetail = {
   /**
      * Όριο χαμηλού αποθέματος
      *
-     * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
+     * Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.
      */
   readonly lowStockThreshold: number
   /**
@@ -5539,7 +5621,7 @@ export type ProductDetail = {
   /**
      * Ειδοποιήσεις πτώσης τιμής
      *
-     * When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU.
+     * Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU.
      */
   readonly priceDropAlertsEnabled: boolean
 }
@@ -5565,6 +5647,12 @@ export type ProductDetailResponse = {
   }
   slug: string
   category: number
+  /**
+     * Συνδέει αυτό το προϊόν με τις αδερφές παραλλαγές του (π.χ. το ίδιο είδος σε άλλα χρώματα). Τα μέλη μοιράζονται επιλογείς παραλλαγής στο κατάστημα.
+     */
+  readonly variantGroup: number | null
+  readonly brand: number | null
+  readonly brandName: string | null
   price: number
   vat: number
   /**
@@ -5578,7 +5666,7 @@ export type ProductDetailResponse = {
   /**
      * Όριο χαμηλού αποθέματος
      *
-     * Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.
+     * Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.
      */
   readonly lowStockThreshold: number
   /**
@@ -5636,7 +5724,7 @@ export type ProductDetailResponse = {
   /**
      * Ειδοποιήσεις πτώσης τιμής
      *
-     * When enabled, customers can subscribe to a one-time email when this product's price drops below a target. Disabled by default — admins opt products in per SKU.
+     * Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU.
      */
   readonly priceDropAlertsEnabled: boolean
 }
@@ -5655,7 +5743,7 @@ export type ProductFavourite = {
 
 export type ProductFavouriteByProductsRequestRequest = {
   /**
-     * List of product IDs to check for favorites
+     * Λίστα ID προϊόντων για έλεγχο αγαπημένων
      */
   productIds: Array<number>
 }
@@ -5987,6 +6075,55 @@ export type ProductReviewWriteRequest = {
 }
 
 /**
+ * A single sibling product within a variant group, trimmed to what a
+ * storefront swatch card needs: identity, image, price and its
+ * variant-axis attribute values (Colour, Memory, …).
+ */
+export type ProductVariant = {
+  readonly id: number
+  translations: {
+    el?: {
+      name?: string
+      description?: string
+    }
+    en?: {
+      name?: string
+      description?: string
+    }
+    de?: {
+      name?: string
+      description?: string
+    }
+  }
+  readonly slug: string
+  /**
+     * Ενεργή
+     */
+  readonly active: boolean
+  /**
+     * Απόθεμα
+     */
+  readonly stock: number
+  readonly price: number
+  readonly finalPrice: number
+  /**
+     * Ποσοστό Έκπτωσης
+     */
+  readonly discountPercent: number
+  readonly mainImagePath: string
+  readonly attributeValues: Array<ProductAttribute>
+}
+
+/**
+ * Payload for ``GET /product/{id}/variants`` — the axes to render and the
+ * sibling products that fill them.
+ */
+export type ProductVariantsResponse = {
+  axes: Array<VariantAxis>
+  variants: Array<ProductVariant>
+}
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type ProductWriteRequest = {
@@ -6006,6 +6143,7 @@ export type ProductWriteRequest = {
   }
   slug: string
   category: number
+  brand?: number | null
   price: number
   vat: number
   /**
@@ -6201,7 +6339,7 @@ export type RegionWriteRequest = {
  */
 export type ReleaseReservationsRequestRequest = {
   /**
-     * List of reservation IDs to release
+     * Λίστα ID δεσμεύσεων προς απελευθέρωση
      */
   reservationIds: Array<number>
 }
@@ -6211,7 +6349,7 @@ export type ReleaseReservationsRequestRequest = {
  */
 export type ReleaseReservationsResponse = {
   /**
-     * Success message
+     * Μήνυμα επιτυχίας
      */
   message: string
   /**
@@ -6219,7 +6357,7 @@ export type ReleaseReservationsResponse = {
      */
   releasedCount: number
   /**
-     * List of failed releases with error details
+     * Λίστα αποτυχημένων απελευθερώσεων με λεπτομέρειες σφάλματος
      */
   failedReleases?: Array<{
     [key: string]: unknown
@@ -6244,27 +6382,19 @@ export type ReorderResponse = {
  */
 export type ReserveStockResponse = {
   /**
-     * List of created stock reservation IDs
+     * Λίστα ID δημιουργημένων δεσμεύσεων αποθέματος
      */
   reservationIds: Array<number>
   /**
-     * Success message
+     * Μήνυμα επιτυχίας
      */
   message: string
-}
-
-export type ResolveVivaOrderCodeError = {
-  error: string
-}
-
-export type ResolveVivaOrderCodeResponse = {
-  uuid: string
 }
 
 /**
  * * `NEW` - Νέο
  * * `TRUE` - Ναι
- * * `FALSE` - False
+ * * `FALSE` - Όχι
  */
 export type ReviewStatus = 'NEW' | 'TRUE' | 'FALSE'
 
@@ -6332,13 +6462,13 @@ export type SettingDetail = {
 }
 
 /**
- * * `pending_creation` - Pending creation
+ * * `pending_creation` - Εκκρεμής δημιουργία
  * * `new` - Νέο
  * * `in_transit` - Σε μεταφορά
  * * `at_destination` - Στο κατάστημα παράδοσης
- * * `out_for_delivery` - Out for delivery
+ * * `out_for_delivery` - Σε διανομή
  * * `delivered` - Παραδόθηκε
- * * `attempted` - Delivery attempted
+ * * `attempted` - Απόπειρα παράδοσης
  * * `returned` - Επιστράφηκε
  * * `canceled` - Ακυρώθηκε
  * * `lost` - Χάθηκε
@@ -6346,8 +6476,8 @@ export type SettingDetail = {
 export type ShipmentStateEnum = 'pending_creation' | 'new' | 'in_transit' | 'at_destination' | 'out_for_delivery' | 'delivered' | 'attempted' | 'returned' | 'canceled' | 'lost'
 
 /**
- * * `home_delivery` - Home delivery
- * * `pickup_point` - Pickup point / locker
+ * * `home_delivery` - Κατ' οίκον παράδοση
+ * * `pickup_point` - Σημείο παραλαβής / locker
  */
 export type ShippingKind = 'home_delivery' | 'pickup_point'
 
@@ -6364,14 +6494,14 @@ export type ShippingOption = {
   providerName: string
   kind: ShippingKind
   /**
-     * Null when the provider defers to the global flat rate.
+     * Null όταν ο πάροχος παραπέμπει στη γενική πάγια χρέωση.
      */
   price: number | null
   currency: string
   liveMode: boolean
   priority: number
   /**
-     * Absolute URL for the operator-uploaded brand logo, resolved per (provider, kind) so the home-delivery row and the pickup-point row of the same carrier can show different images. Null when no logo is uploaded — the storefront then falls back to its bundled default. ``settings.MEDIA_URL`` is absolute in every environment so this is always a full URL when present.
+     * Απόλυτο URL για το λογότυπο μάρκας που ανέβασε ο χειριστής, υπολογισμένο ανά (πάροχο, τύπο) ώστε η γραμμή κατ' οίκον παράδοσης και η γραμμή σημείου παραλαβής του ίδιου μεταφορέα να μπορούν να εμφανίζουν διαφορετικές εικόνες. Null όταν δεν έχει μεταφορτωθεί λογότυπο — το κατάστημα τότε επιστρέφει στην ενσωματωμένη προεπιλογή του. Το ``settings.MEDIA_URL`` είναι απόλυτο σε κάθε περιβάλλον, οπότε αυτό είναι πάντα πλήρες URL όταν υπάρχει.
      */
   logoUrl?: string | null
   metadata: {
@@ -6384,39 +6514,47 @@ export type ShippingProvider = {
   /**
      * Κωδικός
      *
-     * Stable identifier matching the registered carrier adapter (e.g. 'acs', 'boxnow').
+     * Σταθερό αναγνωριστικό που αντιστοιχεί στον καταχωρημένο προσαρμογέα μεταφορέα (π.χ. 'acs', 'boxnow').
      */
   readonly code: string
   /**
      * Όνομα
      *
-     * Display name shown to customers (e.g. 'ACS Courier').
+     * Όνομα εμφάνισης προς τους πελάτες (π.χ. 'ACS Courier').
      */
   readonly name: string
   /**
-     * Master switch — when False the provider is hidden from checkout regardless of capability flags.
+     * Ενεργό
+     *
+     * Κύριος διακόπτης — όταν είναι False, ο πάροχος αποκρύπτεται από το checkout ανεξάρτητα από τις σημαίες δυνατοτήτων.
      */
   readonly isActive: boolean
+  /**
+     * Υποστηρίζει Κατ' Οίκον Παράδοση
+     */
   readonly supportsHomeDelivery: boolean
+  /**
+     * Υποστηρίζει σημείο παραλαβής
+     */
   readonly supportsPickupPoint: boolean
   /**
-     * False = sandbox / test credentials. Used by the admin UI to warn operators that vouchers won't actually ship.
+     * False = διαπιστευτήρια sandbox / δοκιμής. Χρησιμοποιείται από το UI διαχείρισης για να προειδοποιεί τους χειριστές ότι τα vouchers δεν θα αποσταλούν πραγματικά.
      */
   readonly liveMode: boolean
   /**
      * Προτεραιότητα
      *
-     * Sort order in checkout — lower numbers appear first.
+     * Σειρά ταξινόμησης στο checkout — οι μικρότεροι αριθμοί εμφανίζονται πρώτοι.
      */
   readonly priority: number
   /**
      * Absolute URL for the operator-uploaded primary brand logo (home-delivery rows + fallback for pickup_point when no pickup-specific variant is set). ``null`` when no upload — the storefront falls back to its bundled default.
      */
-  readonly logo: string
+  readonly logo: string | null
   /**
      * Absolute URL for the optional pickup-point-specific logo (e.g. a locker illustration distinct from the carrier's home-delivery brand mark). Surfaced on the pickup_point row's ``logoUrl`` when uploaded; otherwise the row falls back to ``logo``.
      */
-  readonly logoPickupPoint: string
+  readonly logoPickupPoint: string | null
   /**
      * Relative ``media/uploads/shipping/<filename>`` path for the primary logo; empty string when no logo is uploaded. Mirrors the PayWay.icon contract.
      */
@@ -6432,7 +6570,7 @@ export type ShippingProvider = {
   /**
      * Μεταδεδομένα
      *
-     * Provider-specific configuration (supported countries, feature flags, branding hints).
+     * Διαμόρφωση ειδική για τον πάροχο (υποστηριζόμενες χώρες, σημαίες λειτουργιών, υποδείξεις branding).
      */
   readonly metadata: unknown
   /**
@@ -6451,14 +6589,14 @@ export type ShippingProvider = {
  * * `3` - Συνεργαζόμενο κατάστημα (3)
  * * `4` - Xpress Point
  * * `5` - Kiosk
- * * `7` - Smartpoint (inbound)
- * * `8` - Smartpoint (outbound)
+ * * `7` - Smartpoint (εισερχόμενα)
+ * * `8` - Smartpoint (εξερχόμενα)
  */
 export type ShopKindEnum = 1 | 2 | 3 | 4 | 5 | 7 | 8
 
 /**
  * * `ACTIVE` - Ενεργή
- * * `PENDING` - Pending Confirmation
+ * * `PENDING` - Εκκρεμεί Επιβεβαίωση
  * * `UNSUBSCRIBED` - Διαγραφή
  * * `BOUNCED` - Επιστράφηκε
  */
@@ -6485,13 +6623,13 @@ export type SubscriptionTopic = {
   readonly id: number
   readonly uuid: string
   /**
-     * Unique identifier for the topic (e.g., 'weekly-newsletter')
+     * Μοναδικό αναγνωριστικό για το θέμα (π.χ. 'weekly-newsletter')
      */
   slug: string
   /**
      * Κατηγορία
      *
-     * Category of the subscription topic
+     * Κατηγορία του θέματος εγγραφής
      *
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
@@ -6505,19 +6643,19 @@ export type SubscriptionTopic = {
   /**
      * Ενεργή
      *
-     * Whether this topic is currently available for subscription
+     * Αν αυτό το θέμα είναι επί του παρόντος διαθέσιμο για εγγραφή
      */
   isActive?: boolean
   /**
      * Προεπιλεγμένη συνδρομή
      *
-     * Whether new users are automatically subscribed to this topic
+     * Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
      */
   isDefault?: boolean
   /**
      * Απαιτείται Επιβεβαίωση
      *
-     * Whether subscription to this topic requires email confirmation
+     * Αν η εγγραφή σε αυτό το θέμα απαιτεί επιβεβαίωση email
      */
   requiresConfirmation?: boolean
   readonly subscriberCount: number
@@ -6544,13 +6682,13 @@ export type SubscriptionTopicDetail = {
   readonly id: number
   readonly uuid: string
   /**
-     * Unique identifier for the topic (e.g., 'weekly-newsletter')
+     * Μοναδικό αναγνωριστικό για το θέμα (π.χ. 'weekly-newsletter')
      */
   slug: string
   /**
      * Κατηγορία
      *
-     * Category of the subscription topic
+     * Κατηγορία του θέματος εγγραφής
      *
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
@@ -6564,19 +6702,19 @@ export type SubscriptionTopicDetail = {
   /**
      * Ενεργή
      *
-     * Whether this topic is currently available for subscription
+     * Αν αυτό το θέμα είναι επί του παρόντος διαθέσιμο για εγγραφή
      */
   isActive?: boolean
   /**
      * Προεπιλεγμένη συνδρομή
      *
-     * Whether new users are automatically subscribed to this topic
+     * Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
      */
   isDefault?: boolean
   /**
      * Απαιτείται Επιβεβαίωση
      *
-     * Whether subscription to this topic requires email confirmation
+     * Αν η εγγραφή σε αυτό το θέμα απαιτεί επιβεβαίωση email
      */
   requiresConfirmation?: boolean
   readonly subscriberCount: number
@@ -6609,13 +6747,13 @@ export type SubscriptionTopicWriteRequest = {
     }
   }
   /**
-     * Unique identifier for the topic (e.g., 'weekly-newsletter')
+     * Μοναδικό αναγνωριστικό για το θέμα (π.χ. 'weekly-newsletter')
      */
   slug: string
   /**
      * Κατηγορία
      *
-     * Category of the subscription topic
+     * Κατηγορία του θέματος εγγραφής
      *
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
@@ -6629,19 +6767,19 @@ export type SubscriptionTopicWriteRequest = {
   /**
      * Ενεργή
      *
-     * Whether this topic is currently available for subscription
+     * Αν αυτό το θέμα είναι επί του παρόντος διαθέσιμο για εγγραφή
      */
   isActive?: boolean
   /**
      * Προεπιλεγμένη συνδρομή
      *
-     * Whether new users are automatically subscribed to this topic
+     * Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
      */
   isDefault?: boolean
   /**
      * Απαιτείται Επιβεβαίωση
      *
-     * Whether subscription to this topic requires email confirmation
+     * Αν η εγγραφή σε αυτό το θέμα απαιτεί επιβεβαίωση email
      */
   requiresConfirmation?: boolean
 }
@@ -6723,7 +6861,7 @@ export type TagDetail = {
   readonly updatedAt: string
   readonly uuid: string
   /**
-     * Content types this tag is used with
+     * Τύποι περιεχομένου με τους οποίους χρησιμοποιείται αυτή η ετικέτα
      */
   readonly contentTypes: string
 }
@@ -6759,7 +6897,7 @@ export type TaggedItem = {
   readonly contentTypeName: string
   objectId: number
   /**
-     * Serialized representation of the related content object
+     * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
      */
   readonly contentObject: {
     id?: number
@@ -6790,7 +6928,7 @@ export type TaggedItemDetail = {
   readonly contentTypeName: string
   objectId: number
   /**
-     * Serialized representation of the related content object
+     * Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου
      */
   readonly contentObject: {
     id?: number
@@ -6848,6 +6986,7 @@ export type TenantConfig = {
   readonly stripePublishableKey: string
   readonly allowedCspSources: Array<string>
   readonly metaPixelId: string
+  readonly tiktokPixelId: string
   readonly gaTrackingId: string
   readonly totpIssuer: string
   readonly turnstileSiteKey: string
@@ -7188,7 +7327,7 @@ export type UserDetails = {
      *
      * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
      */
-  username?: string | null
+  username?: string | string | null
   phone?: string | null
   /**
      * Πόλη
@@ -7219,31 +7358,31 @@ export type UserDetails = {
      */
   birthDate?: string | null
   /**
-     * URL link or empty string
+     * Σύνδεσμος URL ή κενή τιμή
      */
   readonly twitter: string | null
   /**
-     * URL link or empty string
+     * Σύνδεσμος URL ή κενή τιμή
      */
   readonly linkedin: string | null
   /**
-     * URL link or empty string
+     * Σύνδεσμος URL ή κενή τιμή
      */
   readonly facebook: string | null
   /**
-     * URL link or empty string
+     * Σύνδεσμος URL ή κενή τιμή
      */
   readonly instagram: string | null
   /**
-     * URL link or empty string
+     * Σύνδεσμος URL ή κενή τιμή
      */
   readonly website: string | null
   /**
-     * URL link or empty string
+     * Σύνδεσμος URL ή κενή τιμή
      */
   readonly youtube: string | null
   /**
-     * URL link or empty string
+     * Σύνδεσμος URL ή κενή τιμή
      */
   readonly github: string | null
   /**
@@ -7253,7 +7392,7 @@ export type UserDetails = {
   /**
      * Γλώσσα
      *
-     * Preferred language for emails and UI messages.
+     * Προτιμώμενη γλώσσα για emails και μηνύματα διεπαφής.
      */
   languageCode?: string
   /**
@@ -7305,7 +7444,7 @@ export type UserSubscription = {
   /**
      * Μεταδεδομένα
      *
-     * Additional subscription preferences or data
+     * Επιπλέον προτιμήσεις ή δεδομένα εγγραφής
      */
   metadata?: unknown
   /**
@@ -7341,7 +7480,7 @@ export type UserSubscriptionDetail = {
   /**
      * Μεταδεδομένα
      *
-     * Additional subscription preferences or data
+     * Επιπλέον προτιμήσεις ή δεδομένα εγγραφής
      */
   metadata?: unknown
   /**
@@ -7359,7 +7498,7 @@ export type UserSubscriptionWriteRequest = {
   /**
      * Μεταδεδομένα
      *
-     * Additional subscription preferences or data
+     * Επιπλέον προτιμήσεις ή δεδομένα εγγραφής
      */
   metadata?: unknown
 }
@@ -7382,7 +7521,7 @@ export type UserWriteRequest = {
      *
      * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
      */
-  username?: string | null
+  username?: string | string | null
   /**
      * Εικόνα
      */
@@ -7419,31 +7558,31 @@ export type UserWriteRequest = {
   /**
      * Προφίλ Twitter
      */
-  twitter?: string | null
+  twitter?: string | string | null
   /**
      * Προφίλ LinkedIn
      */
-  linkedin?: string | null
+  linkedin?: string | string | null
   /**
      * Προφίλ Facebook
      */
-  facebook?: string | null
+  facebook?: string | string | null
   /**
      * Προφίλ Instagram
      */
-  instagram?: string | null
+  instagram?: string | string | null
   /**
      * Ιστότοπος
      */
-  website?: string | null
+  website?: string | string | null
   /**
      * Προφίλ Youtube
      */
-  youtube?: string | null
+  youtube?: string | string | null
   /**
      * Προφίλ Github
      */
-  github?: string | null
+  github?: string | string | null
   /**
      * Βιογραφικό
      */
@@ -7451,7 +7590,7 @@ export type UserWriteRequest = {
   /**
      * Γλώσσα
      *
-     * Preferred language for emails and UI messages.
+     * Προτιμώμενη γλώσσα για emails και μηνύματα διεπαφής.
      */
   languageCode?: string
 }
@@ -7465,9 +7604,37 @@ export type UsernameUpdateRequest = {
 
 export type UsernameUpdateResponse = {
   /**
-     * Success message for username update
+     * Μήνυμα επιτυχίας για ενημέρωση ονόματος χρήστη
      */
   detail: string
+}
+
+/**
+ * A variant axis (an ``Attribute`` flagged ``is_variant``) plus the
+ * distinct values present across the group, both ordered by ``sort_order``.
+ */
+export type VariantAxis = {
+  id: number
+  name: string
+  values: Array<VariantAxisValue>
+}
+
+/**
+ * One selectable value on a variant axis (an ``AttributeValue``).
+ */
+export type VariantAxisValue = {
+  id: number
+  value: string
+}
+
+/**
+ * Minimal, PII-free payload for the Viva post-payment redirect hop.
+ */
+export type VivaReturnLookupResponse = {
+  id: number
+  uuid: string
+  status: string
+  paymentStatus: string
 }
 
 export type WebSocketTicketResponse = {
@@ -7936,7 +8103,7 @@ export type NotificationWritable = {
   /**
      * Τύπος ειδοποίησης
      *
-     * Fine-grained event identifier. See ``notification.enum.NotificationTypeEnum`` for the full catalogue. Left blank for ad-hoc admin broadcasts.
+     * Λεπτομερές αναγνωριστικό συμβάντος. Δείτε ``notification.enum.NotificationTypeEnum`` για τον πλήρη κατάλογο. Αφήνεται κενό για περιστασιακές ανακοινώσεις διαχειριστή.
      *
      * * `order_created` - Η παραγγελία δημιουργήθηκε
      * * `order_processing` - Επεξεργασία παραγγελίας
@@ -8077,7 +8244,7 @@ export type OrderCreateFromCartRequestWritable = {
      */
   payWayId: number
   /**
-     * Payment intent ID from payment provider (required for online payments)
+     * ID payment intent από τον πάροχο πληρωμών (υποχρεωτικό για online πληρωμές)
      */
   paymentIntentId?: string | null
   /**
@@ -8093,11 +8260,11 @@ export type OrderCreateFromCartRequestWritable = {
      */
   email: string
   /**
-     * Street name
+     * Όνομα οδού
      */
   street: string
   /**
-     * Street number
+     * Αριθμός οδού
      */
   streetNumber?: string
   /**
@@ -8109,7 +8276,7 @@ export type OrderCreateFromCartRequestWritable = {
      */
   zipcode: string
   /**
-     * Country alpha-2 code (e.g., 'GR', 'US')
+     * Κωδικός χώρας alpha-2 (π.χ. 'GR', 'US')
      */
   countryId: string
   /**
@@ -8121,76 +8288,76 @@ export type OrderCreateFromCartRequestWritable = {
      */
   phone: string
   /**
-     * Customer notes or special instructions
+     * Σημειώσεις πελάτη ή ειδικές οδηγίες
      */
   customerNotes?: string
   /**
-     * Floor number or label (e.g. FIRST_FLOOR)
+     * Αριθμός ή ένδειξη ορόφου (π.χ. FIRST_FLOOR)
      */
   floor?: string
   /**
-     * Location type, e.g. HOME or OFFICE (optional)
+     * Τύπος τοποθεσίας, π.χ. HOME ή OFFICE (προαιρετικό)
      */
   locationType?: string
   /**
-     * Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.
+     * ΑΦΜ αγοραστή. Υποχρεωτικό όταν το ``document_type`` είναι INVOICE· 9 ψηφία για ελληνικό ΑΦΜ, το αρχικό πρόθεμα EL/GR αφαιρείται αυτόματα.
      */
   billingVatId?: string
   /**
-     * ISO 3166-1 alpha-2 country code for the buyer's tax identity. Defaults to the order country when blank.
+     * Κωδικός χώρας ISO 3166-1 alpha-2 για τη φορολογική ταυτότητα του αγοραστή. Προεπιλογή η χώρα της παραγγελίας όταν είναι κενό.
      */
   billingCountry?: string
   /**
-     * RECEIPT (Α.Λ.Π., Tier A — retail) or INVOICE (Τιμολόγιο Πώλησης, Tier B — B2B). Selecting INVOICE requires a valid ``billing_vat_id``.
+     * RECEIPT (Α.Λ.Π., Tier A — λιανική) ή INVOICE (Τιμολόγιο Πώλησης, Tier B — B2B). Η επιλογή INVOICE απαιτεί έγκυρο ``billing_vat_id``.
      *
      * * `RECEIPT` - Απόδειξη
      * * `INVOICE` - Τιμολόγιο
      */
   documentType?: OrderCreateDocumentType
   /**
-     * Number of loyalty points to redeem for discount on this order
+     * Αριθμός πόντων πιστότητας προς εξαργύρωση για έκπτωση σε αυτή την παραγγελία
      */
   loyaltyPointsToRedeem?: number | null
   /**
-     * BoxNow APM locker ID from the widget
+     * ID locker APM BoxNow από το widget
      */
   boxnowLockerId?: string
   /**
-     * BoxNow compartment size: 1=Small, 2=Medium, 3=Large
+     * Μέγεθος θυρίδας BoxNow: 1=Μικρό, 2=Μεσαίο, 3=Μεγάλο
      */
   boxnowCompartmentSize?: number
   /**
-     * Carrier code from /api/v1/shipping/options (e.g. 'acs').
+     * Κωδικός μεταφορέα από /api/v1/shipping/options (π.χ. 'acs').
      */
-  shippingProviderCode?: string
+  shippingProviderCode?: string | string
   /**
-     * Generic fulfilment kind, independent of provider.
+     * Γενικός τύπος εκπλήρωσης, ανεξάρτητος από τον πάροχο.
      *
-     * * `home_delivery` - Home delivery
-     * * `pickup_point` - Pickup point / locker
+     * * `home_delivery` - Κατ' οίκον παράδοση
+     * * `pickup_point` - Σημείο παραλαβής / locker
      */
   shippingKind?: ShippingKind
   /**
-     * ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).
+     * Εξωτερικό ID καταστήματος/Smartpoint ACS (ροή σημείου παραλαβής Φάσης 2).
      */
   acsStationExternalId?: string
   /**
-     * ACS_Station_Branch_Destination value.
+     * Τιμή ACS_Station_Branch_Destination.
      */
   acsStationBranch?: string
   /**
-     * Optional per-order ACS Charge_Type override. Leave unset to use the carrier-level default (COD on a COD-only contract). Setting this here only makes sense if the ACS commercial contract permits the chosen value — invalid combinations are rejected by ACS_Create_Voucher.
+     * Προαιρετική παράκαμψη του ACS Charge_Type ανά παραγγελία. Αφήστε το κενό για χρήση της προεπιλογής σε επίπεδο μεταφορέα (COD σε σύμβαση μόνο-COD). Ο ορισμός εδώ έχει νόημα μόνο αν η εμπορική σύμβαση με την ACS επιτρέπει την επιλεγμένη τιμή — μη έγκυροι συνδυασμοί απορρίπτονται από το ACS_Create_Voucher.
      *
      * * `1` - Προπληρωμένο
-     * * `2` - Cash on delivery
+     * * `2` - Αντικαταβολή
      */
   acsChargeType?: AcsChargeType
   /**
-     * Optional per-order override for ACS Item_Quantity (number of physical parcels in the shipment). Defaults to 1. Must NOT be set for Smartpoint pickup — ACS rejects multipart vouchers on lockers.
+     * Προαιρετική παράκαμψη ανά παραγγελία για το ACS Item_Quantity (αριθμός φυσικών δεμάτων στην αποστολή). Προεπιλογή 1. ΔΕΝ πρέπει να οριστεί για παραλαβή Smartpoint — η ACS απορρίπτει vouchers πολλαπλών δεμάτων σε lockers.
      */
   acsItemQuantity?: number
   /**
-     * Meta Pixel context: keys ``fbp``, ``fbc``, ``client_user_agent``, ``client_ip_address``, ``event_ids`` (dict of {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict with ``ads`` boolean). Empty dict / null when the customer declined marketing cookies; the CAPI dispatcher then skips the send.
+     * Πλαίσιο Meta Pixel: κλειδιά ``fbp``, ``fbc``, ``client_user_agent``, ``client_ip_address``, ``event_ids`` (dict με {purchase, initiate_checkout, add_payment_info}), ``consent`` (dict με boolean ``ads``). Κενό dict / null όταν ο πελάτης αρνήθηκε τα cookies μάρκετινγκ· ο αποστολέας CAPI τότε παραλείπει την αποστολή.
      */
   meta?: {
     [key: string]: unknown
@@ -9338,6 +9505,37 @@ export type ProductReviewDetailWritable = {
 }
 
 /**
+ * A single sibling product within a variant group, trimmed to what a
+ * storefront swatch card needs: identity, image, price and its
+ * variant-axis attribute values (Colour, Memory, …).
+ */
+export type ProductVariantWritable = {
+  translations: {
+    el?: {
+      name?: string
+      description?: string
+    }
+    en?: {
+      name?: string
+      description?: string
+    }
+    de?: {
+      name?: string
+      description?: string
+    }
+  }
+}
+
+/**
+ * Payload for ``GET /product/{id}/variants`` — the axes to render and the
+ * sibling products that fill them.
+ */
+export type ProductVariantsResponseWritable = {
+  axes: Array<VariantAxis>
+  variants: Array<ProductVariantWritable>
+}
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type RegionWritable = {
@@ -9406,13 +9604,13 @@ export type SubscriptionTopicWritable = {
     }
   }
   /**
-     * Unique identifier for the topic (e.g., 'weekly-newsletter')
+     * Μοναδικό αναγνωριστικό για το θέμα (π.χ. 'weekly-newsletter')
      */
   slug: string
   /**
      * Κατηγορία
      *
-     * Category of the subscription topic
+     * Κατηγορία του θέματος εγγραφής
      *
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
@@ -9426,19 +9624,19 @@ export type SubscriptionTopicWritable = {
   /**
      * Ενεργή
      *
-     * Whether this topic is currently available for subscription
+     * Αν αυτό το θέμα είναι επί του παρόντος διαθέσιμο για εγγραφή
      */
   isActive?: boolean
   /**
      * Προεπιλεγμένη συνδρομή
      *
-     * Whether new users are automatically subscribed to this topic
+     * Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
      */
   isDefault?: boolean
   /**
      * Απαιτείται Επιβεβαίωση
      *
-     * Whether subscription to this topic requires email confirmation
+     * Αν η εγγραφή σε αυτό το θέμα απαιτεί επιβεβαίωση email
      */
   requiresConfirmation?: boolean
 }
@@ -9462,13 +9660,13 @@ export type SubscriptionTopicDetailWritable = {
     }
   }
   /**
-     * Unique identifier for the topic (e.g., 'weekly-newsletter')
+     * Μοναδικό αναγνωριστικό για το θέμα (π.χ. 'weekly-newsletter')
      */
   slug: string
   /**
      * Κατηγορία
      *
-     * Category of the subscription topic
+     * Κατηγορία του θέματος εγγραφής
      *
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
@@ -9482,19 +9680,19 @@ export type SubscriptionTopicDetailWritable = {
   /**
      * Ενεργή
      *
-     * Whether this topic is currently available for subscription
+     * Αν αυτό το θέμα είναι επί του παρόντος διαθέσιμο για εγγραφή
      */
   isActive?: boolean
   /**
      * Προεπιλεγμένη συνδρομή
      *
-     * Whether new users are automatically subscribed to this topic
+     * Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
      */
   isDefault?: boolean
   /**
      * Απαιτείται Επιβεβαίωση
      *
-     * Whether subscription to this topic requires email confirmation
+     * Αν η εγγραφή σε αυτό το θέμα απαιτεί επιβεβαίωση email
      */
   requiresConfirmation?: boolean
 }
@@ -9690,7 +9888,7 @@ export type UserDetailsWritable = {
      *
      * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
      */
-  username?: string | null
+  username?: string | string | null
   phone?: string | null
   /**
      * Πόλη
@@ -9727,7 +9925,7 @@ export type UserDetailsWritable = {
   /**
      * Γλώσσα
      *
-     * Preferred language for emails and UI messages.
+     * Προτιμώμενη γλώσσα για emails και μηνύματα διεπαφής.
      */
   languageCode?: string
 }
@@ -9741,7 +9939,7 @@ export type UserSubscriptionWritable = {
   /**
      * Μεταδεδομένα
      *
-     * Additional subscription preferences or data
+     * Επιπλέον προτιμήσεις ή δεδομένα εγγραφής
      */
   metadata?: unknown
 }
@@ -9755,7 +9953,7 @@ export type UserSubscriptionDetailWritable = {
   /**
      * Μεταδεδομένα
      *
-     * Additional subscription preferences or data
+     * Επιπλέον προτιμήσεις ή δεδομένα εγγραφής
      */
   metadata?: unknown
 }
@@ -9765,11 +9963,11 @@ export type ListBlogAuthorData = {
   path?: never
   query?: {
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -9781,7 +9979,7 @@ export type ListBlogAuthorData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -9821,7 +10019,7 @@ export type CreateBlogAuthorData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -9877,7 +10075,7 @@ export type RetrieveBlogAuthorData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -9906,7 +10104,7 @@ export type PartialUpdateBlogAuthorData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -9936,7 +10134,7 @@ export type UpdateBlogAuthorData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -10006,7 +10204,7 @@ export type ListBlogCategoryData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -10018,7 +10216,7 @@ export type ListBlogCategoryData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -10058,7 +10256,7 @@ export type CreateBlogCategoryData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -10114,7 +10312,7 @@ export type RetrieveBlogCategoryData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -10143,7 +10341,7 @@ export type PartialUpdateBlogCategoryData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -10173,7 +10371,7 @@ export type UpdateBlogCategoryData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -10478,7 +10676,7 @@ export type ListBlogCommentData = {
   path?: never
   query?: {
     /**
-         * Filter comments that are ancestors of the given comment ID
+         * Φίλτρο σχολίων που είναι πρόγονοι του δεδομένου σχολίου
          */
     ancestorOf?: string | number
     /**
@@ -10486,7 +10684,7 @@ export type ListBlogCommentData = {
          */
     approved?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by comment content (case-insensitive)
+         * Φίλτρο ανά περιεχόμενο σχολίου (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     content?: string
     /**
@@ -10505,23 +10703,23 @@ export type ListBlogCommentData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Filter comments that are descendants of the given comment ID
+         * Φίλτρο σχολίων που είναι απόγονοι του δεδομένου σχολίου
          */
     descendantOf?: string | number
     /**
-         * Filter comments that have content (true) or are empty (false)
+         * Φίλτρο σχολίων με περιεχόμενο (true) ή κενών (false)
          */
     hasContent?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter comments that have likes (true) or no likes (false)
+         * Φίλτρο σχολίων με επισημάνσεις (true) ή χωρίς επισημάνσεις (false)
          */
     hasLikes?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter comments that have approved replies (true) or no replies (false)
+         * Φίλτρο σχολίων με εγκεκριμένες απαντήσεις (true) ή χωρίς απαντήσεις (false)
          */
     hasReplies?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
@@ -10530,69 +10728,69 @@ export type ListBlogCommentData = {
          */
     id_In?: string | Array<number>
     /**
-         * Filter anonymous comments (no user)
+         * Φίλτρο ανώνυμων σχολίων (χωρίς χρήστη)
          */
     isAnonymous?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter leaf comments (no approved replies)
+         * Φίλτρο τελικών σχολίων (χωρίς εγκεκριμένες απαντήσεις)
          */
     isLeaf?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Filter by comment nesting level (0 for top-level)
+         * Φίλτρο ανά επίπεδο ένθεσης σχολίου (0 για ανώτατο επίπεδο)
          */
     level?: string | number
     /**
-         * Filter comments at or below this nesting level
+         * Φίλτρο σχολίων σε αυτό το επίπεδο ένθεσης ή χαμηλότερα
          */
     level_Gte?: string | number
     /**
-         * Filter comments at or above this nesting level
+         * Φίλτρο σχολίων σε αυτό το επίπεδο ένθεσης ή υψηλότερα
          */
     level_Lte?: string | number
     /**
-         * Filter by left tree value (MPTT internal)
+         * Φίλτρο ανά αριστερή τιμή δέντρου (εσωτερικό MPTT)
          */
     lft?: string | number
     lft_Gte?: string | number
     lft_Lte?: string | number
     /**
-         * Filter comments liked by specific user ID
+         * Φίλτρο σχολίων με επισήμανση από συγκεκριμένο χρήστη
          */
     likedBy?: string | number
     /**
-         * Filter comments with at most this content length
+         * Φίλτρο σχολίων με έως αυτό το μήκος περιεχομένου
          */
     maxContentLength?: string | number
     /**
-         * Filter comments with at most this many likes
+         * Φίλτρο σχολίων με έως τόσες επισημάνσεις
          */
     maxLikes?: string | number
     /**
-         * Filter comments with at most this many approved replies
+         * Φίλτρο σχολίων με έως τόσες εγκεκριμένες απαντήσεις
          */
     maxReplies?: string | number
     /**
-         * Filter comments with at least this content length
+         * Φίλτρο σχολίων με τουλάχιστον αυτό το μήκος περιεχομένου
          */
     minContentLength?: string | number
     /**
-         * Filter comments with at least this many likes
+         * Φίλτρο σχολίων με τουλάχιστον τόσες επισημάνσεις
          */
     minLikes?: string | number
     /**
-         * Filter comments with at least this many approved replies
+         * Φίλτρο σχολίων με τουλάχιστον τόσες εγκεκριμένες απαντήσεις
          */
     minReplies?: string | number
     /**
-         * Order comments by most likes first
+         * Ταξινόμηση σχολίων με τις περισσότερες επισημάνσεις πρώτα
          */
     mostLiked?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Order comments by most approved replies first
+         * Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα
          */
     mostReplied?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -10604,7 +10802,7 @@ export type ListBlogCommentData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -10620,11 +10818,11 @@ export type ListBlogCommentData = {
          */
     parent?: string | number
     /**
-         * Filter top-level comments (true) or replies (false)
+         * Φίλτρο σχολίων ανώτατου επιπέδου (true) ή απαντήσεων (false)
          */
     parent_Isnull?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by blog post ID
+         * Φίλτρο ανά ID άρθρου
          */
     post?: string | number
     /**
@@ -10640,7 +10838,7 @@ export type ListBlogCommentData = {
          */
     post_Category_Slug?: string
     /**
-         * Filter by blog post published status
+         * Φίλτρο ανά κατάσταση δημοσίευσης άρθρου
          */
     post_IsPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -10652,7 +10850,7 @@ export type ListBlogCommentData = {
          */
     post_Title?: string
     /**
-         * Filter by right tree value (MPTT internal)
+         * Φίλτρο ανά δεξιά τιμή δέντρου (εσωτερικό MPTT)
          */
     rght?: string | number
     rght_Gte?: string | number
@@ -10662,7 +10860,7 @@ export type ListBlogCommentData = {
          */
     search?: string
     /**
-         * Filter by tree ID (MPTT internal)
+         * Φίλτρο ανά ID δέντρου (εσωτερικό MPTT)
          */
     treeId?: string | number
     /**
@@ -10718,7 +10916,7 @@ export type CreateBlogCommentData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -10774,7 +10972,7 @@ export type RetrieveBlogCommentData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -10803,7 +11001,7 @@ export type PartialUpdateBlogCommentData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -10833,7 +11031,7 @@ export type UpdateBlogCommentData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -10888,7 +11086,7 @@ export type ListBlogCommentRepliesData = {
   }
   query?: {
     /**
-         * Filter comments that are ancestors of the given comment ID
+         * Φίλτρο σχολίων που είναι πρόγονοι του δεδομένου σχολίου
          */
     ancestorOf?: string | number
     /**
@@ -10896,7 +11094,7 @@ export type ListBlogCommentRepliesData = {
          */
     approved?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by comment content (case-insensitive)
+         * Φίλτρο ανά περιεχόμενο σχολίου (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     content?: string
     /**
@@ -10915,19 +11113,19 @@ export type ListBlogCommentRepliesData = {
          */
     createdBefore?: string
     /**
-         * Filter comments that are descendants of the given comment ID
+         * Φίλτρο σχολίων που είναι απόγονοι του δεδομένου σχολίου
          */
     descendantOf?: string | number
     /**
-         * Filter comments that have content (true) or are empty (false)
+         * Φίλτρο σχολίων με περιεχόμενο (true) ή κενών (false)
          */
     hasContent?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter comments that have likes (true) or no likes (false)
+         * Φίλτρο σχολίων με επισημάνσεις (true) ή χωρίς επισημάνσεις (false)
          */
     hasLikes?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter comments that have approved replies (true) or no replies (false)
+         * Φίλτρο σχολίων με εγκεκριμένες απαντήσεις (true) ή χωρίς απαντήσεις (false)
          */
     hasReplies?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
@@ -10936,65 +11134,65 @@ export type ListBlogCommentRepliesData = {
          */
     id_In?: string | Array<number>
     /**
-         * Filter anonymous comments (no user)
+         * Φίλτρο ανώνυμων σχολίων (χωρίς χρήστη)
          */
     isAnonymous?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter leaf comments (no approved replies)
+         * Φίλτρο τελικών σχολίων (χωρίς εγκεκριμένες απαντήσεις)
          */
     isLeaf?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by comment nesting level (0 for top-level)
+         * Φίλτρο ανά επίπεδο ένθεσης σχολίου (0 για ανώτατο επίπεδο)
          */
     level?: string | number
     /**
-         * Filter comments at or below this nesting level
+         * Φίλτρο σχολίων σε αυτό το επίπεδο ένθεσης ή χαμηλότερα
          */
     level_Gte?: string | number
     /**
-         * Filter comments at or above this nesting level
+         * Φίλτρο σχολίων σε αυτό το επίπεδο ένθεσης ή υψηλότερα
          */
     level_Lte?: string | number
     /**
-         * Filter by left tree value (MPTT internal)
+         * Φίλτρο ανά αριστερή τιμή δέντρου (εσωτερικό MPTT)
          */
     lft?: string | number
     lft_Gte?: string | number
     lft_Lte?: string | number
     /**
-         * Filter comments liked by specific user ID
+         * Φίλτρο σχολίων με επισήμανση από συγκεκριμένο χρήστη
          */
     likedBy?: string | number
     /**
-         * Filter comments with at most this content length
+         * Φίλτρο σχολίων με έως αυτό το μήκος περιεχομένου
          */
     maxContentLength?: string | number
     /**
-         * Filter comments with at most this many likes
+         * Φίλτρο σχολίων με έως τόσες επισημάνσεις
          */
     maxLikes?: string | number
     /**
-         * Filter comments with at most this many approved replies
+         * Φίλτρο σχολίων με έως τόσες εγκεκριμένες απαντήσεις
          */
     maxReplies?: string | number
     /**
-         * Filter comments with at least this content length
+         * Φίλτρο σχολίων με τουλάχιστον αυτό το μήκος περιεχομένου
          */
     minContentLength?: string | number
     /**
-         * Filter comments with at least this many likes
+         * Φίλτρο σχολίων με τουλάχιστον τόσες επισημάνσεις
          */
     minLikes?: string | number
     /**
-         * Filter comments with at least this many approved replies
+         * Φίλτρο σχολίων με τουλάχιστον τόσες εγκεκριμένες απαντήσεις
          */
     minReplies?: string | number
     /**
-         * Order comments by most likes first
+         * Ταξινόμηση σχολίων με τις περισσότερες επισημάνσεις πρώτα
          */
     mostLiked?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Order comments by most approved replies first
+         * Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα
          */
     mostReplied?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -11014,11 +11212,11 @@ export type ListBlogCommentRepliesData = {
          */
     parent?: string | number
     /**
-         * Filter top-level comments (true) or replies (false)
+         * Φίλτρο σχολίων ανώτατου επιπέδου (true) ή απαντήσεων (false)
          */
     parent_Isnull?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by blog post ID
+         * Φίλτρο ανά ID άρθρου
          */
     post?: string | number
     /**
@@ -11034,7 +11232,7 @@ export type ListBlogCommentRepliesData = {
          */
     post_Category_Slug?: string
     /**
-         * Filter by blog post published status
+         * Φίλτρο ανά κατάσταση δημοσίευσης άρθρου
          */
     post_IsPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -11046,7 +11244,7 @@ export type ListBlogCommentRepliesData = {
          */
     post_Title?: string
     /**
-         * Filter by right tree value (MPTT internal)
+         * Φίλτρο ανά δεξιά τιμή δέντρου (εσωτερικό MPTT)
          */
     rght?: string | number
     rght_Gte?: string | number
@@ -11056,7 +11254,7 @@ export type ListBlogCommentRepliesData = {
          */
     search?: string
     /**
-         * Filter by tree ID (MPTT internal)
+         * Φίλτρο ανά ID δέντρου (εσωτερικό MPTT)
          */
     treeId?: string | number
     /**
@@ -11114,7 +11312,7 @@ export type GetBlogCommentThreadData = {
   }
   query?: {
     /**
-         * Filter comments that are ancestors of the given comment ID
+         * Φίλτρο σχολίων που είναι πρόγονοι του δεδομένου σχολίου
          */
     ancestorOf?: string | number
     /**
@@ -11122,7 +11320,7 @@ export type GetBlogCommentThreadData = {
          */
     approved?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by comment content (case-insensitive)
+         * Φίλτρο ανά περιεχόμενο σχολίου (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     content?: string
     /**
@@ -11141,19 +11339,19 @@ export type GetBlogCommentThreadData = {
          */
     createdBefore?: string
     /**
-         * Filter comments that are descendants of the given comment ID
+         * Φίλτρο σχολίων που είναι απόγονοι του δεδομένου σχολίου
          */
     descendantOf?: string | number
     /**
-         * Filter comments that have content (true) or are empty (false)
+         * Φίλτρο σχολίων με περιεχόμενο (true) ή κενών (false)
          */
     hasContent?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter comments that have likes (true) or no likes (false)
+         * Φίλτρο σχολίων με επισημάνσεις (true) ή χωρίς επισημάνσεις (false)
          */
     hasLikes?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter comments that have approved replies (true) or no replies (false)
+         * Φίλτρο σχολίων με εγκεκριμένες απαντήσεις (true) ή χωρίς απαντήσεις (false)
          */
     hasReplies?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
@@ -11162,65 +11360,65 @@ export type GetBlogCommentThreadData = {
          */
     id_In?: string | Array<number>
     /**
-         * Filter anonymous comments (no user)
+         * Φίλτρο ανώνυμων σχολίων (χωρίς χρήστη)
          */
     isAnonymous?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter leaf comments (no approved replies)
+         * Φίλτρο τελικών σχολίων (χωρίς εγκεκριμένες απαντήσεις)
          */
     isLeaf?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by comment nesting level (0 for top-level)
+         * Φίλτρο ανά επίπεδο ένθεσης σχολίου (0 για ανώτατο επίπεδο)
          */
     level?: string | number
     /**
-         * Filter comments at or below this nesting level
+         * Φίλτρο σχολίων σε αυτό το επίπεδο ένθεσης ή χαμηλότερα
          */
     level_Gte?: string | number
     /**
-         * Filter comments at or above this nesting level
+         * Φίλτρο σχολίων σε αυτό το επίπεδο ένθεσης ή υψηλότερα
          */
     level_Lte?: string | number
     /**
-         * Filter by left tree value (MPTT internal)
+         * Φίλτρο ανά αριστερή τιμή δέντρου (εσωτερικό MPTT)
          */
     lft?: string | number
     lft_Gte?: string | number
     lft_Lte?: string | number
     /**
-         * Filter comments liked by specific user ID
+         * Φίλτρο σχολίων με επισήμανση από συγκεκριμένο χρήστη
          */
     likedBy?: string | number
     /**
-         * Filter comments with at most this content length
+         * Φίλτρο σχολίων με έως αυτό το μήκος περιεχομένου
          */
     maxContentLength?: string | number
     /**
-         * Filter comments with at most this many likes
+         * Φίλτρο σχολίων με έως τόσες επισημάνσεις
          */
     maxLikes?: string | number
     /**
-         * Filter comments with at most this many approved replies
+         * Φίλτρο σχολίων με έως τόσες εγκεκριμένες απαντήσεις
          */
     maxReplies?: string | number
     /**
-         * Filter comments with at least this content length
+         * Φίλτρο σχολίων με τουλάχιστον αυτό το μήκος περιεχομένου
          */
     minContentLength?: string | number
     /**
-         * Filter comments with at least this many likes
+         * Φίλτρο σχολίων με τουλάχιστον τόσες επισημάνσεις
          */
     minLikes?: string | number
     /**
-         * Filter comments with at least this many approved replies
+         * Φίλτρο σχολίων με τουλάχιστον τόσες εγκεκριμένες απαντήσεις
          */
     minReplies?: string | number
     /**
-         * Order comments by most likes first
+         * Ταξινόμηση σχολίων με τις περισσότερες επισημάνσεις πρώτα
          */
     mostLiked?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Order comments by most approved replies first
+         * Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα
          */
     mostReplied?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -11240,11 +11438,11 @@ export type GetBlogCommentThreadData = {
          */
     parent?: string | number
     /**
-         * Filter top-level comments (true) or replies (false)
+         * Φίλτρο σχολίων ανώτατου επιπέδου (true) ή απαντήσεων (false)
          */
     parent_Isnull?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by blog post ID
+         * Φίλτρο ανά ID άρθρου
          */
     post?: string | number
     /**
@@ -11260,7 +11458,7 @@ export type GetBlogCommentThreadData = {
          */
     post_Category_Slug?: string
     /**
-         * Filter by blog post published status
+         * Φίλτρο ανά κατάσταση δημοσίευσης άρθρου
          */
     post_IsPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -11272,7 +11470,7 @@ export type GetBlogCommentThreadData = {
          */
     post_Title?: string
     /**
-         * Filter by right tree value (MPTT internal)
+         * Φίλτρο ανά δεξιά τιμή δέντρου (εσωτερικό MPTT)
          */
     rght?: string | number
     rght_Gte?: string | number
@@ -11282,7 +11480,7 @@ export type GetBlogCommentThreadData = {
          */
     search?: string
     /**
-         * Filter by tree ID (MPTT internal)
+         * Φίλτρο ανά ID δέντρου (εσωτερικό MPTT)
          */
     treeId?: string | number
     /**
@@ -11386,7 +11584,7 @@ export type ListMyBlogCommentsData = {
   path?: never
   query?: {
     /**
-         * Filter comments that are ancestors of the given comment ID
+         * Φίλτρο σχολίων που είναι πρόγονοι του δεδομένου σχολίου
          */
     ancestorOf?: string | number
     /**
@@ -11394,7 +11592,7 @@ export type ListMyBlogCommentsData = {
          */
     approved?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by comment content (case-insensitive)
+         * Φίλτρο ανά περιεχόμενο σχολίου (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     content?: string
     /**
@@ -11413,19 +11611,19 @@ export type ListMyBlogCommentsData = {
          */
     createdBefore?: string
     /**
-         * Filter comments that are descendants of the given comment ID
+         * Φίλτρο σχολίων που είναι απόγονοι του δεδομένου σχολίου
          */
     descendantOf?: string | number
     /**
-         * Filter comments that have content (true) or are empty (false)
+         * Φίλτρο σχολίων με περιεχόμενο (true) ή κενών (false)
          */
     hasContent?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter comments that have likes (true) or no likes (false)
+         * Φίλτρο σχολίων με επισημάνσεις (true) ή χωρίς επισημάνσεις (false)
          */
     hasLikes?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter comments that have approved replies (true) or no replies (false)
+         * Φίλτρο σχολίων με εγκεκριμένες απαντήσεις (true) ή χωρίς απαντήσεις (false)
          */
     hasReplies?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
@@ -11434,65 +11632,65 @@ export type ListMyBlogCommentsData = {
          */
     id_In?: string | Array<number>
     /**
-         * Filter anonymous comments (no user)
+         * Φίλτρο ανώνυμων σχολίων (χωρίς χρήστη)
          */
     isAnonymous?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter leaf comments (no approved replies)
+         * Φίλτρο τελικών σχολίων (χωρίς εγκεκριμένες απαντήσεις)
          */
     isLeaf?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by comment nesting level (0 for top-level)
+         * Φίλτρο ανά επίπεδο ένθεσης σχολίου (0 για ανώτατο επίπεδο)
          */
     level?: string | number
     /**
-         * Filter comments at or below this nesting level
+         * Φίλτρο σχολίων σε αυτό το επίπεδο ένθεσης ή χαμηλότερα
          */
     level_Gte?: string | number
     /**
-         * Filter comments at or above this nesting level
+         * Φίλτρο σχολίων σε αυτό το επίπεδο ένθεσης ή υψηλότερα
          */
     level_Lte?: string | number
     /**
-         * Filter by left tree value (MPTT internal)
+         * Φίλτρο ανά αριστερή τιμή δέντρου (εσωτερικό MPTT)
          */
     lft?: string | number
     lft_Gte?: string | number
     lft_Lte?: string | number
     /**
-         * Filter comments liked by specific user ID
+         * Φίλτρο σχολίων με επισήμανση από συγκεκριμένο χρήστη
          */
     likedBy?: string | number
     /**
-         * Filter comments with at most this content length
+         * Φίλτρο σχολίων με έως αυτό το μήκος περιεχομένου
          */
     maxContentLength?: string | number
     /**
-         * Filter comments with at most this many likes
+         * Φίλτρο σχολίων με έως τόσες επισημάνσεις
          */
     maxLikes?: string | number
     /**
-         * Filter comments with at most this many approved replies
+         * Φίλτρο σχολίων με έως τόσες εγκεκριμένες απαντήσεις
          */
     maxReplies?: string | number
     /**
-         * Filter comments with at least this content length
+         * Φίλτρο σχολίων με τουλάχιστον αυτό το μήκος περιεχομένου
          */
     minContentLength?: string | number
     /**
-         * Filter comments with at least this many likes
+         * Φίλτρο σχολίων με τουλάχιστον τόσες επισημάνσεις
          */
     minLikes?: string | number
     /**
-         * Filter comments with at least this many approved replies
+         * Φίλτρο σχολίων με τουλάχιστον τόσες εγκεκριμένες απαντήσεις
          */
     minReplies?: string | number
     /**
-         * Order comments by most likes first
+         * Ταξινόμηση σχολίων με τις περισσότερες επισημάνσεις πρώτα
          */
     mostLiked?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Order comments by most approved replies first
+         * Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα
          */
     mostReplied?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -11512,11 +11710,11 @@ export type ListMyBlogCommentsData = {
          */
     parent?: string | number
     /**
-         * Filter top-level comments (true) or replies (false)
+         * Φίλτρο σχολίων ανώτατου επιπέδου (true) ή απαντήσεων (false)
          */
     parent_Isnull?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by blog post ID
+         * Φίλτρο ανά ID άρθρου
          */
     post?: string | number
     /**
@@ -11532,7 +11730,7 @@ export type ListMyBlogCommentsData = {
          */
     post_Category_Slug?: string
     /**
-         * Filter by blog post published status
+         * Φίλτρο ανά κατάσταση δημοσίευσης άρθρου
          */
     post_IsPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -11544,7 +11742,7 @@ export type ListMyBlogCommentsData = {
          */
     post_Title?: string
     /**
-         * Filter by right tree value (MPTT internal)
+         * Φίλτρο ανά δεξιά τιμή δέντρου (εσωτερικό MPTT)
          */
     rght?: string | number
     rght_Gte?: string | number
@@ -11554,7 +11752,7 @@ export type ListMyBlogCommentsData = {
          */
     search?: string
     /**
-         * Filter by tree ID (MPTT internal)
+         * Φίλτρο ανά ID δέντρου (εσωτερικό MPTT)
          */
     treeId?: string | number
     /**
@@ -11614,38 +11812,38 @@ export type ListBlogPostData = {
          */
     author?: string | number
     /**
-         * Filter by author email (case-insensitive)
+         * Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     authorEmail?: string
     /**
-         * Filter by author full name (case-insensitive)
+         * Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     authorName?: string
     /**
-         * Filter by category ID
+         * Φίλτρο ανά ID κατηγορίας
          */
     category?: string | number
     /**
-         * Filter by category name (case-insensitive)
+         * Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     categoryName?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
-         * Filter items that are currently published (published_at <= now and is_published=True)
+         * Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)
          */
     currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
@@ -11662,23 +11860,23 @@ export type ListBlogPostData = {
          */
     isPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Filter by minimum number of approved comments
+         * Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων
          */
     minComments?: string | number
     /**
-         * Filter by minimum number of likes
+         * Φίλτρο ανά ελάχιστο αριθμό επισημάνσεων
          */
     minLikes?: string | number
     /**
-         * Filter by minimum number of active tags
+         * Φίλτρο ανά ελάχιστο αριθμό ενεργών ετικετών
          */
     minTags?: string | number
     /**
-         * Filter by minimum number of views
+         * Φίλτρο ανά ελάχιστο αριθμό προβολών
          */
     minViewCount?: string | number
     /**
@@ -11690,7 +11888,7 @@ export type ListBlogPostData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -11702,14 +11900,14 @@ export type ListBlogPostData = {
          */
     paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
-         * Filter items published after this date
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
          */
     publishedAfter?: string
     publishedAt_Date?: string
     publishedAt_Gte?: string
     publishedAt_Lte?: string
     /**
-         * Filter items published before this date
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία
          */
     publishedBefore?: string
     /**
@@ -11719,26 +11917,26 @@ export type ListBlogPostData = {
     slug?: string
     slug_Icontains?: string
     /**
-         * Filter by tag label (case-insensitive)
+         * Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     tagName?: string
     /**
-         * Filter by tag IDs (comma-separated)
+         * Φίλτρο ανά ID ετικετών (διαχωρισμένα με κόμμα)
          */
     tags?: string | Array<number>
     /**
-         * Filter by title (case-insensitive)
+         * Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     title?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     uuid?: string
@@ -11770,7 +11968,7 @@ export type CreateBlogPostData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -11826,7 +12024,7 @@ export type RetrieveBlogPostData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -11855,7 +12053,7 @@ export type PartialUpdateBlogPostData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -11885,7 +12083,7 @@ export type UpdateBlogPostData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -11972,34 +12170,34 @@ export type ListBlogPostRelatedData = {
          */
     author?: string | number
     /**
-         * Filter by author email (case-insensitive)
+         * Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     authorEmail?: string
     /**
-         * Filter by author full name (case-insensitive)
+         * Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     authorName?: string
     /**
-         * Filter by category ID
+         * Φίλτρο ανά ID κατηγορίας
          */
     category?: string | number
     /**
-         * Filter by category name (case-insensitive)
+         * Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     categoryName?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
-         * Filter items that are currently published (published_at <= now and is_published=True)
+         * Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)
          */
     currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -12016,19 +12214,19 @@ export type ListBlogPostRelatedData = {
          */
     isPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by minimum number of approved comments
+         * Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων
          */
     minComments?: string | number
     /**
-         * Filter by minimum number of likes
+         * Φίλτρο ανά ελάχιστο αριθμό επισημάνσεων
          */
     minLikes?: string | number
     /**
-         * Filter by minimum number of active tags
+         * Φίλτρο ανά ελάχιστο αριθμό ενεργών ετικετών
          */
     minTags?: string | number
     /**
-         * Filter by minimum number of views
+         * Φίλτρο ανά ελάχιστο αριθμό προβολών
          */
     minViewCount?: string | number
     /**
@@ -12036,14 +12234,14 @@ export type ListBlogPostRelatedData = {
          */
     ordering?: string
     /**
-         * Filter items published after this date
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
          */
     publishedAfter?: string
     publishedAt_Date?: string
     publishedAt_Gte?: string
     publishedAt_Lte?: string
     /**
-         * Filter items published before this date
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία
          */
     publishedBefore?: string
     /**
@@ -12053,26 +12251,26 @@ export type ListBlogPostRelatedData = {
     slug?: string
     slug_Icontains?: string
     /**
-         * Filter by tag label (case-insensitive)
+         * Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     tagName?: string
     /**
-         * Filter by tag IDs (comma-separated)
+         * Φίλτρο ανά ID ετικετών (διαχωρισμένα με κόμμα)
          */
     tags?: string | Array<number>
     /**
-         * Filter by title (case-insensitive)
+         * Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     title?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     uuid?: string
@@ -12158,34 +12356,34 @@ export type ListFeaturedBlogPostsData = {
          */
     author?: string | number
     /**
-         * Filter by author email (case-insensitive)
+         * Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     authorEmail?: string
     /**
-         * Filter by author full name (case-insensitive)
+         * Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     authorName?: string
     /**
-         * Filter by category ID
+         * Φίλτρο ανά ID κατηγορίας
          */
     category?: string | number
     /**
-         * Filter by category name (case-insensitive)
+         * Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     categoryName?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
-         * Filter items that are currently published (published_at <= now and is_published=True)
+         * Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)
          */
     currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -12202,19 +12400,19 @@ export type ListFeaturedBlogPostsData = {
          */
     isPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by minimum number of approved comments
+         * Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων
          */
     minComments?: string | number
     /**
-         * Filter by minimum number of likes
+         * Φίλτρο ανά ελάχιστο αριθμό επισημάνσεων
          */
     minLikes?: string | number
     /**
-         * Filter by minimum number of active tags
+         * Φίλτρο ανά ελάχιστο αριθμό ενεργών ετικετών
          */
     minTags?: string | number
     /**
-         * Filter by minimum number of views
+         * Φίλτρο ανά ελάχιστο αριθμό προβολών
          */
     minViewCount?: string | number
     /**
@@ -12230,14 +12428,14 @@ export type ListFeaturedBlogPostsData = {
          */
     pageSize?: string | number
     /**
-         * Filter items published after this date
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
          */
     publishedAfter?: string
     publishedAt_Date?: string
     publishedAt_Gte?: string
     publishedAt_Lte?: string
     /**
-         * Filter items published before this date
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία
          */
     publishedBefore?: string
     /**
@@ -12247,26 +12445,26 @@ export type ListFeaturedBlogPostsData = {
     slug?: string
     slug_Icontains?: string
     /**
-         * Filter by tag label (case-insensitive)
+         * Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     tagName?: string
     /**
-         * Filter by tag IDs (comma-separated)
+         * Φίλτρο ανά ID ετικετών (διαχωρισμένα με κόμμα)
          */
     tags?: string | Array<number>
     /**
-         * Filter by title (case-insensitive)
+         * Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     title?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     uuid?: string
@@ -12325,34 +12523,34 @@ export type ListPopularBlogPostsData = {
          */
     author?: string | number
     /**
-         * Filter by author email (case-insensitive)
+         * Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     authorEmail?: string
     /**
-         * Filter by author full name (case-insensitive)
+         * Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     authorName?: string
     /**
-         * Filter by category ID
+         * Φίλτρο ανά ID κατηγορίας
          */
     category?: string | number
     /**
-         * Filter by category name (case-insensitive)
+         * Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     categoryName?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
-         * Filter items that are currently published (published_at <= now and is_published=True)
+         * Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)
          */
     currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -12369,19 +12567,19 @@ export type ListPopularBlogPostsData = {
          */
     isPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by minimum number of approved comments
+         * Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων
          */
     minComments?: string | number
     /**
-         * Filter by minimum number of likes
+         * Φίλτρο ανά ελάχιστο αριθμό επισημάνσεων
          */
     minLikes?: string | number
     /**
-         * Filter by minimum number of active tags
+         * Φίλτρο ανά ελάχιστο αριθμό ενεργών ετικετών
          */
     minTags?: string | number
     /**
-         * Filter by minimum number of views
+         * Φίλτρο ανά ελάχιστο αριθμό προβολών
          */
     minViewCount?: string | number
     /**
@@ -12397,14 +12595,14 @@ export type ListPopularBlogPostsData = {
          */
     pageSize?: string | number
     /**
-         * Filter items published after this date
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
          */
     publishedAfter?: string
     publishedAt_Date?: string
     publishedAt_Gte?: string
     publishedAt_Lte?: string
     /**
-         * Filter items published before this date
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία
          */
     publishedBefore?: string
     /**
@@ -12414,26 +12612,26 @@ export type ListPopularBlogPostsData = {
     slug?: string
     slug_Icontains?: string
     /**
-         * Filter by tag label (case-insensitive)
+         * Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     tagName?: string
     /**
-         * Filter by tag IDs (comma-separated)
+         * Φίλτρο ανά ID ετικετών (διαχωρισμένα με κόμμα)
          */
     tags?: string | Array<number>
     /**
-         * Filter by title (case-insensitive)
+         * Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     title?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     uuid?: string
@@ -12469,34 +12667,34 @@ export type ListTrendingBlogPostsData = {
          */
     author?: string | number
     /**
-         * Filter by author email (case-insensitive)
+         * Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     authorEmail?: string
     /**
-         * Filter by author full name (case-insensitive)
+         * Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     authorName?: string
     /**
-         * Filter by category ID
+         * Φίλτρο ανά ID κατηγορίας
          */
     category?: string | number
     /**
-         * Filter by category name (case-insensitive)
+         * Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     categoryName?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
-         * Filter items that are currently published (published_at <= now and is_published=True)
+         * Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)
          */
     currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -12517,19 +12715,19 @@ export type ListTrendingBlogPostsData = {
          */
     isPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by minimum number of approved comments
+         * Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων
          */
     minComments?: string | number
     /**
-         * Filter by minimum number of likes
+         * Φίλτρο ανά ελάχιστο αριθμό επισημάνσεων
          */
     minLikes?: string | number
     /**
-         * Filter by minimum number of active tags
+         * Φίλτρο ανά ελάχιστο αριθμό ενεργών ετικετών
          */
     minTags?: string | number
     /**
-         * Filter by minimum number of views
+         * Φίλτρο ανά ελάχιστο αριθμό προβολών
          */
     minViewCount?: string | number
     /**
@@ -12545,14 +12743,14 @@ export type ListTrendingBlogPostsData = {
          */
     pageSize?: string | number
     /**
-         * Filter items published after this date
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
          */
     publishedAfter?: string
     publishedAt_Date?: string
     publishedAt_Gte?: string
     publishedAt_Lte?: string
     /**
-         * Filter items published before this date
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία
          */
     publishedBefore?: string
     /**
@@ -12562,26 +12760,26 @@ export type ListTrendingBlogPostsData = {
     slug?: string
     slug_Icontains?: string
     /**
-         * Filter by tag label (case-insensitive)
+         * Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     tagName?: string
     /**
-         * Filter by tag IDs (comma-separated)
+         * Φίλτρο ανά ID ετικετών (διαχωρισμένα με κόμμα)
          */
     tags?: string | Array<number>
     /**
-         * Filter by title (case-insensitive)
+         * Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     title?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     uuid?: string
@@ -12613,7 +12811,7 @@ export type ListBlogTagData = {
   path?: never
   query?: {
     /**
-         * Filter by active status
+         * Φίλτρο ανά κατάσταση ενεργοποίησης
          */
     active?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -12628,19 +12826,19 @@ export type ListBlogTagData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Filter tags used in posts that have/don't have likes
+         * Φίλτρο ετικετών που χρησιμοποιούνται σε άρθρα με/χωρίς επισημάνσεις
          */
     hasLikedPosts?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter tags that have/don't have a name
+         * Φίλτρο ετικετών με/χωρίς όνομα
          */
     hasName?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter tags that have/don't have posts
+         * Φίλτρο ετικετών με/χωρίς άρθρα
          */
     hasPosts?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
@@ -12649,7 +12847,7 @@ export type ListBlogTagData = {
          */
     id_In?: string | Array<number>
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -12657,23 +12855,23 @@ export type ListBlogTagData = {
          */
     maxPosts?: string | number
     /**
-         * Filter tags with at least X posts
+         * Φίλτρο ετικετών με τουλάχιστον X άρθρα
          */
     minPosts?: string | number
     /**
-         * Filter tags with posts having at least X total likes
+         * Φίλτρο ετικετών με άρθρα που έχουν τουλάχιστον X συνολικές επισημάνσεις
          */
     minTotalLikes?: string | number
     /**
-         * Order tags by total likes on posts using them
+         * Ταξινόμηση ετικετών κατά συνολικές επισημάνσεις στα άρθρα που τις χρησιμοποιούν
          */
     mostLiked?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Order tags by usage count (most used first)
+         * Ταξινόμηση ετικετών κατά πλήθος χρήσης (πιο δημοφιλείς πρώτα)
          */
     mostUsed?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by tag name (partial match)
+         * Φίλτρο ανά όνομα ετικέτας (μερική αντιστοίχιση)
          */
     name?: string
     /**
@@ -12681,7 +12879,7 @@ export type ListBlogTagData = {
          */
     name_Exact?: string
     /**
-         * Filter tags with names starting with
+         * Φίλτρο ετικετών με όνομα που ξεκινά με
          */
     name_Startswith?: string
     /**
@@ -12693,7 +12891,7 @@ export type ListBlogTagData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -12705,19 +12903,19 @@ export type ListBlogTagData = {
          */
     paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
-         * Filter tags used by specific post ID
+         * Φίλτρο ετικετών που χρησιμοποιούνται από συγκεκριμένο άρθρο
          */
     post?: string | number
     /**
-         * Filter tags used in posts by specific author
+         * Φίλτρο ετικετών που χρησιμοποιούνται σε άρθρα συγκεκριμένου συντάκτη
          */
     post_Author?: string | number
     /**
-         * Filter tags used in posts from specific category
+         * Φίλτρο ετικετών που χρησιμοποιούνται σε άρθρα συγκεκριμένης κατηγορίας
          */
     post_Category?: string | number
     /**
-         * Filter tags used in published/unpublished posts
+         * Φίλτρο ετικετών που χρησιμοποιούνται σε δημοσιευμένα/μη δημοσιευμένα άρθρα
          */
     post_IsPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -12731,7 +12929,7 @@ export type ListBlogTagData = {
     translations_Name_Icontains?: string
     translations_Name_Istartswith?: string
     /**
-         * Filter tags not used in any posts
+         * Φίλτρο ετικετών που δεν χρησιμοποιούνται σε κανένα άρθρο
          */
     unused?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -12771,7 +12969,7 @@ export type CreateBlogTagData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -12827,7 +13025,7 @@ export type RetrieveBlogTagData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -12856,7 +13054,7 @@ export type PartialUpdateBlogTagData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -12886,7 +13084,7 @@ export type UpdateBlogTagData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -12959,7 +13157,7 @@ export type RetrieveCartResponses = {
 export type RetrieveCartResponse = RetrieveCartResponses[keyof RetrieveCartResponses]
 
 export type PartialUpdateCartData = {
-  body?: PatchedCartWriteRequest
+  body?: never
   headers?: {
     /**
          * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
@@ -12988,7 +13186,7 @@ export type PartialUpdateCartResponses = {
 export type PartialUpdateCartResponse = PartialUpdateCartResponses[keyof PartialUpdateCartResponses]
 
 export type UpdateCartData = {
-  body?: CartWriteRequest
+  body?: never
   headers?: {
     /**
          * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
@@ -13049,7 +13247,7 @@ export type ListCartItemData = {
   body?: never
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
     'X-Cart-Id'?: string
   }
@@ -13064,15 +13262,15 @@ export type ListCartItemData = {
          */
     cart_IsGuest?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by cart user ID
+         * Φίλτρο ανά ID χρήστη καλαθιού
          */
     cart_User?: string | number
     /**
-         * Filter by cart user email (partial match)
+         * Φίλτρο ανά email χρήστη καλαθιού (μερική αντιστοίχιση)
          */
     cart_User_Email?: string
     /**
-         * Filter by cart user name (first or last)
+         * Φίλτρο ανά όνομα χρήστη καλαθιού (όνομα ή επώνυμο)
          */
     cart_User_Name?: string
     /**
@@ -13080,11 +13278,11 @@ export type ListCartItemData = {
          */
     cart_Uuid?: string
     /**
-         * Filter by cart last activity after date
+         * Φίλτρο ανά τελευταία δραστηριότητα καλαθιού μετά από ημερομηνία
          */
     cartLastActivityAfter?: string
     /**
-         * Filter by cart last activity before date
+         * Φίλτρο ανά τελευταία δραστηριότητα καλαθιού πριν από ημερομηνία
          */
     cartLastActivityBefore?: string
     /**
@@ -13099,7 +13297,7 @@ export type ListCartItemData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     id?: string | number
@@ -13108,19 +13306,19 @@ export type ListCartItemData = {
          */
     id_In?: string | Array<number>
     /**
-         * Filter items in abandoned carts (30+ days)
+         * Φίλτρο ειδών σε εγκαταλελειμμένα καλάθια (30+ ημέρες)
          */
     inAbandonedCarts?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter items in active carts (24hr)
+         * Φίλτρο ειδών σε ενεργά καλάθια (24ωρο)
          */
     inActiveCarts?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Filter by maximum discount percentage
+         * Φίλτρο ανά μέγιστο ποσοστό έκπτωσης
          */
     maxDiscountPercent?: string | number
     /**
@@ -13132,11 +13330,11 @@ export type ListCartItemData = {
          */
     maxQuantity?: string | number
     /**
-         * Filter by maximum total price (quantity * price)
+         * Φίλτρο ανά μέγιστη συνολική τιμή (ποσότητα * τιμή)
          */
     maxTotalPrice?: string | number
     /**
-         * Filter by minimum discount percentage
+         * Φίλτρο ανά ελάχιστο ποσοστό έκπτωσης
          */
     minDiscountPercent?: string | number
     /**
@@ -13148,7 +13346,7 @@ export type ListCartItemData = {
          */
     minQuantity?: string | number
     /**
-         * Filter by minimum total price (quantity * price)
+         * Φίλτρο ανά ελάχιστη συνολική τιμή (ποσότητα * τιμή)
          */
     minTotalPrice?: string | number
     /**
@@ -13160,7 +13358,7 @@ export type ListCartItemData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -13188,15 +13386,15 @@ export type ListCartItemData = {
          */
     product_Category_Slug?: string
     /**
-         * Filter by product name (partial match)
+         * Φίλτρο ανά όνομα προϊόντος (μερική αντιστοίχιση)
          */
     product_Name?: string
     /**
-         * Filter by product sku (exact match)
+         * Φίλτρο ανά sku προϊόντος (ακριβής αντιστοίχιση)
          */
     product_Sku?: string
     /**
-         * Filter by product UUID
+         * Φίλτρο ανά UUID προϊόντος
          */
     product_Uuid?: string
     /**
@@ -13222,7 +13420,7 @@ export type ListCartItemData = {
     updatedBefore?: string
     uuid?: string
     /**
-         * Filter items with product discounts
+         * Φίλτρο ειδών με εκπτώσεις προϊόντος
          */
     withDiscounts?: 'true' | 'false' | '1' | '0' | boolean
   }
@@ -13249,7 +13447,7 @@ export type CreateCartItemData = {
   body: CartItemCreateRequest
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
     'X-Cart-Id'?: string
   }
@@ -13278,7 +13476,7 @@ export type DestroyCartItemData = {
   body?: never
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
     'X-Cart-Id'?: string
   }
@@ -13301,7 +13499,7 @@ export type RetrieveCartItemData = {
   body?: never
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
     'X-Cart-Id'?: string
   }
@@ -13310,7 +13508,7 @@ export type RetrieveCartItemData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -13336,7 +13534,7 @@ export type PartialUpdateCartItemData = {
   body?: PatchedCartItemUpdateRequest
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
     'X-Cart-Id'?: string
   }
@@ -13345,7 +13543,7 @@ export type PartialUpdateCartItemData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -13372,7 +13570,7 @@ export type UpdateCartItemData = {
   body?: CartItemUpdateRequest
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).
+         * Guest cart UUID. Used to identify and maintain guest cart sessions.
          */
     'X-Cart-Id'?: string
   }
@@ -13429,19 +13627,19 @@ export type ListCartData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Filter carts inactive for at least X days
+         * Φίλτρο καλαθιών αδρανών για τουλάχιστον X ημέρες
          */
     daysInactive?: string | number
     /**
-         * Filter carts with/without discounted items
+         * Φίλτρο καλαθιών με/χωρίς είδη σε έκπτωση
          */
     hasDiscounts?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter carts that have/don't have items
+         * Φίλτρο καλαθιών με/χωρίς είδη
          */
     hasItems?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
@@ -13450,58 +13648,58 @@ export type ListCartData = {
          */
     id_In?: string | Array<number>
     /**
-         * Filter abandoned carts (inactive for 30+ days)
+         * Φίλτρο εγκαταλελειμμένων καλαθιών (αδρανή για 30+ ημέρες)
          */
     isAbandoned?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter active/abandoned carts (based on 30-day inactivity)
+         * Φίλτρο ενεργών/εγκαταλελειμμένων καλαθιών (βάσει 30 ημερών αδράνειας)
          */
     isActive?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter guest carts (True) or user carts (False)
+         * Φίλτρο καλαθιών επισκεπτών (True) ή καλαθιών χρηστών (False)
          */
     isGuest?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Filter by exact last activity date
+         * Φίλτρο ανά ακριβή ημερομηνία τελευταίας δραστηριότητας
          */
     lastActivity?: string
     lastActivity_Date?: string
     lastActivity_Gte?: string
     lastActivity_Lte?: string
     /**
-         * Filter carts with last activity after this date
+         * Φίλτρο καλαθιών με τελευταία δραστηριότητα μετά από αυτή την ημερομηνία
          */
     lastActivityAfter?: string
     /**
-         * Filter carts with last activity before this date
+         * Φίλτρο καλαθιών με τελευταία δραστηριότητα πριν από αυτή την ημερομηνία
          */
     lastActivityBefore?: string
     /**
-         * Filter carts with at most X total items (quantity)
+         * Φίλτρο καλαθιών με έως X συνολικά είδη (ποσότητα)
          */
     maxItems?: string | number
     /**
-         * Filter carts with total value at most X
+         * Φίλτρο καλαθιών με συνολική αξία έως X
          */
     maxTotalValue?: string | number
     /**
-         * Filter carts with at most X unique items
+         * Φίλτρο καλαθιών με έως X μοναδικά είδη
          */
     maxUniqueItems?: string | number
     /**
-         * Filter carts with at least X total items (quantity)
+         * Φίλτρο καλαθιών με τουλάχιστον X συνολικά είδη (ποσότητα)
          */
     minItems?: string | number
     /**
-         * Filter carts with total value at least X
+         * Φίλτρο καλαθιών με συνολική αξία τουλάχιστον X
          */
     minTotalValue?: string | number
     /**
-         * Filter carts with at least X unique items
+         * Φίλτρο καλαθιών με τουλάχιστον X μοναδικά είδη
          */
     minUniqueItems?: string | number
     /**
@@ -13513,7 +13711,7 @@ export type ListCartData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -13544,7 +13742,7 @@ export type ListCartData = {
          */
     user?: string | number
     /**
-         * Filter by active users
+         * Φίλτρο ανά ενεργούς χρήστες
          */
     user_IsActive?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -13552,11 +13750,11 @@ export type ListCartData = {
          */
     user_Isnull?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by user email (partial match)
+         * Φίλτρο ανά email χρήστη (μερική αντιστοίχιση)
          */
     userEmail?: string
     /**
-         * Filter by user full name (first or last name)
+         * Φίλτρο ανά πλήρες όνομα χρήστη (όνομα ή επώνυμο)
          */
     userName?: string
     uuid?: string
@@ -13662,11 +13860,11 @@ export type ListCountryData = {
   path?: never
   query?: {
     /**
-         * Filter by exact 2-letter country code
+         * Φίλτρο ανά ακριβή διψήφιο κωδικό χώρας
          */
     alpha2?: string
     /**
-         * Filter by 2-letter country code (partial match)
+         * Φίλτρο ανά διψήφιο κωδικό χώρας (μερική αντιστοίχιση)
          */
     alpha2_Icontains?: string
     alpha2_Iexact?: string
@@ -13675,11 +13873,11 @@ export type ListCountryData = {
          */
     alpha2_In?: string | Array<string>
     /**
-         * Filter by exact 3-letter country code
+         * Φίλτρο ανά ακριβή τριψήφιο κωδικό χώρας
          */
     alpha3?: string
     /**
-         * Filter by 3-letter country code (partial match)
+         * Φίλτρο ανά τριψήφιο κωδικό χώρας (μερική αντιστοίχιση)
          */
     alpha3_Icontains?: string
     alpha3_Iexact?: string
@@ -13688,7 +13886,7 @@ export type ListCountryData = {
          */
     alpha3_In?: string | Array<string>
     /**
-         * Filter by continent (based on ISO codes)
+         * Φίλτρο ανά ήπειρο (βάσει κωδικών ISO)
          *
          * * `AF` - Africa
          * * `AS` - Asia
@@ -13711,27 +13909,27 @@ export type ListCountryData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Filter countries that have complete data (ISO, phone, flag, name)
+         * Φίλτρο χωρών με πλήρη δεδομένα (ISO, κλήση, σημαία, όνομα)
          */
     hasAllData?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter countries that have/don't have flag image
+         * Φίλτρο χωρών με/χωρίς εικόνα σημαίας
          */
     hasFlagImage?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter countries that have/don't have ISO country code
+         * Φίλτρο χωρών με/χωρίς κωδικό ISO
          */
     hasIsoCc?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter countries that have/don't have name translation
+         * Φίλτρο χωρών με/χωρίς μετάφραση ονόματος
          */
     hasName?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter countries that have/don't have phone code
+         * Φίλτρο χωρών με/χωρίς κωδικό κλήσης
          */
     hasPhoneCode?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -13749,23 +13947,23 @@ export type ListCountryData = {
     isoCc_In?: string | Array<number>
     isoCc_Lte?: string | number
     /**
-         * Filter countries with ISO code less than or equal to
+         * Φίλτρο χωρών με κωδικό ISO μικρότερο ή ίσο με
          */
     isoCcMax?: string | number
     /**
-         * Filter countries with ISO code greater than or equal to
+         * Φίλτρο χωρών με κωδικό ISO μεγαλύτερο ή ίσο με
          */
     isoCcMin?: string | number
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Filter by multiple country codes (comma-separated, alpha-2 or alpha-3)
+         * Φίλτρο ανά πολλαπλούς κωδικούς χωρών (διαχωρισμένους με κόμμα, alpha-2 ή alpha-3)
          */
     multipleCodes?: string
     /**
-         * Filter by country name (partial match)
+         * Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)
          */
     name?: string
     /**
@@ -13773,7 +13971,7 @@ export type ListCountryData = {
          */
     name_Exact?: string
     /**
-         * Filter countries with names starting with
+         * Φίλτρο χωρών με όνομα που ξεκινά με
          */
     name_Startswith?: string
     /**
@@ -13785,7 +13983,7 @@ export type ListCountryData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -13807,11 +14005,11 @@ export type ListCountryData = {
     phoneCode_In?: string | Array<number>
     phoneCode_Lte?: string | number
     /**
-         * Filter countries with phone code less than or equal to
+         * Φίλτρο χωρών με κωδικό κλήσης μικρότερο ή ίσο με
          */
     phoneCodeMax?: string | number
     /**
-         * Filter countries with phone code greater than or equal to
+         * Φίλτρο χωρών με κωδικό κλήσης μεγαλύτερο ή ίσο με
          */
     phoneCodeMin?: string | number
     /**
@@ -13858,7 +14056,7 @@ export type CreateCountryData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -13924,7 +14122,7 @@ export type RetrieveCountryData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -13958,7 +14156,7 @@ export type PartialUpdateCountryData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -13993,7 +14191,7 @@ export type UpdateCountryData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -14177,7 +14375,7 @@ export type GetNotificationsByIdsData = {
   path?: never
   query?: {
     /**
-         * Filter notifications by seen status. If false, returns only unseen notifications.
+         * Φίλτρο ειδοποιήσεων κατά κατάσταση προβολής. Αν είναι false, επιστρέφει μόνο τις μη ορατές ειδοποιήσεις.
          */
     seen?: 'true' | 'false' | '1' | '0' | boolean
   }
@@ -14206,15 +14404,15 @@ export type ListNotificationUserData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Filter notifications that have been seen (true) or not seen (false)
+         * Φίλτρο ειδοποιήσεων που έχουν προβληθεί (true) ή όχι (false)
          */
     hasSeenAt?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter high priority notifications
+         * Φίλτρο ειδοποιήσεων υψηλής προτεραιότητας
          */
     highPriority?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
@@ -14223,7 +14421,7 @@ export type ListNotificationUserData = {
          */
     id_In?: string | Array<number>
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -14235,15 +14433,15 @@ export type ListNotificationUserData = {
          */
     notification_Category?: string
     /**
-         * Filter notifications expiring after this date
+         * Φίλτρο ειδοποιήσεων που λήγουν μετά από αυτή την ημερομηνία
          */
     notification_ExpiresAfter?: string
     /**
-         * Filter notifications expiring before this date
+         * Φίλτρο ειδοποιήσεων που λήγουν πριν από αυτή την ημερομηνία
          */
     notification_ExpiresBefore?: string
     /**
-         * Filter by notification expiry status
+         * Φίλτρο ανά κατάσταση λήξης ειδοποίησης
          */
     notification_IsExpired?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -14251,11 +14449,11 @@ export type ListNotificationUserData = {
          */
     notification_Kind?: string
     /**
-         * Filter by notification link (case-insensitive)
+         * Φίλτρο ανά σύνδεσμο ειδοποίησης (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     notification_Link?: string
     /**
-         * Filter by notification message (case-insensitive)
+         * Φίλτρο ανά μήνυμα ειδοποίησης (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     notification_Message?: string
     /**
@@ -14263,15 +14461,15 @@ export type ListNotificationUserData = {
          */
     notification_Priority?: string
     /**
-         * Filter by notification title (case-insensitive)
+         * Φίλτρο ανά τίτλο ειδοποίησης (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     notification_Title?: string
     /**
-         * Filter by notification type (case-insensitive)
+         * Φίλτρο ανά τύπο ειδοποίησης (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     notification_Type?: string
     /**
-         * Filter by multiple notification IDs (comma-separated)
+         * Φίλτρο ανά πολλαπλά ID ειδοποιήσεων (διαχωρισμένα με κόμμα)
          */
     notificationIds?: string
     /**
@@ -14287,7 +14485,7 @@ export type ListNotificationUserData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -14299,7 +14497,7 @@ export type ListNotificationUserData = {
          */
     paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
-         * Filter notifications from the last 7 days
+         * Φίλτρο ειδοποιήσεων των τελευταίων 7 ημερών
          */
     recentNotifications?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -14307,18 +14505,18 @@ export type ListNotificationUserData = {
          */
     search?: string
     /**
-         * Filter by seen status
+         * Φίλτρο ανά κατάσταση προβολής
          */
     seen?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter notifications seen after this date
+         * Φίλτρο ειδοποιήσεων που προβλήθηκαν μετά από αυτή την ημερομηνία
          */
     seenAfter?: string
     seenAt_Date?: string
     seenAt_Gte?: string
     seenAt_Lte?: string
     /**
-         * Filter notifications seen before this date
+         * Φίλτρο ειδοποιήσεων που προβλήθηκαν πριν από αυτή την ημερομηνία
          */
     seenBefore?: string
     /**
@@ -14345,11 +14543,11 @@ export type ListNotificationUserData = {
          */
     user?: string | number
     /**
-         * Filter by user email (case-insensitive)
+         * Φίλτρο ανά email χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     user_Email?: string
     /**
-         * Filter by user first name (case-insensitive)
+         * Φίλτρο ανά όνομα χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     user_FirstName?: string
     /**
@@ -14361,11 +14559,11 @@ export type ListNotificationUserData = {
          */
     user_IsStaff?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by user last name (case-insensitive)
+         * Φίλτρο ανά επώνυμο χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     user_LastName?: string
     /**
-         * Filter by multiple user IDs (comma-separated)
+         * Φίλτρο ανά πολλαπλά ID χρηστών (διαχωρισμένα με κόμμα)
          */
     userIds?: string
     uuid?: string
@@ -14388,34 +14586,6 @@ export type ListNotificationUserResponses = {
 }
 
 export type ListNotificationUserResponse = ListNotificationUserResponses[keyof ListNotificationUserResponses]
-
-export type CreateNotificationUserData = {
-  body: NotificationUserWriteRequest
-  path?: never
-  query?: {
-    /**
-         * Language code for translations (el, en, de)
-         */
-    languageCode?: 'de' | 'el' | 'en'
-  }
-  url: '/api/v1/notification/user'
-}
-
-export type CreateNotificationUserErrors = {
-  400: ErrorResponse
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type CreateNotificationUserError = CreateNotificationUserErrors[keyof CreateNotificationUserErrors]
-
-export type CreateNotificationUserResponses = {
-  201: NotificationUserDetail
-}
-
-export type CreateNotificationUserResponse = CreateNotificationUserResponses[keyof CreateNotificationUserResponses]
 
 export type DestroyNotificationUserData = {
   body?: never
@@ -14450,7 +14620,7 @@ export type RetrieveNotificationUserData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -14479,7 +14649,7 @@ export type PartialUpdateNotificationUserData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -14503,13 +14673,13 @@ export type PartialUpdateNotificationUserResponses = {
 export type PartialUpdateNotificationUserResponse = PartialUpdateNotificationUserResponses[keyof PartialUpdateNotificationUserResponses]
 
 export type UpdateNotificationUserData = {
-  body: NotificationUserWriteRequest
+  body?: NotificationUserWriteRequest
   path: {
     id: string
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -14652,11 +14822,11 @@ export type ListOrderData = {
   path?: never
   query?: {
     /**
-         * Filter active orders (pending, processing, shipped, delivered)
+         * Φίλτρο ενεργών παραγγελιών (εκκρεμείς, σε επεξεργασία, απεσταλμένες, παραδομένες)
          */
     activeOrders?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter orders that can be canceled
+         * Φίλτρο παραγγελιών που μπορούν να ακυρωθούν
          */
     canBeCanceled?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -14665,7 +14835,7 @@ export type ListOrderData = {
     city?: string
     city_Icontains?: string
     /**
-         * Filter by country code
+         * Φίλτρο ανά κωδικό χώρας
          */
     country?: string
     /**
@@ -14673,11 +14843,11 @@ export type ListOrderData = {
          */
     country_Alpha2?: string
     /**
-         * Filter by country name (case-insensitive)
+         * Φίλτρο ανά όνομα χώρας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     country_Name?: string
     /**
-         * Filter by multiple country IDs (comma-separated)
+         * Φίλτρο ανά πολλαπλά ID χωρών (διαχωρισμένα με κόμμα)
          */
     countryIds?: string
     /**
@@ -14692,26 +14862,26 @@ export type ListOrderData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     customerNotes?: string
     customerNotes_Icontains?: string
     /**
-         * Filter by document type
+         * Φίλτρο ανά τύπο εγγράφου
          */
     documentType?: string
     /**
-         * Filter by customer email (case-insensitive)
+         * Φίλτρο ανά email πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     email?: string
     email_Icontains?: string
     /**
-         * Filter final orders (completed, canceled, refunded)
+         * Φίλτρο οριστικών παραγγελιών (ολοκληρωμένες, ακυρωμένες, με επιστροφή χρημάτων)
          */
     finalOrders?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by customer first name (case-insensitive)
+         * Φίλτρο ανά όνομα πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     firstName?: string
     firstName_Icontains?: string
@@ -14720,23 +14890,23 @@ export type ListOrderData = {
          */
     floor?: string
     /**
-         * Filter orders that have/don't have customer notes
+         * Φίλτρο παραγγελιών με/χωρίς σημειώσεις πελάτη
          */
     hasCustomerNotes?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter orders that have/don't have payment ID
+         * Φίλτρο παραγγελιών με/χωρίς ID πληρωμής
          */
     hasPaymentId?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter orders that have status update timestamp
+         * Φίλτρο παραγγελιών με χρονοσήμανση ενημέρωσης κατάστασης
          */
     hasStatusUpdatedAt?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter orders that have/don't have tracking number
+         * Φίλτρο παραγγελιών με/χωρίς αριθμό παρακολούθησης
          */
     hasTracking?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter orders that have/don't have a user
+         * Φίλτρο παραγγελιών με/χωρίς χρήστη
          */
     hasUser?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
@@ -14745,7 +14915,7 @@ export type ListOrderData = {
          */
     id_In?: string | Array<number>
     /**
-         * Filter canceled orders
+         * Φίλτρο ακυρωμένων παραγγελιών
          */
     isCanceled?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -14757,20 +14927,20 @@ export type ListOrderData = {
          */
     isPaid?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Filter by customer last name (case-insensitive)
+         * Φίλτρο ανά επώνυμο πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     lastName?: string
     lastName_Icontains?: string
     /**
-         * Filter by location type
+         * Φίλτρο ανά τύπο τοποθεσίας
          */
     locationType?: string
     /**
-         * Filter orders that need processing
+         * Φίλτρο παραγγελιών που χρειάζονται επεξεργασία
          */
     needsProcessing?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -14782,7 +14952,7 @@ export type ListOrderData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -14812,7 +14982,7 @@ export type ListOrderData = {
          */
     payWay_IsOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by payment method name (case-insensitive)
+         * Φίλτρο ανά όνομα μεθόδου πληρωμής (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     payWay_Name?: string
     /**
@@ -14844,25 +15014,25 @@ export type ListOrderData = {
          */
     paymentStatus_In?: string | Array<string>
     /**
-         * Filter by phone number
+         * Φίλτρο ανά αριθμό τηλεφώνου
          */
     phone?: string
     phone_Icontains?: string
     /**
-         * Filter by place (case-insensitive)
+         * Φίλτρο ανά τοποθεσία (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     place?: string
     place_Icontains?: string
     /**
-         * Filter orders from the last 30 days
+         * Φίλτρο παραγγελιών των τελευταίων 30 ημερών
          */
     recentOrders?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by region code
+         * Φίλτρο ανά κωδικό περιφέρειας
          */
     region?: string
     /**
-         * Filter by region name (case-insensitive)
+         * Φίλτρο ανά όνομα περιφέρειας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     region_Name?: string
     /**
@@ -14887,7 +15057,7 @@ export type ListOrderData = {
     /**
          * Κατάσταση
          *
-         * Filter by order status
+         * Φίλτρο ανά κατάσταση παραγγελίας
          *
          * * `PENDING` - Εκκρεμεί
          * * `PROCESSING` - Σε επεξεργασία
@@ -14904,22 +15074,22 @@ export type ListOrderData = {
          */
     status_In?: string | Array<string>
     /**
-         * Filter by multiple statuses (comma-separated)
+         * Φίλτρο ανά πολλαπλές καταστάσεις (διαχωρισμένες με κόμμα)
          */
     statusList?: string
     /**
-         * Filter orders with status updated after this date
+         * Φίλτρο παραγγελιών με κατάσταση που ενημερώθηκε μετά από αυτή την ημερομηνία
          */
     statusUpdatedAfter?: string
     statusUpdatedAt_Date?: string
     statusUpdatedAt_Gte?: string
     statusUpdatedAt_Lte?: string
     /**
-         * Filter orders with status updated before this date
+         * Φίλτρο παραγγελιών με κατάσταση που ενημερώθηκε πριν από αυτή την ημερομηνία
          */
     statusUpdatedBefore?: string
     /**
-         * Filter by street (case-insensitive)
+         * Φίλτρο ανά οδό (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     street?: string
     street_Icontains?: string
@@ -14949,11 +15119,11 @@ export type ListOrderData = {
          */
     user?: string | number
     /**
-         * Filter by user email (case-insensitive)
+         * Φίλτρο ανά email χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     user_Email?: string
     /**
-         * Filter by user first name (case-insensitive)
+         * Φίλτρο ανά όνομα χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     user_FirstName?: string
     /**
@@ -14961,11 +15131,11 @@ export type ListOrderData = {
          */
     user_IsActive?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by user last name (case-insensitive)
+         * Φίλτρο ανά επώνυμο χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     user_LastName?: string
     /**
-         * Filter by multiple user IDs (comma-separated)
+         * Φίλτρο ανά πολλαπλά ID χρηστών (διαχωρισμένα με κόμμα)
          */
     userIds?: string
     uuid?: string
@@ -14998,7 +15168,7 @@ export type CreateOrderData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -15041,19 +15211,19 @@ export type ListOrderItemData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Filter items that have/don't have notes
+         * Φίλτρο ειδών με/χωρίς σημειώσεις
          */
     hasNotes?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter items that have/don't have refunded quantity
+         * Φίλτρο ειδών με/χωρίς ποσότητα επιστροφής
          */
     hasRefundedQuantity?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter high value items (price > 100)
+         * Φίλτρο ειδών υψηλής αξίας (τιμή > 100)
          */
     highValueItems?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
@@ -15070,15 +15240,15 @@ export type ListOrderItemData = {
          */
     isPartiallyRefunded?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by refund status
+         * Φίλτρο ανά κατάσταση επιστροφής χρημάτων
          */
     isRefunded?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Filter by notes content (case-insensitive)
+         * Φίλτρο ανά περιεχόμενο σημειώσεων (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     notes?: string
     notes_Icontains?: string
@@ -15091,15 +15261,15 @@ export type ListOrderItemData = {
          */
     order_Country?: string
     /**
-         * Filter by order customer email (case-insensitive)
+         * Φίλτρο ανά email πελάτη παραγγελίας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     order_Email?: string
     /**
-         * Filter by order customer first name (case-insensitive)
+         * Φίλτρο ανά όνομα πελάτη παραγγελίας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     order_FirstName?: string
     /**
-         * Filter by order customer last name (case-insensitive)
+         * Φίλτρο ανά επώνυμο πελάτη παραγγελίας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     order_LastName?: string
     /**
@@ -15123,7 +15293,7 @@ export type ListOrderItemData = {
     /**
          * Κατάσταση
          *
-         * Filter by order status
+         * Φίλτρο ανά κατάσταση παραγγελίας
          *
          * * `PENDING` - Εκκρεμεί
          * * `PROCESSING` - Σε επεξεργασία
@@ -15136,19 +15306,19 @@ export type ListOrderItemData = {
          */
     order_Status?: 'CANCELED' | 'COMPLETED' | 'DELIVERED' | 'PENDING' | 'PROCESSING' | 'REFUNDED' | 'RETURNED' | 'SHIPPED'
     /**
-         * Filter by order user ID
+         * Φίλτρο ανά ID χρήστη παραγγελίας
          */
     order_User?: string | number
     /**
-         * Filter by order user email (case-insensitive)
+         * Φίλτρο ανά email χρήστη παραγγελίας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     order_User_Email?: string
     /**
-         * Filter by multiple order IDs (comma-separated)
+         * Φίλτρο ανά πολλαπλά ID παραγγελιών (διαχωρισμένα με κόμμα)
          */
     orderIds?: string
     /**
-         * Filter by multiple order statuses (comma-separated)
+         * Φίλτρο ανά πολλαπλές καταστάσεις παραγγελιών (διαχωρισμένες με κόμμα)
          */
     orderStatuses?: string
     /**
@@ -15159,11 +15329,11 @@ export type ListOrderItemData = {
     originalQuantity_Gte?: string | number
     originalQuantity_Lte?: string | number
     /**
-         * Filter by maximum original quantity
+         * Φίλτρο ανά μέγιστη αρχική ποσότητα
          */
     originalQuantityMax?: string | number
     /**
-         * Filter by minimum original quantity
+         * Φίλτρο ανά ελάχιστη αρχική ποσότητα
          */
     originalQuantityMin?: string | number
     /**
@@ -15171,7 +15341,7 @@ export type ListOrderItemData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -15186,15 +15356,15 @@ export type ListOrderItemData = {
     price_Gte?: string | number
     price_Lte?: string | number
     /**
-         * Filter by exact price
+         * Φίλτρο ανά ακριβή τιμή
          */
     priceExact?: string | number
     /**
-         * Filter by maximum price
+         * Φίλτρο ανά μέγιστη τιμή
          */
     priceMax?: string | number
     /**
-         * Filter by minimum price
+         * Φίλτρο ανά ελάχιστη τιμή
          */
     priceMin?: string | number
     /**
@@ -15210,19 +15380,19 @@ export type ListOrderItemData = {
          */
     product_Category?: string | number
     /**
-         * Filter by product category name (case-insensitive)
+         * Φίλτρο ανά όνομα κατηγορίας προϊόντος (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     product_Category_Name?: string
     /**
-         * Filter by product name (case-insensitive)
+         * Φίλτρο ανά όνομα προϊόντος (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     product_Name?: string
     /**
-         * Filter by product SKU
+         * Φίλτρο ανά SKU προϊόντος
          */
     product_Sku?: string
     /**
-         * Filter by multiple product IDs (comma-separated)
+         * Φίλτρο ανά πολλαπλά ID προϊόντων (διαχωρισμένα με κόμμα)
          */
     productIds?: string
     quantity?: string | number
@@ -15241,18 +15411,18 @@ export type ListOrderItemData = {
          */
     quantityMin?: string | number
     /**
-         * Filter items from the last 7 days
+         * Φίλτρο ειδών των τελευταίων 7 ημερών
          */
     recentItems?: 'true' | 'false' | '1' | '0' | boolean
     refundedQuantity?: string | number
     refundedQuantity_Gte?: string | number
     refundedQuantity_Lte?: string | number
     /**
-         * Filter by maximum refunded quantity
+         * Φίλτρο ανά μέγιστη ποσότητα επιστροφής
          */
     refundedQuantityMax?: string | number
     /**
-         * Filter by minimum refunded quantity
+         * Φίλτρο ανά ελάχιστη ποσότητα επιστροφής
          */
     refundedQuantityMin?: string | number
     /**
@@ -15299,7 +15469,7 @@ export type CreateOrderItemData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -15355,7 +15525,7 @@ export type RetrieveOrderItemData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -15384,7 +15554,7 @@ export type PartialUpdateOrderItemData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -15414,7 +15584,7 @@ export type UpdateOrderItemData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -15495,7 +15665,7 @@ export type RetrieveOrderData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -15524,7 +15694,7 @@ export type PartialUpdateOrderData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -15554,7 +15724,7 @@ export type UpdateOrderData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -15956,11 +16126,11 @@ export type ListMyOrdersData = {
   path?: never
   query?: {
     /**
-         * Filter active orders (pending, processing, shipped, delivered)
+         * Φίλτρο ενεργών παραγγελιών (εκκρεμείς, σε επεξεργασία, απεσταλμένες, παραδομένες)
          */
     activeOrders?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter orders that can be canceled
+         * Φίλτρο παραγγελιών που μπορούν να ακυρωθούν
          */
     canBeCanceled?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -15969,7 +16139,7 @@ export type ListMyOrdersData = {
     city?: string
     city_Icontains?: string
     /**
-         * Filter by country code
+         * Φίλτρο ανά κωδικό χώρας
          */
     country?: string
     /**
@@ -15977,11 +16147,11 @@ export type ListMyOrdersData = {
          */
     country_Alpha2?: string
     /**
-         * Filter by country name (case-insensitive)
+         * Φίλτρο ανά όνομα χώρας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     country_Name?: string
     /**
-         * Filter by multiple country IDs (comma-separated)
+         * Φίλτρο ανά πολλαπλά ID χωρών (διαχωρισμένα με κόμμα)
          */
     countryIds?: string
     /**
@@ -15998,20 +16168,20 @@ export type ListMyOrdersData = {
     customerNotes?: string
     customerNotes_Icontains?: string
     /**
-         * Filter by document type
+         * Φίλτρο ανά τύπο εγγράφου
          */
     documentType?: string
     /**
-         * Filter by customer email (case-insensitive)
+         * Φίλτρο ανά email πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     email?: string
     email_Icontains?: string
     /**
-         * Filter final orders (completed, canceled, refunded)
+         * Φίλτρο οριστικών παραγγελιών (ολοκληρωμένες, ακυρωμένες, με επιστροφή χρημάτων)
          */
     finalOrders?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by customer first name (case-insensitive)
+         * Φίλτρο ανά όνομα πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     firstName?: string
     firstName_Icontains?: string
@@ -16020,23 +16190,23 @@ export type ListMyOrdersData = {
          */
     floor?: string
     /**
-         * Filter orders that have/don't have customer notes
+         * Φίλτρο παραγγελιών με/χωρίς σημειώσεις πελάτη
          */
     hasCustomerNotes?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter orders that have/don't have payment ID
+         * Φίλτρο παραγγελιών με/χωρίς ID πληρωμής
          */
     hasPaymentId?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter orders that have status update timestamp
+         * Φίλτρο παραγγελιών με χρονοσήμανση ενημέρωσης κατάστασης
          */
     hasStatusUpdatedAt?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter orders that have/don't have tracking number
+         * Φίλτρο παραγγελιών με/χωρίς αριθμό παρακολούθησης
          */
     hasTracking?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter orders that have/don't have a user
+         * Φίλτρο παραγγελιών με/χωρίς χρήστη
          */
     hasUser?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
@@ -16045,7 +16215,7 @@ export type ListMyOrdersData = {
          */
     id_In?: string | Array<number>
     /**
-         * Filter canceled orders
+         * Φίλτρο ακυρωμένων παραγγελιών
          */
     isCanceled?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -16057,16 +16227,16 @@ export type ListMyOrdersData = {
          */
     isPaid?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by customer last name (case-insensitive)
+         * Φίλτρο ανά επώνυμο πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     lastName?: string
     lastName_Icontains?: string
     /**
-         * Filter by location type
+         * Φίλτρο ανά τύπο τοποθεσίας
          */
     locationType?: string
     /**
-         * Filter orders that need processing
+         * Φίλτρο παραγγελιών που χρειάζονται επεξεργασία
          */
     needsProcessing?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -16100,7 +16270,7 @@ export type ListMyOrdersData = {
          */
     payWay_IsOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by payment method name (case-insensitive)
+         * Φίλτρο ανά όνομα μεθόδου πληρωμής (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     payWay_Name?: string
     /**
@@ -16132,25 +16302,25 @@ export type ListMyOrdersData = {
          */
     paymentStatus_In?: string | Array<string>
     /**
-         * Filter by phone number
+         * Φίλτρο ανά αριθμό τηλεφώνου
          */
     phone?: string
     phone_Icontains?: string
     /**
-         * Filter by place (case-insensitive)
+         * Φίλτρο ανά τοποθεσία (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     place?: string
     place_Icontains?: string
     /**
-         * Filter orders from the last 30 days
+         * Φίλτρο παραγγελιών των τελευταίων 30 ημερών
          */
     recentOrders?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by region code
+         * Φίλτρο ανά κωδικό περιφέρειας
          */
     region?: string
     /**
-         * Filter by region name (case-insensitive)
+         * Φίλτρο ανά όνομα περιφέρειας (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     region_Name?: string
     /**
@@ -16175,7 +16345,7 @@ export type ListMyOrdersData = {
     /**
          * Κατάσταση
          *
-         * Filter by order status
+         * Φίλτρο ανά κατάσταση παραγγελίας
          *
          * * `PENDING` - Εκκρεμεί
          * * `PROCESSING` - Σε επεξεργασία
@@ -16192,22 +16362,22 @@ export type ListMyOrdersData = {
          */
     status_In?: string | Array<string>
     /**
-         * Filter by multiple statuses (comma-separated)
+         * Φίλτρο ανά πολλαπλές καταστάσεις (διαχωρισμένες με κόμμα)
          */
     statusList?: string
     /**
-         * Filter orders with status updated after this date
+         * Φίλτρο παραγγελιών με κατάσταση που ενημερώθηκε μετά από αυτή την ημερομηνία
          */
     statusUpdatedAfter?: string
     statusUpdatedAt_Date?: string
     statusUpdatedAt_Gte?: string
     statusUpdatedAt_Lte?: string
     /**
-         * Filter orders with status updated before this date
+         * Φίλτρο παραγγελιών με κατάσταση που ενημερώθηκε πριν από αυτή την ημερομηνία
          */
     statusUpdatedBefore?: string
     /**
-         * Filter by street (case-insensitive)
+         * Φίλτρο ανά οδό (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     street?: string
     street_Icontains?: string
@@ -16237,11 +16407,11 @@ export type ListMyOrdersData = {
          */
     user?: string | number
     /**
-         * Filter by user email (case-insensitive)
+         * Φίλτρο ανά email χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     user_Email?: string
     /**
-         * Filter by user first name (case-insensitive)
+         * Φίλτρο ανά όνομα χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     user_FirstName?: string
     /**
@@ -16249,11 +16419,11 @@ export type ListMyOrdersData = {
          */
     user_IsActive?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by user last name (case-insensitive)
+         * Φίλτρο ανά επώνυμο χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     user_LastName?: string
     /**
-         * Filter by multiple user IDs (comma-separated)
+         * Φίλτρο ανά πολλαπλά ID χρηστών (διαχωρισμένα με κόμμα)
          */
     userIds?: string
     uuid?: string
@@ -16309,11 +16479,15 @@ export type RetrieveOrderByUuidResponse = RetrieveOrderByUuidResponses[keyof Ret
 export type VivaReturnLookupData = {
   body?: never
   path?: never
-  query: {
+  query?: {
+    /**
+         * Viva order code (16-digit id of the payment order).
+         */
+    s?: string
     /**
          * Viva transaction_id (UUID).
          */
-    t: string
+    t?: string
   }
   url: '/api/v1/order/viva_return'
 }
@@ -16330,11 +16504,10 @@ export type VivaReturnLookupErrors = {
 }
 
 export type VivaReturnLookupResponses = {
-  /**
-     * No response body
-     */
-  200: unknown
+  200: VivaReturnLookupResponse
 }
+
+export type VivaReturnLookupResponse2 = VivaReturnLookupResponses[keyof VivaReturnLookupResponses]
 
 export type ApiV1PageConfigRetrieveData = {
   body?: never
@@ -16356,11 +16529,11 @@ export type ApiV1PageConfigAdminListData = {
   path?: never
   query?: {
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -16368,7 +16541,7 @@ export type ApiV1PageConfigAdminListData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -16398,7 +16571,7 @@ export type ApiV1PageConfigAdminCreateData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -16436,7 +16609,7 @@ export type ApiV1PageConfigAdminRetrieveData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -16456,7 +16629,7 @@ export type ApiV1PageConfigAdminPartialUpdateData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -16476,7 +16649,7 @@ export type ApiV1PageConfigAdminUpdateData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -16494,25 +16667,25 @@ export type ListPayWayData = {
   path?: never
   query?: {
     /**
-         * Filter by active status
+         * Φίλτρο ανά κατάσταση ενεργοποίησης
          */
     active?: 'true' | 'false' | '1' | '0' | boolean
     cost_Gte?: string | number
     cost_Lte?: string | number
     /**
-         * Filter by maximum cost
+         * Φίλτρο ανά μέγιστο κόστος
          */
     costMax?: string | number
     /**
-         * Filter by minimum cost
+         * Φίλτρο ανά ελάχιστο κόστος
          */
     costMin?: string | number
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Filter by description (partial match)
+         * Φίλτρο ανά περιγραφή (μερική αντιστοίχιση)
          */
     description?: string
     freeThreshold_Gte?: string | number
@@ -16526,11 +16699,11 @@ export type ListPayWayData = {
          */
     freeThresholdMin?: string | number
     /**
-         * Filter payment methods that have/don't have configuration
+         * Φίλτρο μεθόδων πληρωμής με/χωρίς διαμόρφωση
          */
     hasConfiguration?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter payment methods that have/don't have an icon
+         * Φίλτρο μεθόδων πληρωμής με/χωρίς εικονίδιο
          */
     hasIcon?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -16542,7 +16715,7 @@ export type ListPayWayData = {
          */
     isOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -16558,7 +16731,7 @@ export type ListPayWayData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -16570,12 +16743,12 @@ export type ListPayWayData = {
          */
     paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
-         * Filter by provider code (partial match)
+         * Φίλτρο ανά κωδικό παρόχου (μερική αντιστοίχιση)
          */
     providerCode?: string
     providerCode_Icontains?: string
     /**
-         * Filter by confirmation requirement
+         * Φίλτρο ανά απαίτηση επιβεβαίωσης
          */
     requiresConfirmation?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -16583,11 +16756,11 @@ export type ListPayWayData = {
          */
     search?: string
     /**
-         * Pair with ``shippingProviderCode`` to filter pay ways by the carrier's compatibility rules for that kind.
+         * Συνδυάστε με το ``shippingProviderCode`` για να φιλτράρετε τις μεθόδους πληρωμής βάσει των κανόνων συμβατότητας του μεταφορέα για αυτόν τον τύπο.
          */
     shippingKind?: string
     /**
-         * Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) supports COD on lockers via PAY ON THE GO and so passes through; ACS passes through unchanged. Pair with ``shippingKind``.
+         * Φίλτρο μεθόδων πληρωμής συμβατών με τον δεδομένο μεταφορέα αποστολής. Κάθε μεταφορέας διαθέτει τους δικούς του κανόνες συμβατότητας — το BoxNow (``boxnow``) υποστηρίζει αντικαταβολή σε lockers μέσω PAY ON THE GO και έτσι περνά κανονικά· η ACS περνά αμετάβλητη. Συνδυάστε με το ``shippingKind``.
          */
     shippingProviderCode?: string
     sortOrder?: string | number
@@ -16619,7 +16792,7 @@ export type CreatePayWayData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -16675,7 +16848,7 @@ export type RetrievePayWayData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -16704,7 +16877,7 @@ export type PartialUpdatePayWayData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -16734,7 +16907,7 @@ export type UpdatePayWayData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -16798,7 +16971,7 @@ export type ListProductData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     deletedAt_Date?: string
@@ -16818,7 +16991,7 @@ export type ListProductData = {
     inStock?: 'true' | 'false' | '1' | '0' | boolean
     isDeleted?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -16902,7 +17075,7 @@ export type ListProductData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -16968,7 +17141,7 @@ export type CreateProductData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17024,7 +17197,7 @@ export type RetrieveProductData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17053,7 +17226,7 @@ export type PartialUpdateProductData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17083,7 +17256,7 @@ export type UpdateProductData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17116,7 +17289,7 @@ export type ListProductImagesData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -17165,7 +17338,7 @@ export type ListProductReviewsData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -17262,12 +17435,45 @@ export type IncrementProductViewsResponses = {
 
 export type IncrementProductViewsResponse = IncrementProductViewsResponses[keyof IncrementProductViewsResponses]
 
+export type ListProductVariantsData = {
+  body?: never
+  path: {
+    /**
+         * Product ID
+         */
+    id: string | number
+  }
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/product/{id}/variants'
+}
+
+export type ListProductVariantsErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListProductVariantsError = ListProductVariantsErrors[keyof ListProductVariantsErrors]
+
+export type ListProductVariantsResponses = {
+  200: ProductVariantsResponse
+}
+
+export type ListProductVariantsResponse = ListProductVariantsResponses[keyof ListProductVariantsResponses]
+
 export type ListProductAlertData = {
   body?: never
   path?: never
   query?: {
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     isActive?: 'true' | 'false' | '1' | '0' | boolean
@@ -17275,11 +17481,11 @@ export type ListProductAlertData = {
          * Είδος
          *
          * * `restock` - Αναπλήρωση
-         * * `price_drop` - Price drop
+         * * `price_drop` - Πτώση τιμής
          */
     kind?: 'price_drop' | 'restock'
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -17291,7 +17497,7 @@ export type ListProductAlertData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -17332,7 +17538,7 @@ export type CreateProductAlertData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17379,7 +17585,7 @@ export type RetrieveProductAlertData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17418,7 +17624,7 @@ export type ListAttributeData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     hasValues?: 'true' | 'false' | '1' | '0' | boolean
@@ -17428,7 +17634,7 @@ export type ListAttributeData = {
          */
     id_In?: string | Array<number>
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     name?: string
@@ -17441,7 +17647,7 @@ export type ListAttributeData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -17505,7 +17711,7 @@ export type CreateAttributeData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17561,7 +17767,7 @@ export type RetrieveAttributeData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17590,7 +17796,7 @@ export type PartialUpdateAttributeData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17620,7 +17826,7 @@ export type UpdateAttributeData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17665,7 +17871,7 @@ export type ListAttributeValueData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     id?: string | number
@@ -17674,7 +17880,7 @@ export type ListAttributeValueData = {
          */
     id_In?: string | Array<number>
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -17686,7 +17892,7 @@ export type ListAttributeValueData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -17751,7 +17957,7 @@ export type CreateAttributeValueData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17807,7 +18013,7 @@ export type RetrieveAttributeValueData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17836,7 +18042,7 @@ export type PartialUpdateAttributeValueData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17866,7 +18072,7 @@ export type UpdateAttributeValueData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -17910,7 +18116,7 @@ export type ListProductCategoryData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
@@ -17939,7 +18145,7 @@ export type ListProductCategoryData = {
          */
     isRoot?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -17973,7 +18179,7 @@ export type ListProductCategoryData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -18051,7 +18257,7 @@ export type CreateProductCategoryData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -18107,7 +18313,7 @@ export type RetrieveProductCategoryData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -18136,7 +18342,7 @@ export type PartialUpdateProductCategoryData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -18166,7 +18372,7 @@ export type UpdateProductCategoryData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -18329,7 +18535,7 @@ export type ListProductCategoryImageData = {
     active?: 'true' | 'false' | '1' | '0' | boolean
     category?: string | number
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     id?: string | number
@@ -18349,7 +18555,7 @@ export type ListProductCategoryImageData = {
          */
     imageType?: 'BACKGROUND' | 'BANNER' | 'FEATURE' | 'GALLERY' | 'HERO' | 'ICON' | 'MAIN' | 'PROMOTIONAL' | 'SEASONAL' | 'THUMBNAIL'
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -18361,7 +18567,7 @@ export type ListProductCategoryImageData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -18401,7 +18607,7 @@ export type CreateProductCategoryImageData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -18457,7 +18663,7 @@ export type RetrieveProductCategoryImageData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -18486,7 +18692,7 @@ export type PartialUpdateProductCategoryImageData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -18516,7 +18722,7 @@ export type UpdateProductCategoryImageData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -18675,12 +18881,12 @@ export type ListProductFavouriteData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     id?: string | number
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -18692,7 +18898,7 @@ export type ListProductFavouriteData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -18745,7 +18951,7 @@ export type CreateProductFavouriteData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -18801,7 +19007,7 @@ export type RetrieveProductFavouriteData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -18830,7 +19036,7 @@ export type PartialUpdateProductFavouriteData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -18860,7 +19066,7 @@ export type UpdateProductFavouriteData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -18968,13 +19174,13 @@ export type ListProductImageData = {
   query?: {
     createdAt?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     id?: string | number
     isMain?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -18986,7 +19192,7 @@ export type ListProductImageData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -19029,7 +19235,7 @@ export type CreateProductImageData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -19085,7 +19291,7 @@ export type RetrieveProductImageData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -19114,7 +19320,7 @@ export type PartialUpdateProductImageData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -19144,7 +19350,7 @@ export type UpdateProductImageData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -19172,30 +19378,30 @@ export type ListProductReviewData = {
   path?: never
   query?: {
     /**
-         * Filter by comment content (partial match)
+         * Φίλτρο ανά περιεχόμενο σχολίου (μερική αντιστοίχιση)
          */
     comment?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
-         * Filter items that are currently published (published_at <= now and is_published=True)
+         * Φίλτρο αντικειμένων που είναι επί του παρόντος δημοσιευμένα (published_at <= now και is_published=True)
          */
     currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Filter reviews that have/don't have comments
+         * Φίλτρο αξιολογήσεων με/χωρίς σχόλια
          */
     hasComment?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -19207,7 +19413,7 @@ export type ListProductReviewData = {
          */
     isPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -19227,7 +19433,7 @@ export type ListProductReviewData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -19247,11 +19453,11 @@ export type ListProductReviewData = {
          */
     productActive?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter products with maximum average rating
+         * Φίλτρο προϊόντων με μέγιστη μέση βαθμολογία
          */
     productAvgRatingMax?: string | number
     /**
-         * Filter products with minimum average rating
+         * Φίλτρο προϊόντων με ελάχιστη μέση βαθμολογία
          */
     productAvgRatingMin?: string | number
     /**
@@ -19263,26 +19469,26 @@ export type ListProductReviewData = {
          */
     productId?: string | number
     /**
-         * Filter by product name (partial match)
+         * Φίλτρο ανά όνομα προϊόντος (μερική αντιστοίχιση)
          */
     productName?: string
     /**
-         * Filter items published after this date
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
          */
     publishedAfter?: string
     publishedAt_Date?: string
     publishedAt_Gte?: string
     publishedAt_Lte?: string
     /**
-         * Filter items published before this date
+         * Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία
          */
     publishedBefore?: string
     /**
-         * Filter reviews published in the last N days
+         * Φίλτρο αξιολογήσεων που δημοσιεύθηκαν τις τελευταίες N ημέρες
          */
     publishedRecentDays?: string | number
     /**
-         * Filter by exact rating
+         * Φίλτρο ανά ακριβή βαθμολογία
          *
          * * `1` - Ένα
          * * `2` - Δύο
@@ -19307,7 +19513,7 @@ export type ListProductReviewData = {
          */
     rateMin?: string | number
     /**
-         * Filter reviews from the last N days
+         * Φίλτρο αξιολογήσεων των τελευταίων N ημερών
          */
     recentDays?: string | number
     /**
@@ -19317,22 +19523,22 @@ export type ListProductReviewData = {
     /**
          * Κατάσταση
          *
-         * Filter by review status
+         * Φίλτρο ανά κατάσταση αξιολόγησης
          *
          * * `NEW` - Νέο
          * * `TRUE` - Ναι
-         * * `FALSE` - False
+         * * `FALSE` - Όχι
          */
     status?: 'FALSE' | 'NEW' | 'TRUE'
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     /**
@@ -19340,11 +19546,11 @@ export type ListProductReviewData = {
          */
     user?: string | number
     /**
-         * Filter by user email (partial match)
+         * Φίλτρο ανά email χρήστη (μερική αντιστοίχιση)
          */
     userEmail?: string
     /**
-         * Filter by user first name (partial match)
+         * Φίλτρο ανά όνομα χρήστη (μερική αντιστοίχιση)
          */
     userFirstName?: string
     /**
@@ -19352,16 +19558,16 @@ export type ListProductReviewData = {
          */
     userId?: string | number
     /**
-         * Filter by user last name (partial match)
+         * Φίλτρο ανά επώνυμο χρήστη (μερική αντιστοίχιση)
          */
     userLastName?: string
     /**
-         * Filter users with minimum number of reviews
+         * Φίλτρο χρηστών με ελάχιστο αριθμό αξιολογήσεων
          */
     userReviewCountMin?: string | number
     uuid?: string
     /**
-         * Filter reviews from verified purchases
+         * Φίλτρο αξιολογήσεων από επαληθευμένες αγορές
          */
     verifiedPurchase?: 'true' | 'false' | '1' | '0' | boolean
   }
@@ -19389,7 +19595,7 @@ export type CreateProductReviewData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -19445,7 +19651,7 @@ export type RetrieveProductReviewData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -19474,7 +19680,7 @@ export type PartialUpdateProductReviewData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -19504,7 +19710,7 @@ export type UpdateProductReviewData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -19582,12 +19788,12 @@ export type ListRegionData = {
   path?: never
   query?: {
     /**
-         * Filter by region alpha code (partial match)
+         * Φίλτρο ανά αλφαβητικό κωδικό περιφέρειας (μερική αντιστοίχιση)
          */
     alpha?: string
     alpha_Icontains?: string
     /**
-         * Filter by exact region alpha code
+         * Φίλτρο ανά ακριβή αλφαβητικό κωδικό περιφέρειας
          */
     alphaExact?: string
     /**
@@ -19595,7 +19801,7 @@ export type ListRegionData = {
          */
     country?: string
     /**
-         * Filter by country name (partial match)
+         * Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)
          */
     countryName?: string
     /**
@@ -19607,15 +19813,15 @@ export type ListRegionData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Filter by region name (partial match)
+         * Φίλτρο ανά όνομα περιφέρειας (μερική αντιστοίχιση)
          */
     name?: string
     /**
@@ -19627,7 +19833,7 @@ export type ListRegionData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -19679,7 +19885,7 @@ export type CreateRegionData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -19745,7 +19951,7 @@ export type RetrieveRegionData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -19779,7 +19985,7 @@ export type PartialUpdateRegionData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -19814,7 +20020,7 @@ export type UpdateRegionData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -19849,12 +20055,12 @@ export type ListRegionsByCountryData = {
   }
   query?: {
     /**
-         * Filter by region alpha code (partial match)
+         * Φίλτρο ανά αλφαβητικό κωδικό περιφέρειας (μερική αντιστοίχιση)
          */
     alpha?: string
     alpha_Icontains?: string
     /**
-         * Filter by exact region alpha code
+         * Φίλτρο ανά ακριβή αλφαβητικό κωδικό περιφέρειας
          */
     alphaExact?: string
     /**
@@ -19862,7 +20068,7 @@ export type ListRegionsByCountryData = {
          */
     country?: string
     /**
-         * Filter by country name (partial match)
+         * Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)
          */
     countryName?: string
     /**
@@ -19874,7 +20080,7 @@ export type ListRegionsByCountryData = {
          */
     createdBefore?: string
     /**
-         * Filter by region name (partial match)
+         * Φίλτρο ανά όνομα περιφέρειας (μερική αντιστοίχιση)
          */
     name?: string
     /**
@@ -19930,15 +20136,15 @@ export type ApiV1SearchAnalyticsRetrieveData = {
   path?: never
   query?: {
     /**
-         * Filter by content type: 'product', 'blog_post', or 'federated'. If not provided, includes all content types.
+         * Φίλτρο ανά τύπο περιεχομένου: 'product', 'blog_post', ή 'federated'. Αν δεν δοθεί, συμπεριλαμβάνει όλους τους τύπους περιεχομένου.
          */
     contentType?: string
     /**
-         * End date for analytics range (ISO format: YYYY-MM-DD). If not provided, includes data up to current date.
+         * Ημερομηνία λήξης για το εύρος αναλυτικών (μορφή ISO: YYYY-MM-DD). Αν δεν δοθεί, συμπεριλαμβάνει δεδομένα έως τη σημερινή ημερομηνία.
          */
     endDate?: string
     /**
-         * Start date for analytics range (ISO format: YYYY-MM-DD). If not provided, includes all historical data.
+         * Ημερομηνία έναρξης για το εύρος αναλυτικών (μορφή ISO: YYYY-MM-DD). Αν δεν δοθεί, συμπεριλαμβάνει όλα τα ιστορικά δεδομένα.
          */
     startDate?: string
   }
@@ -19962,11 +20168,11 @@ export type ApiV1SearchBlogPostRetrieveData = {
   path?: never
   query: {
     /**
-         * Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages.
+         * Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. 'en', 'el', 'de'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.
          */
     languageCode?: string
     /**
-         * Maximum number of results to return
+         * Μέγιστος αριθμός αποτελεσμάτων προς επιστροφή
          */
     limit?: string | number
     /**
@@ -19998,11 +20204,11 @@ export type ApiV1SearchFederatedRetrieveData = {
   path?: never
   query: {
     /**
-         * Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages.
+         * Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. 'en', 'el', 'de'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.
          */
     languageCode?: string
     /**
-         * Maximum total number of results to return
+         * Μέγιστος συνολικός αριθμός αποτελεσμάτων προς επιστροφή
          */
     limit?: string | number
     /**
@@ -20034,27 +20240,27 @@ export type ApiV1SearchProductRetrieveData = {
   path?: never
   query?: {
     /**
-         * Comma-separated attribute value IDs (attribute_values IN [ids])
+         * ID τιμών χαρακτηριστικών διαχωρισμένα με κόμμα (attribute_values IN [ids])
          */
     attributeValues?: string
     /**
-         * Comma-separated category IDs (category IN [ids])
+         * ID κατηγοριών διαχωρισμένα με κόμμα (category IN [ids])
          */
     categories?: string
     /**
-         * Comma-separated facet fields for counts and stats
+         * Πεδία facet διαχωρισμένα με κόμμα για πλήθη και στατιστικά
          */
     facets?: string
     /**
-         * Language code to filter results (e.g., 'en', 'el', 'de'). If not provided, searches all languages.
+         * Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. 'en', 'el', 'de'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.
          */
     languageCode?: string
     /**
-         * Minimum likes filter (likes_count >= value)
+         * Φίλτρο ελάχιστων επισημάνσεων (likes_count >= value)
          */
     likesMin?: string | number
     /**
-         * Maximum number of results to return
+         * Μέγιστος αριθμός αποτελεσμάτων προς επιστροφή
          */
     limit?: string | number
     /**
@@ -20062,23 +20268,23 @@ export type ApiV1SearchProductRetrieveData = {
          */
     offset?: string | number
     /**
-         * Maximum price filter (final_price <= value)
+         * Φίλτρο μέγιστης τιμής (final_price <= value)
          */
     priceMax?: string | number
     /**
-         * Minimum price filter (final_price >= value)
+         * Φίλτρο ελάχιστης τιμής (final_price >= value)
          */
     priceMin?: string | number
     /**
-         * Full-text search query (empty for no search filter)
+         * Ερώτημα αναζήτησης πλήρους κειμένου (κενό για χωρίς φίλτρο αναζήτησης)
          */
     query?: string
     /**
-         * Sort field (finalPrice, -finalPrice, -likesCount, -viewCount, -createdAt)
+         * Πεδίο ταξινόμησης (finalPrice, -finalPrice, -likesCount, -viewCount, -createdAt)
          */
     sort?: string
     /**
-         * Minimum views filter (view_count >= value)
+         * Φίλτρο ελάχιστων προβολών (view_count >= value)
          */
     viewsMin?: string | number
   }
@@ -20102,11 +20308,11 @@ export type ListTrendingSearchesData = {
   path?: never
   query?: {
     /**
-         * Filter by content type: product, blog_post, federated. Defaults to product.
+         * Φίλτρο ανά τύπο περιεχομένου: product, blog_post, federated. Προεπιλογή product.
          */
     contentType?: string
     /**
-         * Filter queries by language (e.g. 'el').
+         * Φίλτρο ερωτημάτων ανά γλώσσα (π.χ. 'el').
          */
     languageCode?: string
     /**
@@ -20147,7 +20353,7 @@ export type ApiV1SettingsGetRetrieveData = {
   path?: never
   query: {
     /**
-         * Setting key name (e.g., CHECKOUT_SHIPPING_PRICE)
+         * Όνομα κλειδιού ρύθμισης (π.χ. CHECKOUT_SHIPPING_PRICE)
          */
     key: string
   }
@@ -20392,11 +20598,11 @@ export type ListBoxNowLockerData = {
   path?: never
   query?: {
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -20408,7 +20614,7 @@ export type ListBoxNowLockerData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -20450,7 +20656,7 @@ export type RetrieveBoxNowLockerData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -20627,15 +20833,15 @@ export type ListTagData = {
   path?: never
   query?: {
     /**
-         * Filter by active status
+         * Φίλτρο ανά κατάσταση ενεργοποίησης
          */
     active?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter tags used for specific content type
+         * Φίλτρο ετικετών που χρησιμοποιούνται για συγκεκριμένο τύπο περιεχομένου
          */
     contentType?: string
     /**
-         * Filter tags used for content from specific app
+         * Φίλτρο ετικετών που χρησιμοποιούνται για περιεχόμενο από συγκεκριμένη εφαρμογή
          */
     contentType_AppLabel?: string
     /**
@@ -20650,11 +20856,11 @@ export type ListTagData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Filter tags that have/don't have a label
+         * Φίλτρο ετικετών με/χωρίς ετικέτα
          */
     hasLabel?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -20667,7 +20873,7 @@ export type ListTagData = {
          */
     id_In?: string | Array<number>
     /**
-         * Filter by tag label (partial match)
+         * Φίλτρο ανά ετικέτα (μερική αντιστοίχιση)
          */
     label?: string
     /**
@@ -20675,11 +20881,11 @@ export type ListTagData = {
          */
     label_Exact?: string
     /**
-         * Filter tags with labels starting with
+         * Φίλτρο ετικετών με ετικέτα που ξεκινά με
          */
     label_Startswith?: string
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -20687,15 +20893,15 @@ export type ListTagData = {
          */
     maxUsageCount?: string | number
     /**
-         * Filter tags used at least X times
+         * Φίλτρο ετικετών που χρησιμοποιούνται τουλάχιστον X φορές
          */
     minUsageCount?: string | number
     /**
-         * Order tags by usage count (most used first)
+         * Ταξινόμηση ετικετών κατά πλήθος χρήσης (πιο δημοφιλείς πρώτα)
          */
     mostUsed?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter tags used for specific object ID
+         * Φίλτρο ετικετών που χρησιμοποιούνται για συγκεκριμένο ID αντικειμένου
          */
     objectId?: string | number
     /**
@@ -20707,7 +20913,7 @@ export type ListTagData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -20769,7 +20975,7 @@ export type CreateTagData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -20825,7 +21031,7 @@ export type RetrieveTagData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -20854,7 +21060,7 @@ export type PartialUpdateTagData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -20884,7 +21090,7 @@ export type UpdateTagData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -20931,7 +21137,7 @@ export type ListTaggedItemData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     id?: string | number
@@ -20940,7 +21146,7 @@ export type ListTaggedItemData = {
          */
     id_In?: string | Array<number>
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -20948,7 +21154,7 @@ export type ListTaggedItemData = {
          */
     objectId?: string | number
     /**
-         * Filter by multiple object IDs (comma-separated)
+         * Φίλτρο ανά πολλαπλά ID αντικειμένων (διαχωρισμένα με κόμμα)
          */
     objectId_In?: string | Array<number>
     /**
@@ -20960,7 +21166,7 @@ export type ListTaggedItemData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -20984,7 +21190,7 @@ export type ListTaggedItemData = {
          */
     tag_Active?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by tag label (partial match)
+         * Φίλτρο ανά ετικέτα (μερική αντιστοίχιση)
          */
     tag_Label?: string
     /**
@@ -21024,7 +21230,7 @@ export type CreateTaggedItemData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -21080,7 +21286,7 @@ export type RetrieveTaggedItemData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -21109,7 +21315,7 @@ export type PartialUpdateTaggedItemData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -21139,7 +21345,7 @@ export type UpdateTaggedItemData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -21201,11 +21407,11 @@ export type ListUserAccountData = {
   path?: never
   query?: {
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -21217,7 +21423,7 @@ export type ListUserAccountData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -21257,7 +21463,7 @@ export type CreateUserAccountData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -21280,32 +21486,6 @@ export type CreateUserAccountResponses = {
 
 export type CreateUserAccountResponse = CreateUserAccountResponses[keyof CreateUserAccountResponses]
 
-export type DestroyUserAccountData = {
-  body?: never
-  path: {
-    id: string | number
-  }
-  query?: never
-  url: '/api/v1/user/account/{id}'
-}
-
-export type DestroyUserAccountErrors = {
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-}
-
-export type DestroyUserAccountError = DestroyUserAccountErrors[keyof DestroyUserAccountErrors]
-
-export type DestroyUserAccountResponses = {
-  /**
-     * No response body
-     */
-  204: void
-}
-
-export type DestroyUserAccountResponse = DestroyUserAccountResponses[keyof DestroyUserAccountResponses]
-
 export type RetrieveUserAccountData = {
   body?: never
   path: {
@@ -21313,7 +21493,7 @@ export type RetrieveUserAccountData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -21342,7 +21522,7 @@ export type PartialUpdateUserAccountData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -21372,7 +21552,7 @@ export type UpdateUserAccountData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -21678,7 +21858,7 @@ export type GetUserAccountNotificationsData = {
          */
     search?: string
     /**
-         * Filter notifications by seen/unseen state.
+         * Φίλτρο ειδοποιήσεων κατά κατάσταση ορατότητας.
          */
     seen?: 'true' | 'false' | '1' | '0' | boolean
   }
@@ -21815,7 +21995,7 @@ export type ListUserAddressData = {
   path?: never
   query?: {
     /**
-         * Filter by city name (partial match)
+         * Φίλτρο ανά όνομα πόλης (μερική αντιστοίχιση)
          */
     city?: string
     city_Icontains?: string
@@ -21824,11 +22004,11 @@ export type ListUserAddressData = {
          */
     country?: string
     /**
-         * Filter by country code (e.g., 'US', 'CA')
+         * Φίλτρο ανά κωδικό χώρας (π.χ. 'US', 'CA')
          */
     countryCode?: string
     /**
-         * Filter by country name (partial match)
+         * Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)
          */
     countryName?: string
     /**
@@ -21843,11 +22023,11 @@ export type ListUserAddressData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Filter by first name (partial match)
+         * Φίλτρο ανά όνομα (μερική αντιστοίχιση)
          */
     firstName?: string
     firstName_Icontains?: string
@@ -21858,7 +22038,7 @@ export type ListUserAddressData = {
          */
     floor?: '' | 'BASEMENT' | 'FIFTH_FLOOR' | 'FIRST_FLOOR' | 'FOURTH_FLOOR' | 'GROUND_FLOOR' | 'SECOND_FLOOR' | 'SIXTH_FLOOR_PLUS' | 'THIRD_FLOOR'
     /**
-         * Filter by full name (first + last name)
+         * Φίλτρο ανά πλήρες όνομα (όνομα + επώνυμο)
          */
     fullName?: string
     /**
@@ -21875,16 +22055,16 @@ export type ListUserAddressData = {
          */
     isMain?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Filter by last name (partial match)
+         * Φίλτρο ανά επώνυμο (μερική αντιστοίχιση)
          */
     lastName?: string
     lastName_Icontains?: string
     /**
-         * Filter by location type (exact match, case insensitive)
+         * Φίλτρο ανά τύπο τοποθεσίας (ακριβής αντιστοίχιση, χωρίς διάκριση πεζών/κεφαλαίων)
          */
     locationType?: string
     locationType_Icontains?: string
@@ -21901,7 +22081,7 @@ export type ListUserAddressData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -21913,7 +22093,7 @@ export type ListUserAddressData = {
          */
     paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
-         * Filter by phone number (partial match)
+         * Φίλτρο ανά αριθμό τηλεφώνου (μερική αντιστοίχιση)
          */
     phone?: string
     phone_Icontains?: string
@@ -21922,11 +22102,11 @@ export type ListUserAddressData = {
          */
     region?: string
     /**
-         * Filter by region code
+         * Φίλτρο ανά κωδικό περιφέρειας
          */
     regionCode?: string
     /**
-         * Filter by region name (partial match)
+         * Φίλτρο ανά όνομα περιφέρειας (μερική αντιστοίχιση)
          */
     regionName?: string
     /**
@@ -21934,7 +22114,7 @@ export type ListUserAddressData = {
          */
     search?: string
     /**
-         * Filter by street name (partial match)
+         * Φίλτρο ανά όνομα οδού (μερική αντιστοίχιση)
          */
     street?: string
     street_Icontains?: string
@@ -21958,12 +22138,12 @@ export type ListUserAddressData = {
     updatedBefore?: string
     uuid?: string
     /**
-         * Filter by zipcode (partial match)
+         * Φίλτρο ανά ταχυδρομικό κώδικα (μερική αντιστοίχιση)
          */
     zipcode?: string
     zipcode_Icontains?: string
     /**
-         * Filter by exact zipcode
+         * Φίλτρο ανά ακριβή ταχυδρομικό κώδικα
          */
     zipcodeExact?: string
   }
@@ -21991,7 +22171,7 @@ export type CreateUserAddressData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -22047,7 +22227,7 @@ export type RetrieveUserAddressData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -22076,7 +22256,7 @@ export type PartialUpdateUserAddressData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -22106,7 +22286,7 @@ export type UpdateUserAddressData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -22197,11 +22377,11 @@ export type ListUserSubscriptionData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Filter subscriptions that have metadata
+         * Φίλτρο εγγραφών με metadata
          */
     hasMetadata?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
@@ -22214,7 +22394,7 @@ export type ListUserSubscriptionData = {
          */
     isConfirmed?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -22226,7 +22406,7 @@ export type ListUserSubscriptionData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -22247,20 +22427,20 @@ export type ListUserSubscriptionData = {
          * Φίλτρο ανά κατάσταση συνδρομής
          *
          * * `ACTIVE` - Ενεργή
-         * * `PENDING` - Pending Confirmation
+         * * `PENDING` - Εκκρεμεί Επιβεβαίωση
          * * `UNSUBSCRIBED` - Διαγραφή
          * * `BOUNCED` - Επιστράφηκε
          */
     status?: 'ACTIVE' | 'BOUNCED' | 'PENDING' | 'UNSUBSCRIBED'
     /**
-         * Filter subscriptions created after this date
+         * Φίλτρο εγγραφών που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     subscribedAfter?: string
     subscribedAt_Date?: string
     subscribedAt_Gte?: string
     subscribedAt_Lte?: string
     /**
-         * Filter subscriptions created before this date
+         * Φίλτρο εγγραφών που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     subscribedBefore?: string
     /**
@@ -22282,15 +22462,15 @@ export type ListUserSubscriptionData = {
          */
     topicCategory?: 'ACCOUNT' | 'MARKETING' | 'NEWSLETTER' | 'OTHER' | 'PRODUCT' | 'PROMOTIONAL' | 'SYSTEM'
     /**
-         * Filter by topic description (partial match)
+         * Φίλτρο ανά περιγραφή θέματος (μερική αντιστοίχιση)
          */
     topicDescription?: string
     /**
-         * Filter by topic name (partial match)
+         * Φίλτρο ανά όνομα θέματος (μερική αντιστοίχιση)
          */
     topicName?: string
     /**
-         * Filter by topic slug (partial match)
+         * Φίλτρο ανά slug θέματος (μερική αντιστοίχιση)
          */
     topicSlug?: string
     /**
@@ -22298,14 +22478,14 @@ export type ListUserSubscriptionData = {
          */
     topicSlugExact?: string
     /**
-         * Filter subscriptions unsubscribed after this date
+         * Φίλτρο εγγραφών με διαγραφή μετά από αυτή την ημερομηνία
          */
     unsubscribedAfter?: string
     unsubscribedAt_Date?: string
     unsubscribedAt_Gte?: string
     unsubscribedAt_Lte?: string
     /**
-         * Filter subscriptions unsubscribed before this date
+         * Φίλτρο εγγραφών με διαγραφή πριν από αυτή την ημερομηνία
          */
     unsubscribedBefore?: string
     /**
@@ -22345,7 +22525,7 @@ export type CreateUserSubscriptionData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -22401,7 +22581,7 @@ export type RetrieveUserSubscriptionData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -22430,7 +22610,7 @@ export type PartialUpdateUserSubscriptionData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -22460,7 +22640,7 @@ export type UpdateUserSubscriptionData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -22598,15 +22778,15 @@ export type ListSubscriptionTopicData = {
          */
     createdBefore?: string
     /**
-         * Cursor for pagination
+         * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
     /**
-         * Filter by description (partial match)
+         * Φίλτρο ανά περιγραφή (μερική αντιστοίχιση)
          */
     description?: string
     /**
-         * Filter topics that have subscribers
+         * Φίλτρο θεμάτων με εγγεγραμμένους
          */
     hasSubscribers?: 'true' | 'false' | '1' | '0' | boolean
     id?: string | number
@@ -22615,15 +22795,15 @@ export type ListSubscriptionTopicData = {
          */
     id_In?: string | Array<number>
     /**
-         * Filter by active status
+         * Φίλτρο ανά κατάσταση ενεργοποίησης
          */
     isActive?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter by default subscription status
+         * Φίλτρο ανά προεπιλεγμένη κατάσταση εγγραφής
          */
     isDefault?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
@@ -22639,7 +22819,7 @@ export type ListSubscriptionTopicData = {
          */
     page?: string | number
     /**
-         * Number of results to return per page
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
     /**
@@ -22651,7 +22831,7 @@ export type ListSubscriptionTopicData = {
          */
     paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
-         * Filter by confirmation requirement
+         * Φίλτρο ανά απαίτηση επιβεβαίωσης
          */
     requiresConfirmation?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -22704,7 +22884,7 @@ export type CreateSubscriptionTopicData = {
   path?: never
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -22760,7 +22940,7 @@ export type RetrieveSubscriptionTopicData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -22789,7 +22969,7 @@ export type PartialUpdateSubscriptionTopicData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -22819,7 +22999,7 @@ export type UpdateSubscriptionTopicData = {
   }
   query?: {
     /**
-         * Language code for translations (el, en, de)
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
   }
@@ -22923,10 +23103,9 @@ export type UnsubscribeFromAllViaLinkData = {
   body?: never
   path: {
     token: string
-    uidb64: string
   }
   query?: never
-  url: '/api/v1/user/unsubscribe/{uidb64}/{token}'
+  url: '/api/v1/user/unsubscribe/{token}'
 }
 
 export type UnsubscribeFromAllViaLinkErrors = {
@@ -22945,10 +23124,9 @@ export type UnsubscribeFromAllOneClickData = {
   body?: never
   path: {
     token: string
-    uidb64: string
   }
   query?: never
-  url: '/api/v1/user/unsubscribe/{uidb64}/{token}'
+  url: '/api/v1/user/unsubscribe/{token}'
 }
 
 export type UnsubscribeFromAllOneClickResponses = {
@@ -22963,10 +23141,9 @@ export type UnsubscribeFromTopicViaLinkData = {
   path: {
     token: string
     topicSlug: string
-    uidb64: string
   }
   query?: never
-  url: '/api/v1/user/unsubscribe/{uidb64}/{token}/{topic_slug}'
+  url: '/api/v1/user/unsubscribe/{token}/{topic_slug}'
 }
 
 export type UnsubscribeFromTopicViaLinkErrors = {
@@ -22986,10 +23163,9 @@ export type UnsubscribeFromTopicOneClickData = {
   path: {
     token: string
     topicSlug: string
-    uidb64: string
   }
   query?: never
-  url: '/api/v1/user/unsubscribe/{uidb64}/{token}/{topic_slug}'
+  url: '/api/v1/user/unsubscribe/{token}/{topic_slug}'
 }
 
 export type UnsubscribeFromTopicOneClickResponses = {
@@ -23040,28 +23216,3 @@ export type BoxnowWebhookResponses = {
      */
   200: unknown
 }
-
-export type ResolveVivaOrderCodeData = {
-  body?: never
-  path?: never
-  query: {
-    /**
-         * Viva Wallet ``OrderCode`` returned to the customer after a successful checkout.
-         */
-    orderCode: string
-  }
-  url: '/viva-wallet/resolve-order'
-}
-
-export type ResolveVivaOrderCodeErrors = {
-  400: ResolveVivaOrderCodeError
-  404: ResolveVivaOrderCodeError
-}
-
-export type ResolveVivaOrderCodeError2 = ResolveVivaOrderCodeErrors[keyof ResolveVivaOrderCodeErrors]
-
-export type ResolveVivaOrderCodeResponses = {
-  200: ResolveVivaOrderCodeResponse
-}
-
-export type ResolveVivaOrderCodeResponse2 = ResolveVivaOrderCodeResponses[keyof ResolveVivaOrderCodeResponses]

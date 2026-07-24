@@ -38,22 +38,22 @@ export const zAcsAddressValidationResponse = z.object({
 
 /**
  * * `1` - Προπληρωμένο
- * * `2` - Cash on delivery
+ * * `2` - Αντικαταβολή
  */
 export const zAcsChargeType = z.union([z.literal(1), z.literal(2)]).register(z.globalRegistry, {
-  description: '* `1` - Προπληρωμένο\n* `2` - Cash on delivery',
+  description: '* `1` - Προπληρωμένο\n* `2` - Αντικαταβολή',
 })
 
 export const zAcsPickupList = z.object({
   id: z.int().readonly(),
   pickupListNo: z.string().register(z.globalRegistry, {
-    description: 'PickupList_No returned by ACS_Issue_Pickup_List.',
+    description: 'PickupList_No που επιστρέφεται από το ACS_Issue_Pickup_List.',
   }).readonly(),
   issuedAt: z.iso.datetime({ offset: true }).readonly(),
   issuedBy: z.int().readonly().nullable(),
   issuedByUsername: z.string().readonly().nullable(),
   billingCode: z.string().register(z.globalRegistry, {
-    description: 'Billing_Code captured at issuance time so historical manifests stay reprintable even if the env var changes.',
+    description: 'Billing_Code που καταγράφεται τη στιγμή της έκδοσης, ώστε τα ιστορικά manifest να παραμένουν επανεκτυπώσιμα ακόμη κι αν αλλάξει η μεταβλητή περιβάλλοντος.',
   }).readonly(),
   voucherCount: z.int().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -63,10 +63,10 @@ export const zAcsPickupList = z.object({
 export const zAcsTrackingEvent = z.object({
   id: z.int().readonly(),
   eventTime: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Checkpoint_Date_Time from ACS_TrackingDetails.',
+    description: 'Checkpoint_Date_Time από το ACS_TrackingDetails.',
   }).readonly(),
   checkpointAction: z.string().register(z.globalRegistry, {
-    description: 'Checkpoint_Action_Description — human-readable Greek text describing the event.',
+    description: 'Checkpoint_Action_Description — κείμενο στα ελληνικά σε αναγνώσιμη μορφή που περιγράφει το συμβάν.',
   }).readonly(),
   checkpointLocation: z.string().register(z.globalRegistry, {
     description: 'Checkpoint_Location_Description.',
@@ -75,7 +75,7 @@ export const zAcsTrackingEvent = z.object({
     description: 'Πεδίο σχολίων ACS.',
   }).readonly(),
   receivedAt: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Wall-clock time when the polling task observed this event.',
+    description: 'Πραγματικός χρόνος κατά τον οποίο η εργασία παρακολούθησης παρατήρησε αυτό το συμβάν.',
   }).readonly(),
 })
 
@@ -197,7 +197,10 @@ export const zBlogAuthorWriteRequest = z.object({
     }).optional(),
   }),
   user: z.int(),
-  website: z.url().max(200).optional(),
+  website: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
@@ -287,13 +290,13 @@ export const zBlogCategoryReorderItemRequest = z.object({
     description: 'ID κατηγορίας',
   }),
   sortOrder: z.int().register(z.globalRegistry, {
-    description: 'New sort order value',
+    description: 'Νέα τιμή σειράς ταξινόμησης',
   }),
 })
 
 export const zBlogCategoryReorderRequestRequest = z.object({
   categories: z.array(zBlogCategoryReorderItemRequest).register(z.globalRegistry, {
-    description: 'List of categories with new sort orders',
+    description: 'Λίστα κατηγοριών με νέες σειρές ταξινόμησης',
   }),
 })
 
@@ -302,7 +305,7 @@ export const zBlogCategoryReorderResponse = z.object({
     description: 'Αριθμός ενημερωμένων κατηγοριών',
   }),
   message: z.string().register(z.globalRegistry, {
-    description: 'Success message',
+    description: 'Μήνυμα επιτυχίας',
   }),
 })
 
@@ -333,13 +336,13 @@ export const zBlogCategoryWriteRequest = z.object({
 
 export const zBlogCommentLikedCommentsRequestRequest = z.object({
   commentIds: z.array(z.int()).register(z.globalRegistry, {
-    description: 'List of comment IDs to check like status for',
+    description: 'Λίστα ID σχολίων για έλεγχο κατάστασης επισήμανσης',
   }),
 })
 
 export const zBlogCommentLikedCommentsResponse = z.object({
   likedCommentIds: z.array(z.int()).register(z.globalRegistry, {
-    description: 'List of comment IDs that are liked by the current user',
+    description: 'Λίστα ID σχολίων που έχει επισημάνει ο τρέχων χρήστης',
   }),
 })
 
@@ -416,13 +419,13 @@ export const zBlogPost = z.object({
 
 export const zBlogPostLikedPostsRequestRequest = z.object({
   postIds: z.array(z.int()).register(z.globalRegistry, {
-    description: 'List of post IDs to check for likes',
+    description: 'Λίστα ID άρθρων για έλεγχο επισημάνσεων',
   }),
 })
 
 export const zBlogPostLikedPostsResponse = z.object({
   postIds: z.array(z.int()).register(z.globalRegistry, {
-    description: 'List of liked post IDs',
+    description: 'Λίστα ID άρθρων με επισήμανση',
   }),
 })
 
@@ -501,7 +504,7 @@ export const zBlogTag = z.object({
   active: z.boolean().optional(),
   sortOrder: z.int().readonly().nullable(),
   postsCount: z.string().register(z.globalRegistry, {
-    description: 'Number of blog posts using this tag',
+    description: 'Αριθμός άρθρων που χρησιμοποιούν αυτή την ετικέτα',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -529,7 +532,7 @@ export const zBlogTagDetail = z.object({
   active: z.boolean().optional(),
   sortOrder: z.int().readonly().nullable(),
   postsCount: z.string().register(z.globalRegistry, {
-    description: 'Number of blog posts using this tag',
+    description: 'Αριθμός άρθρων που χρησιμοποιούν αυτή την ετικέτα',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -563,7 +566,7 @@ export const zBlogTagWriteRequest = z.object({
  */
 export const zBoxNowCustomerRequest = z.object({
   name: z.string().register(z.globalRegistry, {
-    description: 'Customer full name',
+    description: 'Πλήρες όνομα πελάτη',
   }).optional(),
   email: z.string().register(z.globalRegistry, {
     description: 'Email πελάτη',
@@ -580,10 +583,10 @@ export const zBoxNowCustomerRequest = z.object({
  */
 export const zBoxNowEventLocationRequest = z.object({
   displayName: z.string().register(z.globalRegistry, {
-    description: 'Human-readable locker or hub name',
+    description: 'Όνομα locker ή hub σε αναγνώσιμη μορφή',
   }).optional(),
   postalCode: z.string().register(z.globalRegistry, {
-    description: 'Postal code of the event location',
+    description: 'Ταχυδρομικός κώδικας της τοποθεσίας του συμβάντος',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Nested ``eventLocation`` object within a BoxNow webhook payload.',
@@ -597,19 +600,19 @@ export const zBoxNowEventLocationRequest = z.object({
  */
 export const zBoxNowNearestLockerRequestRequest = z.object({
   city: z.string().min(1).max(128).register(z.globalRegistry, {
-    description: 'City name for nearest-locker lookup',
+    description: 'Όνομα πόλης για αναζήτηση πλησιέστερου locker',
   }),
   street: z.string().min(1).max(255).register(z.globalRegistry, {
-    description: 'Street name and number',
+    description: 'Οδός και αριθμός',
   }),
   postalCode: z.string().min(1).max(16).register(z.globalRegistry, {
-    description: 'Postal / ZIP code',
+    description: 'Ταχυδρομικός κώδικας',
   }),
   region: z.string().min(1).max(8).register(z.globalRegistry, {
-    description: 'IETF language tag / region code (default: el-GR)',
+    description: 'Ετικέτα γλώσσας IETF / κωδικός περιφέρειας (προεπιλογή: el-GR)',
   }).optional().default('el-GR'),
   compartmentSize: z.int().gte(1).lte(3).register(z.globalRegistry, {
-    description: 'Required compartment size: 1=Small, 2=Medium, 3=Large',
+    description: 'Απαιτούμενο μέγεθος θυρίδας: 1=Μικρό, 2=Μεσαίο, 3=Μεγάλο',
   }).optional().default(1),
 }).register(z.globalRegistry, {
   description: 'Request body for ``POST /lockers/nearest``.\n\nMaps to the BoxNow ``/api/v2/delivery-requests:checkAddressDelivery``\nendpoint parameters.',
@@ -625,25 +628,25 @@ export const zBoxNowNearestLockerRequestRequest = z.object({
  */
 export const zBoxNowNearestLockerResponse = z.object({
   id: z.string().register(z.globalRegistry, {
-    description: 'BoxNow APM identifier',
+    description: 'Αναγνωριστικό APM BoxNow',
   }).readonly(),
   type: z.string().register(z.globalRegistry, {
-    description: 'Locker type (e.g. apm, warehouse)',
+    description: 'Τύπος locker (π.χ. apm, warehouse)',
   }).readonly(),
   image: z.string().register(z.globalRegistry, {
     description: 'URL εικόνας locker',
   }).readonly(),
   lat: z.string().register(z.globalRegistry, {
-    description: 'Latitude (string as returned by BoxNow)',
+    description: 'Γεωγραφικό πλάτος (συμβολοσειρά όπως επιστρέφεται από το BoxNow)',
   }).readonly(),
   lng: z.string().register(z.globalRegistry, {
-    description: 'Longitude (string as returned by BoxNow)',
+    description: 'Γεωγραφικό μήκος (συμβολοσειρά όπως επιστρέφεται από το BoxNow)',
   }).readonly(),
   title: z.string().register(z.globalRegistry, {
-    description: 'Short display title',
+    description: 'Σύντομος τίτλος εμφάνισης',
   }).readonly(),
   name: z.string().register(z.globalRegistry, {
-    description: 'Full locker name',
+    description: 'Πλήρες όνομα locker',
   }).readonly(),
   postalCode: z.string().register(z.globalRegistry, {
     description: 'Ταχ. κώδικας του locker',
@@ -655,26 +658,26 @@ export const zBoxNowNearestLockerResponse = z.object({
     description: 'Λειτουργική σημείωση από BoxNow',
   }).readonly(),
   addressLine1: z.string().register(z.globalRegistry, {
-    description: 'Primary address line',
+    description: 'Κύρια γραμμή διεύθυνσης',
   }).readonly(),
   addressLine2: z.string().register(z.globalRegistry, {
-    description: 'Secondary address line',
+    description: 'Δευτερεύουσα γραμμή διεύθυνσης',
   }).readonly(),
   region: z.string().register(z.globalRegistry, {
-    description: 'IETF region tag returned by BoxNow',
+    description: 'Ετικέτα περιφέρειας IETF που επιστρέφεται από το BoxNow',
   }).readonly(),
   distance: z.number().register(z.globalRegistry, {
-    description: 'Distance from the supplied address in kilometres',
+    description: 'Απόσταση από τη δεδομένη διεύθυνση σε χιλιόμετρα',
   }).readonly(),
 }).register(z.globalRegistry, {
   description: 'Response shape returned by BoxNow\'s checkAddressDelivery call.\n\nMirrors ``/api/v2/delivery-requests:checkAddressDelivery`` response.\n``lat`` and ``lng`` are CharField because BoxNow returns them as\nstrings in this endpoint.  ``distance`` is the straight-line\ndistance in kilometres from the supplied address.',
 })
 
 /**
- * * `pending_creation` - Pending creation
+ * * `pending_creation` - Εκκρεμής δημιουργία
  * * `new` - Νέο
  * * `in_depot` - Σε αποθήκη
- * * `final_destination` - At locker
+ * * `final_destination` - Στο locker
  * * `delivered` - Παραδόθηκε
  * * `returned` - Επιστράφηκε
  * * `expired` - Έληξε
@@ -698,7 +701,7 @@ export const zBoxNowParcelState = z.enum([
   'missing',
   'lost',
 ]).register(z.globalRegistry, {
-  description: '* `pending_creation` - Pending creation\n* `new` - Νέο\n* `in_depot` - Σε αποθήκη\n* `final_destination` - At locker\n* `delivered` - Παραδόθηκε\n* `returned` - Επιστράφηκε\n* `expired` - Έληξε\n* `canceled` - Ακυρώθηκε\n* `accepted_for_return` - Αποδεκτό για επιστροφή\n* `accepted_to_locker` - Αποδεκτό σε locker\n* `missing` - Λείπει\n* `lost` - Χάθηκε',
+  description: '* `pending_creation` - Εκκρεμής δημιουργία\n* `new` - Νέο\n* `in_depot` - Σε αποθήκη\n* `final_destination` - Στο locker\n* `delivered` - Παραδόθηκε\n* `returned` - Επιστράφηκε\n* `expired` - Έληξε\n* `canceled` - Ακυρώθηκε\n* `accepted_for_return` - Αποδεκτό για επιστροφή\n* `accepted_to_locker` - Αποδεκτό σε locker\n* `missing` - Λείπει\n* `lost` - Χάθηκε',
 })
 
 /**
@@ -710,17 +713,17 @@ export const zBoxNowParcelState = z.enum([
 export const zBoxNowParcelEvent = z.object({
   id: z.int().readonly(),
   webhookMessageId: z.string().register(z.globalRegistry, {
-    description: 'CloudEvents \'id\' field — idempotency key',
+    description: 'Πεδίο \'id\' του CloudEvents — κλειδί ιδεμποτεντίας',
   }).readonly(),
   eventType: zBoxNowParcelState,
   eventTypeDisplay: z.string().register(z.globalRegistry, {
-    description: 'Human-readable label for the event_type choice',
+    description: 'Ετικέτα σε αναγνώσιμη μορφή για την τιμή event_type',
   }).readonly(),
   parcelState: z.string().register(z.globalRegistry, {
-    description: 'Raw \'data.parcelState\' value from BoxNow webhook payload',
+    description: 'Ακατέργαστη τιμή \'data.parcelState\' από το payload του webhook BoxNow',
   }).readonly(),
   eventTime: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Timestamp from \'data.time\' in the webhook payload',
+    description: 'Χρονοσήμανση από το \'data.time\' στο payload του webhook',
   }).readonly(),
   displayName: z.string().register(z.globalRegistry, {
     description: 'data.eventLocation.displayName',
@@ -730,7 +733,7 @@ export const zBoxNowParcelEvent = z.object({
   }).readonly(),
   additionalInformation: z.string().readonly(),
   receivedAt: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Timestamp when GrooveShop received the webhook (separate from event_time)',
+    description: 'Χρονοσήμανση λήψης του webhook από το GrooveShop (διαφορετική από το event_time)',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
 }).register(z.globalRegistry, {
@@ -747,30 +750,30 @@ export const zBoxNowParcelEvent = z.object({
  */
 export const zBoxNowWebhookDataRequest = z.object({
   parcelId: z.string().min(1).register(z.globalRegistry, {
-    description: '10-digit BoxNow voucher/parcel number',
+    description: '10ψήφιος αριθμός voucher/δέματος BoxNow',
   }),
   parcelState: z.string().min(1).register(z.globalRegistry, {
-    description: 'BoxNow parcel state vocabulary (data.parcelState)',
+    description: 'Λεξιλόγιο κατάστασης δέματος BoxNow (data.parcelState)',
   }),
   parcelReferenceNumber: z.string().register(z.globalRegistry, {
-    description: 'Optional merchant reference number',
+    description: 'Προαιρετικός αριθμός αναφοράς εμπόρου',
   }).optional(),
   parcelName: z.string().register(z.globalRegistry, {
     description: 'Προαιρετικό όνομα δέματος',
   }).optional(),
   orderNumber: z.string().min(1).register(z.globalRegistry, {
-    description: 'Merchant order number sent during delivery-request creation',
+    description: 'Αριθμός παραγγελίας εμπόρου που αποστέλλεται κατά τη δημιουργία αιτήματος παράδοσης',
   }),
   event: z.string().min(1).register(z.globalRegistry, {
-    description: 'BoxNow event type string (e.g. \'in-depot\', \'final-destination\', \'delivered\')',
+    description: 'Συμβολοσειρά τύπου συμβάντος BoxNow (π.χ. \'in-depot\', \'final-destination\', \'delivered\')',
   }),
   eventLocation: zBoxNowEventLocationRequest.optional(),
   customer: zBoxNowCustomerRequest.optional(),
   additionalInformation: z.string().register(z.globalRegistry, {
-    description: 'Free-text additional information from BoxNow',
+    description: 'Ελεύθερο κείμενο με επιπλέον πληροφορίες από το BoxNow',
   }).optional(),
   time: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Timestamp when the event occurred at BoxNow',
+    description: 'Χρονοσήμανση όταν συνέβη το συμβάν στο BoxNow',
   }),
 }).register(z.globalRegistry, {
   description: '``data`` field of a BoxNow CloudEvent webhook envelope.\n\nReflects the payload shape described in the BoxNow webhook PDF.\n``camelCase`` field names are preserved because\n``djangorestframework-camel-case`` is already applied\nproject-wide at the middleware level; no manual aliasing needed.',
@@ -786,28 +789,28 @@ export const zBoxNowWebhookDataRequest = z.object({
  */
 export const zBoxNowWebhookEnvelopeRequest = z.object({
   specversion: z.string().min(1).register(z.globalRegistry, {
-    description: 'CloudEvents specification version (expected: \'1.0\')',
+    description: 'Έκδοση προδιαγραφής CloudEvents (αναμενόμενη: \'1.0\')',
   }),
   type: z.string().min(1).register(z.globalRegistry, {
-    description: 'Event type (expected: \'gr.boxnow.parcel_event_change\')',
+    description: 'Τύπος συμβάντος (αναμενόμενος: \'gr.boxnow.parcel_event_change\')',
   }),
   source: z.url().min(1).register(z.globalRegistry, {
     description: 'URL προέλευσης πηγής συμβάντος',
   }),
   subject: z.string().min(1).register(z.globalRegistry, {
-    description: 'Subject of the event (typically the parcel ID)',
+    description: 'Θέμα του συμβάντος (συνήθως το ID δέματος)',
   }),
   id: z.string().min(1).register(z.globalRegistry, {
-    description: 'Unique CloudEvents ID; used as idempotency key (stored as webhook_message_id)',
+    description: 'Μοναδικό ID CloudEvents· χρησιμοποιείται ως κλειδί ιδεμποτεντίας (αποθηκεύεται ως webhook_message_id)',
   }),
   time: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Timestamp the envelope was generated',
+    description: 'Χρονοσήμανση δημιουργίας του φακέλου',
   }),
   datacontenttype: z.string().min(1).register(z.globalRegistry, {
-    description: 'MIME type of the data field (expected: \'application/json\')',
+    description: 'Τύπος MIME του πεδίου data (αναμενόμενος: \'application/json\')',
   }),
   datasignature: z.string().min(1).register(z.globalRegistry, {
-    description: 'HMAC-SHA256 hex digest of the raw \'data\' JSON object; used for signature verification',
+    description: 'Δεκαεξαδικό digest HMAC-SHA256 του ακατέργαστου JSON αντικειμένου \'data\'· χρησιμοποιείται για επαλήθευση υπογραφής',
   }),
   data: zBoxNowWebhookDataRequest,
 }).register(z.globalRegistry, {
@@ -816,7 +819,7 @@ export const zBoxNowWebhookEnvelopeRequest = z.object({
 
 export const zBulkSubscriptionRequest = z.object({
   topicIds: z.array(z.int()).register(z.globalRegistry, {
-    description: 'List of topic IDs to subscribe/unsubscribe',
+    description: 'Λίστα ID θεμάτων για εγγραφή/διαγραφή',
   }),
   action: zActionEnum,
 })
@@ -854,17 +857,17 @@ export const zCartCreatePaymentIntentRequestShippingKindEnum = z.enum(['home_del
  */
 export const zCartCreatePaymentIntentRequestRequest = z.object({
   payWayId: z.int().gte(1).register(z.globalRegistry, {
-    description: 'ID of the selected PayWay (must be online Stripe).',
+    description: 'ID της επιλεγμένης μεθόδου πληρωμής (πρέπει να είναι online Stripe).',
   }),
   shippingKind: zCartCreatePaymentIntentRequestShippingKindEnum,
   shippingProviderCode: z.string().max(32).register(z.globalRegistry, {
-    description: 'Carrier code matching a registered shipping adapter (e.g. \'acs\', \'boxnow\'). Required for ``pickup_point``; omit/empty for ``home_delivery`` (the backend uses the generic flat rate, matching what the order-create verification will compute for the same body).',
+    description: 'Κωδικός μεταφορέα που αντιστοιχεί σε καταχωρημένο προσαρμογέα αποστολής (π.χ. \'acs\', \'boxnow\'). Απαιτείται για ``pickup_point``· παραλείψτε/αφήστε κενό για ``home_delivery`` (το backend χρησιμοποιεί τη γενική πάγια χρέωση, αντίστοιχη με αυτή που θα υπολογίσει η επαλήθευση δημιουργίας παραγγελίας για το ίδιο αίτημα).',
   }).optional(),
   countryId: z.string().max(2).register(z.globalRegistry, {
-    description: 'Optional ISO 3166-1 alpha-2 country code — drives the country-level shipping multiplier. Match what the order-create body will carry.',
+    description: 'Προαιρετικός κωδικός χώρας ISO 3166-1 alpha-2 — καθορίζει τον συντελεστή αποστολής σε επίπεδο χώρας. Πρέπει να ταιριάζει με αυτόν που θα φέρει το αίτημα δημιουργίας παραγγελίας.',
   }).optional(),
   regionId: z.string().max(16).register(z.globalRegistry, {
-    description: 'Optional region code — drives the region-level shipping adjustment.',
+    description: 'Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Request body for ``POST /api/v1/cart/create-payment-intent``.\n\n``shipping_kind`` is required so the view\'s shipping calculation\nfollows the same code path the order-create verification runs.\n``shipping_provider_code`` is required for ``pickup_point`` (the\ncarrier identity drives the locker quote + per-carrier threshold)\nbut **omitted for ``home_delivery``** — home delivery is\nprovider-agnostic in checkout per the frontend\'s\n``shared/shipping/index.ts::carrierForMethod`` contract, and the\nbackend resolves the active home-delivery provider at order\ncreation. Sending whatever the frontend has guarantees both calc\npaths agree.',
@@ -884,23 +887,19 @@ export const zCartItemUpdateRequest = z.object({
  */
 export const zCartPaymentIntentResponse = z.object({
   clientSecret: z.string().register(z.globalRegistry, {
-    description: 'Stripe PaymentIntent client secret for frontend confirmation',
+    description: 'Client secret του Stripe PaymentIntent για επιβεβαίωση στο frontend',
   }),
   paymentIntentId: z.string().register(z.globalRegistry, {
-    description: 'Stripe PaymentIntent ID to be stored on the order',
+    description: 'ID του Stripe PaymentIntent προς αποθήκευση στην παραγγελία',
   }),
   amount: z.number().gt(-10000000000).lt(10000000000).register(z.globalRegistry, {
-    description: 'Total charge amount (cart + shipping + payment fee)',
+    description: 'Συνολικό ποσό χρέωσης (καλάθι + αποστολή + έξοδα πληρωμής)',
   }),
   currency: z.string().max(3).register(z.globalRegistry, {
-    description: 'ISO 4217 currency code (e.g. EUR)',
+    description: 'Κωδικός νομίσματος ISO 4217 (π.χ. EUR)',
   }),
 }).register(z.globalRegistry, {
   description: 'Response body returned by the create-payment-intent cart action.',
-})
-
-export const zCartWriteRequest = z.object({
-  user: z.int().nullish(),
 })
 
 /**
@@ -1080,13 +1079,13 @@ export const zCreateCheckoutSessionResponse = z.object({
 
 export const zCreatePaymentIntentRequestRequest = z.object({
   paymentData: z.record(z.string(), z.string().min(1).max(500)).register(z.globalRegistry, {
-    description: 'Additional payment data required by the payment provider',
+    description: 'Επιπλέον δεδομένα πληρωμής που απαιτούνται από τον πάροχο πληρωμών',
   }).optional(),
 })
 
 export const zCreatePaymentIntentResponse = z.object({
   paymentId: z.string().register(z.globalRegistry, {
-    description: 'Payment intent ID from the payment provider',
+    description: 'ID payment intent από τον πάροχο πληρωμών',
   }),
   status: z.string().register(z.globalRegistry, {
     description: 'Κατάσταση πληρωμής',
@@ -1098,13 +1097,13 @@ export const zCreatePaymentIntentResponse = z.object({
     description: 'Νόμισμα πληρωμής',
   }),
   provider: z.string().register(z.globalRegistry, {
-    description: 'Payment provider name',
+    description: 'Όνομα παρόχου πληρωμών',
   }),
   clientSecret: z.string().register(z.globalRegistry, {
-    description: 'Stripe PaymentIntent client secret for frontend confirmation',
+    description: 'Client secret του Stripe PaymentIntent για επιβεβαίωση στο frontend',
   }).optional(),
   requiresAction: z.boolean().register(z.globalRegistry, {
-    description: 'Whether the payment requires additional action (3D Secure, etc.)',
+    description: 'Αν η πληρωμή απαιτεί επιπλέον ενέργεια (3D Secure κ.λπ.)',
   }).optional().default(false),
   nextAction: z.record(z.string(), z.unknown()).nullish(),
 })
@@ -1140,7 +1139,7 @@ export const zDateRange = z.object({
  */
 export const zDeleteAccountRequestRequest = z.object({
   confirmation: z.string().min(1).register(z.globalRegistry, {
-    description: 'Must equal the literal string "DELETE".',
+    description: 'Πρέπει να ισούται ακριβώς με τη συμβολοσειρά "DELETE".',
   }),
 }).register(z.globalRegistry, {
   description: 'Body for ``POST user/account/{id}/delete_account``.\n\nRequires the user to re-type ``DELETE`` as a guardrail. The allauth\nre-authentication happens outside this serializer via the session\nmiddleware\'s ``X-Session-Token`` header before the task is queued.',
@@ -1314,10 +1313,10 @@ export const zImageTypeEnum = z.enum([
  */
 export const zInvoiceDownloadResponse = z.object({
   invoiceNumber: z.string().register(z.globalRegistry, {
-    description: 'Sequential identifier in the form ``INV-{YEAR}-{NNNNNN}``. Gaps are not allowed by Greek tax law.',
+    description: 'Διαδοχικό αναγνωριστικό στη μορφή ``INV-{YEAR}-{NNNNNN}``. Δεν επιτρέπονται κενά βάσει της ελληνικής φορολογικής νομοθεσίας.',
   }).readonly(),
   issueDate: z.iso.date().register(z.globalRegistry, {
-    description: 'Fiscal date of issue. Immutable once the invoice is rendered — used for sequential numbering and reporting.',
+    description: 'Φορολογική ημερομηνία έκδοσης. Αμετάβλητη μόλις εκδοθεί το τιμολόγιο — χρησιμοποιείται για διαδοχική αρίθμηση και αναφορές.',
   }).readonly(),
   downloadUrl: z.string().readonly().nullable(),
   subtotal: z.string().readonly().nullable(),
@@ -1325,7 +1324,7 @@ export const zInvoiceDownloadResponse = z.object({
   total: z.string().readonly().nullable(),
   currency: z.string().readonly(),
   vatBreakdown: z.unknown().register(z.globalRegistry, {
-    description: 'Cached list of ``{rate, subtotal, vat, gross}`` rows — frozen at issue time so re-rendering the invoice always yields the same VAT table even if product rates change.',
+    description: 'Λίστα σε cache από γραμμές ``{rate, subtotal, vat, gross}`` — παγιωμένη τη στιγμή της έκδοσης, ώστε η εκ νέου απόδοση του τιμολογίου να δίνει πάντα τον ίδιο πίνακα ΦΠΑ ακόμη κι αν αλλάξουν οι συντελεστές των προϊόντων.',
   }),
 }).register(z.globalRegistry, {
   description: 'Invoice metadata plus an absolute URL to the streaming endpoint.',
@@ -1364,10 +1363,10 @@ export const zLoyaltyTier = z.object({
     }).optional(),
   }),
   requiredLevel: z.int().register(z.globalRegistry, {
-    description: 'Minimum level to achieve this tier',
+    description: 'Ελάχιστο επίπεδο για την επίτευξη αυτού του tier',
   }).readonly(),
   pointsMultiplier: z.number().gt(-1000).lt(1000).register(z.globalRegistry, {
-    description: 'Multiplier applied to earned points for users in this tier',
+    description: 'Πολλαπλασιαστής που εφαρμόζεται στους πόντους που κερδίζουν οι χρήστες σε αυτό το tier',
   }).readonly(),
   icon: z.url().nullish(),
   mainImagePath: z.string().readonly(),
@@ -1461,7 +1460,7 @@ export const zNotificationKindEnum = z.enum([
 
 export const zNotificationSuccessResponse = z.object({
   success: z.boolean().register(z.globalRegistry, {
-    description: 'Whether the operation was successful',
+    description: 'Αν η λειτουργία ήταν επιτυχής',
   }).optional(),
 })
 
@@ -1519,12 +1518,11 @@ export const zNotificationUser = z.object({
 
 export const zNotificationUserActionRequest = z.object({
   notificationUserIds: z.array(z.int()).register(z.globalRegistry, {
-    description: 'List of notification user IDs to mark as seen/unseen',
+    description: 'Λίστα ID χρηστών ειδοποίησης προς σήμανση ως ορατά/μη ορατά',
   }),
 })
 
 export const zNotificationUserWriteRequest = z.object({
-  notification: z.int(),
   seen: z.boolean().optional(),
 })
 
@@ -1578,7 +1576,7 @@ export const zOrderItemCreateRequest = z.object({
 
 export const zOrderItemRefundRequest = z.object({
   quantity: z.int().gte(1).register(z.globalRegistry, {
-    description: 'Quantity to refund. If not provided, refunds all.',
+    description: 'Ποσότητα προς επιστροφή. Αν δεν δοθεί, επιστρέφονται όλα.',
   }).optional(),
   reason: z.string().max(255).register(z.globalRegistry, {
     description: 'Προαιρετική αιτία επιστροφής',
@@ -1622,7 +1620,6 @@ export const zOrderStatus = z.enum([
 })
 
 export const zOrderWriteRequest = z.object({
-  user: z.int().nullish(),
   country: z.string().min(1).nullish(),
   region: z.string().min(1).nullish(),
   floor: z.union([
@@ -1635,7 +1632,6 @@ export const zOrderWriteRequest = z.object({
   ]).optional(),
   street: z.string().min(1).max(255),
   streetNumber: z.string().min(1).max(255),
-  payWay: z.int().nullish(),
   firstName: z.string().min(1).max(255),
   lastName: z.string().min(1).max(255),
   email: z.email().min(1).max(255),
@@ -1645,7 +1641,6 @@ export const zOrderWriteRequest = z.object({
   phone: z.string().min(1),
   customerNotes: z.string().optional(),
   items: z.array(zOrderItemCreateRequest),
-  documentType: zOrderDocumentType.optional(),
 })
 
 export const zPageLayoutRequest = z.object({
@@ -1853,7 +1848,10 @@ export const zPatchedBlogAuthorWriteRequest = z.object({
     }).optional(),
   }).optional(),
   user: z.int().optional(),
-  website: z.url().max(200).optional(),
+  website: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
@@ -1962,10 +1960,6 @@ export const zPatchedCartItemUpdateRequest = z.object({
   quantity: z.int().gte(0).lte(2147483647).optional(),
 })
 
-export const zPatchedCartWriteRequest = z.object({
-  user: z.int().nullish(),
-})
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -1990,7 +1984,6 @@ export const zPatchedCountryWriteRequest = z.object({
 })
 
 export const zPatchedNotificationUserWriteRequest = z.object({
-  notification: z.int().optional(),
   seen: z.boolean().optional(),
 })
 
@@ -2002,7 +1995,6 @@ export const zPatchedOrderItemWriteRequest = z.object({
 })
 
 export const zPatchedOrderWriteRequest = z.object({
-  user: z.int().nullish(),
   country: z.string().min(1).nullish(),
   region: z.string().min(1).nullish(),
   floor: z.union([
@@ -2015,7 +2007,6 @@ export const zPatchedOrderWriteRequest = z.object({
   ]).optional(),
   street: z.string().min(1).max(255).optional(),
   streetNumber: z.string().min(1).max(255).optional(),
-  payWay: z.int().nullish(),
   firstName: z.string().min(1).max(255).optional(),
   lastName: z.string().min(1).max(255).optional(),
   email: z.email().min(1).max(255).optional(),
@@ -2025,7 +2016,6 @@ export const zPatchedOrderWriteRequest = z.object({
   phone: z.string().min(1).optional(),
   customerNotes: z.string().optional(),
   items: z.array(zOrderItemCreateRequest).optional(),
-  documentType: zOrderDocumentType.optional(),
 })
 
 export const zPatchedPageLayoutRequest = z.object({
@@ -2186,6 +2176,7 @@ export const zPatchedProductWriteRequest = z.object({
   }).optional(),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
   category: z.int().optional(),
+  brand: z.int().nullish(),
   price: z.number().gt(-1000000000).lt(1000000000).optional(),
   vat: z.int().optional(),
   stock: z.int().gte(0).lte(2147483647).optional(),
@@ -2274,7 +2265,7 @@ export const zPatchedUserAddressWriteRequest = z.object({
 export const zPatchedUserSubscriptionWriteRequest = z.object({
   topic: z.int().optional(),
   metadata: z.unknown().register(z.globalRegistry, {
-    description: 'Additional subscription preferences or data',
+    description: 'Επιπλέον προτιμήσεις ή δεδομένα εγγραφής',
   }).optional(),
 })
 
@@ -2282,7 +2273,10 @@ export const zPatchedUserWriteRequest = z.object({
   email: z.email().min(1).max(254).optional(),
   firstName: z.string().max(255).optional(),
   lastName: z.string().max(255).optional(),
-  username: z.string().max(30).regex(/^[\w.@+#-]+$/).nullish(),
+  username: z.union([
+    z.string().max(30).regex(/^[\w.@+#-]+$/),
+    z.string().max(0),
+  ]).nullish(),
   image: z.string().nullish(),
   phone: z.string().nullish(),
   city: z.string().max(255).optional(),
@@ -2292,16 +2286,37 @@ export const zPatchedUserWriteRequest = z.object({
   country: z.string().min(1).nullish(),
   region: z.string().min(1).nullish(),
   birthDate: z.iso.date().nullish(),
-  twitter: z.url().max(200).nullish(),
-  linkedin: z.url().max(200).nullish(),
-  facebook: z.url().max(200).nullish(),
-  instagram: z.url().max(200).nullish(),
-  website: z.url().max(200).nullish(),
-  youtube: z.url().max(200).nullish(),
-  github: z.url().max(200).nullish(),
+  twitter: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  linkedin: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  facebook: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  instagram: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  website: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  youtube: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  github: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
   bio: z.string().optional(),
   languageCode: z.string().min(1).max(10).register(z.globalRegistry, {
-    description: 'Preferred language for emails and UI messages.',
+    description: 'Προτιμώμενη γλώσσα για emails και μηνύματα διεπαφής.',
   }).optional(),
 })
 
@@ -2452,10 +2467,10 @@ export const zPayWayWriteRequest = z.object({
 
 /**
  * * `prepaid` - Προπληρωμένο
- * * `cod` - Cash on delivery
+ * * `cod` - Αντικαταβολή
  */
 export const zPaymentModeEnum = z.enum(['prepaid', 'cod']).register(z.globalRegistry, {
-  description: '* `prepaid` - Προπληρωμένο\n* `cod` - Cash on delivery',
+  description: '* `prepaid` - Προπληρωμένο\n* `cod` - Αντικαταβολή',
 })
 
 /**
@@ -2559,10 +2574,10 @@ export const zNotification = z.object({
 
 /**
  * * `restock` - Αναπλήρωση
- * * `price_drop` - Price drop
+ * * `price_drop` - Πτώση τιμής
  */
 export const zProductAlertKindEnum = z.enum(['restock', 'price_drop']).register(z.globalRegistry, {
-  description: '* `restock` - Αναπλήρωση\n* `price_drop` - Price drop',
+  description: '* `restock` - Αναπλήρωση\n* `price_drop` - Πτώση τιμής',
 })
 
 export const zProductAlert = z.object({
@@ -2638,12 +2653,15 @@ export const zProduct = z.object({
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   category: z.int(),
+  variantGroup: z.int().readonly().nullable(),
+  brand: z.int().readonly().nullable(),
+  brandName: z.string().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int(),
   viewCount: z.int().readonly(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   lowStockThreshold: z.int().register(z.globalRegistry, {
-    description: 'Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.',
+    description: 'Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.',
   }).readonly(),
   active: z.boolean().optional(),
   weight: z.object({
@@ -2687,7 +2705,7 @@ export const zCartItem = z.object({
     totalWeight: z.number(),
     weightUnit: z.string(),
   }).register(z.globalRegistry, {
-    description: 'Weight information for shipping calculations',
+    description: 'Πληροφορίες βάρους για υπολογισμούς αποστολής',
   }).readonly(),
   price: z.number().gt(-1000000000).lt(1000000000).readonly(),
   finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -2719,10 +2737,10 @@ export const zCart = z.object({
     description: 'Return the number of unique items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.',
   }).readonly(),
   totalWeightGrams: z.int().register(z.globalRegistry, {
-    description: 'Total cart weight in grams. Forwarded to /api/v1/shipping/options at checkout so ACS live pricing quotes against the actual weight bracket the voucher mint will charge.',
+    description: 'Συνολικό βάρος καλαθιού σε γραμμάρια. Προωθείται στο /api/v1/shipping/options κατά το checkout ώστε η ζωντανή τιμολόγηση ACS να υπολογίζει βάσει του πραγματικού εύρους βάρους που θα χρεώσει η έκδοση voucher.',
   }).readonly(),
   currency: z.string().register(z.globalRegistry, {
-    description: 'ISO 4217 currency code for all monetary values in this cart',
+    description: 'Κωδικός νομίσματος ISO 4217 για όλες τις χρηματικές τιμές αυτού του καλαθιού',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -2745,16 +2763,16 @@ export const zCartDetail = z.object({
     description: 'Return the number of unique items in the cart.\n\nUses annotated value if available (from optimized queryset),\notherwise queries the database.',
   }).readonly(),
   totalWeightGrams: z.int().register(z.globalRegistry, {
-    description: 'Total cart weight in grams. Forwarded to /api/v1/shipping/options at checkout so ACS live pricing quotes against the actual weight bracket the voucher mint will charge.',
+    description: 'Συνολικό βάρος καλαθιού σε γραμμάρια. Προωθείται στο /api/v1/shipping/options κατά το checkout ώστε η ζωντανή τιμολόγηση ACS να υπολογίζει βάσει του πραγματικού εύρους βάρους που θα χρεώσει η έκδοση voucher.',
   }).readonly(),
   currency: z.string().register(z.globalRegistry, {
-    description: 'ISO 4217 currency code for all monetary values in this cart',
+    description: 'Κωδικός νομίσματος ISO 4217 για όλες τις χρηματικές τιμές αυτού του καλαθιού',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   lastActivity: z.iso.datetime({ offset: true }).readonly(),
   recommendations: z.array(zProduct).register(z.globalRegistry, {
-    description: 'Product recommendations based on cart contents',
+    description: 'Προτάσεις προϊόντων βάσει περιεχομένου καλαθιού',
   }).readonly(),
 })
 
@@ -2768,7 +2786,7 @@ export const zCartItemDetail = z.object({
     totalWeight: z.number(),
     weightUnit: z.string(),
   }).register(z.globalRegistry, {
-    description: 'Weight information for shipping calculations',
+    description: 'Πληροφορίες βάρους για υπολογισμούς αποστολής',
   }).readonly(),
   price: z.number().gt(-1000000000).lt(1000000000).readonly(),
   finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
@@ -2783,7 +2801,7 @@ export const zCartItemDetail = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
   recommendations: z.array(zProduct).register(z.globalRegistry, {
-    description: 'Related products that might interest the customer',
+    description: 'Σχετικά προϊόντα που ίσως ενδιαφέρουν τον πελάτη',
   }).readonly(),
 })
 
@@ -3167,12 +3185,15 @@ export const zProductDetail = z.object({
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   category: z.int(),
+  variantGroup: z.int().readonly().nullable(),
+  brand: z.int().readonly().nullable(),
+  brandName: z.string().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int(),
   viewCount: z.int().readonly(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   lowStockThreshold: z.int().register(z.globalRegistry, {
-    description: 'Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.',
+    description: 'Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.',
   }).readonly(),
   active: z.boolean().optional(),
   weight: z.object({
@@ -3203,7 +3224,7 @@ export const zProductDetail = z.object({
   uuid: z.uuid().readonly(),
   attributes: z.array(zProductAttribute).readonly(),
   priceDropAlertsEnabled: z.boolean().register(z.globalRegistry, {
-    description: 'When enabled, customers can subscribe to a one-time email when this product\'s price drops below a target. Disabled by default — admins opt products in per SKU.',
+    description: 'Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU.',
   }).readonly(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -3230,12 +3251,15 @@ export const zProductDetailResponse = z.object({
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   category: z.int(),
+  variantGroup: z.int().readonly().nullable(),
+  brand: z.int().readonly().nullable(),
+  brandName: z.string().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int(),
   viewCount: z.int().readonly(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   lowStockThreshold: z.int().register(z.globalRegistry, {
-    description: 'Stock level at or below which admins get a low-stock alert. Set to 0 to disable alerts for this product.',
+    description: 'Επίπεδο αποθέματος στο ή κάτω από το οποίο οι διαχειριστές λαμβάνουν ειδοποίηση χαμηλού αποθέματος. Ορίστε 0 για απενεργοποίηση των ειδοποιήσεων για αυτό το προϊόν.',
   }).readonly(),
   active: z.boolean().optional(),
   weight: z.object({
@@ -3266,7 +3290,7 @@ export const zProductDetailResponse = z.object({
   uuid: z.uuid().readonly(),
   attributes: z.array(zProductAttribute).readonly(),
   priceDropAlertsEnabled: z.boolean().register(z.globalRegistry, {
-    description: 'When enabled, customers can subscribe to a one-time email when this product\'s price drops below a target. Disabled by default — admins opt products in per SKU.',
+    description: 'Όταν είναι ενεργοποιημένο, οι πελάτες μπορούν να εγγραφούν για ένα εφάπαξ email όταν η τιμή αυτού του προϊόντος πέσει κάτω από έναν στόχο. Απενεργοποιημένο από προεπιλογή — οι διαχειριστές το ενεργοποιούν ανά SKU.',
   }).readonly(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -3296,7 +3320,7 @@ export const zPaginatedProductFavouriteList = z.object({
 
 export const zProductFavouriteByProductsRequestRequest = z.object({
   productIds: z.array(z.int()).max(100).register(z.globalRegistry, {
-    description: 'List of product IDs to check for favorites',
+    description: 'Λίστα ID προϊόντων για έλεγχο αγαπημένων',
   }),
 })
 
@@ -3486,6 +3510,39 @@ export const zProductPoints = z.object({
 })
 
 /**
+ * A single sibling product within a variant group, trimmed to what a
+ * storefront swatch card needs: identity, image, price and its
+ * variant-axis attribute values (Colour, Memory, …).
+ */
+export const zProductVariant = z.object({
+  id: z.int().readonly(),
+  translations: z.object({
+    el: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().regex(/^[-a-zA-Z0-9_]+$/).readonly(),
+  active: z.boolean().readonly(),
+  stock: z.int().readonly(),
+  price: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  discountPercent: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  mainImagePath: z.string().readonly(),
+  attributeValues: z.array(zProductAttribute).readonly(),
+}).register(z.globalRegistry, {
+  description: 'A single sibling product within a variant group, trimmed to what a\nstorefront swatch card needs: identity, image, price and its\nvariant-axis attribute values (Colour, Memory, …).',
+})
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zProductWriteRequest = z.object({
@@ -3505,6 +3562,7 @@ export const zProductWriteRequest = z.object({
   }),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
   category: z.int(),
+  brand: z.int().nullish(),
   price: z.number().gt(-1000000000).lt(1000000000),
   vat: z.int(),
   stock: z.int().gte(0).lte(2147483647).optional(),
@@ -3714,7 +3772,7 @@ export const zRegionWriteRequest = z.object({
  */
 export const zReleaseReservationsRequestRequest = z.object({
   reservationIds: z.array(z.int()).register(z.globalRegistry, {
-    description: 'List of reservation IDs to release',
+    description: 'Λίστα ID δεσμεύσεων προς απελευθέρωση',
   }),
 }).register(z.globalRegistry, {
   description: 'Serializer for releasing stock reservations.',
@@ -3725,13 +3783,13 @@ export const zReleaseReservationsRequestRequest = z.object({
  */
 export const zReleaseReservationsResponse = z.object({
   message: z.string().register(z.globalRegistry, {
-    description: 'Success message',
+    description: 'Μήνυμα επιτυχίας',
   }),
   releasedCount: z.int().register(z.globalRegistry, {
     description: 'Αριθμός αποδεσμευμένων κρατήσεων',
   }),
   failedReleases: z.array(z.record(z.string(), z.unknown())).register(z.globalRegistry, {
-    description: 'List of failed releases with error details',
+    description: 'Λίστα αποτυχημένων απελευθερώσεων με λεπτομέρειες σφάλματος',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer for release reservations response.',
@@ -3755,34 +3813,26 @@ export const zReorderResponse = z.object({
  */
 export const zReserveStockResponse = z.object({
   reservationIds: z.array(z.int()).register(z.globalRegistry, {
-    description: 'List of created stock reservation IDs',
+    description: 'Λίστα ID δημιουργημένων δεσμεύσεων αποθέματος',
   }),
   message: z.string().register(z.globalRegistry, {
-    description: 'Success message',
+    description: 'Μήνυμα επιτυχίας',
   }),
 }).register(z.globalRegistry, {
   description: 'Serializer for reserve stock response.',
 })
 
-export const zResolveVivaOrderCodeError = z.object({
-  error: z.string(),
-})
-
-export const zResolveVivaOrderCodeResponse = z.object({
-  uuid: z.uuid(),
-})
-
 /**
  * * `NEW` - Νέο
  * * `TRUE` - Ναι
- * * `FALSE` - False
+ * * `FALSE` - Όχι
  */
 export const zReviewStatus = z.enum([
   'NEW',
   'TRUE',
   'FALSE',
 ]).register(z.globalRegistry, {
-  description: '* `NEW` - Νέο\n* `TRUE` - Ναι\n* `FALSE` - False',
+  description: '* `NEW` - Νέο\n* `TRUE` - Ναι\n* `FALSE` - Όχι',
 })
 
 /**
@@ -3814,13 +3864,13 @@ export const zSettingDetail = z.object({
 })
 
 /**
- * * `pending_creation` - Pending creation
+ * * `pending_creation` - Εκκρεμής δημιουργία
  * * `new` - Νέο
  * * `in_transit` - Σε μεταφορά
  * * `at_destination` - Στο κατάστημα παράδοσης
- * * `out_for_delivery` - Out for delivery
+ * * `out_for_delivery` - Σε διανομή
  * * `delivered` - Παραδόθηκε
- * * `attempted` - Delivery attempted
+ * * `attempted` - Απόπειρα παράδοσης
  * * `returned` - Επιστράφηκε
  * * `canceled` - Ακυρώθηκε
  * * `lost` - Χάθηκε
@@ -3837,15 +3887,15 @@ export const zShipmentStateEnum = z.enum([
   'canceled',
   'lost',
 ]).register(z.globalRegistry, {
-  description: '* `pending_creation` - Pending creation\n* `new` - Νέο\n* `in_transit` - Σε μεταφορά\n* `at_destination` - Στο κατάστημα παράδοσης\n* `out_for_delivery` - Out for delivery\n* `delivered` - Παραδόθηκε\n* `attempted` - Delivery attempted\n* `returned` - Επιστράφηκε\n* `canceled` - Ακυρώθηκε\n* `lost` - Χάθηκε',
+  description: '* `pending_creation` - Εκκρεμής δημιουργία\n* `new` - Νέο\n* `in_transit` - Σε μεταφορά\n* `at_destination` - Στο κατάστημα παράδοσης\n* `out_for_delivery` - Σε διανομή\n* `delivered` - Παραδόθηκε\n* `attempted` - Απόπειρα παράδοσης\n* `returned` - Επιστράφηκε\n* `canceled` - Ακυρώθηκε\n* `lost` - Χάθηκε',
 })
 
 /**
- * * `home_delivery` - Home delivery
- * * `pickup_point` - Pickup point / locker
+ * * `home_delivery` - Κατ' οίκον παράδοση
+ * * `pickup_point` - Σημείο παραλαβής / locker
  */
 export const zShippingKind = z.enum(['home_delivery', 'pickup_point']).register(z.globalRegistry, {
-  description: '* `home_delivery` - Home delivery\n* `pickup_point` - Pickup point / locker',
+  description: '* `home_delivery` - Κατ\' οίκον παράδοση\n* `pickup_point` - Σημείο παραλαβής / locker',
 })
 
 /**
@@ -3856,7 +3906,7 @@ export const zFreeShippingProviderEntry = z.object({
   providerName: z.string(),
   kind: zShippingKind,
   threshold: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
-    description: 'Cart subtotal in the response\'s currency above which this (provider, kind) ships free.',
+    description: 'Υποσύνολο καλαθιού στο νόμισμα της απόκρισης πάνω από το οποίο αυτός ο συνδυασμός (πάροχος, τύπος) αποστέλλει δωρεάν.',
   }),
   priority: z.int(),
 }).register(z.globalRegistry, {
@@ -3900,10 +3950,10 @@ export const zOrderCreateFromCartRequest = z.object({
     description: 'Email πελάτη',
   }),
   street: z.string().min(1).max(255).register(z.globalRegistry, {
-    description: 'Street name',
+    description: 'Όνομα οδού',
   }),
   streetNumber: z.string().max(50).register(z.globalRegistry, {
-    description: 'Street number',
+    description: 'Αριθμός οδού',
   }).optional(),
   city: z.string().min(1).max(100).register(z.globalRegistry, {
     description: 'Όνομα πόλης',
@@ -3912,48 +3962,49 @@ export const zOrderCreateFromCartRequest = z.object({
     description: 'Ταχυδρομικός κώδικας',
   }),
   countryId: z.string().min(1).register(z.globalRegistry, {
-    description: 'Country alpha-2 code (e.g., \'GR\', \'US\')',
+    description: 'Κωδικός χώρας alpha-2 (π.χ. \'GR\', \'US\')',
   }),
   regionId: z.string().nullish(),
   phone: z.string().min(1).register(z.globalRegistry, {
     description: 'Τηλέφωνο πελάτη',
   }),
   customerNotes: z.string().max(500).register(z.globalRegistry, {
-    description: 'Customer notes or special instructions',
+    description: 'Σημειώσεις πελάτη ή ειδικές οδηγίες',
   }).optional(),
   floor: z.string().max(50).register(z.globalRegistry, {
-    description: 'Floor number or label (e.g. FIRST_FLOOR)',
+    description: 'Αριθμός ή ένδειξη ορόφου (π.χ. FIRST_FLOOR)',
   }).optional(),
   locationType: z.string().max(100).register(z.globalRegistry, {
-    description: 'Location type, e.g. HOME or OFFICE (optional)',
+    description: 'Τύπος τοποθεσίας, π.χ. HOME ή OFFICE (προαιρετικό)',
   }).optional(),
   billingVatId: z.string().max(12).register(z.globalRegistry, {
-    description: 'Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.',
+    description: 'ΑΦΜ αγοραστή. Υποχρεωτικό όταν το ``document_type`` είναι INVOICE· 9 ψηφία για ελληνικό ΑΦΜ, το αρχικό πρόθεμα EL/GR αφαιρείται αυτόματα.',
   }).optional(),
   billingCountry: z.string().max(2).register(z.globalRegistry, {
-    description: 'ISO 3166-1 alpha-2 country code for the buyer\'s tax identity. Defaults to the order country when blank.',
+    description: 'Κωδικός χώρας ISO 3166-1 alpha-2 για τη φορολογική ταυτότητα του αγοραστή. Προεπιλογή η χώρα της παραγγελίας όταν είναι κενό.',
   }).optional(),
   documentType: zOrderCreateDocumentType.optional(),
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
   boxnowLockerId: z.string().max(64).register(z.globalRegistry, {
-    description: 'BoxNow APM locker ID from the widget',
+    description: 'ID locker APM BoxNow από το widget',
   }).optional(),
   boxnowCompartmentSize: z.int().gte(1).lte(3).register(z.globalRegistry, {
-    description: 'BoxNow compartment size: 1=Small, 2=Medium, 3=Large',
+    description: 'Μέγεθος θυρίδας BoxNow: 1=Μικρό, 2=Μεσαίο, 3=Μεγάλο',
   }).optional().default(1),
-  shippingProviderCode: z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-    description: 'Carrier code from /api/v1/shipping/options (e.g. \'acs\').',
-  }).optional(),
+  shippingProviderCode: z.union([
+    z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/),
+    z.string().max(0),
+  ]).optional(),
   shippingKind: zShippingKind.optional(),
   acsStationExternalId: z.string().max(32).register(z.globalRegistry, {
-    description: 'ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).',
+    description: 'Εξωτερικό ID καταστήματος/Smartpoint ACS (ροή σημείου παραλαβής Φάσης 2).',
   }).optional(),
   acsStationBranch: z.string().max(32).register(z.globalRegistry, {
-    description: 'ACS_Station_Branch_Destination value.',
+    description: 'Τιμή ACS_Station_Branch_Destination.',
   }).optional(),
   acsChargeType: zAcsChargeType.optional(),
   acsItemQuantity: z.int().gte(1).lte(20).register(z.globalRegistry, {
-    description: 'Optional per-order override for ACS Item_Quantity (number of physical parcels in the shipment). Defaults to 1. Must NOT be set for Smartpoint pickup — ACS rejects multipart vouchers on lockers.',
+    description: 'Προαιρετική παράκαμψη ανά παραγγελία για το ACS Item_Quantity (αριθμός φυσικών δεμάτων στην αποστολή). Προεπιλογή 1. ΔΕΝ πρέπει να οριστεί για παραλαβή Smartpoint — η ACS απορρίπτει vouchers πολλαπλών δεμάτων σε lockers.',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer for creating orders from cart (dual-flow payment architecture).\n\nThis serializer supports two payment flows:\n1. Online payments (is_online_payment=True): Requires payment_intent_id\n2. Offline payments (is_online_payment=False): No payment_intent_id required\n\nThe order is created from an existing cart identified via X-Cart-Id header.\nCart is NOT sent in request body - it\'s retrieved from the header using CartService.',
@@ -3984,28 +4035,24 @@ export const zShippingOption = z.object({
 export const zShippingProvider = z.object({
   id: z.int().readonly(),
   code: z.string().regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-    description: 'Stable identifier matching the registered carrier adapter (e.g. \'acs\', \'boxnow\').',
+    description: 'Σταθερό αναγνωριστικό που αντιστοιχεί στον καταχωρημένο προσαρμογέα μεταφορέα (π.χ. \'acs\', \'boxnow\').',
   }).readonly(),
   name: z.string().register(z.globalRegistry, {
-    description: 'Display name shown to customers (e.g. \'ACS Courier\').',
+    description: 'Όνομα εμφάνισης προς τους πελάτες (π.χ. \'ACS Courier\').',
   }).readonly(),
   isActive: z.boolean().register(z.globalRegistry, {
-    description: 'Master switch — when False the provider is hidden from checkout regardless of capability flags.',
+    description: 'Κύριος διακόπτης — όταν είναι False, ο πάροχος αποκρύπτεται από το checkout ανεξάρτητα από τις σημαίες δυνατοτήτων.',
   }).readonly(),
   supportsHomeDelivery: z.boolean().readonly(),
   supportsPickupPoint: z.boolean().readonly(),
   liveMode: z.boolean().register(z.globalRegistry, {
-    description: 'False = sandbox / test credentials. Used by the admin UI to warn operators that vouchers won\'t actually ship.',
+    description: 'False = διαπιστευτήρια sandbox / δοκιμής. Χρησιμοποιείται από το UI διαχείρισης για να προειδοποιεί τους χειριστές ότι τα vouchers δεν θα αποσταλούν πραγματικά.',
   }).readonly(),
   priority: z.int().register(z.globalRegistry, {
-    description: 'Sort order in checkout — lower numbers appear first.',
+    description: 'Σειρά ταξινόμησης στο checkout — οι μικρότεροι αριθμοί εμφανίζονται πρώτοι.',
   }).readonly(),
-  logo: z.url().register(z.globalRegistry, {
-    description: 'Absolute URL for the operator-uploaded primary brand logo (home-delivery rows + fallback for pickup_point when no pickup-specific variant is set). ``null`` when no upload — the storefront falls back to its bundled default.',
-  }).readonly(),
-  logoPickupPoint: z.url().register(z.globalRegistry, {
-    description: 'Absolute URL for the optional pickup-point-specific logo (e.g. a locker illustration distinct from the carrier\'s home-delivery brand mark). Surfaced on the pickup_point row\'s ``logoUrl`` when uploaded; otherwise the row falls back to ``logo``.',
-  }).readonly(),
+  logo: z.url().readonly().nullable(),
+  logoPickupPoint: z.url().readonly().nullable(),
   mainImagePath: z.string().register(z.globalRegistry, {
     description: 'Relative ``media/uploads/shipping/<filename>`` path for the primary logo; empty string when no logo is uploaded. Mirrors the PayWay.icon contract.',
   }).readonly(),
@@ -4016,7 +4063,7 @@ export const zShippingProvider = z.object({
     description: 'Filename of the pickup-point logo (or empty).',
   }).readonly(),
   metadata: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific configuration (supported countries, feature flags, branding hints).',
+    description: 'Διαμόρφωση ειδική για τον πάροχο (υποστηριζόμενες χώρες, σημαίες λειτουργιών, υποδείξεις branding).',
   }),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -4028,8 +4075,8 @@ export const zShippingProvider = z.object({
  * * `3` - Συνεργαζόμενο κατάστημα (3)
  * * `4` - Xpress Point
  * * `5` - Kiosk
- * * `7` - Smartpoint (inbound)
- * * `8` - Smartpoint (outbound)
+ * * `7` - Smartpoint (εισερχόμενα)
+ * * `8` - Smartpoint (εξερχόμενα)
  */
 export const zShopKindEnum = z.union([
   z.literal(1),
@@ -4040,7 +4087,7 @@ export const zShopKindEnum = z.union([
   z.literal(7),
   z.literal(8),
 ]).register(z.globalRegistry, {
-  description: '* `1` - Κατάστημα\n* `2` - Συνεργαζόμενο κατάστημα (2)\n* `3` - Συνεργαζόμενο κατάστημα (3)\n* `4` - Xpress Point\n* `5` - Kiosk\n* `7` - Smartpoint (inbound)\n* `8` - Smartpoint (outbound)',
+  description: '* `1` - Κατάστημα\n* `2` - Συνεργαζόμενο κατάστημα (2)\n* `3` - Συνεργαζόμενο κατάστημα (3)\n* `4` - Xpress Point\n* `5` - Kiosk\n* `7` - Smartpoint (εισερχόμενα)\n* `8` - Smartpoint (εξερχόμενα)',
 })
 
 /**
@@ -4053,10 +4100,10 @@ export const zAcsStation = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   externalId: z.string().register(z.globalRegistry, {
-    description: 'ACS_SHOP_STATION_ID — used as Acs_Station_Destination.',
+    description: 'ACS_SHOP_STATION_ID — χρησιμοποιείται ως Acs_Station_Destination.',
   }).readonly(),
   branchCode: z.string().register(z.globalRegistry, {
-    description: 'ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).',
+    description: 'ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination).',
   }).readonly(),
   shopKind: zShopKindEnum,
   name: z.string().readonly(),
@@ -4087,16 +4134,16 @@ export const zAcsShipmentDetail = z.object({
   voucherNo: z.string().readonly().nullable(),
   shipmentState: zShipmentStateEnum,
   shipmentStateDisplay: z.string().register(z.globalRegistry, {
-    description: 'Human-readable label for the shipment_state choice',
+    description: 'Ετικέτα σε αναγνώσιμη μορφή για την τιμή shipment_state',
   }).readonly(),
   deliveryKind: zShippingKind,
   weightGrams: z.int().register(z.globalRegistry, {
-    description: 'Internal grams; converted to kilograms (>= 0.5) at API call time per ACS Weight requirements.',
+    description: 'Εσωτερικά γραμμάρια· μετατρέπονται σε κιλά (>= 0,5) κατά την κλήση API σύμφωνα με τις απαιτήσεις βάρους της ACS.',
   }).readonly(),
   itemQuantity: z.int().readonly(),
   chargeType: zAcsChargeType,
   deliveryProducts: z.string().register(z.globalRegistry, {
-    description: 'Comma-separated Acs_Delivery_Products codes (COD, REC, SAT, RDO …).',
+    description: 'Κωδικοί Acs_Delivery_Products διαχωρισμένοι με κόμμα (COD, REC, SAT, RDO …).',
   }).readonly(),
   lastEventAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   lastPolledAt: z.iso.datetime({ offset: true }).readonly().nullable(),
@@ -4104,25 +4151,17 @@ export const zAcsShipmentDetail = z.object({
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   stationDestinationExternalId: z.string().register(z.globalRegistry, {
-    description: 'Denormalised ACS_SHOP_STATION_ID — preserved even if the AcsStation row is deleted.',
+    description: 'Μη κανονικοποιημένο ACS_SHOP_STATION_ID — διατηρείται ακόμη κι αν διαγραφεί η εγγραφή AcsStation.',
   }).readonly(),
   stationBranchDestination: z.string().register(z.globalRegistry, {
-    description: 'Acs_Station_Branch_Destination value.',
+    description: 'Τιμή Acs_Station_Branch_Destination.',
   }).readonly(),
   station: zAcsStation.nullable(),
   events: z.array(zAcsTrackingEvent).register(z.globalRegistry, {
-    description: 'Last 50 tracking events ordered by event_time desc.',
+    description: 'Τελευταία 50 συμβάντα παρακολούθησης ταξινομημένα κατά event_time φθίνουσα.',
   }).readonly(),
   labelUrl: z.string().readonly().nullable(),
-  deliveryFlag: z.string().register(z.globalRegistry, {
-    description: 'Raw delivery_flag value from ACS_Trackingsummary.',
-  }).readonly(),
-  returnedFlag: z.string().readonly(),
-  rawShipmentStatus: z.string().readonly(),
   cancelRequestedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  metadata: z.unknown().register(z.globalRegistry, {
-    description: 'Multipart child voucher numbers, last create-voucher response, last error envelope, cached POD URL.',
-  }),
 }).register(z.globalRegistry, {
   description: 'Detail serializer used on the order-detail endpoint.',
 })
@@ -4137,10 +4176,10 @@ export const zAcsStationDetail = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   externalId: z.string().register(z.globalRegistry, {
-    description: 'ACS_SHOP_STATION_ID — used as Acs_Station_Destination.',
+    description: 'ACS_SHOP_STATION_ID — χρησιμοποιείται ως Acs_Station_Destination.',
   }).readonly(),
   branchCode: z.string().register(z.globalRegistry, {
-    description: 'ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).',
+    description: 'ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination).',
   }).readonly(),
   shopKind: zShopKindEnum,
   name: z.string().readonly(),
@@ -4180,7 +4219,7 @@ export const zPaginatedAcsStationList = z.object({
 
 /**
  * * `ACTIVE` - Ενεργή
- * * `PENDING` - Pending Confirmation
+ * * `PENDING` - Εκκρεμεί Επιβεβαίωση
  * * `UNSUBSCRIBED` - Διαγραφή
  * * `BOUNCED` - Επιστράφηκε
  */
@@ -4190,7 +4229,7 @@ export const zSubscriptionStatus = z.enum([
   'UNSUBSCRIBED',
   'BOUNCED',
 ]).register(z.globalRegistry, {
-  description: '* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Διαγραφή\n* `BOUNCED` - Επιστράφηκε',
+  description: '* `ACTIVE` - Ενεργή\n* `PENDING` - Εκκρεμεί Επιβεβαίωση\n* `UNSUBSCRIBED` - Διαγραφή\n* `BOUNCED` - Επιστράφηκε',
 })
 
 /**
@@ -4259,7 +4298,7 @@ export const zTagDetail = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
   contentTypes: z.string().register(z.globalRegistry, {
-    description: 'Content types this tag is used with',
+    description: 'Τύποι περιεχομένου με τους οποίους χρησιμοποιείται αυτή η ετικέτα',
   }).readonly(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -4300,7 +4339,7 @@ export const zTaggedItem = z.object({
     price: z.string().optional(),
     active: z.boolean().optional(),
   }).register(z.globalRegistry, {
-    description: 'Serialized representation of the related content object',
+    description: 'Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -4335,7 +4374,7 @@ export const zTaggedItemDetail = z.object({
     price: z.string().optional(),
     active: z.boolean().optional(),
   }).register(z.globalRegistry, {
-    description: 'Serialized representation of the related content object',
+    description: 'Σειριοποιημένη αναπαράσταση του σχετικού αντικειμένου περιεχομένου',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -4379,6 +4418,7 @@ export const zTenantConfig = z.object({
   stripePublishableKey: z.string().readonly(),
   allowedCspSources: z.array(z.string()).readonly(),
   metaPixelId: z.string().readonly(),
+  tiktokPixelId: z.string().readonly(),
   gaTrackingId: z.string().readonly(),
   totpIssuer: z.string().readonly(),
   turnstileSiteKey: z.string().readonly(),
@@ -4455,17 +4495,17 @@ export const zPatchedSubscriptionTopicWriteRequest = z.object({
     }).optional(),
   }).optional(),
   slug: z.string().min(1).max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-    description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')',
+    description: 'Μοναδικό αναγνωριστικό για το θέμα (π.χ. \'weekly-newsletter\')',
   }).optional(),
   category: zTopicCategory.optional(),
   isActive: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this topic is currently available for subscription',
+    description: 'Αν αυτό το θέμα είναι επί του παρόντος διαθέσιμο για εγγραφή',
   }).optional(),
   isDefault: z.boolean().register(z.globalRegistry, {
-    description: 'Whether new users are automatically subscribed to this topic',
+    description: 'Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether subscription to this topic requires email confirmation',
+    description: 'Αν η εγγραφή σε αυτό το θέμα απαιτεί επιβεβαίωση email',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -4492,17 +4532,17 @@ export const zSubscriptionTopic = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-    description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')',
+    description: 'Μοναδικό αναγνωριστικό για το θέμα (π.χ. \'weekly-newsletter\')',
   }),
   category: zTopicCategory.optional(),
   isActive: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this topic is currently available for subscription',
+    description: 'Αν αυτό το θέμα είναι επί του παρόντος διαθέσιμο για εγγραφή',
   }).optional(),
   isDefault: z.boolean().register(z.globalRegistry, {
-    description: 'Whether new users are automatically subscribed to this topic',
+    description: 'Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether subscription to this topic requires email confirmation',
+    description: 'Αν η εγγραφή σε αυτό το θέμα απαιτεί επιβεβαίωση email',
   }).optional(),
   subscriberCount: z.int().readonly(),
 }).register(z.globalRegistry, {
@@ -4543,17 +4583,17 @@ export const zSubscriptionTopicDetail = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-    description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')',
+    description: 'Μοναδικό αναγνωριστικό για το θέμα (π.χ. \'weekly-newsletter\')',
   }),
   category: zTopicCategory.optional(),
   isActive: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this topic is currently available for subscription',
+    description: 'Αν αυτό το θέμα είναι επί του παρόντος διαθέσιμο για εγγραφή',
   }).optional(),
   isDefault: z.boolean().register(z.globalRegistry, {
-    description: 'Whether new users are automatically subscribed to this topic',
+    description: 'Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether subscription to this topic requires email confirmation',
+    description: 'Αν η εγγραφή σε αυτό το θέμα απαιτεί επιβεβαίωση email',
   }).optional(),
   subscriberCount: z.int().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
@@ -4581,17 +4621,17 @@ export const zSubscriptionTopicWriteRequest = z.object({
     }).optional(),
   }),
   slug: z.string().min(1).max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-    description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')',
+    description: 'Μοναδικό αναγνωριστικό για το θέμα (π.χ. \'weekly-newsletter\')',
   }),
   category: zTopicCategory.optional(),
   isActive: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this topic is currently available for subscription',
+    description: 'Αν αυτό το θέμα είναι επί του παρόντος διαθέσιμο για εγγραφή',
   }).optional(),
   isDefault: z.boolean().register(z.globalRegistry, {
-    description: 'Whether new users are automatically subscribed to this topic',
+    description: 'Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether subscription to this topic requires email confirmation',
+    description: 'Αν η εγγραφή σε αυτό το θέμα απαιτεί επιβεβαίωση email',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -4620,7 +4660,7 @@ export const zTransactionTypeEnum = z.enum([
 export const zPointsTransaction = z.object({
   id: z.int().readonly(),
   points: z.int().register(z.globalRegistry, {
-    description: 'Positive for earn/bonus, negative for redeem/expire/adjust',
+    description: 'Θετικό για κέρδος/μπόνους, αρνητικό για εξαργύρωση/λήξη/προσαρμογή',
   }).readonly(),
   transactionType: zTransactionTypeEnum,
   referenceOrder: z.int().readonly().nullable(),
@@ -4778,11 +4818,11 @@ export const zBoxNowShipmentDetail = z.object({
   deliveryRequestId: z.string().readonly().nullable(),
   parcelId: z.string().readonly().nullable(),
   lockerExternalId: z.string().register(z.globalRegistry, {
-    description: 'Denormalised BoxNow APM ID — preserved even if the BoxNowLocker row is deleted',
+    description: 'Μη κανονικοποιημένο ID APM BoxNow — διατηρείται ακόμη κι αν διαγραφεί η εγγραφή BoxNowLocker',
   }).readonly(),
   parcelState: zBoxNowParcelState,
   parcelStateDisplay: z.string().register(z.globalRegistry, {
-    description: 'Human-readable label for the parcel_state choice',
+    description: 'Ετικέτα σε αναγνώσιμη μορφή για την τιμή parcel_state',
   }).readonly(),
   compartmentSize: zCompartmentSizeEnum,
   paymentMode: zPaymentModeEnum,
@@ -4791,18 +4831,15 @@ export const zBoxNowShipmentDetail = z.object({
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   locker: zBoxNowLocker.nullable(),
   events: z.array(zBoxNowParcelEvent).register(z.globalRegistry, {
-    description: 'Last 20 parcel events ordered by event_time desc',
+    description: 'Τελευταία 20 συμβάντα δέματος ταξινομημένα κατά event_time φθίνουσα',
   }).readonly(),
   labelUrl: z.string().readonly().nullable(),
   weightGrams: z.int().readonly(),
   amountToBeCollected: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
-    description: 'Amount collected at delivery (PoG / COD). Always 0 in Phase 1.',
+    description: 'Ποσό που εισπράττεται κατά την παράδοση (PoG / COD). Πάντα 0 στη Φάση 1.',
   }).readonly(),
   allowReturn: z.boolean().readonly(),
   cancelRequestedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
-  metadata: z.unknown().register(z.globalRegistry, {
-    description: 'Full delivery-request response and diagnostics from BoxNow',
-  }),
 }).register(z.globalRegistry, {
   description: 'Detail serializer for a single BoxNow shipment.\n\nExtends the list serializer with:\n- nested ``locker`` object (``BoxNowLockerSerializer``)\n- ``events`` — last 20 ``BoxNowParcelEvent`` records ordered by\n  ``event_time`` descending\n- ``label_url`` — relative URL for downloading the parcel label PDF\n  via the Django proxy route; ``None`` when ``parcel_id`` is blank\n\nImports of ``BoxNowLockerSerializer`` and\n``BoxNowParcelEventSerializer`` are deferred to method bodies to\nprevent circular import chains between the serializer modules.',
 })
@@ -5068,7 +5105,10 @@ export const zUserDetails = z.object({
   firstName: z.string().max(255).optional(),
   lastName: z.string().max(255).optional(),
   id: z.int().readonly(),
-  username: z.string().max(30).regex(/^[\w.@+#-]+$/).nullish(),
+  username: z.union([
+    z.string().max(30).regex(/^[\w.@+#-]+$/),
+    z.string().max(0),
+  ]).nullish(),
   phone: z.string().nullish(),
   city: z.string().max(255).optional(),
   zipcode: z.string().max(255).optional(),
@@ -5086,7 +5126,7 @@ export const zUserDetails = z.object({
   github: z.string().max(200).readonly().nullable(),
   bio: z.string().optional(),
   languageCode: z.string().max(10).register(z.globalRegistry, {
-    description: 'Preferred language for emails and UI messages.',
+    description: 'Προτιμώμενη γλώσσα για emails και μηνύματα διεπαφής.',
   }).optional(),
   isActive: z.boolean().readonly(),
   isStaff: z.boolean().readonly(),
@@ -5150,20 +5190,20 @@ export const zBlogComment = z.object({
   user: zUserDetails,
   contentPreview: z.string().readonly().nullable(),
   isReply: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this comment is a reply to another comment',
+    description: 'Αν αυτό το σχόλιο είναι απάντηση σε άλλο σχόλιο',
   }).readonly(),
   parent: z.int().readonly().nullable(),
   hasReplies: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this comment has approved replies',
+    description: 'Αν αυτό το σχόλιο έχει εγκεκριμένες απαντήσεις',
   }).readonly(),
   approved: z.boolean().readonly(),
   isEdited: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this comment has been edited',
+    description: 'Αν αυτό το σχόλιο έχει επεξεργαστεί',
   }).readonly(),
   likesCount: z.int().readonly(),
   repliesCount: z.int().readonly(),
   userHasLiked: z.boolean().register(z.globalRegistry, {
-    description: 'Whether the current user has liked this comment',
+    description: 'Αν ο τρέχων χρήστης έχει επισημάνει αυτό το σχόλιο',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -5191,20 +5231,20 @@ export const zBlogCommentDetail = z.object({
   user: zUserDetails,
   contentPreview: z.string().readonly().nullable(),
   isReply: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this comment is a reply to another comment',
+    description: 'Αν αυτό το σχόλιο είναι απάντηση σε άλλο σχόλιο',
   }).readonly(),
   parent: z.int().readonly().nullable(),
   hasReplies: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this comment has approved replies',
+    description: 'Αν αυτό το σχόλιο έχει εγκεκριμένες απαντήσεις',
   }).readonly(),
   approved: z.boolean().readonly(),
   isEdited: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this comment has been edited',
+    description: 'Αν αυτό το σχόλιο έχει επεξεργαστεί',
   }).readonly(),
   likesCount: z.int().readonly(),
   repliesCount: z.int().readonly(),
   userHasLiked: z.boolean().register(z.globalRegistry, {
-    description: 'Whether the current user has liked this comment',
+    description: 'Αν ο τρέχων χρήστης έχει επισημάνει αυτό το σχόλιο',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -5217,14 +5257,14 @@ export const zBlogCommentDetail = z.object({
     createdAt: z.iso.datetime({ offset: true }),
   }).readonly().nullable(),
   childrenComments: z.array(zBlogComment).register(z.globalRegistry, {
-    description: 'Direct approved child comments (replies)',
+    description: 'Άμεσα εγκεκριμένα θυγατρικά σχόλια (απαντήσεις)',
   }).readonly(),
   ancestorsPath: z.array(z.object({
     id: z.int(),
     contentPreview: z.string(),
     user: zUserDetails,
   })).register(z.globalRegistry, {
-    description: 'Path from root comment to this comment',
+    description: 'Διαδρομή από το ριζικό σχόλιο έως αυτό',
   }).readonly(),
   treePosition: z.object({
     level: z.int(),
@@ -5232,7 +5272,7 @@ export const zBlogCommentDetail = z.object({
     approvedDescendantsCount: z.int(),
     siblingsCount: z.int(),
   }).register(z.globalRegistry, {
-    description: 'Position information in the comment tree',
+    description: 'Πληροφορίες θέσης στο δέντρο σχολίων',
   }).readonly(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -5422,7 +5462,7 @@ export const zUserSubscription = z.object({
   subscribedAt: z.iso.datetime({ offset: true }).readonly(),
   unsubscribedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   metadata: z.unknown().register(z.globalRegistry, {
-    description: 'Additional subscription preferences or data',
+    description: 'Επιπλέον προτιμήσεις ή δεδομένα εγγραφής',
   }).optional(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -5450,7 +5490,7 @@ export const zUserSubscriptionDetail = z.object({
   subscribedAt: z.iso.datetime({ offset: true }).readonly(),
   unsubscribedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   metadata: z.unknown().register(z.globalRegistry, {
-    description: 'Additional subscription preferences or data',
+    description: 'Επιπλέον προτιμήσεις ή δεδομένα εγγραφής',
   }).optional(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -5459,7 +5499,7 @@ export const zUserSubscriptionDetail = z.object({
 export const zUserSubscriptionWriteRequest = z.object({
   topic: z.int(),
   metadata: z.unknown().register(z.globalRegistry, {
-    description: 'Additional subscription preferences or data',
+    description: 'Επιπλέον προτιμήσεις ή δεδομένα εγγραφής',
   }).optional(),
 })
 
@@ -5467,7 +5507,10 @@ export const zUserWriteRequest = z.object({
   email: z.email().min(1).max(254),
   firstName: z.string().max(255).optional(),
   lastName: z.string().max(255).optional(),
-  username: z.string().max(30).regex(/^[\w.@+#-]+$/).nullish(),
+  username: z.union([
+    z.string().max(30).regex(/^[\w.@+#-]+$/),
+    z.string().max(0),
+  ]).nullish(),
   image: z.string().nullish(),
   phone: z.string().nullish(),
   city: z.string().max(255).optional(),
@@ -5477,16 +5520,37 @@ export const zUserWriteRequest = z.object({
   country: z.string().min(1).nullish(),
   region: z.string().min(1).nullish(),
   birthDate: z.iso.date().nullish(),
-  twitter: z.url().max(200).nullish(),
-  linkedin: z.url().max(200).nullish(),
-  facebook: z.url().max(200).nullish(),
-  instagram: z.url().max(200).nullish(),
-  website: z.url().max(200).nullish(),
-  youtube: z.url().max(200).nullish(),
-  github: z.url().max(200).nullish(),
+  twitter: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  linkedin: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  facebook: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  instagram: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  website: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  youtube: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
+  github: z.union([
+    z.url().max(200),
+    z.string().max(0),
+  ]).nullish(),
   bio: z.string().optional(),
   languageCode: z.string().min(1).max(10).register(z.globalRegistry, {
-    description: 'Preferred language for emails and UI messages.',
+    description: 'Προτιμώμενη γλώσσα για emails και μηνύματα διεπαφής.',
   }).optional(),
 })
 
@@ -5498,8 +5562,53 @@ export const zUsernameUpdateRequest = z.object({
 
 export const zUsernameUpdateResponse = z.object({
   detail: z.string().register(z.globalRegistry, {
-    description: 'Success message for username update',
+    description: 'Μήνυμα επιτυχίας για ενημέρωση ονόματος χρήστη',
   }),
+})
+
+/**
+ * One selectable value on a variant axis (an ``AttributeValue``).
+ */
+export const zVariantAxisValue = z.object({
+  id: z.int(),
+  value: z.string(),
+}).register(z.globalRegistry, {
+  description: 'One selectable value on a variant axis (an ``AttributeValue``).',
+})
+
+/**
+ * A variant axis (an ``Attribute`` flagged ``is_variant``) plus the
+ * distinct values present across the group, both ordered by ``sort_order``.
+ */
+export const zVariantAxis = z.object({
+  id: z.int(),
+  name: z.string(),
+  values: z.array(zVariantAxisValue),
+}).register(z.globalRegistry, {
+  description: 'A variant axis (an ``Attribute`` flagged ``is_variant``) plus the\ndistinct values present across the group, both ordered by ``sort_order``.',
+})
+
+/**
+ * Payload for ``GET /product/{id}/variants`` — the axes to render and the
+ * sibling products that fill them.
+ */
+export const zProductVariantsResponse = z.object({
+  axes: z.array(zVariantAxis),
+  variants: z.array(zProductVariant),
+}).register(z.globalRegistry, {
+  description: 'Payload for ``GET /product/{id}/variants`` — the axes to render and the\nsibling products that fill them.',
+})
+
+/**
+ * Minimal, PII-free payload for the Viva post-payment redirect hop.
+ */
+export const zVivaReturnLookupResponse = z.object({
+  id: z.int(),
+  uuid: z.uuid(),
+  status: z.string(),
+  paymentStatus: z.string(),
+}).register(z.globalRegistry, {
+  description: 'Minimal, PII-free payload for the Viva post-payment redirect hop.',
 })
 
 export const zWebSocketTicketResponse = z.object({
@@ -5977,10 +6086,10 @@ export const zOrderCreateFromCartRequestWritable = z.object({
     description: 'Email πελάτη',
   }),
   street: z.string().min(1).max(255).register(z.globalRegistry, {
-    description: 'Street name',
+    description: 'Όνομα οδού',
   }),
   streetNumber: z.string().max(50).register(z.globalRegistry, {
-    description: 'Street number',
+    description: 'Αριθμός οδού',
   }).optional(),
   city: z.string().min(1).max(100).register(z.globalRegistry, {
     description: 'Όνομα πόλης',
@@ -5989,48 +6098,49 @@ export const zOrderCreateFromCartRequestWritable = z.object({
     description: 'Ταχυδρομικός κώδικας',
   }),
   countryId: z.string().min(1).register(z.globalRegistry, {
-    description: 'Country alpha-2 code (e.g., \'GR\', \'US\')',
+    description: 'Κωδικός χώρας alpha-2 (π.χ. \'GR\', \'US\')',
   }),
   regionId: z.string().nullish(),
   phone: z.string().min(1).register(z.globalRegistry, {
     description: 'Τηλέφωνο πελάτη',
   }),
   customerNotes: z.string().max(500).register(z.globalRegistry, {
-    description: 'Customer notes or special instructions',
+    description: 'Σημειώσεις πελάτη ή ειδικές οδηγίες',
   }).optional(),
   floor: z.string().max(50).register(z.globalRegistry, {
-    description: 'Floor number or label (e.g. FIRST_FLOOR)',
+    description: 'Αριθμός ή ένδειξη ορόφου (π.χ. FIRST_FLOOR)',
   }).optional(),
   locationType: z.string().max(100).register(z.globalRegistry, {
-    description: 'Location type, e.g. HOME or OFFICE (optional)',
+    description: 'Τύπος τοποθεσίας, π.χ. HOME ή OFFICE (προαιρετικό)',
   }).optional(),
   billingVatId: z.string().max(12).register(z.globalRegistry, {
-    description: 'Buyer tax number (ΑΦΜ). Required when ``document_type`` is INVOICE; 9 digits for Greek ΑΦΜ, leading EL/GR prefix is stripped automatically.',
+    description: 'ΑΦΜ αγοραστή. Υποχρεωτικό όταν το ``document_type`` είναι INVOICE· 9 ψηφία για ελληνικό ΑΦΜ, το αρχικό πρόθεμα EL/GR αφαιρείται αυτόματα.',
   }).optional(),
   billingCountry: z.string().max(2).register(z.globalRegistry, {
-    description: 'ISO 3166-1 alpha-2 country code for the buyer\'s tax identity. Defaults to the order country when blank.',
+    description: 'Κωδικός χώρας ISO 3166-1 alpha-2 για τη φορολογική ταυτότητα του αγοραστή. Προεπιλογή η χώρα της παραγγελίας όταν είναι κενό.',
   }).optional(),
   documentType: zOrderCreateDocumentType.optional(),
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
   boxnowLockerId: z.string().max(64).register(z.globalRegistry, {
-    description: 'BoxNow APM locker ID from the widget',
+    description: 'ID locker APM BoxNow από το widget',
   }).optional(),
   boxnowCompartmentSize: z.int().gte(1).lte(3).register(z.globalRegistry, {
-    description: 'BoxNow compartment size: 1=Small, 2=Medium, 3=Large',
+    description: 'Μέγεθος θυρίδας BoxNow: 1=Μικρό, 2=Μεσαίο, 3=Μεγάλο',
   }).optional().default(1),
-  shippingProviderCode: z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-    description: 'Carrier code from /api/v1/shipping/options (e.g. \'acs\').',
-  }).optional(),
+  shippingProviderCode: z.union([
+    z.string().max(32).regex(/^[-a-zA-Z0-9_]+$/),
+    z.string().max(0),
+  ]).optional(),
   shippingKind: zShippingKind.optional(),
   acsStationExternalId: z.string().max(32).register(z.globalRegistry, {
-    description: 'ACS Smartpoint / shop external ID (Phase 2 pickup-point flow).',
+    description: 'Εξωτερικό ID καταστήματος/Smartpoint ACS (ροή σημείου παραλαβής Φάσης 2).',
   }).optional(),
   acsStationBranch: z.string().max(32).register(z.globalRegistry, {
-    description: 'ACS_Station_Branch_Destination value.',
+    description: 'Τιμή ACS_Station_Branch_Destination.',
   }).optional(),
   acsChargeType: zAcsChargeType.optional(),
   acsItemQuantity: z.int().gte(1).lte(20).register(z.globalRegistry, {
-    description: 'Optional per-order override for ACS Item_Quantity (number of physical parcels in the shipment). Defaults to 1. Must NOT be set for Smartpoint pickup — ACS rejects multipart vouchers on lockers.',
+    description: 'Προαιρετική παράκαμψη ανά παραγγελία για το ACS Item_Quantity (αριθμός φυσικών δεμάτων στην αποστολή). Προεπιλογή 1. ΔΕΝ πρέπει να οριστεί για παραλαβή Smartpoint — η ACS απορρίπτει vouchers πολλαπλών δεμάτων σε lockers.',
   }).optional(),
   meta: z.record(z.string(), z.unknown()).nullish(),
 }).register(z.globalRegistry, {
@@ -6925,6 +7035,41 @@ export const zProductReviewDetailWritable = z.object({
 })
 
 /**
+ * A single sibling product within a variant group, trimmed to what a
+ * storefront swatch card needs: identity, image, price and its
+ * variant-axis attribute values (Colour, Memory, …).
+ */
+export const zProductVariantWritable = z.object({
+  translations: z.object({
+    el: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+    }).optional(),
+  }),
+}).register(z.globalRegistry, {
+  description: 'A single sibling product within a variant group, trimmed to what a\nstorefront swatch card needs: identity, image, price and its\nvariant-axis attribute values (Colour, Memory, …).',
+})
+
+/**
+ * Payload for ``GET /product/{id}/variants`` — the axes to render and the
+ * sibling products that fill them.
+ */
+export const zProductVariantsResponseWritable = z.object({
+  axes: z.array(zVariantAxis),
+  variants: z.array(zProductVariantWritable),
+}).register(z.globalRegistry, {
+  description: 'Payload for ``GET /product/{id}/variants`` — the axes to render and the\nsibling products that fill them.',
+})
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zRegionWritable = z.object({
@@ -6998,17 +7143,17 @@ export const zSubscriptionTopicWritable = z.object({
     }).optional(),
   }),
   slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-    description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')',
+    description: 'Μοναδικό αναγνωριστικό για το θέμα (π.χ. \'weekly-newsletter\')',
   }),
   category: zTopicCategory.optional(),
   isActive: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this topic is currently available for subscription',
+    description: 'Αν αυτό το θέμα είναι επί του παρόντος διαθέσιμο για εγγραφή',
   }).optional(),
   isDefault: z.boolean().register(z.globalRegistry, {
-    description: 'Whether new users are automatically subscribed to this topic',
+    description: 'Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether subscription to this topic requires email confirmation',
+    description: 'Αν η εγγραφή σε αυτό το θέμα απαιτεί επιβεβαίωση email',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -7046,17 +7191,17 @@ export const zSubscriptionTopicDetailWritable = z.object({
     }).optional(),
   }),
   slug: z.string().max(50).regex(/^[-a-zA-Z0-9_]+$/).register(z.globalRegistry, {
-    description: 'Unique identifier for the topic (e.g., \'weekly-newsletter\')',
+    description: 'Μοναδικό αναγνωριστικό για το θέμα (π.χ. \'weekly-newsletter\')',
   }),
   category: zTopicCategory.optional(),
   isActive: z.boolean().register(z.globalRegistry, {
-    description: 'Whether this topic is currently available for subscription',
+    description: 'Αν αυτό το θέμα είναι επί του παρόντος διαθέσιμο για εγγραφή',
   }).optional(),
   isDefault: z.boolean().register(z.globalRegistry, {
-    description: 'Whether new users are automatically subscribed to this topic',
+    description: 'Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Whether subscription to this topic requires email confirmation',
+    description: 'Αν η εγγραφή σε αυτό το θέμα απαιτεί επιβεβαίωση email',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -7209,7 +7354,10 @@ export const zUserDetailsWritable = z.object({
   email: z.email().max(254),
   firstName: z.string().max(255).optional(),
   lastName: z.string().max(255).optional(),
-  username: z.string().max(30).regex(/^[\w.@+#-]+$/).nullish(),
+  username: z.union([
+    z.string().max(30).regex(/^[\w.@+#-]+$/),
+    z.string().max(0),
+  ]).nullish(),
   phone: z.string().nullish(),
   city: z.string().max(255).optional(),
   zipcode: z.string().max(255).optional(),
@@ -7220,7 +7368,7 @@ export const zUserDetailsWritable = z.object({
   birthDate: z.iso.date().nullish(),
   bio: z.string().optional(),
   languageCode: z.string().max(10).register(z.globalRegistry, {
-    description: 'Preferred language for emails and UI messages.',
+    description: 'Προτιμώμενη γλώσσα για emails και μηνύματα διεπαφής.',
   }).optional(),
 })
 
@@ -7241,7 +7389,7 @@ export const zUserSubscriptionWritable = z.object({
   topic: z.int(),
   status: zSubscriptionStatus.optional(),
   metadata: z.unknown().register(z.globalRegistry, {
-    description: 'Additional subscription preferences or data',
+    description: 'Επιπλέον προτιμήσεις ή δεδομένα εγγραφής',
   }).optional(),
 })
 
@@ -7262,20 +7410,20 @@ export const zUserSubscriptionDetailWritable = z.object({
   topic: z.int(),
   status: zSubscriptionStatus.optional(),
   metadata: z.unknown().register(z.globalRegistry, {
-    description: 'Additional subscription preferences or data',
+    description: 'Επιπλέον προτιμήσεις ή δεδομένα εγγραφής',
   }).optional(),
 })
 
 export const zListBlogAuthorQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   languageCode: z.enum([
     'de',
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website',
@@ -7313,7 +7461,7 @@ export const zCreateBlogAuthorQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -7346,7 +7494,7 @@ export const zRetrieveBlogAuthorQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -7367,7 +7515,7 @@ export const zPartialUpdateBlogAuthorQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -7388,7 +7536,7 @@ export const zUpdateBlogAuthorQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -7426,7 +7574,7 @@ export const zListBlogCategoryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name',
@@ -7464,7 +7612,7 @@ export const zCreateBlogCategoryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -7497,7 +7645,7 @@ export const zRetrieveBlogCategoryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -7518,7 +7666,7 @@ export const zPartialUpdateBlogCategoryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -7539,7 +7687,7 @@ export const zUpdateBlogCategoryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -7718,7 +7866,7 @@ export const zListBlogCommentQuery = z.object({
     z.boolean(),
   ]).optional(),
   content: z.string().register(z.globalRegistry, {
-    description: 'Filter by comment content (case-insensitive)',
+    description: 'Φίλτρο ανά περιεχόμενο σχολίου (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   contentLength: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -7734,7 +7882,7 @@ export const zListBlogCommentQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   descendantOf: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -7767,7 +7915,7 @@ export const zListBlogCommentQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -7790,7 +7938,7 @@ export const zListBlogCommentQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   level: z.union([
     z.string().regex(/^-?\d+$/),
@@ -7980,7 +8128,7 @@ export const zCreateBlogCommentQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -8013,7 +8161,7 @@ export const zRetrieveBlogCommentQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -8034,7 +8182,7 @@ export const zPartialUpdateBlogCommentQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -8055,7 +8203,7 @@ export const zUpdateBlogCommentQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -8090,7 +8238,7 @@ export const zListBlogCommentRepliesQuery = z.object({
     z.boolean(),
   ]).optional(),
   content: z.string().register(z.globalRegistry, {
-    description: 'Filter by comment content (case-insensitive)',
+    description: 'Φίλτρο ανά περιεχόμενο σχολίου (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   contentLength: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -8136,7 +8284,7 @@ export const zListBlogCommentRepliesQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -8344,7 +8492,7 @@ export const zGetBlogCommentThreadQuery = z.object({
     z.boolean(),
   ]).optional(),
   content: z.string().register(z.globalRegistry, {
-    description: 'Filter by comment content (case-insensitive)',
+    description: 'Φίλτρο ανά περιεχόμενο σχολίου (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   contentLength: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -8390,7 +8538,7 @@ export const zGetBlogCommentThreadQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -8604,7 +8752,7 @@ export const zListMyBlogCommentsQuery = z.object({
     z.boolean(),
   ]).optional(),
   content: z.string().register(z.globalRegistry, {
-    description: 'Filter by comment content (case-insensitive)',
+    description: 'Φίλτρο ανά περιεχόμενο σχολίου (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   contentLength: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -8650,7 +8798,7 @@ export const zListMyBlogCommentsQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -8844,26 +8992,26 @@ export const zListBlogPostQuery = z.object({
     z.int(),
   ]).optional(),
   authorEmail: z.string().register(z.globalRegistry, {
-    description: 'Filter by author email (case-insensitive)',
+    description: 'Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   authorName: z.string().register(z.globalRegistry, {
-    description: 'Filter by author full name (case-insensitive)',
+    description: 'Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   category: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
   categoryName: z.string().register(z.globalRegistry, {
-    description: 'Filter by category name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   currentlyPublished: z.union([
     z.literal('true'),
@@ -8873,7 +9021,7 @@ export const zListBlogPostQuery = z.object({
     z.boolean(),
   ]).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   featured: z.union([
     z.literal('true'),
@@ -8888,7 +9036,7 @@ export const zListBlogPostQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -8904,7 +9052,7 @@ export const zListBlogPostQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   minComments: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -8944,13 +9092,13 @@ export const zListBlogPostQuery = z.object({
     description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   publishedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items published after this date',
+    description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   publishedAt_Date: z.iso.date().optional(),
   publishedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   publishedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   publishedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items published before this date',
+    description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -8958,25 +9106,25 @@ export const zListBlogPostQuery = z.object({
   slug: z.string().optional(),
   slug_Icontains: z.string().optional(),
   tagName: z.string().register(z.globalRegistry, {
-    description: 'Filter by tag label (case-insensitive)',
+    description: 'Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   tags: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
   title: z.string().register(z.globalRegistry, {
-    description: 'Filter by title (case-insensitive)',
+    description: 'Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   uuid: z.uuid().optional(),
   viewCount: z.union([
@@ -9003,7 +9151,7 @@ export const zCreateBlogPostQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -9036,7 +9184,7 @@ export const zRetrieveBlogPostQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -9057,7 +9205,7 @@ export const zPartialUpdateBlogPostQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -9078,7 +9226,7 @@ export const zUpdateBlogPostQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -9133,26 +9281,26 @@ export const zListBlogPostRelatedQuery = z.object({
     z.int(),
   ]).optional(),
   authorEmail: z.string().register(z.globalRegistry, {
-    description: 'Filter by author email (case-insensitive)',
+    description: 'Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   authorName: z.string().register(z.globalRegistry, {
-    description: 'Filter by author full name (case-insensitive)',
+    description: 'Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   category: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
   categoryName: z.string().register(z.globalRegistry, {
-    description: 'Filter by category name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   currentlyPublished: z.union([
     z.literal('true'),
@@ -9174,7 +9322,7 @@ export const zListBlogPostRelatedQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -9205,13 +9353,13 @@ export const zListBlogPostRelatedQuery = z.object({
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured',
   }).optional(),
   publishedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items published after this date',
+    description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   publishedAt_Date: z.iso.date().optional(),
   publishedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   publishedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   publishedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items published before this date',
+    description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -9219,25 +9367,25 @@ export const zListBlogPostRelatedQuery = z.object({
   slug: z.string().optional(),
   slug_Icontains: z.string().optional(),
   tagName: z.string().register(z.globalRegistry, {
-    description: 'Filter by tag label (case-insensitive)',
+    description: 'Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   tags: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
   title: z.string().register(z.globalRegistry, {
-    description: 'Filter by title (case-insensitive)',
+    description: 'Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   uuid: z.uuid().optional(),
   viewCount: z.union([
@@ -9280,26 +9428,26 @@ export const zListFeaturedBlogPostsQuery = z.object({
     z.int(),
   ]).optional(),
   authorEmail: z.string().register(z.globalRegistry, {
-    description: 'Filter by author email (case-insensitive)',
+    description: 'Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   authorName: z.string().register(z.globalRegistry, {
-    description: 'Filter by author full name (case-insensitive)',
+    description: 'Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   category: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
   categoryName: z.string().register(z.globalRegistry, {
-    description: 'Filter by category name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   currentlyPublished: z.union([
     z.literal('true'),
@@ -9321,7 +9469,7 @@ export const zListFeaturedBlogPostsQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -9360,13 +9508,13 @@ export const zListFeaturedBlogPostsQuery = z.object({
     z.int(),
   ]).optional(),
   publishedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items published after this date',
+    description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   publishedAt_Date: z.iso.date().optional(),
   publishedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   publishedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   publishedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items published before this date',
+    description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -9374,25 +9522,25 @@ export const zListFeaturedBlogPostsQuery = z.object({
   slug: z.string().optional(),
   slug_Icontains: z.string().optional(),
   tagName: z.string().register(z.globalRegistry, {
-    description: 'Filter by tag label (case-insensitive)',
+    description: 'Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   tags: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
   title: z.string().register(z.globalRegistry, {
-    description: 'Filter by title (case-insensitive)',
+    description: 'Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   uuid: z.uuid().optional(),
   viewCount: z.union([
@@ -9421,26 +9569,26 @@ export const zListPopularBlogPostsQuery = z.object({
     z.int(),
   ]).optional(),
   authorEmail: z.string().register(z.globalRegistry, {
-    description: 'Filter by author email (case-insensitive)',
+    description: 'Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   authorName: z.string().register(z.globalRegistry, {
-    description: 'Filter by author full name (case-insensitive)',
+    description: 'Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   category: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
   categoryName: z.string().register(z.globalRegistry, {
-    description: 'Filter by category name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   currentlyPublished: z.union([
     z.literal('true'),
@@ -9462,7 +9610,7 @@ export const zListPopularBlogPostsQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -9501,13 +9649,13 @@ export const zListPopularBlogPostsQuery = z.object({
     z.int(),
   ]).optional(),
   publishedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items published after this date',
+    description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   publishedAt_Date: z.iso.date().optional(),
   publishedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   publishedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   publishedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items published before this date',
+    description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -9515,25 +9663,25 @@ export const zListPopularBlogPostsQuery = z.object({
   slug: z.string().optional(),
   slug_Icontains: z.string().optional(),
   tagName: z.string().register(z.globalRegistry, {
-    description: 'Filter by tag label (case-insensitive)',
+    description: 'Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   tags: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
   title: z.string().register(z.globalRegistry, {
-    description: 'Filter by title (case-insensitive)',
+    description: 'Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   uuid: z.uuid().optional(),
   viewCount: z.union([
@@ -9558,26 +9706,26 @@ export const zListTrendingBlogPostsQuery = z.object({
     z.int(),
   ]).optional(),
   authorEmail: z.string().register(z.globalRegistry, {
-    description: 'Filter by author email (case-insensitive)',
+    description: 'Φίλτρο ανά email συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   authorName: z.string().register(z.globalRegistry, {
-    description: 'Filter by author full name (case-insensitive)',
+    description: 'Φίλτρο ανά πλήρες όνομα συντάκτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   category: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
   categoryName: z.string().register(z.globalRegistry, {
-    description: 'Filter by category name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα κατηγορίας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   currentlyPublished: z.union([
     z.literal('true'),
@@ -9603,7 +9751,7 @@ export const zListTrendingBlogPostsQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -9642,13 +9790,13 @@ export const zListTrendingBlogPostsQuery = z.object({
     z.int(),
   ]).optional(),
   publishedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items published after this date',
+    description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   publishedAt_Date: z.iso.date().optional(),
   publishedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   publishedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   publishedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items published before this date',
+    description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -9656,25 +9804,25 @@ export const zListTrendingBlogPostsQuery = z.object({
   slug: z.string().optional(),
   slug_Icontains: z.string().optional(),
   tagName: z.string().register(z.globalRegistry, {
-    description: 'Filter by tag label (case-insensitive)',
+    description: 'Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   tags: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
   title: z.string().register(z.globalRegistry, {
-    description: 'Filter by title (case-insensitive)',
+    description: 'Φίλτρο ανά τίτλο (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   uuid: z.uuid().optional(),
   viewCount: z.union([
@@ -9711,7 +9859,7 @@ export const zListBlogTagQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   hasLikedPosts: z.union([
     z.literal('true'),
@@ -9740,7 +9888,7 @@ export const zListBlogTagQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -9749,7 +9897,7 @@ export const zListBlogTagQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   maxPosts: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -9778,13 +9926,13 @@ export const zListBlogTagQuery = z.object({
     z.boolean(),
   ]).optional(),
   name: z.string().register(z.globalRegistry, {
-    description: 'Filter by tag name (partial match)',
+    description: 'Φίλτρο ανά όνομα ετικέτας (μερική αντιστοίχιση)',
   }).optional(),
   name_Exact: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά ακριβές όνομα ετικέτας',
   }).optional(),
   name_Startswith: z.string().register(z.globalRegistry, {
-    description: 'Filter tags with names starting with',
+    description: 'Φίλτρο ετικετών με όνομα που ξεκινά με',
   }).optional(),
   ordering: z.string().regex(/^(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|name|\-name)(?:,(?:id|\-id|active|\-active|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|name|\-name))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, active, -active, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, name, -name',
@@ -9873,7 +10021,7 @@ export const zCreateBlogTagQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -9906,7 +10054,7 @@ export const zRetrieveBlogTagQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -9927,7 +10075,7 @@ export const zPartialUpdateBlogTagQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -9948,7 +10096,7 @@ export const zUpdateBlogTagQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -9968,8 +10116,6 @@ export const zRetrieveCartHeaders = z.object({
 
 export const zRetrieveCartResponse = zCartDetail
 
-export const zPartialUpdateCartBody = zPatchedCartWriteRequest
-
 export const zPartialUpdateCartHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
     description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
@@ -9977,8 +10123,6 @@ export const zPartialUpdateCartHeaders = z.object({
 })
 
 export const zPartialUpdateCartResponse = zCartDetail
-
-export const zUpdateCartBody = zCartWriteRequest
 
 export const zUpdateCartHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
@@ -10000,7 +10144,7 @@ export const zCreateCartPaymentIntentResponse = zCartPaymentIntentResponse
 
 export const zListCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
   }).optional(),
 })
 
@@ -10021,19 +10165,19 @@ export const zListCartItemQuery = z.object({
     z.int(),
   ]).optional(),
   cart_User_Email: z.string().register(z.globalRegistry, {
-    description: 'Filter by cart user email (partial match)',
+    description: 'Φίλτρο ανά email χρήστη καλαθιού (μερική αντιστοίχιση)',
   }).optional(),
   cart_User_Name: z.string().register(z.globalRegistry, {
-    description: 'Filter by cart user name (first or last)',
+    description: 'Φίλτρο ανά όνομα χρήστη καλαθιού (όνομα ή επώνυμο)',
   }).optional(),
   cart_Uuid: z.uuid().register(z.globalRegistry, {
     description: 'Φίλτρο ανά UUID καλαθιού',
   }).optional(),
   cartLastActivityAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter by cart last activity after date',
+    description: 'Φίλτρο ανά τελευταία δραστηριότητα καλαθιού μετά από ημερομηνία',
   }).optional(),
   cartLastActivityBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter by cart last activity before date',
+    description: 'Φίλτρο ανά τελευταία δραστηριότητα καλαθιού πριν από ημερομηνία',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
@@ -10045,7 +10189,7 @@ export const zListCartItemQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -10053,7 +10197,7 @@ export const zListCartItemQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -10076,7 +10220,7 @@ export const zListCartItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   maxDiscountPercent: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -10150,13 +10294,13 @@ export const zListCartItemQuery = z.object({
     description: 'Φίλτρο ανά slug κατηγορίας προϊόντος',
   }).optional(),
   product_Name: z.string().register(z.globalRegistry, {
-    description: 'Filter by product name (partial match)',
+    description: 'Φίλτρο ανά όνομα προϊόντος (μερική αντιστοίχιση)',
   }).optional(),
   product_Sku: z.string().register(z.globalRegistry, {
-    description: 'Filter by product sku (exact match)',
+    description: 'Φίλτρο ανά sku προϊόντος (ακριβής αντιστοίχιση)',
   }).optional(),
   product_Uuid: z.uuid().register(z.globalRegistry, {
-    description: 'Filter by product UUID',
+    description: 'Φίλτρο ανά UUID προϊόντος',
   }).optional(),
   quantity: z.union([
     z.string().regex(/^-?\d+$/),
@@ -10198,7 +10342,7 @@ export const zCreateCartItemBody = zCartItemCreateRequest
 
 export const zCreateCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
   }).optional(),
 })
 
@@ -10206,7 +10350,7 @@ export const zCreateCartItemResponse = zCartItemDetail
 
 export const zDestroyCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
   }).optional(),
 })
 
@@ -10219,7 +10363,7 @@ export const zDestroyCartItemPath = z.object({
 
 export const zRetrieveCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
   }).optional(),
 })
 
@@ -10236,7 +10380,7 @@ export const zRetrieveCartItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -10246,7 +10390,7 @@ export const zPartialUpdateCartItemBody = zPatchedCartItemUpdateRequest
 
 export const zPartialUpdateCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
   }).optional(),
 })
 
@@ -10263,7 +10407,7 @@ export const zPartialUpdateCartItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -10273,7 +10417,7 @@ export const zUpdateCartItemBody = zCartItemUpdateRequest
 
 export const zUpdateCartItemHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Guest cart UUID. Used to identify and maintain guest cart sessions.',
   }).optional(),
 })
 
@@ -10310,7 +10454,7 @@ export const zListCartQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   daysInactive: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -10336,7 +10480,7 @@ export const zListCartQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -10366,19 +10510,19 @@ export const zListCartQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   lastActivity: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter by exact last activity date',
+    description: 'Φίλτρο ανά ακριβή ημερομηνία τελευταίας δραστηριότητας',
   }).optional(),
   lastActivity_Date: z.iso.date().optional(),
   lastActivity_Gte: z.iso.datetime({ offset: true }).optional(),
   lastActivity_Lte: z.iso.datetime({ offset: true }).optional(),
   lastActivityAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter carts with last activity after this date',
+    description: 'Φίλτρο καλαθιών με τελευταία δραστηριότητα μετά από αυτή την ημερομηνία',
   }).optional(),
   lastActivityBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter carts with last activity before this date',
+    description: 'Φίλτρο καλαθιών με τελευταία δραστηριότητα πριν από αυτή την ημερομηνία',
   }).optional(),
   maxItems: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -10456,10 +10600,10 @@ export const zListCartQuery = z.object({
     z.boolean(),
   ]).optional(),
   userEmail: z.string().register(z.globalRegistry, {
-    description: 'Filter by user email (partial match)',
+    description: 'Φίλτρο ανά email χρήστη (μερική αντιστοίχιση)',
   }).optional(),
   userName: z.string().register(z.globalRegistry, {
-    description: 'Filter by user full name (first or last name)',
+    description: 'Φίλτρο ανά πλήρες όνομα χρήστη (όνομα ή επώνυμο)',
   }).optional(),
   uuid: z.uuid().optional(),
 })
@@ -10490,28 +10634,28 @@ export const zCreateContactResponse = zContactWrite
 
 export const zListCountryQuery = z.object({
   alpha2: z.string().register(z.globalRegistry, {
-    description: 'Filter by exact 2-letter country code',
+    description: 'Φίλτρο ανά ακριβή διψήφιο κωδικό χώρας',
   }).optional(),
   alpha2_Icontains: z.string().register(z.globalRegistry, {
-    description: 'Filter by 2-letter country code (partial match)',
+    description: 'Φίλτρο ανά διψήφιο κωδικό χώρας (μερική αντιστοίχιση)',
   }).optional(),
   alpha2_Iexact: z.string().optional(),
   alpha2_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.string()),
   ]).optional(),
   alpha3: z.string().register(z.globalRegistry, {
-    description: 'Filter by exact 3-letter country code',
+    description: 'Φίλτρο ανά ακριβή τριψήφιο κωδικό χώρας',
   }).optional(),
   alpha3_Icontains: z.string().register(z.globalRegistry, {
-    description: 'Filter by 3-letter country code (partial match)',
+    description: 'Φίλτρο ανά τριψήφιο κωδικό χώρας (μερική αντιστοίχιση)',
   }).optional(),
   alpha3_Iexact: z.string().optional(),
   alpha3_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.string()),
   ]).optional(),
@@ -10524,7 +10668,7 @@ export const zListCountryQuery = z.object({
     'OC',
     'SA',
   ]).register(z.globalRegistry, {
-    description: 'Filter by continent (based on ISO codes)\n\n* `AF` - Africa\n* `AS` - Asia\n* `EU` - Europe\n* `NA` - North America\n* `OC` - Oceania\n* `SA` - South America\n* `AN` - Antarctica',
+    description: 'Φίλτρο ανά ήπειρο (βάσει κωδικών ISO)\n\n* `AF` - Africa\n* `AS` - Asia\n* `EU` - Europe\n* `NA` - North America\n* `OC` - Oceania\n* `SA` - South America\n* `AN` - Antarctica',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
@@ -10536,7 +10680,7 @@ export const zListCountryQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   hasAllData: z.union([
     z.literal('true'),
@@ -10590,7 +10734,7 @@ export const zListCountryQuery = z.object({
   ]).optional(),
   isoCc_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -10611,19 +10755,19 @@ export const zListCountryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   multipleCodes: z.string().register(z.globalRegistry, {
-    description: 'Filter by multiple country codes (comma-separated, alpha-2 or alpha-3)',
+    description: 'Φίλτρο ανά πολλαπλούς κωδικούς χωρών (διαχωρισμένους με κόμμα, alpha-2 ή alpha-3)',
   }).optional(),
   name: z.string().register(z.globalRegistry, {
-    description: 'Filter by country name (partial match)',
+    description: 'Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)',
   }).optional(),
   name_Exact: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά ακριβές όνομα χώρας',
   }).optional(),
   name_Startswith: z.string().register(z.globalRegistry, {
-    description: 'Filter countries with names starting with',
+    description: 'Φίλτρο χωρών με όνομα που ξεκινά με',
   }).optional(),
   ordering: z.string().regex(/^(?:alpha2|\-alpha2|alpha3|\-alpha3|isoCc|\-isoCc|phoneCode|\-phoneCode|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Name|\-translations_Name)(?:,(?:alpha2|\-alpha2|alpha3|\-alpha3|isoCc|\-isoCc|phoneCode|\-phoneCode|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|translations_Name|\-translations_Name))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: alpha2, -alpha2, alpha3, -alpha3, isoCc, -isoCc, phoneCode, -phoneCode, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, translations_Name, -translations_Name',
@@ -10656,7 +10800,7 @@ export const zListCountryQuery = z.object({
   ]).optional(),
   phoneCode_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -10709,7 +10853,7 @@ export const zCreateCountryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -10740,7 +10884,7 @@ export const zRetrieveCountryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -10760,7 +10904,7 @@ export const zPartialUpdateCountryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -10780,7 +10924,7 @@ export const zUpdateCountryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -10860,7 +11004,7 @@ export const zListNotificationUserQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   hasSeenAt: z.union([
     z.literal('true'),
@@ -10882,7 +11026,7 @@ export const zListNotificationUserQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -10891,7 +11035,7 @@ export const zListNotificationUserQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   notification: z.union([
     z.string().regex(/^-?\d+$/),
@@ -10901,10 +11045,10 @@ export const zListNotificationUserQuery = z.object({
     description: 'Φίλτρο ανά κατηγορία ειδοποίησης',
   }).optional(),
   notification_ExpiresAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter notifications expiring after this date',
+    description: 'Φίλτρο ειδοποιήσεων που λήγουν μετά από αυτή την ημερομηνία',
   }).optional(),
   notification_ExpiresBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter notifications expiring before this date',
+    description: 'Φίλτρο ειδοποιήσεων που λήγουν πριν από αυτή την ημερομηνία',
   }).optional(),
   notification_IsExpired: z.union([
     z.literal('true'),
@@ -10917,22 +11061,22 @@ export const zListNotificationUserQuery = z.object({
     description: 'Φίλτρο ανά τύπο ειδοποίησης',
   }).optional(),
   notification_Link: z.string().register(z.globalRegistry, {
-    description: 'Filter by notification link (case-insensitive)',
+    description: 'Φίλτρο ανά σύνδεσμο ειδοποίησης (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   notification_Message: z.string().register(z.globalRegistry, {
-    description: 'Filter by notification message (case-insensitive)',
+    description: 'Φίλτρο ανά μήνυμα ειδοποίησης (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   notification_Priority: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά προτεραιότητα ειδοποίησης',
   }).optional(),
   notification_Title: z.string().register(z.globalRegistry, {
-    description: 'Filter by notification title (case-insensitive)',
+    description: 'Φίλτρο ανά τίτλο ειδοποίησης (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   notification_Type: z.string().register(z.globalRegistry, {
-    description: 'Filter by notification type (case-insensitive)',
+    description: 'Φίλτρο ανά τύπο ειδοποίησης (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   notificationIds: z.string().register(z.globalRegistry, {
-    description: 'Filter by multiple notification IDs (comma-separated)',
+    description: 'Φίλτρο ανά πολλαπλά ID ειδοποιήσεων (διαχωρισμένα με κόμμα)',
   }).optional(),
   notificationKind: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά τύπο ειδοποίησης',
@@ -10976,13 +11120,13 @@ export const zListNotificationUserQuery = z.object({
     z.boolean(),
   ]).optional(),
   seenAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter notifications seen after this date',
+    description: 'Φίλτρο ειδοποιήσεων που προβλήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   seenAt_Date: z.iso.date().optional(),
   seenAt_Gte: z.iso.datetime({ offset: true }).optional(),
   seenAt_Lte: z.iso.datetime({ offset: true }).optional(),
   seenBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter notifications seen before this date',
+    description: 'Φίλτρο ειδοποιήσεων που προβλήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   seenOnly: z.union([
     z.literal('true'),
@@ -11012,10 +11156,10 @@ export const zListNotificationUserQuery = z.object({
     z.int(),
   ]).optional(),
   user_Email: z.string().register(z.globalRegistry, {
-    description: 'Filter by user email (case-insensitive)',
+    description: 'Φίλτρο ανά email χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   user_FirstName: z.string().register(z.globalRegistry, {
-    description: 'Filter by user first name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   user_IsActive: z.union([
     z.literal('true'),
@@ -11032,29 +11176,15 @@ export const zListNotificationUserQuery = z.object({
     z.boolean(),
   ]).optional(),
   user_LastName: z.string().register(z.globalRegistry, {
-    description: 'Filter by user last name (case-insensitive)',
+    description: 'Φίλτρο ανά επώνυμο χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   userIds: z.string().register(z.globalRegistry, {
-    description: 'Filter by multiple user IDs (comma-separated)',
+    description: 'Φίλτρο ανά πολλαπλά ID χρηστών (διαχωρισμένα με κόμμα)',
   }).optional(),
   uuid: z.uuid().optional(),
 })
 
 export const zListNotificationUserResponse = zPaginatedNotificationUserList
-
-export const zCreateNotificationUserBody = zNotificationUserWriteRequest
-
-export const zCreateNotificationUserQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
-  }).optional().default('el'),
-})
-
-export const zCreateNotificationUserResponse = zNotificationUserDetail
 
 export const zDestroyNotificationUserPath = z.object({
   id: z.string(),
@@ -11077,7 +11207,7 @@ export const zRetrieveNotificationUserQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -11095,7 +11225,7 @@ export const zPartialUpdateNotificationUserQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -11113,7 +11243,7 @@ export const zUpdateNotificationUserQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -11153,16 +11283,16 @@ export const zListOrderQuery = z.object({
   }).optional(),
   city_Icontains: z.string().optional(),
   country: z.string().register(z.globalRegistry, {
-    description: 'Filter by country code',
+    description: 'Φίλτρο ανά κωδικό χώρας',
   }).optional(),
   country_Alpha2: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά alpha-2 κωδικό χώρας',
   }).optional(),
   country_Name: z.string().register(z.globalRegistry, {
-    description: 'Filter by country name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα χώρας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   countryIds: z.string().register(z.globalRegistry, {
-    description: 'Filter by multiple country IDs (comma-separated)',
+    description: 'Φίλτρο ανά πολλαπλά ID χωρών (διαχωρισμένα με κόμμα)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
@@ -11174,15 +11304,15 @@ export const zListOrderQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   customerNotes: z.string().optional(),
   customerNotes_Icontains: z.string().optional(),
   documentType: z.string().register(z.globalRegistry, {
-    description: 'Filter by document type',
+    description: 'Φίλτρο ανά τύπο εγγράφου',
   }).optional(),
   email: z.string().register(z.globalRegistry, {
-    description: 'Filter by customer email (case-insensitive)',
+    description: 'Φίλτρο ανά email πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   email_Icontains: z.string().optional(),
   finalOrders: z.union([
@@ -11193,7 +11323,7 @@ export const zListOrderQuery = z.object({
     z.boolean(),
   ]).optional(),
   firstName: z.string().register(z.globalRegistry, {
-    description: 'Filter by customer first name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   firstName_Icontains: z.string().optional(),
   floor: z.string().register(z.globalRegistry, {
@@ -11240,7 +11370,7 @@ export const zListOrderQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -11270,14 +11400,14 @@ export const zListOrderQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   lastName: z.string().register(z.globalRegistry, {
-    description: 'Filter by customer last name (case-insensitive)',
+    description: 'Φίλτρο ανά επώνυμο πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   lastName_Icontains: z.string().optional(),
   locationType: z.string().register(z.globalRegistry, {
-    description: 'Filter by location type',
+    description: 'Φίλτρο ανά τύπο τοποθεσίας',
   }).optional(),
   needsProcessing: z.union([
     z.literal('true'),
@@ -11335,7 +11465,7 @@ export const zListOrderQuery = z.object({
     z.boolean(),
   ]).optional(),
   payWay_Name: z.string().register(z.globalRegistry, {
-    description: 'Filter by payment method name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα μεθόδου πληρωμής (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   paymentId: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά ID πληρωμής',
@@ -11358,16 +11488,16 @@ export const zListOrderQuery = z.object({
   }).optional(),
   paymentStatus_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.string()),
   ]).optional(),
   phone: z.string().register(z.globalRegistry, {
-    description: 'Filter by phone number',
+    description: 'Φίλτρο ανά αριθμό τηλεφώνου',
   }).optional(),
   phone_Icontains: z.string().optional(),
   place: z.string().register(z.globalRegistry, {
-    description: 'Filter by place (case-insensitive)',
+    description: 'Φίλτρο ανά τοποθεσία (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   place_Icontains: z.string().optional(),
   recentOrders: z.union([
@@ -11378,10 +11508,10 @@ export const zListOrderQuery = z.object({
     z.boolean(),
   ]).optional(),
   region: z.string().register(z.globalRegistry, {
-    description: 'Filter by region code',
+    description: 'Φίλτρο ανά κωδικό περιφέρειας',
   }).optional(),
   region_Name: z.string().register(z.globalRegistry, {
-    description: 'Filter by region name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα περιφέρειας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -11416,28 +11546,28 @@ export const zListOrderQuery = z.object({
     'RETURNED',
     'SHIPPED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
+    description: 'Φίλτρο ανά κατάσταση παραγγελίας\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
   }).optional(),
   status_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.string()),
   ]).optional(),
   statusList: z.string().register(z.globalRegistry, {
-    description: 'Filter by multiple statuses (comma-separated)',
+    description: 'Φίλτρο ανά πολλαπλές καταστάσεις (διαχωρισμένες με κόμμα)',
   }).optional(),
   statusUpdatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter orders with status updated after this date',
+    description: 'Φίλτρο παραγγελιών με κατάσταση που ενημερώθηκε μετά από αυτή την ημερομηνία',
   }).optional(),
   statusUpdatedAt_Date: z.iso.date().optional(),
   statusUpdatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   statusUpdatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   statusUpdatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter orders with status updated before this date',
+    description: 'Φίλτρο παραγγελιών με κατάσταση που ενημερώθηκε πριν από αυτή την ημερομηνία',
   }).optional(),
   street: z.string().register(z.globalRegistry, {
-    description: 'Filter by street (case-insensitive)',
+    description: 'Φίλτρο ανά οδό (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   street_Icontains: z.string().optional(),
   streetNumber: z.string().register(z.globalRegistry, {
@@ -11462,10 +11592,10 @@ export const zListOrderQuery = z.object({
     z.int(),
   ]).optional(),
   user_Email: z.string().register(z.globalRegistry, {
-    description: 'Filter by user email (case-insensitive)',
+    description: 'Φίλτρο ανά email χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   user_FirstName: z.string().register(z.globalRegistry, {
-    description: 'Filter by user first name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   user_IsActive: z.union([
     z.literal('true'),
@@ -11475,10 +11605,10 @@ export const zListOrderQuery = z.object({
     z.boolean(),
   ]).optional(),
   user_LastName: z.string().register(z.globalRegistry, {
-    description: 'Filter by user last name (case-insensitive)',
+    description: 'Φίλτρο ανά επώνυμο χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   userIds: z.string().register(z.globalRegistry, {
-    description: 'Filter by multiple user IDs (comma-separated)',
+    description: 'Φίλτρο ανά πολλαπλά ID χρηστών (διαχωρισμένα με κόμμα)',
   }).optional(),
   uuid: z.uuid().optional(),
   zipcode: z.string().register(z.globalRegistry, {
@@ -11496,7 +11626,7 @@ export const zCreateOrderQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -11520,7 +11650,7 @@ export const zListOrderItemQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   hasNotes: z.union([
     z.literal('true'),
@@ -11549,7 +11679,7 @@ export const zListOrderItemQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -11579,10 +11709,10 @@ export const zListOrderItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   notes: z.string().register(z.globalRegistry, {
-    description: 'Filter by notes content (case-insensitive)',
+    description: 'Φίλτρο ανά περιεχόμενο σημειώσεων (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   notes_Icontains: z.string().optional(),
   order: z.union([
@@ -11593,13 +11723,13 @@ export const zListOrderItemQuery = z.object({
     description: 'Φίλτρο ανά κωδικό χώρας παραγγελίας',
   }).optional(),
   order_Email: z.string().register(z.globalRegistry, {
-    description: 'Filter by order customer email (case-insensitive)',
+    description: 'Φίλτρο ανά email πελάτη παραγγελίας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   order_FirstName: z.string().register(z.globalRegistry, {
-    description: 'Filter by order customer first name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα πελάτη παραγγελίας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   order_LastName: z.string().register(z.globalRegistry, {
-    description: 'Filter by order customer last name (case-insensitive)',
+    description: 'Φίλτρο ανά επώνυμο πελάτη παραγγελίας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   order_PaymentStatus: z.enum([
     'CANCELED',
@@ -11625,20 +11755,20 @@ export const zListOrderItemQuery = z.object({
     'RETURNED',
     'SHIPPED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
+    description: 'Φίλτρο ανά κατάσταση παραγγελίας\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
   }).optional(),
   order_User: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
   order_User_Email: z.string().register(z.globalRegistry, {
-    description: 'Filter by order user email (case-insensitive)',
+    description: 'Φίλτρο ανά email χρήστη παραγγελίας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   orderIds: z.string().register(z.globalRegistry, {
-    description: 'Filter by multiple order IDs (comma-separated)',
+    description: 'Φίλτρο ανά πολλαπλά ID παραγγελιών (διαχωρισμένα με κόμμα)',
   }).optional(),
   orderStatuses: z.string().register(z.globalRegistry, {
-    description: 'Filter by multiple order statuses (comma-separated)',
+    description: 'Φίλτρο ανά πολλαπλές καταστάσεις παραγγελιών (διαχωρισμένες με κόμμα)',
   }).optional(),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|quantity|\-quantity|price|\-price|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|quantity|\-quantity|price|\-price|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, quantity, -quantity, price, -price, sortOrder, -sortOrder',
@@ -11721,16 +11851,16 @@ export const zListOrderItemQuery = z.object({
     z.int(),
   ]).optional(),
   product_Category_Name: z.string().register(z.globalRegistry, {
-    description: 'Filter by product category name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα κατηγορίας προϊόντος (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   product_Name: z.string().register(z.globalRegistry, {
-    description: 'Filter by product name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα προϊόντος (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   product_Sku: z.string().register(z.globalRegistry, {
-    description: 'Filter by product SKU',
+    description: 'Φίλτρο ανά SKU προϊόντος',
   }).optional(),
   productIds: z.string().register(z.globalRegistry, {
-    description: 'Filter by multiple product IDs (comma-separated)',
+    description: 'Φίλτρο ανά πολλαπλά ID προϊόντων (διαχωρισμένα με κόμμα)',
   }).optional(),
   quantity: z.union([
     z.string().regex(/^-?\d+$/),
@@ -11820,7 +11950,7 @@ export const zCreateOrderItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -11853,7 +11983,7 @@ export const zRetrieveOrderItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -11874,7 +12004,7 @@ export const zPartialUpdateOrderItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -11895,7 +12025,7 @@ export const zUpdateOrderItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -11939,7 +12069,7 @@ export const zRetrieveOrderQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -11960,7 +12090,7 @@ export const zPartialUpdateOrderQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -11981,7 +12111,7 @@ export const zUpdateOrderQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -12153,16 +12283,16 @@ export const zListMyOrdersQuery = z.object({
   }).optional(),
   city_Icontains: z.string().optional(),
   country: z.string().register(z.globalRegistry, {
-    description: 'Filter by country code',
+    description: 'Φίλτρο ανά κωδικό χώρας',
   }).optional(),
   country_Alpha2: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά alpha-2 κωδικό χώρας',
   }).optional(),
   country_Name: z.string().register(z.globalRegistry, {
-    description: 'Filter by country name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα χώρας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   countryIds: z.string().register(z.globalRegistry, {
-    description: 'Filter by multiple country IDs (comma-separated)',
+    description: 'Φίλτρο ανά πολλαπλά ID χωρών (διαχωρισμένα με κόμμα)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
@@ -12176,10 +12306,10 @@ export const zListMyOrdersQuery = z.object({
   customerNotes: z.string().optional(),
   customerNotes_Icontains: z.string().optional(),
   documentType: z.string().register(z.globalRegistry, {
-    description: 'Filter by document type',
+    description: 'Φίλτρο ανά τύπο εγγράφου',
   }).optional(),
   email: z.string().register(z.globalRegistry, {
-    description: 'Filter by customer email (case-insensitive)',
+    description: 'Φίλτρο ανά email πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   email_Icontains: z.string().optional(),
   finalOrders: z.union([
@@ -12190,7 +12320,7 @@ export const zListMyOrdersQuery = z.object({
     z.boolean(),
   ]).optional(),
   firstName: z.string().register(z.globalRegistry, {
-    description: 'Filter by customer first name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   firstName_Icontains: z.string().optional(),
   floor: z.string().register(z.globalRegistry, {
@@ -12237,7 +12367,7 @@ export const zListMyOrdersQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -12263,11 +12393,11 @@ export const zListMyOrdersQuery = z.object({
     z.boolean(),
   ]).optional(),
   lastName: z.string().register(z.globalRegistry, {
-    description: 'Filter by customer last name (case-insensitive)',
+    description: 'Φίλτρο ανά επώνυμο πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   lastName_Icontains: z.string().optional(),
   locationType: z.string().register(z.globalRegistry, {
-    description: 'Filter by location type',
+    description: 'Φίλτρο ανά τύπο τοποθεσίας',
   }).optional(),
   needsProcessing: z.union([
     z.literal('true'),
@@ -12315,7 +12445,7 @@ export const zListMyOrdersQuery = z.object({
     z.boolean(),
   ]).optional(),
   payWay_Name: z.string().register(z.globalRegistry, {
-    description: 'Filter by payment method name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα μεθόδου πληρωμής (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   paymentId: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά ID πληρωμής',
@@ -12338,16 +12468,16 @@ export const zListMyOrdersQuery = z.object({
   }).optional(),
   paymentStatus_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.string()),
   ]).optional(),
   phone: z.string().register(z.globalRegistry, {
-    description: 'Filter by phone number',
+    description: 'Φίλτρο ανά αριθμό τηλεφώνου',
   }).optional(),
   phone_Icontains: z.string().optional(),
   place: z.string().register(z.globalRegistry, {
-    description: 'Filter by place (case-insensitive)',
+    description: 'Φίλτρο ανά τοποθεσία (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   place_Icontains: z.string().optional(),
   recentOrders: z.union([
@@ -12358,10 +12488,10 @@ export const zListMyOrdersQuery = z.object({
     z.boolean(),
   ]).optional(),
   region: z.string().register(z.globalRegistry, {
-    description: 'Filter by region code',
+    description: 'Φίλτρο ανά κωδικό περιφέρειας',
   }).optional(),
   region_Name: z.string().register(z.globalRegistry, {
-    description: 'Filter by region name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα περιφέρειας (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
@@ -12396,28 +12526,28 @@ export const zListMyOrdersQuery = z.object({
     'RETURNED',
     'SHIPPED',
   ]).register(z.globalRegistry, {
-    description: 'Filter by order status\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
+    description: 'Φίλτρο ανά κατάσταση παραγγελίας\n\n* `PENDING` - Εκκρεμεί\n* `PROCESSING` - Σε επεξεργασία\n* `SHIPPED` - Απεστάλη\n* `DELIVERED` - Παραδόθηκε\n* `COMPLETED` - Ολοκληρώθηκε\n* `CANCELED` - Ακυρώθηκε\n* `RETURNED` - Επιστράφηκε\n* `REFUNDED` - Επιστροφή Χρημάτων',
   }).optional(),
   status_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.string()),
   ]).optional(),
   statusList: z.string().register(z.globalRegistry, {
-    description: 'Filter by multiple statuses (comma-separated)',
+    description: 'Φίλτρο ανά πολλαπλές καταστάσεις (διαχωρισμένες με κόμμα)',
   }).optional(),
   statusUpdatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter orders with status updated after this date',
+    description: 'Φίλτρο παραγγελιών με κατάσταση που ενημερώθηκε μετά από αυτή την ημερομηνία',
   }).optional(),
   statusUpdatedAt_Date: z.iso.date().optional(),
   statusUpdatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   statusUpdatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   statusUpdatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter orders with status updated before this date',
+    description: 'Φίλτρο παραγγελιών με κατάσταση που ενημερώθηκε πριν από αυτή την ημερομηνία',
   }).optional(),
   street: z.string().register(z.globalRegistry, {
-    description: 'Filter by street (case-insensitive)',
+    description: 'Φίλτρο ανά οδό (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   street_Icontains: z.string().optional(),
   streetNumber: z.string().register(z.globalRegistry, {
@@ -12442,10 +12572,10 @@ export const zListMyOrdersQuery = z.object({
     z.int(),
   ]).optional(),
   user_Email: z.string().register(z.globalRegistry, {
-    description: 'Filter by user email (case-insensitive)',
+    description: 'Φίλτρο ανά email χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   user_FirstName: z.string().register(z.globalRegistry, {
-    description: 'Filter by user first name (case-insensitive)',
+    description: 'Φίλτρο ανά όνομα χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   user_IsActive: z.union([
     z.literal('true'),
@@ -12455,10 +12585,10 @@ export const zListMyOrdersQuery = z.object({
     z.boolean(),
   ]).optional(),
   user_LastName: z.string().register(z.globalRegistry, {
-    description: 'Filter by user last name (case-insensitive)',
+    description: 'Φίλτρο ανά επώνυμο χρήστη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   userIds: z.string().register(z.globalRegistry, {
-    description: 'Filter by multiple user IDs (comma-separated)',
+    description: 'Φίλτρο ανά πολλαπλά ID χρηστών (διαχωρισμένα με κόμμα)',
   }).optional(),
   uuid: z.uuid().optional(),
   zipcode: z.string().register(z.globalRegistry, {
@@ -12475,10 +12605,15 @@ export const zRetrieveOrderByUuidPath = z.object({
 export const zRetrieveOrderByUuidResponse = zOrderDetail
 
 export const zVivaReturnLookupQuery = z.object({
+  s: z.string().register(z.globalRegistry, {
+    description: 'Viva order code (16-digit id of the payment order).',
+  }).optional(),
   t: z.string().register(z.globalRegistry, {
     description: 'Viva transaction_id (UUID).',
-  }),
+  }).optional(),
 })
+
+export const zVivaReturnLookupResponse2 = zVivaReturnLookupResponse
 
 export const zApiV1PageConfigRetrievePath = z.object({
   pageType: z.string(),
@@ -12488,14 +12623,14 @@ export const zApiV1PageConfigRetrieveResponse = zPageLayout
 
 export const zApiV1PageConfigAdminListQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   languageCode: z.enum([
     'de',
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -12530,7 +12665,7 @@ export const zApiV1PageConfigAdminCreateQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -12563,7 +12698,7 @@ export const zApiV1PageConfigAdminRetrieveQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -12584,7 +12719,7 @@ export const zApiV1PageConfigAdminPartialUpdateQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -12605,7 +12740,7 @@ export const zApiV1PageConfigAdminUpdateQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -12636,10 +12771,10 @@ export const zListPayWayQuery = z.object({
     z.number(),
   ]).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   description: z.string().register(z.globalRegistry, {
-    description: 'Filter by description (partial match)',
+    description: 'Φίλτρο ανά περιγραφή (μερική αντιστοίχιση)',
   }).optional(),
   freeThreshold_Gte: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -12687,7 +12822,7 @@ export const zListPayWayQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   name: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά όνομα (μερική αντιστοίχιση)',
@@ -12714,7 +12849,7 @@ export const zListPayWayQuery = z.object({
     description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   providerCode: z.string().register(z.globalRegistry, {
-    description: 'Filter by provider code (partial match)',
+    description: 'Φίλτρο ανά κωδικό παρόχου (μερική αντιστοίχιση)',
   }).optional(),
   providerCode_Icontains: z.string().optional(),
   requiresConfirmation: z.union([
@@ -12728,10 +12863,10 @@ export const zListPayWayQuery = z.object({
     description: 'A search term.',
   }).optional(),
   shippingKind: z.string().register(z.globalRegistry, {
-    description: 'Pair with ``shippingProviderCode`` to filter pay ways by the carrier\'s compatibility rules for that kind.',
+    description: 'Συνδυάστε με το ``shippingProviderCode`` για να φιλτράρετε τις μεθόδους πληρωμής βάσει των κανόνων συμβατότητας του μεταφορέα για αυτόν τον τύπο.',
   }).optional(),
   shippingProviderCode: z.string().register(z.globalRegistry, {
-    description: 'Filter pay ways compatible with the given shipping carrier. Each carrier owns its own compatibility rules — BoxNow (``boxnow``) supports COD on lockers via PAY ON THE GO and so passes through; ACS passes through unchanged. Pair with ``shippingKind``.',
+    description: 'Φίλτρο μεθόδων πληρωμής συμβατών με τον δεδομένο μεταφορέα αποστολής. Κάθε μεταφορέας διαθέτει τους δικούς του κανόνες συμβατότητας — το BoxNow (``boxnow``) υποστηρίζει αντικαταβολή σε lockers μέσω PAY ON THE GO και έτσι περνά κανονικά· η ACS περνά αμετάβλητη. Συνδυάστε με το ``shippingKind``.',
   }).optional(),
   sortOrder: z.union([
     z.string().regex(/^-?\d+$/),
@@ -12758,7 +12893,7 @@ export const zCreatePayWayQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -12785,7 +12920,7 @@ export const zRetrievePayWayQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -12803,7 +12938,7 @@ export const zPartialUpdatePayWayQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -12821,7 +12956,7 @@ export const zUpdatePayWayQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -12841,7 +12976,7 @@ export const zListProductQuery = z.object({
   ]).optional(),
   attribute_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -12851,7 +12986,7 @@ export const zListProductQuery = z.object({
   ]).optional(),
   attributeValue_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -12872,7 +13007,7 @@ export const zListProductQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   deletedAt_Date: z.iso.date().optional(),
   deletedAt_Gte: z.iso.datetime({ offset: true }).optional(),
@@ -12919,7 +13054,7 @@ export const zListProductQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   maxDiscount: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -13089,7 +13224,7 @@ export const zCreateProductQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13122,7 +13257,7 @@ export const zRetrieveProductQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13143,7 +13278,7 @@ export const zPartialUpdateProductQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13164,7 +13299,7 @@ export const zUpdateProductQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13183,7 +13318,7 @@ export const zListProductImagesQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   ordering: z.string().regex(/^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock',
@@ -13258,9 +13393,28 @@ export const zIncrementProductViewsPath = z.object({
 
 export const zIncrementProductViewsResponse = zProductDetail
 
+export const zListProductVariantsPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zListProductVariantsQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zListProductVariantsResponse = zProductVariantsResponse
+
 export const zListProductAlertQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   isActive: z.union([
     z.literal('true'),
@@ -13270,14 +13424,14 @@ export const zListProductAlertQuery = z.object({
     z.boolean(),
   ]).optional(),
   kind: z.enum(['price_drop', 'restock']).register(z.globalRegistry, {
-    description: '* `restock` - Αναπλήρωση\n* `price_drop` - Price drop',
+    description: '* `restock` - Αναπλήρωση\n* `price_drop` - Πτώση τιμής',
   }).optional(),
   languageCode: z.enum([
     'de',
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|notifiedAt|\-notifiedAt)(?:,(?:id|\-id|createdAt|\-createdAt|notifiedAt|\-notifiedAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, notifiedAt, -notifiedAt',
@@ -13319,7 +13473,7 @@ export const zCreateProductAlertQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13345,7 +13499,7 @@ export const zRetrieveProductAlertQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13369,7 +13523,7 @@ export const zListAttributeQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   hasValues: z.union([
     z.literal('true'),
@@ -13384,7 +13538,7 @@ export const zListAttributeQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -13393,7 +13547,7 @@ export const zListAttributeQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   name: z.string().optional(),
   ordering: z.string().regex(/^(?:id|\-id|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
@@ -13452,7 +13606,7 @@ export const zCreateAttributeQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13485,7 +13639,7 @@ export const zRetrieveAttributeQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13504,7 +13658,7 @@ export const zPartialUpdateAttributeQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13523,7 +13677,7 @@ export const zUpdateAttributeQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13543,7 +13697,7 @@ export const zListAttributeValueQuery = z.object({
   ]).optional(),
   attribute_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -13557,7 +13711,7 @@ export const zListAttributeValueQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -13565,7 +13719,7 @@ export const zListAttributeValueQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -13574,7 +13728,7 @@ export const zListAttributeValueQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|attribute|\-attribute|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|attribute|\-attribute|sortOrder|\-sortOrder|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, attribute, -attribute, sortOrder, -sortOrder, createdAt, -createdAt, updatedAt, -updatedAt',
@@ -13633,7 +13787,7 @@ export const zCreateAttributeValueQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13666,7 +13820,7 @@ export const zRetrieveAttributeValueQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13685,7 +13839,7 @@ export const zPartialUpdateAttributeValueQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13704,7 +13858,7 @@ export const zUpdateAttributeValueQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13732,7 +13886,7 @@ export const zListProductCategoryQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   descendantOf: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -13758,7 +13912,7 @@ export const zListProductCategoryQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -13781,7 +13935,7 @@ export const zListProductCategoryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   level: z.union([
     z.string().regex(/^-?\d+$/),
@@ -13882,7 +14036,7 @@ export const zCreateProductCategoryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13915,7 +14069,7 @@ export const zRetrieveProductCategoryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13936,7 +14090,7 @@ export const zPartialUpdateProductCategoryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -13957,7 +14111,7 @@ export const zUpdateProductCategoryQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14008,7 +14162,7 @@ export const zListAllProductCategoryQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -14112,7 +14266,7 @@ export const zListProductCategoryImageQuery = z.object({
     z.int(),
   ]).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14137,7 +14291,7 @@ export const zListProductCategoryImageQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder',
@@ -14175,7 +14329,7 @@ export const zCreateProductCategoryImageQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14208,7 +14362,7 @@ export const zRetrieveProductCategoryImageQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14229,7 +14383,7 @@ export const zPartialUpdateProductCategoryImageQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14250,7 +14404,7 @@ export const zUpdateProductCategoryImageQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14348,7 +14502,7 @@ export const zListProductFavouriteQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14359,7 +14513,7 @@ export const zListProductFavouriteQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, userId, -userId, productId, -productId, createdAt, -createdAt, updatedAt, -updatedAt',
@@ -14420,7 +14574,7 @@ export const zCreateProductFavouriteQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14447,7 +14601,7 @@ export const zRetrieveProductFavouriteQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14465,7 +14619,7 @@ export const zPartialUpdateProductFavouriteQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14483,7 +14637,7 @@ export const zUpdateProductFavouriteQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14544,7 +14698,7 @@ export const zGetProductFavouritesByProductsResponse = z.array(zProductFavourite
 export const zListProductImageQuery = z.object({
   createdAt: z.iso.datetime({ offset: true }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14562,7 +14716,7 @@ export const zListProductImageQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|isMain|\-isMain|sortOrder|\-sortOrder)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|isMain|\-isMain|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, isMain, -isMain, sortOrder, -sortOrder',
@@ -14609,7 +14763,7 @@ export const zCreateProductImageQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14642,7 +14796,7 @@ export const zRetrieveProductImageQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14663,7 +14817,7 @@ export const zPartialUpdateProductImageQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14684,7 +14838,7 @@ export const zUpdateProductImageQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14692,16 +14846,16 @@ export const zUpdateProductImageResponse = zProductImageDetail
 
 export const zListProductReviewQuery = z.object({
   comment: z.string().register(z.globalRegistry, {
-    description: 'Filter by comment content (partial match)',
+    description: 'Φίλτρο ανά περιεχόμενο σχολίου (μερική αντιστοίχιση)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   currentlyPublished: z.union([
     z.literal('true'),
@@ -14711,7 +14865,7 @@ export const zListProductReviewQuery = z.object({
     z.boolean(),
   ]).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   hasComment: z.union([
     z.literal('true'),
@@ -14736,7 +14890,7 @@ export const zListProductReviewQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   maxRate: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14795,16 +14949,16 @@ export const zListProductReviewQuery = z.object({
     z.number(),
   ]).optional(),
   productName: z.string().register(z.globalRegistry, {
-    description: 'Filter by product name (partial match)',
+    description: 'Φίλτρο ανά όνομα προϊόντος (μερική αντιστοίχιση)',
   }).optional(),
   publishedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items published after this date',
+    description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   publishedAt_Date: z.iso.date().optional(),
   publishedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   publishedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   publishedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items published before this date',
+    description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   publishedRecentDays: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -14842,33 +14996,33 @@ export const zListProductReviewQuery = z.object({
     'NEW',
     'TRUE',
   ]).register(z.globalRegistry, {
-    description: 'Filter by review status\n\n* `NEW` - Νέο\n* `TRUE` - Ναι\n* `FALSE` - False',
+    description: 'Φίλτρο ανά κατάσταση αξιολόγησης\n\n* `NEW` - Νέο\n* `TRUE` - Ναι\n* `FALSE` - Όχι',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   user: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
   userEmail: z.string().register(z.globalRegistry, {
-    description: 'Filter by user email (partial match)',
+    description: 'Φίλτρο ανά email χρήστη (μερική αντιστοίχιση)',
   }).optional(),
   userFirstName: z.string().register(z.globalRegistry, {
-    description: 'Filter by user first name (partial match)',
+    description: 'Φίλτρο ανά όνομα χρήστη (μερική αντιστοίχιση)',
   }).optional(),
   userId: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
   userLastName: z.string().register(z.globalRegistry, {
-    description: 'Filter by user last name (partial match)',
+    description: 'Φίλτρο ανά επώνυμο χρήστη (μερική αντιστοίχιση)',
   }).optional(),
   userReviewCountMin: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -14894,7 +15048,7 @@ export const zCreateProductReviewQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14927,7 +15081,7 @@ export const zRetrieveProductReviewQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14948,7 +15102,7 @@ export const zPartialUpdateProductReviewQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14969,7 +15123,7 @@ export const zUpdateProductReviewQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -14989,17 +15143,17 @@ export const zGetUserProductReviewResponse = zProductReviewDetail
 
 export const zListRegionQuery = z.object({
   alpha: z.string().register(z.globalRegistry, {
-    description: 'Filter by region alpha code (partial match)',
+    description: 'Φίλτρο ανά αλφαβητικό κωδικό περιφέρειας (μερική αντιστοίχιση)',
   }).optional(),
   alpha_Icontains: z.string().optional(),
   alphaExact: z.string().register(z.globalRegistry, {
-    description: 'Filter by exact region alpha code',
+    description: 'Φίλτρο ανά ακριβή αλφαβητικό κωδικό περιφέρειας',
   }).optional(),
   country: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά alpha-2 κωδικό χώρας',
   }).optional(),
   countryName: z.string().register(z.globalRegistry, {
-    description: 'Filter by country name (partial match)',
+    description: 'Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
@@ -15008,17 +15162,17 @@ export const zListRegionQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   languageCode: z.enum([
     'de',
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   name: z.string().register(z.globalRegistry, {
-    description: 'Filter by region name (partial match)',
+    description: 'Φίλτρο ανά όνομα περιφέρειας (μερική αντιστοίχιση)',
   }).optional(),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, alpha, -alpha, sortOrder, -sortOrder',
@@ -15075,7 +15229,7 @@ export const zCreateRegionQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15106,7 +15260,7 @@ export const zRetrieveRegionQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15126,7 +15280,7 @@ export const zPartialUpdateRegionQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15146,7 +15300,7 @@ export const zUpdateRegionQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15160,17 +15314,17 @@ export const zListRegionsByCountryPath = z.object({
 
 export const zListRegionsByCountryQuery = z.object({
   alpha: z.string().register(z.globalRegistry, {
-    description: 'Filter by region alpha code (partial match)',
+    description: 'Φίλτρο ανά αλφαβητικό κωδικό περιφέρειας (μερική αντιστοίχιση)',
   }).optional(),
   alpha_Icontains: z.string().optional(),
   alphaExact: z.string().register(z.globalRegistry, {
-    description: 'Filter by exact region alpha code',
+    description: 'Φίλτρο ανά ακριβή αλφαβητικό κωδικό περιφέρειας',
   }).optional(),
   country: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά alpha-2 κωδικό χώρας',
   }).optional(),
   countryName: z.string().register(z.globalRegistry, {
-    description: 'Filter by country name (partial match)',
+    description: 'Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
@@ -15179,7 +15333,7 @@ export const zListRegionsByCountryQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   name: z.string().register(z.globalRegistry, {
-    description: 'Filter by region name (partial match)',
+    description: 'Φίλτρο ανά όνομα περιφέρειας (μερική αντιστοίχιση)',
   }).optional(),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, alpha, -alpha, sortOrder, -sortOrder',
@@ -15220,13 +15374,13 @@ export const zListRegionsByCountryResponse = zPaginatedRegionList
 
 export const zApiV1SearchAnalyticsRetrieveQuery = z.object({
   contentType: z.string().register(z.globalRegistry, {
-    description: 'Filter by content type: \'product\', \'blog_post\', or \'federated\'. If not provided, includes all content types.',
+    description: 'Φίλτρο ανά τύπο περιεχομένου: \'product\', \'blog_post\', ή \'federated\'. Αν δεν δοθεί, συμπεριλαμβάνει όλους τους τύπους περιεχομένου.',
   }).optional(),
   endDate: z.string().register(z.globalRegistry, {
-    description: 'End date for analytics range (ISO format: YYYY-MM-DD). If not provided, includes data up to current date.',
+    description: 'Ημερομηνία λήξης για το εύρος αναλυτικών (μορφή ISO: YYYY-MM-DD). Αν δεν δοθεί, συμπεριλαμβάνει δεδομένα έως τη σημερινή ημερομηνία.',
   }).optional(),
   startDate: z.string().register(z.globalRegistry, {
-    description: 'Start date for analytics range (ISO format: YYYY-MM-DD). If not provided, includes all historical data.',
+    description: 'Ημερομηνία έναρξης για το εύρος αναλυτικών (μορφή ISO: YYYY-MM-DD). Αν δεν δοθεί, συμπεριλαμβάνει όλα τα ιστορικά δεδομένα.',
   }).optional(),
 })
 
@@ -15234,7 +15388,7 @@ export const zApiV1SearchAnalyticsRetrieveResponse = zSearchAnalyticsResponse
 
 export const zApiV1SearchBlogPostRetrieveQuery = z.object({
   languageCode: z.string().register(z.globalRegistry, {
-    description: 'Language code to filter results (e.g., \'en\', \'el\', \'de\'). If not provided, searches all languages.',
+    description: 'Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. \'en\', \'el\', \'de\'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.',
   }).optional(),
   limit: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15253,7 +15407,7 @@ export const zApiV1SearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse
 
 export const zApiV1SearchFederatedRetrieveQuery = z.object({
   languageCode: z.string().register(z.globalRegistry, {
-    description: 'Language code to filter results (e.g., \'en\', \'el\', \'de\'). If not provided, searches all languages.',
+    description: 'Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. \'en\', \'el\', \'de\'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.',
   }).optional(),
   limit: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15272,16 +15426,16 @@ export const zApiV1SearchFederatedRetrieveResponse = zFederatedSearchResponse
 
 export const zApiV1SearchProductRetrieveQuery = z.object({
   attributeValues: z.string().register(z.globalRegistry, {
-    description: 'Comma-separated attribute value IDs (attribute_values IN [ids])',
+    description: 'ID τιμών χαρακτηριστικών διαχωρισμένα με κόμμα (attribute_values IN [ids])',
   }).optional(),
   categories: z.string().register(z.globalRegistry, {
-    description: 'Comma-separated category IDs (category IN [ids])',
+    description: 'ID κατηγοριών διαχωρισμένα με κόμμα (category IN [ids])',
   }).optional(),
   facets: z.string().register(z.globalRegistry, {
-    description: 'Comma-separated facet fields for counts and stats',
+    description: 'Πεδία facet διαχωρισμένα με κόμμα για πλήθη και στατιστικά',
   }).optional(),
   languageCode: z.string().register(z.globalRegistry, {
-    description: 'Language code to filter results (e.g., \'en\', \'el\', \'de\'). If not provided, searches all languages.',
+    description: 'Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. \'en\', \'el\', \'de\'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.',
   }).optional(),
   likesMin: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15304,10 +15458,10 @@ export const zApiV1SearchProductRetrieveQuery = z.object({
     z.number(),
   ]).optional(),
   query: z.string().register(z.globalRegistry, {
-    description: 'Full-text search query (empty for no search filter)',
+    description: 'Ερώτημα αναζήτησης πλήρους κειμένου (κενό για χωρίς φίλτρο αναζήτησης)',
   }).optional(),
   sort: z.string().register(z.globalRegistry, {
-    description: 'Sort field (finalPrice, -finalPrice, -likesCount, -viewCount, -createdAt)',
+    description: 'Πεδίο ταξινόμησης (finalPrice, -finalPrice, -likesCount, -viewCount, -createdAt)',
   }).optional(),
   viewsMin: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15319,10 +15473,10 @@ export const zApiV1SearchProductRetrieveResponse = zProductMeiliSearchResponse
 
 export const zListTrendingSearchesQuery = z.object({
   contentType: z.string().register(z.globalRegistry, {
-    description: 'Filter by content type: product, blog_post, federated. Defaults to product.',
+    description: 'Φίλτρο ανά τύπο περιεχομένου: product, blog_post, federated. Προεπιλογή product.',
   }).optional(),
   languageCode: z.string().register(z.globalRegistry, {
-    description: 'Filter queries by language (e.g. \'el\').',
+    description: 'Φίλτρο ερωτημάτων ανά γλώσσα (π.χ. \'el\').',
   }).optional(),
   limit: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15336,7 +15490,7 @@ export const zApiV1SettingsListResponse = z.array(zSetting)
 
 export const zApiV1SettingsGetRetrieveQuery = z.object({
   key: z.string().register(z.globalRegistry, {
-    description: 'Setting key name (e.g., CHECKOUT_SHIPPING_PRICE)',
+    description: 'Όνομα κλειδιού ρύθμισης (π.χ. CHECKOUT_SHIPPING_PRICE)',
   }),
 })
 
@@ -15425,14 +15579,14 @@ export const zFindNearestAcsStationsResponse = z.array(zAcsStation).register(z.g
 
 export const zListBoxNowLockerQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   languageCode: z.enum([
     'de',
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   ordering: z.string().regex(/^(?:externalId|\-externalId|postalCode|\-postalCode|lastSyncedAt|\-lastSyncedAt|createdAt|\-createdAt)(?:,(?:externalId|\-externalId|postalCode|\-postalCode|lastSyncedAt|\-lastSyncedAt|createdAt|\-createdAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: externalId, -externalId, postalCode, -postalCode, lastSyncedAt, -lastSyncedAt, createdAt, -createdAt',
@@ -15472,7 +15626,7 @@ export const zRetrieveBoxNowLockerQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15539,10 +15693,10 @@ export const zListTagQuery = z.object({
     z.boolean(),
   ]).optional(),
   contentType: z.string().register(z.globalRegistry, {
-    description: 'Filter tags used for specific content type',
+    description: 'Φίλτρο ετικετών που χρησιμοποιούνται για συγκεκριμένο τύπο περιεχομένου',
   }).optional(),
   contentType_AppLabel: z.string().register(z.globalRegistry, {
-    description: 'Filter tags used for content from specific app',
+    description: 'Φίλτρο ετικετών που χρησιμοποιούνται για περιεχόμενο από συγκεκριμένη εφαρμογή',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
@@ -15554,7 +15708,7 @@ export const zListTagQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   hasLabel: z.union([
     z.literal('true'),
@@ -15576,25 +15730,25 @@ export const zListTagQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
   label: z.string().register(z.globalRegistry, {
-    description: 'Filter by tag label (partial match)',
+    description: 'Φίλτρο ανά ετικέτα (μερική αντιστοίχιση)',
   }).optional(),
   label_Exact: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά ακριβή ετικέτα',
   }).optional(),
   label_Startswith: z.string().register(z.globalRegistry, {
-    description: 'Filter tags with labels starting with',
+    description: 'Φίλτρο ετικετών με ετικέτα που ξεκινά με',
   }).optional(),
   languageCode: z.enum([
     'de',
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   maxUsageCount: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -15683,7 +15837,7 @@ export const zCreateTagQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15716,7 +15870,7 @@ export const zRetrieveTagQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15737,7 +15891,7 @@ export const zPartialUpdateTagQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15758,7 +15912,7 @@ export const zUpdateTagQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15781,7 +15935,7 @@ export const zListTaggedItemQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15789,7 +15943,7 @@ export const zListTaggedItemQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -15798,7 +15952,7 @@ export const zListTaggedItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   objectId: z.union([
     z.string().regex(/^-?\d+$/),
@@ -15806,7 +15960,7 @@ export const zListTaggedItemQuery = z.object({
   ]).optional(),
   objectId_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int().gte(0).lte(2147483647)),
   ]).optional(),
@@ -15846,7 +16000,7 @@ export const zListTaggedItemQuery = z.object({
     z.boolean(),
   ]).optional(),
   tag_Label: z.string().register(z.globalRegistry, {
-    description: 'Filter by tag label (partial match)',
+    description: 'Φίλτρο ανά ετικέτα (μερική αντιστοίχιση)',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items updated after this date',
@@ -15870,7 +16024,7 @@ export const zCreateTaggedItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15903,7 +16057,7 @@ export const zRetrieveTaggedItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15924,7 +16078,7 @@ export const zPartialUpdateTaggedItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15945,7 +16099,7 @@ export const zUpdateTaggedItemQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -15972,14 +16126,14 @@ export const zApiV1TenantResolveRetrieveResponse = zTenantConfig
 
 export const zListUserAccountQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   languageCode: z.enum([
     'de',
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
@@ -16017,25 +16171,11 @@ export const zCreateUserAccountQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
 export const zCreateUserAccountResponse = zUserDetails
-
-export const zDestroyUserAccountPath = z.object({
-  id: z.union([
-    z.string().regex(/^-?\d+$/),
-    z.int(),
-  ]),
-})
-
-/**
- * No response body
- */
-export const zDestroyUserAccountResponse = z.void().register(z.globalRegistry, {
-  description: 'No response body',
-})
 
 export const zRetrieveUserAccountPath = z.object({
   id: z.union([
@@ -16050,7 +16190,7 @@ export const zRetrieveUserAccountQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -16071,7 +16211,7 @@ export const zPartialUpdateUserAccountQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -16092,7 +16232,7 @@ export const zUpdateUserAccountQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -16346,17 +16486,17 @@ export const zRequestUserAccountDataExportResponse = zUserDataExport
 
 export const zListUserAddressQuery = z.object({
   city: z.string().register(z.globalRegistry, {
-    description: 'Filter by city name (partial match)',
+    description: 'Φίλτρο ανά όνομα πόλης (μερική αντιστοίχιση)',
   }).optional(),
   city_Icontains: z.string().optional(),
   country: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά alpha_2 κωδικό χώρας',
   }).optional(),
   countryCode: z.string().register(z.globalRegistry, {
-    description: 'Filter by country code (e.g., \'US\', \'CA\')',
+    description: 'Φίλτρο ανά κωδικό χώρας (π.χ. \'US\', \'CA\')',
   }).optional(),
   countryName: z.string().register(z.globalRegistry, {
-    description: 'Filter by country name (partial match)',
+    description: 'Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created after this date',
@@ -16368,10 +16508,10 @@ export const zListUserAddressQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   firstName: z.string().register(z.globalRegistry, {
-    description: 'Filter by first name (partial match)',
+    description: 'Φίλτρο ανά όνομα (μερική αντιστοίχιση)',
   }).optional(),
   firstName_Icontains: z.string().optional(),
   floor: z.enum([
@@ -16388,7 +16528,7 @@ export const zListUserAddressQuery = z.object({
     description: 'Φίλτρο ανά όροφο',
   }).optional(),
   fullName: z.string().register(z.globalRegistry, {
-    description: 'Filter by full name (first + last name)',
+    description: 'Φίλτρο ανά πλήρες όνομα (όνομα + επώνυμο)',
   }).optional(),
   hasNotes: z.union([
     z.literal('true'),
@@ -16403,7 +16543,7 @@ export const zListUserAddressQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -16419,14 +16559,14 @@ export const zListUserAddressQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   lastName: z.string().register(z.globalRegistry, {
-    description: 'Filter by last name (partial match)',
+    description: 'Φίλτρο ανά επώνυμο (μερική αντιστοίχιση)',
   }).optional(),
   lastName_Icontains: z.string().optional(),
   locationType: z.string().register(z.globalRegistry, {
-    description: 'Filter by location type (exact match, case insensitive)',
+    description: 'Φίλτρο ανά τύπο τοποθεσίας (ακριβής αντιστοίχιση, χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   locationType_Icontains: z.string().optional(),
   locationTypeContains: z.string().register(z.globalRegistry, {
@@ -16454,23 +16594,23 @@ export const zListUserAddressQuery = z.object({
     description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
   phone: z.string().register(z.globalRegistry, {
-    description: 'Filter by phone number (partial match)',
+    description: 'Φίλτρο ανά αριθμό τηλεφώνου (μερική αντιστοίχιση)',
   }).optional(),
   phone_Icontains: z.string().optional(),
   region: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά αλφαριθμητικό κωδικό περιφέρειας',
   }).optional(),
   regionCode: z.string().register(z.globalRegistry, {
-    description: 'Filter by region code',
+    description: 'Φίλτρο ανά κωδικό περιφέρειας',
   }).optional(),
   regionName: z.string().register(z.globalRegistry, {
-    description: 'Filter by region name (partial match)',
+    description: 'Φίλτρο ανά όνομα περιφέρειας (μερική αντιστοίχιση)',
   }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
   street: z.string().register(z.globalRegistry, {
-    description: 'Filter by street name (partial match)',
+    description: 'Φίλτρο ανά όνομα οδού (μερική αντιστοίχιση)',
   }).optional(),
   street_Icontains: z.string().optional(),
   streetNumber: z.string().register(z.globalRegistry, {
@@ -16490,11 +16630,11 @@ export const zListUserAddressQuery = z.object({
   }).optional(),
   uuid: z.uuid().optional(),
   zipcode: z.string().register(z.globalRegistry, {
-    description: 'Filter by zipcode (partial match)',
+    description: 'Φίλτρο ανά ταχυδρομικό κώδικα (μερική αντιστοίχιση)',
   }).optional(),
   zipcode_Icontains: z.string().optional(),
   zipcodeExact: z.string().register(z.globalRegistry, {
-    description: 'Filter by exact zipcode',
+    description: 'Φίλτρο ανά ακριβή ταχυδρομικό κώδικα',
   }).optional(),
 })
 
@@ -16508,7 +16648,7 @@ export const zCreateUserAddressQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -16541,7 +16681,7 @@ export const zRetrieveUserAddressQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -16562,7 +16702,7 @@ export const zPartialUpdateUserAddressQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -16583,7 +16723,7 @@ export const zUpdateUserAddressQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -16613,7 +16753,7 @@ export const zListUserSubscriptionQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   hasMetadata: z.union([
     z.literal('true'),
@@ -16628,7 +16768,7 @@ export const zListUserSubscriptionQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -16644,7 +16784,7 @@ export const zListUserSubscriptionQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   ordering: z.string().regex(/^(?:subscribedAt|\-subscribedAt|unsubscribedAt|\-unsubscribedAt|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|topic_Category|\-topic_Category)(?:,(?:subscribedAt|\-subscribedAt|unsubscribedAt|\-unsubscribedAt|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|topic_Category|\-topic_Category))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: subscribedAt, -subscribedAt, unsubscribedAt, -unsubscribedAt, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, topic_Category, -topic_Category',
@@ -16676,16 +16816,16 @@ export const zListUserSubscriptionQuery = z.object({
     'PENDING',
     'UNSUBSCRIBED',
   ]).register(z.globalRegistry, {
-    description: 'Φίλτρο ανά κατάσταση συνδρομής\n\n* `ACTIVE` - Ενεργή\n* `PENDING` - Pending Confirmation\n* `UNSUBSCRIBED` - Διαγραφή\n* `BOUNCED` - Επιστράφηκε',
+    description: 'Φίλτρο ανά κατάσταση συνδρομής\n\n* `ACTIVE` - Ενεργή\n* `PENDING` - Εκκρεμεί Επιβεβαίωση\n* `UNSUBSCRIBED` - Διαγραφή\n* `BOUNCED` - Επιστράφηκε',
   }).optional(),
   subscribedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter subscriptions created after this date',
+    description: 'Φίλτρο εγγραφών που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   subscribedAt_Date: z.iso.date().optional(),
   subscribedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   subscribedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   subscribedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter subscriptions created before this date',
+    description: 'Φίλτρο εγγραφών που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   topic: z.union([
     z.string().regex(/^-?\d+$/),
@@ -16703,25 +16843,25 @@ export const zListUserSubscriptionQuery = z.object({
     description: 'Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
   }).optional(),
   topicDescription: z.string().register(z.globalRegistry, {
-    description: 'Filter by topic description (partial match)',
+    description: 'Φίλτρο ανά περιγραφή θέματος (μερική αντιστοίχιση)',
   }).optional(),
   topicName: z.string().register(z.globalRegistry, {
-    description: 'Filter by topic name (partial match)',
+    description: 'Φίλτρο ανά όνομα θέματος (μερική αντιστοίχιση)',
   }).optional(),
   topicSlug: z.string().register(z.globalRegistry, {
-    description: 'Filter by topic slug (partial match)',
+    description: 'Φίλτρο ανά slug θέματος (μερική αντιστοίχιση)',
   }).optional(),
   topicSlugExact: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά ακριβές slug θέματος',
   }).optional(),
   unsubscribedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter subscriptions unsubscribed after this date',
+    description: 'Φίλτρο εγγραφών με διαγραφή μετά από αυτή την ημερομηνία',
   }).optional(),
   unsubscribedAt_Date: z.iso.date().optional(),
   unsubscribedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   unsubscribedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   unsubscribedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter subscriptions unsubscribed before this date',
+    description: 'Φίλτρο εγγραφών με διαγραφή πριν από αυτή την ημερομηνία',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items updated after this date',
@@ -16745,7 +16885,7 @@ export const zCreateUserSubscriptionQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -16778,7 +16918,7 @@ export const zRetrieveUserSubscriptionQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -16799,7 +16939,7 @@ export const zPartialUpdateUserSubscriptionQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -16820,7 +16960,7 @@ export const zUpdateUserSubscriptionQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -16873,10 +17013,10 @@ export const zListSubscriptionTopicQuery = z.object({
     description: 'Filter items created before this date',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
-    description: 'Cursor for pagination',
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
   description: z.string().register(z.globalRegistry, {
-    description: 'Filter by description (partial match)',
+    description: 'Φίλτρο ανά περιγραφή (μερική αντιστοίχιση)',
   }).optional(),
   hasSubscribers: z.union([
     z.literal('true'),
@@ -16891,7 +17031,7 @@ export const zListSubscriptionTopicQuery = z.object({
   ]).optional(),
   id_In: z.union([
     z.string().register(z.globalRegistry, {
-      description: 'Comma-separated values',
+      description: 'Τιμές διαχωρισμένες με κόμμα',
     }),
     z.array(z.int()),
   ]).optional(),
@@ -16914,7 +17054,7 @@ export const zListSubscriptionTopicQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
   name: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά όνομα (μερική αντιστοίχιση)',
@@ -16979,7 +17119,7 @@ export const zCreateSubscriptionTopicQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -17012,7 +17152,7 @@ export const zRetrieveSubscriptionTopicQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -17033,7 +17173,7 @@ export const zPartialUpdateSubscriptionTopicQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -17054,7 +17194,7 @@ export const zUpdateSubscriptionTopicQuery = z.object({
     'el',
     'en',
   ]).register(z.globalRegistry, {
-    description: 'Language code for translations (el, en, de)',
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
 
@@ -17085,20 +17225,17 @@ export const zGetMySubscriptionTopicsResponse = z.object({
 
 export const zUnsubscribeFromAllViaLinkPath = z.object({
   token: z.string(),
-  uidb64: z.string(),
 })
 
 export const zUnsubscribeFromAllViaLinkResponse = zUnsubscribeResponse
 
 export const zUnsubscribeFromAllOneClickPath = z.object({
   token: z.string(),
-  uidb64: z.string(),
 })
 
 export const zUnsubscribeFromTopicViaLinkPath = z.object({
   token: z.string(),
   topicSlug: z.string(),
-  uidb64: z.string(),
 })
 
 export const zUnsubscribeFromTopicViaLinkResponse = zUnsubscribeResponse
@@ -17106,17 +17243,8 @@ export const zUnsubscribeFromTopicViaLinkResponse = zUnsubscribeResponse
 export const zUnsubscribeFromTopicOneClickPath = z.object({
   token: z.string(),
   topicSlug: z.string(),
-  uidb64: z.string(),
 })
 
 export const zCreateWebSocketTicketResponse = zWebSocketTicketResponse
 
 export const zBoxnowWebhookBody = zBoxNowWebhookEnvelopeRequest
-
-export const zResolveVivaOrderCodeQuery = z.object({
-  orderCode: z.string().register(z.globalRegistry, {
-    description: 'Viva Wallet ``OrderCode`` returned to the customer after a successful checkout.',
-  }),
-})
-
-export const zResolveVivaOrderCodeResponse2 = zResolveVivaOrderCodeResponse

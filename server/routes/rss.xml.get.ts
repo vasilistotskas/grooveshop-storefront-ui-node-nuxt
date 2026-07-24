@@ -4,10 +4,16 @@ import type { SupportedLocale } from '~~/i18n/locales'
 
 const RSS_CACHE_AGE = 60 * 60
 
+// Casts below: @hey-api/openapi-ts's zod plugin marks OpenAPI `readOnly`
+// array properties (here, `children`) as `.readonly()`, so the zod-inferred
+// type has `readonly X[]`; the typescript plugin instead marks the
+// *property* readonly and keeps the array itself mutable. The two
+// generated artifacts disagree structurally on this one point — the value
+// is identical at runtime, so the cast is safe.
 const cachedBlogCategory = defineCachedFunction(
   async (_tenantKey: string, url: string): Promise<BlogCategoryDetail> => {
     const raw = await $fetch(url, { method: 'GET' })
-    return parseDataAs(raw, zBlogCategoryDetail)
+    return await parseDataAs(raw, zBlogCategoryDetail) as BlogCategoryDetail
   },
   {
     maxAge: RSS_CACHE_AGE,
@@ -19,7 +25,7 @@ const cachedBlogCategory = defineCachedFunction(
 const cachedProductCategoryDetail = defineCachedFunction(
   async (_tenantKey: string, url: string): Promise<ProductCategoryDetail> => {
     const raw = await $fetch(url, { method: 'GET' })
-    return parseDataAs(raw, zProductCategoryDetail)
+    return await parseDataAs(raw, zProductCategoryDetail) as ProductCategoryDetail
   },
   {
     maxAge: RSS_CACHE_AGE,

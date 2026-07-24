@@ -35,6 +35,7 @@ function makeTenantConfig(overrides: Partial<TenantConfig> = {}): TenantConfig {
     stripePublishableKey: '',
     allowedCspSources: [],
     metaPixelId: '',
+    tiktokPixelId: '',
     gaTrackingId: '',
     totpIssuer: '',
     turnstileSiteKey: '',
