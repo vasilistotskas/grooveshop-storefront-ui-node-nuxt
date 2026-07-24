@@ -349,7 +349,7 @@ export async function useCheckoutForm() {
       }
     }
     catch (error) {
-      log.warn('checkout', 'pay-way refetch failed', { error })
+      log.warn({ tag: 'checkout', message: 'pay-way refetch failed', error })
     }
   })
 
@@ -417,11 +417,11 @@ export async function useCheckoutForm() {
       )
     }
     catch (error: unknown) {
-      log.warn(
-        'checkout/shippingOptions',
-        'Failed to fetch live options — falling back to flat-rate settings',
-        { error: getErrorDetail(error) },
-      )
+      log.warn({
+        tag: 'checkout/shippingOptions',
+        message: 'Failed to fetch live options — falling back to flat-rate settings',
+        error: getErrorDetail(error),
+      })
       shippingOptions.value = []
     }
   }
@@ -768,7 +768,7 @@ export async function useCheckoutForm() {
           return response.results ?? []
         }
         catch (error) {
-          log.warn('checkout', 'saved addresses fetch failed', { error })
+          log.warn({ tag: 'checkout', message: 'saved addresses fetch failed', error })
           return []
         }
       },

@@ -40,7 +40,7 @@ Coverage uses v8 provider, reports to `./coverage` in text/html/lcov/json format
 
 ### Nuxt Test Environment Gotchas
 
-- **Never `vi.stubGlobal('$fetch', mock)` at module level** — it runs before Nuxt bootstraps, breaking `@nuxtjs/i18n` locale loading (`$i18n` becomes undefined). Use `beforeAll(() => vi.stubGlobal('$fetch', mock))` + `afterAll(() => vi.unstubAllGlobals())` instead.
+- **`vi.stubGlobal('$fetch', mock)` does not work at all since Nuxt 4.5** — `$fetch` is a real auto-import in user code (`export { $fetch } from '#build/fetch.mjs'`), so the composable's import binding bypasses globals entirely. Mock it like any other auto-import: `const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))` + `mockNuxtImport('$fetch', () => mockFetch)` at module level. Caveat: this mock is active during Nuxt bootstrap (`/api/_auth/session`, `/api/_allauth/app/v1/config`, `/api/cart`) — if the suite needs `$i18n` or store setup, give the mock a default implementation `vi.fn(() => Promise.resolve({}))` so the plugin chain doesn't crash.
 - **Router mocks need full API surface** — `mockNuxtImport('useRouter', ...)` with incomplete mocks (missing `beforeResolve`, `onError`, `isReady`, `resolve`) breaks Nuxt app initialization. Include all Vue Router methods in mock objects.
 - **i18n returns real Greek translations in nuxt tests** — `$i18n.t('key')` returns translated text (e.g. `'Αναζήτηση'`), not raw keys. Use `expect.any(String)` for translated text assertions.
 - **`test/fixtures/setup/localStorage.ts`** — Required setupFile that provides `Storage` implementation for happy-dom (nuxt-auth-utils needs it).
@@ -93,7 +93,7 @@ The Nuxt server acts as a **proxy** to the Django backend. Client-side code call
 
 Uses `evlog/nuxt` module for structured logging. `log` is auto-imported on both client and server (Nitro).
 
-- **Simple logging**: `log.info('tag', 'message', {context})`, `log.error({ action: 'name', error })`, `log.warn('tag', 'message')`
+- **Simple logging**: `log.info('tag', 'message')` (2 args max — evlog ≥2.22 silently drops a third context arg), or the wide-event object form for context: `log.info({ tag: 'tag', message: 'message', ...context })`, `log.error({ action: 'name', error })`
 - **Wide events** (server only): `const wideLog = useLogger(event)` → `wideLog.set({ key: value })` — one rich event per request, auto-emitted at request end
 - **Enrichers**: `server/plugins/evlog-enrichers.ts` (user-agent, geo, request size, trace context), `server/middleware/2.evlog-auth.ts` (auth session user ID via `useLogger`)
 - **Sampling**: Production-only via `$production.evlog.sampling` in `nuxt.config.ts`

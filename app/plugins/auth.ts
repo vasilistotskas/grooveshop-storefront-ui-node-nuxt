@@ -57,7 +57,7 @@ export default defineNuxtPlugin({
         userInitiatedLogout.value = true
       }
 
-      log.info('auth', 'State changed', { event: newEvent, explicit: !!explicit })
+      log.info({ tag: 'auth', message: 'State changed', event: newEvent, explicit: !!explicit })
 
       // Dispatch directly inside the hook body — NOT via watch(authEvent).
       // Vue's `watch` collapses consecutive equal values, so two same-event
@@ -123,7 +123,7 @@ export default defineNuxtPlugin({
             })
           }
           catch (toastError) {
-            log.warn('auth', 'Failed to surface session-expired toast', { error: toastError })
+            log.warn({ tag: 'auth', message: 'Failed to surface session-expired toast', error: toastError })
           }
         }
         return await navigateToUrl({ path: RedirectToURLs.LOGOUT_REDIRECT_URL })
@@ -185,7 +185,7 @@ export default defineNuxtPlugin({
       try {
         const localePath = useLocalePath()
         const url = localePath(path)
-        log.info('auth', 'Navigating to URL', { url })
+        log.info({ tag: 'auth', message: 'Navigating to URL', url })
         return nuxtApp.runWithContext(() => navigateTo({ path: url, query }, { replace }))
       }
       catch (error) {

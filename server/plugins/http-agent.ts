@@ -41,5 +41,5 @@ export default defineNitroPlugin((nitroApp) => {
   // keep-alive sockets don't prevent the build process from exiting.
   nitroApp.hooks.hookOnce('close', () => agent.close())
 
-  log.info('http-agent', 'Connection pooling enabled', { keepAlive: 30, connections: 100, pipelining: 1 })
+  log.info({ tag: 'http-agent', message: 'Connection pooling enabled', keepAlive: 30, connections: 100, pipelining: 1 })
 })

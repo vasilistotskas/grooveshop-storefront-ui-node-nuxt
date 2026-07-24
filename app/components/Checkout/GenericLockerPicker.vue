@@ -84,7 +84,7 @@ async function runSearch(): Promise<void> {
   }
   catch (err: unknown) {
     if (err instanceof DOMException && err.name === 'AbortError') return
-    log.warn('shipping/picker', 'locker search failed', { error: err })
+    log.warn({ tag: 'shipping/picker', message: 'locker search failed', error: err })
     errorMessage.value = t('shipping.locker_picker.error')
     stations.value = []
   }
@@ -136,7 +136,7 @@ async function loadAllLockersForMap(): Promise<void> {
   }
   catch (err: unknown) {
     if (err instanceof DOMException && err.name === 'AbortError') return
-    log.warn('shipping/picker', 'bulk locker fetch failed', { error: err })
+    log.warn({ tag: 'shipping/picker', message: 'bulk locker fetch failed', error: err })
     mapError.value = t('shipping.locker_picker.error')
   }
   finally {

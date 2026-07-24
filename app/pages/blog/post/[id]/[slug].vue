@@ -163,8 +163,8 @@ const items = computed(() => [
     to: localePath({
       name: 'blog-post-id-slug',
       params: {
-        id: blogPostId.value,
-        slug: blogPost.value?.slug,
+        id: blogPostId.value ?? '',
+        slug: blogPost.value?.slug ?? '',
       },
     }),
     label: blogPostTitle.value,

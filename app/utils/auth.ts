@@ -30,7 +30,7 @@ export const onAllAuthResponse = async (
   meta: AuthChangeMeta = {},
 ) => {
   if (!response || !response._data) return
-  log.info('auth', 'onAllAuthResponse', { status: response.status })
+  log.info({ tag: 'auth', message: 'onAllAuthResponse', status: response.status })
   // Only fire auth:change for responses that carry auth state (meta.is_authenticated).
   // Some endpoints (e.g. TOTP SVG) return `meta` with domain-specific fields (secret,
   // totp_svg) but no `is_authenticated` — treating those as auth state would make
@@ -47,7 +47,7 @@ export const onAllAuthResponseError = async (
   meta: AuthChangeMeta = {},
 ) => {
   if (!response || !response._data) return
-  log.info('auth', 'onAllAuthResponseError', { status: response.status })
+  log.info({ tag: 'auth', message: 'onAllAuthResponseError', status: response.status })
   if ([401, 410].includes(response.status) && response._data.data) {
     log.info('auth', 'Status includes 401 or 410')
     await callAuthChangeHook(response._data.data, meta)
@@ -70,7 +70,7 @@ export const authInfo = (
   const requiresReauthentication = isAuthenticated && response.status === 401
   const pendingFlow = 'data' in response ? response.data?.flows?.find(flow => flow.is_pending) ?? null : null
   const user = isAuthenticated && isAllAuthResponseSuccess(response) ? response.data.user : null
-  log.info('auth', 'Auth info', { isAuthenticated, requiresReauthentication, hasPendingFlow: !!pendingFlow })
+  log.info({ tag: 'auth', message: 'Auth info', isAuthenticated, requiresReauthentication, hasPendingFlow: !!pendingFlow })
   return {
     isAuthenticated,
     requiresReauthentication,
@@ -83,7 +83,7 @@ export const determineAuthChangeEvent = (
   newAuthState: AllAuthResponse | AllAuthResponseError,
   previousAuthState?: AllAuthResponse | AllAuthResponseError | null,
 ): AuthChangeEventType | null => {
-  log.info('auth', 'Determining auth change event', { newStatus: newAuthState.status, previousStatus: previousAuthState?.status })
+  log.info({ tag: 'auth', message: 'Determining auth change event', newStatus: newAuthState.status, previousStatus: previousAuthState?.status })
 
   const currentAuthInfo = authInfo(newAuthState)
   const previousAuthInfo = authInfo(previousAuthState)
@@ -262,7 +262,7 @@ export function pendingFlowRouteNameFromError(error: unknown) {
     return pathForFlow(pendingFlow)
   }
   catch {
-    log.warn('auth', 'Pending flow has no known route', { flow: pendingFlow.id })
+    log.warn({ tag: 'auth', message: 'Pending flow has no known route', flow: pendingFlow.id })
     return null
   }
 }
@@ -291,12 +291,12 @@ export async function tryAdvanceToPendingFlow(
   if (router.currentRoute.value.path === target) {
     // The auth:change hook already landed us on the flow page — nothing to
     // navigate, but this IS an advance, not an error.
-    log.info('auth', 'Pending flow already reached via auth:change hook', { route: routeName })
+    log.info({ tag: 'auth', message: 'Pending flow already reached via auth:change hook', route: routeName })
     return true
   }
   const rawNext = router.currentRoute.value.query.next?.toString()
   const safeNext = isSafeRelativePath(rawNext) ? rawNext : undefined
-  log.info('auth', 'Advancing to pending flow', { route: routeName })
+  log.info({ tag: 'auth', message: 'Advancing to pending flow', route: routeName })
   await navigateTo({ path: target, query: safeNext ? { next: safeNext } : undefined })
   return true
 }
@@ -318,12 +318,12 @@ export const navigateToPendingFlow = async (
   const nuxtApp = useNuxtApp()
   const localePath = useLocalePath()
   const path = pathForPendingFlow(response)
-  log.info('auth', 'Navigating to pending flow', { path })
+  log.info({ tag: 'auth', message: 'Navigating to pending flow', path })
   if (path) {
     const rawNext = useRouter().currentRoute.value.query.next?.toString()
     const safeNext = isSafeRelativePath(rawNext) ? rawNext : undefined
     const url = withQuery(localePath(path), { next: safeNext })
-    log.info('auth', 'Navigating to URL', { url })
+    log.info({ tag: 'auth', message: 'Navigating to URL', url })
     return nuxtApp.runWithContext(() => navigateTo(url))
   }
   else {

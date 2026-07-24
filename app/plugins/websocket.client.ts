@@ -86,11 +86,11 @@ export default defineNuxtPlugin({
             log.info('ws', 'Connected')
           },
           onDisconnected: (_wsConn, event) => {
-            log.info('ws', 'Disconnected', { reason: event?.reason })
+            log.info({ tag: 'ws', message: 'Disconnected', reason: event?.reason })
             if (!loggedIn.value) return
             const delay = Math.min(1000 * 2 ** reconnectAttempt, 30000)
             reconnectAttempt++
-            log.info('ws', 'Reconnecting', { attempt: reconnectAttempt, delayMs: delay })
+            log.info({ tag: 'ws', message: 'Reconnecting', attempt: reconnectAttempt, delayMs: delay })
             reconnectTimer = setTimeout(() => {
               if (loggedIn.value) {
                 initializeWebSocket()

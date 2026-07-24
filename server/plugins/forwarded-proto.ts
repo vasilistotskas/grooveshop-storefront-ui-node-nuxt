@@ -85,5 +85,5 @@ export default defineNitroPlugin(() => {
     },
   }) as typeof globalThis.$fetch
 
-  log.info('forwarded-proto', 'forwarded-proto interceptor active', { origins: internalOrigins, publicHost })
+  log.info({ tag: 'forwarded-proto', message: 'forwarded-proto interceptor active', origins: internalOrigins, publicHost })
 })

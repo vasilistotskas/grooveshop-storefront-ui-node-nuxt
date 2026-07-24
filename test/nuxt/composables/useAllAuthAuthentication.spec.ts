@@ -1,18 +1,23 @@
 import { describe, it, expect, beforeAll, beforeEach, afterAll, vi } from 'vitest'
+import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+
+// Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
+// `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
+// mocked via mockNuxtImport like any other auto-import.
+const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
+
+mockNuxtImport('$fetch', () => mockFetch)
 
 describe('useAllAuthAuthentication', () => {
-  let mockFetch: ReturnType<typeof vi.fn>
   let mockUseRequestHeaders: ReturnType<typeof vi.fn>
   let mockOnAllAuthResponse: ReturnType<typeof vi.fn>
   let mockOnAllAuthResponseError: ReturnType<typeof vi.fn>
 
   beforeAll(() => {
-    mockFetch = vi.fn()
     mockUseRequestHeaders = vi.fn(() => ({ 'Content-Type': 'application/json' }))
     mockOnAllAuthResponse = vi.fn()
     mockOnAllAuthResponseError = vi.fn()
 
-    vi.stubGlobal('$fetch', mockFetch)
     vi.stubGlobal('useRequestHeaders', mockUseRequestHeaders)
     vi.stubGlobal('onAllAuthResponse', mockOnAllAuthResponse)
     vi.stubGlobal('onAllAuthResponseError', mockOnAllAuthResponseError)

@@ -85,11 +85,11 @@ async function syncAllAuthSessionFromError(error: unknown, event: H3Event) {
   const pendingFlow = pendingFlowOf(error)
   // Distinguish a 401 that is really allauth's "advance to next step" signal
   // (login_by_code code sent, mfa pending) from a genuine auth failure.
-  log.info(
-    'auth',
-    `allauth response: status ${error.data.status}`,
-    pendingFlow ? { pendingFlow: pendingFlow.id } : {},
-  )
+  log.info({
+    tag: 'auth',
+    message: `allauth response: status ${error.data.status}`,
+    ...(pendingFlow ? { pendingFlow: pendingFlow.id } : {}),
+  })
 
   if (error.data.status === 410) {
     log.info('auth', 'Session expired (410), clearing user session')

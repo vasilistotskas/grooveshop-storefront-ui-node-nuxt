@@ -22,6 +22,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
 // ── Hoist mocks so they are available inside mockNuxtImport factories ──────
 const {
+  mockFetch,
   mockReserveStock,
   mockReleaseReservations,
   mockCreatePaymentIntentFromCart,
@@ -32,6 +33,10 @@ const {
   mockTikTokPixelImpl,
   mockGA4Impl,
 } = vi.hoisted(() => ({
+  // Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
+  // `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
+  // mocked via mockNuxtImport like any other auto-import.
+  mockFetch: vi.fn(),
   mockReserveStock: vi.fn(),
   mockReleaseReservations: vi.fn(),
   mockCreatePaymentIntentFromCart: vi.fn(),
@@ -61,6 +66,7 @@ const {
 const mockCartHolder = { value: null as any }
 
 // ── Nuxt auto-import mocks ─────────────────────────────────────────────────
+mockNuxtImport('$fetch', () => mockFetch)
 mockNuxtImport('useRequestHeaders', () => () => ({}))
 mockNuxtImport('useLocalePath', () => () => (route: any) => route)
 mockNuxtImport('navigateTo', () => mockNavigateTo)
@@ -95,11 +101,7 @@ mockNuxtImport('useCookieControl', () => () => ({
   cookiesEnabledIds: { value: [] },
 }))
 
-// ── $fetch stub — in beforeAll so Nuxt init first runs with real $fetch ────
-const mockFetch = vi.fn()
-
 beforeAll(() => {
-  vi.stubGlobal('$fetch', mockFetch)
   vi.stubGlobal('log', {
     info: vi.fn(),
     warn: vi.fn(),

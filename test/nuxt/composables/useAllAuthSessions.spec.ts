@@ -1,6 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 
+// Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
+// `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
+// mocked via mockNuxtImport like any other auto-import.
+const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
+
+mockNuxtImport('$fetch', () => mockFetch)
+
 mockNuxtImport('useRequestHeaders', () => {
   return vi.fn(() => ({}))
 })
@@ -20,8 +27,7 @@ describe('useAllAuthSessions', () => {
 
   describe('getSessions', () => {
     it('should fetch sessions with correct parameters', async () => {
-      const mockFetch = vi.fn().mockResolvedValue({ data: [] })
-      vi.stubGlobal('$fetch', mockFetch)
+      mockFetch.mockResolvedValue({ data: [] })
 
       const { getSessions } = useAllAuthSessions()
       await getSessions()
@@ -36,8 +42,7 @@ describe('useAllAuthSessions', () => {
 
     it('should return sessions data', async () => {
       const mockData = { data: [{ id: 1, device: 'Chrome' }] }
-      const mockFetch = vi.fn().mockResolvedValue(mockData)
-      vi.stubGlobal('$fetch', mockFetch)
+      mockFetch.mockResolvedValue(mockData)
 
       const { getSessions } = useAllAuthSessions()
       const result = await getSessions()
@@ -47,11 +52,10 @@ describe('useAllAuthSessions', () => {
 
     it('should call onAllAuthResponse on successful response', async () => {
       const mockResponse = { data: [] }
-      const mockFetch = vi.fn().mockImplementation(async (url, options) => {
+      mockFetch.mockImplementation(async (url, options) => {
         await options.onResponse({ response: mockResponse })
         return mockResponse
       })
-      vi.stubGlobal('$fetch', mockFetch)
 
       const { getSessions } = useAllAuthSessions()
       await getSessions()
@@ -62,8 +66,7 @@ describe('useAllAuthSessions', () => {
 
   describe('deleteSession', () => {
     it('should delete session with correct parameters', async () => {
-      const mockFetch = vi.fn().mockResolvedValue({ success: true })
-      vi.stubGlobal('$fetch', mockFetch)
+      mockFetch.mockResolvedValue({ success: true })
 
       const { deleteSession } = useAllAuthSessions()
       const body = { sessions: [123] }
@@ -79,8 +82,7 @@ describe('useAllAuthSessions', () => {
 
     it('should return delete result', async () => {
       const mockData = { success: true }
-      const mockFetch = vi.fn().mockResolvedValue(mockData)
-      vi.stubGlobal('$fetch', mockFetch)
+      mockFetch.mockResolvedValue(mockData)
 
       const { deleteSession } = useAllAuthSessions()
       const result = await deleteSession({ sessions: [456] })
@@ -90,11 +92,10 @@ describe('useAllAuthSessions', () => {
 
     it('should call onAllAuthResponse on successful deletion', async () => {
       const mockResponse = { success: true }
-      const mockFetch = vi.fn().mockImplementation(async (url, options) => {
+      mockFetch.mockImplementation(async (url, options) => {
         await options.onResponse({ response: mockResponse })
         return mockResponse
       })
-      vi.stubGlobal('$fetch', mockFetch)
 
       const { deleteSession } = useAllAuthSessions()
       await deleteSession({ sessions: [789] })
@@ -104,11 +105,10 @@ describe('useAllAuthSessions', () => {
 
     it('should call onAllAuthResponseError on error', async () => {
       const mockError = { error: 'Not found' }
-      const mockFetch = vi.fn().mockImplementation(async (url, options) => {
+      mockFetch.mockImplementation(async (url, options) => {
         await options.onResponseError({ response: mockError })
         throw mockError
       })
-      vi.stubGlobal('$fetch', mockFetch)
 
       const { deleteSession } = useAllAuthSessions()
 

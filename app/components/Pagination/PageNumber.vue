@@ -59,16 +59,13 @@ const nextPageUrl = computed(() => {
 })
 
 useHead({
-  link: () => {
-    const links = []
-    if (prevPageUrl.value) {
-      links.push({ rel: 'prev', href: prevPageUrl.value })
-    }
-    if (nextPageUrl.value) {
-      links.push({ rel: 'next', href: nextPageUrl.value })
-    }
-    return links
-  },
+  // Inline array (not an accumulator) so ``rel`` keeps its literal type —
+  // unhead v3 types ``Link`` as a union discriminated by ``rel``. Falsy
+  // entries are dropped by unhead.
+  link: () => [
+    prevPageUrl.value ? { rel: 'prev', href: prevPageUrl.value } : undefined,
+    nextPageUrl.value ? { rel: 'next', href: nextPageUrl.value } : undefined,
+  ],
 })
 
 watch(

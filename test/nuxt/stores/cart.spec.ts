@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeAll, beforeEach, afterAll, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { useCartStore } from '~/stores/cart'
 
@@ -6,6 +6,21 @@ import { useCartStore } from '~/stores/cart'
 // $i18n is provided by @nuxtjs/i18n during Nuxt app initialisation.
 // useRequestHeaders is mocked via mockNuxtImport below.
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+
+// Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
+// `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
+// mocked via mockNuxtImport like any other auto-import.
+//
+// The default `Promise.resolve({})` implementation matters: the mock is
+// active during Nuxt bootstrap (session/config/cart fetches). A bare
+// vi.fn() returns undefined there, which crashes nuxt-auth-utils'
+// session plugin and blocks @nuxtjs/i18n — leaving nuxtApp.$i18n
+// undefined, which the cart store needs.
+const { mockFetch } = vi.hoisted(() => ({
+  mockFetch: vi.fn(() => Promise.resolve({})),
+}))
+
+mockNuxtImport('$fetch', () => mockFetch)
 
 mockNuxtImport('useRequestHeaders', () => () => ({}))
 
@@ -38,19 +53,6 @@ mockNuxtImport('useGA4', () => () => ({
   trackAddToCart: ga4TrackAddToCart,
   trackRemoveFromCart: ga4TrackRemoveFromCart,
 }))
-
-// Stub $fetch in beforeAll (not at module level) so the Nuxt app initialises
-// with the real $fetch — this allows @nuxtjs/i18n to load locale messages and
-// provide $i18n on nuxtApp before tests replace $fetch with the mock.
-const mockFetch = vi.fn()
-
-beforeAll(() => {
-  vi.stubGlobal('$fetch', mockFetch)
-})
-
-afterAll(() => {
-  vi.unstubAllGlobals()
-})
 
 describe('Cart Store', () => {
   let store: ReturnType<typeof useCartStore>

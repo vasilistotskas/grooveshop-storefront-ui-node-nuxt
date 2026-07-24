@@ -101,7 +101,7 @@ const {
       return response?.results?.[0] ?? null
     }
     catch (error) {
-      log.warn('product:notify-me', 'lookup failed', { kind: props.kind, error })
+      log.warn({ tag: 'product:notify-me', message: 'lookup failed', kind: props.kind, error })
       return null
     }
   },
@@ -138,7 +138,7 @@ async function onSubmit() {
   catch (error) {
     const status = (error as { statusCode?: number })?.statusCode
     const isConflict = status === 409
-    log.warn('product:notify-me', 'create failed', { kind: props.kind, status, error })
+    log.warn({ tag: 'product:notify-me', message: 'create failed', kind: props.kind, status, error })
     toast.add({
       title: isConflict ? t('conflict.title') : t('error.title'),
       description: isConflict ? t('conflict.description') : t('error.description'),
@@ -173,7 +173,7 @@ async function cancelAlert() {
     await refreshAlert()
   }
   catch (error) {
-    log.warn('product:notify-me', 'cancel failed', { kind: props.kind, error })
+    log.warn({ tag: 'product:notify-me', message: 'cancel failed', kind: props.kind, error })
     toast.add({
       title: t('cancel_error.title'),
       description: t('cancel_error.description'),

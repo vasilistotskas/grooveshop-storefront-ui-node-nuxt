@@ -115,7 +115,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     let errorTitle = t('form.submit.error.general')
     let errorDescription: string | undefined
 
-    log.info('checkout', 'handleOrderError response', { status: response?.status })
+    log.info({ tag: 'checkout', message: 'handleOrderError response', status: response?.status })
 
     const errorData = response._data || response.data
     // When the upstream returns a non-JSON 5xx (gateway crash, Cloudflare
@@ -273,7 +273,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         })
       })
       .catch((error) => {
-        log.warn('checkout', 'save address failed', { error })
+        log.warn({ tag: 'checkout', message: 'save address failed', error })
         toast.add({
           title: t('form.submit.address_save_failed_title'),
           description: t('form.submit.address_save_failed_description'),
@@ -530,7 +530,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
 
     if (!wasRetry) retryCount.value = 0
 
-    log.info('checkout', 'submit:started', {
+    log.info({
+      tag: 'checkout',
+      message: 'submit:started',
       payWayId: formState.payWayId,
       shippingMethod: formState.shippingMethod,
       hasReservations: reservationIds.value.length > 0,
@@ -581,7 +583,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       // reflects the latest server-side cost before order creation.
       if (refetchShippingSettings) {
         await refetchShippingSettings().catch(err =>
-          log.warn('checkout', 'shipping refetch failed, using cached value', { err }),
+          log.warn({ tag: 'checkout', message: 'shipping refetch failed, using cached value', err }),
         )
       }
 

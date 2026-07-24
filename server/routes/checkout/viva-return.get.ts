@@ -40,7 +40,9 @@ export default defineEventHandler(async (event) => {
 
     const parsed = zVivaReturnLookupResponse.parse(result)
 
-    log.info('vivaReturn', 'resolved order, forwarding to success page', {
+    log.info({
+      tag: 'vivaReturn',
+      message: 'resolved order, forwarding to success page',
       orderId: parsed.id,
       paymentStatus: parsed.paymentStatus,
       via: transactionId ? 't' : 's',
