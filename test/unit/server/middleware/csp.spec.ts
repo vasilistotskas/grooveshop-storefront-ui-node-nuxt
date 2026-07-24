@@ -12,12 +12,12 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 
 const INTERNAL_DJANGO_URL = 'http://backend-service:80'
 
-let handler: (event: { path: string }) => void
+let handler: (event: { path: string, context: Record<string, unknown> }) => void
 let headers: Record<string, string>
 
-function runWith(path: string): Record<string, string> {
+function runWith(path: string, tenant?: Record<string, unknown>): Record<string, string> {
   headers = {}
-  handler({ path })
+  handler({ path, context: tenant ? { tenant } : {} })
   return headers
 }
 

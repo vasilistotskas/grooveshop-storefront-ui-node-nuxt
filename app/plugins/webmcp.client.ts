@@ -29,11 +29,14 @@ export default defineNuxtPlugin(() => {
 
   const router = useRouter()
   const localePath = useLocalePath()
+  const config = useRuntimeConfig()
+  const tenantStore = useTenantStore()
+  const storeName = tenantStore.storeName || (config.public.appTitle as string)
 
   const tools: ToolDefinition[] = [
     {
       name: 'search',
-      description: 'Search the Webside catalog for products, blog posts, or categories matching a query.',
+      description: `Search the ${storeName} catalog for products, blog posts, or categories matching a query.`,
       inputSchema: {
         type: 'object',
         properties: {

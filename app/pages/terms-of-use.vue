@@ -2,7 +2,13 @@
 const { t } = useI18n()
 const localePath = useLocalePath()
 const runtimeConfig = useRuntimeConfig()
+const tenantStore = useTenantStore()
+
+const storeName = computed(
+  () => tenantStore.storeName || (runtimeConfig.public.appTitle as string),
+)
 const siteHost = computed(() => {
+  if (tenantStore.primaryDomain) return tenantStore.primaryDomain
   try {
     return new URL(runtimeConfig.public.baseUrl).host
   }
@@ -118,7 +124,7 @@ definePageMeta({
           <h2>Τροποποιήσεις των όρων</h2>
           <p>
             To {{ siteHost }} διατηρεί το δικαίωμα μονομερούς τροποποίησης των όρων και προϋποθέσεων οποτεδήποτε και
-            χωρίς προειδοποίηση. Το Webside θα αναρτά διαδικτυακά την εκάστοτε ισχύουσα έκδοση των όρων χρήσης, ενώ η
+            χωρίς προειδοποίηση. Το {{ storeName }} θα αναρτά διαδικτυακά την εκάστοτε ισχύουσα έκδοση των όρων χρήσης, ενώ η
             συνέχιση της χρήσης της ιστοσελίδας ή των υπηρεσιών της θα θεωρείται ότι συνιστά αποδοχή των νέων όρων. Για
             το λόγο αυτό κάθε χρήστης παρακαλείται να ελέγχει ανά τακτά χρονικά διαστήματα τους όρους χρήσης.
           </p>

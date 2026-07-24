@@ -84,20 +84,4 @@ const openCookieModal = () => {
 el:
   all_rights_reserved: All rights reserved
   cookie_settings: Ρυθμίσεις cookies
-  footer:
-    terms_conditions: Όροι και Προϋποθέσεις
-    term_of_use: Όροι Χρήσης
-    vision: Όραμα
-    privacy_policy: Πολιτική Απορρήτου
-    cookies_policy: Πολιτική Cookies
-    help_center: Κέντρο βοηθείας
-    contact:
-      us: Επικοινωνία
-    about:
-      us: Σχετικά με εμάς
-      site: Τι είναι το Webside
-    microlearning:
-      title: Microlearning
-      why: Γιατί Microlearning
-      what: Τι είναι το Microlearning
 </i18n>

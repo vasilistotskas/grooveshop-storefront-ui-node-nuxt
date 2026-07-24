@@ -163,9 +163,10 @@ describe('getTenantConfig', () => {
 
     expect(result.type).toBe('not_found')
     expect(log.warn).toHaveBeenCalledWith(
-      'tenant',
-      expect.stringContaining('Zod validation'),
-      expect.any(Object),
+      expect.objectContaining({
+        tag: 'tenant',
+        message: expect.stringContaining('Zod validation'),
+      }),
     )
   })
 

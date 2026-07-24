@@ -6,28 +6,39 @@
  * The body is sent as ``text/markdown`` regardless of URL extension.
  * The leading underscore on this filename keeps Nitro from picking it
  * up as a route.
+ *
+ * ``description``/``body`` are functions of the requesting tenant (store
+ * name, site URL) rather than plain strings, since this route serves every
+ * tenant on the platform — the consuming route handlers resolve
+ * ``SkillContext`` per-request and call these before responding.
  */
+export interface SkillContext {
+  storeName: string
+  siteUrl: string
+}
+
 export interface AgentSkill {
   name: string
   type: 'imperative_api' | 'browser_navigation'
-  description: string
+  description: (ctx: SkillContext) => string
   relativeUrl: string
-  body: string
+  body: (ctx: SkillContext) => string
 }
 
 export const SKILLS: AgentSkill[] = [
   {
-    name: 'webside-search',
+    name: 'catalog-search',
     type: 'imperative_api',
-    description: 'Search the Webside catalog (products, blog posts, categories) and open the matching results page. Available client-side via navigator.modelContext.',
-    relativeUrl: '/.well-known/agent-skills/webside-search/skill',
-    body: `# webside-search
+    description: ({ storeName }) =>
+      `Search the ${storeName} catalog (products, blog posts, categories) and open the matching results page. Available client-side via navigator.modelContext.`,
+    relativeUrl: '/.well-known/agent-skills/catalog-search/skill',
+    body: ({ storeName, siteUrl }) => `# catalog-search
 
-Search the Webside catalog and navigate to the results page.
+Search the ${storeName} catalog and navigate to the results page.
 
 ## How to invoke
 
-When running inside a WebMCP-aware browser on https://webside.gr:
+When running inside a WebMCP-aware browser on ${siteUrl}:
 
 \`\`\`js
 await navigator.modelContext.tools.search.execute({ query: 'Greek search term' })
@@ -47,13 +58,14 @@ Triggers client-side router navigation to the search results page.
 `,
   },
   {
-    name: 'webside-products',
+    name: 'catalog-products',
     type: 'browser_navigation',
-    description: 'List Webside products by category, or open a single product detail page by slug.',
-    relativeUrl: '/.well-known/agent-skills/webside-products/skill',
-    body: `# webside-products
+    description: ({ storeName }) =>
+      `List ${storeName} products by category, or open a single product detail page by slug.`,
+    relativeUrl: '/.well-known/agent-skills/catalog-products/skill',
+    body: ({ storeName }) => `# catalog-products
 
-Browse the Webside catalog.
+Browse the ${storeName} catalog.
 
 ## How to invoke
 

@@ -1,8 +1,12 @@
-import { defineEventHandler, setHeader } from 'h3'
+import { defineEventHandler, getRequestHost, setHeader } from 'h3'
 
 export default defineEventHandler((event) => {
   const config = useRuntimeConfig(event)
-  const siteUrl = (config.public.baseUrl as string) || 'https://webside.gr'
+  const tenant = event.context.tenant as TenantConfig | undefined
+  const host = getRequestHost(event, { xForwardedHost: false })
+  const tenantDomain = tenant?.primaryDomain || host
+  const siteUrl = tenantDomain ? `https://${tenantDomain}` : (config.public.baseUrl as string)
+  const storeName = tenant?.storeName || (config.public.appTitle as string)
 
   setHeader(event, 'content-type', 'application/json')
   setHeader(event, 'cache-control', 'public, max-age=3600')
@@ -10,10 +14,10 @@ export default defineEventHandler((event) => {
   return {
     $schema: 'https://modelcontextprotocol.io/schemas/server-card.json',
     serverInfo: {
-      name: 'Webside',
+      name: storeName,
       version: (config.public.version as string) || '1.0.0',
-      title: 'Webside MCP',
-      description: 'Page index and search for webside.gr (Greek e-commerce storefront).',
+      title: `${storeName} MCP`,
+      description: `Page index and search for ${storeName} (e-commerce storefront).`,
     },
     transport: {
       type: 'http',
