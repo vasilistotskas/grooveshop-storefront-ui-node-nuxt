@@ -244,13 +244,15 @@ export function setupMetaPixelConsent() {
  * throw during prerender / SSR). Called from ``app.vue`` setup once
  * per app instance.
  *
- * No-op when ``NUXT_PUBLIC_TIKTOK_PIXEL_ID`` is not provisioned — the
- * cookie banner stays untouched and ``useTikTokPixel`` consumers
- * receive a no-op proxy.
+ * No-op when neither the tenant's ``tiktokPixelId`` nor the platform-wide
+ * ``NUXT_PUBLIC_TIKTOK_PIXEL_ID`` is provisioned — the cookie banner
+ * stays untouched and ``useTikTokPixel`` consumers receive a no-op proxy.
  */
 export function setupTikTokPixelConsent() {
   const config = useRuntimeConfig()
-  const pixelId = (config.public as { tiktokPixelId?: string })?.tiktokPixelId
+  const tenantStore = useTenantStore()
+  // Prefer per-tenant pixel id; fall back to platform-wide env var.
+  const pixelId = tenantStore.tiktokPixelId || (config.public as { tiktokPixelId?: string })?.tiktokPixelId
   if (!pixelId) return
   if (import.meta.server) return
 

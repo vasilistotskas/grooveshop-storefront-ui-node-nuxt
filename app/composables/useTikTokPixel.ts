@@ -79,7 +79,9 @@ function toTikTokPayload(
 
 export function useTikTokPixel() {
   const config = useRuntimeConfig()
-  const pixelId = (config.public as { tiktokPixelId?: string })?.tiktokPixelId
+  const tenantStore = useTenantStore()
+  // Prefer per-tenant pixel id; fall back to platform-wide env var.
+  const pixelId = tenantStore.tiktokPixelId || (config.public as { tiktokPixelId?: string })?.tiktokPixelId
 
   const isProvisioned = !!pixelId
 

@@ -114,7 +114,10 @@ export default defineEventHandler((event) => {
   // the same host but may be re-routed to regional endpoints (e.g.
   // ``analytics-sg.tiktok.com``), hence the wildcard on img/connect.
   // Same gating rationale as the Meta block above.
-  const tiktokPixelId = (config.public as { tiktokPixelId?: string })?.tiktokPixelId
+  // Prefer per-tenant pixel id; fall back to platform-wide env var.
+  const tiktokPixelId
+    = event.context.tenant?.tiktokPixelId
+      || (config.public as { tiktokPixelId?: string })?.tiktokPixelId
   const tiktokScriptSrc = tiktokPixelId ? ' https://analytics.tiktok.com' : ''
   const tiktokImgSrc = tiktokPixelId
     ? ' https://analytics.tiktok.com https://*.tiktok.com'

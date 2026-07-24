@@ -20,6 +20,7 @@ export const useTenantStore = defineStore('tenant', () => {
 
   // Analytics & tracking — empty string means "use platform fallback"
   const metaPixelId = computed(() => config.value?.metaPixelId ?? '')
+  const tiktokPixelId = computed(() => config.value?.tiktokPixelId ?? '')
   const gaTrackingId = computed(() => config.value?.gaTrackingId ?? '')
 
   // Bot-protection — empty string means "use platform fallback"
@@ -66,6 +67,7 @@ export const useTenantStore = defineStore('tenant', () => {
     themePreset,
     stripePublishableKey,
     metaPixelId,
+    tiktokPixelId,
     gaTrackingId,
     turnstileSiteKey,
     totpIssuer,

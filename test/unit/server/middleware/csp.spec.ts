@@ -12,6 +12,15 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vites
 
 const INTERNAL_DJANGO_URL = 'http://backend-service:80'
 
+const BASE_PUBLIC_CONFIG = {
+  mediaStreamOrigin: 'https://assets.webside.gr',
+  static: { origin: 'https://static.webside.gr' },
+  djangoHostName: 'api.webside.gr',
+  metaPixelId: 'PIXEL123',
+  tiktokPixelId: 'TTPIXEL123',
+}
+
+let publicConfig: Record<string, unknown>
 let handler: (event: { path: string, context: Record<string, unknown> }) => void
 let headers: Record<string, string>
 
@@ -26,13 +35,7 @@ beforeAll(async () => {
   vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('api.webside.gr'))
   vi.stubGlobal('useRuntimeConfig', () => ({
     djangoUrl: INTERNAL_DJANGO_URL,
-    public: {
-      mediaStreamOrigin: 'https://assets.webside.gr',
-      static: { origin: 'https://static.webside.gr' },
-      djangoHostName: 'api.webside.gr',
-      metaPixelId: 'PIXEL123',
-      tiktokPixelId: 'TTPIXEL123',
-    },
+    public: publicConfig,
   }))
   vi.stubGlobal('setResponseHeader', (_event: unknown, name: string, value: string) => {
     headers[name] = value
@@ -46,6 +49,7 @@ afterAll(() => vi.unstubAllGlobals())
 
 beforeEach(() => {
   headers = {}
+  publicConfig = { ...BASE_PUBLIC_CONFIG }
 })
 
 describe('csp middleware', () => {
@@ -81,6 +85,25 @@ describe('csp middleware', () => {
     expect(directive('connect-src')).toContain('https://analytics.tiktok.com')
     expect(directive('connect-src')).toContain('https://*.tiktok.com')
     expect(directive('img-src')).toContain('https://*.tiktok.com')
+  })
+
+  it('still allows TikTok origins when only the tenant provides a pixel id and the platform does not', () => {
+    publicConfig.metaPixelId = ''
+    publicConfig.tiktokPixelId = ''
+
+    const csp = runWith('/products/3/some-product', { tiktokPixelId: 'TENANT_ONLY_TT_ID' })['Content-Security-Policy']
+    const directive = (name: string) =>
+      csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
+    expect(directive('script-src')).toContain('https://analytics.tiktok.com')
+  })
+
+  it('does not gate on TikTok origins when neither tenant nor platform provisions a pixel id', () => {
+    publicConfig.tiktokPixelId = ''
+
+    const csp = runWith('/products/3/some-product', { tiktokPixelId: '' })['Content-Security-Policy']
+    const directive = (name: string) =>
+      csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
+    expect(directive('script-src')).not.toContain('analytics.tiktok.com')
   })
 
   it('skips API, _nuxt and _ipx routes (no CSP header set)', () => {
