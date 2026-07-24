@@ -16,8 +16,9 @@ vi.stubGlobal('createError', (opts: Record<string, unknown>) => {
   return err
 })
 
-// getRequestHeader used to detect prerender
-vi.stubGlobal('getRequestHeader', vi.fn().mockReturnValue(undefined))
+// getRequestHeader used to detect prerender and the internal .md negotiation marker
+const requestHeaders: Record<string, string | undefined> = {}
+vi.stubGlobal('getRequestHeader', vi.fn((_event: unknown, name: string) => requestHeaders[name]))
 
 // getRequestHost used for tenant resolution
 const hostMock = vi.fn().mockReturnValue('webside.gr')
@@ -43,7 +44,8 @@ describe('0.tenant middleware', () => {
   beforeEach(() => {
     getTenantConfigMock.mockReset()
     hostMock.mockReturnValue('webside.gr')
-    vi.mocked(getRequestHeader).mockReturnValue(undefined)
+    delete requestHeaders['x-nitro-prerender']
+    delete requestHeaders['x-md-negotiation-internal']
   })
 
   // --- Bypass paths: prefix-based ---
@@ -65,6 +67,7 @@ describe('0.tenant middleware', () => {
 
   // --- Bypass paths: exact ---
   describe.each([
+    ['/api/_alive', 'frontend deployment liveness probe'],
     ['/health', 'root health endpoint'],
     ['/favicon.ico', 'favicon.ico'],
     ['/favicon.png', 'favicon.png'],
@@ -84,11 +87,31 @@ describe('0.tenant middleware', () => {
 
   // --- Prerender bypass ---
   it('skips tenant resolution during build-time prerendering', async () => {
-    vi.mocked(getRequestHeader).mockReturnValue('1')
+    requestHeaders['x-nitro-prerender'] = '1'
     const event = makeEvent('/products')
     const result = await handler(event)
     expect(result).toBeUndefined()
     expect(getTenantConfigMock).not.toHaveBeenCalled()
+  })
+
+  // --- Suffix bypass: .md mirrors (nuxt-ai-ready) ---
+  it('bypasses tenant resolution for a genuine external .md hit', async () => {
+    const event = { ...makeEvent('/products/1/slug.md'), method: 'GET' }
+    const result = await handler(event)
+    expect(result).toBeUndefined()
+    expect(getTenantConfigMock).not.toHaveBeenCalled()
+  })
+
+  it('does NOT bypass a .md path carrying the internal negotiation marker — resolves tenant normally', async () => {
+    requestHeaders['x-md-negotiation-internal'] = '1'
+    const tenant = { schemaName: 'webside', storeName: 'Webside' }
+    getTenantConfigMock.mockResolvedValueOnce({ type: 'ok', config: tenant })
+
+    const event = { ...makeEvent('/products/1/slug.md'), method: 'GET' }
+    await handler(event)
+
+    expect(getTenantConfigMock).toHaveBeenCalledWith('webside.gr')
+    expect(event.context.tenant).toBe(tenant)
   })
 
   // --- Successful resolution ---

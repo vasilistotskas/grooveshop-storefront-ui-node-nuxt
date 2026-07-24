@@ -24,6 +24,10 @@ const BYPASS_PREFIXES: readonly string[] = [
 ] as const
 
 const BYPASS_EXACT: readonly string[] = [
+  // K8s liveness probe on the frontend deployment (frontend.yaml) — hit with
+  // the pod cluster IP as Host, not a real tenant domain. Without this the
+  // liveness probe 404s and the pod restart-loops.
+  '/api/_alive',
   // Root-level K8s probe (e.g. `/health` used by some ingress configs).
   '/health',
   // Favicon — browser requests this speculatively before the page resolves a tenant.
@@ -66,10 +70,19 @@ export default defineEventHandler(async (event) => {
     return
   }
 
-  // Suffix bypass — `.md` mirrors emitted by nuxt-ai-ready (M3).
+  // Suffix bypass — `.md` mirrors emitted by nuxt-ai-ready (M3), for GENUINE
+  // external crawler hits (which land on the bare `.md` URL with no
+  // meaningful tenant Host). Exempt from this bypass: requests carrying the
+  // `x-md-negotiation-internal` marker set by
+  // server/middleware/0.markdown-negotiation.ts's internal re-fetch — that
+  // fetch forwards the ORIGINAL request's real Host header (h3's
+  // `event.fetch()` does this automatically for relative-path targets), so
+  // resolving tenant context there produces a tenant-scoped .md mirror
+  // instead of always falling through to public-schema content.
   if (
     event.method === 'GET'
     && BYPASS_SUFFIXES.some(suffix => path.endsWith(suffix))
+    && !getRequestHeader(event, 'x-md-negotiation-internal')
   ) {
     return
   }

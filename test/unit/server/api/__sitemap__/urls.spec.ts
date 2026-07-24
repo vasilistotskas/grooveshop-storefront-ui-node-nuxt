@@ -16,6 +16,11 @@ vi.stubGlobal('useRuntimeConfig', () => ({
 
 vi.stubGlobal('getRequestHost', () => 'example.com')
 
+// This route is bypassed in 0.tenant.ts, so it resolves tenant context
+// itself via getTenantConfig() when event.context.tenant is absent.
+const getTenantConfigMock = vi.fn()
+vi.stubGlobal('getTenantConfig', getTenantConfigMock)
+
 // asSitemapUrl just returns its argument
 vi.stubGlobal('asSitemapUrl', (url: unknown) => url)
 
@@ -74,5 +79,34 @@ describe('server/api/__sitemap__/urls — blog feature gating', () => {
     expect(locs.some(l => l.includes('/blog/'))).toBe(false)
     // Products are still included
     expect(locs.some(l => l.includes('/products/'))).toBe(true)
+  })
+})
+
+describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('resolves tenant via getTenantConfig when event.context.tenant is absent, honoring its blogEnabled', async () => {
+    getTenantConfigMock.mockResolvedValueOnce({
+      type: 'ok',
+      config: { blogEnabled: false, primaryDomain: 'example.com' },
+    })
+
+    const urls = await handler({ context: {} }) as Array<{ loc: string }>
+    const locs = urls.map(u => u.loc)
+
+    expect(getTenantConfigMock).toHaveBeenCalledWith('example.com')
+    expect(locs.some(l => l.includes('/blog/'))).toBe(false)
+    expect(locs.some(l => l.includes('/products/'))).toBe(true)
+  })
+
+  it('falls back to blogEnabled=true when tenant resolution fails (404/5xx)', async () => {
+    getTenantConfigMock.mockResolvedValueOnce({ type: 'not_found', config: null })
+
+    const urls = await handler({ context: {} }) as Array<{ loc: string }>
+    const locs = urls.map(u => u.loc)
+
+    expect(locs.some(l => l.includes('/blog/post/'))).toBe(true)
   })
 })

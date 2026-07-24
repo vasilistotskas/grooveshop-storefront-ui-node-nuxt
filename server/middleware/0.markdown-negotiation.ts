@@ -15,7 +15,7 @@
  * middleware (``markdown.ts`` from nuxt-ai-ready). We only intercept when
  * the client asks for markdown explicitly, so HTML browsers are unaffected.
  */
-import { defineEventHandler, getHeader, setHeader } from 'h3'
+import { defineEventHandler, getHeader, getRequestHost, setHeader } from 'h3'
 
 const SKIP_PREFIXES = [
   '/_',
@@ -44,8 +44,18 @@ export default defineEventHandler(async (event) => {
   const stripped = path.endsWith('/') && path.length > 1 ? path.slice(0, -1) : path
   const mdPath = stripped === '/' || stripped === '' ? '/index.md' : `${stripped}.md`
 
+  // h3's event.fetch() already forwards the original request's Host header
+  // automatically for relative-path (same-origin) internal fetches, but the
+  // downstream tenant/schema resolution this enables is important enough to
+  // pin explicitly rather than rely on that implicit behavior surviving
+  // future h3 upgrades.
+  const host = getRequestHost(event, { xForwardedHost: false })
+
   const upstream = await event.fetch(mdPath, {
-    headers: { 'x-md-negotiation-internal': '1' },
+    headers: {
+      'x-md-negotiation-internal': '1',
+      ...(host ? { host } : {}),
+    },
   }).catch(() => null)
 
   if (!upstream || !upstream.ok)

@@ -25,10 +25,25 @@ const cachedProductCategories = createCachedFetcher<ProductCategory>(
 
 export default defineSitemapEventHandler(async (event) => {
   const config = useRuntimeConfig()
+  const host = getRequestHost(event, { xForwardedHost: false })
+
+  // This route is bypassed in server/middleware/0.tenant.ts (hit by
+  // @nuxtjs/sitemap at build/SWR time without a real tenant Host), so
+  // `event.context.tenant` is never populated here. Resolve it ourselves
+  // when a real Host is present; any resolution failure (404/5xx/no host)
+  // just falls back to platform-wide behavior below (the same behavior
+  // this route already had before this fix).
+  let tenant = event.context.tenant as TenantConfig | undefined
+  if (!tenant && host) {
+    const result = await getTenantConfig(host)
+    if (result.type === 'ok') {
+      tenant = result.config
+    }
+  }
+
   // Use the tenant's primary domain for public URLs so the sitemap reflects
   // the requesting tenant (not the single NUXT_PUBLIC_BASE_URL build-time value).
-  const host = getRequestHost(event, { xForwardedHost: false })
-  const tenantDomain = event.context.tenant?.primaryDomain || host
+  const tenantDomain = tenant?.primaryDomain || host
   const baseUrl = tenantDomain ? `https://${tenantDomain}` : config.public.baseUrl
   const apiBaseUrl = config.apiBaseUrl
 
@@ -36,7 +51,7 @@ export default defineSitemapEventHandler(async (event) => {
   // iterate SUPPORTED_LOCALES here and emit hreflang alternates per entry.
   const ACTIVE_LOCALE = 'el'
 
-  const blogEnabled = event.context.tenant?.blogEnabled ?? true
+  const blogEnabled = tenant?.blogEnabled ?? true
 
   // Fetch all data in parallel for better performance — tenant host
   // is passed so each tenant's sitemap has its own cache entry.

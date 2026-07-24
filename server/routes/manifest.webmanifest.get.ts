@@ -1,7 +1,21 @@
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const siteConfig = getSiteConfig(event)
-  const tenant = event.context.tenant as TenantConfig | undefined
+
+  // This route is bypassed in server/middleware/0.tenant.ts (fetched by the
+  // browser independently of page navigation, sometimes with no real tenant
+  // Host — e.g. a fresh PWA install probe), so `event.context.tenant` is
+  // never populated here. Resolve it ourselves when a real Host is present;
+  // any resolution failure (404/5xx/no host) just falls back to the
+  // platform-default manifest below rather than erroring the response.
+  const host = getRequestHost(event, { xForwardedHost: false })
+  let tenant = event.context.tenant as TenantConfig | undefined
+  if (!tenant && host) {
+    const result = await getTenantConfig(host)
+    if (result.type === 'ok') {
+      tenant = result.config
+    }
+  }
 
   // Prefer tenant-supplied values, fall back to site config / build-time config
   const name = tenant?.storeName || siteConfig.name || config.public.appTitle || 'GrooveShop'
