@@ -1,3 +1,10 @@
+## [3.143.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.0...v3.143.1) (2026-07-25)
+
+
+### Bug Fixes
+
+* **deps:** force brace-expansion >=5.0.8 (CVE-2026-14257) ([5cda8e8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5cda8e8b32f9ac78c44a02d55dbffb3fdd6646d2))
+
 # [3.143.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.142.19...v3.143.0) (2026-07-24)
 
 
