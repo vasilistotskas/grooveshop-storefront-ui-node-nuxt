@@ -165,13 +165,13 @@ export type AcsStation = {
   /**
      * Εξωτερικό ID
      *
-     * ACS_SHOP_STATION_ID — used as Acs_Station_Destination.
+     * ACS_SHOP_STATION_ID_EN — the AREA station code, used as Acs_Station_Destination. NOT unique on its own: every Smartpoint locker in an area shares it (e.g. 50 lockers under 'ATH'); the (external_id, branch_code) pair is the locker's identity.
      */
   readonly externalId: string
   /**
      * Κωδικός υποκαταστήματος
      *
-     * ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).
+     * ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination). Distinguishes individual lockers within a station area.
      */
   readonly branchCode: string
   /**
@@ -184,8 +184,8 @@ export type AcsStation = {
      * * `3` - Συνεργαζόμενο κατάστημα (3)
      * * `4` - Xpress Point
      * * `5` - Kiosk
-     * * `7` - Smartpoint (inbound)
-     * * `8` - Smartpoint (outbound)
+     * * `7` - Smartpoint (no locker)
+     * * `8` - Smartpoint locker
      */
   shopKind: ShopKindEnum
   /**
@@ -236,13 +236,13 @@ export type AcsStationDetail = {
   /**
      * Εξωτερικό ID
      *
-     * ACS_SHOP_STATION_ID — used as Acs_Station_Destination.
+     * ACS_SHOP_STATION_ID_EN — the AREA station code, used as Acs_Station_Destination. NOT unique on its own: every Smartpoint locker in an area shares it (e.g. 50 lockers under 'ATH'); the (external_id, branch_code) pair is the locker's identity.
      */
   readonly externalId: string
   /**
      * Κωδικός υποκαταστήματος
      *
-     * ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).
+     * ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination). Distinguishes individual lockers within a station area.
      */
   readonly branchCode: string
   /**
@@ -255,8 +255,8 @@ export type AcsStationDetail = {
      * * `3` - Συνεργαζόμενο κατάστημα (3)
      * * `4` - Xpress Point
      * * `5` - Kiosk
-     * * `7` - Smartpoint (inbound)
-     * * `8` - Smartpoint (outbound)
+     * * `7` - Smartpoint (no locker)
+     * * `8` - Smartpoint locker
      */
   shopKind: ShopKindEnum
   /**
@@ -6335,8 +6335,8 @@ export type ShippingProvider = {
  * * `3` - Συνεργαζόμενο κατάστημα (3)
  * * `4` - Xpress Point
  * * `5` - Kiosk
- * * `7` - Smartpoint (inbound)
- * * `8` - Smartpoint (outbound)
+ * * `7` - Smartpoint (no locker)
+ * * `8` - Smartpoint locker
  */
 export type ShopKindEnum = 1 | 2 | 3 | 4 | 5 | 7 | 8
 

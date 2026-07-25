@@ -3966,8 +3966,8 @@ export const zShippingProvider = z.object({
  * * `3` - Συνεργαζόμενο κατάστημα (3)
  * * `4` - Xpress Point
  * * `5` - Kiosk
- * * `7` - Smartpoint (inbound)
- * * `8` - Smartpoint (outbound)
+ * * `7` - Smartpoint (no locker)
+ * * `8` - Smartpoint locker
  */
 export const zShopKindEnum = z.union([
   z.literal(1),
@@ -3978,7 +3978,7 @@ export const zShopKindEnum = z.union([
   z.literal(7),
   z.literal(8),
 ]).register(z.globalRegistry, {
-  description: '* `1` - Κατάστημα\n* `2` - Συνεργαζόμενο κατάστημα (2)\n* `3` - Συνεργαζόμενο κατάστημα (3)\n* `4` - Xpress Point\n* `5` - Kiosk\n* `7` - Smartpoint (inbound)\n* `8` - Smartpoint (outbound)',
+  description: '* `1` - Κατάστημα\n* `2` - Συνεργαζόμενο κατάστημα (2)\n* `3` - Συνεργαζόμενο κατάστημα (3)\n* `4` - Xpress Point\n* `5` - Kiosk\n* `7` - Smartpoint (no locker)\n* `8` - Smartpoint locker',
 })
 
 /**
@@ -3991,10 +3991,10 @@ export const zAcsStation = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   externalId: z.string().register(z.globalRegistry, {
-    description: 'ACS_SHOP_STATION_ID — used as Acs_Station_Destination.',
+    description: 'ACS_SHOP_STATION_ID_EN — the AREA station code, used as Acs_Station_Destination. NOT unique on its own: every Smartpoint locker in an area shares it (e.g. 50 lockers under \'ATH\'); the (external_id, branch_code) pair is the locker\'s identity.',
   }).readonly(),
   branchCode: z.string().register(z.globalRegistry, {
-    description: 'ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).',
+    description: 'ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination). Distinguishes individual lockers within a station area.',
   }).readonly(),
   shopKind: zShopKindEnum,
   name: z.string().readonly(),
@@ -4067,10 +4067,10 @@ export const zAcsStationDetail = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   externalId: z.string().register(z.globalRegistry, {
-    description: 'ACS_SHOP_STATION_ID — used as Acs_Station_Destination.',
+    description: 'ACS_SHOP_STATION_ID_EN — the AREA station code, used as Acs_Station_Destination. NOT unique on its own: every Smartpoint locker in an area shares it (e.g. 50 lockers under \'ATH\'); the (external_id, branch_code) pair is the locker\'s identity.',
   }).readonly(),
   branchCode: z.string().register(z.globalRegistry, {
-    description: 'ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination).',
+    description: 'ACS_SHOP_BRANCH_ID — paired with external_id when creating vouchers (Acs_Station_Branch_Destination). Distinguishes individual lockers within a station area.',
   }).readonly(),
   shopKind: zShopKindEnum,
   name: z.string().readonly(),
