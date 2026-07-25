@@ -20075,10 +20075,10 @@ export type ApiV1ShippingAcsStationsListResponse = ApiV1ShippingAcsStationsListR
 export type ApiV1ShippingAcsStationsRetrieveData = {
   body?: never
   path: {
-    externalId: string
+    uuid: string
   }
   query?: never
-  url: '/api/v1/shipping/acs/stations/{external_id}'
+  url: '/api/v1/shipping/acs/stations/{uuid}'
 }
 
 export type ApiV1ShippingAcsStationsRetrieveResponses = {

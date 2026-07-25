@@ -15245,7 +15245,7 @@ export const zApiV1ShippingAcsStationsListQuery = z.object({
 export const zApiV1ShippingAcsStationsListResponse = zPaginatedAcsStationList
 
 export const zApiV1ShippingAcsStationsRetrievePath = z.object({
-  externalId: z.string(),
+  uuid: z.uuid(),
 })
 
 export const zApiV1ShippingAcsStationsRetrieveResponse = zAcsStationDetail
