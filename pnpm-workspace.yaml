@@ -9,6 +9,14 @@ overrides:
   # Nitro server.
   'devalue@<5.8.1': '>=5.8.1'
 
+  # CVE-2026-14257 — ReDoS in brace-expansion ≤5.0.7; the advisory
+  # patches ONLY 5.0.8 (no fixed 2.x — maintenance-v2 stops at the
+  # vulnerable 2.1.2). 5.0.8 ships dual CJS+ESM with the same
+  # ``expand()`` API, so forcing the minimatch/glob chain up is
+  # safe. Capped <6 so a future major needs a deliberate bump
+  # (undici lesson: unbounded overrides break transitive consumers).
+  'brace-expansion@<5.0.8': '>=5.0.8 <6'
+
   # GHSA-f88m-g3jw-g9cj — sharp, patched in 0.35.0. The old
   # "don't override sharp" note is obsolete: @nuxt/image v2
   # dropped the legacy ipx sharp 0.32.6, and the tree already
