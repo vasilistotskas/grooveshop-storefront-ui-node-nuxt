@@ -82,7 +82,7 @@ jobs:
           cache-to: type=gha,mode=max
           target: production
           build-args: |
-            NODE_VERSION=24.15.0
+            NODE_VERSION=24.19.0
 
       - name: Run Trivy image scan
         uses: aquasecurity/trivy-action@v0.36.0
@@ -120,6 +120,6 @@ jobs:
           cache-to: type=gha,mode=max
           target: production
           build-args: |
-            NODE_VERSION=24.15.0
+            NODE_VERSION=24.19.0
           sbom: true
           provenance: mode=max

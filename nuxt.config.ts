@@ -598,6 +598,13 @@ export default defineNuxtConfig({
       typedPages: true,
       preload: true,
       stripMessagesPayload: true,
+      // @nuxtjs/i18n 10.6.0 deep-freezes cached server messages before
+      // returning them; with `preload: true` the follow-up
+      // deepCopy(messages, ctx.messages) then writes into frozen arrays
+      // copied by reference and every first-per-process request fails with
+      // "Failed to load messages for locale" (SSR renders raw keys).
+      // -1 disables that cache until the upstream freeze bug is fixed.
+      cacheLifetime: -1,
     },
   },
   icon: {

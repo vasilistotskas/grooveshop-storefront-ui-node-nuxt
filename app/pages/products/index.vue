@@ -50,15 +50,18 @@ const baseUrl = siteConfig.url
 
 useSchemaOrg([
   defineWebPage({ '@type': 'CollectionPage' }),
-  defineItemList({
-    name: () => t('title'),
-    itemListElement: () => (seoProducts.value?.results ?? []).map((p, i) => ({
+  // itemListElement is object-typed, so it can no longer be a getter
+  // since the @unhead/schema-org v3 definer-type rewrite — the whole
+  // node is a single computed() instead.
+  defineItemList(computed(() => ({
+    name: t('title'),
+    itemListElement: (seoProducts.value?.results ?? []).map((p, i) => ({
       '@type': 'ListItem' as const,
       'position': i + 1,
       'url': `${baseUrl}/products/${p.master ?? p.id}/${p.slug}`,
       'name': p.name,
     })),
-  }),
+  }))),
 ])
 
 definePageMeta({
