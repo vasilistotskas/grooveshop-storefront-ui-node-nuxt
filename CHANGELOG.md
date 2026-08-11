@@ -1,3 +1,11 @@
+## [3.143.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.1...v3.143.2) (2026-08-11)
+
+
+### Bug Fixes
+
+* **deps:** bump nuxt stack; fix i18n + seo fallout ([c29bb3c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c29bb3c64d8ea758b09fe0cef6ad93f9fb52a7e6)), closes [#868](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/868)
+* **deps:** resolve Trivy HIGH findings blocking CI ([6df35c9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6df35c9e866692a0829f9d8589a9f740ee278564))
+
 ## [3.143.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.0...v3.143.1) (2026-07-25)
 
 
