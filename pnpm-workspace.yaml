@@ -9,13 +9,14 @@ overrides:
   # Nitro server.
   'devalue@<5.8.1': '>=5.8.1'
 
-  # CVE-2026-14257 — ReDoS in brace-expansion ≤5.0.7; the advisory
-  # patches ONLY 5.0.8 (no fixed 2.x — maintenance-v2 stops at the
-  # vulnerable 2.1.2). 5.0.8 ships dual CJS+ESM with the same
-  # ``expand()`` API, so forcing the minimatch/glob chain up is
-  # safe. Capped <6 so a future major needs a deliberate bump
-  # (undici lesson: unbounded overrides break transitive consumers).
-  'brace-expansion@<5.0.8': '>=5.0.8 <6'
+  # CVE-2026-14257 (≤5.0.7) and CVE-2026-69152 (≤5.0.8) — ReDoS in
+  # brace-expansion; 5.0.9 patches both (per-major fixes 1.1.18/2.1.4/
+  # 3.0.6 exist for 69152, but this override already collapses every
+  # major onto 5.x). 5.x ships dual CJS+ESM with the same ``expand()``
+  # API, so forcing the minimatch/glob chain up is safe. Capped <6 so
+  # a future major needs a deliberate bump (undici lesson: unbounded
+  # overrides break transitive consumers).
+  'brace-expansion@<5.0.9': '>=5.0.9 <6'
 
   # GHSA-f88m-g3jw-g9cj — sharp, patched in 0.35.0. The old
   # "don't override sharp" note is obsolete: @nuxt/image v2
@@ -55,13 +56,14 @@ overrides:
   # patched in 5.7.0.
   fast-xml-parser: '>=5.7.0'
 
-  # CVE-2026-59869 — js-yaml, patched in 4.3.0 (and 3.15.0 on the
-  # dormant v3 line). Supersedes the old registry-yank exact pin
-  # `js-yaml: 4.1.1`: 4.3.0 has since been republished (v4-legacy
-  # dist-tag), so the floor also absorbs @hey-api/json-schema-ref-parser's
-  # exact js-yaml@4.2.0 pin (still unpublished). Capped <5 to keep
-  # consumers off the js-yaml 5 API line.
-  'js-yaml@<4.3.0': '>=4.3.0 <5'
+  # CVE-2026-59869 (patched 4.3.0) + GHSA-5p4m-2wfm-xmqj (prototype
+  # pollution, patched 4.3.1) — js-yaml. Supersedes the old
+  # registry-yank exact pin `js-yaml: 4.1.1`: 4.3.x has since been
+  # republished (v4-legacy dist-tag), so the floor also absorbs
+  # @hey-api/json-schema-ref-parser's exact js-yaml@4.2.0 pin (still
+  # unpublished). Capped <5 to keep consumers off the js-yaml 5 API
+  # line.
+  'js-yaml@<4.3.1': '>=4.3.1 <5'
 
   # CVE-2026-48779 — ws DoS, patched in 8.21.0 on the 8.x line.
   'ws@<8.21.0': '>=8.21.0'
