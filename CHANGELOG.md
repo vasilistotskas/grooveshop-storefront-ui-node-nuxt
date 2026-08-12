@@ -1,3 +1,10 @@
+## [3.143.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.3...v3.143.4) (2026-08-12)
+
+
+### Bug Fixes
+
+* **security:** stop baking real secrets into the build output ([71981ba](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/71981bab2b6a3d9c136f83fb5c7155f8b5697ea6))
+
 ## [3.143.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.2...v3.143.3) (2026-08-12)
 
 
