@@ -1,3 +1,10 @@
+## [3.143.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.2...v3.143.3) (2026-08-12)
+
+
+### Bug Fixes
+
+* surface backend errors, align form validation ([baa9ff9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/baa9ff93776d36196d5b94281b9cd7415cde2027))
+
 ## [3.143.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.1...v3.143.2) (2026-08-11)
 
 
