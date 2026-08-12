@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { isErrorWithDetail, isAllAuthClientError } from '../../../app/utils/error'
+import { isErrorWithDetail, isAllAuthClientError, isDrfFieldErrorMap, formatDrfFieldErrors } from '../../../app/utils/error'
 
 // Mock the shared utils that are auto-imported in Nuxt
 vi.stubGlobal('isBadResponseError', vi.fn().mockReturnValue(false))
@@ -109,6 +109,58 @@ describe('Utils - Error Client', () => {
 
     it('should return false for array', () => {
       expect(isAllAuthClientError([])).toBe(false)
+    })
+  })
+
+  describe('isDrfFieldErrorMap', () => {
+    it('recognizes a DRF field-error map', () => {
+      expect(isDrfFieldErrorMap({ phone: ['Enter a valid phone number.'] })).toBe(true)
+      expect(isDrfFieldErrorMap({
+        phone: ['Enter a valid phone number.'],
+        firstName: ['This field is required.', 'Too short.'],
+      })).toBe(true)
+    })
+
+    it('rejects non-field-error shapes', () => {
+      expect(isDrfFieldErrorMap({ detail: 'Not found.' })).toBe(false)
+      expect(isDrfFieldErrorMap({ error: { type: 'invalid_order_data' } })).toBe(false)
+      expect(isDrfFieldErrorMap({ phone: [] })).toBe(false)
+      expect(isDrfFieldErrorMap({ phone: [42] })).toBe(false)
+      expect(isDrfFieldErrorMap({})).toBe(false)
+      expect(isDrfFieldErrorMap([])).toBe(false)
+      expect(isDrfFieldErrorMap(null)).toBe(false)
+      expect(isDrfFieldErrorMap('phone')).toBe(false)
+    })
+
+    it('rejects maps where only some values are message arrays', () => {
+      expect(isDrfFieldErrorMap({
+        phone: ['Enter a valid phone number.'],
+        meta: { fbp: 'x' },
+      })).toBe(false)
+    })
+  })
+
+  describe('formatDrfFieldErrors', () => {
+    const t = (key: string) => (key === 'form.phone' ? 'Τηλέφωνο' : key)
+
+    it('labels fields via the form.* i18n namespace', () => {
+      expect(formatDrfFieldErrors({ phone: ['Enter a valid phone number.'] }, t))
+        .toBe('Τηλέφωνο: Enter a valid phone number.')
+    })
+
+    it('falls back to the raw field name when no label exists and snake_cases the lookup', () => {
+      // firstName → form.first_name (missing in the stub t → echo key → raw name)
+      expect(formatDrfFieldErrors({ firstName: ['Too short.'] }, t))
+        .toBe('firstName: Too short.')
+    })
+
+    it('joins multiple fields and messages', () => {
+      expect(formatDrfFieldErrors({
+        phone: ['Enter a valid phone number.'],
+        firstName: ['This field is required.', 'Too short.'],
+      }, t)).toBe(
+        'Τηλέφωνο: Enter a valid phone number.\nfirstName: This field is required. Too short.',
+      )
     })
   })
 })

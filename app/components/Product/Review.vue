@@ -534,7 +534,7 @@ watch(
               :placeholder="t('comment.placeholder')"
               :rows="6"
               color="neutral"
-              maxlength="10000"
+              maxlength="1000"
               class="w-full"
             />
           </UFormField>

@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
   const wideLog = useLogger(event)
 
   try {
-    wideLog.set({ order: { created: true } })
+    wideLog.set({ order: { created: false } })
     const body = await readValidatedBody(event, zCreateOrderBody.parse)
     const cartHeaders = await cartSession.getCartHeaders()
 
@@ -58,9 +58,13 @@ export default defineEventHandler(async (event) => {
 
     const parsedData = await parseDataAs(response, zCreateOrderResponse)
 
+    wideLog.set({ order: { created: true } })
     return parsedData
   }
   catch (error) {
-    handleError(error)
+    // Django 4xx bodies (DRF field errors) are returned, not thrown —
+    // Nitro strips `createError({ data })` in production and the
+    // checkout toast needs the field detail. See forwardUpstreamClientError.
+    return forwardUpstreamClientError(error)
   }
 })

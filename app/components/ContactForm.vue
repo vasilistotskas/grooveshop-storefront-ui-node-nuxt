@@ -12,19 +12,29 @@ const schema = z.object({
     error: issue => issue.input === undefined
       ? t('validation.required')
       : t('validation.string.invalid'),
-  }).min(2, { error: t('validation.string.invalid') }),
+  }).min(2, { error: t('validation.string.invalid') })
+    .max(100, { error: t('validation.max', { max: 100 }) }),
 
   email: z.email({
     error: issue => issue.input === undefined
       ? t('validation.required')
       : t('validation.email.valid'),
-  }),
+  }).max(254, { error: t('validation.max', { max: 254 }) }),
 
   message: z.string({
     error: issue => issue.input === undefined
       ? t('validation.required')
       : t('validation.string.invalid'),
-  }).min(10, { error: t('validation.string.invalid') }),
+  }).min(10, { error: t('validation.min', { min: 10 }) })
+    .max(5000, { error: t('validation.max', { max: 5000 }) })
+    // Django's contact spam filter rejects anything under 5 words
+    // (contact/utils.py detect_spam_patterns) — mirror it here so a
+    // short-but-legitimate inquiry gets an inline hint instead of an
+    // opaque 400 at submit.
+    .refine(
+      value => value.trim().split(/\s+/).filter(Boolean).length >= 5,
+      { error: t('validation.message.min_words', { min: 5 }) },
+    ),
 })
 
 type Schema = z.output<typeof schema>
@@ -53,9 +63,18 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     state.email = undefined
     state.message = undefined
   }
-  catch {
+  catch (error) {
+    // The proxy forwards Django's 4xx validation body — surface the
+    // field detail (spam filter, disposable email, …) instead of a
+    // blanket failure.
+    const data = error && typeof error === 'object' && 'data' in error
+      ? (error as { data: unknown }).data
+      : null
     toast.add({
       title: t('error.default'),
+      description: isDrfFieldErrorMap(data)
+        ? formatDrfFieldErrors(data, t)
+        : undefined,
       color: 'error',
     })
   }

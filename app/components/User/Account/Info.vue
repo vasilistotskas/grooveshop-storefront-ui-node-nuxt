@@ -63,7 +63,7 @@ const changeUserName = async () => {
   }
   catch (error) {
     toast.add({
-      title: isErrorWithDetail(error) ? error.data.data.detail : t('unknown.error'),
+      title: getErrorDetail(error) || t('unknown.error'),
       color: 'error',
     })
   }

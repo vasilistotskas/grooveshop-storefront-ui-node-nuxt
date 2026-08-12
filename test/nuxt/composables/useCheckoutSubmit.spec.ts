@@ -23,6 +23,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 // ── Hoist mocks so they are available inside mockNuxtImport factories ──────
 const {
   mockFetch,
+  mockToastAdd,
   mockReserveStock,
   mockReleaseReservations,
   mockCreatePaymentIntentFromCart,
@@ -37,6 +38,7 @@ const {
   // `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
   // mocked via mockNuxtImport like any other auto-import.
   mockFetch: vi.fn(),
+  mockToastAdd: vi.fn(),
   mockReserveStock: vi.fn(),
   mockReleaseReservations: vi.fn(),
   mockCreatePaymentIntentFromCart: vi.fn(),
@@ -67,6 +69,7 @@ const mockCartHolder = { value: null as any }
 
 // ── Nuxt auto-import mocks ─────────────────────────────────────────────────
 mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('useToast', () => () => ({ add: mockToastAdd }))
 mockNuxtImport('useRequestHeaders', () => () => ({}))
 mockNuxtImport('useLocalePath', () => () => (route: any) => route)
 mockNuxtImport('navigateTo', () => mockNavigateTo)
@@ -78,10 +81,6 @@ mockNuxtImport('useCheckout', () => () => ({
   reserveStock: mockReserveStock,
   releaseReservations: mockReleaseReservations,
   createPaymentIntentFromCart: mockCreatePaymentIntentFromCart,
-  getPaymentStatus: vi.fn(),
-  pollPaymentStatus: vi.fn(),
-  streamPaymentStatus: vi.fn(),
-  retryPayment: vi.fn(),
 }))
 
 mockNuxtImport('useCartStore', () => () => ({
@@ -471,6 +470,45 @@ describe('useCheckoutSubmit', () => {
 
       // cleanCartState must NOT have been called
       expect(mockCleanCartState).not.toHaveBeenCalled()
+    })
+
+    it('DRF field errors (e.g. phone) surface field detail in the toast', async () => {
+      const codPayWay = makePayWay('cod')
+      const selectedPayWay = ref<PayWay | null>(codPayWay)
+      const payWays = makePayWaysRef(codPayWay)
+
+      mockReserveStock.mockResolvedValue([5])
+
+      // POST /api/orders — Django 400 with a DRF field-error body, the
+      // exact shape the Nuxt proxy now forwards past the Nitro strip.
+      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
+        const errResponse = {
+          status: 400,
+          ok: false,
+          _data: { phone: ['Enter a valid phone number.'] },
+        }
+        if (opts?.onResponseError) {
+          opts.onResponseError({ response: errResponse })
+        }
+        return Promise.resolve(undefined)
+      })
+
+      const { onSubmit } = useCheckoutSubmit({
+        formState: makeFormState(),
+        selectedPayWay,
+        payWays,
+      })
+
+      await onSubmit()
+
+      expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
+        color: 'error',
+        // Real i18n returns Greek — assert the useful part: the exact
+        // backend message reaches the customer instead of the generic
+        // "Σφάλμα δημιουργίας παραγγελίας".
+        title: expect.any(String),
+        description: expect.stringContaining('Enter a valid phone number.'),
+      }))
     })
 
     it('insufficient_stock from reserve-stock sets typed stockError state', async () => {

@@ -48,9 +48,23 @@ export const onAllAuthResponseError = async (
 ) => {
   if (!response || !response._data) return
   log.info({ tag: 'auth', message: 'onAllAuthResponseError', status: response.status })
-  if ([401, 410].includes(response.status) && response._data.data) {
+  if (![401, 410].includes(response.status)) return
+  if (response._data.data) {
     log.info('auth', 'Status includes 401 or 410')
     await callAuthChangeHook(response._data.data, meta)
+  }
+  // A 410 whose payload was lost to the production error handler
+  // (thrown-route strip) is still unambiguous: allauth only emits 410
+  // when the session is dead. Route the synthetic payload through the
+  // canonical pipeline so stores clear, navigation runs, and the expiry
+  // toast fires — the old payload gate left mid-page expiries silent.
+  // A payload-less 401 stays silent on purpose: that is the deliberate
+  // terminal "not signed in" throw for anonymous flows (see
+  // forwardAllAuthFlow), and firing LOGGED_OUT there would toast every
+  // anonymous visitor.
+  else if (response.status === 410) {
+    log.warn('auth', 'Session expired (410) with missing payload — firing synthetic expiry')
+    await callAuthChangeHook(SYNTHETIC_EXPIRED_SESSION, meta)
   }
 }
 

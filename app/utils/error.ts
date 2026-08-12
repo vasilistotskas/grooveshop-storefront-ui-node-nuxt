@@ -12,6 +12,51 @@ export function isErrorWithDetail(error: unknown): error is ErrorWithDetail {
   return false
 }
 
+/**
+ * DRF serializer validation errors arrive as a flat map of
+ * ``{ field: ["message", ...] }`` (field names camelCased by the API
+ * renderer, e.g. ``{"phone": ["Enter a valid phone number."]}``).
+ * Callers should handle shapes with dedicated keys (``detail``,
+ * ``error``, ``cart``) in their own branches before this check.
+ */
+export function isDrfFieldErrorMap(
+  data: unknown,
+): data is Record<string, string[]> {
+  if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+    return false
+  }
+  const entries = Object.entries(data)
+  return entries.length > 0 && entries.every(
+    ([, messages]) =>
+      Array.isArray(messages)
+      && messages.length > 0
+      && messages.every(message => typeof message === 'string'),
+  )
+}
+
+/**
+ * Format a DRF field-error map for a toast description — one line per
+ * field, labelled from the shared ``form.*`` i18n namespace when a
+ * translation exists (``Τηλέφωνο: …``), falling back to the raw field
+ * name so unknown fields still surface instead of vanishing.
+ */
+export function formatDrfFieldErrors(
+  errors: Record<string, string[]>,
+  t: (key: string) => string,
+): string {
+  return Object.entries(errors)
+    .map(([field, messages]) => {
+      // Non-field errors carry no useful label — show the messages bare.
+      if (field === 'nonFieldErrors' || field === 'detail') {
+        return messages.join(' ')
+      }
+      const labelKey = `form.${field.replace(/[A-Z]/g, char => `_${char.toLowerCase()}`)}`
+      const label = t(labelKey)
+      return `${label === labelKey ? field : label}: ${messages.join(' ')}`
+    })
+    .join('\n')
+}
+
 export function isAllAuthClientError(error: unknown): error is AllAuthClientError {
   if (typeof error !== 'object' || error === null || !('data' in error)) {
     return false
@@ -41,7 +86,7 @@ export function isRateLimitedClientError(error: unknown): boolean {
 }
 
 export const handleAllAuthClientError = (error: unknown): void => {
-  const { t } = useNuxtApp().$i18n
+  const { t, te } = useNuxtApp().$i18n
 
   if (isRateLimitedClientError(error)) {
     const toast = useToast()
@@ -58,8 +103,12 @@ export const handleAllAuthClientError = (error: unknown): void => {
 
     const errors = 'errors' in error.data.data ? error.data.data.errors : []
     errors.forEach((error) => {
+      // Unmapped codes used to render the literal i18n key
+      // ("validation.api.password_too_common") — fall back to allauth's
+      // own message so every rejection stays readable.
+      const key = `validation.api.${error.code}`
       toast.add({
-        title: t(`validation.api.${error.code}`),
+        title: te(key) ? t(key) : (error.message || t('unknown.error')),
         color: 'error',
       })
     })

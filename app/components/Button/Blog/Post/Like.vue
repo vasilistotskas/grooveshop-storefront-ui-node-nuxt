@@ -98,9 +98,12 @@ const toggleFavourite = async () => {
         })
       }
     },
-    onResponseError({ error }) {
+    // ofetch only populates context.error for transport/parse failures —
+    // on an HTTP 4xx/5xx it is undefined, so the old `title:
+    // error?.message` rendered an empty toast.
+    onResponseError({ response }) {
       toast.add({
-        title: error?.message,
+        title: getErrorDetail({ data: response._data }) || t('error_occurred'),
         color: 'error',
       })
     },

@@ -41,10 +41,22 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, zReserveCartStockResponse)
   }
   catch (error) {
-    // Surface structured stock failure data at the top level of the error
+    // Surface structured stock failure data where the client reads it
+    // (``error.data.data`` in useCheckout.reserveStock). A thrown
+    // ``createError({data})`` loses its payload in production — Nitro
+    // strips ``data`` from thrown-error responses (same incident class
+    // as the allauth flows) — which silently disabled the per-item
+    // stock-error UI in prod. RETURN the wrapper with the 409 status
+    // instead (returned bodies are not stripped), mirroring
+    // forwardAllAuthFlow's shape contract.
     if (error instanceof FetchError && error.statusCode === 409) {
       const errorData = error.data as Record<string, unknown> | undefined
-      throw createError({
+      log.warn({
+        action: 'checkout:reserveStock:insufficientStock',
+        detail: errorData?.detail,
+      })
+      setResponseStatus(event, 409)
+      return {
         statusCode: 409,
         statusMessage: 'Insufficient stock',
         data: {
@@ -52,8 +64,10 @@ export default defineEventHandler(async (event) => {
           detail: errorData?.detail,
           failedItems: errorData?.failed_items ?? errorData?.failedItems,
         },
-      })
+      } as unknown as undefined
     }
-    handleError(error)
+    // Non-409 upstream 4xx (bad cart, expired session): forward the
+    // body so getErrorDetail can surface Django's reason.
+    return forwardUpstreamClientError(error)
   }
 })

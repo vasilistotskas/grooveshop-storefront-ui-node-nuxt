@@ -65,7 +65,10 @@ async function commit(value: number) {
     isUpdating.value = false
   }
 
-  const errorData = error.value?.data?.data as Record<string, unknown> | undefined
+  // Forwarded upstream bodies sit at .data; the legacy thrown-error
+  // wrapper nested them at .data.data — accept both.
+  const rawData = error.value?.data as Record<string, unknown> | undefined
+  const errorData = (rawData?.nonFieldErrors ? rawData : rawData?.data) as Record<string, unknown> | undefined
   const nonFieldErrors = errorData?.nonFieldErrors as string[] | undefined
   if (nonFieldErrors && nonFieldErrors.length > 0) {
     nonFieldErrors.forEach((e: string) => {

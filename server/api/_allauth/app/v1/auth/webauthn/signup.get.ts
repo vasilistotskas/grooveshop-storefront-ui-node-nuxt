@@ -9,6 +9,9 @@ export default defineEventHandler(async () => {
     return await parseDataAs(response, ZodWebAuthnSignupGetResponse)
   }
   catch (error) {
-    await handleAllAuthError(error)
+    // Align with signup.post/.put: the signup flow's 4xx payloads
+    // (pending mfa_webauthn_signup flow, conflict) must survive to the
+    // client — thrown createError({data}) is stripped in production.
+    return await forwardAllAuthFlow(error)
   }
 })

@@ -27,25 +27,43 @@ const schema = z.object({
   }),
   firstName: z.string({ error: issue => issue.input === undefined
     ? t('validation.required')
-    : t('validation.string.invalid') }),
+    : t('validation.string.invalid') }).max(255, {
+    error: t('validation.max', { max: 255 }),
+  }),
   lastName: z.string({ error: issue => issue.input === undefined
     ? t('validation.required')
-    : t('validation.string.invalid') }),
+    : t('validation.string.invalid') }).max(255, {
+    error: t('validation.max', { max: 255 }),
+  }),
+  // Optional in Django (UserAccount.phone is blank=True) but when
+  // present it must pass the same plausibility check the checkout
+  // applies — the stored value is the normalizeGreekPhone output.
   phone: z.string({ error: issue => issue.input === undefined
     ? t('validation.required')
-    : t('validation.string.invalid') }),
+    : t('validation.string.invalid') }).refine(
+    value => !value || isPlausiblePhone(value),
+    { error: t('validation.phone.invalid') },
+  ),
   city: z.string({ error: issue => issue.input === undefined
     ? t('validation.required')
-    : t('validation.string.invalid') }),
+    : t('validation.string.invalid') }).max(255, {
+    error: t('validation.max', { max: 255 }),
+  }),
   zipcode: z.string({ error: issue => issue.input === undefined
     ? t('validation.required')
-    : t('validation.string.invalid') }),
+    : t('validation.string.invalid') }).max(255, {
+    error: t('validation.max', { max: 255 }),
+  }),
   address: z.string({ error: issue => issue.input === undefined
     ? t('validation.required')
-    : t('validation.string.invalid') }),
+    : t('validation.string.invalid') }).max(255, {
+    error: t('validation.max', { max: 255 }),
+  }),
   place: z.string({ error: issue => issue.input === undefined
     ? t('validation.required')
-    : t('validation.string.invalid') }).optional(),
+    : t('validation.string.invalid') }).max(255, {
+    error: t('validation.max', { max: 255 }),
+  }).optional(),
   birthDate: z.preprocess(
     (input) => {
       if (typeof input === 'string' || input instanceof Date) {
