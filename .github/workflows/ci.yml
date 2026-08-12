@@ -126,29 +126,23 @@ jobs:
             " >> $GITHUB_STEP_SUMMARY
           fi
 
-      - name: Create .env file from GitHub variables and secrets
+      # SECURITY: no real secret may enter this build. `pnpm run build` bakes
+      # runtimeConfig defaults into `.output`, and `.output` is uploaded as a
+      # build artifact (public on a public repo). Real values are supplied
+      # ONLY at runtime by the K8s sealed secret; the placeholders below are
+      # overridden there. See docker.yml for the same rationale.
+      - name: Create .env file (public build config + placeholder secrets)
         env:
           ALL_VARS: ${{ toJSON(vars) }}
-          NUXT_SESSION_PASSWORD: ${{ secrets.NUXT_SESSION_PASSWORD }}
-          NUXT_SECRET_KEY: ${{ secrets.NUXT_SECRET_KEY }}
-          NUXT_OAUTH_GOOGLE_CLIENT_SECRET: ${{ secrets.NUXT_OAUTH_GOOGLE_CLIENT_SECRET }}
-          NUXT_OAUTH_GOOGLE_CLIENT_ID: ${{ secrets.NUXT_OAUTH_GOOGLE_CLIENT_ID }}
-          NUXT_OAUTH_FACEBOOK_CLIENT_SECRET: ${{ secrets.NUXT_OAUTH_FACEBOOK_CLIENT_SECRET }}
-          NUXT_OAUTH_FACEBOOK_CLIENT_ID: ${{ secrets.NUXT_OAUTH_FACEBOOK_CLIENT_ID }}
-          NUXT_OAUTH_DISCORD_CLIENT_SECRET: ${{ secrets.NUXT_OAUTH_DISCORD_CLIENT_SECRET }}
-          NUXT_OAUTH_DISCORD_CLIENT_ID: ${{ secrets.NUXT_OAUTH_DISCORD_CLIENT_ID }}
         run: |
+          # GitHub *variables* (not secrets) — non-sensitive NUXT_* build/public config only.
           echo "$ALL_VARS" | jq -r 'to_entries | .[] | select(.key | startswith("NUXT_")) | "\(.key)=\(.value)"' > .env
           echo "NUXT_REDIS_HOST=localhost" >> .env
           echo "NUXT_REDIS_PORT=6379" >> .env
-          [ -n "$NUXT_SESSION_PASSWORD" ] && echo "NUXT_SESSION_PASSWORD=$NUXT_SESSION_PASSWORD" >> .env || true
-          [ -n "$NUXT_SECRET_KEY" ] && echo "NUXT_SECRET_KEY=$NUXT_SECRET_KEY" >> .env || true
-          [ -n "$NUXT_OAUTH_GOOGLE_CLIENT_SECRET" ] && echo "NUXT_OAUTH_GOOGLE_CLIENT_SECRET=$NUXT_OAUTH_GOOGLE_CLIENT_SECRET" >> .env || true
-          [ -n "$NUXT_OAUTH_GOOGLE_CLIENT_ID" ] && echo "NUXT_OAUTH_GOOGLE_CLIENT_ID=$NUXT_OAUTH_GOOGLE_CLIENT_ID" >> .env || true
-          [ -n "$NUXT_OAUTH_FACEBOOK_CLIENT_SECRET" ] && echo "NUXT_OAUTH_FACEBOOK_CLIENT_SECRET=$NUXT_OAUTH_FACEBOOK_CLIENT_SECRET" >> .env || true
-          [ -n "$NUXT_OAUTH_FACEBOOK_CLIENT_ID" ] && echo "NUXT_OAUTH_FACEBOOK_CLIENT_ID=$NUXT_OAUTH_FACEBOOK_CLIENT_ID" >> .env || true
-          [ -n "$NUXT_OAUTH_DISCORD_CLIENT_SECRET" ] && echo "NUXT_OAUTH_DISCORD_CLIENT_SECRET=$NUXT_OAUTH_DISCORD_CLIENT_SECRET" >> .env || true
-          [ -n "$NUXT_OAUTH_DISCORD_CLIENT_ID" ] && echo "NUXT_OAUTH_DISCORD_CLIENT_ID=$NUXT_OAUTH_DISCORD_CLIENT_ID" >> .env || true
+          # Build-only placeholders so the prerender-time startup-validation
+          # Nitro plugin passes (session password >=32 chars + secret key present).
+          echo "NUXT_SESSION_PASSWORD=build-only-placeholder-overridden-at-runtime-00" >> .env
+          echo "NUXT_SECRET_KEY=build-only-placeholder-overridden-at-runtime" >> .env
 
       - name: Build application
         run: pnpm run build
