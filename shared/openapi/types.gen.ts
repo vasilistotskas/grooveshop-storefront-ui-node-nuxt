@@ -21,19 +21,24 @@ export type AcsAddressValidationRequestRequest = {
 
 /**
  * A single resolved address — the first ACSObjectOutput row.
+ *
+ * Every field is ``required=False``: the endpoint returns a literal
+ * ``{}`` when ACS cannot geocode the input (see the view docstring),
+ * so the contract must allow the empty object or schema-validating
+ * consumers reject the documented not-recognised case.
  */
 export type AcsAddressValidationResponse = {
   geoId?: number | null
-  resolvedStreet: string
-  resolvedStreetNum: string
-  resolvedZip: string
-  resolvedArea: string
+  resolvedStreet?: string
+  resolvedStreetNum?: string
+  resolvedZip?: string
+  resolvedArea?: string
   resolvedLong?: number | null
   resolvedLat?: number | null
-  resolvedStationId: string
+  resolvedStationId?: string
   resolvedBranchId?: number | null
-  resolvedProvidence: string
-  addressId: string
+  resolvedProvidence?: string
+  addressId?: string
 }
 
 /**

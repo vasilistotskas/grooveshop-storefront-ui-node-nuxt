@@ -28143,7 +28143,13 @@ components:
         - address
     AcsAddressValidationResponse:
       type: object
-      description: A single resolved address — the first ACSObjectOutput row.
+      description: |-
+        A single resolved address — the first ACSObjectOutput row.
+
+        Every field is ``required=False``: the endpoint returns a literal
+        ``{}`` when ACS cannot geocode the input (see the view docstring),
+        so the contract must allow the empty object or schema-validating
+        consumers reject the documented not-recognised case.
       properties:
         geoId:
           type: integer
@@ -28173,14 +28179,6 @@ components:
           type: string
         addressId:
           type: string
-      required:
-        - addressId
-        - resolvedArea
-        - resolvedProvidence
-        - resolvedStationId
-        - resolvedStreet
-        - resolvedStreetNum
-        - resolvedZip
     AcsChargeType:
       enum:
         - 1

@@ -19,21 +19,26 @@ export const zAcsAddressValidationRequestRequest = z.object({
 
 /**
  * A single resolved address — the first ACSObjectOutput row.
+ *
+ * Every field is ``required=False``: the endpoint returns a literal
+ * ``{}`` when ACS cannot geocode the input (see the view docstring),
+ * so the contract must allow the empty object or schema-validating
+ * consumers reject the documented not-recognised case.
  */
 export const zAcsAddressValidationResponse = z.object({
   geoId: z.int().nullish(),
-  resolvedStreet: z.string(),
-  resolvedStreetNum: z.string(),
-  resolvedZip: z.string(),
-  resolvedArea: z.string(),
+  resolvedStreet: z.string().optional(),
+  resolvedStreetNum: z.string().optional(),
+  resolvedZip: z.string().optional(),
+  resolvedArea: z.string().optional(),
   resolvedLong: z.number().nullish(),
   resolvedLat: z.number().nullish(),
-  resolvedStationId: z.string(),
+  resolvedStationId: z.string().optional(),
   resolvedBranchId: z.int().nullish(),
-  resolvedProvidence: z.string(),
-  addressId: z.string(),
+  resolvedProvidence: z.string().optional(),
+  addressId: z.string().optional(),
 }).register(z.globalRegistry, {
-  description: 'A single resolved address — the first ACSObjectOutput row.',
+  description: 'A single resolved address — the first ACSObjectOutput row.\n\nEvery field is ``required=False``: the endpoint returns a literal\n``{}`` when ACS cannot geocode the input (see the view docstring),\nso the contract must allow the empty object or schema-validating\nconsumers reject the documented not-recognised case.',
 })
 
 /**

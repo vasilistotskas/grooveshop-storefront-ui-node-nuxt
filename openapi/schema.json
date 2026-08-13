@@ -47662,7 +47662,7 @@
             },
             "AcsAddressValidationResponse": {
                 "type": "object",
-                "description": "A single resolved address — the first ACSObjectOutput row.",
+                "description": "A single resolved address — the first ACSObjectOutput row.\n\nEvery field is ``required=False``: the endpoint returns a literal\n``{}`` when ACS cannot geocode the input (see the view docstring),\nso the contract must allow the empty object or schema-validating\nconsumers reject the documented not-recognised case.",
                 "properties": {
                     "geoId": {
                         "type": "integer",
@@ -47703,16 +47703,7 @@
                     "addressId": {
                         "type": "string"
                     }
-                },
-                "required": [
-                    "addressId",
-                    "resolvedArea",
-                    "resolvedProvidence",
-                    "resolvedStationId",
-                    "resolvedStreet",
-                    "resolvedStreetNum",
-                    "resolvedZip"
-                ]
+                }
             },
             "AcsChargeType": {
                 "enum": [
