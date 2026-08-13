@@ -167,7 +167,10 @@ export default defineNuxtConfig({
         youtube: process.env.NUXT_PUBLIC_SOCIALS_YOUTUBE,
       },
       domainVerifyId: process.env.NUXT_PUBLIC_DOMAIN_VERIFY_ID,
-      googleGsiEnable: false,
+      // Driven by NUXT_PUBLIC_GOOGLE_GSI_ENABLE (the infra ConfigMap
+      // already sets it) — was hardcoded false, which silently ignored
+      // the env var and made flipping it in ops a no-op.
+      googleGsiEnable: process.env.NUXT_PUBLIC_GOOGLE_GSI_ENABLE === 'true',
       googleSiteVerification: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
       mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,
       mediaStreamPath: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
