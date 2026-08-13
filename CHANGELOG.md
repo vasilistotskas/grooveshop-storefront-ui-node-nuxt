@@ -1,3 +1,10 @@
+## [3.143.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.4...v3.143.5) (2026-08-13)
+
+
+### Bug Fixes
+
+* **api:** surface upstream 4xx bodies on webauthn and address/account routes ([0c79de3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0c79de321307326df3913b2d8f94121414039c6e))
+
 ## [3.143.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.3...v3.143.4) (2026-08-12)
 
 
