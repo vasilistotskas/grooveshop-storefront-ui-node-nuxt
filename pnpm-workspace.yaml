@@ -120,7 +120,7 @@ minimumReleaseAgeExclude:
   - '@nuxt/ui@4.8.0'
   - '@iconify-json/ant-design@1.2.6'
   - eslint@10.6.0 || 10.7.0
-  - nuxt-ai-ready@1.5.2 || 1.7.10
+  - nuxt-ai-ready@1.5.2 || 1.7.10 || 1.7.12
   - '@nuxt/icon@2.3.1 || 2.5.0'
   - '@semantic-release/github@12.0.9'
   - '@stripe/stripe-js@9.9.0'
@@ -135,3 +135,5 @@ minimumReleaseAgeExclude:
   - '@nuxtjs/seo@5.3.12'
   - '@testing-library/jest-dom@7.0.1'
   - nuxtseo-shared@5.3.12
+  - '@nuxt/scripts@1.3.4'
+  - magic-string@1.2.0
