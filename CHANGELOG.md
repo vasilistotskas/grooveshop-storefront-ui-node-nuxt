@@ -1,3 +1,10 @@
+## [3.143.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.6...v3.143.7) (2026-08-13)
+
+
+### Bug Fixes
+
+* **openapi:** regen client — ACS address-validation response fields now optional ([b95b623](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b95b623c32cead7505a770e53198b71107723629))
+
 ## [3.143.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.5...v3.143.6) (2026-08-13)
 
 
