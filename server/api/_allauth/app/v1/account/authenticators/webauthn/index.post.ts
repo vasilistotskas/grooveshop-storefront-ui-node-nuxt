@@ -11,6 +11,10 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, ZodWebAuthnPostResponse)
   }
   catch (error) {
-    await handleAllAuthError(error)
+    // WebAuthn 4xx payloads (rejected credential, duplicate passkey,
+    // reauthentication-required flows) must reach the client toast
+    // layer — thrown createError({data}) is stripped in production.
+    // Same forward contract as the other authenticator routes.
+    return await forwardAllAuthFlow(error)
   }
 })
