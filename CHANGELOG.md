@@ -1,3 +1,10 @@
+## [3.143.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.5...v3.143.6) (2026-08-13)
+
+
+### Bug Fixes
+
+* **api:** close response-validation gaps and regen OpenAPI client ([01eb991](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/01eb9918d0d16248a0b0085c62c03a4fdcdcb765))
+
 ## [3.143.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.4...v3.143.5) (2026-08-13)
 
 
