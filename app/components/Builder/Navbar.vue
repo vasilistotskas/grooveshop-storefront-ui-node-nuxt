@@ -11,12 +11,7 @@ const route = useRoute()
 const config = useRuntimeConfig()
 const { loggedIn } = useUserSession()
 const { isMobileOrTablet } = useDevice()
-const { t, locales } = useI18n()
-const appStore = useAppStore()
-const {
-  healthy,
-} = storeToRefs(appStore)
-
+const { locales } = useI18n()
 const navbar = ref(null)
 const isScrolled = ref(false)
 
@@ -77,41 +72,30 @@ onMounted(() => {
               :is="titleElement"
               class="grid justify-items-start"
             >
-              <UTooltip
-                :text="healthy ? '' : t('backend.api.unhealthy')"
+              <Anchor
+                :to="'index'"
+                :aria-label="appTitle"
+                class="
+                  flex items-center gap-2 overflow-hidden text-base
+                  font-bold
+                  md:w-auto
+                "
+                :ui="{
+                  base: 'p-0',
+                }"
               >
-                <UChip
-                  position="top-left"
-                  color="warning"
-                  :size="isMobileOrTablet ? 'md' : 'lg'"
-                  :show="!healthy"
-                >
-                  <Anchor
-                    :to="'index'"
-                    :aria-label="appTitle"
-                    class="
-                      flex items-center gap-2 overflow-hidden text-base
-                      font-bold
-                      md:w-auto
-                    "
-                    :ui="{
-                      base: 'p-0',
-                    }"
-                  >
-                    <NuxtImg
-                      :style="{ objectFit: 'contain' }"
-                      :src="'/img/logo-navbar.png'"
-                      :width="145"
-                      :height="30"
-                      alt=""
-                      quality="90"
-                      fetch-priority="high"
-                      preload
-                    />
-                    <span class="sr-only">{{ appTitle }}</span>
-                  </Anchor>
-                </UChip>
-              </UTooltip>
+                <NuxtImg
+                  :style="{ objectFit: 'contain' }"
+                  :src="'/img/logo-navbar.png'"
+                  :width="145"
+                  :height="30"
+                  alt=""
+                  quality="90"
+                  fetch-priority="high"
+                  preload
+                />
+                <span class="sr-only">{{ appTitle }}</span>
+              </Anchor>
             </Component>
           </slot>
           <slot name="menu" />
@@ -161,10 +145,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
-<i18n lang="yaml">
-el:
-  backend:
-    api:
-      unhealthy: Δεν είναι δυνατή η σύνδεση με τον διακομιστή. Παρακαλώ δοκιμάστε ξανά αργότερα.
-</i18n>

@@ -497,7 +497,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
           })
           // Clear cart server-side after order is confirmed
           try {
-            await $fetch('/api/cart/clear', { method: 'POST' })
+            await $fetch('/api/cart/clear-session', { method: 'POST' })
           }
           catch (err) {
             log.error({ action: 'checkout:clearCart', error: err })
@@ -661,7 +661,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     // Clear cart server-side only after payment is confirmed so a failed
     // Stripe confirmation doesn't wipe the cart before we know it succeeded.
     try {
-      await $fetch('/api/cart/clear', { method: 'POST' })
+      await $fetch('/api/cart/clear-session', { method: 'POST' })
     }
     catch (err) {
       log.error({ action: 'checkout:clearCart', error: err })

@@ -362,7 +362,7 @@ describe('useCheckoutSubmit', () => {
         }
         return Promise.resolve({ uuid: 'order-uuid-cod' })
       })
-      // /api/cart/clear
+      // /api/cart/clear-session
       mockFetch.mockResolvedValueOnce(undefined)
 
       const { onSubmit } = useCheckoutSubmit({
@@ -377,7 +377,7 @@ describe('useCheckoutSubmit', () => {
       expect(mockCleanCartState).toHaveBeenCalledOnce()
 
       // Cart API clear must have been called
-      const clearCall = mockFetch.mock.calls.find(c => c[0] === '/api/cart/clear')
+      const clearCall = mockFetch.mock.calls.find(c => c[0] === '/api/cart/clear-session')
       expect(clearCall).toBeDefined()
       expect(clearCall?.[1]).toMatchObject({ method: 'POST' })
 
@@ -465,7 +465,7 @@ describe('useCheckoutSubmit', () => {
       await onSubmit()
 
       // Cart clear must NOT have been called after an order error
-      const clearCall = mockFetch.mock.calls.find(c => c[0] === '/api/cart/clear')
+      const clearCall = mockFetch.mock.calls.find(c => c[0] === '/api/cart/clear-session')
       expect(clearCall).toBeUndefined()
 
       // cleanCartState must NOT have been called
