@@ -1,5 +1,7 @@
 import { DEFAULT_LOCALE } from './i18n/locales'
 import { version } from './package.json'
+import { PRERENDERED_ROUTES } from './shared/constants/prerender'
+import { buildCspDirectives } from './shared/utils/csp'
 
 const modules = [
   'evlog/nuxt',
@@ -302,16 +304,35 @@ export default defineNuxtConfig({
     '/_ipx/**': {
       headers: { 'cache-control': 'max-age=31536000' },
     },
-    // Static pages — prerender at build time (no SSR on each request)
-    '/about': { prerender: true },
-    '/contact': { prerender: true },
-    '/privacy-policy': { prerender: true },
-    '/terms-of-use': { prerender: true },
-    '/cookies-policy': { prerender: true },
-    '/return-policy': { prerender: true },
-    '/vision': { prerender: true },
-    '/what-is-microlearning': { prerender: true },
-    '/why-microlearning': { prerender: true },
+    // Static pages — prerender at build time (no SSR on each request).
+    // The list lives in shared/constants/prerender.ts because the CSP
+    // middleware needs it too (prerendered HTML can't use nonce CSP).
+    // Their responses come from Nitro's static handler, which bypasses
+    // server middleware entirely — so the CSP header is attached HERE,
+    // baked at build time from the same shared builder the middleware
+    // uses (nonce-free: the baked inline scripts rely on
+    // 'unsafe-inline', which a nonce in the policy would disable).
+    // Dev serves these via SSR (middleware sets the header), so the
+    // static header is production-build only.
+    ...Object.fromEntries(
+      PRERENDERED_ROUTES.map(route => [route, {
+        prerender: true,
+        ...(process.env.NODE_ENV === 'production'
+          ? {
+              headers: {
+                'Content-Security-Policy': buildCspDirectives({
+                  dev: false,
+                  mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,
+                  staticOrigin: process.env.NUXT_PUBLIC_STATIC_ORIGIN,
+                  djangoHostName: process.env.NUXT_PUBLIC_DJANGO_HOST_NAME,
+                  metaPixelId: process.env.NUXT_PUBLIC_META_PIXEL_ID,
+                  tiktokPixelId: process.env.NUXT_PUBLIC_TIKTOK_PIXEL_ID,
+                }).join('; '),
+              },
+            }
+          : {}),
+      }]),
+    ),
   },
   sourcemap: {
     client: 'hidden',
