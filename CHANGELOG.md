@@ -1,3 +1,10 @@
+# [3.145.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.144.0...v3.145.0) (2026-08-14)
+
+
+### Features
+
+* **security:** nonce-based strict CSP for SSR + baked CSP for prerendered pages ([4bb40bd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4bb40bdcd04ada7c6d6e7d7bf3ffd561a0918cbf))
+
 # [3.144.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.143.7...v3.144.0) (2026-08-13)
 
 
