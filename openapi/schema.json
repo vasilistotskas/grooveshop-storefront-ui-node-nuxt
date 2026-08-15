@@ -22494,6 +22494,121 @@
                 }
             }
         },
+        "/api/v1/order/{id}/confirm_agent_payment": {
+            "post": {
+                "operationId": "confirmAgentPaymentForOrder",
+                "description": "Charge a Stripe SharedPaymentToken granted by an AI agent platform (ACP/UCP delegated payments) for this order. Only available when agent-delegated payments are enabled for the store and the order's payment method is Stripe.",
+                "summary": "Complete payment with an agent-granted Stripe token",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "id",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConfirmAgentPaymentRequestRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConfirmAgentPaymentRequestRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ConfirmAgentPaymentRequestRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ConfirmAgentPaymentResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/order/{id}/create_checkout_session": {
             "post": {
                 "operationId": "createOrderCheckoutSession",
@@ -41409,6 +41524,42 @@
                 }
             }
         },
+        "/api/v1/tenant/resolve": {
+            "get": {
+                "operationId": "api_v1_tenant_resolve_retrieve",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "domain",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": [
+                    "Tenant"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TenantConfig"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/user/account": {
             "get": {
                 "operationId": "listUserAccount",
@@ -51905,6 +52056,52 @@
                 ],
                 "type": "integer",
                 "description": "* `1` - Μικρό\n* `2` - Μεσαίο\n* `3` - Μεγάλο"
+            },
+            "ConfirmAgentPaymentRequestRequest": {
+                "type": "object",
+                "properties": {
+                    "sharedPaymentToken": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Stripe SharedPaymentToken (spt_…) granted to this store by the agent platform, scoped to this exact purchase.",
+                        "maxLength": 255
+                    }
+                },
+                "required": [
+                    "sharedPaymentToken"
+                ]
+            },
+            "ConfirmAgentPaymentResponse": {
+                "type": "object",
+                "properties": {
+                    "paymentId": {
+                        "type": "string",
+                        "description": "Stripe PaymentIntent ID that charged the token"
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "Κατάσταση πληρωμής"
+                    },
+                    "amount": {
+                        "type": "string",
+                        "description": "Ποσό πληρωμής"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Νόμισμα πληρωμής"
+                    },
+                    "provider": {
+                        "type": "string",
+                        "description": "Όνομα παρόχου πληρωμών"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "currency",
+                    "paymentId",
+                    "provider",
+                    "status"
+                ]
             },
             "ConfirmResponse": {
                 "type": "object",
@@ -62641,6 +62838,201 @@
                     "contentType",
                     "objectId",
                     "tagId"
+                ]
+            },
+            "TenantConfig": {
+                "type": "object",
+                "description": "Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.\n\nField-for-field mirror of the `multi-tenant` branch's\n``TenantConfigSerializer`` — only fields safe to expose to\nunauthenticated callers appear here. Keep in sync with\n`git show multi-tenant:tenant/serializers.py`.",
+                "properties": {
+                    "schemaName": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "storeName": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "storeDescription": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "logoLightUrl": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "logoDarkUrl": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "faviconUrl": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "primaryColor": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "neutralColor": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "accentHex": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "successHex": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "warningHex": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "errorHex": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "infoHex": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "themePreset": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "themeMetadata": {
+                        "readOnly": true
+                    },
+                    "defaultLocale": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "defaultCurrency": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "primaryDomain": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "loyaltyEnabled": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "blogEnabled": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "stripePublishableKey": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "allowedCspSources": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true
+                    },
+                    "metaPixelId": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "tiktokPixelId": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "gaTrackingId": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "totpIssuer": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "turnstileSiteKey": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsDiscord": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsFacebook": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsInstagram": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsPinterest": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsReddit": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsTiktok": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsTwitter": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "socialsYoutube": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "boxNowPartnerId": {
+                        "type": "string",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "accentHex",
+                    "allowedCspSources",
+                    "blogEnabled",
+                    "boxNowPartnerId",
+                    "defaultCurrency",
+                    "defaultLocale",
+                    "errorHex",
+                    "faviconUrl",
+                    "gaTrackingId",
+                    "infoHex",
+                    "logoDarkUrl",
+                    "logoLightUrl",
+                    "loyaltyEnabled",
+                    "metaPixelId",
+                    "name",
+                    "neutralColor",
+                    "primaryColor",
+                    "primaryDomain",
+                    "schemaName",
+                    "socialsDiscord",
+                    "socialsFacebook",
+                    "socialsInstagram",
+                    "socialsPinterest",
+                    "socialsReddit",
+                    "socialsTiktok",
+                    "socialsTwitter",
+                    "socialsYoutube",
+                    "storeDescription",
+                    "storeName",
+                    "stripePublishableKey",
+                    "successHex",
+                    "themeMetadata",
+                    "themePreset",
+                    "tiktokPixelId",
+                    "totpIssuer",
+                    "turnstileSiteKey",
+                    "warningHex"
                 ]
             },
             "TopQuery": {

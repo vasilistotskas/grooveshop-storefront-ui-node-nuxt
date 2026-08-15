@@ -2116,6 +2116,36 @@ export type CartPaymentIntentResponse = {
  */
 export type CompartmentSizeEnum = 1 | 2 | 3
 
+export type ConfirmAgentPaymentRequestRequest = {
+  /**
+     * Stripe SharedPaymentToken (spt_…) granted to this store by the agent platform, scoped to this exact purchase.
+     */
+  sharedPaymentToken: string
+}
+
+export type ConfirmAgentPaymentResponse = {
+  /**
+     * Stripe PaymentIntent ID that charged the token
+     */
+  paymentId: string
+  /**
+     * Κατάσταση πληρωμής
+     */
+  status: string
+  /**
+     * Ποσό πληρωμής
+     */
+  amount: string
+  /**
+     * Νόμισμα πληρωμής
+     */
+  currency: string
+  /**
+     * Όνομα παρόχου πληρωμών
+     */
+  provider: string
+}
+
 export type ConfirmResponse = {
   status: string
   topic?: string
@@ -6837,6 +6867,54 @@ export type TaggedItemDetail = {
 export type TaggedItemWriteRequest = {
   contentType: number
   objectId: number
+}
+
+/**
+ * Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
+ *
+ * Field-for-field mirror of the `multi-tenant` branch's
+ * ``TenantConfigSerializer`` — only fields safe to expose to
+ * unauthenticated callers appear here. Keep in sync with
+ * `git show multi-tenant:tenant/serializers.py`.
+ */
+export type TenantConfig = {
+  readonly schemaName: string
+  readonly name: string
+  readonly storeName: string
+  readonly storeDescription: string
+  readonly logoLightUrl: string
+  readonly logoDarkUrl: string
+  readonly faviconUrl: string
+  readonly primaryColor: string
+  readonly neutralColor: string
+  readonly accentHex: string
+  readonly successHex: string
+  readonly warningHex: string
+  readonly errorHex: string
+  readonly infoHex: string
+  readonly themePreset: string
+  readonly themeMetadata: unknown
+  readonly defaultLocale: string
+  readonly defaultCurrency: string
+  readonly primaryDomain: string
+  readonly loyaltyEnabled: boolean
+  readonly blogEnabled: boolean
+  readonly stripePublishableKey: string
+  readonly allowedCspSources: Array<string>
+  readonly metaPixelId: string
+  readonly tiktokPixelId: string
+  readonly gaTrackingId: string
+  readonly totpIssuer: string
+  readonly turnstileSiteKey: string
+  readonly socialsDiscord: string
+  readonly socialsFacebook: string
+  readonly socialsInstagram: string
+  readonly socialsPinterest: string
+  readonly socialsReddit: string
+  readonly socialsTiktok: string
+  readonly socialsTwitter: string
+  readonly socialsYoutube: string
+  readonly boxNowPartnerId: string
 }
 
 /**
@@ -15664,6 +15742,31 @@ export type CancelOrderResponses = {
 
 export type CancelOrderResponse = CancelOrderResponses[keyof CancelOrderResponses]
 
+export type ConfirmAgentPaymentForOrderData = {
+  body: ConfirmAgentPaymentRequestRequest
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/order/{id}/confirm_agent_payment'
+}
+
+export type ConfirmAgentPaymentForOrderErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ConfirmAgentPaymentForOrderError = ConfirmAgentPaymentForOrderErrors[keyof ConfirmAgentPaymentForOrderErrors]
+
+export type ConfirmAgentPaymentForOrderResponses = {
+  200: ConfirmAgentPaymentResponse
+}
+
+export type ConfirmAgentPaymentForOrderResponse = ConfirmAgentPaymentForOrderResponses[keyof ConfirmAgentPaymentForOrderResponses]
+
 export type CreateOrderCheckoutSessionData = {
   body: CreateCheckoutSessionRequestRequest
   path: {
@@ -21005,6 +21108,21 @@ export type UpdateTaggedItemResponses = {
 }
 
 export type UpdateTaggedItemResponse = UpdateTaggedItemResponses[keyof UpdateTaggedItemResponses]
+
+export type ApiV1TenantResolveRetrieveData = {
+  body?: never
+  path?: never
+  query: {
+    domain: string
+  }
+  url: '/api/v1/tenant/resolve'
+}
+
+export type ApiV1TenantResolveRetrieveResponses = {
+  200: TenantConfig
+}
+
+export type ApiV1TenantResolveRetrieveResponse = ApiV1TenantResolveRetrieveResponses[keyof ApiV1TenantResolveRetrieveResponses]
 
 export type ListUserAccountData = {
   body?: never

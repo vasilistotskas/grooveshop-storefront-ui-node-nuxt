@@ -931,6 +931,30 @@ export const zCompartmentSizeEnum = z.union([
   description: '* `1` - Μικρό\n* `2` - Μεσαίο\n* `3` - Μεγάλο',
 })
 
+export const zConfirmAgentPaymentRequestRequest = z.object({
+  sharedPaymentToken: z.string().min(1).max(255).register(z.globalRegistry, {
+    description: 'Stripe SharedPaymentToken (spt_…) granted to this store by the agent platform, scoped to this exact purchase.',
+  }),
+})
+
+export const zConfirmAgentPaymentResponse = z.object({
+  paymentId: z.string().register(z.globalRegistry, {
+    description: 'Stripe PaymentIntent ID that charged the token',
+  }),
+  status: z.string().register(z.globalRegistry, {
+    description: 'Κατάσταση πληρωμής',
+  }),
+  amount: z.string().register(z.globalRegistry, {
+    description: 'Ποσό πληρωμής',
+  }),
+  currency: z.string().register(z.globalRegistry, {
+    description: 'Νόμισμα πληρωμής',
+  }),
+  provider: z.string().register(z.globalRegistry, {
+    description: 'Όνομα παρόχου πληρωμών',
+  }),
+})
+
 export const zConfirmResponse = z.object({
   status: z.string(),
   topic: z.string().optional(),
@@ -4291,6 +4315,56 @@ export const zTaggedItemDetail = z.object({
 export const zTaggedItemWriteRequest = z.object({
   contentType: z.int(),
   objectId: z.int().gte(0).lte(2147483647),
+})
+
+/**
+ * Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
+ *
+ * Field-for-field mirror of the `multi-tenant` branch's
+ * ``TenantConfigSerializer`` — only fields safe to expose to
+ * unauthenticated callers appear here. Keep in sync with
+ * `git show multi-tenant:tenant/serializers.py`.
+ */
+export const zTenantConfig = z.object({
+  schemaName: z.string().readonly(),
+  name: z.string().readonly(),
+  storeName: z.string().readonly(),
+  storeDescription: z.string().readonly(),
+  logoLightUrl: z.string().readonly(),
+  logoDarkUrl: z.string().readonly(),
+  faviconUrl: z.string().readonly(),
+  primaryColor: z.string().readonly(),
+  neutralColor: z.string().readonly(),
+  accentHex: z.string().readonly(),
+  successHex: z.string().readonly(),
+  warningHex: z.string().readonly(),
+  errorHex: z.string().readonly(),
+  infoHex: z.string().readonly(),
+  themePreset: z.string().readonly(),
+  themeMetadata: z.unknown(),
+  defaultLocale: z.string().readonly(),
+  defaultCurrency: z.string().readonly(),
+  primaryDomain: z.string().readonly(),
+  loyaltyEnabled: z.boolean().readonly(),
+  blogEnabled: z.boolean().readonly(),
+  stripePublishableKey: z.string().readonly(),
+  allowedCspSources: z.array(z.string()).readonly(),
+  metaPixelId: z.string().readonly(),
+  tiktokPixelId: z.string().readonly(),
+  gaTrackingId: z.string().readonly(),
+  totpIssuer: z.string().readonly(),
+  turnstileSiteKey: z.string().readonly(),
+  socialsDiscord: z.string().readonly(),
+  socialsFacebook: z.string().readonly(),
+  socialsInstagram: z.string().readonly(),
+  socialsPinterest: z.string().readonly(),
+  socialsReddit: z.string().readonly(),
+  socialsTiktok: z.string().readonly(),
+  socialsTwitter: z.string().readonly(),
+  socialsYoutube: z.string().readonly(),
+  boxNowPartnerId: z.string().readonly(),
+}).register(z.globalRegistry, {
+  description: 'Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.\n\nField-for-field mirror of the `multi-tenant` branch\'s\n``TenantConfigSerializer`` — only fields safe to expose to\nunauthenticated callers appear here. Keep in sync with\n`git show multi-tenant:tenant/serializers.py`.',
 })
 
 /**
@@ -11992,6 +12066,17 @@ export const zCancelOrderPath = z.object({
 
 export const zCancelOrderResponse = zOrderDetail
 
+export const zConfirmAgentPaymentForOrderBody = zConfirmAgentPaymentRequestRequest
+
+export const zConfirmAgentPaymentForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zConfirmAgentPaymentForOrderResponse = zConfirmAgentPaymentResponse
+
 export const zCreateOrderCheckoutSessionBody = zCreateCheckoutSessionRequestRequest
 
 export const zCreateOrderCheckoutSessionPath = z.object({
@@ -15798,6 +15883,12 @@ export const zUpdateTaggedItemQuery = z.object({
 })
 
 export const zUpdateTaggedItemResponse = zTaggedItemDetail
+
+export const zApiV1TenantResolveRetrieveQuery = z.object({
+  domain: z.string(),
+})
+
+export const zApiV1TenantResolveRetrieveResponse = zTenantConfig
 
 export const zListUserAccountQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
