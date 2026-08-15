@@ -157,6 +157,9 @@ const footerClass = computed(() => {
       </div>
     </slot>
     <MobileBottomNav v-if="enabled" :include-cart="!isAccountRoute" />
+    <ClientOnly>
+      <LazyChatWidget />
+    </ClientOnly>
   </div>
 </template>
 

@@ -352,6 +352,15 @@ export default defineNuxtConfig({
   },
   compatibilityDate: 'latest',
   nitro: {
+    // Dev only (ignored in production builds): same-origin `/chat` is
+    // served by the agent gateway — Traefik path-routes it on the
+    // storefront host in production — so proxy it to a locally running
+    // gateway for `pnpm dev`.
+    devProxy: {
+      '/chat': {
+        target: `${process.env.NUXT_AGENT_GATEWAY_URL || 'http://localhost:8090'}/chat`,
+      },
+    },
     prerender: {
       crawlLinks: false,
       ignore: ['/_ipx/'],
