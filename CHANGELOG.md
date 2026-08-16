@@ -1,3 +1,10 @@
+# [3.147.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.146.1...v3.147.0) (2026-08-16)
+
+
+### Features
+
+* **agent:** my_favourites on the server card + favourites:read scope ([227515f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/227515f3abd9898f80b237e1606b6b6ecf9423a6))
+
 ## [3.146.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.146.0...v3.146.1) (2026-08-16)
 
 
