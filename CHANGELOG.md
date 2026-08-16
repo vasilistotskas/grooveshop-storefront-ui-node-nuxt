@@ -1,3 +1,10 @@
+## [3.146.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.146.0...v3.146.1) (2026-08-16)
+
+
+### Bug Fixes
+
+* **openapi:** sync schema YAML files from schema.json ([1050001](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/10500015264a8f603d9799ef4e59764fb46f5f9b))
+
 # [3.146.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.145.0...v3.146.0) (2026-08-16)
 
 
