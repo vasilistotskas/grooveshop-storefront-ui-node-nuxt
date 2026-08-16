@@ -1,3 +1,10 @@
+## [3.148.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.148.0...v3.148.1) (2026-08-16)
+
+
+### Bug Fixes
+
+* **chat:** inset the prompt bar from the panel edges ([96e66e2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/96e66e2e931f552d8b49fe7f01bced8e01bbafe1))
+
 # [3.148.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.147.1...v3.148.0) (2026-08-16)
 
 
