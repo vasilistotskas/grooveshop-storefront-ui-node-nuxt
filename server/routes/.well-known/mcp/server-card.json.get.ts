@@ -84,6 +84,9 @@ export default defineEventHandler((event) => {
         my_loyalty_points: {
           description: 'Linked account\'s loyalty points and tier (OAuth, loyalty:read scope).',
         },
+        my_favourites: {
+          description: 'Linked account\'s favourite products (OAuth, favourites:read scope).',
+        },
       },
     },
     // Account linking: OAuth 2.1 authorization-code + PKCE. Discovery via
