@@ -24,7 +24,7 @@ const open = ref(false)
       :description="t('chat.description')"
       side="right"
       :ui="{ body: `
-        p-0
+        flex flex-col overflow-hidden p-0
         sm:p-0
       ` }"
     >
