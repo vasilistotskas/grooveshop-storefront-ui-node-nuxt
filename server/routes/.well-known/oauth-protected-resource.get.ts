@@ -18,6 +18,6 @@ export default defineEventHandler((event) => {
     authorization_servers: [apiBase],
     bearer_methods_supported: ['header'],
     resource_documentation: `${siteUrl}/llms.txt`,
-    scopes_supported: ['openid', 'profile', 'email', 'orders:read', 'loyalty:read'],
+    scopes_supported: ['openid', 'profile', 'email', 'orders:read', 'loyalty:read', 'favourites:read'],
   }
 })

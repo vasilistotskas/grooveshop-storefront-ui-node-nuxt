@@ -97,6 +97,34 @@ export const zAddTrackingRequest = z.object({
   shippingCarrier: z.string().min(1).max(50),
 })
 
+/**
+ * Compact favourite row for agents — the storefront's favourite
+ * serializers embed the full product detail payload, which is far more
+ * than a tool result should carry.
+ */
+export const zAgentFavourite = z.object({
+  productId: z.int().register(z.globalRegistry, {
+    description: 'Product ID',
+  }),
+  name: z.string().register(z.globalRegistry, {
+    description: 'Localized product name',
+  }),
+  finalPrice: z.string().register(z.globalRegistry, {
+    description: 'Current VAT-inclusive price',
+  }),
+  currency: z.string().register(z.globalRegistry, {
+    description: 'Price currency',
+  }),
+  inStock: z.boolean().register(z.globalRegistry, {
+    description: 'Whether the product is currently in stock',
+  }),
+  addedAt: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'When the product was favourited',
+  }),
+}).register(z.globalRegistry, {
+  description: 'Compact favourite row for agents — the storefront\'s favourite\nserializers embed the full product detail payload, which is far more\nthan a tool result should carry.',
+})
+
 export const zAgentProfile = z.object({
   id: z.int().register(z.globalRegistry, {
     description: 'User ID',
@@ -7329,6 +7357,8 @@ export const zUserSubscriptionDetailWritable = z.object({
 })
 
 export const zGetAgentProfileResponse = zAgentProfile
+
+export const zListAgentFavouritesResponse = z.array(zAgentFavourite)
 
 export const zGetAgentLoyaltySummaryResponse = zLoyaltySummary
 

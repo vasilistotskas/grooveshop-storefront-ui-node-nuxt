@@ -28,6 +28,31 @@
                 }
             }
         },
+        "/api/v1/agent/me/favourites": {
+            "get": {
+                "operationId": "listAgentFavourites",
+                "description": "The linked shopper's favourited products (newest first, active products only, capped at 30) — the basis for personalised recommendations. Requires the `favourites:read` scope.",
+                "summary": "Linked account's favourite products (agent surface)",
+                "tags": [
+                    "Agent"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AgentFavourite"
+                                    }
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/agent/me/loyalty": {
             "get": {
                 "operationId": "getAgentLoyaltySummary",
@@ -48517,6 +48542,45 @@
                 "required": [
                     "shippingCarrier",
                     "trackingNumber"
+                ]
+            },
+            "AgentFavourite": {
+                "type": "object",
+                "description": "Compact favourite row for agents — the storefront's favourite\nserializers embed the full product detail payload, which is far more\nthan a tool result should carry.",
+                "properties": {
+                    "productId": {
+                        "type": "integer",
+                        "description": "Product ID"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Localized product name"
+                    },
+                    "finalPrice": {
+                        "type": "string",
+                        "description": "Current VAT-inclusive price"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Price currency"
+                    },
+                    "inStock": {
+                        "type": "boolean",
+                        "description": "Whether the product is currently in stock"
+                    },
+                    "addedAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When the product was favourited"
+                    }
+                },
+                "required": [
+                    "addedAt",
+                    "currency",
+                    "finalPrice",
+                    "inStock",
+                    "name",
+                    "productId"
                 ]
             },
             "AgentProfile": {

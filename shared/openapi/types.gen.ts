@@ -403,6 +403,38 @@ export type AddTrackingRequest = {
   shippingCarrier: string
 }
 
+/**
+ * Compact favourite row for agents — the storefront's favourite
+ * serializers embed the full product detail payload, which is far more
+ * than a tool result should carry.
+ */
+export type AgentFavourite = {
+  /**
+     * Product ID
+     */
+  productId: number
+  /**
+     * Localized product name
+     */
+  name: string
+  /**
+     * Current VAT-inclusive price
+     */
+  finalPrice: string
+  /**
+     * Price currency
+     */
+  currency: string
+  /**
+     * Whether the product is currently in stock
+     */
+  inStock: boolean
+  /**
+     * When the product was favourited
+     */
+  addedAt: string
+}
+
 export type AgentProfile = {
   /**
      * User ID
@@ -9858,6 +9890,19 @@ export type GetAgentProfileResponses = {
 }
 
 export type GetAgentProfileResponse = GetAgentProfileResponses[keyof GetAgentProfileResponses]
+
+export type ListAgentFavouritesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/agent/me/favourites'
+}
+
+export type ListAgentFavouritesResponses = {
+  200: Array<AgentFavourite>
+}
+
+export type ListAgentFavouritesResponse = ListAgentFavouritesResponses[keyof ListAgentFavouritesResponses]
 
 export type GetAgentLoyaltySummaryData = {
   body?: never
