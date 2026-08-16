@@ -1,3 +1,10 @@
+# [3.150.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.149.0...v3.150.0) (2026-08-16)
+
+
+### Features
+
+* **chat:** gate the widget behind the CHAT_WIDGET_ENABLED setting ([75c8e7c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/75c8e7c232f17087cf69a8b0ca4ead5f838aad9d))
+
 # [3.149.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.148.1...v3.149.0) (2026-08-16)
 
 
