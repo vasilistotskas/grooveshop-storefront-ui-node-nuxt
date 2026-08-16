@@ -1,3 +1,12 @@
+# [3.146.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.145.0...v3.146.0) (2026-08-16)
+
+
+### Features
+
+* **agent:** real OAuth discovery metadata + account tools on the server card ([1af5b08](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1af5b08a4ad84ed0bfac8bd8c459cdf7dad43658))
+* cart claim handoff route + real MCP server card ([ee7eb7d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ee7eb7d966a09a8d4066c514e15223a7ed71b24c))
+* **chat:** first-party shopping assistant widget ([235752d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/235752dedc8ad8854ce1382ac41a2f9e2189d17d))
+
 # [3.145.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.144.0...v3.145.0) (2026-08-14)
 
 
