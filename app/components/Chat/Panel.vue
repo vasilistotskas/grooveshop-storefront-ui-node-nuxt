@@ -222,6 +222,7 @@ function onSubmit() {
         <UChatPrompt
           v-model="input"
           variant="soft"
+          class="px-4 pb-3"
           :autofocus="autofocusPrompt"
           :placeholder="t('chat.placeholder')"
           :maxrows="5"
