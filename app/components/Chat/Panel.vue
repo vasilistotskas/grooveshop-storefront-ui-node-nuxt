@@ -22,26 +22,65 @@ const suggestions = computed(() => [
   { icon: 'i-lucide-package-search', label: t('chat.suggestions.track') },
 ])
 
-// The last assistant bubble is empty while the model thinks — presenting
-// that phase as `submitted` lets UChatMessages show its typing indicator
-// instead of an empty bubble (the empty message is filtered out below).
+// The last assistant bubble is empty while the model thinks — until the
+// first tool event or text delta arrives there is nothing to render, so
+// that phase is presented as `submitted` and UChatMessages shows its
+// indicator (the empty message is filtered out below).
 const isThinking = computed(() => {
   if (status.value !== 'streaming') return false
   const last = messages.value[messages.value.length - 1]
   return last?.role === 'assistant' && last.text === ''
+    && !(last.tools && last.tools.length > 0)
 })
 
 // UChatMessages consumes the Vercel-AI UIMessage shape ({id, role,
 // parts}); our transport-agnostic ShopChatMessage maps onto text parts.
+// Tool activity rides along for the #content slot — a message with only
+// tool chips (text still streaming) is worth showing.
 const uiMessages = computed(() =>
   messages.value
-    .filter(m => m.text !== '')
+    .filter(m => m.text !== '' || (m.tools && m.tools.length > 0))
     .map(m => ({
       id: m.id,
       role: m.role,
       parts: [{ type: 'text' as const, text: m.text }],
+      tools: m.tools ?? [],
     })),
 )
+
+const streamingMessageId = computed(() => {
+  if (status.value !== 'streaming') return ''
+  const last = messages.value[messages.value.length - 1]
+  return last?.role === 'assistant' ? last.id : ''
+})
+
+// Shopper-readable labels for the gateway's tool activity events;
+// anything unmapped falls back to the generic entry.
+const TOOL_META: Record<string, { icon: string, key: string }> = {
+  search_products: { icon: 'i-lucide-search', key: 'searchProducts' },
+  get_product: { icon: 'i-lucide-package', key: 'getProduct' },
+  list_categories: { icon: 'i-lucide-layout-grid', key: 'listCategories' },
+  get_trending_searches: { icon: 'i-lucide-flame', key: 'trending' },
+  get_product_reviews: { icon: 'i-lucide-star', key: 'reviews' },
+  get_shipping_options: { icon: 'i-lucide-truck', key: 'shipping' },
+  find_pickup_points: { icon: 'i-lucide-map-pin', key: 'pickupPoints' },
+  get_payment_methods: { icon: 'i-lucide-credit-card', key: 'payment' },
+  create_cart: { icon: 'i-lucide-shopping-cart', key: 'cart' },
+  get_cart: { icon: 'i-lucide-shopping-cart', key: 'cart' },
+  add_to_cart: { icon: 'i-lucide-shopping-cart', key: 'cart' },
+  update_cart_item: { icon: 'i-lucide-shopping-cart', key: 'cart' },
+  remove_cart_item: { icon: 'i-lucide-shopping-cart', key: 'cart' },
+  get_checkout_link: { icon: 'i-lucide-external-link', key: 'checkoutLink' },
+  track_order: { icon: 'i-lucide-package-search', key: 'trackOrder' },
+  subscribe_product_alert: { icon: 'i-lucide-bell', key: 'alert' },
+  create_checkout: { icon: 'i-lucide-shopping-bag', key: 'checkout' },
+  update_checkout: { icon: 'i-lucide-shopping-bag', key: 'checkout' },
+  complete_checkout: { icon: 'i-lucide-shopping-bag', key: 'checkout' },
+}
+
+function toolMeta(name: string) {
+  return TOOL_META[name] ?? { icon: 'i-lucide-cog', key: 'generic' }
+}
 
 const uiStatus = computed(() => {
   if (status.value === 'streaming') {
@@ -173,7 +212,38 @@ function onSubmit() {
           icon: 'i-lucide-sparkles',
           ui: { leadingIcon: 'text-secondary' },
         }"
-      />
+      >
+        <template #content="{ message }">
+          <template v-if="message.role === 'assistant'">
+            <UChatTool
+              v-for="(tool, index) in (message as any).tools"
+              :key="`${message.id}-tool-${index}`"
+              :icon="toolMeta(tool.name).icon"
+              :text="t(`chat.tools.${toolMeta(tool.name).key}`)"
+              :streaming="tool.status === 'running'"
+            />
+            <Markdown
+              v-if="message.parts[0]?.text"
+              :value="message.parts[0].text"
+              :streaming="message.id === streamingMessageId"
+              class="*:first:mt-0 *:last:mb-0"
+            />
+          </template>
+          <p
+            v-else
+            class="whitespace-pre-wrap"
+          >
+            {{ message.parts[0]?.text }}
+          </p>
+        </template>
+
+        <template #indicator>
+          <UChatShimmer
+            :text="t('chat.thinking')"
+            class="px-2 text-sm"
+          />
+        </template>
+      </UChatMessages>
 
       <UAlert
         v-if="status === 'error' && errorMessage"
@@ -272,6 +342,22 @@ el:
       track: Πού είναι η παραγγελία μου;
     cartUpdated: Το καλάθι σου ενημερώθηκε.
     viewCart: Δες το καλάθι
+    thinking: Σκέφτομαι…
+    tools:
+      searchProducts: Αναζήτηση προϊόντων
+      getProduct: Άνοιγμα προϊόντος
+      listCategories: Κατηγορίες καταστήματος
+      trending: Δημοφιλείς αναζητήσεις
+      reviews: Κριτικές προϊόντος
+      shipping: Έλεγχος μεταφορικών
+      pickupPoints: Αναζήτηση σημείων παραλαβής
+      payment: Τρόποι πληρωμής
+      cart: Ενημέρωση καλαθιού
+      checkoutLink: Σύνδεσμος ολοκλήρωσης
+      trackOrder: Παρακολούθηση παραγγελίας
+      alert: Ρύθμιση ειδοποίησης
+      checkout: Προετοιμασία παραγγελίας
+      generic: Επεξεργασία αιτήματος
     placeholder: Ρώτησέ με για προϊόντα…
     new: Νέα συνομιλία
     disclaimer: Ο βοηθός μπορεί να κάνει λάθη — έλεγξε το καλάθι πριν την

@@ -1,7 +1,13 @@
+export interface ShopChatTool {
+  name: string
+  status: 'running' | 'done'
+}
+
 export interface ShopChatMessage {
   id: string
   role: 'user' | 'assistant'
   text: string
+  tools?: ShopChatTool[]
 }
 
 export type ShopChatStatus = 'ready' | 'streaming' | 'error'
@@ -18,10 +24,11 @@ interface ChatDoneEvent {
  * Talks to the agent gateway's same-origin `POST /chat` SSE endpoint
  * (Traefik path-routes it to the gateway in production; a Nitro dev
  * proxy covers local dev). Contract: `delta` events stream assistant
- * text, `error` carries a localized message, `done` closes the turn
- * with `{conversationId, cartId?, cartMutated}`. Pre-stream failures
- * are plain JSON `{error}` — 409 means the conversation hit its turn
- * cap and a fresh one must be started.
+ * text, `tool` events report tool activity as `{name, status}`
+ * (running|done), `error` carries a localized message, `done` closes
+ * the turn with `{conversationId, cartId?, cartMutated}`. Pre-stream
+ * failures are plain JSON `{error}` — 409 means the conversation hit
+ * its turn cap and a fresh one must be started.
  *
  * State lives in `useState` so the conversation survives panel
  * close/reopen and route changes within the session.
@@ -72,6 +79,28 @@ export const useShopChat = () => {
       )
     }
 
+    const setTool = (name: string, toolStatus: ShopChatTool['status']) => {
+      messages.value = messages.value.map((m) => {
+        if (m.id !== assistantId) return m
+        const tools = [...(m.tools ?? [])]
+        if (toolStatus === 'running') {
+          tools.push({ name, status: 'running' })
+        }
+        else {
+          // Close the most recent running entry for this tool — the
+          // model may call the same tool more than once per turn.
+          for (let i = tools.length - 1; i >= 0; i--) {
+            const tool = tools[i]
+            if (tool && tool.name === name && tool.status === 'running') {
+              tools[i] = { name, status: 'done' }
+              break
+            }
+          }
+        }
+        return { ...m, tools }
+      })
+    }
+
     const failTurn = (msg: string) => {
       // Drop the empty assistant bubble so the error state is clean.
       messages.value = messages.value.filter(
@@ -118,6 +147,10 @@ export const useShopChat = () => {
         if (event === 'delta') {
           const payload = JSON.parse(data) as { text: string }
           appendDelta(payload.text)
+        }
+        else if (event === 'tool') {
+          const payload = JSON.parse(data) as ShopChatTool
+          setTool(payload.name, payload.status)
         }
         else if (event === 'error') {
           const payload = JSON.parse(data) as { message: string }

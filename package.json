@@ -37,6 +37,7 @@
     "trivy-scan": "trivy fs . --severity HIGH,CRITICAL --skip-dirs node_modules,dist,.output,.nuxt --exit-code 1"
   },
   "dependencies": {
+    "@comark/nuxt": "^0.6.2",
     "@internationalized/date": "3.12.3",
     "@nuxt/fonts": "0.14.0",
     "@nuxt/icon": "2.5.0",

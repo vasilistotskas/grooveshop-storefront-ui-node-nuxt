@@ -5,6 +5,7 @@ import { buildCspDirectives } from './shared/utils/csp'
 
 const modules = [
   'evlog/nuxt',
+  '@comark/nuxt',
   '@nuxt/image',
   '@nuxt/ui',
   '@nuxt/eslint',
