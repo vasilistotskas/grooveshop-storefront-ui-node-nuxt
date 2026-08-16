@@ -78,7 +78,20 @@ export default defineEventHandler((event) => {
         complete_checkout: {
           description: 'UCP checkout sessions (agentic checkout).',
         },
+        my_orders: {
+          description: 'Linked account\'s recent orders (OAuth, orders:read scope).',
+        },
+        my_loyalty_points: {
+          description: 'Linked account\'s loyalty points and tier (OAuth, loyalty:read scope).',
+        },
       },
+    },
+    // Account linking: OAuth 2.1 authorization-code + PKCE. Discovery via
+    // RFC 9728 metadata at /.well-known/oauth-protected-resource/mcp.
+    authentication: {
+      required: false,
+      schemes: ['oauth2'],
+      resourceMetadata: `${siteUrl}/.well-known/oauth-protected-resource/mcp`,
     },
     documentation: `${siteUrl}/llms.txt`,
   }

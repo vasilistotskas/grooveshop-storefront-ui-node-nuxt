@@ -403,6 +403,25 @@ export type AddTrackingRequest = {
   shippingCarrier: string
 }
 
+export type AgentProfile = {
+  /**
+     * User ID
+     */
+  id: number
+  /**
+     * Account email
+     */
+  email: string
+  /**
+     * First name
+     */
+  firstName: string
+  /**
+     * Last name
+     */
+  lastName: string
+}
+
 /**
  * Serializer for Attribute with translations.
  */
@@ -9826,6 +9845,45 @@ export type UserSubscriptionDetailWritable = {
      */
   metadata?: unknown
 }
+
+export type GetAgentProfileData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/agent/me'
+}
+
+export type GetAgentProfileResponses = {
+  200: AgentProfile
+}
+
+export type GetAgentProfileResponse = GetAgentProfileResponses[keyof GetAgentProfileResponses]
+
+export type GetAgentLoyaltySummaryData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/agent/me/loyalty'
+}
+
+export type GetAgentLoyaltySummaryResponses = {
+  200: LoyaltySummary
+}
+
+export type GetAgentLoyaltySummaryResponse = GetAgentLoyaltySummaryResponses[keyof GetAgentLoyaltySummaryResponses]
+
+export type ListAgentOrdersData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/agent/me/orders'
+}
+
+export type ListAgentOrdersResponses = {
+  200: Array<Order>
+}
+
+export type ListAgentOrdersResponse = ListAgentOrdersResponses[keyof ListAgentOrdersResponses]
 
 export type ListBlogAuthorData = {
   body?: never

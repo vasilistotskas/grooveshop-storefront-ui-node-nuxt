@@ -97,6 +97,21 @@ export const zAddTrackingRequest = z.object({
   shippingCarrier: z.string().min(1).max(50),
 })
 
+export const zAgentProfile = z.object({
+  id: z.int().register(z.globalRegistry, {
+    description: 'User ID',
+  }),
+  email: z.email().register(z.globalRegistry, {
+    description: 'Account email',
+  }),
+  firstName: z.string().register(z.globalRegistry, {
+    description: 'First name',
+  }),
+  lastName: z.string().register(z.globalRegistry, {
+    description: 'Last name',
+  }),
+})
+
 /**
  * Serializer for Attribute with translations.
  */
@@ -7312,6 +7327,12 @@ export const zUserSubscriptionDetailWritable = z.object({
     description: 'Επιπλέον προτιμήσεις ή δεδομένα εγγραφής',
   }).optional(),
 })
+
+export const zGetAgentProfileResponse = zAgentProfile
+
+export const zGetAgentLoyaltySummaryResponse = zLoyaltySummary
+
+export const zListAgentOrdersResponse = z.array(zOrder)
 
 export const zListBlogAuthorQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {

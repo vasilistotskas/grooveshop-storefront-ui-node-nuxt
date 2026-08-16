@@ -4,6 +4,54 @@ info:
   version: 1.0.0
   description: Grooveshop API description
 paths:
+  /api/v1/agent/me:
+    get:
+      operationId: getAgentProfile
+      description: Identity of the shopper who linked their account to the calling
+        AI agent. Requires an OIDC access token with the `profile` scope. The agent
+        gateway also uses this endpoint to validate bearer tokens.
+      summary: Linked account profile (agent surface)
+      tags:
+      - Agent
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentProfile'
+          description: ''
+  /api/v1/agent/me/loyalty:
+    get:
+      operationId: getAgentLoyaltySummary
+      description: Points balance, XP, level and tier of the linked shopper. Requires
+        the `loyalty:read` scope.
+      summary: Linked account's loyalty summary (agent surface)
+      tags:
+      - Agent
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoyaltySummary'
+          description: ''
+  /api/v1/agent/me/orders:
+    get:
+      operationId: listAgentOrders
+      description: The linked shopper's most recent orders (newest first, capped at
+        20). Requires the `orders:read` scope.
+      summary: Linked account's recent orders (agent surface)
+      tags:
+      - Agent
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+          description: ''
   /api/v1/blog/author:
     get:
       operationId: listBlogAuthor
@@ -29235,6 +29283,27 @@ components:
       required:
       - shippingCarrier
       - trackingNumber
+    AgentProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User ID
+        email:
+          type: string
+          format: email
+          description: Account email
+        firstName:
+          type: string
+          description: First name
+        lastName:
+          type: string
+          description: Last name
+      required:
+      - email
+      - firstName
+      - id
+      - lastName
     Attribute:
       type: object
       description: Serializer for Attribute with translations.
