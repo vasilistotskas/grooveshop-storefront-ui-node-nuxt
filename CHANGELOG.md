@@ -1,3 +1,10 @@
+## [3.147.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.147.0...v3.147.1) (2026-08-16)
+
+
+### Bug Fixes
+
+* **agent:** actually list my_favourites on the MCP server card ([d27fc23](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d27fc23db92628459dbd07d0c9f648c5aa6ec83a))
+
 # [3.147.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.146.1...v3.147.0) (2026-08-16)
 
 
