@@ -1,3 +1,10 @@
+# [3.148.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.147.1...v3.148.0) (2026-08-16)
+
+
+### Features
+
+* **chat:** floating assistant panel with branded look ([699e13b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/699e13ba36eee68012f2fb2cd18abb420cf56c81))
+
 ## [3.147.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.147.0...v3.147.1) (2026-08-16)
 
 
