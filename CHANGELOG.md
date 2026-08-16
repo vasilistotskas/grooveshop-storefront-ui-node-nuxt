@@ -1,3 +1,10 @@
+# [3.149.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.148.1...v3.149.0) (2026-08-16)
+
+
+### Features
+
+* **chat:** markdown rendering, tool activity chips, shimmer indicator ([5ca7fc0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5ca7fc0e0017e67696314a490592cf278de17139))
+
 ## [3.148.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.148.0...v3.148.1) (2026-08-16)
 
 
