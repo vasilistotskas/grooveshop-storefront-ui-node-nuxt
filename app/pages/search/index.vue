@@ -57,6 +57,27 @@ const totalResults = computed(() => {
 
 const totalPages = computed(() => Math.ceil(totalResults.value / limit.value))
 
+const relaxedQuery = computed(
+  () =>
+    searchResults.value?.products?.relaxedQuery
+    || searchResults.value?.blogPosts?.relaxedQuery
+    || null,
+)
+
+const { trackResultClick } = useSearchClickTracking()
+
+function onResultClick(result: SearchResult, index: number) {
+  trackResultClick({
+    queryId:
+      result.contentType === 'product'
+        ? searchResults.value?.products?.queryId
+        : searchResults.value?.blogPosts?.queryId,
+    resultId: result.master,
+    resultType: result.contentType === 'product' ? 'product' : 'blog_post',
+    position: offset.value + index,
+  })
+}
+
 const tabItems = computed(() => {
   const productsCount = searchResults.value?.products?.estimatedTotalHits || 0
   const blogPostsCount = searchResults.value?.blogPosts?.estimatedTotalHits || 0
@@ -231,6 +252,13 @@ useHead({
                 })
               }}
             </span>
+            <span
+              v-if="relaxedQuery"
+              class="text-warning"
+              role="status"
+            >
+              {{ t('page.relaxed_notice', { query: relaxedQuery }) }}
+            </span>
           </div>
 
           <div class="flex items-center gap-4">
@@ -385,7 +413,7 @@ useHead({
       >
         <div class="space-y-4">
           <UCard
-            v-for="result in displayResults"
+            v-for="(result, index) in displayResults"
             :key="`${result.contentType}-${result.id}`"
             class="
               cursor-pointer overflow-hidden transition-all
@@ -400,7 +428,10 @@ useHead({
               `,
             }"
           >
-            <SearchResult :result="result" />
+            <SearchResult
+              :result="result"
+              @click="onResultClick(result, index)"
+            />
           </UCard>
         </div>
 
@@ -448,6 +479,7 @@ el:
     search_query: "Αναζήτηση {query}"
     search_placeholder: "Πληκτρολογήστε για αναζήτηση..."
     results_count: "{count} αποτελέσματα για \"{query}\""
+    relaxed_notice: "— εμφανίζονται αποτελέσματα για \"{query}\""
     per_page: "Ανά σελίδα"
     federated_search: "Ενοποιημένη Αναζήτηση"
     federated_search_tooltip: "Δοκιμάστε ενοποιημένη αναζήτηση με σταθμισμένη κατάταξη"
