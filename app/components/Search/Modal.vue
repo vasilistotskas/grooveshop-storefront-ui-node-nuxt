@@ -100,6 +100,28 @@ const totalResults = computed(() => {
   return productsTotal + blogPostsTotal
 })
 
+const relaxedQuery = computed(
+  () =>
+    searchResults.value?.products?.relaxedQuery
+    || searchResults.value?.blogPosts?.relaxedQuery
+    || null,
+)
+
+const { trackResultClick } = useSearchClickTracking()
+
+function onResultClick(result: SearchResult, position: number) {
+  trackResultClick({
+    queryId:
+      result.contentType === 'product'
+        ? searchResults.value?.products?.queryId
+        : searchResults.value?.blogPosts?.queryId,
+    resultId: result.master,
+    resultType: result.contentType === 'product' ? 'product' : 'blog_post',
+    position,
+  })
+  close()
+}
+
 function close() {
   localOpen.value = false
   activeResultIndex.value = -1
@@ -391,25 +413,37 @@ if (localQuery.value && localQuery.value.length >= 2) {
           </p>
         </div>
 
-        <div
-          v-else
-          id="search-results-listbox"
-          role="listbox"
-          :aria-label="t('search.title')"
-          class="
-            grid gap-2 divide-y divide-gray-100 px-1 pt-2
-            dark:divide-gray-800
-          "
-        >
-          <SearchResult
-            v-for="(result, index) in filteredResults"
-            :id="`search-result-${index}`"
-            :key="`${result.contentType}-${result.id}`"
-            role="option"
-            :aria-selected="index === activeResultIndex"
-            :result="result"
-            @click="close"
-          />
+        <div v-else>
+          <p
+            v-if="relaxedQuery"
+            class="flex items-center gap-1.5 px-4 pt-2 text-xs text-gray-500"
+            role="status"
+          >
+            <UIcon
+              name="i-heroicons-information-circle"
+              class="size-3.5 shrink-0"
+            />
+            {{ t('search.relaxed_notice', { query: relaxedQuery }) }}
+          </p>
+          <div
+            id="search-results-listbox"
+            role="listbox"
+            :aria-label="t('search.title')"
+            class="
+              grid gap-2 divide-y divide-gray-100 px-1 pt-2
+              dark:divide-gray-800
+            "
+          >
+            <SearchResult
+              v-for="(result, index) in filteredResults"
+              :id="`search-result-${index}`"
+              :key="`${result.contentType}-${result.id}`"
+              role="option"
+              :aria-selected="index === activeResultIndex"
+              :result="result"
+              @click="onResultClick(result, index)"
+            />
+          </div>
         </div>
       </div>
     </template>
@@ -457,6 +491,7 @@ el:
     trending: Δημοφιλείς αναζητήσεις
     clear: Εκκαθάριση
     no_results: Δεν βρέθηκαν αποτελέσματα
+    relaxed_notice: Εμφανίζονται αποτελέσματα για "{query}"
     try_different: Δοκίμασς διαφορετικούς όρους αναζήτησης
     load_more: Φόρτωση περισσότερων
     navigate: Πλοήγηση
