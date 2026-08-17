@@ -1285,7 +1285,7 @@ export const zFederatedSearchResult = z.object({
   subtitle: z.string().optional(),
   body: z.string().optional(),
   master: z.int().optional(),
-  Federation: zFederationMetadata,
+  federation: zFederationMetadata,
 }).register(z.globalRegistry, {
   description: 'Serializer for individual federated search result.\n\nThis combines fields from both ProductTranslation and BlogPostTranslation\nwith federation metadata.',
 })

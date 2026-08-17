@@ -2069,11 +2069,9 @@ export type FederatedSearchResult = {
   body?: string
   master?: number
   /**
-     *  federation
-     *
      * Federation metadata from Meilisearch
      */
-  Federation: FederationMetadata
+  federation: FederationMetadata
 }
 
 /**

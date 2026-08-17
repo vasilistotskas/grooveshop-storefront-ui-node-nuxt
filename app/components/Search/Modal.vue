@@ -100,23 +100,30 @@ const totalResults = computed(() => {
   return productsTotal + blogPostsTotal
 })
 
-const relaxedQuery = computed(
-  () =>
-    searchResults.value?.products?.relaxedQuery
-    || searchResults.value?.blogPosts?.relaxedQuery
-    || null,
-)
+const relaxedQuery = computed(() => {
+  const products = searchResults.value?.products?.relaxedQuery ?? null
+  const blogPosts = searchResults.value?.blogPosts?.relaxedQuery ?? null
+  if (activeTab.value === 'products') return products
+  if (activeTab.value === 'blogPosts') return blogPosts
+  return products ?? blogPosts
+})
 
 const { trackResultClick } = useSearchClickTracking()
 
-function onResultClick(result: SearchResult, position: number) {
+function onResultClick(result: SearchResult, displayIndex: number) {
+  const isProduct = result.contentType === 'product'
+  // On the "all" tab products render first, so a blog post's rank
+  // within its own list is the display index minus the product count.
+  const position
+    = activeTab.value === 'all' && !isProduct
+      ? displayIndex - allLoadedResults.value.products.length
+      : displayIndex
   trackResultClick({
-    queryId:
-      result.contentType === 'product'
-        ? searchResults.value?.products?.queryId
-        : searchResults.value?.blogPosts?.queryId,
+    queryId: isProduct
+      ? searchResults.value?.products?.queryId
+      : searchResults.value?.blogPosts?.queryId,
     resultId: result.master,
-    resultType: result.contentType === 'product' ? 'product' : 'blog_post',
+    resultType: isProduct ? 'product' : 'blog_post',
     position,
   })
   close()
@@ -166,10 +173,6 @@ defineShortcuts({
   escape: {
     handler: () => close(),
   },
-})
-
-watch(activeTab, () => {
-  offset.value = 0
 })
 
 watch(debouncedQuery, (newQuery) => {
@@ -494,7 +497,5 @@ el:
     relaxed_notice: Εμφανίζονται αποτελέσματα για "{query}"
     try_different: Δοκίμασς διαφορετικούς όρους αναζήτησης
     load_more: Φόρτωση περισσότερων
-    navigate: Πλοήγηση
-    select: Επιλογή
     view_all_results: Προβολή όλων
 </i18n>
