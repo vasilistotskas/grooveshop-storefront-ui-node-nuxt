@@ -1,3 +1,10 @@
+## [3.151.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.151.0...v3.151.1) (2026-08-17)
+
+
+### Bug Fixes
+
+* **search:** audit round - federated All tab, click positions, dead code ([#20](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/20)) ([d483963](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d4839632ffae96426a41794ed4078db05fb45af0))
+
 # [3.151.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.150.0...v3.151.0) (2026-08-17)
 
 
