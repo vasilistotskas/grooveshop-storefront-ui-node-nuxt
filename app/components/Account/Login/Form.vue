@@ -31,7 +31,9 @@ const schema = z.object({
   }),
   password: z.string({ error: issue => issue.input === undefined
     ? t('validation.required')
-    : t('validation.string.invalid') }),
+    : t('validation.string.invalid') }).min(1, {
+    error: t('validation.required'),
+  }),
 })
 
 type Schema = z.output<typeof schema>

@@ -21,19 +21,24 @@ export type AcsAddressValidationRequestRequest = {
 
 /**
  * A single resolved address — the first ACSObjectOutput row.
+ *
+ * Every field is ``required=False``: the endpoint returns a literal
+ * ``{}`` when ACS cannot geocode the input (see the view docstring),
+ * so the contract must allow the empty object or schema-validating
+ * consumers reject the documented not-recognised case.
  */
 export type AcsAddressValidationResponse = {
   geoId?: number | null
-  resolvedStreet: string
-  resolvedStreetNum: string
-  resolvedZip: string
-  resolvedArea: string
+  resolvedStreet?: string
+  resolvedStreetNum?: string
+  resolvedZip?: string
+  resolvedArea?: string
   resolvedLong?: number | null
   resolvedLat?: number | null
-  resolvedStationId: string
+  resolvedStationId?: string
   resolvedBranchId?: number | null
-  resolvedProvidence: string
-  addressId: string
+  resolvedProvidence?: string
+  addressId?: string
 }
 
 /**
@@ -189,13 +194,13 @@ export type AcsStation = {
   /**
      * Εξωτερικό ID
      *
-     * ACS_SHOP_STATION_ID — χρησιμοποιείται ως Acs_Station_Destination.
+     * ACS_SHOP_STATION_ID_EN — ο κωδικός σταθμού ΠΕΡΙΟΧΗΣ, χρησιμοποιείται ως Acs_Station_Destination. ΔΕΝ είναι μοναδικός από μόνος του: κάθε locker Smartpoint μιας περιοχής τον μοιράζεται (π.χ. 50 lockers κάτω από το 'ATH')· το ζεύγος (external_id, branch_code) είναι η ταυτότητα του locker.
      */
   readonly externalId: string
   /**
      * Κωδικός υποκαταστήματος
      *
-     * ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination).
+     * ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination). Διακρίνει τα επιμέρους lockers μιας περιοχής σταθμού.
      */
   readonly branchCode: string
   /**
@@ -208,8 +213,8 @@ export type AcsStation = {
      * * `3` - Συνεργαζόμενο κατάστημα (3)
      * * `4` - Xpress Point
      * * `5` - Kiosk
-     * * `7` - Smartpoint (εισερχόμενα)
-     * * `8` - Smartpoint (εξερχόμενα)
+     * * `7` - Smartpoint (χωρίς locker)
+     * * `8` - Smartpoint locker
      */
   shopKind: ShopKindEnum
   /**
@@ -271,13 +276,13 @@ export type AcsStationDetail = {
   /**
      * Εξωτερικό ID
      *
-     * ACS_SHOP_STATION_ID — χρησιμοποιείται ως Acs_Station_Destination.
+     * ACS_SHOP_STATION_ID_EN — ο κωδικός σταθμού ΠΕΡΙΟΧΗΣ, χρησιμοποιείται ως Acs_Station_Destination. ΔΕΝ είναι μοναδικός από μόνος του: κάθε locker Smartpoint μιας περιοχής τον μοιράζεται (π.χ. 50 lockers κάτω από το 'ATH')· το ζεύγος (external_id, branch_code) είναι η ταυτότητα του locker.
      */
   readonly externalId: string
   /**
      * Κωδικός υποκαταστήματος
      *
-     * ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination).
+     * ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination). Διακρίνει τα επιμέρους lockers μιας περιοχής σταθμού.
      */
   readonly branchCode: string
   /**
@@ -290,8 +295,8 @@ export type AcsStationDetail = {
      * * `3` - Συνεργαζόμενο κατάστημα (3)
      * * `4` - Xpress Point
      * * `5` - Kiosk
-     * * `7` - Smartpoint (εισερχόμενα)
-     * * `8` - Smartpoint (εξερχόμενα)
+     * * `7` - Smartpoint (χωρίς locker)
+     * * `8` - Smartpoint locker
      */
   shopKind: ShopKindEnum
   /**
@@ -396,6 +401,57 @@ export type ActionEnum = 'subscribe' | 'unsubscribe'
 export type AddTrackingRequest = {
   trackingNumber: string
   shippingCarrier: string
+}
+
+/**
+ * Compact favourite row for agents — the storefront's favourite
+ * serializers embed the full product detail payload, which is far more
+ * than a tool result should carry.
+ */
+export type AgentFavourite = {
+  /**
+     * Product ID
+     */
+  productId: number
+  /**
+     * Localized product name
+     */
+  name: string
+  /**
+     * Current VAT-inclusive price
+     */
+  finalPrice: string
+  /**
+     * Price currency
+     */
+  currency: string
+  /**
+     * Whether the product is currently in stock
+     */
+  inStock: boolean
+  /**
+     * When the product was favourited
+     */
+  addedAt: string
+}
+
+export type AgentProfile = {
+  /**
+     * User ID
+     */
+  id: number
+  /**
+     * Account email
+     */
+  email: string
+  /**
+     * First name
+     */
+  firstName: string
+  /**
+     * Last name
+     */
+  lastName: string
 }
 
 /**
@@ -1073,7 +1129,23 @@ export type BlogPostLikedPostsResponse = {
   postIds: Array<number>
 }
 
+/**
+ * Common disclosure fields every search response carries.
+ *
+ * ``query_id`` attributes later clicks to this query (see the
+ * ``search/click`` endpoint); ``relaxed_query`` reports the trimmed
+ * query the zero-result fallback actually matched, so clients can
+ * disclose "showing results for …" instead of silently swapping.
+ */
 export type BlogPostMeiliSearchResponse = {
+  /**
+     * Identifier for this search, used to attribute clicks
+     */
+  queryId: string
+  /**
+     * The relaxed query used by the zero-result fallback, or null when results matched the original query
+     */
+  relaxedQuery: string | null
   limit: number
   offset: number
   estimatedTotalHits: number
@@ -1817,6 +1889,11 @@ export type BoxNowWebhookEnvelopeRequest = {
   data: BoxNowWebhookDataRequest
 }
 
+export type BulkSubscriptionFailure = {
+  readonly topic: string
+  readonly error: string
+}
+
 export type BulkSubscriptionRequest = {
   /**
      * Λίστα ID θεμάτων για εγγραφή/διαγραφή
@@ -1829,6 +1906,12 @@ export type BulkSubscriptionRequest = {
      * * `unsubscribe` - unsubscribe
      */
   action: ActionEnum
+}
+
+export type BulkSubscriptionResult = {
+  readonly success: Array<string>
+  readonly failed: Array<BulkSubscriptionFailure>
+  readonly alreadyProcessed: Array<string>
 }
 
 export type CancelOrderRequestRequest = {
@@ -2119,6 +2202,36 @@ export type CompartmentSizeEnum = 1 | 2 | 3
  * * `search_bar` - Search Bar
  */
 export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar'
+
+export type ConfirmAgentPaymentRequestRequest = {
+  /**
+     * Stripe SharedPaymentToken (spt_…) granted to this store by the agent platform, scoped to this exact purchase.
+     */
+  sharedPaymentToken: string
+}
+
+export type ConfirmAgentPaymentResponse = {
+  /**
+     * Stripe PaymentIntent ID that charged the token
+     */
+  paymentId: string
+  /**
+     * Κατάσταση πληρωμής
+     */
+  status: string
+  /**
+     * Ποσό πληρωμής
+     */
+  amount: string
+  /**
+     * Νόμισμα πληρωμής
+     */
+  currency: string
+  /**
+     * Όνομα παρόχου πληρωμών
+     */
+  provider: string
+}
 
 export type ConfirmResponse = {
   status: string
@@ -2424,6 +2537,14 @@ export type FacetStatsItem = {
  */
 export type FederatedSearchResponse = {
   /**
+     * Identifier for this search, used to attribute clicks
+     */
+  queryId: string
+  /**
+     * The relaxed query used by the zero-result fallback, or null when results matched the original query
+     */
+  relaxedQuery: string | null
+  /**
      * Maximum number of results requested
      */
   limit: number
@@ -2474,11 +2595,9 @@ export type FederatedSearchResult = {
   body?: string
   master?: number
   /**
-     *  federation
-     *
      * Federation metadata from Meilisearch
      */
-  Federation: FederationMetadata
+  federation: FederationMetadata
 }
 
 /**
@@ -5903,7 +6022,23 @@ export type ProductImageWriteRequest = {
   }
 }
 
+/**
+ * Common disclosure fields every search response carries.
+ *
+ * ``query_id`` attributes later clicks to this query (see the
+ * ``search/click`` endpoint); ``relaxed_query`` reports the trimmed
+ * query the zero-result fallback actually matched, so clients can
+ * disclose "showing results for …" instead of silently swapping.
+ */
 export type ProductMeiliSearchResponse = {
+  /**
+     * Identifier for this search, used to attribute clicks
+     */
+  queryId: string
+  /**
+     * The relaxed query used by the zero-result fallback, or null when results matched the original query
+     */
+  relaxedQuery: string | null
   limit: number
   offset: number
   estimatedTotalHits: number
@@ -6392,6 +6527,12 @@ export type ReserveStockResponse = {
 }
 
 /**
+ * * `product` - product
+ * * `blog_post` - blog_post
+ */
+export type ResultTypeEnum = 'product' | 'blog_post'
+
+/**
  * * `NEW` - Νέο
  * * `TRUE` - Ναι
  * * `FALSE` - Όχι
@@ -6426,6 +6567,35 @@ export type SearchAnalyticsResponse = {
      * Overall click-through rate (total clicks / total searches)
      */
   clickThroughRate: number
+}
+
+/**
+ * Payload for attributing a result click to a search query.
+ */
+export type SearchClickRequestRequest = {
+  /**
+     * The query_id returned by the search response
+     */
+  queryId: string
+  /**
+     * ID of the clicked result (Product or BlogPost ID)
+     */
+  resultId: string
+  /**
+     * Type of the clicked result
+     *
+     * * `product` - product
+     * * `blog_post` - blog_post
+     */
+  resultType: ResultTypeEnum
+  /**
+     * 0-indexed position of the result in the result list
+     */
+  position: number
+}
+
+export type SearchClickResponse = {
+  detail: string
 }
 
 /**
@@ -6589,8 +6759,8 @@ export type ShippingProvider = {
  * * `3` - Συνεργαζόμενο κατάστημα (3)
  * * `4` - Xpress Point
  * * `5` - Kiosk
- * * `7` - Smartpoint (εισερχόμενα)
- * * `8` - Smartpoint (εξερχόμενα)
+ * * `7` - Smartpoint (χωρίς locker)
+ * * `8` - Smartpoint locker
  */
 export type ShopKindEnum = 1 | 2 | 3 | 4 | 5 | 7 | 8
 
@@ -9957,6 +10127,58 @@ export type UserSubscriptionDetailWritable = {
      */
   metadata?: unknown
 }
+
+export type GetAgentProfileData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/agent/me'
+}
+
+export type GetAgentProfileResponses = {
+  200: AgentProfile
+}
+
+export type GetAgentProfileResponse = GetAgentProfileResponses[keyof GetAgentProfileResponses]
+
+export type ListAgentFavouritesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/agent/me/favourites'
+}
+
+export type ListAgentFavouritesResponses = {
+  200: Array<AgentFavourite>
+}
+
+export type ListAgentFavouritesResponse = ListAgentFavouritesResponses[keyof ListAgentFavouritesResponses]
+
+export type GetAgentLoyaltySummaryData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/agent/me/loyalty'
+}
+
+export type GetAgentLoyaltySummaryResponses = {
+  200: LoyaltySummary
+}
+
+export type GetAgentLoyaltySummaryResponse = GetAgentLoyaltySummaryResponses[keyof GetAgentLoyaltySummaryResponses]
+
+export type ListAgentOrdersData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/agent/me/orders'
+}
+
+export type ListAgentOrdersResponses = {
+  200: Array<Order>
+}
+
+export type ListAgentOrdersResponse = ListAgentOrdersResponses[keyof ListAgentOrdersResponses]
 
 export type ListBlogAuthorData = {
   body?: never
@@ -15873,6 +16095,31 @@ export type CancelOrderResponses = {
 
 export type CancelOrderResponse = CancelOrderResponses[keyof CancelOrderResponses]
 
+export type ConfirmAgentPaymentForOrderData = {
+  body: ConfirmAgentPaymentRequestRequest
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/order/{id}/confirm_agent_payment'
+}
+
+export type ConfirmAgentPaymentForOrderErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ConfirmAgentPaymentForOrderError = ConfirmAgentPaymentForOrderErrors[keyof ConfirmAgentPaymentForOrderErrors]
+
+export type ConfirmAgentPaymentForOrderResponses = {
+  200: ConfirmAgentPaymentResponse
+}
+
+export type ConfirmAgentPaymentForOrderResponse = ConfirmAgentPaymentForOrderResponses[keyof ConfirmAgentPaymentForOrderResponses]
+
 export type CreateOrderCheckoutSessionData = {
   body: CreateCheckoutSessionRequestRequest
   path: {
@@ -20199,6 +20446,25 @@ export type ApiV1SearchBlogPostRetrieveResponses = {
 
 export type ApiV1SearchBlogPostRetrieveResponse = ApiV1SearchBlogPostRetrieveResponses[keyof ApiV1SearchBlogPostRetrieveResponses]
 
+export type ApiV1SearchClickCreateData = {
+  body: SearchClickRequestRequest
+  path?: never
+  query?: never
+  url: '/api/v1/search/click'
+}
+
+export type ApiV1SearchClickCreateErrors = {
+  400: ErrorResponse
+}
+
+export type ApiV1SearchClickCreateError = ApiV1SearchClickCreateErrors[keyof ApiV1SearchClickCreateErrors]
+
+export type ApiV1SearchClickCreateResponses = {
+  202: SearchClickResponse
+}
+
+export type ApiV1SearchClickCreateResponse = ApiV1SearchClickCreateResponses[keyof ApiV1SearchClickCreateResponses]
+
 export type ApiV1SearchFederatedRetrieveData = {
   body?: never
   path?: never
@@ -20548,10 +20814,10 @@ export type ApiV1ShippingAcsStationsListResponse = ApiV1ShippingAcsStationsListR
 export type ApiV1ShippingAcsStationsRetrieveData = {
   body?: never
   path: {
-    externalId: string
+    uuid: string
   }
   query?: never
-  url: '/api/v1/shipping/acs/stations/{external_id}'
+  url: '/api/v1/shipping/acs/stations/{uuid}'
 }
 
 export type ApiV1ShippingAcsStationsRetrieveResponses = {
@@ -22706,11 +22972,10 @@ export type BulkUpdateUserSubscriptionsErrors = {
 export type BulkUpdateUserSubscriptionsError = BulkUpdateUserSubscriptionsErrors[keyof BulkUpdateUserSubscriptionsErrors]
 
 export type BulkUpdateUserSubscriptionsResponses = {
-  /**
-     * No response body
-     */
-  200: unknown
+  200: BulkSubscriptionResult
 }
+
+export type BulkUpdateUserSubscriptionsResponse = BulkUpdateUserSubscriptionsResponses[keyof BulkUpdateUserSubscriptionsResponses]
 
 export type ConfirmSubscriptionByTokenData = {
   body?: never

@@ -19,6 +19,10 @@ export default defineEventHandler(async (event) => {
     return passwordChangeResponse
   }
   catch (error) {
-    await handleAllAuthError(error)
+    // Account-management 4xx payloads (wrong password, duplicate email,
+    // bad TOTP code, …) must reach the client toast layer — thrown
+    // createError({data}) is stripped in production. Same forward
+    // contract as the auth flow routes.
+    return await forwardAllAuthFlow(error)
   }
 })

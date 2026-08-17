@@ -17,6 +17,16 @@ const activeTab = ref<'all' | 'products' | 'blogPosts'>('all')
 
 const offset = computed(() => (page.value - 1) * limit.value)
 
+// Two fetch lanes with genuinely different pagination semantics:
+//
+// - The per-type request drives the Products/Blog tabs (offset/limit
+//   map 1:1 onto each type's own list) and always supplies the tab
+//   badge counts.
+// - The "All" tab uses the FEDERATED endpoint: one relevance-merged,
+//   correctly paginated list. Concatenating the two per-type lists
+//   here used to render up to 2x the page size, advertise phantom
+//   trailing pages (summed totals over a single limit), and always
+//   rank products above blog posts regardless of relevance.
 const {
   data: searchResults,
   status,
@@ -31,31 +41,85 @@ const {
   watch: [query, limit, offset],
 })
 
-const displayResults = computed(() => {
-  if (!searchResults.value) return []
+const isAllTab = computed(() => activeTab.value === 'all')
 
-  const products = searchResults.value.products?.results || []
-  const blogPosts = searchResults.value.blogPosts?.results || []
+const {
+  data: federatedResults,
+  status: federatedStatus,
+} = await useFetch<FederatedSearchResponse>('/api/search/federated', {
+  key: computed(
+    () => `search-federated-${query.value}-${limit.value}-${offset.value}`,
+  ),
+  query: {
+    query,
+    languageCode: locale,
+    limit,
+    offset,
+  },
+  watch: [query, limit, offset],
+  immediate: !!query.value,
+})
 
-  if (activeTab.value === 'products') return products
-  if (activeTab.value === 'blogPosts') return blogPosts
-
-  return [...products, ...blogPosts]
+const displayResults = computed<SearchResult[]>(() => {
+  if (activeTab.value === 'products') {
+    return searchResults.value?.products?.results || []
+  }
+  if (activeTab.value === 'blogPosts') {
+    return searchResults.value?.blogPosts?.results || []
+  }
+  // Safe refinement: the backend always emits master/slug on enriched
+  // federated hits (see EnrichedFederatedSearchResult).
+  return (federatedResults.value?.results || []) as SearchResult[]
 })
 
 const totalResults = computed(() => {
-  if (!searchResults.value) return 0
-
-  const productsTotal = searchResults.value.products?.estimatedTotalHits || 0
-  const blogPostsTotal = searchResults.value.blogPosts?.estimatedTotalHits || 0
-
-  if (activeTab.value === 'products') return productsTotal
-  if (activeTab.value === 'blogPosts') return blogPostsTotal
-
-  return productsTotal + blogPostsTotal
+  if (activeTab.value === 'products') {
+    return searchResults.value?.products?.estimatedTotalHits || 0
+  }
+  if (activeTab.value === 'blogPosts') {
+    return searchResults.value?.blogPosts?.estimatedTotalHits || 0
+  }
+  return federatedResults.value?.estimatedTotalHits || 0
 })
 
 const totalPages = computed(() => Math.ceil(totalResults.value / limit.value))
+
+const isSearching = computed(() =>
+  isAllTab.value
+    ? federatedStatus.value === 'pending'
+    : status.value === 'pending',
+)
+
+// The disclosure must describe the result set actually on screen —
+// product and blog relaxation are computed independently backend-side.
+const relaxedQuery = computed(() => {
+  if (activeTab.value === 'products') {
+    return searchResults.value?.products?.relaxedQuery ?? null
+  }
+  if (activeTab.value === 'blogPosts') {
+    return searchResults.value?.blogPosts?.relaxedQuery ?? null
+  }
+  return federatedResults.value?.relaxedQuery ?? null
+})
+
+const { trackResultClick } = useSearchClickTracking()
+
+function onResultClick(result: SearchResult, index: number) {
+  // Federated hits type master as optional - without it the click
+  // cannot be attributed to a rankable entity, so skip tracking.
+  if (result.master == null) return
+  const isProduct = result.contentType === 'product'
+  trackResultClick({
+    queryId: isAllTab.value
+      ? federatedResults.value?.queryId
+      : isProduct
+        ? searchResults.value?.products?.queryId
+        : searchResults.value?.blogPosts?.queryId,
+    resultId: result.master,
+    resultType: isProduct ? 'product' : 'blog_post',
+    position: offset.value + index,
+  })
+}
 
 const tabItems = computed(() => {
   const productsCount = searchResults.value?.products?.estimatedTotalHits || 0
@@ -231,6 +295,13 @@ useHead({
                 })
               }}
             </span>
+            <span
+              v-if="relaxedQuery"
+              class="text-warning"
+              role="status"
+            >
+              {{ t('page.relaxed_notice', { query: relaxedQuery }) }}
+            </span>
           </div>
 
           <div class="flex items-center gap-4">
@@ -252,7 +323,7 @@ useHead({
 
     <UContainer class="flex-1 py-8">
       <div
-        v-if="status === 'pending' && !searchResults"
+        v-if="isSearching && displayResults.length === 0"
         class="space-y-4"
       >
         <UCard
@@ -333,7 +404,7 @@ useHead({
         v-else-if="
           searchResults
             && displayResults.length === 0
-            && status !== 'pending'
+            && !isSearching
         "
         class="
           flex min-h-[400px] flex-col items-center justify-center py-16
@@ -385,7 +456,7 @@ useHead({
       >
         <div class="space-y-4">
           <UCard
-            v-for="result in displayResults"
+            v-for="(result, index) in displayResults"
             :key="`${result.contentType}-${result.id}`"
             class="
               cursor-pointer overflow-hidden transition-all
@@ -400,7 +471,10 @@ useHead({
               `,
             }"
           >
-            <SearchResult :result="result" />
+            <SearchResult
+              :result="result"
+              @click="onResultClick(result, index)"
+            />
           </UCard>
         </div>
 
@@ -448,9 +522,8 @@ el:
     search_query: "Αναζήτηση {query}"
     search_placeholder: "Πληκτρολογήστε για αναζήτηση..."
     results_count: "{count} αποτελέσματα για \"{query}\""
+    relaxed_notice: "— εμφανίζονται αποτελέσματα για \"{query}\""
     per_page: "Ανά σελίδα"
-    federated_search: "Ενοποιημένη Αναζήτηση"
-    federated_search_tooltip: "Δοκιμάστε ενοποιημένη αναζήτηση με σταθμισμένη κατάταξη"
     breadcrumb:
       home: "Αρχική"
       search: "Αναζήτηση"
@@ -458,8 +531,6 @@ el:
       all: "Όλα"
       products_label: "Προϊόντα"
       blog_posts_label: "Άρθρα"
-      products: "Προϊόντα ({count})"
-      blog_posts: "Άρθρα ({count})"
     empty:
       title: "Ξεκινήστε την αναζήτησή σας"
       description: "Χρησιμοποιήστε το πεδίο αναζήτησης παραπάνω για να βρείτε προϊόντα και άρθρα που σας ενδιαφέρουν"

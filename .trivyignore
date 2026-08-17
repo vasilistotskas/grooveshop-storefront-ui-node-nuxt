@@ -1,0 +1,10 @@
+# image-size 2.0.2 — infinite-loop DoS in the ICNS (CVE-2025-71330) and
+# JXL/HEIF (CVE-2025-71329) parsers when fed a crafted image buffer.
+# No patched release exists (2.0.2 IS the latest published version, no
+# fix upstream as of 2026-08-11). Reaches the prod graph only via
+# @nuxtjs/seo -> nuxt-seo-utils, which runs image-size on the site's
+# own static/OG images, not on user-supplied buffers, so the DoS is not
+# attacker-reachable here. Remove both entries as soon as image-size
+# publishes a fixed version and nuxt-seo-utils picks it up.
+CVE-2025-71329
+CVE-2025-71330

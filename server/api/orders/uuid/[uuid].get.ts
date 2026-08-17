@@ -1,7 +1,6 @@
 import * as z from 'zod'
 
 const zGuestQuery = z.object({
-  uuid: z.string().uuid().optional(),
   languageCode: z.string().optional(),
 })
 
@@ -14,13 +13,10 @@ export default defineEventHandler(async (event) => {
       zRetrieveOrderByUuidPath.parse,
     )
     const query = await getValidatedQuery(event, zGuestQuery.parse)
+    // Guest authorization is possession of the unguessable UUID itself —
+    // Django reads it from the path, no query duplication needed.
     const url = new URL(`${config.apiBaseUrl}/order/uuid/${params.uuid}`)
 
-    // Forward uuid query param so Django's IsOwnerOrAdminOrGuest permission
-    // check passes for guest orders (checks request.query_params["uuid"] == obj.uuid)
-    if (query.uuid) {
-      url.searchParams.set('uuid', query.uuid)
-    }
     if (query.languageCode) {
       url.searchParams.set('language_code', query.languageCode)
     }

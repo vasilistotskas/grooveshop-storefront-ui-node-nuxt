@@ -19,20 +19,29 @@ export function serializeError(err: unknown): SerializedError {
 }
 
 /** Safely pull a user-facing detail string from a thrown ``unknown``.
- *  Reads ``err.data.detail`` (DRF/allauth shape) first, then falls back
- *  to ``err.message``. Returns ``undefined`` when neither is a string —
- *  callers default to a translated fallback. Lets ``catch`` blocks
- *  drop the ``error: any`` annotation without verbose narrowing at
- *  every site. */
+ *  Reads ``err.data.detail`` (forwarded/returned upstream bodies) first,
+ *  then ``err.data.data.detail`` (thrown-route wrapper, when the error
+ *  handler keeps ``data``). Returns ``undefined`` otherwise so callers'
+ *  ``|| t('fallback')`` renders translated copy.
+ *
+ *  Deliberately does NOT fall back to ``err.message``: for fetch errors
+ *  that is ofetch's ``[POST] "/api/...": 400 Bad Request`` string —
+ *  always truthy, so it made every translated fallback dead code and
+ *  put raw request lines in front of customers. */
 export function getErrorDetail(err: unknown): string | undefined {
   if (err && typeof err === 'object') {
-    const e = err as Record<string, unknown>
-    const data = e.data
-    if (data && typeof data === 'object' && 'detail' in data) {
-      const detail = (data as Record<string, unknown>).detail
-      if (typeof detail === 'string' && detail.length > 0) return detail
+    const detailOf = (candidate: unknown): string | undefined => {
+      if (candidate && typeof candidate === 'object' && 'detail' in candidate) {
+        const detail = (candidate as Record<string, unknown>).detail
+        if (typeof detail === 'string' && detail.length > 0) return detail
+      }
+      return undefined
     }
-    if (typeof e.message === 'string' && e.message.length > 0) return e.message
+    const data = (err as Record<string, unknown>).data
+    const nested = data && typeof data === 'object'
+      ? (data as Record<string, unknown>).data
+      : undefined
+    return detailOf(data) ?? detailOf(nested)
   }
   return undefined
 }

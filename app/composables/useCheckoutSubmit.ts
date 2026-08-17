@@ -115,9 +115,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     let errorTitle = t('form.submit.error.general')
     let errorDescription: string | undefined
 
-    log.info({ tag: 'checkout', message: 'handleOrderError response', status: response?.status })
-
     const errorData = response._data || response.data
+
+    log.info({
+      tag: 'checkout',
+      message: 'handleOrderError response',
+      status: response?.status,
+      errors: errorData,
+    })
     // When the upstream returns a non-JSON 5xx (gateway crash, Cloudflare
     // error page, etc.) ``errorData`` is undefined and the structured
     // branches below all miss — the user sees the generic toast and
@@ -172,6 +177,16 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
           errorDescription = cartErrors.join('. ')
         }
       }
+    }
+    // DRF serializer field errors: { field: ["msg", ...] } — e.g.
+    // {"phone": ["Enter a valid phone number."]}. Surface every message
+    // under its translated form label so the customer sees exactly what
+    // to fix instead of the generic failure toast. Field-level Zod
+    // validation should catch these first — this is the safety net for
+    // rules only Django knows about.
+    else if (isDrfFieldErrorMap(errorData)) {
+      errorTitle = t('form.submit.error.invalid_order_data')
+      errorDescription = formatDrfFieldErrors(errorData, t)
     }
     // Fallback to detail
     else if (errorData?.detail) {
@@ -482,7 +497,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
           })
           // Clear cart server-side after order is confirmed
           try {
-            await $fetch('/api/cart/clear', { method: 'POST' })
+            await $fetch('/api/cart/clear-session', { method: 'POST' })
           }
           catch (err) {
             log.error({ action: 'checkout:clearCart', error: err })
@@ -646,7 +661,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     // Clear cart server-side only after payment is confirmed so a failed
     // Stripe confirmation doesn't wipe the cart before we know it succeeded.
     try {
-      await $fetch('/api/cart/clear', { method: 'POST' })
+      await $fetch('/api/cart/clear-session', { method: 'POST' })
     }
     catch (err) {
       log.error({ action: 'checkout:clearCart', error: err })

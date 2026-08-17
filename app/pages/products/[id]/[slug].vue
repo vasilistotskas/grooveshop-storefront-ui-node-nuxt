@@ -511,123 +511,118 @@ useHead({
 })
 
 useSchemaOrg([
-  defineProduct({
-    name: () => extractTranslated(product.value, 'name', locale.value) || '',
-    description: () => stripHtmlTags(extractTranslated(product.value, 'description', locale.value) || ''),
-    sku: () => product.value?.uuid || '',
-    productID: () => product.value?.id?.toString() || '',
+  // Object-valued schema properties (image, offers, aggregateRating,
+  // review) may no longer be per-property getters since the
+  // @unhead/schema-org v3 definer-type rewrite — reactive nodes must be
+  // a single computed() over plain values instead.
+  defineProduct(computed(() => {
+    const images = (productImages.value ?? [])
+      .map(img => img.imageUrl)
+      .filter((path): path is string => Boolean(path))
 
-    image: () => {
-      const images: string[] = []
-      if (productImages.value) {
-        productImages.value.forEach((img) => {
-          const imgPath = img.imageUrl
-          if (imgPath) {
-            images.push(imgPath)
-          }
-        })
-      }
-      return images.length > 0 ? images : undefined
-    },
+    const priceValidUntilDate = new Date()
+    priceValidUntilDate.setDate(priceValidUntilDate.getDate() + 30)
 
-    url: () => canonicalUrl.value,
+    const reviews = productReviews.value?.results ?? []
 
-    category: () => product.value?.category?.toString() || undefined,
+    return {
+      name: extractTranslated(product.value, 'name', locale.value) || '',
+      description: stripHtmlTags(extractTranslated(product.value, 'description', locale.value) || ''),
+      sku: product.value?.uuid || '',
+      productID: product.value?.id?.toString() || '',
 
-    brand: {
-      '@type': 'Brand',
-      'name': siteConfig.name,
-    },
+      image: images.length > 0 ? images : undefined,
 
-    offers: {
-      '@type': 'Offer',
-      'price': () => (product.value?.finalPrice || 0).toFixed(2),
-      'priceCurrency': 'EUR',
-      'availability': () => productAvailability.value,
-      'itemCondition': () => productCondition.value,
-      'url': () => canonicalUrl.value,
-      'priceValidUntil': () => {
-        const date = new Date()
-        date.setDate(date.getDate() + 30)
-        return date.toISOString().split('T')[0]
-      },
-      'seller': {
-        '@type': 'Organization',
+      url: canonicalUrl.value,
+
+      category: product.value?.category?.toString() || undefined,
+
+      brand: {
+        '@type': 'Brand',
         'name': siteConfig.name,
       },
-      'hasMerchantReturnPolicy': {
-        '@type': 'MerchantReturnPolicy',
-        'applicableCountry': 'GR',
-        'returnPolicyCategory': 'https://schema.org/MerchantReturnFiniteReturnWindow',
-        'merchantReturnDays': 14,
-        'returnMethod': 'https://schema.org/ReturnByMail',
-        'returnFees': 'https://schema.org/ReturnFeesCustomerResponsibility',
-      },
-      'shippingDetails': {
-        '@type': 'OfferShippingDetails',
-        'shippingRate': {
-          '@type': 'MonetaryAmount',
-          'value': 0,
-          'currency': 'EUR',
+
+      offers: {
+        '@type': 'Offer' as const,
+        'price': (product.value?.finalPrice || 0).toFixed(2),
+        'priceCurrency': 'EUR',
+        'availability': productAvailability.value,
+        'itemCondition': productCondition.value,
+        'url': canonicalUrl.value,
+        'priceValidUntil': priceValidUntilDate.toISOString().split('T')[0],
+        'seller': {
+          '@type': 'Organization',
+          'name': siteConfig.name,
         },
-        'shippingDestination': {
-          '@type': 'DefinedRegion',
-          'addressCountry': 'GR',
+        'hasMerchantReturnPolicy': {
+          '@type': 'MerchantReturnPolicy',
+          'applicableCountry': 'GR',
+          'returnPolicyCategory': 'https://schema.org/MerchantReturnFiniteReturnWindow',
+          'merchantReturnDays': 14,
+          'returnMethod': 'https://schema.org/ReturnByMail',
+          'returnFees': 'https://schema.org/ReturnFeesCustomerResponsibility',
         },
-        'deliveryTime': {
-          '@type': 'ShippingDeliveryTime',
-          'handlingTime': {
-            '@type': 'QuantitativeValue',
-            'minValue': 0,
-            'maxValue': 1,
-            'unitCode': 'DAY',
+        'shippingDetails': {
+          '@type': 'OfferShippingDetails',
+          'shippingRate': {
+            '@type': 'MonetaryAmount',
+            'value': 0,
+            'currency': 'EUR',
           },
-          'transitTime': {
-            '@type': 'QuantitativeValue',
-            'minValue': 3,
-            'maxValue': 5,
-            'unitCode': 'DAY',
+          'shippingDestination': {
+            '@type': 'DefinedRegion',
+            'addressCountry': 'GR',
+          },
+          'deliveryTime': {
+            '@type': 'ShippingDeliveryTime',
+            'handlingTime': {
+              '@type': 'QuantitativeValue',
+              'minValue': 0,
+              'maxValue': 1,
+              'unitCode': 'DAY',
+            },
+            'transitTime': {
+              '@type': 'QuantitativeValue',
+              'minValue': 3,
+              'maxValue': 5,
+              'unitCode': 'DAY',
+            },
           },
         },
       },
-    },
 
-    aggregateRating: () => {
-      if (product.value?.reviewCount && product.value.reviewCount > 0) {
-        return {
-          '@type': 'AggregateRating',
-          'ratingValue': product.value.reviewAverage || 0,
-          'reviewCount': product.value.reviewCount,
-          'bestRating': 10,
-          'worstRating': 1,
-        }
-      }
-      return undefined
-    },
+      aggregateRating: product.value?.reviewCount && product.value.reviewCount > 0
+        ? {
+            '@type': 'AggregateRating' as const,
+            'ratingValue': product.value.reviewAverage || 0,
+            'reviewCount': product.value.reviewCount,
+            'bestRating': 10,
+            'worstRating': 1,
+          }
+        : undefined,
 
-    review: () => {
-      const reviews = productReviews.value?.results
-      if (!reviews || reviews.length === 0) return undefined
-      return reviews.slice(0, 5).map(r => ({
-        '@type': 'Review' as const,
-        'author': {
-          '@type': 'Person' as const,
-          'name': [r.user?.firstName, r.user?.lastName].filter(Boolean).join(' ') || 'Anonymous',
-        },
-        'reviewRating': {
-          '@type': 'Rating' as const,
-          'ratingValue': r.rate,
-          'bestRating': 10,
-          'worstRating': 1,
-        },
-        'datePublished': r.publishedAt || r.createdAt,
-        'reviewBody': extractTranslated(r, 'comment', locale.value) || undefined,
-      }))
-    },
-  }),
+      review: reviews.length > 0
+        ? reviews.slice(0, 5).map(r => ({
+            '@type': 'Review' as const,
+            'author': {
+              '@type': 'Person' as const,
+              'name': [r.user?.firstName, r.user?.lastName].filter(Boolean).join(' ') || 'Anonymous',
+            },
+            'reviewRating': {
+              '@type': 'Rating' as const,
+              'ratingValue': r.rate,
+              'bestRating': 10,
+              'worstRating': 1,
+            },
+            'datePublished': r.publishedAt || r.createdAt,
+            'reviewBody': extractTranslated(r, 'comment', locale.value) || undefined,
+          }))
+        : undefined,
+    }
+  })),
 
-  defineBreadcrumb({
-    itemListElement: () => [
+  defineBreadcrumb(computed(() => ({
+    itemListElement: [
       {
         name: t('breadcrumb.items.index.label'),
         item: localePath('index'),
@@ -641,7 +636,7 @@ useSchemaOrg([
         item: canonicalUrl.value,
       },
     ],
-  }),
+  }))),
 ])
 
 definePageMeta({

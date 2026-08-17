@@ -11,6 +11,9 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, ZodWebAuthnPutResponse)
   }
   catch (error) {
-    await handleAllAuthError(error)
+    // WebAuthn rename 4xx payloads must reach the client toast layer —
+    // thrown createError({data}) is stripped in production. Same
+    // forward contract as the other authenticator routes.
+    return await forwardAllAuthFlow(error)
   }
 })

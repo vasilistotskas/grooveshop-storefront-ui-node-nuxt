@@ -27,25 +27,19 @@ export default defineEventHandler(async (event) => {
   try {
     const body = await readValidatedBody(event, zAddressValidationBody.parse)
 
-    const response = await $fetch<{
-      geoId?: number | null
-      resolvedStreet: string
-      resolvedStreetNum: string
-      resolvedZip: string
-      resolvedArea: string
-      resolvedLong?: number | null
-      resolvedLat?: number | null
-      resolvedStationId: string
-      resolvedBranchId?: number | null
-      resolvedProvidence: string
-      addressId: string
-    }>(`${config.apiBaseUrl}/shipping/acs/address-validation`, {
-      method: 'POST',
-      body,
-      headers,
-    })
+    const response = await $fetch(
+      `${config.apiBaseUrl}/shipping/acs/address-validation`,
+      {
+        method: 'POST',
+        body,
+        headers,
+      },
+    )
 
-    return response
+    // Runtime-validate with the generated schema — a bare TS generic is
+    // a compile-time assertion only and lets upstream shape drift
+    // through undetected.
+    return await parseDataAs(response, zValidateAcsAddressResponse)
   }
   catch (error) {
     handleError(error)

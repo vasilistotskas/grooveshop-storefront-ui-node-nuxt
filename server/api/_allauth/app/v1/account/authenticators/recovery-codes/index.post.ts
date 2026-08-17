@@ -9,6 +9,10 @@ export default defineEventHandler(async () => {
     return await parseDataAs(response, ZodRecoveryCodesGetResponse)
   }
   catch (error) {
-    await handleAllAuthError(error)
+    // Account-management 4xx payloads (wrong password, duplicate email,
+    // bad TOTP code, …) must reach the client toast layer — thrown
+    // createError({data}) is stripped in production. Same forward
+    // contract as the auth flow routes.
+    return await forwardAllAuthFlow(error)
   }
 })

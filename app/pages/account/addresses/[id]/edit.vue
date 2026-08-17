@@ -11,8 +11,14 @@ const isSubmitting = ref(false)
 
 const addressId = 'id' in route.params ? route.params.id : undefined
 
-// Use auto-generated Zod schema
-const schema = zUserAddressWriteRequest
+// Auto-generated contract schema, tightened with the same client-side
+// phone plausibility check checkout applies — the OpenAPI schema can't
+// express phonenumber_field rules, and Django still re-validates.
+const schema = zUserAddressWriteRequest.extend({
+  phone: zUserAddressWriteRequest.shape.phone.refine(isPlausiblePhone, {
+    error: t('validation.phone.invalid'),
+  }),
+})
 
 type Schema = z.output<typeof schema>
 

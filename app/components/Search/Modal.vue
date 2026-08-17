@@ -100,6 +100,35 @@ const totalResults = computed(() => {
   return productsTotal + blogPostsTotal
 })
 
+const relaxedQuery = computed(() => {
+  const products = searchResults.value?.products?.relaxedQuery ?? null
+  const blogPosts = searchResults.value?.blogPosts?.relaxedQuery ?? null
+  if (activeTab.value === 'products') return products
+  if (activeTab.value === 'blogPosts') return blogPosts
+  return products ?? blogPosts
+})
+
+const { trackResultClick } = useSearchClickTracking()
+
+function onResultClick(result: SearchResult, displayIndex: number) {
+  const isProduct = result.contentType === 'product'
+  // On the "all" tab products render first, so a blog post's rank
+  // within its own list is the display index minus the product count.
+  const position
+    = activeTab.value === 'all' && !isProduct
+      ? displayIndex - allLoadedResults.value.products.length
+      : displayIndex
+  trackResultClick({
+    queryId: isProduct
+      ? searchResults.value?.products?.queryId
+      : searchResults.value?.blogPosts?.queryId,
+    resultId: result.master,
+    resultType: isProduct ? 'product' : 'blog_post',
+    position,
+  })
+  close()
+}
+
 function close() {
   localOpen.value = false
   activeResultIndex.value = -1
@@ -144,10 +173,6 @@ defineShortcuts({
   escape: {
     handler: () => close(),
   },
-})
-
-watch(activeTab, () => {
-  offset.value = 0
 })
 
 watch(debouncedQuery, (newQuery) => {
@@ -391,25 +416,37 @@ if (localQuery.value && localQuery.value.length >= 2) {
           </p>
         </div>
 
-        <div
-          v-else
-          id="search-results-listbox"
-          role="listbox"
-          :aria-label="t('search.title')"
-          class="
-            grid gap-2 divide-y divide-gray-100 px-1 pt-2
-            dark:divide-gray-800
-          "
-        >
-          <SearchResult
-            v-for="(result, index) in filteredResults"
-            :id="`search-result-${index}`"
-            :key="`${result.contentType}-${result.id}`"
-            role="option"
-            :aria-selected="index === activeResultIndex"
-            :result="result"
-            @click="close"
-          />
+        <div v-else>
+          <p
+            v-if="relaxedQuery"
+            class="flex items-center gap-1.5 px-4 pt-2 text-xs text-gray-500"
+            role="status"
+          >
+            <UIcon
+              name="i-heroicons-information-circle"
+              class="size-3.5 shrink-0"
+            />
+            {{ t('search.relaxed_notice', { query: relaxedQuery }) }}
+          </p>
+          <div
+            id="search-results-listbox"
+            role="listbox"
+            :aria-label="t('search.title')"
+            class="
+              grid gap-2 divide-y divide-gray-100 px-1 pt-2
+              dark:divide-gray-800
+            "
+          >
+            <SearchResult
+              v-for="(result, index) in filteredResults"
+              :id="`search-result-${index}`"
+              :key="`${result.contentType}-${result.id}`"
+              role="option"
+              :aria-selected="index === activeResultIndex"
+              :result="result"
+              @click="onResultClick(result, index)"
+            />
+          </div>
         </div>
       </div>
     </template>
@@ -457,9 +494,8 @@ el:
     trending: Δημοφιλείς αναζητήσεις
     clear: Εκκαθάριση
     no_results: Δεν βρέθηκαν αποτελέσματα
+    relaxed_notice: Εμφανίζονται αποτελέσματα για "{query}"
     try_different: Δοκίμασς διαφορετικούς όρους αναζήτησης
     load_more: Φόρτωση περισσότερων
-    navigate: Πλοήγηση
-    select: Επιλογή
     view_all_results: Προβολή όλων
 </i18n>

@@ -10,13 +10,6 @@ export default defineNuxtPlugin({
       return
     }
 
-    const appStore = useAppStore()
-    const { healthy } = storeToRefs(appStore)
-
-    if (!healthy.value) {
-      return
-    }
-
     const { fetch, clear } = useUserSession()
     const authStore = useAuthStore()
     const userStore = useUserStore()

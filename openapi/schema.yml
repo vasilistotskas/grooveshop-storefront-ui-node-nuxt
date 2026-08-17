@@ -4,6 +4,66 @@ info:
   version: 1.0.0
   description: Grooveshop API description
 paths:
+  /api/v1/agent/me:
+    get:
+      operationId: getAgentProfile
+      description: Identity of the shopper who linked their account to the calling AI agent. Requires an OIDC access token with the `profile` scope. The agent gateway also uses this endpoint to validate bearer tokens.
+      summary: Linked account profile (agent surface)
+      tags:
+        - Agent
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentProfile'
+          description: ''
+  /api/v1/agent/me/favourites:
+    get:
+      operationId: listAgentFavourites
+      description: The linked shopper's favourited products (newest first, active products only, capped at 30) — the basis for personalised recommendations. Requires the `favourites:read` scope.
+      summary: Linked account's favourite products (agent surface)
+      tags:
+        - Agent
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentFavourite'
+          description: ''
+  /api/v1/agent/me/loyalty:
+    get:
+      operationId: getAgentLoyaltySummary
+      description: Points balance, XP, level and tier of the linked shopper. Requires the `loyalty:read` scope.
+      summary: Linked account's loyalty summary (agent surface)
+      tags:
+        - Agent
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoyaltySummary'
+          description: ''
+  /api/v1/agent/me/orders:
+    get:
+      operationId: listAgentOrders
+      description: The linked shopper's most recent orders (newest first, capped at 20). Requires the `orders:read` scope.
+      summary: Linked account's recent orders (agent surface)
+      tags:
+        - Agent
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+          description: ''
   /api/v1/blog/author:
     get:
       operationId: listBlogAuthor
@@ -13136,6 +13196,73 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/order/{id}/confirm_agent_payment:
+    post:
+      operationId: confirmAgentPaymentForOrder
+      description: Charge a Stripe SharedPaymentToken granted by an AI agent platform (ACP/UCP delegated payments) for this order. Only available when agent-delegated payments are enabled for the store and the order's payment method is Stripe.
+      summary: Complete payment with an agent-granted Stripe token
+      parameters:
+        - in: path
+          name: id
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          required: true
+      tags:
+        - Orders
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConfirmAgentPaymentRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConfirmAgentPaymentRequestRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmAgentPaymentRequestRequest'
+        required: true
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfirmAgentPaymentResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/order/{id}/create_checkout_session:
     post:
       operationId: createOrderCheckoutSession
@@ -22501,6 +22628,41 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/search/click:
+    post:
+      operationId: api_v1_search_click_create
+      description: Attribute a click on a search result to the query that produced it. The query_id comes from the search response. Feeds the click-through ranking signal and search analytics.
+      summary: Log a click on a search result
+      tags:
+        - Search
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SearchClickRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SearchClickRequestRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchClickRequestRequest'
+        required: true
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchClickResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/search/federated:
     get:
       operationId: api_v1_search_federated_retrieve
@@ -22945,15 +23107,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedAcsStationList'
           description: ''
-  /api/v1/shipping/acs/stations/{external_id}:
+  /api/v1/shipping/acs/stations/{uuid}:
     get:
       operationId: api_v1_shipping_acs_stations_retrieve
       description: List / retrieve ACS stations and Smartpoint lockers.
       parameters:
         - in: path
-          name: externalId
+          name: uuid
           schema:
             type: string
+            format: uuid
           required: true
       tags:
         - api
@@ -27416,7 +27579,11 @@ paths:
         - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkSubscriptionResult'
+          description: ''
         '400':
           content:
             application/json:
@@ -28452,7 +28619,13 @@ components:
         - address
     AcsAddressValidationResponse:
       type: object
-      description: A single resolved address — the first ACSObjectOutput row.
+      description: |-
+        A single resolved address — the first ACSObjectOutput row.
+
+        Every field is ``required=False``: the endpoint returns a literal
+        ``{}`` when ACS cannot geocode the input (see the view docstring),
+        so the contract must allow the empty object or schema-validating
+        consumers reject the documented not-recognised case.
       properties:
         geoId:
           type: integer
@@ -28482,14 +28655,6 @@ components:
           type: string
         addressId:
           type: string
-      required:
-        - addressId
-        - resolvedArea
-        - resolvedProvidence
-        - resolvedStationId
-        - resolvedStreet
-        - resolvedStreetNum
-        - resolvedZip
     AcsChargeType:
       enum:
         - 1
@@ -28706,12 +28871,13 @@ components:
           type: string
           readOnly: true
           title: Εξωτερικό ID
-          description: ACS_SHOP_STATION_ID — χρησιμοποιείται ως Acs_Station_Destination.
+          description: 'ACS_SHOP_STATION_ID_EN — ο κωδικός σταθμού ΠΕΡΙΟΧΗΣ, χρησιμοποιείται ως Acs_Station_Destination. ΔΕΝ είναι μοναδικός από μόνος του: κάθε locker Smartpoint μιας περιοχής τον μοιράζεται (π.χ. 50 lockers κάτω από το ''ATH'')· το ζεύγος (external_id, branch_code) είναι η ταυτότητα του locker.'
         branchCode:
           type: string
           readOnly: true
+          default: ''
           title: Κωδικός υποκαταστήματος
-          description: ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination).
+          description: ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination). Διακρίνει τα επιμέρους lockers μιας περιοχής σταθμού.
         shopKind:
           allOf:
             - $ref: '#/components/schemas/ShopKindEnum'
@@ -28725,8 +28891,8 @@ components:
             * `3` - Συνεργαζόμενο κατάστημα (3)
             * `4` - Xpress Point
             * `5` - Kiosk
-            * `7` - Smartpoint (εισερχόμενα)
-            * `8` - Smartpoint (εξερχόμενα)
+            * `7` - Smartpoint (χωρίς locker)
+            * `8` - Smartpoint locker
         name:
           type: string
           readOnly: true
@@ -28821,12 +28987,13 @@ components:
           type: string
           readOnly: true
           title: Εξωτερικό ID
-          description: ACS_SHOP_STATION_ID — χρησιμοποιείται ως Acs_Station_Destination.
+          description: 'ACS_SHOP_STATION_ID_EN — ο κωδικός σταθμού ΠΕΡΙΟΧΗΣ, χρησιμοποιείται ως Acs_Station_Destination. ΔΕΝ είναι μοναδικός από μόνος του: κάθε locker Smartpoint μιας περιοχής τον μοιράζεται (π.χ. 50 lockers κάτω από το ''ATH'')· το ζεύγος (external_id, branch_code) είναι η ταυτότητα του locker.'
         branchCode:
           type: string
           readOnly: true
+          default: ''
           title: Κωδικός υποκαταστήματος
-          description: ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination).
+          description: ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination). Διακρίνει τα επιμέρους lockers μιας περιοχής σταθμού.
         shopKind:
           allOf:
             - $ref: '#/components/schemas/ShopKindEnum'
@@ -28840,8 +29007,8 @@ components:
             * `3` - Συνεργαζόμενο κατάστημα (3)
             * `4` - Xpress Point
             * `5` - Kiosk
-            * `7` - Smartpoint (εισερχόμενα)
-            * `8` - Smartpoint (εξερχόμενα)
+            * `7` - Smartpoint (χωρίς locker)
+            * `8` - Smartpoint locker
         name:
           type: string
           readOnly: true
@@ -28994,6 +29161,60 @@ components:
       required:
         - shippingCarrier
         - trackingNumber
+    AgentFavourite:
+      type: object
+      description: |-
+        Compact favourite row for agents — the storefront's favourite
+        serializers embed the full product detail payload, which is far more
+        than a tool result should carry.
+      properties:
+        productId:
+          type: integer
+          description: Product ID
+        name:
+          type: string
+          description: Localized product name
+        finalPrice:
+          type: string
+          description: Current VAT-inclusive price
+        currency:
+          type: string
+          description: Price currency
+        inStock:
+          type: boolean
+          description: Whether the product is currently in stock
+        addedAt:
+          type: string
+          format: date-time
+          description: When the product was favourited
+      required:
+        - addedAt
+        - currency
+        - finalPrice
+        - inStock
+        - name
+        - productId
+    AgentProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User ID
+        email:
+          type: string
+          format: email
+          description: Account email
+        firstName:
+          type: string
+          description: First name
+        lastName:
+          type: string
+          description: Last name
+      required:
+        - email
+        - firstName
+        - id
+        - lastName
     Attribute:
       type: object
       description: Serializer for Attribute with translations.
@@ -30191,7 +30412,22 @@ components:
         - postIds
     BlogPostMeiliSearchResponse:
       type: object
+      description: |-
+        Common disclosure fields every search response carries.
+
+        ``query_id`` attributes later clicks to this query (see the
+        ``search/click`` endpoint); ``relaxed_query`` reports the trimmed
+        query the zero-result fallback actually matched, so clients can
+        disclose "showing results for …" instead of silently swapping.
       properties:
+        queryId:
+          type: string
+          format: uuid
+          description: Identifier for this search, used to attribute clicks
+        relaxedQuery:
+          type: string
+          nullable: true
+          description: The relaxed query used by the zero-result fallback, or null when results matched the original query
         limit:
           type: integer
         offset:
@@ -30206,6 +30442,8 @@ components:
         - estimatedTotalHits
         - limit
         - offset
+        - queryId
+        - relaxedQuery
         - results
     BlogPostMeiliSearchResult:
       type: object
@@ -31204,6 +31442,18 @@ components:
         - subject
         - time
         - type
+    BulkSubscriptionFailure:
+      type: object
+      properties:
+        topic:
+          type: string
+          readOnly: true
+        error:
+          type: string
+          readOnly: true
+      required:
+        - error
+        - topic
     BulkSubscriptionRequest:
       type: object
       properties:
@@ -31223,6 +31473,28 @@ components:
       required:
         - action
         - topicIds
+    BulkSubscriptionResult:
+      type: object
+      properties:
+        success:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        failed:
+          type: array
+          items:
+            $ref: '#/components/schemas/BulkSubscriptionFailure'
+          readOnly: true
+        alreadyProcessed:
+          type: array
+          items:
+            type: string
+          readOnly: true
+      required:
+        - alreadyProcessed
+        - failed
+        - success
     CancelOrderRequestRequest:
       type: object
       properties:
@@ -31838,6 +32110,40 @@ components:
         * `divider` - Divider
         * `loyalty_hero` - Loyalty Program Hero
         * `search_bar` - Search Bar
+    ConfirmAgentPaymentRequestRequest:
+      type: object
+      properties:
+        sharedPaymentToken:
+          type: string
+          minLength: 1
+          description: Stripe SharedPaymentToken (spt_…) granted to this store by the agent platform, scoped to this exact purchase.
+          maxLength: 255
+      required:
+        - sharedPaymentToken
+    ConfirmAgentPaymentResponse:
+      type: object
+      properties:
+        paymentId:
+          type: string
+          description: Stripe PaymentIntent ID that charged the token
+        status:
+          type: string
+          description: Κατάσταση πληρωμής
+        amount:
+          type: string
+          description: Ποσό πληρωμής
+        currency:
+          type: string
+          description: Νόμισμα πληρωμής
+        provider:
+          type: string
+          description: Όνομα παρόχου πληρωμών
+      required:
+        - amount
+        - currency
+        - paymentId
+        - provider
+        - status
     ConfirmResponse:
       type: object
       properties:
@@ -32305,6 +32611,14 @@ components:
       type: object
       description: Serializer for federated search response.
       properties:
+        queryId:
+          type: string
+          format: uuid
+          description: Identifier for this search, used to attribute clicks
+        relaxedQuery:
+          type: string
+          nullable: true
+          description: The relaxed query used by the zero-result fallback, or null when results matched the original query
         limit:
           type: integer
           description: Maximum number of results requested
@@ -32323,6 +32637,8 @@ components:
         - estimatedTotalHits
         - limit
         - offset
+        - queryId
+        - relaxedQuery
         - results
     FederatedSearchResult:
       type: object
@@ -32386,14 +32702,13 @@ components:
           type: string
         master:
           type: integer
-        Federation:
+        federation:
           allOf:
             - $ref: '#/components/schemas/FederationMetadata'
-          title: ' federation'
           description: Federation metadata from Meilisearch
       required:
-        - Federation
         - contentType
+        - federation
         - formatted
         - id
         - languageCode
@@ -38514,7 +38829,22 @@ components:
         - translations
     ProductMeiliSearchResponse:
       type: object
+      description: |-
+        Common disclosure fields every search response carries.
+
+        ``query_id`` attributes later clicks to this query (see the
+        ``search/click`` endpoint); ``relaxed_query`` reports the trimmed
+        query the zero-result fallback actually matched, so clients can
+        disclose "showing results for …" instead of silently swapping.
       properties:
+        queryId:
+          type: string
+          format: uuid
+          description: Identifier for this search, used to attribute clicks
+        relaxedQuery:
+          type: string
+          nullable: true
+          description: The relaxed query used by the zero-result fallback, or null when results matched the original query
         limit:
           type: integer
         offset:
@@ -38540,6 +38870,8 @@ components:
         - estimatedTotalHits
         - limit
         - offset
+        - queryId
+        - relaxedQuery
         - results
     ProductMeiliSearchResult:
       type: object
@@ -39320,6 +39652,14 @@ components:
       required:
         - message
         - reservationIds
+    ResultTypeEnum:
+      enum:
+        - product
+        - blog_post
+      type: string
+      description: |-
+        * `product` - product
+        * `blog_post` - blog_post
     ReviewStatus:
       enum:
         - NEW
@@ -39367,6 +39707,43 @@ components:
         - searchVolume
         - topQueries
         - zeroResultQueries
+    SearchClickRequestRequest:
+      type: object
+      description: Payload for attributing a result click to a search query.
+      properties:
+        queryId:
+          type: string
+          format: uuid
+          description: The query_id returned by the search response
+        resultId:
+          type: string
+          minLength: 1
+          description: ID of the clicked result (Product or BlogPost ID)
+          maxLength: 100
+        resultType:
+          allOf:
+            - $ref: '#/components/schemas/ResultTypeEnum'
+          description: |-
+            Type of the clicked result
+
+            * `product` - product
+            * `blog_post` - blog_post
+        position:
+          type: integer
+          minimum: 0
+          description: 0-indexed position of the result in the result list
+      required:
+        - position
+        - queryId
+        - resultId
+        - resultType
+    SearchClickResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+        - detail
     SearchVolume:
       type: object
       description: Serializer for search volume metrics.
@@ -39602,8 +39979,8 @@ components:
         * `3` - Συνεργαζόμενο κατάστημα (3)
         * `4` - Xpress Point
         * `5` - Kiosk
-        * `7` - Smartpoint (εισερχόμενα)
-        * `8` - Smartpoint (εξερχόμενα)
+        * `7` - Smartpoint (χωρίς locker)
+        * `8` - Smartpoint locker
     SubscriptionStatus:
       enum:
         - ACTIVE

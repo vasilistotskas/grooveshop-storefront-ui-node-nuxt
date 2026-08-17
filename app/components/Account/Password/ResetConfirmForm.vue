@@ -23,11 +23,13 @@ const hasError = ref(false)
 const isSubmitting = ref(false)
 
 function checkStrength(str: string) {
+  // Unicode property classes — ``[a-z]`` is ASCII-only and never
+  // matches Greek letters, so «Καλημέρα2024» scored 2/4 forever.
   const requirements = [
     { regex: /.{8,}/, text: t('password.requirements.length') },
     { regex: /\d/, text: t('password.requirements.number') },
-    { regex: /[a-z]/, text: t('password.requirements.lowercase') },
-    { regex: /[A-Z]/, text: t('password.requirements.uppercase') },
+    { regex: /\p{Ll}/u, text: t('password.requirements.lowercase') },
+    { regex: /\p{Lu}/u, text: t('password.requirements.uppercase') },
   ]
   return requirements.map(req => ({ met: req.regex.test(str), text: req.text }))
 }
@@ -54,9 +56,17 @@ const strengthText = computed(() => {
 })
 
 const schema = z.object({
+  // Mirrors Django's AUTH_PASSWORD_VALIDATORS where a pure function
+  // can: MinimumLength (8) and NumericPassword. CommonPassword and
+  // UserAttributeSimilarity stay server-side and surface via the
+  // translated allauth error codes. The strength meter is advisory
+  // only — Django has no character-class rules, so it must not gate.
   newPassword1: z.string()
     .min(8, t('validation.min', { min: 8 }))
-    .max(255),
+    .max(255)
+    .refine(value => !/^\d+$/.test(value), {
+      error: t('validation.password.entirely_numeric'),
+    }),
   newPassword2: z.string()
     .min(8, t('validation.min', { min: 8 }))
     .max(255),
@@ -199,7 +209,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
         type="submit"
         color="neutral"
         variant="subtle"
-        :disabled="score < 4 || isSubmitting"
+        :disabled="isSubmitting"
         :loading="isSubmitting"
         block
         size="lg"

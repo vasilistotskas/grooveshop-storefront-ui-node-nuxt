@@ -420,7 +420,9 @@ export async function useCheckoutForm() {
       log.warn({
         tag: 'checkout/shippingOptions',
         message: 'Failed to fetch live options — falling back to flat-rate settings',
-        error: getErrorDetail(error),
+        // Whole error object — getErrorDetail is user-facing copy and
+        // returns undefined for transport errors, which starved this log.
+        error,
       })
       shippingOptions.value = []
     }
@@ -541,16 +543,24 @@ export async function useCheckoutForm() {
   })
 
   // Validation schemas
+  // Min/max bounds mirror OrderCreateFromCartSerializer — Django only
+  // requires these fields non-empty (plus max_length), so a stricter
+  // floor here (the old min 3) falsely rejected real customers
+  // ("Bo", "Li Wei") that the saved-address form happily accepted.
   const step1Schema = z.object({
-    firstName: z.string({ error: t('validation.required') }).min(3, {
-      error: t('validation.first_name.min', { min: 3 }),
-    }),
-    lastName: z.string({ error: t('validation.required') }).min(3, {
-      error: t('validation.last_name.min', { min: 3 }),
-    }),
+    firstName: z.string({ error: t('validation.required') }).min(1, {
+      error: t('validation.required'),
+    }).max(150, { error: t('validation.max', { max: 150 }) }),
+    lastName: z.string({ error: t('validation.required') }).min(1, {
+      error: t('validation.required'),
+    }).max(150, { error: t('validation.max', { max: 150 }) }),
     email: z.email({ error: t('validation.email.valid') }),
-    phone: z.string({ error: t('validation.required') }).min(3, {
-      error: t('validation.phone.min', { min: 3 }),
+    // Validated on the value that actually gets submitted
+    // (normalizeGreekPhone output) so the inline error fires here, at
+    // the step where the field lives — not as a Django 400 on the
+    // final "Ολοκλήρωση Παραγγελίας" click.
+    phone: z.string({ error: t('validation.required') }).refine(isPlausiblePhone, {
+      error: t('validation.phone.invalid'),
     }),
     country: z.string({ error: t('validation.required') }).min(1, {
       error: t('validation.required'),
@@ -558,19 +568,23 @@ export async function useCheckoutForm() {
     region: z.string({ error: t('validation.required') }).min(1, {
       error: t('validation.required'),
     }),
-    city: z.string({ error: t('validation.required') }).min(3, {
-      error: t('validation.city.min', { min: 3 }),
-    }),
-    zipcode: z.string({ error: t('validation.required') }).min(3, {
-      error: t('validation.zipcode.min', { min: 3 }),
-    }),
-    street: z.string({ error: t('validation.required') }).min(3, {
-      error: t('validation.street.min', { min: 3 }),
-    }),
+    city: z.string({ error: t('validation.required') }).min(1, {
+      error: t('validation.required'),
+    }).max(100, { error: t('validation.max', { max: 100 }) }),
+    zipcode: z.string({ error: t('validation.required') }).min(1, {
+      error: t('validation.required'),
+    }).max(20, { error: t('validation.max', { max: 20 }) }),
+    street: z.string({ error: t('validation.required') }).min(1, {
+      error: t('validation.required'),
+    }).max(255, { error: t('validation.max', { max: 255 }) }),
+    // Django allows a blank street number; the courier voucher needs
+    // one, so requiring it here is deliberately stricter.
     streetNumber: z.string({ error: t('validation.required') }).min(1, {
       error: t('validation.street_number.min', { min: 1 }),
-    }),
-    customerNotes: z.string().optional(),
+    }).max(50, { error: t('validation.max', { max: 50 }) }),
+    customerNotes: z.string().max(500, {
+      error: t('validation.max', { max: 500 }),
+    }).optional(),
     saveAddress: z.boolean().optional(),
     // Optional label ("Home" / "Office" etc.) — only meaningful when
     // saveAddress is true. The pairing requirement is enforced in

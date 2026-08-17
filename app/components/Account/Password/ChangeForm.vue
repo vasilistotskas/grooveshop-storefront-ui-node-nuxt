@@ -23,8 +23,9 @@ function checkPasswordStrength(password: string) {
   const requirements = [
     { regex: /.{8,}/, text: t('password.requirements.length') },
     { regex: /\d/, text: t('password.requirements.number') },
-    { regex: /[a-z]/, text: t('password.requirements.lowercase') },
-    { regex: /[A-Z]/, text: t('password.requirements.uppercase') },
+    // Unicode classes — ASCII [a-z] never matches Greek letters.
+    { regex: /\p{Ll}/u, text: t('password.requirements.lowercase') },
+    { regex: /\p{Lu}/u, text: t('password.requirements.uppercase') },
   ]
 
   return requirements.map(req => ({
@@ -62,7 +63,12 @@ const schema = computed(() => {
           ? t('validation.required')
           : t('validation.string.invalid') })
         .min(8, t('validation.min', { min: 8 }))
-        .max(255, t('validation.max', { max: 255 })),
+        .max(255, t('validation.max', { max: 255 }))
+        // Mirrors Django's NumericPasswordValidator; CommonPassword and
+        // UserAttributeSimilarity stay server-side (allauth error codes).
+        .refine(value => !/^\d+$/.test(value), {
+          error: t('validation.password.entirely_numeric'),
+        }),
       confirm_password: z.string({ error: issue => issue.input === undefined
         ? t('validation.required')
         : t('validation.string.invalid') })

@@ -58,15 +58,6 @@ export function useSearchHistory() {
     entries.value = next
   }
 
-  function remove(query: string): void {
-    const normalized = (query ?? '').trim().toLowerCase()
-    const next = readRaw($i18n.locale.value).filter(
-      item => item.toLowerCase() !== normalized,
-    )
-    writeRaw($i18n.locale.value, next)
-    entries.value = next
-  }
-
   function clear(): void {
     writeRaw($i18n.locale.value, [])
     entries.value = []
@@ -76,5 +67,5 @@ export function useSearchHistory() {
     refresh()
   }
 
-  return { entries, refresh, add, remove, clear }
+  return { entries, refresh, add, clear }
 }

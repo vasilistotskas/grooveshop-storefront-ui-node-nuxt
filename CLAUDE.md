@@ -158,7 +158,6 @@ Pinia stores in `app/stores/`:
 - `setups.ts` — `setupPageHeader` (SEO), `setupGoogleAnalyticsConsent` (GDPR), `setupCursorState`, `setupSocialLogin` (GSI one-tap)
 - `useAllAuthAuthentication.ts` / `useAllAuthAccount.ts` / `useAllAuthSessions.ts` — Auth flows
 - `useCheckout.ts` — Stock reservation, Stripe payment, status polling
-- `useInstantSearch.ts` — Debounced search with AbortController, Meilisearch
 - `useProductFilters.ts` — Product filtering with URL state
 - `useLoyalty.ts` — Loyalty program data (settings, transactions, tiers, redemption)
 - `useCookieControl.ts` — GDPR cookie consent management

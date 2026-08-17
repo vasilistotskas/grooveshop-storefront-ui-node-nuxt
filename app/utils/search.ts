@@ -38,9 +38,3 @@ export function getDisplaySubtitle(result: SearchResult, maxLength = 150): strin
     return ''
   }
 }
-
-export function getResultIcon(result: SearchResult): string {
-  return result.contentType === 'product'
-    ? 'i-heroicons-shopping-bag'
-    : 'i-heroicons-document-text'
-}

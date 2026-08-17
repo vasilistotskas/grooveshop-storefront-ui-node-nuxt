@@ -1,8 +1,10 @@
 import { DEFAULT_LOCALE } from './i18n/locales'
 import { version } from './package.json'
+import { PRERENDERED_ROUTES } from './shared/constants/prerender'
 
 const modules = [
   'evlog/nuxt',
+  '@comark/nuxt',
   '@nuxt/image',
   '@nuxt/ui',
   '@nuxt/eslint',
@@ -167,7 +169,10 @@ export default defineNuxtConfig({
         youtube: process.env.NUXT_PUBLIC_SOCIALS_YOUTUBE,
       },
       domainVerifyId: process.env.NUXT_PUBLIC_DOMAIN_VERIFY_ID,
-      googleGsiEnable: false,
+      // Driven by NUXT_PUBLIC_GOOGLE_GSI_ENABLE (the infra ConfigMap
+      // already sets it) — was hardcoded false, which silently ignored
+      // the env var and made flipping it in ops a no-op.
+      googleGsiEnable: process.env.NUXT_PUBLIC_GOOGLE_GSI_ENABLE === 'true',
       googleSiteVerification: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
       mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,
       mediaStreamPath: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
@@ -302,16 +307,24 @@ export default defineNuxtConfig({
     '/_ipx/**': {
       headers: { 'cache-control': 'max-age=31536000' },
     },
-    // Static pages — prerender at build time (no SSR on each request)
-    '/about': { prerender: true },
-    '/contact': { prerender: true },
-    '/privacy-policy': { prerender: true },
-    '/terms-of-use': { prerender: true },
-    '/cookies-policy': { prerender: true },
-    '/return-policy': { prerender: true },
-    '/vision': { prerender: true },
-    '/what-is-microlearning': { prerender: true },
-    '/why-microlearning': { prerender: true },
+    // Brand-bearing static pages — SSR once per tenant, then served from
+    // Nitro's cache (stale-while-revalidate). These pages read the
+    // tenant store (storeName, logos, primaryDomain), so build-time
+    // prerendering would bake ONE tenant's branding + a tenant-less CSP
+    // into the HTML every tenant receives. `varies: ['host']` keys each
+    // cache entry by tenant host; the CSP middleware runs on the first
+    // request per host and its (tenant-aware, nonce-free) header is
+    // cached alongside the body — self-consistent per entry. The list
+    // stays in shared/constants/prerender.ts because the CSP middleware
+    // still serves these routes the nonce-free 'unsafe-inline' policy:
+    // one cached nonce would be reused for the whole cache lifetime,
+    // pinning trust to a stale value.
+    ...Object.fromEntries(
+      PRERENDERED_ROUTES.map(route => [route, {
+        swr: 3600,
+        cache: { varies: ['host'] },
+      }]),
+    ),
   },
   sourcemap: {
     client: 'hidden',
@@ -331,6 +344,15 @@ export default defineNuxtConfig({
   },
   compatibilityDate: 'latest',
   nitro: {
+    // Dev only (ignored in production builds): same-origin `/chat` is
+    // served by the agent gateway — Traefik path-routes it on the
+    // storefront host in production — so proxy it to a locally running
+    // gateway for `pnpm dev`.
+    devProxy: {
+      '/chat': {
+        target: `${process.env.NUXT_AGENT_GATEWAY_URL || 'http://localhost:8090'}/chat`,
+      },
+    },
     prerender: {
       crawlLinks: false,
       ignore: ['/_ipx/'],
@@ -561,7 +583,7 @@ export default defineNuxtConfig({
   evlog: {
     env: { service: 'grooveshop-storefront' },
     include: ['/api/**'],
-    exclude: ['/api/_nuxt_icon/**', '/api/_alive', '/api/health', '/api/__sitemap__/**'],
+    exclude: ['/api/_nuxt_icon/**', '/api/_alive', '/api/__sitemap__/**'],
     transport: { enabled: true },
   },
   i18n: {
@@ -601,6 +623,13 @@ export default defineNuxtConfig({
       typedPages: true,
       preload: true,
       stripMessagesPayload: true,
+      // @nuxtjs/i18n 10.6.0 deep-freezes cached server messages before
+      // returning them; with `preload: true` the follow-up
+      // deepCopy(messages, ctx.messages) then writes into frozen arrays
+      // copied by reference and every first-per-process request fails with
+      // "Failed to load messages for locale" (SSR renders raw keys).
+      // -1 disables that cache until the upstream freeze bug is fixed.
+      cacheLifetime: -1,
     },
   },
   icon: {

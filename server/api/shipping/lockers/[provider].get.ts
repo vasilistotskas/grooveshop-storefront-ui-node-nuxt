@@ -76,7 +76,7 @@ async function _fetchAcsStations(
   // to 10 pages (= 1000 lockers) of headroom for future expansion.
   const maxPages = 10
   while (page <= maxPages) {
-    const response = await $fetch<Pagination<AcsStation>>(
+    const raw = await $fetch(
       `${apiBaseUrl}/shipping/acs/stations`,
       {
         method: 'GET',
@@ -88,6 +88,9 @@ async function _fetchAcsStations(
         headers,
       },
     )
+    // Runtime-validate each page with the generated paginated schema —
+    // the previous bare TS generic let upstream shape drift through.
+    const response = await parseDataAs(raw, zPaginatedAcsStationList)
     for (const row of response.results ?? []) {
       collected.push(_normalize(row))
     }

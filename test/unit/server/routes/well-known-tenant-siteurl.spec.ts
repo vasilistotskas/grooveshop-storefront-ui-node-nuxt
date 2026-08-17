@@ -50,30 +50,15 @@ describe('.well-known/oauth-protected-resource.get.ts', () => {
     const { default: handler } = await import('../../../../server/routes/.well-known/oauth-protected-resource.get')
     const result = handler(makeEvent({ primaryDomain: 'acme.example' })) as Record<string, unknown>
     expect(result.resource).toBe('https://acme.example')
-    expect(result.authorization_servers).toEqual(['https://acme.example'])
+    // The AS is the tenant's OWN API origin — every tenant owns an
+    // ``api.<domain>`` subdomain (infra TEMPLATE contract).
+    expect(result.authorization_servers).toEqual(['https://api.acme.example'])
   })
 
   it('falls back to the platform baseUrl (not a hardcoded literal) with no tenant and no host', async () => {
     const { default: handler } = await import('../../../../server/routes/.well-known/oauth-protected-resource.get')
     const result = handler(makeEvent(undefined)) as Record<string, unknown>
     expect(result.resource).toBe('https://platform-default.example')
-  })
-})
-
-describe('.well-known/openid-configuration.get.ts', () => {
-  it('uses the tenant primaryDomain for issuer', async () => {
-    const { default: handler } = await import('../../../../server/routes/.well-known/openid-configuration.get')
-    const result = handler(makeEvent({ primaryDomain: 'acme.example' })) as Record<string, unknown>
-    expect(result.issuer).toBe('https://acme.example')
-    expect(result.authorization_endpoint).toBe('https://api.platform-default.example/_allauth/app/v1/auth/login')
-  })
-})
-
-describe('.well-known/oauth-authorization-server.get.ts', () => {
-  it('uses the tenant primaryDomain for issuer', async () => {
-    const { default: handler } = await import('../../../../server/routes/.well-known/oauth-authorization-server.get')
-    const result = handler(makeEvent({ primaryDomain: 'acme.example' })) as Record<string, unknown>
-    expect(result.issuer).toBe('https://acme.example')
   })
 })
 

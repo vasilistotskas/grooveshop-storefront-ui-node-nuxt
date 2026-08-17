@@ -32,7 +32,12 @@ const schema = z.object({
       : undefined,
   }).min(8, {
     error: issue => t('password1.validation.min', { min: issue.minimum }),
-  }),
+  })
+    // Mirrors Django's NumericPasswordValidator; CommonPassword and
+    // UserAttributeSimilarity stay server-side (allauth error codes).
+    .refine(value => !/^\d+$/.test(value), {
+      error: t('validation.password.entirely_numeric'),
+    }),
   password2: z.string({
     error: issue => issue.input === undefined
       ? t('validation.required')

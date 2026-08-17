@@ -11,6 +11,10 @@ export default defineEventHandler(async (event) => {
     return await parseDataAs(response, ZodWebAuthnDeleteResponse)
   }
   catch (error) {
-    await handleAllAuthError(error)
+    // WebAuthn removal 4xx payloads (e.g. reauthentication required)
+    // must reach the client toast layer — thrown createError({data})
+    // is stripped in production. Same forward contract as the other
+    // authenticator routes.
+    return await forwardAllAuthFlow(error)
   }
 })

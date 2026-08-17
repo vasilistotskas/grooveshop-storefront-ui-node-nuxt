@@ -67,6 +67,37 @@ export function handleError(
   })
 }
 
+// DRF validation errors (and other upstream 4xx bodies) carry the
+// field → messages payload the client turns into specific toasts and
+// inline errors (e.g. checkout's ``{"phone": ["Enter a valid phone
+// number."]}``). Like the allauth flows below, those payloads travel in
+// ``createError``'s ``data``, which Nitro strips from thrown-error
+// responses in production — so clients only ever saw the generic
+// statusMessage. For upstream 4xx we therefore RETURN the body verbatim
+// with the upstream status (returned bodies are not stripped); the
+// client's ``onResponseError`` reads it as ``response._data`` in the
+// exact shape Django produced. Everything else keeps the throw path.
+// Same `undefined` return-type trick as ``forwardAllAuthFlow``: the
+// 4xx status makes `$fetch` reject, so callers never see this value as
+// a resolved result and the route's success type stays clean.
+export function forwardUpstreamClientError(error: unknown): undefined {
+  if (
+    error instanceof FetchError
+    && isClientError(error)
+    && error.data !== undefined
+  ) {
+    const event = useEvent()
+    log.warn({
+      action: 'upstream:fetch',
+      error: error.message,
+      data: error.data,
+    })
+    setResponseStatus(event, error.statusCode ?? 400)
+    return error.data as unknown as undefined
+  }
+  handleError(error)
+}
+
 function pendingFlowOf(error: AllAuthError) {
   const flows = (error.data as { data?: { flows?: Array<{ id: string, is_pending?: boolean }> } }).data?.flows
   return flows?.find(flow => flow.is_pending)

@@ -144,38 +144,6 @@ export const useLoyalty = () => {
   }
 
   /**
-   * Redeem loyalty points for a monetary discount
-   *
-   * This is a mutation operation (POST), so it doesn't use useAsyncData.
-   * After successful redemption, you should call refresh() on the summary data.
-   *
-   * @param body - Redemption request
-   * @param body.pointsAmount - Number of points to redeem
-   * @param body.currency - Currency for the discount (e.g., "EUR")
-   * @returns Redemption response with discount amount and remaining balance
-   */
-  const redeemPoints = async (body: {
-    pointsAmount: number
-    currency: string
-  }): Promise<RedeemPointsResponse> => {
-    try {
-      const data = await $fetch<RedeemPointsResponse>('/api/loyalty/redeem', {
-        method: 'POST',
-        body,
-      })
-
-      // Refresh the summary cache after successful redemption
-      await refreshNuxtData('loyalty-summary')
-
-      return data
-    }
-    catch (err) {
-      log.error({ action: 'loyalty:redeem', error: err })
-      throw err
-    }
-  }
-
-  /**
    * Fetch potential loyalty points for a specific product
    *
    * Uses useAsyncData with product-specific cache key.
@@ -215,8 +183,5 @@ export const useLoyalty = () => {
     fetchSettings,
     fetchTiers,
     fetchProductPoints,
-
-    // Mutation method
-    redeemPoints,
   }
 }

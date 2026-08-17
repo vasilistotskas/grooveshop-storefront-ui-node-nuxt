@@ -13,6 +13,10 @@
   --ui-container: var(--container-8xl);
 
   --ui-secondary: #003DFF;
+  /* Chat widget gradient endpoint. Defaults to Tailwind violet-600 so
+     the platform look is unchanged; tenant themes may override it via
+     the injected <style id="tenant-theme"> block. */
+  --ui-chat-gradient-to: var(--color-violet-600);
   --ui-success: var(--color-success-600);
   --ui-info: var(--color-info-600);
   --ui-warning: var(--color-warning-600);

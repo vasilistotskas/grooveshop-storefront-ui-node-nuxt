@@ -26,6 +26,10 @@ export default defineEventHandler(async (event) => {
     return userResponse
   }
   catch (error) {
-    handleError(error)
+    // Return Django 4xx bodies (DRF detail / field errors, e.g. image
+    // or username validation) so clients can show the reason — thrown
+    // createError({data}) is stripped in production. See
+    // forwardUpstreamClientError.
+    return forwardUpstreamClientError(error)
   }
 })

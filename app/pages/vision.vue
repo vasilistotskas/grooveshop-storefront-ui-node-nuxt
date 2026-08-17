@@ -87,7 +87,7 @@ definePageMeta({
       </template>
 
       <NuxtImg
-        :src="tenantStore.logoLightUrl || '/img/pages/about-webside.png'"
+        :src="tenantStore.logoLightUrl || '/img/pages/about-hero.png'"
         :width="960"
         :height="600"
         :alt="storeName"

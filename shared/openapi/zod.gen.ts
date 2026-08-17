@@ -19,21 +19,26 @@ export const zAcsAddressValidationRequestRequest = z.object({
 
 /**
  * A single resolved address — the first ACSObjectOutput row.
+ *
+ * Every field is ``required=False``: the endpoint returns a literal
+ * ``{}`` when ACS cannot geocode the input (see the view docstring),
+ * so the contract must allow the empty object or schema-validating
+ * consumers reject the documented not-recognised case.
  */
 export const zAcsAddressValidationResponse = z.object({
   geoId: z.int().nullish(),
-  resolvedStreet: z.string(),
-  resolvedStreetNum: z.string(),
-  resolvedZip: z.string(),
-  resolvedArea: z.string(),
+  resolvedStreet: z.string().optional(),
+  resolvedStreetNum: z.string().optional(),
+  resolvedZip: z.string().optional(),
+  resolvedArea: z.string().optional(),
   resolvedLong: z.number().nullish(),
   resolvedLat: z.number().nullish(),
-  resolvedStationId: z.string(),
+  resolvedStationId: z.string().optional(),
   resolvedBranchId: z.int().nullish(),
-  resolvedProvidence: z.string(),
-  addressId: z.string(),
+  resolvedProvidence: z.string().optional(),
+  addressId: z.string().optional(),
 }).register(z.globalRegistry, {
-  description: 'A single resolved address — the first ACSObjectOutput row.',
+  description: 'A single resolved address — the first ACSObjectOutput row.\n\nEvery field is ``required=False``: the endpoint returns a literal\n``{}`` when ACS cannot geocode the input (see the view docstring),\nso the contract must allow the empty object or schema-validating\nconsumers reject the documented not-recognised case.',
 })
 
 /**
@@ -90,6 +95,49 @@ export const zActionEnum = z.enum(['subscribe', 'unsubscribe']).register(z.globa
 export const zAddTrackingRequest = z.object({
   trackingNumber: z.string().min(1).max(100),
   shippingCarrier: z.string().min(1).max(50),
+})
+
+/**
+ * Compact favourite row for agents — the storefront's favourite
+ * serializers embed the full product detail payload, which is far more
+ * than a tool result should carry.
+ */
+export const zAgentFavourite = z.object({
+  productId: z.int().register(z.globalRegistry, {
+    description: 'Product ID',
+  }),
+  name: z.string().register(z.globalRegistry, {
+    description: 'Localized product name',
+  }),
+  finalPrice: z.string().register(z.globalRegistry, {
+    description: 'Current VAT-inclusive price',
+  }),
+  currency: z.string().register(z.globalRegistry, {
+    description: 'Price currency',
+  }),
+  inStock: z.boolean().register(z.globalRegistry, {
+    description: 'Whether the product is currently in stock',
+  }),
+  addedAt: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'When the product was favourited',
+  }),
+}).register(z.globalRegistry, {
+  description: 'Compact favourite row for agents — the storefront\'s favourite\nserializers embed the full product detail payload, which is far more\nthan a tool result should carry.',
+})
+
+export const zAgentProfile = z.object({
+  id: z.int().register(z.globalRegistry, {
+    description: 'User ID',
+  }),
+  email: z.email().register(z.globalRegistry, {
+    description: 'Account email',
+  }),
+  firstName: z.string().register(z.globalRegistry, {
+    description: 'First name',
+  }),
+  lastName: z.string().register(z.globalRegistry, {
+    description: 'Last name',
+  }),
 })
 
 /**
@@ -444,11 +492,25 @@ export const zBlogPostMeiliSearchResult = z.object({
   contentType: z.string(),
 })
 
+/**
+ * Common disclosure fields every search response carries.
+ *
+ * ``query_id`` attributes later clicks to this query (see the
+ * ``search/click`` endpoint); ``relaxed_query`` reports the trimmed
+ * query the zero-result fallback actually matched, so clients can
+ * disclose "showing results for …" instead of silently swapping.
+ */
 export const zBlogPostMeiliSearchResponse = z.object({
+  queryId: z.uuid().register(z.globalRegistry, {
+    description: 'Identifier for this search, used to attribute clicks',
+  }),
+  relaxedQuery: z.string().nullable(),
   limit: z.int(),
   offset: z.int(),
   estimatedTotalHits: z.int(),
   results: z.array(zBlogPostMeiliSearchResult),
+}).register(z.globalRegistry, {
+  description: 'Common disclosure fields every search response carries.\n\n``query_id`` attributes later clicks to this query (see the\n``search/click`` endpoint); ``relaxed_query`` reports the trimmed\nquery the zero-result fallback actually matched, so clients can\ndisclose "showing results for …" instead of silently swapping.',
 })
 
 /**
@@ -817,11 +879,22 @@ export const zBoxNowWebhookEnvelopeRequest = z.object({
   description: 'Top-level CloudEvent envelope for BoxNow webhook POST requests.\n\nUsed for OpenAPI documentation only — the webhook view reads\nraw bytes before parsing in order to verify the HMAC-SHA256\n``datasignature`` against the unmodified ``data`` JSON substring.\nDRF validation is not applied to the incoming request directly.',
 })
 
+export const zBulkSubscriptionFailure = z.object({
+  topic: z.string().readonly(),
+  error: z.string().readonly(),
+})
+
 export const zBulkSubscriptionRequest = z.object({
   topicIds: z.array(z.int()).register(z.globalRegistry, {
     description: 'Λίστα ID θεμάτων για εγγραφή/διαγραφή',
   }),
   action: zActionEnum,
+})
+
+export const zBulkSubscriptionResult = z.object({
+  success: z.array(z.string()).readonly(),
+  failed: z.array(zBulkSubscriptionFailure).readonly(),
+  alreadyProcessed: z.array(z.string()).readonly(),
 })
 
 export const zCancelOrderRequestRequest = z.object({
@@ -952,6 +1025,30 @@ export const zComponentTypeEnum = z.enum([
   'search_bar',
 ]).register(z.globalRegistry, {
   description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar',
+})
+
+export const zConfirmAgentPaymentRequestRequest = z.object({
+  sharedPaymentToken: z.string().min(1).max(255).register(z.globalRegistry, {
+    description: 'Stripe SharedPaymentToken (spt_…) granted to this store by the agent platform, scoped to this exact purchase.',
+  }),
+})
+
+export const zConfirmAgentPaymentResponse = z.object({
+  paymentId: z.string().register(z.globalRegistry, {
+    description: 'Stripe PaymentIntent ID that charged the token',
+  }),
+  status: z.string().register(z.globalRegistry, {
+    description: 'Κατάσταση πληρωμής',
+  }),
+  amount: z.string().register(z.globalRegistry, {
+    description: 'Ποσό πληρωμής',
+  }),
+  currency: z.string().register(z.globalRegistry, {
+    description: 'Νόμισμα πληρωμής',
+  }),
+  provider: z.string().register(z.globalRegistry, {
+    description: 'Όνομα παρόχου πληρωμών',
+  }),
 })
 
 export const zConfirmResponse = z.object({
@@ -1227,7 +1324,7 @@ export const zFederatedSearchResult = z.object({
   subtitle: z.string().optional(),
   body: z.string().optional(),
   master: z.int().optional(),
-  Federation: zFederationMetadata,
+  federation: zFederationMetadata,
 }).register(z.globalRegistry, {
   description: 'Serializer for individual federated search result.\n\nThis combines fields from both ProductTranslation and BlogPostTranslation\nwith federation metadata.',
 })
@@ -1236,6 +1333,10 @@ export const zFederatedSearchResult = z.object({
  * Serializer for federated search response.
  */
 export const zFederatedSearchResponse = z.object({
+  queryId: z.uuid().register(z.globalRegistry, {
+    description: 'Identifier for this search, used to attribute clicks',
+  }),
+  relaxedQuery: z.string().nullable(),
   limit: z.int().register(z.globalRegistry, {
     description: 'Maximum number of results requested',
   }),
@@ -3481,7 +3582,19 @@ export const zProductMeiliSearchResult = z.object({
   vatPercent: z.number().nullable(),
 })
 
+/**
+ * Common disclosure fields every search response carries.
+ *
+ * ``query_id`` attributes later clicks to this query (see the
+ * ``search/click`` endpoint); ``relaxed_query`` reports the trimmed
+ * query the zero-result fallback actually matched, so clients can
+ * disclose "showing results for …" instead of silently swapping.
+ */
 export const zProductMeiliSearchResponse = z.object({
+  queryId: z.uuid().register(z.globalRegistry, {
+    description: 'Identifier for this search, used to attribute clicks',
+  }),
+  relaxedQuery: z.string().nullable(),
   limit: z.int(),
   offset: z.int(),
   estimatedTotalHits: z.int(),
@@ -3490,6 +3603,8 @@ export const zProductMeiliSearchResponse = z.object({
     description: 'Facet distribution with counts per category/value',
   }).optional(),
   facetStats: zFacetStats.optional(),
+}).register(z.globalRegistry, {
+  description: 'Common disclosure fields every search response carries.\n\n``query_id`` attributes later clicks to this query (see the\n``search/click`` endpoint); ``relaxed_query`` reports the trimmed\nquery the zero-result fallback actually matched, so clients can\ndisclose "showing results for …" instead of silently swapping.',
 })
 
 /**
@@ -3823,6 +3938,14 @@ export const zReserveStockResponse = z.object({
 })
 
 /**
+ * * `product` - product
+ * * `blog_post` - blog_post
+ */
+export const zResultTypeEnum = z.enum(['product', 'blog_post']).register(z.globalRegistry, {
+  description: '* `product` - product\n* `blog_post` - blog_post',
+})
+
+/**
  * * `NEW` - Νέο
  * * `TRUE` - Ναι
  * * `FALSE` - Όχι
@@ -3833,6 +3956,28 @@ export const zReviewStatus = z.enum([
   'FALSE',
 ]).register(z.globalRegistry, {
   description: '* `NEW` - Νέο\n* `TRUE` - Ναι\n* `FALSE` - Όχι',
+})
+
+/**
+ * Payload for attributing a result click to a search query.
+ */
+export const zSearchClickRequestRequest = z.object({
+  queryId: z.uuid().register(z.globalRegistry, {
+    description: 'The query_id returned by the search response',
+  }),
+  resultId: z.string().min(1).max(100).register(z.globalRegistry, {
+    description: 'ID of the clicked result (Product or BlogPost ID)',
+  }),
+  resultType: zResultTypeEnum,
+  position: z.int().gte(0).register(z.globalRegistry, {
+    description: '0-indexed position of the result in the result list',
+  }),
+}).register(z.globalRegistry, {
+  description: 'Payload for attributing a result click to a search query.',
+})
+
+export const zSearchClickResponse = z.object({
+  detail: z.string(),
 })
 
 /**
@@ -4075,8 +4220,8 @@ export const zShippingProvider = z.object({
  * * `3` - Συνεργαζόμενο κατάστημα (3)
  * * `4` - Xpress Point
  * * `5` - Kiosk
- * * `7` - Smartpoint (εισερχόμενα)
- * * `8` - Smartpoint (εξερχόμενα)
+ * * `7` - Smartpoint (χωρίς locker)
+ * * `8` - Smartpoint locker
  */
 export const zShopKindEnum = z.union([
   z.literal(1),
@@ -4087,7 +4232,7 @@ export const zShopKindEnum = z.union([
   z.literal(7),
   z.literal(8),
 ]).register(z.globalRegistry, {
-  description: '* `1` - Κατάστημα\n* `2` - Συνεργαζόμενο κατάστημα (2)\n* `3` - Συνεργαζόμενο κατάστημα (3)\n* `4` - Xpress Point\n* `5` - Kiosk\n* `7` - Smartpoint (εισερχόμενα)\n* `8` - Smartpoint (εξερχόμενα)',
+  description: '* `1` - Κατάστημα\n* `2` - Συνεργαζόμενο κατάστημα (2)\n* `3` - Συνεργαζόμενο κατάστημα (3)\n* `4` - Xpress Point\n* `5` - Kiosk\n* `7` - Smartpoint (χωρίς locker)\n* `8` - Smartpoint locker',
 })
 
 /**
@@ -4100,11 +4245,11 @@ export const zAcsStation = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   externalId: z.string().register(z.globalRegistry, {
-    description: 'ACS_SHOP_STATION_ID — χρησιμοποιείται ως Acs_Station_Destination.',
+    description: 'ACS_SHOP_STATION_ID_EN — ο κωδικός σταθμού ΠΕΡΙΟΧΗΣ, χρησιμοποιείται ως Acs_Station_Destination. ΔΕΝ είναι μοναδικός από μόνος του: κάθε locker Smartpoint μιας περιοχής τον μοιράζεται (π.χ. 50 lockers κάτω από το \'ATH\')· το ζεύγος (external_id, branch_code) είναι η ταυτότητα του locker.',
   }).readonly(),
   branchCode: z.string().register(z.globalRegistry, {
-    description: 'ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination).',
-  }).readonly(),
+    description: 'ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination). Διακρίνει τα επιμέρους lockers μιας περιοχής σταθμού.',
+  }).readonly().default(''),
   shopKind: zShopKindEnum,
   name: z.string().readonly(),
   addressLine1: z.string().readonly(),
@@ -4176,11 +4321,11 @@ export const zAcsStationDetail = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   externalId: z.string().register(z.globalRegistry, {
-    description: 'ACS_SHOP_STATION_ID — χρησιμοποιείται ως Acs_Station_Destination.',
+    description: 'ACS_SHOP_STATION_ID_EN — ο κωδικός σταθμού ΠΕΡΙΟΧΗΣ, χρησιμοποιείται ως Acs_Station_Destination. ΔΕΝ είναι μοναδικός από μόνος του: κάθε locker Smartpoint μιας περιοχής τον μοιράζεται (π.χ. 50 lockers κάτω από το \'ATH\')· το ζεύγος (external_id, branch_code) είναι η ταυτότητα του locker.',
   }).readonly(),
   branchCode: z.string().register(z.globalRegistry, {
-    description: 'ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination).',
-  }).readonly(),
+    description: 'ACS_SHOP_BRANCH_ID — συνδυάζεται με το external_id κατά τη δημιουργία vouchers (Acs_Station_Branch_Destination). Διακρίνει τα επιμέρους lockers μιας περιοχής σταθμού.',
+  }).readonly().default(''),
   shopKind: zShopKindEnum,
   name: z.string().readonly(),
   addressLine1: z.string().readonly(),
@@ -7413,6 +7558,14 @@ export const zUserSubscriptionDetailWritable = z.object({
     description: 'Επιπλέον προτιμήσεις ή δεδομένα εγγραφής',
   }).optional(),
 })
+
+export const zGetAgentProfileResponse = zAgentProfile
+
+export const zListAgentFavouritesResponse = z.array(zAgentFavourite)
+
+export const zGetAgentLoyaltySummaryResponse = zLoyaltySummary
+
+export const zListAgentOrdersResponse = z.array(zOrder)
 
 export const zListBlogAuthorQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
@@ -12167,6 +12320,17 @@ export const zCancelOrderPath = z.object({
 
 export const zCancelOrderResponse = zOrderDetail
 
+export const zConfirmAgentPaymentForOrderBody = zConfirmAgentPaymentRequestRequest
+
+export const zConfirmAgentPaymentForOrderPath = z.object({
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zConfirmAgentPaymentForOrderResponse = zConfirmAgentPaymentResponse
+
 export const zCreateOrderCheckoutSessionBody = zCreateCheckoutSessionRequestRequest
 
 export const zCreateOrderCheckoutSessionPath = z.object({
@@ -15405,6 +15569,10 @@ export const zApiV1SearchBlogPostRetrieveQuery = z.object({
 
 export const zApiV1SearchBlogPostRetrieveResponse = zBlogPostMeiliSearchResponse
 
+export const zApiV1SearchClickCreateBody = zSearchClickRequestRequest
+
+export const zApiV1SearchClickCreateResponse = zSearchClickResponse
+
 export const zApiV1SearchFederatedRetrieveQuery = z.object({
   languageCode: z.string().register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για φιλτράρισμα αποτελεσμάτων (π.χ. \'en\', \'el\', \'de\'). Αν δεν δοθεί, αναζητά σε όλες τις γλώσσες.',
@@ -15549,7 +15717,7 @@ export const zApiV1ShippingAcsStationsListQuery = z.object({
 export const zApiV1ShippingAcsStationsListResponse = zPaginatedAcsStationList
 
 export const zApiV1ShippingAcsStationsRetrievePath = z.object({
-  externalId: z.string(),
+  uuid: z.uuid(),
 })
 
 export const zApiV1ShippingAcsStationsRetrieveResponse = zAcsStationDetail
@@ -16976,6 +17144,8 @@ export const zConfirmUserSubscriptionPath = z.object({
 export const zConfirmUserSubscriptionResponse = zUserSubscriptionDetail
 
 export const zBulkUpdateUserSubscriptionsBody = zBulkSubscriptionRequest
+
+export const zBulkUpdateUserSubscriptionsResponse = zBulkSubscriptionResult
 
 export const zConfirmSubscriptionByTokenPath = z.object({
   token: z.string(),

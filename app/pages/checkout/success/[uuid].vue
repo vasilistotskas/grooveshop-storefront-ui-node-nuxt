@@ -50,9 +50,6 @@ const { data: order, error, refresh } = await useFetch(
     headers: useRequestHeaders(),
     query: {
       languageCode: locale,
-      // Forward the UUID as a query param so Django's IsOwnerOrAdminOrGuest
-      // permission check passes for guest orders (unauthenticated users)
-      uuid: orderUUID,
     },
   },
 )

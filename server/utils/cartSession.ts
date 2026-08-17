@@ -95,8 +95,12 @@ export async function updateCartSession(event: H3Event, updates: Partial<CartSes
   }
 }
 
-export async function getCartHeaders(event: H3Event): Promise<Record<string, string>> {
+export async function getCartHeaders(event: H3Event, cartIdOverride?: string): Promise<Record<string, string>> {
   const { cartId } = await getCartSession(event)
+  // Callers that need to address a cart other than the current session's
+  // (e.g. the /cart/claim handoff, which must probe an agent-issued UUID
+  // before ever writing it to the session) pass an explicit override.
+  const effectiveCartId = cartIdOverride ?? cartId
   const accessToken = await getAllAuthAccessToken(event)
   const config = useRuntimeConfig(event)
   const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
@@ -109,8 +113,8 @@ export async function getCartHeaders(event: H3Event): Promise<Record<string, str
     'X-Language': locale,
   }
 
-  if (cartId) {
-    headers['X-Cart-Id'] = cartId
+  if (effectiveCartId) {
+    headers['X-Cart-Id'] = String(effectiveCartId)
   }
 
   if (accessToken) {
@@ -139,7 +143,7 @@ export const useCartSession = (event: H3Event) => {
   return {
     getSession: () => getCartSession(event),
     updateSession: (updates: Partial<CartSessionData>) => updateCartSession(event, updates),
-    getCartHeaders: () => getCartHeaders(event),
+    getCartHeaders: (cartIdOverride?: string) => getCartHeaders(event, cartIdOverride),
     handleCartResponse: (response: unknown) => handleCartResponse(event, response),
     clearSession: () => clearCartSession(event),
   }

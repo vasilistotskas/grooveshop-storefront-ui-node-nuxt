@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
         Authorization: `Bearer ${accessToken}`,
       },
     })
-    return response
+    return await parseDataAs(response, zBulkUpdateUserSubscriptionsResponse)
   }
   catch (error) {
     handleError(error)

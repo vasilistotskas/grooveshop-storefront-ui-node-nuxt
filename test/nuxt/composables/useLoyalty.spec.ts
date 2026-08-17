@@ -231,39 +231,6 @@ describe('useLoyalty Composable', () => {
     })
   })
 
-  describe('redeemPoints', () => {
-    it('should call $fetch and return response', async () => {
-      const mockResponse: RedeemPointsResponse = {
-        pointsRedeemed: 100,
-        discountAmount: 1.0,
-        currency: 'EUR',
-        remainingBalance: 50,
-      }
-
-      mockFetch.mockResolvedValueOnce(mockResponse)
-
-      const { redeemPoints } = useLoyalty()
-      const result = await redeemPoints({ pointsAmount: 100, currency: 'EUR' })
-
-      expect(mockFetch).toHaveBeenCalledWith('/api/loyalty/redeem', {
-        method: 'POST',
-        body: { pointsAmount: 100, currency: 'EUR' },
-      })
-      expect(result).toEqual(mockResponse)
-    })
-
-    it('should throw error on failure', async () => {
-      const mockError = new Error('Insufficient balance')
-      mockFetch.mockRejectedValueOnce(mockError)
-
-      const { redeemPoints } = useLoyalty()
-
-      await expect(
-        redeemPoints({ pointsAmount: 100, currency: 'EUR' }),
-      ).rejects.toThrow('Insufficient balance')
-    })
-  })
-
   describe('Integration', () => {
     it('should allow multiple fetch methods to be called', () => {
       mockUseAsyncDataFn.mockReturnValue({

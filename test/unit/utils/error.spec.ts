@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { isErrorWithDetail, isAllAuthClientError } from '~/utils/error'
+import { getErrorDetail } from '../../../shared/utils/error'
 
 describe('Error Utils', () => {
   describe('isErrorWithDetail', () => {
@@ -81,5 +82,35 @@ describe('Error Utils', () => {
     // Note: isAllAuthClientError checks against specific AllAuth error response types
     // A "regular error" with just a message will return false because it doesn't match
     // any of the AllAuth error response schemas (BadResponse, NotAuthenticatedResponse, etc.)
+  })
+
+  describe('getErrorDetail', () => {
+    it('reads detail from a forwarded upstream body (error.data.detail)', () => {
+      expect(getErrorDetail({ data: { detail: 'Username already taken.' } }))
+        .toBe('Username already taken.')
+    })
+
+    it('reads detail from the thrown-route wrapper (error.data.data.detail)', () => {
+      expect(getErrorDetail({ data: { statusCode: 400, data: { detail: 'Bad cart.' } } }))
+        .toBe('Bad cart.')
+    })
+
+    it('never falls back to the raw fetch message', () => {
+      // ofetch messages like `[POST] "/api/orders": 400 Bad Request` are
+      // always truthy — returning them made every `|| t('fallback')`
+      // dead code and leaked request lines into customer-facing toasts.
+      expect(getErrorDetail({
+        message: '[POST] "/api/orders": 400 Bad Request',
+        data: { statusCode: 400 },
+      })).toBeUndefined()
+      expect(getErrorDetail(new Error('boom'))).toBeUndefined()
+      expect(getErrorDetail(undefined)).toBeUndefined()
+      expect(getErrorDetail('nope')).toBeUndefined()
+    })
+
+    it('ignores empty or non-string detail values', () => {
+      expect(getErrorDetail({ data: { detail: '' } })).toBeUndefined()
+      expect(getErrorDetail({ data: { detail: 42 } })).toBeUndefined()
+    })
   })
 })

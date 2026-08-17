@@ -35,13 +35,16 @@ export default defineCachedEventHandler(async (event) => {
   swr: true,
   getKey: (event) => {
     const query = getQuery(event)
-    const keyParts = [
-      'categories',
-      query.idIn || 'all',
-      query.languageCode || 'el',
-      query.pageSize || '100',
-      query.page || '1',
-    ]
-    return tenantCacheKey(event, keyParts.join(':'))
+    // The Zod schema uses .passthrough(), so ANY extra query param is
+    // forwarded to Django and changes the upstream response — the key
+    // must therefore cover the whole query, not an allowlist, or two
+    // different requests collide on one cache entry. Same canonicalized
+    // pattern as products/index.get.ts: drop empties, sort keys.
+    const filtered = Object.entries(query)
+      .filter(([, v]) => v !== undefined && v !== null && v !== '')
+      .map(([k, v]) => `${k}=${Array.isArray(v) ? v.slice().sort().join(',') : v}`)
+      .sort()
+      .join('&')
+    return tenantCacheKey(event, `categories:${filtered || 'default'}`)
   },
 })

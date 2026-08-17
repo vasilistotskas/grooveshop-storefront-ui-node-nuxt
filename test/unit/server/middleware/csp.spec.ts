@@ -6,9 +6,16 @@
  * http://backend-service:80). The browser reaches Django only via same-origin
  * '/api/**' proxy routes and the wss:// notification socket, so the public API
  * origin (https://<djangoHostName>) is used in connect-src instead.
+ *
+ * Tenant dimension: per-tenant pixel ids take precedence over the platform
+ * env fallbacks, and `TenantConfig.allowedCspSources` expands script-src,
+ * img-src, connect-src and frame-src (scheme-filtered by the builder).
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { generateCspNonce } from '../../../../server/utils/csp'
+import { PRERENDERED_ROUTES_SET } from '../../../../shared/constants/prerender'
+import { buildCspDirectives } from '../../../../shared/utils/csp'
 
 const INTERNAL_DJANGO_URL = 'http://backend-service:80'
 
@@ -20,19 +27,34 @@ const BASE_PUBLIC_CONFIG = {
   tiktokPixelId: 'TTPIXEL123',
 }
 
+interface TestEvent {
+  path: string
+  context: Record<string, unknown>
+  headers?: Record<string, string>
+}
+
 let publicConfig: Record<string, unknown>
-let handler: (event: { path: string, context: Record<string, unknown> }) => void
+let handler: (event: TestEvent) => void
 let headers: Record<string, string>
 
-function runWith(path: string, tenant?: Record<string, unknown>): Record<string, string> {
+interface RunOptions {
+  tenant?: Record<string, unknown>
+  requestHeaders?: Record<string, string>
+}
+
+function runWith(path: string, options: RunOptions = {}): Record<string, string> & { event: TestEvent } {
   headers = {}
-  handler({ path, context: tenant ? { tenant } : {} })
-  return headers
+  const event: TestEvent = {
+    path,
+    context: options.tenant ? { tenant: options.tenant } : {},
+    headers: options.requestHeaders ?? {},
+  }
+  handler(event)
+  return Object.assign({ event }, headers)
 }
 
 beforeAll(async () => {
   vi.stubGlobal('defineEventHandler', (fn: typeof handler) => fn)
-  vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue('api.webside.gr'))
   vi.stubGlobal('useRuntimeConfig', () => ({
     djangoUrl: INTERNAL_DJANGO_URL,
     public: publicConfig,
@@ -40,6 +62,13 @@ beforeAll(async () => {
   vi.stubGlobal('setResponseHeader', (_event: unknown, name: string, value: string) => {
     headers[name] = value
   })
+  vi.stubGlobal('getRequestHeader', (event: TestEvent, name: string) => event.headers?.[name])
+  vi.stubGlobal('getRequestHost', (event: TestEvent) => event.headers?.host ?? '')
+  // The middleware consumes these via server/shared auto-imports; unit tests
+  // wire the REAL implementations so behavior (and the route list) can't drift.
+  vi.stubGlobal('generateCspNonce', generateCspNonce)
+  vi.stubGlobal('PRERENDERED_ROUTES_SET', PRERENDERED_ROUTES_SET)
+  vi.stubGlobal('buildCspDirectives', buildCspDirectives)
   // Import after globals are stubbed — the module wraps its handler in
   // defineEventHandler at module-evaluation time.
   handler = (await import('../../../../server/middleware/3.csp')).default as typeof handler
@@ -91,7 +120,9 @@ describe('csp middleware', () => {
     publicConfig.metaPixelId = ''
     publicConfig.tiktokPixelId = ''
 
-    const csp = runWith('/products/3/some-product', { tiktokPixelId: 'TENANT_ONLY_TT_ID' })['Content-Security-Policy']
+    const csp = runWith('/products/3/some-product', {
+      tenant: { tiktokPixelId: 'TENANT_ONLY_TT_ID' },
+    })['Content-Security-Policy']
     const directive = (name: string) =>
       csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
     expect(directive('script-src')).toContain('https://analytics.tiktok.com')
@@ -100,15 +131,83 @@ describe('csp middleware', () => {
   it('does not gate on TikTok origins when neither tenant nor platform provisions a pixel id', () => {
     publicConfig.tiktokPixelId = ''
 
-    const csp = runWith('/products/3/some-product', { tiktokPixelId: '' })['Content-Security-Policy']
+    const csp = runWith('/products/3/some-product', {
+      tenant: { tiktokPixelId: '' },
+    })['Content-Security-Policy']
     const directive = (name: string) =>
       csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
     expect(directive('script-src')).not.toContain('analytics.tiktok.com')
+  })
+
+  it('appends filtered tenant allowedCspSources to the four browser directives', () => {
+    const csp = runWith('/products/3/some-product', {
+      tenant: {
+        allowedCspSources: [
+          'https://cdn.tenant.example',
+          'wss://live.tenant.example',
+          'data:text/html,evil', // must be dropped by the scheme filter
+          'http://insecure.example', // must be dropped too
+        ],
+      },
+    })['Content-Security-Policy']
+    const directive = (name: string) =>
+      csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
+    for (const name of ['script-src', 'img-src', 'connect-src', 'frame-src']) {
+      expect(directive(name)).toContain('https://cdn.tenant.example')
+      expect(directive(name)).toContain('wss://live.tenant.example')
+      expect(directive(name)).not.toContain('data:text/html,evil')
+      expect(directive(name)).not.toContain('http://insecure.example')
+    }
+    // style-src is deliberately NOT expanded — tenant CSS sources would
+    // widen the injection surface of the style pipeline for no feature.
+    expect(directive('style-src')).not.toContain('cdn.tenant.example')
   })
 
   it('skips API, _nuxt and _ipx routes (no CSP header set)', () => {
     expect(runWith('/api/products/3')['Content-Security-Policy']).toBeUndefined()
     expect(runWith('/_nuxt/entry.js')['Content-Security-Policy']).toBeUndefined()
     expect(runWith('/_ipx/_/image.png')['Content-Security-Policy']).toBeUndefined()
+  })
+
+  it('emits a per-request nonce + strict-dynamic in script-src for SSR routes', () => {
+    const result = runWith('/products/3/some-product')
+    const scriptSrc = result['Content-Security-Policy']!
+      .split(';').map(d => d.trim()).find(d => d.startsWith('script-src')) ?? ''
+    const nonce = result.event.context.cspNonce as string
+    expect(nonce).toMatch(/^[A-Za-z0-9+/=]{20,}$/)
+    expect(scriptSrc).toContain(`'nonce-${nonce}'`)
+    expect(scriptSrc).toContain(`'strict-dynamic'`)
+    // Legacy fallbacks stay for browsers without CSP3 support.
+    expect(scriptSrc).toContain(`'unsafe-inline'`)
+    expect(scriptSrc).toContain('https://js.stripe.com')
+  })
+
+  it('generates a fresh nonce per request', () => {
+    const first = runWith('/').event.context.cspNonce
+    const second = runWith('/').event.context.cspNonce
+    expect(first).toBeDefined()
+    expect(second).toBeDefined()
+    expect(first).not.toBe(second)
+  })
+
+  it('keeps the nonce-free unsafe-inline policy on prerendered routes', () => {
+    for (const path of ['/about', '/about/', '/about?utm_source=x']) {
+      const result = runWith(path)
+      const csp = result['Content-Security-Policy']!
+      expect(result.event.context.cspNonce).toBeUndefined()
+      // The policy must not mention nonces at all, or browsers would
+      // disable the 'unsafe-inline' the baked HTML depends on.
+      expect(csp).not.toContain('nonce-')
+      expect(csp).not.toContain('strict-dynamic')
+      expect(csp).toContain(`'unsafe-inline'`)
+    }
+  })
+
+  it('skips the nonce during build-time prerender passes', () => {
+    const result = runWith('/products/3/some-product', {
+      requestHeaders: { 'x-nitro-prerender': '/products/3/some-product' },
+    })
+    expect(result.event.context.cspNonce).toBeUndefined()
+    expect(result['Content-Security-Policy']).not.toContain('nonce-')
   })
 })
