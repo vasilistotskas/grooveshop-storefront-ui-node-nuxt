@@ -1,3 +1,10 @@
+# [3.151.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.150.0...v3.151.0) (2026-08-17)
+
+
+### Features
+
+* **search:** click attribution and relaxed-query disclosure ([#19](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/19)) ([7181cab](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7181cabc5bf92114305034de1ebbf5af374d11ba)), closes [#16](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/16)
+
 # [3.150.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.149.0...v3.150.0) (2026-08-16)
 
 
