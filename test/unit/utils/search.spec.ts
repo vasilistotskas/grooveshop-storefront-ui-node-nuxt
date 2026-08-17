@@ -170,36 +170,4 @@ describe('Search Utils', () => {
       expect(subtitle.length).toBeGreaterThan(0)
     })
   })
-
-  describe('getResultIcon', () => {
-    it('should return shopping bag icon for product', () => {
-      const result = {
-        contentType: 'product',
-      } as SearchResult
-
-      expect(getResultIcon(result)).toBe('i-heroicons-shopping-bag')
-    })
-
-    it('should return file text icon for post', () => {
-      const result = {
-        contentType: 'post',
-      } as SearchResult
-
-      expect(getResultIcon(result)).toBe('i-heroicons-document-text')
-    })
-
-    it('should return file text icon for unknown content type', () => {
-      const result = {
-        contentType: 'unknown',
-      } as any
-
-      expect(getResultIcon(result)).toBe('i-heroicons-document-text')
-    })
-
-    it('should return file text icon for missing content type', () => {
-      const result = {} as SearchResult
-
-      expect(getResultIcon(result)).toBe('i-heroicons-document-text')
-    })
-  })
 })

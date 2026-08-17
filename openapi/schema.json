@@ -52875,19 +52875,18 @@
                     "master": {
                         "type": "integer"
                     },
-                    "Federation": {
+                    "federation": {
                         "allOf": [
                             {
                                 "$ref": "#/components/schemas/FederationMetadata"
                             }
                         ],
-                        "title": " federation",
                         "description": "Federation metadata from Meilisearch"
                     }
                 },
                 "required": [
-                    "Federation",
                     "contentType",
+                    "federation",
                     "formatted",
                     "id",
                     "languageCode",
