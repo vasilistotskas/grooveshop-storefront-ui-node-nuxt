@@ -6,6 +6,7 @@ export function setupPageHeader() {
   const siteConfig = useSiteConfig()
   const { $i18n } = useNuxtApp()
   const tenantStore = useTenantStore()
+  const { ogImageUrl } = useTenantBranding()
 
   const siteUrl = siteConfig.url
 
@@ -15,7 +16,7 @@ export function setupPageHeader() {
     () => tenantStore.storeName || publicConfig.appTitle,
   )
   const logo = computed(
-    () => tenantStore.logoLightUrl || publicConfig.appLogo,
+    () => ogImageUrl.value,
   )
   const favicon = computed(() => tenantStore.faviconUrl)
 

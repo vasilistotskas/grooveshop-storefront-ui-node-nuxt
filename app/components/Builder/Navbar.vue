@@ -85,15 +85,10 @@ onMounted(() => {
                   base: 'p-0',
                 }"
               >
-                <NuxtImg
-                  :style="{ objectFit: 'contain' }"
-                  :src="tenantStore.logoLightUrl || '/img/logo-navbar.png'"
+                <TenantLogo
                   :width="145"
                   :height="30"
-                  alt=""
-                  quality="90"
-                  fetch-priority="high"
-                  preload
+                  priority
                 />
                 <span class="sr-only">{{ appTitle }}</span>
               </Anchor>

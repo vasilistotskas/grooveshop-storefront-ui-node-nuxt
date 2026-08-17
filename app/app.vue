@@ -15,6 +15,7 @@ const config = useRuntimeConfig()
 const siteConfig = useSiteConfig()
 const { locales, locale } = useI18n()
 const tenantStore = useTenantStore()
+const { ogImageUrl } = useTenantBranding()
 
 // Tenant-aware SEO metadata. siteConfig is already overridden per
 // tenant by server/plugins/tenant-site-config.ts; tenantStore exposes
@@ -24,7 +25,7 @@ const siteName = computed(
   () => tenantStore.storeName || config.public.appTitle,
 )
 const siteLogo = computed(
-  () => tenantStore.logoLightUrl || config.public.appLogo,
+  () => ogImageUrl.value,
 )
 const siteUrl = computed(() => siteConfig.url || config.public.baseUrl)
 

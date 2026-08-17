@@ -2,9 +2,8 @@
 const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
-const config = useRuntimeConfig()
 const siteConfig = useSiteConfig()
-const tenantStore = useTenantStore()
+const { ogImageUrl } = useTenantBranding()
 
 // Ref to control the sidebar drawer
 const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
@@ -46,7 +45,7 @@ useSeoMeta({
   // Prefer the tenant's light-mode logo for OG meta so social previews
   // carry the tenant's brand. ``setups.ts`` uses the same pattern
   // (H14 in MULTI_TENANT_AUDIT.md).
-  ogImage: tenantStore.logoLightUrl || config.public.appLogo,
+  ogImage: ogImageUrl.value,
   ogImageAlt: () => t('title'),
 })
 

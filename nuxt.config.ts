@@ -1,6 +1,7 @@
 import { DEFAULT_LOCALE } from './i18n/locales'
 import { version } from './package.json'
 import { PRERENDERED_ROUTES } from './shared/constants/prerender'
+import { FONT_FAMILY_NAMES } from './shared/theme/constants'
 
 const modules = [
   'evlog/nuxt',
@@ -307,6 +308,10 @@ export default defineNuxtConfig({
     '/_ipx/**': {
       headers: { 'cache-control': 'max-age=31536000' },
     },
+    '/_fonts/**': {
+      // Hashed, self-hosted font files — immutable.
+      headers: { 'cache-control': 'public, max-age=31536000, immutable' },
+    },
     // Brand-bearing static pages — SSR once per tenant, then served from
     // Nitro's cache (stale-while-revalidate). These pages read the
     // tenant store (storeName, logos, primaryDomain), so build-time
@@ -585,6 +590,20 @@ export default defineNuxtConfig({
     include: ['/api/**'],
     exclude: ['/api/_nuxt_icon/**', '/api/_alive', '/api/__sitemap__/**'],
     transport: { enabled: true },
+  },
+  fonts: {
+    // Pre-bundled per-tenant font allowlist (shared/theme/constants.ts).
+    // ``global: true`` forces @font-face emission for every family even
+    // though no build-time CSS references them — @font-face is lazy, so
+    // shipping all declarations costs a few KB of CSS while each
+    // tenant's visitors download only the family their --font-sans
+    // token resolves to. Files are self-hosted under /_fonts/** (no
+    // runtime Google requests, no CSP widening).
+    families: Object.values(FONT_FAMILY_NAMES).map(name => ({
+      name,
+      provider: 'google',
+      global: true,
+    })),
   },
   i18n: {
     defaultLocale: DEFAULT_LOCALE,

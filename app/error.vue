@@ -7,13 +7,13 @@ const props = defineProps({
 
 const config = useRuntimeConfig()
 const { t } = useI18n()
-const tenantStore = useTenantStore()
+const { ogImageUrl } = useTenantBranding()
 
 const showDebug = import.meta.dev || Boolean((config.public as Record<string, unknown>).debug)
 
 useSeoMeta({
   title: t('error.page.title'),
-  ogImage: () => tenantStore.logoLightUrl || config.public.appLogo,
+  ogImage: () => ogImageUrl.value,
   ogImageAlt: 'Page not found',
   ogImageWidth: 1200,
   ogImageHeight: 630,

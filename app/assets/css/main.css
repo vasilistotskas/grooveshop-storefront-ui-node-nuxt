@@ -17,6 +17,10 @@
      the platform look is unchanged; tenant themes may override it via
      the injected <style id="tenant-theme"> block. */
   --ui-chat-gradient-to: var(--color-violet-600);
+  /* Tenant-selectable base font (shared/theme/constants.ts allowlist).
+     Default = the system stack the platform always used; the injected
+     tenant style overrides it per request. */
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --ui-success: var(--color-success-600);
   --ui-info: var(--color-info-600);
   --ui-warning: var(--color-warning-600);
@@ -64,6 +68,10 @@
 html {
   overscroll-behavior-y: contain;
   -webkit-text-size-adjust: 100%;
+  /* Make --font-sans authoritative for ALL text (Tailwind preflight
+     otherwise resolves body copy through --default-font-family, which
+     the per-tenant token can't reach). */
+  font-family: var(--font-sans);
 }
 
 button, a, [role="button"] {

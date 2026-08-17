@@ -1,10 +1,9 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
 const route = useRoute(`products-category-id-slug___${locale.value}`)
-const config = useRuntimeConfig()
 const img = useImage()
 const siteConfig = useSiteConfig()
-const tenantStore = useTenantStore()
+const { ogImageUrl } = useTenantBranding()
 
 const categoryId = 'id' in route.params
   ? route.params.id
@@ -72,7 +71,7 @@ const ogImage = computed(() => {
       provider: 'mediaStream',
     })
   }
-  return tenantStore.logoLightUrl || (config.public.appLogo as string)
+  return ogImageUrl.value
 })
 
 const baseUrl = siteConfig.url

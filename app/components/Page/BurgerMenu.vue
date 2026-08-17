@@ -127,13 +127,9 @@ const onClickCookieSettings = () => {
         :aria-label="t('menu')"
         class="flex items-center"
       >
-        <NuxtImg
-          :src="tenantStore.logoLightUrl || '/img/logo-navbar.png'"
-          :style="{ objectFit: 'contain' }"
+        <TenantLogo
           :width="125"
           :height="26"
-          alt=""
-          quality="90"
         />
         <span class="sr-only">{{ t('menu') }}</span>
       </NuxtLink>
