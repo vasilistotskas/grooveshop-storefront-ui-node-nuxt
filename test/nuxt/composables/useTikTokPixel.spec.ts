@@ -73,7 +73,10 @@ describe('setupTikTokPixelConsent — tenant-only pixel id resolution', () => {
 
     expect(scriptTikTokPixelMock).toHaveBeenCalledWith({
       id: 'TENANT_TT_ID',
-      scriptOptions: { trigger: 'consent-trigger' },
+      // bundle:false is load-bearing: bundling would fetch the vendor
+      // script into the shared image at build time (per-tenant
+      // analytics must load from the vendor at runtime).
+      scriptOptions: { trigger: 'consent-trigger', bundle: false },
     })
   })
 
