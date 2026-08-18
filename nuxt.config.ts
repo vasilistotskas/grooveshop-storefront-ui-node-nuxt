@@ -828,7 +828,13 @@ export default defineNuxtConfig({
     },
   },
   seo: {
-    redirectToCanonicalSiteUrl: true,
+    // The module's canonical redirect runs as MODULE middleware —
+    // before 4.tenant-site-config pushes the per-tenant URL — so it
+    // compared every host against the env-frozen platform site URL
+    // and 301'd every other tenant's storefront onto tenant #1's
+    // domain. server/middleware/5.tenant-canonical.ts is the
+    // tenant-aware replacement.
+    redirectToCanonicalSiteUrl: false,
   },
   sitemap: {
     // Single-sitemap mode (a plain <urlset> at /sitemap.xml). ``true``
