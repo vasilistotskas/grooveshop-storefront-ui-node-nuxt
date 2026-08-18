@@ -75,6 +75,11 @@ definePageMeta({
 const handleToggleFilters = () => {
   sidebarRef.value?.toggleDrawer()
 }
+
+// Optional per-tenant branded band above the page content — sections
+// from the published 'products' PageLayout. Fallback is EMPTY, so pages
+// without a layout render exactly as before.
+const { sections: brandSections } = usePageConfig('products')
 </script>
 
 <template>
@@ -84,6 +89,11 @@ const handleToggleFilters = () => {
       'lg:px-0 lg:max-w-375',
     ]"
   >
+    <PageSectionRenderer
+      v-for="section in brandSections"
+      :key="section.uuid"
+      :section="section"
+    />
     <!-- Skip Links for Keyboard Navigation -->
     <div class="sr-only focus-within:not-sr-only">
       <a

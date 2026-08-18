@@ -2190,8 +2190,11 @@ export type CompartmentSizeEnum = 1 | 2 | 3
  * * `products_grid` - Products Grid
  * * `featured_products` - Προβεβλημένα Προϊόντα
  * * `product_categories` - Κατηγορίες προϊόντος
+ * * `blog_categories` - Blog Categories Rail
  * * `blog_posts_carousel` - Blog Posts Carousel
  * * `blog_posts_grid` - Blog Posts Grid
+ * * `blog_posts_list` - Blog Posts List
+ * * `recently_viewed` - Recently Viewed Rail
  * * `rich_text` - Rich Text Block
  * * `cta_banner` - Call to Action Banner
  * * `newsletter_signup` - Newsletter Signup
@@ -2201,7 +2204,7 @@ export type CompartmentSizeEnum = 1 | 2 | 3
  * * `loyalty_hero` - Loyalty Program Hero
  * * `search_bar` - Search Bar
  */
-export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar'
+export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'blog_posts_list' | 'recently_viewed' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar'
 
 export type ConfirmAgentPaymentRequestRequest = {
   /**

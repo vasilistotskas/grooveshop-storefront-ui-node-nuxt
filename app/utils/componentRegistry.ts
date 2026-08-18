@@ -1,3 +1,13 @@
+/**
+ * Page-builder section registry.
+ *
+ * Keys are Django ``ComponentType`` values, optionally suffixed
+ * ``@<tenant-schema>`` for tenant-specific VARIANTS — ordinary
+ * shared-bundle components under ``PageSection/variants/<schema>/``,
+ * registered here under the suffixed key. ``defineAsyncComponent``
+ * makes every entry its own lazy chunk, so a tenant never downloads
+ * another tenant's variant (or any section its layout doesn't use).
+ */
 export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComponent>> = {
   hero_banner: defineAsyncComponent(() => import('~/components/PageSection/HeroBanner.vue')),
   hero_carousel: defineAsyncComponent(() => import('~/components/PageSection/HeroCarousel.vue')),
@@ -5,8 +15,11 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   products_grid: defineAsyncComponent(() => import('~/components/PageSection/ProductsGrid.vue')),
   featured_products: defineAsyncComponent(() => import('~/components/PageSection/FeaturedProducts.vue')),
   product_categories: defineAsyncComponent(() => import('~/components/PageSection/ProductCategories.vue')),
+  blog_categories: defineAsyncComponent(() => import('~/components/PageSection/BlogCategories.vue')),
   blog_posts_carousel: defineAsyncComponent(() => import('~/components/PageSection/BlogPostsCarousel.vue')),
   blog_posts_grid: defineAsyncComponent(() => import('~/components/PageSection/BlogPostsGrid.vue')),
+  blog_posts_list: defineAsyncComponent(() => import('~/components/PageSection/BlogPostsList.vue')),
+  recently_viewed: defineAsyncComponent(() => import('~/components/PageSection/RecentlyViewed.vue')),
   rich_text: defineAsyncComponent(() => import('~/components/PageSection/RichText.vue')),
   cta_banner: defineAsyncComponent(() => import('~/components/PageSection/CtaBanner.vue')),
   newsletter_signup: defineAsyncComponent(() => import('~/components/PageSection/NewsletterSignup.vue')),
@@ -15,4 +28,21 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   divider: defineAsyncComponent(() => import('~/components/PageSection/Divider.vue')),
   loyalty_hero: defineAsyncComponent(() => import('~/components/PageSection/LoyaltyHero.vue')),
   search_bar: defineAsyncComponent(() => import('~/components/PageSection/SearchBar.vue')),
+}
+
+/**
+ * Resolve a section component with the tenant-variant fallback chain:
+ * ``<type>@<tenantSchema>`` → ``<type>`` → undefined (skipped by the
+ * Renderer). The section's ``component_type`` stays generic in the
+ * layout data — which RENDERING a tenant gets is a presentation
+ * concern resolved here at runtime.
+ */
+export function resolveSectionComponent(
+  componentType: string,
+  tenantSchema?: string | null,
+) {
+  return (
+    (tenantSchema && componentRegistry[`${componentType}@${tenantSchema}`])
+    || componentRegistry[componentType]
+  )
 }

@@ -26,6 +26,11 @@ useHead({
 definePageMeta({
   layout: 'default',
 })
+
+// Optional per-tenant branded band above the page content — sections
+// from the published 'contact' PageLayout. Fallback is EMPTY, so pages
+// without a layout render exactly as before.
+const { sections: brandSections } = usePageConfig('contact')
 </script>
 
 <template>
@@ -35,6 +40,11 @@ definePageMeta({
       md:p-0!
     "
   >
+    <PageSectionRenderer
+      v-for="section in brandSections"
+      :key="section.uuid"
+      :section="section"
+    />
     <UBreadcrumb
       :items="items"
       :ui="{

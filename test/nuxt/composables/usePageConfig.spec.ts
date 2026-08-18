@@ -49,8 +49,15 @@ describe('usePageConfig', () => {
 
     const { sections } = usePageConfig('home')
 
-    expect(sections.value.length).toBeGreaterThan(0)
-    expect(sections.value![0]!.componentType).toBe('hero_carousel')
+    // The fallback mirrors the platform homepage exactly:
+    // blog categories rail → banner carousel → recently-viewed rail →
+    // blog posts list.
+    expect(sections.value.map(s => s.componentType)).toEqual([
+      'blog_categories',
+      'hero_carousel',
+      'recently_viewed',
+      'blog_posts_list',
+    ])
   })
 
   it('should return empty array fallback for unknown page type', () => {

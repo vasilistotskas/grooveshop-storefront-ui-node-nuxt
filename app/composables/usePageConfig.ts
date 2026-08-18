@@ -1,9 +1,28 @@
+/**
+ * Per-tenant page layouts from Django's ``page_config`` app.
+ *
+ * ``FALLBACK_LAYOUTS`` is the code-level safety net rendered when a
+ * tenant has no PUBLISHED layout for the pageType (404/unpublished).
+ * ``home`` mirrors the platform homepage exactly (blog categories rail
+ * → main banner carousel → blog posts list) so an unconfigured tenant
+ * — including webside pre-cutover — sees today's page unchanged. The
+ * marketing pageTypes default to EMPTY: their pages carry their own
+ * static content and the builder only ADDS branded bands above it.
+ *
+ * Keep entries in lockstep with ``page_config/defaults.py`` on the
+ * Django side (one entry per supported pageType).
+ */
 const FALLBACK_LAYOUTS: Record<string, PageSection[]> = {
   home: [
-    { id: 0, uuid: 'fallback-hero-carousel', componentType: 'hero_carousel', title: '', isVisible: true, props: {}, sortOrder: 0 },
-    { id: 0, uuid: 'fallback-featured-products', componentType: 'featured_products', title: '', isVisible: true, props: { pageSize: 8 }, sortOrder: 1 },
-    { id: 0, uuid: 'fallback-product-categories', componentType: 'product_categories', title: '', isVisible: true, props: {}, sortOrder: 2 },
+    { id: 0, uuid: 'fallback-blog-categories', componentType: 'blog_categories', title: '', isVisible: true, props: {}, sortOrder: 0 },
+    { id: 0, uuid: 'fallback-hero-carousel', componentType: 'hero_carousel', title: '', isVisible: true, props: {}, sortOrder: 1 },
+    { id: 0, uuid: 'fallback-recently-viewed', componentType: 'recently_viewed', title: '', isVisible: true, props: {}, sortOrder: 2 },
+    { id: 0, uuid: 'fallback-blog-posts-list', componentType: 'blog_posts_list', title: '', isVisible: true, props: {}, sortOrder: 3 },
   ],
+  products: [],
+  blog: [],
+  about: [],
+  contact: [],
 }
 
 export function usePageConfig(pageType: string) {

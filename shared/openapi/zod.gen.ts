@@ -995,8 +995,11 @@ export const zCompartmentSizeEnum = z.union([
  * * `products_grid` - Products Grid
  * * `featured_products` - Προβεβλημένα Προϊόντα
  * * `product_categories` - Κατηγορίες προϊόντος
+ * * `blog_categories` - Blog Categories Rail
  * * `blog_posts_carousel` - Blog Posts Carousel
  * * `blog_posts_grid` - Blog Posts Grid
+ * * `blog_posts_list` - Blog Posts List
+ * * `recently_viewed` - Recently Viewed Rail
  * * `rich_text` - Rich Text Block
  * * `cta_banner` - Call to Action Banner
  * * `newsletter_signup` - Newsletter Signup
@@ -1013,8 +1016,11 @@ export const zComponentTypeEnum = z.enum([
   'products_grid',
   'featured_products',
   'product_categories',
+  'blog_categories',
   'blog_posts_carousel',
   'blog_posts_grid',
+  'blog_posts_list',
+  'recently_viewed',
   'rich_text',
   'cta_banner',
   'newsletter_signup',
@@ -1024,7 +1030,7 @@ export const zComponentTypeEnum = z.enum([
   'loyalty_hero',
   'search_bar',
 ]).register(z.globalRegistry, {
-  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar',
+  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_categories` - Blog Categories Rail\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `blog_posts_list` - Blog Posts List\n* `recently_viewed` - Recently Viewed Rail\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar',
 })
 
 export const zConfirmAgentPaymentRequestRequest = z.object({
