@@ -26,17 +26,14 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const runtimeConfig = useRuntimeConfig()
 const tenantStore = useTenantStore()
 
-/**
- * Resolved Stripe publishable key: tenant-specific key takes precedence;
- * the platform build-time key is the fallback for tenants that have not
- * configured their own.
- */
-const resolvedStripeKey = computed(() =>
-  tenantStore.stripePublishableKey || (runtimeConfig.public.stripePublishableKey as string),
-)
+// Stripe is tenant-only — no platform fallback. Tenants that haven't
+// configured their own key never reach this component (pay-way gating
+// hides the Stripe option), but Stripe(''), if it ever runs, fails
+// inside initializeStripe()'s try/catch and surfaces stripe_init_error
+// instead of throwing uncaught.
+const resolvedStripeKey = computed(() => tenantStore.stripePublishableKey)
 
 const stripe = ref<Stripe | null>(null)
 const elements = ref<StripeElements | null>(null)

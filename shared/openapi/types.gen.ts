@@ -2199,12 +2199,16 @@ export type CompartmentSizeEnum = 1 | 2 | 3
  * * `cta_banner` - Call to Action Banner
  * * `newsletter_signup` - Newsletter Signup
  * * `testimonials` - Testimonials
+ * * `about_content` - About Content
+ * * `vision_content` - Vision Content
+ * * `what_is_microlearning` - What Is Microlearning
+ * * `why_microlearning` - Why Microlearning
  * * `spacer` - Spacer
  * * `divider` - Divider
  * * `loyalty_hero` - Loyalty Program Hero
  * * `search_bar` - Search Bar
  */
-export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'blog_posts_list' | 'recently_viewed' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar'
+export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'blog_posts_list' | 'recently_viewed' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'about_content' | 'vision_content' | 'what_is_microlearning' | 'why_microlearning' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar'
 
 export type ConfirmAgentPaymentRequestRequest = {
   /**
@@ -6729,7 +6733,7 @@ export type ShippingProvider = {
      */
   readonly logoPickupPoint: string | null
   /**
-     * Relative ``media/uploads/shipping/<filename>`` path for the primary logo; empty string when no logo is uploaded. Mirrors the PayWay.icon contract.
+     * Relative ``media/{schema}/uploads/shipping/<filename>`` path for the primary logo (schema-prefixed to the active tenant); empty string when no logo is uploaded. Mirrors the PayWay.icon contract.
      */
   readonly mainImagePath: string
   /**

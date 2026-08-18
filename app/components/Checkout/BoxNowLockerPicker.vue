@@ -17,11 +17,12 @@ const { t } = useI18n()
 // State
 const loading = ref(true)
 
-// Computed — use the prop directly (more testable; SelectedBoxNowLocker
-// passes config.public.boxnowPartnerId as partnerId already). Returns
-// empty string when partnerId is missing so the iframe doesn't render
-// instead of throwing — StepShipping already disables the radio in that
-// state, but defence-in-depth keeps the picker from crashing the form.
+// Computed — use the prop directly (more testable; checkout/index.vue
+// passes tenantStore.boxNowPartnerId as partnerId already, tenant-only,
+// no platform fallback). Returns empty string when partnerId is missing
+// so the iframe doesn't render instead of throwing — StepShipping
+// already disables the radio in that state, but defence-in-depth keeps
+// the picker from crashing the form.
 const iframeUrl = computed(() => {
   if (!props.partnerId) return ''
   return buildBoxNowIframeUrl({

@@ -1004,6 +1004,10 @@ export const zCompartmentSizeEnum = z.union([
  * * `cta_banner` - Call to Action Banner
  * * `newsletter_signup` - Newsletter Signup
  * * `testimonials` - Testimonials
+ * * `about_content` - About Content
+ * * `vision_content` - Vision Content
+ * * `what_is_microlearning` - What Is Microlearning
+ * * `why_microlearning` - Why Microlearning
  * * `spacer` - Spacer
  * * `divider` - Divider
  * * `loyalty_hero` - Loyalty Program Hero
@@ -1025,12 +1029,16 @@ export const zComponentTypeEnum = z.enum([
   'cta_banner',
   'newsletter_signup',
   'testimonials',
+  'about_content',
+  'vision_content',
+  'what_is_microlearning',
+  'why_microlearning',
   'spacer',
   'divider',
   'loyalty_hero',
   'search_bar',
 ]).register(z.globalRegistry, {
-  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_categories` - Blog Categories Rail\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `blog_posts_list` - Blog Posts List\n* `recently_viewed` - Recently Viewed Rail\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar',
+  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_categories` - Blog Categories Rail\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `blog_posts_list` - Blog Posts List\n* `recently_viewed` - Recently Viewed Rail\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `about_content` - About Content\n* `vision_content` - Vision Content\n* `what_is_microlearning` - What Is Microlearning\n* `why_microlearning` - Why Microlearning\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar',
 })
 
 export const zConfirmAgentPaymentRequestRequest = z.object({
@@ -4205,7 +4213,7 @@ export const zShippingProvider = z.object({
   logo: z.url().readonly().nullable(),
   logoPickupPoint: z.url().readonly().nullable(),
   mainImagePath: z.string().register(z.globalRegistry, {
-    description: 'Relative ``media/uploads/shipping/<filename>`` path for the primary logo; empty string when no logo is uploaded. Mirrors the PayWay.icon contract.',
+    description: 'Relative ``media/{schema}/uploads/shipping/<filename>`` path for the primary logo (schema-prefixed to the active tenant); empty string when no logo is uploaded. Mirrors the PayWay.icon contract.',
   }).readonly(),
   logoFilename: z.string().register(z.globalRegistry, {
     description: 'Filename of the primary uploaded logo (or empty).',

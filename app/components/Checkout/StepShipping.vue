@@ -26,11 +26,11 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-// True when the BoxNow widget is unconfigured (NUXT_PUBLIC_BOXNOW_PARTNER_ID
-// missing from the deploy environment). We disable the BoxNow option in
-// that case so the shopper never reaches the picker — which would throw
-// "partnerId is required" from buildBoxNowIframeUrl and bubble up as the
-// generic checkout error toast.
+// True when the BoxNow widget is unconfigured (tenantStore.boxNowPartnerId
+// empty — tenant hasn't set one, no platform fallback). We disable the
+// BoxNow option in that case so the shopper never reaches the picker —
+// which would throw "partnerId is required" from buildBoxNowIframeUrl
+// and bubble up as the generic checkout error toast.
 const isBoxNowConfigured = computed(() => Boolean(props.partnerId))
 
 // Mirrors the visibility decision in ``useCheckoutForm`` so the
@@ -45,8 +45,7 @@ const boxnowAvailable = computed(() =>
 // wires ``paymentMode='cod'`` + ``amountToBeCollected`` onto the
 // voucher when the order's pay-way is offline (see
 // ``shipping_boxnow/carrier.py:create_shipment_row``). The row is
-// only disabled when ``NUXT_PUBLIC_BOXNOW_PARTNER_ID`` is missing
-// from the deploy env.
+// only disabled when the tenant hasn't configured a BoxNow partner id.
 const isBoxNowDisabled = computed(() => !isBoxNowConfigured.value)
 
 // Note: ``description`` is rendered inside the custom ``#label`` slot

@@ -32291,6 +32291,10 @@ components:
         - cta_banner
         - newsletter_signup
         - testimonials
+        - about_content
+        - vision_content
+        - what_is_microlearning
+        - why_microlearning
         - spacer
         - divider
         - loyalty_hero
@@ -32312,6 +32316,10 @@ components:
         * `cta_banner` - Call to Action Banner
         * `newsletter_signup` - Newsletter Signup
         * `testimonials` - Testimonials
+        * `about_content` - About Content
+        * `vision_content` - Vision Content
+        * `what_is_microlearning` - What Is Microlearning
+        * `why_microlearning` - Why Microlearning
         * `spacer` - Spacer
         * `divider` - Divider
         * `loyalty_hero` - Loyalty Program Hero
@@ -40129,7 +40137,7 @@ components:
         mainImagePath:
           type: string
           readOnly: true
-          description: Relative ``media/uploads/shipping/<filename>`` path for the primary logo; empty string when no logo is uploaded. Mirrors the PayWay.icon contract.
+          description: Relative ``media/{schema}/uploads/shipping/<filename>`` path for the primary logo (schema-prefixed to the active tenant); empty string when no logo is uploaded. Mirrors the PayWay.icon contract.
         logoFilename:
           type: string
           readOnly: true

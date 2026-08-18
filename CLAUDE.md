@@ -277,10 +277,9 @@ Copy `.env.example` to `.env`. Key variables:
 - `NUXT_REDIS_HOST` / `NUXT_REDIS_PORT` / `NUXT_REDIS_TTL` — Redis config
 - `NUXT_SESSION_PASSWORD` — Session encryption password
 - OAuth secrets for Google, Facebook, GitHub, Discord
-- `NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` — Stripe payment integration (platform fallback; tenants may set their own via `TenantConfig.stripePublishableKey`)
 - `NUXT_SITE_URL` / `NUXT_SITE_NAME` / `NUXT_SITE_DESCRIPTION` / `NUXT_SITE_DEFAULT_LOCALE` — SEO site config
 
-Google Analytics tracking id, Meta/TikTok Pixel ids, and social media links are **tenant-only** (`TenantConfig.gaTrackingId`/`metaPixelId`/`tiktokPixelId`/`socials*` via `useTenantStore()`) — no platform/env fallback. Each merchant provisions its own; there is deliberately no `NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID`/`NUXT_PUBLIC_META_PIXEL_ID`/`NUXT_PUBLIC_TIKTOK_PIXEL_ID`/`NUXT_PUBLIC_SOCIALS_*` env var.
+Google Analytics tracking id, Meta/TikTok Pixel ids, social media links, the Stripe publishable key, and the BoxNow partner id are **tenant-only** (`TenantConfig.gaTrackingId`/`metaPixelId`/`tiktokPixelId`/`socials*`/`stripePublishableKey`/`boxNowPartnerId` via `useTenantStore()`) — no platform/env fallback. Each merchant provisions its own; there is deliberately no `NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID`/`NUXT_PUBLIC_META_PIXEL_ID`/`NUXT_PUBLIC_TIKTOK_PIXEL_ID`/`NUXT_PUBLIC_SOCIALS_*`/`NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`/`NUXT_PUBLIC_BOXNOW_PARTNER_ID` env var. Stripe-unconfigured tenants never reach the payment UI (pay-way gating hides it); `StripePayment.vue` still degrades gracefully (shows `stripe_init_error`) if it ever runs with an empty key.
 
 ## Multi-Tenant Architecture
 
@@ -335,7 +334,7 @@ Client-side composables can read `useTenantStore()` or `useTenant()` (`useState(
 
 ### Per-tenant runtime config
 
-Both `stripePublishableKey` and `allowedCspSources` are part of `TenantConfig`. `StripePayment.vue` reads `useTenantStore().stripePublishableKey` with platform-key fallback; `server/middleware/3.csp.ts` extends `script-src`, `img-src`, `connect-src`, `frame-src` with the validated origins from `event.context.tenant?.allowedCspSources`.
+Both `stripePublishableKey` and `allowedCspSources` are part of `TenantConfig`. `StripePayment.vue` reads `useTenantStore().stripePublishableKey` — tenant-only, no platform-key fallback; `server/middleware/3.csp.ts` extends `script-src`, `img-src`, `connect-src`, `frame-src` with the validated origins from `event.context.tenant?.allowedCspSources`.
 
 <!-- skilld -->
 Before modifying code, evaluate each installed skill against the current task.

@@ -4,16 +4,12 @@ const localePath = useLocalePath()
 const { t } = useI18n()
 const route = useRoute()
 const toast = useToast()
-const config = useRuntimeConfig()
 const tenantStore = useTenantStore()
-// Prefer per-tenant BoxNow partner id; fall back to platform-wide env var.
-// Nuxt's runtimeConfig parser passes env values through destr(), which
-// auto-coerces numeric strings to numbers ('10391' → 10391). Force the
-// downstream prop type back to string so all the BoxNow components keep
-// their strict `partnerId: string` typing.
-const boxnowPartnerId = computed(() =>
-  tenantStore.boxNowPartnerId || String(config.public.boxnowPartnerId ?? ''),
-)
+// BoxNow is tenant-only — no platform env fallback. Tenants that
+// haven't configured a partner id simply don't get the locker-pickup
+// option (StepShipping/BoxNowLockerPicker already disable/hide it when
+// partnerId is empty).
+const boxnowPartnerId = computed(() => tenantStore.boxNowPartnerId)
 
 const cartStore = useCartStore()
 const { hasStockIssues, cart } = storeToRefs(cartStore)
