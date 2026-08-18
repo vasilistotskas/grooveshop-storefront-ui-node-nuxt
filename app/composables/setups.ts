@@ -7,6 +7,7 @@ export function setupPageHeader() {
   const { $i18n } = useNuxtApp()
   const tenantStore = useTenantStore()
   const { ogImageUrl } = useTenantBranding()
+  const isPlatformTenant = useIsPlatformTenant()
 
   const siteUrl = siteConfig.url
 
@@ -59,7 +60,11 @@ export function setupPageHeader() {
     appleMobileWebAppCapable: 'yes',
     msapplicationConfig: '/favicon/browserconfig.xml',
     msapplicationTileImage: '/favicon/ms-icon-150x150.png',
-    googleSiteVerification: publicConfig.googleSiteVerification,
+    // Site-verification tokens grant the PLATFORM's Search Console /
+    // Pinterest accounts ownership of whatever domain emits them —
+    // never emit them on another tenant's storefront.
+    googleSiteVerification: () =>
+      isPlatformTenant.value ? publicConfig.googleSiteVerification : undefined,
     themeColor: themeColor,
     colorScheme: colorScheme,
     msapplicationTileColor: themeColor,
@@ -87,10 +92,12 @@ export function setupPageHeader() {
         : []),
     ],
     meta: [...(i18nHead.value.meta || []),
-      {
-        name: 'p:domain_verify',
-        content: publicConfig.domainVerifyId,
-      },
+      ...(isPlatformTenant.value && publicConfig.domainVerifyId
+        ? [{
+            name: 'p:domain_verify',
+            content: publicConfig.domainVerifyId,
+          }]
+        : []),
     ],
   }))
 }

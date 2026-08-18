@@ -35,7 +35,9 @@ describe('GET /api/products/[id]/variants cache key', () => {
     const keyB = handler.getKey({})
 
     expect(keyA).not.toBe(keyB)
-    expect(keyA).toBe('tenant-a.example:product-variants:42')
-    expect(keyB).toBe('tenant-b.example:product-variants:42')
+    // tenantCacheKey appends a word-safe hash suffix (survives Nitro's
+    // \W-stripping) — assert on the readable prefix, not exact equality.
+    expect(keyA.startsWith('tenant-a.example:product-variants:42')).toBe(true)
+    expect(keyB.startsWith('tenant-b.example:product-variants:42')).toBe(true)
   })
 })

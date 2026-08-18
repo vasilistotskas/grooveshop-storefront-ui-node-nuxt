@@ -11,8 +11,11 @@ const RSS_CACHE_AGE = 60 * 60
 // generated artifacts disagree structurally on this one point — the value
 // is identical at runtime, so the cast is safe.
 const cachedBlogCategory = defineCachedFunction(
-  async (_tenantKey: string, url: string): Promise<BlogCategoryDetail> => {
-    const raw = await $fetch(url, { method: 'GET' })
+  async (tenantKey: string, url: string): Promise<BlogCategoryDetail> => {
+    // Forward the tenant host explicitly — relying on the global $fetch
+    // patch breaks under SWR revalidation where useEvent() is absent
+    // and the patch falls back to the platform host.
+    const raw = await $fetch(url, { method: 'GET', headers: { 'X-Forwarded-Host': tenantKey } })
     return await parseDataAs(raw, zBlogCategoryDetail) as BlogCategoryDetail
   },
   {
@@ -23,8 +26,8 @@ const cachedBlogCategory = defineCachedFunction(
 )
 
 const cachedProductCategoryDetail = defineCachedFunction(
-  async (_tenantKey: string, url: string): Promise<ProductCategoryDetail> => {
-    const raw = await $fetch(url, { method: 'GET' })
+  async (tenantKey: string, url: string): Promise<ProductCategoryDetail> => {
+    const raw = await $fetch(url, { method: 'GET', headers: { 'X-Forwarded-Host': tenantKey } })
     return await parseDataAs(raw, zProductCategoryDetail) as ProductCategoryDetail
   },
   {

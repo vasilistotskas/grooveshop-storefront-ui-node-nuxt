@@ -2,7 +2,6 @@
 const config = useRuntimeConfig()
 const siteConfig = useSiteConfig()
 const tenantStore = useTenantStore()
-const route = useRoute()
 
 const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 
@@ -26,7 +25,10 @@ useSeoMeta({
   description: () => siteConfig.description,
   ogTitle: () => appTitle.value,
   ogDescription: () => siteConfig.description,
-  ogUrl: `${config.public.baseUrl}${route.path}`,
+  // og:url deliberately NOT set here — setupPageHeader already emits
+  // the tenant-aware `${siteConfig.url}${route.path}`; overriding it
+  // with the env-frozen platform baseUrl made every tenant's homepage
+  // unfurl as tenant #1's site.
   ogType: 'website',
 })
 </script>

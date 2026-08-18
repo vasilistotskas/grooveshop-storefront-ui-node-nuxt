@@ -1,8 +1,12 @@
 const fetchLoyaltySummary = defineCachedFunction(
-  async (_tenantKey: string) => {
+  async (tenantKey: string) => {
     const config = useRuntimeConfig()
+    // Forward the tenant host explicitly — relying on the global $fetch
+    // patch breaks under SWR revalidation where useEvent() is absent
+    // and the patch falls back to the platform host.
     const response = await $fetch(`${config.apiBaseUrl}/loyalty/summary`, {
       method: 'GET',
+      headers: { 'X-Forwarded-Host': tenantKey },
     })
     return parseDataAs(response, zGetLoyaltySummaryResponse)
   },

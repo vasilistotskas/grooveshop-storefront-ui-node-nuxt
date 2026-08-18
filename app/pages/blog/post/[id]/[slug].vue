@@ -5,14 +5,20 @@ const { loggedIn } = useUserSession()
 const userStore = useUserStore()
 const siteConfig = useSiteConfig()
 const config = useRuntimeConfig()
+const tenantStore = useTenantStore()
 const { updateLikedPosts } = userStore
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
 const siteUrl = siteConfig.url
 
-const appTitle = computed(() => config.public.appTitle as string)
+const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 
+// The promo banner is PLATFORM marketing content (hardcoded asset +
+// product link into the platform catalogue) — it must never render on
+// another tenant's blog, where the linked product id means something
+// else entirely.
+const isPlatformTenant = useIsPlatformTenant()
 const bannerItems = computed(() => [
   isMobileOrTablet.value ? '/img/main-banner-mobile.png' : '/img/main-banner.png',
 ])
@@ -464,6 +470,7 @@ definePageMeta({
       </div>
 
       <UCarousel
+        v-if="isPlatformTenant"
         v-slot="{ item }"
         :items="bannerItems"
         :ui="{ item: `basis-full place-items-center justify-center` }"
