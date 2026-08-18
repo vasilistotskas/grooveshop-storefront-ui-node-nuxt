@@ -1,11 +1,8 @@
-import {
-  CONTAINER_MAP,
-  FONT_ALLOWLIST,
-  HEX_COLOR_RE,
-  RADIUS_ALLOWLIST,
-} from '../../shared/theme/constants'
-import { THEME_PRESETS } from '../../shared/theme/presets'
-import { zThemeMetadata } from '../../shared/theme/metadataSchema'
+// Values (CONTAINER_MAP, FONT_ALLOWLIST, HEX_COLOR_RE, RADIUS_ALLOWLIST,
+// THEME_PRESETS, zThemeMetadata) come from shared/ auto-imports — a
+// relative runtime import into shared/ breaks Nitro's server-bundle
+// resolution in production builds. The type-only import below is fully
+// erased before bundling, so its path never reaches rollup.
 import type { ThemeMetadata } from '../../shared/theme/metadataSchema'
 
 /**

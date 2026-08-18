@@ -1,5 +1,3 @@
-import { TAILWIND_COLOR_ALLOWLIST } from '../../shared/theme/constants'
-
 /**
  * Per-tenant Nuxt UI semantic colors — UNIVERSAL, deliberately.
  *

@@ -1,5 +1,29 @@
-import { describe, expect, it } from 'vitest'
-import { buildTenantThemeCss } from '../../../../server/utils/themeTokens'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
+import {
+  CONTAINER_MAP,
+  FONT_ALLOWLIST,
+  HEX_COLOR_RE,
+  RADIUS_ALLOWLIST,
+} from '../../../../shared/theme/constants'
+import { THEME_PRESETS } from '../../../../shared/theme/presets'
+import { zThemeMetadata } from '../../../../shared/theme/metadataSchema'
+
+// The compiler consumes these via shared/ auto-imports (a relative
+// runtime import into shared/ breaks Nitro's production server
+// bundle); the unit project has no auto-imports, so wire the REAL
+// implementations as globals — same pattern as csp.spec.ts.
+let buildTenantThemeCss: typeof import('../../../../server/utils/themeTokens')['buildTenantThemeCss']
+
+beforeAll(async () => {
+  vi.stubGlobal('CONTAINER_MAP', CONTAINER_MAP)
+  vi.stubGlobal('FONT_ALLOWLIST', FONT_ALLOWLIST)
+  vi.stubGlobal('HEX_COLOR_RE', HEX_COLOR_RE)
+  vi.stubGlobal('RADIUS_ALLOWLIST', RADIUS_ALLOWLIST)
+  vi.stubGlobal('THEME_PRESETS', THEME_PRESETS)
+  vi.stubGlobal('zThemeMetadata', zThemeMetadata)
+  buildTenantThemeCss
+    = (await import('../../../../server/utils/themeTokens')).buildTenantThemeCss
+})
 
 describe('buildTenantThemeCss', () => {
   it('emits nothing for an unthemed tenant (platform stays byte-identical)', () => {
