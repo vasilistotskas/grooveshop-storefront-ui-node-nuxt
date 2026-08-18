@@ -125,7 +125,10 @@ export function useMetaPixel() {
   const proxy = isProvisioned && import.meta.client
     ? useScriptMetaPixel({
       id: pixelId,
-      scriptOptions: { trigger: 'manual' },
+      // bundle:false — never fetch the vendor script into the shared
+      // image at build time; per-tenant analytics load from the vendor
+      // at runtime.
+      scriptOptions: { trigger: 'manual', bundle: false },
     }).proxy
     : { fbq: NOOP_PROXY }
 

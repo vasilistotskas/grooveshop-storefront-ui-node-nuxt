@@ -105,7 +105,10 @@ export function useTikTokPixel() {
   const proxy: { ttq: TtqTracker } = isProvisioned && import.meta.client
     ? useScriptTikTokPixel({
       id: pixelId,
-      scriptOptions: { trigger: 'manual' },
+      // bundle:false — never fetch the vendor script into the shared
+      // image at build time; per-tenant analytics load from the vendor
+      // at runtime.
+      scriptOptions: { trigger: 'manual', bundle: false },
     }).proxy
     : { ttq: NOOP_PROXY as unknown as TtqTracker }
 
