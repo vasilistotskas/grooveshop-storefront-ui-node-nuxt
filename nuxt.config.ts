@@ -787,7 +787,11 @@ export default defineNuxtConfig({
     // (prod 2026-07-12). Composable-level opt-outs CANNOT fix this:
     // ``isProxyDisabled`` reads exclusively from these config entries.
     registry: {
-      googleAnalytics: { trigger: false, proxy: false },
+      // bundle:false — registry bundling fetches gtag at IMAGE BUILD
+      // time with whatever id the build env carries, baking one
+      // tenant's GA container config into the shared image. Analytics
+      // are per-tenant: load from the vendor at runtime instead.
+      googleAnalytics: { trigger: false, proxy: false, bundle: false },
       stripe: { trigger: false, proxy: false },
     },
   },

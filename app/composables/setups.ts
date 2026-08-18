@@ -262,7 +262,12 @@ export function setupMetaPixelConsent() {
   // 2026-07-12). The proxy is disabled globally in nuxt.config.
   useScriptMetaPixel({
     id: pixelId,
-    scriptOptions: { trigger },
+    // bundle:false — bundling downloads the vendor script into the
+    // shared image at BUILD time; for gtag the asset even embeds the
+    // building tenant's container config. Multi-tenant analytics load
+    // from the vendor at runtime with the tenant's own id (CSP already
+    // allows the origins).
+    scriptOptions: { trigger, bundle: false },
   })
 }
 
@@ -291,7 +296,12 @@ export function setupTikTokPixelConsent() {
 
   useScriptTikTokPixel({
     id: pixelId,
-    scriptOptions: { trigger },
+    // bundle:false — bundling downloads the vendor script into the
+    // shared image at BUILD time; for gtag the asset even embeds the
+    // building tenant's container config. Multi-tenant analytics load
+    // from the vendor at runtime with the tenant's own id (CSP already
+    // allows the origins).
+    scriptOptions: { trigger, bundle: false },
   })
 }
 
