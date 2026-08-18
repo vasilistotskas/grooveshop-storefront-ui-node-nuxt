@@ -19,20 +19,24 @@ export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('robots:robots-txt', async (ctx) => {
     const event = ctx.e
     const host = getRequestHost(event, { xForwardedHost: false })
+    const hostNoPort = host.replace(/:\d+$/, '')
     const result = await getTenantConfig(host)
 
-    const isPrimary
-      = result.kind === 'ok'
-        && (!result.tenant.primaryDomain
-          || result.tenant.primaryDomain === host.replace(/:\d+$/, ''))
+    if (result.type !== 'ok') {
+      ctx.robotsTxt = 'User-agent: *\nDisallow: /\n'
+      return
+    }
 
-    if (!isPrimary) {
+    const primaryDomain = result.config.primaryDomain
+    if (primaryDomain && primaryDomain !== hostNoPort) {
+      // Alias domain — disallow so it can't be indexed as duplicate
+      // content of the primary.
       ctx.robotsTxt = 'User-agent: *\nDisallow: /\n'
       return
     }
 
     // Rewrite every Sitemap line onto the tenant's own origin.
-    const siteUrl = `https://${result.tenant.primaryDomain || host}`
+    const siteUrl = `https://${primaryDomain || hostNoPort}`
     ctx.robotsTxt = ctx.robotsTxt.replace(
       /^Sitemap:.*$/gm,
       `Sitemap: ${siteUrl}/sitemap.xml`,
