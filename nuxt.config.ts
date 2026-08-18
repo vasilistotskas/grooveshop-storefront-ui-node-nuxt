@@ -370,12 +370,12 @@ export default defineNuxtConfig({
     },
     build: {
       rollupOptions: {
-        // Silence rolldown's ``[EVAL]`` check for lottie-web only. Its
-        // expressions engine genuinely needs direct ``eval`` and our
-        // animations use expressions (``heart.json`` carries ``$bm_rt``
-        // markers), so the eval path cannot be dropped by switching to
-        // ``lottie_light``. EVAL warnings from any other module still
-        // surface.
+        // Silence rolldown's ``[EVAL]`` check for lottie-web only. The
+        // full ``lottie-web`` build's expressions engine genuinely needs
+        // direct ``eval``, so the eval path cannot be dropped by
+        // switching to ``lottie_light`` without also proving no current
+        // or future animation JSON relies on expressions. EVAL warnings
+        // from any other module still surface.
         onwarn(warning, defaultHandler) {
           if (warning.code === 'EVAL' && warning.id?.includes('lottie-web')) {
             return

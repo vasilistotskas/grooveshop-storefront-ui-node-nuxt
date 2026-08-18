@@ -63,10 +63,10 @@ const buildResponse = () => ({
     },
   ],
   variants: [
-    variant(5, 'white-256', 'media/uploads/white.jpg', 10, 11, 21),
-    variant(6, 'black-256', 'media/uploads/black.jpg', 11, 12, 21),
-    variant(7, 'white-512', 'media/uploads/white.jpg', 15, 11, 22),
-    variant(8, 'black-512', 'media/uploads/black.jpg', 16, 12, 22),
+    variant(5, 'white-256', 'media/test-tenant/uploads/white.jpg', 10, 11, 21),
+    variant(6, 'black-256', 'media/test-tenant/uploads/black.jpg', 11, 12, 21),
+    variant(7, 'white-512', 'media/test-tenant/uploads/white.jpg', 15, 11, 22),
+    variant(8, 'black-512', 'media/test-tenant/uploads/black.jpg', 16, 12, 22),
   ],
 })
 
@@ -184,7 +184,7 @@ describe('ProductVariantSelector — no group', () => {
           price: 5,
           finalPrice: 5,
           discountPercent: 0,
-          mainImagePath: 'media/uploads/solo.jpg',
+          mainImagePath: 'media/test-tenant/uploads/solo.jpg',
           attributeValues: [],
         },
       ],

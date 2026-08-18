@@ -5,18 +5,6 @@ export const ALLAUTH_AUTH_URL = `${ALLAUTH_API_PREFIX}/auth` as const
 export const ALLAUTH_ACCOUNT_URL = `${ALLAUTH_API_PREFIX}/account` as const
 export const ALLAUTH_CONFIG_URL = `${ALLAUTH_API_PREFIX}/config` as const
 
-export const floorChoicesList: { name: FloorEnum, value: FloorEnum }[]
-  = zFloorEnum.options.map(opt => ({
-    name: opt,
-    value: opt,
-  }))
-
-export const locationChoicesList: { name: LocationTypeEnum, value: LocationTypeEnum }[]
-  = zLocationTypeEnum.options.map(opt => ({
-    name: opt,
-    value: opt,
-  }))
-
 export const defaultSelectOptionChoose = 'choose'
 
 export const AuthenticatedRoutes = [

@@ -74,9 +74,8 @@ const provider = computed<keyof ConfiguredImageProviders>(() => {
   // serve the relative path against the site origin and 404. This applies to
   // SVGs too, so it must come before the SVG bypass below. `media/{schema}/uploads/...`
   // is the tenant-scoped path produced by Django's ``image_to_media_path`` under
-  // TenantFileSystemStorage; the plain `media/uploads/...` prefix is the legacy
-  // single-tenant path kept for assets uploaded before the storage switch.
-  if (/^\/?media\/[^/]+\/uploads(\/|$)/.test(rawSrc.value) || rawSrc.value.startsWith('media/uploads') || rawSrc.value.startsWith('/media/uploads') || rawSrc.value.startsWith('static/images') || rawSrc.value.startsWith('/static/images')) {
+  // TenantFileSystemStorage.
+  if (/^\/?media\/[^/]+\/uploads(\/|$)/.test(rawSrc.value) || rawSrc.value.startsWith('static/images') || rawSrc.value.startsWith('/static/images')) {
     return 'mediaStream'
   }
   // Local/public SVGs are served raw (never rasterized through IPX, which

@@ -142,7 +142,7 @@ Auto-imported in both app and server contexts (via `imports.dirs` and `nitro.imp
 - `types/` — Hand-written types organized by domain: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`, plus `pagination.ts`, `ordering.ts`, `search.ts`, `form.ts`, `meilisearch.ts`, `LoyaltySettings.ts`, `enum/`, `utility/`
 - `schemas/` — Zod validation schemas mirroring the types structure: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`, plus `form.ts`
 - `openapi/` — Auto-generated `types.gen.ts` and `zod.gen.ts`
-- `constants/` — `AuthenticatedRoutes`, `AuthenticatedRoutesSet`, `Flow2path`, `AuthChangeEvent`, `GSIAuthProcess`, `RedirectToURLs`, `Flows`, `AuthenticatorType`, `floorChoicesList`, `locationChoicesList`, `defaultSelectOptionChoose`
+- `constants/` — `AuthenticatedRoutes`, `AuthenticatedRoutesSet`, `Flow2path`, `AuthChangeEvent`, `GSIAuthProcess`, `RedirectToURLs`, `Flows`, `AuthenticatorType`, `defaultSelectOptionChoose`
 - `utils/` — `error.ts` (error helpers), `html.ts` (HTML processing)
 
 ### State Management
@@ -211,7 +211,7 @@ Components in `app/components/` organized by domain:
 - `app/assets/css/main.css` — Imports `tailwindcss` with static theme + `@nuxt/ui`. Custom theme containers (`--container-main: 74.625rem`, `--container-8xl: 90rem`). `.article` typography class for blog/CMS content. Reduced-motion support.
 - `app/app.config.ts` — Component customization: extended avatar sizes (4xl-7xl), button 3xl size, chip 3xl size, secondary solid button variant, cursor-pointer defaults (button, switch, tabs, accordion), form field sizing, skeleton/breadcrumb theming, pagination/selectMenu/input/textarea full-width defaults. Icon mode: CSS with base layer.
 - Component-scoped `<i18n lang="yaml">` blocks for translations (e.g., `error.vue`)
-- Lottie animations in `app/assets/lotties/` (404, heart)
+- Lottie animations in `app/assets/lotties/` (404)
 
 ### SEO & Performance
 
