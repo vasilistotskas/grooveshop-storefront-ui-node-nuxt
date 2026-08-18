@@ -3,6 +3,16 @@ name: Publish Docker image
 on:
   release:
     types: [published]
+  # Branch builds for the multi-tenant staging dry-run: semantic-release
+  # only cuts versions on main, so images off other branches are minted
+  # by dispatching this workflow on the branch ref with an explicit tag
+  # (e.g. vX.Y.Z-mt.1).
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Explicit image tag for branch builds (e.g. v1.2.3-mt.1)"
+        required: true
+        type: string
 
 env:
   SYSTEM_ENV: ci
@@ -65,6 +75,11 @@ jobs:
           images: |
             gro0ve/grooveshop-storefront-ui-node-nuxt
             ghcr.io/${{ github.repository }}
+          # Releases keep the default tag derivation (the release tag);
+          # dispatched branch builds use the explicit input tag only.
+          tags: |
+            type=ref,event=tag
+            type=raw,value=${{ inputs.image_tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
 
       - name: Build Docker image (local load for scanning)
         uses: docker/build-push-action@v7
