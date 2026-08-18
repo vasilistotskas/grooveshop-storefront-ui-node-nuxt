@@ -1,7 +1,6 @@
 /**
  * Helpers shared between client + Nitro server for Meta Pixel
- * deduplication. Browser-only helpers live in ``app/composables`` —
- * everything in here is environment-agnostic.
+ * deduplication.
  */
 
 const FBP_COOKIE = '_fbp'
@@ -32,14 +31,4 @@ export function parseFbpFbcFromCookieHeader(
     fbp: cookies[FBP_COOKIE] || undefined,
     fbc: cookies[FBC_COOKIE] || undefined,
   }
-}
-
-/**
- * Read ``_fbp`` / ``_fbc`` from ``document.cookie`` in the browser.
- * Returns an empty object on the server (no document) so call sites
- * can use this in shared code without ``import.meta.client`` guards.
- */
-export function readFbpFbcFromBrowser(): { fbp?: string, fbc?: string } {
-  if (typeof document === 'undefined') return {}
-  return parseFbpFbcFromCookieHeader(document.cookie)
 }

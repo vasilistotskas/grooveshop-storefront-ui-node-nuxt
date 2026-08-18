@@ -1,13 +1,5 @@
 import type { ComponentInternalInstance } from 'vue'
 
-export function useDeactivated() {
-  const deactivated = ref(false)
-  onActivated(() => deactivated.value = false)
-  onDeactivated(() => deactivated.value = true)
-
-  return deactivated
-}
-
 export function onReactivated(hook: () => void, target?: ComponentInternalInstance | null): void {
   const initial = ref(true)
   onActivated(() => {

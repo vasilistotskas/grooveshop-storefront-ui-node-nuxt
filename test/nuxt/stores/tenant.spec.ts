@@ -31,6 +31,8 @@ function makeTenantConfig(overrides: Partial<TenantConfig> = {}): TenantConfig {
     defaultCurrency: 'EUR',
     primaryDomain: 'test.local',
     apiDomain: 'api.test.local',
+    assetsDomain: '',
+    staticDomain: '',
     loyaltyEnabled: false,
     blogEnabled: true,
     agentStripeDelegatedEnabled: false,
@@ -40,7 +42,6 @@ function makeTenantConfig(overrides: Partial<TenantConfig> = {}): TenantConfig {
     tiktokPixelId: '',
     gaTrackingId: '',
     totpIssuer: '',
-    turnstileSiteKey: '',
     socialsDiscord: '',
     socialsFacebook: '',
     socialsInstagram: '',
@@ -160,25 +161,49 @@ describe('useTenantStore — gaTrackingId', () => {
   })
 })
 
-describe('useTenantStore — turnstileSiteKey', () => {
+describe('useTenantStore — assetsDomain', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
   })
 
   it('returns empty string before any config is loaded', () => {
-    expect(useTenantStore().turnstileSiteKey).toBe('')
+    expect(useTenantStore().assetsDomain).toBe('')
   })
 
-  it('returns the tenant site key when configured', () => {
+  it('returns the tenant assets domain when configured', () => {
     const store = useTenantStore()
-    store.setConfig(makeTenantConfig({ turnstileSiteKey: '0x4AAAAAABtest123' }))
-    expect(store.turnstileSiteKey).toBe('0x4AAAAAABtest123')
+    store.setConfig(makeTenantConfig({ assetsDomain: 'assets.acme.example' }))
+    expect(store.assetsDomain).toBe('assets.acme.example')
   })
 
-  it('returns empty string (callers fall back to platform key) when empty', () => {
+  it('returns empty string after setConfig(null)', () => {
     const store = useTenantStore()
-    store.setConfig(makeTenantConfig({ turnstileSiteKey: '' }))
-    expect(store.turnstileSiteKey).toBe('')
+    store.setConfig(makeTenantConfig({ assetsDomain: 'assets.acme.example' }))
+    store.setConfig(null)
+    expect(store.assetsDomain).toBe('')
+  })
+})
+
+describe('useTenantStore — staticDomain', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('returns empty string before any config is loaded', () => {
+    expect(useTenantStore().staticDomain).toBe('')
+  })
+
+  it('returns the tenant static domain when configured', () => {
+    const store = useTenantStore()
+    store.setConfig(makeTenantConfig({ staticDomain: 'static.acme.example' }))
+    expect(store.staticDomain).toBe('static.acme.example')
+  })
+
+  it('returns empty string after setConfig(null)', () => {
+    const store = useTenantStore()
+    store.setConfig(makeTenantConfig({ staticDomain: 'static.acme.example' }))
+    store.setConfig(null)
+    expect(store.staticDomain).toBe('')
   })
 })
 

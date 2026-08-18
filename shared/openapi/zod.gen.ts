@@ -2171,7 +2171,7 @@ export const zPatchedPayWayWriteRequest = z.object({
     description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
   configuration: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
+    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -2566,7 +2566,7 @@ export const zPayWayWriteRequest = z.object({
     description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
   }).optional(),
   configuration: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
+    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -4565,6 +4565,8 @@ export const zTenantConfig = z.object({
   defaultCurrency: z.string().readonly(),
   primaryDomain: z.string().readonly(),
   apiDomain: z.string().readonly(),
+  assetsDomain: z.string().readonly(),
+  staticDomain: z.string().readonly(),
   loyaltyEnabled: z.boolean().readonly(),
   blogEnabled: z.boolean().readonly(),
   agentStripeDelegatedEnabled: z.boolean().readonly(),
@@ -4574,7 +4576,6 @@ export const zTenantConfig = z.object({
   tiktokPixelId: z.string().readonly(),
   gaTrackingId: z.string().readonly(),
   totpIssuer: z.string().readonly(),
-  turnstileSiteKey: z.string().readonly(),
   socialsDiscord: z.string().readonly(),
   socialsFacebook: z.string().readonly(),
   socialsInstagram: z.string().readonly(),

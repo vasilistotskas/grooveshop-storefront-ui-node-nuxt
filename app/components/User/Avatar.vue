@@ -22,7 +22,7 @@ const props = defineProps({
 
 const { t } = useI18n()
 const toast = useToast()
-const img = useImage()
+const img = useMediaStreamImage()
 const { fetch } = useUserSession()
 const { enabled } = useAuthPreviewMode()
 

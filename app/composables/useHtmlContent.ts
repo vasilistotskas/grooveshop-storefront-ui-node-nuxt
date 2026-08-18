@@ -23,37 +23,26 @@
  */
 export function useHtmlContent() {
   const config = useRuntimeConfig()
+  const tenantStore = useTenantStore()
 
   /**
    * Get the default configuration for image optimization
-   * Uses runtime config values for environment-specific settings
+   * Uses runtime config values for environment-specific settings, preferring
+   * the tenant's own assets/static origins when present (platform env
+   * values remain the infra fallback).
    */
   const getDefaultConfig = (): Partial<HtmlImageOptimizationConfig> => {
-    const staticOrigin = config.public.static?.origin as string | undefined
-    const mediaStreamOrigin = config.public.mediaStreamOrigin as string | undefined
-    const mediaStreamPathConfig = config.public.mediaStreamPath as string | undefined
+    const staticOrigin = tenantStore.staticDomain
+      ? `https://${tenantStore.staticDomain}`
+      : config.public.static?.origin as string | undefined
+    const mediaStreamOrigin = tenantStore.assetsDomain
+      ? `https://${tenantStore.assetsDomain}`
+      : config.public.mediaStreamOrigin as string | undefined
     const djangoUrl = config.public.djangoUrl as string | undefined
 
     // Extract just the path from mediaStreamPath if it contains a full URL
     // (mediaStreamPath might be set to full URL like 'http://localhost:3003/media_stream-image')
-    let mediaStreamPath = '/media_stream-image'
-    if (mediaStreamPathConfig) {
-      if (mediaStreamPathConfig.startsWith('http://') || mediaStreamPathConfig.startsWith('https://')) {
-        // Extract path from full URL
-        try {
-          const url = new URL(mediaStreamPathConfig)
-          mediaStreamPath = url.pathname
-        }
-        catch {
-          // Fallback: try to extract path manually
-          const match = mediaStreamPathConfig.match(/https?:\/\/[^/]+(\/.*)/)
-          mediaStreamPath = match?.[1] || '/media_stream-image'
-        }
-      }
-      else {
-        mediaStreamPath = mediaStreamPathConfig
-      }
-    }
+    const mediaStreamPath = extractMediaStreamPath(config.public.mediaStreamPath as string | undefined)
 
     // Build allowed domains list - include static, media stream, and Django origins
     // TinyMCE uploads are served from Django, so we need to include it

@@ -1,10 +1,5 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { getDisplayTitle, getDisplaySubtitle, getResultIcon } from '~/utils/search'
-
-// Mock stripHtml
-vi.mock('~/utils/dom', () => ({
-  stripHtml: (html: string) => html.replace(/<\/?[^>]+(>|$)/g, ''),
-}))
 
 describe('Search Utils', () => {
   describe('getDisplayTitle', () => {

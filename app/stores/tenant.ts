@@ -6,6 +6,8 @@ export const useTenantStore = defineStore('tenant', () => {
   const storeDescription = computed(() => config.value?.storeDescription ?? '')
   const primaryDomain = computed(() => config.value?.primaryDomain ?? '')
   const apiDomain = computed(() => config.value?.apiDomain ?? '')
+  const assetsDomain = computed(() => config.value?.assetsDomain ?? '')
+  const staticDomain = computed(() => config.value?.staticDomain ?? '')
   const primaryColor = computed(() => config.value?.primaryColor ?? 'neutral')
   const neutralColor = computed(() => config.value?.neutralColor ?? 'zinc')
   const accentHex = computed(() => config.value?.accentHex ?? '#003DFF')
@@ -23,9 +25,6 @@ export const useTenantStore = defineStore('tenant', () => {
   const metaPixelId = computed(() => config.value?.metaPixelId ?? '')
   const tiktokPixelId = computed(() => config.value?.tiktokPixelId ?? '')
   const gaTrackingId = computed(() => config.value?.gaTrackingId ?? '')
-
-  // Bot-protection — empty string means "use platform fallback"
-  const turnstileSiteKey = computed(() => config.value?.turnstileSiteKey ?? '')
 
   // MFA — empty string means Django uses its own default issuer
   const totpIssuer = computed(() => config.value?.totpIssuer ?? '')
@@ -56,6 +55,8 @@ export const useTenantStore = defineStore('tenant', () => {
     storeDescription,
     primaryDomain,
     apiDomain,
+    assetsDomain,
+    staticDomain,
     primaryColor,
     neutralColor,
     accentHex,
@@ -71,7 +72,6 @@ export const useTenantStore = defineStore('tenant', () => {
     metaPixelId,
     tiktokPixelId,
     gaTrackingId,
-    turnstileSiteKey,
     totpIssuer,
     boxNowPartnerId,
     socials,

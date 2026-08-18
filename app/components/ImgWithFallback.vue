@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { ConfiguredImageProviders, ImageModifiers } from '@nuxt/image'
+import { hasProtocol, joinURL } from 'ufo'
 
 // NuxtImg props this wrapper types and forwards explicitly; any other native
 // `<img>`/NuxtImg attribute still flows through `useAttrs()` below.
@@ -44,11 +45,6 @@ const fallbackImageProps = computed(() => {
   return { ...attrs, ...restProps }
 })
 
-const imgSrc = computed(() => {
-  if (!props.src) return props.fallback
-  return props.src
-})
-
 const handleError = (error: string | Event) => {
   log.info('image', 'Image error')
   emit('error', error)
@@ -56,6 +52,15 @@ const handleError = (error: string | Event) => {
 }
 
 const isSvg = (src: string) => /\.svg(\?|#|$)/i.test(src)
+
+// The raw (pre-provider-resolution) src — same fallback semantics as the
+// old `imgSrc` computed. Provider selection below reads THIS, not the
+// final (possibly tenant-absolutized) `imgSrc`, to avoid a circular
+// computed dependency.
+const rawSrc = computed(() => {
+  if (!props.src) return props.fallback
+  return props.src
+})
 
 const provider = computed<keyof ConfiguredImageProviders>(() => {
   if (!props.src) {
@@ -71,15 +76,28 @@ const provider = computed<keyof ConfiguredImageProviders>(() => {
   // is the tenant-scoped path produced by Django's ``image_to_media_path`` under
   // TenantFileSystemStorage; the plain `media/uploads/...` prefix is the legacy
   // single-tenant path kept for assets uploaded before the storage switch.
-  if (/^\/?media\/[^/]+\/uploads(\/|$)/.test(imgSrc.value) || imgSrc.value.startsWith('media/uploads') || imgSrc.value.startsWith('/media/uploads') || imgSrc.value.startsWith('static/images') || imgSrc.value.startsWith('/static/images')) {
+  if (/^\/?media\/[^/]+\/uploads(\/|$)/.test(rawSrc.value) || rawSrc.value.startsWith('media/uploads') || rawSrc.value.startsWith('/media/uploads') || rawSrc.value.startsWith('static/images') || rawSrc.value.startsWith('/static/images')) {
     return 'mediaStream'
   }
   // Local/public SVGs are served raw (never rasterized through IPX, which
   // destroys vector — or embedded-raster — quality).
-  if (isSvg(imgSrc.value)) {
+  if (isSvg(rawSrc.value)) {
     return 'none'
   }
   return 'ipx'
+})
+
+// mediaStream-routed sources are absolutized against the tenant-aware base
+// URL (assetsDomain when the tenant has one, else the platform env
+// origin) BEFORE reaching NuxtImg — see useMediaStreamBaseUrl for why the
+// provider itself can't do this per-request.
+const mediaStreamBaseUrl = useMediaStreamBaseUrl()
+
+const imgSrc = computed(() => {
+  if (provider.value === 'mediaStream' && !hasProtocol(rawSrc.value)) {
+    return joinURL(mediaStreamBaseUrl.value, rawSrc.value)
+  }
+  return rawSrc.value
 })
 
 // Lock the intrinsic aspect ratio on the element when width & height props

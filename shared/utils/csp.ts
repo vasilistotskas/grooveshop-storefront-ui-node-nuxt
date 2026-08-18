@@ -33,6 +33,20 @@ export interface CspOptions {
    * distinct API domain (e.g. the platform's own storefront).
    */
   tenantApiDomain?: string
+  /**
+   * Tenant-specific asset-processing host (``TenantConfig.assetsDomain``),
+   * e.g. ``assets.tenant.com``. Added ADDITIVELY alongside the platform
+   * ``mediaStreamOrigin`` in img-src/connect-src — see ``tenantApiDomain``
+   * doc for the same rationale (SSR-emitted assets may still reference the
+   * platform origin).
+   */
+  tenantAssetsDomain?: string
+  /**
+   * Tenant-specific static-file host (``TenantConfig.staticDomain``), e.g.
+   * ``static.tenant.com``. Added ADDITIVELY alongside the platform
+   * ``staticOrigin`` in img-src/connect-src.
+   */
+  tenantStaticDomain?: string
   /** Meta Pixel id — Facebook origins are emitted only when provisioned. */
   metaPixelId?: string
   /** TikTok Pixel id — TikTok origins are emitted only when provisioned. */
@@ -61,6 +75,8 @@ export function buildCspDirectives(options: CspOptions): string[] {
     tiktokPixelId,
     tenantSources = [],
     tenantApiDomain,
+    tenantAssetsDomain,
+    tenantStaticDomain,
     nonce,
   } = options
 
@@ -84,8 +100,12 @@ export function buildCspDirectives(options: CspOptions): string[] {
   // browser never talks to it directly (it reaches Django only via
   // same-origin '/api/**' proxy routes and the wss:// notification socket
   // below). Only the PUBLIC API origin belongs here.
+  const tenantAssetOrigins = [tenantAssetsDomain, tenantStaticDomain]
+    .filter((domain): domain is string => !!domain)
+    .map(domain => `https://${domain}`)
+
   const assetOrigins = [...new Set(
-    [mediaStreamOrigin, staticOrigin].filter(Boolean),
+    [mediaStreamOrigin, staticOrigin, ...tenantAssetOrigins].filter(Boolean),
   )].join(' ')
 
   // In dev the API/WebSocket use plain http/ws; in production https/wss.

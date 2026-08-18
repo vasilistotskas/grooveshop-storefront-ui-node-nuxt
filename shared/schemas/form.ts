@@ -43,43 +43,6 @@ export const ZodComponentUI = z.custom<ComponentUIConfig>((val) => {
   return val === undefined || (typeof val === 'object' && val !== null)
 }, 'Invalid UI configuration').optional()
 
-export interface RadioItem {
-  label: string
-  value: string | number | boolean
-  disabled?: boolean
-}
-
-export type FieldCondition = boolean | ((formState: Record<string, unknown>) => boolean)
-
-interface DynamicFormFieldBase {
-  as: 'input' | 'textarea' | 'select' | 'radio' | 'checkbox'
-  id?: string
-  name: string
-  label?: string
-  autocomplete?: string
-  hidden?: boolean
-  readonly?: boolean
-  required?: boolean
-  placeholder?: string
-  type?: 'text' | 'password' | 'date' | 'email' | 'number' | 'checkbox'
-  initialValue?: string | number | boolean | null | unknown[] | Record<string, unknown>
-  children?: DynamicFormChildElement[] | null
-  items?: RadioItem[] | null
-  rules: z.ZodType
-  condition?: FieldCondition | null
-  disabledCondition?: FieldCondition | null
-  color?: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'neutral'
-  colSpan?: number | {
-    'default'?: number
-    'sm'?: number
-    'md'?: number
-    'lg'?: number
-    'xl'?: number
-    '2xl'?: number
-  }
-  ui?: ComponentUIConfig
-}
-
 export const ZodDynamicFormSchemaField = z.array(
   z.object({
     as: z
@@ -139,13 +102,6 @@ export const ZodDynamicFormSchemaField = z.array(
   }),
 )
 
-export interface DynamicFormStep {
-  title?: string
-  description?: string
-  icon?: string
-  fields: DynamicFormFieldBase[]
-}
-
 export type ExtraValidationFunction = (
   values: Record<string, unknown>,
 ) => Record<string, string> | Promise<Record<string, string>>
@@ -169,25 +125,3 @@ export const ZodDynamicFormSchema = z.object({
     return val === undefined || (typeof val === 'object' && val !== null)
   }, 'Invalid UI configuration').optional(),
 })
-
-export function createZodSchemaFromDynamicForm<T extends DynamicFormSchema>(
-  schema: T,
-): z.ZodObject<Record<string, z.ZodType>> {
-  const shape: Record<string, z.ZodType> = {}
-
-  if (schema.fields) {
-    for (const field of schema.fields) {
-      shape[field.name] = field.rules
-    }
-  }
-
-  if (schema.steps) {
-    for (const step of schema.steps) {
-      for (const field of step.fields) {
-        shape[field.name] = field.rules
-      }
-    }
-  }
-
-  return z.object(shape)
-}

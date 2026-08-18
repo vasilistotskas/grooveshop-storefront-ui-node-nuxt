@@ -2,7 +2,7 @@
 const { locale, t } = useI18n()
 const route = useRoute()
 const { isMobileOrTablet } = useDevice()
-const img = useImage()
+const img = useMediaStreamImage()
 const localePath = useLocalePath()
 
 const paginationType = PaginationTypeEnum.PAGE_NUMBER

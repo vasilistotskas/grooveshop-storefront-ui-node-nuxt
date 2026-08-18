@@ -15,7 +15,7 @@ const props = defineProps({
 const modelValue = defineModel<boolean>({ required: true })
 
 const { t, locale } = useI18n()
-const img = useImage()
+const img = useMediaStreamImage()
 
 const activeIndex = ref(props.initialIndex)
 const carousel = useTemplateRef('carousel')

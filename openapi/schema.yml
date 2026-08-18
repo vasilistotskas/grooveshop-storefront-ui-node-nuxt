@@ -36471,7 +36471,7 @@ components:
         configuration:
           nullable: true
           title: Διαμόρφωση Παρόχου
-          description: Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
+          description: Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
     PatchedProductCategoryImageBulkUpdateRequest:
       type: object
       properties:
@@ -37361,7 +37361,7 @@ components:
         configuration:
           nullable: true
           title: Διαμόρφωση Παρόχου
-          description: Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
+          description: Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
       required:
         - cost
         - translations
@@ -40789,6 +40789,12 @@ components:
         apiDomain:
           type: string
           readOnly: true
+        assetsDomain:
+          type: string
+          readOnly: true
+        staticDomain:
+          type: string
+          readOnly: true
         loyaltyEnabled:
           type: boolean
           readOnly: true
@@ -40816,9 +40822,6 @@ components:
           type: string
           readOnly: true
         totpIssuer:
-          type: string
-          readOnly: true
-        turnstileSiteKey:
           type: string
           readOnly: true
         socialsDiscord:
@@ -40853,6 +40856,7 @@ components:
         - agentStripeDelegatedEnabled
         - allowedCspSources
         - apiDomain
+        - assetsDomain
         - blogEnabled
         - boxNowPartnerId
         - defaultCurrency
@@ -40878,6 +40882,7 @@ components:
         - socialsTiktok
         - socialsTwitter
         - socialsYoutube
+        - staticDomain
         - storeDescription
         - storeName
         - stripePublishableKey
@@ -40886,7 +40891,6 @@ components:
         - themePreset
         - tiktokPixelId
         - totpIssuer
-        - turnstileSiteKey
         - warningHex
     TopQuery:
       type: object

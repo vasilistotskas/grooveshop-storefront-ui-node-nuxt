@@ -15,7 +15,7 @@ const { dateLocale } = useDateLocale()
 const localePath = useLocalePath()
 const siteConfig = useSiteConfig()
 const runtimeConfig = useRuntimeConfig()
-const img = useImage()
+const img = useMediaStreamImage()
 
 const userStore = useUserStore()
 const { getFavouriteIdByProductId, updateFavouriteProducts } = userStore

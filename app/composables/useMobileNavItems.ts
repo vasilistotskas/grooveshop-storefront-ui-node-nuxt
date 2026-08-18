@@ -9,7 +9,7 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
   const t = $i18n.t.bind($i18n)
   const { loggedIn, user } = useUserSession()
   const route = useRoute()
-  const img = useImage()
+  const img = useMediaStreamImage()
 
   const avatarImg = computed(() => {
     if (!user.value || !user.value?.mainImagePath) {

@@ -110,7 +110,6 @@ export default defineNuxtConfig({
     },
   },
   runtimeConfig: {
-    buildDate: new Date().toISOString(),
     apiBaseUrl: process.env.NUXT_API_BASE_URL,
     mediaStreamPath: process.env.NUXT_MEDIA_STREAM_PATH,
     cacheBase: process.env.NUXT_CACHE_BASE,
@@ -138,9 +137,6 @@ export default defineNuxtConfig({
         clientSecret: process.env.NUXT_OAUTH_GOOGLE_CLIENT_SECRET,
       },
     },
-    turnstile: {
-      secretKey: process.env.NUXT_TURNSTILE_SECRET_KEY,
-    },
     cachePurgeToken: process.env.NUXT_CACHE_PURGE_TOKEN,
     redis: {
       host: process.env.NUXT_REDIS_HOST,
@@ -151,27 +147,14 @@ export default defineNuxtConfig({
       db: parseInt(process.env.NUXT_REDIS_DB ?? '3', 10),
     },
     public: {
-      appKeywords: process.env.NUXT_PUBLIC_APP_KEYWORDS,
       appLogo: process.env.NUXT_PUBLIC_APP_LOGO,
       appTitle: process.env.NUXT_PUBLIC_APP_TITLE,
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
       author: {
-        github_url: process.env.NUXT_PUBLIC_AUTHOR_GITHUB_URL,
         name: process.env.NUXT_PUBLIC_AUTHOR_NAME,
       },
       djangoHostName: process.env.NUXT_PUBLIC_DJANGO_HOST_NAME,
       djangoUrl: process.env.NUXT_PUBLIC_DJANGO_URL,
-      facebookAppId: process.env.NUXT_PUBLIC_FACEBOOK_APP_ID,
-      socials: {
-        discord: process.env.NUXT_PUBLIC_SOCIALS_DISCORD,
-        facebook: process.env.NUXT_PUBLIC_SOCIALS_FACEBOOK,
-        instagram: process.env.NUXT_PUBLIC_SOCIALS_INSTAGRAM,
-        pinterest: process.env.NUXT_PUBLIC_SOCIALS_PINTEREST,
-        reddit: process.env.NUXT_PUBLIC_SOCIALS_REDDIT,
-        tiktok: process.env.NUXT_PUBLIC_SOCIALS_TIKTOK,
-        twitter: process.env.NUXT_PUBLIC_SOCIALS_TWITTER,
-        youtube: process.env.NUXT_PUBLIC_SOCIALS_YOUTUBE,
-      },
       domainVerifyId: process.env.NUXT_PUBLIC_DOMAIN_VERIFY_ID,
       // Driven by NUXT_PUBLIC_GOOGLE_GSI_ENABLE (the infra ConfigMap
       // already sets it) — was hardcoded false, which silently ignored
@@ -180,42 +163,20 @@ export default defineNuxtConfig({
       googleSiteVerification: process.env.NUXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
       mediaStreamOrigin: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN,
       mediaStreamPath: process.env.NUXT_PUBLIC_MEDIA_STREAM_PATH,
-      scripts: {
-        googleAnalytics: {
-          id: process.env.NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID,
-        },
-      },
-      // Meta Pixel ID lives outside ``public.scripts`` because that
-      // slot is typed by @nuxt/scripts itself (only registered
-      // registry scripts widen its type). Putting our pixel id here
-      // keeps things type-safe without a module-augmentation file.
-      // The ``useMetaPixel`` composable reads from this path.
-      //
-      // Env var name MUST be ``NUXT_PUBLIC_META_PIXEL_ID`` (NOT
-      // ``NUXT_PUBLIC_SCRIPTS_META_PIXEL_ID``) — Nuxt's runtime
-      // override maps env vars to runtime config keys by uppercasing
-      // and underscore-splitting the dotted path, so
-      // ``runtimeConfig.public.metaPixelId`` is overridden by
-      // ``NUXT_PUBLIC_META_PIXEL_ID``. Mismatched names mean the
-      // build-time value is baked in (usually undefined in CI) and
-      // the runtime configmap value is silently ignored.
-      metaPixelId: process.env.NUXT_PUBLIC_META_PIXEL_ID,
-      // TikTok Pixel — same placement + env-naming rationale as
-      // ``metaPixelId`` above; overridden at runtime by
-      // ``NUXT_PUBLIC_TIKTOK_PIXEL_ID``. The ``useTikTokPixel``
-      // composable reads from this path.
-      tiktokPixelId: process.env.NUXT_PUBLIC_TIKTOK_PIXEL_ID,
+      // NOTE: no manually-set ``public.scripts.googleAnalytics`` entry —
+      // the @nuxt/scripts module itself populates
+      // ``runtimeConfig.public.scripts.<registryKey>`` from the top-level
+      // ``scripts.registry`` config below (``defu``-merged in the
+      // module's own setup step), so no plumbing is lost by omitting it
+      // here. GA/Meta/TikTok pixel ids are TENANT-ONLY (``useTenantStore``)
+      // — no platform/env fallback; see ``setupGoogleAnalyticsConsent``,
+      // ``useMetaPixel``, ``useTikTokPixel``.
       titleSeparator: process.env.NUXT_PUBLIC_TITLE_SEPARATOR,
-      trailingSlash: String(process.env.NUXT_PUBLIC_TRAILING_SLASH) === 'true',
       static: {
         origin: process.env.NUXT_PUBLIC_STATIC_ORIGIN,
       },
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-      // Cloudflare Turnstile site key (public, browser-visible).
-      // Env var: NUXT_PUBLIC_TURNSTILE_SITE_KEY
-      turnstileSiteKey: process.env.NUXT_PUBLIC_TURNSTILE_SITE_KEY ?? '',
       boxnowPartnerId: process.env.NUXT_PUBLIC_BOXNOW_PARTNER_ID ?? '',
-      boxnowWidgetType: (process.env.NUXT_PUBLIC_BOXNOW_WIDGET_TYPE ?? 'iframe') as 'iframe' | 'popup' | 'navigate' | 'navigateen',
       version,
     },
   },

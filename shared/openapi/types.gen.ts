@@ -4483,7 +4483,7 @@ export type PatchedPayWayWriteRequest = {
   /**
      * Διαμόρφωση Παρόχου
      *
-     * Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
+     * Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
      */
   configuration?: unknown
 }
@@ -5122,7 +5122,7 @@ export type PayWayWriteRequest = {
   /**
      * Διαμόρφωση Παρόχου
      *
-     * Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (viva_wallet_*, acs_*, box_now_*, turnstile_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
+     * Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.
      */
   configuration?: unknown
 }
@@ -7155,6 +7155,8 @@ export type TenantConfig = {
   readonly defaultCurrency: string
   readonly primaryDomain: string
   readonly apiDomain: string
+  readonly assetsDomain: string
+  readonly staticDomain: string
   readonly loyaltyEnabled: boolean
   readonly blogEnabled: boolean
   readonly agentStripeDelegatedEnabled: boolean
@@ -7164,7 +7166,6 @@ export type TenantConfig = {
   readonly tiktokPixelId: string
   readonly gaTrackingId: string
   readonly totpIssuer: string
-  readonly turnstileSiteKey: string
   readonly socialsDiscord: string
   readonly socialsFacebook: string
   readonly socialsInstagram: string

@@ -7,9 +7,10 @@
  * '/api/**' proxy routes and the wss:// notification socket, so the public API
  * origin (https://<djangoHostName>) is used in connect-src instead.
  *
- * Tenant dimension: per-tenant pixel ids take precedence over the platform
- * env fallbacks, and `TenantConfig.allowedCspSources` expands script-src,
- * img-src, connect-src and frame-src (scheme-filtered by the builder).
+ * Tenant dimension: pixel ids are TENANT-ONLY (no platform/env fallback —
+ * every tenant provisions its own Pixel), and `TenantConfig.allowedCspSources`
+ * expands script-src, img-src, connect-src and frame-src (scheme-filtered
+ * by the builder).
  */
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -23,8 +24,6 @@ const BASE_PUBLIC_CONFIG = {
   mediaStreamOrigin: 'https://assets.webside.gr',
   static: { origin: 'https://static.webside.gr' },
   djangoHostName: 'api.webside.gr',
-  metaPixelId: 'PIXEL123',
-  tiktokPixelId: 'TTPIXEL123',
 }
 
 interface TestEvent {
@@ -106,8 +105,10 @@ describe('csp middleware', () => {
     expect(imgSrc).not.toContain('api.webside.gr')
   })
 
-  it('allows the TikTok Pixel origins when a pixel id is provisioned', () => {
-    const csp = runWith('/products/3/some-product')['Content-Security-Policy']
+  it('allows the TikTok Pixel origins when the tenant provisions a pixel id', () => {
+    const csp = runWith('/products/3/some-product', {
+      tenant: { tiktokPixelId: 'TENANT_TT_ID' },
+    })['Content-Security-Policy']
     const directive = (name: string) =>
       csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
     expect(directive('script-src')).toContain('https://analytics.tiktok.com')
@@ -116,27 +117,21 @@ describe('csp middleware', () => {
     expect(directive('img-src')).toContain('https://*.tiktok.com')
   })
 
-  it('still allows TikTok origins when only the tenant provides a pixel id and the platform does not', () => {
-    publicConfig.metaPixelId = ''
-    publicConfig.tiktokPixelId = ''
-
-    const csp = runWith('/products/3/some-product', {
-      tenant: { tiktokPixelId: 'TENANT_ONLY_TT_ID' },
-    })['Content-Security-Policy']
-    const directive = (name: string) =>
-      csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
-    expect(directive('script-src')).toContain('https://analytics.tiktok.com')
-  })
-
-  it('does not gate on TikTok origins when neither tenant nor platform provisions a pixel id', () => {
-    publicConfig.tiktokPixelId = ''
-
+  it('does not gate on TikTok origins when the tenant has no pixel id (no platform/env fallback)', () => {
     const csp = runWith('/products/3/some-product', {
       tenant: { tiktokPixelId: '' },
     })['Content-Security-Policy']
     const directive = (name: string) =>
       csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
     expect(directive('script-src')).not.toContain('analytics.tiktok.com')
+  })
+
+  it('does not gate on Meta/TikTok origins when there is no tenant at all', () => {
+    const csp = runWith('/products/3/some-product')['Content-Security-Policy']
+    const directive = (name: string) =>
+      csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
+    expect(directive('script-src')).not.toContain('analytics.tiktok.com')
+    expect(directive('script-src')).not.toContain('connect.facebook.net')
   })
 
   it('appends filtered tenant allowedCspSources to the four browser directives', () => {
@@ -183,6 +178,34 @@ describe('csp middleware', () => {
     const connectSrc = csp.split(';').map(d => d.trim()).find(d => d.startsWith('connect-src')) ?? ''
     expect(connectSrc).toContain('https://api.webside.gr')
     expect(connectSrc.match(/api\.webside\.gr/g)?.length).toBe(2) // https + wss, no duplicate
+  })
+
+  it('additively allows the tenant assetsDomain/staticDomain origins in img-src and connect-src alongside the platform origins', () => {
+    const csp = runWith('/products/3/some-product', {
+      tenant: {
+        assetsDomain: 'assets.tenant.example',
+        staticDomain: 'static.tenant.example',
+      },
+    })['Content-Security-Policy']
+    const directive = (name: string) =>
+      csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
+    for (const name of ['img-src', 'connect-src']) {
+      // Platform asset origins stay present.
+      expect(directive(name)).toContain('https://assets.webside.gr')
+      expect(directive(name)).toContain('https://static.webside.gr')
+      // Tenant's own asset/static hosts are added, not swapped in.
+      expect(directive(name)).toContain('https://assets.tenant.example')
+      expect(directive(name)).toContain('https://static.tenant.example')
+    }
+  })
+
+  it('omits the tenant assets/static origins when the tenant has none', () => {
+    const csp = runWith('/products/3/some-product', {
+      tenant: { assetsDomain: '', staticDomain: '' },
+    })['Content-Security-Policy']
+    const imgSrc = csp.split(';').map(d => d.trim()).find(d => d.startsWith('img-src')) ?? ''
+    expect(imgSrc).toContain('https://assets.webside.gr')
+    expect(imgSrc).not.toContain('tenant.example')
   })
 
   it('skips API, _nuxt and _ipx routes (no CSP header set)', () => {

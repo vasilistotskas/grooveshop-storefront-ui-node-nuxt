@@ -9,7 +9,7 @@ const tenantStore = useTenantStore()
 const { updateLikedPosts } = userStore
 const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
-const img = useImage()
+const img = useMediaStreamImage()
 const siteUrl = siteConfig.url
 
 const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))

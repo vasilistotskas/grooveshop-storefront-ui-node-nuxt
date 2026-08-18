@@ -34,8 +34,6 @@ export default defineEventHandler((event) => {
     mediaStreamOrigin?: string
     static?: { origin?: string }
     djangoHostName?: string
-    metaPixelId?: string
-    tiktokPixelId?: string
   }
 
   const cleanPath = (path.split('?')[0] ?? '').replace(/\/+$/, '') || '/'
@@ -49,8 +47,9 @@ export default defineEventHandler((event) => {
   }
 
   // Per-tenant CSP inputs. The tenant arrives on event.context from
-  // ``server/middleware/0.tenant.ts``; per-tenant pixel ids take
-  // precedence over the platform-wide env fallbacks, and
+  // ``server/middleware/0.tenant.ts``; pixel ids are TENANT-ONLY — no
+  // platform/env fallback (every tenant provisions its own Pixel; a
+  // shared id would mix ad accounts across merchants) — and
   // ``allowedCspSources`` expands the four browser-facing directives
   // (the builder re-filters the schemes defensively).
   //
@@ -67,10 +66,12 @@ export default defineEventHandler((event) => {
     mediaStreamOrigin: publicConfig.mediaStreamOrigin,
     staticOrigin: publicConfig.static?.origin,
     djangoHostName: publicConfig.djangoHostName || requestHost || 'localhost',
-    metaPixelId: tenant?.metaPixelId || publicConfig.metaPixelId,
-    tiktokPixelId: tenant?.tiktokPixelId || publicConfig.tiktokPixelId,
+    metaPixelId: tenant?.metaPixelId,
+    tiktokPixelId: tenant?.tiktokPixelId,
     tenantSources: tenant?.allowedCspSources ?? [],
     tenantApiDomain: tenant?.apiDomain,
+    tenantAssetsDomain: tenant?.assetsDomain,
+    tenantStaticDomain: tenant?.staticDomain,
     nonce,
   })
 

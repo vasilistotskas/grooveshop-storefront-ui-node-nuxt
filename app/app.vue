@@ -34,10 +34,10 @@ watch([loggedIn, user], ([l, u]) => {
   enabled.value = !!(l && u?.isSuperuser)
 }, { immediate: true })
 
-// Prefer per-tenant social URLs; fall back to platform-wide env vars.
-const platformSocials = config.public.socials as Record<string, string | undefined>
+// Tenant-only — no platform/env fallback (each tenant links its own
+// social accounts; a shared link would misattribute traffic).
 function orgSocialUrl(key: string): string | undefined {
-  return (tenantStore.socials as Record<string, string>)[key] || platformSocials[key] || undefined
+  return (tenantStore.socials as Record<string, string>)[key] || undefined
 }
 
 useSchemaOrg([

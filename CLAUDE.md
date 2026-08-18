@@ -57,7 +57,7 @@ Coverage uses v8 provider, reports to `./coverage` in text/html/lcov/json format
 - `shared/` — Auto-imported in both app and server: types, constants, schemas (Zod), utils, OpenAPI generated code
 - `modules/` — Custom Nuxt modules (`cookies.ts` for cookie consent, `purge-comments.ts` removes HTML comments in prod)
 - `runtime/` — Runtime code for the custom cookie control module (plugin, methods, types, utils)
-- `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES`/`DEFAULT_LOCALE`), locale detector, i18n config, and translation files (el-GR primary, plus domain-specific: auth, breadcrumb, cookies, validation). Only `el` locale is active; en-US and de-DE files exist but are unused
+- `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES`/`DEFAULT_LOCALE`), locale detector, i18n config, and translation files (el-GR primary, plus domain-specific: auth, breadcrumb, cookies, validation). Only `el` locale exists/is active
 - `openapi/` — Schema files (`schema.json`, `schema.yml`) fetched from Django for type generation
 - `scripts/` — `fetch-schema.mjs` for downloading OpenAPI schema from Django
 
@@ -65,7 +65,7 @@ Coverage uses v8 provider, reports to `./coverage` in text/html/lcov/json format
 
 The Nuxt server acts as a **proxy** to the Django backend. Client-side code calls `/api/...` routes on the Nuxt server, which then forwards requests to the Django API (`NUXT_API_BASE_URL`).
 
-- **Server API routes** (`server/api/`): Proxy endpoints organized by domain — products, cart, orders, order-items, blog (posts/comments/categories), user (account/addresses), search, loyalty, notifications, subscriptions (topics/user), contact, countries, regions, pay-way, settings, health, websocket
+- **Server API routes** (`server/api/`): Proxy endpoints organized by domain — products, cart, orders, blog (posts/comments/categories), user (account/addresses), search, loyalty, notifications, subscriptions (topics/user), contact, countries, regions, pay-way, settings, health, websocket
 - **Server API pattern**: Routes use `getValidatedQuery`/`readValidatedBody` with Zod schemas, `$fetch` to Django, `parseDataAs` for response validation, `handleError` for error handling. Many routes use `defineCachedEventHandler` with SWR for caching.
 - **`server/utils/auth.ts`**: Creates forwarding headers (`X-Session-Token`, `Authorization`, `X-Forwarded-Host`) for Django requests; `createHeaders` sources `X-Forwarded-Host` from `config.public.djangoHostName` (not the raw request host) so that Django's `ALLOWED_HOSTS` validation passes for internal K8s calls; `processAllAuthSession` handles token propagation
 - **`server/utils/api.ts`**: `createCachedFetcher<T>` for paginated data fetching with caching
@@ -128,6 +128,8 @@ Uses [django-allauth](https://docs.allauth.org/) headless API via `nuxt-auth-uti
 
 Custom `mediaStream` provider (`app/providers/media-stream.ts`) generates URLs for an external media processing service. URL pattern: `/{src}/{width}/{height}/{fit}/{position}/{background}/{trimThreshold}/{quality}.{format}`. Handles Unicode URL encoding for social media crawlers. Also uses `@nuxt/image` with IPX for local images (AVIF, WebP formats). Image screens configured: xs(320), sm(640), md(768), lg(1024), xl(1280), xxl/2xl(1536).
 
+The provider's `baseURL` option is static (baked from `NUXT_PUBLIC_MEDIA_STREAM_PATH` at build time) — @nuxt/image has no per-request/per-tenant hook. Per-tenant asset origins (`TenantConfig.assetsDomain`) are instead resolved by `useMediaStreamBaseUrl`/`useMediaStreamImage` (`app/composables/useMediaStreamImage.ts`), which absolutize the relative `src` BEFORE it reaches `$img()`/`NuxtImg`; the provider skips its own `baseURL` whenever `src` already carries a protocol. `ImgWithFallback.vue` does the same absolutization for `media/{schema}/uploads/...` and `static/images/...` paths.
+
 ### OpenAPI Type Generation
 
 Types and Zod schemas are auto-generated from the Django backend's OpenAPI schema:
@@ -138,7 +140,7 @@ Types and Zod schemas are auto-generated from the Django backend's OpenAPI schem
 
 Auto-imported in both app and server contexts (via `imports.dirs` and `nitro.imports.dirs`). Contains:
 - `types/` — Hand-written types organized by domain: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`, plus `pagination.ts`, `ordering.ts`, `search.ts`, `form.ts`, `meilisearch.ts`, `LoyaltySettings.ts`, `enum/`, `utility/`
-- `schemas/` — Zod validation schemas mirroring the types structure: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`, plus `pagination.ts`, `ordering.ts`, `form.ts`
+- `schemas/` — Zod validation schemas mirroring the types structure: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`, plus `form.ts`
 - `openapi/` — Auto-generated `types.gen.ts` and `zod.gen.ts`
 - `constants/` — `AuthenticatedRoutes`, `AuthenticatedRoutesSet`, `Flow2path`, `AuthChangeEvent`, `GSIAuthProcess`, `RedirectToURLs`, `Flows`, `AuthenticatorType`, `floorChoicesList`, `locationChoicesList`, `defaultSelectOptionChoose`
 - `utils/` — `error.ts` (error helpers), `html.ts` (HTML processing)
@@ -154,8 +156,9 @@ Pinia stores in `app/stores/`:
 
 ### Key Composables
 
-34 composables in `app/composables/` following `use[Feature].ts` naming. Key ones for cross-cutting concerns:
-- `setups.ts` — `setupPageHeader` (SEO), `setupGoogleAnalyticsConsent` (GDPR), `setupCursorState`, `setupSocialLogin` (GSI one-tap)
+50+ composables in `app/composables/` following `use[Feature].ts` naming. Key ones for cross-cutting concerns:
+- `setups.ts` — `setupPageHeader` (SEO), `setupGoogleAnalyticsConsent`/`setupMetaPixelConsent`/`setupTikTokPixelConsent` (GDPR-gated, tenant-only ids — no platform/env fallback), `setupCursorState`, `setupSocialLogin` (GSI one-tap)
+- `useMediaStreamImage.ts` — `useMediaStreamBaseUrl`/`useMediaStreamImage`/`useMediaStreamSrc`: tenant-aware Media Stream origin resolution (see Image Handling)
 - `useAllAuthAuthentication.ts` / `useAllAuthAccount.ts` / `useAllAuthSessions.ts` — Auth flows
 - `useCheckout.ts` — Stock reservation, Stripe payment, status polling
 - `useProductFilters.ts` — Product filtering with URL state
@@ -164,7 +167,7 @@ Pinia stores in `app/stores/`:
 
 ### App Utilities (`app/utils/`)
 
-13 utility modules (array, auth, boolean, color, date, dom, error, pagination, route, search, str, theme, translate). Key: `auth.ts` (client-side auth helpers), `translate.ts` (`extractTranslated` for parler model translations), `error.ts` (client error handling).
+11 utility modules (auth, componentRegistry, error, pagination, phone, route, search, shipping-methods, sse, str, translate). Key: `auth.ts` (client-side auth helpers), `translate.ts` (`extractTranslated` for parler model translations), `error.ts` (client error handling).
 
 ### Layouts
 
@@ -187,20 +190,20 @@ Routes in `app/pages/`: home, products (with category/detail), blog (with catego
 
 Components in `app/components/` organized by domain:
 - **Account** — Login/Signup forms, 2FA flows (TOTP, WebAuthn, recovery codes), email/password/sessions/providers management, settings, auth navigation
-- **Blog** — Post lists/carousels, comments (with likes), categories, sidebar, tags, content renderer
+- **Blog** — Post lists/carousels, comments (with likes), categories, tags, content renderer
 - **Cart** — Cart button (with item count), item cards
-- **Checkout** — Items list, payment ways selector
-- **Cookie** — GDPR consent modal/control, iframe blocker
-- **DynamicForm** — Multi-step form system with navigation
+- **Checkout** — Items list
+- **Cookie** — GDPR consent modal/control
+- **DynamicForm** — Multi-step form system
 - **Loyalty** — PointsBadge, Summary, TierSystem, ProgressHero, Transactions, Redemption
 - **Order** — Order list, card items
-- **Product** — Image/ImageModal, Review/Reviews, Favourites, CardSkeleton, Categories slider
+- **Product** — Image/ImageModal, Reviews (List/Summary/Card), Favourites, CardSkeleton, Categories slider
 - **Products** — List, Slider, Toolbar, Sidebar, Filters (SearchInput, PriceRange, ActiveFilters, CategoryFilter, AttributeFilter, PopularityFilter, ViewCountFilter)
 - **Search** — Input, Modal, Result
 - **User** — Avatar, NotificationsBell, Account info/favourites navbar
 - **Page** — Header, Navbar, Title
-- **UI/Layout** — Pagination (PageNumber, LimitOffset, Cursor), Ordering, Rating, Quantity Selector, BackButton, ReadMore, Empty states, LoadingIndicator, DesktopOnly, MobileOrTabletOnly, Socials, Anchor, ImgWithFallback, IframeModal, DemoModeMessage, Error
-- **Integrations** — StripePayment, WebAuthn LoginButton, Language Switcher, Logout Button, Form TurnstileContainer
+- **UI/Layout** — Pagination (PageNumber, LimitOffset, Cursor), Ordering, Rating, Quantity Selector, ReadMore, Empty state, LoadingIndicator, DesktopOnly, MobileOrTabletOnly, Socials, Anchor, ImgWithFallback, IframeModal, DemoModeMessage, Error
+- **Integrations** — StripePayment, WebAuthn LoginButton, Language Switcher, Logout Button
 
 ### UI & Styling
 
@@ -208,7 +211,7 @@ Components in `app/components/` organized by domain:
 - `app/assets/css/main.css` — Imports `tailwindcss` with static theme + `@nuxt/ui`. Custom theme containers (`--container-main: 74.625rem`, `--container-8xl: 90rem`). `.article` typography class for blog/CMS content. Reduced-motion support.
 - `app/app.config.ts` — Component customization: extended avatar sizes (4xl-7xl), button 3xl size, chip 3xl size, secondary solid button variant, cursor-pointer defaults (button, switch, tabs, accordion), form field sizing, skeleton/breadcrumb theming, pagination/selectMenu/input/textarea full-width defaults. Icon mode: CSS with base layer.
 - Component-scoped `<i18n lang="yaml">` blocks for translations (e.g., `error.vue`)
-- Lottie animations in `app/assets/lotties/` (404, checkout, heart, etc.)
+- Lottie animations in `app/assets/lotties/` (404, heart)
 
 ### SEO & Performance
 
@@ -274,11 +277,10 @@ Copy `.env.example` to `.env`. Key variables:
 - `NUXT_REDIS_HOST` / `NUXT_REDIS_PORT` / `NUXT_REDIS_TTL` — Redis config
 - `NUXT_SESSION_PASSWORD` — Session encryption password
 - OAuth secrets for Google, Facebook, GitHub, Discord
-- `NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` — Stripe payment integration
-- `NUXT_PUBLIC_TURNSTILE_SITE_KEY` / `NUXT_TURNSTILE_SECRET_KEY` — Cloudflare Turnstile bot protection
+- `NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` — Stripe payment integration (platform fallback; tenants may set their own via `TenantConfig.stripePublishableKey`)
 - `NUXT_SITE_URL` / `NUXT_SITE_NAME` / `NUXT_SITE_DESCRIPTION` / `NUXT_SITE_DEFAULT_LOCALE` — SEO site config
-- `NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID` — Google Analytics
-- `NUXT_PUBLIC_SOCIALS_*` — Social media links (Discord, Facebook, Instagram, Pinterest, Reddit, TikTok, Twitter, YouTube)
+
+Google Analytics tracking id, Meta/TikTok Pixel ids, and social media links are **tenant-only** (`TenantConfig.gaTrackingId`/`metaPixelId`/`tiktokPixelId`/`socials*` via `useTenantStore()`) — no platform/env fallback. Each merchant provisions its own; there is deliberately no `NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID`/`NUXT_PUBLIC_META_PIXEL_ID`/`NUXT_PUBLIC_TIKTOK_PIXEL_ID`/`NUXT_PUBLIC_SOCIALS_*` env var.
 
 ## Multi-Tenant Architecture
 
@@ -298,11 +300,14 @@ Every non-bypassed route handler can rely on `event.context.tenant` being a full
 - `storeName` — human-readable store name for the PWA manifest
 - `primaryDomain` — the tenant's storefront hostname
 - `apiDomain` — the tenant's own API hostname (e.g. `api.tenant.com`); used instead of the platform `NUXT_PUBLIC_DJANGO_HOST_NAME` wherever a browser-facing request must hit the tenant's OWN Django schema (WebSocket, social-login redirect, CSP connect-src, `.well-known` OAuth metadata)
+- `assetsDomain` — the tenant's own media/image-processing hostname (e.g. `assets.tenant.com`); consumed by `useMediaStreamBaseUrl`/`useMediaStreamImage` (see Image Handling) and additively expands CSP img-src/connect-src alongside the platform `mediaStreamOrigin`
+- `staticDomain` — the tenant's own static-file hostname (e.g. `static.tenant.com`); additively expands CSP img-src/connect-src alongside the platform `staticOrigin`
 - `defaultLocale` — BCP-47 code consulted by `1.locale.ts` (priority 3 of 4)
 - `defaultCurrency` — ISO 4217 code (e.g. `'EUR'`), used in RSS and checkout
 - `accentHex` — CSS hex for PWA theme_color
 - `faviconUrl` — absolute URL for the tenant favicon (used in PWA manifest icons)
 - `loyaltyEnabled`, `blogEnabled` — feature flags
+- `metaPixelId`, `tiktokPixelId`, `gaTrackingId` — tenant-only analytics/pixel ids, no platform/env fallback (see Environment)
 
 ### `tenantCacheKey` requirement
 

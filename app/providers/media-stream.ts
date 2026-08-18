@@ -1,6 +1,6 @@
 import type { ImageModifiers } from '@nuxt/image'
 import { defineProvider } from '@nuxt/image/runtime'
-import { joinURL } from 'ufo'
+import { hasProtocol, joinURL } from 'ufo'
 
 /**
  * Media Stream service modifiers — the standard {@link ImageModifiers} plus the
@@ -42,7 +42,16 @@ export interface MediaStreamOptions {
  */
 export default defineProvider<Partial<MediaStreamOptions>>({
   getImage(src, { modifiers, baseURL }) {
-    if (!baseURL) {
+    // Callers that need a per-tenant origin (``useMediaStreamImage``,
+    // ``ImgWithFallback``) pre-absolutize ``src`` against
+    // ``TenantConfig.assetsDomain`` before it reaches this provider — the
+    // provider's own ``baseURL`` option is static (baked from
+    // ``NUXT_PUBLIC_MEDIA_STREAM_PATH`` at build time) and has no
+    // per-request hook. Skip it whenever ``src`` already carries a
+    // protocol so it never gets double-prefixed.
+    const effectiveBaseURL = hasProtocol(src) ? '' : (baseURL ?? '')
+
+    if (!effectiveBaseURL && !hasProtocol(src)) {
       throw new Error('Media Stream base URL is not configured. Set NUXT_PUBLIC_MEDIA_STREAM_PATH in your environment.')
     }
 
@@ -58,7 +67,7 @@ export default defineProvider<Partial<MediaStreamOptions>>({
 
     // Pattern: /{src}/{width}/{height}/{fit}/{position}/{background}/{trimThreshold}/{quality}.{format}
     const url = joinURL(
-      baseURL,
+      effectiveBaseURL,
       src,
       width.toString(),
       height.toString(),

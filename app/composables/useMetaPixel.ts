@@ -86,10 +86,10 @@ function toMetaPayload(data: MetaCommonData | undefined): FbqCustomEventData {
 }
 
 export function useMetaPixel() {
-  const config = useRuntimeConfig()
   const tenantStore = useTenantStore()
-  // Prefer per-tenant pixel id; fall back to platform-wide env var.
-  const pixelId = tenantStore.metaPixelId || (config.public as { metaPixelId?: string })?.metaPixelId
+  // Tenant-only — no platform/env fallback (every tenant provisions its
+  // own Pixel; a shared id would mix ad accounts across merchants).
+  const pixelId = tenantStore.metaPixelId
 
   const isProvisioned = !!pixelId
 

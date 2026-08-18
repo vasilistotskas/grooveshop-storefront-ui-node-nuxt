@@ -31,7 +31,7 @@ const isActive = ref(true)
 
 const { $i18n } = useNuxtApp()
 const localePath = useLocalePath()
-const img = useImage()
+const img = useMediaStreamImage()
 
 const cartStore = useCartStore()
 const { cleanCartState } = cartStore

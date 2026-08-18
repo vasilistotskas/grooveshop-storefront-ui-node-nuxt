@@ -39,32 +39,3 @@ export type MetaTrackOptions = {
    */
   eventID?: string
 }
-
-/** Keys the Django side accepts on ``order.metadata.meta.event_ids``. */
-export type MetaEventIdKey = 'purchase' | 'initiateCheckout' | 'addPaymentInfo'
-
-export type MetaEventIds = Partial<Record<MetaEventIdKey, string>>
-
-export type MetaConsent = {
-  ads: boolean
-}
-
-/**
- * Body of the ``meta`` field forwarded to Django at order creation.
- * Mirrors the keys the Django ``OrderService._sanitise_meta_context``
- * allow-list accepts. Snake_case because the Nuxt → Django proxy
- * sends raw bodies (camel-case middleware on Django converts back to
- * snake_case for the serializer).
- */
-export type MetaOrderContext = {
-  fbp?: string
-  fbc?: string
-  client_user_agent?: string
-  client_ip_address?: string
-  event_ids?: {
-    purchase?: string
-    initiate_checkout?: string
-    add_payment_info?: string
-  }
-  consent?: MetaConsent
-}

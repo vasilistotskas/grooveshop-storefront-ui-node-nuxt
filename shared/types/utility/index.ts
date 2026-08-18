@@ -1,5 +1,3 @@
-export type EntityOrPrimitive<T> = T | number
-
 export type DeepKeys<T>
   = T extends Record<string, any>
     ? {
@@ -12,45 +10,9 @@ export type DeepKeys<T>
       }[keyof T]
     : ''
 
-export type DeepPartial<T> = Partial<{
-  [P in keyof T]: T[P] extends object ? DeepPartial<T[P]> : T[P]
-}>
-
-export type DeepKey<T, Keys extends string[]> = Keys extends [
-  infer First,
-  ...infer Rest,
-]
-  ? First extends keyof T
-    ? Rest extends string[]
-      ? DeepKey<T[First], Rest>
-      : never
-    : never
-  : T
-
-export type ExtractDeepKey<T, Path extends string[]>
-  = DeepKey<T, Path> extends infer Result
-    ? Result extends Record<string, any>
-      ? keyof Result
-      : never
-    : never
-
-export type ExtractDeepObject<T, Path extends string[]>
-  = DeepKey<T, Path> extends infer Result
-    ? Result extends Record<string, any>
-      ? Result
-      : never
-    : never
-
 export type TranslationObject<T = Record<string, any>> = {
   translations: Record<string, T>
 } & Omit<T, 'translations'>
-
-export type WithTranslations<T = Record<string, any>> = {
-  translations: Record<string, Record<string, any>>
-} & T
-
-export type ExtractIfTranslationObject<T>
-  = T extends WithTranslations<infer U> ? U : T
 
 export type ImageLoading = 'lazy' | 'eager' | undefined
 
@@ -61,9 +23,3 @@ export type ErrorWithDetail = {
     }
   }
 }
-
-export type ScreenSize
-  = | typeof ScreenSizeEnum.SMALL
-    | typeof ScreenSizeEnum.MEDIUM
-    | typeof ScreenSizeEnum.LARGE
-    | typeof ScreenSizeEnum.EXTRA_LARGE

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
 const route = useRoute(`products-category-id-slug___${locale.value}`)
-const img = useImage()
+const img = useMediaStreamImage()
 const siteConfig = useSiteConfig()
 const { ogImageUrl } = useTenantBranding()
 

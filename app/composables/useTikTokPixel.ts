@@ -78,10 +78,10 @@ function toTikTokPayload(
 }
 
 export function useTikTokPixel() {
-  const config = useRuntimeConfig()
   const tenantStore = useTenantStore()
-  // Prefer per-tenant pixel id; fall back to platform-wide env var.
-  const pixelId = tenantStore.tiktokPixelId || (config.public as { tiktokPixelId?: string })?.tiktokPixelId
+  // Tenant-only — no platform/env fallback (every tenant provisions its
+  // own Pixel; a shared id would mix ad accounts across merchants).
+  const pixelId = tenantStore.tiktokPixelId
 
   const isProvisioned = !!pixelId
 

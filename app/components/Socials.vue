@@ -25,7 +25,6 @@ defineProps({
 })
 
 const { t } = useI18n()
-const config = useRuntimeConfig()
 const tenantStore = useTenantStore()
 
 interface SocialItem {
@@ -37,10 +36,10 @@ interface SocialItem {
   colorClass: string
 }
 
-// Prefer per-tenant social URL; fall back to platform-wide env var.
-const platformSocials = config.public.socials as Record<string, string | undefined>
+// Tenant-only — no platform/env fallback (each tenant links its own
+// social accounts; a shared link would misattribute traffic).
 function socialUrl(key: string): string | undefined {
-  return (tenantStore.socials as Record<string, string>)[key] || platformSocials[key] || undefined
+  return (tenantStore.socials as Record<string, string>)[key] || undefined
 }
 
 const socials = computed<SocialItem[]>(() => [

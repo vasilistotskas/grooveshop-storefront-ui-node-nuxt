@@ -27,6 +27,22 @@ export function setupPageHeader() {
     seo: true,
   })
 
+  // Tenant-aware preconnect hints. nuxt.config.ts app.head.link already
+  // preconnects to the platform env origins (boot-time hints for the
+  // platform's own storefront); when a tenant resolves its OWN
+  // assets/static origins those are additive preconnects — the platform
+  // hints stay too since SSR-emitted assets may still reference them.
+  const tenantPreconnectLinks = computed(() => {
+    const links: { rel: 'preconnect', href: string, crossorigin: 'anonymous' }[] = []
+    if (tenantStore.assetsDomain) {
+      links.push({ rel: 'preconnect', href: `https://${tenantStore.assetsDomain}`, crossorigin: 'anonymous' })
+    }
+    if (tenantStore.staticDomain) {
+      links.push({ rel: 'preconnect', href: `https://${tenantStore.staticDomain}`, crossorigin: 'anonymous' })
+    }
+    return links
+  })
+
   const colorMode = useColorMode()
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
   const ogLocalesAlternate = computed(() => $i18n.locales.value.map(l => l.language || l.code))
@@ -96,6 +112,7 @@ export function setupPageHeader() {
       ...(favicon.value
         ? [{ rel: 'icon' as const, type: 'image/x-icon', href: favicon.value, key: 'tenant-favicon' }]
         : []),
+      ...tenantPreconnectLinks.value,
     ],
     meta: [...(i18nHead.value.meta || []),
       ...(isPlatformTenant.value && publicConfig.domainVerifyId
@@ -113,10 +130,10 @@ export function setupCursorState() {
 }
 
 export function setupGoogleAnalyticsConsent() {
-  const config = useRuntimeConfig()
   const tenantStore = useTenantStore()
-  // Prefer per-tenant GA tracking id; fall back to platform-wide env var.
-  const id = tenantStore.gaTrackingId || config.public.scripts.googleAnalytics.id
+  // Tenant-only — no platform/env fallback (every tenant provisions its
+  // own GA property; a shared id would mix analytics across merchants).
+  const id = tenantStore.gaTrackingId
   // Skip the script entirely when the id is missing or still the
   // placeholder. Otherwise @nuxt/scripts preloads ``gtag.js`` for
   // every visitor and the resource sits unused (browser warns
@@ -215,15 +232,15 @@ function useAdStorageConsent() {
  *   the two call sites, creating subtle races. Single registration
  *   here + single proxy lookup in ``useMetaPixel`` removes both.
  *
- * No-op when ``META_PIXEL_ID`` is not provisioned — the cookie banner
- * stays untouched and ``useMetaPixel`` consumers receive a no-op
- * proxy.
+ * No-op when the tenant's ``metaPixelId`` is not provisioned — the
+ * cookie banner stays untouched and ``useMetaPixel`` consumers receive a
+ * no-op proxy.
  */
 export function setupMetaPixelConsent() {
-  const config = useRuntimeConfig()
   const tenantStore = useTenantStore()
-  // Prefer per-tenant pixel id; fall back to platform-wide env var.
-  const pixelId = tenantStore.metaPixelId || (config.public as { metaPixelId?: string })?.metaPixelId
+  // Tenant-only — no platform/env fallback (every tenant provisions its
+  // own Pixel; a shared id would mix ad accounts across merchants).
+  const pixelId = tenantStore.metaPixelId
   if (!pixelId) return
 
   // SSR guard: ``@nuxt/scripts >= 1.2`` removed the SSR-safe posture of
@@ -258,15 +275,15 @@ export function setupMetaPixelConsent() {
  * throw during prerender / SSR). Called from ``app.vue`` setup once
  * per app instance.
  *
- * No-op when neither the tenant's ``tiktokPixelId`` nor the platform-wide
- * ``NUXT_PUBLIC_TIKTOK_PIXEL_ID`` is provisioned — the cookie banner
- * stays untouched and ``useTikTokPixel`` consumers receive a no-op proxy.
+ * No-op when the tenant's ``tiktokPixelId`` is not provisioned — the
+ * cookie banner stays untouched and ``useTikTokPixel`` consumers receive
+ * a no-op proxy.
  */
 export function setupTikTokPixelConsent() {
-  const config = useRuntimeConfig()
   const tenantStore = useTenantStore()
-  // Prefer per-tenant pixel id; fall back to platform-wide env var.
-  const pixelId = tenantStore.tiktokPixelId || (config.public as { tiktokPixelId?: string })?.tiktokPixelId
+  // Tenant-only — no platform/env fallback (every tenant provisions its
+  // own Pixel; a shared id would mix ad accounts across merchants).
+  const pixelId = tenantStore.tiktokPixelId
   if (!pixelId) return
   if (import.meta.server) return
 

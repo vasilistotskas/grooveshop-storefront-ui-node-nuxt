@@ -1,9 +1,9 @@
 /**
  * Tests for app/composables/useTikTokPixel.ts and
- * setupTikTokPixelConsent (app/composables/setups.ts) — both must prefer
- * the tenant's tiktokPixelId over the platform-wide
- * NUXT_PUBLIC_TIKTOK_PIXEL_ID env var, mirroring useMetaPixel/
- * setupMetaPixelConsent.
+ * setupTikTokPixelConsent (app/composables/setups.ts) — both are
+ * TENANT-ONLY, no platform/env fallback (every tenant provisions its own
+ * Pixel; a shared id would mix ad accounts across merchants), mirroring
+ * useMetaPixel/setupMetaPixelConsent.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
@@ -32,15 +32,13 @@ function setTenantPixelId(id: string) {
   } as TenantConfig)
 }
 
-describe('useTikTokPixel — tenant-first pixel id resolution', () => {
+describe('useTikTokPixel — tenant-only pixel id resolution', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     scriptTikTokPixelMock.mockClear()
   })
 
-  it('is provisioned and registers the tenant pixel id when the tenant has one, even without a platform env var', () => {
-    const config = useRuntimeConfig()
-    config.public.tiktokPixelId = ''
+  it('is provisioned and registers the tenant pixel id when the tenant has one', () => {
     setTenantPixelId('TENANT_TT_ID')
 
     const { isProvisioned } = useTikTokPixel()
@@ -51,34 +49,7 @@ describe('useTikTokPixel — tenant-first pixel id resolution', () => {
     )
   })
 
-  it('prefers the tenant pixel id over the platform-wide one when both are set', () => {
-    const config = useRuntimeConfig()
-    config.public.tiktokPixelId = 'PLATFORM_TT_ID'
-    setTenantPixelId('TENANT_TT_ID')
-
-    useTikTokPixel()
-
-    expect(scriptTikTokPixelMock).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'TENANT_TT_ID' }),
-    )
-  })
-
-  it('falls back to the platform pixel id when the tenant has none', () => {
-    const config = useRuntimeConfig()
-    config.public.tiktokPixelId = 'PLATFORM_TT_ID'
-    setTenantPixelId('')
-
-    const { isProvisioned } = useTikTokPixel()
-
-    expect(isProvisioned).toBe(true)
-    expect(scriptTikTokPixelMock).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'PLATFORM_TT_ID' }),
-    )
-  })
-
-  it('is not provisioned when neither the tenant nor the platform has a pixel id', () => {
-    const config = useRuntimeConfig()
-    config.public.tiktokPixelId = ''
+  it('is not provisioned when the tenant has no pixel id', () => {
     setTenantPixelId('')
 
     const { isProvisioned } = useTikTokPixel()
@@ -88,7 +59,7 @@ describe('useTikTokPixel — tenant-first pixel id resolution', () => {
   })
 })
 
-describe('setupTikTokPixelConsent — tenant-first pixel id resolution', () => {
+describe('setupTikTokPixelConsent — tenant-only pixel id resolution', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     scriptTikTokPixelMock.mockClear()
@@ -96,8 +67,6 @@ describe('setupTikTokPixelConsent — tenant-first pixel id resolution', () => {
   })
 
   it('registers the tenant pixel id behind the consent trigger', () => {
-    const config = useRuntimeConfig()
-    config.public.tiktokPixelId = 'PLATFORM_TT_ID'
     setTenantPixelId('TENANT_TT_ID')
 
     setupTikTokPixelConsent()
@@ -108,9 +77,7 @@ describe('setupTikTokPixelConsent — tenant-first pixel id resolution', () => {
     })
   })
 
-  it('is a no-op when neither the tenant nor the platform provisions a pixel id', () => {
-    const config = useRuntimeConfig()
-    config.public.tiktokPixelId = ''
+  it('is a no-op when the tenant has no pixel id', () => {
     setTenantPixelId('')
 
     setupTikTokPixelConsent()
