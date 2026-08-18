@@ -2,8 +2,9 @@
 const { t } = useI18n()
 const localePath = useLocalePath()
 const config = useRuntimeConfig()
+const tenantStore = useTenantStore()
 
-const appTitle = computed(() => config.public.appTitle as string)
+const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 </script>
 
 <template>

@@ -116,14 +116,13 @@ const backgroundImage = computed(() => {
             "
           >
             <div class="grid content-evenly items-center justify-center gap-1">
-              <NuxtImg
-                :style="{ objectFit: 'contain' }"
-                :src="'/img/logo-border.png'"
+              <TenantLogo
                 :width="isMobileOrTablet ? 100 : 140"
                 :height="isMobileOrTablet ? 100 : 140"
-                :alt="t('logo_alt', { appTitle: tenantStore.storeName || config.public.appTitle })"
-                quality="80"
               />
+              <span class="sr-only">
+                {{ t('logo_alt', { appTitle: tenantStore.storeName || config.public.appTitle }) }}
+              </span>
             </div>
             <UFormField
               :label="t('email.label')"

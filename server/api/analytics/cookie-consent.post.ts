@@ -12,8 +12,11 @@ export default defineEventHandler(async (event) => {
       || getRequestIP(event, { xForwardedFor: true })
       || 'unknown'
 
+  // Prefix with the tenant host so tenants don't share the same rate-limit
+  // budget (a burst on one tenant's storefront must not lock out another's).
+  const host = getRequestHost(event, { xForwardedHost: false })
   const storage = useStorage('cache')
-  const rateLimitKey = `rate:cookie-consent:${clientIp}`
+  const rateLimitKey = `rate:cookie-consent:${host}:${clientIp}`
   const current = await storage.getItem<number>(rateLimitKey)
   const count = (current ?? 0) + 1
 

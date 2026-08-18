@@ -216,11 +216,20 @@ export default function () {
 
   async function browserProviderRedirect(body: ProviderRedirectBody) {
     const config = useRuntimeConfig()
+    const tenantStore = useTenantStore()
     const csrfToken = useCookie('csrftoken').value
+
+    // The social-login form MUST post to the tenant's OWN API origin —
+    // posting to the platform's config.public.djangoUrl would execute the
+    // OAuth flow in the platform's Django tenant schema instead of the
+    // resolved tenant's, silently cross-wiring the account link.
+    const authOrigin = tenantStore.apiDomain
+      ? `https://${tenantStore.apiDomain}`
+      : config.public.djangoUrl
 
     const form = document.createElement('form')
     form.method = 'POST'
-    form.action = `${config.public.djangoUrl}/_allauth/browser/v1/auth/provider/redirect`
+    form.action = `${authOrigin}/_allauth/browser/v1/auth/provider/redirect`
 
     for (const [key, value] of Object.entries(body)) {
       const input = document.createElement('input')

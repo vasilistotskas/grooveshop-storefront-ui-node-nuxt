@@ -5,6 +5,7 @@ export const useTenantStore = defineStore('tenant', () => {
   const storeName = computed(() => config.value?.storeName ?? '')
   const storeDescription = computed(() => config.value?.storeDescription ?? '')
   const primaryDomain = computed(() => config.value?.primaryDomain ?? '')
+  const apiDomain = computed(() => config.value?.apiDomain ?? '')
   const primaryColor = computed(() => config.value?.primaryColor ?? 'neutral')
   const neutralColor = computed(() => config.value?.neutralColor ?? 'zinc')
   const accentHex = computed(() => config.value?.accentHex ?? '#003DFF')
@@ -54,6 +55,7 @@ export const useTenantStore = defineStore('tenant', () => {
     storeName,
     storeDescription,
     primaryDomain,
+    apiDomain,
     primaryColor,
     neutralColor,
     accentHex,

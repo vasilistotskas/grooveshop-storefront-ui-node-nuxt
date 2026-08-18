@@ -4564,6 +4564,7 @@ export const zTenantConfig = z.object({
   defaultLocale: z.string().readonly(),
   defaultCurrency: z.string().readonly(),
   primaryDomain: z.string().readonly(),
+  apiDomain: z.string().readonly(),
   loyaltyEnabled: z.boolean().readonly(),
   blogEnabled: z.boolean().readonly(),
   agentStripeDelegatedEnabled: z.boolean().readonly(),

@@ -163,6 +163,28 @@ describe('csp middleware', () => {
     expect(directive('style-src')).not.toContain('cdn.tenant.example')
   })
 
+  it('additively allows the tenant apiDomain origin (https + wss) in connect-src alongside the platform host', () => {
+    const csp = runWith('/products/3/some-product', {
+      tenant: { apiDomain: 'api.tenant.example' },
+    })['Content-Security-Policy']
+    const connectSrc = csp.split(';').map(d => d.trim()).find(d => d.startsWith('connect-src')) ?? ''
+    // Platform host stays present (SSR assets / dev-time fallback).
+    expect(connectSrc).toContain('https://api.webside.gr')
+    expect(connectSrc).toContain('wss://api.webside.gr')
+    // Tenant's own API host is added, not swapped in.
+    expect(connectSrc).toContain('https://api.tenant.example')
+    expect(connectSrc).toContain('wss://api.tenant.example')
+  })
+
+  it('omits the tenant apiDomain from connect-src when the tenant has none (e.g. the platform tenant)', () => {
+    const csp = runWith('/products/3/some-product', {
+      tenant: { apiDomain: '' },
+    })['Content-Security-Policy']
+    const connectSrc = csp.split(';').map(d => d.trim()).find(d => d.startsWith('connect-src')) ?? ''
+    expect(connectSrc).toContain('https://api.webside.gr')
+    expect(connectSrc.match(/api\.webside\.gr/g)?.length).toBe(2) // https + wss, no duplicate
+  })
+
   it('skips API, _nuxt and _ipx routes (no CSP header set)', () => {
     expect(runWith('/api/products/3')['Content-Security-Policy']).toBeUndefined()
     expect(runWith('/_nuxt/entry.js')['Content-Security-Policy']).toBeUndefined()

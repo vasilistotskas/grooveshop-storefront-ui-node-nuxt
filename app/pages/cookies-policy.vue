@@ -2,7 +2,9 @@
 const { t } = useI18n()
 const localePath = useLocalePath()
 const runtimeConfig = useRuntimeConfig()
+const tenantStore = useTenantStore()
 const siteHost = computed(() => {
+  if (tenantStore.primaryDomain) return tenantStore.primaryDomain
   try {
     return new URL(runtimeConfig.public.baseUrl).host
   }

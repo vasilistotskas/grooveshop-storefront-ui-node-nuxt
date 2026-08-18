@@ -36,6 +36,7 @@ const handler = (module.default ?? module) as unknown as (event: unknown) => Pro
 
 function makeEvent(tenant?: Partial<{
   storeName: string
+  storeDescription: string
   accentHex: string
   faviconUrl: string
   defaultLocale: string
@@ -91,6 +92,16 @@ describe('manifest.webmanifest handler', () => {
   it('prepends # to tenant accentHex when missing', async () => {
     const manifest = await handler(makeEvent({ accentHex: 'FF5733' }))
     expect(manifest.theme_color).toBe('#FF5733')
+  })
+
+  it('uses tenant storeDescription for description when present', async () => {
+    const manifest = await handler(makeEvent({ storeDescription: 'A tenant-branded store' }))
+    expect(manifest.description).toBe('A tenant-branded store')
+  })
+
+  it('falls back to the platform siteConfig description when tenant has no storeDescription', async () => {
+    const manifest = await handler(makeEvent({ storeName: 'Webside Store' }))
+    expect(manifest.description).toBe('Default description')
   })
 
   it('uses tenant defaultLocale for lang', async () => {

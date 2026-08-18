@@ -10,6 +10,7 @@ export default defineNuxtPlugin({
     const locale = (nuxtApp.$i18n as Composer).locale
     const toast = useToast()
     const { loggedIn } = useUserSession()
+    const tenantStore = useTenantStore()
     const userNotificationStore = useUserNotificationStore()
     const { setupNotifications } = userNotificationStore
     const debouncedSetupNotifications = useDebounceFn(setupNotifications, 1000)
@@ -55,7 +56,7 @@ export default defineNuxtPlugin({
         }
 
         const websocketProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-        const djangoApiHostName = config.public.djangoHostName
+        const djangoApiHostName = tenantStore.apiDomain || config.public.djangoHostName
         if (!djangoApiHostName) {
           log.warn('ws', 'NUXT_PUBLIC_DJANGO_HOST_NAME is not configured — WebSocket initialization aborted')
           return
@@ -67,7 +68,7 @@ export default defineNuxtPlugin({
         const notificationOptions: UseWebNotificationOptions = {
           dir: 'auto',
           lang: locale.value,
-          icon: '/logo.svg',
+          icon: tenantStore.faviconUrl || '/logo.svg',
           renotify: true,
           requireInteraction: false,
           vibrate: [200, 100, 200],

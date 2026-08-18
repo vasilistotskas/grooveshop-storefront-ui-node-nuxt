@@ -11,12 +11,11 @@ export default defineEventHandler((event) => {
   const host = getRequestHost(event, { xForwardedHost: false })
   const tenantDomain = tenant?.primaryDomain || host
   const siteUrl = tenantDomain ? `https://${tenantDomain}` : (config.public.baseUrl as string)
-  // The authorization server is the tenant's OWN API origin — every
-  // tenant owns an ``api.<domain>`` subdomain (infra TEMPLATE contract;
-  // the gateway's media/feed URL templates rely on the same convention).
-  // Platform env fallback covers dev setups without a resolved tenant.
-  const apiBase = tenantDomain
-    ? `https://api.${tenantDomain}`
+  // The authorization server is the tenant's OWN API origin
+  // (``TenantConfig.apiDomain``, e.g. ``api.tenant.com``). Platform env
+  // fallback covers dev setups / prerender passes without a resolved tenant.
+  const apiBase = tenant?.apiDomain
+    ? `https://${tenant.apiDomain}`
     : (config.public.djangoUrl as string)
 
   setHeader(event, 'content-type', 'application/json')

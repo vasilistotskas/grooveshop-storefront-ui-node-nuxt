@@ -46,19 +46,40 @@ beforeEach(() => {
 })
 
 describe('.well-known/oauth-protected-resource.get.ts', () => {
-  it('uses the tenant primaryDomain for resource/authorization_servers', async () => {
+  it('uses the tenant primaryDomain for resource and apiDomain for authorization_servers', async () => {
     const { default: handler } = await import('../../../../server/routes/.well-known/oauth-protected-resource.get')
-    const result = handler(makeEvent({ primaryDomain: 'acme.example' })) as Record<string, unknown>
+    const result = handler(makeEvent({ primaryDomain: 'acme.example', apiDomain: 'api.acme.example' })) as Record<string, unknown>
     expect(result.resource).toBe('https://acme.example')
-    // The AS is the tenant's OWN API origin — every tenant owns an
-    // ``api.<domain>`` subdomain (infra TEMPLATE contract).
+    // The AS is the tenant's OWN API origin (TenantConfig.apiDomain) — not
+    // hand-derived as `api.${primaryDomain}`.
     expect(result.authorization_servers).toEqual(['https://api.acme.example'])
+  })
+
+  it('falls back to the platform djangoUrl when the tenant has no apiDomain', async () => {
+    const { default: handler } = await import('../../../../server/routes/.well-known/oauth-protected-resource.get')
+    const result = handler(makeEvent({ primaryDomain: 'acme.example', apiDomain: '' })) as Record<string, unknown>
+    expect(result.authorization_servers).toEqual(['https://api.platform-default.example'])
   })
 
   it('falls back to the platform baseUrl (not a hardcoded literal) with no tenant and no host', async () => {
     const { default: handler } = await import('../../../../server/routes/.well-known/oauth-protected-resource.get')
     const result = handler(makeEvent(undefined)) as Record<string, unknown>
     expect(result.resource).toBe('https://platform-default.example')
+  })
+})
+
+describe('.well-known/oauth-protected-resource/mcp.get.ts', () => {
+  it('uses the tenant primaryDomain for resource and apiDomain for authorization_servers', async () => {
+    const { default: handler } = await import('../../../../server/routes/.well-known/oauth-protected-resource/mcp.get')
+    const result = handler(makeEvent({ primaryDomain: 'acme.example', apiDomain: 'api.acme.example' })) as Record<string, unknown>
+    expect(result.resource).toBe('https://acme.example/mcp')
+    expect(result.authorization_servers).toEqual(['https://api.acme.example'])
+  })
+
+  it('falls back to the platform djangoUrl when the tenant has no apiDomain', async () => {
+    const { default: handler } = await import('../../../../server/routes/.well-known/oauth-protected-resource/mcp.get')
+    const result = handler(makeEvent({ primaryDomain: 'acme.example', apiDomain: '' })) as Record<string, unknown>
+    expect(result.authorization_servers).toEqual(['https://api.platform-default.example'])
   })
 })
 

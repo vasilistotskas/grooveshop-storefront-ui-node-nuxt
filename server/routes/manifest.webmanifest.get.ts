@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
   // Prefer tenant-supplied values, fall back to site config / build-time config
   const name = tenant?.storeName || siteConfig.name || config.public.appTitle || 'GrooveShop'
-  const description = siteConfig.description || ''
+  const description = tenant?.storeDescription || siteConfig.description || ''
   const lang = tenant?.defaultLocale || siteConfig.defaultLocale || 'el'
 
   // Derive theme_color from the tenant accent hex (if provided) or fall back

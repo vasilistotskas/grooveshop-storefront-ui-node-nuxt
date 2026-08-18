@@ -140,7 +140,7 @@ Auto-imported in both app and server contexts (via `imports.dirs` and `nitro.imp
 - `types/` — Hand-written types organized by domain: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`, plus `pagination.ts`, `ordering.ts`, `search.ts`, `form.ts`, `meilisearch.ts`, `LoyaltySettings.ts`, `enum/`, `utility/`
 - `schemas/` — Zod validation schemas mirroring the types structure: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`, plus `pagination.ts`, `ordering.ts`, `form.ts`
 - `openapi/` — Auto-generated `types.gen.ts` and `zod.gen.ts`
-- `constants/` — `AuthenticatedRoutes`, `AuthenticatedRoutesSet`, `THEME_COLORS`, `Flow2path`, `AuthChangeEvent`, `GSIAuthProcess`, `RedirectToURLs`, `Flows`, `AuthenticatorType`, `floorChoicesList`, `locationChoicesList`, `defaultSelectOptionChoose`
+- `constants/` — `AuthenticatedRoutes`, `AuthenticatedRoutesSet`, `Flow2path`, `AuthChangeEvent`, `GSIAuthProcess`, `RedirectToURLs`, `Flows`, `AuthenticatorType`, `floorChoicesList`, `locationChoicesList`, `defaultSelectOptionChoose`
 - `utils/` — `error.ts` (error helpers), `html.ts` (HTML processing)
 
 ### State Management
@@ -273,7 +273,6 @@ Copy `.env.example` to `.env`. Key variables:
 - `NUXT_CACHE_BASE` — `redis` or `memory`
 - `NUXT_REDIS_HOST` / `NUXT_REDIS_PORT` / `NUXT_REDIS_TTL` — Redis config
 - `NUXT_SESSION_PASSWORD` — Session encryption password
-- `NUXT_AUTH_COOKIE_DOMAIN` — Auth cookie domain
 - OAuth secrets for Google, Facebook, GitHub, Discord
 - `NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` — Stripe payment integration
 - `NUXT_PUBLIC_TURNSTILE_SITE_KEY` / `NUXT_TURNSTILE_SECRET_KEY` — Cloudflare Turnstile bot protection
@@ -297,11 +296,13 @@ Every non-bypassed route handler can rely on `event.context.tenant` being a full
 
 - `schemaName` — the Django DB schema identifier (used to namespace media URLs)
 - `storeName` — human-readable store name for the PWA manifest
+- `primaryDomain` — the tenant's storefront hostname
+- `apiDomain` — the tenant's own API hostname (e.g. `api.tenant.com`); used instead of the platform `NUXT_PUBLIC_DJANGO_HOST_NAME` wherever a browser-facing request must hit the tenant's OWN Django schema (WebSocket, social-login redirect, CSP connect-src, `.well-known` OAuth metadata)
 - `defaultLocale` — BCP-47 code consulted by `1.locale.ts` (priority 3 of 4)
 - `defaultCurrency` — ISO 4217 code (e.g. `'EUR'`), used in RSS and checkout
 - `accentHex` — CSS hex for PWA theme_color
 - `faviconUrl` — absolute URL for the tenant favicon (used in PWA manifest icons)
-- `loyaltyEnabled`, `blogEnabled`, `plan` — feature flags
+- `loyaltyEnabled`, `blogEnabled` — feature flags
 
 ### `tenantCacheKey` requirement
 

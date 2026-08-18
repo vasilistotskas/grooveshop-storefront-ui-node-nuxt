@@ -7154,6 +7154,7 @@ export type TenantConfig = {
   readonly defaultLocale: string
   readonly defaultCurrency: string
   readonly primaryDomain: string
+  readonly apiDomain: string
   readonly loyaltyEnabled: boolean
   readonly blogEnabled: boolean
   readonly agentStripeDelegatedEnabled: boolean

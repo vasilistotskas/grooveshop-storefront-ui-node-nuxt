@@ -24,6 +24,15 @@ export interface CspOptions {
   staticOrigin?: string
   /** PUBLIC Django host (``NUXT_PUBLIC_DJANGO_HOST_NAME``) — never the internal SSR upstream. */
   djangoHostName?: string
+  /**
+   * Tenant-specific API host (``TenantConfig.apiDomain``), e.g.
+   * ``api.tenant.com``. Added ADDITIVELY alongside ``djangoHostName`` in
+   * connect-src (both https:// and wss://) — the platform host stays
+   * listed too since SSR-emitted assets, the WebSocket plugin's dev-time
+   * fallback, etc. may still reference it. Omit when the tenant has no
+   * distinct API domain (e.g. the platform's own storefront).
+   */
+  tenantApiDomain?: string
   /** Meta Pixel id — Facebook origins are emitted only when provisioned. */
   metaPixelId?: string
   /** TikTok Pixel id — TikTok origins are emitted only when provisioned. */
@@ -51,6 +60,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     metaPixelId,
     tiktokPixelId,
     tenantSources = [],
+    tenantApiDomain,
     nonce,
   } = options
 
@@ -82,6 +92,14 @@ export function buildCspDirectives(options: CspOptions): string[] {
   const httpScheme = dev ? 'http' : 'https'
   const wsScheme = dev ? 'ws' : 'wss'
   const apiOrigin = `${httpScheme}://${djangoHostName}`
+
+  // Tenant API origin — additive alongside the platform apiOrigin (see the
+  // CspOptions doc). The WebSocket plugin and the allauth social-login
+  // redirect both dial the tenant's own API host when one is resolved, so
+  // connect-src must allow it too or those requests are CSP-blocked.
+  const tenantApiConnectSrc = tenantApiDomain
+    ? ` ${httpScheme}://${tenantApiDomain} ${wsScheme}://${tenantApiDomain}`
+    : ''
 
   // Per-request nonce for script-src (strict CSP). Tiered so every browser
   // generation gets the strongest policy it understands:
@@ -155,7 +173,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${tileOrigins}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHostName}${metaConnectSrc}${tiktokConnectSrc}${tenantExtra}`,
+    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHostName}${tenantApiConnectSrc}${metaConnectSrc}${tiktokConnectSrc}${tenantExtra}`,
     // BoxNow widget iframe origins per their CDN: gr (primary), plus
     // cy/bg/hr regional variants (Phase 2 multi-country).
     // ``widget-v4.boxnow.gr`` is required even though we load the v5 URL:

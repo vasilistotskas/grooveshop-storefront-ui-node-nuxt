@@ -28,7 +28,6 @@ export function setupPageHeader() {
   })
 
   const colorMode = useColorMode()
-  const themeColor = computed(() => colorMode.value === 'dark' ? THEME_COLORS.themeDark : THEME_COLORS.themeLight)
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
   const ogLocalesAlternate = computed(() => $i18n.locales.value.map(l => l.language || l.code))
   // Prefer the locale's full BCP-47 `language` (e.g. `el-GR`) so screen
@@ -53,21 +52,25 @@ export function setupPageHeader() {
     twitterImage: () => logo.value,
     twitterCard: 'summary',
     applicationName: () => title.value,
-    author: publicConfig.author.name,
-    creator: publicConfig.author.name,
-    publisher: publicConfig.author.name,
+    // author/creator/publisher and the ms-application favicon assets are
+    // PLATFORM-only content (brand attribution, platform-specific icon
+    // files) — never emit them on another tenant's storefront. Same gate
+    // as googleSiteVerification below.
+    author: () => isPlatformTenant.value ? publicConfig.author.name : undefined,
+    creator: () => isPlatformTenant.value ? publicConfig.author.name : undefined,
+    publisher: () => isPlatformTenant.value ? publicConfig.author.name : undefined,
     mobileWebAppCapable: 'yes',
     appleMobileWebAppCapable: 'yes',
-    msapplicationConfig: '/favicon/browserconfig.xml',
-    msapplicationTileImage: '/favicon/ms-icon-150x150.png',
+    msapplicationConfig: () =>
+      isPlatformTenant.value ? '/favicon/browserconfig.xml' : undefined,
+    msapplicationTileImage: () =>
+      isPlatformTenant.value ? '/favicon/ms-icon-150x150.png' : undefined,
     // Site-verification tokens grant the PLATFORM's Search Console /
     // Pinterest accounts ownership of whatever domain emits them —
     // never emit them on another tenant's storefront.
     googleSiteVerification: () =>
       isPlatformTenant.value ? publicConfig.googleSiteVerification : undefined,
-    themeColor: themeColor,
     colorScheme: colorScheme,
-    msapplicationTileColor: themeColor,
     ogLocale: $i18n.locale,
     ogLocaleAlternate: ogLocalesAlternate.value,
   })
@@ -86,9 +89,12 @@ export function setupPageHeader() {
       ...(i18nHead.value.link || []),
       // Only override the <link rel="icon"> when the tenant supplies
       // its own favicon; otherwise let the static files in
-      // nuxt.config.ts app.head.link serve the platform default.
+      // nuxt.config.ts app.head.link serve the platform default. Shares
+      // the platform SVG icon's ``key`` so Unhead dedupes to ONE entry —
+      // without it browsers prefer the platform's image/svg+xml favicon
+      // over this one regardless of head order.
       ...(favicon.value
-        ? [{ rel: 'icon' as const, type: 'image/x-icon', href: favicon.value }]
+        ? [{ rel: 'icon' as const, type: 'image/x-icon', href: favicon.value, key: 'tenant-favicon' }]
         : []),
     ],
     meta: [...(i18nHead.value.meta || []),

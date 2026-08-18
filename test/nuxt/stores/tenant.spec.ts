@@ -30,6 +30,7 @@ function makeTenantConfig(overrides: Partial<TenantConfig> = {}): TenantConfig {
     defaultLocale: 'el',
     defaultCurrency: 'EUR',
     primaryDomain: 'test.local',
+    apiDomain: 'api.test.local',
     loyaltyEnabled: false,
     blogEnabled: true,
     agentStripeDelegatedEnabled: false,
@@ -89,6 +90,29 @@ describe('useTenantStore — stripePublishableKey', () => {
     store.setConfig(makeTenantConfig({ stripePublishableKey: 'pk_test_key' }))
     store.setConfig(null)
     expect(store.stripePublishableKey).toBe('')
+  })
+})
+
+describe('useTenantStore — apiDomain', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('returns empty string before any config is loaded', () => {
+    expect(useTenantStore().apiDomain).toBe('')
+  })
+
+  it('returns the tenant API domain when configured', () => {
+    const store = useTenantStore()
+    store.setConfig(makeTenantConfig({ apiDomain: 'api.acme.example' }))
+    expect(store.apiDomain).toBe('api.acme.example')
+  })
+
+  it('returns empty string after setConfig(null)', () => {
+    const store = useTenantStore()
+    store.setConfig(makeTenantConfig({ apiDomain: 'api.acme.example' }))
+    store.setConfig(null)
+    expect(store.apiDomain).toBe('')
   })
 })
 

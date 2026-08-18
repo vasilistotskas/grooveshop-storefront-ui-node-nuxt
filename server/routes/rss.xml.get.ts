@@ -38,7 +38,7 @@ const cachedProductCategoryDetail = defineCachedFunction(
 )
 
 const generateRssFeed = defineCachedFunction(
-  async (tenantKey: string, locale: SupportedLocale, siteUrl: string, siteName: string, siteDescription: string, baseUrl: string, apiBaseUrl: string, mediaStreamPath: string, currency: string): Promise<string> => {
+  async (tenantKey: string, locale: SupportedLocale, siteUrl: string, siteName: string, siteDescription: string, baseUrl: string, apiBaseUrl: string, mediaStreamPath: string, currency: string, logoImageUrl: string | undefined): Promise<string> => {
     const feed = new RSS({
       title: siteName,
       description: siteDescription,
@@ -46,7 +46,11 @@ const generateRssFeed = defineCachedFunction(
       feed_url: `${siteUrl}/rss.xml`,
       language: locale,
       pubDate: new Date().toISOString(),
-      image_url: `${siteUrl}/screenshots/1024x593.png`,
+      // Tenant logo, falling back to the platform screenshot ONLY for the
+      // platform's own storefront (a tenant on another domain has no
+      // ``/screenshots/**`` asset — that URL would just 404). Omitted
+      // entirely (rss package skips falsy fields) when neither is present.
+      ...(logoImageUrl ? { image_url: logoImageUrl } : {}),
       ttl: 60,
       custom_namespaces: {
         media: 'http://search.yahoo.com/mrss/',
@@ -91,7 +95,7 @@ const generateRssFeed = defineCachedFunction(
     maxAge: RSS_CACHE_AGE,
     staleMaxAge: RSS_CACHE_AGE * 24,
     swr: true,
-    getKey: (tenantKey: string, locale: string, _siteUrl: string, _siteName: string, _siteDesc: string, _baseUrl: string, _apiBaseUrl: string, _mediaPath: string, currency: string) =>
+    getKey: (tenantKey: string, locale: string, _siteUrl: string, _siteName: string, _siteDesc: string, _baseUrl: string, _apiBaseUrl: string, _mediaPath: string, currency: string, _logoImageUrl: string | undefined) =>
       `${tenantKey}:rss-${locale}-${currency}`,
   },
 )
@@ -121,6 +125,22 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, statusMessage: 'Not Found' })
     }
 
+    // Whether this IS the platform's own storefront (mirrors
+    // app/composables/useIsPlatformTenant.ts server-side) — gates the
+    // platform-only ``/screenshots/**`` fallback asset below, which does
+    // not exist on another tenant's origin.
+    let isPlatformTenant = true
+    if (tenant?.primaryDomain) {
+      try {
+        isPlatformTenant = new URL(config.public.baseUrl as string).host.replace(/:\d+$/, '') === tenant.primaryDomain
+      }
+      catch {
+        isPlatformTenant = true
+      }
+    }
+    const logoImageUrl = tenant?.logoLightUrl
+      || (isPlatformTenant ? `${siteConfig.url}/screenshots/1024x593.png` : undefined)
+
     const feedString = await generateRssFeed(
       host,
       locale,
@@ -131,6 +151,7 @@ export default defineEventHandler(async (event) => {
       apiBaseUrl,
       config.mediaStreamPath,
       currency,
+      logoImageUrl,
     )
 
     setHeaders(event, {

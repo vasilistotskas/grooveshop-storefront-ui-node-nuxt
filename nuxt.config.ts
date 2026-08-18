@@ -62,7 +62,13 @@ export default defineNuxtConfig({
       link: [
         { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
         { rel: 'icon', type: 'image/png', href: '/favicon.png' },
-        { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg' },
+        // Keyed so a tenant favicon (pushed in setupPageHeader with the
+        // same key) can override it via Unhead's dedupe-by-key — browsers
+        // otherwise prefer this SVG over any later-registered icon link
+        // regardless of head order. Platform tenant sets no faviconUrl,
+        // so this entry is the only one with the key and output stays
+        // byte-stable.
+        { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg', key: 'tenant-favicon' },
         { rel: 'icon', type: 'image/png', href: '/favicon/favicon-16x16.png' },
         { rel: 'apple-touch-icon', href: '/favicon/apple-touch-icon.png' },
         { rel: 'manifest', href: '/manifest.webmanifest' },
@@ -113,9 +119,6 @@ export default defineNuxtConfig({
     session: {
       name: 'nuxt-session',
       password: process.env.NUXT_SESSION_PASSWORD || '',
-    },
-    auth: {
-      cookieDomain: process.env.NUXT_AUTH_COOKIE_DOMAIN,
     },
     oauth: {
       discord: {

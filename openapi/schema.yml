@@ -40786,6 +40786,9 @@ components:
         primaryDomain:
           type: string
           readOnly: true
+        apiDomain:
+          type: string
+          readOnly: true
         loyaltyEnabled:
           type: boolean
           readOnly: true
@@ -40849,6 +40852,7 @@ components:
         - accentHex
         - agentStripeDelegatedEnabled
         - allowedCspSources
+        - apiDomain
         - blogEnabled
         - boxNowPartnerId
         - defaultCurrency

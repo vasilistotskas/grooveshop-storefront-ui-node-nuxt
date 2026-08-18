@@ -1,5 +1,6 @@
-import { describe, it, expect, beforeAll, beforeEach, afterAll, vi } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach, afterEach, afterAll, vi } from 'vitest'
 import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { setActivePinia, createPinia } from 'pinia'
 
 // Since Nuxt 4.5 `$fetch` is a real auto-import in user code, so
 // `vi.stubGlobal('$fetch', ...)` no longer intercepts it — it must be
@@ -613,6 +614,53 @@ describe('useAllAuthAuthentication', () => {
           body,
         }),
       )
+    })
+  })
+
+  describe('browserProviderRedirect', () => {
+    // Regression guard: posting to the PLATFORM's config.public.djangoUrl
+    // for every tenant would execute the OAuth flow in the platform's
+    // Django tenant schema instead of the resolved tenant's — a real
+    // cross-tenant auth bug.
+    let originalSubmit: typeof HTMLFormElement.prototype.submit
+
+    beforeEach(() => {
+      setActivePinia(createPinia())
+      document.body.innerHTML = ''
+      originalSubmit = HTMLFormElement.prototype.submit
+      HTMLFormElement.prototype.submit = vi.fn()
+    })
+
+    afterEach(() => {
+      HTMLFormElement.prototype.submit = originalSubmit
+    })
+
+    const body = { provider: 'google', callback_url: 'https://example.com/callback', process: 'login' as const }
+
+    it('posts to the tenant API origin when apiDomain is resolved', async () => {
+      useTenantStore().setConfig({ apiDomain: 'api.tenant.example' } as TenantConfig)
+
+      const { browserProviderRedirect } = useAllAuthAuthentication()
+      await browserProviderRedirect(body)
+
+      const form = document.body.querySelector('form')
+      expect(form?.action).toBe('https://api.tenant.example/_allauth/browser/v1/auth/provider/redirect')
+    })
+
+    it('falls back to the platform djangoUrl when the tenant has no apiDomain', async () => {
+      useTenantStore().setConfig({ apiDomain: '' } as TenantConfig)
+      // Assign an absolute value explicitly — reading a form element's
+      // `.action` back from the DOM always resolves relative strings
+      // against the current document location, which would mask a bug
+      // in the empty-djangoUrl case.
+      const config = useRuntimeConfig()
+      config.public.djangoUrl = 'https://platform.example'
+
+      const { browserProviderRedirect } = useAllAuthAuthentication()
+      await browserProviderRedirect(body)
+
+      const form = document.body.querySelector('form')
+      expect(form?.action).toBe('https://platform.example/_allauth/browser/v1/auth/provider/redirect')
     })
   })
 })

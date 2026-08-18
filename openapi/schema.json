@@ -64289,6 +64289,10 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "apiDomain": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "loyaltyEnabled": {
                         "type": "boolean",
                         "readOnly": true
@@ -64373,6 +64377,7 @@
                     "accentHex",
                     "agentStripeDelegatedEnabled",
                     "allowedCspSources",
+                    "apiDomain",
                     "blogEnabled",
                     "boxNowPartnerId",
                     "defaultCurrency",

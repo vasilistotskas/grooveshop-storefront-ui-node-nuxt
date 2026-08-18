@@ -83,13 +83,6 @@ export const AuthFlowRoutes = [
 
 export const AuthFlowRoutesSet = new Set<keyof RouteMapI18n>(AuthFlowRoutes)
 
-export const THEME_COLORS = {
-  themeDark: '#1a202c',
-  themeLight: '#ffffff',
-  backgroundDark: '#1a202c',
-  backgroundLight: '#ffffff',
-} as const
-
 export const GSIAuthProcess = {
   LOGIN: 'login',
   CONNECT: 'connect',

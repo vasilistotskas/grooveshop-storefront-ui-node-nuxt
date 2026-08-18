@@ -54,10 +54,12 @@ export default defineEventHandler((event) => {
   // ``allowedCspSources`` expands the four browser-facing directives
   // (the builder re-filters the schemes defensively).
   //
-  // ``djangoHostName`` stays config-first: the WebSocket plugin always
-  // dials ``config.public.djangoHostName`` directly, so the CSP entry
-  // must match that exact value; the request host is only a dev-time
-  // fallback when the env var is not configured at all.
+  // ``djangoHostName`` stays config-first as the PLATFORM fallback: SSR
+  // assets and dev-time requests may still reference it. The WebSocket
+  // plugin and the allauth social-login redirect now prefer the tenant's
+  // OWN API host (``TenantConfig.apiDomain``) when one is resolved, so
+  // ``tenantApiDomain`` is passed additively — connect-src ends up
+  // allowing both origins rather than swapping one for the other.
   const tenant = event.context.tenant
   const requestHost = getRequestHost(event, { xForwardedHost: false })
   const directives = buildCspDirectives({
@@ -68,6 +70,7 @@ export default defineEventHandler((event) => {
     metaPixelId: tenant?.metaPixelId || publicConfig.metaPixelId,
     tiktokPixelId: tenant?.tiktokPixelId || publicConfig.tiktokPixelId,
     tenantSources: tenant?.allowedCspSources ?? [],
+    tenantApiDomain: tenant?.apiDomain,
     nonce,
   })
 
