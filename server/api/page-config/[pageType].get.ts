@@ -3,7 +3,11 @@ export default defineCachedEventHandler(async (event) => {
   const pageType = getRouterParam(event, 'pageType')
 
   try {
-    const response = await $fetch(
+    // useBackendFetch: page_config rows are PER-TENANT tables — a raw
+    // $fetch carries no X-Forwarded-Host, Django resolves the public
+    // schema and every tenant would get 404/fallback (N1 pattern in
+    // MULTI_TENANT_AUDIT.md).
+    const response = await useBackendFetch()(
       `${config.apiBaseUrl}/page-config/${pageType}`,
       { method: 'GET' },
     )

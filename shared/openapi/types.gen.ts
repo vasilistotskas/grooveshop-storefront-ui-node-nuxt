@@ -7156,6 +7156,7 @@ export type TenantConfig = {
   readonly primaryDomain: string
   readonly loyaltyEnabled: boolean
   readonly blogEnabled: boolean
+  readonly agentStripeDelegatedEnabled: boolean
   readonly stripePublishableKey: string
   readonly allowedCspSources: Array<string>
   readonly metaPixelId: string
@@ -16911,6 +16912,159 @@ export type ApiV1PageConfigAdminUpdateResponses = {
 }
 
 export type ApiV1PageConfigAdminUpdateResponse = ApiV1PageConfigAdminUpdateResponses[keyof ApiV1PageConfigAdminUpdateResponses]
+
+export type ApiV1PageConfigNavigationRetrieveData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/page-config/navigation'
+}
+
+export type ApiV1PageConfigNavigationRetrieveResponses = {
+  /**
+     * Navigation items keyed by slot (header/footer/mobile). Missing slots mean 'use the storefront's built-in menu'.
+     */
+  200: {
+    [key: string]: Array<unknown>
+  }
+}
+
+export type ApiV1PageConfigNavigationRetrieveResponse = ApiV1PageConfigNavigationRetrieveResponses[keyof ApiV1PageConfigNavigationRetrieveResponses]
+
+export type ApiV1PageConfigNavigationAdminRetrieveData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Δείκτης (cursor) για σελιδοποίηση
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
+         * Αριθμός αποτελεσμάτων ανά σελίδα
+         */
+    pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
+  }
+  url: '/api/v1/page-config/navigation/admin'
+}
+
+export type ApiV1PageConfigNavigationAdminRetrieveResponses = {
+  /**
+     * No response body
+     */
+  200: unknown
+}
+
+export type ApiV1PageConfigNavigationAdminCreateData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/page-config/navigation/admin'
+}
+
+export type ApiV1PageConfigNavigationAdminCreateResponses = {
+  /**
+     * No response body
+     */
+  201: unknown
+}
+
+export type ApiV1PageConfigNavigationAdminDestroyData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: never
+  url: '/api/v1/page-config/navigation/admin/{id}'
+}
+
+export type ApiV1PageConfigNavigationAdminDestroyResponses = {
+  /**
+     * No response body
+     */
+  204: void
+}
+
+export type ApiV1PageConfigNavigationAdminDestroyResponse = ApiV1PageConfigNavigationAdminDestroyResponses[keyof ApiV1PageConfigNavigationAdminDestroyResponses]
+
+export type ApiV1PageConfigNavigationAdminRetrieve2Data = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/page-config/navigation/admin/{id}'
+}
+
+export type ApiV1PageConfigNavigationAdminRetrieve2Responses = {
+  /**
+     * No response body
+     */
+  200: unknown
+}
+
+export type ApiV1PageConfigNavigationAdminPartialUpdateData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/page-config/navigation/admin/{id}'
+}
+
+export type ApiV1PageConfigNavigationAdminPartialUpdateResponses = {
+  /**
+     * No response body
+     */
+  200: unknown
+}
+
+export type ApiV1PageConfigNavigationAdminUpdateData = {
+  body?: never
+  path: {
+    id: string | number
+  }
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/page-config/navigation/admin/{id}'
+}
+
+export type ApiV1PageConfigNavigationAdminUpdateResponses = {
+  /**
+     * No response body
+     */
+  200: unknown
+}
 
 export type ListPayWayData = {
   body?: never

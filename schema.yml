@@ -14885,6 +14885,206 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/v1/page-config/navigation:
+    get:
+      operationId: api_v1_page_config_navigation_retrieve
+      description: |-
+        All configured navigation menus for the current tenant, keyed by
+        slot. Slots without a row are OMITTED — the storefront renders its
+        code-level menus for those, so an unconfigured tenant keeps the
+        platform chrome untouched.
+      tags:
+        - Page Config
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items: {}
+                description: Navigation items keyed by slot (header/footer/mobile). Missing slots mean 'use the storefront's built-in menu'.
+          description: ''
+  /api/v1/page-config/navigation/admin:
+    get:
+      operationId: api_v1_page_config_navigation_admin_retrieve
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: string
+          description: Δείκτης (cursor) για σελιδοποίηση
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+            enum:
+              - de
+              - el
+              - en
+            default: el
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+        - in: query
+          name: pageSize
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          description: Αριθμός αποτελεσμάτων ανά σελίδα
+        - in: query
+          name: pagination
+          schema:
+            type: string
+            enum:
+              - 'false'
+              - 'true'
+            default: 'true'
+          description: Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+        - in: query
+          name: paginationType
+          schema:
+            type: string
+            enum:
+              - cursor
+              - limitOffset
+              - pageNumber
+            default: pageNumber
+          description: Τύπος στρατηγικής σελιδοποίησης
+      tags:
+        - api
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: api_v1_page_config_navigation_admin_create
+      parameters:
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+            enum:
+              - de
+              - el
+              - en
+            default: el
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+      tags:
+        - api
+      security:
+        - cookieAuth: []
+      responses:
+        '201':
+          description: No response body
+  /api/v1/page-config/navigation/admin/{id}:
+    get:
+      operationId: api_v1_page_config_navigation_admin_retrieve_2
+      parameters:
+        - in: path
+          name: id
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          required: true
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+            enum:
+              - de
+              - el
+              - en
+            default: el
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+      tags:
+        - api
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+    put:
+      operationId: api_v1_page_config_navigation_admin_update
+      parameters:
+        - in: path
+          name: id
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          required: true
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+            enum:
+              - de
+              - el
+              - en
+            default: el
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+      tags:
+        - api
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: api_v1_page_config_navigation_admin_partial_update
+      parameters:
+        - in: path
+          name: id
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          required: true
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+            enum:
+              - de
+              - el
+              - en
+            default: el
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+      tags:
+        - api
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: api_v1_page_config_navigation_admin_destroy
+      parameters:
+        - in: path
+          name: id
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+          required: true
+      tags:
+        - api
+      security:
+        - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/v1/pay_way:
     get:
       operationId: listPayWay
@@ -40592,6 +40792,9 @@ components:
         blogEnabled:
           type: boolean
           readOnly: true
+        agentStripeDelegatedEnabled:
+          type: boolean
+          readOnly: true
         stripePublishableKey:
           type: string
           readOnly: true
@@ -40644,6 +40847,7 @@ components:
           readOnly: true
       required:
         - accentHex
+        - agentStripeDelegatedEnabled
         - allowedCspSources
         - blogEnabled
         - boxNowPartnerId

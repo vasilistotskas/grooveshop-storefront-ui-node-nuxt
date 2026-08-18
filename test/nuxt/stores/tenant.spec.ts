@@ -32,6 +32,7 @@ function makeTenantConfig(overrides: Partial<TenantConfig> = {}): TenantConfig {
     primaryDomain: 'test.local',
     loyaltyEnabled: false,
     blogEnabled: true,
+    agentStripeDelegatedEnabled: false,
     stripePublishableKey: '',
     allowedCspSources: [],
     metaPixelId: '',

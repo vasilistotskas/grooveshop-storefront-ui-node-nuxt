@@ -27,7 +27,19 @@ const greetingName = computed(() => {
     || ''
 })
 
+const { headerItems } = useNavigation()
+
 const primaryItems = computed(() => {
+  // Operator-configured header menu wins; the code list below keeps
+  // the platform chrome for unconfigured tenants.
+  const configured = headerItems.value
+  if (configured) {
+    return configured.map(item => ({
+      label: item.label,
+      icon: item.icon ?? 'i-heroicons-link',
+      to: item.to ?? item.href ?? '/',
+    }))
+  }
   const base = [
     {
       label: t('home'),

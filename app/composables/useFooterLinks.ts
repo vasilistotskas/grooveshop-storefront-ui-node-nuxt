@@ -9,13 +9,17 @@ export function useFooterLinks() {
   const t = $i18n.t.bind($i18n)
   const localePath = useLocalePath()
   const tenantStore = useTenantStore()
+  const { footerColumns } = useNavigation()
 
   // The "about the site" link reads "About {storeName}" so each tenant
   // gets its own brand name in the footer nav without duplicating the
   // translation strings.
   const storeName = computed(() => tenantStore.storeName || '')
 
-  const columns = computed<FooterLinkColumn[]>(() => [
+  // Operator-configured footer wins (per-tenant NavigationMenu rows);
+  // the code-level columns below are the fallback that keeps the
+  // platform chrome untouched for unconfigured tenants.
+  const fallbackColumns = computed<FooterLinkColumn[]>(() => [
     {
       label: t('footer.about.us'),
       icon: 'i-heroicons-information-circle',
@@ -52,6 +56,19 @@ export function useFooterLinks() {
       ],
     },
   ])
+
+  const columns = computed<FooterLinkColumn[]>(() => {
+    const configured = footerColumns.value
+    if (!configured) return fallbackColumns.value
+    return configured.map(column => ({
+      label: column.label,
+      icon: column.icon,
+      children: column.children.map(child => ({
+        label: child.label,
+        to: child.to ?? child.href ?? '/',
+      })),
+    }))
+  })
 
   return { columns }
 }
