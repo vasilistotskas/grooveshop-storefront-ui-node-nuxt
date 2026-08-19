@@ -2,6 +2,8 @@
 const props = defineProps<{
   title?: string
   images?: string[]
+  /** Mobile/tablet variants (matching indices); falls back to `images`. */
+  mobileImages?: string[]
   /** Optional deep-link the banner navigates to (validated internal path or https URL). */
   link?: string
 }>()
@@ -13,11 +15,16 @@ const config = useRuntimeConfig()
 const tenantStore = useTenantStore()
 const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 
-const items = computed(() =>
-  props.images?.length
-    ? props.images
-    : [isMobileOrTablet.value ? '/img/main-banner-mobile.png' : '/img/main-banner.png'],
-)
+// Banner artwork is tenant DATA (layout section props) — there is
+// deliberately no built-in default image: a hardcoded fallback here
+// would put one store's promo on every tenant whose layout carries a
+// prop-less hero_carousel. Empty props render nothing.
+const items = computed(() => {
+  if (isMobileOrTablet.value && props.mobileImages?.length) {
+    return props.mobileImages
+  }
+  return props.images ?? []
+})
 
 const bannerWidth = computed(() => isMobileOrTablet.value ? 510 : 1194)
 const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
@@ -25,6 +32,7 @@ const bannerHeight = computed(() => isMobileOrTablet.value ? 638 : 418)
 
 <template>
   <UCarousel
+    v-if="items.length"
     v-slot="{ item }"
     :items="items"
     :ui="{ item: 'basis-full place-items-center justify-center' }"

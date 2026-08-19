@@ -26,6 +26,7 @@ const props = withDefaults(
 )
 
 const { logoLightUrl, logoDarkUrl } = useTenantBranding()
+const tenantStore = useTenantStore()
 const hasDistinctDark = computed(
   () => logoDarkUrl.value !== logoLightUrl.value,
 )
@@ -35,7 +36,15 @@ const priorityAttrs = computed(() =>
 </script>
 
 <template>
+  <!-- Unbranded non-platform tenant: text wordmark, never another
+       store's logo asset (useTenantBranding returns '' in that case). -->
+  <span
+    v-if="!logoLightUrl"
+    class="truncate text-xl font-bold text-primary-950 dark:text-primary-50"
+    :style="{ maxWidth: `${width}px`, lineHeight: `${height}px` }"
+  >{{ tenantStore.storeName }}</span>
   <NuxtImg
+    v-else
     :style="{ objectFit: 'contain' }"
     :src="logoLightUrl"
     :width="width"

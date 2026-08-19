@@ -3,11 +3,13 @@
  *
  * ``FALLBACK_LAYOUTS`` is the code-level safety net rendered when a
  * tenant has no PUBLISHED layout for the pageType (404/unpublished).
- * ``home`` mirrors the platform homepage exactly (blog categories rail
- * → main banner carousel → blog posts list) so an unconfigured tenant
- * — including webside pre-cutover — sees today's page unchanged. The
- * marketing pageTypes default to EMPTY: their pages carry their own
- * static content and the builder only ADDS branded bands above it.
+ * ``home`` mirrors the platform homepage STRUCTURE (blog categories
+ * rail → banner carousel → blog posts list); banner artwork is tenant
+ * DATA (hero_carousel section props — see ``seed_brand_pages``), so
+ * the prop-less fallback hero renders nothing rather than another
+ * store's promo. The marketing pageTypes default to EMPTY: their pages
+ * carry their own static content and the builder only ADDS branded
+ * bands above it.
  *
  * Keep entries in lockstep with ``page_config/defaults.py`` on the
  * Django side (one entry per supported pageType).

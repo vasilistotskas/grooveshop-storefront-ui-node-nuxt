@@ -33,6 +33,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
   hero_carousel: z
     .object({
       images: z.array(z.string().max(1000)).max(10),
+      mobileImages: z.array(z.string().max(1000)).max(10),
       link: zLink,
     })
     .partial()
