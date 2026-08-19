@@ -115,15 +115,26 @@ export function setupPageHeader() {
     },
     link: [
       ...(i18nHead.value.link || []),
-      // Only override the <link rel="icon"> when the tenant supplies
-      // its own favicon; otherwise let the static files in
-      // nuxt.config.ts app.head.link serve the platform default. Shares
-      // the platform SVG icon's ``key`` so Unhead dedupes to ONE entry —
-      // without it browsers prefer the platform's image/svg+xml favicon
-      // over this one regardless of head order.
-      ...(favicon.value
-        ? [{ rel: 'icon' as const, type: 'image/x-icon', href: favicon.value, key: 'tenant-favicon' }]
-        : []),
+      // Icon links are tenant-scoped end-to-end: the platform tenant
+      // renders its full static set, a branded tenant renders its own
+      // faviconUrl, and an unbranded tenant renders NONE — another
+      // store's brand must never appear in a tenant's tab/bookmarks
+      // (the static files themselves are tenant-gated by
+      // server/middleware/6.tenant-favicon.ts).
+      ...(isPlatformTenant.value
+        ? [
+            { rel: 'icon' as const, href: '/favicon.ico', sizes: 'any' },
+            { rel: 'icon' as const, type: 'image/png', href: '/favicon.png' },
+            { rel: 'icon' as const, type: 'image/svg+xml', href: '/logo.svg', key: 'tenant-favicon' },
+            { rel: 'icon' as const, type: 'image/png', href: '/favicon/favicon-16x16.png' },
+            { rel: 'apple-touch-icon' as const, href: '/favicon/apple-touch-icon.png' },
+          ]
+        : favicon.value
+          ? [
+              { rel: 'icon' as const, type: 'image/x-icon', href: favicon.value, key: 'tenant-favicon' },
+              { rel: 'apple-touch-icon' as const, href: favicon.value },
+            ]
+          : []),
       ...tenantPreconnectLinks.value,
     ],
     meta: [...(i18nHead.value.meta || []),

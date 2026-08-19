@@ -60,17 +60,12 @@ export default defineNuxtConfig({
       charset: 'utf-8',
       titleTemplate: '%s %separator %siteName',
       link: [
-        { rel: 'icon', href: '/favicon.ico', sizes: 'any' },
-        { rel: 'icon', type: 'image/png', href: '/favicon.png' },
-        // Keyed so a tenant favicon (pushed in setupPageHeader with the
-        // same key) can override it via Unhead's dedupe-by-key — browsers
-        // otherwise prefer this SVG over any later-registered icon link
-        // regardless of head order. Platform tenant sets no faviconUrl,
-        // so this entry is the only one with the key and output stays
-        // byte-stable.
-        { rel: 'icon', type: 'image/svg+xml', href: '/logo.svg', key: 'tenant-favicon' },
-        { rel: 'icon', type: 'image/png', href: '/favicon/favicon-16x16.png' },
-        { rel: 'apple-touch-icon', href: '/favicon/apple-touch-icon.png' },
+        // Icon links are PER-TENANT and rendered by ``setupPageHeader``
+        // (platform tenant → the platform set; branded tenant → its
+        // faviconUrl; unbranded tenant → none). Nothing brand-bearing
+        // may live in this build-time head — it renders identically on
+        // every tenant's domain. Direct requests to the static icon
+        // files are tenant-gated by server/middleware/6.tenant-favicon.ts.
         { rel: 'manifest', href: '/manifest.webmanifest' },
         // DNS prefetch for external domains to reduce DNS lookup time
         { rel: 'dns-prefetch', href: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003' },

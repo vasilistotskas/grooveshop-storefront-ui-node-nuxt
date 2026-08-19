@@ -65,10 +65,17 @@ export default defineNuxtPlugin({
           ticket: response.ticket,
         })
 
+        // Icon: tenant favicon, platform logo ONLY on the platform
+        // tenant, otherwise browser default — never another store's
+        // brand on a tenant's OS notifications.
+        const isPlatformTenant = useIsPlatformTenant()
+        const notificationIcon
+          = tenantStore.faviconUrl
+            || (isPlatformTenant.value ? '/logo.svg' : undefined)
         const notificationOptions: UseWebNotificationOptions = {
           dir: 'auto',
           lang: locale.value,
-          icon: tenantStore.faviconUrl || '/logo.svg',
+          icon: notificationIcon,
           renotify: true,
           requireInteraction: false,
           vibrate: [200, 100, 200],

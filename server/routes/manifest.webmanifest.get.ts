@@ -32,12 +32,12 @@ export default defineEventHandler(async (event) => {
 
   setHeader(event, 'Content-Type', 'application/manifest+json')
 
-  // Icon list — prefer the tenant favicon for a branded install experience.
-  // The spec recommends at least 192×192 and 512×512.  We use the tenant
-  // favicon URL for both sizes when available (the URL itself is already
-  // served at the correct dimensions by the media service). Platform fallback
-  // icons are retained so a fresh-install before the tenant is resolved
-  // still produces a valid manifest.
+  // Icon list — tenant-scoped end-to-end: a branded tenant uses its own
+  // favicon for all sizes (the URL is served at the right dimensions by
+  // the media service), the PLATFORM tenant uses the platform icon set,
+  // and an unbranded tenant ships NO icons (valid per the manifest
+  // spec) — another store's brand must never appear in a tenant's PWA
+  // install surface.
   const faviconUrl = tenant?.faviconUrl
   const icons = faviconUrl
     ? [
@@ -49,14 +49,16 @@ export default defineEventHandler(async (event) => {
         // squircles, etc.). See: https://web.dev/maskable-icon/
         { src: faviconUrl, sizes: '512x512', type: 'image/png', purpose: 'maskable' },
       ]
-    : [
-        { src: '/favicon/android-icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-        { src: '/favicon/android-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-        // TODO: Replace with a dedicated maskable icon asset that has at least
-        // 10% safe-zone padding so the visible area is not clipped by the OS
-        // mask shape (circles, squircles, etc.). See: https://web.dev/maskable-icon/
-        { src: '/favicon/android-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-      ]
+    : isPlatformTenantConfig(tenant)
+      ? [
+          { src: '/favicon/android-icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: '/favicon/android-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          // TODO: Replace with a dedicated maskable icon asset that has at least
+          // 10% safe-zone padding so the visible area is not clipped by the OS
+          // mask shape (circles, squircles, etc.). See: https://web.dev/maskable-icon/
+          { src: '/favicon/android-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ]
+      : []
 
   return {
     name,

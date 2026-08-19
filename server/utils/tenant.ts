@@ -104,3 +104,25 @@ export function clearTenantCache(host?: string) {
     tenantCache.clear()
   }
 }
+
+/**
+ * Whether *tenant* IS the platform's own storefront (server-side twin
+ * of `useIsPlatformTenant`). An absent tenant or unset primaryDomain
+ * counts as platform so single-tenant setups keep today's behaviour.
+ */
+export function isPlatformTenantConfig(
+  tenant: { primaryDomain?: string } | undefined,
+): boolean {
+  const primary = tenant?.primaryDomain
+  if (!primary) return true
+  try {
+    const config = useRuntimeConfig()
+    return (
+      new URL(config.public.baseUrl as string).host.replace(/:\d+$/, '')
+        === primary
+    )
+  }
+  catch {
+    return true
+  }
+}

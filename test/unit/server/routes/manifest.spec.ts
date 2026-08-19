@@ -29,6 +29,14 @@ vi.stubGlobal('getRequestHost', hostMock)
 const getTenantConfigMock = vi.fn().mockResolvedValue({ type: 'not_found', config: null })
 vi.stubGlobal('getTenantConfig', getTenantConfigMock)
 
+// Mirrors server/utils/tenant.ts isPlatformTenantConfig: absent tenant
+// (or unset primaryDomain) counts as platform; a tenant with its own
+// primaryDomain does not (the spec's runtimeConfig has no baseUrl).
+vi.stubGlobal(
+  'isPlatformTenantConfig',
+  (tenant?: { primaryDomain?: string }) => !tenant?.primaryDomain,
+)
+
 vi.stubGlobal('defineEventHandler', (fn: (event: unknown) => unknown) => fn)
 
 const module = await import('../../../../server/routes/manifest.webmanifest.get')
@@ -87,6 +95,13 @@ describe('manifest.webmanifest handler', () => {
   it('uses tenant accentHex (with #) for theme_color', async () => {
     const manifest = await handler(makeEvent({ accentHex: '#FF5733' }))
     expect(manifest.theme_color).toBe('#FF5733')
+  })
+
+  it('ships NO icons for an unbranded non-platform tenant (never platform brand)', async () => {
+    const manifest = await handler(
+      makeEvent({ storeName: 'Aurora Store', primaryDomain: 'aurora.example' }),
+    )
+    expect(manifest.icons).toEqual([])
   })
 
   it('prepends # to tenant accentHex when missing', async () => {
