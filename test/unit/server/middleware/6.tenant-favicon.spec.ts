@@ -55,17 +55,20 @@ describe('6.tenant-favicon middleware', () => {
     expect(state.redirects).toEqual([])
   })
 
-  it('falls through for the platform tenant (static file serves)', async () => {
+  it('redirects the platform tenant to the moved platform asset', async () => {
     state.isPlatform = true
-    const result = await handler({ path: '/favicon.ico' })
-    expect(result).toBeUndefined()
-    expect(state.status).toEqual([])
+    await handler({ path: '/favicon.ico' })
+    expect(state.redirects).toEqual([
+      { to: '/platform-favicon/favicon.ico', code: 302 },
+    ])
   })
 
-  it('falls through when the host does not resolve to a tenant', async () => {
+  it('redirects unknown hosts to the platform asset (probes, fresh installs)', async () => {
     state.tenantResult = { type: 'notfound' }
-    const result = await handler({ path: '/favicon.ico' })
-    expect(result).toBeUndefined()
+    await handler({ path: '/favicon/apple-touch-icon.png' })
+    expect(state.redirects).toEqual([
+      { to: '/platform-favicon/apple-touch-icon.png', code: 302 },
+    ])
   })
 
   it('redirects a branded tenant to its own favicon', async () => {

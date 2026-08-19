@@ -21,6 +21,13 @@ const BYPASS_PREFIXES: readonly string[] = [
   // when the request DOES carry a tenant; the bypass keeps build-time
   // and probe-time hits from 404'ing (M3 in MULTI_TENANT_AUDIT.md).
   '/api/__sitemap__',
+  // Platform brand statics — immutable files, only ever linked from the
+  // platform tenant's own head; no tenant context needed.
+  '/platform-favicon',
+  // Legacy favicon paths — owned by 6.tenant-favicon.ts, which resolves
+  // the tenant itself (so unknown-host probes fall back to the platform
+  // asset instead of 404ing here first).
+  '/favicon/',
 ] as const
 
 const BYPASS_EXACT: readonly string[] = [

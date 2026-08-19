@@ -200,34 +200,14 @@ export default defineNuxtConfig({
         'Cache-Control': 'public, max-age=0, must-revalidate',
       },
     },
-    '/favicon.ico': {
-      cache: {
-        maxAge: 60 * 60 * 24 * 365,
-      },
-      headers: {
-        'Content-Type': 'image/x-icon',
-        'Cache-Control': 'public, max-age=31536000',
-      },
-    },
-    '/favicon.png': {
-      cache: {
-        maxAge: 60 * 60 * 24 * 365,
-      },
-      headers: {
-        'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=31536000',
-      },
-    },
-    '/logo.svg': {
-      cache: {
-        maxAge: 60 * 60 * 24 * 365,
-      },
-      headers: {
-        'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=31536000',
-      },
-    },
-    '/favicon/**': {
+    // NOTE: the legacy brand paths (/favicon.ico, /favicon.png,
+    // /logo.svg, /favicon/**) are deliberately rule-FREE: they are
+    // answered per-tenant by server/middleware/6.tenant-favicon.ts
+    // (302/404 + its own short Cache-Control). A `cache:` rule here
+    // would cache one tenant's answer under a host-agnostic key and
+    // serve it to every other tenant. The real platform bytes live
+    // under /platform-favicon/** below.
+    '/platform-favicon/**': {
       cache: {
         maxAge: 60 * 60 * 24 * 365,
       },

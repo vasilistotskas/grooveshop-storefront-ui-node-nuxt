@@ -71,7 +71,7 @@ export default defineNuxtPlugin({
         const isPlatformTenant = useIsPlatformTenant()
         const notificationIcon
           = tenantStore.faviconUrl
-            || (isPlatformTenant.value ? '/logo.svg' : undefined)
+            || (isPlatformTenant.value ? '/platform-favicon/logo.svg' : undefined)
         const notificationOptions: UseWebNotificationOptions = {
           dir: 'auto',
           lang: locale.value,

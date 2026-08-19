@@ -72,7 +72,7 @@ describe('manifest.webmanifest handler', () => {
     expect(manifest.lang).toBe('en')
     // Platform fallback icons
     const icons = manifest.icons as Array<{ src: string }>
-    expect(icons.some(i => i.src.includes('/favicon/android-icon-192x192.png'))).toBe(true)
+    expect(icons.some(i => i.src.includes('/platform-favicon/android-icon-192x192.png'))).toBe(true)
   })
 
   it('resolves tenant via getTenantConfig when event.context.tenant is absent', async () => {

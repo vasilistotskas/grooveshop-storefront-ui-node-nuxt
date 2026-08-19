@@ -90,9 +90,9 @@ export function setupPageHeader() {
     mobileWebAppCapable: 'yes',
     appleMobileWebAppCapable: 'yes',
     msapplicationConfig: () =>
-      isPlatformTenant.value ? '/favicon/browserconfig.xml' : undefined,
+      isPlatformTenant.value ? '/platform-favicon/browserconfig.xml' : undefined,
     msapplicationTileImage: () =>
-      isPlatformTenant.value ? '/favicon/ms-icon-150x150.png' : undefined,
+      isPlatformTenant.value ? '/platform-favicon/ms-icon-150x150.png' : undefined,
     // Site-verification tokens grant the PLATFORM's Search Console /
     // Pinterest accounts ownership of whatever domain emits them —
     // never emit them on another tenant's storefront.
@@ -123,11 +123,11 @@ export function setupPageHeader() {
       // server/middleware/6.tenant-favicon.ts).
       ...(isPlatformTenant.value
         ? [
-            { rel: 'icon' as const, href: '/favicon.ico', sizes: 'any' },
-            { rel: 'icon' as const, type: 'image/png', href: '/favicon.png' },
-            { rel: 'icon' as const, type: 'image/svg+xml', href: '/logo.svg', key: 'tenant-favicon' },
-            { rel: 'icon' as const, type: 'image/png', href: '/favicon/favicon-16x16.png' },
-            { rel: 'apple-touch-icon' as const, href: '/favicon/apple-touch-icon.png' },
+            { rel: 'icon' as const, href: '/platform-favicon/favicon.ico', sizes: 'any' },
+            { rel: 'icon' as const, type: 'image/png', href: '/platform-favicon/favicon.png' },
+            { rel: 'icon' as const, type: 'image/svg+xml', href: '/platform-favicon/logo.svg', key: 'tenant-favicon' },
+            { rel: 'icon' as const, type: 'image/png', href: '/platform-favicon/favicon-16x16.png' },
+            { rel: 'apple-touch-icon' as const, href: '/platform-favicon/apple-touch-icon.png' },
           ]
         : favicon.value
           ? [
