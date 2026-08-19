@@ -6,7 +6,10 @@ export default defineNuxtPlugin({
   parallel: true,
   async setup(nuxtApp) {
     // Skip during build-time prerendering (no backend available)
-    if (import.meta.server && useRequestHeaders()['x-nitro-prerender']) {
+    // import.meta.prerender is replaced at build time; the
+    // x-nitro-prerender header it replaces here is client-supplied, so
+    // a visitor could send it and skip session/cart bootstrap.
+    if (import.meta.prerender) {
       return
     }
 

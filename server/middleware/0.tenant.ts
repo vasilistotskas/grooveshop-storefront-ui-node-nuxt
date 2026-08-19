@@ -94,8 +94,22 @@ export default defineEventHandler(async (event) => {
     return
   }
 
-  // Skip tenant resolution during build-time prerendering (no real host available)
-  if (getRequestHeader(event, 'x-nitro-prerender')) {
+  // Skip tenant resolution during build-time prerendering — there is no
+  // real host to resolve then.
+  //
+  // Gate on import.meta.prerender, NOT on the x-nitro-prerender header.
+  // Nitro sets that header on its own localFetch while generating
+  // routes, but a header is client-supplied: any visitor could send it
+  // and have the middleware skip resolution entirely, leaving
+  // event.context.tenant undefined. The page then rendered with no
+  // tenant bound — a tenant's own domain serving platform content and
+  // reading platform-schema data. Verified on staging: the same URL
+  // returned the tenant's store normally and the platform's with the
+  // header added.
+  //
+  // import.meta.prerender is replaced at build time and is false in
+  // every deployed server, so it cannot be forged.
+  if (import.meta.prerender) {
     return
   }
 

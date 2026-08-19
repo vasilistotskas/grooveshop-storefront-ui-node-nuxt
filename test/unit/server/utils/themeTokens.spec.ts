@@ -3,6 +3,7 @@ import {
   CONTAINER_MAP,
   FONT_ALLOWLIST,
   HEX_COLOR_RE,
+  PLATFORM_COLORS,
   RADIUS_ALLOWLIST,
 } from '../../../../shared/theme/constants'
 import { THEME_PRESETS } from '../../../../shared/theme/presets'
@@ -18,6 +19,7 @@ beforeAll(async () => {
   vi.stubGlobal('CONTAINER_MAP', CONTAINER_MAP)
   vi.stubGlobal('FONT_ALLOWLIST', FONT_ALLOWLIST)
   vi.stubGlobal('HEX_COLOR_RE', HEX_COLOR_RE)
+  vi.stubGlobal('PLATFORM_COLORS', PLATFORM_COLORS)
   vi.stubGlobal('RADIUS_ALLOWLIST', RADIUS_ALLOWLIST)
   vi.stubGlobal('THEME_PRESETS', THEME_PRESETS)
   vi.stubGlobal('zThemeMetadata', zThemeMetadata)
@@ -32,7 +34,7 @@ describe('buildTenantThemeCss', () => {
     expect(metadataError).toBeUndefined()
   })
 
-  it('emits accent + status hexes into :root and .dark', () => {
+  it('emits customized accent + status hexes into :root and .dark', () => {
     const { css } = buildTenantThemeCss({
       accentHex: '#FF5500',
       successHex: '#00AA00',
@@ -40,8 +42,33 @@ describe('buildTenantThemeCss', () => {
     expect(css).toContain(':root {')
     expect(css).toContain('.dark {')
     expect(css).toContain('--ui-secondary: #FF5500')
-    expect(css).toContain('--ui-liked: #FF5500')
     expect(css).toContain('--ui-success: #00AA00')
+    // --ui-liked is a distinct semantic colour owned by main.css
+    // (#FF00BD) with no Tenant field. Mapping the accent onto it turned
+    // every liked post and comment the accent colour.
+    expect(css).not.toContain('--ui-liked')
+  })
+
+  it('emits nothing for a tenant carrying the platform defaults', () => {
+    // Every colour field on the Tenant model has a NON-BLANK default
+    // equal to the platform value, so this is the shape the serializer
+    // produces for a store that customized nothing — including webside
+    // itself. Emitting it overrode main.css at equal specificity and
+    // flattened the deliberately different `.dark` values, costing
+    // contrast in dark mode.
+    const { css } = buildTenantThemeCss({
+      accentHex: '#003DFF',
+      successHex: '#16a34a',
+      warningHex: '#ca8a04',
+      errorHex: '#dc2626',
+      infoHex: '#2563eb',
+    })
+    expect(css).toBe('')
+  })
+
+  it('compares platform defaults case-insensitively', () => {
+    const { css } = buildTenantThemeCss({ accentHex: '#003dff' })
+    expect(css).toBe('')
   })
 
   it('rejects malformed hexes silently', () => {

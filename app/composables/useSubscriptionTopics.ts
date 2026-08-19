@@ -8,6 +8,15 @@
  * and grouping by category.
  */
 export function useSubscriptionTopics() {
+  // useRequestFetch forwards the incoming HOST (and cookie) during SSR.
+  // Selecting only 'cookie' kept auth working but dropped the host, so
+  // Nitro stamped host: "localhost" on the internal request and
+  // server/middleware/0.tenant.ts answered 404 "Store not found" —
+  // silently, because callers fall back to a default. Declared in setup
+  // scope: useRequestFetch reads the request event through useNuxtApp(),
+  // which is unavailable past an await boundary.
+  const requestFetch = useRequestFetch()
+
   /**
    * Fetch all subscription topics
    *
@@ -15,21 +24,15 @@ export function useSubscriptionTopics() {
    * Returns the complete AsyncData result with data, status, error, and refresh.
    */
   const fetchTopics = () => {
-    // Forward the browser cookie so the SSR-side ``$fetch`` to our own
-    // Nuxt server route inherits the user's encrypted nuxt-session
-    // cookie. Without this header, the server-to-server call lands at
-    // ``/api/subscriptions/topics`` anonymously and the route's
-    // ``requireAllAuthAccessToken`` throws 401 — even when the browser
-    // is logged in. The 'cookie' header is the only one we need to
-    // surface; we deliberately don't forward the rest (e.g. range,
-    // if-none-match) which would break Nuxt's payload-cache hash.
-    const headers = useRequestHeaders(['cookie'])
+    // The forwarded cookie is what lets the SSR-side call inherit the
+    // encrypted nuxt-session cookie; without it the request lands
+    // anonymously and ``requireAllAuthAccessToken`` throws 401 even
+    // though the browser is logged in.
     return useAsyncData<SubscriptionTopic[]>(
       'subscription:topics:list',
       async () => {
-        const response = await $fetch('/api/subscriptions/topics', {
+        const response = await requestFetch('/api/subscriptions/topics', {
           method: 'GET',
-          headers,
         })
         return response?.results || []
       },

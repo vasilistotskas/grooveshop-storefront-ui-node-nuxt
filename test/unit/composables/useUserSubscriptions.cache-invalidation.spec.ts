@@ -47,6 +47,12 @@ vi.stubGlobal('refreshNuxtData', mockRefreshNuxtData)
 
 // Mock global $fetch
 vi.stubGlobal('$fetch', mockFetch)
+// The composable calls useRequestFetch() so the tenant HOST is forwarded
+// on SSR-side calls to our own /api routes — a bare $fetch loses it and
+// tenant resolution 404s. On the client useRequestFetch returns plain
+// $fetch, so returning the same mock keeps these tests exercising the
+// real call path.
+vi.stubGlobal('useRequestFetch', () => mockFetch)
 
 describe('useUserSubscriptions - Property: Mutation Cache Invalidation', () => {
   beforeEach(() => {

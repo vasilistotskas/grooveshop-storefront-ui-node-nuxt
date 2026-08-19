@@ -18,22 +18,36 @@ export default defineNuxtRouteMiddleware(async () => {
   }
 
   // Operational/runtime gate — fetched from extra_settings.
+  //
+  // useRequestFetch forwards the incoming host during SSR. A bare
+  // $fetch would not: Nitro stamps host: "localhost" on an internal
+  // request, server/middleware/0.tenant.ts fails to resolve a store and
+  // answers 404, and the catch below would turn that into a hard 404 for
+  // the page — so this route was unreachable for every tenant that had
+  // loyalty switched on.
+  const requestFetch = useRequestFetch()
+
+  let runtimeEnabled: boolean
   try {
-    const settings = await $fetch<{ LOYALTY_ENABLED?: string }>('/api/loyalty/settings', {
+    const settings = await requestFetch<{ LOYALTY_ENABLED?: string }>('/api/loyalty/settings', {
       query: { keys: 'LOYALTY_ENABLED' },
     })
-    const runtimeEnabled = (settings?.LOYALTY_ENABLED ?? 'false').toLowerCase() === 'true'
-    if (!runtimeEnabled) {
-      throw createError({ statusCode: 404, statusMessage: 'Not Found' })
-    }
+    runtimeEnabled = (settings?.LOYALTY_ENABLED ?? 'false').toLowerCase() === 'true'
   }
-  catch (error: unknown) {
-    // Re-throw createError instances (our own 404s) — do not swallow them.
-    if (error && typeof error === 'object' && 'statusCode' in error) {
-      throw error
-    }
-    // Network/parse errors: fail open (don't block the page on a transient
-    // settings fetch failure) so an unavailable extra_settings endpoint
-    // doesn't take down loyalty for tenants with the plan enabled.
+  catch {
+    // Fail OPEN on any fetch failure, which is what this gate has always
+    // meant to do: an unavailable extra_settings endpoint must not take
+    // loyalty down for tenants whose plan enables it. The previous
+    // implementation re-threw anything carrying a `statusCode`, and every
+    // ofetch FetchError carries one — so the fail-open branch was
+    // unreachable and any upstream 4xx/5xx hard-404'd the page.
+    //
+    // Throwing our own 404 from inside the try is what made that
+    // necessary; the decision is now taken after the try instead.
+    return
+  }
+
+  if (!runtimeEnabled) {
+    throw createError({ statusCode: 404, statusMessage: 'Not Found' })
   }
 })

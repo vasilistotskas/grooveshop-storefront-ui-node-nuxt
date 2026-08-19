@@ -69,21 +69,39 @@ export function buildTenantThemeCss(
   const shared: string[] = []
 
   // --- Status/accent hexes (dedicated Tenant fields) ---------------
+  //
+  // Emit a colour ONLY when the tenant actually changed it, the same
+  // rule already applied to radius/container below.
+  //
+  // Every one of these Tenant fields carries a non-blank DEFAULT equal
+  // to the platform's own value, so "non-blank" is not a signal that
+  // anything was customized — webside received the full block and it
+  // overrode main.css at equal specificity. Two things broke: the
+  // stylesheet deliberately uses DIFFERENT values in `.dark`
+  // (--ui-secondary #3364FF, statuses lightened to --color-*-400), all
+  // of which this block flattened back to the light values, costing
+  // contrast in dark mode; and --ui-liked (#FF00BD) is a distinct
+  // semantic colour with no Tenant field at all, so mapping the accent
+  // onto it turned every liked post and comment blue.
   const hex = (value: string | null | undefined): string | null =>
     value && HEX_COLOR_RE.test(value) ? value : null
 
+  // accentHex maps to --ui-secondary only. --ui-liked stays with the
+  // stylesheet: it is not the accent, and no field expresses it.
   const accent = hex(tenant.accentHex)
-  if (accent) {
-    shared.push(`--ui-secondary: ${accent}`, `--ui-liked: ${accent}`)
+  if (accent && accent.toLowerCase() !== PLATFORM_COLORS.secondary) {
+    shared.push(`--ui-secondary: ${accent}`)
   }
-  for (const [field, token] of [
-    ['successHex', '--ui-success'],
-    ['warningHex', '--ui-warning'],
-    ['errorHex', '--ui-error'],
-    ['infoHex', '--ui-info'],
+  for (const [field, token, baseline] of [
+    ['successHex', '--ui-success', PLATFORM_COLORS.success],
+    ['warningHex', '--ui-warning', PLATFORM_COLORS.warning],
+    ['errorHex', '--ui-error', PLATFORM_COLORS.error],
+    ['infoHex', '--ui-info', PLATFORM_COLORS.info],
   ] as const) {
     const value = hex(tenant[field])
-    if (value) shared.push(`${token}: ${value}`)
+    if (value && value.toLowerCase() !== baseline) {
+      shared.push(`${token}: ${value}`)
+    }
   }
 
   // --- Non-color tokens: preset ⊕ metadata -------------------------
@@ -128,10 +146,12 @@ export function buildTenantThemeCss(
 
   const block = shared.join('; ')
   return {
-    // Identical values in :root and .dark — main.css keeps owning the
-    // platform's dark-shade strategy, which now resolves against the
-    // tenant's runtime scales automatically. Distinct dark accents can
-    // extend the metadata schema later without structural changes here.
+    // Identical values in :root and .dark. Only genuinely customized
+    // tokens reach here, so a tenant that changes nothing emits nothing
+    // and main.css keeps owning the platform's dark-shade strategy
+    // untouched. A tenant that DOES set a colour has no dark variant to
+    // offer, so the same value applies in both modes until the metadata
+    // schema grows one.
     css: `:root { ${block} } .dark { ${block} }`,
     metadataError,
   }

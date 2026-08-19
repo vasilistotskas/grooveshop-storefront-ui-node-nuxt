@@ -93,10 +93,15 @@ const openTracking = () => {
 // Only fetch + show recommended blog posts when the tenant has the
 // blog feature enabled — a blog-disabled store must not fire the blog
 // API or render the carousel on its success page.
+// useLazyAsyncData still executes during SSR (`lazy` only defers on
+// client navigation), so this needs the request-bound fetch: a bare
+// $fetch loses the tenant host and 404s, silently emptying the
+// carousel.
+const requestFetch = useRequestFetch()
 const { data: recommendedPosts } = useLazyAsyncData(
   `success-recommended-posts:${locale.value}`,
   () => tenantStore.blogEnabled
-    ? $fetch('/api/blog/posts', {
+    ? requestFetch('/api/blog/posts', {
         query: {
           languageCode: locale.value,
           paginationType: 'pageNumber',

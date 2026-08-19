@@ -1,8 +1,13 @@
 export default defineEventHandler(async (event) => {
   // During Nitro prerendering the external API may be unreachable
   // (e.g. Cloudflare managed challenge blocks CI runners).
-  // Return a minimal response — the client will fetch the real config on hydration.
-  if (getRequestHeader(event, 'x-nitro-prerender')) {
+  // Return a minimal response — the client will fetch the real config on
+  // hydration.
+  //
+  // import.meta.prerender, not the x-nitro-prerender header: the header
+  // is client-supplied, so any visitor could send it and be handed an
+  // empty auth config.
+  if (import.meta.prerender) {
     return { status: 200 as const, data: {} }
   }
 

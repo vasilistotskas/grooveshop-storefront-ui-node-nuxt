@@ -8,16 +8,19 @@
  * product points preview, tiers list, and settings functionality.
  */
 export const useLoyalty = () => {
-  // Forward the browser cookie during SSR so the internal $fetch to our
-  // own /api/loyalty/* server routes inherits the encrypted nuxt-session
-  // cookie. Without it, server-to-server SSR calls land at the routes
-  // anonymously and ``getAllAuthAccessToken``/``requireAllAuthAccessToken``
-  // returns nothing — Django then sees no Bearer token and replies 401
-  // (e.g. /api/loyalty/tiers, /api/loyalty/transactions). Reading the
-  // cookie once at composable invocation is correct because
-  // useRequestHeaders is only meaningful in the SSR setup phase; on the
-  // client this object is empty and ignored by $fetch.
-  const headers = useRequestHeaders(['cookie'])
+  // Forwards the browser cookie during SSR so internal calls to our own
+  // /api/loyalty/* routes inherit the encrypted nuxt-session cookie —
+  // without it they land anonymously, ``requireAllAuthAccessToken``
+  // returns nothing and Django replies 401.
+  // useRequestFetch instead of a bare $fetch with hand-picked headers:
+  // it forwards the incoming HOST as well as the cookie during SSR.
+  // Selecting only 'cookie' kept the auth working but dropped the host,
+  // so Nitro stamped host: "localhost" on the internal request and
+  // server/middleware/0.tenant.ts answered 404 "Store not found" —
+  // silently, because every caller falls back to a default. It still
+  // omits the headers that would break Nuxt's payload-cache hash
+  // (range, if-none-match) and the hop-by-hop ones.
+  const requestFetch = useRequestFetch()
 
   /**
    * Fetch loyalty system configuration settings
@@ -43,9 +46,8 @@ export const useLoyalty = () => {
       'loyalty-settings',
       async () => {
         try {
-          const settings = await $fetch<Record<string, string>>('/api/loyalty/settings', {
+          const settings = await requestFetch<Record<string, string>>('/api/loyalty/settings', {
             query: { keys: LOYALTY_SETTING_KEYS.join(',') },
-            headers,
           })
 
           return {
@@ -85,9 +87,8 @@ export const useLoyalty = () => {
   const fetchSummary = () => {
     return useAsyncData<LoyaltySummary>(
       'loyalty-summary',
-      () => $fetch<LoyaltySummary>('/api/loyalty/summary', {
+      () => requestFetch<LoyaltySummary>('/api/loyalty/summary', {
         method: 'GET',
-        headers,
       }),
     )
   }
@@ -131,10 +132,9 @@ export const useLoyalty = () => {
           query.created_before = resolved.dateTo
         }
 
-        return $fetch<PaginatedPointsTransactionList>('/api/loyalty/transactions', {
+        return requestFetch<PaginatedPointsTransactionList>('/api/loyalty/transactions', {
           method: 'GET',
           query,
-          headers,
         })
       },
       {
@@ -154,9 +154,8 @@ export const useLoyalty = () => {
   const fetchProductPoints = (productId: number) => {
     return useAsyncData<ProductPoints>(
       `loyalty-product-points-${productId}`,
-      () => $fetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
+      () => requestFetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
         method: 'GET',
-        headers,
       }),
     )
   }
@@ -169,9 +168,8 @@ export const useLoyalty = () => {
   const fetchTiers = () => {
     return useAsyncData<LoyaltyTier[]>(
       'loyalty-tiers',
-      () => $fetch<LoyaltyTier[]>('/api/loyalty/tiers', {
+      () => requestFetch<LoyaltyTier[]>('/api/loyalty/tiers', {
         method: 'GET',
-        headers,
       }),
     )
   }

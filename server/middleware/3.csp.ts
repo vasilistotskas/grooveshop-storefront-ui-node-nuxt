@@ -37,9 +37,12 @@ export default defineEventHandler((event) => {
   }
 
   const cleanPath = (path.split('?')[0] ?? '').replace(/\/+$/, '') || '/'
+  // import.meta.prerender rather than the x-nitro-prerender header: the
+  // header is client-supplied, so a visitor could suppress the nonce on
+  // any route and get the weaker baked policy instead.
   const useNonce = !import.meta.dev
     && !PRERENDERED_ROUTES_SET.has(cleanPath)
-    && !getRequestHeader(event, 'x-nitro-prerender')
+    && !import.meta.prerender
   let nonce: string | undefined
   if (useNonce) {
     nonce = generateCspNonce()

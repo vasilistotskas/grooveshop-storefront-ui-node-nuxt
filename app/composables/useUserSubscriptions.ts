@@ -12,6 +12,15 @@ export function useUserSubscriptions() {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
 
+  // useRequestFetch forwards the incoming HOST (and cookie) during
+  // SSR. Selecting only 'cookie' kept auth working but dropped the
+  // host, so Nitro stamped host: "localhost" on the internal request
+  // and server/middleware/0.tenant.ts answered 404 "Store not found" —
+  // silently, because callers fall back to a default. Declared in
+  // setup scope: useRequestFetch reads the request event through
+  // useNuxtApp(), which is unavailable past an await boundary.
+  const requestFetch = useRequestFetch()
+
   /**
    * Fetch user subscriptions
    *
@@ -22,13 +31,11 @@ export function useUserSubscriptions() {
     // Forward the browser cookie during SSR so the internal $fetch to
     // /api/subscriptions/user inherits the encrypted nuxt-session
     // cookie. See useSubscriptionTopics.fetchTopics for the same fix.
-    const headers = useRequestHeaders(['cookie'])
     return useAsyncData<UserSubscription[]>(
       'subscription:user:list',
       async () => {
-        const response = await $fetch('/api/subscriptions/user', {
+        const response = await requestFetch('/api/subscriptions/user', {
           method: 'GET',
-          headers,
         })
         return response?.results || []
       },
@@ -46,7 +53,7 @@ export function useUserSubscriptions() {
    */
   const subscribe = async (topicId: number) => {
     try {
-      const response = await $fetch('/api/subscriptions/user', {
+      const response = await requestFetch('/api/subscriptions/user', {
         method: 'POST',
         body: { topic: topicId },
       })
@@ -85,7 +92,7 @@ export function useUserSubscriptions() {
    */
   const unsubscribe = async (subscriptionId: number) => {
     try {
-      await $fetch(`/api/subscriptions/user/${subscriptionId}`, {
+      await requestFetch(`/api/subscriptions/user/${subscriptionId}`, {
         method: 'DELETE',
       })
 
@@ -123,7 +130,7 @@ export function useUserSubscriptions() {
    */
   const bulkSubscribe = async (topicIds: number[], action: 'subscribe' | 'unsubscribe') => {
     try {
-      const response = await $fetch('/api/subscriptions/user/bulk-subscribe', {
+      const response = await requestFetch('/api/subscriptions/user/bulk-subscribe', {
         method: 'POST',
         body: { topicIds, action },
       })

@@ -248,11 +248,15 @@ describe('csp middleware', () => {
     }
   })
 
-  it('skips the nonce during build-time prerender passes', () => {
+  it('still issues a nonce when a client sends x-nitro-prerender', () => {
+    // The prerender exemption is gated on import.meta.prerender (a
+    // build-time constant), not on this header — a visitor could
+    // otherwise suppress the nonce on any route and be served the
+    // weaker baked policy instead.
     const result = runWith('/products/3/some-product', {
       requestHeaders: { 'x-nitro-prerender': '/products/3/some-product' },
     })
-    expect(result.event.context.cspNonce).toBeUndefined()
-    expect(result['Content-Security-Policy']).not.toContain('nonce-')
+    expect(result.event.context.cspNonce).toBeDefined()
+    expect(result['Content-Security-Policy']).toContain('nonce-')
   })
 })

@@ -25,6 +25,14 @@
 export function useProductSearchData() {
   const { $i18n } = useNuxtApp()
   const { filters } = useProductFilters()
+  // Every fetch below runs during SSR inside useAsyncData. A bare
+  // $fetch to a relative path creates an internal request with no
+  // inbound headers, so Nitro stamps host: "localhost" and
+  // server/middleware/0.tenant.ts answers 404 "Store not found" — the
+  // whole filter sidebar then renders from its empty defaults. Hoisted
+  // here because useRequestFetch() reads the request event via
+  // useNuxtApp(), which is only available in setup scope.
+  const requestFetch = useRequestFetch()
 
   // ============================================
   // PRICE STATISTICS (for PriceRange slider bounds)
@@ -35,7 +43,7 @@ export function useProductSearchData() {
   // Using useAsyncData with getCachedData to ensure proper SSR hydration
   const { data: priceStatsData, status: priceStatsStatus } = useAsyncData(
     `price-stats-${$i18n.locale.value}`,
-    () => $fetch('/api/products/search', {
+    () => requestFetch('/api/products/search', {
       query: {
         facets: 'final_price',
         limit: 1,
@@ -92,7 +100,7 @@ export function useProductSearchData() {
 
   const { data: facetData } = useAsyncData(
     () => `search:facets:${facetKey.value}`,
-    () => $fetch('/api/products/search', { query: facetQuery.value }),
+    () => requestFetch('/api/products/search', { query: facetQuery.value }),
     { watch: [facetKey, facetQuery] },
   )
 
@@ -109,7 +117,7 @@ export function useProductSearchData() {
   // The /all endpoint returns a flat array without pagination wrapper
   const { data: allCategories, status: categoriesStatus } = useAsyncData(
     () => `all-categories-${$i18n.locale.value}`,
-    () => $fetch('/api/products/categories/all'),
+    () => requestFetch('/api/products/categories/all'),
     { watch: [$i18n.locale] },
   )
 
@@ -143,7 +151,7 @@ export function useProductSearchData() {
   // Uses server-side caching (5 minutes) since attributes don't change frequently
   const { data: allAttributes, status: attributesStatus } = useAsyncData(
     () => `all-attributes-${$i18n.locale.value}`,
-    () => $fetch('/api/products/attributes', { query: { languageCode: $i18n.locale.value } }),
+    () => requestFetch('/api/products/attributes', { query: { languageCode: $i18n.locale.value } }),
     { watch: [$i18n.locale] },
   )
 
@@ -180,7 +188,7 @@ export function useProductSearchData() {
 
   const { data: attributeFacetData } = useAsyncData(
     () => `search:facets:${attributeFacetKey.value}`,
-    () => $fetch('/api/products/search', { query: attributeFacetQuery.value }),
+    () => requestFetch('/api/products/search', { query: attributeFacetQuery.value }),
     { watch: [attributeFacetKey, attributeFacetQuery] },
   )
 
@@ -195,7 +203,7 @@ export function useProductSearchData() {
   // Fetch all attribute values separately since they're not nested in attributes
   const { data: allAttributeValues, status: attributeValuesStatus } = useAsyncData(
     () => `all-attribute-values-${$i18n.locale.value}`,
-    () => $fetch('/api/products/attributes/values', { query: { languageCode: $i18n.locale.value } }),
+    () => requestFetch('/api/products/attributes/values', { query: { languageCode: $i18n.locale.value } }),
     { watch: [$i18n.locale] },
   )
 

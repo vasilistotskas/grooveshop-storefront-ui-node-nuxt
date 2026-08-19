@@ -88,3 +88,25 @@ export const CONTAINER_MAP: Record<string, string> = {
   default: '80rem',
   wide: 'var(--container-8xl)',
 }
+
+/**
+ * The platform's own colour values, as written in
+ * `app/assets/css/main.css` and mirrored by the Django `Tenant` field
+ * defaults.
+ *
+ * Used to decide whether a tenant has actually CUSTOMIZED a colour.
+ * Every colour field on the Tenant model ships with a non-blank default
+ * equal to the platform value, so "the field has a value" says nothing —
+ * treating it as customization made the token compiler emit the full
+ * block for the platform tenant itself, overriding main.css at equal
+ * specificity and flattening the deliberately different `.dark` values.
+ *
+ * Lower-case: comparisons normalise before matching.
+ */
+export const PLATFORM_COLORS = {
+  secondary: '#003dff',
+  success: '#16a34a',
+  warning: '#ca8a04',
+  error: '#dc2626',
+  info: '#2563eb',
+} as const

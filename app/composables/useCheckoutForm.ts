@@ -102,11 +102,18 @@ export async function useCheckoutForm() {
   const countries = ref<Pagination<Country> | null>(null)
   const payWays = ref<Pagination<PayWay> | null>(null)
 
+  // useRequestFetch forwards the incoming host during SSR. fetchRegions
+  // is awaited in the SSR init path below, and a bare $fetch there
+  // creates an internal request Nitro stamps with host: "localhost", so
+  // tenant resolution 404s and the shopper gets an EMPTY region
+  // dropdown on first paint plus an error toast.
+  const requestFetch = useRequestFetch()
+
   // Functions
   const fetchRegions = async () => {
     try {
       const countryValue = formState.country
-      regions.value = await $fetch<ListRegionResponse>('/api/regions', {
+      regions.value = await requestFetch<ListRegionResponse>('/api/regions', {
         method: 'GET',
         query: {
           country: countryValue || undefined,

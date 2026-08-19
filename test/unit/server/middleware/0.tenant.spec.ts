@@ -85,13 +85,23 @@ describe('0.tenant middleware', () => {
     })
   })
 
-  // --- Prerender bypass ---
-  it('skips tenant resolution during build-time prerendering', async () => {
+  // --- Prerender bypass is build-time only, never client-driven ---
+  it('still resolves the tenant when a client sends x-nitro-prerender', async () => {
+    // The bypass is gated on import.meta.prerender, which is replaced at
+    // build time and false in every deployed server. It used to be gated
+    // on this header — which any visitor can send, making the middleware
+    // skip resolution and leaving event.context.tenant undefined, so a
+    // tenant's own domain rendered platform content and read
+    // platform-schema data. Reproduced on staging before the fix.
     requestHeaders['x-nitro-prerender'] = '1'
+    getTenantConfigMock.mockResolvedValue({
+      type: 'ok',
+      config: { schemaName: 'webside' },
+    })
     const event = makeEvent('/products')
-    const result = await handler(event)
-    expect(result).toBeUndefined()
-    expect(getTenantConfigMock).not.toHaveBeenCalled()
+    await handler(event)
+    expect(getTenantConfigMock).toHaveBeenCalled()
+    expect(event.context.tenant).toEqual({ schemaName: 'webside' })
   })
 
   // --- Suffix bypass: .md mirrors (nuxt-ai-ready) ---
