@@ -13,6 +13,7 @@ const localePath = useLocalePath()
 const { isMobileOrTablet } = useDevice()
 const img = useImage()
 const tenantStore = useTenantStore()
+const isPlatform = useIsPlatformTenant()
 
 // Race-free reference for tryAdvanceToPendingFlow (see app/utils/auth.ts).
 const formPath = useRoute().path
@@ -122,9 +123,24 @@ const backgroundImage = computed(() => {
             "
           >
             <div class="grid content-evenly items-center justify-center gap-1">
-              <TenantLogo
+              <!-- The platform's auth mark is SQUARE (1000x1000).
+                   Feeding it through TenantLogo, whose default asset is
+                   the 580x120 wordmark, letterboxed a wide image inside
+                   a square box (objectFit: contain) — so keep the square
+                   asset for the platform and give tenants their own
+                   logo at its natural wordmark aspect. -->
+              <NuxtImg
+                v-if="isPlatform"
+                :src="'/img/logo-border.png'"
                 :width="isMobileOrTablet ? 100 : 140"
                 :height="isMobileOrTablet ? 100 : 140"
+                :alt="''"
+                quality="90"
+              />
+              <TenantLogo
+                v-else
+                :width="isMobileOrTablet ? 160 : 220"
+                :height="isMobileOrTablet ? 33 : 46"
               />
               <span class="sr-only">
                 {{ t('logo_alt', { appTitle: tenantStore.storeName || config.public.appTitle }) }}

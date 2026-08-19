@@ -45,11 +45,26 @@ export function useHtmlContent() {
     const mediaStreamPath = extractMediaStreamPath(config.public.mediaStreamPath as string | undefined)
 
     // Build allowed domains list - include static, media stream, and Django origins
-    // TinyMCE uploads are served from Django, so we need to include it
+    // TinyMCE uploads are served from Django, so we need to include it.
+    //
+    // The TENANT's own API origin has to be here too, not just the
+    // platform one: a tenant's CMS images are served from its own API
+    // host, so with only config.public.djangoUrl (api.webside.gr) in the
+    // list they failed shouldTransformImage, skipped the media-stream
+    // rewrite entirely, and shipped as unoptimised full-size originals
+    // inside blog and product bodies. Same tenant-first-then-platform
+    // shape as staticOrigin/mediaStreamOrigin above.
+    const tenantApiOrigin = tenantStore.apiDomain
+      ? `https://${tenantStore.apiDomain}`
+      : undefined
+
     const allowedDomains: string[] = []
     if (staticOrigin) allowedDomains.push(staticOrigin)
     if (mediaStreamOrigin) allowedDomains.push(mediaStreamOrigin)
-    if (djangoUrl) allowedDomains.push(djangoUrl)
+    if (tenantApiOrigin) allowedDomains.push(tenantApiOrigin)
+    if (djangoUrl && djangoUrl !== tenantApiOrigin) {
+      allowedDomains.push(djangoUrl)
+    }
 
     return {
       mediaStreamOrigin: mediaStreamOrigin || '',

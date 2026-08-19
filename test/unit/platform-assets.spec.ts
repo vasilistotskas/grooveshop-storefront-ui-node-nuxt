@@ -30,6 +30,11 @@ const PLATFORM_ASSETS = [
     why: 'platform navbar wordmark (useTenantBranding light logo)',
     minBytes: 500,
   },
+  {
+    path: 'public/img/logo-border.png',
+    why: 'square platform mark on the login/signup forms',
+    minBytes: 500,
+  },
 ]
 
 describe('platform assets referenced by external configuration', () => {
