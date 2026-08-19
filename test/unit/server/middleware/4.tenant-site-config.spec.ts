@@ -140,3 +140,43 @@ describe('4.tenant-site-config middleware', () => {
     expect(fakeGetSiteConfig(event).description).toBe('Platform-wide description')
   })
 })
+
+describe('middleware-before-init ordering (production Nitro order)', () => {
+  it('tenant values win even when the runtimeEnv layer is pushed AFTER the middleware ran', () => {
+    // In the production Nitro build, this middleware runs BEFORE
+    // nuxt-site-config's init middleware: it creates the stack, pushes
+    // the tenant layer, and init's runtimeEnv push lands LATER. With an
+    // unprioritised tenant push, equal-priority/later-insertion let the
+    // env layer bury the tenant values — every non-platform tenant
+    // rendered the PLATFORM url/name in canonical/og:url/titleTemplate
+    // (observed live on staging tenant #2, 2026-08-19). The explicit
+    // _priority on the tenant push must win regardless of order.
+    const event = {
+      context: {
+        tenant: {
+          primaryDomain: 'acme.example',
+          storeName: 'Acme Store',
+          name: 'acme',
+        },
+        siteConfig: undefined as unknown as ReturnType<typeof createFakeSiteConfigStack>,
+      },
+    }
+
+    handler(event)
+
+    // Simulate init running afterwards on the SAME stack object.
+    event.context.siteConfig!.push({
+      _context: 'runtimeEnv',
+      _priority: RUNTIME_PRIORITY,
+      url: 'https://webside.gr',
+      name: 'Webside',
+      description: 'Platform-wide description',
+    })
+
+    const resolved = fakeGetSiteConfig(event)
+    expect(resolved.url).toBe('https://acme.example')
+    expect(resolved.name).toBe('Acme Store')
+    // Unset tenant keys still fall through to the env layer.
+    expect(resolved.description).toBe('Platform-wide description')
+  })
+})

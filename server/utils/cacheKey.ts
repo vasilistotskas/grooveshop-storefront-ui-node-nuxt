@@ -29,7 +29,15 @@ function fnv1a(str: string, seed: number): number {
  */
 export function tenantCacheKey(event: H3Event, key: string): string {
   const host = getRequestHost(event, { xForwardedHost: false })
-  const raw = `${host}:${key}`
+  return hashedCacheKey(`${host}:${key}`)
+}
+
+/**
+ * Append the escape-surviving dual-FNV hash to a raw cache key string.
+ * Use for `defineCachedFunction` getKeys (no H3Event available) — same
+ * escapeKey-collision rationale as {@link tenantCacheKey}.
+ */
+export function hashedCacheKey(raw: string): string {
   const h1 = fnv1a(raw, 0x811C9DC5).toString(36)
   const h2 = fnv1a(raw, 0x9747B28C).toString(36)
   return `${raw}_${h1}${h2}`

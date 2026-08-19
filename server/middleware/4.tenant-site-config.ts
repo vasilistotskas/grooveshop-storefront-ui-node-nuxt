@@ -15,24 +15,32 @@
  * platform-wide — again a silent no-op.
  *
  * `updateSiteConfig()` instead PUSHES a new layer onto the stack (see
- * `site-config-stack`'s `push`/`get`). Left unprioritised, our push
- * implicitly resolves to the same "runtime" tier (priority 0 — the
- * highest/last-resolved tier) as nuxt-site-config's own `runtimeEnv`
- * push in its `init` middleware. Layers at equal priority resolve in
- * stack (insertion) order, and because this middleware runs after that
- * push (module middleware runs before user `server/middleware/*`, and
- * filename ordering (`4.*`) guarantees we also run after 0.tenant,
- * 1.locale, 2.evlog-auth, 3.csp), our tenant values win for the keys we
- * set here, while any key we don't set (e.g. `description` when the
- * tenant has none) still falls through to the platform-wide runtimeEnv
- * values.
+ * `site-config-stack`'s `push`/`get`).
+ *
+ * The push carries an EXPLICIT `_priority` above the "runtime" tier
+ * (0) used by nuxt-site-config's own `runtimeEnv` layer. This is
+ * load-bearing: an earlier revision left the push unprioritised on the
+ * assumption that the module's `init` middleware runs BEFORE scanned
+ * `server/middleware/*` (equal priorities resolve in insertion order,
+ * so later-inserted tenant values would win). In the production Nitro
+ * build the order is the REVERSE — this middleware runs first, creates
+ * the stack, and init's later `runtimeEnv` push buried the tenant
+ * layer, so every non-platform tenant rendered the PLATFORM site
+ * url/name in canonical/og:url/titleTemplate/sitemap (observed live on
+ * staging tenant #2, 2026-08-19). An explicit higher priority wins
+ * regardless of middleware ordering; keys we don't set (e.g.
+ * `description` when the tenant has none) still fall through to the
+ * platform-wide runtimeEnv values.
  */
+const TENANT_SITE_CONFIG_PRIORITY = 10
+
 export default defineEventHandler((event) => {
   const tenant = event.context.tenant
   if (!tenant) return
   if (!tenant.primaryDomain) return
 
   updateSiteConfig(event, {
+    _priority: TENANT_SITE_CONFIG_PRIORITY,
     url: `https://${tenant.primaryDomain}`,
     name: tenant.storeName || tenant.name,
     ...(tenant.storeDescription

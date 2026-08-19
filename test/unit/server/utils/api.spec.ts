@@ -106,6 +106,37 @@ describe('Server Utils - API', () => {
       expect($fetch).toHaveBeenCalledTimes(2)
     })
 
+    it('re-anchors tenant-host next links onto the internal base origin', async () => {
+      // Django builds `next` from X-Forwarded-Host — under tenant host
+      // inversion that's the STOREFRONT domain, which doesn't serve the
+      // API (Nuxt 404s /api/v1/** in prod; on staging the hop dies on
+      // ingress basic-auth). Only path+query may be followed, on the
+      // origin the FIRST page was fetched from.
+      const page1 = {
+        results: [{ id: 1 }],
+        links: { next: 'https://tenant-a.example/api/v1/blog/post?languageCode=el&page=2' },
+      }
+      const page2 = { results: [{ id: 2 }], links: { next: null } }
+      vi.stubGlobal('$fetch', vi.fn()
+        .mockResolvedValueOnce(page1)
+        .mockResolvedValueOnce(page2))
+
+      const fetcher = createCachedFetcher<any>('test-rebase', 60)
+      const result = await fetcher(
+        'tenant-a.example',
+        'http://backend-service:80/api/v1/blog/post?languageCode=el',
+      )
+
+      expect(result).toEqual([{ id: 1 }, { id: 2 }])
+      // Note: URL() elides the default port (:80 for http) when
+      // normalizing the origin — functionally identical.
+      expect($fetch).toHaveBeenNthCalledWith(
+        2,
+        'http://backend-service/api/v1/blog/post?languageCode=el&page=2',
+        expect.anything(),
+      )
+    })
+
     it('should handle empty results', async () => {
       const mockData = {
         results: [],
