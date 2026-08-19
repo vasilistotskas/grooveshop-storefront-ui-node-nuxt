@@ -21,11 +21,23 @@ export function setupPageHeader() {
   )
   const favicon = computed(() => tenantStore.faviconUrl)
 
-  const i18nHead = useLocaleHead({
+  const rawI18nHead = useLocaleHead({
     dir: true,
     lang: true,
     seo: true,
   })
+  // i18n's baseUrl is platform-static (see the i18n block in
+  // nuxt.config.ts) — rebase its canonical/hreflang/og URLs onto the
+  // tenant's own origin so no tenant page carries the platform host.
+  const i18nHead = computed(() =>
+    tenantStore.primaryDomain
+      ? rebaseLocaleHeadOrigins(
+          rawI18nHead.value,
+          publicConfig.baseUrl as string,
+          `https://${tenantStore.primaryDomain}`,
+        )
+      : rawI18nHead.value,
+  )
 
   // Tenant-aware preconnect hints. nuxt.config.ts app.head.link already
   // preconnects to the platform env origins (boot-time hints for the

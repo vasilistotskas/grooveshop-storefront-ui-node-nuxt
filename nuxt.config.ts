@@ -559,6 +559,15 @@ export default defineNuxtConfig({
   i18n: {
     defaultLocale: DEFAULT_LOCALE,
     debug: false,
+    // NOTE on multi-tenant SEO: i18n's ``baseUrl`` (env
+    // NUXT_PUBLIC_I18N_BASE_URL) is inherently PLATFORM-static — a
+    // function here does not survive the module's runtimeConfig JSON
+    // serialization (verified against @nuxtjs/i18n 10.6 module.mjs:
+    // options.baseUrl is defu'd into runtimeConfig.public.i18n), and
+    // an empty value degrades useLocaleHead to relative links plus a
+    // per-request warning. Per-tenant canonical/hreflang/og:url are
+    // therefore produced by rebasing the localeHead output onto the
+    // tenant origin in ``setupPageHeader`` (app/utils/seoHead.ts).
     restructureDir: 'i18n',
     detectBrowserLanguage: {
       useCookie: true,
