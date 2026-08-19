@@ -1,4 +1,11 @@
 <script lang="ts" setup>
+// Blog favourites are a blog surface: gate them with the rest (every
+// app/pages/blog/** page carries this), or a tenant with the blog
+// switched off still exposes the route.
+definePageMeta({
+  middleware: ['blog-enabled'],
+})
+
 const { t, locale } = useI18n()
 const route = useRoute(`account-favourites-posts___${locale.value}`)
 const { user } = useUserSession()

@@ -9,6 +9,7 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
   const t = $i18n.t.bind($i18n)
   const { loggedIn, user } = useUserSession()
   const route = useRoute()
+  const tenantStore = useTenantStore()
   const img = useMediaStreamImage()
 
   const avatarImg = computed(() => {
@@ -36,11 +37,16 @@ export function useMobileNavItems(options: MobileNavOptions = {}) {
         to: '/search',
         label: t('search.title'),
       },
-      {
-        icon: 'i-heroicons-heart',
-        to: loggedIn.value ? '/account/favourites/posts' : '/account/login',
-        label: t('favourites'),
-      },
+      // Points at a BLOG surface, so it follows blogEnabled the way the
+      // desktop navbar's equivalent already does — otherwise a
+      // blog-disabled tenant shows a heart that leads to a gated route.
+      ...(tenantStore.blogEnabled
+        ? [{
+            icon: 'i-heroicons-heart',
+            to: loggedIn.value ? '/account/favourites/posts' : '/account/login',
+            label: t('favourites'),
+          }]
+        : []),
     ] as LinksOption[]
 
     if (includeCart) {
