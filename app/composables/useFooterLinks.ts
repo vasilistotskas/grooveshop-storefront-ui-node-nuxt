@@ -8,37 +8,25 @@ export function useFooterLinks() {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
   const localePath = useLocalePath()
-  const tenantStore = useTenantStore()
   const { footerColumns } = useNavigation()
 
-  // The "about the site" link reads "About {storeName}" so each tenant
-  // gets its own brand name in the footer nav without duplicating the
-  // translation strings.
-  const storeName = computed(() => tenantStore.storeName || '')
-
   // Operator-configured footer wins (per-tenant NavigationMenu rows);
-  // the code-level columns below are the fallback that keeps the
-  // platform chrome untouched for unconfigured tenants.
+  // the code-level columns below are the fallback for tenants that have
+  // published none.
+  //
+  // The fallback carries only links EVERY store has. Brand-specific
+  // information architecture belongs in a NavigationMenu row, not here:
+  // this list used to include "Όραμα" and a whole Microlearning column,
+  // so every tenant's footer advertised another company's product
+  // concept and linked to /vision, /what-is-microlearning and
+  // /why-microlearning — pages that render an empty body for any tenant
+  // without a published layout, i.e. crawlable soft-404s. Webside keeps
+  // those links because ``manage.py seed_brand_pages`` publishes both
+  // the pages and its footer menu together.
+  // /about is layout-driven too, so it 404s for a tenant that has not
+  // published one — it belongs in the seeded menu, not the universal
+  // fallback. What remains here are the pages every store always has.
   const fallbackColumns = computed<FooterLinkColumn[]>(() => [
-    {
-      label: t('footer.about.us'),
-      icon: 'i-heroicons-information-circle',
-      children: [
-        {
-          label: t('footer.about.site', { storeName: storeName.value }),
-          to: localePath('about'),
-        },
-        { label: t('footer.vision'), to: localePath('vision') },
-      ],
-    },
-    {
-      label: t('footer.microlearning.title'),
-      icon: 'i-heroicons-light-bulb',
-      children: [
-        { label: t('footer.microlearning.what'), to: localePath('what-is-microlearning') },
-        { label: t('footer.microlearning.why'), to: localePath('why-microlearning') },
-      ],
-    },
     {
       label: t('footer.terms_conditions'),
       icon: 'i-heroicons-rectangle-group',
