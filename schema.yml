@@ -9541,6 +9541,7 @@ paths:
         - Health
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -14911,7 +14912,7 @@ paths:
           description: ''
   /api/v1/page-config/navigation/admin:
     get:
-      operationId: api_v1_page_config_navigation_admin_retrieve
+      operationId: api_v1_page_config_navigation_admin_list
       parameters:
         - in: query
           name: cursor
@@ -14928,6 +14929,15 @@ paths:
               - en
             default: el
           description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
         - in: query
           name: pageSize
           schema:
@@ -14955,13 +14965,23 @@ paths:
               - pageNumber
             default: pageNumber
           description: Τύπος στρατηγικής σελιδοποίησης
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
       tags:
         - api
       security:
         - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNavigationMenuList'
+          description: ''
     post:
       operationId: api_v1_page_config_navigation_admin_create
       parameters:
@@ -14977,14 +14997,30 @@ paths:
           description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
       tags:
         - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NavigationMenuRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NavigationMenuRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NavigationMenuRequest'
+        required: true
       security:
         - cookieAuth: []
       responses:
         '201':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NavigationMenu'
+          description: ''
   /api/v1/page-config/navigation/admin/{id}:
     get:
-      operationId: api_v1_page_config_navigation_admin_retrieve_2
+      operationId: api_v1_page_config_navigation_admin_retrieve
       parameters:
         - in: path
           name: id
@@ -15010,7 +15046,11 @@ paths:
         - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NavigationMenu'
+          description: ''
     put:
       operationId: api_v1_page_config_navigation_admin_update
       parameters:
@@ -15034,11 +15074,27 @@ paths:
           description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
       tags:
         - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NavigationMenuRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NavigationMenuRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NavigationMenuRequest'
+        required: true
       security:
         - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NavigationMenu'
+          description: ''
     patch:
       operationId: api_v1_page_config_navigation_admin_partial_update
       parameters:
@@ -15062,11 +15118,26 @@ paths:
           description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
       tags:
         - api
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNavigationMenuRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNavigationMenuRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNavigationMenuRequest'
       security:
         - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NavigationMenu'
+          description: ''
     delete:
       operationId: api_v1_page_config_navigation_admin_destroy
       parameters:
@@ -15342,6 +15413,7 @@ paths:
         - Payment methods
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -15472,6 +15544,7 @@ paths:
         - Payment methods
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -19422,6 +19495,7 @@ paths:
         - Product Category Images
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -19555,6 +19629,7 @@ paths:
         - Product Category Images
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -19907,6 +19982,7 @@ paths:
         - Product Category Images
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -20021,6 +20097,7 @@ paths:
         - Product Category Images
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -21614,6 +21691,7 @@ paths:
         - Product Reviews
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -21747,6 +21825,7 @@ paths:
         - Product Reviews
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -21982,6 +22061,7 @@ paths:
         - Product Reviews
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -22815,6 +22895,7 @@ paths:
         - Search
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -22900,6 +22981,7 @@ paths:
         - Search
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -23001,6 +23083,7 @@ paths:
         - Search
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -23090,6 +23173,7 @@ paths:
         - Settings
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -24968,13 +25052,18 @@ paths:
     get:
       operationId: api_v1_tenant_memberships_mine_retrieve
       description: |-
-        List the tenants the authenticated user has active access to.
+        List the tenants the authenticated STAFF user has access to.
 
-        The storefront uses this to decide which tenant admin links to
-        render (OWNER/ADMIN/STAFF roles unlock different surfaces) and to
-        build a tenant switcher for users who belong to multiple stores.
-        Always queried from the public schema — memberships are platform-
-        wide data.
+        Used to build the operator's tenant switcher and decide which admin
+        links to render (OWNER/ADMIN/STAFF unlock different surfaces).
+
+        Answers only in the public schema. Memberships are a platform-wide
+        table keyed by a PUBLIC user id, while a request on a tenant host
+        authenticates against that tenant's OWN user table — where the same
+        id belongs to a different person. Filtering by that id would list
+        stores the caller has nothing to do with. Customers hold no
+        memberships at all (see ``tenant/membership.py``), so an empty list
+        is the correct answer for every shopper.
       tags:
         - Tenant
       security:
@@ -28884,7 +28973,7 @@ components:
           readOnly: true
           nullable: true
           title: Εκδόθηκε από
-          description: Διαχειριστής που ενεργοποίησε τη χειροκίνητη έκδοση. Null όταν η λίστα εκδόθηκε από την καθημερινή εργασία Celery beat.
+          description: Admin who triggered the manual issue. Null when the daily Celery beat task issued the list. Stores a PLATFORM-schema user id; not FK-enforced (see db_constraint above).
         issuedByUsername:
           type: string
           nullable: true
@@ -33230,6 +33319,26 @@ components:
         - pointsMultiplier
         - requiredLevel
         - translations
+    NavigationMenu:
+      type: object
+      properties:
+        slot:
+          $ref: '#/components/schemas/SlotEnum'
+        items:
+          title: Είδη
+          description: 'header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. ''to'' must be an internal path starting with ''/'', ''href'' an https URL.'
+      required:
+        - slot
+    NavigationMenuRequest:
+      type: object
+      properties:
+        slot:
+          $ref: '#/components/schemas/SlotEnum'
+        items:
+          title: Είδη
+          description: 'header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. ''to'' must be an internal path starting with ''/'', ''href'' an https URL.'
+      required:
+        - slot
     Notification:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -35215,6 +35324,44 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LoyaltyTier'
+    PaginatedNavigationMenuList:
+      type: object
+      required:
+        - count
+        - results
+      properties:
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+              nullable: true
+              format: uri
+              example: http://api.example.org/accounts/?page=4
+            previous:
+              type: string
+              nullable: true
+              format: uri
+              example: http://api.example.org/accounts/?page=2
+        count:
+          type: integer
+          example: 123
+        totalPages:
+          type: integer
+          example: 123
+        pageSize:
+          type: integer
+          example: 123
+        pageTotalResults:
+          type: integer
+          example: 123
+        page:
+          type: integer
+          example: 123
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/NavigationMenu'
     PaginatedNotificationUserDetailList:
       type: object
       required:
@@ -36295,6 +36442,14 @@ components:
           minimum: 0
           nullable: true
           title: Κωδικός κλήσης
+    PatchedNavigationMenuRequest:
+      type: object
+      properties:
+        slot:
+          $ref: '#/components/schemas/SlotEnum'
+        items:
+          title: Είδη
+          description: 'header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. ''to'' must be an internal path starting with ''/'', ''href'' an https URL.'
     PatchedNotificationUserWriteRequest:
       type: object
       properties:
@@ -40195,6 +40350,16 @@ components:
         * `5` - Kiosk
         * `7` - Smartpoint (χωρίς locker)
         * `8` - Smartpoint locker
+    SlotEnum:
+      enum:
+        - header
+        - footer
+        - mobile
+      type: string
+      description: |-
+        * `header` - Header
+        * `footer` - Footer
+        * `mobile` - Mobile
     SubscriptionStatus:
       enum:
         - ACTIVE

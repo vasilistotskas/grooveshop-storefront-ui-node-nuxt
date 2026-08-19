@@ -4377,6 +4377,53 @@ export const zPaginatedAcsStationList = z.object({
 })
 
 /**
+ * * `header` - Header
+ * * `footer` - Footer
+ * * `mobile` - Mobile
+ */
+export const zSlotEnum = z.enum([
+  'header',
+  'footer',
+  'mobile',
+]).register(z.globalRegistry, {
+  description: '* `header` - Header\n* `footer` - Footer\n* `mobile` - Mobile',
+})
+
+export const zNavigationMenu = z.object({
+  slot: zSlotEnum,
+  items: z.unknown().register(z.globalRegistry, {
+    description: 'header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. \'to\' must be an internal path starting with \'/\', \'href\' an https URL.',
+  }).optional(),
+})
+
+export const zNavigationMenuRequest = z.object({
+  slot: zSlotEnum,
+  items: z.unknown().register(z.globalRegistry, {
+    description: 'header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. \'to\' must be an internal path starting with \'/\', \'href\' an https URL.',
+  }).optional(),
+})
+
+export const zPaginatedNavigationMenuList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zNavigationMenu),
+})
+
+export const zPatchedNavigationMenuRequest = z.object({
+  slot: zSlotEnum.optional(),
+  items: z.unknown().register(z.globalRegistry, {
+    description: 'header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. \'to\' must be an internal path starting with \'/\', \'href\' an https URL.',
+  }).optional(),
+})
+
+/**
  * * `ACTIVE` - Ενεργή
  * * `PENDING` - Εκκρεμεί Επιβεβαίωση
  * * `UNSUBSCRIBED` - Διαγραφή
@@ -12934,7 +12981,7 @@ export const zApiV1PageConfigNavigationRetrieveResponse = z.record(z.string(), z
   description: 'Navigation items keyed by slot (header/footer/mobile). Missing slots mean \'use the storefront\'s built-in menu\'.',
 })
 
-export const zApiV1PageConfigNavigationAdminRetrieveQuery = z.object({
+export const zApiV1PageConfigNavigationAdminListQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
@@ -12945,6 +12992,10 @@ export const zApiV1PageConfigNavigationAdminRetrieveQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
   pageSize: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -12959,7 +13010,14 @@ export const zApiV1PageConfigNavigationAdminRetrieveQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Τύπος στρατηγικής σελιδοποίησης',
   }).optional().default('pageNumber'),
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
 })
+
+export const zApiV1PageConfigNavigationAdminListResponse = zPaginatedNavigationMenuList
+
+export const zApiV1PageConfigNavigationAdminCreateBody = zNavigationMenuRequest
 
 export const zApiV1PageConfigNavigationAdminCreateQuery = z.object({
   languageCode: z.enum([
@@ -12970,6 +13028,8 @@ export const zApiV1PageConfigNavigationAdminCreateQuery = z.object({
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
+
+export const zApiV1PageConfigNavigationAdminCreateResponse = zNavigationMenu
 
 export const zApiV1PageConfigNavigationAdminDestroyPath = z.object({
   id: z.union([
@@ -12985,14 +13045,14 @@ export const zApiV1PageConfigNavigationAdminDestroyResponse = z.void().register(
   description: 'No response body',
 })
 
-export const zApiV1PageConfigNavigationAdminRetrieve2Path = z.object({
+export const zApiV1PageConfigNavigationAdminRetrievePath = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),
 })
 
-export const zApiV1PageConfigNavigationAdminRetrieve2Query = z.object({
+export const zApiV1PageConfigNavigationAdminRetrieveQuery = z.object({
   languageCode: z.enum([
     'de',
     'el',
@@ -13001,6 +13061,10 @@ export const zApiV1PageConfigNavigationAdminRetrieve2Query = z.object({
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
+
+export const zApiV1PageConfigNavigationAdminRetrieveResponse = zNavigationMenu
+
+export const zApiV1PageConfigNavigationAdminPartialUpdateBody = zPatchedNavigationMenuRequest
 
 export const zApiV1PageConfigNavigationAdminPartialUpdatePath = z.object({
   id: z.union([
@@ -13019,6 +13083,10 @@ export const zApiV1PageConfigNavigationAdminPartialUpdateQuery = z.object({
   }).optional().default('el'),
 })
 
+export const zApiV1PageConfigNavigationAdminPartialUpdateResponse = zNavigationMenu
+
+export const zApiV1PageConfigNavigationAdminUpdateBody = zNavigationMenuRequest
+
 export const zApiV1PageConfigNavigationAdminUpdatePath = z.object({
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -13035,6 +13103,8 @@ export const zApiV1PageConfigNavigationAdminUpdateQuery = z.object({
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
 })
+
+export const zApiV1PageConfigNavigationAdminUpdateResponse = zNavigationMenu
 
 export const zListPayWayQuery = z.object({
   active: z.union([

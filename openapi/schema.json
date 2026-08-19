@@ -16425,7 +16425,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "200": {
@@ -25476,7 +25477,7 @@
         },
         "/api/v1/page-config/navigation/admin": {
             "get": {
-                "operationId": "api_v1_page_config_navigation_admin_retrieve",
+                "operationId": "api_v1_page_config_navigation_admin_list",
                 "parameters": [
                     {
                         "in": "query",
@@ -25499,6 +25500,23 @@
                             "default": "el"
                         },
                         "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "A page number within the paginated result set.",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        }
                     },
                     {
                         "in": "query",
@@ -25542,6 +25560,15 @@
                             "default": "pageNumber"
                         },
                         "description": "Τύπος στρατηγικής σελιδοποίησης"
+                    },
+                    {
+                        "name": "search",
+                        "required": false,
+                        "in": "query",
+                        "description": "A search term.",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "tags": [
@@ -25554,7 +25581,14 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response body"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaginatedNavigationMenuList"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             },
@@ -25579,6 +25613,26 @@
                 "tags": [
                     "api"
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NavigationMenuRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NavigationMenuRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NavigationMenuRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "security": [
                     {
                         "cookieAuth": []
@@ -25586,14 +25640,21 @@
                 ],
                 "responses": {
                     "201": {
-                        "description": "No response body"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NavigationMenu"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
         },
         "/api/v1/page-config/navigation/admin/{id}": {
             "get": {
-                "operationId": "api_v1_page_config_navigation_admin_retrieve_2",
+                "operationId": "api_v1_page_config_navigation_admin_retrieve",
                 "parameters": [
                     {
                         "in": "path",
@@ -25636,7 +25697,14 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response body"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NavigationMenu"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             },
@@ -25677,6 +25745,26 @@
                 "tags": [
                     "api"
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NavigationMenuRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NavigationMenuRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NavigationMenuRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
                 "security": [
                     {
                         "cookieAuth": []
@@ -25684,7 +25772,14 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response body"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NavigationMenu"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             },
@@ -25725,6 +25820,25 @@
                 "tags": [
                     "api"
                 ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedNavigationMenuRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedNavigationMenuRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PatchedNavigationMenuRequest"
+                            }
+                        }
+                    }
+                },
                 "security": [
                     {
                         "cookieAuth": []
@@ -25732,7 +25846,14 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response body"
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NavigationMenu"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             },
@@ -26230,7 +26351,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "400": {
@@ -26442,7 +26564,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "401": {
@@ -33191,7 +33314,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "400": {
@@ -33411,7 +33535,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "401": {
@@ -33985,7 +34110,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "400": {
@@ -34157,7 +34283,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "400": {
@@ -36834,7 +36961,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "400": {
@@ -37054,7 +37182,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "401": {
@@ -37450,7 +37579,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "400": {
@@ -38830,7 +38960,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "200": {
@@ -38976,7 +39107,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "200": {
@@ -39159,7 +39291,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "200": {
@@ -39309,7 +39442,8 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    }
+                    },
+                    {}
                 ],
                 "responses": {
                     "200": {
@@ -42447,7 +42581,7 @@
         "/api/v1/tenant/memberships/mine": {
             "get": {
                 "operationId": "api_v1_tenant_memberships_mine_retrieve",
-                "description": "List the tenants the authenticated user has active access to.\n\nThe storefront uses this to decide which tenant admin links to\nrender (OWNER/ADMIN/STAFF roles unlock different surfaces) and to\nbuild a tenant switcher for users who belong to multiple stores.\nAlways queried from the public schema — memberships are platform-\nwide data.",
+                "description": "List the tenants the authenticated STAFF user has access to.\n\nUsed to build the operator's tenant switcher and decide which admin\nlinks to render (OWNER/ADMIN/STAFF unlock different surfaces).\n\nAnswers only in the public schema. Memberships are a platform-wide\ntable keyed by a PUBLIC user id, while a request on a tenant host\nauthenticates against that tenant's OWN user table — where the same\nid belongs to a different person. Filtering by that id would list\nstores the caller has nothing to do with. Customers hold no\nmemberships at all (see ``tenant/membership.py``), so an empty list\nis the correct answer for every shopper.",
                 "tags": [
                     "Tenant"
                 ],
@@ -48860,7 +48994,7 @@
                         "readOnly": true,
                         "nullable": true,
                         "title": "Εκδόθηκε από",
-                        "description": "Διαχειριστής που ενεργοποίησε τη χειροκίνητη έκδοση. Null όταν η λίστα εκδόθηκε από την καθημερινή εργασία Celery beat."
+                        "description": "Admin who triggered the manual issue. Null when the daily Celery beat task issued the list. Stores a PLATFORM-schema user id; not FK-enforced (see db_constraint above)."
                     },
                     "issuedByUsername": {
                         "type": "string",
@@ -54287,6 +54421,36 @@
                     "translations"
                 ]
             },
+            "NavigationMenu": {
+                "type": "object",
+                "properties": {
+                    "slot": {
+                        "$ref": "#/components/schemas/SlotEnum"
+                    },
+                    "items": {
+                        "title": "Είδη",
+                        "description": "header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL."
+                    }
+                },
+                "required": [
+                    "slot"
+                ]
+            },
+            "NavigationMenuRequest": {
+                "type": "object",
+                "properties": {
+                    "slot": {
+                        "$ref": "#/components/schemas/SlotEnum"
+                    },
+                    "items": {
+                        "title": "Είδη",
+                        "description": "header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL."
+                    }
+                },
+                "required": [
+                    "slot"
+                ]
+            },
             "Notification": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -56815,6 +56979,58 @@
                     }
                 }
             },
+            "PaginatedNavigationMenuList": {
+                "type": "object",
+                "required": [
+                    "count",
+                    "results"
+                ],
+                "properties": {
+                    "links": {
+                        "type": "object",
+                        "properties": {
+                            "next": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=4"
+                            },
+                            "previous": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "uri",
+                                "example": "http://api.example.org/accounts/?page=2"
+                            }
+                        }
+                    },
+                    "count": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "pageTotalResults": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 123
+                    },
+                    "results": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/NavigationMenu"
+                        }
+                    }
+                }
+            },
             "PaginatedNotificationUserDetailList": {
                 "type": "object",
                 "required": [
@@ -58317,6 +58533,18 @@
                         "minimum": 0,
                         "nullable": true,
                         "title": "Κωδικός κλήσης"
+                    }
+                }
+            },
+            "PatchedNavigationMenuRequest": {
+                "type": "object",
+                "properties": {
+                    "slot": {
+                        "$ref": "#/components/schemas/SlotEnum"
+                    },
+                    "items": {
+                        "title": "Είδη",
+                        "description": "header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL."
                     }
                 }
             },
@@ -63519,6 +63747,15 @@
                 ],
                 "type": "integer",
                 "description": "* `1` - Κατάστημα\n* `2` - Συνεργαζόμενο κατάστημα (2)\n* `3` - Συνεργαζόμενο κατάστημα (3)\n* `4` - Xpress Point\n* `5` - Kiosk\n* `7` - Smartpoint (χωρίς locker)\n* `8` - Smartpoint locker"
+            },
+            "SlotEnum": {
+                "enum": [
+                    "header",
+                    "footer",
+                    "mobile"
+                ],
+                "type": "string",
+                "description": "* `header` - Header\n* `footer` - Footer\n* `mobile` - Mobile"
             },
             "SubscriptionStatus": {
                 "enum": [

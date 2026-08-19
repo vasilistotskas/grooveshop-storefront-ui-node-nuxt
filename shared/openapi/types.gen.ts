@@ -62,7 +62,7 @@ export type AcsPickupList = {
   /**
      * Εκδόθηκε από
      *
-     * Διαχειριστής που ενεργοποίησε τη χειροκίνητη έκδοση. Null όταν η λίστα εκδόθηκε από την καθημερινή εργασία Celery beat.
+     * Admin who triggered the manual issue. Null when the daily Celery beat task issued the list. Stores a PLATFORM-schema user id; not FK-enforced (see db_constraint above).
      */
   readonly issuedBy: number | null
   readonly issuedByUsername: string | null
@@ -2803,6 +2803,26 @@ export type LoyaltyTier = {
   readonly iconFilename: string
 }
 
+export type NavigationMenu = {
+  slot: SlotEnum
+  /**
+     * Είδη
+     *
+     * header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL.
+     */
+  items?: unknown
+}
+
+export type NavigationMenuRequest = {
+  slot: SlotEnum
+  /**
+     * Είδη
+     *
+     * header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL.
+     */
+  items?: unknown
+}
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -3879,6 +3899,19 @@ export type PaginatedLoyaltyTierList = {
   results: Array<LoyaltyTier>
 }
 
+export type PaginatedNavigationMenuList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<NavigationMenu>
+}
+
 export type PaginatedNotificationUserDetailList = {
   links?: {
     next?: string | null
@@ -4338,6 +4371,16 @@ export type PatchedCountryWriteRequest = {
      * Κωδικός κλήσης
      */
   phoneCode?: number | null
+}
+
+export type PatchedNavigationMenuRequest = {
+  slot?: SlotEnum
+  /**
+     * Είδη
+     *
+     * header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL.
+     */
+  items?: unknown
 }
 
 export type PatchedNotificationUserWriteRequest = {
@@ -6770,6 +6813,13 @@ export type ShippingProvider = {
  * * `8` - Smartpoint locker
  */
 export type ShopKindEnum = 1 | 2 | 3 | 4 | 5 | 7 | 8
+
+/**
+ * * `header` - Header
+ * * `footer` - Footer
+ * * `mobile` - Mobile
+ */
+export type SlotEnum = 'header' | 'footer' | 'mobile'
 
 /**
  * * `ACTIVE` - Ενεργή
@@ -16937,7 +16987,7 @@ export type ApiV1PageConfigNavigationRetrieveResponses = {
 
 export type ApiV1PageConfigNavigationRetrieveResponse = ApiV1PageConfigNavigationRetrieveResponses[keyof ApiV1PageConfigNavigationRetrieveResponses]
 
-export type ApiV1PageConfigNavigationAdminRetrieveData = {
+export type ApiV1PageConfigNavigationAdminListData = {
   body?: never
   path?: never
   query?: {
@@ -16950,6 +17000,10 @@ export type ApiV1PageConfigNavigationAdminRetrieveData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
          * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
@@ -16961,19 +17015,22 @@ export type ApiV1PageConfigNavigationAdminRetrieveData = {
          * Τύπος στρατηγικής σελιδοποίησης
          */
     paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
+    /**
+         * A search term.
+         */
+    search?: string
   }
   url: '/api/v1/page-config/navigation/admin'
 }
 
-export type ApiV1PageConfigNavigationAdminRetrieveResponses = {
-  /**
-     * No response body
-     */
-  200: unknown
+export type ApiV1PageConfigNavigationAdminListResponses = {
+  200: PaginatedNavigationMenuList
 }
 
+export type ApiV1PageConfigNavigationAdminListResponse = ApiV1PageConfigNavigationAdminListResponses[keyof ApiV1PageConfigNavigationAdminListResponses]
+
 export type ApiV1PageConfigNavigationAdminCreateData = {
-  body?: never
+  body: NavigationMenuRequest
   path?: never
   query?: {
     /**
@@ -16985,11 +17042,10 @@ export type ApiV1PageConfigNavigationAdminCreateData = {
 }
 
 export type ApiV1PageConfigNavigationAdminCreateResponses = {
-  /**
-     * No response body
-     */
-  201: unknown
+  201: NavigationMenu
 }
+
+export type ApiV1PageConfigNavigationAdminCreateResponse = ApiV1PageConfigNavigationAdminCreateResponses[keyof ApiV1PageConfigNavigationAdminCreateResponses]
 
 export type ApiV1PageConfigNavigationAdminDestroyData = {
   body?: never
@@ -17009,7 +17065,7 @@ export type ApiV1PageConfigNavigationAdminDestroyResponses = {
 
 export type ApiV1PageConfigNavigationAdminDestroyResponse = ApiV1PageConfigNavigationAdminDestroyResponses[keyof ApiV1PageConfigNavigationAdminDestroyResponses]
 
-export type ApiV1PageConfigNavigationAdminRetrieve2Data = {
+export type ApiV1PageConfigNavigationAdminRetrieveData = {
   body?: never
   path: {
     id: string | number
@@ -17023,15 +17079,14 @@ export type ApiV1PageConfigNavigationAdminRetrieve2Data = {
   url: '/api/v1/page-config/navigation/admin/{id}'
 }
 
-export type ApiV1PageConfigNavigationAdminRetrieve2Responses = {
-  /**
-     * No response body
-     */
-  200: unknown
+export type ApiV1PageConfigNavigationAdminRetrieveResponses = {
+  200: NavigationMenu
 }
 
+export type ApiV1PageConfigNavigationAdminRetrieveResponse = ApiV1PageConfigNavigationAdminRetrieveResponses[keyof ApiV1PageConfigNavigationAdminRetrieveResponses]
+
 export type ApiV1PageConfigNavigationAdminPartialUpdateData = {
-  body?: never
+  body?: PatchedNavigationMenuRequest
   path: {
     id: string | number
   }
@@ -17045,14 +17100,13 @@ export type ApiV1PageConfigNavigationAdminPartialUpdateData = {
 }
 
 export type ApiV1PageConfigNavigationAdminPartialUpdateResponses = {
-  /**
-     * No response body
-     */
-  200: unknown
+  200: NavigationMenu
 }
 
+export type ApiV1PageConfigNavigationAdminPartialUpdateResponse = ApiV1PageConfigNavigationAdminPartialUpdateResponses[keyof ApiV1PageConfigNavigationAdminPartialUpdateResponses]
+
 export type ApiV1PageConfigNavigationAdminUpdateData = {
-  body?: never
+  body: NavigationMenuRequest
   path: {
     id: string | number
   }
@@ -17066,11 +17120,10 @@ export type ApiV1PageConfigNavigationAdminUpdateData = {
 }
 
 export type ApiV1PageConfigNavigationAdminUpdateResponses = {
-  /**
-     * No response body
-     */
-  200: unknown
+  200: NavigationMenu
 }
+
+export type ApiV1PageConfigNavigationAdminUpdateResponse = ApiV1PageConfigNavigationAdminUpdateResponses[keyof ApiV1PageConfigNavigationAdminUpdateResponses]
 
 export type ListPayWayData = {
   body?: never
