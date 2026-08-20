@@ -105,7 +105,7 @@ export const useCartStore = defineStore('cart', () => {
     if (!delta) return
     try {
       const quantity = Math.abs(delta)
-      const currency = cart.value?.currency ?? 'EUR'
+      const currency = cart.value?.currency ?? useTenantStore().defaultCurrency
       const value = Number((unitPrice * quantity).toFixed(2))
 
       if (delta > 0) {

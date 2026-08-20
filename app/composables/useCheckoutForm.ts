@@ -10,6 +10,7 @@ export async function useCheckoutForm() {
 
   const cartStore = useCartStore()
   const { getCartItems, cart } = storeToRefs(cartStore)
+  const tenantStore = useTenantStore()
   const { loggedIn, user } = useUserSession()
 
   // Form state
@@ -416,7 +417,11 @@ export async function useCheckoutForm() {
           query: {
             countryCode: country,
             orderValueAmount: cartTotal,
-            currency: 'EUR',
+            // The cart states the currency its totals are in; the
+            // tenant default only covers the pre-cart case. Neither may
+            // be a literal — a non-EUR store would price shipping in a
+            // currency it does not sell in.
+            currency: cart.value?.currency ?? tenantStore.defaultCurrency,
             weightGrams,
           },
           headers: useRequestHeaders(),

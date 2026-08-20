@@ -18,6 +18,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   const cartStore = useCartStore()
   const { cleanCartState } = cartStore
   const { cart } = storeToRefs(cartStore)
+  const tenantStore = useTenantStore()
 
   const { reserveStock, releaseReservations, createPaymentIntentFromCart } = useCheckout()
 
@@ -742,7 +743,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       if (currentStep.value === 2 && !metaEventIds.addPaymentInfo) {
         try {
           const value = Number(cart.value?.totalPrice ?? 0)
-          const currency = cart.value?.currency ?? 'EUR'
+          const currency = cart.value?.currency ?? tenantStore.defaultCurrency
           const productIds
             = cart.value?.items
               ?.map(item => String(item.product?.id ?? ''))
@@ -805,7 +806,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     if (metaEventIds.initiateCheckout) return
     try {
       const value = Number(cart.value?.totalPrice ?? 0)
-      const currency = cart.value?.currency ?? 'EUR'
+      const currency = cart.value?.currency ?? tenantStore.defaultCurrency
       const productIds
         = cart.value?.items
           ?.map(item => String(item.product?.id ?? ''))
