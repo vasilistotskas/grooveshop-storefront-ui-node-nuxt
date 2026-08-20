@@ -218,6 +218,16 @@ onReactivated(async () => {
   await refresh()
 })
 
+// Canonical is built from the entity's OWN id+slug, never from
+// route.path: the [slug] segment is decorative (the id resolves the
+// record), so /{id}/anything renders the same page and — self-
+// canonicalising — every variant became its own indexable URL, an
+// unbounded duplicate-content surface. products/[id]/[slug].vue
+// already does this; these routes were the ones that did not.
+const canonicalUrl = computed(
+  () => `${siteUrl}/blog/post/${blogPost.value?.id}/${blogPost.value?.slug}`,
+)
+
 useSeoMeta({
   titleTemplate: '%s',
   title: () => blogPostSeoTitle.value,
@@ -227,7 +237,7 @@ useSeoMeta({
   ogImageHeight: 630,
   ogImage: () => ogImage.value,
   ogType: 'article',
-  ogUrl: () => `${siteUrl}${route.path}`,
+  ogUrl: () => canonicalUrl.value,
   twitterTitle: () => blogPost.value?.seoTitle || blogPostTitle.value,
   twitterDescription: () => blogPost.value?.seoDescription || blogPostSubtitle.value || '',
   twitterImage: () => ogImage.value,
@@ -240,14 +250,18 @@ useSeoMeta({
 useHead({
   link: [
     {
+      rel: 'canonical',
+      href: () => canonicalUrl.value,
+    },
+    {
       rel: 'alternate',
       hreflang: 'el',
-      href: () => `${siteUrl}${route.path}`,
+      href: () => canonicalUrl.value,
     },
     {
       rel: 'alternate',
       hreflang: 'x-default',
-      href: () => `${siteUrl}${route.path}`,
+      href: () => canonicalUrl.value,
     },
   ],
 })

@@ -76,14 +76,29 @@ const ogImage = computed(() => {
 
 const baseUrl = siteConfig.url
 
+// Canonical is built from the entity's OWN id+slug, never from
+// route.path: the [slug] segment is decorative (the id resolves the
+// record), so /{id}/anything renders the same page and — self-
+// canonicalising — every variant became its own indexable URL, an
+// unbounded duplicate-content surface. products/[id]/[slug].vue
+// already does this; these routes were the ones that did not.
+const canonicalUrl = computed(
+  () => `${baseUrl}/products/category/${category.value?.id}/${category.value?.slug}`,
+)
+
 useSeoMeta({
   title: () => categoryName.value || t('title'),
+  ogUrl: () => canonicalUrl.value,
   description: () => categoryDescription.value,
   ogTitle: () => categoryName.value || t('title'),
   ogDescription: () => categoryDescription.value,
   ogType: 'website',
   ogImage: () => ogImage.value,
   ogImageAlt: () => categoryName.value || t('title'),
+})
+
+useHead({
+  link: [{ rel: 'canonical', href: () => canonicalUrl.value }],
 })
 
 useSchemaOrg([
