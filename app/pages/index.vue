@@ -9,7 +9,7 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
 // drives which sections render in which order; the code-level fallback
 // in usePageConfig mirrors the platform homepage exactly for tenants
 // (and pre-cutover webside) without a published layout.
-const { sections } = usePageConfig('home')
+const { sections } = await usePageConfig('home')
 
 definePageMeta({
   layout: 'default',

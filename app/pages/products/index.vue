@@ -79,7 +79,7 @@ const handleToggleFilters = () => {
 // Optional per-tenant branded band above the page content — sections
 // from the published 'products' PageLayout. Fallback is EMPTY, so pages
 // without a layout render exactly as before.
-const { sections: brandSections } = usePageConfig('products')
+const { sections: brandSections } = await usePageConfig('products')
 </script>
 
 <template>

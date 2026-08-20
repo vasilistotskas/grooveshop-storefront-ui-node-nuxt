@@ -30,7 +30,7 @@ definePageMeta({
 // Optional per-tenant branded band above the page content — sections
 // from the published 'contact' PageLayout. Fallback is EMPTY, so pages
 // without a layout render exactly as before.
-const { sections: brandSections } = usePageConfig('contact')
+const { sections: brandSections } = await usePageConfig('contact')
 </script>
 
 <template>

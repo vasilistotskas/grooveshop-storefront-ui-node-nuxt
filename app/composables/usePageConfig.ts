@@ -27,8 +27,22 @@ const FALLBACK_LAYOUTS: Record<string, PageSection[]> = {
   contact: [],
 }
 
-export function usePageConfig(pageType: string) {
-  const { data, status, error } = useFetch<PageLayout>(
+/**
+ * ``await`` is load-bearing, not stylistic.
+ *
+ * On the server Nuxt registers useFetch's promise with
+ * ``onServerPrefetch`` and lets setup continue synchronously (see
+ * nuxt/dist/app/composables/asyncData.js) — it is awaited before
+ * RENDER, not before the next statement. Callers that branch on
+ * ``data``/``error`` right after the call therefore read ``null`` on
+ * every server render, which made the pages that throw 404 on an
+ * unpublished layout throw it unconditionally. Awaiting here suspends
+ * setup the way every other data-driven page in app/pages/** does
+ * (``await useFetch`` in products/[id]/[slug].vue et al), so the refs
+ * are settled by the time a caller inspects them.
+ */
+export async function usePageConfig(pageType: string) {
+  const { data, status, error } = await useFetch<PageLayout>(
     `/api/page-config/${pageType}`,
     { key: `page-config-${pageType}` },
   )

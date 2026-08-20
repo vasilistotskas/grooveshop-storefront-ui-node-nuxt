@@ -11,11 +11,12 @@ if (!slug) {
   })
 }
 
-// usePageConfig's internal useFetch suspends this component's setup
-// until the request settles (same SSR-blocking behaviour every other
-// dynamic page in app/pages/** relies on) — status/error/data are
-// already resolved by the time the checks below run.
-const { data, sections, error } = usePageConfig(slug)
+// The `await` is what makes the checks below meaningful: Nuxt hands
+// useFetch's promise to onServerPrefetch and lets setup run on, so
+// WITHOUT it data/error are still null here on every server render and
+// the 404 branch fires unconditionally. Awaiting suspends setup, same
+// as every other data-driven page in app/pages/**.
+const { data, sections, error } = await usePageConfig(slug)
 
 if (error.value || !data.value?.isPublished) {
   // Distinguish "row really absent" (404) from "backend unavailable"

@@ -7,7 +7,7 @@ const { t } = useI18n()
 // app/components/PageSection/variants/webside/WhatIsMicrolearning.vue).
 // No FALLBACK_LAYOUTS entry: a tenant without a published layout
 // renders an empty page body.
-const { data, sections, error } = usePageConfig('what-is-microlearning')
+const { data, sections, error } = await usePageConfig('what-is-microlearning')
 
 // A page whose layout is not published must fail LOUDLY. Rendering an
 // empty <main> with HTTP 200 is a soft-404: Google keeps it indexed, and

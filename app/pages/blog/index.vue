@@ -31,7 +31,7 @@ definePageMeta({
 // Optional per-tenant branded band above the page content — sections
 // from the published 'blog' PageLayout. Fallback is EMPTY, so pages
 // without a layout render exactly as before.
-const { sections: brandSections } = usePageConfig('blog')
+const { sections: brandSections } = await usePageConfig('blog')
 </script>
 
 <template>

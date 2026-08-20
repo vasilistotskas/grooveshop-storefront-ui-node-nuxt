@@ -12,7 +12,7 @@ describe('usePageConfig', () => {
     mockUseFetchFn.mockReset()
   })
 
-  it('should return sections filtered by visibility and sorted', () => {
+  it('should return sections filtered by visibility and sorted', async () => {
     const sections = [
       { id: 3, uuid: 'c', componentType: 'spacer', title: '', isVisible: true, props: {}, sortOrder: 2 },
       { id: 1, uuid: 'a', componentType: 'hero_carousel', title: '', isVisible: true, props: {}, sortOrder: 0 },
@@ -33,21 +33,21 @@ describe('usePageConfig', () => {
       error: ref(null),
     })
 
-    const { sections: result } = usePageConfig('home')
+    const { sections: result } = await usePageConfig('home')
 
     expect(result.value).toHaveLength(2)
     expect(result.value![0]!.componentType).toBe('hero_carousel')
     expect(result.value![1]!.componentType).toBe('spacer')
   })
 
-  it('should return fallback sections for home when data is null', () => {
+  it('should return fallback sections for home when data is null', async () => {
     mockUseFetchFn.mockReturnValue({
       data: ref(null),
       status: ref('error'),
       error: ref(new Error('Not found')),
     })
 
-    const { sections } = usePageConfig('home')
+    const { sections } = await usePageConfig('home')
 
     // The fallback mirrors the platform homepage exactly:
     // blog categories rail → banner carousel → recently-viewed rail →
@@ -60,26 +60,26 @@ describe('usePageConfig', () => {
     ])
   })
 
-  it('should return empty array fallback for unknown page type', () => {
+  it('should return empty array fallback for unknown page type', async () => {
     mockUseFetchFn.mockReturnValue({
       data: ref(null),
       status: ref('error'),
       error: ref(new Error('Not found')),
     })
 
-    const { sections } = usePageConfig('unknown-page')
+    const { sections } = await usePageConfig('unknown-page')
 
     expect(sections.value).toEqual([])
   })
 
-  it('should call useFetch with correct URL and key', () => {
+  it('should call useFetch with correct URL and key', async () => {
     mockUseFetchFn.mockReturnValue({
       data: ref(null),
       status: ref('pending'),
       error: ref(null),
     })
 
-    usePageConfig('products')
+    await usePageConfig('products')
 
     expect(mockUseFetchFn).toHaveBeenCalledWith(
       '/api/page-config/products',
