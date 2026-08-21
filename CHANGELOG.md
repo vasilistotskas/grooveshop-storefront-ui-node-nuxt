@@ -1,3 +1,10 @@
+## [3.152.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.152.1...v3.152.2) (2026-08-21)
+
+
+### Bug Fixes
+
+* **cache:** skip cache writes with a non-positive TTL ([a1f8ec3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a1f8ec32bd6f9d2248b2f82a3a0f5c88d702f38c))
+
 ## [3.152.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.152.0...v3.152.1) (2026-08-21)
 
 
