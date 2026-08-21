@@ -79,19 +79,32 @@ export async function getTenantConfig(host: string): Promise<TenantResult> {
     return { type: 'ok', config: tenantConfig }
   }
   catch (err: unknown) {
-    // Distinguish Django 5xx (transient) from 404 (unknown domain).
-    // ofetch wraps HTTP errors as FetchError with a `.status` field.
+    // Only an explicit 404 means "this domain is not a store". Every
+    // other failure is transient and must be reported as such.
+    //
+    // ofetch wraps HTTP errors as FetchError with a `.status` field, but
+    // a network-level failure — connect timeout, ECONNREFUSED, DNS,
+    // Django restarting — carries NO status at all. That used to fall
+    // through to `not_found`, so the middleware answered a hard 404
+    // "Store not found" and the shop looked deleted for the duration of
+    // a blip. Observed in production 2026-08-21: a reload of
+    // /account/settings surfaced "Παρουσιάστηκε σφάλμα" because
+    // /api/regions 404'd this way while Django was perfectly healthy
+    // seconds later.
+    //
+    // Negative results are never cached either way — once the Tenant row
+    // exists in Django, the very next request must resolve.
     const status = (err as { status?: number })?.status ?? 0
-    if (status >= 500) {
-      // Do NOT cache — we want every subsequent request to retry so
-      // the store recovers automatically once Django is healthy again.
-      log.warn({ tag: 'tenant', message: 'getTenantConfig: backend returned 5xx, not caching', domain, status })
-      return { type: 'error_5xx', config: null }
+    if (status === 404) {
+      return { type: 'not_found', config: null }
     }
-    // 404 or network-level error (treated as unknown domain).
-    // Also do NOT cache negative results — once the Tenant row is
-    // created in Django, the very next request must resolve.
-    return { type: 'not_found', config: null }
+    log.warn({
+      tag: 'tenant',
+      message: 'getTenantConfig: transient backend failure, not caching',
+      domain,
+      status: status || 'network-error',
+    })
+    return { type: 'error_5xx', config: null }
   }
 }
 

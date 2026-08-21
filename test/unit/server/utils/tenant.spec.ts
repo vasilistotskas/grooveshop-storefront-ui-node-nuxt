@@ -129,6 +129,38 @@ describe('getTenantConfig', () => {
     expect(result.config).toBeNull()
   })
 
+  // A connect timeout / ECONNREFUSED / DNS failure carries NO `status`.
+  // These used to fall through to `not_found`, so the middleware answered
+  // a hard 404 "Store not found" and the shop looked deleted for the
+  // duration of a blip. Observed in production 2026-08-21: reloading
+  // /account/settings surfaced an error toast because /api/regions 404'd
+  // this way while Django was healthy seconds later.
+  it.each([
+    ['connection refused', Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' })],
+    ['request timeout', Object.assign(new Error('The operation was aborted'), { name: 'AbortError' })],
+    ['dns failure', Object.assign(new Error('getaddrinfo ENOTFOUND'), { code: 'ENOTFOUND' })],
+    ['bare error, no status', new Error('socket hang up')],
+  ])('treats a network-level failure (%s) as transient, not a missing store', async (_label, err) => {
+    fetchMock.mockRejectedValueOnce(err)
+
+    const result = await getTenantConfig('webside.gr')
+
+    expect(result.type).toBe('error_5xx')
+    expect(result.config).toBeNull()
+  })
+
+  it('does not cache network-level failures (next request retries)', async () => {
+    const netErr = Object.assign(new Error('connect ETIMEDOUT'), { code: 'ETIMEDOUT' })
+    fetchMock.mockRejectedValueOnce(netErr)
+
+    const first = await getTenantConfig('webside.gr')
+    expect(first.type).toBe('error_5xx')
+
+    fetchMock.mockResolvedValueOnce(VALID_TENANT)
+    const second = await getTenantConfig('webside.gr')
+    expect(second.type).toBe('ok')
+  })
+
   it('does not cache 5xx responses (next request retries)', async () => {
     const serverErr = Object.assign(new Error('Internal Server Error'), { status: 500 })
     fetchMock.mockRejectedValueOnce(serverErr)

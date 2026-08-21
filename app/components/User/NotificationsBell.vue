@@ -142,8 +142,9 @@ onClickOutside(dropdown, () => {
         v-show="isDropdownVisible"
         ref="dropdown"
         class="
-          absolute top-12 right-0 w-80 rounded-lg border border-gray-200
-          bg-neutral-50 shadow-md
+          absolute top-12 right-0 max-h-[min(70vh,32rem)] w-80 overflow-y-auto
+          overscroll-contain rounded-lg border border-gray-200 bg-neutral-50
+          shadow-md
           md:top-14
           lg:-right-12
           dark:border-gray-800 dark:bg-neutral-900
