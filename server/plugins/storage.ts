@@ -29,11 +29,49 @@ interface RedisDriverOptions {
 }
 
 /**
+ * Drops cache writes whose TTL is non-positive instead of forwarding them.
+ *
+ * Nitro derives the storage TTL from a cached handler's `maxAge`, and a
+ * handler can legitimately be registered with a non-positive one to mean
+ * "do not cache this". Redis has no such concept: `SET … EX -1` is
+ * rejected outright with `ERR invalid expire time in 'set' command`.
+ *
+ * @nuxtjs/i18n 10.6.0 does exactly that — `dist/runtime/server/routes/
+ * messages.js` registers its messages handler with
+ * `maxAge: !__I18N_CACHE__ ? -1 : …`, so disabling message caching (which
+ * this project does deliberately, see `i18n.experimental.cacheLifetime`
+ * in nuxt.config.ts) made every SSR message load attempt an invalid write.
+ * Observed in production 2026-08-21: a failed Redis round-trip plus a
+ * logged `[cache] Cache write error` on each request.
+ *
+ * Skipping the write — rather than storing the entry with no expiry —
+ * is what the caller actually asked for: the next read misses and the
+ * handler re-runs. Only writes are filtered; reads and deletes pass
+ * through untouched.
+ */
+export function withoutNonPositiveTtlWrites(driver: Driver): Driver {
+  const setItem = driver.setItem?.bind(driver)
+  if (!setItem) {
+    return driver
+  }
+  return {
+    ...driver,
+    setItem(key, value, opts) {
+      const ttl = (opts as { ttl?: number } | undefined)?.ttl
+      if (typeof ttl === 'number' && ttl <= 0) {
+        return
+      }
+      return setItem(key, value, opts)
+    },
+  }
+}
+
+/**
  * Creates a Redis driver with ioredis configuration optimized for graceful error handling.
  * The unstorage redis driver uses ioredis internally.
  */
 function createRedisDriver({ host, port, ttl, db, password }: RedisDriverOptions): Driver {
-  return redisDriver({
+  return withoutNonPositiveTtlWrites(redisDriver({
     base: CACHE_MOUNT_POINT,
     host,
     port,
@@ -54,7 +92,7 @@ function createRedisDriver({ host, port, ttl, db, password }: RedisDriverOptions
       const recoverableErrors = ['READONLY', 'ECONNRESET']
       return recoverableErrors.some(e => err.message.includes(e))
     },
-  })
+  }))
 }
 
 /**
