@@ -1,3 +1,10 @@
+## [3.152.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.152.0...v3.152.1) (2026-08-21)
+
+
+### Bug Fixes
+
+* **tenant:** treat network-level resolve failures as transient, not a missing store ([7680120](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/768012033146b4df3be079c45e23a565b0186742))
+
 # [3.152.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.151.1...v3.152.0) (2026-08-20)
 
 
