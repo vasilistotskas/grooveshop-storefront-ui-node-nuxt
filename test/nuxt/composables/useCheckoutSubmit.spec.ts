@@ -539,4 +539,166 @@ describe('useCheckoutSubmit', () => {
       expect(stockError.value?.failedItems[0]?.productId).toBe(1)
     })
   })
+
+  describe('retry path', () => {
+    // The path that shipped broken and was fixed in 59355197: a
+    // retryable order error (e.g. expired stock reservation) schedules
+    // an automatic re-submit, and the isSubmitting guard must NOT
+    // deadlock against it. The audit that found the bug also noted this
+    // path had zero coverage — these tests are that coverage, so the
+    // deadlock cannot return silently.
+
+    const RETRYABLE_RESPONSE = {
+      status: 409,
+      _data: {
+        error: { type: 'invalid_order_data' },
+        detail: 'Reservation expired',
+      },
+    }
+
+    function failOnce(thenSucceed = true) {
+      let calls = 0
+      mockFetch.mockImplementation((_url: string, opts: any) => {
+        calls++
+        if (calls === 1 || !thenSucceed) {
+          opts?.onResponseError?.({ response: RETRYABLE_RESPONSE })
+          return Promise.reject(
+            Object.assign(new Error('409'), { response: RETRYABLE_RESPONSE }),
+          )
+        }
+        opts?.onResponse?.({
+          response: { ok: true, _data: { uuid: 'order-after-retry' } },
+        })
+        return Promise.resolve({ uuid: 'order-after-retry' })
+      })
+      return () => calls
+    }
+
+    it('a retryable error re-enters onSubmit after the delay and completes — isSubmitting releases (deadlock regression)', async () => {
+      vi.stubGlobal('crypto', {
+        randomUUID: vi.fn().mockReturnValue('idem-retry'),
+      })
+      const stripePayWay = makePayWay('stripe')
+      const selectedPayWay = ref<PayWay | null>(stripePayWay)
+      const payWays = makePayWaysRef(stripePayWay)
+
+      mockReserveStock.mockResolvedValue([42])
+      mockCreatePaymentIntentFromCart.mockResolvedValue({
+        clientSecret: 'sk',
+        paymentIntentId: 'pi_retry',
+      })
+      const callCount = failOnce()
+
+      const { onSubmit, isSubmitting, createdOrder } = useCheckoutSubmit({
+        formState: makeFormState(),
+        selectedPayWay,
+        payWays,
+      })
+
+      await onSubmit()
+
+      // First pass ended with a retry pending: the guard stays up so a
+      // double-click cannot race the timer…
+      expect(isSubmitting.value).toBe(true)
+
+      // …and the timer-driven re-entry must actually run to completion
+      // rather than bouncing off that guard (the original bug).
+      await vi.waitFor(
+        () => {
+          expect(callCount()).toBe(2)
+          expect(isSubmitting.value).toBe(false)
+        },
+        { timeout: 4000 },
+      )
+      expect(createdOrder.value).toMatchObject({ uuid: 'order-after-retry' })
+
+      // The expired-reservation classifier cleared the stale ids, so
+      // the retry re-reserved stock instead of reusing dead holds.
+      expect(mockReserveStock).toHaveBeenCalledTimes(2)
+    })
+
+    it('exhausting MAX_RETRIES releases the guard and the CTA stays usable', async () => {
+      vi.stubGlobal('crypto', {
+        randomUUID: vi.fn().mockReturnValue('idem-exhaust'),
+      })
+      const stripePayWay = makePayWay('stripe')
+      const selectedPayWay = ref<PayWay | null>(stripePayWay)
+      const payWays = makePayWaysRef(stripePayWay)
+
+      mockReserveStock.mockResolvedValue([7])
+      mockCreatePaymentIntentFromCart.mockResolvedValue({
+        clientSecret: 'sk',
+        paymentIntentId: 'pi_exhaust',
+      })
+      const callCount = failOnce(false) // every attempt fails retryable
+
+      const { onSubmit, isSubmitting } = useCheckoutSubmit({
+        formState: makeFormState(),
+        selectedPayWay,
+        payWays,
+      })
+
+      await onSubmit()
+
+      // 1 initial + MAX_RETRIES(3) automatic re-entries; the 4th
+      // failure hits the cap, which must RELEASE the guard (the cap
+      // branch schedules nothing, so finally resets isSubmitting).
+      await vi.waitFor(
+        () => {
+          expect(callCount()).toBe(4)
+          expect(isSubmitting.value).toBe(false)
+        },
+        { timeout: 6000 },
+      )
+
+      // A fresh, user-initiated submit after exhaustion must work: the
+      // guard is down and the retry budget was reset (wasRetry=false).
+      mockFetch.mockImplementation((_url: string, opts: any) => {
+        opts?.onResponse?.({
+          response: { ok: true, _data: { uuid: 'order-fresh' } },
+        })
+        return Promise.resolve({ uuid: 'order-fresh' })
+      })
+      await onSubmit()
+      await vi.waitFor(() => expect(isSubmitting.value).toBe(false))
+    })
+
+    it('a user submit during the retry window cancels the pending timer instead of double-submitting', async () => {
+      vi.stubGlobal('crypto', {
+        randomUUID: vi.fn().mockReturnValue('idem-manual'),
+      })
+      const stripePayWay = makePayWay('stripe')
+      const selectedPayWay = ref<PayWay | null>(stripePayWay)
+      const payWays = makePayWaysRef(stripePayWay)
+
+      mockReserveStock.mockResolvedValue([9])
+      mockCreatePaymentIntentFromCart.mockResolvedValue({
+        clientSecret: 'sk',
+        paymentIntentId: 'pi_manual',
+      })
+      const callCount = failOnce()
+
+      const { onSubmit, isSubmitting } = useCheckoutSubmit({
+        formState: makeFormState(),
+        selectedPayWay,
+        payWays,
+      })
+
+      await onSubmit()
+      expect(isSubmitting.value).toBe(true) // retry pending, guard held
+
+      // A manual click during the window SUPERSEDES the scheduled
+      // retry: the timer is cancelled, the guard it was holding is
+      // dropped, and this submit proceeds immediately. Before the fix,
+      // cancelling the timer left the guard up with nothing to release
+      // it — the deadlock back through the manual-click door.
+      await onSubmit()
+      expect(callCount()).toBe(2)
+      expect(isSubmitting.value).toBe(false)
+
+      // The cancelled timer must never fire a third, zombie submit.
+      await new Promise(resolve => setTimeout(resolve, 700))
+      expect(callCount()).toBe(2)
+    })
+  })
 })

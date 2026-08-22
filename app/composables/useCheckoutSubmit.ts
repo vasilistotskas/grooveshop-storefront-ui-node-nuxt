@@ -534,10 +534,18 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     const wasRetry = isRetryReentry.value
     isRetryReentry.value = false
 
-    // Cancel any pending retry before checking isSubmitting
+    // Cancel any pending retry before checking isSubmitting — this
+    // manual submit supersedes the scheduled automatic one. The retry
+    // window HOLDS the guard (isSubmitting stays true so a double-click
+    // cannot race the timer), and the timer callback is the only thing
+    // that releases it — so cancelling the timer without dropping the
+    // guard here would strand isSubmitting=true forever: the very
+    // deadlock 59355197 fixed, reintroduced through the manual-click
+    // door. Caught by the retry-path spec, not by review.
     if (retryTimeoutId.value) {
       clearTimeout(retryTimeoutId.value)
       retryTimeoutId.value = null
+      isSubmitting.value = false
     }
 
     if (isSubmitting.value) return
@@ -699,11 +707,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     selectedPayWay.value = null
     // Fully reset the payment intent + idempotency key so a resubmit
     // mints a FRESH intent rather than reusing the one bound to the
-    // now-consumed cart / created order. Reusing it skipped the
+    // created order. Reusing it skipped the
     // ``if (!paymentIntentId.value)`` guard in handleOnlinePaymentFlow
     // and produced an orphaned PENDING order + unrecoverable errors.
-    // Release any held reservations and resync the cart (order creation
-    // already cleared it server-side) so the sidebar reflects reality.
+    // Release any held reservations and resync the cart. Django clears
+    // the cart on PAYMENT for online-payment orders (see
+    // Order.awaits_online_payment), so in this flow the cart is still
+    // alive server-side — the refresh reconciles whatever state the
+    // abandoned attempt left behind. The abandoned PENDING order is
+    // reaped by auto_cancel_stuck_pending_orders.
     paymentIntentId.value = null
     idempotencyKey.value = null
     if (reservationIds.value.length > 0) {
