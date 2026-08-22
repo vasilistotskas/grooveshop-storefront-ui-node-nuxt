@@ -51,7 +51,6 @@ const menuDescriptions: Record<string, string> = {
   'account-loyalty': t('account.menu_description.account-loyalty'),
   'account-settings': t('account.menu_description.account-settings'),
   'account-reviews': t('account.menu_description.account-reviews'),
-  'account-help': t('account.menu_description.account-help'),
 }
 
 const activityStats = computed(() => {
@@ -680,7 +679,6 @@ el:
       account-loyalty: Δες τους πόντους και το ιστορικό σου
       account-settings: Ρύθμισε τις προτιμήσεις σου
       account-reviews: Διαχειρίσου τις κριτικές σου
-      account-help: Λάβε βοήθεια και υποστήριξη
   menu: Μενού λογαριασμού
   yes: Ναι
   no: Όχι

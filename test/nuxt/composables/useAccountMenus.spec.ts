@@ -1,14 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
 
-let mockEnabledValue = false
 let mockLoyaltyEnabled = false
+// The "My reviews" entry is gated on the per-tenant extra-setting
+// ACCOUNT_REVIEWS_ENABLED (store preference, editable by the store
+// operator) — no longer on the superuser-only preview mode, which only
+// ever hid the link while the route stayed reachable by URL.
+let mockReviewsSettingValue = 'true'
 
-mockNuxtImport('useAuthPreviewMode', () => {
-  return () => ({
-    enabled: { value: mockEnabledValue },
-  })
-})
+registerEndpoint('/api/settings/get', () => ({
+  value: mockReviewsSettingValue,
+}))
 
 mockNuxtImport('useLoyalty', () => {
   return () => ({
@@ -30,36 +32,35 @@ mockNuxtImport('useLoyalty', () => {
 describe('useAccountMenus', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mockEnabledValue = false
     mockLoyaltyEnabled = false
+    mockReviewsSettingValue = 'true'
+    // useFetch caches by key across tests sharing the runtime app.
+    clearNuxtData('account-menus:reviews-enabled')
   })
 
-  it('should return basic menu items when preview mode is disabled', () => {
+  it('includes the reviews entry by default (setting defaults to true)', async () => {
     const { menus } = useAccountMenus()
+    await nextTick()
 
-    expect(menus.value).toHaveLength(7)
-    expect(menus.value[0]!.to).toBe('/account')
-    expect(menus.value[1]!.to).toBe('/account/orders')
-    expect(menus.value[2]!.to).toBe('/account/favourites/posts')
-    expect(menus.value[3]!.to).toBe('/account/notifications')
-    expect(menus.value[4]!.to).toBe('/account/subscriptions')
-    expect(menus.value[5]!.to).toBe('/account/addresses')
-    expect(menus.value[6]!.to).toBe('/account/settings')
-  })
-
-  it('should include all menu items when preview mode is enabled', () => {
-    mockEnabledValue = true
-
-    const { menus } = useAccountMenus()
-
-    expect(menus.value).toHaveLength(9)
     const paths = menus.value.map(m => m.to)
-    expect(paths).toContain('/account')
-    expect(paths).toContain('/account/addresses')
-    expect(paths).toContain('/account/orders')
-    expect(paths).toContain('/account/notifications')
     expect(paths).toContain('/account/reviews')
-    expect(paths).toContain('/account/help')
+    expect(menus.value).toHaveLength(8)
+  })
+
+  it('hides the reviews entry when the store disabled it', async () => {
+    mockReviewsSettingValue = 'False'
+
+    const { menus } = useAccountMenus()
+    await vi.waitFor(() => {
+      expect(menus.value.map(m => m.to)).not.toContain('/account/reviews')
+    })
+    expect(menus.value).toHaveLength(7)
+  })
+
+  it('never offers the deleted help page', () => {
+    const { menus } = useAccountMenus()
+
+    expect(menus.value.map(m => m.to)).not.toContain('/account/help')
   })
 
   it('should have correct paths for basic menus', () => {
@@ -94,19 +95,14 @@ describe('useAccountMenus', () => {
     })
   })
 
-  it('should add preview mode menus with correct paths', () => {
-    mockEnabledValue = true
+  it('includes loyalty only when both gates pass', async () => {
+    mockLoyaltyEnabled = true
 
     const { menus } = useAccountMenus()
+    await nextTick()
 
-    const addressMenu = menus.value.find(m => m.to === '/account/addresses')
-    const ordersMenu = menus.value.find(m => m.to === '/account/orders')
-    const reviewsMenu = menus.value.find(m => m.to === '/account/reviews')
-    const helpMenu = menus.value.find(m => m.to === '/account/help')
-
-    expect(addressMenu).toBeDefined()
-    expect(ordersMenu).toBeDefined()
-    expect(reviewsMenu).toBeDefined()
-    expect(helpMenu).toBeDefined()
+    // tenantStore.loyaltyEnabled is false in the bare test store, so
+    // the runtime toggle alone must not surface the entry.
+    expect(menus.value.map(m => m.to)).not.toContain('/account/loyalty')
   })
 })

@@ -1,4 +1,8 @@
 <script lang="ts" setup>
+definePageMeta({
+  middleware: ['account-reviews-enabled'],
+})
+
 const { t, locale } = useI18n()
 const route = useRoute(`account-reviews___${locale.value}`)
 const { user } = useUserSession()

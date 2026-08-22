@@ -7,6 +7,26 @@ export const useAccountMenus = () => {
   // Fetch loyalty settings using new API
   const { data: settings } = useLoyalty().fetchSettings()
 
+  // "My reviews" is gated on the per-tenant ACCOUNT_REVIEWS_ENABLED
+  // extra-setting — a store preference the operator edits through
+  // their own settings admin. It used to hide behind the storefront's
+  // superuser-only preview mode, which only hid this link while the
+  // route stayed reachable by URL; the real gate is the paired
+  // account-reviews-enabled middleware, this just keeps the menu
+  // honest. Fail-open default mirrors the Django default (enabled).
+  const { data: reviewsSetting } = useFetch<{ value?: string }>(
+    '/api/settings/get',
+    {
+      key: 'account-menus:reviews-enabled',
+      query: { key: 'ACCOUNT_REVIEWS_ENABLED' },
+      default: () => ({ value: 'true' }),
+    },
+  )
+  const reviewsEnabled = computed(
+    () =>
+      (reviewsSetting.value?.value ?? 'true').toLowerCase() === 'true',
+  )
+
   const menus = computed(() => {
     const baseMenus = [
       {
@@ -61,24 +81,15 @@ export const useAccountMenus = () => {
     return baseMenus
   })
 
-  const { enabled } = useAuthPreviewMode()
-
   const allMenus = computed(() => {
     const items = [...menus.value]
 
-    if (enabled.value) {
-      items.push(
-        {
-          label: t('reviews'),
-          to: '/account/reviews',
-          icon: 'i-mdi-star-outline',
-        },
-        {
-          label: t('help'),
-          to: '/account/help',
-          icon: 'i-mdi-help-circle-outline',
-        },
-      )
+    if (reviewsEnabled.value) {
+      items.push({
+        label: t('reviews'),
+        to: '/account/reviews',
+        icon: 'i-mdi-star-outline',
+      })
     }
 
     return items
