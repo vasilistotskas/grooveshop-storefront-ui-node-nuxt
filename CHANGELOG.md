@@ -1,3 +1,10 @@
+# [3.153.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.152.2...v3.153.0) (2026-08-22)
+
+
+### Features
+
+* **account:** gate "My reviews" on a per-tenant setting, delete the help stub ([52d3531](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/52d35310402e9a0d852a8b0f416bdff037aeeced))
+
 ## [3.152.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.152.1...v3.152.2) (2026-08-21)
 
 
