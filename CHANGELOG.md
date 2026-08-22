@@ -1,3 +1,10 @@
+## [3.153.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.153.0...v3.153.1) (2026-08-22)
+
+
+### Bug Fixes
+
+* **checkout:** manual submit during the retry window re-created the deadlock ([103131b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/103131b054fe0a21dcf8657a0904a5fe247f2e5b))
+
 # [3.153.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.152.2...v3.153.0) (2026-08-22)
 
 
