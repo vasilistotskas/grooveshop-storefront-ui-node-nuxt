@@ -1,3 +1,10 @@
+## [3.153.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.153.1...v3.153.2) (2026-08-23)
+
+
+### Bug Fixes
+
+* **cache:** revive and tenant-scope the admin cache purge ([3fb0267](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3fb0267baf0226b008e347df788983ba633ddefa))
+
 ## [3.153.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.153.0...v3.153.1) (2026-08-22)
 
 
