@@ -42,7 +42,22 @@ const PROTECTED_FRAGMENTS = [
 const bodySchema = z.object({
   patterns: z.array(z.string().min(1)).min(1).max(64),
   dryRun: z.boolean().optional().default(false),
+  // The purging tenant's storefront host. When present, only keys
+  // belonging to that tenant are purged. Cached keys embed the request
+  // host via `tenantCacheKey` (`{host}:{key}_{hash}`), and Nitro's
+  // `escapeKey` strips every non-word char — so the host survives in the
+  // stored key as `host.replace(/\W/g, '')`. Matching that substring
+  // scopes an otherwise host-agnostic pattern (e.g. `nitro:handlers:
+  // Blog*`) to one store, so a merchant's purge no longer evicts every
+  // tenant's SSR cache. Omitted for a deliberately platform-wide purge.
+  host: z.string().min(1).optional(),
 })
+
+/** Mirror of Nitro's `escapeKey` (`String(key).replace(/\W/g, '')`),
+ * applied to the tenant host so it matches the escaped, stored key. */
+function escapedHostSegment(host: string): string {
+  return host.replace(/\W/g, '')
+}
 
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false
@@ -92,10 +107,12 @@ export default defineEventHandler(async (event) => {
 
   const body = await readValidatedBody(event, bodySchema.parse)
   const storage = useStorage('cache')
+  const hostSegment = body.host ? escapedHostSegment(body.host) : null
 
   let matched = 0
   let deleted = 0
   let blocked = 0
+  let skippedForeignTenant = 0
   const visited = new Set<string>()
 
   for (const pattern of body.patterns) {
@@ -118,6 +135,12 @@ export default defineEventHandler(async (event) => {
       if (visited.has(key)) continue
       visited.add(key)
       if (regex && !regex.test(key)) continue
+      // Tenant scoping: keep only this store's keys when a host is
+      // given, so a merchant purge cannot evict another tenant's cache.
+      if (hostSegment && !key.includes(hostSegment)) {
+        skippedForeignTenant += 1
+        continue
+      }
       if (isProtected(key)) {
         blocked += 1
         continue
@@ -144,9 +167,11 @@ export default defineEventHandler(async (event) => {
     tag: 'cache-purge',
     message: 'Completed',
     patterns: body.patterns,
+    host: body.host ?? null,
     matched,
     deleted,
     blocked,
+    skippedForeignTenant,
     dryRun: body.dryRun,
   })
 

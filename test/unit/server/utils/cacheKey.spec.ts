@@ -75,3 +75,23 @@ describe('tenantCacheKey', () => {
     expect(hostMock).toHaveBeenCalledWith({}, { xForwardedHost: false })
   })
 })
+
+describe('tenant-scoped cache purge matching', () => {
+  // The admin purge endpoint scopes an otherwise host-agnostic pattern
+  // to one store by keeping only keys that .includes() the tenant host
+  // after Nitro escaping. These pin that the escaped host really is a
+  // substring of that tenant's stored key, and not of another's.
+  const purgeHostSegment = (host: string) => host.replace(/\W/g, '')
+
+  it('the escaped host is contained in that tenant\'s escaped key', () => {
+    hostMock.mockReturnValueOnce('webside.gr')
+    const key = nitroEscape(tenantCacheKey({} as any, 'blog-posts:el'))
+    expect(key.includes(purgeHostSegment('webside.gr'))).toBe(true)
+  })
+
+  it('a store\'s host does not match a different store\'s key', () => {
+    hostMock.mockReturnValueOnce('acme.example')
+    const key = nitroEscape(tenantCacheKey({} as any, 'blog-posts:el'))
+    expect(key.includes(purgeHostSegment('webside.gr'))).toBe(false)
+  })
+})

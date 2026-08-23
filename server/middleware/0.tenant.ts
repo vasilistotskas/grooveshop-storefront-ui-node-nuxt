@@ -56,6 +56,13 @@ const BYPASS_EXACT: readonly string[] = [
   // ``<route>.md`` which is bypassed by suffix below.
   '/llms.txt',
   '/llms-full.txt',
+  // Django's CacheService calls this over internal cluster DNS
+  // (frontend-nuxt-service) with no tenant Host, so tenant resolution
+  // would 404 "Store not found" before the endpoint's own shared-secret
+  // token check ever ran — silently killing cross-service SSR cache
+  // invalidation. The handler needs no tenant context (it operates on
+  // the shared Nitro cache and scopes by the payload's `host`).
+  '/api/admin/cache/purge',
 ] as const
 
 // nuxt-ai-ready emits a content-negotiated ``.md`` mirror for every
