@@ -1,3 +1,10 @@
+## [3.153.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.153.2...v3.153.3) (2026-08-24)
+
+
+### Bug Fixes
+
+* **sitemap,rss:** emit image URLs on the tenant's own asset host ([7d95fd0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7d95fd0315a9be4653f349a711d898520817a3d8))
+
 ## [3.153.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.153.1...v3.153.2) (2026-08-23)
 
 
