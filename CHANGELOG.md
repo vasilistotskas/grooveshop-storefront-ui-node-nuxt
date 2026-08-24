@@ -1,3 +1,10 @@
+# [3.157.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.156.0...v3.157.0) (2026-08-24)
+
+
+### Features
+
+* **feedback:** link the feedback page from the footer ([deba6bc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/deba6bc97748df00059ec151b441389529deb6c2))
+
 # [3.156.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.155.0...v3.156.0) (2026-08-24)
 
 
