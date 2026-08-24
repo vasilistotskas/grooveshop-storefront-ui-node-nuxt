@@ -1,3 +1,10 @@
+# [3.154.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.153.4...v3.154.0) (2026-08-24)
+
+
+### Features
+
+* **products:** wire up product-reviews display + write/edit modal on PDP ([3f62109](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3f621095c39f737871aef26452d8a8152b7032ec))
+
 ## [3.153.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.153.3...v3.153.4) (2026-08-24)
 
 
