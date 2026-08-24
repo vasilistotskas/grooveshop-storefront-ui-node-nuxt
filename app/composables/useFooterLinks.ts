@@ -63,6 +63,7 @@ export function useFooterLinks() {
       icon: 'i-heroicons-chat-bubble-left-right',
       children: [
         { label: t('footer.contact.us'), to: localePath('contact') },
+        { label: t('footer.feedback'), to: localePath('feedback') },
       ],
     },
   ])
