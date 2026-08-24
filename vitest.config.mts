@@ -105,6 +105,33 @@ export default defineConfig({
           },
         },
       }),
+
+      {
+        resolve: {
+          alias: {
+            '~': fileURLToPath(new URL('./app', import.meta.url)),
+            '@': fileURLToPath(new URL('./app', import.meta.url)),
+            '~~': fileURLToPath(new URL('.', import.meta.url)),
+            '@@': fileURLToPath(new URL('.', import.meta.url)),
+            '#shared': fileURLToPath(new URL('./shared', import.meta.url)),
+          },
+        },
+        test: {
+          name: 'e2e',
+          include: ['test/e2e/**/*.{test,spec}.ts'],
+          // `environment: 'node'` (not 'nuxt') is deliberate here: these
+          // tests use `@nuxt/test-utils/e2e`'s `setup()`, which boots a
+          // REAL Nuxt/Nitro server in a separate child process and talks to
+          // it over HTTP — the in-process happy-dom + mocked-Nuxt-context
+          // `nuxt` environment (see the `nuxt` project above) is neither
+          // needed nor used by that flow.
+          environment: 'node',
+          // Booting a real dev server (build + first request) is slower
+          // than in-process tests.
+          testTimeout: 60000,
+          hookTimeout: 120000,
+        },
+      },
     ],
   },
 })

@@ -109,6 +109,18 @@ jobs:
           NODE_ENV: test
           CI: true
 
+      # Boots a real Nitro dev server to prove SWR background revalidation
+      # forwards the correct per-tenant X-Forwarded-Host (cross-tenant
+      # isolation invariant — see test/e2e/tenant-swr-host-propagation.spec.ts).
+      # Kept separate from test:ci because it spawns a server process and does
+      # not participate in coverage. Uses an in-memory cache, so it needs no
+      # Redis service.
+      - name: Run e2e regression tests
+        run: pnpm run test:e2e
+        env:
+          NODE_ENV: test
+          CI: true
+
       - name: Coverage summary
         if: always()
         run: |
