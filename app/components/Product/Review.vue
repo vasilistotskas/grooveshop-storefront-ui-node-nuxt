@@ -10,7 +10,13 @@ const starHalfSvg
 
 const props = defineProps({
   userProductReview: {
-    type: Object as PropType<ProductReview | null>,
+    // The `user-product-review` endpoint returns the *detail* shape
+    // (``product`` embedded as the full ``Product`` object with nested
+    // translations), not the list-serializer ``ProductReview`` shape
+    // (``product`` as a flat-``name`` ``ProductBrief``). This component
+    // never reads ``.product`` off the review, so the wider type is
+    // purely to match what callers actually fetch and pass in.
+    type: Object as PropType<ProductReviewDetail | null>,
     required: false,
     default: null,
   },

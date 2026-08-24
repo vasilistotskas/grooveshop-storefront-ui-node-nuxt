@@ -222,15 +222,17 @@ const { data: userProductReview, refresh: refreshUserProductReview }
     server: false, // Client-side only - user-specific data
   })
 
-const _onAddExistingReview = async () => {
+const userHadReviewed = computed(() => !!userProductReview.value)
+
+const onAddExistingReview = async () => {
   await refreshProduct()
   await refreshUserProductReview()
 }
-const _onUpdateExistingReview = async () => {
+const onUpdateExistingReview = async () => {
   await refreshProduct()
   await refreshUserProductReview()
 }
-const _onDeleteExistingReview = async () => {
+const onDeleteExistingReview = async () => {
   await refreshProduct()
   await refreshUserProductReview()
 }
@@ -257,7 +259,7 @@ const decrementQuantity = () => {
   }
 }
 
-const _openModal = () => {
+const openModal = () => {
   if (user?.value) {
     isReviewModalOpen.value = true
   }
@@ -364,8 +366,8 @@ const items = computed(() => [
   },
 ])
 
-const _reviewButtonText = computed(() => {
-  if (user.value && userProductReview.value) {
+const reviewButtonText = computed(() => {
+  if (userHadReviewed.value) {
     return t('update_review')
   }
   return t('write_review')
@@ -914,7 +916,52 @@ definePageMeta({
             </UAccordion>
           </div>
         </div>
+
+        <USeparator class="my-10" />
+
+        <div
+          id="reviews"
+          class="grid gap-6"
+        >
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <h2
+              class="
+                text-2xl font-bold tracking-tight text-primary-950
+                dark:text-primary-50
+              "
+            >
+              {{ t('reviews.title') }}
+            </h2>
+
+            <UButton
+              :label="reviewButtonText"
+              color="neutral"
+              variant="outline"
+              icon="i-heroicons-pencil-square"
+              @click="openModal"
+            />
+          </div>
+
+          <ProductReviewsList
+            :reviews="productReviews?.results ?? []"
+            :reviews-average="product.reviewAverage"
+            :reviews-count="product.reviewCount"
+            display-image-of="user"
+          />
+        </div>
       </div>
+
+      <ProductReview
+        v-if="user"
+        v-model:open="isReviewModalOpen"
+        :user-product-review="userProductReview"
+        :user-had-reviewed="userHadReviewed"
+        :product="product"
+        :user="user"
+        @add-existing-review="onAddExistingReview"
+        @update-existing-review="onUpdateExistingReview"
+        @delete-existing-review="onDeleteExistingReview"
+      />
 
       <div
         v-if="enabled && showStickyAddToCart"
@@ -1017,6 +1064,8 @@ el:
   must_be_logged_in: Πρέπει να συνδεθείς
   update_review: Ενημέρωση κριτικής
   write_review: Γράψε κριτική
+  reviews:
+    title: Αξιολογήσεις
   weight: Βάρος
   description: Περιγραφή
   specifications: Προδιαγραφές
