@@ -2763,6 +2763,66 @@ export type FederationMetadata = {
   weightedRankingScore: number
 }
 
+export type FeedbackWrite = {
+  readonly id: number
+  /**
+     * Όνομα
+     */
+  name?: string
+  email?: string | string
+  /**
+     * Βαθμολογία
+     */
+  rating: number
+  /**
+     * Κατηγορία
+     */
+  category?: FeedbackWriteCategoryEnum
+  /**
+     * Μήνυμα
+     */
+  message: string
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+  readonly uuid: string
+}
+
+/**
+ * * `general` - General
+ * * `website` - Website & UX
+ * * `products` - Προϊόντα
+ * * `delivery` - Delivery
+ * * `support` - Customer support
+ * * `other` - Άλλο
+ */
+export type FeedbackWriteCategoryEnum = 'general' | 'website' | 'products' | 'delivery' | 'support' | 'other'
+
+export type FeedbackWriteRequest = {
+  /**
+     * Όνομα
+     */
+  name?: string
+  email?: string | string
+  /**
+     * Βαθμολογία
+     */
+  rating: number
+  /**
+     * Κατηγορία
+     */
+  category?: FeedbackWriteCategoryEnum
+  /**
+     * Μήνυμα
+     */
+  message: string
+}
+
 /**
  * * `BASEMENT` - Υπόγειο
  * * `GROUND_FLOOR` - Ισόγειο
@@ -8526,6 +8586,26 @@ export type CountryDetailWritable = {
      * Κωδικός κλήσης
      */
   phoneCode?: number | null
+}
+
+export type FeedbackWriteWritable = {
+  /**
+     * Όνομα
+     */
+  name?: string
+  email?: string | string
+  /**
+     * Βαθμολογία
+     */
+  rating: number
+  /**
+     * Κατηγορία
+     */
+  category?: FeedbackWriteCategoryEnum
+  /**
+     * Μήνυμα
+     */
+  message: string
 }
 
 /**
@@ -14968,6 +15048,25 @@ export type UpdateCountryResponses = {
 }
 
 export type UpdateCountryResponse = UpdateCountryResponses[keyof UpdateCountryResponses]
+
+export type CreateFeedbackData = {
+  body: FeedbackWriteRequest
+  path?: never
+  query?: never
+  url: '/api/v1/feedback'
+}
+
+export type CreateFeedbackErrors = {
+  400: ErrorResponse
+}
+
+export type CreateFeedbackError = CreateFeedbackErrors[keyof CreateFeedbackErrors]
+
+export type CreateFeedbackResponses = {
+  201: FeedbackWrite
+}
+
+export type CreateFeedbackResponse = CreateFeedbackResponses[keyof CreateFeedbackResponses]
 
 export type ApiV1HealthRetrieveData = {
   body?: never

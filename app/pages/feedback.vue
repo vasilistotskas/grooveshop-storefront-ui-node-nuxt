@@ -31,10 +31,20 @@ useHead({
 definePageMeta({
   layout: 'default',
 })
+
+// Optional per-tenant branded band above the form — sections from a
+// published 'feedback' PageLayout. Fallback is EMPTY, so tenants without
+// a layout render exactly as before.
+const { sections: brandSections } = await usePageConfig('feedback')
 </script>
 
 <template>
   <PageWrapper class="mx-auto flex max-w-(--container-4xl) flex-col">
+    <PageSectionRenderer
+      v-for="section in brandSections"
+      :key="section.uuid"
+      :section="section"
+    />
     <UBreadcrumb
       :items="items"
       :ui="{
@@ -54,7 +64,7 @@ definePageMeta({
       class="mb-4 text-center capitalize"
     />
 
-    <div />
+    <FeedbackForm />
   </PageWrapper>
 </template>
 

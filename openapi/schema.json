@@ -17093,6 +17093,64 @@
         }
       }
     },
+    "/api/v1/feedback": {
+      "post": {
+        "operationId": "createFeedback",
+        "description": "Submit storefront feedback (rating, category, message).",
+        "summary": "Create a feedback submission",
+        "tags": [
+          "Feedback"
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackWriteRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackWriteRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeedbackWriteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackWrite"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/health": {
       "get": {
         "operationId": "api_v1_health_retrieve",
@@ -55041,6 +55099,134 @@
           "indexUid",
           "queriesPosition",
           "weightedRankingScore"
+        ]
+      },
+      "FeedbackWrite": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "title": "Όνομα",
+            "maxLength": 100
+          },
+          "email": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "email",
+                "maxLength": 254
+              },
+              {
+                "type": "string",
+                "maxLength": 0
+              }
+            ]
+          },
+          "rating": {
+            "type": "integer",
+            "maximum": 5,
+            "minimum": 1,
+            "title": "Βαθμολογία"
+          },
+          "category": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FeedbackWriteCategoryEnum"
+              }
+            ],
+            "title": "Κατηγορία"
+          },
+          "message": {
+            "type": "string",
+            "title": "Μήνυμα"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Δημιουργήθηκε στις"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true,
+            "title": "Ενημερώθηκε στις"
+          },
+          "uuid": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          }
+        },
+        "required": [
+          "createdAt",
+          "id",
+          "message",
+          "rating",
+          "updatedAt",
+          "uuid"
+        ]
+      },
+      "FeedbackWriteCategoryEnum": {
+        "enum": [
+          "general",
+          "website",
+          "products",
+          "delivery",
+          "support",
+          "other"
+        ],
+        "type": "string",
+        "description": "* `general` - General\n* `website` - Website & UX\n* `products` - Προϊόντα\n* `delivery` - Delivery\n* `support` - Customer support\n* `other` - Άλλο"
+      },
+      "FeedbackWriteRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Όνομα",
+            "maxLength": 100
+          },
+          "email": {
+            "oneOf": [
+              {
+                "type": "string",
+                "format": "email",
+                "maxLength": 254
+              },
+              {
+                "type": "string",
+                "maxLength": 0
+              }
+            ]
+          },
+          "rating": {
+            "type": "integer",
+            "maximum": 5,
+            "minimum": 1,
+            "title": "Βαθμολογία"
+          },
+          "category": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/FeedbackWriteCategoryEnum"
+              }
+            ],
+            "title": "Κατηγορία"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Μήνυμα"
+          }
+        },
+        "required": [
+          "message",
+          "rating"
         ]
       },
       "FloorEnum": {

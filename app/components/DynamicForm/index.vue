@@ -341,6 +341,24 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
                 :ui="field.ui"
               />
             </UFormField>
+
+            <!-- Rating field -->
+            <UFormField
+              v-else-if="field.as === 'rating'"
+              :label="field.label"
+              :name="field.name"
+              :required="field.required"
+              :ui="schema.ui"
+            >
+              <UInputRating
+                v-model="formState[field.name]"
+                :name="field.name"
+                :color="field.color || 'warning'"
+                :disabled="isFieldDisabled(field)"
+                size="xl"
+                hoverable
+              />
+            </UFormField>
           </div>
 
           <!-- Navigation buttons for stepper -->
@@ -491,6 +509,24 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
             :label="field.label"
             :disabled="isFieldDisabled(field)"
             :ui="field.ui"
+          />
+        </UFormField>
+
+        <!-- Rating field -->
+        <UFormField
+          v-else-if="field.as === 'rating'"
+          :label="field.label"
+          :name="field.name"
+          :required="field.required"
+          :ui="schema.ui"
+        >
+          <UInputRating
+            v-model="formState[field.name]"
+            :name="field.name"
+            :color="field.color || 'warning'"
+            :disabled="isFieldDisabled(field)"
+            size="xl"
+            hoverable
           />
         </UFormField>
       </div>

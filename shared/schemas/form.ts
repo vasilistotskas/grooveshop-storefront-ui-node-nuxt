@@ -46,7 +46,7 @@ export const ZodComponentUI = z.custom<ComponentUIConfig>((val) => {
 export const ZodDynamicFormSchemaField = z.array(
   z.object({
     as: z
-      .enum(['input', 'textarea', 'select', 'radio', 'checkbox'])
+      .enum(['input', 'textarea', 'select', 'radio', 'checkbox', 'rating'])
       .default('input'),
     id: z.string().optional(),
     name: z.string(),

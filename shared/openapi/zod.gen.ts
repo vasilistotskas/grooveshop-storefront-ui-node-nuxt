@@ -1467,6 +1467,51 @@ export const zFederatedSearchResponse = z.object({
 })
 
 /**
+ * * `general` - General
+ * * `website` - Website & UX
+ * * `products` - Προϊόντα
+ * * `delivery` - Delivery
+ * * `support` - Customer support
+ * * `other` - Άλλο
+ */
+export const zFeedbackWriteCategoryEnum = z.enum([
+  'general',
+  'website',
+  'products',
+  'delivery',
+  'support',
+  'other',
+]).register(z.globalRegistry, {
+  description: '* `general` - General\n* `website` - Website & UX\n* `products` - Προϊόντα\n* `delivery` - Delivery\n* `support` - Customer support\n* `other` - Άλλο',
+})
+
+export const zFeedbackWrite = z.object({
+  id: z.int().readonly(),
+  name: z.string().max(100).optional(),
+  email: z.union([
+    z.email().max(254),
+    z.string().max(0),
+  ]).optional(),
+  rating: z.int().gte(1).lte(5),
+  category: zFeedbackWriteCategoryEnum.optional(),
+  message: z.string(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+})
+
+export const zFeedbackWriteRequest = z.object({
+  name: z.string().max(100).optional(),
+  email: z.union([
+    z.email().max(254),
+    z.string().max(0),
+  ]).optional(),
+  rating: z.int().gte(1).lte(5),
+  category: zFeedbackWriteCategoryEnum.optional(),
+  message: z.string().min(1),
+})
+
+/**
  * * `BASEMENT` - Υπόγειο
  * * `GROUND_FLOOR` - Ισόγειο
  * * `FIRST_FLOOR` - 1ος όροφος
@@ -6397,6 +6442,17 @@ export const zCountryDetailWritable = z.object({
   phoneCode: z.int().gte(0).lte(32767).nullish(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+export const zFeedbackWriteWritable = z.object({
+  name: z.string().max(100).optional(),
+  email: z.union([
+    z.email().max(254),
+    z.string().max(0),
+  ]).optional(),
+  rating: z.int().gte(1).lte(5),
+  category: zFeedbackWriteCategoryEnum.optional(),
+  message: z.string(),
 })
 
 /**
@@ -11476,6 +11532,10 @@ export const zUpdateCountryQuery = z.object({
 })
 
 export const zUpdateCountryResponse = zCountryDetail
+
+export const zCreateFeedbackBody = zFeedbackWriteRequest
+
+export const zCreateFeedbackResponse = zFeedbackWrite
 
 export const zApiV1HealthRetrieveResponse = zHealthCheckResponse
 
