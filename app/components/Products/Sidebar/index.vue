@@ -249,6 +249,46 @@ watch(slideoverOpen, (isOpen) => {
       <ReuseFiltersTemplate />
     </UCard>
   </div>
+
+  <!-- Mobile / Tablet: Slideover drawer. Opened via toggleDrawer() (exposed
+       above) from the Toolbar's filter button (products page wires
+       @toggle-filters -> sidebarRef.toggleDrawer()). The desktop sidebar is
+       hidden on mobile, so without this the filter button toggled state that
+       rendered nothing and filtering was unreachable on mobile/tablet. -->
+  <USlideover
+    v-if="isMobileOrTablet"
+    v-model:open="slideoverOpen"
+    side="left"
+    :title="t('filters.title')"
+    :ui="{ body: 'p-4' }"
+  >
+    <template #body>
+      <ReuseFiltersTemplate />
+    </template>
+
+    <template #footer>
+      <div class="flex w-full items-center justify-between gap-3">
+        <UButton
+          v-if="hasActiveFilters"
+          color="neutral"
+          variant="ghost"
+          icon="i-heroicons-x-mark"
+          @click="handleClearFilters"
+        >
+          {{ t('filters.clear_all') }}
+        </UButton>
+        <UButton
+          class="ml-auto"
+          color="primary"
+          variant="solid"
+          icon="i-heroicons-check"
+          @click="slideoverOpen = false"
+        >
+          {{ t('filters.show_results') }}
+        </UButton>
+      </div>
+    </template>
+  </USlideover>
 </template>
 
 <i18n lang="yaml">

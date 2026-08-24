@@ -50,15 +50,30 @@ export const useLoyalty = () => {
             query: { keys: LOYALTY_SETTING_KEYS.join(',') },
           })
 
+          // The settings endpoint returns `value: ''` (not undefined) for a
+          // key whose Django fetch failed, so `?? default` never fires and a
+          // bare parseFloat/parseInt would yield NaN and poison checkout's
+          // redemption math. Guard on Number.isFinite so empty/missing/bad
+          // values all fall back to the default.
+          const num = (v: string | undefined, fallback: number) => {
+            const n = Number.parseFloat(v ?? '')
+            return Number.isFinite(n) ? n : fallback
+          }
+          const int = (v: string | undefined, fallback: number) => {
+            const n = Number.parseInt(v ?? '', 10)
+            return Number.isFinite(n) ? n : fallback
+          }
+          const bool = (v: string | undefined) => (v ?? '').toLowerCase() === 'true'
+
           return {
-            enabled: (settings['LOYALTY_ENABLED'] ?? 'false').toLowerCase() === 'true',
-            redemptionRatioEur: Number.parseFloat(settings['LOYALTY_REDEMPTION_RATIO_EUR'] ?? '100'),
-            pointsFactor: Number.parseFloat(settings['LOYALTY_POINTS_FACTOR'] ?? '1.0'),
-            tierMultiplierEnabled: (settings['LOYALTY_TIER_MULTIPLIER_ENABLED'] ?? 'false').toLowerCase() === 'true',
-            pointsExpirationDays: Number.parseInt(settings['LOYALTY_POINTS_EXPIRATION_DAYS'] ?? '0', 10),
-            newCustomerBonusEnabled: (settings['LOYALTY_NEW_CUSTOMER_BONUS_ENABLED'] ?? 'false').toLowerCase() === 'true',
-            newCustomerBonusPoints: Number.parseInt(settings['LOYALTY_NEW_CUSTOMER_BONUS_POINTS'] ?? '0', 10),
-            xpPerLevel: Number.parseInt(settings['LOYALTY_XP_PER_LEVEL'] ?? '1000', 10),
+            enabled: bool(settings['LOYALTY_ENABLED']),
+            redemptionRatioEur: num(settings['LOYALTY_REDEMPTION_RATIO_EUR'], 100),
+            pointsFactor: num(settings['LOYALTY_POINTS_FACTOR'], 1.0),
+            tierMultiplierEnabled: bool(settings['LOYALTY_TIER_MULTIPLIER_ENABLED']),
+            pointsExpirationDays: int(settings['LOYALTY_POINTS_EXPIRATION_DAYS'], 0),
+            newCustomerBonusEnabled: bool(settings['LOYALTY_NEW_CUSTOMER_BONUS_ENABLED']),
+            newCustomerBonusPoints: int(settings['LOYALTY_NEW_CUSTOMER_BONUS_POINTS'], 0),
+            xpPerLevel: int(settings['LOYALTY_XP_PER_LEVEL'], 1000),
           }
         }
         catch (err) {
