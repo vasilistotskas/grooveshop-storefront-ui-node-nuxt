@@ -200,6 +200,13 @@ describe('SWR background revalidation forwards the real tenant host', async () =
       // back to memory anyway, but forcing it avoids cross-run pollution
       // through a shared Redis instance).
       NUXT_CACHE_BASE: 'memory',
+      // server/plugins/startup-validation.ts hard-fails the server boot
+      // (every request 500s) without these. Locally they come from .env;
+      // CI has none, so provide fixed test-only values here — this test
+      // never exercises session encryption or token handling, so the
+      // values just need to exist and satisfy the length check.
+      NUXT_SESSION_PASSWORD: 'e2e-test-session-password-32-chars-minimum-abcdef',
+      NUXT_SECRET_KEY: 'e2e-test-secret-key',
     },
   })
 
