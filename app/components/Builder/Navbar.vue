@@ -12,7 +12,6 @@ const config = useRuntimeConfig()
 const { loggedIn } = useUserSession()
 const { isMobileOrTablet } = useDevice()
 const { locales } = useI18n()
-const navbar = ref(null)
 const isScrolled = ref(false)
 
 const routeName = computed(() => $routeBaseName(route))
@@ -38,7 +37,6 @@ onMounted(() => {
 
 <template>
   <div
-    ref="navbar"
     class="
       top-0 z-50 w-full flex-none backdrop-blur-md
       lg:z-50

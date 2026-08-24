@@ -79,9 +79,18 @@ The Nuxt server acts as a **proxy** to the Django backend. Client-side code call
 
 ### Server Middleware
 
-- `1.locale.ts` — Locale detection: query param → i18n cookies → Accept-Language header → stores in `event.context.locale`
-- `log.ts` — Request logging with performance timing, warns on requests >200ms
+Numeric prefixes order execution. Request logging is via evlog (there is no `log.ts`).
+
+- `0.markdown-negotiation.ts` — serves the `.md` variant of a route when an AI/agent client negotiates for it (nuxt-ai-ready)
 - `0.redirects.ts` — 301 redirect from `www.` to non-www
+- `0.tenant.ts` — resolves `event.context.tenant` from the request host (runs first; see Multi-Tenant Architecture)
+- `1.ai-ready-gate.ts` — gates the on-demand `.md`/llms routes
+- `1.locale.ts` — Locale detection: query param → i18n cookies → Accept-Language header → tenant defaultLocale → `event.context.locale`
+- `2.evlog-auth.ts` — attaches the auth session user id to the wide event (`useLogger`)
+- `3.csp.ts` — per-tenant Content-Security-Policy (extends src lists with the tenant's `allowedCspSources`)
+- `4.tenant-site-config.ts` — sets per-tenant `@nuxtjs/seo` site config (url/name)
+- `5.tenant-canonical.ts` — canonical host enforcement for the tenant's primary domain
+- `6.tenant-favicon.ts` — serves the tenant's favicon
 
 ### Server Plugins
 
@@ -178,9 +187,13 @@ Pinia stores in `app/stores/`:
 ### Middleware
 
 - `auth.global.ts` — Global: redirects unauthenticated users from protected routes
+- `identity.global.ts` — Global: hydrates identity/session state
 - `guest.ts` — Prevents logged-in users from accessing login/signup pages
-- `disable-vue-transitions.global.ts` — Global: disables page/layout transitions when View Transitions API is unavailable
-- `loyalty-enabled.ts` — Redirects to home if loyalty system is disabled
+- `loyalty-enabled.ts` — Redirects to home if loyalty system is disabled for the tenant
+- `blog-enabled.ts` — Redirects to home if blog is disabled for the tenant
+- `account-reviews-enabled.ts` — Gates the account reviews route
+
+(Page/layout transitions are disabled globally in `nuxt.config.ts` via `app.pageTransition: false` / `layoutTransition: false` — no middleware needed.)
 
 ### Pages (Routing)
 
@@ -225,23 +238,30 @@ Components in `app/components/` organized by domain:
 
 ### Nuxt Modules
 
-Active modules in `nuxt.config.ts`:
-1. `@nuxt/image` — Image optimization with IPX + custom mediaStream provider
-2. `@nuxt/ui` — Component library (v4, with experimental component detection)
-3. `@nuxt/eslint` — ESLint integration with checker enabled
-4. `@nuxt/test-utils/module` — Test utilities
-5. `@nuxt/scripts` — Third-party script management (Stripe registry)
-6. `@nuxt/fonts` — Font optimization
-7. `@nuxt/icon` — Icon system (server bundle: remote with externalized JSON for 9 icon sets; client bundle: scanned with 128KB limit)
-8. `@nuxtjs/i18n` — Internationalization (browser detection, cookie-based, typed pages)
-9. `@nuxtjs/seo` — SEO suite (sitemap, OG image, Schema.org, link checker)
-10. `@pinia/nuxt` — Pinia state management
-11. `@vueuse/nuxt` — VueUse composables (device detection via `useMediaQuery` with UA-based SSR width)
-12. `nuxt-auth-utils` — Session management
-13. `@nuxt/a11y` — Accessibility auditing (alpha)
-14. `nuxt-ai-ready` — AI/LLM discoverability: serves `/llms.txt`, `/llms-full.txt`, on-demand `/<route>.md`, and emits robots.txt Content Signals (`aiTrain`/`search`/`aiInput` all enabled). Auto-detects `@nuxtjs/i18n` and emits `Link: rel="alternate"; hreflang="el-GR"` headers on `.md` responses. Requires `robots: {}` in `nuxt.config.ts` because v1.3.0 crashes if `nuxt.options.robots` is undefined when `contentSignal` is set. `runtimeSync`/`cron` intentionally **disabled** — with 2 SSR replicas each holding an ephemeral `.data/ai-ready/pages.db`, scheduled background indexing would race and double-submit; SSR pages still index on first visit per pod via the runtime fallback.
-15. Custom `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
-16. Custom `modules/purge-comments.ts` — Removes HTML comments in production
+Active modules in `nuxt.config.ts` (the `modules` array, in order):
+1. `evlog/nuxt` — Structured logging (`log` auto-import on client + Nitro; see Structured Logging)
+2. `@comark/nuxt` — Markdown rendering (used by blog/CMS content)
+3. `@nuxt/image` — Image optimization with IPX + custom mediaStream provider
+4. `@nuxt/ui` — Component library (v4, with experimental component detection)
+5. `@nuxt/eslint` — ESLint integration with checker enabled
+6. `@nuxt/scripts` — Third-party script management (Stripe registry)
+7. `@nuxt/fonts` — Font optimization
+8. `@nuxt/icon` — Icon system (server bundle: remote with externalized JSON for 9 icon sets; client bundle: scanned with 128KB limit)
+9. `@nuxtjs/i18n` — Internationalization (browser detection, cookie-based, typed pages)
+10. `@nuxtjs/leaflet` — Leaflet maps (locker/pickup-point selection)
+11. `@nuxtjs/seo` — SEO suite (sitemap, OG image, Schema.org, link checker)
+12. `@pinia/nuxt` — Pinia state management
+13. `@vueuse/nuxt` — VueUse composables (device detection via `useMediaQuery` with UA-based SSR width)
+14. `nuxt-auth-utils` — Session management
+15. `nuxt-ai-ready` — AI/LLM discoverability: serves `/llms.txt`, `/llms-full.txt`, on-demand `/<route>.md`, and emits robots.txt Content Signals (`aiTrain`/`search`/`aiInput` all enabled). Auto-detects `@nuxtjs/i18n` and emits `Link: rel="alternate"; hreflang="el-GR"` headers on `.md` responses. Requires `robots: {}` in `nuxt.config.ts` because v1.3.0 crashes if `nuxt.options.robots` is undefined when `contentSignal` is set. `runtimeSync`/`cron` intentionally **disabled** — with 2 SSR replicas each holding an ephemeral `.data/ai-ready/pages.db`, scheduled background indexing would race and double-submit; SSR pages still index on first visit per pod via the runtime fallback.
+
+Conditionally pushed (NOT active in production):
+- `@nuxt/test-utils/module` — only when `NODE_ENV === 'test'`
+- `@nuxt/a11y` — only when `NODE_ENV === 'development'` (accessibility auditing, alpha)
+
+Custom local modules:
+- `modules/cookies.ts` — Cookie consent (GDPR categories: necessary, functionality, ad, analytics, personalization, security)
+- `modules/purge-comments.ts` — Removes HTML comments in production
 
 ### CI/CD
 
@@ -273,6 +293,7 @@ Copy `.env.example` to `.env`. Key variables:
 - `NUXT_PUBLIC_DJANGO_HOST_NAME` — Public Django hostname (e.g. `api.webside.gr`); used as `X-Forwarded-Host` in all internal cluster `$fetch` calls so Django's `ALLOWED_HOSTS` validation passes and `request.build_absolute_uri()` constructs correct URLs. Also used for WebSocket connections.
 - `NUXT_PUBLIC_MEDIA_STREAM_ORIGIN` / `NUXT_PUBLIC_MEDIA_STREAM_PATH` — Media processing service
 - `NUXT_PUBLIC_STATIC_ORIGIN` — Static file origin (Django)
+- `NUXT_CACHE_PURGE_TOKEN` — shared secret for the `/api/admin/cache/purge` route (`runtimeConfig.cachePurgeToken`); Django's Cache Management admin sends it to invalidate the Nitro SSR cache
 - `NUXT_CACHE_BASE` — `redis` or `memory`
 - `NUXT_REDIS_HOST` / `NUXT_REDIS_PORT` / `NUXT_REDIS_TTL` — Redis config
 - `NUXT_SESSION_PASSWORD` — Session encryption password
