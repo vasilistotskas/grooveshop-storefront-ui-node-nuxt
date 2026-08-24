@@ -1,3 +1,10 @@
+# [3.156.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.155.0...v3.156.0) (2026-08-24)
+
+
+### Features
+
+* **feedback:** add storefront feedback form page ([eb339bc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/eb339bc89b087339fb418fb6fe829133206add7f))
+
 # [3.155.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.154.0...v3.155.0) (2026-08-24)
 
 
