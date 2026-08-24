@@ -141,6 +141,17 @@ export default defineEventHandler(async (event) => {
     const logoImageUrl = tenant?.logoLightUrl
       || (isPlatformTenant ? `${siteConfig.url}/screenshots/1024x593.png` : undefined)
 
+    // Feed image URLs (media:content / enclosure) must point at THIS
+    // tenant's own asset host, not the platform media host baked into
+    // NUXT_MEDIA_STREAM_PATH — otherwise a second tenant's feed serves
+    // its images from the platform origin. The path segment is fixed;
+    // only the origin is per-tenant (assetsDomain). Falls back to the
+    // platform path when there's no tenant context (prerender). Same
+    // resolution as useMediaStreamBaseUrl() on the client.
+    const mediaStreamBase = tenant?.assetsDomain
+      ? `https://${tenant.assetsDomain}${extractMediaStreamPath(config.mediaStreamPath as string | undefined)}`
+      : config.mediaStreamPath
+
     const feedString = await generateRssFeed(
       host,
       locale,
@@ -149,7 +160,7 @@ export default defineEventHandler(async (event) => {
       siteConfig.description,
       baseUrl,
       apiBaseUrl,
-      config.mediaStreamPath,
+      mediaStreamBase,
       currency,
       logoImageUrl,
     )

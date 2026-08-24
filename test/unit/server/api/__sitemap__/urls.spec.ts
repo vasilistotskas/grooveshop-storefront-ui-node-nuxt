@@ -6,15 +6,20 @@
  * surface in search engines.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { extractMediaStreamPath } from '../../../../../shared/utils/mediaStream'
 
 // --- Nuxt/Nitro global stubs ---
 
 vi.stubGlobal('useRuntimeConfig', () => ({
-  public: { baseUrl: 'https://example.com', mediaStreamPath: 'https://media.example.com' },
+  public: { baseUrl: 'https://example.com', mediaStreamPath: 'https://media.example.com/media_stream-image' },
   apiBaseUrl: 'https://api.example.com/api/v1',
 }))
 
 vi.stubGlobal('getRequestHost', () => 'example.com')
+
+// The real path extractor is used by the route to reuse the fixed media
+// path segment against the tenant's own asset origin.
+vi.stubGlobal('extractMediaStreamPath', extractMediaStreamPath)
 
 // This route is bypassed in 0.tenant.ts, so it resolves tenant context
 // itself via getTenantConfig() when event.context.tenant is absent.
@@ -108,5 +113,48 @@ describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', (
     const locs = urls.map(u => u.loc)
 
     expect(locs.some(l => l.includes('/blog/post/'))).toBe(true)
+  })
+})
+
+describe('server/api/__sitemap__/urls — per-tenant image host', () => {
+  const PRODUCT_WITH_IMAGE = {
+    id: 100,
+    slug: 'my-product',
+    updatedAt: new Date().toISOString(),
+    active: true,
+    mainImagePath: 'media/acme/uploads/products/x.jpg',
+    translations: {},
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    cachedFetcherData['products'] = [PRODUCT_WITH_IMAGE]
+  })
+
+  function productImageLoc(urls: Array<{ loc: string, images?: Array<{ loc: string }> }>) {
+    const product = urls.find(u => u.loc?.includes('/products/') && u.images?.length)
+    return product?.images?.[0]?.loc
+  }
+
+  it('emits image:loc on the tenant own assetsDomain when set', async () => {
+    const urls = await handler({
+      context: { tenant: { blogEnabled: true, primaryDomain: 'acme.example', assetsDomain: 'assets.acme.example' } },
+    }) as Array<{ loc: string, images?: Array<{ loc: string }> }>
+
+    expect(productImageLoc(urls)).toBe(
+      'https://assets.acme.example/media_stream-image/media/acme/uploads/products/x.jpg',
+    )
+    // Never the platform media host for a tenant that has its own.
+    expect(productImageLoc(urls)).not.toContain('media.example.com')
+  })
+
+  it('falls back to the platform media host when the tenant has no assetsDomain', async () => {
+    const urls = await handler({
+      context: { tenant: { blogEnabled: true, primaryDomain: 'example.com' } },
+    }) as Array<{ loc: string, images?: Array<{ loc: string }> }>
+
+    expect(productImageLoc(urls)).toBe(
+      'https://media.example.com/media_stream-image/media/acme/uploads/products/x.jpg',
+    )
   })
 })

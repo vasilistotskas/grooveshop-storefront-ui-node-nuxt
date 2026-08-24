@@ -47,6 +47,16 @@ export default defineSitemapEventHandler(async (event) => {
   const baseUrl = tenantDomain ? `https://${tenantDomain}` : config.public.baseUrl
   const apiBaseUrl = config.apiBaseUrl
 
+  // Sitemap <image:loc> URLs must point at THIS tenant's own asset host,
+  // not the platform media host baked into NUXT_PUBLIC_MEDIA_STREAM_PATH —
+  // the path segment is fixed, only the origin is per-tenant (assetsDomain).
+  // Falls back to the platform path when there's no tenant context (the
+  // build/SWR case this route is normally hit in). Mirrors the RSS feed and
+  // useMediaStreamBaseUrl() resolution.
+  const mediaStreamBase = tenant?.assetsDomain
+    ? `https://${tenant.assetsDomain}${extractMediaStreamPath(config.public.mediaStreamPath as string | undefined)}`
+    : config.public.mediaStreamPath as string
+
   // Only 'el' is active per i18n config. When more locales activate,
   // iterate SUPPORTED_LOCALES here and emit hreflang alternates per entry.
   const ACTIVE_LOCALE = 'el'
@@ -99,7 +109,7 @@ export default defineSitemapEventHandler(async (event) => {
       lastmod: new Date(product.updatedAt),
       images: product.mainImagePath
         ? [{
-            loc: `${config.public.mediaStreamPath}/${product.mainImagePath}`,
+            loc: `${mediaStreamBase}/${product.mainImagePath}`,
             // Prefer the active locale (el) translation; fall back to any
             // available locale so the field is never silently empty.
             title: product.translations?.el?.name
