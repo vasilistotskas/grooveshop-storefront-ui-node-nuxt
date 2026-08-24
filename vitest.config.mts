@@ -127,8 +127,9 @@ export default defineConfig({
           // needed nor used by that flow.
           environment: 'node',
           // Booting a real dev server (build + first request) is slower
-          // than in-process tests.
-          testTimeout: 60000,
+          // than in-process tests; the SWR test also budgets up to ~45s
+          // warming a cold dev server before its timed assertions.
+          testTimeout: 120000,
           hookTimeout: 120000,
         },
       },

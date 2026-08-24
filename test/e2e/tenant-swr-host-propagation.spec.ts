@@ -208,6 +208,27 @@ describe('SWR background revalidation forwards the real tenant host', async () =
   })
 
   it('carries the triggering tenant Host on the SWR background revalidation fetch, never the platform fallback', async () => {
+    // 0. Warm the dev server. In dev mode Nitro compiles routes + middleware
+    //    on the FIRST request that touches them, and on a cold CI runner that
+    //    first hit can transiently 500 before the pipeline is ready. Warm on a
+    //    throwaway host so the tenant-a/b cache entries stay pristine, wait for
+    //    a 200, then discard the warmup's recorded upstream hit(s). If it never
+    //    becomes ready, surface the last status + body so a non-cold-start
+    //    failure (e.g. a validation error) is visible in the logs.
+    const warmDeadline = Date.now() + 45000
+    let last = { statusCode: 0, body: '' }
+    while (Date.now() < warmDeadline) {
+      last = await requestWithHost(PROBE_PATH, 'warmup.localhost')
+      if (last.statusCode === 200) {
+        break
+      }
+      await sleep(500)
+    }
+    if (last.statusCode !== 200) {
+      throw new Error(`probe route never became ready (last status ${last.statusCode}): ${last.body.slice(0, 800)}`)
+    }
+    capturedHosts.length = 0
+
     // 1. Prime the cache for both tenants. Each is a cache MISS, awaited
     //    inline by the request handler, so the fetch to fake Django happens
     //    synchronously within the request/response cycle.
