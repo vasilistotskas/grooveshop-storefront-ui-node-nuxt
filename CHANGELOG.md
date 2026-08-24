@@ -1,3 +1,10 @@
+# [3.155.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.154.0...v3.155.0) (2026-08-24)
+
+
+### Features
+
+* **content-pages:** add per-tenant CMS ContentPage detail + footer links ([e586737](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e586737f164b8ea0ad496a58e61375b2d9d3f551))
+
 # [3.154.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.153.4...v3.154.0) (2026-08-24)
 
 
