@@ -10,6 +10,28 @@ export function useFooterLinks() {
   const localePath = useLocalePath()
   const { footerColumns } = useNavigation()
 
+  // Published ContentPages (per-tenant CMS pages, e.g. FAQ/shipping info)
+  // are always safe to link unconditionally — unlike the removed
+  // brand-only routes above, every entry here is a row that actually
+  // exists and is published for THIS tenant, so it can never 404.
+  const { data: contentPagesData } = useFetch('/api/content-pages', {
+    key: 'footer-content-pages',
+    query: { pageSize: 50, ordering: 'slug' },
+  })
+
+  const contentPagesColumn = computed<FooterLinkColumn | null>(() => {
+    const pages = contentPagesData.value?.results
+    if (!pages || pages.length === 0) return null
+    return {
+      label: t('footer.pages'),
+      icon: 'i-heroicons-document-text',
+      children: pages.map(page => ({
+        label: extractTranslated(page, 'title', $i18n.locale.value) ?? page.slug,
+        to: localePath({ name: 'info-slug', params: { slug: page.slug } }),
+      })),
+    }
+  })
+
   // Operator-configured footer wins (per-tenant NavigationMenu rows);
   // the code-level columns below are the fallback for tenants that have
   // published none.
@@ -47,15 +69,17 @@ export function useFooterLinks() {
 
   const columns = computed<FooterLinkColumn[]>(() => {
     const configured = footerColumns.value
-    if (!configured) return fallbackColumns.value
-    return configured.map(column => ({
-      label: column.label,
-      icon: column.icon,
-      children: column.children.map(child => ({
-        label: child.label,
-        to: child.to ?? child.href ?? '/',
-      })),
-    }))
+    const base = !configured
+      ? fallbackColumns.value
+      : configured.map(column => ({
+          label: column.label,
+          icon: column.icon,
+          children: column.children.map(child => ({
+            label: child.label,
+            to: child.to ?? child.href ?? '/',
+          })),
+        }))
+    return contentPagesColumn.value ? [...base, contentPagesColumn.value] : base
   })
 
   return { columns }

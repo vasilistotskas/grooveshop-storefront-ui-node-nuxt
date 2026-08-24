@@ -1094,6 +1094,105 @@ export const zContactWriteRequest = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
+export const zContentPage = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  translations: z.object({
+    el: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+  }),
+  isPublished: z.boolean().optional(),
+  publishedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zContentPageDetail = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  translations: z.object({
+    el: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+  }),
+  isPublished: z.boolean().optional(),
+  publishedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  seoTitle: z.string().max(70).optional(),
+  seoDescription: z.string().max(300).optional(),
+  seoKeywords: z.string().max(255).optional(),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Enforce that the configured default-language translation is present.
+ *
+ * Parler treats translations as optional at the model layer, so any
+ * serializer that needs a guaranteed default-language entry mixes this
+ * in and sets ``required_translation_field`` to the translated field
+ * that must be non-empty (e.g. ``"name"``).
+ *
+ * The default language is read from
+ * ``settings.PARLER_DEFAULT_LANGUAGE_CODE`` rather than hardcoded, so
+ * the rule follows the configured locales — adding or changing
+ * languages on either end needs no change here. Non-default languages
+ * stay optional.
+ */
+export const zContentPageWriteRequest = z.object({
+  translations: z.object({
+    el: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+  }),
+  slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  isPublished: z.boolean().optional(),
+  seoTitle: z.string().max(70).optional(),
+  seoDescription: z.string().max(300).optional(),
+  seoKeywords: z.string().max(255).optional(),
+}).register(z.globalRegistry, {
+  description: 'Enforce that the configured default-language translation is present.\n\nParler treats translations as optional at the model layer, so any\nserializer that needs a guaranteed default-language entry mixes this\nin and sets ``required_translation_field`` to the translated field\nthat must be non-empty (e.g. ``"name"``).\n\nThe default language is read from\n``settings.PARLER_DEFAULT_LANGUAGE_CODE`` rather than hardcoded, so\nthe rule follows the configured locales — adding or changing\nlanguages on either end needs no change here. Non-default languages\nstay optional.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
 export const zCountry = z.object({
   translations: z.object({
     el: z.object({
@@ -1882,6 +1981,19 @@ export const zPaginatedBlogTagList = z.object({
   results: z.array(zBlogTag),
 })
 
+export const zPaginatedContentPageList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zContentPage),
+})
+
 export const zPaginatedCountryList = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -2073,6 +2185,44 @@ export const zPatchedBlogTagWriteRequest = z.object({
 
 export const zPatchedCartItemUpdateRequest = z.object({
   quantity: z.int().gte(0).lte(2147483647).optional(),
+})
+
+/**
+ * Enforce that the configured default-language translation is present.
+ *
+ * Parler treats translations as optional at the model layer, so any
+ * serializer that needs a guaranteed default-language entry mixes this
+ * in and sets ``required_translation_field`` to the translated field
+ * that must be non-empty (e.g. ``"name"``).
+ *
+ * The default language is read from
+ * ``settings.PARLER_DEFAULT_LANGUAGE_CODE`` rather than hardcoded, so
+ * the rule follows the configured locales — adding or changing
+ * languages on either end needs no change here. Non-default languages
+ * stay optional.
+ */
+export const zPatchedContentPageWriteRequest = z.object({
+  translations: z.object({
+    el: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+  }).optional(),
+  slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
+  isPublished: z.boolean().optional(),
+  seoTitle: z.string().max(70).optional(),
+  seoDescription: z.string().max(300).optional(),
+  seoKeywords: z.string().max(255).optional(),
+}).register(z.globalRegistry, {
+  description: 'Enforce that the configured default-language translation is present.\n\nParler treats translations as optional at the model layer, so any\nserializer that needs a guaranteed default-language entry mixes this\nin and sets ``required_translation_field`` to the translated field\nthat must be non-empty (e.g. ``"name"``).\n\nThe default language is read from\n``settings.PARLER_DEFAULT_LANGUAGE_CODE`` rather than hardcoded, so\nthe rule follows the configured locales — adding or changing\nlanguages on either end needs no change here. Non-default languages\nstay optional.',
 })
 
 /**
@@ -6155,6 +6305,57 @@ export const zContactWriteWritable = z.object({
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
+export const zContentPageWritable = z.object({
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  translations: z.object({
+    el: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+  }),
+  isPublished: z.boolean().optional(),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zContentPageDetailWritable = z.object({
+  slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
+  translations: z.object({
+    el: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      title: z.string().optional(),
+      body: z.string().optional(),
+    }).optional(),
+  }),
+  isPublished: z.boolean().optional(),
+  seoTitle: z.string().max(70).optional(),
+  seoDescription: z.string().max(300).optional(),
+  seoKeywords: z.string().max(255).optional(),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
 export const zCountryWritable = z.object({
   translations: z.object({
     el: z.object({
@@ -6604,6 +6805,19 @@ export const zPaginatedCartListWritable = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zCartWritable),
+})
+
+export const zPaginatedContentPageListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zContentPageWritable),
 })
 
 export const zPaginatedCountryListWritable = z.object({
@@ -10848,6 +11062,122 @@ export const zReserveCartStockResponse = zReserveStockResponse
 export const zCreateContactBody = zContactWriteRequest
 
 export const zCreateContactResponse = zContactWrite
+
+export const zListContentPageQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Δείκτης (cursor) για σελιδοποίηση',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
+  ordering: z.string().regex(/^(?:slug|\-slug|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt)(?:,(?:slug|\-slug|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: slug, -slug, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt',
+  }).optional(),
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+})
+
+export const zListContentPageResponse = zPaginatedContentPageList
+
+export const zCreateContentPageBody = zContentPageWriteRequest
+
+export const zCreateContentPageQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zCreateContentPageResponse = zContentPageDetail
+
+export const zDestroyContentPagePath = z.object({
+  slug: z.string(),
+})
+
+/**
+ * No response body
+ */
+export const zDestroyContentPageResponse = z.void().register(z.globalRegistry, {
+  description: 'No response body',
+})
+
+export const zRetrieveContentPagePath = z.object({
+  slug: z.string(),
+})
+
+export const zRetrieveContentPageQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zRetrieveContentPageResponse = zContentPageDetail
+
+export const zPartialUpdateContentPageBody = zPatchedContentPageWriteRequest
+
+export const zPartialUpdateContentPagePath = z.object({
+  slug: z.string(),
+})
+
+export const zPartialUpdateContentPageQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zPartialUpdateContentPageResponse = zContentPageDetail
+
+export const zUpdateContentPageBody = zContentPageWriteRequest
+
+export const zUpdateContentPagePath = z.object({
+  slug: z.string(),
+})
+
+export const zUpdateContentPageQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
+})
+
+export const zUpdateContentPageResponse = zContentPageDetail
 
 export const zListCountryQuery = z.object({
   alpha2: z.string().register(z.globalRegistry, {

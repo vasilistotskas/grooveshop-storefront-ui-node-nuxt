@@ -2287,6 +2287,144 @@ export type ContactWriteRequest = {
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
+export type ContentPage = {
+  readonly id: number
+  readonly uuid: string
+  slug: string
+  translations: {
+    el?: {
+      title?: string
+      body?: string
+    }
+    en?: {
+      title?: string
+      body?: string
+    }
+    de?: {
+      title?: string
+      body?: string
+    }
+  }
+  /**
+     * Δημοσιευμένο
+     */
+  isPublished?: boolean
+  /**
+     * Δημοσιεύθηκε στις
+     */
+  readonly publishedAt: string | null
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+}
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export type ContentPageDetail = {
+  readonly id: number
+  readonly uuid: string
+  slug: string
+  translations: {
+    el?: {
+      title?: string
+      body?: string
+    }
+    en?: {
+      title?: string
+      body?: string
+    }
+    de?: {
+      title?: string
+      body?: string
+    }
+  }
+  /**
+     * Δημοσιευμένο
+     */
+  isPublished?: boolean
+  /**
+     * Δημοσιεύθηκε στις
+     */
+  readonly publishedAt: string | null
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+  /**
+     * Τίτλος SEO
+     */
+  seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
+  seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
+  seoKeywords?: string
+}
+
+/**
+ * Enforce that the configured default-language translation is present.
+ *
+ * Parler treats translations as optional at the model layer, so any
+ * serializer that needs a guaranteed default-language entry mixes this
+ * in and sets ``required_translation_field`` to the translated field
+ * that must be non-empty (e.g. ``"name"``).
+ *
+ * The default language is read from
+ * ``settings.PARLER_DEFAULT_LANGUAGE_CODE`` rather than hardcoded, so
+ * the rule follows the configured locales — adding or changing
+ * languages on either end needs no change here. Non-default languages
+ * stay optional.
+ */
+export type ContentPageWriteRequest = {
+  translations: {
+    el?: {
+      title?: string
+      body?: string
+    }
+    en?: {
+      title?: string
+      body?: string
+    }
+    de?: {
+      title?: string
+      body?: string
+    }
+  }
+  slug: string
+  /**
+     * Δημοσιευμένο
+     */
+  isPublished?: boolean
+  /**
+     * Τίτλος SEO
+     */
+  seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
+  seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
+  seoKeywords?: string
+}
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
 export type Country = {
   translations: {
     el?: {
@@ -3873,6 +4011,19 @@ export type PaginatedCartList = {
   results: Array<Cart>
 }
 
+export type PaginatedContentPageList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<ContentPage>
+}
+
 export type PaginatedCountryList = {
   links?: {
     next?: string | null
@@ -4338,6 +4489,54 @@ export type PatchedCartItemUpdateRequest = {
      * Ποσότητα
      */
   quantity?: number
+}
+
+/**
+ * Enforce that the configured default-language translation is present.
+ *
+ * Parler treats translations as optional at the model layer, so any
+ * serializer that needs a guaranteed default-language entry mixes this
+ * in and sets ``required_translation_field`` to the translated field
+ * that must be non-empty (e.g. ``"name"``).
+ *
+ * The default language is read from
+ * ``settings.PARLER_DEFAULT_LANGUAGE_CODE`` rather than hardcoded, so
+ * the rule follows the configured locales — adding or changing
+ * languages on either end needs no change here. Non-default languages
+ * stay optional.
+ */
+export type PatchedContentPageWriteRequest = {
+  translations?: {
+    el?: {
+      title?: string
+      body?: string
+    }
+    en?: {
+      title?: string
+      body?: string
+    }
+    de?: {
+      title?: string
+      body?: string
+    }
+  }
+  slug?: string
+  /**
+     * Δημοσιευμένο
+     */
+  isPublished?: boolean
+  /**
+     * Τίτλος SEO
+     */
+  seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
+  seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
+  seoKeywords?: string
 }
 
 /**
@@ -8204,6 +8403,68 @@ export type ContactWriteWritable = {
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
+export type ContentPageWritable = {
+  slug: string
+  translations: {
+    el?: {
+      title?: string
+      body?: string
+    }
+    en?: {
+      title?: string
+      body?: string
+    }
+    de?: {
+      title?: string
+      body?: string
+    }
+  }
+  /**
+     * Δημοσιευμένο
+     */
+  isPublished?: boolean
+}
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export type ContentPageDetailWritable = {
+  slug: string
+  translations: {
+    el?: {
+      title?: string
+      body?: string
+    }
+    en?: {
+      title?: string
+      body?: string
+    }
+    de?: {
+      title?: string
+      body?: string
+    }
+  }
+  /**
+     * Δημοσιευμένο
+     */
+  isPublished?: boolean
+  /**
+     * Τίτλος SEO
+     */
+  seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
+  seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
+  seoKeywords?: string
+}
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
 export type CountryWritable = {
   translations: {
     el?: {
@@ -8879,6 +9140,19 @@ export type PaginatedCartListWritable = {
   pageTotalResults?: number
   page?: number
   results: Array<CartWritable>
+}
+
+export type PaginatedContentPageListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<ContentPageWritable>
 }
 
 export type PaginatedCountryListWritable = {
@@ -14136,6 +14410,205 @@ export type CreateContactResponses = {
 }
 
 export type CreateContactResponse = CreateContactResponses[keyof CreateContactResponses]
+
+export type ListContentPageData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Δείκτης (cursor) για σελιδοποίηση
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: slug, -slug, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt
+         */
+    ordering?: string
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Αριθμός αποτελεσμάτων ανά σελίδα
+         */
+    pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/content-page'
+}
+
+export type ListContentPageErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListContentPageError = ListContentPageErrors[keyof ListContentPageErrors]
+
+export type ListContentPageResponses = {
+  200: PaginatedContentPageList
+}
+
+export type ListContentPageResponse = ListContentPageResponses[keyof ListContentPageResponses]
+
+export type CreateContentPageData = {
+  body: ContentPageWriteRequest
+  path?: never
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/content-page'
+}
+
+export type CreateContentPageErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type CreateContentPageError = CreateContentPageErrors[keyof CreateContentPageErrors]
+
+export type CreateContentPageResponses = {
+  201: ContentPageDetail
+}
+
+export type CreateContentPageResponse = CreateContentPageResponses[keyof CreateContentPageResponses]
+
+export type DestroyContentPageData = {
+  body?: never
+  path: {
+    slug: string
+  }
+  query?: never
+  url: '/api/v1/content-page/{slug}'
+}
+
+export type DestroyContentPageErrors = {
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+}
+
+export type DestroyContentPageError = DestroyContentPageErrors[keyof DestroyContentPageErrors]
+
+export type DestroyContentPageResponses = {
+  /**
+     * No response body
+     */
+  204: void
+}
+
+export type DestroyContentPageResponse = DestroyContentPageResponses[keyof DestroyContentPageResponses]
+
+export type RetrieveContentPageData = {
+  body?: never
+  path: {
+    slug: string
+  }
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/content-page/{slug}'
+}
+
+export type RetrieveContentPageErrors = {
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type RetrieveContentPageError = RetrieveContentPageErrors[keyof RetrieveContentPageErrors]
+
+export type RetrieveContentPageResponses = {
+  200: ContentPageDetail
+}
+
+export type RetrieveContentPageResponse = RetrieveContentPageResponses[keyof RetrieveContentPageResponses]
+
+export type PartialUpdateContentPageData = {
+  body?: PatchedContentPageWriteRequest
+  path: {
+    slug: string
+  }
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/content-page/{slug}'
+}
+
+export type PartialUpdateContentPageErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type PartialUpdateContentPageError = PartialUpdateContentPageErrors[keyof PartialUpdateContentPageErrors]
+
+export type PartialUpdateContentPageResponses = {
+  200: ContentPageDetail
+}
+
+export type PartialUpdateContentPageResponse = PartialUpdateContentPageResponses[keyof PartialUpdateContentPageResponses]
+
+export type UpdateContentPageData = {
+  body: ContentPageWriteRequest
+  path: {
+    slug: string
+  }
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
+  url: '/api/v1/content-page/{slug}'
+}
+
+export type UpdateContentPageErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type UpdateContentPageError = UpdateContentPageErrors[keyof UpdateContentPageErrors]
+
+export type UpdateContentPageResponses = {
+  200: ContentPageDetail
+}
+
+export type UpdateContentPageResponse = UpdateContentPageResponses[keyof UpdateContentPageResponses]
 
 export type ListCountryData = {
   body?: never
