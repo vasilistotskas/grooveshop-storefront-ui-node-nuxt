@@ -1,3 +1,11 @@
+## [3.153.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.153.3...v3.153.4) (2026-08-24)
+
+
+### Bug Fixes
+
+* **products,loyalty:** mobile filter drawer + NaN-safe loyalty settings ([1f4a343](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1f4a34329b70cd14dc435653472219fd49039974))
+* **products:** apply the category filter on category landing pages ([51517bd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/51517bd592eeb3a65824840d2e30d1c86cc303cb))
+
 ## [3.153.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.153.2...v3.153.3) (2026-08-24)
 
 
