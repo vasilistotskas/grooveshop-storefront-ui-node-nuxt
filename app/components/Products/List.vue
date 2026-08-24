@@ -1,4 +1,12 @@
 <script lang="ts" setup>
+// ``categoryId`` scopes the listing to one category when this component
+// is rendered on a category landing page (products/category/[id]/[slug]).
+// It is the PAGE context, not a URL filter — the category lives in the
+// route path, not ``?category=`` — so it's merged into the search query
+// below rather than going through useProductFilters()'s URL state. On the
+// plain /products page the prop is absent and the listing is filter-driven.
+const props = defineProps<{ categoryId?: number }>()
+
 const { t } = useI18n()
 const route = useRoute()
 const { $i18n } = useNuxtApp()
@@ -8,6 +16,19 @@ const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
 const { filters, hasActiveFilters, activeFilterCount, updateFilters } = useProductFilters()
 const { isMobile } = useDevice()
+
+// Effective category set sent to the search API: the page's own category
+// (when on a category page) unioned with any category filters from the URL.
+// Deduplicated and reduced to the comma-joined string the API expects, or
+// undefined when there is no category constraint at all.
+const effectiveCategories = computed(() => {
+  const cats = filters.value.categories.map(String)
+  if (props.categoryId != null) {
+    const base = String(props.categoryId)
+    if (!cats.includes(base)) cats.unshift(base)
+  }
+  return cats.length > 0 ? cats.join(',') : undefined
+})
 
 // Ref to the product grid container for scroll-to-top functionality
 const productGridRef = ref<HTMLElement | null>(null)
@@ -128,7 +149,7 @@ const {
       priceMax: computed(() => filters.value.priceMax),
       likesMin: computed(() => filters.value.likesMin),
       viewsMin: computed(() => filters.value.viewsMin),
-      categories: computed(() => filters.value.categories.length > 0 ? filters.value.categories.join(',') : undefined),
+      categories: effectiveCategories,
       attributeValues: computed(() => filters.value.attributeValues.length > 0 ? filters.value.attributeValues.join(',') : undefined),
       sort: computed(() => filters.value.sort),
       languageCode: locale,
