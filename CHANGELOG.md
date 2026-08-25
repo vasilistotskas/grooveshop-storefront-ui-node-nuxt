@@ -1,3 +1,10 @@
+## [3.157.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.157.0...v3.157.1) (2026-08-25)
+
+
+### Bug Fixes
+
+* **sitemap:** disable XSLT stylesheet to fix blank page ([5728db4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5728db43c4dbc2892b4fdb37724523c97665249f))
+
 # [3.157.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.156.0...v3.157.0) (2026-08-24)
 
 
