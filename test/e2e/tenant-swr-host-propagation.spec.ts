@@ -95,6 +95,8 @@ function validTenantConfig(domain: string) {
     staticDomain: domain,
     loyaltyEnabled: false,
     blogEnabled: false,
+    promotionsEnabled: false,
+    giftCardsEnabled: false,
     agentStripeDelegatedEnabled: false,
     stripePublishableKey: '',
     allowedCspSources: [],
