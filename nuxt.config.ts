@@ -788,6 +788,20 @@ export default defineNuxtConfig({
     // off when ``sitemaps !== false`` fails, an absent key re-enables
     // the per-locale split. robots.txt Sitemap: line updates itself.
     sitemaps: false,
+    // No XSLT stylesheet. nuxt-sitemap defaults ``xsl`` to
+    // ``/__sitemap__/style.xsl`` and injects a
+    // ``<?xml-stylesheet type="text/xsl"?>`` PI into /sitemap.xml so a
+    // human sees a styled table. But Chrome is REMOVING XSLT: the
+    // kill-switch already ships to Stable via field trials (seen live on
+    // Chrome 151) ahead of the hard removal in Chrome 158 (2026-11-17),
+    // and Firefox/WebKit have announced the same. With XSLT disabled the
+    // browser refuses the transform AND its own native XML pretty-viewer
+    // (itself XSLT-based) dies too — so the PI leaves a BLANK white page.
+    // Dropping the PI lets the browser fall back to raw-XML rendering
+    // (visible, if unstyled). Crawlers never used the stylesheet, so SEO
+    // is unaffected. The styling was cosmetic; a dead-on-arrival
+    // dependency is not worth keeping.
+    xsl: false,
     exclude: [
       '/account',
       '/account/2fa',
