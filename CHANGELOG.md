@@ -1,3 +1,16 @@
+# [3.158.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.157.1...v3.158.0) (2026-08-25)
+
+
+### Bug Fixes
+
+* **e2e:** add the new tenant feature flags to the SWR probe fixture ([be05679](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/be056799738b7dabdd0b878f187f7c29f0b24a89))
+
+
+### Features
+
+* **checkout:** coupon codes and gift-card redemption across the storefront ([6249817](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/62498179cc3443ee97c61638e500acb00bbeddb7))
+* **checkout:** Viva gift-card purchases, loyalty-priced intents and promotion teasers ([a8c6f68](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a8c6f68bdb870bcbf3eb3a9f940205cd3b6b239d))
+
 ## [3.157.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.157.0...v3.157.1) (2026-08-25)
 
 
