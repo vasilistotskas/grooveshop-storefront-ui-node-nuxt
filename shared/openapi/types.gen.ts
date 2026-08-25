@@ -1968,6 +1968,23 @@ export type Cart = {
      */
   readonly appliedCouponCodes: Array<string>
   /**
+     * Free-gift entitlements earned by this cart
+     */
+  readonly promotionGiftItems: Array<{
+    promotionId?: number
+    name?: string
+    productId?: number
+    quantity?: number
+  }>
+  /**
+     * Automatic promotions blocked only by their minimum subtotal — 'add X more to unlock'
+     */
+  readonly promotionNearMiss: Array<{
+    promotionId?: number
+    name?: string
+    remainingAmount?: number
+  }>
+  /**
      * Δημιουργήθηκε στις
      */
   readonly createdAt: string
@@ -2027,6 +2044,10 @@ export type CartCreatePaymentIntentRequestRequest = {
      * Gift card codes the shopper wants to redeem — the intent is created for the REMAINDER after their balances. Pass the same codes in the order-create body.
      */
   giftCardCodes?: Array<string>
+  /**
+     * Loyalty points the shopper will redeem at order creation. The intent amount subtracts the resulting discount so the provider captures what the customer was shown. Pass the same value in the order-create body. Requires an authenticated request.
+     */
+  loyaltyPointsToRedeem?: number | null
 }
 
 /**
@@ -2077,6 +2098,23 @@ export type CartDetail = {
      * Coupon codes currently attached to this cart
      */
   readonly appliedCouponCodes: Array<string>
+  /**
+     * Free-gift entitlements earned by this cart
+     */
+  readonly promotionGiftItems: Array<{
+    promotionId?: number
+    name?: string
+    productId?: number
+    quantity?: number
+  }>
+  /**
+     * Automatic promotions blocked only by their minimum subtotal — 'add X more to unlock'
+     */
+  readonly promotionNearMiss: Array<{
+    promotionId?: number
+    name?: string
+    remainingAmount?: number
+  }>
   /**
      * Δημιουργήθηκε στις
      */
@@ -2931,7 +2969,7 @@ export type GiftCard = {
      */
   readonly code: string
   readonly initialValue: number
-  readonly balance: string
+  readonly balance: number
   /**
      * Κατάσταση
      */
@@ -3000,17 +3038,47 @@ export type GiftCardPurchaseRequestRequest = {
      * Empty means deliver right after payment
      */
   deliverAt?: string | null
+  /**
+     * stripe = inline card element (clientSecret in the response); viva_wallet = hosted Smart Checkout redirect (checkoutUrl in the response). Only providers the store has credentials for are accepted.
+     *
+     * * `stripe` - stripe
+     * * `viva_wallet` - viva_wallet
+     */
+  paymentProvider?: PaymentProviderEnum
 }
 
 export type GiftCardPurchaseResponse = {
   purchaseUuid: string
   /**
-     * Stripe PaymentIntent client secret
+     * Which provider flow the client must run
      */
-  clientSecret: string
-  paymentIntentId: string
+  provider: string
+  /**
+     * Stripe PaymentIntent client secret (stripe only)
+     */
+  clientSecret?: string
+  /**
+     * Stripe PaymentIntent id (stripe only)
+     */
+  paymentIntentId?: string
+  /**
+     * Viva Smart Checkout URL to redirect the buyer to (viva_wallet only)
+     */
+  checkoutUrl?: string
   amount: number
   currency: string
+}
+
+/**
+ * Polled by the storefront return page while the provider webhook
+ * races the browser redirect.
+ */
+export type GiftCardPurchaseStatusResponse = {
+  purchaseUuid: string
+  /**
+     * PENDING / PAID / FAILED / CANCELED
+     */
+  status: string
 }
 
 /**
@@ -5670,6 +5738,12 @@ export type PayWayWriteRequest = {
  * * `cod` - Αντικαταβολή
  */
 export type PaymentModeEnum = 'prepaid' | 'cod'
+
+/**
+ * * `stripe` - stripe
+ * * `viva_wallet` - viva_wallet
+ */
+export type PaymentProviderEnum = 'stripe' | 'viva_wallet'
 
 /**
  * * `PENDING` - Εκκρεμεί
@@ -8352,13 +8426,27 @@ export type VariantAxisValue = {
 
 /**
  * Minimal, PII-free payload for the Viva post-payment redirect hop.
+ *
+ * ``kind`` discriminates the two things a Smart Checkout return can
+ * resolve to: an order, or a gift-card PURCHASE (which shares the
+ * same static return URL but is not an order). Order fields are
+ * absent for purchases and vice versa.
  */
 export type VivaReturnLookupResponse = {
-  id: number
-  uuid: string
-  status: string
-  paymentStatus: string
+  kind?: VivaReturnLookupResponseKindEnum
+  id?: number
+  uuid?: string
+  status?: string
+  paymentStatus?: string
+  purchaseUuid?: string
+  purchaseStatus?: string
 }
+
+/**
+ * * `order` - order
+ * * `gift_card_purchase` - gift_card_purchase
+ */
+export type VivaReturnLookupResponseKindEnum = 'order' | 'gift_card_purchase'
 
 export type WebSocketTicketResponse = {
   ticket: string
@@ -15458,6 +15546,29 @@ export type PurchaseGiftCardResponses = {
 }
 
 export type PurchaseGiftCardResponse = PurchaseGiftCardResponses[keyof PurchaseGiftCardResponses]
+
+export type GetGiftCardPurchaseStatusData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/giftcard/purchase-status'
+}
+
+export type GetGiftCardPurchaseStatusErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type GetGiftCardPurchaseStatusError = GetGiftCardPurchaseStatusErrors[keyof GetGiftCardPurchaseStatusErrors]
+
+export type GetGiftCardPurchaseStatusResponses = {
+  200: GiftCardPurchaseStatusResponse
+}
+
+export type GetGiftCardPurchaseStatusResponse = GetGiftCardPurchaseStatusResponses[keyof GetGiftCardPurchaseStatusResponses]
 
 export type ApiV1HealthRetrieveData = {
   body?: never

@@ -949,6 +949,7 @@ export const zCartCreatePaymentIntentRequestRequest = z.object({
   giftCardCodes: z.array(z.string().min(1).max(32)).max(3).register(z.globalRegistry, {
     description: 'Gift card codes the shopper wants to redeem — the intent is created for the REMAINDER after their balances. Pass the same codes in the order-create body.',
   }).optional(),
+  loyaltyPointsToRedeem: z.int().gte(0).nullish(),
 }).register(z.globalRegistry, {
   description: 'Request body for ``POST /api/v1/cart/create-payment-intent``.\n\n``shipping_kind`` is required so the view\'s shipping calculation\nfollows the same code path the order-create verification runs.\n``shipping_provider_code`` is required for ``pickup_point`` (the\ncarrier identity drives the locker quote + per-carrier threshold)\nbut **omitted for ``home_delivery``** — home delivery is\nprovider-agnostic in checkout per the frontend\'s\n``shared/shipping/index.ts::carrierForMethod`` contract, and the\nbackend resolves the active home-delivery provider at order\ncreation. Sending whatever the frontend has guarantees both calc\npaths agree.',
 })
@@ -1589,29 +1590,35 @@ export const zGiftCardErrorResponse = z.object({
   }),
 })
 
-export const zGiftCardPurchaseRequestRequest = z.object({
-  amount: z.number().gte(0).lt(1000000000).register(z.globalRegistry, {
-    description: 'Card value in EUR — bounded by GIFT_CARD_MIN_AMOUNT / GIFT_CARD_MAX_AMOUNT',
-  }),
-  buyerEmail: z.union([
-    z.email(),
-    z.string().max(0),
-  ]).optional(),
-  recipientEmail: z.email().min(1),
-  recipientName: z.string().max(255).optional().default(''),
-  senderName: z.string().max(255).optional().default(''),
-  message: z.string().max(2000).optional().default(''),
-  deliverAt: z.iso.datetime({ offset: true }).nullish(),
-})
-
 export const zGiftCardPurchaseResponse = z.object({
   purchaseUuid: z.uuid(),
-  clientSecret: z.string().register(z.globalRegistry, {
-    description: 'Stripe PaymentIntent client secret',
+  provider: z.string().register(z.globalRegistry, {
+    description: 'Which provider flow the client must run',
   }),
-  paymentIntentId: z.string(),
+  clientSecret: z.string().register(z.globalRegistry, {
+    description: 'Stripe PaymentIntent client secret (stripe only)',
+  }).optional(),
+  paymentIntentId: z.string().register(z.globalRegistry, {
+    description: 'Stripe PaymentIntent id (stripe only)',
+  }).optional(),
+  checkoutUrl: z.string().register(z.globalRegistry, {
+    description: 'Viva Smart Checkout URL to redirect the buyer to (viva_wallet only)',
+  }).optional(),
   amount: z.number().gt(-1000000000).lt(1000000000),
   currency: z.string().max(3),
+})
+
+/**
+ * Polled by the storefront return page while the provider webhook
+ * races the browser redirect.
+ */
+export const zGiftCardPurchaseStatusResponse = z.object({
+  purchaseUuid: z.uuid(),
+  status: z.string().register(z.globalRegistry, {
+    description: 'PENDING / PAID / FAILED / CANCELED',
+  }),
+}).register(z.globalRegistry, {
+  description: 'Polled by the storefront return page while the provider webhook\nraces the browser redirect.',
 })
 
 /**
@@ -1656,7 +1663,7 @@ export const zGiftCard = z.object({
     description: 'Crypto-random, uppercased; the bearer secret',
   }).readonly(),
   initialValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
-  balance: z.string().readonly(),
+  balance: z.number().gt(-1000000000).lt(1000000000).readonly(),
   status: zGiftCardStatusEnum,
   expiresAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   recipientEmail: z.email().readonly(),
@@ -2931,6 +2938,30 @@ export const zPaymentModeEnum = z.enum(['prepaid', 'cod']).register(z.globalRegi
 })
 
 /**
+ * * `stripe` - stripe
+ * * `viva_wallet` - viva_wallet
+ */
+export const zPaymentProviderEnum = z.enum(['stripe', 'viva_wallet']).register(z.globalRegistry, {
+  description: '* `stripe` - stripe\n* `viva_wallet` - viva_wallet',
+})
+
+export const zGiftCardPurchaseRequestRequest = z.object({
+  amount: z.number().gte(0).lt(1000000000).register(z.globalRegistry, {
+    description: 'Card value in EUR — bounded by GIFT_CARD_MIN_AMOUNT / GIFT_CARD_MAX_AMOUNT',
+  }),
+  buyerEmail: z.union([
+    z.email(),
+    z.string().max(0),
+  ]).optional(),
+  recipientEmail: z.email().min(1),
+  recipientName: z.string().max(255).optional().default(''),
+  senderName: z.string().max(255).optional().default(''),
+  message: z.string().max(2000).optional().default(''),
+  deliverAt: z.iso.datetime({ offset: true }).nullish(),
+  paymentProvider: zPaymentProviderEnum.optional(),
+})
+
+/**
  * * `PENDING` - Εκκρεμεί
  * * `PROCESSING` - Σε επεξεργασία
  * * `COMPLETED` - Ολοκληρώθηκε
@@ -3208,6 +3239,21 @@ export const zCart = z.object({
   appliedCouponCodes: z.array(z.string()).register(z.globalRegistry, {
     description: 'Coupon codes currently attached to this cart',
   }).readonly(),
+  promotionGiftItems: z.array(z.object({
+    promotionId: z.int().optional(),
+    name: z.string().optional(),
+    productId: z.int().optional(),
+    quantity: z.int().optional(),
+  })).register(z.globalRegistry, {
+    description: 'Free-gift entitlements earned by this cart',
+  }).readonly(),
+  promotionNearMiss: z.array(z.object({
+    promotionId: z.int().optional(),
+    name: z.string().optional(),
+    remainingAmount: z.number().optional(),
+  })).register(z.globalRegistry, {
+    description: 'Automatic promotions blocked only by their minimum subtotal — \'add X more to unlock\'',
+  }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   lastActivity: z.iso.datetime({ offset: true }).readonly(),
@@ -3242,6 +3288,21 @@ export const zCartDetail = z.object({
   }).readonly(),
   appliedCouponCodes: z.array(z.string()).register(z.globalRegistry, {
     description: 'Coupon codes currently attached to this cart',
+  }).readonly(),
+  promotionGiftItems: z.array(z.object({
+    promotionId: z.int().optional(),
+    name: z.string().optional(),
+    productId: z.int().optional(),
+    quantity: z.int().optional(),
+  })).register(z.globalRegistry, {
+    description: 'Free-gift entitlements earned by this cart',
+  }).readonly(),
+  promotionNearMiss: z.array(z.object({
+    promotionId: z.int().optional(),
+    name: z.string().optional(),
+    remainingAmount: z.number().optional(),
+  })).register(z.globalRegistry, {
+    description: 'Automatic promotions blocked only by their minimum subtotal — \'add X more to unlock\'',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -6198,15 +6259,31 @@ export const zProductVariantsResponse = z.object({
 })
 
 /**
+ * * `order` - order
+ * * `gift_card_purchase` - gift_card_purchase
+ */
+export const zVivaReturnLookupResponseKindEnum = z.enum(['order', 'gift_card_purchase']).register(z.globalRegistry, {
+  description: '* `order` - order\n* `gift_card_purchase` - gift_card_purchase',
+})
+
+/**
  * Minimal, PII-free payload for the Viva post-payment redirect hop.
+ *
+ * ``kind`` discriminates the two things a Smart Checkout return can
+ * resolve to: an order, or a gift-card PURCHASE (which shares the
+ * same static return URL but is not an order). Order fields are
+ * absent for purchases and vice versa.
  */
 export const zVivaReturnLookupResponse = z.object({
-  id: z.int(),
-  uuid: z.uuid(),
-  status: z.string(),
-  paymentStatus: z.string(),
+  kind: zVivaReturnLookupResponseKindEnum.optional(),
+  id: z.int().optional(),
+  uuid: z.uuid().optional(),
+  status: z.string().optional(),
+  paymentStatus: z.string().optional(),
+  purchaseUuid: z.uuid().optional(),
+  purchaseStatus: z.string().optional(),
 }).register(z.globalRegistry, {
-  description: 'Minimal, PII-free payload for the Viva post-payment redirect hop.',
+  description: 'Minimal, PII-free payload for the Viva post-payment redirect hop.\n\n``kind`` discriminates the two things a Smart Checkout return can\nresolve to: an order, or a gift-card PURCHASE (which shares the\nsame static return URL but is not an order). Order fields are\nabsent for purchases and vice versa.',
 })
 
 export const zWebSocketTicketResponse = z.object({
@@ -11788,6 +11865,8 @@ export const zListMyGiftCardsResponse = zPaginatedGiftCardList
 export const zPurchaseGiftCardBody = zGiftCardPurchaseRequestRequest
 
 export const zPurchaseGiftCardResponse = zGiftCardPurchaseResponse
+
+export const zGetGiftCardPurchaseStatusResponse = zGiftCardPurchaseStatusResponse
 
 export const zApiV1HealthRetrieveResponse = zHealthCheckResponse
 

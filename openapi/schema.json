@@ -17663,6 +17663,84 @@
                 }
             }
         },
+        "/api/v1/giftcard/purchase-status": {
+            "get": {
+                "operationId": "getGiftCardPurchaseStatus",
+                "description": "Poll a gift card purchase's payment status",
+                "summary": "Poll a gift card purchase's payment status",
+                "tags": [
+                    "Gift Cards"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "401": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "403": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GiftCardPurchaseStatusResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/health": {
             "get": {
                 "operationId": "api_v1_health_retrieve",
@@ -53922,6 +54000,47 @@
                         "readOnly": true,
                         "description": "Coupon codes currently attached to this cart"
                     },
+                    "promotionGiftItems": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "promotionId": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "productId": {
+                                    "type": "integer"
+                                },
+                                "quantity": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "description": "Free-gift entitlements earned by this cart",
+                        "readOnly": true
+                    },
+                    "promotionNearMiss": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "promotionId": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "remainingAmount": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "description": "Automatic promotions blocked only by their minimum subtotal — 'add X more to unlock'",
+                        "readOnly": true
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -53950,6 +54069,8 @@
                     "lastActivity",
                     "promotionDiscount",
                     "promotionFreeShipping",
+                    "promotionGiftItems",
+                    "promotionNearMiss",
                     "totalDiscountValue",
                     "totalItems",
                     "totalItemsUnique",
@@ -54014,6 +54135,12 @@
                         },
                         "description": "Gift card codes the shopper wants to redeem — the intent is created for the REMAINDER after their balances. Pass the same codes in the order-create body.",
                         "maxItems": 3
+                    },
+                    "loyaltyPointsToRedeem": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "nullable": true,
+                        "description": "Loyalty points the shopper will redeem at order creation. The intent amount subtracts the resulting discount so the provider captures what the customer was shown. Pass the same value in the order-create body. Requires an authenticated request."
                     }
                 },
                 "required": [
@@ -54128,6 +54255,47 @@
                         "readOnly": true,
                         "description": "Coupon codes currently attached to this cart"
                     },
+                    "promotionGiftItems": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "promotionId": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "productId": {
+                                    "type": "integer"
+                                },
+                                "quantity": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "description": "Free-gift entitlements earned by this cart",
+                        "readOnly": true
+                    },
+                    "promotionNearMiss": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "promotionId": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "remainingAmount": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "description": "Automatic promotions blocked only by their minimum subtotal — 'add X more to unlock'",
+                        "readOnly": true
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -54164,6 +54332,8 @@
                     "lastActivity",
                     "promotionDiscount",
                     "promotionFreeShipping",
+                    "promotionGiftItems",
+                    "promotionNearMiss",
                     "recommendations",
                     "totalDiscountValue",
                     "totalItems",
@@ -55959,7 +56129,12 @@
                         "readOnly": true
                     },
                     "balance": {
-                        "type": "string",
+                        "type": "number",
+                        "format": "double",
+                        "maximum": 1000000000,
+                        "minimum": -1000000000,
+                        "exclusiveMaximum": true,
+                        "exclusiveMinimum": true,
                         "readOnly": true
                     },
                     "status": {
@@ -56149,6 +56324,15 @@
                         "format": "date-time",
                         "nullable": true,
                         "description": "Empty means deliver right after payment"
+                    },
+                    "paymentProvider": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PaymentProviderEnum"
+                            }
+                        ],
+                        "default": "stripe",
+                        "description": "stripe = inline card element (clientSecret in the response); viva_wallet = hosted Smart Checkout redirect (checkoutUrl in the response). Only providers the store has credentials for are accepted.\n\n* `stripe` - stripe\n* `viva_wallet` - viva_wallet"
                     }
                 },
                 "required": [
@@ -56163,12 +56347,21 @@
                         "type": "string",
                         "format": "uuid"
                     },
+                    "provider": {
+                        "type": "string",
+                        "description": "Which provider flow the client must run"
+                    },
                     "clientSecret": {
                         "type": "string",
-                        "description": "Stripe PaymentIntent client secret"
+                        "description": "Stripe PaymentIntent client secret (stripe only)"
                     },
                     "paymentIntentId": {
-                        "type": "string"
+                        "type": "string",
+                        "description": "Stripe PaymentIntent id (stripe only)"
+                    },
+                    "checkoutUrl": {
+                        "type": "string",
+                        "description": "Viva Smart Checkout URL to redirect the buyer to (viva_wallet only)"
                     },
                     "amount": {
                         "type": "number",
@@ -56185,10 +56378,27 @@
                 },
                 "required": [
                     "amount",
-                    "clientSecret",
                     "currency",
-                    "paymentIntentId",
+                    "provider",
                     "purchaseUuid"
+                ]
+            },
+            "GiftCardPurchaseStatusResponse": {
+                "type": "object",
+                "description": "Polled by the storefront return page while the provider webhook\nraces the browser redirect.",
+                "properties": {
+                    "purchaseUuid": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "status": {
+                        "type": "string",
+                        "description": "PENDING / PAID / FAILED / CANCELED"
+                    }
+                },
+                "required": [
+                    "purchaseUuid",
+                    "status"
                 ]
             },
             "GiftCardStatusEnum": {
@@ -62403,6 +62613,14 @@
                 "type": "string",
                 "description": "* `prepaid` - Προπληρωμένο\n* `cod` - Αντικαταβολή"
             },
+            "PaymentProviderEnum": {
+                "enum": [
+                    "stripe",
+                    "viva_wallet"
+                ],
+                "type": "string",
+                "description": "* `stripe` - stripe\n* `viva_wallet` - viva_wallet"
+            },
             "PaymentStatusEnum": {
                 "enum": [
                     "PENDING",
@@ -68195,8 +68413,16 @@
             },
             "VivaReturnLookupResponse": {
                 "type": "object",
-                "description": "Minimal, PII-free payload for the Viva post-payment redirect hop.",
+                "description": "Minimal, PII-free payload for the Viva post-payment redirect hop.\n\n``kind`` discriminates the two things a Smart Checkout return can\nresolve to: an order, or a gift-card PURCHASE (which shares the\nsame static return URL but is not an order). Order fields are\nabsent for purchases and vice versa.",
                 "properties": {
+                    "kind": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/VivaReturnLookupResponseKindEnum"
+                            }
+                        ],
+                        "default": "order"
+                    },
                     "id": {
                         "type": "integer"
                     },
@@ -68209,14 +68435,23 @@
                     },
                     "paymentStatus": {
                         "type": "string"
+                    },
+                    "purchaseUuid": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "purchaseStatus": {
+                        "type": "string"
                     }
-                },
-                "required": [
-                    "id",
-                    "paymentStatus",
-                    "status",
-                    "uuid"
-                ]
+                }
+            },
+            "VivaReturnLookupResponseKindEnum": {
+                "enum": [
+                    "order",
+                    "gift_card_purchase"
+                ],
+                "type": "string",
+                "description": "* `order` - order\n* `gift_card_purchase` - gift_card_purchase"
             },
             "WebSocketTicketResponse": {
                 "type": "object",

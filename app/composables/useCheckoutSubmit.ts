@@ -100,6 +100,24 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   const giftCardBalanceTotal = computed(() =>
     giftCards.value.reduce((sum, card) => sum + card.balance, 0))
 
+  // Any deduction change (loyalty points, gift cards, coupon) reprices
+  // the charge — a PaymentIntent created before it is stale and would
+  // hard-fail the order-create amount verification. Drop it and the
+  // idempotency key that maps to it so the next submit prices fresh.
+  watch(
+    [
+      loyaltyDiscount,
+      giftCards,
+      () => cart.value?.appliedCouponCodes,
+      () => cart.value?.promotionDiscount,
+    ],
+    () => {
+      paymentIntentId.value = null
+      idempotencyKey.value = null
+    },
+    { deep: true },
+  )
+
   // Stock error state
   const stockError = ref<{
     show: boolean
@@ -395,17 +413,42 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
               // settle part of the total before the provider charge.
               email: orderValues.email || undefined,
               giftCardCodes: orderValues.giftCardCodes,
+              loyaltyPointsToRedeem: orderValues.loyaltyPointsToRedeem,
             },
             idempotencyKey.value,
           )
           paymentIntentId.value = paymentIntent.paymentIntentId
         }
         catch (piError: any) {
-          // Gift cards cover everything — there is nothing left for
-          // Stripe to charge, so submit the order WITHOUT an intent
-          // and let the backend settle it from the card balance.
-          if (piError?.data?.reason === 'gift_card_covers_total') {
+          const piReason = piError?.data?.reason
+          // Deductions (gift cards / promotions / loyalty) cover
+          // everything — there is nothing left for Stripe to charge,
+          // so submit the order WITHOUT an intent and let the backend
+          // settle it order-first from the applied deductions.
+          if (
+            piReason === 'gift_card_covers_total'
+            || piReason === 'nothing_to_charge'
+          ) {
             giftCardsCoverTotal = true
+          }
+          else if (piReason === 'loyalty_requires_authentication') {
+            toast.add({
+              title: t('form.submit.error.loyalty_requires_authentication'),
+              color: 'error',
+            })
+            return
+          }
+          else if (piReason === 'loyalty_redemption_invalid') {
+            // Stale widget state (points spent in another tab, tier
+            // changed…) — drop the local redemption so the next
+            // attempt prices without it.
+            loyaltyDiscount.value = null
+            toast.add({
+              title: t('form.submit.error.loyalty_redemption_invalid'),
+              description: piError?.data?.detail,
+              color: 'error',
+            })
+            return
           }
           else {
             throw piError

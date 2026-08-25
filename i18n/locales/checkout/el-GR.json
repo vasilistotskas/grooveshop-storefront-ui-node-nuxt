@@ -176,7 +176,13 @@
         "stock_reservation": "Σφάλμα κράτησης αποθέματος",
         "stock_reservation_description": "Δεν ήταν δυνατή η κράτηση του αποθέματος. Παρακαλώ δοκιμάστε ξανά.",
         "payment_verification": "Σφάλμα επαλήθευσης πληρωμής",
-        "payment_verification_description": "Η επαλήθευση της πληρωμής απέτυχε. Παρακαλώ επικοινωνήστε με την υποστήριξη."
+        "payment_verification_description": "Η επαλήθευση της πληρωμής απέτυχε. Παρακαλώ επικοινωνήστε με την υποστήριξη.",
+        "invalid_coupon": "Μη έγκυρο κουπόνι",
+        "invalid_coupon_description": "Το κουπόνι δεν μπορεί να εφαρμοστεί σε αυτή την παραγγελία.",
+        "invalid_gift_card": "Μη έγκυρη δωροκάρτα",
+        "invalid_gift_card_description": "Η δωροκάρτα δεν μπορεί να χρησιμοποιηθεί σε αυτή την παραγγελία.",
+        "loyalty_requires_authentication": "Συνδεθείτε για να εξαργυρώσετε πόντους",
+        "loyalty_redemption_invalid": "Η εξαργύρωση πόντων δεν είναι διαθέσιμη"
       }
     }
   }

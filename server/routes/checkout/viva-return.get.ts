@@ -48,6 +48,23 @@ export default defineEventHandler(async (event) => {
 
     const parsed = zVivaReturnLookupResponse.parse(result)
 
+    // A Smart Checkout return can also resolve to a gift-card
+    // PURCHASE (not an order — purchases share the same static
+    // portal return URL). Those land on the gift-card result page,
+    // which polls purchase-status until the webhook settles it.
+    if (parsed.kind === 'gift_card_purchase' && parsed.purchaseUuid) {
+      log.info({
+        tag: 'vivaReturn',
+        message: 'resolved gift-card purchase, forwarding to result page',
+        purchaseUuid: parsed.purchaseUuid,
+        purchaseStatus: parsed.purchaseStatus,
+      })
+      return sendRedirect(
+        event,
+        `/gift-cards/success?purchase=${parsed.purchaseUuid}`,
+      )
+    }
+
     log.info({
       tag: 'vivaReturn',
       message: 'resolved order, forwarding to success page',

@@ -358,6 +358,17 @@ definePageMeta({
               <span>{{ t('promotion_discount') }}</span>
               <span>-{{ $i18n.n(cart.promotionDiscount, 'currency') }}</span>
             </div>
+            <div
+              v-for="gift in cart.promotionGiftItems || []"
+              :key="`gift-${gift.promotionId}-${gift.productId}`"
+              class="flex items-center justify-between text-green-600"
+            >
+              <span class="flex items-center gap-1.5">
+                <UIcon name="i-heroicons-gift" class="size-4" />
+                {{ t('free_gift', { name: gift.name }) }}
+              </span>
+              <span>×{{ gift.quantity }}</span>
+            </div>
             <USeparator />
             <div class="flex justify-between text-lg font-semibold">
               <span>{{ t('total') }}</span>
@@ -365,6 +376,18 @@ definePageMeta({
             </div>
 
             <CheckoutCouponInput />
+
+            <UAlert
+              v-for="miss in cart.promotionNearMiss || []"
+              :key="`miss-${miss.promotionId}`"
+              icon="i-heroicons-sparkles"
+              color="info"
+              variant="subtle"
+              :description="t('near_miss', {
+                amount: $i18n.n(miss.remainingAmount || 0, 'currency'),
+                name: miss.name,
+              })"
+            />
 
             <ShippingFreeShippingNotice :cart-total="cart.totalPrice" />
           </div>
@@ -439,6 +462,8 @@ el:
   vat: ΦΠΑ
   discount: Έκπτωση
   promotion_discount: Έκπτωση προσφοράς
+  free_gift: "Δώρο: {name}"
+  near_miss: Προσθέστε {amount} ακόμη για να ξεκλειδώσετε «{name}»
   total: Σύνολο
   proceed_to_checkout: Ολοκλήρωση Παραγγελίας
   fix_stock_issues_first: Διόρθωσε τα προβλήματα

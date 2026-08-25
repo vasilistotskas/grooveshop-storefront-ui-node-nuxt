@@ -12,8 +12,8 @@ const defaultFetchImpl = (url: any) => {
   return Promise.resolve({})
 }
 const { mockFetch } = vi.hoisted(() => ({
-  mockFetch: vi.fn((url: any) => {
-    if (String(url).includes('/api/settings/get')) {
+  mockFetch: vi.fn((...args: any[]) => {
+    if (String(args[0]).includes('/api/settings/get')) {
       return Promise.resolve({ value: 'true' })
     }
     return Promise.resolve({})

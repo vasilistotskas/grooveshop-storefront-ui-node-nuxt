@@ -41,6 +41,41 @@ const { data: maxSetting } = useFetch<{ value?: string }>(
 const minAmount = computed(() => Number(minSetting.value?.value ?? 10))
 const maxAmount = computed(() => Number(maxSetting.value?.value ?? 500))
 
+// Online providers the merchant has configured — Viva Wallet is the
+// primary provider, Stripe secondary. Derived from the pay-way list
+// so a merchant who disables a provider hides it here too.
+const { data: payWays } = useLazyAsyncData(
+  'gift-cards:pay-ways',
+  () => $fetch<Pagination<PayWay>>('/api/pay-way', {
+    method: 'GET',
+    headers: useRequestHeaders(),
+  }).catch(() => null),
+  { default: () => null },
+)
+const availableProviders = computed(() => {
+  const codes = new Set(
+    (payWays.value?.results ?? [])
+      .filter(payWay => payWay.isOnlinePayment && payWay.active)
+      .map(payWay => payWay.providerCode ?? ''),
+  )
+  if (!tenantStore.stripePublishableKey) {
+    codes.delete('stripe')
+  }
+  return (['viva_wallet', 'stripe'] as const).filter(code =>
+    codes.has(code))
+})
+const selectedProvider = ref<'viva_wallet' | 'stripe' | undefined>(undefined)
+watch(availableProviders, (providers) => {
+  if (!selectedProvider.value || !providers.includes(selectedProvider.value)) {
+    selectedProvider.value = providers[0]
+  }
+}, { immediate: true })
+const providerOptions = computed(() =>
+  availableProviders.value.map(code => ({
+    label: t(`providers.${code}`),
+    value: code,
+  })))
+
 const SUGGESTED_AMOUNTS = [25, 50, 100]
 const suggestedAmounts = computed(() =>
   SUGGESTED_AMOUNTS.filter(
@@ -84,13 +119,19 @@ const purchasedAmount = ref(0)
 const recipientEmailDisplay = ref('')
 
 const startPurchase = async () => {
+  if (!selectedProvider.value) {
+    purchaseError.value = t('errors.no_provider')
+    return
+  }
   purchaseError.value = null
   submitting.value = true
   try {
     const response = await $fetch<{
       purchaseUuid: string
-      clientSecret: string
-      paymentIntentId: string
+      provider: string
+      clientSecret?: string
+      paymentIntentId?: string
+      checkoutUrl?: string
       amount: string | number
       currency: string
     }>('/api/giftcard/purchase', {
@@ -102,9 +143,19 @@ const startPurchase = async () => {
         recipientName: formState.recipientName || undefined,
         senderName: formState.senderName || undefined,
         message: formState.message || undefined,
+        paymentProvider: selectedProvider.value,
       },
     })
-    clientSecret.value = response.clientSecret
+
+    // Viva Smart Checkout is a hosted redirect — the buyer pays on
+    // Viva's page and returns via /checkout/viva-return, which lands
+    // on /gift-cards/success for status polling.
+    if (response.checkoutUrl) {
+      window.location.assign(response.checkoutUrl)
+      return
+    }
+
+    clientSecret.value = response.clientSecret ?? null
     purchasedAmount.value = Number(response.amount)
     recipientEmailDisplay.value = formState.recipientEmail
     step.value = 'payment'
@@ -279,6 +330,17 @@ const confirmPayment = async () => {
             />
           </UFormField>
 
+          <UFormField
+            v-if="providerOptions.length > 1"
+            :label="t('fields.payment_method')"
+            name="paymentProvider"
+          >
+            <URadioGroup
+              v-model="selectedProvider"
+              :items="providerOptions"
+            />
+          </UFormField>
+
           <p
             v-if="purchaseError"
             class="
@@ -377,6 +439,10 @@ el:
     sender_name: Το όνομά σας
     message: Μήνυμα
     message_placeholder: Προσωπικό μήνυμα για τον παραλήπτη (προαιρετικό)
+    payment_method: Τρόπος πληρωμής
+  providers:
+    viva_wallet: Viva Wallet
+    stripe: Κάρτα (Stripe)
   success:
     title: Η αγορά ολοκληρώθηκε!
     description: Η δωροκάρτα θα σταλεί στο {email} μόλις επιβεβαιωθεί η πληρωμή
@@ -384,6 +450,7 @@ el:
     purchase_failed: Η αγορά δεν μπόρεσε να ξεκινήσει
     payment_failed: Η πληρωμή απέτυχε — δοκιμάστε ξανά
     stripe_init: Αδυναμία φόρτωσης του συστήματος πληρωμών
+    no_provider: Δεν υπάρχει διαθέσιμος τρόπος online πληρωμής
   validation:
     required: Υποχρεωτικό πεδίο
     email: Μη έγκυρο email
