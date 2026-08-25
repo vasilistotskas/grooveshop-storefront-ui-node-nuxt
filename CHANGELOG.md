@@ -1,3 +1,11 @@
+# [3.159.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.158.0...v3.159.0) (2026-08-25)
+
+
+### Features
+
+* **storefront:** merchant gates for reviews, comments, favourites, newsletter, feedback and alerts ([21dd4c6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/21dd4c6849e54f270a58efd727d28618ac57bddd))
+* **storefront:** merchant UI toggles replace preview-mode feature gating ([579334e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/579334e8198e0f262eb89d8c9e3b224fd37cc404))
+
 # [3.158.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.157.1...v3.158.0) (2026-08-25)
 
 
