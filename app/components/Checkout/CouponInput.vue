@@ -10,18 +10,12 @@ const { $i18n } = useNuxtApp()
 
 // Two-tier gate: tenant plan flag + merchant runtime setting (the
 // loyalty pattern) so a disabled feature never renders the widget.
-const { data: promotionsSetting } = useFetch<{ value?: string }>(
-  '/api/settings/get',
-  {
-    key: 'checkout:promotions-enabled',
-    query: { key: 'PROMOTIONS_ENABLED' },
-    default: () => ({ value: 'false' }),
-  },
-)
+// Fails CLOSED — a disabled commercial feature must not leak.
+const promotionsRuntimeEnabled = useSettingFlag('PROMOTIONS_ENABLED', {
+  fallback: false,
+})
 const promotionsEnabled = computed(
-  () =>
-    tenantStore.promotionsEnabled
-    && (promotionsSetting.value?.value ?? 'false').toLowerCase() === 'true',
+  () => tenantStore.promotionsEnabled && promotionsRuntimeEnabled.value,
 )
 
 const appliedCodes = computed(() => cart.value?.appliedCouponCodes ?? [])

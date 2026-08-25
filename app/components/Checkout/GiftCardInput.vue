@@ -26,18 +26,12 @@ const tenantStore = useTenantStore()
 const { $i18n } = useNuxtApp()
 
 // Two-tier gate: tenant plan flag + merchant runtime setting.
-const { data: giftCardsSetting } = useFetch<{ value?: string }>(
-  '/api/settings/get',
-  {
-    key: 'checkout:gift-cards-enabled',
-    query: { key: 'GIFT_CARDS_ENABLED' },
-    default: () => ({ value: 'false' }),
-  },
-)
+// Fails CLOSED — a disabled commercial feature must not leak.
+const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
+  fallback: false,
+})
 const giftCardsEnabled = computed(
-  () =>
-    tenantStore.giftCardsEnabled
-    && (giftCardsSetting.value?.value ?? 'false').toLowerCase() === 'true',
+  () => tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value,
 )
 
 const cardSchema = z.object({

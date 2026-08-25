@@ -10,7 +10,11 @@ const { isMobileOrTablet } = useDevice()
 const { $routeBaseName } = useNuxtApp()
 const route = useRoute()
 const { user, loggedIn } = useUserSession()
-const { enabled } = useAuthPreviewMode()
+// Merchant UI toggle — fails OPEN: core navigation must never vanish
+// because the settings endpoint hiccuped.
+const mobileBottomNavEnabled = useSettingFlag('MOBILE_BOTTOM_NAV_ENABLED', {
+  fallback: true,
+})
 
 const routeName = computed(() => $routeBaseName(route))
 const isProductPage = computed(() => routeName.value === 'products-id-slug')
@@ -156,7 +160,10 @@ const footerClass = computed(() => {
         />
       </div>
     </slot>
-    <MobileBottomNav v-if="enabled" :include-cart="!isAccountRoute" />
+    <MobileBottomNav
+      v-if="mobileBottomNavEnabled"
+      :include-cart="!isAccountRoute"
+    />
     <ClientOnly>
       <LazyChatWidget />
     </ClientOnly>

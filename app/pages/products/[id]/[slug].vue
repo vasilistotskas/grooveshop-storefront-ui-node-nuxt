@@ -6,7 +6,11 @@ const route = useRoute(`products-id-slug___${locale.value}`)
 const { y: scrollY } = useWindowScroll()
 
 const { isMobileOrTablet } = useDevice()
-const { enabled } = useAuthPreviewMode()
+// Merchant UI toggle — fails OPEN so the purchase CTA never
+// disappears on a settings hiccup.
+const stickyAddToCartEnabled = useSettingFlag('STICKY_ADD_TO_CART_ENABLED', {
+  fallback: true,
+})
 
 const { user, loggedIn } = useUserSession()
 
@@ -964,7 +968,7 @@ definePageMeta({
       />
 
       <div
-        v-if="enabled && showStickyAddToCart"
+        v-if="stickyAddToCartEnabled && showStickyAddToCart"
         class="
           fixed right-0 bottom-18 left-0 z-40 border-t border-gray-200
           bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm

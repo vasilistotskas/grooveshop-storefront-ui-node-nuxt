@@ -5,23 +5,12 @@ const { isMobile } = useDevice()
 const open = ref(false)
 
 // Admin kill switch — extra-setting CHAT_WIDGET_ENABLED, toggled at
-// /admin/extra_settings/setting/. Resolved client-side only: the whole
-// widget is ClientOnly, so the flag never touches SSR. Defaults to
-// hidden until the fetch resolves — a launcher that pops in beats one
+// /admin/extra_settings/setting/. Client-side only (the whole widget
+// is ClientOnly) and fail-closed: a launcher that pops in beats one
 // that flashes and vanishes when an admin has disabled it.
-const { data: chatSetting } = await useAsyncData<{ value?: string }>(
-  'chat:widget-enabled',
-  () => $fetch<{ value?: string }>('/api/settings/get', {
-    query: { key: 'CHAT_WIDGET_ENABLED' },
-  }).catch(() => ({ value: 'False' })),
-  {
-    server: false,
-    default: () => ({ value: 'False' }),
-  },
-)
-const chatEnabled = computed(() => {
-  const raw = (chatSetting.value?.value ?? 'false').toString().toLowerCase()
-  return raw === 'true' || raw === '1' || raw === 'yes'
+const chatEnabled = useSettingFlag('CHAT_WIDGET_ENABLED', {
+  fallback: false,
+  server: false,
 })
 </script>
 

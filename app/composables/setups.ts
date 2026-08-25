@@ -402,9 +402,14 @@ export function setupCookieConsentTracking() {
 }
 
 export function setupSocialLogin() {
-  const { enabled } = useAuthPreviewMode()
   const config = useRuntimeConfig()
-  if (!config.public.googleGsiEnable || enabled.value) return
+  const { loggedIn } = useUserSession()
+  // One-Tap is a LOGIN aid: skip loading the GSI script entirely for
+  // authenticated sessions (previously proxied via preview mode,
+  // which only covered superusers — every other logged-in user still
+  // paid for the script). The onLoaded prompt below re-checks
+  // loggedIn for sessions that hydrate late.
+  if (!config.public.googleGsiEnable || loggedIn.value) return
 
   // SSR guard: ``useScript`` (from @nuxt/scripts >= 1.2) eagerly
   // invokes the ``use()`` callback below at registration, which
@@ -413,7 +418,6 @@ export function setupSocialLogin() {
   // are meaningless on the server — so skip the entire setup.
   if (import.meta.server) return
 
-  const { loggedIn } = useUserSession()
   const { config: authConfig } = storeToRefs(useAuthStore())
   const {
     providerToken,
