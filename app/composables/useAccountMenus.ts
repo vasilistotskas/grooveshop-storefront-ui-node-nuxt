@@ -27,6 +27,21 @@ export const useAccountMenus = () => {
       (reviewsSetting.value?.value ?? 'true').toLowerCase() === 'true',
   )
 
+  // Gift cards runtime toggle — fail-closed default mirrors the Django
+  // default (disabled) so the menu never advertises a dead page.
+  const { data: giftCardsSetting } = useFetch<{ value?: string }>(
+    '/api/settings/get',
+    {
+      key: 'account-menus:gift-cards-enabled',
+      query: { key: 'GIFT_CARDS_ENABLED' },
+      default: () => ({ value: 'false' }),
+    },
+  )
+  const giftCardsRuntimeEnabled = computed(
+    () =>
+      (giftCardsSetting.value?.value ?? 'false').toLowerCase() === 'true',
+  )
+
   const menus = computed(() => {
     const baseMenus = [
       {
@@ -69,6 +84,15 @@ export const useAccountMenus = () => {
         label: t('loyalty'),
         to: '/account/loyalty',
         icon: 'i-heroicons-trophy',
+      })
+    }
+
+    // Same two-tier gate for gift cards (app/middleware/gift-cards-enabled.ts).
+    if (tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value) {
+      baseMenus.push({
+        label: t('gift_cards'),
+        to: '/account/gift-cards',
+        icon: 'i-heroicons-gift',
       })
     }
 

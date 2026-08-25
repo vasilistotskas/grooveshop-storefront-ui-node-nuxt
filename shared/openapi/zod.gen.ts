@@ -942,6 +942,13 @@ export const zCartCreatePaymentIntentRequestRequest = z.object({
   regionId: z.string().max(16).register(z.globalRegistry, {
     description: 'Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.',
   }).optional(),
+  email: z.union([
+    z.email(),
+    z.string().max(0),
+  ]).optional(),
+  giftCardCodes: z.array(z.string().min(1).max(32)).max(3).register(z.globalRegistry, {
+    description: 'Gift card codes the shopper wants to redeem — the intent is created for the REMAINDER after their balances. Pass the same codes in the order-create body.',
+  }).optional(),
 }).register(z.globalRegistry, {
   description: 'Request body for ``POST /api/v1/cart/create-payment-intent``.\n\n``shipping_kind`` is required so the view\'s shipping calculation\nfollows the same code path the order-create verification runs.\n``shipping_provider_code`` is required for ``pickup_point`` (the\ncarrier identity drives the locker quote + per-carrier threshold)\nbut **omitted for ``home_delivery``** — home delivery is\nprovider-agnostic in checkout per the frontend\'s\n``shared/shipping/index.ts::carrierForMethod`` contract, and the\nbackend resolves the active home-delivery provider at order\ncreation. Sending whatever the frontend has guarantees both calc\npaths agree.',
 })
@@ -1270,6 +1277,31 @@ export const zCountryWriteRequest = z.object({
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
+/**
+ * Request body for ``POST /api/v1/cart/coupon``.
+ */
+export const zCouponApplyRequestRequest = z.object({
+  code: z.string().min(1).max(40).register(z.globalRegistry, {
+    description: 'Coupon code to apply (case-insensitive)',
+  }),
+}).register(z.globalRegistry, {
+  description: 'Request body for ``POST /api/v1/cart/coupon``.',
+})
+
+/**
+ * 4xx body for coupon apply — carries the machine-readable reason.
+ */
+export const zCouponErrorResponse = z.object({
+  detail: z.string().register(z.globalRegistry, {
+    description: 'Human-readable message',
+  }),
+  reason: z.string().register(z.globalRegistry, {
+    description: 'Machine-readable rejection reason (ACP discount-extension vocabulary, e.g. discount_code_invalid)',
+  }),
+}).register(z.globalRegistry, {
+  description: '4xx body for coupon apply — carries the machine-readable reason.',
+})
+
 export const zCreateCheckoutSessionRequestRequest = z.object({
   successUrl: z.url().min(1),
   cancelUrl: z.url().min(1),
@@ -1532,6 +1564,108 @@ export const zFloorEnum = z.enum([
   'SIXTH_FLOOR_PLUS',
 ]).register(z.globalRegistry, {
   description: '* `BASEMENT` - Υπόγειο\n* `GROUND_FLOOR` - Ισόγειο\n* `FIRST_FLOOR` - 1ος όροφος\n* `SECOND_FLOOR` - 2ος όροφος\n* `THIRD_FLOOR` - 3ος όροφος\n* `FOURTH_FLOOR` - 4ος όροφος\n* `FIFTH_FLOOR` - 5ος όροφος\n* `SIXTH_FLOOR_PLUS` - 6ος όροφος +',
+})
+
+export const zGiftCardCheckRequestRequest = z.object({
+  code: z.string().min(1).max(32).register(z.globalRegistry, {
+    description: 'Gift card code (case-insensitive)',
+  }),
+})
+
+export const zGiftCardCheckResponse = z.object({
+  code: z.string(),
+  balance: z.number().gt(-1000000000).lt(1000000000),
+  currency: z.string().max(3),
+  expiresAt: z.iso.datetime({ offset: true }).nullable(),
+  isRedeemable: z.boolean(),
+})
+
+export const zGiftCardErrorResponse = z.object({
+  detail: z.string().register(z.globalRegistry, {
+    description: 'Human-readable message',
+  }),
+  reason: z.string().register(z.globalRegistry, {
+    description: 'Machine-readable reason, e.g. gift_card_invalid',
+  }),
+})
+
+export const zGiftCardPurchaseRequestRequest = z.object({
+  amount: z.number().gte(0).lt(1000000000).register(z.globalRegistry, {
+    description: 'Card value in EUR — bounded by GIFT_CARD_MIN_AMOUNT / GIFT_CARD_MAX_AMOUNT',
+  }),
+  buyerEmail: z.union([
+    z.email(),
+    z.string().max(0),
+  ]).optional(),
+  recipientEmail: z.email().min(1),
+  recipientName: z.string().max(255).optional().default(''),
+  senderName: z.string().max(255).optional().default(''),
+  message: z.string().max(2000).optional().default(''),
+  deliverAt: z.iso.datetime({ offset: true }).nullish(),
+})
+
+export const zGiftCardPurchaseResponse = z.object({
+  purchaseUuid: z.uuid(),
+  clientSecret: z.string().register(z.globalRegistry, {
+    description: 'Stripe PaymentIntent client secret',
+  }),
+  paymentIntentId: z.string(),
+  amount: z.number().gt(-1000000000).lt(1000000000),
+  currency: z.string().max(3),
+})
+
+/**
+ * * `ACTIVE` - Ενεργή
+ * * `DISABLED` - Disabled
+ */
+export const zGiftCardStatusEnum = z.enum(['ACTIVE', 'DISABLED']).register(z.globalRegistry, {
+  description: '* `ACTIVE` - Ενεργή\n* `DISABLED` - Disabled',
+})
+
+/**
+ * * `ISSUE` - Issue
+ * * `REDEEM` - Εξαργύρωση
+ * * `REFUND_CREDIT` - Refund credit
+ * * `ADJUST` - Προσαρμογή
+ * * `EXPIRE` - Λήξη
+ */
+export const zGiftCardTransactionKindEnum = z.enum([
+  'ISSUE',
+  'REDEEM',
+  'REFUND_CREDIT',
+  'ADJUST',
+  'EXPIRE',
+]).register(z.globalRegistry, {
+  description: '* `ISSUE` - Issue\n* `REDEEM` - Εξαργύρωση\n* `REFUND_CREDIT` - Refund credit\n* `ADJUST` - Προσαρμογή\n* `EXPIRE` - Λήξη',
+})
+
+export const zGiftCardTransaction = z.object({
+  id: z.int().readonly(),
+  kind: zGiftCardTransactionKindEnum,
+  amount: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'Signed: positive adds balance (issue/refund credit), negative removes it (redeem/expire)',
+  }).readonly(),
+  order: z.int().readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+})
+
+export const zGiftCard = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  code: z.string().register(z.globalRegistry, {
+    description: 'Crypto-random, uppercased; the bearer secret',
+  }).readonly(),
+  initialValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  balance: z.string().readonly(),
+  status: zGiftCardStatusEnum,
+  expiresAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  recipientEmail: z.email().readonly(),
+  recipientName: z.string().readonly(),
+  senderName: z.string().readonly(),
+  message: z.string().readonly(),
+  deliveredAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  transactions: z.array(zGiftCardTransaction).readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
 })
 
 export const zHealthCheckResponse = z.object({
@@ -2050,6 +2184,19 @@ export const zPaginatedCountryList = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zCountry),
+})
+
+export const zPaginatedGiftCardList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zGiftCard),
 })
 
 export const zPaginatedLoyaltyTierList = z.object({
@@ -3052,6 +3199,15 @@ export const zCart = z.object({
   currency: z.string().register(z.globalRegistry, {
     description: 'Κωδικός νομίσματος ISO 4217 για όλες τις χρηματικές τιμές αυτού του καλαθιού',
   }).readonly(),
+  promotionDiscount: z.number().register(z.globalRegistry, {
+    description: 'Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices',
+  }).readonly(),
+  promotionFreeShipping: z.boolean().register(z.globalRegistry, {
+    description: 'Whether a live promotion waives the shipping cost',
+  }).readonly(),
+  appliedCouponCodes: z.array(z.string()).register(z.globalRegistry, {
+    description: 'Coupon codes currently attached to this cart',
+  }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   lastActivity: z.iso.datetime({ offset: true }).readonly(),
@@ -3077,6 +3233,15 @@ export const zCartDetail = z.object({
   }).readonly(),
   currency: z.string().register(z.globalRegistry, {
     description: 'Κωδικός νομίσματος ISO 4217 για όλες τις χρηματικές τιμές αυτού του καλαθιού',
+  }).readonly(),
+  promotionDiscount: z.number().register(z.globalRegistry, {
+    description: 'Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices',
+  }).readonly(),
+  promotionFreeShipping: z.boolean().register(z.globalRegistry, {
+    description: 'Whether a live promotion waives the shipping cost',
+  }).readonly(),
+  appliedCouponCodes: z.array(z.string()).register(z.globalRegistry, {
+    description: 'Coupon codes currently attached to this cart',
   }).readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -3172,6 +3337,15 @@ export const zOrder = z.object({
   uuid: z.uuid().readonly(),
   totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
   totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  discountAmount: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'Total discount granted by promotions/coupons, snapshotted at order creation. Breakdown lives in metadata[\'promotions\'] + PromotionRedemption rows. Deducted by calculate_order_total_amount().',
+  }).readonly(),
+  loyaltyDiscount: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'Amount deducted from the order total in exchange for loyalty points. Deducted by calculate_order_total_amount().',
+  }).readonly(),
+  giftCardAmount: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'Portion of the order settled by gift-card balance. A payment, not a discount — it never reduces the taxable order value, only what the payment provider charges.',
+  }).readonly(),
   fullAddress: z.string().readonly(),
   paymentId: z.string().max(255).nullish(),
   paymentStatus: z.union([
@@ -4339,6 +4513,9 @@ export const zOrderCreateFromCartRequest = z.object({
   }).optional(),
   documentType: zOrderCreateDocumentType.optional(),
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
+  giftCardCodes: z.array(z.string().min(1).max(32)).max(3).register(z.globalRegistry, {
+    description: 'Gift card codes to redeem against this order (max 3). When they cover the full total, omit payment_intent_id — no provider charge happens at all.',
+  }).optional(),
   boxnowLockerId: z.string().max(64).register(z.globalRegistry, {
     description: 'ID locker APM BoxNow από το widget',
   }).optional(),
@@ -4819,6 +4996,8 @@ export const zTenantConfig = z.object({
   staticDomain: z.string().readonly(),
   loyaltyEnabled: z.boolean().readonly(),
   blogEnabled: z.boolean().readonly(),
+  promotionsEnabled: z.boolean().readonly(),
+  giftCardsEnabled: z.boolean().readonly(),
   agentStripeDelegatedEnabled: z.boolean().readonly(),
   stripePublishableKey: z.string().readonly(),
   allowedCspSources: z.array(z.string()).readonly(),
@@ -5285,6 +5464,15 @@ export const zOrderDetail = z.object({
   uuid: z.uuid().readonly(),
   totalPriceItems: z.number().gt(-1000000000).lt(1000000000).readonly(),
   totalPriceExtra: z.number().gt(-1000000000).lt(1000000000).readonly(),
+  discountAmount: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'Total discount granted by promotions/coupons, snapshotted at order creation. Breakdown lives in metadata[\'promotions\'] + PromotionRedemption rows. Deducted by calculate_order_total_amount().',
+  }).readonly(),
+  loyaltyDiscount: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'Amount deducted from the order total in exchange for loyalty points. Deducted by calculate_order_total_amount().',
+  }).readonly(),
+  giftCardAmount: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'Portion of the order settled by gift-card balance. A payment, not a discount — it never reduces the taxable order value, only what the payment provider charges.',
+  }).readonly(),
   fullAddress: z.string().readonly(),
   paymentId: z.string().max(255).nullish(),
   paymentStatus: z.union([
@@ -5313,6 +5501,9 @@ export const zOrderDetail = z.object({
     shippingCost: z.number().optional(),
     paymentMethodFee: z.number().optional(),
     extrasTotal: z.number().optional(),
+    discount: z.number().optional(),
+    loyaltyDiscount: z.number().optional(),
+    giftCardAmount: z.number().optional(),
     grandTotal: z.number().optional(),
     currency: z.string().optional(),
     paidAmount: z.number().optional(),
@@ -5344,6 +5535,9 @@ export const zOrderDetail = z.object({
       error: z.string().nullish(),
     }).nullish(),
   }).readonly().nullable(),
+  appliedCouponCodes: z.array(z.string()).register(z.globalRegistry, {
+    description: 'Coupon codes redeemed on this order (empty when no coupon was used).',
+  }).readonly(),
   trackingNumber: z.string().max(255).optional(),
   shippingCarrier: z.string().max(255).optional(),
   customerFullName: z.string().readonly(),
@@ -6587,6 +6781,9 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   }).optional(),
   documentType: zOrderCreateDocumentType.optional(),
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
+  giftCardCodes: z.array(z.string().min(1).max(32)).max(3).register(z.globalRegistry, {
+    description: 'Gift card codes to redeem against this order (max 3). When they cover the full total, omit payment_intent_id — no provider charge happens at all.',
+  }).optional(),
   boxnowLockerId: z.string().max(64).register(z.globalRegistry, {
     description: 'ID locker APM BoxNow από το widget',
   }).optional(),
@@ -6887,6 +7084,19 @@ export const zPaginatedCountryListWritable = z.object({
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
   results: z.array(zCountryWritable),
+})
+
+export const zPaginatedGiftCardListWritable = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(z.unknown()),
 })
 
 export const zPaginatedLoyaltyTierListWritable = z.object({
@@ -10619,6 +10829,24 @@ export const zUpdateCartHeaders = z.object({
 
 export const zUpdateCartResponse = zCartDetail
 
+export const zRemoveCartCouponHeaders = z.object({
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
+})
+
+export const zRemoveCartCouponResponse = zCartDetail
+
+export const zApplyCartCouponBody = zCouponApplyRequestRequest
+
+export const zApplyCartCouponHeaders = z.object({
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+  }).optional(),
+})
+
+export const zApplyCartCouponResponse = zCartDetail
+
 export const zCreateCartPaymentIntentBody = zCartCreatePaymentIntentRequestRequest
 
 export const zCreateCartPaymentIntentHeaders = z.object({
@@ -11536,6 +11764,30 @@ export const zUpdateCountryResponse = zCountryDetail
 export const zCreateFeedbackBody = zFeedbackWriteRequest
 
 export const zCreateFeedbackResponse = zFeedbackWrite
+
+export const zCheckGiftCardBody = zGiftCardCheckRequestRequest
+
+export const zCheckGiftCardResponse = zGiftCardCheckResponse
+
+export const zListMyGiftCardsQuery = z.object({
+  page: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  pageSize: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+})
+
+export const zListMyGiftCardsResponse = zPaginatedGiftCardList
+
+export const zPurchaseGiftCardBody = zGiftCardPurchaseRequestRequest
+
+export const zPurchaseGiftCardResponse = zGiftCardPurchaseResponse
 
 export const zApiV1HealthRetrieveResponse = zHealthCheckResponse
 

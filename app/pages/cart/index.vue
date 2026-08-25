@@ -351,11 +351,20 @@ definePageMeta({
               <span>{{ t('discount') }}</span>
               <span>-{{ $i18n.n(cart.totalDiscountValue, 'currency') }}</span>
             </div>
+            <div
+              v-if="cart.promotionDiscount > 0"
+              class="flex justify-between text-green-600"
+            >
+              <span>{{ t('promotion_discount') }}</span>
+              <span>-{{ $i18n.n(cart.promotionDiscount, 'currency') }}</span>
+            </div>
             <USeparator />
             <div class="flex justify-between text-lg font-semibold">
               <span>{{ t('total') }}</span>
-              <span>{{ $i18n.n(cart.totalPrice, 'currency') }}</span>
+              <span>{{ $i18n.n(Math.max(0, cart.totalPrice - (cart.promotionDiscount || 0)), 'currency') }}</span>
             </div>
+
+            <CheckoutCouponInput />
 
             <ShippingFreeShippingNotice :cart-total="cart.totalPrice" />
           </div>
@@ -429,6 +438,7 @@ el:
   subtotal: Κόστος Προϊόντος | Κόστος Προϊόντων
   vat: ΦΠΑ
   discount: Έκπτωση
+  promotion_discount: Έκπτωση προσφοράς
   total: Σύνολο
   proceed_to_checkout: Ολοκλήρωση Παραγγελίας
   fix_stock_issues_first: Διόρθωσε τα προβλήματα

@@ -78,6 +78,9 @@ const paidAmount = computed(() => order.value?.paidAmount || 0)
 const shippingPrice = computed(() => order.value?.shippingPrice || 0)
 const totalPriceItems = computed(() => order.value?.totalPriceItems || 0)
 const totalPriceExtra = computed(() => order.value?.totalPriceExtra || 0)
+const discountAmount = computed(() => order.value?.discountAmount || 0)
+const loyaltyDiscountAmount = computed(() => order.value?.loyaltyDiscount || 0)
+const giftCardAmount = computed(() => order.value?.giftCardAmount || 0)
 
 const trackingNumber = computed(() => order.value?.trackingNumber)
 const shippingCarrier = computed(() => order.value?.shippingCarrier)
@@ -210,6 +213,9 @@ function tryFirePurchaseEvent() {
       currency,
       value,
       shipping: Number(shippingPrice.value ?? 0),
+      coupon: order.value?.appliedCouponCodes?.length
+        ? order.value.appliedCouponCodes.join(',')
+        : undefined,
       items: orderItems.value.map(item => ({
         item_id: String(item.product?.id ?? ''),
         quantity: Number(item.quantity ?? 0),
@@ -588,6 +594,30 @@ definePageMeta({
               <span>{{ $i18n.n(totalPriceExtra - shippingPrice, 'currency') }}</span>
             </div>
 
+            <div
+              v-if="discountAmount > 0"
+              class="flex items-center justify-between text-success"
+            >
+              <span>{{ t('pricing.discount') }}</span>
+              <span>-{{ $i18n.n(discountAmount, 'currency') }}</span>
+            </div>
+
+            <div
+              v-if="loyaltyDiscountAmount > 0"
+              class="flex items-center justify-between text-success"
+            >
+              <span>{{ t('pricing.loyalty_discount') }}</span>
+              <span>-{{ $i18n.n(loyaltyDiscountAmount, 'currency') }}</span>
+            </div>
+
+            <div
+              v-if="giftCardAmount > 0"
+              class="flex items-center justify-between text-success"
+            >
+              <span>{{ t('pricing.gift_card') }}</span>
+              <span>-{{ $i18n.n(giftCardAmount, 'currency') }}</span>
+            </div>
+
             <USeparator />
 
             <div class="flex items-center justify-between text-lg font-semibold">
@@ -698,6 +728,9 @@ el:
     subtotal: Κόστος Προϊόντος | Κόστος Προϊόντων
     shipping: Έξοδα Αποστολής
     extras: Επιπλέον Κόστη
+    discount: Έκπτωση προσφοράς
+    loyalty_discount: Έκπτωση πόντων
+    gift_card: Δωροκάρτα
     total: Σύνολο
   actions:
     cancel: Ακύρωση Παραγγελίας

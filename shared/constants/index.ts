@@ -22,6 +22,7 @@ export const AuthenticatedRoutes = [
   'account-email',
   'account-favourites-posts',
   'account-favourites-products',
+  'account-gift-cards',
   'account-loyalty',
   'account-notifications',
   'account-orders',

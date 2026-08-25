@@ -1956,6 +1956,18 @@ export type Cart = {
      */
   readonly currency: string
   /**
+     * Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices
+     */
+  readonly promotionDiscount: number
+  /**
+     * Whether a live promotion waives the shipping cost
+     */
+  readonly promotionFreeShipping: boolean
+  /**
+     * Coupon codes currently attached to this cart
+     */
+  readonly appliedCouponCodes: Array<string>
+  /**
      * Δημιουργήθηκε στις
      */
   readonly createdAt: string
@@ -2007,6 +2019,14 @@ export type CartCreatePaymentIntentRequestRequest = {
      * Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.
      */
   regionId?: string
+  /**
+     * Checkout email. Lets promotion eligibility checks that depend on customer identity (first-order-only, per-customer limits) run against the same identity the order-create verification will use, keeping the PaymentIntent amount in lockstep.
+     */
+  email?: string | string
+  /**
+     * Gift card codes the shopper wants to redeem — the intent is created for the REMAINDER after their balances. Pass the same codes in the order-create body.
+     */
+  giftCardCodes?: Array<string>
 }
 
 /**
@@ -2045,6 +2065,18 @@ export type CartDetail = {
      * Κωδικός νομίσματος ISO 4217 για όλες τις χρηματικές τιμές αυτού του καλαθιού
      */
   readonly currency: string
+  /**
+     * Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices
+     */
+  readonly promotionDiscount: number
+  /**
+     * Whether a live promotion waives the shipping cost
+     */
+  readonly promotionFreeShipping: boolean
+  /**
+     * Coupon codes currently attached to this cart
+     */
+  readonly appliedCouponCodes: Array<string>
   /**
      * Δημιουργήθηκε στις
      */
@@ -2550,6 +2582,30 @@ export type CountryWriteRequest = {
   phoneCode?: number | null
 }
 
+/**
+ * Request body for ``POST /api/v1/cart/coupon``.
+ */
+export type CouponApplyRequestRequest = {
+  /**
+     * Coupon code to apply (case-insensitive)
+     */
+  code: string
+}
+
+/**
+ * 4xx body for coupon apply — carries the machine-readable reason.
+ */
+export type CouponErrorResponse = {
+  /**
+     * Human-readable message
+     */
+  detail: string
+  /**
+     * Machine-readable rejection reason (ACP discount-extension vocabulary, e.g. discount_code_invalid)
+     */
+  reason: string
+}
+
 export type CreateCheckoutSessionRequestRequest = {
   successUrl: string
   cancelUrl: string
@@ -2864,6 +2920,130 @@ export type FreeShippingProviderEntry = {
   threshold: number
   priority: number
 }
+
+export type GiftCard = {
+  readonly id: number
+  readonly uuid: string
+  /**
+     * Κωδικός
+     *
+     * Crypto-random, uppercased; the bearer secret
+     */
+  readonly code: string
+  readonly initialValue: number
+  readonly balance: string
+  /**
+     * Κατάσταση
+     */
+  status: GiftCardStatusEnum
+  /**
+     * Λήγει στις
+     *
+     * Defaults to GIFT_CARD_VALIDITY_DAYS after issue (Greek law: 5 years); empty means never expires
+     */
+  readonly expiresAt: string | null
+  readonly recipientEmail: string
+  readonly recipientName: string
+  readonly senderName: string
+  /**
+     * Μήνυμα
+     */
+  readonly message: string
+  readonly deliveredAt: string | null
+  readonly transactions: Array<GiftCardTransaction>
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+}
+
+export type GiftCardCheckRequestRequest = {
+  /**
+     * Gift card code (case-insensitive)
+     */
+  code: string
+}
+
+export type GiftCardCheckResponse = {
+  code: string
+  balance: number
+  currency: string
+  expiresAt: string | null
+  isRedeemable: boolean
+}
+
+export type GiftCardErrorResponse = {
+  /**
+     * Human-readable message
+     */
+  detail: string
+  /**
+     * Machine-readable reason, e.g. gift_card_invalid
+     */
+  reason: string
+}
+
+export type GiftCardPurchaseRequestRequest = {
+  /**
+     * Card value in EUR — bounded by GIFT_CARD_MIN_AMOUNT / GIFT_CARD_MAX_AMOUNT
+     */
+  amount: number
+  /**
+     * Required for guests; authenticated buyers default to their account email
+     */
+  buyerEmail?: string | string
+  recipientEmail: string
+  recipientName?: string
+  senderName?: string
+  message?: string
+  /**
+     * Empty means deliver right after payment
+     */
+  deliverAt?: string | null
+}
+
+export type GiftCardPurchaseResponse = {
+  purchaseUuid: string
+  /**
+     * Stripe PaymentIntent client secret
+     */
+  clientSecret: string
+  paymentIntentId: string
+  amount: number
+  currency: string
+}
+
+/**
+ * * `ACTIVE` - Ενεργή
+ * * `DISABLED` - Disabled
+ */
+export type GiftCardStatusEnum = 'ACTIVE' | 'DISABLED'
+
+export type GiftCardTransaction = {
+  readonly id: number
+  /**
+     * Είδος
+     */
+  kind: GiftCardTransactionKindEnum
+  /**
+     * Signed: positive adds balance (issue/refund credit), negative removes it (redeem/expire)
+     */
+  readonly amount: number
+  readonly order: number | null
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+}
+
+/**
+ * * `ISSUE` - Issue
+ * * `REDEEM` - Εξαργύρωση
+ * * `REFUND_CREDIT` - Refund credit
+ * * `ADJUST` - Προσαρμογή
+ * * `EXPIRE` - Λήξη
+ */
+export type GiftCardTransactionKindEnum = 'ISSUE' | 'REDEEM' | 'REFUND_CREDIT' | 'ADJUST' | 'EXPIRE'
 
 export type HealthCheckResponse = {
   database: boolean
@@ -3303,6 +3483,20 @@ export type Order = {
   readonly uuid: string
   readonly totalPriceItems: number
   readonly totalPriceExtra: number
+  /**
+     * Promotion Discount
+     *
+     * Total discount granted by promotions/coupons, snapshotted at order creation. Breakdown lives in metadata['promotions'] + PromotionRedemption rows. Deducted by calculate_order_total_amount().
+     */
+  readonly discountAmount: number
+  /**
+     * Amount deducted from the order total in exchange for loyalty points. Deducted by calculate_order_total_amount().
+     */
+  readonly loyaltyDiscount: number
+  /**
+     * Portion of the order settled by gift-card balance. A payment, not a discount — it never reduces the taxable order value, only what the payment provider charges.
+     */
+  readonly giftCardAmount: number
   readonly fullAddress: string
   /**
      * ID πληρωμής
@@ -3425,6 +3619,10 @@ export type OrderCreateFromCartRequest = {
      */
   loyaltyPointsToRedeem?: number | null
   /**
+     * Gift card codes to redeem against this order (max 3). When they cover the full total, omit payment_intent_id — no provider charge happens at all.
+     */
+  giftCardCodes?: Array<string>
+  /**
      * ID locker APM BoxNow από το widget
      */
   boxnowLockerId?: string
@@ -3546,6 +3744,20 @@ export type OrderDetail = {
   readonly uuid: string
   readonly totalPriceItems: number
   readonly totalPriceExtra: number
+  /**
+     * Promotion Discount
+     *
+     * Total discount granted by promotions/coupons, snapshotted at order creation. Breakdown lives in metadata['promotions'] + PromotionRedemption rows. Deducted by calculate_order_total_amount().
+     */
+  readonly discountAmount: number
+  /**
+     * Amount deducted from the order total in exchange for loyalty points. Deducted by calculate_order_total_amount().
+     */
+  readonly loyaltyDiscount: number
+  /**
+     * Portion of the order settled by gift-card balance. A payment, not a discount — it never reduces the taxable order value, only what the payment provider charges.
+     */
+  readonly giftCardAmount: number
   readonly fullAddress: string
   /**
      * ID πληρωμής
@@ -3586,6 +3798,9 @@ export type OrderDetail = {
     shippingCost?: number
     paymentMethodFee?: number
     extrasTotal?: number
+    discount?: number
+    loyaltyDiscount?: number
+    giftCardAmount?: number
     grandTotal?: number
     currency?: string
     paidAmount?: number
@@ -3636,6 +3851,10 @@ export type OrderDetail = {
       error?: string | null
     } | null
   } | null
+  /**
+     * Coupon codes redeemed on this order (empty when no coupon was used).
+     */
+  readonly appliedCouponCodes: Array<string>
   /**
      * Αριθμός Παρακολούθησης
      */
@@ -4095,6 +4314,19 @@ export type PaginatedCountryList = {
   pageTotalResults?: number
   page?: number
   results: Array<Country>
+}
+
+export type PaginatedGiftCardList = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<GiftCard>
 }
 
 export type PaginatedLoyaltyTierList = {
@@ -7472,6 +7704,8 @@ export type TenantConfig = {
   readonly staticDomain: string
   readonly loyaltyEnabled: boolean
   readonly blogEnabled: boolean
+  readonly promotionsEnabled: boolean
+  readonly giftCardsEnabled: boolean
   readonly agentStripeDelegatedEnabled: boolean
   readonly stripePublishableKey: string
   readonly allowedCspSources: Array<string>
@@ -8890,6 +9124,10 @@ export type OrderCreateFromCartRequestWritable = {
      */
   loyaltyPointsToRedeem?: number | null
   /**
+     * Gift card codes to redeem against this order (max 3). When they cover the full total, omit payment_intent_id — no provider charge happens at all.
+     */
+  giftCardCodes?: Array<string>
+  /**
      * ID locker APM BoxNow από το widget
      */
   boxnowLockerId?: string
@@ -9246,6 +9484,19 @@ export type PaginatedCountryListWritable = {
   pageTotalResults?: number
   page?: number
   results: Array<CountryWritable>
+}
+
+export type PaginatedGiftCardListWritable = {
+  links?: {
+    next?: string | null
+    previous?: string | null
+  }
+  count: number
+  totalPages?: number
+  pageSize?: number
+  pageTotalResults?: number
+  page?: number
+  results: Array<unknown>
 }
 
 export type PaginatedLoyaltyTierListWritable = {
@@ -13850,6 +14101,64 @@ export type UpdateCartResponses = {
 
 export type UpdateCartResponse = UpdateCartResponses[keyof UpdateCartResponses]
 
+export type RemoveCartCouponData = {
+  body?: never
+  headers?: {
+    /**
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+         */
+    'X-Cart-Id'?: string
+  }
+  path?: never
+  query?: never
+  url: '/api/v1/cart/coupon'
+}
+
+export type RemoveCartCouponErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type RemoveCartCouponError = RemoveCartCouponErrors[keyof RemoveCartCouponErrors]
+
+export type RemoveCartCouponResponses = {
+  200: CartDetail
+}
+
+export type RemoveCartCouponResponse = RemoveCartCouponResponses[keyof RemoveCartCouponResponses]
+
+export type ApplyCartCouponData = {
+  body: CouponApplyRequestRequest
+  headers?: {
+    /**
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+         */
+    'X-Cart-Id'?: string
+  }
+  path?: never
+  query?: never
+  url: '/api/v1/cart/coupon'
+}
+
+export type ApplyCartCouponErrors = {
+  400: CouponErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ApplyCartCouponError = ApplyCartCouponErrors[keyof ApplyCartCouponErrors]
+
+export type ApplyCartCouponResponses = {
+  200: CartDetail
+}
+
+export type ApplyCartCouponResponse = ApplyCartCouponResponses[keyof ApplyCartCouponResponses]
+
 export type CreateCartPaymentIntentData = {
   body: CartCreatePaymentIntentRequestRequest
   headers?: {
@@ -15067,6 +15376,88 @@ export type CreateFeedbackResponses = {
 }
 
 export type CreateFeedbackResponse = CreateFeedbackResponses[keyof CreateFeedbackResponses]
+
+export type CheckGiftCardData = {
+  body: GiftCardCheckRequestRequest
+  path?: never
+  query?: never
+  url: '/api/v1/giftcard/check'
+}
+
+export type CheckGiftCardErrors = {
+  400: GiftCardErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type CheckGiftCardError = CheckGiftCardErrors[keyof CheckGiftCardErrors]
+
+export type CheckGiftCardResponses = {
+  200: GiftCardCheckResponse
+}
+
+export type CheckGiftCardResponse = CheckGiftCardResponses[keyof CheckGiftCardResponses]
+
+export type ListMyGiftCardsData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * A page number within the paginated result set.
+         */
+    page?: string | number
+    /**
+         * Number of results to return per page.
+         */
+    pageSize?: string | number
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/giftcard/mine'
+}
+
+export type ListMyGiftCardsErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListMyGiftCardsError = ListMyGiftCardsErrors[keyof ListMyGiftCardsErrors]
+
+export type ListMyGiftCardsResponses = {
+  200: PaginatedGiftCardList
+}
+
+export type ListMyGiftCardsResponse = ListMyGiftCardsResponses[keyof ListMyGiftCardsResponses]
+
+export type PurchaseGiftCardData = {
+  body: GiftCardPurchaseRequestRequest
+  path?: never
+  query?: never
+  url: '/api/v1/giftcard/purchase'
+}
+
+export type PurchaseGiftCardErrors = {
+  400: GiftCardErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type PurchaseGiftCardError = PurchaseGiftCardErrors[keyof PurchaseGiftCardErrors]
+
+export type PurchaseGiftCardResponses = {
+  200: GiftCardPurchaseResponse
+}
+
+export type PurchaseGiftCardResponse = PurchaseGiftCardResponses[keyof PurchaseGiftCardResponses]
 
 export type ApiV1HealthRetrieveData = {
   body?: never

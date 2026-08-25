@@ -7389,6 +7389,123 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/cart/coupon:
+    post:
+      operationId: applyCartCoupon
+      description: Attach a coupon code to the cart. Returns the updated cart with promotion discount fields. Rejections carry a machine-readable reason.
+      summary: Apply a coupon code to the cart
+      parameters:
+        - in: header
+          name: X-Cart-Id
+          schema:
+            type: string
+            format: uuid
+          description: Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+      tags:
+        - Cart
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CouponApplyRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CouponApplyRequestRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CouponApplyRequestRequest'
+        required: true
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CouponErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+    delete:
+      operationId: removeCartCoupon
+      description: Remove the applied coupon code from the cart
+      summary: Remove the applied coupon code from the cart
+      parameters:
+        - in: header
+          name: X-Cart-Id
+          schema:
+            type: string
+            format: uuid
+          description: Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+      tags:
+        - Cart
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartDetail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/cart/create-payment-intent:
     post:
       operationId: createCartPaymentIntent
@@ -9979,6 +10096,195 @@ paths:
                 $ref: '#/components/schemas/FeedbackWrite'
           description: ''
         '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/giftcard/check:
+    post:
+      operationId: checkGiftCard
+      description: Check a gift card's balance
+      summary: Check a gift card's balance
+      tags:
+        - Gift Cards
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GiftCardCheckRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GiftCardCheckRequestRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GiftCardCheckRequestRequest'
+        required: true
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GiftCardCheckResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GiftCardErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/giftcard/mine:
+    get:
+      operationId: listMyGiftCards
+      description: List the gift cards linked to my account
+      summary: List the gift cards linked to my account
+      parameters:
+        - name: page
+          required: false
+          in: query
+          description: A page number within the paginated result set.
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of results to return per page.
+          schema:
+            oneOf:
+              - type: string
+                pattern: ^-?\d+$
+              - type: integer
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
+      tags:
+        - Gift Cards
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGiftCardList'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/giftcard/purchase:
+    post:
+      operationId: purchaseGiftCard
+      description: Buy a gift card (Stripe payment)
+      summary: Buy a gift card (Stripe payment)
+      tags:
+        - Gift Cards
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GiftCardPurchaseRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GiftCardPurchaseRequestRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GiftCardPurchaseRequestRequest'
+        required: true
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GiftCardPurchaseResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GiftCardErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
           content:
             application/json:
               schema:
@@ -32317,6 +32623,21 @@ components:
           type: string
           readOnly: true
           description: Κωδικός νομίσματος ISO 4217 για όλες τις χρηματικές τιμές αυτού του καλαθιού
+        promotionDiscount:
+          type: number
+          format: double
+          readOnly: true
+          description: Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices
+        promotionFreeShipping:
+          type: boolean
+          readOnly: true
+          description: Whether a live promotion waives the shipping cost
+        appliedCouponCodes:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Coupon codes currently attached to this cart
         createdAt:
           type: string
           format: date-time
@@ -32333,11 +32654,14 @@ components:
           readOnly: true
           title: Τελευταία δραστηριότητα
       required:
+        - appliedCouponCodes
         - createdAt
         - currency
         - id
         - items
         - lastActivity
+        - promotionDiscount
+        - promotionFreeShipping
         - totalDiscountValue
         - totalItems
         - totalItemsUnique
@@ -32386,6 +32710,21 @@ components:
           type: string
           description: Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.
           maxLength: 16
+        email:
+          description: Checkout email. Lets promotion eligibility checks that depend on customer identity (first-order-only, per-customer limits) run against the same identity the order-create verification will use, keeping the PaymentIntent amount in lockstep.
+          oneOf:
+            - type: string
+              format: email
+            - type: string
+              maxLength: 0
+        giftCardCodes:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 32
+          description: Gift card codes the shopper wants to redeem — the intent is created for the REMAINDER after their balances. Pass the same codes in the order-create body.
+          maxItems: 3
       required:
         - payWayId
         - shippingKind
@@ -32467,6 +32806,21 @@ components:
           type: string
           readOnly: true
           description: Κωδικός νομίσματος ISO 4217 για όλες τις χρηματικές τιμές αυτού του καλαθιού
+        promotionDiscount:
+          type: number
+          format: double
+          readOnly: true
+          description: Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices
+        promotionFreeShipping:
+          type: boolean
+          readOnly: true
+          description: Whether a live promotion waives the shipping cost
+        appliedCouponCodes:
+          type: array
+          items:
+            type: string
+          readOnly: true
+          description: Coupon codes currently attached to this cart
         createdAt:
           type: string
           format: date-time
@@ -32489,11 +32843,14 @@ components:
           readOnly: true
           description: Προτάσεις προϊόντων βάσει περιεχομένου καλαθιού
       required:
+        - appliedCouponCodes
         - createdAt
         - currency
         - id
         - items
         - lastActivity
+        - promotionDiscount
+        - promotionFreeShipping
         - recommendations
         - totalDiscountValue
         - totalItems
@@ -33393,6 +33750,30 @@ components:
         - alpha2
         - alpha3
         - translations
+    CouponApplyRequestRequest:
+      type: object
+      description: Request body for ``POST /api/v1/cart/coupon``.
+      properties:
+        code:
+          type: string
+          minLength: 1
+          description: Coupon code to apply (case-insensitive)
+          maxLength: 40
+      required:
+        - code
+    CouponErrorResponse:
+      type: object
+      description: 4xx body for coupon apply — carries the machine-readable reason.
+      properties:
+        detail:
+          type: string
+          description: Human-readable message
+        reason:
+          type: string
+          description: Machine-readable rejection reason (ACP discount-extension vocabulary, e.g. discount_code_invalid)
+      required:
+        - detail
+        - reason
     CreateCheckoutSessionRequestRequest:
       type: object
       properties:
@@ -33870,6 +34251,262 @@ components:
         - providerCode
         - providerName
         - threshold
+    GiftCard:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        code:
+          type: string
+          readOnly: true
+          title: Κωδικός
+          description: Crypto-random, uppercased; the bearer secret
+        initialValue:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+        balance:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+            - $ref: '#/components/schemas/GiftCardStatusEnum'
+          readOnly: true
+          title: Κατάσταση
+        expiresAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Λήγει στις
+          description: 'Defaults to GIFT_CARD_VALIDITY_DAYS after issue (Greek law: 5 years); empty means never expires'
+        recipientEmail:
+          type: string
+          format: email
+          readOnly: true
+        recipientName:
+          type: string
+          readOnly: true
+        senderName:
+          type: string
+          readOnly: true
+        message:
+          type: string
+          readOnly: true
+          title: Μήνυμα
+        deliveredAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/GiftCardTransaction'
+          readOnly: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Δημιουργήθηκε στις
+      required:
+        - balance
+        - code
+        - createdAt
+        - deliveredAt
+        - expiresAt
+        - id
+        - initialValue
+        - message
+        - recipientEmail
+        - recipientName
+        - senderName
+        - status
+        - transactions
+        - uuid
+    GiftCardCheckRequestRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          description: Gift card code (case-insensitive)
+          maxLength: 32
+      required:
+        - code
+    GiftCardCheckResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        balance:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        currency:
+          type: string
+          maxLength: 3
+        expiresAt:
+          type: string
+          format: date-time
+          nullable: true
+        isRedeemable:
+          type: boolean
+      required:
+        - balance
+        - code
+        - currency
+        - expiresAt
+        - isRedeemable
+    GiftCardErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Human-readable message
+        reason:
+          type: string
+          description: Machine-readable reason, e.g. gift_card_invalid
+      required:
+        - detail
+        - reason
+    GiftCardPurchaseRequestRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: 0
+          exclusiveMaximum: true
+          description: Card value in EUR — bounded by GIFT_CARD_MIN_AMOUNT / GIFT_CARD_MAX_AMOUNT
+        buyerEmail:
+          description: Required for guests; authenticated buyers default to their account email
+          oneOf:
+            - type: string
+              format: email
+            - type: string
+              maxLength: 0
+        recipientEmail:
+          type: string
+          format: email
+          minLength: 1
+        recipientName:
+          type: string
+          default: ''
+          maxLength: 255
+        senderName:
+          type: string
+          default: ''
+          maxLength: 255
+        message:
+          type: string
+          default: ''
+          maxLength: 2000
+        deliverAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: Empty means deliver right after payment
+      required:
+        - amount
+        - recipientEmail
+    GiftCardPurchaseResponse:
+      type: object
+      properties:
+        purchaseUuid:
+          type: string
+          format: uuid
+        clientSecret:
+          type: string
+          description: Stripe PaymentIntent client secret
+        paymentIntentId:
+          type: string
+        amount:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        currency:
+          type: string
+          maxLength: 3
+      required:
+        - amount
+        - clientSecret
+        - currency
+        - paymentIntentId
+        - purchaseUuid
+    GiftCardStatusEnum:
+      enum:
+        - ACTIVE
+        - DISABLED
+      type: string
+      description: |-
+        * `ACTIVE` - Ενεργή
+        * `DISABLED` - Disabled
+    GiftCardTransaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        kind:
+          allOf:
+            - $ref: '#/components/schemas/GiftCardTransactionKindEnum'
+          readOnly: true
+          title: Είδος
+        amount:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          description: 'Signed: positive adds balance (issue/refund credit), negative removes it (redeem/expire)'
+        order:
+          type: integer
+          readOnly: true
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Δημιουργήθηκε στις
+      required:
+        - amount
+        - createdAt
+        - id
+        - kind
+        - order
+    GiftCardTransactionKindEnum:
+      enum:
+        - ISSUE
+        - REDEEM
+        - REFUND_CREDIT
+        - ADJUST
+        - EXPIRE
+      type: string
+      description: |-
+        * `ISSUE` - Issue
+        * `REDEEM` - Εξαργύρωση
+        * `REFUND_CREDIT` - Refund credit
+        * `ADJUST` - Προσαρμογή
+        * `EXPIRE` - Λήξη
     HealthCheckResponse:
       type: object
       properties:
@@ -34543,6 +35180,34 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+        discountAmount:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          title: Promotion Discount
+          description: Total discount granted by promotions/coupons, snapshotted at order creation. Breakdown lives in metadata['promotions'] + PromotionRedemption rows. Deducted by calculate_order_total_amount().
+        loyaltyDiscount:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          description: Amount deducted from the order total in exchange for loyalty points. Deducted by calculate_order_total_amount().
+        giftCardAmount:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          description: Portion of the order settled by gift-card balance. A payment, not a discount — it never reduces the taxable order value, only what the payment provider charges.
         fullAddress:
           type: string
           readOnly: true
@@ -34579,14 +35244,17 @@ components:
         - city
         - country
         - createdAt
+        - discountAmount
         - email
         - firstName
         - fullAddress
+        - giftCardAmount
         - id
         - isOnlinePayment
         - isPaid
         - items
         - lastName
+        - loyaltyDiscount
         - paidAmount
         - payWay
         - paymentMethodFee
@@ -34710,6 +35378,14 @@ components:
           minimum: 0
           nullable: true
           description: Αριθμός πόντων πιστότητας προς εξαργύρωση για έκπτωση σε αυτή την παραγγελία
+        giftCardCodes:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 32
+          description: Gift card codes to redeem against this order (max 3). When they cover the full total, omit payment_intent_id — no provider charge happens at all.
+          maxItems: 3
         boxnowLockerId:
           type: string
           description: ID locker APM BoxNow από το widget
@@ -34916,6 +35592,34 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           readOnly: true
+        discountAmount:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          title: Promotion Discount
+          description: Total discount granted by promotions/coupons, snapshotted at order creation. Breakdown lives in metadata['promotions'] + PromotionRedemption rows. Deducted by calculate_order_total_amount().
+        loyaltyDiscount:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          description: Amount deducted from the order total in exchange for loyalty points. Deducted by calculate_order_total_amount().
+        giftCardAmount:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          description: Portion of the order settled by gift-card balance. A payment, not a discount — it never reduces the taxable order value, only what the payment provider charges.
         fullAddress:
           type: string
           readOnly: true
@@ -34979,6 +35683,12 @@ components:
             paymentMethodFee:
               type: number
             extrasTotal:
+              type: number
+            discount:
+              type: number
+            loyaltyDiscount:
+              type: number
+            giftCardAmount:
               type: number
             grandTotal:
               type: number
@@ -35061,6 +35771,12 @@ components:
                   nullable: true
           readOnly: true
           description: Cancellation context for CANCELED orders — exposes the operator-supplied reason, timestamp, and shipment-cancel outcome from ``order.metadata['cancellation']``. Returns null when the order was not canceled. Internal flags from the metadata bag (webhook idempotency markers, mint tickets) are intentionally not surfaced.
+        appliedCouponCodes:
+          type: array
+          items:
+            type: string
+          description: Coupon codes redeemed on this order (empty when no coupon was used).
+          readOnly: true
         trackingNumber:
           type: string
           title: Αριθμός Παρακολούθησης
@@ -35091,6 +35807,7 @@ components:
           description: ISO 4217 currency code for every monetary field on the order (paidAmount, shippingPrice, totalPriceItems, …). Surfaced as a top-level field because djmoney serialises money fields as bare numbers — without this, the frontend has no way to know whether ``59.98`` is EUR or USD, which breaks ad-pixel attribution and cart totals in multi-currency reports.
       required:
         - acsShipment
+        - appliedCouponCodes
         - boxnowShipment
         - canBeCanceled
         - cancellation
@@ -35099,9 +35816,11 @@ components:
         - createdAt
         - currency
         - customerFullName
+        - discountAmount
         - email
         - firstName
         - fullAddress
+        - giftCardAmount
         - hasInvoice
         - id
         - isCanceled
@@ -35110,6 +35829,7 @@ components:
         - isPaid
         - items
         - lastName
+        - loyaltyDiscount
         - metaEventIds
         - orderTimeline
         - paidAmount
@@ -36079,6 +36799,44 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Country'
+    PaginatedGiftCardList:
+      type: object
+      required:
+        - count
+        - results
+      properties:
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+              nullable: true
+              format: uri
+              example: http://api.example.org/accounts/?page=4
+            previous:
+              type: string
+              nullable: true
+              format: uri
+              example: http://api.example.org/accounts/?page=2
+        count:
+          type: integer
+          example: 123
+        totalPages:
+          type: integer
+          example: 123
+        pageSize:
+          type: integer
+          example: 123
+        pageTotalResults:
+          type: integer
+          example: 123
+        page:
+          type: integer
+          example: 123
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/GiftCard'
     PaginatedLoyaltyTierList:
       type: object
       required:
@@ -41827,6 +42585,12 @@ components:
         blogEnabled:
           type: boolean
           readOnly: true
+        promotionsEnabled:
+          type: boolean
+          readOnly: true
+        giftCardsEnabled:
+          type: boolean
+          readOnly: true
         agentStripeDelegatedEnabled:
           type: boolean
           readOnly: true
@@ -41890,6 +42654,7 @@ components:
         - errorHex
         - faviconUrl
         - gaTrackingId
+        - giftCardsEnabled
         - infoHex
         - logoDarkUrl
         - logoLightUrl
@@ -41899,6 +42664,7 @@ components:
         - neutralColor
         - primaryColor
         - primaryDomain
+        - promotionsEnabled
         - schemaName
         - socialsDiscord
         - socialsFacebook

@@ -3,6 +3,10 @@ const props = defineProps({
   shippingPrice: { type: Number, required: true },
   showPaymentFee: { type: Boolean, default: false },
   loyaltyDiscount: { type: Number, default: 0 },
+  // Sum of the balances of the gift cards the shopper attached. The
+  // sidebar previews how much of the total they settle; Django's
+  // order-create redemption is the authoritative computation.
+  giftCardBalance: { type: Number, default: 0 },
   // Selected shipping method context — surfaced as a "selected"
   // callout on the payment step so the shopper can verify what
   // they picked at step 2 without scrolling back. Pass ``null`` (or
@@ -49,13 +53,30 @@ const shippingSummaryView = computed(() => {
   }
 })
 
+// Promotions are server-evaluated on the cart (automatic promotions +
+// the applied coupon) — the sidebar only renders what Django computed.
+const promotionDiscount = computed(() =>
+  Number(cart.value?.promotionDiscount ?? 0))
+const promotionFreeShipping = computed(() =>
+  Boolean(cart.value?.promotionFreeShipping))
+
+const effectiveShippingPrice = computed(() =>
+  promotionFreeShipping.value ? 0 : props.shippingPrice)
+
 const payWayCost = computed(() => {
   if (!payWay?.value) return 0
-  const cartTotal = cart.value?.totalPrice || 0
+  // Mirror the backend: the free threshold is evaluated on the
+  // DISCOUNTED items total plus shipping.
+  const shipping = shippingSummaryView.value
+    ? effectiveShippingPrice.value
+    : 0
+  const subtotal = Math.max(
+    0,
+    (cart.value?.totalPrice || 0) - promotionDiscount.value + shipping,
+  )
   const threshold = payWay.value.freeThreshold || 0
 
-  // If cart total meets or exceeds the free threshold, no cost
-  if (threshold > 0 && cartTotal >= threshold) {
+  if (threshold > 0 && subtotal >= threshold) {
     return 0
   }
 
@@ -73,16 +94,47 @@ const payWayName = computed(() => {
   return 'N/A'
 })
 
-const checkoutTotal = computed(() => {
+// What is due BEFORE gift cards (they are payment, applied last).
+const preGiftCardTotal = computed(() => {
   if (!cart.value) return 0
   const paymentFee = props.showPaymentFee ? payWayCost.value : 0
-  const shipping = shippingSummaryView.value ? props.shippingPrice : 0
-  return Math.max(0, cart.value.totalPrice + shipping + paymentFee - props.loyaltyDiscount)
+  const shipping = shippingSummaryView.value
+    ? effectiveShippingPrice.value
+    : 0
+  return Math.max(
+    0,
+    cart.value.totalPrice
+    - promotionDiscount.value
+    + shipping
+    + paymentFee
+    - props.loyaltyDiscount,
+  )
 })
+
+// Preview of the gift-card settlement, mirroring the backend plan:
+// balances cap at the amount due, and partial coverage leaves at
+// least 0.50 EUR for the provider minimum (the sliver stays on the
+// card).
+const giftCardApplied = computed(() => {
+  const balance = props.giftCardBalance
+  if (balance <= 0) return 0
+  const due = preGiftCardTotal.value
+  if (balance >= due) return due
+  const remainder = due - balance
+  if (remainder > 0 && remainder < 0.5) {
+    return Math.max(0, due - 0.5)
+  }
+  return balance
+})
+
+const checkoutTotal = computed(() =>
+  Math.max(0, preGiftCardTotal.value - giftCardApplied.value))
 
 defineSlots<{
   'pay-ways'(props: object): any
   'items'(props: object): any
+  'coupon'(props: object): any
+  'gift-card'(props: object): any
   'loyalty'(props: object): any
   'points-earned'(props: object): any
   'button'(props: object): any
@@ -183,6 +235,16 @@ defineSlots<{
           </template>
         </UAlert>
 
+        <!-- Coupon Code Slot -->
+        <template v-if="$slots.coupon">
+          <slot name="coupon" />
+        </template>
+
+        <!-- Gift Card Slot -->
+        <template v-if="$slots['gift-card']">
+          <slot name="gift-card" />
+        </template>
+
         <!-- Loyalty Points Redemption Slot -->
         <template v-if="$slots.loyalty">
           <slot name="loyalty" />
@@ -193,7 +255,7 @@ defineSlots<{
             border-t border-primary-200 pt-4
             dark:border-primary-800
           "
-          :class="shippingSummaryView || (showPaymentFee && payWayCost) || loyaltyDiscount > 0 ? 'space-y-3' : ''"
+          :class="shippingSummaryView || (showPaymentFee && payWayCost) || loyaltyDiscount > 0 || promotionDiscount > 0 || giftCardApplied > 0 ? 'space-y-3' : ''"
         >
           <div class="flex items-center justify-between">
             <span
@@ -222,7 +284,7 @@ defineSlots<{
               {{ t('shipping') }}
             </span>
             <span
-              v-if="shippingPrice === 0"
+              v-if="effectiveShippingPrice === 0"
               class="font-bold text-success"
             >{{ t('free') }}</span>
             <span
@@ -231,7 +293,7 @@ defineSlots<{
                 font-bold text-primary-950
                 dark:text-primary-50
               "
-            >{{ $i18n.n(shippingPrice, 'currency') }}</span>
+            >{{ $i18n.n(effectiveShippingPrice, 'currency') }}</span>
           </div>
           <div
             v-if="showPaymentFee && payWayCost"
@@ -251,11 +313,25 @@ defineSlots<{
             >{{ $i18n.n(payWayCost, 'currency') }}</span>
           </div>
           <div
+            v-if="promotionDiscount > 0"
+            class="flex items-center justify-between"
+          >
+            <span class="text-success">{{ t('promotion_discount') }}</span>
+            <span class="font-bold text-success">-{{ $i18n.n(promotionDiscount, 'currency') }}</span>
+          </div>
+          <div
             v-if="loyaltyDiscount > 0"
             class="flex items-center justify-between"
           >
             <span class="text-success">{{ t('loyalty_discount') }}</span>
             <span class="font-bold text-success">-{{ $i18n.n(loyaltyDiscount, 'currency') }}</span>
+          </div>
+          <div
+            v-if="giftCardApplied > 0"
+            class="flex items-center justify-between"
+          >
+            <span class="text-success">{{ t('gift_card') }}</span>
+            <span class="font-bold text-success">-{{ $i18n.n(giftCardApplied, 'currency') }}</span>
           </div>
         </div>
 
@@ -315,6 +391,8 @@ el:
   total: Σύνολο
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
   loyalty_discount: Έκπτωση πόντων
+  promotion_discount: Έκπτωση προσφοράς
+  gift_card: Δωροκάρτα
   need_help: Χρειάζεσαι βοήθεια;
   shipping_method_label:
     home_delivery: Παράδοση στη διεύθυνσή σας

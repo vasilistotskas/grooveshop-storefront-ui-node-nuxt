@@ -49,6 +49,7 @@ const menuDescriptions: Record<string, string> = {
   'account-subscriptions': t('account.menu_description.account-subscriptions'),
   'account-addresses': t('account.menu_description.account-addresses'),
   'account-loyalty': t('account.menu_description.account-loyalty'),
+  'account-gift-cards': t('account.menu_description.account-gift-cards'),
   'account-settings': t('account.menu_description.account-settings'),
   'account-reviews': t('account.menu_description.account-reviews'),
 }
@@ -677,6 +678,7 @@ el:
       account-subscriptions: Διαχειρίσου τις εγγραφές σου
       account-addresses: Διαχειρίσου τις διευθύνσεις σου
       account-loyalty: Δες τους πόντους και το ιστορικό σου
+      account-gift-cards: Δες τις δωροκάρτες και τα υπόλοιπά τους
       account-settings: Ρύθμισε τις προτιμήσεις σου
       account-reviews: Διαχειρίσου τις κριτικές σου
   menu: Μενού λογαριασμού

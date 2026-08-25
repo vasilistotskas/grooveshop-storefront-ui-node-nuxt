@@ -1,0 +1,394 @@
+<script lang="ts" setup>
+import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js'
+import * as z from 'zod'
+
+const { t } = useI18n()
+const { $i18n } = useNuxtApp()
+const toast = useToast()
+const tenantStore = useTenantStore()
+const { user } = useUserSession()
+
+defineRouteRules({
+  robots: false,
+})
+
+definePageMeta({
+  middleware: ['gift-cards-enabled'],
+})
+
+useSeoMeta({
+  title: () => t('title'),
+  description: () => t('description'),
+})
+
+// Purchase bounds are merchant-tunable (extra_settings).
+const { data: minSetting } = useFetch<{ value?: string }>(
+  '/api/settings/get',
+  {
+    key: 'gift-cards:min-amount',
+    query: { key: 'GIFT_CARD_MIN_AMOUNT' },
+    default: () => ({ value: '10' }),
+  },
+)
+const { data: maxSetting } = useFetch<{ value?: string }>(
+  '/api/settings/get',
+  {
+    key: 'gift-cards:max-amount',
+    query: { key: 'GIFT_CARD_MAX_AMOUNT' },
+    default: () => ({ value: '500' }),
+  },
+)
+const minAmount = computed(() => Number(minSetting.value?.value ?? 10))
+const maxAmount = computed(() => Number(maxSetting.value?.value ?? 500))
+
+const SUGGESTED_AMOUNTS = [25, 50, 100]
+const suggestedAmounts = computed(() =>
+  SUGGESTED_AMOUNTS.filter(
+    amount => amount >= minAmount.value && amount <= maxAmount.value,
+  ))
+
+const purchaseSchema = computed(() => z.object({
+  amount: z
+    .number({ error: t('validation.amount_required') })
+    .min(minAmount.value, {
+      error: t('validation.amount_min', { min: minAmount.value }),
+    })
+    .max(maxAmount.value, {
+      error: t('validation.amount_max', { max: maxAmount.value }),
+    }),
+  buyerEmail: z
+    .string({ error: t('validation.required') })
+    .email({ error: t('validation.email') }),
+  recipientEmail: z
+    .string({ error: t('validation.required') })
+    .email({ error: t('validation.email') }),
+  recipientName: z.string().max(255).optional(),
+  senderName: z.string().max(255).optional(),
+  message: z.string().max(2000, { error: t('validation.message_max') }).optional(),
+}))
+
+const formState = reactive({
+  amount: 50 as number | undefined,
+  buyerEmail: user.value?.email ?? '',
+  recipientEmail: '',
+  recipientName: '',
+  senderName: '',
+  message: '',
+})
+
+const step = ref<'form' | 'payment' | 'success'>('form')
+const submitting = ref(false)
+const purchaseError = ref<string | null>(null)
+const clientSecret = ref<string | null>(null)
+const purchasedAmount = ref(0)
+const recipientEmailDisplay = ref('')
+
+const startPurchase = async () => {
+  purchaseError.value = null
+  submitting.value = true
+  try {
+    const response = await $fetch<{
+      purchaseUuid: string
+      clientSecret: string
+      paymentIntentId: string
+      amount: string | number
+      currency: string
+    }>('/api/giftcard/purchase', {
+      method: 'POST',
+      body: {
+        amount: formState.amount,
+        buyerEmail: formState.buyerEmail,
+        recipientEmail: formState.recipientEmail,
+        recipientName: formState.recipientName || undefined,
+        senderName: formState.senderName || undefined,
+        message: formState.message || undefined,
+      },
+    })
+    clientSecret.value = response.clientSecret
+    purchasedAmount.value = Number(response.amount)
+    recipientEmailDisplay.value = formState.recipientEmail
+    step.value = 'payment'
+  }
+  catch (error: any) {
+    purchaseError.value
+      = error?.data?.detail || t('errors.purchase_failed')
+  }
+  finally {
+    submitting.value = false
+  }
+}
+
+// ── Stripe card confirmation (lean clone of StripePayment.vue) ──────
+const stripe = ref<Stripe | null>(null)
+const elements = ref<StripeElements | null>(null)
+const cardElement = ref<StripeCardElement | null>(null)
+const cardElementRef = ref<HTMLElement>()
+const isCardComplete = ref(false)
+const cardError = ref('')
+const paying = ref(false)
+
+const initializeStripe = async () => {
+  if (!cardElementRef.value || stripe.value) return
+  try {
+    const { onLoaded } = useScriptStripe()
+    onLoaded(({ Stripe }) => {
+      try {
+        stripe.value = Stripe(tenantStore.stripePublishableKey)
+        elements.value = stripe.value!.elements()
+        cardElement.value = elements.value.create('card', {
+          style: { base: { fontSize: '16px' } },
+        })
+        cardElement.value.mount(cardElementRef.value!)
+        cardElement.value.on('change', (event) => {
+          isCardComplete.value = event.complete
+          cardError.value = event.error ? event.error.message : ''
+        })
+      }
+      catch (err) {
+        log.error({ action: 'giftcard:stripeInit', error: err })
+        cardError.value = t('errors.stripe_init')
+      }
+    })
+  }
+  catch (err) {
+    log.error({ action: 'giftcard:stripeSetup', error: err })
+    cardError.value = t('errors.stripe_init')
+  }
+}
+
+watch(cardElementRef, (newRef) => {
+  if (newRef && !stripe.value) {
+    nextTick(() => initializeStripe())
+  }
+})
+
+const confirmPayment = async () => {
+  if (!stripe.value || !cardElement.value || !clientSecret.value) return
+  paying.value = true
+  cardError.value = ''
+  try {
+    const result = await stripe.value.confirmCardPayment(clientSecret.value, {
+      payment_method: {
+        card: cardElement.value,
+        billing_details: {
+          name: formState.senderName || undefined,
+          email: formState.buyerEmail,
+        },
+      },
+    })
+    if (result.error) {
+      cardError.value = result.error.message || t('errors.payment_failed')
+      return
+    }
+    step.value = 'success'
+    toast.add({
+      title: t('success.title'),
+      color: 'success',
+      icon: 'i-heroicons-gift',
+    })
+  }
+  catch (error) {
+    log.error({ action: 'giftcard:confirmPayment', error })
+    cardError.value = t('errors.payment_failed')
+  }
+  finally {
+    paying.value = false
+  }
+}
+</script>
+
+<template>
+  <PageWrapper class="flex flex-col gap-6">
+    <PageTitle :text="t('title')" />
+
+    <div class="mx-auto w-full max-w-xl">
+      <!-- Step 1: details -->
+      <UCard v-if="step === 'form'">
+        <template #header>
+          <div class="space-y-1">
+            <h2 class="text-lg font-semibold">
+              {{ t('form_title') }}
+            </h2>
+            <p class="text-sm text-muted">
+              {{ t('description') }}
+            </p>
+          </div>
+        </template>
+
+        <UForm
+          :state="formState"
+          :schema="purchaseSchema"
+          class="space-y-4"
+          @submit="startPurchase"
+        >
+          <UFormField :label="t('fields.amount')" name="amount" required>
+            <div class="space-y-2">
+              <div class="flex gap-2">
+                <UButton
+                  v-for="amount in suggestedAmounts"
+                  :key="amount"
+                  :variant="formState.amount === amount ? 'solid' : 'outline'"
+                  color="secondary"
+                  size="sm"
+                  @click="formState.amount = amount"
+                >
+                  {{ $i18n.n(amount, 'currency') }}
+                </UButton>
+              </div>
+              <UInputNumber
+                v-model="formState.amount"
+                :min="minAmount"
+                :max="maxAmount"
+                :step="5"
+                :aria-label="t('fields.amount')"
+              />
+              <p class="text-xs text-muted">
+                {{ t('fields.amount_hint', { min: $i18n.n(minAmount, 'currency'), max: $i18n.n(maxAmount, 'currency') }) }}
+              </p>
+            </div>
+          </UFormField>
+
+          <UFormField :label="t('fields.buyer_email')" name="buyerEmail" required>
+            <UInput
+              v-model="formState.buyerEmail"
+              type="email"
+              autocomplete="email"
+            />
+          </UFormField>
+
+          <UFormField :label="t('fields.recipient_email')" name="recipientEmail" required>
+            <UInput
+              v-model="formState.recipientEmail"
+              type="email"
+            />
+          </UFormField>
+
+          <UFormField :label="t('fields.recipient_name')" name="recipientName">
+            <UInput v-model="formState.recipientName" />
+          </UFormField>
+
+          <UFormField :label="t('fields.sender_name')" name="senderName">
+            <UInput v-model="formState.senderName" />
+          </UFormField>
+
+          <UFormField :label="t('fields.message')" name="message">
+            <UTextarea
+              v-model="formState.message"
+              :rows="3"
+              :placeholder="t('fields.message_placeholder')"
+            />
+          </UFormField>
+
+          <p
+            v-if="purchaseError"
+            class="
+              text-sm text-error-600
+              dark:text-error-400
+            "
+          >
+            {{ purchaseError }}
+          </p>
+
+          <UButton
+            type="submit"
+            size="lg"
+            color="success"
+            block
+            :loading="submitting"
+          >
+            {{ t('continue_to_payment') }}
+          </UButton>
+        </UForm>
+      </UCard>
+
+      <!-- Step 2: card payment -->
+      <UCard v-else-if="step === 'payment'">
+        <template #header>
+          <h2 class="text-lg font-semibold">
+            {{ t('payment_title', { amount: $i18n.n(purchasedAmount, 'currency') }) }}
+          </h2>
+        </template>
+
+        <div class="space-y-4">
+          <div
+            ref="cardElementRef"
+            class="
+              rounded-lg border border-primary-200 p-4
+              dark:border-primary-800
+            "
+          />
+
+          <p
+            v-if="cardError"
+            class="
+              text-sm text-error-600
+              dark:text-error-400
+            "
+          >
+            {{ cardError }}
+          </p>
+
+          <UButton
+            size="lg"
+            color="success"
+            block
+            :loading="paying"
+            :disabled="!isCardComplete"
+            @click="confirmPayment"
+          >
+            {{ t('pay_now', { amount: $i18n.n(purchasedAmount, 'currency') }) }}
+          </UButton>
+        </div>
+      </UCard>
+
+      <!-- Step 3: success -->
+      <UCard v-else>
+        <div class="space-y-4 py-6 text-center">
+          <UIcon
+            name="i-heroicons-check-circle"
+            class="mx-auto size-12 text-success"
+          />
+          <h2 class="text-xl font-semibold">
+            {{ t('success.title') }}
+          </h2>
+          <p class="text-muted">
+            {{ t('success.description', { email: recipientEmailDisplay }) }}
+          </p>
+        </div>
+      </UCard>
+    </div>
+  </PageWrapper>
+</template>
+
+<i18n lang="yaml">
+el:
+  title: Δωροκάρτες
+  description: Χαρίστε μια δωροκάρτα — παραδίδεται με email και εξαργυρώνεται στο ταμείο
+  form_title: Στοιχεία δωροκάρτας
+  continue_to_payment: Συνέχεια στην πληρωμή
+  payment_title: Πληρωμή {amount}
+  pay_now: Πληρωμή {amount}
+  fields:
+    amount: Ποσό
+    amount_hint: Από {min} έως {max}
+    buyer_email: Το email σας
+    recipient_email: Email παραλήπτη
+    recipient_name: Όνομα παραλήπτη
+    sender_name: Το όνομά σας
+    message: Μήνυμα
+    message_placeholder: Προσωπικό μήνυμα για τον παραλήπτη (προαιρετικό)
+  success:
+    title: Η αγορά ολοκληρώθηκε!
+    description: Η δωροκάρτα θα σταλεί στο {email} μόλις επιβεβαιωθεί η πληρωμή
+  errors:
+    purchase_failed: Η αγορά δεν μπόρεσε να ξεκινήσει
+    payment_failed: Η πληρωμή απέτυχε — δοκιμάστε ξανά
+    stripe_init: Αδυναμία φόρτωσης του συστήματος πληρωμών
+  validation:
+    required: Υποχρεωτικό πεδίο
+    email: Μη έγκυρο email
+    amount_required: Συμπληρώστε ποσό
+    amount_min: Ελάχιστο ποσό {min} €
+    amount_max: Μέγιστο ποσό {max} €
+    message_max: Το μήνυμα είναι πολύ μεγάλο
+</i18n>

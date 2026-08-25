@@ -66,6 +66,8 @@ const {
   createdOrder,
   isSubmitting,
   loyaltyDiscount,
+  giftCards,
+  giftCardBalanceTotal,
   stockError,
   isStripePayment,
   isVivaWalletPayment,
@@ -79,6 +81,8 @@ const {
   onPaymentError,
   onLoyaltyRedeemed,
   onLoyaltyCleared,
+  onGiftCardApplied,
+  onGiftCardRemoved,
   fireInitiateCheckout,
 } = useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchShippingSettings })
 
@@ -385,10 +389,23 @@ definePageMeta({
             :shipping-price="shippingPrice"
             :show-payment-fee="currentStep === 2"
             :loyalty-discount="loyaltyDiscount?.amount ?? 0"
+            :gift-card-balance="giftCardBalanceTotal"
             :shipping-summary="shippingSummary"
           >
             <template #items>
               <CheckoutItems />
+            </template>
+
+            <template #coupon>
+              <CheckoutCouponInput />
+            </template>
+
+            <template #gift-card>
+              <CheckoutGiftCardInput
+                :applied-cards="giftCards"
+                @applied="onGiftCardApplied"
+                @removed="onGiftCardRemoved"
+              />
             </template>
 
             <template #loyalty>

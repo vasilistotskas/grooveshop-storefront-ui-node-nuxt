@@ -92,6 +92,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   // Loyalty discount state
   const loyaltyDiscount = ref<{ amount: number, currency: string, points: number } | null>(null)
 
+  // Gift cards the shopper wants to redeem. The widget validates each
+  // code via /api/giftcard/check for display; Django re-validates the
+  // codes under row locks at order creation — that pass is the
+  // authoritative one, these balances only drive the sidebar preview.
+  const giftCards = ref<{ code: string, balance: number }[]>([])
+  const giftCardBalanceTotal = computed(() =>
+    giftCards.value.reduce((sum, card) => sum + card.balance, 0))
+
   // Stock error state
   const stockError = ref<{
     show: boolean
@@ -163,6 +171,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     else if (errorType === 'payment_not_found' || errorType === 'payment_verification') {
       errorTitle = t('form.submit.error.payment_verification')
       errorDescription = errorData?.detail || t('form.submit.error.payment_verification_description')
+    }
+    else if (errorType === 'invalid_coupon') {
+      errorTitle = t('form.submit.error.invalid_coupon')
+      errorDescription = errorData?.detail || t('form.submit.error.invalid_coupon_description')
+    }
+    else if (errorType === 'invalid_gift_card') {
+      errorTitle = t('form.submit.error.invalid_gift_card')
+      errorDescription = errorData?.detail || t('form.submit.error.invalid_gift_card_description')
     }
     // Handle ValidationError with cart field
     else if (errorData?.cart && Array.isArray(errorData.cart)) {
@@ -242,6 +258,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       billingVatId: formState.billingVatId || undefined,
       billingCountry: formState.billingCountry || undefined,
       loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
+      giftCardCodes: giftCards.value.length
+        ? giftCards.value.map(card => card.code)
+        : undefined,
       shippingProviderCode: carrier?.code,
       shippingKind,
       ...carrierPayload,
@@ -357,27 +376,50 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       // creation), so for that path we send no code and the
       // backend's generic-fallback shipping calc agrees with what
       // the order-create verification will compute.
+      let giftCardsCoverTotal = false
       if (!paymentIntentId.value) {
         const orderValues = buildOrderValues()
         if (!orderValues) return
 
-        const paymentIntent = await createPaymentIntentFromCart(
-          {
-            payWayId: orderValues.payWayId,
-            shippingKind: orderValues.shippingKind as CartCreatePaymentIntentRequestShippingKindEnum,
-            shippingProviderCode: orderValues.shippingProviderCode || undefined,
-            countryId: orderValues.countryId || undefined,
-            regionId: orderValues.regionId || undefined,
-          },
-          idempotencyKey.value,
-        )
-        paymentIntentId.value = paymentIntent.paymentIntentId
+        try {
+          const paymentIntent = await createPaymentIntentFromCart(
+            {
+              payWayId: orderValues.payWayId,
+              shippingKind: orderValues.shippingKind as CartCreatePaymentIntentRequestShippingKindEnum,
+              shippingProviderCode: orderValues.shippingProviderCode || undefined,
+              countryId: orderValues.countryId || undefined,
+              regionId: orderValues.regionId || undefined,
+              // Identity + gift cards keep the intent amount in
+              // lockstep with the order-create verification: promotion
+              // eligibility can depend on the email, and gift cards
+              // settle part of the total before the provider charge.
+              email: orderValues.email || undefined,
+              giftCardCodes: orderValues.giftCardCodes,
+            },
+            idempotencyKey.value,
+          )
+          paymentIntentId.value = paymentIntent.paymentIntentId
+        }
+        catch (piError: any) {
+          // Gift cards cover everything — there is nothing left for
+          // Stripe to charge, so submit the order WITHOUT an intent
+          // and let the backend settle it from the card balance.
+          if (piError?.data?.reason === 'gift_card_covers_total') {
+            giftCardsCoverTotal = true
+          }
+          else {
+            throw piError
+          }
+        }
       }
 
-      // Create order with payment_intent_id
+      // Create order with payment_intent_id (absent when gift cards
+      // cover the full total — the backend routes order-first then).
       const submitValues = {
         ...buildOrderValues(),
-        paymentIntentId: paymentIntentId.value,
+        ...(paymentIntentId.value
+          ? { paymentIntentId: paymentIntentId.value }
+          : {}),
       } as OrderCreateFromCartRequest
 
       await $fetch('/api/orders', {
@@ -394,6 +436,33 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
           maybeSaveDeliveryAddress()
           // Clear idempotency key on success so a future checkout starts fresh
           idempotencyKey.value = null
+
+          if (giftCardsCoverTotal) {
+            // The order is already settled from the gift-card balance —
+            // no Stripe confirmation step follows, so finish like the
+            // offline flow: clear the cart and land on success.
+            retryCount.value = 0
+            toast.add({
+              title: t('form.submit.success'),
+              color: 'success',
+            })
+            try {
+              await $fetch('/api/cart/clear-session', { method: 'POST' })
+            }
+            catch (err) {
+              log.error({ action: 'checkout:clearCart', error: err })
+            }
+            await cleanCartState()
+            await fetch()
+            if (response._data?.uuid) {
+              await navigateTo(localePath({
+                name: 'checkout-success-uuid',
+                params: { uuid: response._data.uuid },
+                query: { placed: '1' },
+              }))
+            }
+            return
+          }
 
           toast.add({
             title: t('order_created_payment_required'),
@@ -745,6 +814,15 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     loyaltyDiscount.value = null
   }
 
+  const onGiftCardApplied = (card: { code: string, balance: number }) => {
+    if (giftCards.value.some(existing => existing.code === card.code)) return
+    giftCards.value = [...giftCards.value, card]
+  }
+
+  const onGiftCardRemoved = (code: string) => {
+    giftCards.value = giftCards.value.filter(card => card.code !== code)
+  }
+
   const nextStep = async () => {
     if (currentStep.value < 2) {
       currentStep.value++
@@ -849,6 +927,12 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       ga4.trackBeginCheckout({
         currency,
         value,
+        // The GA4 schema always had a coupon slot — populate it with
+        // the server-attached codes so campaign reporting can segment
+        // couponed checkouts.
+        coupon: cart.value?.appliedCouponCodes?.length
+          ? cart.value.appliedCouponCodes.join(',')
+          : undefined,
         items:
           cart.value?.items?.map(item => ({
             item_id: String(item.product?.id ?? ''),
@@ -888,6 +972,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     createdOrder,
     isSubmitting,
     loyaltyDiscount,
+    giftCards,
+    giftCardBalanceTotal,
     stockError,
     isStripePayment,
     isVivaWalletPayment,
@@ -900,6 +986,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     onPaymentError,
     onLoyaltyRedeemed,
     onLoyaltyCleared,
+    onGiftCardApplied,
+    onGiftCardRemoved,
     fireInitiateCheckout,
   }
 }

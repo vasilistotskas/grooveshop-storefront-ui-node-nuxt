@@ -35,6 +35,8 @@ function makeTenantConfig(overrides: Partial<TenantConfig> = {}): TenantConfig {
     staticDomain: '',
     loyaltyEnabled: false,
     blogEnabled: true,
+    promotionsEnabled: false,
+    giftCardsEnabled: false,
     agentStripeDelegatedEnabled: false,
     stripePublishableKey: '',
     allowedCspSources: [],
