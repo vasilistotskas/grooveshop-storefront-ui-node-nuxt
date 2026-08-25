@@ -5060,6 +5060,8 @@ export const zTenantConfig = z.object({
   promotionsEnabled: z.boolean().readonly(),
   giftCardsEnabled: z.boolean().readonly(),
   agentStripeDelegatedEnabled: z.boolean().readonly(),
+  agentCommerceEnabled: z.boolean().readonly(),
+  productFeedsEnabled: z.boolean().readonly(),
   stripePublishableKey: z.string().readonly(),
   allowedCspSources: z.array(z.string()).readonly(),
   metaPixelId: z.string().readonly(),

@@ -3,6 +3,13 @@ import type { PropType } from 'vue'
 
 import * as z from 'zod'
 
+// Merchant feature toggle — one gate here covers the whole comments
+// surface under every post. Fails OPEN (the endpoints are also gated
+// server-side).
+const blogCommentsEnabled = useSettingFlag('BLOG_COMMENTS_ENABLED', {
+  fallback: true,
+})
+
 const props = defineProps({
   blogPostId: {
     type: String,
@@ -277,6 +284,7 @@ onMounted(() => {
 
 <template>
   <div
+    v-if="blogCommentsEnabled"
     id="blog-post-comments"
     class="
       mx-auto flex max-w-2xl flex-col items-start justify-center gap-4 border-t

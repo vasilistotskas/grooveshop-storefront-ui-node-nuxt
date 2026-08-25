@@ -3,6 +3,12 @@ import type { PropType } from 'vue'
 
 import type { ButtonProps } from '#ui/types'
 
+// Merchant feature toggle — one gate here covers every call site
+// (product cards, detail page, favourites lists). Fails OPEN.
+const favouritesEnabled = useSettingFlag('FAVOURITES_ENABLED', {
+  fallback: true,
+})
+
 const props = defineProps({
   productId: {
     type: Number as PropType<number>,
@@ -149,6 +155,7 @@ const buttonAreaLabel = computed(() => {
 
 <template>
   <UButton
+    v-if="favouritesEnabled"
     :size="size"
     :label="buttonLabel"
     :icon="favouriteId ? 'i-heroicons-heart-solid' : 'i-heroicons-heart'"

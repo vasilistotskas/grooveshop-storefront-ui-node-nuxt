@@ -1,4 +1,8 @@
 <script lang="ts" setup>
+definePageMeta({
+  middleware: ['newsletter-enabled'],
+})
+
 const { t } = useI18n()
 
 defineRouteRules({

@@ -10087,7 +10087,6 @@ paths:
         required: true
       security:
         - cookieAuth: []
-        - {}
       responses:
         '201':
           content:
@@ -42749,6 +42748,12 @@ components:
         agentStripeDelegatedEnabled:
           type: boolean
           readOnly: true
+        agentCommerceEnabled:
+          type: boolean
+          readOnly: true
+        productFeedsEnabled:
+          type: boolean
+          readOnly: true
         stripePublishableKey:
           type: string
           readOnly: true
@@ -42798,6 +42803,7 @@ components:
           readOnly: true
       required:
         - accentHex
+        - agentCommerceEnabled
         - agentStripeDelegatedEnabled
         - allowedCspSources
         - apiDomain
@@ -42819,6 +42825,7 @@ components:
         - neutralColor
         - primaryColor
         - primaryDomain
+        - productFeedsEnabled
         - promotionsEnabled
         - schemaName
         - socialsDiscord

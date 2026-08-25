@@ -17318,8 +17318,7 @@
                 "security": [
                     {
                         "cookieAuth": []
-                    },
-                    {}
+                    }
                 ],
                 "responses": {
                     "201": {
@@ -67119,6 +67118,14 @@
                         "type": "boolean",
                         "readOnly": true
                     },
+                    "agentCommerceEnabled": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "productFeedsEnabled": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
                     "stripePublishableKey": {
                         "type": "string",
                         "readOnly": true
@@ -67185,6 +67192,7 @@
                 },
                 "required": [
                     "accentHex",
+                    "agentCommerceEnabled",
                     "agentStripeDelegatedEnabled",
                     "allowedCspSources",
                     "apiDomain",
@@ -67206,6 +67214,7 @@
                     "neutralColor",
                     "primaryColor",
                     "primaryDomain",
+                    "productFeedsEnabled",
                     "promotionsEnabled",
                     "schemaName",
                     "socialsDiscord",

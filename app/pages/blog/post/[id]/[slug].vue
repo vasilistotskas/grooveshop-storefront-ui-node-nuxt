@@ -194,6 +194,12 @@ const startShare = async () => {
   }
 }
 
+// Merchant feature toggle — hides the comments-count button; the
+// comments section itself self-gates inside BlogPostComments.
+const blogCommentsEnabled = useSettingFlag('BLOG_COMMENTS_ENABLED', {
+  fallback: true,
+})
+
 const likeClicked = async () => {
   await refresh()
 }
@@ -359,6 +365,7 @@ definePageMeta({
             />
 
             <UButton
+              v-if="blogCommentsEnabled"
               :label="String(blogPost.commentsCount)"
               :title="t('comments.count', { count: blogPost.commentsCount })"
               size="xl"

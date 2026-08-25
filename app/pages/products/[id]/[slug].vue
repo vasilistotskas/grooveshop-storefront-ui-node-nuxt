@@ -11,6 +11,13 @@ const { isMobileOrTablet } = useDevice()
 const stickyAddToCartEnabled = useSettingFlag('STICKY_ADD_TO_CART_ENABLED', {
   fallback: true,
 })
+// Merchant feature toggles (endpoints are also gated server-side).
+const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', {
+  fallback: true,
+})
+const productAlertsEnabled = useSettingFlag('PRODUCT_ALERTS_ENABLED', {
+  fallback: true,
+})
 
 const { user, loggedIn } = useUserSession()
 
@@ -857,7 +864,7 @@ definePageMeta({
                  restock email. The backend ProductAlert infra handles
                  one-shot delivery + dedupe per user/email+kind. -->
             <ProductNotifyMe
-              v-if="productStock === 0 && product?.id"
+              v-if="productAlertsEnabled && productStock === 0 && product?.id"
               :product-id="product.id"
               kind="restock"
             />
@@ -871,7 +878,7 @@ definePageMeta({
                  don't promise an alert we can't honour for products
                  whose pricing is too volatile or manually managed. -->
             <ProductNotifyMe
-              v-if="product?.id && product?.priceDropAlertsEnabled && (product?.finalPrice ?? 0) > 0"
+              v-if="productAlertsEnabled && product?.id && product?.priceDropAlertsEnabled && (product?.finalPrice ?? 0) > 0"
               :product-id="product.id"
               kind="price_drop"
               :current-price="product.finalPrice"
@@ -921,9 +928,10 @@ definePageMeta({
           </div>
         </div>
 
-        <USeparator class="my-10" />
+        <USeparator v-if="productReviewsEnabled" class="my-10" />
 
         <div
+          v-if="productReviewsEnabled"
           id="reviews"
           class="grid gap-6"
         >
@@ -956,7 +964,7 @@ definePageMeta({
       </div>
 
       <ProductReview
-        v-if="user"
+        v-if="user && productReviewsEnabled"
         v-model:open="isReviewModalOpen"
         :user-product-review="userProductReview"
         :user-had-reviewed="userHadReviewed"

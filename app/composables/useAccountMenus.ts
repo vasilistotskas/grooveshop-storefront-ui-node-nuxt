@@ -7,40 +7,23 @@ export const useAccountMenus = () => {
   // Fetch loyalty settings using new API
   const { data: settings } = useLoyalty().fetchSettings()
 
-  // "My reviews" is gated on the per-tenant ACCOUNT_REVIEWS_ENABLED
-  // extra-setting — a store preference the operator edits through
-  // their own settings admin. It used to hide behind the storefront's
-  // superuser-only preview mode, which only hid this link while the
-  // route stayed reachable by URL; the real gate is the paired
-  // account-reviews-enabled middleware, this just keeps the menu
-  // honest. Fail-open default mirrors the Django default (enabled).
-  const { data: reviewsSetting } = useFetch<{ value?: string }>(
-    '/api/settings/get',
-    {
-      key: 'account-menus:reviews-enabled',
-      query: { key: 'ACCOUNT_REVIEWS_ENABLED' },
-      default: () => ({ value: 'true' }),
-    },
-  )
-  const reviewsEnabled = computed(
-    () =>
-      (reviewsSetting.value?.value ?? 'true').toLowerCase() === 'true',
-  )
-
-  // Gift cards runtime toggle — fail-closed default mirrors the Django
-  // default (disabled) so the menu never advertises a dead page.
-  const { data: giftCardsSetting } = useFetch<{ value?: string }>(
-    '/api/settings/get',
-    {
-      key: 'account-menus:gift-cards-enabled',
-      query: { key: 'GIFT_CARDS_ENABLED' },
-      default: () => ({ value: 'false' }),
-    },
-  )
-  const giftCardsRuntimeEnabled = computed(
-    () =>
-      (giftCardsSetting.value?.value ?? 'false').toLowerCase() === 'true',
-  )
+  // Merchant feature toggles — the real gates are the paired route
+  // middlewares (and the Django permissions); these keep the menu
+  // honest so it never advertises a dead page. Fail-open defaults
+  // mirror the Django defaults (enabled), except gift cards which
+  // defaults disabled.
+  const reviewsEnabled = useSettingFlag('ACCOUNT_REVIEWS_ENABLED', {
+    fallback: true,
+  })
+  const favouritesEnabled = useSettingFlag('FAVOURITES_ENABLED', {
+    fallback: true,
+  })
+  const newsletterEnabled = useSettingFlag('NEWSLETTER_ENABLED', {
+    fallback: true,
+  })
+  const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
+    fallback: false,
+  })
 
   const menus = computed(() => {
     const baseMenus = [
@@ -54,21 +37,29 @@ export const useAccountMenus = () => {
         to: '/account/orders',
         icon: 'i-mdi-package-variant-closed',
       },
-      {
-        label: t('favourites'),
-        to: '/account/favourites/posts',
-        icon: 'i-mdi-heart-outline',
-      },
+      ...(favouritesEnabled.value
+        ? [
+            {
+              label: t('favourites'),
+              to: '/account/favourites/posts',
+              icon: 'i-mdi-heart-outline',
+            },
+          ]
+        : []),
       {
         label: t('notifications'),
         to: '/account/notifications',
         icon: 'i-heroicons-bell',
       },
-      {
-        label: t('subscriptions'),
-        to: '/account/subscriptions',
-        icon: 'i-heroicons-envelope',
-      },
+      ...(newsletterEnabled.value
+        ? [
+            {
+              label: t('subscriptions'),
+              to: '/account/subscriptions',
+              icon: 'i-heroicons-envelope',
+            },
+          ]
+        : []),
       {
         label: t('addresses'),
         to: '/account/addresses',

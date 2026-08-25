@@ -96,6 +96,8 @@ function validTenantConfig(domain: string) {
     loyaltyEnabled: false,
     blogEnabled: false,
     promotionsEnabled: false,
+    agentCommerceEnabled: true,
+    productFeedsEnabled: true,
     giftCardsEnabled: false,
     agentStripeDelegatedEnabled: false,
     stripePublishableKey: '',

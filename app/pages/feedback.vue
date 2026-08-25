@@ -30,6 +30,7 @@ useHead({
 
 definePageMeta({
   layout: 'default',
+  middleware: ['feedback-enabled'],
 })
 
 // Optional per-tenant branded band above the form — sections from a

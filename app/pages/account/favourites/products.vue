@@ -1,4 +1,8 @@
 <script lang="ts" setup>
+definePageMeta({
+  middleware: ['favourites-enabled'],
+})
+
 const { t, locale } = useI18n()
 const route = useRoute(`account-favourites-products___${locale.value}`)
 const { user } = useUserSession()

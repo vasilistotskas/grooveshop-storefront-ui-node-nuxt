@@ -1,16 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
+import { getQuery } from 'h3'
 
 let mockLoyaltyEnabled = false
-// The "My reviews" entry is gated on the per-tenant extra-setting
-// ACCOUNT_REVIEWS_ENABLED (store preference, editable by the store
-// operator) — no longer on the superuser-only preview mode, which only
-// ever hid the link while the route stayed reachable by URL.
-let mockReviewsSettingValue = 'true'
+// Menu entries are gated on per-tenant extra-settings read through
+// useSettingFlag — the mock must be KEY-AWARE, or disabling one flag
+// in a test would disable every other gated entry with it.
+let mockSettingValues: Record<string, string> = {}
 
-registerEndpoint('/api/settings/get', () => ({
-  value: mockReviewsSettingValue,
-}))
+const SETTING_FLAG_KEYS = [
+  'ACCOUNT_REVIEWS_ENABLED',
+  'FAVOURITES_ENABLED',
+  'NEWSLETTER_ENABLED',
+  'GIFT_CARDS_ENABLED',
+]
+
+registerEndpoint('/api/settings/get', (event) => {
+  const key = String(getQuery(event).key ?? '')
+  return { value: mockSettingValues[key] ?? 'true' }
+})
 
 mockNuxtImport('useLoyalty', () => {
   return () => ({
@@ -33,9 +41,11 @@ describe('useAccountMenus', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockLoyaltyEnabled = false
-    mockReviewsSettingValue = 'true'
+    mockSettingValues = {}
     // useFetch caches by key across tests sharing the runtime app.
-    clearNuxtData('account-menus:reviews-enabled')
+    for (const key of SETTING_FLAG_KEYS) {
+      clearNuxtData(`setting-flag:${key}`)
+    }
   })
 
   it('includes the reviews entry by default (setting defaults to true)', async () => {
@@ -48,13 +58,28 @@ describe('useAccountMenus', () => {
   })
 
   it('hides the reviews entry when the store disabled it', async () => {
-    mockReviewsSettingValue = 'False'
+    mockSettingValues = { ACCOUNT_REVIEWS_ENABLED: 'False' }
 
     const { menus } = useAccountMenus()
     await vi.waitFor(() => {
       expect(menus.value.map(m => m.to)).not.toContain('/account/reviews')
     })
     expect(menus.value).toHaveLength(7)
+  })
+
+  it('hides favourites and subscriptions entries when disabled', async () => {
+    mockSettingValues = {
+      FAVOURITES_ENABLED: 'False',
+      NEWSLETTER_ENABLED: 'False',
+    }
+
+    const { menus } = useAccountMenus()
+    await vi.waitFor(() => {
+      expect(menus.value.map(m => m.to)).not.toContain(
+        '/account/favourites/posts',
+      )
+    })
+    expect(menus.value.map(m => m.to)).not.toContain('/account/subscriptions')
   })
 
   it('never offers the deleted help page', () => {

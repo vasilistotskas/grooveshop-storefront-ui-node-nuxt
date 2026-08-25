@@ -3,7 +3,7 @@
 // app/pages/blog/** page carries this), or a tenant with the blog
 // switched off still exposes the route.
 definePageMeta({
-  middleware: ['blog-enabled'],
+  middleware: ['blog-enabled', 'favourites-enabled'],
 })
 
 const { t, locale } = useI18n()

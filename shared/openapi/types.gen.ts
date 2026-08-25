@@ -7781,6 +7781,8 @@ export type TenantConfig = {
   readonly promotionsEnabled: boolean
   readonly giftCardsEnabled: boolean
   readonly agentStripeDelegatedEnabled: boolean
+  readonly agentCommerceEnabled: boolean
+  readonly productFeedsEnabled: boolean
   readonly stripePublishableKey: string
   readonly allowedCspSources: Array<string>
   readonly metaPixelId: string
