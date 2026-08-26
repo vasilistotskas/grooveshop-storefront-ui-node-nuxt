@@ -1,3 +1,10 @@
+# [3.160.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.159.0...v3.160.0) (2026-08-26)
+
+
+### Features
+
+* **storefront:** gift-card discoverability, real gift-item rows and checkout thumbnails ([2c10f2f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2c10f2f78676331aeb4c062260d634965e207975))
+
 # [3.159.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.158.0...v3.159.0) (2026-08-25)
 
 
