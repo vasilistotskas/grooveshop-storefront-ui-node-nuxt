@@ -24,10 +24,21 @@ const productLabel = computed(() =>
 </script>
 
 <template>
+  <!--
+    ``min-w-0`` is load-bearing, not cosmetic: this row renders inside
+    grid/flex parents (the cart summary is ``grid gap-4``), whose items
+    default to ``min-width: auto`` and therefore refuse to shrink below
+    their content's min-content width. The captions below use
+    ``truncate`` (``white-space: nowrap``), so that min-content is the
+    FULL untruncated string — the row measured 431px inside a 352px
+    track and pushed the whole summary column into overflow, clipping
+    the badge and every price (staging, 2026-08-26). ``min-w-0`` lets
+    the row shrink to its track so the inner truncation can engage.
+  -->
   <div
     class="
-      flex items-center gap-3 rounded-lg border border-success/25
-      bg-success/5 p-2
+      flex w-full min-w-0 items-center gap-3 rounded-lg border
+      border-success/25 bg-success/5 p-2
     "
   >
     <div

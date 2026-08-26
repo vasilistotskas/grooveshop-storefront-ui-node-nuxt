@@ -73,8 +73,33 @@ watch(availableProviders, (providers) => {
 const providerOptions = computed(() =>
   availableProviders.value.map(code => ({
     label: t(`providers.${code}`),
+    description: t(`providers.${code}_hint`),
     value: code,
   })))
+
+// Desktop value-prop aside. Every claim here is a real property of
+// the feature: email delivery (with optional scheduling), ledger-based
+// partial redemption across orders, and merchant-tunable bounds.
+const benefits = computed(() => [
+  {
+    icon: 'i-heroicons-envelope',
+    title: t('benefits.delivery.title'),
+    description: t('benefits.delivery.description'),
+  },
+  {
+    icon: 'i-heroicons-banknotes',
+    title: t('benefits.balance.title'),
+    description: t('benefits.balance.description'),
+  },
+  {
+    icon: 'i-heroicons-adjustments-horizontal',
+    title: t('benefits.amount.title'),
+    description: t('benefits.amount.description', {
+      min: $i18n.n(minAmount.value, 'currency'),
+      max: $i18n.n(maxAmount.value, 'currency'),
+    }),
+  },
+])
 
 const SUGGESTED_AMOUNTS = [25, 50, 100]
 const suggestedAmounts = computed(() =>
@@ -252,9 +277,106 @@ const confirmPayment = async () => {
   <PageWrapper class="flex flex-col gap-6">
     <PageTitle :text="t('title')" />
 
-    <div class="mx-auto w-full max-w-xl">
+    <!--
+      Desktop gets a two-column composition: the value-prop aside on
+      the left, the form on the right. Below ``lg`` it collapses to a
+      single centred column with the FORM FIRST (order-1) so mobile
+      shoppers are not made to scroll past marketing copy to buy —
+      the aside becomes supporting content underneath.
+    -->
+    <div
+      class="
+        mx-auto grid w-full max-w-xl gap-8
+        lg:max-w-(--container-6xl) lg:grid-cols-[minmax(0,1fr)_minmax(0,30rem)]
+        lg:items-start
+      "
+    >
+      <aside
+        v-if="step === 'form'"
+        class="
+          order-2 space-y-6
+          lg:order-1 lg:sticky lg:top-24
+        "
+      >
+        <div
+          class="
+            relative overflow-hidden rounded-2xl border border-primary-200 p-6
+            dark:border-primary-800
+          "
+        >
+          <div
+            class="
+              absolute inset-0 bg-linear-to-br from-(--ui-secondary)/15
+              via-transparent to-success/15
+            "
+            aria-hidden="true"
+          />
+          <div class="relative flex items-start gap-4">
+            <div
+              class="
+                flex size-14 shrink-0 items-center justify-center rounded-xl
+                bg-(--ui-secondary)/15
+              "
+            >
+              <UIcon
+                name="i-heroicons-gift"
+                class="size-8 text-(--ui-secondary)"
+              />
+            </div>
+            <div class="min-w-0 space-y-1">
+              <h2
+                class="
+                  text-xl font-bold text-primary-950
+                  dark:text-primary-50
+                "
+              >
+                {{ t('hero.title') }}
+              </h2>
+              <p class="text-sm text-muted">
+                {{ t('hero.subtitle') }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <ul class="grid gap-3">
+          <li
+            v-for="benefit in benefits"
+            :key="benefit.title"
+            class="
+              flex items-start gap-3 rounded-xl border border-primary-200 p-4
+              dark:border-primary-800
+            "
+          >
+            <UIcon
+              :name="benefit.icon"
+              class="mt-0.5 size-5 shrink-0 text-success"
+            />
+            <div class="min-w-0">
+              <p
+                class="
+                  text-sm font-semibold text-primary-950
+                  dark:text-primary-50
+                "
+              >
+                {{ benefit.title }}
+              </p>
+              <p class="text-sm text-muted">
+                {{ benefit.description }}
+              </p>
+            </div>
+          </li>
+        </ul>
+      </aside>
+
       <!-- Step 1: details -->
-      <UCard v-if="step === 'form'">
+      <UCard
+        v-if="step === 'form'"
+        class="
+          order-1
+          lg:order-2
+        "
+      >
         <template #header>
           <div class="space-y-1">
             <h2 class="text-lg font-semibold">
@@ -274,13 +396,19 @@ const confirmPayment = async () => {
         >
           <UFormField :label="t('fields.amount')" name="amount" required>
             <div class="space-y-2">
-              <div class="flex gap-2">
+              <div
+                class="
+                  grid grid-cols-3 gap-2
+                "
+              >
                 <UButton
                   v-for="amount in suggestedAmounts"
                   :key="amount"
                   :variant="formState.amount === amount ? 'solid' : 'outline'"
                   color="secondary"
-                  size="sm"
+                  size="lg"
+                  block
+                  :aria-pressed="formState.amount === amount"
                   @click="formState.amount = amount"
                 >
                   {{ $i18n.n(amount, 'currency') }}
@@ -338,6 +466,9 @@ const confirmPayment = async () => {
             <URadioGroup
               v-model="selectedProvider"
               :items="providerOptions"
+              variant="card"
+              indicator="end"
+              color="secondary"
             />
           </UFormField>
 
@@ -442,7 +573,22 @@ el:
     payment_method: Τρόπος πληρωμής
   providers:
     viva_wallet: Viva Wallet
+    viva_wallet_hint: Κάρτα, Google Pay ή IRIS μέσω Viva
     stripe: Κάρτα (Stripe)
+    stripe_hint: Πληρωμή με κάρτα στη σελίδα μας
+  hero:
+    title: Δώρο που ταιριάζει πάντα
+    subtitle: Ο παραλήπτης διαλέγει ό,τι θέλει από το κατάστημα — εσύ διαλέγεις μόνο το ποσό.
+  benefits:
+    delivery:
+      title: Παράδοση με email
+      description: Η δωροκάρτα φτάνει στον παραλήπτη με email μόλις ολοκληρωθεί η πληρωμή.
+    balance:
+      title: Χρήση σε πολλές παραγγελίες
+      description: Το υπόλοιπο μένει στην κάρτα — μπορεί να χρησιμοποιηθεί ξανά μέχρι να εξαντληθεί.
+    amount:
+      title: Εσύ επιλέγεις το ποσό
+      description: Από {min} έως {max}, με προτεινόμενες τιμές ή δικό σου ποσό.
   success:
     title: Η αγορά ολοκληρώθηκε!
     description: Η δωροκάρτα θα σταλεί στο {email} μόλις επιβεβαιωθεί η πληρωμή
