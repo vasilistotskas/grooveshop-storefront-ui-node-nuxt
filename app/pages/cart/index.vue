@@ -118,7 +118,7 @@ const mainCardUI = (cartItem?: CartItem) => ({
 })
 
 const summaryCardUI = {
-  root: 'p-6',
+  root: 'p-2',
 }
 
 // Without a page-level title, setupPageHeader() falls back to the
