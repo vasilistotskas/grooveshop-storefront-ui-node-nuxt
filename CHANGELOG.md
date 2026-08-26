@@ -1,3 +1,10 @@
+## [3.160.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.160.1...v3.160.2) (2026-08-26)
+
+
+### Bug Fixes
+
+* minor cart UI improvement ([a9ab9af](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a9ab9af69f691b94ac1055f86979e74b986f046e))
+
 ## [3.160.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.160.0...v3.160.1) (2026-08-26)
 
 
