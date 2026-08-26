@@ -3243,6 +3243,8 @@ export const zCart = z.object({
     promotionId: z.int().optional(),
     name: z.string().optional(),
     productId: z.int().optional(),
+    productName: z.string().optional(),
+    productImagePath: z.string().optional(),
     quantity: z.int().optional(),
   })).register(z.globalRegistry, {
     description: 'Free-gift entitlements earned by this cart',
@@ -3293,6 +3295,8 @@ export const zCartDetail = z.object({
     promotionId: z.int().optional(),
     name: z.string().optional(),
     productId: z.int().optional(),
+    productName: z.string().optional(),
+    productImagePath: z.string().optional(),
     quantity: z.int().optional(),
   })).register(z.globalRegistry, {
     description: 'Free-gift entitlements earned by this cart',

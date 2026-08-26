@@ -14,6 +14,15 @@ const { $routeBaseName } = useNuxtApp()
 
 const tenantStore = useTenantStore()
 
+// Gift-card purchase page discoverability — two-tier gate, matching
+// the desktop navbar.
+const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
+  fallback: false,
+})
+const giftCardsEnabled = computed(
+  () => tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value,
+)
+
 const open = ref(false)
 
 watch(() => route.fullPath, () => {
@@ -58,6 +67,14 @@ const primaryItems = computed(() => {
       label: t('blog'),
       icon: 'i-heroicons-newspaper',
       to: localePath('blog'),
+    })
+  }
+
+  if (giftCardsEnabled.value) {
+    base.push({
+      label: t('gift_cards'),
+      icon: 'i-heroicons-gift',
+      to: localePath('gift-cards'),
     })
   }
 

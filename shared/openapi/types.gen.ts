@@ -1974,6 +1974,8 @@ export type Cart = {
     promotionId?: number
     name?: string
     productId?: number
+    productName?: string
+    productImagePath?: string
     quantity?: number
   }>
   /**
@@ -2105,6 +2107,8 @@ export type CartDetail = {
     promotionId?: number
     name?: string
     productId?: number
+    productName?: string
+    productImagePath?: string
     quantity?: number
   }>
   /**

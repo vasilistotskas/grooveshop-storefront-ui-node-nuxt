@@ -319,17 +319,11 @@ defineSlots<{
             <span class="text-success">{{ t('promotion_discount') }}</span>
             <span class="font-bold text-success">-{{ $i18n.n(promotionDiscount, 'currency') }}</span>
           </div>
-          <div
+          <CheckoutGiftItem
             v-for="gift in cart?.promotionGiftItems || []"
             :key="`gift-${gift.promotionId}-${gift.productId}`"
-            class="flex items-center justify-between"
-          >
-            <span class="flex items-center gap-1.5 text-success">
-              <UIcon name="i-heroicons-gift" class="size-4" />
-              {{ t('free_gift', { name: gift.name }) }}
-            </span>
-            <span class="font-bold text-success">×{{ gift.quantity }}</span>
-          </div>
+            :gift="gift"
+          />
           <div
             v-if="loyaltyDiscount > 0"
             class="flex items-center justify-between"
@@ -403,7 +397,6 @@ el:
   pay_way_fee: Προμήθεια Τρόπου πληρωμής
   loyalty_discount: Έκπτωση πόντων
   promotion_discount: Έκπτωση προσφοράς
-  free_gift: "Δώρο: {name}"
   gift_card: Δωροκάρτα
   need_help: Χρειάζεσαι βοήθεια;
   shipping_method_label:

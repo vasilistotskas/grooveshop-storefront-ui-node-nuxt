@@ -10,7 +10,7 @@ const { productUrl } = useUrls()
 <template>
   <div
     v-if="getCartItems?.length"
-    class="max-h-24 overflow-auto"
+    class="max-h-48 space-y-2 overflow-auto pr-1"
   >
     <div class="sr-only items-center justify-center">
       <h3
@@ -25,65 +25,70 @@ const { productUrl } = useUrls()
     <div
       v-for="item in getCartItems"
       :key="item.id"
-      class="
-        flex justify-between gap-4
-        md:py-2
-      "
+      class="flex items-center gap-3"
     >
-      <div class="flex items-center">
+      <Anchor
+        :to="{ path: productUrl(item.product.id, item.product.slug) }"
+        :title="extractTranslated(item.product, 'name', locale)"
+        :ui="{ base: 'p-0' }"
+        class="shrink-0"
+      >
+        <div
+          class="
+            relative size-12 overflow-hidden rounded-md bg-white
+            dark:bg-primary-900
+          "
+        >
+          <ImgWithFallback
+            loading="lazy"
+            class="size-full bg-transparent object-contain"
+            :width="48"
+            :height="48"
+            fit="contain"
+            :background="'transparent'"
+            :src="item.product.mainImagePath"
+            :alt="extractTranslated(item.product, 'name', locale)"
+            densities="x1"
+          />
+          <span
+            class="
+              absolute right-0 bottom-0 rounded-tl-md bg-primary-950/80
+              px-1 text-[10px] font-semibold text-white
+            "
+          >×{{ item.quantity }}</span>
+        </div>
+      </Anchor>
+      <div class="min-w-0 flex-1">
         <Anchor
           :title="extractTranslated(item.product, 'name', locale)"
           :to="{ path: productUrl(item.product.id, item.product.slug) }"
+          :ui="{ base: 'p-0' }"
         >
           <span
             class="
-              text-sm font-bold text-primary-950
+              line-clamp-2 text-sm font-semibold text-primary-950
               dark:text-primary-50
             "
           >
             {{ extractTranslated(item.product, 'name', locale) }}
           </span>
         </Anchor>
-      </div>
-      <div class="flex items-center">
-        <span
+        <p
           v-if="item.finalPrice"
-          class="
-            text-sm text-primary-950
-            dark:text-primary-50
-          "
+          class="text-xs text-muted"
         >
-          {{ $i18n.n(item.finalPrice, 'currency') }}
-        </span>
+          {{ item.quantity }} × {{ $i18n.n(item.finalPrice, 'currency') }}
+        </p>
       </div>
-      <div class="flex items-center">
-        <span
-          class="
-            text-sm text-primary-950
-            dark:text-primary-50
-          "
-        >
-          {{ item.quantity }}x
-        </span>
-      </div>
-      <div class="flex items-center">
-        <span
-          v-if="item.finalPrice"
-          class="
-            text-sm text-primary-950
-            dark:text-primary-50
-          "
-        >
-          <span
-            class="
-              text-sm text-primary-950
-              dark:text-primary-50
-            "
-          >
-            {{ $i18n.n(item.finalPrice * (item.quantity || 1), 'currency') }}
-          </span>
-        </span>
-      </div>
+      <span
+        v-if="item.finalPrice"
+        class="
+          shrink-0 text-sm font-semibold text-primary-950
+          dark:text-primary-50
+        "
+      >
+        {{ $i18n.n(item.finalPrice * (item.quantity || 1), 'currency') }}
+      </span>
     </div>
   </div>
 </template>

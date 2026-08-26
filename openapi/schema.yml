@@ -32695,6 +32695,10 @@ components:
                 type: string
               productId:
                 type: integer
+              productName:
+                type: string
+              productImagePath:
+                type: string
               quantity:
                 type: integer
           description: Free-gift entitlements earned by this cart
@@ -32913,6 +32917,10 @@ components:
                 type: string
               productId:
                 type: integer
+              productName:
+                type: string
+              productImagePath:
+                type: string
               quantity:
                 type: integer
           description: Free-gift entitlements earned by this cart

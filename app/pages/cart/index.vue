@@ -358,17 +358,11 @@ definePageMeta({
               <span>{{ t('promotion_discount') }}</span>
               <span>-{{ $i18n.n(cart.promotionDiscount, 'currency') }}</span>
             </div>
-            <div
+            <CheckoutGiftItem
               v-for="gift in cart.promotionGiftItems || []"
               :key="`gift-${gift.promotionId}-${gift.productId}`"
-              class="flex items-center justify-between text-green-600"
-            >
-              <span class="flex items-center gap-1.5">
-                <UIcon name="i-heroicons-gift" class="size-4" />
-                {{ t('free_gift', { name: gift.name }) }}
-              </span>
-              <span>×{{ gift.quantity }}</span>
-            </div>
+              :gift="gift"
+            />
             <USeparator />
             <div class="flex justify-between text-lg font-semibold">
               <span>{{ t('total') }}</span>
@@ -462,7 +456,6 @@ el:
   vat: ΦΠΑ
   discount: Έκπτωση
   promotion_discount: Έκπτωση προσφοράς
-  free_gift: "Δώρο: {name}"
   near_miss: Προσθέστε {amount} ακόμη για να ξεκλειδώσετε «{name}»
   total: Σύνολο
   proceed_to_checkout: Ολοκλήρωση Παραγγελίας

@@ -12,6 +12,16 @@ const { isMobileOrTablet } = useDevice()
 
 const tenantStore = useTenantStore()
 
+// Gift-card purchase page discoverability — two-tier gate (tenant
+// plan flag AND merchant runtime setting), fail-closed like every
+// commercial feature.
+const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
+  fallback: false,
+})
+const giftCardsEnabled = computed(
+  () => tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value,
+)
+
 const routeName = computed(() => $routeBaseName(route))
 
 // Used for the main-nav active-route state. Matches the anchor's
@@ -169,6 +179,46 @@ const items = computed(() => [
                   }"
                 >
                   {{ t('blog') }}
+                </Anchor>
+              </h2>
+            </li>
+            <li
+              v-if="giftCardsEnabled"
+              class="flex w-full gap-4"
+            >
+              <h2>
+                <Anchor
+                  :text="t('gift_cards')"
+                  :title="t('gift_cards')"
+                  :to="'gift-cards'"
+                  :aria-current="isRouteActive('gift-cards') ? 'page' : undefined"
+                  class="
+                    relative text-lg capitalize transition-colors
+                    after:absolute after:right-0 after:-bottom-1
+                    after:left-0 after:h-0.5 after:bg-(--ui-secondary)
+                    after:transition-transform after:duration-200
+                    motion-reduce:after:transition-none
+                  "
+                  :class="
+                    isRouteActive('gift-cards')
+                      ? `
+                          font-bold text-primary-900
+                          dark:text-primary-50
+                          after:scale-x-100
+                        `
+                      : `
+                          text-primary-700
+                          hover:text-primary-900
+                          dark:text-primary-200
+                          hover:dark:text-primary-50
+                          after:scale-x-0
+                        `
+                  "
+                  :ui="{
+                    base: 'p-0',
+                  }"
+                >
+                  {{ t('gift_cards') }}
                 </Anchor>
               </h2>
             </li>

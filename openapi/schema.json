@@ -54013,6 +54013,12 @@
                                 "productId": {
                                     "type": "integer"
                                 },
+                                "productName": {
+                                    "type": "string"
+                                },
+                                "productImagePath": {
+                                    "type": "string"
+                                },
                                 "quantity": {
                                     "type": "integer"
                                 }
@@ -54267,6 +54273,12 @@
                                 },
                                 "productId": {
                                     "type": "integer"
+                                },
+                                "productName": {
+                                    "type": "string"
+                                },
+                                "productImagePath": {
+                                    "type": "string"
                                 },
                                 "quantity": {
                                     "type": "integer"
