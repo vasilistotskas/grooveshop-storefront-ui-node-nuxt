@@ -1,3 +1,10 @@
+## [3.160.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.160.0...v3.160.1) (2026-08-26)
+
+
+### Bug Fixes
+
+* **storefront:** gift row overflowed the summary; richer gift-cards desktop layout ([3b28606](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3b286069d51b520f91c6b3cf09dfc3d79152a186))
+
 # [3.160.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.159.0...v3.160.0) (2026-08-26)
 
 
