@@ -1,3 +1,13 @@
+---
+name: security-reviewer
+description: >
+  Review storefront changes for security defects specific to this SSR proxy:
+  token and session handling through createHeaders(), secrets leaking into
+  the client bundle or runtime config, CSP and nonce handling, unvalidated
+  redirects, and XSS through v-html or untrusted CMS content. Use after
+  changing auth, server routes, plugins, middleware or runtime config.
+tools: Read, Grep, Glob
+---
 # Security Reviewer
 
 Review code changes for security vulnerabilities specific to this Nuxt 4 SSR e-commerce storefront that proxies requests to a Django REST API backend.

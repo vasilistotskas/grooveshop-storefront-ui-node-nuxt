@@ -1,3 +1,13 @@
+---
+name: performance-analyzer
+description: >
+  Review storefront changes for SSR and Core Web Vitals regressions: payload
+  size, hydration mismatches, unnecessary client-side fetches, missing image
+  optimisation, blocking third-party scripts, and cache-header mistakes on
+  server routes. Use after changing pages, layouts, components or server
+  routes.
+tools: Read, Grep, Glob
+---
 # Performance Analyzer
 
 Analyze code changes and codebase patterns for performance regressions and optimization opportunities in this Nuxt 4 SSR e-commerce storefront.

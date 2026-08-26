@@ -1,6 +1,7 @@
 ---
 name: zod-coverage-reviewer
 description: Audit changed server API routes for Zod input/response validation coverage. Flags routes that accept request input via raw getQuery/readBody/getRouterParams without a Zod schema, or that return $fetch results without parseDataAs. Use after editing anything under server/api/ or before opening a PR.
+tools: Read, Grep, Glob, Bash
 ---
 
 # Zod Coverage Reviewer

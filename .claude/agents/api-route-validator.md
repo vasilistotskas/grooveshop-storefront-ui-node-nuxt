@@ -1,3 +1,12 @@
+---
+name: api-route-validator
+description: >
+  Validate Nitro server routes under server/api/ against the project's
+  four-step pattern: Zod input validation, $fetch to Django with
+  createHeaders(), parseDataAs on the response, and handleError in the catch.
+  Use after adding or editing any file under server/api/ or server/routes/.
+tools: Read, Grep, Glob
+---
 # API Route Validator
 
 Validate that server API routes in `server/api/` follow the established project conventions and patterns.

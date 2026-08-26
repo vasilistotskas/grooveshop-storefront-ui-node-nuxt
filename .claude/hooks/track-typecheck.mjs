@@ -14,7 +14,9 @@ const input = JSON.parse(readFileSync(0, 'utf8'))
 const filePath = input.tool_input?.file_path
 
 if (filePath && /\.(ts|vue|mts|cts|tsx)$/.test(filePath)) {
-  const markerPath = resolve('.claude', '.typecheck-pending')
+  // Anchor on CLAUDE_PROJECT_DIR, not cwd: the Stop hook must find the same
+  // marker even when the hook's working directory isn't the project root.
+  const markerPath = resolve(process.env.CLAUDE_PROJECT_DIR || '.', '.claude', '.typecheck-pending')
   try {
     mkdirSync(dirname(markerPath), { recursive: true })
     writeFileSync(markerPath, String(Date.now()))

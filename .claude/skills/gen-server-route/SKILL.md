@@ -213,4 +213,4 @@ export default defineEventHandler(async (event) => {
 - [ ] File path matches HTTP method suffix.
 - [ ] No explicit imports added for auto-imported helpers.
 
-After writing, suggest the user re-run `npx eslint --fix <path>` (the `auto-lint` PostToolUse hook will do this automatically on Edit/Write).
+After writing, suggest the user re-run `pnpm exec eslint --fix <path>` (the `auto-lint` PostToolUse hook will do this automatically on Edit/Write).

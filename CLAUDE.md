@@ -12,7 +12,7 @@ Nuxt 4 SSR e-commerce storefront (Vue 3 Composition API, TypeScript) that commun
 - **Build:** `pnpm build`
 - **Lint (with auto-fix):** `pnpm lint`
 - **Lint (CI, cached):** `pnpm lint:ci`
-- **Type check:** `npx vue-tsc --noEmit`
+- **Type check:** `pnpm typecheck` (= `nuxt typecheck`). This is the gate — it catches template errors `vue-tsc --noEmit` misses, notably Nuxt UI v4 typing `UButton`'s `onClick` as `(e: MouseEvent) => void | Promise<void>`, which rejects an inline `@click="open = true"` (the expression returns boolean). Use a block-bodied arrow: `@click="() => { open = true }"`.
 - **Run all tests:** `pnpm test`
 - **Run CI tests (unit + nuxt with coverage):** `pnpm test:ci`
 - **Run a single test file:** `pnpm vitest run test/unit/utils/str.spec.ts`
@@ -142,8 +142,11 @@ The provider's `baseURL` option is static (baked from `NUXT_PUBLIC_MEDIA_STREAM_
 ### OpenAPI Type Generation
 
 Types and Zod schemas are auto-generated from the Django backend's OpenAPI schema:
-1. `pnpm generate:schema` — fetches `schema.json`/`schema.yml` from Django (needs `DJANGO_API_TOKEN` env var or `.auth-token` file)
+1. `pnpm generate:schema` — fetches `schema.json`/`schema.yml` from Django (needs `DJANGO_API_TOKEN` env var or `.auth-token` file). Reads **`NUXT_DJANGO_URL`** (default `http://localhost:8000`) — point it at LOCAL Django, never prod: prod's `/api/v1/schema` is a subset (255 components vs 271 local) and regenerating from it silently deletes components the frontend uses (`Country`, `BlogAuthor`, `Paginated*List`).
 2. `pnpm openapi-ts` — generates `shared/openapi/types.gen.ts` and `shared/openapi/zod.gen.ts` via `@hey-api/openapi-ts`
+3. `pnpm sync:schema` — **required, not optional.** `openapi/schema.yml` and the root `schema.yml` are derived from `openapi/schema.json` by `scripts/sync-schema-yml.mjs`. CI's *OpenAPI Schema Freshness* job regenerates them and fails on any diff. Copying Django's `spectacular` YAML across directly also fails it — the YAML dump formatting differs.
+
+Commit `openapi/schema.json`, both `schema.yml` files, and `shared/openapi/*` together. A removed field is the dangerous direction: the committed Zod still marks it `required`, so `parseDataAs` rejects the correctly-absent field with a 422, and only on the one flow returning that nested object.
 
 ### Shared Code (`shared/`)
 

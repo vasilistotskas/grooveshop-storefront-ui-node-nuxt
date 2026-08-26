@@ -1,6 +1,7 @@
 ---
 name: auth-flow-reviewer
 description: Review authentication, session, OAuth, MFA, and WebAuthn code changes for project-specific landmines in the django-allauth headless + nuxt-auth-utils architecture. Use whenever changes touch app/plugins/auth.ts, app/plugins/setup.ts, app/middleware/auth.global.ts, app/composables/useAllAuth*.ts, app/utils/auth.ts, server/utils/{auth,error,oauth}.ts, server/api/_allauth/**, server/routes/auth/**, app/stores/auth.ts, or shared/auth.d.ts.
+tools: Read, Grep, Glob, Bash
 ---
 
 # Auth Flow Reviewer
