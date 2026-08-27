@@ -99,7 +99,36 @@ export function useFooterLinks() {
             to: child.to ?? child.href ?? '/',
           })),
         }))
-    return contentPagesColumn.value ? [...base, contentPagesColumn.value] : base
+
+    // Drop a published legal page from the Pages column when the base
+    // column set ALREADY links its route. Those routes now render the
+    // merchant's own page (see useLegalPage), so listing the slug again
+    // produced two footer links to the same document under the same
+    // label — previously one to their terms and one to the platform
+    // boilerplate, both indexable and contradicting each other.
+    //
+    // Conditioned on the base actually carrying the link rather than
+    // filtered unconditionally: an operator-configured footer may not
+    // include it, and suppressing it there would remove the ONLY route
+    // to a legally required page.
+    const linkedPaths = new Set(
+      base.flatMap(column => column.children.map(child => child.to)),
+    )
+    const pagesColumn = contentPagesColumn.value
+    if (!pagesColumn) return base
+
+    const children = pagesColumn.children.filter((child) => {
+      const slug = child.to.split('/').pop() ?? ''
+      if (!LEGAL_PAGE_SLUGS.has(slug)) return true
+      // Object.keys widens to string[]; the named-route lookup needs
+      // the literal union, and localePath is typed against it.
+      const legalRoute = (
+        Object.keys(LEGAL_ROUTE_SLUGS) as LegalRouteName[]
+      ).find(name => LEGAL_ROUTE_SLUGS[name] === slug)
+      return !legalRoute || !linkedPaths.has(localePath(legalRoute))
+    })
+
+    return children.length ? [...base, { ...pagesColumn, children }] : base
   })
 
   return { columns }

@@ -17,7 +17,24 @@ const siteHost = computed(() => {
   }
 })
 
-const LAST_UPDATED = '21 Μαΐου 2026'
+// Platform boilerplate is the FALLBACK. A merchant who publishes
+// their own page at this slug must see THEIR text, not ours — the
+// shipped copy makes binding commitments (governing law, dispute
+// forum) on their behalf.
+const { hasMerchantPage, title: merchantTitle, body: merchantBody, updatedAt: merchantUpdatedAt }
+  = useLegalPage(LEGAL_ROUTE_SLUGS['terms-of-use'])
+
+// The platform date describes the PLATFORM text. Once a merchant
+// supplies their own, the document on screen is not the one this date
+// refers to, so their page's own timestamp takes over.
+const PLATFORM_LAST_UPDATED = '21 Μαΐου 2026'
+const LAST_UPDATED = computed(() =>
+  hasMerchantPage.value && merchantUpdatedAt.value
+    ? new Date(merchantUpdatedAt.value).toLocaleDateString('el-GR', {
+        day: 'numeric', month: 'long', year: 'numeric',
+      })
+    : PLATFORM_LAST_UPDATED,
+)
 
 const items = computed(() => [
   {
@@ -93,7 +110,20 @@ definePageMeta({
         lg:grid lg:grid-cols-[1fr_15rem] lg:items-start lg:gap-10
       "
     >
+      <!-- The merchant's own published page wins: the boilerplate below
+           makes binding commitments on their behalf. -->
       <article
+        v-if="hasMerchantPage"
+        class="article text-primary-950 dark:text-primary-50"
+      >
+        <h1 v-if="merchantTitle">
+          {{ merchantTitle }}
+        </h1>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <div v-html="merchantBody" />
+      </article>
+      <article
+        v-else
         class="
           article text-primary-950
           dark:text-primary-50
@@ -147,8 +177,11 @@ definePageMeta({
           <h2>Επίλυση διαφορών</h2>
           <p>
             Διαφορές που τυχόν προκύπτουν από την εφαρμογή των όρων και την εν γένει χρήση της ιστοσελίδας από τον
-            επισκέπτη ή χρήστη αυτής, θα επιλύονται καταρχήν φιλικά, αν όμως αυτό δεν καταστεί εφικτό θα διέπονται από
-            το ελληνικό δίκαιο και θα υπάγονται στην αποκλειστική αρμοδιότητα των Δικαστηρίων της Αθήνας.
+            επισκέπτη ή χρήστη αυτής, θα επιλύονται καταρχήν φιλικά. Εφόσον αυτό δεν καταστεί εφικτό, οι όροι διέπονται
+            από το δίκαιο της χώρας στην οποία εδρεύει ο πωλητής και αρμόδια είναι τα δικαστήρια της έδρας του, με την
+            επιφύλαξη των αναγκαστικού δικαίου διατάξεων προστασίας του καταναλωτή της χώρας συνήθους διαμονής του
+            (Κανονισμός (ΕΚ) 593/2008, άρθρο 6) και του δικαιώματος του καταναλωτή να προσφύγει στα δικαστήρια του
+            τόπου κατοικίας του (Κανονισμός (ΕΕ) 1215/2012, άρθρα 17-19).
           </p>
         </section>
 

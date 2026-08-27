@@ -17,7 +17,24 @@ const siteHost = computed(() => {
   }
 })
 
-const LAST_UPDATED = '21 Μαΐου 2026'
+// Platform boilerplate is the FALLBACK. A merchant who publishes
+// their own page at this slug must see THEIR text, not ours — the
+// shipped copy makes binding commitments (governing law, dispute
+// forum) on their behalf.
+const { hasMerchantPage, title: merchantTitle, body: merchantBody, updatedAt: merchantUpdatedAt }
+  = useLegalPage(LEGAL_ROUTE_SLUGS['privacy-policy'])
+
+// The platform date describes the PLATFORM text. Once a merchant
+// supplies their own, the document on screen is not the one this date
+// refers to, so their page's own timestamp takes over.
+const PLATFORM_LAST_UPDATED = '21 Μαΐου 2026'
+const LAST_UPDATED = computed(() =>
+  hasMerchantPage.value && merchantUpdatedAt.value
+    ? new Date(merchantUpdatedAt.value).toLocaleDateString('el-GR', {
+        day: 'numeric', month: 'long', year: 'numeric',
+      })
+    : PLATFORM_LAST_UPDATED,
+)
 
 const items = computed(() => [
   {
@@ -91,7 +108,20 @@ definePageMeta({
         lg:grid lg:grid-cols-[1fr_15rem] lg:items-start lg:gap-10
       "
     >
+      <!-- The merchant's own published page wins: the boilerplate below
+           makes binding commitments on their behalf. -->
       <article
+        v-if="hasMerchantPage"
+        class="article text-primary-950 dark:text-primary-50"
+      >
+        <h1 v-if="merchantTitle">
+          {{ merchantTitle }}
+        </h1>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <div v-html="merchantBody" />
+      </article>
+      <article
+        v-else
         class="
           article text-primary-950
           dark:text-primary-50
