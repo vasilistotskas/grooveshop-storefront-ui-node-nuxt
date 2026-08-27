@@ -1,3 +1,10 @@
+## [3.160.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.160.2...v3.160.3) (2026-08-27)
+
+
+### Bug Fixes
+
+* **legal:** let a merchant's own legal pages replace the platform text ([2aa47f8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2aa47f872c5a0b9066d8c3cb8f0b6b03d0cb1b89))
+
 ## [3.160.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.160.1...v3.160.2) (2026-08-26)
 
 
