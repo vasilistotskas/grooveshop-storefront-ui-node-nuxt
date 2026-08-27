@@ -11,7 +11,7 @@ export function useFooterLinks() {
   const { footerColumns } = useNavigation()
   const tenantStore = useTenantStore()
 
-  // Feature-gated fallback links: a footer must never advertise a
+  // Feature-gated default links: a footer must never advertise a
   // page the feature gates would 404. Gift cards = two-tier
   // (fail-closed); feedback = merchant setting (fail-open).
   const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
@@ -47,10 +47,13 @@ export function useFooterLinks() {
   })
 
   // Operator-configured footer wins (per-tenant NavigationMenu rows);
-  // the code-level columns below are the fallback for tenants that have
-  // published none.
+  // the code-level columns below are the DEFAULT for a tenant that has
+  // published none — which is most of them, so this is the ordinary
+  // render path, not a degraded one. It cannot be deleted: a store
+  // that has configured nothing still has to reach its terms, privacy
+  // and cookies pages.
   //
-  // The fallback carries only links EVERY store has. Brand-specific
+  // It carries only links EVERY store has. Brand-specific
   // information architecture belongs in a NavigationMenu row, not here:
   // this list used to include "Όραμα" and a whole Microlearning column,
   // so every tenant's footer advertised another company's product
@@ -61,8 +64,8 @@ export function useFooterLinks() {
   // the pages and its footer menu together.
   // /about is layout-driven too, so it 404s for a tenant that has not
   // published one — it belongs in the seeded menu, not the universal
-  // fallback. What remains here are the pages every store always has.
-  const fallbackColumns = computed<FooterLinkColumn[]>(() => [
+  // default. What remains here are the pages every store always has.
+  const defaultColumns = computed<FooterLinkColumn[]>(() => [
     {
       label: t('footer.terms_conditions'),
       icon: 'i-heroicons-rectangle-group',
@@ -90,7 +93,7 @@ export function useFooterLinks() {
   const columns = computed<FooterLinkColumn[]>(() => {
     const configured = footerColumns.value
     const base = !configured
-      ? fallbackColumns.value
+      ? defaultColumns.value
       : configured.map(column => ({
           label: column.label,
           icon: column.icon,
