@@ -61685,7 +61685,8 @@
                         "exclusiveMinimum": true
                     },
                     "vat": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "stock": {
                         "type": "integer",
@@ -62848,7 +62849,8 @@
                         "exclusiveMinimum": true
                     },
                     "vat": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "viewCount": {
                         "type": "integer",
@@ -63014,7 +63016,6 @@
                     "updatedAt",
                     "uuid",
                     "variantGroup",
-                    "vat",
                     "vatPercent",
                     "vatValue",
                     "viewCount"
@@ -63914,7 +63915,8 @@
                         "exclusiveMinimum": true
                     },
                     "vat": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "viewCount": {
                         "type": "integer",
@@ -64087,7 +64089,6 @@
                     "updatedAt",
                     "uuid",
                     "variantGroup",
-                    "vat",
                     "vatPercent",
                     "vatValue",
                     "viewCount"
@@ -64172,7 +64173,8 @@
                         "exclusiveMinimum": true
                     },
                     "vat": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "viewCount": {
                         "type": "integer",
@@ -64345,7 +64347,6 @@
                     "updatedAt",
                     "uuid",
                     "variantGroup",
-                    "vat",
                     "vatPercent",
                     "vatValue",
                     "viewCount"
@@ -65469,7 +65470,8 @@
                         "exclusiveMinimum": true
                     },
                     "vat": {
-                        "type": "integer"
+                        "type": "integer",
+                        "nullable": true
                     },
                     "stock": {
                         "type": "integer",
@@ -65526,8 +65528,7 @@
                     "category",
                     "price",
                     "slug",
-                    "translations",
-                    "vat"
+                    "translations"
                 ]
             },
             "RateEnum": {
@@ -67138,6 +67139,13 @@
                         "type": "boolean",
                         "readOnly": true
                     },
+                    "agentPaymentInstruments": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true
+                    },
                     "stripePublishableKey": {
                         "type": "string",
                         "readOnly": true
@@ -67205,6 +67213,7 @@
                 "required": [
                     "accentHex",
                     "agentCommerceEnabled",
+                    "agentPaymentInstruments",
                     "agentStripeDelegatedEnabled",
                     "allowedCspSources",
                     "apiDomain",

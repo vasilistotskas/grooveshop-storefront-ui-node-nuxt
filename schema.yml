@@ -38617,6 +38617,7 @@ components:
           exclusiveMinimum: true
         vat:
           type: integer
+          nullable: true
         stock:
           type: integer
           maximum: 2147483647
@@ -39484,6 +39485,7 @@ components:
           exclusiveMinimum: true
         vat:
           type: integer
+          nullable: true
         viewCount:
           type: integer
           readOnly: true
@@ -39620,7 +39622,6 @@ components:
         - updatedAt
         - uuid
         - variantGroup
-        - vat
         - vatPercent
         - vatValue
         - viewCount
@@ -40280,6 +40281,7 @@ components:
           exclusiveMinimum: true
         vat:
           type: integer
+          nullable: true
         viewCount:
           type: integer
           readOnly: true
@@ -40422,7 +40424,6 @@ components:
         - updatedAt
         - uuid
         - variantGroup
-        - vat
         - vatPercent
         - vatValue
         - viewCount
@@ -40485,6 +40486,7 @@ components:
           exclusiveMinimum: true
         vat:
           type: integer
+          nullable: true
         viewCount:
           type: integer
           readOnly: true
@@ -40627,7 +40629,6 @@ components:
         - updatedAt
         - uuid
         - variantGroup
-        - vat
         - vatPercent
         - vatValue
         - viewCount
@@ -41445,6 +41446,7 @@ components:
           exclusiveMinimum: true
         vat:
           type: integer
+          nullable: true
         stock:
           type: integer
           maximum: 2147483647
@@ -41489,7 +41491,6 @@ components:
         - price
         - slug
         - translations
-        - vat
     RateEnum:
       enum:
         - 1
@@ -42762,6 +42763,11 @@ components:
         productFeedsEnabled:
           type: boolean
           readOnly: true
+        agentPaymentInstruments:
+          type: array
+          items:
+            type: string
+          readOnly: true
         stripePublishableKey:
           type: string
           readOnly: true
@@ -42812,6 +42818,7 @@ components:
       required:
         - accentHex
         - agentCommerceEnabled
+        - agentPaymentInstruments
         - agentStripeDelegatedEnabled
         - allowedCspSources
         - apiDomain

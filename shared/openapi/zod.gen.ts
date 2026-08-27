@@ -2642,7 +2642,7 @@ export const zPatchedProductWriteRequest = z.object({
   category: z.int().optional(),
   brand: z.int().nullish(),
   price: z.number().gt(-1000000000).lt(1000000000).optional(),
-  vat: z.int().optional(),
+  vat: z.int().nullish(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   weight: z.object({
     unit: z.string().optional(),
@@ -3145,7 +3145,7 @@ export const zProduct = z.object({
   brand: z.int().readonly().nullable(),
   brandName: z.string().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int(),
+  vat: z.int().nullish(),
   viewCount: z.int().readonly(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   lowStockThreshold: z.int().register(z.globalRegistry, {
@@ -3738,7 +3738,7 @@ export const zProductDetail = z.object({
   brand: z.int().readonly().nullable(),
   brandName: z.string().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int(),
+  vat: z.int().nullish(),
   viewCount: z.int().readonly(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   lowStockThreshold: z.int().register(z.globalRegistry, {
@@ -3804,7 +3804,7 @@ export const zProductDetailResponse = z.object({
   brand: z.int().readonly().nullable(),
   brandName: z.string().readonly().nullable(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int(),
+  vat: z.int().nullish(),
   viewCount: z.int().readonly(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   lowStockThreshold: z.int().register(z.globalRegistry, {
@@ -4127,7 +4127,7 @@ export const zProductWriteRequest = z.object({
   category: z.int(),
   brand: z.int().nullish(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int(),
+  vat: z.int().nullish(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   weight: z.object({
     unit: z.string().optional(),
@@ -5066,6 +5066,7 @@ export const zTenantConfig = z.object({
   agentStripeDelegatedEnabled: z.boolean().readonly(),
   agentCommerceEnabled: z.boolean().readonly(),
   productFeedsEnabled: z.boolean().readonly(),
+  agentPaymentInstruments: z.array(z.string()).readonly(),
   stripePublishableKey: z.string().readonly(),
   allowedCspSources: z.array(z.string()).readonly(),
   metaPixelId: z.string().readonly(),
@@ -7404,7 +7405,7 @@ export const zProductWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   category: z.int(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int(),
+  vat: z.int().nullish(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   active: z.boolean().optional(),
   weight: z.object({
@@ -7622,7 +7623,7 @@ export const zProductDetailWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   category: z.int(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int(),
+  vat: z.int().nullish(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   active: z.boolean().optional(),
   weight: z.object({
@@ -7658,7 +7659,7 @@ export const zProductDetailResponseWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   category: z.int(),
   price: z.number().gt(-1000000000).lt(1000000000),
-  vat: z.int(),
+  vat: z.int().nullish(),
   stock: z.int().gte(0).lte(2147483647).optional(),
   active: z.boolean().optional(),
   weight: z.object({

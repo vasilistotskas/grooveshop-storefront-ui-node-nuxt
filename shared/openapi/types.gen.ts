@@ -5249,7 +5249,7 @@ export type PatchedProductWriteRequest = {
   category?: number
   brand?: number | null
   price?: number
-  vat?: number
+  vat?: number | null
   /**
      * Απόθεμα
      */
@@ -5849,7 +5849,7 @@ export type Product = {
   readonly brand: number | null
   readonly brandName: string | null
   price: number
-  vat: number
+  vat?: number | null
   /**
      * Προβολές
      */
@@ -6289,7 +6289,7 @@ export type ProductDetail = {
   readonly brand: number | null
   readonly brandName: string | null
   price: number
-  vat: number
+  vat?: number | null
   /**
      * Προβολές
      */
@@ -6392,7 +6392,7 @@ export type ProductDetailResponse = {
   readonly brand: number | null
   readonly brandName: string | null
   price: number
-  vat: number
+  vat?: number | null
   /**
      * Προβολές
      */
@@ -6899,7 +6899,7 @@ export type ProductWriteRequest = {
   category: number
   brand?: number | null
   price: number
-  vat: number
+  vat?: number | null
   /**
      * Απόθεμα
      */
@@ -7787,6 +7787,7 @@ export type TenantConfig = {
   readonly agentStripeDelegatedEnabled: boolean
   readonly agentCommerceEnabled: boolean
   readonly productFeedsEnabled: boolean
+  readonly agentPaymentInstruments: Array<string>
   readonly stripePublishableKey: string
   readonly allowedCspSources: Array<string>
   readonly metaPixelId: string
@@ -10024,7 +10025,7 @@ export type ProductWritable = {
   slug: string
   category: number
   price: number
-  vat: number
+  vat?: number | null
   /**
      * Απόθεμα
      */
@@ -10230,7 +10231,7 @@ export type ProductDetailWritable = {
   slug: string
   category: number
   price: number
-  vat: number
+  vat?: number | null
   /**
      * Απόθεμα
      */
@@ -10282,7 +10283,7 @@ export type ProductDetailResponseWritable = {
   slug: string
   category: number
   price: number
-  vat: number
+  vat?: number | null
   /**
      * Απόθεμα
      */

@@ -38,6 +38,7 @@ function makeTenantConfig(overrides: Partial<TenantConfig> = {}): TenantConfig {
     promotionsEnabled: false,
     agentCommerceEnabled: true,
     productFeedsEnabled: true,
+    agentPaymentInstruments: [],
     giftCardsEnabled: false,
     agentStripeDelegatedEnabled: false,
     stripePublishableKey: '',
