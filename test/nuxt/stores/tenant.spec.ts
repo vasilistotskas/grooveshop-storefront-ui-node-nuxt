@@ -39,6 +39,7 @@ function makeTenantConfig(overrides: Partial<TenantConfig> = {}): TenantConfig {
     agentCommerceEnabled: true,
     productFeedsEnabled: true,
     agentPaymentInstruments: [],
+    agentHostedPaymentEnabled: true,
     giftCardsEnabled: false,
     agentStripeDelegatedEnabled: false,
     stripePublishableKey: '',

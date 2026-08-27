@@ -7816,6 +7816,7 @@ export type TenantConfig = {
   readonly agentStripeDelegatedEnabled: boolean
   readonly agentCommerceEnabled: boolean
   readonly productFeedsEnabled: boolean
+  readonly agentHostedPaymentEnabled: boolean
   readonly agentPaymentInstruments: Array<string>
   readonly stripePublishableKey: string
   readonly allowedCspSources: Array<string>

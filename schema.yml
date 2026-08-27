@@ -42858,6 +42858,9 @@ components:
         productFeedsEnabled:
           type: boolean
           readOnly: true
+        agentHostedPaymentEnabled:
+          type: boolean
+          readOnly: true
         agentPaymentInstruments:
           type: array
           items:
@@ -42913,6 +42916,7 @@ components:
       required:
         - accentHex
         - agentCommerceEnabled
+        - agentHostedPaymentEnabled
         - agentPaymentInstruments
         - agentStripeDelegatedEnabled
         - allowedCspSources

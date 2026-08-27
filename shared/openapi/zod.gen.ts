@@ -5097,6 +5097,7 @@ export const zTenantConfig = z.object({
   agentStripeDelegatedEnabled: z.boolean().readonly(),
   agentCommerceEnabled: z.boolean().readonly(),
   productFeedsEnabled: z.boolean().readonly(),
+  agentHostedPaymentEnabled: z.boolean().readonly(),
   agentPaymentInstruments: z.array(z.string()).readonly(),
   stripePublishableKey: z.string().readonly(),
   allowedCspSources: z.array(z.string()).readonly(),
