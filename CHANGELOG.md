@@ -1,3 +1,15 @@
+# [3.161.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.160.4...v3.161.0) (2026-08-27)
+
+
+### Bug Fixes
+
+* **test:** repair the e2e tenant fixture and guard it against drift ([4fdc487](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4fdc487fdb87f669c2306cb6086560a960b30316))
+
+
+### Features
+
+* **legal:** publish the merchant's legal identity in the footer ([4881171](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4881171f068cb2ccab1536ba7c0c7dee7b299485))
+
 ## [3.160.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.160.3...v3.160.4) (2026-08-27)
 
 
