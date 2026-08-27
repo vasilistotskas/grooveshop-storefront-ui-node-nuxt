@@ -22,11 +22,27 @@ export function useMerchantIdentity() {
     default: () => null,
   })
 
-  /** True once there is anything at all worth showing. */
+  /**
+   * True once there is a real disclosure to make, not merely a name.
+   *
+   * `INVOICE_SELLER_NAME` is populated on stores that have done nothing
+   * about disclosure — it is filled in for invoicing, and webside had
+   * exactly it and nothing else. Rendering on the name alone puts a
+   * lone company name in an <address> block, which discloses nothing a
+   * shopper cannot already read off the site and looks like a bug.
+   *
+   * So: a name AND at least one thing that actually identifies the
+   * legal entity — the register number, the VAT id, or the seat.
+   */
   const hasIdentity = computed(() => {
     const d = data.value
-    if (!d) return false
-    return Boolean(d.name?.trim() || d.registrationNumber?.trim())
+    if (!d?.name?.trim()) return false
+    return Boolean(
+      d.registrationNumber?.trim()
+      || d.vatId?.trim()
+      || d.addressLine1?.trim()
+      || d.city?.trim(),
+    )
   })
 
   /** Single-line seat, the form art. 22 §4 asks to be shown. */
