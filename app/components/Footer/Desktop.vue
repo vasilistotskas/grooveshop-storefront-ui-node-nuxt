@@ -32,34 +32,41 @@ const openCookieModal = () => {
     </template>
 
     <template #left>
-      <div
-        class="
-          flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-primary-950
-          dark:text-primary-100
-        "
-      >
-        <span>
-          &copy; {{ currentYear }}&nbsp;
+      <div class="flex flex-col gap-1">
+        <!-- Seller identity: N. 4919/2022 art. 22 §4 requires it "σε
+             εμφανές σημείο"; the footer is on every page, which is also
+             what makes it "permanently accessible" under ECD art. 5. -->
+        <MerchantIdentity />
+        <div
+          class="
+            flex flex-wrap items-center gap-x-3 gap-y-1 text-sm
+            text-primary-950
+            dark:text-primary-100
+          "
+        >
+          <span>
+            &copy; {{ currentYear }}&nbsp;
+            <UButton
+              :label="`${siteConfig.name}™.`"
+              :to="localePath('index')"
+              class="p-0 text-primary-950 dark:text-primary-50"
+              color="neutral"
+              size="lg"
+              type="button"
+              variant="link"
+            /> {{ t('all_rights_reserved') }}.
+          </span>
+          <span aria-hidden="true" class="text-primary-400">·</span>
           <UButton
-            :label="`${siteConfig.name}™.`"
-            :to="localePath('index')"
-            class="p-0 text-primary-950 dark:text-primary-50"
+            :label="t('cookie_settings')"
+            icon="i-unjs:cookie-es"
             color="neutral"
-            size="lg"
-            type="button"
             variant="link"
-          /> {{ t('all_rights_reserved') }}.
-        </span>
-        <span aria-hidden="true" class="text-primary-400">·</span>
-        <UButton
-          :label="t('cookie_settings')"
-          icon="i-unjs:cookie-es"
-          color="neutral"
-          variant="link"
-          size="sm"
-          class="p-0"
-          @click="openCookieModal"
-        />
+            size="sm"
+            class="p-0"
+            @click="openCookieModal"
+          />
+        </div>
       </div>
     </template>
 

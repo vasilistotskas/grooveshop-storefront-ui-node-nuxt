@@ -1797,6 +1797,37 @@ export const zLoyaltySummary = z.object({
 })
 
 /**
+ * The seller identity a storefront is legally required to publish.
+ *
+ * Read-only and AllowAny by design: every field here is information the
+ * merchant is *obliged* to make public (e-Commerce Directive art. 5,
+ * N. 4919/2022 art. 22), so there is nothing to protect. Blanks are
+ * returned as blanks rather than omitted — a consumer of this endpoint
+ * needs to distinguish "not provided" from "not applicable", and
+ * ``missing_fields`` names the ones that are legally required.
+ */
+export const zMerchantLegalIdentity = z.object({
+  name: z.string().readonly(),
+  legalForm: z.string().readonly(),
+  vatId: z.string().readonly(),
+  taxOffice: z.string().readonly(),
+  registrationNumber: z.string().readonly(),
+  businessActivity: z.string().readonly(),
+  addressLine1: z.string().readonly(),
+  addressLine2: z.string().readonly(),
+  city: z.string().readonly(),
+  postalCode: z.string().readonly(),
+  country: z.string().readonly(),
+  phone: z.string().readonly(),
+  email: z.string().readonly(),
+  inLiquidation: z.boolean().readonly(),
+  missingFields: z.array(z.string()).readonly(),
+  isComplete: z.boolean().readonly(),
+}).register(z.globalRegistry, {
+  description: 'The seller identity a storefront is legally required to publish.\n\nRead-only and AllowAny by design: every field here is information the\nmerchant is *obliged* to make public (e-Commerce Directive art. 5,\nN. 4919/2022 art. 22), so there is nothing to protect. Blanks are\nreturned as blanks rather than omitted — a consumer of this endpoint\nneeds to distinguish "not provided" from "not applicable", and\n``missing_fields`` names the ones that are legally required.',
+})
+
+/**
  * * `ORDER` - Παραγγελία
  * * `PAYMENT` - Πληρωμή
  * * `SHIPPING` - Μεταφορικά
@@ -17196,6 +17227,8 @@ export const zUpdateTaggedItemQuery = z.object({
 })
 
 export const zUpdateTaggedItemResponse = zTaggedItemDetail
+
+export const zApiV1TenantLegalIdentityRetrieveResponse = zMerchantLegalIdentity
 
 export const zApiV1TenantMembershipsMineRetrieveResponse = z.array(z.object({
   schemaName: z.string().optional(),

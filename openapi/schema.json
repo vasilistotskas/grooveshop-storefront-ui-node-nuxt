@@ -43904,6 +43904,33 @@
                 }
             }
         },
+        "/api/v1/tenant/legal-identity": {
+            "get": {
+                "operationId": "api_v1_tenant_legal_identity_retrieve",
+                "description": "The seller identity the storefront is legally required to publish: e-Commerce Directive 2000/31/EC art. 5(1) and, for Greek merchants, N. 4919/2022 art. 22 §3-4.",
+                "tags": [
+                    "Tenant"
+                ],
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/MerchantLegalIdentity"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/tenant/memberships/mine": {
             "get": {
                 "operationId": "api_v1_tenant_memberships_mine_retrieve",
@@ -56710,6 +56737,97 @@
                     "pointsMultiplier",
                     "requiredLevel",
                     "translations"
+                ]
+            },
+            "MerchantLegalIdentity": {
+                "type": "object",
+                "description": "The seller identity a storefront is legally required to publish.\n\nRead-only and AllowAny by design: every field here is information the\nmerchant is *obliged* to make public (e-Commerce Directive art. 5,\nN. 4919/2022 art. 22), so there is nothing to protect. Blanks are\nreturned as blanks rather than omitted — a consumer of this endpoint\nneeds to distinguish \"not provided\" from \"not applicable\", and\n``missing_fields`` names the ones that are legally required.",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "legalForm": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "vatId": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "taxOffice": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "registrationNumber": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "businessActivity": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "addressLine1": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "addressLine2": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "city": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "postalCode": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "country": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "phone": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "email": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "inLiquidation": {
+                        "type": "boolean",
+                        "readOnly": true
+                    },
+                    "missingFields": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "readOnly": true
+                    },
+                    "isComplete": {
+                        "type": "boolean",
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "addressLine1",
+                    "addressLine2",
+                    "businessActivity",
+                    "city",
+                    "country",
+                    "email",
+                    "inLiquidation",
+                    "isComplete",
+                    "legalForm",
+                    "missingFields",
+                    "name",
+                    "phone",
+                    "postalCode",
+                    "registrationNumber",
+                    "taxOffice",
+                    "vatId"
                 ]
             },
             "NavigationMenu": {

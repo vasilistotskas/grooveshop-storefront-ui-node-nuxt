@@ -3253,6 +3253,35 @@ export type LoyaltyTier = {
   readonly iconFilename: string
 }
 
+/**
+ * The seller identity a storefront is legally required to publish.
+ *
+ * Read-only and AllowAny by design: every field here is information the
+ * merchant is *obliged* to make public (e-Commerce Directive art. 5,
+ * N. 4919/2022 art. 22), so there is nothing to protect. Blanks are
+ * returned as blanks rather than omitted — a consumer of this endpoint
+ * needs to distinguish "not provided" from "not applicable", and
+ * ``missing_fields`` names the ones that are legally required.
+ */
+export type MerchantLegalIdentity = {
+  readonly name: string
+  readonly legalForm: string
+  readonly vatId: string
+  readonly taxOffice: string
+  readonly registrationNumber: string
+  readonly businessActivity: string
+  readonly addressLine1: string
+  readonly addressLine2: string
+  readonly city: string
+  readonly postalCode: string
+  readonly country: string
+  readonly phone: string
+  readonly email: string
+  readonly inLiquidation: boolean
+  readonly missingFields: Array<string>
+  readonly isComplete: boolean
+}
+
 export type NavigationMenu = {
   slot: SlotEnum
   /**
@@ -22930,6 +22959,19 @@ export type UpdateTaggedItemResponses = {
 }
 
 export type UpdateTaggedItemResponse = UpdateTaggedItemResponses[keyof UpdateTaggedItemResponses]
+
+export type ApiV1TenantLegalIdentityRetrieveData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/tenant/legal-identity'
+}
+
+export type ApiV1TenantLegalIdentityRetrieveResponses = {
+  200: MerchantLegalIdentity
+}
+
+export type ApiV1TenantLegalIdentityRetrieveResponse = ApiV1TenantLegalIdentityRetrieveResponses[keyof ApiV1TenantLegalIdentityRetrieveResponses]
 
 export type ApiV1TenantMembershipsMineRetrieveData = {
   body?: never
