@@ -1,3 +1,10 @@
+## [3.161.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.161.0...v3.161.1) (2026-08-27)
+
+
+### Bug Fixes
+
+* **legal:** require more than a name before publishing an identity ([3f07d23](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3f07d23b354a3ea9de469b474f8724701e44bb26))
+
 # [3.161.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.160.4...v3.161.0) (2026-08-27)
 
 
