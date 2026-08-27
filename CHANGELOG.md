@@ -1,3 +1,10 @@
+## [3.160.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.160.3...v3.160.4) (2026-08-27)
+
+
+### Bug Fixes
+
+* **legal:** state the Brussels I art. 18 forum rule in both directions ([5e7247c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5e7247c448c376a32b76a86e4a1887e2cdab3b15))
+
 ## [3.160.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.160.2...v3.160.3) (2026-08-27)
 
 
