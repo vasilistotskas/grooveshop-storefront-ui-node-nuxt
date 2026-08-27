@@ -90,6 +90,20 @@ describe('terms name no specific forum', () => {
     expect(code).toContain('593/2008')
     expect(code).toContain('1215/2012')
   })
+
+  it('states the art. 18 forum asymmetry in BOTH directions', () => {
+    // Art 18(1) lets the consumer sue the trader in either forum, but
+    // art 18(2) lets the trader sue the consumer ONLY at the consumer's
+    // domicile. The first draft of this clause named the seller's-seat
+    // courts as competent and reserved only the consumer's right to sue
+    // at home — silent on 18(2), so a merchant would read it as licence
+    // to sue a customer in the merchant's own court. Both halves must
+    // be stated or the clause misleads the party relying on it.
+    expect(code).toMatch(/ο καταναλωτής μπορεί να στραφεί κατά του πωλητή/)
+    expect(code).toMatch(/ο πωλητής μπορεί να στραφεί κατά του καταναλωτή/)
+    // The restriction on the trader is the half that is easy to drop.
+    expect(code).toMatch(/μόνο<\/strong> στα δικαστήρια/)
+  })
 })
 
 describe('the footer does not double-link a legal page', () => {
