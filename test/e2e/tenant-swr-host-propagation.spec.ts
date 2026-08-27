@@ -2,6 +2,9 @@ import type { IncomingMessage, Server, ServerResponse } from 'node:http'
 import { createServer, request as httpRequest } from 'node:http'
 import { afterAll, describe, expect, it } from 'vitest'
 import { setup, url } from '@nuxt/test-utils/e2e'
+// Shared so a TenantConfig schema change cannot leave this copy
+// stale — test/unit/tenant-config-fixture.spec.ts guards it.
+import { validTenantConfig } from '../fixtures/tenantConfig'
 
 /**
  * Regression test for the "H3" audit finding: during Nitro's `swr: true`
@@ -68,55 +71,6 @@ const PLATFORM_FALLBACK_HOST = 'platform-fallback.invalid.example'
 const TENANT_A_HOST = 'tenant-a.localhost'
 const TENANT_B_HOST = 'tenant-b.localhost'
 const PROBE_PATH = '/api/_internal/swr-tenant-probe'
-
-function validTenantConfig(domain: string) {
-  return {
-    schemaName: 'test',
-    name: domain,
-    storeName: domain,
-    storeDescription: '',
-    logoLightUrl: '',
-    logoDarkUrl: '',
-    faviconUrl: '',
-    primaryColor: '',
-    neutralColor: '',
-    accentHex: '#000000',
-    successHex: '#000000',
-    warningHex: '#000000',
-    errorHex: '#000000',
-    infoHex: '#000000',
-    themePreset: '',
-    themeMetadata: {},
-    defaultLocale: 'el',
-    defaultCurrency: 'EUR',
-    primaryDomain: domain,
-    apiDomain: domain,
-    assetsDomain: domain,
-    staticDomain: domain,
-    loyaltyEnabled: false,
-    blogEnabled: false,
-    promotionsEnabled: false,
-    agentCommerceEnabled: true,
-    productFeedsEnabled: true,
-    giftCardsEnabled: false,
-    agentStripeDelegatedEnabled: false,
-    stripePublishableKey: '',
-    allowedCspSources: [],
-    metaPixelId: '',
-    tiktokPixelId: '',
-    gaTrackingId: '',
-    totpIssuer: '',
-    socialsDiscord: '',
-    socialsFacebook: '',
-    socialsInstagram: '',
-    socialsPinterest: '',
-    socialsReddit: '',
-    socialsTiktok: '',
-    socialsTwitter: '',
-    socialsYoutube: '',
-    boxNowPartnerId: '',
-  }
-}
 
 function sleep(ms: number) {
   return new Promise<void>(resolve => setTimeout(resolve, ms))
