@@ -1,3 +1,11 @@
+# [3.164.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.163.0...v3.164.0) (2026-08-28)
+
+
+### Features
+
+* **theme:** luminance-derived on-secondary text, IPX for same-origin tenant assets ([653d2e7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/653d2e754d7c9c37342953af19c12b3ec8710ea2)), closes [#2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/2)
+* **ui:** logo fit-box, breadcrumb-first bands, section rhythm, timeline + FAQ sections ([dc000da](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/dc000da4c08eb30bde47b7030a3e7a7bbb02b909))
+
 # [3.163.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.162.0...v3.163.0) (2026-08-28)
 
 
