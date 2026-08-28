@@ -1,3 +1,10 @@
+## [3.164.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.5...v3.164.6) (2026-08-28)
+
+
+### Bug Fixes
+
+* **ui:** one content frame for every page ([3eb3934](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3eb39340e4bc3070c1685a672b75d0868deef97d))
+
 ## [3.164.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.4...v3.164.5) (2026-08-28)
 
 
