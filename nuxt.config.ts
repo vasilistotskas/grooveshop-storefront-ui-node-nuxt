@@ -231,14 +231,10 @@ export default defineNuxtConfig({
         'Cache-Control': 'public, max-age=31536000',
       },
     },
-    '/_ipx/**': {
-      // ``immutable`` matters: without it a browser RELOAD revalidates
-      // every image, and IPX responses carry no ETag/Last-Modified, so
-      // each revalidation is a full re-download + Sharp re-encode —
-      // header logos visibly popped in seconds after reload. IPX URLs
-      // encode all transform params, so they are safe to never recheck.
-      headers: { 'cache-control': 'public, max-age=31536000, immutable' },
-    },
+    // NOTE: /_ipx/** carries no headers route rule — the IPX handler
+    // sets its own Cache-Control AFTER route-rule headers are applied,
+    // so a rule here is silently dead. server/plugins/ipx-immutable.ts
+    // owns that header instead.
     '/_fonts/**': {
       // Hashed, self-hosted font files — immutable.
       headers: { 'cache-control': 'public, max-age=31536000, immutable' },
