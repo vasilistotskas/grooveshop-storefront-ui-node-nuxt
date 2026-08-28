@@ -1,3 +1,10 @@
+## [3.164.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.9...v3.164.10) (2026-08-28)
+
+
+### Bug Fixes
+
+* **csp:** alias zod to jitless wrapper in browser builds ([0c64f73](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0c64f733d399b621b3c23289b985f07109b16e5e))
+
 ## [3.164.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.8...v3.164.9) (2026-08-28)
 
 
