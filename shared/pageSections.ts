@@ -113,6 +113,66 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
   divider: z.object({}).partial().strip(),
   loyalty_hero: z.object({}).partial().strip(),
   search_bar: z.object({}).partial().strip(),
+  // Weekly schedule + open/closed badge — data comes from the
+  // BUSINESS_HOURS extra_setting (useBusinessHours), so no props.
+  business_hours: z.object({}).partial().strip(),
+  location_map: z
+    .object({
+      embedUrl: z.string().max(1000).regex(/^https:\/\//),
+      lat: z.number().min(-90).max(90),
+      lng: z.number().min(-180).max(180),
+      address: z.string().max(300),
+    })
+    .partial()
+    .strip(),
+  features_grid: z
+    .object({
+      heading: z.string().max(200),
+      items: z
+        .array(
+          z
+            .object({
+              title: z.string().max(100),
+              text: z.string().max(500).optional(),
+              icon: z.string().max(100).regex(/^i-[a-z0-9:-]+$/).optional(),
+            })
+            .strip(),
+        )
+        .max(12),
+      columns: z.number().int().min(1).max(4),
+      decor: z.enum(['none', 'gradient_tiles']),
+    })
+    .partial()
+    .strip(),
+  media_text: z
+    .object({
+      heading: z.string().max(200),
+      body: z.string().max(5000),
+      imageUrl: z.string().max(1000),
+      imagePosition: z.enum(['left', 'right']),
+      ctaText: z.string().max(100),
+      ctaLink: zLink,
+      decor: z.enum(['none', 'orbs', 'gradient']),
+    })
+    .partial()
+    .strip(),
+  image_gallery: z
+    .object({
+      items: z
+        .array(
+          z
+            .object({
+              src: z.string().max(1000),
+              alt: z.string().max(200),
+              caption: z.string().max(200).optional(),
+            })
+            .strip(),
+        )
+        .max(24),
+      columns: z.number().int().min(2).max(4),
+    })
+    .partial()
+    .strip(),
 }
 
 /**

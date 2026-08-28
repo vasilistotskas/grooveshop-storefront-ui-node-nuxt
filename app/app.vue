@@ -40,15 +40,92 @@ function orgSocialUrl(key: string): string | undefined {
   return (tenantStore.socials as Record<string, string>)[key] || undefined
 }
 
-useSchemaOrg([
-  defineWebPage(),
-  defineWebSite({
-    url: siteUrl,
-    name: siteName,
-    description: siteConfig.description,
-    inLanguage: locales.value.map(l => l.language),
-  }),
-  defineOrganization({
+// Physical-store data (hours / geo / registered address) upgrades the
+// Organization node to LocalBusiness. Property-level reactivity only:
+// useSchemaOrg freezes the node ARRAY at setup on SSR, so the switch
+// lives in the '@type' field, which unhead resolves at render — after
+// the setting fetches settle.
+const { hasData: hasBusinessHours, schedule: businessSchedule }
+  = useBusinessHours()
+const { identity, hasIdentity } = useMerchantIdentity()
+const geoLat = useSettingValue('STORE_GEO_LAT')
+const geoLng = useSettingValue('STORE_GEO_LNG')
+
+const SCHEMA_DAY_NAMES: Record<WeekDayKey, string> = {
+  mon: 'Monday',
+  tue: 'Tuesday',
+  wed: 'Wednesday',
+  thu: 'Thursday',
+  fri: 'Friday',
+  sat: 'Saturday',
+  sun: 'Sunday',
+}
+
+const openingHoursSpecification = computed(() => {
+  const schedule = businessSchedule.value
+  if (!schedule) return undefined
+  // Days sharing identical opens/closes collapse into one entry.
+  const groups = new Map<
+    string,
+    { days: string[], opens: string, closes: string }
+  >()
+  for (const day of WEEK_DAY_KEYS) {
+    const entry = schedule[day]
+    if (!entry) continue
+    const groupKey = `${entry.opens}-${entry.closes}`
+    const group = groups.get(groupKey)
+      ?? { days: [], opens: entry.opens, closes: entry.closes }
+    group.days.push(SCHEMA_DAY_NAMES[day])
+    groups.set(groupKey, group)
+  }
+  if (groups.size === 0) return undefined
+  return [...groups.values()].map(group => ({
+    '@type': 'OpeningHoursSpecification',
+    'dayOfWeek': group.days,
+    'opens': group.opens,
+    'closes': group.closes,
+  }))
+})
+
+const geo = computed(() => {
+  const latitude = Number.parseFloat(geoLat.value)
+  const longitude = Number.parseFloat(geoLng.value)
+  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    return undefined
+  }
+  return { '@type': 'GeoCoordinates', latitude, longitude }
+})
+
+const postalAddress = computed(() => {
+  const d = identity.value
+  if (!hasIdentity.value || !d) return undefined
+  const streetAddress = [d.addressLine1, d.addressLine2]
+    .map(part => part?.trim())
+    .filter(Boolean)
+    .join(', ')
+  if (!streetAddress && !d.city?.trim()) return undefined
+  return {
+    '@type': 'PostalAddress',
+    ...(streetAddress ? { streetAddress } : {}),
+    ...(d.city?.trim() ? { addressLocality: d.city.trim() } : {}),
+    ...(d.postalCode?.trim() ? { postalCode: d.postalCode.trim() } : {}),
+    ...(d.country?.trim() ? { addressCountry: d.country.trim() } : {}),
+  }
+})
+
+const organizationType = computed(() =>
+  hasBusinessHours.value || geo.value || postalAddress.value
+    ? 'LocalBusiness'
+    : 'Organization',
+)
+
+// The physical-store extras attach AFTER defineOrganization: their
+// values are refs of objects, which unhead's deep resolve unwraps at
+// render but the definer's input type only admits at leaf positions.
+// define* helpers just spread input + _resolver, so this is identical
+// to passing them in.
+const organizationNode = {
+  ...defineOrganization({
     name: siteName,
     logo: siteLogo,
     sameAs: [
@@ -57,6 +134,21 @@ useSchemaOrg([
       orgSocialUrl('instagram'),
     ].filter(Boolean) as string[],
   }),
+  '@type': organizationType,
+  'address': postalAddress,
+  'geo': geo,
+  'openingHoursSpecification': openingHoursSpecification,
+}
+
+useSchemaOrg([
+  defineWebPage(),
+  defineWebSite({
+    url: siteUrl,
+    name: siteName,
+    description: siteConfig.description,
+    inLanguage: locales.value.map(l => l.language),
+  }),
+  organizationNode,
 ])
 useSeoMeta({
   ogImage: siteLogo,

@@ -43,6 +43,7 @@ export function validTenantConfig(domain: string) {
     blogEnabled: false,
     promotionsEnabled: false,
     agentCommerceEnabled: true,
+    agentHostedPaymentEnabled: true,
     agentPaymentInstruments: [],
     productFeedsEnabled: true,
     giftCardsEnabled: false,

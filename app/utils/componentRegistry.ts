@@ -28,6 +28,8 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'divider': defineAsyncComponent(() => import('~/components/PageSection/Divider.vue')),
   'loyalty_hero': defineAsyncComponent(() => import('~/components/PageSection/LoyaltyHero.vue')),
   'search_bar': defineAsyncComponent(() => import('~/components/PageSection/SearchBar.vue')),
+  'business_hours': defineAsyncComponent(() => import('~/components/PageSection/BusinessHours.vue')),
+  'location_map': defineAsyncComponent(() => import('~/components/PageSection/LocationMap.vue')),
 
   // webside tenant variants — full-page marketing/content sections with
   // no props. Base (non-variant) entries deliberately do NOT exist for

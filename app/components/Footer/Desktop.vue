@@ -37,6 +37,7 @@ const openCookieModal = () => {
              εμφανές σημείο"; the footer is on every page, which is also
              what makes it "permanently accessible" under ECD art. 5. -->
         <MerchantIdentity />
+        <FooterHoursBadge />
         <div
           class="
             flex flex-wrap items-center gap-x-3 gap-y-1 text-sm

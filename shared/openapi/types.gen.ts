@@ -2281,8 +2281,13 @@ export type CompartmentSizeEnum = 1 | 2 | 3
  * * `divider` - Divider
  * * `loyalty_hero` - Loyalty Program Hero
  * * `search_bar` - Search Bar
+ * * `business_hours` - Business Hours
+ * * `location_map` - Location Map
+ * * `features_grid` - Features Grid
+ * * `media_text` - Media + Text
+ * * `image_gallery` - Image Gallery
  */
-export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'blog_posts_list' | 'recently_viewed' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'about_content' | 'vision_content' | 'what_is_microlearning' | 'why_microlearning' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar'
+export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'blog_posts_list' | 'recently_viewed' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'about_content' | 'vision_content' | 'what_is_microlearning' | 'why_microlearning' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar' | 'business_hours' | 'location_map' | 'features_grid' | 'media_text' | 'image_gallery'
 
 export type ConfirmAgentPaymentRequestRequest = {
   /**

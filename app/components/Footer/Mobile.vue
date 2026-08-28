@@ -54,5 +54,6 @@ const items = computed<AccordionItem[]>(() =>
     <!-- Same obligation as the desktop footer: the seller identity has
          to be on every page, not only the wide layout. -->
     <MerchantIdentity class="px-4 pt-4" />
+    <FooterHoursBadge class="px-4 pt-2" />
   </footer>
 </template>
