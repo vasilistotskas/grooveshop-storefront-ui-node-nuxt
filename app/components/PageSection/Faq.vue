@@ -46,7 +46,7 @@ useSchemaOrg(
       :type="multiple ? 'multiple' : 'single'"
       :unmount-on-hide="false"
       class="
-        mx-auto max-w-3xl rounded-lg border border-primary-200 bg-white
+        mx-auto w-full max-w-3xl rounded-lg border border-primary-200 bg-white
         px-4
         dark:border-primary-800 dark:bg-primary-900
       "

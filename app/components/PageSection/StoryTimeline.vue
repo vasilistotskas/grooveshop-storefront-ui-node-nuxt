@@ -46,7 +46,7 @@ const lastValue = computed(() => timelineItems.value.length - 1)
       :default-value="lastValue"
       color="secondary"
       size="lg"
-      class="mx-auto max-w-2xl"
+      class="mx-auto w-full max-w-2xl"
       :ui="{
         title: 'font-display text-base font-semibold',
         date: 'text-(--ui-secondary)',
