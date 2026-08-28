@@ -32,22 +32,36 @@ export default defineEventHandler(async (event) => {
 
   setHeader(event, 'Content-Type', 'application/manifest+json')
 
-  // Icon list — tenant-scoped end-to-end: a branded tenant uses its own
-  // favicon for all sizes (the URL is served at the right dimensions by
-  // the media service), the PLATFORM tenant uses the platform icon set,
-  // and an unbranded tenant ships NO icons (valid per the manifest
-  // spec) — another store's brand must never appear in a tenant's PWA
-  // install surface.
+  // Icon list — tenant-scoped end-to-end: a branded tenant uses its
+  // own favicon, the PLATFORM tenant uses the platform icon set, and
+  // an unbranded tenant ships NO icons (valid per the manifest spec) —
+  // another store's brand must never appear in a tenant's PWA install
+  // surface.
+  //
+  // The tenant entry deliberately declares NO ``sizes`` and no
+  // ``maskable`` purpose: faviconUrl points at an arbitrary
+  // tenant-supplied asset whose dimensions and safe-zone padding we
+  // cannot know here, and a declared size that disagrees with the
+  // actual pixels makes Chrome reject the icon with a console error
+  // ("Resource size is not correct — typo in the Manifest?", observed
+  // live on tenant #2's 96x96 favicon declared as 192/512). ``sizes``
+  // is optional; omitting it lets the browser measure the resource.
   const faviconUrl = tenant?.faviconUrl
+  const faviconType = {
+    png: 'image/png',
+    svg: 'image/svg+xml',
+    ico: 'image/x-icon',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    webp: 'image/webp',
+  }[faviconUrl?.split('.').pop()?.toLowerCase() ?? '']
   const icons = faviconUrl
     ? [
-        { src: faviconUrl, sizes: '192x192', type: 'image/png', purpose: 'any' },
-        { src: faviconUrl, sizes: '512x512', type: 'image/png', purpose: 'any' },
-        // Maskable: same source as fallback. Replace with a dedicated
-        // asset that has ≥10 % safe-zone padding on all sides so the
-        // visible area is not clipped by the OS mask shape (circles,
-        // squircles, etc.). See: https://web.dev/maskable-icon/
-        { src: faviconUrl, sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        {
+          src: faviconUrl,
+          purpose: 'any',
+          ...(faviconType ? { type: faviconType } : {}),
+        },
       ]
     : isPlatformTenantConfig(tenant)
       ? [

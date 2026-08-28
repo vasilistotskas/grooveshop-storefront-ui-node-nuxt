@@ -124,22 +124,23 @@ describe('manifest.webmanifest handler', () => {
     expect(manifest.lang).toBe('el')
   })
 
-  it('uses tenant faviconUrl as icon src', async () => {
+  it('uses tenant faviconUrl as a single sizeless icon', async () => {
     const faviconUrl = 'https://example.com/tenant-icon.png'
     const manifest = await handler(makeEvent({ faviconUrl }))
-    const icons = manifest.icons as Array<{ src: string, purpose: string }>
-    expect(icons.every(i => i.src === faviconUrl)).toBe(true)
-    // Must have both 'any' and 'maskable' purposes
-    expect(icons.some(i => i.purpose === 'any')).toBe(true)
-    expect(icons.some(i => i.purpose === 'maskable')).toBe(true)
+    const icons = manifest.icons as Array<Record<string, string>>
+    // One honest entry: the asset's real dimensions are unknown here,
+    // so declaring sizes (or maskable safe-zone padding) would be a
+    // lie Chrome rejects with a console error.
+    expect(icons).toEqual([
+      { src: faviconUrl, purpose: 'any', type: 'image/png' },
+    ])
   })
 
-  it('includes 192x192 and 512x512 sizes for tenant icon', async () => {
-    const manifest = await handler(makeEvent({ faviconUrl: 'https://example.com/icon.png' }))
-    const icons = manifest.icons as Array<{ sizes: string }>
-    const sizeSet = new Set(icons.map(i => i.sizes))
-    expect(sizeSet.has('192x192')).toBe(true)
-    expect(sizeSet.has('512x512')).toBe(true)
+  it('infers icon type from the favicon extension, omitting it when unknown', async () => {
+    const svg = await handler(makeEvent({ faviconUrl: 'https://example.com/icon.svg' }))
+    expect((svg.icons as Array<Record<string, string>>)[0]!.type).toBe('image/svg+xml')
+    const odd = await handler(makeEvent({ faviconUrl: 'https://example.com/icon' }))
+    expect((odd.icons as Array<Record<string, string>>)[0]).not.toHaveProperty('type')
   })
 
   it('sets Content-Type header to application/manifest+json', async () => {

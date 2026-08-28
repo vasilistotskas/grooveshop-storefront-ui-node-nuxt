@@ -232,7 +232,12 @@ export default defineNuxtConfig({
       },
     },
     '/_ipx/**': {
-      headers: { 'cache-control': 'max-age=31536000' },
+      // ``immutable`` matters: without it a browser RELOAD revalidates
+      // every image, and IPX responses carry no ETag/Last-Modified, so
+      // each revalidation is a full re-download + Sharp re-encode —
+      // header logos visibly popped in seconds after reload. IPX URLs
+      // encode all transform params, so they are safe to never recheck.
+      headers: { 'cache-control': 'public, max-age=31536000, immutable' },
     },
     '/_fonts/**': {
       // Hashed, self-hosted font files — immutable.
@@ -535,14 +540,18 @@ export default defineNuxtConfig({
     defaultLocale: DEFAULT_LOCALE,
     debug: false,
     // NOTE on multi-tenant SEO: i18n's ``baseUrl`` (env
-    // NUXT_PUBLIC_I18N_BASE_URL) is inherently PLATFORM-static — a
+    // NUXT_PUBLIC_I18N_BASE_URL) is PLATFORM-static at build time — a
     // function here does not survive the module's runtimeConfig JSON
     // serialization (verified against @nuxtjs/i18n 10.6 module.mjs:
     // options.baseUrl is defu'd into runtimeConfig.public.i18n), and
     // an empty value degrades useLocaleHead to relative links plus a
-    // per-request warning. Per-tenant canonical/hreflang/og:url are
-    // therefore produced by rebasing the localeHead output onto the
-    // tenant origin in ``setupPageHeader`` (app/utils/seoHead.ts).
+    // per-request warning. The ``tenant`` plugin therefore rewrites
+    // ``public.i18n.baseUrl`` per request on Nitro's per-event
+    // runtimeConfig clone (see app/plugins/tenant.ts) so SSR, the
+    // serialized client payload, and nuxt-site-config's baseUrl/site
+    // url comparison all see the tenant origin. The localeHead
+    // rebasing in ``setupPageHeader`` (app/utils/seoHead.ts) stays as
+    // defense in depth.
     restructureDir: 'i18n',
     detectBrowserLanguage: {
       useCookie: true,

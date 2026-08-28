@@ -27,6 +27,7 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
         <TenantLogo
           :width="145"
           :height="40"
+          img-class="object-center"
         />
         <span class="sr-only">{{ appTitle }}</span>
       </Anchor>

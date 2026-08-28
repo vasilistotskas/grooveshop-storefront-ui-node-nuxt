@@ -66,6 +66,10 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
             :width="145"
             :height="40"
             priority
+            img-class="
+              object-center
+              lg:object-left
+            "
           />
           <span class="sr-only">{{ appTitle }}</span>
         </Anchor>

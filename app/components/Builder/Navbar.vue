@@ -91,6 +91,10 @@ onMounted(() => {
                   :width="145"
                   :height="44"
                   priority
+                  img-class="
+                    object-center
+                    lg:object-left
+                  "
                 />
                 <span class="sr-only">{{ appTitle }}</span>
               </Anchor>
