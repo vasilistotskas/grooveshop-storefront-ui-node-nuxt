@@ -1,3 +1,10 @@
+# [3.163.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.162.0...v3.163.0) (2026-08-28)
+
+
+### Features
+
+* **chrome:** blog empty state, themed error page, cart gate, display-font titles ([fa3ed2a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fa3ed2a27bbb825dc1b3150ac301aa33b61ce880)), closes [#2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/2)
+
 # [3.162.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.161.1...v3.162.0) (2026-08-28)
 
 
