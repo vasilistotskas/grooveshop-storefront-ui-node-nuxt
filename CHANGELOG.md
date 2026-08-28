@@ -1,3 +1,11 @@
+## [3.164.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.8...v3.164.9) (2026-08-28)
+
+
+### Bug Fixes
+
+* **csp:** set zod jitless at module scope, order plugin first ([d45ccfc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d45ccfc2d604f3e22ba3525f4f8650be5c990a83))
+* **ui:** bring the last pages onto the shared content frame ([1ff6d4e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1ff6d4e0f041e1011e0d7977b1e894d28e102194))
+
 ## [3.164.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.7...v3.164.8) (2026-08-28)
 
 
