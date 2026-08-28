@@ -30,7 +30,7 @@ const lastValue = computed(() => timelineItems.value.length - 1)
 <template>
   <div
     v-if="timelineItems.length"
-    class="mx-auto max-w-(--container-main) md:!p-0"
+    class="mx-auto w-full max-w-(--container-main) md:!p-0"
   >
     <h2
       v-if="heading"
