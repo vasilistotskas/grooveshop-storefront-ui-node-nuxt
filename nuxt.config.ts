@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url'
 import { DEFAULT_LOCALE } from './i18n/locales'
 import { version } from './package.json'
 import { PRERENDERED_ROUTES } from './shared/constants/prerender'
@@ -318,6 +319,26 @@ export default defineNuxtConfig({
     ],
   },
   vite: {
+    plugins: [
+      // Browser bundles only: route every `import ... from 'zod'` through
+      // the jitless wrapper so its `z.config({ jitless: true })` becomes a
+      // module dependency of each schema module — the only ordering that
+      // survives Rollup's cross-chunk import hoisting (a Nuxt plugin runs
+      // too late; see app/vendor/zod-jitless.ts). A resolveId plugin is
+      // used because Vite's per-environment config ($client) cannot carry
+      // `resolve.alias`, and an exact-match redirect must not catch the
+      // wrapper's own `zod/v4` import. SSR keeps Zod's JIT fast path.
+      {
+        name: 'zod-jitless-client-alias',
+        enforce: 'pre',
+        resolveId(id, _importer, options) {
+          if (id === 'zod' && !options?.ssr) {
+            return fileURLToPath(new URL('./app/vendor/zod-jitless.ts', import.meta.url))
+          }
+          return null
+        },
+      },
+    ],
     vue: {
       features: {
         optionsAPI: false,
