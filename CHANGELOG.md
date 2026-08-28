@@ -1,3 +1,10 @@
+## [3.164.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.3...v3.164.4) (2026-08-28)
+
+
+### Bug Fixes
+
+* **perf:** immutable cache-control on ipx responses via beforeResponse ([0a5f629](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0a5f629ff3d92632a5b33f9a81adedbb012c776e))
+
 ## [3.164.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.2...v3.164.3) (2026-08-28)
 
 
