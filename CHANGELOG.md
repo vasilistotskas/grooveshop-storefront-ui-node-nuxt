@@ -1,3 +1,11 @@
+## [3.164.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.0...v3.164.1) (2026-08-28)
+
+
+### Bug Fixes
+
+* **sections:** full-width accordion/timeline inside grid parents ([6406b92](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6406b9224b07abf94487a21fe2d82f41012d867a))
+* **theme:** ipx fit=inside for tenant logo resize ([b93bb24](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b93bb241e431c1c439ba63f179e14b9481bbaba8))
+
 # [3.164.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.163.0...v3.164.0) (2026-08-28)
 
 
