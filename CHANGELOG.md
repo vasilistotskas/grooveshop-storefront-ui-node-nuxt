@@ -1,3 +1,10 @@
+## [3.164.15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.14...v3.164.15) (2026-08-28)
+
+
+### Performance Improvements
+
+* **critical-path:** prune resource hints, scope leaflet css to the map ([243ddb5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/243ddb5c7d7be5be1d02ef037db2f6f1b1a2f768))
+
 ## [3.164.14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.13...v3.164.14) (2026-08-28)
 
 
