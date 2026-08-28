@@ -1,3 +1,15 @@
+## [3.164.12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.11...v3.164.12) (2026-08-28)
+
+
+### Bug Fixes
+
+* **cache:** render swr-cached routes anonymously ([763d792](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/763d7929c7e814707fadbd9fc454f566d942bdb8))
+
+
+### Performance Improvements
+
+* **home:** swr-cache the homepage and lazy-hydrate page sections ([49d3918](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/49d3918e9af987eb4dd795503d7e8f2ae8d65f82))
+
 ## [3.164.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.10...v3.164.11) (2026-08-28)
 
 
