@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { RouteLocationNamedI18n } from 'vue-router'
+
 const cartStore = useCartStore()
 const { cleanCartState, refreshCart } = cartStore
 
@@ -34,6 +36,68 @@ const isRouteActive = (base: string) => {
   if (name === base) return true
   return typeof name === 'string' && name.startsWith(`${base}-`)
 }
+
+// Operator-configured items carry paths (not route names), so their
+// active state is a path-prefix match instead of the route-name match
+// above.
+const isPathActive = (path?: string) => {
+  if (!path || !path.startsWith('/')) return false
+  if (path === '/') return route.path === '/'
+  return route.path === path || route.path.startsWith(`${path}/`)
+}
+
+const { headerItems } = useNavigation()
+
+interface DesktopNavItem {
+  key: string
+  label: string
+  to?: RouteLocationNamedI18n
+  href?: string
+  active: boolean
+}
+
+const navItems = computed<DesktopNavItem[]>(() => {
+  // Operator-configured header menu wins; the code list below keeps
+  // the platform chrome for unconfigured tenants — same contract as
+  // BurgerMenu's primaryItems.
+  const configured = headerItems.value
+  if (configured) {
+    return configured.map((item, index) => ({
+      key: `configured-${index}-${item.label}`,
+      label: item.label,
+      // Operator items carry paths, which NuxtLinkLocale accepts at
+      // runtime; the named-route type is narrower than reality here.
+      to: item.to as RouteLocationNamedI18n | undefined,
+      href: item.to ? undefined : item.href,
+      active: isPathActive(item.to),
+    }))
+  }
+  const base: DesktopNavItem[] = [
+    {
+      key: 'products',
+      label: t('shop'),
+      to: 'products',
+      active: isRouteActive('products'),
+    },
+  ]
+  if (tenantStore.blogEnabled) {
+    base.push({
+      key: 'blog',
+      label: t('blog'),
+      to: 'blog',
+      active: isRouteActive('blog'),
+    })
+  }
+  if (giftCardsEnabled.value) {
+    base.push({
+      key: 'gift-cards',
+      label: t('gift_cards'),
+      to: 'gift-cards',
+      active: isRouteActive('gift-cards'),
+    })
+  }
+  return base
+})
 
 const onClickLogout = async () => {
   if (!routeName.value) return
@@ -105,53 +169,18 @@ const items = computed(() => [
           "
         >
           <ul class="flex items-center gap-4">
-            <li class="flex w-full gap-4">
-              <h2>
-                <Anchor
-                  :text="t('shop')"
-                  :title="t('shop')"
-                  :to="'products'"
-                  :aria-current="isRouteActive('products') ? 'page' : undefined"
-                  class="
-                    relative text-lg capitalize transition-colors
-                    after:absolute after:right-0 after:-bottom-1
-                    after:left-0 after:h-0.5 after:bg-(--ui-secondary)
-                    after:transition-transform after:duration-200
-                    motion-reduce:after:transition-none
-                  "
-                  :class="
-                    isRouteActive('products')
-                      ? `
-                          font-bold text-primary-900
-                          dark:text-primary-50
-                          after:scale-x-100
-                        `
-                      : `
-                          text-primary-700
-                          hover:text-primary-900
-                          dark:text-primary-200
-                          hover:dark:text-primary-50
-                          after:scale-x-0
-                        `
-                  "
-                  :ui="{
-                    base: 'p-0',
-                  }"
-                >
-                  {{ t('shop') }}
-                </Anchor>
-              </h2>
-            </li>
             <li
-              v-if="tenantStore.blogEnabled"
+              v-for="item in navItems"
+              :key="item.key"
               class="flex w-full gap-4"
             >
               <h2>
                 <Anchor
-                  :text="t('blog')"
-                  :title="t('blog')"
-                  :to="'blog'"
-                  :aria-current="isRouteActive('blog') ? 'page' : undefined"
+                  :text="item.label"
+                  :title="item.label"
+                  :to="item.to"
+                  :href="item.href ?? ''"
+                  :aria-current="item.active ? 'page' : undefined"
                   class="
                     relative text-lg capitalize transition-colors
                     after:absolute after:right-0 after:-bottom-1
@@ -160,7 +189,7 @@ const items = computed(() => [
                     motion-reduce:after:transition-none
                   "
                   :class="
-                    isRouteActive('blog')
+                    item.active
                       ? `
                           font-bold text-primary-900
                           dark:text-primary-50
@@ -178,47 +207,7 @@ const items = computed(() => [
                     base: 'p-0',
                   }"
                 >
-                  {{ t('blog') }}
-                </Anchor>
-              </h2>
-            </li>
-            <li
-              v-if="giftCardsEnabled"
-              class="flex w-full gap-4"
-            >
-              <h2>
-                <Anchor
-                  :text="t('gift_cards')"
-                  :title="t('gift_cards')"
-                  :to="'gift-cards'"
-                  :aria-current="isRouteActive('gift-cards') ? 'page' : undefined"
-                  class="
-                    relative text-lg capitalize transition-colors
-                    after:absolute after:right-0 after:-bottom-1
-                    after:left-0 after:h-0.5 after:bg-(--ui-secondary)
-                    after:transition-transform after:duration-200
-                    motion-reduce:after:transition-none
-                  "
-                  :class="
-                    isRouteActive('gift-cards')
-                      ? `
-                          font-bold text-primary-900
-                          dark:text-primary-50
-                          after:scale-x-100
-                        `
-                      : `
-                          text-primary-700
-                          hover:text-primary-900
-                          dark:text-primary-200
-                          hover:dark:text-primary-50
-                          after:scale-x-0
-                        `
-                  "
-                  :ui="{
-                    base: 'p-0',
-                  }"
-                >
-                  {{ t('gift_cards') }}
+                  {{ item.label }}
                 </Anchor>
               </h2>
             </li>
