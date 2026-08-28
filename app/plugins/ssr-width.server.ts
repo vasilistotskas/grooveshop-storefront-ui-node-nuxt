@@ -6,10 +6,10 @@ export default defineNuxtPlugin({
     const headers = useRequestHeaders(['user-agent'])
     const ua = headers['user-agent'] || ''
 
-    let ssrWidth = 1280
-    if (/Mobi/i.test(ua)) ssrWidth = 375
-    else if (/iPad|Tablet|Android/i.test(ua)) ssrWidth = 810
-
-    provideSSRWidth(ssrWidth, nuxtApp.vueApp)
+    // Classifier is shared with server/middleware/1.device-class.ts —
+    // the cached-SSR cache keys vary on the same classification this
+    // width feeds into the markup. Never fork the regexes.
+    const deviceClass = deviceClassFromUserAgent(ua)
+    provideSSRWidth(SSR_WIDTH_BY_DEVICE_CLASS[deviceClass], nuxtApp.vueApp)
   },
 })

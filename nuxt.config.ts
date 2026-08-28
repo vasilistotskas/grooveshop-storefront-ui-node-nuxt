@@ -252,10 +252,16 @@ export default defineNuxtConfig({
     // still serves these routes the nonce-free 'unsafe-inline' policy:
     // one cached nonce would be reused for the whole cache lifetime,
     // pinning trust to a stale value.
+    // ``x-device-class`` is stamped by server/middleware/1.device-class.ts
+    // from the SAME UA classifier that seeds the SSR viewport width: the
+    // markup varies by device class (hero art, mobile nav, device-aware
+    // footer), so a host-only key replays one class's HTML to the others
+    // (hydration mismatches; desktop hero served to phones — found live
+    // 2026-08-28).
     ...Object.fromEntries(
       PRERENDERED_ROUTES.map(route => [route, {
         swr: 3600,
-        cache: { varies: ['host'] },
+        cache: { varies: ['host', 'x-device-class'] },
       }]),
     ),
     // Runtime-SWR routes (homepage): same anonymous-render + nonce-free
@@ -265,7 +271,7 @@ export default defineNuxtConfig({
     ...Object.fromEntries(
       Object.entries(SWR_ROUTE_RULES).map(([route, ttl]) => [route, {
         swr: ttl,
-        cache: { varies: ['host'] },
+        cache: { varies: ['host', 'x-device-class'] },
       }]),
     ),
   },
