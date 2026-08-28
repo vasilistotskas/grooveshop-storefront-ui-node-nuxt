@@ -33,6 +33,8 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'features_grid': defineAsyncComponent(() => import('~/components/PageSection/FeaturesGrid.vue')),
   'media_text': defineAsyncComponent(() => import('~/components/PageSection/MediaText.vue')),
   'image_gallery': defineAsyncComponent(() => import('~/components/PageSection/ImageGallery.vue')),
+  'story_timeline': defineAsyncComponent(() => import('~/components/PageSection/StoryTimeline.vue')),
+  'faq': defineAsyncComponent(() => import('~/components/PageSection/Faq.vue')),
 
   // webside tenant variants — full-page marketing/content sections with
   // no props. Base (non-variant) entries deliberately do NOT exist for

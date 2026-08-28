@@ -158,7 +158,7 @@ const onClickCookieSettings = () => {
       >
         <TenantLogo
           :width="125"
-          :height="26"
+          :height="36"
         />
         <span class="sr-only">{{ t('menu') }}</span>
       </NuxtLink>

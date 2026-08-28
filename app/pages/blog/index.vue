@@ -36,11 +36,8 @@ const { sections: brandSections } = await usePageConfig('blog')
 
 <template>
   <PageWrapper class="flex flex-col">
-    <PageSectionRenderer
-      v-for="section in brandSections"
-      :key="section.uuid"
-      :section="section"
-    />
+    <!-- Breadcrumb ABOVE the branded band (crumb landed mid-page for
+         tenants with published sections). -->
     <UBreadcrumb
       :items="items"
       :ui="{
@@ -55,6 +52,19 @@ const { sections: brandSections } = await usePageConfig('blog')
       }"
       class="mb-5"
     />
+    <div
+      v-if="brandSections.length"
+      class="
+        mb-8 grid gap-6
+        md:gap-10
+      "
+    >
+      <PageSectionRenderer
+        v-for="section in brandSections"
+        :key="section.uuid"
+        :section="section"
+      />
+    </div>
     <BlogPostsList>
       <template #sidebar>
         <BlogTagsList />

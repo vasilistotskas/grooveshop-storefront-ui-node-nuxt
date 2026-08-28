@@ -41,11 +41,8 @@ const { sections: brandSections } = await usePageConfig('feedback')
 
 <template>
   <PageWrapper class="mx-auto flex max-w-(--container-4xl) flex-col">
-    <PageSectionRenderer
-      v-for="section in brandSections"
-      :key="section.uuid"
-      :section="section"
-    />
+    <!-- Breadcrumb ABOVE the branded band (crumb landed mid-page for
+         tenants with published sections). -->
     <UBreadcrumb
       :items="items"
       :ui="{
@@ -60,6 +57,19 @@ const { sections: brandSections } = await usePageConfig('feedback')
       }"
       class="relative mb-5 min-w-0"
     />
+    <div
+      v-if="brandSections.length"
+      class="
+        mb-8 grid gap-6
+        md:gap-10
+      "
+    >
+      <PageSectionRenderer
+        v-for="section in brandSections"
+        :key="section.uuid"
+        :section="section"
+      />
+    </div>
     <PageTitle
       :text="t('title')"
       class="mb-4 text-center capitalize"

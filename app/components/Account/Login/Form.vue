@@ -134,7 +134,7 @@ const backgroundImage = computed(() => {
               <TenantLogo
                 v-else
                 :width="isMobileOrTablet ? 160 : 220"
-                :height="isMobileOrTablet ? 33 : 46"
+                :height="isMobileOrTablet ? 88 : 110"
               />
               <span class="sr-only">
                 {{ t('logo_alt', { appTitle: tenantStore.storeName || config.public.appTitle }) }}

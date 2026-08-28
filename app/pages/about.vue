@@ -29,9 +29,19 @@ definePageMeta({
 </script>
 
 <template>
-  <PageSectionRenderer
-    v-for="section in sections"
-    :key="section.uuid"
-    :section="section"
-  />
+  <!-- Vertical rhythm between sections (single-section layouts render
+       identically — a one-item grid has no gaps). No UContainer here:
+       full-bleed section variants own their width. -->
+  <div
+    class="
+      grid gap-6 pb-8
+      md:gap-10 md:pb-12
+    "
+  >
+    <PageSectionRenderer
+      v-for="section in sections"
+      :key="section.uuid"
+      :section="section"
+    />
+  </div>
 </template>

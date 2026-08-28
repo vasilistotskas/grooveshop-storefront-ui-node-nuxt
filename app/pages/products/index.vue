@@ -89,11 +89,9 @@ const { sections: brandSections } = await usePageConfig('products')
       'lg:px-0 lg:max-w-375',
     ]"
   >
-    <PageSectionRenderer
-      v-for="section in brandSections"
-      :key="section.uuid"
-      :section="section"
-    />
+    <!-- Breadcrumb (inside the container below) renders before the
+         branded band, so the band slots AFTER the crumb via this
+         moved block; sections land mid-page otherwise. -->
     <!-- Skip Links for Keyboard Navigation -->
     <div class="sr-only focus-within:not-sr-only">
       <a
@@ -142,6 +140,19 @@ const { sections: brandSections } = await usePageConfig('products')
           md:px-0
         "
       />
+      <div
+        v-if="brandSections.length"
+        class="
+          mb-8 grid gap-6
+          md:gap-10
+        "
+      >
+        <PageSectionRenderer
+          v-for="section in brandSections"
+          :key="section.uuid"
+          :section="section"
+        />
+      </div>
     </div>
 
     <div

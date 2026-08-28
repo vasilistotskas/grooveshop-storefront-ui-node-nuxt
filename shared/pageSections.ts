@@ -180,6 +180,41 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     })
     .partial()
     .strip(),
+  story_timeline: z
+    .object({
+      heading: z.string().max(200),
+      items: z
+        .array(
+          z
+            .object({
+              title: z.string().max(100),
+              date: z.string().max(50).optional(),
+              text: z.string().max(500).optional(),
+              icon: z.string().max(100).regex(/^i-[a-z0-9:-]+$/).optional(),
+            })
+            .strip(),
+        )
+        .max(20),
+    })
+    .partial()
+    .strip(),
+  faq: z
+    .object({
+      heading: z.string().max(200),
+      items: z
+        .array(
+          z
+            .object({
+              question: z.string().max(200),
+              answer: z.string().max(2000),
+            })
+            .strip(),
+        )
+        .max(30),
+      multiple: z.boolean(),
+    })
+    .partial()
+    .strip(),
 }
 
 /**

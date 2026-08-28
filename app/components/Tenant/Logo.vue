@@ -25,6 +25,20 @@ const props = withDefaults(
   },
 )
 
+// ``width``/``height`` are a FIT BOX, not exact dimensions. Tailwind's
+// preflight sets ``img { height: auto }``, which discards the height
+// ATTRIBUTE — a square logo (tenant #2's round seal) rendered at its
+// natural aspect ratio, 145px wide and 144px TALL, quadrupling the
+// header. CSS max-dimensions contain any aspect ratio: wide wordmarks
+// stay width-bound (unchanged), square seals become height-bound.
+const fitBox = computed(() => ({
+  objectFit: 'contain' as const,
+  width: 'auto',
+  height: 'auto',
+  maxWidth: `${props.width}px`,
+  maxHeight: `${props.height}px`,
+}))
+
 const { logoLightUrl, logoDarkUrl } = useTenantBranding()
 const tenantStore = useTenantStore()
 const hasDistinctDark = computed(
@@ -45,7 +59,7 @@ const priorityAttrs = computed(() =>
   >{{ tenantStore.storeName }}</span>
   <NuxtImg
     v-else
-    :style="{ objectFit: 'contain' }"
+    :style="fitBox"
     :src="logoLightUrl"
     :width="width"
     :height="height"
@@ -56,7 +70,7 @@ const priorityAttrs = computed(() =>
   />
   <NuxtImg
     v-if="hasDistinctDark"
-    :style="{ objectFit: 'contain' }"
+    :style="fitBox"
     :src="logoDarkUrl"
     :width="width"
     :height="height"

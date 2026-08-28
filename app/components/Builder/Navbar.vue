@@ -89,7 +89,7 @@ onMounted(() => {
               >
                 <TenantLogo
                   :width="145"
-                  :height="30"
+                  :height="44"
                   priority
                 />
                 <span class="sr-only">{{ appTitle }}</span>

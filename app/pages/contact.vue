@@ -40,11 +40,8 @@ const { sections: brandSections } = await usePageConfig('contact')
       md:p-0!
     "
   >
-    <PageSectionRenderer
-      v-for="section in brandSections"
-      :key="section.uuid"
-      :section="section"
-    />
+    <!-- Breadcrumb ABOVE the branded band: with sections published the
+         crumb otherwise landed mid-page, after the hours/map band. -->
     <UBreadcrumb
       :items="items"
       :ui="{
@@ -59,6 +56,19 @@ const { sections: brandSections } = await usePageConfig('contact')
       }"
       class="relative mb-5 min-w-0"
     />
+    <div
+      v-if="brandSections.length"
+      class="
+        mb-8 grid gap-6
+        md:gap-10
+      "
+    >
+      <PageSectionRenderer
+        v-for="section in brandSections"
+        :key="section.uuid"
+        :section="section"
+      />
+    </div>
     <PageTitle
       :text="t('title')"
       class="mb-4 text-center capitalize"
