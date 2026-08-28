@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import { DEFAULT_LOCALE } from './i18n/locales'
 import { version } from './package.json'
-import { PRERENDERED_ROUTES } from './shared/constants/prerender'
+import { PRERENDERED_ROUTES, SWR_ROUTE_RULES } from './shared/constants/prerender'
 import { FONT_FAMILY_NAMES } from './shared/theme/constants'
 
 const modules = [
@@ -255,6 +255,16 @@ export default defineNuxtConfig({
     ...Object.fromEntries(
       PRERENDERED_ROUTES.map(route => [route, {
         swr: 3600,
+        cache: { varies: ['host'] },
+      }]),
+    ),
+    // Runtime-SWR routes (homepage): same anonymous-render + nonce-free
+    // CSP contract as above, shorter TTLs — see SWR_ROUTE_RULES in
+    // shared/constants/prerender.ts for the rationale and the contract
+    // that keeps user data out of the shared cache.
+    ...Object.fromEntries(
+      Object.entries(SWR_ROUTE_RULES).map(([route, ttl]) => [route, {
+        swr: ttl,
         cache: { varies: ['host'] },
       }]),
     ),

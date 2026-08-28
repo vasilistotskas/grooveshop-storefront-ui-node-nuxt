@@ -15,7 +15,7 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { generateCspNonce } from '../../../../server/utils/csp'
-import { PRERENDERED_ROUTES_SET } from '../../../../shared/constants/prerender'
+import { CACHED_SSR_ROUTES_SET, PRERENDERED_ROUTES_SET } from '../../../../shared/constants/prerender'
 import { buildCspDirectives } from '../../../../shared/utils/csp'
 
 const INTERNAL_DJANGO_URL = 'http://backend-service:80'
@@ -67,6 +67,7 @@ beforeAll(async () => {
   // wire the REAL implementations so behavior (and the route list) can't drift.
   vi.stubGlobal('generateCspNonce', generateCspNonce)
   vi.stubGlobal('PRERENDERED_ROUTES_SET', PRERENDERED_ROUTES_SET)
+  vi.stubGlobal('CACHED_SSR_ROUTES_SET', CACHED_SSR_ROUTES_SET)
   vi.stubGlobal('buildCspDirectives', buildCspDirectives)
   // Import after globals are stubbed — the module wraps its handler in
   // defineEventHandler at module-evaluation time.
@@ -228,11 +229,20 @@ describe('csp middleware', () => {
   })
 
   it('generates a fresh nonce per request', () => {
-    const first = runWith('/').event.context.cspNonce
-    const second = runWith('/').event.context.cspNonce
+    const first = runWith('/products').event.context.cspNonce
+    const second = runWith('/products').event.context.cspNonce
     expect(first).toBeDefined()
     expect(second).toBeDefined()
     expect(first).not.toBe(second)
+  })
+
+  it('keeps the nonce-free policy on the SWR-cached homepage', () => {
+    // '/' is served from Nitro's cache (SWR_ROUTE_RULES): a per-request
+    // nonce would be reused for the whole cache lifetime, so the cached
+    // routes keep the 'unsafe-inline'-based policy instead.
+    const result = runWith('/')
+    expect(result.event.context.cspNonce).toBeUndefined()
+    expect(result['Content-Security-Policy']!).not.toContain('nonce-')
   })
 
   it('keeps the nonce-free unsafe-inline policy on prerendered routes', () => {
