@@ -11,7 +11,7 @@ defineProps<{
 
 <template>
   <div
-    class="mx-auto max-w-(--container-main) rounded-lg p-8 text-center md:p-12"
+    class="w-full rounded-lg p-8 text-center md:p-12"
     :style="backgroundColor ? { backgroundColor } : undefined"
     :class="!backgroundColor ? 'bg-primary-50 dark:bg-primary-900' : ''"
   >

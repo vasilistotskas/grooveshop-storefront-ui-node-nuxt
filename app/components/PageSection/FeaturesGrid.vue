@@ -23,7 +23,7 @@ const columnsClass = computed(
 <template>
   <div
     v-if="items?.length"
-    class="mx-auto max-w-(--container-main) md:!p-0"
+    class="w-full"
   >
     <h2
       v-if="heading"

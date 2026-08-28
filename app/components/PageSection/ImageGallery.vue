@@ -20,7 +20,7 @@ const columnsClass = computed(
 <template>
   <div
     v-if="items?.length"
-    class="mx-auto max-w-(--container-main) md:!p-0"
+    class="w-full"
   >
     <div
       class="grid grid-cols-2 gap-4"

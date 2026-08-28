@@ -29,9 +29,6 @@ const recentlyViewedEnabled = useSettingFlag('RECENTLY_VIEWED_ENABLED', {
        read localStorage and populate the carousel. -->
   <ProductRecentlyViewed
     v-if="recentlyViewedEnabled"
-    class="
-      mx-auto w-full max-w-main
-      md:p-0!
-    "
+    class="w-full md:p-0!"
   />
 </template>

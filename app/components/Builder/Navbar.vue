@@ -52,12 +52,21 @@ onMounted(() => {
     >
       <slot name="banner" />
     </div>
-    <div class="mx-auto max-w-main p-0!">
+    <!-- Same frame as PageWrapper/UContainer, so the logo lines up with
+         the page content underneath it. The old `max-w-main` (1194px,
+         no gutters) sat 11px inside the content column on desktop and
+         8px outside it on mobile. -->
+    <div
+      class="
+        mx-auto w-full max-w-(--ui-container) px-4
+        sm:px-6
+        lg:px-8
+      "
+    >
       <div
         class="
-          mx-2 flex gap-2 py-3
+          flex gap-2 py-3
           md:flex md:py-4
-          lg:mx-0
         "
       >
         <div

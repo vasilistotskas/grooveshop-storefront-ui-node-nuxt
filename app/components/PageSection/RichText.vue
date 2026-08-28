@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="mx-auto max-w-(--container-main) md:!p-0">
+  <div class="w-full">
     <h2
       v-if="title"
       class="mb-4 text-2xl font-bold"

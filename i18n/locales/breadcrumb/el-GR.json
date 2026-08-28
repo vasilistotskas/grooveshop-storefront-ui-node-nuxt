@@ -6,7 +6,7 @@
         "icon": "i-heroicons-home"
       },
       "about": {
-        "label": "Τι Είναι Το {storeName}",
+        "label": "Σχετικά",
         "icon": "i-heroicons-information-circle"
       },
       "account": {
@@ -68,6 +68,10 @@
       "blog": {
         "label": "Ιστολόγιο",
         "icon": "i-heroicons-newspaper"
+      },
+      "blog-categories": {
+        "label": "Κατηγορίες",
+        "icon": "i-heroicons-rectangle-stack"
       },
       "products": {
         "label": "Προϊόντα",

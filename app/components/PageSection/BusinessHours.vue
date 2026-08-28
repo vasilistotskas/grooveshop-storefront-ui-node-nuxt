@@ -17,7 +17,7 @@ const rows = computed(() => {
   <section
     v-if="hasData"
     :aria-label="t('title')"
-    class="mx-auto max-w-(--container-main) md:!p-0"
+    class="w-full"
   >
     <div
       class="

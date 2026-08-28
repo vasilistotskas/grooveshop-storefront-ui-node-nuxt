@@ -4,20 +4,6 @@ import type { ButtonProps } from '@nuxt/ui'
 const { t } = useI18n()
 const localePath = useLocalePath()
 
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath('what-is-microlearning'),
-    label: t('breadcrumb.items.what-is-microlearning.label'),
-    icon: t('breadcrumb.items.what-is-microlearning.icon'),
-    current: true,
-  },
-])
-
 const heroLinks = computed<ButtonProps[]>(() => [
   {
     label: t('microlearning.cta.why'),
@@ -36,23 +22,7 @@ useHead({
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col">
-    <UBreadcrumb
-      :items="items"
-      :ui="{
-        item: `
-          text-primary-950
-          dark:text-primary-50
-        `,
-        root: `
-          px-4 text-xs
-          sm:px-6
-          md:text-base
-          lg:px-8
-        `,
-      }"
-      class="relative mb-3 min-w-0"
-    />
+  <div class="flex w-full flex-col">
     <UPageHero
       :title="t('microlearning.what')"
       orientation="horizontal"
@@ -203,7 +173,7 @@ useHead({
         "
       />
     </UPageSection>
-  </PageWrapper>
+  </div>
 </template>
 
 <i18n lang="yaml">
@@ -220,9 +190,4 @@ el:
       title: Τι είναι το microcontent
     cta:
       why: Γιατί Microlearning
-  breadcrumb:
-    items:
-      what-is-microlearning:
-        label: Τι είναι το Microlearning
-        icon: i-heroicons-light-bulb
 </i18n>

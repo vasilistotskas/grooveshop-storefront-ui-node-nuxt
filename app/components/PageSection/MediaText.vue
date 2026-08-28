@@ -16,11 +16,7 @@ const imageFirst = computed(() => props.imagePosition !== 'right')
 <template>
   <div
     v-if="heading || body || imageUrl"
-    class="
-      relative mx-auto max-w-(--container-main) overflow-hidden
-      rounded-lg
-      md:!p-0
-    "
+    class="relative w-full overflow-hidden rounded-lg"
     :class="
       decor === 'gradient'
         ? `

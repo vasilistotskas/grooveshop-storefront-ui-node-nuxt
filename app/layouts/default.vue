@@ -17,7 +17,6 @@ const mobileBottomNavEnabled = useSettingFlag('MOBILE_BOTTOM_NAV_ENABLED', {
 })
 
 const routeName = computed(() => $routeBaseName(route))
-const isProductPage = computed(() => routeName.value === 'products-id-slug')
 
 // Account pages get the user-area chrome (account info banner + sidebar
 // on lg+). Single layout, route-aware — replaces the old user.vue.
@@ -41,12 +40,16 @@ const showUserChrome = computed(
   () => isAccountRoute.value && !onAuthFlowRoute.value && loggedIn.value && user.value,
 )
 
-const footerClass = computed(() => {
-  if (isProductPage.value) {
-    return 'md:pb-0'
-  }
-  return 'md:pb-0'
-})
+// MobileBottomNav is `fixed bottom-0` and nothing used to reserve room
+// for it, so it covered the end of the footer (merchant identity +
+// opening hours). Reserve its height — min-h-12 plus its safe-area
+// padding — only while it is rendered, and only below `lg`, which is
+// the breakpoint `MobileOrTabletOnly` (max-width: 1023px) shows it at.
+const footerClass = computed(() =>
+  mobileBottomNavEnabled.value
+    ? 'pb-[calc(3.5rem+env(safe-area-inset-bottom))] lg:pb-0'
+    : '',
+)
 </script>
 
 <template>

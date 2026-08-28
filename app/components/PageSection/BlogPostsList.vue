@@ -22,10 +22,7 @@ const effectivePageSize = computed(
     :page-size="effectivePageSize"
     :show-ordering="false"
     :eager-first-images="false"
-    class="
-      mx-auto max-w-main
-      md:p-0!
-    "
+    class="w-full md:p-0!"
     pagination-type="cursor"
     pagination-strategy="button"
     hydrate-on-visible

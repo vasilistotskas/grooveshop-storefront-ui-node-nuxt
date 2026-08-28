@@ -17,20 +17,6 @@ const storeName = computed(
   () => tenantStore.storeName || (config.public.appTitle as string),
 )
 
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath('about'),
-    label: t('breadcrumb.items.about.label', { storeName: storeName.value }),
-    icon: t('breadcrumb.items.about.icon'),
-    current: true,
-  },
-])
-
 const pageTitle = computed(() => t('title', { storeName: storeName.value }))
 
 const heroLinks = computed<ButtonProps[]>(() => [
@@ -77,23 +63,7 @@ useHead({
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col">
-    <UBreadcrumb
-      :items="items"
-      :ui="{
-        item: `
-          text-primary-950
-          dark:text-primary-50
-        `,
-        root: `
-          px-4 text-xs
-          sm:px-6
-          md:text-base
-          lg:px-8
-        `,
-      }"
-      class="relative mb-3 min-w-0"
-    />
+  <div class="flex w-full flex-col">
     <UPageHero
       :headline="t('about.headline')"
       :title="pageTitle"
@@ -152,7 +122,7 @@ useHead({
       :features="pillars"
       class="mt-12 border-t border-default"
     />
-  </PageWrapper>
+  </div>
 </template>
 
 <i18n lang="yaml">
@@ -178,11 +148,6 @@ el:
     cta:
       vision: Το Όραμά μας
       what: Τι είναι το Microlearning
-  breadcrumb:
-    items:
-      about:
-        label: Τι Είναι Το {storeName}
-        icon: i-heroicons-information-circle
   body:
     p1: >-
       Χρησιμοποιώντας ως γνώμονα το μοντέλο ηλεκτρονικής μάθησης «Microlearning»,

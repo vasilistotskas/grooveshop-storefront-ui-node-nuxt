@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="mx-auto max-w-(--container-main)">
+  <div class="w-full">
     <hr
       v-if="variant === 'thread'"
       aria-hidden="true"

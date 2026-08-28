@@ -11,7 +11,7 @@ const email = ref('')
 </script>
 
 <template>
-  <div class="mx-auto max-w-(--container-main) rounded-lg bg-neutral-50 p-8 text-center dark:bg-neutral-800 md:p-12">
+  <div class="w-full rounded-lg bg-neutral-50 p-8 text-center dark:bg-neutral-800 md:p-12">
     <h2
       v-if="heading || title"
       class="text-2xl font-bold"

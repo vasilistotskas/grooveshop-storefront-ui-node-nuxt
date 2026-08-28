@@ -1,20 +1,5 @@
 <script lang="ts" setup>
 const { t } = useI18n()
-const localePath = useLocalePath()
-
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath('contact'),
-    label: t('breadcrumb.items.contact.label'),
-    icon: t('breadcrumb.items.contact.icon'),
-    current: true,
-  },
-])
 
 useSeoMeta({
   title: t('title'),
@@ -34,28 +19,10 @@ const { sections: brandSections } = await usePageConfig('contact')
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      mx-auto flex max-w-2xl flex-col
-      md:p-0!
-    "
-  >
+  <PageWrapper class="flex flex-col">
     <!-- Breadcrumb ABOVE the branded band: with sections published the
          crumb otherwise landed mid-page, after the hours/map band. -->
-    <UBreadcrumb
-      :items="items"
-      :ui="{
-        item: `
-          text-primary-950
-          dark:text-primary-50
-        `,
-        root: `
-          text-xs
-          md:text-base
-        `,
-      }"
-      class="relative mb-5 min-w-0"
-    />
+    <PageBreadcrumb />
     <div
       v-if="brandSections.length"
       class="
@@ -69,21 +36,22 @@ const { sections: brandSections } = await usePageConfig('contact')
         :section="section"
       />
     </div>
-    <PageTitle
-      :text="t('title')"
-      class="mb-4 text-center capitalize"
-    />
+    <!-- The FORM is what wants a narrow measure — not the page. The
+         constraint used to sit on PageWrapper, which also squeezed the
+         breadcrumb and the branded band to 2xl and left this page
+         visibly narrower than every other one. -->
+    <div class="mx-auto w-full max-w-2xl">
+      <PageTitle
+        :text="t('title')"
+        class="mb-4 text-center capitalize"
+      />
 
-    <ContactForm />
+      <ContactForm />
+    </div>
   </PageWrapper>
 </template>
 
 <i18n lang="yaml">
 el:
   title: Επικοινωνήστε μαζί μας
-  breadcrumb:
-    items:
-      contact:
-        label: Επικοινωνία
-        icon: i-heroicons-chat-bubble-bottom-center-text
 </i18n>

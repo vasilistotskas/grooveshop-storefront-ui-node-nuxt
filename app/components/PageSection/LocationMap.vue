@@ -19,7 +19,7 @@ const showMap = computed(() => Boolean(props.embedUrl))
   <section
     v-if="showMap || address"
     :aria-label="t('title')"
-    class="mx-auto max-w-(--container-main) md:!p-0"
+    class="w-full"
   >
     <div
       v-if="showMap"

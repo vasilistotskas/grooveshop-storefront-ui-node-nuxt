@@ -29,19 +29,21 @@ definePageMeta({
 </script>
 
 <template>
-  <!-- Vertical rhythm between sections (single-section layouts render
-       identically — a one-item grid has no gaps). No UContainer here:
-       full-bleed section variants own their width. -->
-  <div
-    class="
-      grid gap-6 pb-8
-      md:gap-10 md:pb-12
-    "
-  >
-    <PageSectionRenderer
-      v-for="section in sections"
-      :key="section.uuid"
-      :section="section"
-    />
-  </div>
+  <!-- PageWrapper is THE content frame (width + gutters) for every
+       page; sections are width-agnostic and simply fill it. -->
+  <PageWrapper>
+    <PageBreadcrumb />
+    <div
+      class="
+        grid gap-6
+        md:gap-10
+      "
+    >
+      <PageSectionRenderer
+        v-for="section in sections"
+        :key="section.uuid"
+        :section="section"
+      />
+    </div>
+  </PageWrapper>
 </template>

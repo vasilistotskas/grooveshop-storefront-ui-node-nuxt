@@ -30,7 +30,7 @@ useSchemaOrg(
 <template>
   <div
     v-if="accordionItems.length"
-    class="mx-auto w-full max-w-(--container-main) md:!p-0"
+    class="w-full"
   >
     <h2
       v-if="heading"

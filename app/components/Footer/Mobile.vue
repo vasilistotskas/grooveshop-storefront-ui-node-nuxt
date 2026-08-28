@@ -52,8 +52,14 @@ const items = computed<AccordionItem[]>(() =>
     </UAccordion>
 
     <!-- Same obligation as the desktop footer: the seller identity has
-         to be on every page, not only the wide layout. -->
-    <MerchantIdentity class="px-4 pt-4" />
-    <FooterHoursBadge class="px-4 pt-2" />
+         to be on every page, not only the wide layout. Centered in its
+         own padded block: as bare `px-4 pt-*` siblings these two sat
+         flush against the last accordion bar and ran off the bottom
+         edge of the page (no bottom padding, and the fixed mobile
+         bottom nav overlapped them when enabled). -->
+    <div class="flex flex-col items-center gap-2 px-4 pt-6 pb-8 text-center">
+      <MerchantIdentity />
+      <FooterHoursBadge />
+    </div>
   </footer>
 </template>

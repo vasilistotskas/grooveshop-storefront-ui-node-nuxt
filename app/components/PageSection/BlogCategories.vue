@@ -11,7 +11,7 @@ const { isMobileOrTablet } = useDevice()
   <BlogCategoriesSlider
     v-if="tenantStore.blogEnabled"
     :class="[
-      'mx-auto max-w-main',
+      'w-full',
       isMobileOrTablet ? 'py-0!' : 'md:p-0!',
     ]"
   />

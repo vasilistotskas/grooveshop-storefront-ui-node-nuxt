@@ -5,7 +5,7 @@ defineProps<{
 </script>
 
 <template>
-  <div class="mx-auto max-w-(--container-main) md:!p-0">
+  <div class="w-full">
     <SearchInput />
   </div>
 </template>
