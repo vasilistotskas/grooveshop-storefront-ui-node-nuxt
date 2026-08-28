@@ -1,20 +1,5 @@
 <script lang="ts" setup>
 const { t } = useI18n()
-const localePath = useLocalePath()
-
-const items = computed(() => [
-  {
-    to: localePath('index'),
-    label: t('breadcrumb.items.index.label'),
-    icon: t('breadcrumb.items.index.icon'),
-  },
-  {
-    to: localePath('return-policy'),
-    label: t('breadcrumb.items.return-policy.label'),
-    icon: t('breadcrumb.items.return-policy.icon'),
-    current: true,
-  },
-])
 
 defineRouteRules({
   robots: false,
@@ -34,21 +19,11 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="mx-auto flex max-w-(--container-4xl) flex-col">
-    <UBreadcrumb
-      :items="items"
-      :ui="{
-        item: `
-          text-primary-950
-          dark:text-primary-50
-        `,
-        root: `
-          text-xs
-          md:text-base
-        `,
-      }"
-      class="relative mb-5 min-w-0"
-    />
+  <!-- Same frame as its sibling legal pages (privacy / terms /
+       cookies); the 4xl cap put this page's crumb 272px right of
+       theirs. -->
+  <PageWrapper class="flex flex-col">
+    <PageBreadcrumb />
     <PageTitle
       :text="t('title')"
       class="mb-4 text-center capitalize"
@@ -61,9 +36,4 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Πολιτική Επιστροφών
-  breadcrumb:
-    items:
-      return-policy:
-        label: Πολιτική Επιστροφών
-        icon: i-heroicons-clipboard-document-list
 </i18n>

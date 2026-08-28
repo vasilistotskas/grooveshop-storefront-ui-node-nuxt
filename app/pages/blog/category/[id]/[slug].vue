@@ -166,7 +166,9 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper class="flex max-w-(--container-6xl) flex-col">
+  <!-- Same frame as /blog: this is the same post list, and the 6xl cap
+       shifted its crumb 144px right of the one users just came from. -->
+  <PageWrapper class="flex flex-col">
     <UBreadcrumb
       :items="items"
       :ui="{
@@ -179,10 +181,7 @@ definePageMeta({
           md:text-base
         `,
       }"
-      class="
-        mb-5
-        md:px-0
-      "
+      class="relative mb-5 min-w-0"
     />
     <h2
       class="mb-5 flex w-full items-center justify-center gap-2"
