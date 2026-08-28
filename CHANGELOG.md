@@ -1,3 +1,10 @@
+## [3.164.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.6...v3.164.7) (2026-08-28)
+
+
+### Bug Fixes
+
+* **sections:** left-align the story timeline with its heading ([28ab667](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/28ab667ae1e23ceef9cfdd86ce99a3c585494fe8))
+
 ## [3.164.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.5...v3.164.6) (2026-08-28)
 
 
