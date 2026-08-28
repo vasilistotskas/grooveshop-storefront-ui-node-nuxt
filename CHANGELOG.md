@@ -1,3 +1,10 @@
+## [3.164.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.10...v3.164.11) (2026-08-28)
+
+
+### Performance Improvements
+
+* **ssr:** cache settings lookups, webp hero, scoped leaflet css ([2f6a81a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2f6a81ad21af1048c995d7c81bf9cb3dd13673e8))
+
 ## [3.164.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.9...v3.164.10) (2026-08-28)
 
 
