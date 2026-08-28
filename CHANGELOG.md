@@ -1,3 +1,10 @@
+## [3.164.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.1...v3.164.2) (2026-08-28)
+
+
+### Bug Fixes
+
+* **sections:** stretch faq/timeline wrappers inside grid parents ([e0b67b6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e0b67b6aa001c250a227abe306fae3725652b374))
+
 ## [3.164.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.0...v3.164.1) (2026-08-28)
 
 
