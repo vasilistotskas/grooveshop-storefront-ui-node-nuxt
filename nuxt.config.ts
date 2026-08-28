@@ -1,10 +1,11 @@
+import type { NuxtModule } from 'nuxt/schema'
 import { fileURLToPath } from 'node:url'
 import { DEFAULT_LOCALE } from './i18n/locales'
 import { version } from './package.json'
 import { PRERENDERED_ROUTES, SWR_ROUTE_RULES } from './shared/constants/prerender'
 import { FONT_FAMILY_NAMES } from './shared/theme/constants'
 
-const modules = [
+const modules: (string | NuxtModule)[] = [
   'evlog/nuxt',
   '@comark/nuxt',
   '@nuxt/image',
@@ -20,6 +21,18 @@ const modules = [
   '@vueuse/nuxt',
   'nuxt-auth-utils',
   'nuxt-ai-ready',
+  // @nuxtjs/leaflet unconditionally pushes leaflet/dist/leaflet.css into
+  // the GLOBAL css array (dist/module.mjs:38, no opt-out) — a
+  // render-blocking stylesheet on every page for a map that exists only
+  // in checkout, and SmartpointMap.client.vue imports that css itself so
+  // the global copy is a pure duplicate (Lighthouse flagged it on the
+  // homepage, 2026-08-29). Inline module placed after @nuxtjs/leaflet so
+  // it strips the entry the module just added.
+  (_options, nuxt) => {
+    nuxt.options.css = nuxt.options.css.filter(
+      entry => entry !== 'leaflet/dist/leaflet.css',
+    )
+  },
 ]
 
 if (process.env.NODE_ENV === 'test') {
@@ -443,6 +456,31 @@ export default defineNuxtConfig({
     typeCheck: true,
   },
   debug: false,
+  hooks: {
+    // Trim the resource-hint storm the SSR renderer emits (was 157
+    // modulepreload + 82 prefetch links on the homepage — they compete
+    // with the LCP image for bandwidth on throttled mobile):
+    // - dynamicImports feed ONLY the rel=prefetch hint computation in
+    //   vue-bundle-renderer (runtime dynamic imports resolve through the
+    //   import graph, not this manifest), so emptying them drops every
+    //   speculative prefetch link.
+    // - PageSection chunks are lazy-hydrated (componentRegistry.ts), so
+    //   their scripts are not needed until hydrateOnVisible/Idle fires:
+    //   preload:false drops their modulepreload (flag survives
+    //   normalizeViteManifest — Object.assign(parseResource(), chunk) —
+    //   and gates the filteredPreload pass); their CSS keeps rendering
+    //   as stylesheets via the unconditional deps.styles set.
+    'build:manifest': (manifest) => {
+      for (const key in manifest) {
+        const entry = manifest[key]
+        if (!entry) continue
+        entry.dynamicImports = []
+        if (key.includes('components/PageSection/')) {
+          entry.preload = false
+        }
+      }
+    },
+  },
   // ``nuxt-ai-ready`` exposes site content to AI agents and crawlers via:
   //   /llms.txt, /llms-full.txt   — site overview + per-page markdown
   //   /<route>.md                  — on-demand markdown of any HTML page
