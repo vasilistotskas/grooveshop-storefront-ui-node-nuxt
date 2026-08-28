@@ -1,3 +1,13 @@
+# [3.162.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.161.1...v3.162.0) (2026-08-28)
+
+
+### Features
+
+* **navbar:** drive desktop navigation from operator-configured menu ([b0c7d95](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b0c7d95c07beca8249f353a5eef1ab9bd505e742))
+* **sections:** business hours, location map, LocalBusiness schema.org ([0b083bd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0b083bd3eaaefeb69d8ae24799b20b5d0cdea71a))
+* **sections:** marketing section kit, display font token, tri-thread signature ([5bb8f5d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5bb8f5d53942d00ade97eb36f03a27bac32c6692)), closes [#2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/2)
+* **theme:** dark-mode palettes, secondary scale, liked/accent-dark tokens ([31a54a0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/31a54a0ec925f42496b58b69729e4c9aaf63a5a3)), closes [#FF00BD](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/FF00BD)
+
 ## [3.161.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.161.0...v3.161.1) (2026-08-27)
 
 
