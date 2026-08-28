@@ -1,3 +1,10 @@
+## [3.164.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.7...v3.164.8) (2026-08-28)
+
+
+### Bug Fixes
+
+* **csp:** pin zod to jitless mode ([6e15107](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6e15107ecd27cbe64192da71ba58b9d2071b15a0))
+
 ## [3.164.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.6...v3.164.7) (2026-08-28)
 
 
