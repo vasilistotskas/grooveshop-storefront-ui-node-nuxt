@@ -1,3 +1,10 @@
+## [3.164.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.2...v3.164.3) (2026-08-28)
+
+
+### Bug Fixes
+
+* **tenant:** per-request i18n baseUrl, honest manifest icons, stable logo box ([c663f18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c663f185c31fcc9c6f0e8de0ca464aa240369906))
+
 ## [3.164.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.1...v3.164.2) (2026-08-28)
 
 
