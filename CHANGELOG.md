@@ -1,3 +1,10 @@
+## [3.164.13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.12...v3.164.13) (2026-08-28)
+
+
+### Bug Fixes
+
+* **cache:** key cached SSR routes by device class ([909c290](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/909c290af65a15564ff0ea4bd38e56b854bd6339))
+
 ## [3.164.12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.11...v3.164.12) (2026-08-28)
 
 
