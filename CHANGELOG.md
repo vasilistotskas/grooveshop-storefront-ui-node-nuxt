@@ -1,3 +1,10 @@
+## [3.164.14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.13...v3.164.14) (2026-08-28)
+
+
+### Bug Fixes
+
+* **cache:** read ssr width from the varied x-device-class header ([a00651e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a00651e6a99f6b5fb0d007d9ca0f1a45f64fdbf6))
+
 ## [3.164.13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.12...v3.164.13) (2026-08-28)
 
 
