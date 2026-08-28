@@ -66,7 +66,7 @@ const { sections: brandSections } = await usePageConfig('blog')
 <i18n lang="yaml">
 el:
   title: Blog
-  description: Ανακάλυψε τα τελευταία νέα και τις τεχνολογικές εξελίξεις στον κόσμο της τεχνολογίας.
+  description: Νέα, άρθρα και ιστορίες μας.
   breadcrumb:
     items:
       blog:

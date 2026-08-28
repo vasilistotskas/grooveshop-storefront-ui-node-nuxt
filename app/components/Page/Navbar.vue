@@ -20,6 +20,10 @@ const tenantStore = useTenantStore()
 const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
   fallback: false,
 })
+
+// Cart chrome for shop-dark tenants (content site now, eshop later).
+// Shopper-facing chrome fails OPEN.
+const cartEnabled = useSettingFlag('CART_ENABLED', { fallback: true })
 const giftCardsEnabled = computed(
   () => tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value,
 )
@@ -302,7 +306,10 @@ const items = computed(() => [
                 </li>
               </template>
             </ClientOnly>
-            <li class="relative grid max-w-6 items-center justify-center justify-items-center">
+            <li
+              v-if="cartEnabled"
+              class="relative grid max-w-6 items-center justify-center justify-items-center"
+            >
               <CartButton />
             </li>
             <li

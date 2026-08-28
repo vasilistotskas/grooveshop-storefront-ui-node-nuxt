@@ -197,7 +197,7 @@ watch(
 <template>
   <div class="grid gap-4">
     <Pagination
-      v-if="pagination && ['pageNumber', 'limitOffset'].includes(paginationType)"
+      v-if="pagination && pagination.count > 0 && ['pageNumber', 'limitOffset'].includes(paginationType)"
       :count="pagination.count"
       :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
       :links="pagination.links"
@@ -257,6 +257,15 @@ watch(
             class="h-[461px] w-full"
           />
         </div>
+        <!-- A blog with no published posts previously rendered a blank
+             page with orphaned pagination arrows. -->
+        <UEmpty
+          v-else-if="status === 'success' && !allPosts.length"
+          icon="i-heroicons-newspaper"
+          :title="t('empty.title')"
+          :description="t('empty.description')"
+          class="py-12"
+        />
       </div>
       <slot name="sidebar" />
     </section>
@@ -270,7 +279,7 @@ watch(
       </div>
     </Transition>
     <Pagination
-      v-if="pagination && paginationType === 'cursor'"
+      v-if="pagination && pagination.count > 0 && paginationType === 'cursor'"
       :count="pagination.count"
       :cursor-key="PaginationCursorStateEnum.BLOG_POSTS"
       :links="pagination.links"
@@ -284,3 +293,10 @@ watch(
     />
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  empty:
+    title: Δεν υπάρχουν άρθρα ακόμη
+    description: Σύντομα θα βρείτε εδώ τα νέα και τις ιστορίες μας.
+</i18n>

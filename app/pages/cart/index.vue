@@ -136,6 +136,7 @@ defineRouteRules({
 
 definePageMeta({
   layout: 'default',
+  middleware: ['cart-enabled'],
 })
 </script>
 

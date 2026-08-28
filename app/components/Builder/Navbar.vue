@@ -24,6 +24,10 @@ const tenantStore = useTenantStore()
 const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
 const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
 
+// Cart chrome for shop-dark tenants — mirrors Page/Navbar's gate.
+// Shopper-facing chrome fails OPEN.
+const cartEnabled = useSettingFlag('CART_ENABLED', { fallback: true })
+
 const handleScroll = () => {
   isScrolled.value = window.scrollY > 0
 }
@@ -101,7 +105,7 @@ onMounted(() => {
               "
             >
               <LazySearchInput />
-              <CartButton />
+              <CartButton v-if="cartEnabled" />
               <LazyLanguageSwitcher v-if="locales.length > 1" />
               <UColorModeButton
                 class="w-6"

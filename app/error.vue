@@ -54,6 +54,13 @@ const helpfulTips = computed(() => {
   }
   return [t('tip.general')]
 })
+
+const statusHeading = computed(() => {
+  const statusCode = props.error?.statusCode ?? 0
+  if (statusCode === 404) return t('status.not.found')
+  if (statusCode >= 500) return t('status.server')
+  return t('status.generic')
+})
 </script>
 
 <template>
@@ -65,40 +72,40 @@ const helpfulTips = computed(() => {
       dark:from-gray-950 dark:via-gray-900 dark:to-primary-950
     "
   >
+    <!-- Theme-token visual (was a Lottie with baked-in platform-blue
+         paths — every non-blue tenant got an off-brand error page, and
+         the 50KB animation runtime shipped for it). -->
     <div
       v-if="error.statusCode === 404"
       class="
-        pointer-events-none mx-auto max-w-md px-6 pt-10 sm:pt-16
+        pointer-events-none mx-auto flex max-w-md items-center
+        justify-center px-6 pt-10
+        sm:pt-16
       "
     >
-      <!--
-        Lottie itself does the heavy split: its <script setup> dynamic-
-        imports ``lottie-web`` and the JSON only on the client, so the
-        50KB animation runtime never ships in the SSR bundle and never
-        loads on non-error pages. Using ``<Lottie>`` directly (instead
-        of the Lazy* variant) keeps the wrapper in the main chunk so
-        the component reliably mounts inside this error page's
-        non-Suspense render boundary.
-      -->
-      <Lottie
-        :data="() => import('~/assets/lotties/404.json')"
-        :aria-label="t('error.page.title')"
+      <div
+        class="
+          relative flex size-48 items-center justify-center rounded-full
+          bg-(--ui-color-primary-100)
+          dark:bg-(--ui-color-primary-900)
+        "
       >
-        <template #fallback>
-          <div
-            class="
-              flex h-64 items-center justify-center text-primary-400/50
-              dark:text-primary-700/60
-            "
-          >
-            <UIcon
-              name="i-heroicons-magnifying-glass-minus"
-              class="size-32"
-              aria-hidden="true"
-            />
-          </div>
-        </template>
-      </Lottie>
+        <div
+          aria-hidden="true"
+          class="
+            absolute -top-4 -right-4 size-24 rounded-full
+            bg-(--ui-color-secondary-300)/30 blur-2xl
+          "
+        />
+        <UIcon
+          name="i-heroicons-map"
+          class="
+            size-24 text-primary-500
+            dark:text-primary-400
+          "
+          aria-hidden="true"
+        />
+      </div>
     </div>
     <div
       v-else
@@ -139,16 +146,26 @@ const helpfulTips = computed(() => {
         sm:py-12
       "
     >
-      <h1 class="text-6xl font-bold text-primary-700 dark:text-primary-300 sm:text-7xl">
+      <h1
+        class="
+          font-display text-6xl font-bold text-primary-700
+          sm:text-7xl
+          dark:text-primary-300
+        "
+      >
         {{ error.statusCode }}
       </h1>
+      <!-- Localized per status — the raw statusMessage is an English
+           internal string ("Server Error", "Page not found") that has
+           no place on a Greek storefront; debug mode still surfaces it
+           in the card below. -->
       <p class="mt-4 max-w-2xl text-lg text-balance text-muted">
-        {{ error.statusMessage || error.message }}
+        {{ statusHeading }}
       </p>
 
       <UAlert
         v-if="helpfulTips.length > 0"
-        color="info"
+        color="neutral"
         variant="soft"
         :title="t('helpful.tips')"
         class="mt-6 max-w-2xl text-left"
@@ -233,6 +250,11 @@ el:
     data: Δεδομένα σφάλματος
   helpful:
     tips: Χρήσιμες συμβουλές
+  status:
+    not:
+      found: Η σελίδα που ψάχνετε δεν βρέθηκε.
+    server: Κάτι πήγε στραβά, δοκιμάστε ξανά σε λίγο.
+    generic: Παρουσιάστηκε σφάλμα.
   tip:
     check:
       url: Ελέγξτε αν η διεύθυνση URL είναι σωστή
