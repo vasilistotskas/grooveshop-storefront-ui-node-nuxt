@@ -4,6 +4,10 @@
 @theme {
   --container-main: 74.625rem;
   --container-8xl: 90rem;
+  /* Heading face (`font-display` utility). Follows the body face
+     unless the tenant theme sets metadata.fontDisplay, which the
+     injected <style id="tenant-theme"> overrides per request. */
+  --font-display: var(--font-sans);
 }
 
 :root {
@@ -173,4 +177,21 @@ button, a, [role="button"] {
 
 .items-unset {
   align-items: unset;
+}
+
+/* Woven tri-strand rule — a tenant-palette signature used only by
+   opt-in section decor (hero_banner decor="orbs", divider
+   variant="thread"). Strand colors derive from the live theme tokens,
+   so any tenant palette renders coherently. */
+.woven-thread {
+  height: 5px;
+  border: 0;
+  border-radius: 3px;
+  opacity: 0.85;
+  background: repeating-linear-gradient(
+    100deg,
+    var(--ui-color-primary-500) 0 14px,
+    var(--ui-color-secondary-500) 14px 28px,
+    var(--ui-secondary) 28px 42px
+  );
 }

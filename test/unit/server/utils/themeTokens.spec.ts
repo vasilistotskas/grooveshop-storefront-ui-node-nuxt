@@ -204,6 +204,15 @@ describe('buildTenantThemeCss', () => {
     expect(css).toContain('.dark { --ui-secondary: #3364ff }')
   })
 
+  it('emits --font-display only when fontDisplay is set', () => {
+    expect(buildTenantThemeCss({}).css).not.toContain('--font-display')
+    const { css } = buildTenantThemeCss({
+      themeMetadata: { fontSans: 'manrope', fontDisplay: 'source-serif-4' },
+    })
+    expect(css).toContain('--font-sans: "Manrope"')
+    expect(css).toContain('--font-display: "Source Serif 4"')
+  })
+
   it('emits --ui-liked from likedHex in both modes', () => {
     const { css } = buildTenantThemeCss({
       themeMetadata: { likedHex: '#b3694b' },

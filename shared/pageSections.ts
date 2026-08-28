@@ -23,10 +23,14 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     .object({
       heading: z.string().max(200),
       subheading: z.string().max(500),
+      eyebrow: z.string().max(100),
       imageUrl: z.string().max(1000),
       ctaText: z.string().max(100),
       ctaLink: zLink,
+      secondaryCtaText: z.string().max(100),
+      secondaryCtaLink: zLink,
       overlayOpacity: z.number().min(0).max(1),
+      decor: z.enum(['none', 'orbs', 'gradient']),
     })
     .partial()
     .strip(),
@@ -110,7 +114,10 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     .object({ height: z.enum(['sm', 'md', 'lg', 'xl']) })
     .partial()
     .strip(),
-  divider: z.object({}).partial().strip(),
+  divider: z
+    .object({ variant: z.enum(['line', 'thread']) })
+    .partial()
+    .strip(),
   loyalty_hero: z.object({}).partial().strip(),
   search_bar: z.object({}).partial().strip(),
   // Weekly schedule + open/closed badge — data comes from the

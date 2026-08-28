@@ -48,6 +48,11 @@ export const zThemeMetadata = z
     fontSans: z
       .enum(Object.keys(FONT_ALLOWLIST) as [string, ...string[]])
       .optional(),
+    // Heading face (--font-display). Defaults to --font-sans in
+    // main.css, so only tenants that pick one diverge.
+    fontDisplay: z
+      .enum(Object.keys(FONT_ALLOWLIST) as [string, ...string[]])
+      .optional(),
     container: z
       .enum(Object.keys(CONTAINER_MAP) as [string, ...string[]])
       .optional(),

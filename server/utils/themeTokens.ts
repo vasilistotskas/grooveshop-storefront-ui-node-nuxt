@@ -162,6 +162,16 @@ export function buildTenantThemeCss(
     shared.push(`--font-sans: ${fontStack}`)
   }
 
+  // Heading face — metadata-only (no preset carries one). main.css
+  // defaults --font-display to var(--font-sans), so absence emits
+  // nothing and headings follow the body face.
+  if (metadata.fontDisplay) {
+    const displayStack = FONT_ALLOWLIST[metadata.fontDisplay]
+    if (displayStack) {
+      shared.push(`--font-display: ${displayStack}`)
+    }
+  }
+
   // --- Custom scale escape hatch (metadata.colors/darkColors) -------
   const SCALE_TOKENS = [
     ['primaryScale', 'primary'],
@@ -199,13 +209,20 @@ export function buildTenantThemeCss(
   // it so they win within the block. A tenant that supplies no dark
   // variant keeps the light values in both modes — the pre-darkColors
   // behaviour, unchanged.
+  //
+  // ``html:root`` / ``html.dark`` (0,1,1) instead of bare ``:root`` /
+  // ``.dark`` (0,1,0): tenant tokens must beat main.css regardless of
+  // stylesheet ORDER. In production the injected block is pushed last
+  // and order suffices, but the Vite dev server re-injects main.css as
+  // runtime <style> tags AFTER it, silently flattening every tenant
+  // colour back to the platform values in local previews.
   const parts: string[] = []
   if (shared.length > 0) {
-    parts.push(`:root { ${shared.join('; ')} }`)
+    parts.push(`html:root { ${shared.join('; ')} }`)
   }
   const dark = [...shared, ...darkOnly]
   if (dark.length > 0) {
-    parts.push(`.dark { ${dark.join('; ')} }`)
+    parts.push(`html.dark { ${dark.join('; ')} }`)
   }
   return {
     css: parts.join(' '),
