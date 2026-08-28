@@ -67,6 +67,9 @@ export function buildTenantThemeCss(
   }
 
   const shared: string[] = []
+  // Tokens that differ in dark mode, appended after the shared block
+  // inside ``.dark`` only.
+  const darkOnly: string[] = []
 
   // --- Status/accent hexes (dedicated Tenant fields) ---------------
   //
@@ -82,15 +85,49 @@ export function buildTenantThemeCss(
   // of which this block flattened back to the light values, costing
   // contrast in dark mode; and --ui-liked (#FF00BD) is a distinct
   // semantic colour with no Tenant field at all, so mapping the accent
-  // onto it turned every liked post and comment blue.
+  // onto it turned every liked post and comment blue. Dark variants and
+  // --ui-liked are now expressible — but only through explicit metadata
+  // (``darkColors`` / ``accentDarkHex`` / ``likedHex``), never derived.
   const hex = (value: string | null | undefined): string | null =>
     value && HEX_COLOR_RE.test(value) ? value : null
 
-  // accentHex maps to --ui-secondary only. --ui-liked stays with the
-  // stylesheet: it is not the accent, and no field expresses it.
+  // accentHex maps to --ui-secondary only. When the tenant instead
+  // supplies a full custom secondary scale, its 500/400 shades become
+  // the light/dark --ui-secondary so the alias never dangles on the
+  // platform blue next to a custom palette. Explicit accentHex /
+  // accentDarkHex always win.
   const accent = hex(tenant.accentHex)
-  if (accent && accent.toLowerCase() !== PLATFORM_COLORS.secondary) {
-    shared.push(`--ui-secondary: ${accent}`)
+  const accentCustomized
+    = accent !== null && accent.toLowerCase() !== PLATFORM_COLORS.secondary
+  const secondaryScale = metadata.colors?.secondaryScale
+  const sharedAccent = accentCustomized
+    ? accent
+    : (secondaryScale?.['500'] ?? null)
+  if (sharedAccent) {
+    shared.push(`--ui-secondary: ${sharedAccent}`)
+    const darkAccent
+      = hex(metadata.accentDarkHex)
+        ?? (accentCustomized
+          ? null
+          : (metadata.darkColors?.secondaryScale?.['400']
+            ?? secondaryScale?.['400']
+            ?? null))
+    if (darkAccent && darkAccent !== sharedAccent) {
+      darkOnly.push(`--ui-secondary: ${darkAccent}`)
+    }
+  }
+  else {
+    // Dark-only accent override with the light value left on the
+    // platform default.
+    const darkAccent = hex(metadata.accentDarkHex)
+    if (darkAccent) {
+      darkOnly.push(`--ui-secondary: ${darkAccent}`)
+    }
+  }
+
+  const liked = hex(metadata.likedHex)
+  if (liked) {
+    shared.push(`--ui-liked: ${liked}`)
   }
   for (const [field, token, baseline] of [
     ['successHex', '--ui-success', PLATFORM_COLORS.success],
@@ -125,11 +162,13 @@ export function buildTenantThemeCss(
     shared.push(`--font-sans: ${fontStack}`)
   }
 
-  // --- Custom scale escape hatch (metadata.colors) ------------------
-  for (const [scaleKey, uiName] of [
+  // --- Custom scale escape hatch (metadata.colors/darkColors) -------
+  const SCALE_TOKENS = [
     ['primaryScale', 'primary'],
     ['neutralScale', 'neutral'],
-  ] as const) {
+    ['secondaryScale', 'secondary'],
+  ] as const
+  for (const [scaleKey, uiName] of SCALE_TOKENS) {
     const scale = metadata.colors?.[scaleKey]
     if (!scale) continue
     for (const shade of SHADES) {
@@ -139,20 +178,37 @@ export function buildTenantThemeCss(
       }
     }
   }
+  for (const [scaleKey, uiName] of SCALE_TOKENS) {
+    const scale = metadata.darkColors?.[scaleKey]
+    if (!scale) continue
+    for (const shade of SHADES) {
+      const value = scale[shade]
+      if (value && HEX_COLOR_RE.test(value)) {
+        darkOnly.push(`--ui-color-${uiName}-${shade}: ${value}`)
+      }
+    }
+  }
 
-  if (shared.length === 0) {
+  if (shared.length === 0 && darkOnly.length === 0) {
     return { css: '', metadataError }
   }
 
-  const block = shared.join('; ')
+  // The shared block repeats inside .dark (matching main.css's own
+  // token strategy of restating dark values at .dark specificity), and
+  // dark-only overrides (darkColors / accentDarkHex) are appended after
+  // it so they win within the block. A tenant that supplies no dark
+  // variant keeps the light values in both modes — the pre-darkColors
+  // behaviour, unchanged.
+  const parts: string[] = []
+  if (shared.length > 0) {
+    parts.push(`:root { ${shared.join('; ')} }`)
+  }
+  const dark = [...shared, ...darkOnly]
+  if (dark.length > 0) {
+    parts.push(`.dark { ${dark.join('; ')} }`)
+  }
   return {
-    // Identical values in :root and .dark. Only genuinely customized
-    // tokens reach here, so a tenant that changes nothing emits nothing
-    // and main.css keeps owning the platform's dark-shade strategy
-    // untouched. A tenant that DOES set a colour has no dark variant to
-    // offer, so the same value applies in both modes until the metadata
-    // schema grows one.
-    css: `:root { ${block} } .dark { ${block} }`,
+    css: parts.join(' '),
     metadataError,
   }
 }

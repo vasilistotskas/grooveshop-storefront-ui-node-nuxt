@@ -31,6 +31,17 @@ const zShadeScale = z
   })
   .partial()
 
+// Custom-preset escape hatch: literal-hex overrides for the named
+// Nuxt UI color scales. Partial — only the shades provided are
+// emitted, on top of the named palette.
+const zScaleSet = z
+  .object({
+    primaryScale: zShadeScale.optional(),
+    neutralScale: zShadeScale.optional(),
+    secondaryScale: zShadeScale.optional(),
+  })
+  .strict()
+
 export const zThemeMetadata = z
   .object({
     radius: z.enum([...RADIUS_ALLOWLIST] as [string, ...string[]]).optional(),
@@ -40,16 +51,17 @@ export const zThemeMetadata = z
     container: z
       .enum(Object.keys(CONTAINER_MAP) as [string, ...string[]])
       .optional(),
-    // Custom-preset escape hatch: literal-hex overrides for the named
-    // Nuxt UI color scales. Partial — only the shades provided are
-    // emitted, on top of the named palette.
-    colors: z
-      .object({
-        primaryScale: zShadeScale.optional(),
-        neutralScale: zShadeScale.optional(),
-      })
-      .strict()
-      .optional(),
+    colors: zScaleSet.optional(),
+    // Dark-mode-only overrides, emitted exclusively into ``.dark`` on
+    // top of the shared block. Absent scales keep the light values in
+    // dark mode (the pre-darkColors behaviour, unchanged).
+    darkColors: zScaleSet.optional(),
+    // --ui-liked override (distinct semantic colour owned by main.css;
+    // deliberately NOT the accent — see themeTokens.ts).
+    likedHex: zHex6.optional(),
+    // Dark-mode value for --ui-secondary, mirroring how main.css ships
+    // a lighter platform secondary (#3364FF) in ``.dark``.
+    accentDarkHex: zHex6.optional(),
   })
   .strict()
 

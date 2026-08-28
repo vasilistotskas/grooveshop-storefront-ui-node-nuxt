@@ -130,4 +130,86 @@ describe('buildTenantThemeCss', () => {
     // strict schema rejects the value → preset default → empty output
     expect(css).toBe('')
   })
+
+  // Splits the emitted css into its :root and .dark declaration blocks
+  // so dark-only emission can be asserted precisely.
+  const splitBlocks = (css: string) => {
+    const root = css.match(/:root \{ ([^}]*) \}/)?.[1] ?? ''
+    const dark = css.match(/\.dark \{ ([^}]*) \}/)?.[1] ?? ''
+    return { root, dark }
+  }
+
+  it('emits a custom secondary scale and derives --ui-secondary from it', () => {
+    const { css } = buildTenantThemeCss({
+      themeMetadata: {
+        colors: {
+          secondaryScale: { 400: '#7eb8ac', 500: '#5d9d91' },
+        },
+      },
+    })
+    const { root, dark } = splitBlocks(css)
+    expect(root).toContain('--ui-color-secondary-500: #5d9d91')
+    expect(root).toContain('--ui-secondary: #5d9d91')
+    // 400 becomes the dark accent, only in .dark.
+    expect(root).not.toContain('--ui-secondary: #7eb8ac')
+    expect(dark).toContain('--ui-secondary: #7eb8ac')
+  })
+
+  it('explicit accentHex beats the secondary-scale-derived accent', () => {
+    const { css } = buildTenantThemeCss({
+      accentHex: '#b3694b',
+      themeMetadata: {
+        colors: { secondaryScale: { 500: '#5d9d91' } },
+      },
+    })
+    const { root, dark } = splitBlocks(css)
+    expect(root).toContain('--ui-secondary: #b3694b')
+    // No derived dark variant for an explicit accent without
+    // accentDarkHex — the light value applies in both modes.
+    expect(dark).toContain('--ui-secondary: #b3694b')
+    expect(dark).not.toContain('--ui-secondary: #5d9d91')
+  })
+
+  it('accentDarkHex overrides --ui-secondary in dark mode only', () => {
+    const { css } = buildTenantThemeCss({
+      accentHex: '#b3694b',
+      themeMetadata: { accentDarkHex: '#d09d75' },
+    })
+    const { root, dark } = splitBlocks(css)
+    expect(root).toContain('--ui-secondary: #b3694b')
+    expect(root).not.toContain('#d09d75')
+    expect(dark).toContain('--ui-secondary: #d09d75')
+  })
+
+  it('emits darkColors scales into .dark only, after the shared block', () => {
+    const { css } = buildTenantThemeCss({
+      themeMetadata: {
+        colors: { primaryScale: { 500: '#9aa882' } },
+        darkColors: { primaryScale: { 500: '#b1bd99' } },
+      },
+    })
+    const { root, dark } = splitBlocks(css)
+    expect(root).toContain('--ui-color-primary-500: #9aa882')
+    expect(root).not.toContain('#b1bd99')
+    // Shared value first, dark override after it — the override wins.
+    expect(dark.indexOf('--ui-color-primary-500: #9aa882'))
+      .toBeLessThan(dark.indexOf('--ui-color-primary-500: #b1bd99'))
+  })
+
+  it('emits only a .dark block for dark-only overrides', () => {
+    const { css } = buildTenantThemeCss({
+      themeMetadata: { accentDarkHex: '#3364ff' },
+    })
+    expect(css).not.toContain(':root')
+    expect(css).toContain('.dark { --ui-secondary: #3364ff }')
+  })
+
+  it('emits --ui-liked from likedHex in both modes', () => {
+    const { css } = buildTenantThemeCss({
+      themeMetadata: { likedHex: '#b3694b' },
+    })
+    const { root, dark } = splitBlocks(css)
+    expect(root).toContain('--ui-liked: #b3694b')
+    expect(dark).toContain('--ui-liked: #b3694b')
+  })
 })
