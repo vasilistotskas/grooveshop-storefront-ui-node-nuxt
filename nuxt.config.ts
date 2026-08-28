@@ -696,12 +696,18 @@ export default defineNuxtConfig({
       xxl: 1536,
     },
   },
-  // ``@nuxtjs/leaflet`` config — markerCluster:true unlocks the
-  // ``useLMarkerCluster`` composable used inside SmartpointMap.client.vue.
+  // ``@nuxtjs/leaflet`` config. markerCluster stays OFF: its only live
+  // effect was pushing both MarkerCluster CSS files into the GLOBAL css
+  // array — a render-blocking stylesheet on every page for a map that
+  // exists only in checkout (flagged by Lighthouse on the homepage,
+  // 2026-08-28). SmartpointMap.client.vue does not use the module's
+  // ``useLMarkerCluster`` (broken in 1.3.2, bypassed via a direct
+  // side-effect import) and imports both CSS files locally, so the
+  // checkout map keeps its styles via its own chunk.
   // Tile providers themselves come from the carrier metadata
   // (``ShippingProvider.metadata.tile_provider``) — never hardcoded.
   leaflet: {
-    markerCluster: true,
+    markerCluster: false,
   },
   linkChecker: {
     report: {

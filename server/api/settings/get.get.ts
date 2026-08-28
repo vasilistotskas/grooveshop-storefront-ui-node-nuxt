@@ -1,4 +1,12 @@
-export default defineEventHandler(async (event) => {
+// Cached: setting lookups are the hottest SSR dependency — a single
+// homepage render fires several (BUSINESS_HOURS, STORE_GEO_*, feature
+// flags), each of which cost a 50-800ms Django round trip and stacked
+// into ~1.7s TTFB (PSI mobile score 59, 2026-08-28). Settings are
+// tenant-level (never per-user), so a short SWR window is safe; the
+// tight maxAge keeps kill-switch flips (e.g. CHAT_WIDGET_ENABLED)
+// propagating within ~a minute, and Django's Cache Management purge
+// covers the urgent case.
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
     const query = await getValidatedQuery(event, zApiV1SettingsGetRetrieveQuery.parse)
@@ -19,4 +27,10 @@ export default defineEventHandler(async (event) => {
   catch (error) {
     handleError(error)
   }
+}, {
+  name: 'settingsGet',
+  maxAge: 60,
+  staleMaxAge: 60 * 10,
+  swr: true,
+  getKey: event => tenantCacheKey(event, `settings:get:${getQuery(event).key}`),
 })
