@@ -41,8 +41,13 @@ const fitBox = computed(() => ({
 
 const { logoLightUrl, logoDarkUrl } = useTenantBranding()
 const tenantStore = useTenantStore()
+// Same-origin absolute URLs (Django URLField) bypass IPX; relativized
+// they get WebP/AVIF + responsive variants (see useTenantAssetSrc).
+const { relativize } = useTenantAssetSrc()
+const lightSrc = computed(() => relativize(logoLightUrl.value))
+const darkSrc = computed(() => relativize(logoDarkUrl.value))
 const hasDistinctDark = computed(
-  () => logoDarkUrl.value !== logoLightUrl.value,
+  () => darkSrc.value !== lightSrc.value,
 )
 const priorityAttrs = computed(() =>
   props.priority ? { 'fetch-priority': 'high' as const, 'preload': true } : {},
@@ -60,7 +65,7 @@ const priorityAttrs = computed(() =>
   <NuxtImg
     v-else
     :style="fitBox"
-    :src="logoLightUrl"
+    :src="lightSrc"
     :width="width"
     :height="height"
     :class="hasDistinctDark ? 'dark:hidden' : undefined"
@@ -71,7 +76,7 @@ const priorityAttrs = computed(() =>
   <NuxtImg
     v-if="hasDistinctDark"
     :style="fitBox"
-    :src="logoDarkUrl"
+    :src="darkSrc"
     :width="width"
     :height="height"
     class="hidden dark:block"

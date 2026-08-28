@@ -24,9 +24,9 @@ const items = computed<AccordionItem[]>(() =>
       :items="items"
       :ui="{
         trigger: 'gap-4 bg-(--ui-secondary) p-3',
-        leadingIcon: 'size-8 text-white',
-        label: 'truncate text-2xl font-semibold text-white',
-        trailingIcon: 'text-white',
+        leadingIcon: 'size-8 text-(--ui-on-secondary)',
+        label: 'truncate text-2xl font-semibold text-(--ui-on-secondary)',
+        trailingIcon: 'text-(--ui-on-secondary)',
       }"
     >
       <template #body="{ index }">

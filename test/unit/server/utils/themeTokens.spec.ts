@@ -201,7 +201,27 @@ describe('buildTenantThemeCss', () => {
       themeMetadata: { accentDarkHex: '#3364ff' },
     })
     expect(css).not.toContain(':root')
-    expect(css).toContain('.dark { --ui-secondary: #3364ff }')
+    expect(css).toContain(
+      '.dark { --ui-secondary: #3364ff; --ui-on-secondary: #ffffff }',
+    )
+  })
+
+  it('derives --ui-on-secondary from the accent luminance', () => {
+    // Platform blue → white text (unchanged behaviour).
+    const blue = buildTenantThemeCss({ accentHex: '#1d4ed8' }).css
+    expect(blue).toContain('--ui-on-secondary: #ffffff')
+    // Mid-luminance terracotta → white fails AA (3.3:1) → near-black.
+    const terracotta = buildTenantThemeCss({ accentHex: '#b3694b' }).css
+    expect(terracotta).toContain('--ui-on-secondary: #171717')
+    // Light terracotta (a dark-mode accent) → near-black.
+    const { css } = buildTenantThemeCss({
+      accentHex: '#b3694b',
+      themeMetadata: { accentDarkHex: '#d09d75' },
+    })
+    const dark = css.match(/html\.dark \{ ([^}]*) \}/)?.[1] ?? ''
+    expect(dark).toContain('--ui-secondary: #d09d75')
+    expect(dark.lastIndexOf('--ui-on-secondary: #171717'))
+      .toBeGreaterThan(dark.indexOf('--ui-secondary: #d09d75'))
   })
 
   it('emits --font-display only when fontDisplay is set', () => {

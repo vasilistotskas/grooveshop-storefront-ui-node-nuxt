@@ -56,10 +56,13 @@ const isSvg = (src: string) => /\.svg(\?|#|$)/i.test(src)
 // The raw (pre-provider-resolution) src — same fallback semantics as the
 // old `imgSrc` computed. Provider selection below reads THIS, not the
 // final (possibly tenant-absolutized) `imgSrc`, to avoid a circular
-// computed dependency.
+// computed dependency. Same-origin absolute URLs are relativized FIRST
+// so they route through IPX (see useTenantAssetSrc) — including
+// `/media/...` paths, which then hit the mediaStream branch correctly.
+const { relativize } = useTenantAssetSrc()
 const rawSrc = computed(() => {
   if (!props.src) return props.fallback
-  return props.src
+  return relativize(props.src)
 })
 
 const provider = computed<keyof ConfiguredImageProviders>(() => {

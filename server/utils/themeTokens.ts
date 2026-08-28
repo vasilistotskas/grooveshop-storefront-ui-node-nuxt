@@ -91,6 +91,29 @@ export function buildTenantThemeCss(
   const hex = (value: string | null | undefined): string | null =>
     value && HEX_COLOR_RE.test(value) ? value : null
 
+  // WCAG-derived text color for solid accent surfaces. White fails AA
+  // on mid-luminance accents (white on terracotta #b3694b is 3.3:1),
+  // so --ui-on-secondary picks whichever of white/near-black clears
+  // the higher contrast against the accent. main.css defaults it to
+  // white — tenants that never customize the accent are unaffected.
+  const readableTextOn = (background: string): string => {
+    const channel = (index: number) => {
+      const raw = Number.parseInt(
+        background.slice(1 + index * 2, 3 + index * 2), 16,
+      ) / 255
+      return raw <= 0.04045
+        ? raw / 12.92
+        : ((raw + 0.055) / 1.055) ** 2.4
+    }
+    const luminance
+      = 0.2126 * channel(0) + 0.7152 * channel(1) + 0.0722 * channel(2)
+    const contrastWhite = 1.05 / (luminance + 0.05)
+    const contrastDark = (luminance + 0.05) / 0.0561 // vs #171717
+    return contrastWhite >= 4.5 || contrastWhite >= contrastDark
+      ? '#ffffff'
+      : '#171717'
+  }
+
   // accentHex maps to --ui-secondary only. When the tenant instead
   // supplies a full custom secondary scale, its 500/400 shades become
   // the light/dark --ui-secondary so the alias never dangles on the
@@ -105,6 +128,7 @@ export function buildTenantThemeCss(
     : (secondaryScale?.['500'] ?? null)
   if (sharedAccent) {
     shared.push(`--ui-secondary: ${sharedAccent}`)
+    shared.push(`--ui-on-secondary: ${readableTextOn(sharedAccent)}`)
     const darkAccent
       = hex(metadata.accentDarkHex)
         ?? (accentCustomized
@@ -114,6 +138,7 @@ export function buildTenantThemeCss(
             ?? null))
     if (darkAccent && darkAccent !== sharedAccent) {
       darkOnly.push(`--ui-secondary: ${darkAccent}`)
+      darkOnly.push(`--ui-on-secondary: ${readableTextOn(darkAccent)}`)
     }
   }
   else {
@@ -122,6 +147,7 @@ export function buildTenantThemeCss(
     const darkAccent = hex(metadata.accentDarkHex)
     if (darkAccent) {
       darkOnly.push(`--ui-secondary: ${darkAccent}`)
+      darkOnly.push(`--ui-on-secondary: ${readableTextOn(darkAccent)}`)
     }
   }
 
