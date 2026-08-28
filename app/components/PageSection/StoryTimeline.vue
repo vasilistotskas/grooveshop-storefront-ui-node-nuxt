@@ -41,12 +41,15 @@ const lastValue = computed(() => timelineItems.value.length - 1)
     >
       {{ heading }}
     </h2>
+    <!-- Flush-left with the heading above it: centered, the steps
+         started ~240px right of their own h2 and read as an unrelated
+         block. max-w keeps the measure comfortable. -->
     <UTimeline
       :items="timelineItems"
       :default-value="lastValue"
       color="secondary"
       size="lg"
-      class="mx-auto w-full max-w-2xl"
+      class="w-full max-w-2xl"
       :ui="{
         title: 'font-display text-base font-semibold',
         date: 'text-(--ui-secondary)',
