@@ -1,3 +1,10 @@
+## [3.164.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.4...v3.164.5) (2026-08-28)
+
+
+### Bug Fixes
+
+* **perf:** rewrite ipx cache-control at setHeader time ([d1f6196](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d1f6196aac28a4b2228f897d399e3f7a54ae37e9))
+
 ## [3.164.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.3...v3.164.4) (2026-08-28)
 
 
