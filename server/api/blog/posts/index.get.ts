@@ -6,7 +6,28 @@ export default defineCachedEventHandler(async (event) => {
       method: 'GET',
       query,
     })
-    return await parseDataAs(response, zListBlogPostResponse)
+    const data = await parseDataAs(response, zListBlogPostResponse)
+    // List consumers render CARDS (title/subtitle/image/counts) — the
+    // full body ships only from the detail route. With 6-9 posts per
+    // page the bodies dominated the homepage __NUXT_DATA__ payload:
+    // ~40KB of its 70KB (2026-08-29 audit), inline in every SSR'd HTML
+    // document. `body` is optional in zBlogPost's translations, so
+    // omitting it keeps the response contract intact.
+    return {
+      ...data,
+      results: data.results.map(post => ({
+        ...post,
+        translations: Object.fromEntries(
+          Object.entries(post.translations).map(
+            ([languageCode, translation]) => {
+              if (!translation) return [languageCode, translation]
+              const { body: _body, ...cardFields } = translation
+              return [languageCode, cardFields]
+            },
+          ),
+        ) as typeof post.translations,
+      })),
+    }
   }
   catch (error) {
     handleError(error)
