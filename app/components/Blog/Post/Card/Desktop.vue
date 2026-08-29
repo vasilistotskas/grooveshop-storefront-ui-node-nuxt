@@ -207,7 +207,10 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
 <i18n lang="yaml">
 el:
   image:
-    of: "Εικόνα - {title}"
+    # No "Εικόνα - " prefix: a screen reader already announces the
+    # element as an image, so the word is repeated noise in the
+    # accessible name and dead weight in the alt text Google reads.
+    of: "{title}"
   comments:
     count: "{count} σχόλια"
   share: Κοινοποίηση

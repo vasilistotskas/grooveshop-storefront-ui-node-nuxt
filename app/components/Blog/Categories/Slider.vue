@@ -91,7 +91,7 @@ function deriveIconName(mainImagePath: string | null | undefined): string | null
           <ImgWithFallback
             v-else
             class="aspect-square"
-            :alt="`Image - ${extractTranslated(item, 'name', locale)}`"
+            :alt="extractTranslated(item, 'name', locale)"
             :background="'ffffff'"
             fit="fill"
             :format="'svg'"

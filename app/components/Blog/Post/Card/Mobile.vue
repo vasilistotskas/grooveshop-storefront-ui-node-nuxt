@@ -109,7 +109,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           }"
           quality="80"
           :background="'transparent'"
-          :alt="`Image - ${alt}`"
+          :alt="alt"
         />
         <h2
           class="

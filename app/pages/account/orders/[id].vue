@@ -669,7 +669,7 @@ defineRouteRules({
                           "
                         >
                           <ImgWithFallback
-                            :alt="`Image - ${item.product.id}`"
+                            :alt="extractTranslated(item.product, 'name', locale)"
                             fit="cover"
                             :height="128"
                             :src="item.product.mainImagePath"

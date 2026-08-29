@@ -77,7 +77,7 @@ const { t, locale } = useI18n()
                   position: 'attention',
                   trimThreshold: 5,
                 }"
-                :alt="`Image - ${extractTranslated(favourite, 'title', locale)}`"
+                :alt="extractTranslated(favourite, 'title', locale)"
                 densities="x2"
               />
             </Anchor>
