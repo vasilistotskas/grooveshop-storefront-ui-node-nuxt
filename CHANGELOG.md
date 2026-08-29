@@ -1,3 +1,10 @@
+## [3.164.21](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.20...v3.164.21) (2026-08-29)
+
+
+### Performance Improvements
+
+* **page-builder:** validate section props at the server proxy, not the client ([a0f517f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a0f517f59f116f85867c51fa23835342ea906fe5))
+
 ## [3.164.20](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.19...v3.164.20) (2026-08-29)
 
 
