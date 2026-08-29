@@ -679,6 +679,17 @@ export default defineNuxtConfig({
     compilation: {
       strictMessage: false,
     },
+    // Ship vue-i18n's runtime-only build: every message this app renders
+    // is resolved at build time (locale YAML in i18n/ + component
+    // <i18n> blocks — API content is translated via extractTranslated,
+    // never vue-i18n), so the message COMPILER (~16KB minified,
+    // @intlify/message-compiler) rode the eager graph of every page for
+    // nothing (2026-08-29 eager-graph audit). If a runtime-compiled
+    // message is ever introduced it will render as a raw key with a
+    // console error — that message belongs in a locale file instead.
+    bundle: {
+      runtimeOnly: true,
+    },
     experimental: {
       localeDetector: 'localeDetector.ts',
       httpCacheDuration: 86400,
@@ -717,8 +728,21 @@ export default defineNuxtConfig({
     // same-origin request to /api/_nuxt_icon/... and the server
     // proxies upstream if needed.
     fallbackToApi: 'server-only',
+    // Icon mode is `css` (app.config.ts): every SSR-rendered icon ships
+    // as a CSS mask inside the page, so the client bundle is only
+    // consulted for icons whose FIRST render happens client-side —
+    // opened menus/modals, toasts, theme toggle. The former
+    // `scan: app/**/*.vue` baked every icon named anywhere in the app
+    // into a 97KB-minified (27.7KB brotli) chunk on the eager graph of
+    // every page (2026-08-29 audit). This explicit list covers the
+    // @nuxt/ui framework icons (appConfig.ui.icons defaults) plus the
+    // interaction-first surfaces (burger menu, account menus, cookie
+    // modal, search, notifications). A missed icon degrades gracefully:
+    // `fallbackToApi: 'server-only'` fetches it once from the
+    // same-origin /api/_nuxt_icon endpoint at first client render.
     clientBundle: {
       icons: [
+        // Pre-existing curated set (theme toggle, chat/feedback UI).
         'i-lucide:moon',
         'i-lucide:sun',
         'i-lucide:check',
@@ -732,11 +756,81 @@ export default defineNuxtConfig({
         'i-fa6-solid:globe',
         'i-fa6-solid:network-wired',
         'i-fa6-solid:shuffle',
+        // @nuxt/ui framework defaults (appConfig.ui.icons) — used by
+        // toasts, inputs, pagination, accordions after hydration.
+        'i-lucide:arrow-down',
+        'i-lucide:arrow-left',
+        'i-lucide:arrow-right',
+        'i-lucide:arrow-up',
+        'i-lucide:circle-alert',
+        'i-lucide:chevrons-left',
+        'i-lucide:chevrons-right',
+        'i-lucide:chevron-down',
+        'i-lucide:chevron-left',
+        'i-lucide:chevron-right',
+        'i-lucide:chevron-up',
+        'i-lucide:x',
+        'i-lucide:copy',
+        'i-lucide:copy-check',
+        'i-lucide:grip-vertical',
+        'i-lucide:ellipsis',
+        'i-lucide:circle-x',
+        'i-lucide:arrow-up-right',
+        'i-lucide:eye',
+        'i-lucide:eye-off',
+        'i-lucide:info',
+        'i-lucide:loader-circle',
+        'i-lucide:menu',
+        'i-lucide:minus',
+        'i-lucide:plus',
+        'i-lucide:rotate-ccw',
+        'i-lucide:search',
+        'i-lucide:star',
+        'i-lucide:circle-check',
+        'i-lucide:monitor',
+        'i-lucide:lightbulb',
+        'i-lucide:upload',
+        'i-lucide:triangle-alert',
+        // Interaction-first app surfaces: burger menu + account menus +
+        // notifications + cookie modal + search modal contents.
+        'i-heroicons:arrow-left-on-rectangle',
+        'i-heroicons:arrow-right',
+        'i-heroicons:arrow-right-on-rectangle',
+        'i-heroicons:bars-3',
+        'i-heroicons:bell',
+        'i-heroicons:bell-alert',
+        'i-heroicons:building-storefront',
+        'i-heroicons:camera',
+        'i-heroicons:check',
+        'i-heroicons:chevron-right',
+        'i-heroicons:clock',
+        'i-heroicons:cube',
+        'i-heroicons:document-text',
+        'i-heroicons:envelope',
+        'i-heroicons:fire',
+        'i-heroicons:gift',
+        'i-heroicons:heart',
+        'i-heroicons:home',
+        'i-heroicons:information-circle',
+        'i-heroicons:link',
+        'i-heroicons:magnifying-glass',
+        'i-heroicons:magnifying-glass-minus',
+        'i-heroicons:newspaper',
+        'i-heroicons:pencil',
+        'i-heroicons:shopping-bag',
+        'i-heroicons:shopping-cart',
+        'i-heroicons:star',
+        'i-heroicons:trophy',
+        'i-heroicons:user',
+        'i-heroicons:user-plus',
+        'i-heroicons:x-mark',
+        'i-fa6-solid:address-book',
+        'i-mdi:cog-outline',
+        'i-mdi:heart-outline',
+        'i-mdi:package-variant-closed',
+        'i-mdi:star-outline',
+        'i-unjs:cookie-es',
       ],
-      scan: {
-        globInclude: ['app/**/*.vue'],
-        globExclude: ['node_modules', 'dist'],
-      },
       sizeLimitKb: 128,
     },
   },
