@@ -457,32 +457,32 @@ export default defineNuxtConfig({
   },
   debug: false,
   hooks: {
-    // Drop ALL speculative resource hints the SSR renderer emits (was
-    // 157 modulepreload + 82 prefetch links on the homepage). Lighthouse
-    // lantern treats every request issued before the observed LCP as an
-    // LCP dependency, so the whole eager JS graph (427KB brotli here)
-    // was charged against simulated FCP/LCP; on genuinely constrained
-    // connections those bytes also contend with the LCP image for real.
-    // Precedent: nuxt-vitalizer's disablePreloadLinks and
-    // angular-cli#27490 (~50% FCP gain from dropping modulepreloads).
+    // Trim the resource hints the SSR renderer emits (was 157
+    // modulepreload + 82 prefetch links on the homepage):
     // - dynamicImports feed ONLY the rel=prefetch hint computation in
     //   vue-bundle-renderer (runtime dynamic imports resolve through the
     //   import graph, not this manifest), so emptying them drops every
-    //   speculative prefetch link.
-    // - preload:false on every entry drops all modulepreload links (the
-    //   flag survives normalizeViteManifest and gates filteredPreload);
-    //   the entry <script> comes from deps.scripts (isEntry) and CSS
-    //   from the unconditional deps.styles set — both unaffected.
-    // Tradeoff (documented by vitalizer too): chunk dependencies are now
-    // discovered by parsing, so a deep import graph loads as a short
-    // waterfall — cheap here because /_nuxt is Cloudflare-edge-cached
-    // and below-the-fold sections are lazy-hydrated anyway.
+    //   speculative prefetch link. Pure win.
+    // - PageSection chunks are lazy-hydrated (componentRegistry.ts), so
+    //   their scripts are not needed until hydrateOnVisible/Idle fires:
+    //   preload:false drops their modulepreload; their CSS keeps
+    //   rendering via the unconditional deps.styles set.
+    // MEASURED AND REJECTED (2026-08-29, v3.164.17 on prod): dropping
+    // ALL modulepreloads (nuxt-vitalizer's disablePreloadLinks). PSI
+    // mobile FCP improved 4.4s -> 3.2s and LCP 6.3 -> 5.2s, but the
+    // parse-discovery waterfall bunched JS execution into long tasks:
+    // TBT 140-390ms -> 450-620ms, Speed Index 4.4 -> 5.8s — net score
+    // NEUTRAL-to-worse. The hint knob only redistributes the cost of
+    // executing the eager graph; shrinking that graph is the only real
+    // lever (see the mobile-perf memory for the decomposition).
     'build:manifest': (manifest) => {
       for (const key in manifest) {
         const entry = manifest[key]
         if (!entry) continue
         entry.dynamicImports = []
-        entry.preload = false
+        if (key.includes('components/PageSection/')) {
+          entry.preload = false
+        }
       }
     },
   },
