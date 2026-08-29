@@ -1,3 +1,10 @@
+## [3.164.16](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.15...v3.164.16) (2026-08-29)
+
+
+### Performance Improvements
+
+* **fonts:** constrain tenant font-face emission to renderable faces ([12dc43d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/12dc43dda8d1b8e7bb528a09d0935c02916539b8))
+
 ## [3.164.15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.14...v3.164.15) (2026-08-28)
 
 
