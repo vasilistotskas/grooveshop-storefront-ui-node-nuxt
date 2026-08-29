@@ -199,6 +199,14 @@ export default defineNuxtConfig({
     },
   },
   routeRules: {
+    // Sitemap layout before ``sitemaps: false`` (see the sitemap block
+    // below). Both URLs are still in crawlers' link graphs and answered
+    // 404, which Ahrefs reports as an ERROR; a 301 to the real sitemap
+    // is the documented way to move one, and downgrades the finding to
+    // an informational redirect. Exact paths, not a `/__sitemap__/**`
+    // glob — that namespace still belongs to the module.
+    '/sitemap_index.xml': { redirect: { to: '/sitemap.xml', statusCode: 301 } },
+    '/__sitemap__/el-GR.xml': { redirect: { to: '/sitemap.xml', statusCode: 301 } },
     '/_nuxt/**': { headers: { 'Cache-Control': 'public, max-age=31536000, immutable' } },
     '/_nuxt/builds/**': {
       headers: {
