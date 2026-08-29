@@ -40,7 +40,9 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Run Trivy filesystem scan
-        uses: aquasecurity/trivy-action@v0.36.0
+        # SHA-pinned: trivy-action's mutable tags were hijacked in the
+        # 2026-03 supply-chain incident, so tags are not trusted.
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
           scan-ref: .
@@ -58,25 +60,18 @@ jobs:
         with:
           sarif_file: trivy-results.sarif
 
-  ci:
-    name: Quality, Test & Build
+  # The former monolithic "Quality, Test & Build" job is split into
+  # quality / test / e2e / build so the critical path is the slowest
+  # job (~5 min) instead of their sum (~8.5 min). Each job re-pays
+  # ~1 min of checkout+install (pnpm store cached), which the
+  # parallelism buys back several times over.
+  quality:
+    name: Typecheck & Lint
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    services:
-      redis:
-        image: redis:8-alpine
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
       - name: Install pnpm
         uses: pnpm/action-setup@v5
@@ -99,24 +94,51 @@ jobs:
         run: pnpm audit signatures --audit-level=critical
         continue-on-error: true
 
-      - name: Check TypeScript
-        run: npx vue-tsc --noEmit
-        continue-on-error: true
+      # ``nuxt typecheck`` is the documented gate (stricter than
+      # ``vue-tsc --noEmit``, which CI previously ran non-blocking).
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint:ci
+
+  test:
+    name: Unit & Nuxt Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      redis:
+        image: redis:8-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare Nuxt
+        run: pnpm run prepare
 
       - name: Run tests with coverage
         run: pnpm run test:ci
-        env:
-          NODE_ENV: test
-          CI: true
-
-      # Boots a real Nitro dev server to prove SWR background revalidation
-      # forwards the correct per-tenant X-Forwarded-Host (cross-tenant
-      # isolation invariant — see test/e2e/tenant-swr-host-propagation.spec.ts).
-      # Kept separate from test:ci because it spawns a server process and does
-      # not participate in coverage. Uses an in-memory cache, so it needs no
-      # Redis service.
-      - name: Run e2e regression tests
-        run: pnpm run test:e2e
         env:
           NODE_ENV: test
           CI: true
@@ -138,9 +160,85 @@ jobs:
             " >> $GITHUB_STEP_SUMMARY
           fi
 
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  e2e:
+    name: E2E Regression Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Prepare Nuxt
+        run: pnpm run prepare
+
+      # Boots a real Nitro dev server to prove SWR background revalidation
+      # forwards the correct per-tenant X-Forwarded-Host (cross-tenant
+      # isolation invariant — see test/e2e/tenant-swr-host-propagation.spec.ts).
+      # Kept separate from test:ci because it spawns a server process and does
+      # not participate in coverage. Uses an in-memory cache, so it needs no
+      # Redis service.
+      - name: Run e2e regression tests
+        run: pnpm run test:e2e
+        env:
+          NODE_ENV: test
+          CI: true
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      redis:
+        image: redis:8-alpine
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6379:6379
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v5
+        with:
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
       # SECURITY: no real secret may enter this build. `pnpm run build` bakes
-      # runtimeConfig defaults into `.output`, and `.output` is uploaded as a
-      # build artifact (public on a public repo). Real values are supplied
+      # runtimeConfig defaults into `.output`. Real values are supplied
       # ONLY at runtime by the K8s sealed secret; the placeholders below are
       # overridden there. See docker.yml for the same rationale.
       - name: Create .env file (public build config + placeholder secrets)
@@ -156,29 +254,13 @@ jobs:
           echo "NUXT_SESSION_PASSWORD=build-only-placeholder-overridden-at-runtime-00" >> .env
           echo "NUXT_SECRET_KEY=build-only-placeholder-overridden-at-runtime" >> .env
 
+      # The built ``.output`` is deliberately NOT uploaded anywhere: the
+      # deployable is the Docker image built by docker.yml, which builds
+      # from source. This job only proves the build works.
       - name: Build application
         run: pnpm run build
         env:
           NODE_ENV: production
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: build-artifacts
-          path: |
-            .output
-            .nuxt
-            package.json
-            pnpm-lock.yaml
-          retention-days: 7
-
-      - name: Upload coverage artifacts
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: coverage-report
-          path: coverage/
-          retention-days: 7
 
   schema-freshness:
     name: OpenAPI Schema Freshness
@@ -238,7 +320,7 @@ jobs:
 
   release:
     name: Release
-    needs: [ci, security-scan]
+    needs: [security-scan, quality, test, e2e, build, schema-freshness]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -269,24 +351,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: build-artifacts
-          path: ./
-
+      # No release assets: the deployable is the Docker image built by
+      # docker.yml on the published release. The old ``.output`` asset
+      # config never worked (semantic-release logged "cannot be read,
+      # will be ignored" on every release) and nothing missed it.
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.NUXT_TOKEN }}
         run: pnpm run semantic-release
-
-      - name: Upload release artifacts
-        if: success()
-        uses: actions/upload-artifact@v7
-        with:
-          name: release-artifacts
-          path: |
-            .output
-            CHANGELOG.md
-          retention-days: 90
-

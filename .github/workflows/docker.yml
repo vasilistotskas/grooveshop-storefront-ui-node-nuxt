@@ -81,13 +81,17 @@ jobs:
             type=ref,event=tag
             type=raw,value=${{ inputs.image_tag }},enable=${{ github.event_name == 'workflow_dispatch' }}
 
-      - name: Build Docker image (local load for scanning)
+      # Single build+push, then scan the pushed image. The Trivy scan
+      # is informational (``exit-code: '0'``), so scanning before the
+      # push protected nothing — the old build-twice shape (local load
+      # for scanning, then push) only duplicated the image export and
+      # cost ~3 min per release.
+      - name: Build and push Docker images
         uses: docker/build-push-action@v7
         with:
           context: .
           file: ./docker/Dockerfile
-          push: false
-          load: true
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
@@ -95,9 +99,13 @@ jobs:
           target: production
           build-args: |
             NODE_VERSION=24.19.0
+          sbom: true
+          provenance: mode=max
 
       - name: Run Trivy image scan
-        uses: aquasecurity/trivy-action@v0.36.0
+        # SHA-pinned: trivy-action's mutable tags were hijacked in the
+        # 2026-03 supply-chain incident, so tags are not trusted.
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: image
           image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
@@ -119,19 +127,3 @@ jobs:
         if: always()
         with:
           sarif_file: trivy-image-results.sarif
-
-      - name: Push Docker images
-        uses: docker/build-push-action@v7
-        with:
-          context: .
-          file: ./docker/Dockerfile
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          target: production
-          build-args: |
-            NODE_VERSION=24.19.0
-          sbom: true
-          provenance: mode=max

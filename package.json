@@ -141,17 +141,7 @@
           "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
         }
       ],
-      [
-        "@semantic-release/github",
-        {
-          "assets": [
-            {
-              "path": ".output",
-              "label": "Output"
-            }
-          ]
-        }
-      ]
+      "@semantic-release/github"
     ]
   },
   "packageManager": "pnpm@11.23.0"
