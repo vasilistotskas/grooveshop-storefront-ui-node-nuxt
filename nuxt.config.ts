@@ -5,6 +5,17 @@ import { version } from './package.json'
 import { PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES } from './shared/constants/prerender'
 import { FONT_FAMILY_NAMES } from './shared/theme/constants'
 
+// Style-ish module ids must never be captured by a codeSplitting group:
+// folding them into a named JS chunk makes Nuxt emit that chunk's CSS as
+// a render-blocking <link> on every page (this exact mistake shipped the
+// leaflet stylesheet site-wide before the old manualChunks grew its
+// ``.css`` guard) and disturbs vite's CSS emit ordering. Covers plain
+// stylesheets, preprocessor sources, and Vue SFC <style> virtuals.
+function isStyleModuleId(id: string): boolean {
+  return /\.(?:css|scss|sass|less|styl|pcss)(?:\?|$)/.test(id)
+    || id.includes('type=style')
+}
+
 const modules: (string | NuxtModule)[] = [
   'evlog/nuxt',
   '@comark/nuxt',
@@ -405,57 +416,72 @@ export default defineNuxtConfig({
           }
           defaultHandler(warning)
         },
-        output: {
-          // Group Leaflet + the marker cluster plugin into a single
-          // chunk so the checkout entry stays small. CRITICAL: they
-          // MUST live together. ``leaflet.markercluster`` is a UMD
-          // plugin whose top-level code does ``L.MarkerClusterGroup =
-          // L.FeatureGroup.extend(...)`` — bare ``L`` resolved via
-          // global scope (== ``window.L``). The leaflet UMD/CJS file
-          // (``leaflet/dist/leaflet-src.js``) seeds ``window.L =
-          // exports`` as a side effect at line 14509 of the package
-          // — bundling them in the same chunk guarantees that
-          // initialiser runs BEFORE the markercluster plugin's
-          // top-level code, so the bare ``L`` lookup resolves.
-          //
-          // History: an earlier ``force-leaflet-esm`` Vite plugin
-          // here mapped ``leaflet`` → ``leaflet/dist/leaflet-src.esm.js``
-          // to make tree-shaking work under
-          // ``future.compatibilityVersion: 5``. That ESM build does
-          // NOT contain the ``window.L = exports`` line, so
-          // markercluster's bare ``L`` lookup fell through to
-          // ``undefined`` and crashed the page on every route that
-          // preloaded the chunk (prod outage at v3.123.0/v3.123.1).
-          // The plugin was removed in v3.123.2; ``leaflet`` resolves
-          // to its CJS entry, which Vite pre-bundles via esbuild
-          // (gives us both the default-export interop AND the
-          // ``window.L`` side effect).
-          //
-          // The chunk only loads when ``CheckoutSmartpointMap`` is
-          // mounted (Lazy* + ClientOnly), so customers who never
-          // open the locker picker still pay zero bytes for it.
-          //
-          // ``.css`` is excluded from the matcher on purpose. The
-          // leaflet stylesheets (``leaflet/dist/leaflet.css`` +
-          // markercluster CSS) live under the same ``node_modules/
-          // leaflet*`` paths, so without the guard they were folded
-          // into this named ``leaflet`` chunk — which made Nuxt emit a
-          // render-blocking ``<link rel="stylesheet">`` for it in the
-          // entry HTML of EVERY page (homepage hero included, ~973ms
-          // wasted on mobile), even though the map only mounts at
-          // checkout. Excluding CSS lets it stay code-split with the
-          // async ``SmartpointMap.client`` chunk so it loads only when
-          // the locker picker mounts.
-          manualChunks(id) {
-            if (
-              !id.endsWith('.css')
-              && (
-                id.includes('node_modules/leaflet/')
-                || id.includes('node_modules/leaflet.markercluster/')
-              )
-            ) {
-              return 'leaflet'
-            }
+      },
+    },
+    // Client-only chunk-graph consolidation. Lives under ``$client``
+    // (deep-merged into the client vite config) so the SSR build keeps
+    // its default chunking. NOTE: rolldown IGNORES ``manualChunks``
+    // entirely once ``codeSplitting`` is present, so the leaflet
+    // grouping that used to live in the shared block above is migrated
+    // into a group here — do not re-add a manualChunks alongside this.
+    $client: {
+      build: {
+        rollupOptions: {
+          output: {
+            codeSplitting: {
+              groups: [
+                // Leaflet + the marker cluster plugin MUST share a
+                // chunk. ``leaflet.markercluster`` is a UMD plugin whose
+                // top-level code does ``L.MarkerClusterGroup =
+                // L.FeatureGroup.extend(...)`` — bare ``L`` resolved via
+                // global scope (== ``window.L``); the leaflet CJS file
+                // seeds ``window.L = exports`` as a top-level side
+                // effect, so co-location guarantees that initialiser
+                // runs first. Splitting them crashed every page that
+                // preloaded the chunk (prod outage v3.123.0/1 — full
+                // history in git blame of the old manualChunks block).
+                // The chunk still only loads when CheckoutSmartpointMap
+                // mounts (Lazy* + ClientOnly).
+                {
+                  name: 'leaflet',
+                  test: (id: string) =>
+                    !isStyleModuleId(id)
+                    && (
+                      id.includes('node_modules/leaflet/')
+                      || id.includes('node_modules/leaflet.markercluster/')
+                    ),
+                  priority: 30,
+                },
+                // Merge the ENTRY's static-import closure into two
+                // chunks. Lighthouse's lantern simulation charges every
+                // pre-LCP request against a 1.6Mbps link, and the
+                // homepage was shipping its eager graph as ~85 separate
+                // modulepreloads (2026-08-29 audit; simulated LCP ~5s vs
+                // 1.3s observed). ``tags: ['$initial']`` is rolldown's
+                // built-in marker for "statically imported by an entry
+                // or its dependency chain" — it is what keeps LAZY
+                // modules out of these chunks: dynamic-only modules
+                // (route chunks, page sections, the zod chunk shared by
+                // 27 account/checkout chunks) never carry the tag, so
+                // automatic chunking still applies to them. Styles are
+                // excluded for the same reason as the leaflet group:
+                // folding CSS module ids into a named JS group breaks
+                // vite's CSS extraction ordering.
+                {
+                  name: 'eager-vendor',
+                  tags: ['$initial'],
+                  test: (id: string) =>
+                    !isStyleModuleId(id) && id.includes('node_modules'),
+                  priority: 20,
+                },
+                {
+                  name: 'eager-app',
+                  tags: ['$initial'],
+                  test: (id: string) => !isStyleModuleId(id),
+                  priority: 10,
+                },
+              ],
+            },
           },
         },
       },
