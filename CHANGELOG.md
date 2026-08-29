@@ -1,3 +1,17 @@
+## [3.164.28](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.27...v3.164.28) (2026-08-29)
+
+
+### Bug Fixes
+
+* **seo:** give thin page titles something to say ([f8f9ba7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f8f9ba710f2149a47b2f7193e066ca0b53e16d70))
+* **seo:** keep the shared listing titles tenant-neutral ([cdffc53](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cdffc5391a444b1822ba913fefa10ea82821418c)), closes [#2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/2)
+* **sitemap:** 301 the pre-`sitemaps:false` sitemap URLs ([e5d33cb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e5d33cbecfd7e87b0ac02ac768bff37a85cde91a))
+
+
+### Performance Improvements
+
+* **analytics:** load gtag on first interaction instead of hydration ([8c2b573](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8c2b5732263b1e226f36372dc78dd61b7d1cd0d0))
+
 ## [3.164.27](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.26...v3.164.27) (2026-08-29)
 
 
