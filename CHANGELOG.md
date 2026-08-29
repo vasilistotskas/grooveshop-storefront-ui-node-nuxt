@@ -1,3 +1,10 @@
+## [3.164.26](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.25...v3.164.26) (2026-08-29)
+
+
+### Performance Improvements
+
+* **eager:** curate icon client bundle, drop the i18n message compiler ([a95fcba](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a95fcba660a205755f265e0f207d92bf2d4298e9))
+
 ## [3.164.25](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.24...v3.164.25) (2026-08-29)
 
 
