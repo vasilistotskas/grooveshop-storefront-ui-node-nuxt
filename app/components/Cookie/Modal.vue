@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { type Cookie, COOKIE_ID_SEPARATOR, ZodCookieTypeEnum } from '#cookie-control/types'
+import { type Cookie, COOKIE_ID_SEPARATOR, COOKIE_TYPES } from '#cookie-control/types'
 import { getCookieIds } from '#cookie-control/methods'
 
 // Migrated to UModal so that focus-trap, body scroll lock, ESC-to-close,
@@ -47,7 +47,7 @@ const toggleCookie = (cookie: Cookie, cookieType: string) => {
     cookiesEnabledIds.value = getCookieIds(localCookiesEnabled.value)
   }
   else {
-    if (cookieType === ZodCookieTypeEnum.enum.necessary) {
+    if (cookieType === 'necessary') {
       cookiesEnabledIds.value = getCookieIds(localCookiesEnabled.value)
       return
     }
@@ -120,7 +120,7 @@ const isUnSaved = computed(() => {
     <template #body>
       <div class="flex flex-col gap-4">
         <template
-          v-for="cookieType in ZodCookieTypeEnum.enum"
+          v-for="cookieType in COOKIE_TYPES"
           :key="cookieType"
         >
           <div v-if="moduleOptions.cookies[cookieType].length">
@@ -129,7 +129,7 @@ const isUnSaved = computed(() => {
                 mb-2 text-lg font-semibold text-primary-600
                 dark:text-primary-100
               "
-              v-text="cookieType === ZodCookieTypeEnum.enum.necessary ? t('cookies.necessary') : t('cookies.optional')"
+              v-text="cookieType === 'necessary' ? t('cookies.necessary') : t('cookies.optional')"
             />
             <ul class="flex flex-col gap-3">
               <li
@@ -149,7 +149,7 @@ const isUnSaved = computed(() => {
                     unchecked-icon="i-heroicons-x-mark"
                     checked-icon="i-heroicons-check"
                     :label="getName(cookie.name)"
-                    :disabled="cookieType === ZodCookieTypeEnum.enum.necessary"
+                    :disabled="cookieType === 'necessary'"
                     :ui="{
                       root: 'w-full flex-row-reverse',
                       base: 'cursor-pointer',

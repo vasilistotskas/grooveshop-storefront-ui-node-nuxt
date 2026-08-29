@@ -1,9 +1,14 @@
 import type { Ref } from 'vue'
-import * as z from 'zod'
 
 import type { CookieOptions } from '#app'
 
-export const ZodCookieTypeEnum = z.enum(['necessary', 'optional'])
+// Plain const map, deliberately NOT a z.enum: this module loads in the
+// entry chunk (cookie-consent runtime), and its former zod import was
+// one of the edges dragging the zod runtime into every page's critical
+// JS graph (2026-08-29 mobile-perf pass). Nothing ever parsed with it —
+// consumers only read the values.
+export const COOKIE_TYPES = ['necessary', 'optional'] as const
+export type CookieType = (typeof COOKIE_TYPES)[number]
 export const COOKIE_ID_SEPARATOR = '~'
 
 export interface Cookie {

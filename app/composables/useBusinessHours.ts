@@ -3,7 +3,7 @@
  * schedule plus a live, timezone-correct open/closed state.
  *
  * Fail-open chrome: no setting, an empty ``{}`` payload, a shape the
- * ``zBusinessHours`` parse rejects, or an ``Intl``-unknown timezone all
+ * ``isBusinessHours`` rejects, or an ``Intl``-unknown timezone all
  * resolve to ``hasData === false`` and every consumer renders nothing —
  * a data hiccup never breaks the page.
  *
@@ -25,7 +25,7 @@ export function useBusinessHours() {
     if (parsed === null && raw !== '{}') {
       log.warn({
         tag: 'business-hours',
-        message: 'BUSINESS_HOURS setting failed zBusinessHours parse',
+        message: 'BUSINESS_HOURS setting failed shape validation',
       })
     }
     return parsed

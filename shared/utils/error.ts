@@ -1,3 +1,12 @@
+/**
+ * Zod-free error helpers. Deliberately separated from the
+ * ``is*ResponseError`` guards (shared/utils/allAuthErrorGuards.ts):
+ * ``getErrorDetail``/``serializeError`` are imported by catch blocks
+ * all over the app — including the layout/header chunk — and keeping
+ * the zod-parsing guards in the same module dragged the zod runtime
+ * (16KB brotli) into every page's critical JS graph (2026-08-29
+ * mobile-perf pass). Only actual guard consumers should pay for zod.
+ */
 export interface SerializedError {
   message: string
   statusCode?: number
@@ -44,51 +53,4 @@ export function getErrorDetail(err: unknown): string | undefined {
     return detailOf(data) ?? detailOf(nested)
   }
   return undefined
-}
-
-// Common shape: ofetch's ``FetchError`` has a ``data`` property that
-// carries the upstream JSON body. We narrow on ``data`` only — the
-// Zod parse is the source of truth for whether the body matches.
-function readData(error: unknown): unknown {
-  if (error && typeof error === 'object' && 'data' in error) {
-    return (error as { data: unknown }).data
-  }
-  return undefined
-}
-
-export const isBadResponseError = (error: unknown): error is {
-  data: BadResponse
-} => {
-  const result = ZodBadResponse.safeParse(readData(error))
-  return result.success
-}
-export const isNotAuthenticatedResponseError = (error: unknown): error is {
-  data: NotAuthenticatedResponse
-} => {
-  const result = ZodNotAuthenticatedResponse.safeParse(readData(error))
-  return result.success
-}
-export const isInvalidSessionResponseError = (error: unknown): error is {
-  data: InvalidSessionResponse
-} => {
-  const result = ZodInvalidSessionResponse.safeParse(readData(error))
-  return result.success
-}
-export const isForbiddenResponseError = (error: unknown): error is {
-  data: ForbiddenResponse
-} => {
-  const result = ZodForbiddenResponse.safeParse(readData(error))
-  return result.success
-}
-export const isNotFoundResponseError = (error: unknown): error is {
-  data: NotFoundResponse
-} => {
-  const result = ZodNotFoundResponse.safeParse(readData(error))
-  return result.success
-}
-export const isConflictResponseError = (error: unknown): error is {
-  data: ConflictResponse
-} => {
-  const result = ZodConflictResponse.safeParse(readData(error))
-  return result.success
 }

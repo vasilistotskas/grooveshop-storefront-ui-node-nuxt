@@ -1,14 +1,14 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest'
-import { zBusinessHours, WEEK_DAY_KEYS } from '../../../shared/schemas/businessHours'
+import { isBusinessHours, WEEK_DAY_KEYS } from '../../../shared/schemas/businessHours'
 
-// The helpers consume zBusinessHours/WEEK_DAY_KEYS via shared/
+// The helpers consume isBusinessHours/WEEK_DAY_KEYS via shared/
 // auto-imports; the unit project has no auto-imports, so wire the REAL
 // implementations as globals — same pattern as themeTokens.spec.ts.
 let parseBusinessHoursValue: typeof import('../../../shared/utils/businessHours')['parseBusinessHoursValue']
 let resolveBusinessHoursState: typeof import('../../../shared/utils/businessHours')['resolveBusinessHoursState']
 
 beforeAll(async () => {
-  vi.stubGlobal('zBusinessHours', zBusinessHours)
+  vi.stubGlobal('isBusinessHours', isBusinessHours)
   vi.stubGlobal('WEEK_DAY_KEYS', WEEK_DAY_KEYS)
   const mod = await import('../../../shared/utils/businessHours')
   parseBusinessHoursValue = mod.parseBusinessHoursValue

@@ -27,8 +27,7 @@ export function parseBusinessHoursValue(
   ) {
     return null
   }
-  const result = zBusinessHours.safeParse(parsed)
-  return result.success ? result.data : null
+  return isBusinessHours(parsed) ? parsed : null
 }
 
 export interface BusinessHoursState {
