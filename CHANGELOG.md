@@ -1,3 +1,15 @@
+## [3.164.29](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.28...v3.164.29) (2026-08-29)
+
+
+### Bug Fixes
+
+* **seo:** write real descriptions for the thin listing and brand pages ([b9ba369](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b9ba3695b0b8c7549862a4981cef7cdabd630bab))
+
+
+### Performance Improvements
+
+* **hints:** preload only the entry closure, not rendered chunks ([6b6a6fc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6b6a6fc0f47e1b1f2741981c45a4eb8670a81c4b))
+
 ## [3.164.28](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.27...v3.164.28) (2026-08-29)
 
 
