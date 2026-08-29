@@ -1,3 +1,10 @@
+## [3.164.24](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.23...v3.164.24) (2026-08-29)
+
+
+### Performance Improvements
+
+* **payload:** stop shipping blog post bodies in list responses ([77b3397](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/77b3397c730b3e81bb876a4f044bba26690e2a37))
+
 ## [3.164.23](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.22...v3.164.23) (2026-08-29)
 
 
