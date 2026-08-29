@@ -1,3 +1,16 @@
+## [3.164.25](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.24...v3.164.25) (2026-08-29)
+
+
+### Bug Fixes
+
+* **a11y:** drop redundant prefixes from image alt text ([8bbbfe6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8bbbfe6c26c1478ba6d4ceeee5b2c5e45cb4bfc1))
+* **seo:** never emit an empty meta description ([42cd9f2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/42cd9f25ecf2e1c3fa1558fbacc0555ad6d618bd))
+
+
+### Performance Improvements
+
+* **ssr:** cache blog and catalogue pages with SWR ([53f1b79](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/53f1b79f26b4e0540b7228a49da1f96475aca70c))
+
 ## [3.164.24](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.23...v3.164.24) (2026-08-29)
 
 
