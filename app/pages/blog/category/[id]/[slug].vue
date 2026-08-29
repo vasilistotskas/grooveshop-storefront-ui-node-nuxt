@@ -183,7 +183,9 @@ definePageMeta({
       }"
       class="relative mb-5 min-w-0"
     />
-    <h2
+    <!-- h1: this IS the page heading. It was an h2 only because the
+         navbar logo used to claim the h1. -->
+    <h1
       class="mb-5 flex w-full items-center justify-center gap-2"
     >
       <span
@@ -205,7 +207,7 @@ definePageMeta({
       >
         ({{ totalPosts }})
       </span>
-    </h2>
+    </h1>
     <div class="flex w-full flex-col gap-4">
       <div class="flex flex-row flex-wrap items-center gap-2">
         <Pagination

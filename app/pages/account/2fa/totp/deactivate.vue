@@ -65,7 +65,7 @@ defineRouteRules({
   >
     <PageTitle
       :text="t('title')"
-      class="hidden"
+      class="sr-only"
     />
 
     <div
@@ -98,7 +98,7 @@ defineRouteRules({
               />
             </div>
             <div>
-              <h1
+              <h2
                 class="
                   text-lg font-semibold text-gray-900
                   md:text-xl
@@ -106,7 +106,7 @@ defineRouteRules({
                 "
               >
                 {{ t('title') }}
-              </h1>
+              </h2>
               <p
                 class="
                   mt-1 text-sm text-gray-500

@@ -138,6 +138,26 @@ export function parseImgAttributes(imgTag: string): ParsedImageAttributes {
 }
 
 /**
+ * Strip a Cloudflare Image Resizing prefix from a path.
+ *
+ * CF serves transforms at `/cdn-cgi/image/<options>/<source-path>`, and
+ * an editor pasting an image URL copied off a rendered page stores that
+ * whole thing as the `src` in TinyMCE. `/cdn-cgi/` is a reserved
+ * Cloudflare namespace — it is never a real asset path — so recovering
+ * the source path is unambiguous.
+ *
+ * Without this, the media-stream URL builder kept the prefix and asked
+ * the image service for `/media_stream-image/cdn-cgi/image/format=webp/
+ * media/...`, which 404s (Ahrefs "Image broken" / "Page has broken
+ * image"). Normalising here fixes already-stored content as well as
+ * anything pasted later, so no data migration is needed.
+ */
+export function stripCloudflareImagePrefix(path: string): string {
+  const match = path.match(/^\/cdn-cgi\/image\/[^/]+\/(.*)$/)
+  return match?.[1] ? `/${match[1]}` : path
+}
+
+/**
  * Extract the path portion from a URL, stripping any origin
  */
 export function extractPathFromUrl(url: string): string {
@@ -225,6 +245,10 @@ export function buildMediaStreamUrl(
   if (!imagePath.startsWith('/')) {
     imagePath = `/${imagePath}`
   }
+
+  // A CF Image Resizing prefix would otherwise be handed to the media
+  // stream as if it were part of the object key.
+  imagePath = stripCloudflareImagePrefix(imagePath)
 
   // Build the path portion (without origin)
   const pathSegments = [

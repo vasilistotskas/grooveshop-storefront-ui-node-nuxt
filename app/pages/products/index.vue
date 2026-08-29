@@ -100,6 +100,15 @@ const { sections: brandSections } = await usePageConfig('products')
       </a>
     </div>
 
+    <!-- Every page owns exactly one h1. Visually hidden because the
+         design has no heading slot here — the navbar logo used to
+         supply the h1, which put the store name in the h1 of several
+         unrelated URLs. -->
+    <PageTitle
+      v-if="!sectionsProvideHeading(brandSections)"
+      :text="t('title')"
+      class="sr-only"
+    />
     <PageBreadcrumb />
     <div
       v-if="brandSections.length"
@@ -114,6 +123,10 @@ const { sections: brandSections } = await usePageConfig('products')
         :section="section"
       />
     </div>
+
+    <!-- The only internal link into /products/category/**. Without it
+         those pages sit in the sitemap with zero inbound links. -->
+    <ProductCategoriesNav />
 
     <div
       class="flex gap-6"

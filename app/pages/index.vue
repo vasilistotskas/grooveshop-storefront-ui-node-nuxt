@@ -35,6 +35,15 @@ useSeoMeta({
 
 <template>
   <PageWrapper>
+    <!-- Every page owns exactly one h1. The homepage's is the store
+         name — the same text the navbar logo's h1 carried before it
+         stopped being a heading. Visually hidden: the hero sections
+         own the visible top of the page. -->
+    <PageTitle
+      v-if="!sectionsProvideHeading(sections)"
+      :text="appTitle"
+      class="sr-only"
+    />
     <section
       class="
         grid gap-4 pt-4

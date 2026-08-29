@@ -6,23 +6,14 @@ defineProps({
   },
 })
 
-const { $routeBaseName } = useNuxtApp()
-const route = useRoute()
 const config = useRuntimeConfig()
 const { loggedIn } = useUserSession()
 const { isMobileOrTablet } = useDevice()
 const { locales } = useI18n()
 const isScrolled = ref(false)
 
-const routeName = computed(() => $routeBaseName(route))
-const isPageWithH1 = computed(() => {
-  if (!routeName.value) return false
-  return ['blog-post-id-slug'].includes(routeName.value as string)
-})
-
 const tenantStore = useTenantStore()
 const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
-const titleElement = computed(() => isPageWithH1.value ? 'div' : 'h1')
 
 // Cart chrome for shop-dark tenants — mirrors Page/Navbar's gate.
 // Shopper-facing chrome fails OPEN.
@@ -80,10 +71,14 @@ onMounted(() => {
             <PageBurgerMenu />
           </MobileOrTabletOnly>
           <slot name="title">
-            <Component
-              :is="titleElement"
-              class="grid justify-items-start"
-            >
+            <!-- The logo is site chrome, never the page heading. It used
+                 to render as <h1> on every route except one, taken off a
+                 hardcoded allowlist that no page author could be
+                 expected to maintain: pages with a real heading ended up
+                 with two h1s, and pages without one advertised the store
+                 name as their h1. Each page now owns its single h1
+                 (PageTitle, or its own markup). -->
+            <div class="grid justify-items-start">
               <Anchor
                 :to="'index'"
                 :aria-label="appTitle"
@@ -107,7 +102,7 @@ onMounted(() => {
                 />
                 <span class="sr-only">{{ appTitle }}</span>
               </Anchor>
-            </Component>
+            </div>
           </slot>
           <slot name="menu" />
           <MobileOrTabletOnly>

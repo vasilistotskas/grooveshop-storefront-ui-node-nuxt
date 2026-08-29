@@ -23,42 +23,6 @@ const cachedProductCategories = createCachedFetcher<ProductCategory>(
   SITEMAP_CACHE_AGE,
 )
 
-/**
- * Read one ``extra_settings`` flag for the requesting tenant.
- *
- * Same X-Forwarded-Host discipline as ``createCachedFetcher``: without
- * it Django resolves the public schema and every tenant would inherit
- * the platform's flag value.
- */
-const cachedTenantFlag = defineCachedFunction(
-  async (tenantKey: string, apiBaseUrl: string, key: string) => {
-    try {
-      const setting = await $fetch<{ value?: string }>(
-        `${apiBaseUrl}/settings/get`,
-        {
-          method: 'GET',
-          query: { key },
-          headers: tenantKey ? { 'X-Forwarded-Host': tenantKey } : undefined,
-        },
-      )
-      return (setting?.value ?? 'false').toLowerCase() === 'true'
-    }
-    catch {
-      // Fail CLOSED here, unlike the route middleware. A middleware that
-      // fails open costs a rendered page; a sitemap that fails open
-      // advertises a URL the same gate will 404 — the exact defect this
-      // fixes (Ahrefs "4XX page in sitemap").
-      return false
-    }
-  },
-  {
-    name: 'sitemap:tenant-flag',
-    maxAge: SITEMAP_CACHE_AGE,
-    getKey: (tenantKey: string, _apiBaseUrl: string, key: string) =>
-      `${tenantKey}:${key}`,
-  },
-)
-
 export default defineSitemapEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const host = getRequestHost(event, { xForwardedHost: false })
@@ -99,22 +63,6 @@ export default defineSitemapEventHandler(async (event) => {
 
   const blogEnabled = tenant?.blogEnabled ?? true
 
-  // Feature-gated STATIC routes. ``sitemap.exclude`` in nuxt.config
-  // keeps them out of the module's route discovery, because that pass
-  // has no tenant context and listed them for every tenant — including
-  // the ones whose route middleware answers 404 (webside.gr shipped
-  // /loyalty-program in its sitemap while LOYALTY_ENABLED was false).
-  // They are re-added HERE, where the tenant is resolved, under exactly
-  // the two-tier gate the middleware applies: plan flag AND the runtime
-  // extra_settings toggle.
-  const gatedRoutes = await Promise.all([
-    tenant?.loyaltyEnabled
-      ? cachedTenantFlag(host, apiBaseUrl, 'LOYALTY_ENABLED').then(
-          on => (on ? '/loyalty-program' : null),
-        )
-      : Promise.resolve(null),
-  ])
-
   // Fetch all data in parallel for better performance — tenant host
   // is passed so each tenant's sitemap has its own cache entry.
   // languageCode ensures Django returns translations for the active locale.
@@ -132,15 +80,6 @@ export default defineSitemapEventHandler(async (event) => {
   ])
 
   return [
-    // No explicit type predicate: TS narrows `!== null` on its own, and
-    // `route is string` is wider than the literal element type (TS2677).
-    ...gatedRoutes.filter(route => route !== null).map(
-      route => asSitemapUrl({
-        loc: baseUrl + route,
-        changefreq: 'monthly',
-        priority: 0.4,
-      }),
-    ),
     // Blog categories — omitted when blog is disabled for this tenant
     ...allBlogCategories.map(category => asSitemapUrl({
       loc: baseUrl + '/blog/category/' + category.id + '/' + category.slug,

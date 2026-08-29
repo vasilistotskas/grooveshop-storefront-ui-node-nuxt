@@ -42,6 +42,7 @@ const { sections: brandSections } = await usePageConfig('contact')
          visibly narrower than every other one. -->
     <div class="mx-auto w-full max-w-2xl">
       <PageTitle
+        v-if="!sectionsProvideHeading(brandSections)"
         :text="t('title')"
         class="mb-4 text-center capitalize"
       />

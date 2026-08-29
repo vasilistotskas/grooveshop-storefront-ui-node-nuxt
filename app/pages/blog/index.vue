@@ -36,6 +36,15 @@ const { sections: brandSections } = await usePageConfig('blog')
 
 <template>
   <PageWrapper class="flex flex-col">
+    <!-- Every page owns exactly one h1. This one is visually hidden
+         because the design has no heading slot here — the navbar logo
+         used to supply the h1, which put the store name in the h1 of
+         several unrelated URLs. -->
+    <PageTitle
+      v-if="!sectionsProvideHeading(brandSections)"
+      :text="t('title')"
+      class="sr-only"
+    />
     <!-- Breadcrumb ABOVE the branded band (crumb landed mid-page for
          tenants with published sections). -->
     <UBreadcrumb

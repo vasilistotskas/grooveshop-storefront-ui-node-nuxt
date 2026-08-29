@@ -20,8 +20,19 @@ const items = computed<AccordionItem[]>(() =>
       dark:bg-primary-900
     "
   >
+    <!-- `unmount-on-hide` defaults to TRUE, which drops every closed
+         panel's body from the DOM. The desktop footer is not rendered
+         at all on mobile (`v-if="isMobileOrTablet"` in the default
+         layout), so under mobile-first indexing the ENTIRE footer link
+         set — terms, privacy, cookies, contact and every operator menu
+         row — was invisible to crawlers, orphaning those pages.
+         Setting it false makes Reka render the body with
+         `hidden="until-found"`: still collapsed, but present in the
+         DOM, findable by find-in-page, and it auto-opens on
+         `beforematch`. -->
     <UAccordion
       :items="items"
+      :unmount-on-hide="false"
       :ui="{
         trigger: 'gap-4 bg-(--ui-secondary) p-3',
         leadingIcon: 'size-8 text-(--ui-on-secondary)',

@@ -47,6 +47,7 @@ const { sections: brandSections } = await usePageConfig('feedback')
          and the branded band. -->
     <div class="mx-auto w-full max-w-(--container-4xl)">
       <PageTitle
+        v-if="!sectionsProvideHeading(brandSections)"
         :text="t('title')"
         class="mb-4 text-center capitalize"
       />
