@@ -1,3 +1,11 @@
+## [3.164.19](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.18...v3.164.19) (2026-08-29)
+
+
+### Bug Fixes
+
+* **seo:** tenant-gate static sitemap routes, de-orphan category pages ([3fe037f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3fe037f059b71010519348d04359dd58a62ab62b))
+* **sitemap:** drop the over-wide type predicate on gated routes ([7f35443](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7f354431e59360444a42393084d4e427b72570a4))
+
 ## [3.164.18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.17...v3.164.18) (2026-08-29)
 
 
