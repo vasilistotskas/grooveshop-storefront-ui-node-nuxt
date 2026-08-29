@@ -597,10 +597,23 @@ export default defineNuxtConfig({
     // Pre-bundled per-tenant font allowlist (shared/theme/constants.ts).
     // ``global: true`` forces @font-face emission for every family even
     // though no build-time CSS references them — @font-face is lazy, so
-    // shipping all declarations costs a few KB of CSS while each
-    // tenant's visitors download only the family their --font-sans
+    // each tenant's visitors download only the family their --font-sans
     // token resolves to. Files are self-hosted under /_fonts/** (no
     // runtime Google requests, no CSP widening).
+    //
+    // The declarations are NOT free though: the unconstrained cross
+    // product (4 weights x 2 styles x up to 7 unicode-range subsets x
+    // 12 families) emitted 472 @font-face rules = 169KB of the
+    // render-blocking entry.css (36%, found 2026-08-29). Constrain to
+    // what the platform can actually render: normal style only (italic
+    // was 224 of the 472 faces; the rare .italic usage synthesizes
+    // fine) and the subsets our locales (el/en/de) can produce —
+    // cyrillic/vietnamese/greek-ext were dead weight on every page.
+    defaults: {
+      weights: [400, 500, 600, 700],
+      styles: ['normal'],
+      subsets: ['latin', 'latin-ext', 'greek'],
+    },
     families: Object.values(FONT_FAMILY_NAMES).map(name => ({
       name,
       provider: 'google',
