@@ -1,3 +1,10 @@
+## [3.164.27](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.26...v3.164.27) (2026-08-29)
+
+
+### Performance Improvements
+
+* **chunks:** consolidate the entry graph via rolldown codeSplitting ([caaccd7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/caaccd7d359ac738a2f8d020d79fb7a8c5b9019e))
+
 ## [3.164.26](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.25...v3.164.26) (2026-08-29)
 
 
