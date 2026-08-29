@@ -1,3 +1,10 @@
+## [3.164.23](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.22...v3.164.23) (2026-08-29)
+
+
+### Performance Improvements
+
+* **header:** replace UHeader with its rendered static markup ([8406497](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/84064972d18a2b950b24939c63a90fc1237c66f1))
+
 ## [3.164.22](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.21...v3.164.22) (2026-08-29)
 
 
