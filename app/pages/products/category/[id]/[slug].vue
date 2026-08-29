@@ -89,8 +89,18 @@ const canonicalUrl = computed(
   () => `${baseUrl}/products/category/${category.value?.id}/${category.value?.slug}`,
 )
 
+// Prefer the merchant's own SEO title; otherwise qualify the bare
+// category name, which on its own ("Powerbank") is too thin to describe
+// the page in a result listing.
+const categoryDocumentTitle = computed(() => {
+  if (category.value?.seoTitle) return category.value.seoTitle
+  return categoryName.value
+    ? t('page.title', { name: categoryName.value })
+    : t('title')
+})
+
 useSeoMeta({
-  title: () => categoryName.value || t('title'),
+  title: () => categoryDocumentTitle.value,
   ogUrl: () => canonicalUrl.value,
   description: () => categoryDescription.value,
   ogTitle: () => categoryName.value || t('title'),
@@ -138,4 +148,6 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Κατηγορία
+  page:
+    title: "{name} — Αγορά online"
 </i18n>

@@ -23,9 +23,10 @@ const { data: seoProducts } = await useFetch<ProductMeiliSearchResponse>(
 )
 
 useSeoMeta({
-  title: () => t('title'),
+  // seo.title, not title: `title` is also the page's h1 (see /blog).
+  title: () => t('seo.title'),
   description: () => t('seo.description'),
-  ogTitle: () => t('title'),
+  ogTitle: () => t('seo.title'),
   ogDescription: () => t('seo.description'),
   ogType: 'website',
   // Prefer the tenant's light-mode logo for OG meta so social previews
@@ -147,5 +148,9 @@ el:
   skip_to_content: Μετάβαση στο περιεχόμενο
   skip_to_filters: Μετάβαση στα φίλτρα
   seo:
-    description: Εξερεύνησε την πλήρη συλλογή μουσικών οργάνων και εξοπλισμού. Φίλτρα κατηγορίας, τιμής και χαρακτηριστικών.
+    title: Προϊόντα και gadgets τεχνολογίας
+    # The catalogue is tech accessories, not musical instruments — the
+    # previous copy was template boilerplate that shipped to every
+    # tenant's /products description.
+    description: Δες όλα τα προϊόντα και gadgets τεχνολογίας, με φίλτρα κατηγορίας, τιμής και χαρακτηριστικών για να βρεις γρήγορα αυτό που ψάχνεις.
 </i18n>

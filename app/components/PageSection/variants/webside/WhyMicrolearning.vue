@@ -33,11 +33,11 @@ const reasons = computed<PageFeatureProps[]>(() => [
 ])
 
 useSeoMeta({
-  title: t('microlearning.title'),
+  title: t('microlearning.seo_title'),
   description: t('microlearning.why'),
 })
 useHead({
-  title: t('microlearning.title'),
+  title: t('microlearning.seo_title'),
 })
 </script>
 
@@ -202,6 +202,11 @@ useHead({
 el:
   microlearning:
     title: Microlearning
+    # Distinct from the sibling page: both used `title` for the
+    # document title, so /what-is-microlearning and
+    # /why-microlearning shipped the identical "Microlearning |
+    # Webside". `title` still labels the in-page chip.
+    seo_title: "Γιατί Microlearning: Τα πλεονεκτήματα"
     why: Γιατί Microlearning
     why_alt_1: Σύγχρονος χρήστης σε ψηφιακό περιβάλλον γεμάτο αποσπάσεις
     why_alt_2: Ευέλικτη εκπαίδευση οπουδήποτε και οποτεδήποτε

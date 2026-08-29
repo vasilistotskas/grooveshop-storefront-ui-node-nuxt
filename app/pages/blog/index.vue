@@ -20,7 +20,9 @@ useSeoMeta({
   ogDescription: t('description'),
 })
 useHead({
-  title: t('title'),
+  // seo.title, not title: `title` is also the page's h1, where the bare
+  // word reads correctly. Only the document title needs the qualifier.
+  title: t('seo.title'),
 })
 
 definePageMeta({
@@ -85,6 +87,8 @@ const { sections: brandSections } = await usePageConfig('blog')
 <i18n lang="yaml">
 el:
   title: Blog
+  seo:
+    title: "Blog: Νέα και οδηγοί τεχνολογίας"
   description: Νέα, άρθρα και ιστορίες μας.
   breadcrumb:
     items:

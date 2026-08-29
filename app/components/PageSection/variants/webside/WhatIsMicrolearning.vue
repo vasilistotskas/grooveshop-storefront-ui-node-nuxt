@@ -13,11 +13,11 @@ const heroLinks = computed<ButtonProps[]>(() => [
 ])
 
 useSeoMeta({
-  title: t('microlearning.title'),
+  title: t('microlearning.seo_title'),
   description: t('microlearning.what'),
 })
 useHead({
-  title: t('microlearning.title'),
+  title: t('microlearning.seo_title'),
 })
 </script>
 
@@ -180,6 +180,11 @@ useHead({
 el:
   microlearning:
     title: Microlearning
+    # Distinct from the sibling page: both used `title` for the
+    # document title, so /what-is-microlearning and
+    # /why-microlearning shipped the identical "Microlearning |
+    # Webside". `title` still labels the in-page chip.
+    seo_title: "Τι είναι το Microlearning: Ο πλήρης οδηγός"
     what: Τι είναι το Microlearning
     what_alt_1: Εκπαιδευόμενος αξιοποιεί microlearning σε φορητή συσκευή
     what_alt_2: Η καμπύλη λήθης του Ebbinghaus και το microlearning

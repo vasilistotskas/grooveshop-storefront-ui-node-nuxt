@@ -131,6 +131,25 @@ const blogPostSeoTitle = computed(() => {
   return post?.seoTitle || blogPostTitle.value || ''
 })
 
+// Google appends the site name to a SHORT title and leaves a long one
+// alone — which is exactly why only the three shortest posts were
+// reported as "Page and SERP titles do not match". Mirroring that rule
+// makes the page title agree with the SERP in both directions.
+//
+// A blanket suffix would trade one mismatch for another: 34 of 79 posts
+// would land past the ~60 character display budget (15 already are),
+// where the brand is truncated away again and the extra characters buy
+// nothing. Only append it when it actually fits.
+const TITLE_DISPLAY_BUDGET = 60
+
+const blogPostDocumentTitle = computed(() => {
+  const title = blogPostSeoTitle.value
+  const suffix = ` | ${siteConfig.name}`
+  return title.length + suffix.length <= TITLE_DISPLAY_BUDGET
+    ? `${title}${suffix}`
+    : title
+})
+
 // A post with neither an SEO description nor a subtitle used to emit
 // `<meta name="description" content>` — an empty tag is strictly worse
 // than no tag, because Google cannot fall back to generating a snippet.
@@ -253,8 +272,10 @@ const canonicalUrl = computed(
 )
 
 useSeoMeta({
+  // '%s' because the brand suffix is applied conditionally above; the
+  // global template would append it unconditionally.
   titleTemplate: '%s',
-  title: () => blogPostSeoTitle.value,
+  title: () => blogPostDocumentTitle.value,
   description: () => blogPostDescription.value,
   ogDescription: () => blogPostDescription.value,
   ogImageWidth: 1200,

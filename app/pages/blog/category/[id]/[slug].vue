@@ -133,8 +133,15 @@ const canonicalUrl = computed(
   () => `${siteUrl}/blog/category/${category.value?.id}/${category.value?.slug}`,
 )
 
+// A bare category name ("PC", "AI") is a 2-3 character title that tells
+// a searcher nothing about the page. The name still drives the H1 and
+// breadcrumb; only the document title gets the qualifier.
+const categoryDocumentTitle = computed(() =>
+  categoryTitle.value ? t('page.title', { name: categoryTitle.value }) : '',
+)
+
 useSeoMeta({
-  title: () => categoryTitle.value,
+  title: () => categoryDocumentTitle.value,
   ogUrl: () => canonicalUrl.value,
   description: () => categoryDescription.value,
   ogDescription: () => categoryDescription.value,
@@ -143,7 +150,7 @@ useSeoMeta({
 })
 
 useHead({
-  title: categoryTitle,
+  title: categoryDocumentTitle,
   // Hreflang alternate links. Currently only 'el' is active.
   // When more locales activate, iterate SUPPORTED_LOCALES and emit one
   // <link rel="alternate"> per locale using the localised path.
@@ -274,6 +281,8 @@ definePageMeta({
 
 <i18n lang="yaml">
 el:
+  page:
+    title: "{name}: Άρθρα και οδηγοί"
   breadcrumb:
     items:
       blog:

@@ -2,7 +2,8 @@
 const { t } = useI18n()
 
 useHead({
-  title: t('title'),
+  // seo.title, not title: `title` is also the page's h1 (see /blog).
+  title: t('seo.title'),
 })
 
 definePageMeta({
@@ -29,4 +30,6 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Κατηγορίες
+  seo:
+    title: Κατηγορίες άρθρων και οδηγών
 </i18n>
