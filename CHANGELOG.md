@@ -1,3 +1,10 @@
+## [3.164.17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.16...v3.164.17) (2026-08-29)
+
+
+### Performance Improvements
+
+* **critical-js:** drop all modulepreloads, evict zod from the eager graph ([d408a0b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d408a0bde4c677dce2bf4d124925f434138bc1c8)), closes [angular-cli#27490](https://github.com/angular-cli/issues/27490)
+
 ## [3.164.16](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.15...v3.164.16) (2026-08-29)
 
 
