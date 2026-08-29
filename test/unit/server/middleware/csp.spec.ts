@@ -15,7 +15,7 @@
 
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { generateCspNonce } from '../../../../server/utils/csp'
-import { CACHED_SSR_ROUTES_SET, PRERENDERED_ROUTES_SET } from '../../../../shared/constants/prerender'
+import { CACHED_SSR_ROUTES_SET, PRERENDERED_ROUTES_SET, isCachedSsrRoute } from '../../../../shared/constants/prerender'
 import { buildCspDirectives } from '../../../../shared/utils/csp'
 
 const INTERNAL_DJANGO_URL = 'http://backend-service:80'
@@ -68,6 +68,7 @@ beforeAll(async () => {
   vi.stubGlobal('generateCspNonce', generateCspNonce)
   vi.stubGlobal('PRERENDERED_ROUTES_SET', PRERENDERED_ROUTES_SET)
   vi.stubGlobal('CACHED_SSR_ROUTES_SET', CACHED_SSR_ROUTES_SET)
+  vi.stubGlobal('isCachedSsrRoute', isCachedSsrRoute)
   vi.stubGlobal('buildCspDirectives', buildCspDirectives)
   // Import after globals are stubbed — the module wraps its handler in
   // defineEventHandler at module-evaluation time.
@@ -216,7 +217,9 @@ describe('csp middleware', () => {
   })
 
   it('emits a per-request nonce + strict-dynamic in script-src for SSR routes', () => {
-    const result = runWith('/products/3/some-product')
+    // An UNCACHED route: /products and /blog are now SWR-cached families,
+    // and a cached response cannot carry a per-request nonce.
+    const result = runWith('/search')
     const scriptSrc = result['Content-Security-Policy']!
       .split(';').map(d => d.trim()).find(d => d.startsWith('script-src')) ?? ''
     const nonce = result.event.context.cspNonce as string
@@ -229,8 +232,8 @@ describe('csp middleware', () => {
   })
 
   it('generates a fresh nonce per request', () => {
-    const first = runWith('/products').event.context.cspNonce
-    const second = runWith('/products').event.context.cspNonce
+    const first = runWith('/search').event.context.cspNonce
+    const second = runWith('/search').event.context.cspNonce
     expect(first).toBeDefined()
     expect(second).toBeDefined()
     expect(first).not.toBe(second)
@@ -243,6 +246,31 @@ describe('csp middleware', () => {
     const result = runWith('/')
     expect(result.event.context.cspNonce).toBeUndefined()
     expect(result['Content-Security-Policy']!).not.toContain('nonce-')
+  })
+
+  it('keeps the nonce-free policy across the SWR-cached route families', () => {
+    // Regression: these are glob route rules, so an exact-path Set lookup
+    // missed every nested URL and handed them a nonce that the cached
+    // HTML would then reuse for the whole TTL.
+    for (const path of [
+      '/blog',
+      '/blog/categories',
+      '/blog/category/5/PC',
+      '/blog/post/42/mnhmh-ram-ti-einai',
+      '/products',
+      '/products/3/some-product',
+      '/products/category/2/Powerbank',
+    ]) {
+      const result = runWith(path)
+      expect(result.event.context.cspNonce, path).toBeUndefined()
+      expect(result['Content-Security-Policy']!, path).not.toContain('nonce-')
+    }
+  })
+
+  it('still nonces sibling paths that merely share a prefix', () => {
+    for (const path of ['/blogging', '/productsxyz', '/cart']) {
+      expect(runWith(path).event.context.cspNonce, path).toBeDefined()
+    }
   })
 
   it('keeps the nonce-free unsafe-inline policy on prerendered routes', () => {
@@ -263,8 +291,10 @@ describe('csp middleware', () => {
     // build-time constant), not on this header — a visitor could
     // otherwise suppress the nonce on any route and be served the
     // weaker baked policy instead.
-    const result = runWith('/products/3/some-product', {
-      requestHeaders: { 'x-nitro-prerender': '/products/3/some-product' },
+    // On an UNCACHED route, so the assertion isolates the header (a
+    // cached route has its own, legitimate reason to omit the nonce).
+    const result = runWith('/search', {
+      requestHeaders: { 'x-nitro-prerender': '/search' },
     })
     expect(result.event.context.cspNonce).toBeDefined()
     expect(result['Content-Security-Policy']).toContain('nonce-')

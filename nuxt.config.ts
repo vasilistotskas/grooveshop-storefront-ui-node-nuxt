@@ -2,7 +2,7 @@ import type { NuxtModule } from 'nuxt/schema'
 import { fileURLToPath } from 'node:url'
 import { DEFAULT_LOCALE } from './i18n/locales'
 import { version } from './package.json'
-import { PRERENDERED_ROUTES, SWR_ROUTE_RULES } from './shared/constants/prerender'
+import { PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES } from './shared/constants/prerender'
 import { FONT_FAMILY_NAMES } from './shared/theme/constants'
 
 const modules: (string | NuxtModule)[] = [
@@ -283,6 +283,16 @@ export default defineNuxtConfig({
     // that keeps user data out of the shared cache.
     ...Object.fromEntries(
       Object.entries(SWR_ROUTE_RULES).map(([route, ttl]) => [route, {
+        swr: ttl,
+        cache: { varies: ['host', 'x-device-class'] },
+      }]),
+    ),
+    // Blog + catalogue route families (globs). Same contract and the
+    // same vary set — these pages render device-specific components
+    // (BlogPostCardMobile vs Desktop), so x-device-class is load-bearing,
+    // not decoration.
+    ...Object.fromEntries(
+      Object.entries(SWR_ROUTE_PATTERN_RULES).map(([route, ttl]) => [route, {
         swr: ttl,
         cache: { varies: ['host', 'x-device-class'] },
       }]),

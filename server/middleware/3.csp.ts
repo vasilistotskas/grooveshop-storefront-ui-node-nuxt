@@ -40,11 +40,13 @@ export default defineEventHandler((event) => {
   // import.meta.prerender rather than the x-nitro-prerender header: the
   // header is client-supplied, so a visitor could suppress the nonce on
   // any route and get the weaker baked policy instead.
-  // CACHED_SSR_ROUTES_SET covers every response replayed from Nitro's
-  // cache (static brand pages + runtime-SWR routes like the homepage):
-  // a per-request nonce would be reused for the whole cache lifetime.
+  // isCachedSsrRoute covers every response replayed from Nitro's cache
+  // (static brand pages, the homepage, and the blog + catalogue route
+  // families): a per-request nonce would be reused for the whole cache
+  // lifetime. It is a function, not the exact-path Set, because the
+  // content routes are globs.
   const useNonce = !import.meta.dev
-    && !CACHED_SSR_ROUTES_SET.has(cleanPath)
+    && !isCachedSsrRoute(cleanPath)
     && !import.meta.prerender
   let nonce: string | undefined
   if (useNonce) {
