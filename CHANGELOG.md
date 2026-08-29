@@ -1,3 +1,10 @@
+## [3.164.22](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.21...v3.164.22) (2026-08-29)
+
+
+### Performance Improvements
+
+* **entry:** make error.vue a thin shell around a lazy ErrorScreen ([96659a8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/96659a8d0094b2d8b785fdfe0e3dedfb573cefa9))
+
 ## [3.164.21](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.20...v3.164.21) (2026-08-29)
 
 
