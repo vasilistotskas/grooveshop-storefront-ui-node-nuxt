@@ -92,7 +92,8 @@ el:
     # would advertise tenant #1's subject matter on a natural-products
     # shop (same class of leak as the old brand links in useFooterLinks).
     title: "Blog: Άρθρα, νέα και οδηγοί"
-  description: Νέα, άρθρα και ιστορίες μας.
+  # Tenant-NEUTRAL, like seo.title above: no product domain named.
+  description: Άρθρα, οδηγοί και νέα από την ομάδα μας — πρακτικές συμβουλές, αναλύσεις και απαντήσεις στις πιο συχνές απορίες.
   breadcrumb:
     items:
       blog:

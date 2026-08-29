@@ -6,6 +6,13 @@ useHead({
   title: t('seo.title'),
 })
 
+// Without one this page fell back to the site-wide description, which is
+// the same 62 characters on every static page.
+useSeoMeta({
+  description: () => t('seo.description'),
+  ogDescription: () => t('seo.description'),
+})
+
 definePageMeta({
   layout: 'default',
   middleware: ['blog-enabled'],
@@ -32,4 +39,5 @@ el:
   title: Κατηγορίες
   seo:
     title: Κατηγορίες άρθρων και οδηγών
+    description: Περιήγηση στις κατηγορίες του blog — βρες γρήγορα τα άρθρα και τους οδηγούς που σε ενδιαφέρουν, ταξινομημένα ανά θέμα.
 </i18n>

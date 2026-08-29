@@ -14,7 +14,7 @@ const heroLinks = computed<ButtonProps[]>(() => [
 
 useSeoMeta({
   title: t('microlearning.seo_title'),
-  description: t('microlearning.what'),
+  description: t('microlearning.seo_description'),
 })
 useHead({
   title: t('microlearning.seo_title'),
@@ -185,6 +185,7 @@ el:
     # /why-microlearning shipped the identical "Microlearning |
     # Webside". `title` still labels the in-page chip.
     seo_title: "Τι είναι το Microlearning: Ο πλήρης οδηγός"
+    seo_description: "Τι είναι το microlearning: το μοντέλο μάθησης σε σύντομες ενότητες, η θεωρία της καμπύλης λήθης πίσω από αυτό και τι είναι το microcontent."
     what: Τι είναι το Microlearning
     what_alt_1: Εκπαιδευόμενος αξιοποιεί microlearning σε φορητή συσκευή
     what_alt_2: Η καμπύλη λήθης του Ebbinghaus και το microlearning
