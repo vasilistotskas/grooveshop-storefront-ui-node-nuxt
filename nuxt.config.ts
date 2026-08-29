@@ -520,11 +520,38 @@ export default defineNuxtConfig({
     // executing the eager graph; shrinking that graph is the only real
     // lever (see the mobile-perf memory for the decomposition).
     'build:manifest': (manifest) => {
+      // Emit modulepreload hints ONLY for the entry and its
+      // static-import closure (the consolidated eager chunk +
+      // runtime). The SSR renderer otherwise preloads every rendered
+      // component's chunk too (~66 extra links after consolidation) —
+      // and Lighthouse's lantern charges every request that starts
+      // before the observed LCP timestamp against its simulated
+      // 1.6Mbps link, so those hints alone pinned simulated LCP at
+      // ~5.2s while observed LCP is ~0.3s (2026-08-29 audit). Without
+      // the hints those chunks start at hydration, which on the
+      // throttled profile lands after LCP. The 2026-08-29 v3.164.17
+      // experiment dropped ALL preloads and regressed TBT (waterfall
+      // bunching at 450-620ms) — that was before the JS diet; TBT now
+      // has 130-160ms of headroom, and the entry closure (the bulk of
+      // the eval weight) keeps its hints. Rendered-component CSS is
+      // unaffected: stylesheet links are emitted from the styles set,
+      // not gated by ``preload``.
+      const eagerKeys = new Set<string>()
+      const walkImports = (key: string) => {
+        if (eagerKeys.has(key)) return
+        eagerKeys.add(key)
+        for (const imported of manifest[key]?.imports ?? []) {
+          walkImports(imported)
+        }
+      }
+      for (const key in manifest) {
+        if (manifest[key]?.isEntry) walkImports(key)
+      }
       for (const key in manifest) {
         const entry = manifest[key]
         if (!entry) continue
         entry.dynamicImports = []
-        if (key.includes('components/PageSection/')) {
+        if (!eagerKeys.has(key)) {
           entry.preload = false
         }
       }
