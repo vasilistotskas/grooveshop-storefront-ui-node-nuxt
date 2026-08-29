@@ -167,9 +167,41 @@ export function setupGoogleAnalyticsConsent() {
   }
   const { consent } = useScriptGoogleAnalytics({
     id,
-    // Defer loading until after hydration to not block initial render
     scriptOptions: {
-      trigger: 'onNuxtReady',
+      // gtag is 173KB of transfer that loads for EVERY visitor before
+      // any consent (Consent Mode v2 pings), and it was the
+      // third-largest resource on the homepage (2026-08-29 trace).
+      // 'onNuxtReady' fired right after hydration — still inside
+      // Lighthouse's simulated pre-LCP window on throttled mobile — and
+      // the default warmup emitted a rel=preload for the script in the
+      // HTML head, so the 173KB downloaded at preload-scan time
+      // regardless of the trigger. Now: load on the FIRST user
+      // interaction, or after 5s for passive sessions — any engaged
+      // session still gets its consent-mode pings and page_view (gtag
+      // calls queue in the dataLayer stub until the script lands), only
+      // sub-5s no-interaction bounces go unmeasured. Warmup drops to
+      // preconnect: the connection stays warm, the bytes wait for the
+      // trigger.
+      trigger: import.meta.client
+        ? new Promise<void>((resolve) => {
+            const events = ['pointerdown', 'keydown', 'touchstart', 'wheel', 'scroll'] as const
+            let settled = false
+            const done = () => {
+              if (settled) return
+              settled = true
+              clearTimeout(timer)
+              for (const event of events) {
+                window.removeEventListener(event, done)
+              }
+              resolve()
+            }
+            const timer = setTimeout(done, 5000)
+            for (const event of events) {
+              window.addEventListener(event, done, { once: true, passive: true })
+            }
+          })
+        : 'onNuxtReady',
+      warmupStrategy: 'preconnect',
     },
     defaultConsent: {
       ad_user_data: 'denied',
