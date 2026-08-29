@@ -1,3 +1,10 @@
+## [3.164.20](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.19...v3.164.20) (2026-08-29)
+
+
+### Performance Improvements
+
+* **entry:** import only the active @nuxt/ui locale ([a2c3a90](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a2c3a90e3649575f9bf8af91878da2f0ea8bf003))
+
 ## [3.164.19](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.18...v3.164.19) (2026-08-29)
 
 
