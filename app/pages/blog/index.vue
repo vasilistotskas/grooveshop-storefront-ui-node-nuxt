@@ -88,7 +88,10 @@ const { sections: brandSections } = await usePageConfig('blog')
 el:
   title: Blog
   seo:
-    title: "Blog: Νέα και οδηγοί τεχνολογίας"
+    # Tenant-NEUTRAL: this string ships to every storefront. "τεχνολογίας"
+    # would advertise tenant #1's subject matter on a natural-products
+    # shop (same class of leak as the old brand links in useFooterLinks).
+    title: "Blog: Άρθρα, νέα και οδηγοί"
   description: Νέα, άρθρα και ιστορίες μας.
   breadcrumb:
     items:

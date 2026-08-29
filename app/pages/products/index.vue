@@ -148,9 +148,10 @@ el:
   skip_to_content: Μετάβαση στο περιεχόμενο
   skip_to_filters: Μετάβαση στα φίλτρα
   seo:
-    title: Προϊόντα και gadgets τεχνολογίας
-    # The catalogue is tech accessories, not musical instruments — the
-    # previous copy was template boilerplate that shipped to every
-    # tenant's /products description.
-    description: Δες όλα τα προϊόντα και gadgets τεχνολογίας, με φίλτρα κατηγορίας, τιμής και χαρακτηριστικών για να βρεις γρήγορα αυτό που ψάχνεις.
+    # Tenant-NEUTRAL, both of these: they ship to every storefront, so
+    # they must not name a product domain. The previous description
+    # advertised "μουσικών οργάνων" on a shop that sells neither musical
+    # instruments nor anything like them.
+    title: "Προϊόντα: Όλη η συλλογή"
+    description: Δες όλα τα προϊόντα μας, με φίλτρα κατηγορίας, τιμής και χαρακτηριστικών για να βρεις γρήγορα αυτό που ψάχνεις.
 </i18n>
