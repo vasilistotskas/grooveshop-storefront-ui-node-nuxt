@@ -131,6 +131,24 @@ const blogPostSeoTitle = computed(() => {
   return post?.seoTitle || blogPostTitle.value || ''
 })
 
+// A post with neither an SEO description nor a subtitle used to emit
+// `<meta name="description" content>` — an empty tag is strictly worse
+// than no tag, because Google cannot fall back to generating a snippet.
+// Every post has body copy, so derive one from the article's own opening
+// text rather than shipping nothing: unique per page, and the same
+// material Google would have picked anyway. `undefined` (not '') as the
+// last resort so the tag is omitted rather than emitted empty.
+const blogPostDescription = computed(() => {
+  const post = blogPost.value
+  if (post?.seoDescription) return post.seoDescription
+  if (blogPostSubtitle.value) return blogPostSubtitle.value
+
+  const preview = cleanHtml(post?.contentPreview ?? '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return preview ? contentShorten(preview, 0, 155) : undefined
+})
+
 const blogPostCategoryName = computed(() =>
   extractTranslated(blogPostCategory.value, 'name', locale.value) || '',
 )
@@ -237,15 +255,15 @@ const canonicalUrl = computed(
 useSeoMeta({
   titleTemplate: '%s',
   title: () => blogPostSeoTitle.value,
-  description: () => blogPost.value?.seoDescription || blogPostSubtitle.value || '',
-  ogDescription: () => blogPost.value?.seoDescription || blogPostSubtitle.value || '',
+  description: () => blogPostDescription.value,
+  ogDescription: () => blogPostDescription.value,
   ogImageWidth: 1200,
   ogImageHeight: 630,
   ogImage: () => ogImage.value,
   ogType: 'article',
   ogUrl: () => canonicalUrl.value,
   twitterTitle: () => blogPost.value?.seoTitle || blogPostTitle.value,
-  twitterDescription: () => blogPost.value?.seoDescription || blogPostSubtitle.value || '',
+  twitterDescription: () => blogPostDescription.value,
   twitterImage: () => ogImage.value,
   twitterCard: 'summary_large_image',
 })
@@ -283,7 +301,7 @@ useSchemaOrg([
     author: { '@id': '#author' },
     keywords: blogPost.value?.seoKeywords ? [blogPost.value?.seoKeywords] : undefined,
     headline: () => blogPost.value?.seoTitle || blogPostTitle.value,
-    description: () => blogPost.value?.seoDescription || blogPostSubtitle.value,
+    description: () => blogPostDescription.value,
     image: () => ogImage.value || undefined,
     datePublished: () => blogPost.value?.publishedAt || undefined,
     dateModified: () => blogPost.value?.updatedAt || undefined,

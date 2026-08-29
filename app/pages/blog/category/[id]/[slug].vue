@@ -67,8 +67,14 @@ const categoryTitle = computed(() => {
   return extractTranslated(category?.value, 'name', locale.value) || ''
 })
 
+// `undefined`, never '': an empty value still emits
+// `<meta name="description" content>`, which is strictly worse than no
+// tag at all — Google cannot fall back to generating a snippet, and
+// Ahrefs reports it as "Meta description tag missing or empty".
+// Omitting it lets the site-level description apply instead.
 const categoryDescription = computed(() => {
-  return extractTranslated(category?.value, 'description', locale.value) || ''
+  return extractTranslated(category?.value, 'description', locale.value)
+    || undefined
 })
 
 const totalPosts = computed(() => category.value?.postCount || 0)

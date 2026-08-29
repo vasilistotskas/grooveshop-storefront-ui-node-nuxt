@@ -37,7 +37,12 @@ const pageBody = computed(() => {
 })
 
 const pageSeoTitle = computed(() => contentPage.value?.seoTitle || pageTitle.value)
-const pageSeoDescription = computed(() => contentPage.value?.seoDescription || '')
+// `undefined`, never '': an empty value still emits
+// `<meta name="description" content>`, which is strictly worse than no
+// tag at all (see blog/category/[id]/[slug].vue).
+const pageSeoDescription = computed(
+  () => contentPage.value?.seoDescription || undefined,
+)
 
 const items = computed(() => [
   {

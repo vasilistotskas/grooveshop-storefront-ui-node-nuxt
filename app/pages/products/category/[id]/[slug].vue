@@ -49,10 +49,13 @@ const categoryName = computed(() =>
   extractTranslated(category.value, 'name', locale.value) ?? '',
 )
 
+// `undefined`, never '': an empty value still emits
+// `<meta name="description" content>`, which is strictly worse than no
+// tag at all (see blog/category/[id]/[slug].vue).
 const categoryDescription = computed(() =>
   category.value?.seoDescription
   || extractTranslated(category.value, 'description', locale.value)
-  || '',
+  || undefined,
 )
 
 // ProductCategoryDetail has no image field — use the first product image
