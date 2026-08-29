@@ -1,3 +1,10 @@
+## [3.164.18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.17...v3.164.18) (2026-08-29)
+
+
+### Performance Improvements
+
+* **critical-js:** restore core modulepreloads, keep section pruning ([fee83b7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fee83b75d575247070f74f05154fd6f91a8e2631))
+
 ## [3.164.17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.16...v3.164.17) (2026-08-29)
 
 
