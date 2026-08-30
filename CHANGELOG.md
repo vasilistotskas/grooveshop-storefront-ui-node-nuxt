@@ -1,3 +1,10 @@
+## [3.164.31](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.30...v3.164.31) (2026-08-30)
+
+
+### Bug Fixes
+
+* **blog:** route comments and replies pagination through the Nuxt proxy ([8ba2167](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8ba21679db826c1e07e11d51c846e2eb794ebe30))
+
 ## [3.164.30](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.29...v3.164.30) (2026-08-30)
 
 
