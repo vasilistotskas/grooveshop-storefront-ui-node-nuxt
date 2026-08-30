@@ -1,3 +1,10 @@
+## [3.164.30](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.29...v3.164.30) (2026-08-30)
+
+
+### Bug Fixes
+
+* **ui:** checkout item row layout and dead attrs ([ddb9955](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ddb9955b7ac7d806c9f07a248d258871b9a32462))
+
 ## [3.164.29](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.28...v3.164.29) (2026-08-29)
 
 
