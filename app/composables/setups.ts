@@ -463,7 +463,11 @@ export function setupSocialLogin() {
     crossorigin: false,
   }, {
     use() {
-      // @ts-ignore
+      // @ts-expect-error — @nuxt/scripts bundles its own `declare global` for
+      // `Window.google` (registry/google-maps.d.ts, `{ maps: { __ib__ } }`),
+      // which conflicts with global.d.ts's GSI-shaped `google` and wins the
+      // merge — `accounts` genuinely doesn't typecheck even though it exists
+      // at runtime.
       return window.google?.accounts?.id
     },
   })

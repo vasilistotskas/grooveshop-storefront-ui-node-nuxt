@@ -818,6 +818,14 @@
                 "summary": "Λήψη άρθρων συντάκτη",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -834,6 +842,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -844,10 +866,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -858,13 +878,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -875,7 +894,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -1670,6 +1717,14 @@
                 "summary": "Λήψη προγόνων κατηγορίας",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -1686,6 +1741,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -1696,10 +1765,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -1710,13 +1777,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -1727,7 +1793,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -1819,6 +1913,14 @@
                 "summary": "Λήψη θυγατρικών κατηγοριών",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -1835,6 +1937,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -1845,10 +1961,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -1859,13 +1973,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -1876,7 +1989,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -1968,6 +2109,14 @@
                 "summary": "Λήψη απογόνων κατηγορίας",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -1984,6 +2133,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -1994,10 +2157,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -2008,13 +2169,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -2025,7 +2185,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -2287,6 +2475,14 @@
                 "summary": "Λήψη αδερφών κατηγοριών",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -2303,6 +2499,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -2313,10 +2523,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -2327,13 +2535,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -2344,7 +2551,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -2533,6 +2768,28 @@
                 "summary": "Λήψη πλήρους δέντρου κατηγοριών",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -2543,10 +2800,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -2557,13 +2812,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -2574,7 +2828,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -4390,6 +4672,14 @@
                     },
                     {
                         "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
+                        "in": "query",
                         "name": "descendantOf",
                         "schema": {
                             "oneOf": [
@@ -4560,6 +4850,20 @@
                             ]
                         },
                         "description": "Φίλτρο τελικών σχολίων (χωρίς εγκεκριμένες απαντήσεις)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
                     },
                     {
                         "in": "query",
@@ -4820,10 +5124,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -4834,13 +5136,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -4851,7 +5152,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "in": "query",
@@ -5354,6 +5683,14 @@
                     },
                     {
                         "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
+                        "in": "query",
                         "name": "descendantOf",
                         "schema": {
                             "oneOf": [
@@ -5524,6 +5861,20 @@
                             ]
                         },
                         "description": "Φίλτρο τελικών σχολίων (χωρίς εγκεκριμένες απαντήσεις)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
                     },
                     {
                         "in": "query",
@@ -5784,10 +6135,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -5798,13 +6147,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -5815,7 +6163,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "in": "query",
@@ -6510,6 +6886,14 @@
                     },
                     {
                         "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
+                        "in": "query",
                         "name": "descendantOf",
                         "schema": {
                             "oneOf": [
@@ -6664,6 +7048,20 @@
                             ]
                         },
                         "description": "Φίλτρο τελικών σχολίων (χωρίς εγκεκριμένες απαντήσεις)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
                     },
                     {
                         "in": "query",
@@ -6924,10 +7322,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -6938,13 +7334,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -6955,7 +7350,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "in": "query",
@@ -9572,6 +9995,14 @@
                     },
                     {
                         "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
+                        "in": "query",
                         "name": "featured",
                         "schema": {
                             "oneOf": [
@@ -9650,6 +10081,20 @@
                     },
                     {
                         "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
+                        "in": "query",
                         "name": "minComments",
                         "schema": {
                             "oneOf": [
@@ -9723,10 +10168,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -9737,13 +10180,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -9754,7 +10196,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "in": "query",
@@ -10252,6 +10722,14 @@
                     },
                     {
                         "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
+                        "in": "query",
                         "name": "featured",
                         "schema": {
                             "oneOf": [
@@ -10330,6 +10808,20 @@
                     },
                     {
                         "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
+                        "in": "query",
                         "name": "minComments",
                         "schema": {
                             "oneOf": [
@@ -10403,10 +10895,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -10417,13 +10907,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -10434,7 +10923,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "in": "query",
@@ -17449,27 +17966,30 @@
                 "summary": "List the gift cards linked to my account",
                 "parameters": [
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "cursor",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -17480,7 +18000,51 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -18044,6 +18608,20 @@
                 "summary": "Λίστα όλων των tier πιστότητας",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "page",
                         "required": false,
                         "in": "query",
@@ -18166,27 +18744,30 @@
                 "summary": "Λίστα συναλλαγών πιστότητας",
                 "parameters": [
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "cursor",
                         "schema": {
-                            "oneOf": [
-                                {
-                                    "type": "string",
-                                    "pattern": "^-?\\d+$"
-                                },
-                                {
-                                    "type": "integer"
-                                }
-                            ]
-                        }
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -18197,7 +18778,51 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pageSize",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "pattern": "^-?\\d+$"
+                                },
+                                {
+                                    "type": "integer"
+                                }
+                            ]
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -25142,6 +25767,14 @@
                     },
                     {
                         "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
+                        "in": "query",
                         "name": "customerNotes",
                         "schema": {
                             "type": "string"
@@ -25427,6 +26060,20 @@
                     },
                     {
                         "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
+                        "in": "query",
                         "name": "lastName",
                         "schema": {
                             "type": "string"
@@ -25480,10 +26127,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -25494,13 +26139,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -25511,7 +26155,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "in": "query",
@@ -35411,6 +36083,20 @@
                         "description": "* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικονίδιο\n* `THUMBNAIL` - Μικρογραφία\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Κεντρική εικόνα\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα"
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -35582,6 +36268,20 @@
                             ]
                         },
                         "description": "* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικονίδιο\n* `THUMBNAIL` - Μικρογραφία\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Κεντρική εικόνα\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
                     },
                     {
                         "name": "ordering",
@@ -39954,6 +40654,20 @@
                             "format": "date-time"
                         },
                         "description": "Filter items created before this date"
+                    },
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
                     },
                     {
                         "in": "query",
@@ -44669,6 +45383,14 @@
                 "summary": "Λήψη διευθύνσεων χρήστη",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -44685,6 +45407,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -44695,10 +45431,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -44709,13 +45443,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -44726,7 +45459,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -44817,6 +45578,14 @@
                 "summary": "Λήψη σχολίων blog χρήστη",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -44833,6 +45602,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -44843,10 +45626,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -44857,13 +45638,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -44874,7 +45654,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -45080,6 +45888,14 @@
                 "summary": "Λίστα εξαγωγών δεδομένων GDPR",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -45096,6 +45912,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -45106,10 +45936,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -45120,13 +45948,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -45137,7 +45964,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -45343,6 +46198,14 @@
                 "summary": "Λήψη αγαπημένων προϊόντων χρήστη",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -45359,6 +46222,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -45369,10 +46246,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -45383,13 +46258,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -45400,7 +46274,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -45491,6 +46393,14 @@
                 "summary": "Λήψη άρθρων με επισήμανση χρήστη",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -45507,6 +46417,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -45517,10 +46441,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -45531,13 +46453,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -45548,7 +46469,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -45808,6 +46757,14 @@
                 "summary": "Λήψη παραγγελιών χρήστη",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -45824,6 +46781,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -45834,10 +46805,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -45848,13 +46817,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -45865,7 +46833,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -45956,6 +46952,14 @@
                 "summary": "Λήψη κριτικών προϊόντος χρήστη",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "cursor",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Opaque cursor (cursor pagination strategy)"
+                    },
+                    {
                         "in": "path",
                         "name": "id",
                         "schema": {
@@ -45972,6 +46976,20 @@
                         "required": true
                     },
                     {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    },
+                    {
                         "name": "ordering",
                         "in": "query",
                         "required": false,
@@ -45982,10 +47000,8 @@
                         }
                     },
                     {
-                        "name": "page",
-                        "required": false,
                         "in": "query",
-                        "description": "A page number within the paginated result set.",
+                        "name": "page",
                         "schema": {
                             "oneOf": [
                                 {
@@ -45996,13 +47012,12 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Page number (pageNumber pagination strategy)"
                     },
                     {
-                        "name": "pageSize",
-                        "required": false,
                         "in": "query",
-                        "description": "Number of results to return per page.",
+                        "name": "pageSize",
                         "schema": {
                             "oneOf": [
                                 {
@@ -46013,7 +47028,35 @@
                                     "type": "integer"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Αριθμός αποτελεσμάτων ανά σελίδα"
+                    },
+                    {
+                        "in": "query",
+                        "name": "pagination",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "false",
+                                "true"
+                            ],
+                            "default": "true"
+                        },
+                        "description": "Ενεργοποίηση/απενεργοποίηση σελιδοποίησης"
+                    },
+                    {
+                        "in": "query",
+                        "name": "paginationType",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "cursor",
+                                "limitOffset",
+                                "pageNumber"
+                            ],
+                            "default": "pageNumber"
+                        },
+                        "description": "Τύπος στρατηγικής σελιδοποίησης"
                     },
                     {
                         "name": "search",
@@ -49936,6 +50979,22 @@
                 "operationId": "getMySubscriptionTopics",
                 "description": "Λήψη των θεμάτων εγγραφής στα οποία είναι εγγεγραμμένος και των διαθέσιμων θεμάτων για τον τρέχοντα χρήστη.",
                 "summary": "Λήψη συνδρομών μου",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "languageCode",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "de",
+                                "el",
+                                "en"
+                            ],
+                            "default": "el"
+                        },
+                        "description": "Κωδικός γλώσσας για μεταφράσεις (el, en, de)"
+                    }
+                ],
                 "tags": [
                     "Subscription Topics"
                 ],

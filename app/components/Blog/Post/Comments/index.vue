@@ -127,7 +127,14 @@ const loadMoreComments = async () => {
   isLoadingMore.value = true
 
   try {
-    const response = await $fetch<PaginatedBlogCommentList>(nextUrl)
+    // `nextUrl` is an absolute Django URL (DRF's build_absolute_uri()) — only
+    // its pagination query params are reusable; the request itself must go
+    // through the Nuxt proxy route, never straight to Django.
+    const query = Object.fromEntries(new URL(nextUrl).searchParams)
+    const response = await $fetch<PaginatedBlogCommentList>(
+      `/api/blog/posts/${blogPostId.value}/comments`,
+      { query },
+    )
 
     if (response?.results?.length) {
       const newComments = response.results.filter(

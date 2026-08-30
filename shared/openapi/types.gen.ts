@@ -11183,17 +11183,33 @@ export type GetBlogAuthorPostsData = {
   }
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -11420,17 +11436,33 @@ export type ListBlogCategoryAncestorsData = {
   }
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -11462,17 +11494,33 @@ export type ListBlogCategoryChildrenData = {
   }
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -11504,17 +11552,33 @@ export type ListBlogCategoryDescendantsData = {
   }
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -11592,17 +11656,33 @@ export type ListBlogCategorySiblingsData = {
   }
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -11655,17 +11735,33 @@ export type GetBlogCategoryTreeData = {
   path?: never
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -12132,6 +12228,10 @@ export type ListBlogCommentRepliesData = {
          */
     createdBefore?: string
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
          * Φίλτρο σχολίων που είναι απόγονοι του δεδομένου σχολίου
          */
     descendantOf?: string | number
@@ -12160,6 +12260,10 @@ export type ListBlogCommentRepliesData = {
          * Φίλτρο τελικών σχολίων (χωρίς εγκεκριμένες απαντήσεις)
          */
     isLeaf?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
     /**
          * Φίλτρο ανά επίπεδο ένθεσης σχολίου (0 για ανώτατο επίπεδο)
          */
@@ -12219,13 +12323,21 @@ export type ListBlogCommentRepliesData = {
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * Φίλτρο ανά ID γονικού σχολίου
          */
@@ -12358,6 +12470,10 @@ export type GetBlogCommentThreadData = {
          */
     createdBefore?: string
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
          * Φίλτρο σχολίων που είναι απόγονοι του δεδομένου σχολίου
          */
     descendantOf?: string | number
@@ -12386,6 +12502,10 @@ export type GetBlogCommentThreadData = {
          * Φίλτρο τελικών σχολίων (χωρίς εγκεκριμένες απαντήσεις)
          */
     isLeaf?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
     /**
          * Φίλτρο ανά επίπεδο ένθεσης σχολίου (0 για ανώτατο επίπεδο)
          */
@@ -12445,13 +12565,21 @@ export type GetBlogCommentThreadData = {
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * Φίλτρο ανά ID γονικού σχολίου
          */
@@ -12630,6 +12758,10 @@ export type ListMyBlogCommentsData = {
          */
     createdBefore?: string
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
          * Φίλτρο σχολίων που είναι απόγονοι του δεδομένου σχολίου
          */
     descendantOf?: string | number
@@ -12658,6 +12790,10 @@ export type ListMyBlogCommentsData = {
          * Φίλτρο τελικών σχολίων (χωρίς εγκεκριμένες απαντήσεις)
          */
     isLeaf?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
     /**
          * Φίλτρο ανά επίπεδο ένθεσης σχολίου (0 για ανώτατο επίπεδο)
          */
@@ -12717,13 +12853,21 @@ export type ListMyBlogCommentsData = {
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * Φίλτρο ανά ID γονικού σχολίου
          */
@@ -13406,6 +13550,10 @@ export type ListFeaturedBlogPostsData = {
          */
     currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
          * Φίλτρο ανά κατάσταση προτεινόμενου
          */
     featured?: 'true' | 'false' | '1' | '0' | boolean
@@ -13418,6 +13566,10 @@ export type ListFeaturedBlogPostsData = {
          * Φίλτρο ανά κατάσταση δημοσίευσης
          */
     isPublished?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
     /**
          * Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων
          */
@@ -13439,13 +13591,21 @@ export type ListFeaturedBlogPostsData = {
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
          */
@@ -13573,6 +13733,10 @@ export type ListPopularBlogPostsData = {
          */
     currentlyPublished?: 'true' | 'false' | '1' | '0' | boolean
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
          * Φίλτρο ανά κατάσταση προτεινόμενου
          */
     featured?: 'true' | 'false' | '1' | '0' | boolean
@@ -13585,6 +13749,10 @@ export type ListPopularBlogPostsData = {
          * Φίλτρο ανά κατάσταση δημοσίευσης
          */
     isPublished?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
     /**
          * Φίλτρο ανά ελάχιστο αριθμό εγκεκριμένων σχολίων
          */
@@ -13606,13 +13774,21 @@ export type ListPopularBlogPostsData = {
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
          */
@@ -15537,13 +15713,29 @@ export type ListMyGiftCardsData = {
   path?: never
   query?: {
     /**
-         * A page number within the paginated result set.
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -15703,6 +15895,10 @@ export type ListLoyaltyTiersData = {
   path?: never
   query?: {
     /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * A page number within the paginated result set.
          */
     page?: string | number
@@ -15739,13 +15935,29 @@ export type ListLoyaltyTransactionsData = {
   path?: never
   query?: {
     /**
-         * A page number within the paginated result set.
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -17590,6 +17802,10 @@ export type ListMyOrdersData = {
          * Filter items created before this date
          */
     createdBefore?: string
+    /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
     customerNotes?: string
     customerNotes_Icontains?: string
     /**
@@ -17652,6 +17868,10 @@ export type ListMyOrdersData = {
          */
     isPaid?: 'true' | 'false' | '1' | '0' | boolean
     /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Φίλτρο ανά επώνυμο πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     lastName?: string
@@ -17669,13 +17889,21 @@ export type ListMyOrdersData = {
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     paidAmount_Gte?: string | number
     paidAmount_Lte?: string | number
     /**
@@ -20372,6 +20600,10 @@ export type GetProductCategoryImagesByCategoryData = {
          */
     imageType?: 'BACKGROUND' | 'BANNER' | 'FEATURE' | 'GALLERY' | 'HERO' | 'ICON' | 'MAIN' | 'PROMOTIONAL' | 'SEASONAL' | 'THUMBNAIL'
     /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder
          */
     ordering?: string
@@ -20421,6 +20653,10 @@ export type GetProductCategoryImagesByTypeData = {
          * * `SEASONAL` - Εποχιακή εικόνα
          */
     imageType?: 'BACKGROUND' | 'BANNER' | 'FEATURE' | 'GALLERY' | 'HERO' | 'ICON' | 'MAIN' | 'PROMOTIONAL' | 'SEASONAL' | 'THUMBNAIL'
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
     /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder
          */
@@ -21660,6 +21896,10 @@ export type ListRegionsByCountryData = {
          * Filter items created before this date
          */
     createdBefore?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
     /**
          * Φίλτρο ανά όνομα περιφέρειας (μερική αντιστοίχιση)
          */
@@ -23195,17 +23435,33 @@ export type GetUserAccountAddressesData = {
   }
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -23237,17 +23493,33 @@ export type GetUserAccountBlogPostCommentsData = {
   }
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -23304,17 +23576,33 @@ export type ListUserAccountDataExportsData = {
   }
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -23371,17 +23659,33 @@ export type GetUserAccountFavouriteProductsData = {
   }
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -23413,17 +23717,33 @@ export type GetUserAccountLikedBlogPostsData = {
   }
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -23501,17 +23821,33 @@ export type GetUserAccountOrdersData = {
   }
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -23543,17 +23879,33 @@ export type GetUserAccountProductReviewsData = {
   }
   query?: {
     /**
+         * Opaque cursor (cursor pagination strategy)
+         */
+    cursor?: string
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+    /**
          * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
          */
     ordering?: string
     /**
-         * A page number within the paginated result set.
+         * Page number (pageNumber pagination strategy)
          */
     page?: string | number
     /**
-         * Number of results to return per page.
+         * Αριθμός αποτελεσμάτων ανά σελίδα
          */
     pageSize?: string | number
+    /**
+         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
+         */
+    pagination?: 'false' | 'true'
+    /**
+         * Τύπος στρατηγικής σελιδοποίησης
+         */
+    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * A search term.
          */
@@ -24688,7 +25040,12 @@ export type UnsubscribeFromTopicResponse = UnsubscribeFromTopicResponses[keyof U
 export type GetMySubscriptionTopicsData = {
   body?: never
   path?: never
-  query?: never
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
   url: '/api/v1/user/subscription/topic/my_subscriptions'
 }
 

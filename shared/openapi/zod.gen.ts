@@ -8377,6 +8377,16 @@ export const zGetBlogAuthorPostsPath = z.object({
 })
 
 export const zGetBlogAuthorPostsQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website',
   }).optional(),
@@ -8388,6 +8398,16 @@ export const zGetBlogAuthorPostsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -8528,6 +8548,16 @@ export const zListBlogCategoryAncestorsPath = z.object({
 })
 
 export const zListBlogCategoryAncestorsQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name',
   }).optional(),
@@ -8539,6 +8569,16 @@ export const zListBlogCategoryAncestorsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -8554,6 +8594,16 @@ export const zListBlogCategoryChildrenPath = z.object({
 })
 
 export const zListBlogCategoryChildrenQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name',
   }).optional(),
@@ -8565,6 +8615,16 @@ export const zListBlogCategoryChildrenQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -8580,6 +8640,16 @@ export const zListBlogCategoryDescendantsPath = z.object({
 })
 
 export const zListBlogCategoryDescendantsQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name',
   }).optional(),
@@ -8591,6 +8661,16 @@ export const zListBlogCategoryDescendantsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -8639,6 +8719,16 @@ export const zListBlogCategorySiblingsPath = z.object({
 })
 
 export const zListBlogCategorySiblingsQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name',
   }).optional(),
@@ -8650,6 +8740,16 @@ export const zListBlogCategorySiblingsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -8662,6 +8762,16 @@ export const zReorderBlogCategoriesBody = zBlogCategoryReorderRequestRequest
 export const zReorderBlogCategoriesResponse = zBlogCategoryReorderResponse
 
 export const zGetBlogCategoryTreeQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name',
   }).optional(),
@@ -8673,6 +8783,16 @@ export const zGetBlogCategoryTreeQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -9080,6 +9200,9 @@ export const zListBlogCommentRepliesQuery = z.object({
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created before this date',
   }).optional(),
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
   descendantOf: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -9129,6 +9252,13 @@ export const zListBlogCommentRepliesQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   level: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9206,6 +9336,16 @@ export const zListBlogCommentRepliesQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   parent: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9334,6 +9474,9 @@ export const zGetBlogCommentThreadQuery = z.object({
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created before this date',
   }).optional(),
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
   descendantOf: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -9383,6 +9526,13 @@ export const zGetBlogCommentThreadQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   level: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9460,6 +9610,16 @@ export const zGetBlogCommentThreadQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   parent: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9594,6 +9754,9 @@ export const zListMyBlogCommentsQuery = z.object({
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created before this date',
   }).optional(),
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
   descendantOf: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -9643,6 +9806,13 @@ export const zListMyBlogCommentsQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   level: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9720,6 +9890,16 @@ export const zListMyBlogCommentsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   parent: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10283,6 +10463,9 @@ export const zListFeaturedBlogPostsQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
   featured: z.union([
     z.literal('true'),
     z.literal('false'),
@@ -10307,6 +10490,13 @@ export const zListFeaturedBlogPostsQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   minComments: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -10334,6 +10524,16 @@ export const zListFeaturedBlogPostsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   publishedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
@@ -10424,6 +10624,9 @@ export const zListPopularBlogPostsQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
   featured: z.union([
     z.literal('true'),
     z.literal('false'),
@@ -10448,6 +10651,13 @@ export const zListPopularBlogPostsQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   minComments: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -10475,6 +10685,16 @@ export const zListPopularBlogPostsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   publishedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
@@ -11900,6 +12120,16 @@ export const zCheckGiftCardBody = zGiftCardCheckRequestRequest
 export const zCheckGiftCardResponse = zGiftCardCheckResponse
 
 export const zListMyGiftCardsQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -11908,6 +12138,16 @@ export const zListMyGiftCardsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -11939,6 +12179,13 @@ export const zRedeemLoyaltyPointsResponse = zRedeemPointsResponse
 export const zGetLoyaltySummaryResponse = zLoyaltySummary
 
 export const zListLoyaltyTiersQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -11955,6 +12202,16 @@ export const zListLoyaltyTiersQuery = z.object({
 export const zListLoyaltyTiersResponse = zPaginatedLoyaltyTierList
 
 export const zListLoyaltyTransactionsQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -11963,6 +12220,16 @@ export const zListLoyaltyTransactionsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -13305,6 +13572,9 @@ export const zListMyOrdersQuery = z.object({
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created before this date',
   }).optional(),
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
   customerNotes: z.string().optional(),
   customerNotes_Icontains: z.string().optional(),
   documentType: z.string().register(z.globalRegistry, {
@@ -13394,6 +13664,13 @@ export const zListMyOrdersQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   lastName: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά επώνυμο πελάτη (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
@@ -13419,6 +13696,16 @@ export const zListMyOrdersQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   paidAmount_Gte: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -15578,6 +15865,13 @@ export const zGetProductCategoryImagesByCategoryQuery = z.object({
   ]).register(z.globalRegistry, {
     description: '* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικονίδιο\n* `THUMBNAIL` - Μικρογραφία\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Κεντρική εικόνα\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα',
   }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder',
   }).optional(),
@@ -15618,6 +15912,13 @@ export const zGetProductCategoryImagesByTypeQuery = z.object({
   ]).register(z.globalRegistry, {
     description: '* `MAIN` - Κύρια εικόνα\n* `BANNER` - Banner\n* `ICON` - Εικονίδιο\n* `THUMBNAIL` - Μικρογραφία\n* `GALLERY` - Εικόνα συλλογής\n* `BACKGROUND` - Εικόνα φόντου\n* `HERO` - Κεντρική εικόνα\n* `FEATURE` - Κεντρική Εικόνα\n* `PROMOTIONAL` - Προωθητική εικόνα\n* `SEASONAL` - Εποχιακή εικόνα',
   }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder',
   }).optional(),
@@ -16466,6 +16767,13 @@ export const zListRegionsByCountryQuery = z.object({
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created before this date',
   }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   name: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά όνομα περιφέρειας (μερική αντιστοίχιση)',
   }).optional(),
@@ -17386,6 +17694,16 @@ export const zGetUserAccountAddressesPath = z.object({
 })
 
 export const zGetUserAccountAddressesQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
   }).optional(),
@@ -17397,6 +17715,16 @@ export const zGetUserAccountAddressesQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -17412,6 +17740,16 @@ export const zGetUserAccountBlogPostCommentsPath = z.object({
 })
 
 export const zGetUserAccountBlogPostCommentsQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
   }).optional(),
@@ -17423,6 +17761,16 @@ export const zGetUserAccountBlogPostCommentsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -17449,6 +17797,16 @@ export const zListUserAccountDataExportsPath = z.object({
 })
 
 export const zListUserAccountDataExportsQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
   }).optional(),
@@ -17460,6 +17818,16 @@ export const zListUserAccountDataExportsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -17486,6 +17854,16 @@ export const zGetUserAccountFavouriteProductsPath = z.object({
 })
 
 export const zGetUserAccountFavouriteProductsQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
   }).optional(),
@@ -17497,6 +17875,16 @@ export const zGetUserAccountFavouriteProductsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -17512,6 +17900,16 @@ export const zGetUserAccountLikedBlogPostsPath = z.object({
 })
 
 export const zGetUserAccountLikedBlogPostsQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
   }).optional(),
@@ -17523,6 +17921,16 @@ export const zGetUserAccountLikedBlogPostsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -17571,6 +17979,16 @@ export const zGetUserAccountOrdersPath = z.object({
 })
 
 export const zGetUserAccountOrdersQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
   }).optional(),
@@ -17582,6 +18000,16 @@ export const zGetUserAccountOrdersQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -17597,6 +18025,16 @@ export const zGetUserAccountProductReviewsPath = z.object({
 })
 
 export const zGetUserAccountProductReviewsQuery = z.object({
+  cursor: z.string().register(z.globalRegistry, {
+    description: 'Opaque cursor (cursor pagination strategy)',
+  }).optional(),
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
   ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
     description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
   }).optional(),
@@ -17608,6 +18046,16 @@ export const zGetUserAccountProductReviewsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
+    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
+  }).optional().default('true'),
+  paginationType: z.enum([
+    'cursor',
+    'limitOffset',
+    'pageNumber',
+  ]).register(z.globalRegistry, {
+    description: 'Τύπος στρατηγικής σελιδοποίησης',
+  }).optional().default('pageNumber'),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -18359,6 +18807,16 @@ export const zUnsubscribeFromTopicPath = z.object({
 })
 
 export const zUnsubscribeFromTopicResponse = zDetail
+
+export const zGetMySubscriptionTopicsQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
+})
 
 export const zGetMySubscriptionTopicsResponse = z.object({
   subscribed: z.array(zSubscriptionTopic).optional(),

@@ -8,6 +8,10 @@ docker-compose*
 .git
 .gitignore
 
+# Env files — never bake local/real secrets into the build stage
+.env
+.env.*
+
 # macOS specific files
 .DS_Store
 

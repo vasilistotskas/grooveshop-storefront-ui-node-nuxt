@@ -67,10 +67,11 @@ export default defineEventHandler(async (event) => {
       ? [
           { src: '/platform-favicon/android-icon-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: '/platform-favicon/android-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
-          // TODO: Replace with a dedicated maskable icon asset that has at least
-          // 10% safe-zone padding so the visible area is not clipped by the OS
-          // mask shape (circles, squircles, etc.). See: https://web.dev/maskable-icon/
-          { src: '/platform-favicon/android-icon-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          // Dedicated maskable variant: artwork scaled to 80% on a full-bleed
+          // white canvas, matching background_color below, so the >=10%
+          // safe-zone padding isn't clipped by the OS mask shape (circle,
+          // squircle, etc.). See: https://web.dev/maskable-icon/
+          { src: '/platform-favicon/android-icon-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ]
       : []
 
