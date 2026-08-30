@@ -697,9 +697,6 @@ defineRouteRules({
                       <Anchor
                         :to="{ path: productUrl(item.product.id, item.product.slug) }"
                         class="group/link"
-                        :ui="{
-                          base: 'p-0',
-                        }"
                       >
                         <h3
                           class="

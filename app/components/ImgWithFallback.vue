@@ -18,14 +18,12 @@ interface Props {
   background?: string
   modifiers?: Partial<ImageModifiers> & Record<string, unknown>
   preload?: boolean
-  ismap?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   src: undefined,
   fallback: '/img/placeholder.png',
   quality: 80,
-  ismap: true,
   preload: false,
 })
 

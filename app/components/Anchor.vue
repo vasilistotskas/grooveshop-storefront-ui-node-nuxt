@@ -28,14 +28,14 @@ defineSlots<{
     v-if="to"
     :to="to"
     class="w-full"
-    :aria-label="text"
+    :aria-label="text || undefined"
   >
     <slot>{{ text }}</slot>
   </NuxtLinkLocale>
   <ULink
     v-else
     v-bind="attrs"
-    :aria-label="text"
+    :aria-label="text || undefined"
     :href="href"
     :external="true"
   >

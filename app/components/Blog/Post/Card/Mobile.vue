@@ -88,9 +88,6 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       <Anchor
         :to="{ path: blogPostUrl(post.id, post.slug) }"
         :text="alt"
-        :ui="{
-          base: 'p-0',
-        }"
       >
         <ImgWithFallback
           :loading="imgLoading"

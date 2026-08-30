@@ -103,9 +103,6 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
       <Anchor
         :to="{ path: blogPostUrl(post.id, post.slug) }"
         :text="alt"
-        :ui="{
-          base: 'p-0',
-        }"
       >
         <ImgWithFallback
           :loading="imgLoading"
@@ -144,9 +141,6 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
               md:text-3xl
               dark:text-primary-50
             "
-            :ui="{
-              base: 'items-start p-0 text-start',
-            }"
           />
         </h2>
       </div>

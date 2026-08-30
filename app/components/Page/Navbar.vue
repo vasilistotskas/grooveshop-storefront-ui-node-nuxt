@@ -207,9 +207,6 @@ const items = computed(() => [
                           after:scale-x-0
                         `
                   "
-                  :ui="{
-                    base: 'p-0',
-                  }"
                 >
                   {{ item.label }}
                 </Anchor>
@@ -386,9 +383,6 @@ const items = computed(() => [
                     dark:text-primary-200
                     hover:dark:text-primary-50
                   "
-                :ui="{
-                  base: 'p-0',
-                }"
               >
                 <UIcon name="i-fa6-solid-circle-user" />
                 <span class="sr-only">{{ t('login') }}</span>

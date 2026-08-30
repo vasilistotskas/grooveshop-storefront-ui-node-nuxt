@@ -30,8 +30,7 @@ const { productUrl } = useUrls()
       <Anchor
         :to="{ path: productUrl(item.product.id, item.product.slug) }"
         :title="extractTranslated(item.product, 'name', locale)"
-        :ui="{ base: 'p-0' }"
-        class="shrink-0"
+        class="shrink-0 basis-12"
       >
         <div
           class="
@@ -62,7 +61,6 @@ const { productUrl } = useUrls()
         <Anchor
           :title="extractTranslated(item.product, 'name', locale)"
           :to="{ path: productUrl(item.product.id, item.product.slug) }"
-          :ui="{ base: 'p-0' }"
         >
           <span
             class="

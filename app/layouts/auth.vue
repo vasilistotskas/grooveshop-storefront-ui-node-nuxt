@@ -20,9 +20,6 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
           md:w-auto
         "
         to="index"
-        :ui="{
-          base: 'p-0',
-        }"
       >
         <TenantLogo
           :width="145"

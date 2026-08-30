@@ -61,9 +61,6 @@ const { t, locale } = useI18n()
             <Anchor
               :to="{ path: blogPostUrl(favourite.id, favourite.slug) }"
               :text="extractTranslated(favourite, 'title', locale)"
-              :ui="{
-                base: 'p-0',
-              }"
             >
               <ImgWithFallback
                 class="rounded-lg"

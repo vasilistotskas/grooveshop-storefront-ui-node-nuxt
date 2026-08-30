@@ -87,9 +87,6 @@ onMounted(() => {
                   font-bold
                   md:w-auto
                 "
-                :ui="{
-                  base: 'p-0',
-                }"
               >
                 <TenantLogo
                   :width="145"

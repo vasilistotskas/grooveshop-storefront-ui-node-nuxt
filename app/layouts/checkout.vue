@@ -61,7 +61,6 @@ const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle
             flex items-center justify-center justify-self-center
             lg:justify-start lg:justify-self-start
           "
-          :ui="{ base: 'p-0' }"
         >
           <TenantLogo
             :width="145"
