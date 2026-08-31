@@ -1,0 +1,104 @@
+name: GHCR prune (manual)
+
+# Deletes old container versions from ghcr.io. MANUAL ONLY — never
+# scheduled, on purpose: grooveshop-infrastructure pins exact image tags
+# and every Deployment uses `imagePullPolicy: Always`, so deleting a tag
+# that is still pinned breaks pod restarts (ImagePullBackOff) even though
+# the running pods look fine. Always keep every tag at or above what
+# production and staging pin.
+#
+# Built for the 2026-08-30 secret-leak cleanup: storefront images below
+# v3.143.4 baked real NUXT_SESSION_PASSWORD / NUXT_SECRET_KEY / OAuth
+# secrets into `.output` (fixed in 71981ba). The Docker Hub copies of
+# those tags were deleted the same day; this prunes the GHCR mirror.
+
+on:
+  workflow_dispatch:
+    inputs:
+      below_version:
+        description: 'Delete versions whose tags are ALL strictly below this semver tag (e.g. v3.143.4)'
+        required: true
+        default: 'v3.143.4'
+      dry_run:
+        description: 'List what would be deleted without deleting'
+        type: boolean
+        default: true
+
+permissions:
+  packages: write
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/github-script@v8
+        env:
+          BELOW_VERSION: ${{ inputs.below_version }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        with:
+          script: |
+            const username = context.repo.owner;
+            const packageName = context.repo.repo;
+            const dryRun = process.env.DRY_RUN === 'true';
+            const cutoff = process.env.BELOW_VERSION;
+
+            const parse = (t) => {
+              const m = /^v(\d+)\.(\d+)\.(\d+)$/.exec(t);
+              return m ? [+m[1], +m[2], +m[3]] : null;
+            };
+            const cut = parse(cutoff);
+            if (!cut) throw new Error(`below_version must look like v1.2.3, got "${cutoff}"`);
+            const lt = (a, b) => a[0] !== b[0] ? a[0] < b[0] : a[1] !== b[1] ? a[1] < b[1] : a[2] < b[2];
+
+            let versions;
+            try {
+              versions = await github.paginate(
+                github.rest.packages.getAllPackageVersionsForPackageOwnedByUser,
+                { username, package_type: 'container', package_name: packageName, per_page: 100 },
+              );
+            } catch (e) {
+              core.setFailed(
+                `Cannot list package versions (HTTP ${e.status}). The Actions token may not ` +
+                `administer this user-owned package; a PAT with read:packages+delete:packages ` +
+                `is then required. Original: ${e.message}`,
+              );
+              return;
+            }
+
+            core.info(`total versions: ${versions.length}`);
+
+            // Only prune a version when EVERY tag it carries is below the
+            // cutoff. A version can be multi-tagged (e.g. `latest` plus a
+            // release tag) and must survive if any tag is still wanted.
+            const doomed = versions.filter((v) => {
+              const tags = v.metadata?.container?.tags ?? [];
+              if (tags.length === 0) return false; // leave untagged manifests alone
+              return tags.every((t) => { const p = parse(t); return p && lt(p, cut); });
+            });
+
+            core.info(`versions with all tags < ${cutoff}: ${doomed.length}`);
+            core.info(`sample: ${doomed.slice(0, 5).map((v) => (v.metadata.container.tags).join('+')).join(', ')}`);
+
+            if (dryRun) {
+              core.notice(`DRY RUN — would delete ${doomed.length} version(s). Re-run with dry_run=false to apply.`);
+              return;
+            }
+
+            let deleted = 0;
+            const failures = [];
+            for (const v of doomed) {
+              try {
+                await github.rest.packages.deletePackageVersionForUser({
+                  username, package_type: 'container', package_name: packageName, package_version_id: v.id,
+                });
+                deleted += 1;
+              } catch (e) {
+                failures.push(`${(v.metadata.container.tags).join('+')}: HTTP ${e.status}`);
+              }
+            }
+            core.notice(`deleted ${deleted} version(s); ${failures.length} failure(s)`);
+            if (failures.length) {
+              core.warning(failures.slice(0, 20).join('\n'));
+              if (deleted === 0) core.setFailed('every deletion failed — check token permissions');
+            }
