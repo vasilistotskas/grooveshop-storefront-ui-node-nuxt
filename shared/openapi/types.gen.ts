@@ -2103,6 +2103,7 @@ export type Cart = {
     applied?: boolean
     groupName?: string
     allowPromotions?: boolean
+    allowLoyalty?: boolean
     minOrderValue?: string
     belowMinimum?: boolean
   } | null
@@ -2246,6 +2247,7 @@ export type CartDetail = {
     applied?: boolean
     groupName?: string
     allowPromotions?: boolean
+    allowLoyalty?: boolean
     minOrderValue?: string
     belowMinimum?: boolean
   } | null
@@ -2423,14 +2425,14 @@ export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slid
 
 export type ConfirmAgentPaymentRequestRequest = {
   /**
-     * Stripe SharedPaymentToken (spt_…) granted to this store by the agent platform, scoped to this exact purchase.
+     * Stripe SharedPaymentToken (spt_…) που παραχωρήθηκε στο κατάστημα από την πλατφόρμα AI πράκτορα, δεσμευμένο σε αυτή ακριβώς την αγορά.
      */
   sharedPaymentToken: string
 }
 
 export type ConfirmAgentPaymentResponse = {
   /**
-     * Stripe PaymentIntent ID that charged the token
+     * ID του Stripe PaymentIntent που χρέωσε το token
      */
   paymentId: string
   /**
@@ -3916,7 +3918,7 @@ export type OrderCreateFromCartRequest = {
      */
   loyaltyPointsToRedeem?: number | null
   /**
-     * Gift card codes to redeem against this order (max 3). When they cover the full total, omit payment_intent_id — no provider charge happens at all.
+     * Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, παράλειψε το payment_intent_id — δεν γίνεται καμία χρέωση από τον πάροχο.
      */
   giftCardCodes?: Array<string>
   /**
@@ -9513,7 +9515,7 @@ export type OrderCreateFromCartRequestWritable = {
      */
   loyaltyPointsToRedeem?: number | null
   /**
-     * Gift card codes to redeem against this order (max 3). When they cover the full total, omit payment_intent_id — no provider charge happens at all.
+     * Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, παράλειψε το payment_intent_id — δεν γίνεται καμία χρέωση από τον πάροχο.
      */
   giftCardCodes?: Array<string>
   /**

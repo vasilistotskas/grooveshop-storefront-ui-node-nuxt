@@ -1111,13 +1111,13 @@ export const zComponentTypeEnum = z.enum([
 
 export const zConfirmAgentPaymentRequestRequest = z.object({
   sharedPaymentToken: z.string().min(1).max(255).register(z.globalRegistry, {
-    description: 'Stripe SharedPaymentToken (spt_…) granted to this store by the agent platform, scoped to this exact purchase.',
+    description: 'Stripe SharedPaymentToken (spt_…) που παραχωρήθηκε στο κατάστημα από την πλατφόρμα AI πράκτορα, δεσμευμένο σε αυτή ακριβώς την αγορά.',
   }),
 })
 
 export const zConfirmAgentPaymentResponse = z.object({
   paymentId: z.string().register(z.globalRegistry, {
-    description: 'Stripe PaymentIntent ID that charged the token',
+    description: 'ID του Stripe PaymentIntent που χρέωσε το token',
   }),
   status: z.string().register(z.globalRegistry, {
     description: 'Κατάσταση πληρωμής',
@@ -3351,6 +3351,7 @@ export const zCart = z.object({
     applied: z.boolean().optional(),
     groupName: z.string().optional(),
     allowPromotions: z.boolean().optional(),
+    allowLoyalty: z.boolean().optional(),
     minOrderValue: z.string().optional(),
     belowMinimum: z.boolean().optional(),
   }).readonly().nullable(),
@@ -3410,6 +3411,7 @@ export const zCartDetail = z.object({
     applied: z.boolean().optional(),
     groupName: z.string().optional(),
     allowPromotions: z.boolean().optional(),
+    allowLoyalty: z.boolean().optional(),
     minOrderValue: z.string().optional(),
     belowMinimum: z.boolean().optional(),
   }).readonly().nullable(),
@@ -4712,7 +4714,7 @@ export const zOrderCreateFromCartRequest = z.object({
   billingZipcode: z.string().max(20).optional(),
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
   giftCardCodes: z.array(z.string().min(1).max(32)).max(3).register(z.globalRegistry, {
-    description: 'Gift card codes to redeem against this order (max 3). When they cover the full total, omit payment_intent_id — no provider charge happens at all.',
+    description: 'Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, παράλειψε το payment_intent_id — δεν γίνεται καμία χρέωση από τον πάροχο.',
   }).optional(),
   boxnowLockerId: z.string().max(64).register(z.globalRegistry, {
     description: 'ID locker APM BoxNow από το widget',
@@ -7066,7 +7068,7 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   billingZipcode: z.string().max(20).optional(),
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
   giftCardCodes: z.array(z.string().min(1).max(32)).max(3).register(z.globalRegistry, {
-    description: 'Gift card codes to redeem against this order (max 3). When they cover the full total, omit payment_intent_id — no provider charge happens at all.',
+    description: 'Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, παράλειψε το payment_intent_id — δεν γίνεται καμία χρέωση από τον πάροχο.',
   }).optional(),
   boxnowLockerId: z.string().max(64).register(z.globalRegistry, {
     description: 'ID locker APM BoxNow από το widget',

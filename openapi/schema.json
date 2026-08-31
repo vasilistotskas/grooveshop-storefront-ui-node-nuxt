@@ -13600,8 +13600,8 @@
         "/api/v1/cart/coupon": {
             "post": {
                 "operationId": "applyCartCoupon",
-                "description": "Attach a coupon code to the cart. Returns the updated cart with promotion discount fields. Rejections carry a machine-readable reason.",
-                "summary": "Apply a coupon code to the cart",
+                "description": "Επισύναψη κωδικού κουπονιού στο καλάθι. Επιστρέφει το ενημερωμένο καλάθι με τα πεδία έκπτωσης προσφοράς. Οι απορρίψεις φέρουν μηχανικά αναγνώσιμη αιτιολογία.",
+                "summary": "Εφαρμογή κωδικού κουπονιού στο καλάθι",
                 "parameters": [
                     {
                         "in": "header",
@@ -13706,8 +13706,8 @@
             },
             "delete": {
                 "operationId": "removeCartCoupon",
-                "description": "Remove the applied coupon code from the cart",
-                "summary": "Remove the applied coupon code from the cart",
+                "description": "Αφαίρεση του εφαρμοσμένου κωδικού κουπονιού από το καλάθι",
+                "summary": "Αφαίρεση του εφαρμοσμένου κωδικού κουπονιού από το καλάθι",
                 "parameters": [
                     {
                         "in": "header",
@@ -55609,6 +55609,9 @@
                             "allowPromotions": {
                                 "type": "boolean"
                             },
+                            "allowLoyalty": {
+                                "type": "boolean"
+                            },
                             "minOrderValue": {
                                 "type": "string"
                             },
@@ -55892,6 +55895,9 @@
                                 "type": "string"
                             },
                             "allowPromotions": {
+                                "type": "boolean"
+                            },
+                            "allowLoyalty": {
                                 "type": "boolean"
                             },
                             "minOrderValue": {
@@ -56380,7 +56386,7 @@
                     "sharedPaymentToken": {
                         "type": "string",
                         "minLength": 1,
-                        "description": "Stripe SharedPaymentToken (spt_…) granted to this store by the agent platform, scoped to this exact purchase.",
+                        "description": "Stripe SharedPaymentToken (spt_…) που παραχωρήθηκε στο κατάστημα από την πλατφόρμα AI πράκτορα, δεσμευμένο σε αυτή ακριβώς την αγορά.",
                         "maxLength": 255
                     }
                 },
@@ -56393,7 +56399,7 @@
                 "properties": {
                     "paymentId": {
                         "type": "string",
-                        "description": "Stripe PaymentIntent ID that charged the token"
+                        "description": "ID του Stripe PaymentIntent που χρέωσε το token"
                     },
                     "status": {
                         "type": "string",
@@ -59296,7 +59302,7 @@
                             "minLength": 1,
                             "maxLength": 32
                         },
-                        "description": "Gift card codes to redeem against this order (max 3). When they cover the full total, omit payment_intent_id — no provider charge happens at all.",
+                        "description": "Κωδικοί δωροκαρτών για εξαργύρωση σε αυτή την παραγγελία (έως 3). Όταν καλύπτουν ολόκληρο το σύνολο, παράλειψε το payment_intent_id — δεν γίνεται καμία χρέωση από τον πάροχο.",
                         "maxItems": 3
                     },
                     "boxnowLockerId": {

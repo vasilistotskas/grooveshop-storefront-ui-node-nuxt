@@ -27,7 +27,19 @@ const { data: summary, status } = loyalty.fetchSummary()
 // self-gating pattern; keeping this consistent means adding a new caller
 // never silently shows "Εξαργύρωση Πόντων" when the owner has disabled
 // the system in admin.
-const loyaltyEnabled = computed(() => settings.value?.enabled ?? false)
+// Wholesale carts sit outside the loyalty program unless the merchant
+// opts in (B2B_LOYALTY_ENABLED): order creation drops the redemption on
+// them, so offering it here would burn nothing and discount nothing.
+// Self-gated for the same reason as LOYALTY_ENABLED above.
+const cartStore = useCartStore()
+const { cart } = storeToRefs(cartStore)
+const b2bSuppressesLoyalty = computed(() => {
+  const b2b = cart.value?.b2bPricing
+  return Boolean(b2b?.applied) && !b2b?.allowLoyalty
+})
+
+const loyaltyEnabled = computed(() =>
+  (settings.value?.enabled ?? false) && !b2bSuppressesLoyalty.value)
 
 // Component state - no API call, just local intent
 const applied = ref(false)

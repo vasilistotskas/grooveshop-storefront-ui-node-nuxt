@@ -11,7 +11,7 @@ const { t } = useI18n()
 const { loggedIn } = useUserSession()
 
 const cartStore = useCartStore()
-const { getCartItems } = storeToRefs(cartStore)
+const { cart, getCartItems } = storeToRefs(cartStore)
 
 const tenantStore = useTenantStore()
 const loyalty = useLoyalty()
@@ -19,13 +19,24 @@ const loyalty = useLoyalty()
 // Fetch loyalty settings
 const { data: settings } = loyalty.fetchSettings()
 
+// Wholesale carts sit outside the loyalty program unless the merchant
+// opts in (B2B_LOYALTY_ENABLED). The backend awards nothing for them,
+// so promising points here would advertise a reward never granted.
+const b2bSuppressesLoyalty = computed(() => {
+  const b2b = cart.value?.b2bPricing
+  return Boolean(b2b?.applied) && !b2b?.allowLoyalty
+})
+
 // State for computed points
 const pointsPerProduct = ref<Map<number, number>>(new Map())
 const loading = ref(false)
 const hasError = ref(false)
 
 // Tenant plan flag is the primary gate; runtime toggle is the operational lever.
-const shouldFetch = computed(() => loggedIn.value && tenantStore.loyaltyEnabled && settings.value?.enabled)
+const shouldFetch = computed(() => loggedIn.value
+  && tenantStore.loyaltyEnabled
+  && settings.value?.enabled
+  && !b2bSuppressesLoyalty.value)
 
 // Total points earned for the entire cart
 const totalPointsEarned = computed(() => {
