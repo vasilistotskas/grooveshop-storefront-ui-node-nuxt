@@ -1,7 +1,8 @@
 import type { IncomingMessage, Server, ServerResponse } from 'node:http'
+import { execSync } from 'node:child_process'
 import { createServer, request as httpRequest } from 'node:http'
-import { afterAll, describe, expect, it } from 'vitest'
-import { setup, url } from '@nuxt/test-utils/e2e'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { setup, url, useTestContext } from '@nuxt/test-utils/e2e'
 // Shared so a TenantConfig schema change cannot leave this copy
 // stale — test/unit/tenant-config-fixture.spec.ts guards it.
 import { validTenantConfig } from '../fixtures/tenantConfig'
@@ -168,8 +169,38 @@ describe('SWR background revalidation forwards the real tenant host', async () =
     },
   })
 
+  // Windows orphan guard: @nuxt/test-utils spawns `nuxi _dev` through a
+  // shell shim, and its stopServer() SIGKILLs only that wrapper — the
+  // actual `node nuxt.mjs _dev` grandchild survives, keeps @nuxt/cli's
+  // dev-server lock, and EVERY subsequent run of this spec (or
+  // `pnpm dev`) then dies with "Another Nuxt dev server is already
+  // running" (nuxt/test-utils#948 lineage).
+  //
+  // Hook-ordering contract this relies on (vitest default
+  // `sequence.hooks: 'stack'`): before-hooks run in definition order, so
+  // this beforeAll runs AFTER setup()'s — the server exists and the pid
+  // is readable (setup() only registers hooks; at collection time
+  // `serverProcess` is still undefined). After-hooks run in REVERSE
+  // order, so our afterAll runs BEFORE test-utils' stopServer() clears
+  // `ctx.serverProcess` — we kill the whole tree while the wrapper is
+  // alive and stopServer() then finds it already dead and no-ops.
+  let devServerPid: number | undefined
+  beforeAll(() => {
+    if (process.platform === 'win32') {
+      devServerPid = useTestContext().serverProcess?.pid
+    }
+  })
+
   afterAll(() => {
     fakeDjango.close()
+    if (devServerPid) {
+      try {
+        execSync(`taskkill /pid ${devServerPid} /T /F`, { stdio: 'ignore' })
+      }
+      catch {
+        // Tree already gone — exactly what we want.
+      }
+    }
   })
 
   it('carries the triggering tenant Host on the SWR background revalidation fetch, never the platform fallback', async () => {
