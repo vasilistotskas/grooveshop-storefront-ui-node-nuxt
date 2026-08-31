@@ -47,6 +47,7 @@ export function validTenantConfig(domain: string) {
     agentPaymentInstruments: [],
     productFeedsEnabled: true,
     giftCardsEnabled: false,
+    b2bEnabled: false,
     agentStripeDelegatedEnabled: false,
     stripePublishableKey: '',
     allowedCspSources: [],

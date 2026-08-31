@@ -337,6 +337,28 @@ definePageMeta({
             aria-atomic="true"
             class="grid gap-4"
           >
+            <!-- Wholesale badge — line prices/totals below are already
+                 server-computed with the group pricing. -->
+            <UBadge
+              v-if="cart.b2bPricing?.applied"
+              color="info"
+              variant="subtle"
+              icon="i-heroicons-briefcase"
+              class="w-full justify-center"
+            >
+              {{ cart.b2bPricing.groupName
+                ? t('b2b_pricing_applied', { group: cart.b2bPricing.groupName })
+                : t('b2b_pricing_applied_generic') }}
+            </UBadge>
+            <UAlert
+              v-if="cart.b2bPricing?.belowMinimum"
+              color="warning"
+              variant="subtle"
+              icon="i-heroicons-exclamation-triangle"
+              :description="t('b2b_below_minimum', {
+                minimum: $i18n.n(Number(cart.b2bPricing.minOrderValue ?? 0), 'currency'),
+              })"
+            />
             <div class="flex justify-between">
               <span>{{ t('subtotal', cart.totalItems) }}</span>
               <span>{{ $i18n.n(cart.totalPrice - cart.totalVatValue, 'currency') }}</span>
@@ -453,6 +475,9 @@ el:
     description: Συνέχεια
     description_long: Δεν έχεις προσθέσει ακόμα προϊόντα στο καλάθι σου
   order_summary: Σύνοψη Παραγγελίας
+  b2b_pricing_applied: 'Τιμές χονδρικής: {group}'
+  b2b_pricing_applied_generic: Τιμές χονδρικής
+  b2b_below_minimum: Η ελάχιστη αξία παραγγελίας χονδρικής είναι {minimum}. Πρόσθεσε προϊόντα για να ολοκληρώσεις την παραγγελία.
   subtotal: Κόστος Προϊόντος | Κόστος Προϊόντων
   vat: ΦΠΑ
   discount: Έκπτωση

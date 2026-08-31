@@ -532,6 +532,27 @@ export type AttributeValue = {
   readonly updatedAt: string
 }
 
+export type B2bErrorResponse = {
+  /**
+     * Μήνυμα σε αναγνώσιμη μορφή
+     */
+  detail: string
+  /**
+     * Μηχανικά αναγνώσιμη αιτιολογία, π.χ. no_business_profile
+     */
+  reason: string
+}
+
+export type B2bPrice = {
+  productId: number
+  netPrice: number
+  finalPrice: number
+  /**
+     * Πραγματικό ποσοστό έκπτωσης επί της τελικής λιανικής τιμής
+     */
+  discountPercent: number
+}
+
 export type BlankEnum = ''
 
 /**
@@ -1914,6 +1935,95 @@ export type BulkSubscriptionResult = {
   readonly alreadyProcessed: Array<string>
 }
 
+export type BusinessProfile = {
+  readonly uuid: string
+  /**
+     * Κατάσταση
+     */
+  status: BusinessProfileStatusEnum
+  readonly customerGroupName: string | null
+  /**
+     * Επωνυμία εταιρείας
+     */
+  readonly companyName: string
+  /**
+     * ΑΦΜ
+     *
+     * Αποθηκεύεται κανονικοποιημένο: 9 ψηφία, χωρίς πρόθεμα EL/GR
+     */
+  readonly vatId: string
+  /**
+     * ΔΟΥ
+     */
+  readonly taxOffice: string
+  /**
+     * Δραστηριότητα
+     */
+  readonly activity: string
+  /**
+     * Οδός τιμολόγησης
+     */
+  readonly billingStreet: string
+  /**
+     * Αριθμός οδού τιμολόγησης
+     */
+  readonly billingStreetNumber: string
+  /**
+     * Πόλη τιμολόγησης
+     */
+  readonly billingCity: string
+  /**
+     * Τ.Κ. τιμολόγησης
+     */
+  readonly billingZipcode: string
+  /**
+     * Κατάσταση VIES
+     */
+  viesStatus: ViesStatusEnum
+  /**
+     * Έλεγχος VIES στις
+     */
+  readonly viesCheckedAt: string | null
+  /**
+     * Επωνυμία VIES
+     */
+  readonly viesName: string
+  /**
+     * Αιτιολογία απόρριψης
+     */
+  readonly rejectionReason: string
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+  /**
+     * Ενημερώθηκε στις
+     */
+  readonly updatedAt: string
+}
+
+/**
+ * * `PENDING` - Σε αναμονή έγκρισης
+ * * `APPROVED` - Εγκεκριμένο
+ * * `REJECTED` - Απορρίφθηκε
+ * * `SUSPENDED` - Σε αναστολή
+ */
+export type BusinessProfileStatusEnum = 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED'
+
+export type BusinessProfileWriteRequest = {
+  companyName: string
+  /**
+     * Ελληνικό ΑΦΜ — 9 ψηφία, το πρόθεμα EL/GR γίνεται δεκτό
+     */
+  vatId: string
+  taxOffice: string
+  activity: string
+  billingStreet?: string
+  billingStreetNumber?: string
+  billingCity?: string
+  billingZipcode?: string
+}
+
 export type CancelOrderRequestRequest = {
   /**
      * Reason for canceling the order
@@ -1986,6 +2096,16 @@ export type Cart = {
     name?: string
     remainingAmount?: number
   }>
+  /**
+     * Present when wholesale group pricing is applied to this cart's line prices; null for retail carts. Lets the storefront show a wholesale badge and hide the coupon input (promotions don't stack on B2B prices unless the merchant opts in).
+     */
+  readonly b2bPricing: {
+    applied?: boolean
+    groupName?: string
+    allowPromotions?: boolean
+    minOrderValue?: string
+    belowMinimum?: boolean
+  } | null
   /**
      * Δημιουργήθηκε στις
      */
@@ -2119,6 +2239,16 @@ export type CartDetail = {
     name?: string
     remainingAmount?: number
   }>
+  /**
+     * Present when wholesale group pricing is applied to this cart's line prices; null for retail carts. Lets the storefront show a wholesale badge and hide the coupon input (promotions don't stack on B2B prices unless the merchant opts in).
+     */
+  readonly b2bPricing: {
+    applied?: boolean
+    groupName?: string
+    allowPromotions?: boolean
+    minOrderValue?: string
+    belowMinimum?: boolean
+  } | null
   /**
      * Δημιουργήθηκε στις
      */
@@ -2646,7 +2776,7 @@ export type CouponApplyRequestRequest = {
  */
 export type CouponErrorResponse = {
   /**
-     * Human-readable message
+     * Μήνυμα σε αναγνώσιμη μορφή
      */
   detail: string
   /**
@@ -2899,7 +3029,7 @@ export type FeedbackWrite = {
 }
 
 /**
- * * `general` - General
+ * * `general` - Γενικά
  * * `website` - Website & UX
  * * `products` - Προϊόντα
  * * `delivery` - Delivery
@@ -3023,7 +3153,7 @@ export type GiftCardCheckResponse = {
 
 export type GiftCardErrorResponse = {
   /**
-     * Human-readable message
+     * Μήνυμα σε αναγνώσιμη μορφή
      */
   detail: string
   /**
@@ -3581,6 +3711,46 @@ export type Order = {
      */
   documentType?: OrderDocumentType
   /**
+     * ΑΦΜ τιμολόγησης
+     *
+     * ΑΦΜ αγοραστή — απαιτείται κατά την έκδοση τιμολογίου (σε αντίθεση με απόδειξη λιανικής). 9 ψηφία για ελληνικό ΑΦΜ, χωρίς πρόθεμα ``EL`` / ``GR``.
+     */
+  readonly billingVatId: string
+  /**
+     * Χώρα τιμολόγησης
+     *
+     * Κωδικός χώρας ISO 3166-1 alpha-2 του αγοραστή για φορολογικούς σκοπούς. Συνδυάζεται με το ``billing_vat_id``· καθορίζει ποιος τύπος τιμολογίου ΑΑΔΕ (1.1 εσωτερικού, 1.2 ενδοκοινοτικό, 1.3 τρίτης χώρας) εφαρμόζεται.
+     */
+  readonly billingCountry: string
+  /**
+     * Επωνυμία εταιρείας
+     */
+  readonly billingCompanyName: string
+  /**
+     * ΔΟΥ τιμολόγησης
+     */
+  readonly billingTaxOffice: string
+  /**
+     * Δραστηριότητα επιχείρησης
+     */
+  readonly billingActivity: string
+  /**
+     * Οδός τιμολόγησης
+     */
+  readonly billingStreet: string
+  /**
+     * Αριθμός οδού τιμολόγησης
+     */
+  readonly billingStreetNumber: string
+  /**
+     * Πόλη τιμολόγησης
+     */
+  readonly billingCity: string
+  /**
+     * Τ.Κ. τιμολόγησης
+     */
+  readonly billingZipcode: string
+  /**
      * Δημιουργήθηκε στις
      */
   readonly createdAt: string
@@ -3723,6 +3893,25 @@ export type OrderCreateFromCartRequest = {
      */
   documentType?: OrderCreateDocumentType
   /**
+     * Νόμιμη επωνυμία εταιρείας για το τιμολόγιο
+     */
+  billingCompanyName?: string
+  /**
+     * ΔΟΥ εταιρείας
+     */
+  billingTaxOffice?: string
+  /**
+     * Επαγγελματική δραστηριότητα της εταιρείας
+     */
+  billingActivity?: string
+  /**
+     * Οδός έδρας της εταιρείας — αν μείνει κενή, αντιγράφεται η οδός αποστολής στις παραγγελίες με τιμολόγιο
+     */
+  billingStreet?: string
+  billingStreetNumber?: string
+  billingCity?: string
+  billingZipcode?: string
+  /**
      * Αριθμός πόντων πιστότητας προς εξαργύρωση για έκπτωση σε αυτή την παραγγελία
      */
   loyaltyPointsToRedeem?: number | null
@@ -3841,6 +4030,46 @@ export type OrderDetail = {
      * Τύπος Εγγράφου
      */
   documentType?: OrderDocumentType
+  /**
+     * ΑΦΜ τιμολόγησης
+     *
+     * ΑΦΜ αγοραστή — απαιτείται κατά την έκδοση τιμολογίου (σε αντίθεση με απόδειξη λιανικής). 9 ψηφία για ελληνικό ΑΦΜ, χωρίς πρόθεμα ``EL`` / ``GR``.
+     */
+  readonly billingVatId: string
+  /**
+     * Χώρα τιμολόγησης
+     *
+     * Κωδικός χώρας ISO 3166-1 alpha-2 του αγοραστή για φορολογικούς σκοπούς. Συνδυάζεται με το ``billing_vat_id``· καθορίζει ποιος τύπος τιμολογίου ΑΑΔΕ (1.1 εσωτερικού, 1.2 ενδοκοινοτικό, 1.3 τρίτης χώρας) εφαρμόζεται.
+     */
+  readonly billingCountry: string
+  /**
+     * Επωνυμία εταιρείας
+     */
+  readonly billingCompanyName: string
+  /**
+     * ΔΟΥ τιμολόγησης
+     */
+  readonly billingTaxOffice: string
+  /**
+     * Δραστηριότητα επιχείρησης
+     */
+  readonly billingActivity: string
+  /**
+     * Οδός τιμολόγησης
+     */
+  readonly billingStreet: string
+  /**
+     * Αριθμός οδού τιμολόγησης
+     */
+  readonly billingStreetNumber: string
+  /**
+     * Πόλη τιμολόγησης
+     */
+  readonly billingCity: string
+  /**
+     * Τ.Κ. τιμολόγησης
+     */
+  readonly billingZipcode: string
   /**
      * Δημιουργήθηκε στις
      */
@@ -7820,6 +8049,7 @@ export type TenantConfig = {
   readonly blogEnabled: boolean
   readonly promotionsEnabled: boolean
   readonly giftCardsEnabled: boolean
+  readonly b2bEnabled: boolean
   readonly agentStripeDelegatedEnabled: boolean
   readonly agentCommerceEnabled: boolean
   readonly productFeedsEnabled: boolean
@@ -8467,6 +8697,14 @@ export type VariantAxisValue = {
   id: number
   value: string
 }
+
+/**
+ * * `UNCHECKED` - Δεν έχει ελεγχθεί
+ * * `VALID` - Έγκυρο
+ * * `INVALID` - Μη έγκυρο
+ * * `UNAVAILABLE` - Υπηρεσία μη διαθέσιμη
+ */
+export type ViesStatusEnum = 'UNCHECKED' | 'VALID' | 'INVALID' | 'UNAVAILABLE'
 
 /**
  * Minimal, PII-free payload for the Viva post-payment redirect hop.
@@ -9251,6 +9489,25 @@ export type OrderCreateFromCartRequestWritable = {
      * * `INVOICE` - Τιμολόγιο
      */
   documentType?: OrderCreateDocumentType
+  /**
+     * Νόμιμη επωνυμία εταιρείας για το τιμολόγιο
+     */
+  billingCompanyName?: string
+  /**
+     * ΔΟΥ εταιρείας
+     */
+  billingTaxOffice?: string
+  /**
+     * Επαγγελματική δραστηριότητα της εταιρείας
+     */
+  billingActivity?: string
+  /**
+     * Οδός έδρας της εταιρείας — αν μείνει κενή, αντιγράφεται η οδός αποστολής στις παραγγελίες με τιμολόγιο
+     */
+  billingStreet?: string
+  billingStreetNumber?: string
+  billingCity?: string
+  billingZipcode?: string
   /**
      * Αριθμός πόντων πιστότητας προς εξαργύρωση για έκπτωση σε αυτή την παραγγελία
      */
@@ -10976,6 +11233,84 @@ export type ListAgentOrdersResponses = {
 }
 
 export type ListAgentOrdersResponse = ListAgentOrdersResponses[keyof ListAgentOrdersResponses]
+
+export type GetB2bPricesData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+         * Comma-separated product ids (max 100)
+         */
+    ids: string
+    /**
+         * A search term.
+         */
+    search?: string
+  }
+  url: '/api/v1/b2b/prices'
+}
+
+export type GetB2bPricesErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type GetB2bPricesError = GetB2bPricesErrors[keyof GetB2bPricesErrors]
+
+export type GetB2bPricesResponses = {
+  200: Array<B2bPrice>
+}
+
+export type GetB2bPricesResponse = GetB2bPricesResponses[keyof GetB2bPricesResponses]
+
+export type GetB2bProfileData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/b2b/profile'
+}
+
+export type GetB2bProfileErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: B2bErrorResponse
+  500: ErrorResponse
+}
+
+export type GetB2bProfileError = GetB2bProfileErrors[keyof GetB2bProfileErrors]
+
+export type GetB2bProfileResponses = {
+  200: BusinessProfile
+}
+
+export type GetB2bProfileResponse = GetB2bProfileResponses[keyof GetB2bProfileResponses]
+
+export type SubmitB2bProfileData = {
+  body: BusinessProfileWriteRequest
+  path?: never
+  query?: never
+  url: '/api/v1/b2b/profile'
+}
+
+export type SubmitB2bProfileErrors = {
+  400: B2bErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type SubmitB2bProfileError = SubmitB2bProfileErrors[keyof SubmitB2bProfileErrors]
+
+export type SubmitB2bProfileResponses = {
+  200: BusinessProfile
+}
+
+export type SubmitB2bProfileResponse = SubmitB2bProfileResponses[keyof SubmitB2bProfileResponses]
 
 export type ListBlogAuthorData = {
   body?: never
@@ -14549,10 +14884,6 @@ export type ListCartItemData = {
          * Filter items created before this date
          */
     createdBefore?: string
-    /**
-         * Δείκτης (cursor) για σελιδοποίηση
-         */
-    cursor?: string
     id?: string | number
     /**
          * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
@@ -14566,10 +14897,6 @@ export type ListCartItemData = {
          * Φίλτρο ειδών σε ενεργά καλάθια (24ωρο)
          */
     inActiveCarts?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
-         */
-    languageCode?: 'de' | 'el' | 'en'
     /**
          * Φίλτρο ανά μέγιστο ποσοστό έκπτωσης
          */
@@ -14611,17 +14938,9 @@ export type ListCartItemData = {
          */
     page?: string | number
     /**
-         * Αριθμός αποτελεσμάτων ανά σελίδα
+         * Number of results to return per page.
          */
     pageSize?: string | number
-    /**
-         * Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
-         */
-    pagination?: 'false' | 'true'
-    /**
-         * Τύπος στρατηγικής σελιδοποίησης
-         */
-    paginationType?: 'cursor' | 'limitOffset' | 'pageNumber'
     /**
          * Φίλτρο ανά ID προϊόντος
          */

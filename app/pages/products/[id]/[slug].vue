@@ -252,6 +252,28 @@ const formatProductPrice = (price?: number) => {
   return n(price || 0, 'currency')
 }
 
+// Wholesale price hydration — client-only, retail renders first then
+// swaps (cached/anonymous catalogue HTML must never carry a
+// per-customer price; see useB2BPricing).
+const { register: registerB2BPrice, priceFor: b2bPriceFor } = useB2BPricing()
+onMounted(() => {
+  if (product.value?.id) {
+    registerB2BPrice(product.value.id)
+  }
+})
+const b2bPrice = computed(() =>
+  product.value?.id ? b2bPriceFor(product.value.id) : undefined,
+)
+const isWholesalePrice = computed(() =>
+  !!b2bPrice.value
+  && Number(b2bPrice.value.finalPrice) < (product.value?.finalPrice ?? 0),
+)
+const displayFinalPrice = computed(() =>
+  isWholesalePrice.value && b2bPrice.value
+    ? Number(b2bPrice.value.finalPrice)
+    : product.value?.finalPrice,
+)
+
 const incrementQuantity = () => {
   if (selectorQuantity.value < productStock.value) {
     selectorQuantity.value++
@@ -751,17 +773,18 @@ definePageMeta({
                     dark:from-neutral-400 dark:to-secondary-400
                   "
                 >
-                  {{ formatProductPrice(product?.finalPrice) }}
+                  {{ formatProductPrice(displayFinalPrice) }}
                 </span>
 
                 <span
-                  v-if="product.discountValue && product.discountValue > 0"
+                  v-if="isWholesalePrice
+                    || (product.discountValue && product.discountValue > 0)"
                   class="
                     text-lg text-gray-500 line-through
                     dark:text-gray-200
                   "
                 >
-                  {{ formatProductPrice(product?.price) }}
+                  {{ formatProductPrice(isWholesalePrice ? product?.finalPrice : product?.price) }}
                 </span>
 
                 <span

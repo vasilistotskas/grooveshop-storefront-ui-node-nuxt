@@ -19,6 +19,7 @@ export const AuthenticatedRoutes = [
   'account-addresses',
   'account-addresses-new',
   'account-addresses-id-edit',
+  'account-business',
   'account-email',
   'account-favourites-posts',
   'account-favourites-products',

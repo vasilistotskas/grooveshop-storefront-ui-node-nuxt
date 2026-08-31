@@ -59,13 +59,28 @@ export async function useCheckoutForm() {
     // Payment
     payWay: undefined as number | undefined,
     payWayId: undefined as number | undefined,
-    documentType: zOrderCreateDocumentType.enum.RECEIPT,
+    documentType: zOrderCreateDocumentType.enum
+      .RECEIPT as OrderCreateDocumentType,
     // B2B billing identity — only required when documentType=INVOICE.
     // Normalised server-side (strip EL/GR, uppercase country) but we
     // keep the raw value here and surface the validation error inline
     // via ``superRefine`` on step1Schema.
     billingVatId: '',
     billingCountry: '',
+    // Company requisites for the Τιμολόγιο — prefilled from the
+    // shopper's business profile when they have one; required (with
+    // the ΑΦΜ checksum) once documentType=INVOICE.
+    billingCompanyName: '',
+    billingTaxOffice: '',
+    billingActivity: '',
+    // The company's registered address (έδρα). ``true`` copies the
+    // delivery address client-side at submit; Django snapshots the
+    // same fallback server-side for direct API callers.
+    billingSameAsShipping: true,
+    billingStreet: '',
+    billingStreetNumber: '',
+    billingCity: '',
+    billingZipcode: '',
     items: [] as { product: number, quantity: number }[],
     // Optional "save this delivery address to my address book" toggle —
     // only reachable in the ``new address`` flow for logged-in users.
@@ -607,6 +622,14 @@ export async function useCheckoutForm() {
     documentType: zOrderCreateDocumentType.optional(),
     billingVatId: z.string().max(12).optional(),
     billingCountry: z.string().max(2).optional(),
+    billingCompanyName: z.string().max(255).optional(),
+    billingTaxOffice: z.string().max(100).optional(),
+    billingActivity: z.string().max(255).optional(),
+    billingSameAsShipping: z.boolean().optional(),
+    billingStreet: z.string().max(255).optional(),
+    billingStreetNumber: z.string().max(50).optional(),
+    billingCity: z.string().max(100).optional(),
+    billingZipcode: z.string().max(20).optional(),
   }).superRefine((data, ctx) => {
     if (data.saveAddress && !(data.addressTitle ?? '').trim()) {
       ctx.addIssue({
@@ -628,6 +651,48 @@ export async function useCheckoutForm() {
           code: 'custom',
           message: t('validation.billing_vat.invalid'),
         })
+      }
+      else if (!isValidGreekAfm(cleaned)) {
+        // Format-valid but checksum-invalid — mirrors Django's
+        // b2b/validators.py so the shopper never gets a late 400.
+        ctx.addIssue({
+          path: ['billingVatId'],
+          code: 'custom',
+          message: t('validation.billing_vat.checksum'),
+        })
+      }
+      // The invoice requisites trio — a Τιμολόγιο without company
+      // name / ΔΟΥ / activity is useless to the buyer's accountant.
+      for (const field of [
+        'billingCompanyName',
+        'billingTaxOffice',
+        'billingActivity',
+      ] as const) {
+        if (!(data[field] ?? '').trim()) {
+          ctx.addIssue({
+            path: [field],
+            code: 'custom',
+            message: t('validation.required'),
+          })
+        }
+      }
+      // Registered address — required only when it differs from the
+      // delivery address.
+      if (data.billingSameAsShipping === false) {
+        for (const field of [
+          'billingStreet',
+          'billingStreetNumber',
+          'billingCity',
+          'billingZipcode',
+        ] as const) {
+          if (!(data[field] ?? '').trim()) {
+            ctx.addIssue({
+              path: [field],
+              code: 'custom',
+              message: t('validation.required'),
+            })
+          }
+        }
       }
     }
   })
@@ -674,6 +739,7 @@ export async function useCheckoutForm() {
     acsShippingResult,
     acsFreeShippingResult,
     b2bInvoicingResult,
+    b2bProfileResult,
     countriesResult,
     payWaysResult,
     savedAddressesResult,
@@ -741,6 +807,21 @@ export async function useCheckoutForm() {
         query: { key: 'B2B_INVOICING_ENABLED' },
         headers: useRequestHeaders(),
       }).catch(() => null),
+    ),
+    useAsyncData<BusinessProfile | null>(
+      'checkout:b2b-profile',
+      // Prefill source for the invoice fields. Gated on the PLAN flag
+      // (synchronously known) so non-B2B tenants never pay the call;
+      // 404 (no profile / runtime setting off) just means no prefill.
+      () => {
+        if (!loggedIn.value || !tenantStore.b2bEnabled) {
+          return Promise.resolve(null)
+        }
+        return $fetch<BusinessProfile>('/api/b2b/profile', {
+          method: 'GET',
+          headers: useRequestHeaders(),
+        }).catch(() => null)
+      },
     ),
     useAsyncData<Pagination<Country> | null>(
       () => `checkout:countries:${locale.value}`,
@@ -824,6 +905,39 @@ export async function useCheckoutForm() {
     formState.documentType = zOrderCreateDocumentType.enum.RECEIPT
     formState.billingVatId = ''
     formState.billingCountry = ''
+    formState.billingCompanyName = ''
+    formState.billingTaxOffice = ''
+    formState.billingActivity = ''
+    formState.billingStreet = ''
+    formState.billingStreetNumber = ''
+    formState.billingCity = ''
+    formState.billingZipcode = ''
+  }
+  // Prefill the invoice requisites from the shopper's business profile
+  // (any status — the requisites are valid data regardless of the
+  // wholesale review outcome). The Τιμολόγιο toggle stays a per-order
+  // choice, but APPROVED wholesale buyers get it pre-ticked: a Greek
+  // wholesaler must issue a Τιμολόγιο for wholesale sales, so RECEIPT
+  // is the exception for them, not the default.
+  const b2bProfile = b2bProfileResult.data.value
+  if (b2bProfile && b2bInvoicingEnabled.value) {
+    if (b2bProfile.status === 'APPROVED') {
+      formState.documentType = zOrderCreateDocumentType.enum.INVOICE
+    }
+    formState.billingVatId = formState.billingVatId || b2bProfile.vatId
+    formState.billingCompanyName
+      = formState.billingCompanyName || b2bProfile.companyName
+    formState.billingTaxOffice
+      = formState.billingTaxOffice || b2bProfile.taxOffice
+    formState.billingActivity
+      = formState.billingActivity || b2bProfile.activity
+    if (b2bProfile.billingStreet) {
+      formState.billingSameAsShipping = false
+      formState.billingStreet = b2bProfile.billingStreet
+      formState.billingStreetNumber = b2bProfile.billingStreetNumber ?? ''
+      formState.billingCity = b2bProfile.billingCity ?? ''
+      formState.billingZipcode = b2bProfile.billingZipcode ?? ''
+    }
   }
   countries.value = countriesResult.data.value ?? null
   payWays.value = payWaysResult.data.value ?? null

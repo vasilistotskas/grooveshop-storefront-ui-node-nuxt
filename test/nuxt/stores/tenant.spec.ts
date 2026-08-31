@@ -41,6 +41,7 @@ function makeTenantConfig(overrides: Partial<TenantConfig> = {}): TenantConfig {
     agentPaymentInstruments: [],
     agentHostedPaymentEnabled: true,
     giftCardsEnabled: false,
+    b2bEnabled: false,
     agentStripeDelegatedEnabled: false,
     stripePublishableKey: '',
     allowedCspSources: [],

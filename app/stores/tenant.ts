@@ -20,6 +20,7 @@ export const useTenantStore = defineStore('tenant', () => {
   const blogEnabled = computed(() => config.value?.blogEnabled ?? true)
   const promotionsEnabled = computed(() => config.value?.promotionsEnabled ?? false)
   const giftCardsEnabled = computed(() => config.value?.giftCardsEnabled ?? false)
+  const b2bEnabled = computed(() => config.value?.b2bEnabled ?? false)
   const themePreset = computed(() => config.value?.themePreset ?? 'default')
   const stripePublishableKey = computed(() => config.value?.stripePublishableKey ?? '')
 
@@ -73,6 +74,7 @@ export const useTenantStore = defineStore('tenant', () => {
     blogEnabled,
     promotionsEnabled,
     giftCardsEnabled,
+    b2bEnabled,
     themePreset,
     stripePublishableKey,
     metaPixelId,

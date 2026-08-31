@@ -30,6 +30,21 @@ const visibleItems = computed(() => {
   return typeof props.limit === 'number' ? source.slice(0, props.limit) : source
 })
 
+// Wholesale price hydration — same client-only swap as Product/Card
+// so a B2B buyer doesn't see retail numbers right next to a wholesale
+// PDP price. The component is ClientOnly, so registering in a watcher
+// (post-mount by construction) is cache-safe.
+const { register: registerB2BPrice, priceFor: b2bPriceFor } = useB2BPricing()
+watch(visibleItems, (items) => {
+  registerB2BPrice(items.map(item => item.id))
+}, { immediate: true })
+const displayPrice = (item: { id: number, finalPrice?: number | null }) => {
+  const b2b = b2bPriceFor(item.id)
+  return b2b && Number(b2b.finalPrice) < (item.finalPrice ?? 0)
+    ? Number(b2b.finalPrice)
+    : item.finalPrice
+}
+
 // Gracefully hide the whole section when empty — SSR renders nothing so
 // there's no CLS hit when localStorage hydrates with an empty history.
 const hasItems = computed(() => visibleItems.value.length > 0)
@@ -128,7 +143,7 @@ const carouselUI = {
             v-if="item.finalPrice != null"
             class="text-sm font-semibold text-secondary-600 dark:text-secondary-400"
           >
-            {{ $i18n.n(item.finalPrice, 'currency') }}
+            {{ $i18n.n(displayPrice(item) ?? 0, 'currency') }}
           </p>
         </NuxtLinkLocale>
       </LazyUCarousel>

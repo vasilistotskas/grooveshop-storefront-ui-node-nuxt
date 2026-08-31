@@ -260,24 +260,126 @@ defineExpose({
             :label="t('form.invoice.toggle_label')"
             :description="t('form.invoice.toggle_description')"
             color="primary"
-            @update:model-value="(v) => { formState.documentType = v ? 'INVOICE' : 'RECEIPT'; if (!v) { formState.billingVatId = ''; formState.billingCountry = '' } }"
+            @update:model-value="(v) => { formState.documentType = v ? 'INVOICE' : 'RECEIPT'; if (!v) { formState.billingVatId = ''; formState.billingCountry = ''; formState.billingCompanyName = ''; formState.billingTaxOffice = ''; formState.billingActivity = ''; formState.billingSameAsShipping = true; formState.billingStreet = ''; formState.billingStreetNumber = ''; formState.billingCity = ''; formState.billingZipcode = '' } }"
           />
           <template v-if="formState.documentType === 'INVOICE'">
             <UFormField
-              :label="t('form.invoice.vat_label')"
-              :help="t('form.invoice.vat_help')"
-              name="billingVatId"
+              :label="t('form.invoice.company_label')"
+              name="billingCompanyName"
               required
             >
               <UInput
-                v-model="formState.billingVatId"
+                v-model="formState.billingCompanyName"
                 size="xl"
-                placeholder="123456789"
-                leading-icon="i-heroicons-identification"
-                maxlength="12"
+                leading-icon="i-heroicons-building-office-2"
+                maxlength="255"
                 class="w-full"
               />
             </UFormField>
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <UFormField
+                :label="t('form.invoice.vat_label')"
+                :help="t('form.invoice.vat_help')"
+                name="billingVatId"
+                required
+              >
+                <UInput
+                  v-model="formState.billingVatId"
+                  size="xl"
+                  placeholder="123456789"
+                  leading-icon="i-heroicons-identification"
+                  maxlength="12"
+                  class="w-full"
+                />
+              </UFormField>
+              <UFormField
+                :label="t('form.invoice.tax_office_label')"
+                name="billingTaxOffice"
+                required
+              >
+                <UInput
+                  v-model="formState.billingTaxOffice"
+                  size="xl"
+                  leading-icon="i-heroicons-building-library"
+                  maxlength="100"
+                  class="w-full"
+                />
+              </UFormField>
+            </div>
+            <UFormField
+              :label="t('form.invoice.activity_label')"
+              :help="t('form.invoice.activity_help')"
+              name="billingActivity"
+              required
+            >
+              <UInput
+                v-model="formState.billingActivity"
+                size="xl"
+                leading-icon="i-heroicons-briefcase"
+                maxlength="255"
+                class="w-full"
+              />
+            </UFormField>
+            <UCheckbox
+              v-model="formState.billingSameAsShipping"
+              :label="t('form.invoice.billing_same_label')"
+              :description="t('form.invoice.billing_same_description')"
+              color="primary"
+            />
+            <template v-if="!formState.billingSameAsShipping">
+              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <UFormField
+                  :label="t('form.invoice.billing_street_label')"
+                  name="billingStreet"
+                  required
+                >
+                  <UInput
+                    v-model="formState.billingStreet"
+                    size="xl"
+                    maxlength="255"
+                    class="w-full"
+                  />
+                </UFormField>
+                <UFormField
+                  :label="t('form.invoice.billing_street_number_label')"
+                  name="billingStreetNumber"
+                  required
+                >
+                  <UInput
+                    v-model="formState.billingStreetNumber"
+                    size="xl"
+                    maxlength="50"
+                    class="w-full"
+                  />
+                </UFormField>
+              </div>
+              <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <UFormField
+                  :label="t('form.invoice.billing_city_label')"
+                  name="billingCity"
+                  required
+                >
+                  <UInput
+                    v-model="formState.billingCity"
+                    size="xl"
+                    maxlength="100"
+                    class="w-full"
+                  />
+                </UFormField>
+                <UFormField
+                  :label="t('form.invoice.billing_zipcode_label')"
+                  name="billingZipcode"
+                  required
+                >
+                  <UInput
+                    v-model="formState.billingZipcode"
+                    size="xl"
+                    maxlength="20"
+                    class="w-full"
+                  />
+                </UFormField>
+              </div>
+            </template>
           </template>
         </template>
 

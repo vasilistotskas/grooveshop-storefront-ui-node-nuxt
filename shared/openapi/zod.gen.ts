@@ -197,6 +197,24 @@ export const zAttributeValue = z.object({
   description: 'Serializer for AttributeValue with translations.',
 })
 
+export const zB2bErrorResponse = z.object({
+  detail: z.string().register(z.globalRegistry, {
+    description: 'Μήνυμα σε αναγνώσιμη μορφή',
+  }),
+  reason: z.string().register(z.globalRegistry, {
+    description: 'Μηχανικά αναγνώσιμη αιτιολογία, π.χ. no_business_profile',
+  }),
+})
+
+export const zB2bPrice = z.object({
+  productId: z.int(),
+  netPrice: z.number().gt(-1000000000).lt(1000000000),
+  finalPrice: z.number().gt(-1000000000).lt(1000000000),
+  discountPercent: z.number().gt(-1000).lt(1000).register(z.globalRegistry, {
+    description: 'Πραγματικό ποσοστό έκπτωσης επί της τελικής λιανικής τιμής',
+  }),
+})
+
 export const zBlankEnum = z.enum([''])
 
 /**
@@ -897,6 +915,34 @@ export const zBulkSubscriptionResult = z.object({
   alreadyProcessed: z.array(z.string()).readonly(),
 })
 
+/**
+ * * `PENDING` - Σε αναμονή έγκρισης
+ * * `APPROVED` - Εγκεκριμένο
+ * * `REJECTED` - Απορρίφθηκε
+ * * `SUSPENDED` - Σε αναστολή
+ */
+export const zBusinessProfileStatusEnum = z.enum([
+  'PENDING',
+  'APPROVED',
+  'REJECTED',
+  'SUSPENDED',
+]).register(z.globalRegistry, {
+  description: '* `PENDING` - Σε αναμονή έγκρισης\n* `APPROVED` - Εγκεκριμένο\n* `REJECTED` - Απορρίφθηκε\n* `SUSPENDED` - Σε αναστολή',
+})
+
+export const zBusinessProfileWriteRequest = z.object({
+  companyName: z.string().min(1).max(255),
+  vatId: z.string().min(1).max(12).register(z.globalRegistry, {
+    description: 'Ελληνικό ΑΦΜ — 9 ψηφία, το πρόθεμα EL/GR γίνεται δεκτό',
+  }),
+  taxOffice: z.string().min(1).max(100),
+  activity: z.string().min(1).max(255),
+  billingStreet: z.string().max(255).optional().default(''),
+  billingStreetNumber: z.string().max(50).optional().default(''),
+  billingCity: z.string().max(100).optional().default(''),
+  billingZipcode: z.string().max(20).optional().default(''),
+})
+
 export const zCancelOrderRequestRequest = z.object({
   reason: z.string().max(500).register(z.globalRegistry, {
     description: 'Reason for canceling the order',
@@ -1308,7 +1354,7 @@ export const zCouponApplyRequestRequest = z.object({
  */
 export const zCouponErrorResponse = z.object({
   detail: z.string().register(z.globalRegistry, {
-    description: 'Human-readable message',
+    description: 'Μήνυμα σε αναγνώσιμη μορφή',
   }),
   reason: z.string().register(z.globalRegistry, {
     description: 'Machine-readable rejection reason (ACP discount-extension vocabulary, e.g. discount_code_invalid)',
@@ -1514,7 +1560,7 @@ export const zFederatedSearchResponse = z.object({
 })
 
 /**
- * * `general` - General
+ * * `general` - Γενικά
  * * `website` - Website & UX
  * * `products` - Προϊόντα
  * * `delivery` - Delivery
@@ -1529,7 +1575,7 @@ export const zFeedbackWriteCategoryEnum = z.enum([
   'support',
   'other',
 ]).register(z.globalRegistry, {
-  description: '* `general` - General\n* `website` - Website & UX\n* `products` - Προϊόντα\n* `delivery` - Delivery\n* `support` - Customer support\n* `other` - Άλλο',
+  description: '* `general` - Γενικά\n* `website` - Website & UX\n* `products` - Προϊόντα\n* `delivery` - Delivery\n* `support` - Customer support\n* `other` - Άλλο',
 })
 
 export const zFeedbackWrite = z.object({
@@ -1597,7 +1643,7 @@ export const zGiftCardCheckResponse = z.object({
 
 export const zGiftCardErrorResponse = z.object({
   detail: z.string().register(z.globalRegistry, {
-    description: 'Human-readable message',
+    description: 'Μήνυμα σε αναγνώσιμη μορφή',
   }),
   reason: z.string().register(z.globalRegistry, {
     description: 'Machine-readable reason, e.g. gift_card_invalid',
@@ -3301,6 +3347,13 @@ export const zCart = z.object({
   })).register(z.globalRegistry, {
     description: 'Automatic promotions blocked only by their minimum subtotal — \'add X more to unlock\'',
   }).readonly(),
+  b2bPricing: z.object({
+    applied: z.boolean().optional(),
+    groupName: z.string().optional(),
+    allowPromotions: z.boolean().optional(),
+    minOrderValue: z.string().optional(),
+    belowMinimum: z.boolean().optional(),
+  }).readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   lastActivity: z.iso.datetime({ offset: true }).readonly(),
@@ -3353,6 +3406,13 @@ export const zCartDetail = z.object({
   })).register(z.globalRegistry, {
     description: 'Automatic promotions blocked only by their minimum subtotal — \'add X more to unlock\'',
   }).readonly(),
+  b2bPricing: z.object({
+    applied: z.boolean().optional(),
+    groupName: z.string().optional(),
+    allowPromotions: z.boolean().optional(),
+    minOrderValue: z.string().optional(),
+    belowMinimum: z.boolean().optional(),
+  }).readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   lastActivity: z.iso.datetime({ offset: true }).readonly(),
@@ -3442,6 +3502,19 @@ export const zOrder = z.object({
   shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
   paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
   documentType: zOrderDocumentType.optional(),
+  billingVatId: z.string().register(z.globalRegistry, {
+    description: 'ΑΦΜ αγοραστή — απαιτείται κατά την έκδοση τιμολογίου (σε αντίθεση με απόδειξη λιανικής). 9 ψηφία για ελληνικό ΑΦΜ, χωρίς πρόθεμα ``EL`` / ``GR``.',
+  }).readonly(),
+  billingCountry: z.string().register(z.globalRegistry, {
+    description: 'Κωδικός χώρας ISO 3166-1 alpha-2 του αγοραστή για φορολογικούς σκοπούς. Συνδυάζεται με το ``billing_vat_id``· καθορίζει ποιος τύπος τιμολογίου ΑΑΔΕ (1.1 εσωτερικού, 1.2 ενδοκοινοτικό, 1.3 τρίτης χώρας) εφαρμόζεται.',
+  }).readonly(),
+  billingCompanyName: z.string().readonly(),
+  billingTaxOffice: z.string().readonly(),
+  billingActivity: z.string().readonly(),
+  billingStreet: z.string().readonly(),
+  billingStreetNumber: z.string().readonly(),
+  billingCity: z.string().readonly(),
+  billingZipcode: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -4622,6 +4695,21 @@ export const zOrderCreateFromCartRequest = z.object({
     description: 'Κωδικός χώρας ISO 3166-1 alpha-2 για τη φορολογική ταυτότητα του αγοραστή. Προεπιλογή η χώρα της παραγγελίας όταν είναι κενό.',
   }).optional(),
   documentType: zOrderCreateDocumentType.optional(),
+  billingCompanyName: z.string().max(255).register(z.globalRegistry, {
+    description: 'Νόμιμη επωνυμία εταιρείας για το τιμολόγιο',
+  }).optional(),
+  billingTaxOffice: z.string().max(100).register(z.globalRegistry, {
+    description: 'ΔΟΥ εταιρείας',
+  }).optional(),
+  billingActivity: z.string().max(255).register(z.globalRegistry, {
+    description: 'Επαγγελματική δραστηριότητα της εταιρείας',
+  }).optional(),
+  billingStreet: z.string().max(255).register(z.globalRegistry, {
+    description: 'Οδός έδρας της εταιρείας — αν μείνει κενή, αντιγράφεται η οδός αποστολής στις παραγγελίες με τιμολόγιο',
+  }).optional(),
+  billingStreetNumber: z.string().max(50).optional(),
+  billingCity: z.string().max(100).optional(),
+  billingZipcode: z.string().max(20).optional(),
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
   giftCardCodes: z.array(z.string().min(1).max(32)).max(3).register(z.globalRegistry, {
     description: 'Gift card codes to redeem against this order (max 3). When they cover the full total, omit payment_intent_id — no provider charge happens at all.',
@@ -5108,6 +5196,7 @@ export const zTenantConfig = z.object({
   blogEnabled: z.boolean().readonly(),
   promotionsEnabled: z.boolean().readonly(),
   giftCardsEnabled: z.boolean().readonly(),
+  b2bEnabled: z.boolean().readonly(),
   agentStripeDelegatedEnabled: z.boolean().readonly(),
   agentCommerceEnabled: z.boolean().readonly(),
   productFeedsEnabled: z.boolean().readonly(),
@@ -5573,6 +5662,19 @@ export const zOrderDetail = z.object({
   shippingPrice: z.number().gt(-1000000000).lt(1000000000).readonly(),
   paymentMethodFee: z.number().gt(-1000000000).lt(1000000000).readonly(),
   documentType: zOrderDocumentType.optional(),
+  billingVatId: z.string().register(z.globalRegistry, {
+    description: 'ΑΦΜ αγοραστή — απαιτείται κατά την έκδοση τιμολογίου (σε αντίθεση με απόδειξη λιανικής). 9 ψηφία για ελληνικό ΑΦΜ, χωρίς πρόθεμα ``EL`` / ``GR``.',
+  }).readonly(),
+  billingCountry: z.string().register(z.globalRegistry, {
+    description: 'Κωδικός χώρας ISO 3166-1 alpha-2 του αγοραστή για φορολογικούς σκοπούς. Συνδυάζεται με το ``billing_vat_id``· καθορίζει ποιος τύπος τιμολογίου ΑΑΔΕ (1.1 εσωτερικού, 1.2 ενδοκοινοτικό, 1.3 τρίτης χώρας) εφαρμόζεται.',
+  }).readonly(),
+  billingCompanyName: z.string().readonly(),
+  billingTaxOffice: z.string().readonly(),
+  billingActivity: z.string().readonly(),
+  billingStreet: z.string().readonly(),
+  billingStreetNumber: z.string().readonly(),
+  billingCity: z.string().readonly(),
+  billingZipcode: z.string().readonly(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -6312,6 +6414,43 @@ export const zProductVariantsResponse = z.object({
 })
 
 /**
+ * * `UNCHECKED` - Δεν έχει ελεγχθεί
+ * * `VALID` - Έγκυρο
+ * * `INVALID` - Μη έγκυρο
+ * * `UNAVAILABLE` - Υπηρεσία μη διαθέσιμη
+ */
+export const zViesStatusEnum = z.enum([
+  'UNCHECKED',
+  'VALID',
+  'INVALID',
+  'UNAVAILABLE',
+]).register(z.globalRegistry, {
+  description: '* `UNCHECKED` - Δεν έχει ελεγχθεί\n* `VALID` - Έγκυρο\n* `INVALID` - Μη έγκυρο\n* `UNAVAILABLE` - Υπηρεσία μη διαθέσιμη',
+})
+
+export const zBusinessProfile = z.object({
+  uuid: z.uuid().readonly(),
+  status: zBusinessProfileStatusEnum,
+  customerGroupName: z.string().readonly().nullable(),
+  companyName: z.string().readonly(),
+  vatId: z.string().register(z.globalRegistry, {
+    description: 'Αποθηκεύεται κανονικοποιημένο: 9 ψηφία, χωρίς πρόθεμα EL/GR',
+  }).readonly(),
+  taxOffice: z.string().readonly(),
+  activity: z.string().readonly(),
+  billingStreet: z.string().readonly(),
+  billingStreetNumber: z.string().readonly(),
+  billingCity: z.string().readonly(),
+  billingZipcode: z.string().readonly(),
+  viesStatus: zViesStatusEnum,
+  viesCheckedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  viesName: z.string().readonly(),
+  rejectionReason: z.string().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+})
+
+/**
  * * `order` - order
  * * `gift_card_purchase` - gift_card_purchase
  */
@@ -6910,6 +7049,21 @@ export const zOrderCreateFromCartRequestWritable = z.object({
     description: 'Κωδικός χώρας ISO 3166-1 alpha-2 για τη φορολογική ταυτότητα του αγοραστή. Προεπιλογή η χώρα της παραγγελίας όταν είναι κενό.',
   }).optional(),
   documentType: zOrderCreateDocumentType.optional(),
+  billingCompanyName: z.string().max(255).register(z.globalRegistry, {
+    description: 'Νόμιμη επωνυμία εταιρείας για το τιμολόγιο',
+  }).optional(),
+  billingTaxOffice: z.string().max(100).register(z.globalRegistry, {
+    description: 'ΔΟΥ εταιρείας',
+  }).optional(),
+  billingActivity: z.string().max(255).register(z.globalRegistry, {
+    description: 'Επαγγελματική δραστηριότητα της εταιρείας',
+  }).optional(),
+  billingStreet: z.string().max(255).register(z.globalRegistry, {
+    description: 'Οδός έδρας της εταιρείας — αν μείνει κενή, αντιγράφεται η οδός αποστολής στις παραγγελίες με τιμολόγιο',
+  }).optional(),
+  billingStreetNumber: z.string().max(50).optional(),
+  billingCity: z.string().max(100).optional(),
+  billingZipcode: z.string().max(20).optional(),
   loyaltyPointsToRedeem: z.int().gte(0).nullish(),
   giftCardCodes: z.array(z.string().min(1).max(32)).max(3).register(z.globalRegistry, {
     description: 'Gift card codes to redeem against this order (max 3). When they cover the full total, omit payment_intent_id — no provider charge happens at all.',
@@ -8240,6 +8394,23 @@ export const zListAgentFavouritesResponse = z.array(zAgentFavourite)
 export const zGetAgentLoyaltySummaryResponse = zLoyaltySummary
 
 export const zListAgentOrdersResponse = z.array(zOrder)
+
+export const zGetB2bPricesQuery = z.object({
+  ids: z.string().register(z.globalRegistry, {
+    description: 'Comma-separated product ids (max 100)',
+  }),
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+})
+
+export const zGetB2bPricesResponse = z.array(zB2bPrice)
+
+export const zGetB2bProfileResponse = zBusinessProfile
+
+export const zSubmitB2bProfileBody = zBusinessProfileWriteRequest
+
+export const zSubmitB2bProfileResponse = zBusinessProfile
 
 export const zListBlogAuthorQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
@@ -11253,9 +11424,6 @@ export const zListCartItemQuery = z.object({
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Filter items created before this date',
   }).optional(),
-  cursor: z.string().register(z.globalRegistry, {
-    description: 'Δείκτης (cursor) για σελιδοποίηση',
-  }).optional(),
   id: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -11280,13 +11448,6 @@ export const zListCartItemQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).register(z.globalRegistry, {
-    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
-  }).optional().default('el'),
   maxDiscountPercent: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -11330,16 +11491,6 @@ export const zListCartItemQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  pagination: z.enum(['false', 'true']).register(z.globalRegistry, {
-    description: 'Ενεργοποίηση/απενεργοποίηση σελιδοποίησης',
-  }).optional().default('true'),
-  paginationType: z.enum([
-    'cursor',
-    'limitOffset',
-    'pageNumber',
-  ]).register(z.globalRegistry, {
-    description: 'Τύπος στρατηγικής σελιδοποίησης',
-  }).optional().default('pageNumber'),
   product: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),

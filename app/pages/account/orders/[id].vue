@@ -1055,7 +1055,43 @@ defineRouteRules({
                         dark:text-gray-100
                       "
                     >
-                      {{ order.documentType }}
+                      {{ order.documentType === 'INVOICE'
+                        ? t('document_type_invoice')
+                        : t('document_type_receipt') }}
+                    </p>
+                  </div>
+
+                  <div v-if="order.documentType === 'INVOICE' && order.billingVatId">
+                    <label
+                      class="
+                        text-sm font-medium text-gray-700
+                        dark:text-gray-300
+                      "
+                    >
+                      {{ t('billing_details') }}
+                    </label>
+                    <p
+                      class="
+                        mt-1 text-gray-900
+                        dark:text-gray-100
+                      "
+                    >
+                      <span v-if="order.billingCompanyName" class="block font-medium">
+                        {{ order.billingCompanyName }}
+                      </span>
+                      <span class="block">{{ t('billing_vat', { vat: order.billingVatId }) }}</span>
+                      <span v-if="order.billingTaxOffice" class="block">
+                        {{ t('billing_tax_office', { taxOffice: order.billingTaxOffice }) }}
+                      </span>
+                      <span v-if="order.billingActivity" class="block">
+                        {{ order.billingActivity }}
+                      </span>
+                      <span v-if="order.billingStreet" class="block">
+                        {{ [
+                          [order.billingStreet, order.billingStreetNumber].filter(Boolean).join(' '),
+                          [order.billingZipcode, order.billingCity].filter(Boolean).join(' '),
+                        ].filter(Boolean).join(', ') }}
+                      </span>
                     </p>
                   </div>
 
@@ -1295,6 +1331,11 @@ el:
   payment_method: Τρόπος Πληρωμής
   address: Διεύθυνση
   document_type: Τύπος Παραστατικού
+  document_type_receipt: Απόδειξη λιανικής
+  document_type_invoice: Τιμολόγιο πώλησης
+  billing_details: Στοιχεία Τιμολόγησης
+  billing_vat: 'ΑΦΜ: {vat}'
+  billing_tax_office: 'ΔΟΥ: {taxOffice}'
   pay_way: Τρόπος Πληρωμής
   payment_status: Κατάσταση Πληρωμής
   customer_notes: Σημειώσεις Πελάτη

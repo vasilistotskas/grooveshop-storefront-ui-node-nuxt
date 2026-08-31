@@ -14,11 +14,23 @@ const { $i18n } = useNuxtApp()
 const promotionsRuntimeEnabled = useSettingFlag('PROMOTIONS_ENABLED', {
   fallback: false,
 })
-const promotionsEnabled = computed(
-  () => tenantStore.promotionsEnabled && promotionsRuntimeEnabled.value,
-)
-
 const appliedCodes = computed(() => cart.value?.appliedCouponCodes ?? [])
+
+// Wholesale carts don't stack retail promotions unless the merchant
+// opts in (B2B_ALLOW_PROMOTIONS) — when they don't stack, the backend
+// refuses new codes (COMBINATION_DISALLOWED), so hide the input rather
+// than accept codes that will never discount. EXCEPT when a code is
+// already attached (from before approval): keep the widget so the
+// shopper can still see and REMOVE it.
+const b2bSuppressesCoupons = computed(() => {
+  const b2b = cart.value?.b2bPricing
+  return Boolean(b2b?.applied) && !b2b?.allowPromotions
+})
+const promotionsEnabled = computed(
+  () => tenantStore.promotionsEnabled
+    && promotionsRuntimeEnabled.value
+    && (!b2bSuppressesCoupons.value || appliedCodes.value.length > 0),
+)
 const promotionDiscount = computed(() =>
   Number(cart.value?.promotionDiscount ?? 0))
 

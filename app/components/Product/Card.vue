@@ -71,6 +71,24 @@ const isLowStock = computed(() => {
   return stock <= threshold
 })
 
+// Wholesale price hydration — client-only, retail renders first then
+// swaps (the cached/anonymous catalogue HTML must never carry a
+// per-customer price; see useB2BPricing).
+const { register: registerB2BPrice, priceFor: b2bPriceFor } = useB2BPricing()
+onMounted(() => {
+  registerB2BPrice(productId.value)
+})
+const b2bPrice = computed(() => b2bPriceFor(productId.value))
+const isWholesalePrice = computed(() =>
+  !!b2bPrice.value
+  && Number(b2bPrice.value.finalPrice) < (product.value.finalPrice ?? 0),
+)
+const displayFinalPrice = computed(() =>
+  isWholesalePrice.value && b2bPrice.value
+    ? Number(b2bPrice.value.finalPrice)
+    : product.value.finalPrice,
+)
+
 const shareOptions = computed(() => ({
   title: productName.value || '',
   text: productDescription.value,
@@ -273,7 +291,8 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 
       <div class="flex flex-col gap-2">
         <div
-          v-if="showStartPrice && product.price !== product.finalPrice"
+          v-if="isWholesalePrice
+            || (showStartPrice && product.price !== product.finalPrice)"
           class="flex items-center gap-2"
         >
           <span
@@ -282,7 +301,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
               dark:text-neutral-300
             "
           >
-            {{ $i18n.n(product.price, 'currency') }}
+            {{ $i18n.n(isWholesalePrice ? product.finalPrice : product.price, 'currency') }}
           </span>
         </div>
 
@@ -302,7 +321,7 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
                 dark:text-neutral-50
               "
             >
-              {{ $i18n.n(product.finalPrice, 'currency') }}
+              {{ $i18n.n(displayFinalPrice, 'currency') }}
             </span>
           </div>
           <span

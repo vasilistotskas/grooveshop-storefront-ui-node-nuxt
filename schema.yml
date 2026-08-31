@@ -64,6 +64,170 @@ paths:
                 items:
                   $ref: '#/components/schemas/Order'
           description: ''
+  /api/v1/b2b/prices:
+    get:
+      operationId: getB2BPrices
+      description: Τιμές χονδρικής για ένα σύνολο προϊόντων
+      summary: Τιμές χονδρικής για ένα σύνολο προϊόντων
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: string
+          description: Comma-separated product ids (max 100)
+          required: true
+        - name: search
+          required: false
+          in: query
+          description: A search term.
+          schema:
+            type: string
+      tags:
+        - B2B
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/B2BPrice'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/b2b/profile:
+    get:
+      operationId: getB2BProfile
+      description: Λήψη του εταιρικού μου προφίλ
+      summary: Λήψη του εταιρικού μου προφίλ
+      tags:
+        - B2B
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessProfile'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/B2BErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+    put:
+      operationId: submitB2BProfile
+      description: Υποβολή ή ενημέρωση του εταιρικού μου προφίλ
+      summary: Υποβολή ή ενημέρωση του εταιρικού μου προφίλ
+      tags:
+        - B2B
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BusinessProfileWriteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BusinessProfileWriteRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessProfileWriteRequest'
+        required: true
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessProfile'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/B2BErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/blog/author:
     get:
       operationId: listBlogAuthor
@@ -8020,11 +8184,6 @@ paths:
             format: date-time
           description: Filter items created before this date
         - in: query
-          name: cursor
-          schema:
-            type: string
-          description: Δείκτης (cursor) για σελιδοποίηση
-        - in: query
           name: id
           schema:
             oneOf:
@@ -8067,16 +8226,6 @@ paths:
                   - '0'
               - type: boolean
           description: Φίλτρο ειδών σε ενεργά καλάθια (24ωρο)
-        - in: query
-          name: languageCode
-          schema:
-            type: string
-            enum:
-              - de
-              - el
-              - en
-            default: el
-          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
         - in: query
           name: maxDiscountPercent
           schema:
@@ -8157,33 +8306,15 @@ paths:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-        - in: query
-          name: pageSize
+        - name: pageSize
+          required: false
+          in: query
+          description: Number of results to return per page.
           schema:
             oneOf:
               - type: string
                 pattern: ^-?\d+$
               - type: integer
-          description: Αριθμός αποτελεσμάτων ανά σελίδα
-        - in: query
-          name: pagination
-          schema:
-            type: string
-            enum:
-              - 'false'
-              - 'true'
-            default: 'true'
-          description: Ενεργοποίηση/απενεργοποίηση σελιδοποίησης
-        - in: query
-          name: paginationType
-          schema:
-            type: string
-            enum:
-              - cursor
-              - limitOffset
-              - pageNumber
-            default: pageNumber
-          description: Τύπος στρατηγικής σελιδοποίησης
         - in: query
           name: product
           schema:
@@ -31175,6 +31306,50 @@ components:
         - updatedAt
         - usageCount
         - uuid
+    B2BErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Μήνυμα σε αναγνώσιμη μορφή
+        reason:
+          type: string
+          description: Μηχανικά αναγνώσιμη αιτιολογία, π.χ. no_business_profile
+      required:
+        - detail
+        - reason
+    B2BPrice:
+      type: object
+      properties:
+        productId:
+          type: integer
+        netPrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        finalPrice:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+        discountPercent:
+          type: number
+          format: double
+          maximum: 1000
+          minimum: -1000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          description: Πραγματικό ποσοστό έκπτωσης επί της τελικής λιανικής τιμής
+      required:
+        - discountPercent
+        - finalPrice
+        - netPrice
+        - productId
     BlankEnum:
       enum:
         - ''
@@ -33327,6 +33502,155 @@ components:
         - alreadyProcessed
         - failed
         - success
+    BusinessProfile:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        status:
+          allOf:
+            - $ref: '#/components/schemas/BusinessProfileStatusEnum'
+          readOnly: true
+          title: Κατάσταση
+        customerGroupName:
+          type: string
+          readOnly: true
+          nullable: true
+        companyName:
+          type: string
+          readOnly: true
+          title: Επωνυμία εταιρείας
+        vatId:
+          type: string
+          readOnly: true
+          title: ΑΦΜ
+          description: 'Αποθηκεύεται κανονικοποιημένο: 9 ψηφία, χωρίς πρόθεμα EL/GR'
+        taxOffice:
+          type: string
+          readOnly: true
+          title: ΔΟΥ
+        activity:
+          type: string
+          readOnly: true
+          title: Δραστηριότητα
+        billingStreet:
+          type: string
+          readOnly: true
+          title: Οδός τιμολόγησης
+        billingStreetNumber:
+          type: string
+          readOnly: true
+          title: Αριθμός οδού τιμολόγησης
+        billingCity:
+          type: string
+          readOnly: true
+          title: Πόλη τιμολόγησης
+        billingZipcode:
+          type: string
+          readOnly: true
+          title: Τ.Κ. τιμολόγησης
+        viesStatus:
+          allOf:
+            - $ref: '#/components/schemas/ViesStatusEnum'
+          readOnly: true
+          title: Κατάσταση VIES
+        viesCheckedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Έλεγχος VIES στις
+        viesName:
+          type: string
+          readOnly: true
+          title: Επωνυμία VIES
+        rejectionReason:
+          type: string
+          readOnly: true
+          title: Αιτιολογία απόρριψης
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Δημιουργήθηκε στις
+        updatedAt:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Ενημερώθηκε στις
+      required:
+        - activity
+        - billingCity
+        - billingStreet
+        - billingStreetNumber
+        - billingZipcode
+        - companyName
+        - createdAt
+        - customerGroupName
+        - rejectionReason
+        - status
+        - taxOffice
+        - updatedAt
+        - uuid
+        - vatId
+        - viesCheckedAt
+        - viesName
+        - viesStatus
+    BusinessProfileStatusEnum:
+      enum:
+        - PENDING
+        - APPROVED
+        - REJECTED
+        - SUSPENDED
+      type: string
+      description: |-
+        * `PENDING` - Σε αναμονή έγκρισης
+        * `APPROVED` - Εγκεκριμένο
+        * `REJECTED` - Απορρίφθηκε
+        * `SUSPENDED` - Σε αναστολή
+    BusinessProfileWriteRequest:
+      type: object
+      properties:
+        companyName:
+          type: string
+          minLength: 1
+          maxLength: 255
+        vatId:
+          type: string
+          minLength: 1
+          description: Ελληνικό ΑΦΜ — 9 ψηφία, το πρόθεμα EL/GR γίνεται δεκτό
+          maxLength: 12
+        taxOffice:
+          type: string
+          minLength: 1
+          maxLength: 100
+        activity:
+          type: string
+          minLength: 1
+          maxLength: 255
+        billingStreet:
+          type: string
+          default: ''
+          maxLength: 255
+        billingStreetNumber:
+          type: string
+          default: ''
+          maxLength: 50
+        billingCity:
+          type: string
+          default: ''
+          maxLength: 100
+        billingZipcode:
+          type: string
+          default: ''
+          maxLength: 20
+      required:
+        - activity
+        - companyName
+        - taxOffice
+        - vatId
     CancelOrderRequestRequest:
       type: object
       properties:
@@ -33455,6 +33779,22 @@ components:
                 type: number
           description: Automatic promotions blocked only by their minimum subtotal — 'add X more to unlock'
           readOnly: true
+        b2bPricing:
+          type: object
+          nullable: true
+          properties:
+            applied:
+              type: boolean
+            groupName:
+              type: string
+            allowPromotions:
+              type: boolean
+            minOrderValue:
+              type: string
+            belowMinimum:
+              type: boolean
+          readOnly: true
+          description: Present when wholesale group pricing is applied to this cart's line prices; null for retail carts. Lets the storefront show a wholesale badge and hide the coupon input (promotions don't stack on B2B prices unless the merchant opts in).
         createdAt:
           type: string
           format: date-time
@@ -33472,6 +33812,7 @@ components:
           title: Τελευταία δραστηριότητα
       required:
         - appliedCouponCodes
+        - b2bPricing
         - createdAt
         - currency
         - id
@@ -33677,6 +34018,22 @@ components:
                 type: number
           description: Automatic promotions blocked only by their minimum subtotal — 'add X more to unlock'
           readOnly: true
+        b2bPricing:
+          type: object
+          nullable: true
+          properties:
+            applied:
+              type: boolean
+            groupName:
+              type: string
+            allowPromotions:
+              type: boolean
+            minOrderValue:
+              type: string
+            belowMinimum:
+              type: boolean
+          readOnly: true
+          description: Present when wholesale group pricing is applied to this cart's line prices; null for retail carts. Lets the storefront show a wholesale badge and hide the coupon input (promotions don't stack on B2B prices unless the merchant opts in).
         createdAt:
           type: string
           format: date-time
@@ -33700,6 +34057,7 @@ components:
           description: Προτάσεις προϊόντων βάσει περιεχομένου καλαθιού
       required:
         - appliedCouponCodes
+        - b2bPricing
         - createdAt
         - currency
         - id
@@ -34639,7 +34997,7 @@ components:
       properties:
         detail:
           type: string
-          description: Human-readable message
+          description: Μήνυμα σε αναγνώσιμη μορφή
         reason:
           type: string
           description: Machine-readable rejection reason (ACP discount-extension vocabulary, e.g. discount_code_invalid)
@@ -35007,7 +35365,7 @@ components:
         - other
       type: string
       description: |-
-        * `general` - General
+        * `general` - Γενικά
         * `website` - Website & UX
         * `products` - Προϊόντα
         * `delivery` - Delivery
@@ -35252,7 +35610,7 @@ components:
       properties:
         detail:
           type: string
-          description: Human-readable message
+          description: Μήνυμα σε αναγνώσιμη μορφή
         reason:
           type: string
           description: Machine-readable reason, e.g. gift_card_invalid
@@ -36136,6 +36494,44 @@ components:
           allOf:
             - $ref: '#/components/schemas/OrderDocumentType'
           title: Τύπος Εγγράφου
+        billingVatId:
+          type: string
+          readOnly: true
+          title: ΑΦΜ τιμολόγησης
+          description: ΑΦΜ αγοραστή — απαιτείται κατά την έκδοση τιμολογίου (σε αντίθεση με απόδειξη λιανικής). 9 ψηφία για ελληνικό ΑΦΜ, χωρίς πρόθεμα ``EL`` / ``GR``.
+        billingCountry:
+          type: string
+          readOnly: true
+          title: Χώρα τιμολόγησης
+          description: Κωδικός χώρας ISO 3166-1 alpha-2 του αγοραστή για φορολογικούς σκοπούς. Συνδυάζεται με το ``billing_vat_id``· καθορίζει ποιος τύπος τιμολογίου ΑΑΔΕ (1.1 εσωτερικού, 1.2 ενδοκοινοτικό, 1.3 τρίτης χώρας) εφαρμόζεται.
+        billingCompanyName:
+          type: string
+          readOnly: true
+          title: Επωνυμία εταιρείας
+        billingTaxOffice:
+          type: string
+          readOnly: true
+          title: ΔΟΥ τιμολόγησης
+        billingActivity:
+          type: string
+          readOnly: true
+          title: Δραστηριότητα επιχείρησης
+        billingStreet:
+          type: string
+          readOnly: true
+          title: Οδός τιμολόγησης
+        billingStreetNumber:
+          type: string
+          readOnly: true
+          title: Αριθμός οδού τιμολόγησης
+        billingCity:
+          type: string
+          readOnly: true
+          title: Πόλη τιμολόγησης
+        billingZipcode:
+          type: string
+          readOnly: true
+          title: Τ.Κ. τιμολόγησης
         createdAt:
           type: string
           format: date-time
@@ -36226,6 +36622,15 @@ components:
           type: boolean
           readOnly: true
       required:
+        - billingActivity
+        - billingCity
+        - billingCompanyName
+        - billingCountry
+        - billingStreet
+        - billingStreetNumber
+        - billingTaxOffice
+        - billingVatId
+        - billingZipcode
         - canBeCanceled
         - city
         - country
@@ -36359,6 +36764,31 @@ components:
 
             * `RECEIPT` - Απόδειξη
             * `INVOICE` - Τιμολόγιο
+        billingCompanyName:
+          type: string
+          description: Νόμιμη επωνυμία εταιρείας για το τιμολόγιο
+          maxLength: 255
+        billingTaxOffice:
+          type: string
+          description: ΔΟΥ εταιρείας
+          maxLength: 100
+        billingActivity:
+          type: string
+          description: Επαγγελματική δραστηριότητα της εταιρείας
+          maxLength: 255
+        billingStreet:
+          type: string
+          description: Οδός έδρας της εταιρείας — αν μείνει κενή, αντιγράφεται η οδός αποστολής στις παραγγελίες με τιμολόγιο
+          maxLength: 255
+        billingStreetNumber:
+          type: string
+          maxLength: 50
+        billingCity:
+          type: string
+          maxLength: 100
+        billingZipcode:
+          type: string
+          maxLength: 20
         loyaltyPointsToRedeem:
           type: integer
           minimum: 0
@@ -36548,6 +36978,44 @@ components:
           allOf:
             - $ref: '#/components/schemas/OrderDocumentType'
           title: Τύπος Εγγράφου
+        billingVatId:
+          type: string
+          readOnly: true
+          title: ΑΦΜ τιμολόγησης
+          description: ΑΦΜ αγοραστή — απαιτείται κατά την έκδοση τιμολογίου (σε αντίθεση με απόδειξη λιανικής). 9 ψηφία για ελληνικό ΑΦΜ, χωρίς πρόθεμα ``EL`` / ``GR``.
+        billingCountry:
+          type: string
+          readOnly: true
+          title: Χώρα τιμολόγησης
+          description: Κωδικός χώρας ISO 3166-1 alpha-2 του αγοραστή για φορολογικούς σκοπούς. Συνδυάζεται με το ``billing_vat_id``· καθορίζει ποιος τύπος τιμολογίου ΑΑΔΕ (1.1 εσωτερικού, 1.2 ενδοκοινοτικό, 1.3 τρίτης χώρας) εφαρμόζεται.
+        billingCompanyName:
+          type: string
+          readOnly: true
+          title: Επωνυμία εταιρείας
+        billingTaxOffice:
+          type: string
+          readOnly: true
+          title: ΔΟΥ τιμολόγησης
+        billingActivity:
+          type: string
+          readOnly: true
+          title: Δραστηριότητα επιχείρησης
+        billingStreet:
+          type: string
+          readOnly: true
+          title: Οδός τιμολόγησης
+        billingStreetNumber:
+          type: string
+          readOnly: true
+          title: Αριθμός οδού τιμολόγησης
+        billingCity:
+          type: string
+          readOnly: true
+          title: Πόλη τιμολόγησης
+        billingZipcode:
+          type: string
+          readOnly: true
+          title: Τ.Κ. τιμολόγησης
         createdAt:
           type: string
           format: date-time
@@ -36794,6 +37262,15 @@ components:
       required:
         - acsShipment
         - appliedCouponCodes
+        - billingActivity
+        - billingCity
+        - billingCompanyName
+        - billingCountry
+        - billingStreet
+        - billingStreetNumber
+        - billingTaxOffice
+        - billingVatId
+        - billingZipcode
         - boxnowShipment
         - canBeCanceled
         - cancellation
@@ -43586,6 +44063,9 @@ components:
         giftCardsEnabled:
           type: boolean
           readOnly: true
+        b2bEnabled:
+          type: boolean
+          readOnly: true
         agentStripeDelegatedEnabled:
           type: boolean
           readOnly: true
@@ -43659,6 +44139,7 @@ components:
         - allowedCspSources
         - apiDomain
         - assetsDomain
+        - b2bEnabled
         - blogEnabled
         - boxNowPartnerId
         - defaultCurrency
@@ -44597,6 +45078,18 @@ components:
       required:
         - id
         - value
+    ViesStatusEnum:
+      enum:
+        - UNCHECKED
+        - VALID
+        - INVALID
+        - UNAVAILABLE
+      type: string
+      description: |-
+        * `UNCHECKED` - Δεν έχει ελεγχθεί
+        * `VALID` - Έγκυρο
+        * `INVALID` - Μη έγκυρο
+        * `UNAVAILABLE` - Υπηρεσία μη διαθέσιμη
     VivaReturnLookupResponse:
       type: object
       description: |-

@@ -24,6 +24,9 @@ export const useAccountMenus = () => {
   const giftCardsRuntimeEnabled = useSettingFlag('GIFT_CARDS_ENABLED', {
     fallback: false,
   })
+  const b2bRuntimeEnabled = useSettingFlag('B2B_WHOLESALE_ENABLED', {
+    fallback: false,
+  })
 
   const menus = computed(() => {
     const baseMenus = [
@@ -84,6 +87,15 @@ export const useAccountMenus = () => {
         label: t('gift_cards'),
         to: '/account/gift-cards',
         icon: 'i-heroicons-gift',
+      })
+    }
+
+    // Two-tier gate for the wholesale program (app/middleware/b2b-enabled.ts).
+    if (tenantStore.b2bEnabled && b2bRuntimeEnabled.value) {
+      baseMenus.push({
+        label: t('business_account'),
+        to: '/account/business',
+        icon: 'i-heroicons-briefcase',
       })
     }
 

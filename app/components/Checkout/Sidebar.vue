@@ -250,6 +250,30 @@ defineSlots<{
           <slot name="loyalty" />
         </template>
 
+        <!-- Wholesale badge — the line prices above already carry the
+             group pricing (server-computed on the cart), this just says
+             WHY they differ from the catalogue. -->
+        <UBadge
+          v-if="cart?.b2bPricing?.applied"
+          color="info"
+          variant="subtle"
+          icon="i-heroicons-briefcase"
+          class="w-full justify-center"
+        >
+          {{ cart.b2bPricing.groupName
+            ? t('b2b_pricing_applied', { group: cart.b2bPricing.groupName })
+            : t('b2b_pricing_applied_generic') }}
+        </UBadge>
+        <UAlert
+          v-if="cart?.b2bPricing?.belowMinimum"
+          color="warning"
+          variant="subtle"
+          icon="i-heroicons-exclamation-triangle"
+          :description="t('b2b_below_minimum', {
+            minimum: $i18n.n(Number(cart.b2bPricing.minOrderValue ?? 0), 'currency'),
+          })"
+        />
+
         <div
           class="
             border-t border-primary-200 pt-4
@@ -398,6 +422,9 @@ el:
   loyalty_discount: Έκπτωση πόντων
   promotion_discount: Έκπτωση προσφοράς
   gift_card: Δωροκάρτα
+  b2b_pricing_applied: 'Τιμές χονδρικής: {group}'
+  b2b_pricing_applied_generic: Τιμές χονδρικής
+  b2b_below_minimum: Η ελάχιστη αξία παραγγελίας χονδρικής είναι {minimum}. Πρόσθεσε προϊόντα για να ολοκληρώσεις την παραγγελία.
   need_help: Χρειάζεσαι βοήθεια;
   shipping_method_label:
     home_delivery: Παράδοση στη διεύθυνσή σας

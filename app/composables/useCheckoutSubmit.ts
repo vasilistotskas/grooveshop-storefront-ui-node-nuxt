@@ -275,6 +275,30 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       documentType: formState.documentType,
       billingVatId: formState.billingVatId || undefined,
       billingCountry: formState.billingCountry || undefined,
+      // Company requisites travel ONLY on INVOICE orders — a retail
+      // receipt must not carry stray billing columns. "Same as
+      // delivery" resolves client-side so the payload always carries
+      // the actual invoice address; Django applies the same copy
+      // server-side for direct API callers that send blanks.
+      ...(formState.documentType === zOrderCreateDocumentType.enum.INVOICE
+        ? {
+            billingCompanyName: formState.billingCompanyName || undefined,
+            billingTaxOffice: formState.billingTaxOffice || undefined,
+            billingActivity: formState.billingActivity || undefined,
+            billingStreet: (formState.billingSameAsShipping
+              ? formState.street
+              : formState.billingStreet) || undefined,
+            billingStreetNumber: (formState.billingSameAsShipping
+              ? formState.streetNumber
+              : formState.billingStreetNumber) || undefined,
+            billingCity: (formState.billingSameAsShipping
+              ? formState.city
+              : formState.billingCity) || undefined,
+            billingZipcode: (formState.billingSameAsShipping
+              ? formState.zipcode
+              : formState.billingZipcode) || undefined,
+          }
+        : {}),
       loyaltyPointsToRedeem: loyaltyDiscount.value?.points ?? undefined,
       giftCardCodes: giftCards.value.length
         ? giftCards.value.map(card => card.code)
