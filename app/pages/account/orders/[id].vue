@@ -738,32 +738,20 @@ defineRouteRules({
                           {{ t('unit_price') }}:
                         </span>
                         <div class="flex items-center gap-2">
-                          <span
-                            v-if="item.product.discountPercent && item.product.discountPercent > 0"
-                            class="
-                              text-sm text-gray-400 line-through
-                              dark:text-gray-500
-                            "
-                          >
-                            {{ $i18n.n(item.product.price, 'currency') }}
-                          </span>
-
+                          <!-- The price PAID, snapshotted on the order
+                               line. Never the live catalog price: it
+                               moves after the sale (and a wholesale
+                               order never matched it), which left the
+                               unit price disagreeing with the subtotal
+                               right below. -->
                           <span
                             class="
                               font-semibold text-gray-900
                               dark:text-gray-100
                             "
                           >
-                            {{ $i18n.n(item.product.finalPrice, 'currency') }}
+                            {{ $i18n.n(item.price, 'currency') }}
                           </span>
-
-                          <UBadge
-                            v-if="item.product.discountPercent && item.product.discountPercent > 0"
-                            :label="`-${item.product.discountPercent}%`"
-                            color="success"
-                            variant="soft"
-                            size="sm"
-                          />
                         </div>
                       </div>
 
@@ -800,24 +788,15 @@ defineRouteRules({
                               dark:text-gray-100
                             "
                           >
-                            {{ $i18n.n(item.totalPrice || (item.product.finalPrice * item.quantity), 'currency') }}
+                            {{ $i18n.n(item.totalPrice || (item.price * item.quantity), 'currency') }}
                           </div>
                         </div>
                       </div>
 
-                      <div
-                        v-if="item.quantity && item.product.discountPercent && item.product.discountPercent > 0"
-                        class="
-                          mt-2 flex items-center gap-1 text-sm text-green-600
-                          dark:text-green-400
-                        "
-                      >
-                        <UIcon name="i-heroicons-tag" class="h-4 w-4" />
-                        <span>
-                          {{ t('you_save') }}:
-                          {{ $i18n.n((item.product.price - item.product.finalPrice) * item.quantity, 'currency') }}
-                        </span>
-                      </div>
+                      <!-- No "you save" line: the order stores only the
+                           price paid, so any saving here could only be
+                           computed from TODAY's catalog — a number
+                           about the shop now, not about this order. -->
 
                       <div
                         v-if="item.product.reviewCount > 0"
@@ -1313,7 +1292,6 @@ el:
   quantity: Ποσότητα
   unit_price: Τιμή Μονάδας
   subtotal: Υποσύνολο
-  you_save: Εξοικονομείτε
   reviews: κριτικές
   details: Λεπτομέρειες
   shipping: Έξοδα αποστολής
