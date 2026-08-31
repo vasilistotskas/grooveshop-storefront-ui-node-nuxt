@@ -33,6 +33,17 @@ mockNuxtImport('useToast', () => {
   })
 })
 
+// The component self-gates on the cart's b2bPricing.allowLoyalty as well
+// as LOYALTY_ENABLED. Defaults to a retail cart so the existing suites
+// are unaffected (no b2b block => never suppressed).
+const cartRef = ref<any>(null)
+mockNuxtImport('useCartStore', () => {
+  return () => ({ cart: cartRef })
+})
+mockNuxtImport('storeToRefs', () => {
+  return (store: any) => ({ cart: store.cart })
+})
+
 describe('LoyaltyRedemption Component', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -46,6 +57,8 @@ describe('LoyaltyRedemption Component', () => {
     }
     mockStatusRef.value = 'success'
     mockErrorRef.value = null
+    mockSettingsRef.value = { enabled: true }
+    cartRef.value = null
   })
 
   describe('Test 6: Client-side validation rejects over-balance redemption', () => {
@@ -391,6 +404,63 @@ describe('LoyaltyRedemption Component', () => {
 
       // Should emit cleared event
       expect(wrapper.emitted('cleared')).toBeDefined()
+    })
+  })
+
+  describe('B2B loyalty gate', () => {
+    const mount = () =>
+      mountSuspended(LoyaltyRedemption, {
+        props: { currency: 'EUR', maxDiscountAmount: 100 },
+      })
+
+    it('offers redemption on a retail cart', async () => {
+      const wrapper = await mount()
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      expect(wrapper.find('form').exists()).toBe(true)
+    })
+
+    it('offers nothing on a wholesale cart', async () => {
+      // Order creation drops the redemption on these carts, so offering
+      // it here would burn points and discount nothing.
+      cartRef.value = {
+        b2bPricing: {
+          applied: true,
+          groupName: 'Wholesale',
+          allowPromotions: false,
+          allowLoyalty: false,
+        },
+      }
+
+      const wrapper = await mount()
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      expect(wrapper.find('form').exists()).toBe(false)
+    })
+
+    it('offers redemption again when the merchant opts in', async () => {
+      cartRef.value = {
+        b2bPricing: {
+          applied: true,
+          groupName: 'Wholesale',
+          allowPromotions: false,
+          allowLoyalty: true,
+        },
+      }
+
+      const wrapper = await mount()
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      expect(wrapper.find('form').exists()).toBe(true)
+    })
+
+    it('is unaffected by a b2b block that never applied', async () => {
+      cartRef.value = { b2bPricing: { applied: false, allowLoyalty: false } }
+
+      const wrapper = await mount()
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      expect(wrapper.find('form').exists()).toBe(true)
     })
   })
 })

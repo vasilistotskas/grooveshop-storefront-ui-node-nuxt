@@ -119,4 +119,48 @@ describe('CheckoutCouponInput', () => {
     expect(wrapper.text()).toContain('WELCOME10')
     expect(wrapper.find('form').exists()).toBe(false)
   })
+
+  describe('B2B promotion gate', () => {
+    const wholesale = (allowPromotions: boolean, appliedCouponCodes: string[] = []) => ({
+      totalPrice: 100,
+      promotionDiscount: 0,
+      promotionFreeShipping: false,
+      appliedCouponCodes,
+      b2bPricing: {
+        applied: true,
+        groupName: 'Wholesale',
+        allowPromotions,
+        allowLoyalty: false,
+      },
+    })
+
+    it('hides the input on a wholesale cart', async () => {
+      // The backend refuses new codes with COMBINATION_DISALLOWED, so
+      // accepting them here would take codes that never discount.
+      cartRef.value = wholesale(false)
+
+      const wrapper = await mountSuspended(CouponInput)
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      expect(wrapper.find('form').exists()).toBe(false)
+    })
+
+    it('keeps the widget when a code is already attached, so it can be removed', async () => {
+      cartRef.value = wholesale(false, ['WELCOME10'])
+
+      const wrapper = await mountSuspended(CouponInput)
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      expect(wrapper.text()).toContain('WELCOME10')
+    })
+
+    it('shows the input when the merchant lets promotions stack', async () => {
+      cartRef.value = wholesale(true)
+
+      const wrapper = await mountSuspended(CouponInput)
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      expect(wrapper.find('form').exists()).toBe(true)
+    })
+  })
 })
