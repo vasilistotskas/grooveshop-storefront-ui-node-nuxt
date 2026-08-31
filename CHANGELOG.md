@@ -1,3 +1,10 @@
+## [3.165.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.165.0...v3.165.1) (2026-08-31)
+
+
+### Bug Fixes
+
+* **server:** keep internal Django calls immune to SECURE_SSL_REDIRECT ([946069b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/946069b5e966592cc113bc7aab3096196ff3732b))
+
 # [3.165.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.31...v3.165.0) (2026-08-31)
 
 
