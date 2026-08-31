@@ -1,3 +1,11 @@
+## [3.165.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.165.1...v3.165.2) (2026-08-31)
+
+
+### Bug Fixes
+
+* **b2b:** hide loyalty surfaces on wholesale carts ([e215c13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e215c1383497705a13392e3b76d460a3a8cffcfe))
+* **orders:** show the price paid, not today's catalog price ([33c0bb4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/33c0bb490653fec9a06655e7676f261968150761))
+
 ## [3.165.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.165.0...v3.165.1) (2026-08-31)
 
 
