@@ -14,6 +14,50 @@ describe('Server Utils - Auth', () => {
     }))
   })
 
+  describe('createHeaders - X-Forwarded-Proto (SSL-redirect immunity)', () => {
+    /**
+     * `apiBaseUrl` points at the in-cluster Service over plain HTTP, so
+     * any call that reaches Django without `X-Forwarded-Proto: https`
+     * gets a 301 to `https://<public-host>/api/v1/...`. ofetch follows
+     * it, the request leaves the cluster and returns whatever the public
+     * host serves — a basic-auth 401 on staging, a Nuxt 404 in
+     * production — instead of data. These pin the header for the
+     * contexts that used to lose it.
+     */
+    const mount = (protocol: string | undefined, baseUrl: string) => {
+      vi.stubGlobal('useEvent', vi.fn().mockReturnValue({
+        node: { req: { headers: {} } },
+      } as any))
+      vi.stubGlobal('getRequestHeaders', vi.fn().mockReturnValue({}))
+      vi.stubGlobal('getRequestHost', vi.fn().mockReturnValue(null))
+      vi.stubGlobal('getRequestProtocol', vi.fn().mockReturnValue(protocol))
+      vi.stubGlobal('useRuntimeConfig', vi.fn().mockReturnValue({
+        public: { djangoHostName: 'api.example.test', baseUrl },
+      }))
+      return createHeaders()
+    }
+
+    it('keeps https when the incoming request is https', () => {
+      expect(mount('https', 'https://example.test')['X-Forwarded-Proto'])
+        .toBe('https')
+    })
+
+    it('falls back to the public https scheme when the event says http', () => {
+      expect(mount('http', 'https://example.test')['X-Forwarded-Proto'])
+        .toBe('https')
+    })
+
+    it('falls back to the public https scheme when the protocol is unavailable', () => {
+      expect(mount(undefined, 'https://example.test')['X-Forwarded-Proto'])
+        .toBe('https')
+    })
+
+    it('stays http for a local dev site so Django builds http absolute URIs', () => {
+      expect(mount('http', 'http://localhost:3000')['X-Forwarded-Proto'])
+        .toBe('http')
+    })
+  })
+
   describe('createHeaders', () => {
     it('should create headers with Content-Type', () => {
       const mockEvent = {

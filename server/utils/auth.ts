@@ -21,17 +21,34 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
 
   headers['Content-Type'] = 'application/json'
 
+  const config = useRuntimeConfig()
+
   // Tell Django the original request was HTTPS so SECURE_SSL_REDIRECT
-  // doesn't 301 to the external domain (which exits the cluster → Cloudflare 403).
-  // Also set by the forwarded-proto plugin, but explicit here for safety.
-  headers['X-Forwarded-Proto'] = getRequestProtocol(event, { xForwardedProto: true })
+  // doesn't 301 to the external domain.
+  //
+  // This MUST be derived from the site's public scheme, not only from
+  // the incoming event: `apiBaseUrl` points at the in-cluster Service
+  // (http://backend-service:80), so whenever the resolved protocol is
+  // not https Django answers 301 → https://<public-host>/api/v1/... and
+  // ofetch FOLLOWS it straight out of the cluster. The request then
+  // comes back as whatever the public host says — a Traefik basic-auth
+  // `401 Unauthorized` on staging, a Nuxt `404` in production — instead
+  // of data, so product pages 404 at random (observed on both envs).
+  // Requests that reach here without a usable event context (cached
+  // handlers revalidating in the background, prerender, startup) are
+  // exactly the ones that used to lose the header.
+  const publicScheme = (config.public.baseUrl || '').startsWith('http://')
+    ? 'http'
+    : 'https'
+  const requestProtocol = getRequestProtocol(event, { xForwardedProto: true })
+  headers['X-Forwarded-Proto']
+    = requestProtocol === 'https' ? requestProtocol : publicScheme
 
   // Tenant resolution: prefer the actual request host so Django's
   // TenantMainMiddleware picks the tenant the caller is on. Falls back
   // to the configured public Django hostname only when outside a request
   // context (prerender/startup). django-tenants sets ALLOWED_HOSTS=["*"]
   // because domain validation happens at the tenant-resolution layer.
-  const config = useRuntimeConfig()
   const host = getRequestHost(event, { xForwardedHost: false }) || config.public.djangoHostName
   if (host) {
     headers['X-Forwarded-Host'] = host
