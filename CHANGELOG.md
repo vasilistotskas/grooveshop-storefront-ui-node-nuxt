@@ -1,3 +1,15 @@
+# [3.165.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.31...v3.165.0) (2026-08-31)
+
+
+### Bug Fixes
+
+* **e2e:** kill the orphaned nuxi dev child on Windows teardown ([3d0f14c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3d0f14cd531d74954400304448c6a163c95dad3d)), closes [nuxt/test-utils#948](https://github.com/nuxt/test-utils/issues/948)
+
+
+### Features
+
+* **b2b:** wholesale program storefront and invoice checkout upgrade ([fde60da](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fde60da65760fe0b009d4d257b3bd7204e1ec4e6))
+
 ## [3.164.31](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.164.30...v3.164.31) (2026-08-30)
 
 
