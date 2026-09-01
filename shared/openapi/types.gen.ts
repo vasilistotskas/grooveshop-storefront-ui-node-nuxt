@@ -6297,6 +6297,7 @@ export type ProductCategory = {
   parent?: number | null
   readonly level: number
   readonly treeId: number
+  readonly mainImagePath: string
   /**
      * Δημιουργήθηκε στις
      */
@@ -6335,6 +6336,7 @@ export type ProductCategoryDetail = {
   parent?: number | null
   readonly level: number
   readonly treeId: number
+  readonly mainImagePath: string
   /**
      * Δημιουργήθηκε στις
      */

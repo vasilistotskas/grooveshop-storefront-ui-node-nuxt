@@ -65181,6 +65181,10 @@
                         "type": "integer",
                         "readOnly": true
                     },
+                    "mainImagePath": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -65203,6 +65207,7 @@
                     "createdAt",
                     "id",
                     "level",
+                    "mainImagePath",
                     "slug",
                     "translations",
                     "treeId",
@@ -65277,6 +65282,10 @@
                         "type": "integer",
                         "readOnly": true
                     },
+                    "mainImagePath": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "createdAt": {
                         "type": "string",
                         "format": "date-time",
@@ -65326,6 +65335,7 @@
                     "createdAt",
                     "id",
                     "level",
+                    "mainImagePath",
                     "recursiveProductCount",
                     "slug",
                     "translations",
