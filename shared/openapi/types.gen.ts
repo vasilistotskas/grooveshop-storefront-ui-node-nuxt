@@ -553,6 +553,15 @@ export type B2bPrice = {
   discountPercent: number
 }
 
+/**
+ * * `PERCENTAGE` - Percentage off
+ * * `FIXED_AMOUNT` - Fixed amount off
+ * * `FREE_SHIPPING` - Free shipping
+ * * `BXGY` - Buy X get Y discounted
+ * * `FREE_GIFT` - Free gift item
+ */
+export type BenefitTypeEnum = 'PERCENTAGE' | 'FIXED_AMOUNT' | 'FREE_SHIPPING' | 'BXGY' | 'FREE_GIFT'
+
 export type BlankEnum = ''
 
 /**
@@ -6288,6 +6297,7 @@ export type ProductCategory = {
   parent?: number | null
   readonly level: number
   readonly treeId: number
+  readonly mainImagePath: string
   /**
      * Δημιουργήθηκε στις
      */
@@ -6326,6 +6336,7 @@ export type ProductCategoryDetail = {
   parent?: number | null
   readonly level: number
   readonly treeId: number
+  readonly mainImagePath: string
   /**
      * Δημιουργήθηκε στις
      */
@@ -7198,6 +7209,96 @@ export type ProductWriteRequest = {
 }
 
 /**
+ * Enough to link a promotion at its category listing page.
+ */
+export type PromotionCategoryRef = {
+  readonly id: number
+  readonly slug: string
+  readonly name: string
+}
+
+/**
+ * The minimum a storefront product card needs to render.
+ */
+export type PromotionProductRef = {
+  readonly id: number
+  readonly name: string
+  readonly slug: string
+  readonly mainImagePath: string
+}
+
+/**
+ * One live, publicly-advertisable promotion.
+ */
+export type PublicPromotion = {
+  readonly id: number
+  readonly name: string
+  readonly description: string
+  /**
+     * Automatic promotions apply to every eligible cart; code promotions require the shopper to enter a coupon code
+     *
+     * * `AUTOMATIC` - Automatic
+     * * `CODE` - Coupon code
+     */
+  trigger: TriggerEnum
+  benefitType: BenefitTypeEnum
+  /**
+     * Percent (0-100) for percentage benefits, EUR amount for fixed-amount benefits; ignored for free shipping
+     */
+  readonly benefitValue: number
+  targetScope: TargetScopeEnum
+  /**
+     * The coupon code to enter at checkout. Null for an AUTOMATIC promotion, which needs no code.
+     */
+  readonly code: string | null
+  /**
+     * Cart items total (incl. VAT) the offer requires.
+     */
+  readonly minSubtotal: number | null
+  /**
+     * Ceiling on a single application's discount.
+     */
+  readonly maxDiscountAmount: number | null
+  /**
+     * Minimum Quantity
+     *
+     * Minimum number of ELIGIBLE units (after scope and exclusions) the cart must contain
+     */
+  readonly minQuantity: number | null
+  /**
+     * BXGY: eligible units the shopper must buy per application
+     */
+  readonly buyQuantity: number | null
+  /**
+     * BXGY: units discounted per application. FREE_GIFT: gift units added to the order
+     */
+  readonly getQuantity: number | null
+  /**
+     * BXGY: discount applied to the 'get' units — 100 means free, 50 means half price
+     */
+  readonly getDiscountPercent: number
+  /**
+     * Exclude Already-discounted Products
+     *
+     * Skip products that already carry a product-level markdown (discount percent > 0)
+     */
+  readonly excludeDiscountedProducts: boolean
+  /**
+     * Apply only to customers with no previous orders. For guests this is checked against the checkout email and is best-effort.
+     */
+  readonly firstOrderOnly: boolean
+  /**
+     * Stackable promotions combine with each other; a non-stackable promotion applies alone and only when it beats the combined stackable discount. Ignored for free shipping, which always combines.
+     */
+  readonly stackable: boolean
+  readonly endsAt: string | null
+  readonly rewardProducts: Array<PromotionProductRef>
+  readonly eligibleProducts: Array<PromotionProductRef>
+  readonly eligibleProductCount: number
+  readonly eligibleCategories: Array<PromotionCategoryRef>
+}
+
+/**
  * * `1` - Ένα
  * * `2` - Δύο
  * * `3` - Τρία
@@ -8018,6 +8119,13 @@ export type TaggedItemWriteRequest = {
 }
 
 /**
+ * * `ORDER` - Entire order
+ * * `PRODUCTS` - Specific products
+ * * `CATEGORIES` - Specific categories
+ */
+export type TargetScopeEnum = 'ORDER' | 'PRODUCTS' | 'CATEGORIES'
+
+/**
  * Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
  *
  * Only fields that are safe to expose to unauthenticated callers should
@@ -8152,6 +8260,12 @@ export type TrendingSearchResponse = {
   languageCode?: string | null
   results: Array<TrendingSearchItem>
 }
+
+/**
+ * * `AUTOMATIC` - Automatic
+ * * `CODE` - Coupon code
+ */
+export type TriggerEnum = 'AUTOMATIC' | 'CODE'
 
 /**
  * * `apm` - APM
@@ -21920,6 +22034,25 @@ export type GetUserProductReviewResponses = {
 }
 
 export type GetUserProductReviewResponse = GetUserProductReviewResponses[keyof GetUserProductReviewResponses]
+
+export type ListPublicPromotionsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/promotion'
+}
+
+export type ListPublicPromotionsErrors = {
+  404: ErrorResponse
+}
+
+export type ListPublicPromotionsError = ListPublicPromotionsErrors[keyof ListPublicPromotionsErrors]
+
+export type ListPublicPromotionsResponses = {
+  200: Array<PublicPromotion>
+}
+
+export type ListPublicPromotionsResponse = ListPublicPromotionsResponses[keyof ListPublicPromotionsResponses]
 
 export type ListRegionData = {
   body?: never

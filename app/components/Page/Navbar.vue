@@ -28,6 +28,16 @@ const giftCardsEnabled = computed(
   () => tenantStore.giftCardsEnabled && giftCardsRuntimeEnabled.value,
 )
 
+// Offers page discoverability. Same two-tier, fail-closed shape as
+// gift cards: without it the store's automatic promotions stay
+// invisible until a shopper has already built a qualifying cart.
+const promotionsRuntimeEnabled = useSettingFlag('PROMOTIONS_ENABLED', {
+  fallback: false,
+})
+const promotionsEnabled = computed(
+  () => tenantStore.promotionsEnabled && promotionsRuntimeEnabled.value,
+)
+
 const routeName = computed(() => $routeBaseName(route))
 
 // Used for the main-nav active-route state. Matches the anchor's
@@ -90,6 +100,14 @@ const navItems = computed<DesktopNavItem[]>(() => {
       label: t('blog'),
       to: 'blog',
       active: isRouteActive('blog'),
+    })
+  }
+  if (promotionsEnabled.value) {
+    base.push({
+      key: 'offers',
+      label: t('offers'),
+      to: 'offers',
+      active: isRouteActive('offers'),
     })
   }
   if (giftCardsEnabled.value) {
