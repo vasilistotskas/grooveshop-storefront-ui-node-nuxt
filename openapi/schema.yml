@@ -23564,6 +23564,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/promotion:
+    get:
+      operationId: listPublicPromotions
+      description: 'Currently-live promotions that a shopper can act on: every AUTOMATIC promotion, plus CODE promotions that have at least one publicly advertisable code. Personal coupons, single-use codes, and promotions that have reached their total usage limit are excluded. Returns 404 when the store has promotions disabled at either tier.'
+      summary: List public offers
+      tags:
+        - Promotions
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PublicPromotion'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/region:
     get:
       operationId: listRegion
@@ -31350,6 +31375,20 @@ components:
         - finalPrice
         - netPrice
         - productId
+    BenefitTypeEnum:
+      enum:
+        - PERCENTAGE
+        - FIXED_AMOUNT
+        - FREE_SHIPPING
+        - BXGY
+        - FREE_GIFT
+      type: string
+      description: |-
+        * `PERCENTAGE` - Percentage off
+        * `FIXED_AMOUNT` - Fixed amount off
+        * `FREE_SHIPPING` - Free shipping
+        * `BXGY` - Buy X get Y discounted
+        * `FREE_GIFT` - Free gift item
     BlankEnum:
       enum:
         - ''
@@ -42804,6 +42843,192 @@ components:
         - price
         - slug
         - translations
+    PromotionCategoryRef:
+      type: object
+      description: Enough to link a promotion at its category listing page.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+      required:
+        - id
+        - name
+        - slug
+    PromotionProductRef:
+      type: object
+      description: The minimum a storefront product card needs to render.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        slug:
+          type: string
+          readOnly: true
+        mainImagePath:
+          type: string
+          readOnly: true
+      required:
+        - id
+        - mainImagePath
+        - name
+        - slug
+    PublicPromotion:
+      type: object
+      description: One live, publicly-advertisable promotion.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        trigger:
+          allOf:
+            - $ref: '#/components/schemas/TriggerEnum'
+          readOnly: true
+          description: |-
+            Automatic promotions apply to every eligible cart; code promotions require the shopper to enter a coupon code
+
+            * `AUTOMATIC` - Automatic
+            * `CODE` - Coupon code
+        benefitType:
+          allOf:
+            - $ref: '#/components/schemas/BenefitTypeEnum'
+          readOnly: true
+        benefitValue:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          description: Percent (0-100) for percentage benefits, EUR amount for fixed-amount benefits; ignored for free shipping
+        targetScope:
+          allOf:
+            - $ref: '#/components/schemas/TargetScopeEnum'
+          readOnly: true
+        code:
+          type: string
+          nullable: true
+          description: The coupon code to enter at checkout. Null for an AUTOMATIC promotion, which needs no code.
+          readOnly: true
+        minSubtotal:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          nullable: true
+          description: Cart items total (incl. VAT) the offer requires.
+          readOnly: true
+        maxDiscountAmount:
+          type: number
+          format: double
+          maximum: 1000000000
+          minimum: -1000000000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          nullable: true
+          description: Ceiling on a single application's discount.
+          readOnly: true
+        minQuantity:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Minimum Quantity
+          description: Minimum number of ELIGIBLE units (after scope and exclusions) the cart must contain
+        buyQuantity:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: 'BXGY: eligible units the shopper must buy per application'
+        getQuantity:
+          type: integer
+          readOnly: true
+          nullable: true
+          description: 'BXGY: units discounted per application. FREE_GIFT: gift units added to the order'
+        getDiscountPercent:
+          type: number
+          format: double
+          maximum: 1000
+          minimum: -1000
+          exclusiveMaximum: true
+          exclusiveMinimum: true
+          readOnly: true
+          description: 'BXGY: discount applied to the ''get'' units — 100 means free, 50 means half price'
+        excludeDiscountedProducts:
+          type: boolean
+          readOnly: true
+          title: Exclude Already-discounted Products
+          description: Skip products that already carry a product-level markdown (discount percent > 0)
+        firstOrderOnly:
+          type: boolean
+          readOnly: true
+          description: Apply only to customers with no previous orders. For guests this is checked against the checkout email and is best-effort.
+        stackable:
+          type: boolean
+          readOnly: true
+          description: Stackable promotions combine with each other; a non-stackable promotion applies alone and only when it beats the combined stackable discount. Ignored for free shipping, which always combines.
+        endsAt:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        rewardProducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PromotionProductRef'
+          readOnly: true
+        eligibleProducts:
+          type: array
+          items:
+            $ref: '#/components/schemas/PromotionProductRef'
+          readOnly: true
+        eligibleProductCount:
+          type: integer
+          readOnly: true
+        eligibleCategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/PromotionCategoryRef'
+          readOnly: true
+      required:
+        - benefitType
+        - benefitValue
+        - buyQuantity
+        - code
+        - description
+        - eligibleCategories
+        - eligibleProductCount
+        - eligibleProducts
+        - endsAt
+        - excludeDiscountedProducts
+        - firstOrderOnly
+        - getDiscountPercent
+        - getQuantity
+        - id
+        - maxDiscountAmount
+        - minQuantity
+        - minSubtotal
+        - name
+        - rewardProducts
+        - stackable
+        - targetScope
+        - trigger
     RateEnum:
       enum:
         - 1
@@ -43981,6 +44206,16 @@ components:
         - contentType
         - objectId
         - tagId
+    TargetScopeEnum:
+      enum:
+        - ORDER
+        - PRODUCTS
+        - CATEGORIES
+      type: string
+      description: |-
+        * `ORDER` - Entire order
+        * `PRODUCTS` - Specific products
+        * `CATEGORIES` - Specific categories
     TenantConfig:
       type: object
       description: |-
@@ -44277,6 +44512,14 @@ components:
         - contentType
         - results
         - windowHours
+    TriggerEnum:
+      enum:
+        - AUTOMATIC
+        - CODE
+      type: string
+      description: |-
+        * `AUTOMATIC` - Automatic
+        * `CODE` - Coupon code
     TypeEnum:
       enum:
         - apm

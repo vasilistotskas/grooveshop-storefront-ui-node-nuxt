@@ -215,6 +215,23 @@ export const zB2bPrice = z.object({
   }),
 })
 
+/**
+ * * `PERCENTAGE` - Percentage off
+ * * `FIXED_AMOUNT` - Fixed amount off
+ * * `FREE_SHIPPING` - Free shipping
+ * * `BXGY` - Buy X get Y discounted
+ * * `FREE_GIFT` - Free gift item
+ */
+export const zBenefitTypeEnum = z.enum([
+  'PERCENTAGE',
+  'FIXED_AMOUNT',
+  'FREE_SHIPPING',
+  'BXGY',
+  'FREE_GIFT',
+]).register(z.globalRegistry, {
+  description: '* `PERCENTAGE` - Percentage off\n* `FIXED_AMOUNT` - Fixed amount off\n* `FREE_SHIPPING` - Free shipping\n* `BXGY` - Buy X get Y discounted\n* `FREE_GIFT` - Free gift item',
+})
+
 export const zBlankEnum = z.enum([''])
 
 /**
@@ -4263,6 +4280,29 @@ export const zProductWriteRequest = z.object({
 })
 
 /**
+ * Enough to link a promotion at its category listing page.
+ */
+export const zPromotionCategoryRef = z.object({
+  id: z.int().readonly(),
+  slug: z.string().readonly(),
+  name: z.string().readonly(),
+}).register(z.globalRegistry, {
+  description: 'Enough to link a promotion at its category listing page.',
+})
+
+/**
+ * The minimum a storefront product card needs to render.
+ */
+export const zPromotionProductRef = z.object({
+  id: z.int().readonly(),
+  name: z.string().readonly(),
+  slug: z.string().readonly(),
+  mainImagePath: z.string().readonly(),
+}).register(z.globalRegistry, {
+  description: 'The minimum a storefront product card needs to render.',
+})
+
+/**
  * * `1` - Ένα
  * * `2` - Δύο
  * * `3` - Τρία
@@ -5165,6 +5205,19 @@ export const zTaggedItemWriteRequest = z.object({
 })
 
 /**
+ * * `ORDER` - Entire order
+ * * `PRODUCTS` - Specific products
+ * * `CATEGORIES` - Specific categories
+ */
+export const zTargetScopeEnum = z.enum([
+  'ORDER',
+  'PRODUCTS',
+  'CATEGORIES',
+]).register(z.globalRegistry, {
+  description: '* `ORDER` - Entire order\n* `PRODUCTS` - Specific products\n* `CATEGORIES` - Specific categories',
+})
+
+/**
  * Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
  *
  * Only fields that are safe to expose to unauthenticated callers should
@@ -5503,6 +5556,54 @@ export const zTrendingSearchResponse = z.object({
   results: z.array(zTrendingSearchItem),
 }).register(z.globalRegistry, {
   description: 'Response payload for ``listTrendingSearches``.\n\nThe shape mirrors what the view caches in Redis so drf-spectacular\ncan resolve a concrete schema (otherwise it falls back to\n``unable to guess serializer`` and emits a W002 warning).',
+})
+
+/**
+ * * `AUTOMATIC` - Automatic
+ * * `CODE` - Coupon code
+ */
+export const zTriggerEnum = z.enum(['AUTOMATIC', 'CODE']).register(z.globalRegistry, {
+  description: '* `AUTOMATIC` - Automatic\n* `CODE` - Coupon code',
+})
+
+/**
+ * One live, publicly-advertisable promotion.
+ */
+export const zPublicPromotion = z.object({
+  id: z.int().readonly(),
+  name: z.string().readonly(),
+  description: z.string().readonly(),
+  trigger: zTriggerEnum,
+  benefitType: zBenefitTypeEnum,
+  benefitValue: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'Percent (0-100) for percentage benefits, EUR amount for fixed-amount benefits; ignored for free shipping',
+  }).readonly(),
+  targetScope: zTargetScopeEnum,
+  code: z.string().readonly().nullable(),
+  minSubtotal: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  maxDiscountAmount: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  minQuantity: z.int().readonly().nullable(),
+  buyQuantity: z.int().readonly().nullable(),
+  getQuantity: z.int().readonly().nullable(),
+  getDiscountPercent: z.number().gt(-1000).lt(1000).register(z.globalRegistry, {
+    description: 'BXGY: discount applied to the \'get\' units — 100 means free, 50 means half price',
+  }).readonly(),
+  excludeDiscountedProducts: z.boolean().register(z.globalRegistry, {
+    description: 'Skip products that already carry a product-level markdown (discount percent > 0)',
+  }).readonly(),
+  firstOrderOnly: z.boolean().register(z.globalRegistry, {
+    description: 'Apply only to customers with no previous orders. For guests this is checked against the checkout email and is best-effort.',
+  }).readonly(),
+  stackable: z.boolean().register(z.globalRegistry, {
+    description: 'Stackable promotions combine with each other; a non-stackable promotion applies alone and only when it beats the combined stackable discount. Ignored for free shipping, which always combines.',
+  }).readonly(),
+  endsAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  rewardProducts: z.array(zPromotionProductRef).readonly(),
+  eligibleProducts: z.array(zPromotionProductRef).readonly(),
+  eligibleProductCount: z.int().readonly(),
+  eligibleCategories: z.array(zPromotionCategoryRef).readonly(),
+}).register(z.globalRegistry, {
+  description: 'One live, publicly-advertisable promotion.',
 })
 
 /**
@@ -16728,6 +16829,8 @@ export const zGetUserProductReviewPath = z.object({
 })
 
 export const zGetUserProductReviewResponse = zProductReviewDetail
+
+export const zListPublicPromotionsResponse = z.array(zPublicPromotion)
 
 export const zListRegionQuery = z.object({
   alpha: z.string().register(z.globalRegistry, {
