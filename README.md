@@ -77,7 +77,7 @@ A full-featured **Nuxt 4 SSR e-commerce storefront** built with Vue 3 Compositio
 ### Prerequisites
 
 - Node.js 24.x
-- pnpm 10.x (`corepack enable`)
+- pnpm 11.x (`corepack enable`)
 - Docker (optional, for containerization)
 - Django backend running (see [grooveshop-django-api](https://github.com/vasilistotskas/grooveshop-django-api))
 

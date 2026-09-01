@@ -1,5 +1,31 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "deny": [
+      "Read(./**/.nuxt/**)",
+      "Read(./**/.output/**)",
+      "Read(./**/dist/**)",
+      "Read(./**/__pycache__/**)",
+      "Read(./CHANGELOG.md)",
+      "Read(./openapi/schema.json)",
+      "Bash(rm -rf *)",
+      "Bash(rm -fr *)",
+      "Bash(git reset --hard *)",
+      "Bash(git clean -fd *)",
+      "Bash(git clean -fdx *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(npm publish *)",
+      "Bash(pnpm publish *)",
+      "Bash(uv publish *)",
+      "Bash(kubectl delete namespace *)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(docker exec *)",
+      "Bash(docker run *)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

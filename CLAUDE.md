@@ -6,6 +6,26 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Nuxt 4 SSR e-commerce storefront (Vue 3 Composition API, TypeScript) that communicates with a Django REST API backend. Uses `@nuxt/ui` v4 for the component library, Pinia for state management, and `@nuxtjs/i18n` for internationalization (only Greek `el` locale is active). The Vue Options API is disabled — all components use `<script setup lang="ts">`.
 
+## Detailed guidance lives in `.claude/rules/`
+
+This file holds what is true in every session. Area-specific detail sits in
+path-scoped rules that load automatically the moment Claude touches a matching
+file, so a styling task never pays for the tenant contract and vice versa. Read
+one directly when you need it before touching those files.
+
+| Rule | Loads when you touch | Covers |
+|---|---|---|
+| `.claude/rules/server-routes.md` | `server/**`, `shared/**`, `openapi/**` | The 4-step Django proxy contract, middleware, plugins, evlog, generated OpenAPI code |
+| `.claude/rules/multi-tenant.md` | `server/**`, `app/stores/**`, `app/composables/**`, `nuxt.config.ts` | Tenant resolution, `event.context.tenant`, `tenantCacheKey`, hydration order |
+| `.claude/rules/auth.md` | the allauth / session / OAuth files | The two-token allauth + Knox model |
+| `.claude/rules/ui-and-pages.md` | `app/components/**`, `app/layouts/**`, `app/pages/**`, `app/middleware/**` | Component categories, styling, images, routing, SEO and performance |
+| `.claude/rules/testing.md` | `test/**`, `*.spec.ts`, `vitest.config.mts` | Vitest projects and the Nuxt test-environment traps |
+
+**The trigger is the Read tool, not any file access.** Opening a file with
+`cat`/`head`/`sed` through Bash does *not* load the matching rule — verified on
+v2.1.252. If you are working through shell commands, or you need a rule before
+touching its files, read the rule file directly.
+
 ## Commands
 
 - **Dev server:** `pnpm dev`
@@ -22,31 +42,7 @@ Nuxt 4 SSR e-commerce storefront (Vue 3 Composition API, TypeScript) that commun
 - **Build + start production:** `pnpm build && pnpm start`
 - **Docker build:** `docker build -f docker/Dockerfile .`
 - **Analyze bundle:** `npx nuxt analyze`
-- **Package manager:** pnpm v10 (specified in `packageManager` field)
-
-## Test Structure
-
-Tests live in `test/` with three vitest projects configured in `vitest.config.mts`:
-
-| Project | Path | Environment | Purpose |
-|---------|------|-------------|---------|
-| `unit` | `test/unit/**` | `node` | Pure utils, server utils, logic, composable unit tests |
-| `nuxt` | `test/nuxt/**` | `nuxt` | Composables, stores, components, pages needing Nuxt context |
-| `e2e` | `test/e2e/**` | `nuxt` | End-to-end flows |
-
-File parallelism is disabled globally to prevent `[nuxt] instance unavailable` errors. The `nuxt` project has retry=2 and testTimeout=15000 for flaky tests. Both `e2e` and `nuxt` projects mock `intersectionObserver` and `indexedDb`, and disable `experimental.appManifest` to prevent timeout errors. Path aliases: `~` and `@` → `./app`, `#shared` → `./shared`.
-
-Coverage uses v8 provider, reports to `./coverage` in text/html/lcov/json formats, covering `app/**` and `server/**`.
-
-### Nuxt Test Environment Gotchas
-
-- **`vi.stubGlobal('$fetch', mock)` does not work at all since Nuxt 4.5** — `$fetch` is a real auto-import in user code (`export { $fetch } from '#build/fetch.mjs'`), so the composable's import binding bypasses globals entirely. Mock it like any other auto-import: `const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))` + `mockNuxtImport('$fetch', () => mockFetch)` at module level. Caveat: this mock is active during Nuxt bootstrap (`/api/_auth/session`, `/api/_allauth/app/v1/config`, `/api/cart`) — if the suite needs `$i18n` or store setup, give the mock a default implementation `vi.fn(() => Promise.resolve({}))` so the plugin chain doesn't crash.
-- **Router mocks need full API surface** — `mockNuxtImport('useRouter', ...)` with incomplete mocks (missing `beforeResolve`, `onError`, `isReady`, `resolve`) breaks Nuxt app initialization. Include all Vue Router methods in mock objects.
-- **i18n returns real Greek translations in nuxt tests** — `$i18n.t('key')` returns translated text (e.g. `'Αναζήτηση'`), not raw keys. Use `expect.any(String)` for translated text assertions.
-- **`test/fixtures/setup/localStorage.ts`** — Required setupFile that provides `Storage` implementation for happy-dom (nuxt-auth-utils needs it).
-- **`test/fixtures/plugins/mock-i18n.ts`** — Fallback i18n plugin (rarely activates; `@nuxtjs/i18n` handles it when `$fetch` isn't broken).
-- **`registerEndpoint`** from `@nuxt/test-utils/runtime` is the official way to mock Nitro server routes in tests, but doesn't intercept direct `$fetch` calls from composables/stores.
-- **evlog `log` not available in unit tests** — `log` is auto-imported by evlog in Nuxt/Nitro context but not in vitest unit environment. Mock with `vi.stubGlobal('log', { info: vi.fn(), warn: vi.fn(), error: vi.fn() })` in `beforeEach`. In nuxt test environment, evlog's client transport outputs via `console.error` with color formatting (`%c[client]%c error`, style args, structured object).
+- **Package manager:** pnpm 11 (pinned in the `packageManager` field)
 
 ## Architecture
 
@@ -60,102 +56,6 @@ Coverage uses v8 provider, reports to `./coverage` in text/html/lcov/json format
 - `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES`/`DEFAULT_LOCALE`), locale detector, i18n config, and translation files (el-GR primary, plus domain-specific: auth, breadcrumb, cookies, validation). Only `el` locale exists/is active
 - `openapi/` — Schema files (`schema.json`, `schema.yml`) fetched from Django for type generation
 - `scripts/` — `fetch-schema.mjs` for downloading OpenAPI schema from Django
-
-### Backend Communication Pattern
-
-The Nuxt server acts as a **proxy** to the Django backend. Client-side code calls `/api/...` routes on the Nuxt server, which then forwards requests to the Django API (`NUXT_API_BASE_URL`).
-
-- **Server API routes** (`server/api/`): Proxy endpoints organized by domain — products, cart, orders, blog (posts/comments/categories), user (account/addresses), search, loyalty, notifications, subscriptions (topics/user), contact, countries, regions, pay-way, settings, health, websocket
-- **Server API pattern**: Routes use `getValidatedQuery`/`readValidatedBody` with Zod schemas, `$fetch` to Django, `parseDataAs` for response validation, `handleError` for error handling. Many routes use `defineCachedEventHandler` with SWR for caching.
-- **`server/utils/auth.ts`**: Creates forwarding headers (`X-Session-Token`, `Authorization`, `X-Forwarded-Host`) for Django requests; `createHeaders` sources `X-Forwarded-Host` from `config.public.djangoHostName` (not the raw request host) so that Django's `ALLOWED_HOSTS` validation passes for internal K8s calls; `processAllAuthSession` handles token propagation
-- **`server/utils/api.ts`**: `createCachedFetcher<T>` for paginated data fetching with caching
-- **`server/utils/cartSession.ts`**: Cart session management via `useCartSession(event)` — stores `cartId` in http-only session cookies, provides `getCartHeaders`/`handleCartResponse`/`clearCartSession`; `getCartHeaders` includes `X-Forwarded-Host` sourced from `config.public.djangoHostName` for internal K8s calls
-- **`server/utils/parser.ts`**: `parseDataAs(data, zodSchema)` for runtime validation of API responses
-- **`server/utils/error.ts`**: `handleError` (Zod/Fetch/H3 errors), `handleAllAuthError` (auth-specific errors with session management)
-- **`server/utils/oauth.ts`**: Shared OAuth helpers (`captureOAuthProcess`, `readAndClearOAuthProcess`, `storeOAuthTokensAndRedirect`, `redirectOAuthError`) used by Google and Facebook route handlers
-- **`app/utils/auth.ts`** (client): `callAuthChangeHook` → `nuxtApp.callHook('auth:change')` — the only path for auth state changes; composable `onResponse`/`onResponseError` interceptors call this
-- **Guest order access**: Guest order API calls require a `?uuid=` query parameter for Django's `IsOwnerOrAdminOrGuest` permission check. Server routes under `server/api/orders/[id]/` forward the UUID to the backend.
-- **`server/utils/logger.ts`**: `Logger` class that writes error logs to `./logs/` as JSON files
-
-### Server Middleware
-
-Numeric prefixes order execution. Request logging is via evlog (there is no `log.ts`).
-
-- `0.markdown-negotiation.ts` — serves the `.md` variant of a route when an AI/agent client negotiates for it (nuxt-ai-ready)
-- `0.redirects.ts` — 301 redirect from `www.` to non-www
-- `0.tenant.ts` — resolves `event.context.tenant` from the request host (runs first; see Multi-Tenant Architecture)
-- `1.ai-ready-gate.ts` — gates the on-demand `.md`/llms routes
-- `1.locale.ts` — Locale detection: query param → i18n cookies → Accept-Language header → tenant defaultLocale → `event.context.locale`
-- `2.evlog-auth.ts` — attaches the auth session user id to the wide event (`useLogger`)
-- `3.csp.ts` — per-tenant Content-Security-Policy (extends src lists with the tenant's `allowedCspSources`)
-- `4.tenant-site-config.ts` — sets per-tenant `@nuxtjs/seo` site config (url/name)
-- `5.tenant-canonical.ts` — canonical host enforcement for the tenant's primary domain
-- `6.tenant-favicon.ts` — serves the tenant's favicon
-
-### Server Plugins
-
-- `http-agent.ts` — Undici Agent for connection pooling (100 connections, pipelining 10, keep-alive 30s) — reduces latency for internal API calls
-- `storage.ts` — Configurable cache backend: tests Redis connectivity, falls back to memory driver if unavailable
-- `startup-validation.ts` — Validates required env vars (`NUXT_SESSION_PASSWORD` >= 32 chars, `NUXT_SECRET_KEY`) at startup; fails hard on misconfiguration
-
-### Structured Logging (evlog)
-
-Uses `evlog/nuxt` module for structured logging. `log` is auto-imported on both client and server (Nitro).
-
-- **Simple logging**: `log.info('tag', 'message')` (2 args max — evlog ≥2.22 silently drops a third context arg), or the wide-event object form for context: `log.info({ tag: 'tag', message: 'message', ...context })`, `log.error({ action: 'name', error })`
-- **Wide events** (server only): `const wideLog = useLogger(event)` → `wideLog.set({ key: value })` — one rich event per request, auto-emitted at request end
-- **Enrichers**: `server/plugins/evlog-enrichers.ts` (user-agent, geo, request size, trace context), `server/middleware/2.evlog-auth.ts` (auth session user ID via `useLogger`)
-- **Sampling**: Production-only via `$production.evlog.sampling` in `nuxt.config.ts`
-- **Client-error log level**: evlog logs every *errored* request at `error` level (`level = manualLevel ?? hasError ? 'error' : …`), with no 4xx/5xx distinction — so benign client errors (unknown-route 404s, allauth 401 "not authenticated, here are your flows") drown out real 5xx faults. `server/plugins/evlog-client-error-level.ts` downgrades 4xx → `warn` via a Nitro `error` hook + `useLogger(event).setLevel('warn')` (`isClientError` in `server/utils/http-status.ts`); 5xx stays `error`. 4xx remain visible via the `evlog.sampling.keep: [{ status: 400 }]` rule. Mirrors evlog's own Datadog severity mapping.
-- **ESLint**: `no-console: 'error'` enforced — use `log.*` instead of `console.*`
-- **Scope limitation**: `log` is NOT auto-imported in `i18n/` directory (outside Nitro/Nuxt auto-import scope)
-
-### Server Routes
-
-- `server/routes/auth/google.get.ts` and `facebook.get.ts` — OAuth callback handlers (store tokens in encrypted session, not URL params)
-- `server/api/auth/oauth-params.get.ts` — One-time-use endpoint that reads OAuth params from session and clears them
-- `server/routes/rss.xml.get.ts` — RSS feed generation (cached, SWR) combining blog posts and products with media:content, reading time, product pricing/availability
-- `server/api/__sitemap__/urls.ts` — Dynamic sitemap URL source for `@nuxtjs/sitemap`
-
-### Authentication
-
-Uses [django-allauth](https://docs.allauth.org/) headless API via `nuxt-auth-utils` session management:
-
-- **Server proxy**: `server/api/_allauth/app/v1/` mirrors the full allauth API (auth: login/signup/session/2FA/WebAuthn/email-verify/password-reset/code-auth/provider-token; account: email/password/providers/authenticators including TOTP/recovery-codes/WebAuthn)
-- **Client composables**: `useAllAuthAuthentication` (login/signup/OAuth/session), `useAllAuthAccount` (email/password), `useAllAuthSessions` (session management)
-- **Auth store** (`app/stores/auth.ts`): Holds config, session, authenticators (TOTP, WebAuthn, recovery codes), provides `setupConfig`/`setupSession`/etc.
-- **Auth plugin** (`app/plugins/auth.ts`): Listens to `auth:change` Nuxt hook, determines auth event type (LOGGED_IN/LOGGED_OUT/REAUTHENTICATED/FLOW_UPDATED), handles navigation. Depends on nothing, runs in parallel.
-- **Setup plugin** (`app/plugins/setup.ts`): Depends on `auth` plugin. SSR-critical: fetches config + session, then account + cart. Defers sessions/authenticators/notifications to client via `requestIdleCallback` (with `setTimeout` fallback for Safari).
-- **WebSocket plugin** (`app/plugins/websocket.client.ts`): Client-only, connects to Django WebSocket at `/ws/notifications/` for real-time notifications. Uses BroadcastChannel and Web Notification API.
-- **Auth middleware** (`app/middleware/auth.global.ts`): Global — redirects unauthenticated users from protected routes to `account-login?next=<original-path>`; uses `AuthenticatedRoutes`/`AuthenticatedRoutesSet` from `shared/constants/index.ts`
-- **Guest middleware** (`app/middleware/guest.ts`): Prevents logged-in users from accessing login/signup pages
-- **Auth flow routing**: `Flow2path` constant maps allauth flow states to page routes (login, signup, MFA, reauthenticate, WebAuthn, recovery codes)
-- **Session types**: `shared/auth.d.ts` augments `#auth-utils` with `User`, `UserSession`, `SecureSessionData` (sessionToken, accessToken, oauthParams). Note: `setUserSession` uses defu merge (ignores undefined); use `replaceUserSession` to fully clear session keys
-- **Global types**: `global.d.ts` declares `$authState` and `$websocket` on Vue component properties and NuxtApp, plus `auth:change` runtime hook and `window.google` GSI types
-
-### Image Handling
-
-Custom `mediaStream` provider (`app/providers/media-stream.ts`) generates URLs for an external media processing service. URL pattern: `/{src}/{width}/{height}/{fit}/{position}/{background}/{trimThreshold}/{quality}.{format}`. Handles Unicode URL encoding for social media crawlers. Also uses `@nuxt/image` with IPX for local images (AVIF, WebP formats). Image screens configured: xs(320), sm(640), md(768), lg(1024), xl(1280), xxl/2xl(1536).
-
-The provider's `baseURL` option is static (baked from `NUXT_PUBLIC_MEDIA_STREAM_PATH` at build time) — @nuxt/image has no per-request/per-tenant hook. Per-tenant asset origins (`TenantConfig.assetsDomain`) are instead resolved by `useMediaStreamBaseUrl`/`useMediaStreamImage` (`app/composables/useMediaStreamImage.ts`), which absolutize the relative `src` BEFORE it reaches `$img()`/`NuxtImg`; the provider skips its own `baseURL` whenever `src` already carries a protocol. `ImgWithFallback.vue` does the same absolutization for `media/{schema}/uploads/...` and `static/images/...` paths.
-
-### OpenAPI Type Generation
-
-Types and Zod schemas are auto-generated from the Django backend's OpenAPI schema:
-1. `pnpm generate:schema` — fetches `schema.json`/`schema.yml` from Django (needs `DJANGO_API_TOKEN` env var or `.auth-token` file). Reads **`NUXT_DJANGO_URL`** (default `http://localhost:8000`) — point it at LOCAL Django, never prod: prod's `/api/v1/schema` is a subset (255 components vs 271 local) and regenerating from it silently deletes components the frontend uses (`Country`, `BlogAuthor`, `Paginated*List`).
-2. `pnpm openapi-ts` — generates `shared/openapi/types.gen.ts` and `shared/openapi/zod.gen.ts` via `@hey-api/openapi-ts`
-3. `pnpm sync:schema` — **required, not optional.** `openapi/schema.yml` and the root `schema.yml` are derived from `openapi/schema.json` by `scripts/sync-schema-yml.mjs`. CI's *OpenAPI Schema Freshness* job regenerates them and fails on any diff. Copying Django's `spectacular` YAML across directly also fails it — the YAML dump formatting differs.
-
-Commit `openapi/schema.json`, both `schema.yml` files, and `shared/openapi/*` together. A removed field is the dangerous direction: the committed Zod still marks it `required`, so `parseDataAs` rejects the correctly-absent field with a 422, and only on the one flow returning that nested object.
-
-### Shared Code (`shared/`)
-
-Auto-imported in both app and server contexts (via `imports.dirs` and `nitro.imports.dirs`). Contains:
-- `types/` — Hand-written types organized by domain: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`, plus `pagination.ts`, `ordering.ts`, `search.ts`, `form.ts`, `meilisearch.ts`, `LoyaltySettings.ts`, `enum/`, `utility/`
-- `schemas/` — Zod validation schemas mirroring the types structure: `body/all-auth/`, `model/all-auth/`, `response/all-auth/`, `error/all-auth/`, plus `form.ts`
-- `openapi/` — Auto-generated `types.gen.ts` and `zod.gen.ts`
-- `constants/` — `AuthenticatedRoutes`, `AuthenticatedRoutesSet`, `Flow2path`, `AuthChangeEvent`, `GSIAuthProcess`, `RedirectToURLs`, `Flows`, `AuthenticatorType`, `defaultSelectOptionChoose`
-- `utils/` — `error.ts` (error helpers), `html.ts` (HTML processing)
 
 ### State Management
 
@@ -180,64 +80,6 @@ Pinia stores in `app/stores/`:
 ### App Utilities (`app/utils/`)
 
 11 utility modules (auth, componentRegistry, error, pagination, phone, route, search, shipping-methods, sse, str, translate). Key: `auth.ts` (client-side auth helpers), `translate.ts` (`extractTranslated` for parler model translations), `error.ts` (client error handling).
-
-### Layouts
-
-- `default` — Public pages: header/navbar, mobile bottom navigation, footer (lazy-loaded, device-aware)
-- `user` — Authenticated pages: header, user account info banner, sidebar navigation, footer
-- `auth` — Login/signup flows
-
-### Middleware
-
-- `auth.global.ts` — Global: redirects unauthenticated users from protected routes
-- `identity.global.ts` — Global: hydrates identity/session state
-- `guest.ts` — Prevents logged-in users from accessing login/signup pages
-- `loyalty-enabled.ts` — Redirects to home if loyalty system is disabled for the tenant
-- `blog-enabled.ts` — Redirects to home if blog is disabled for the tenant
-- `account-reviews-enabled.ts` — Gates the account reviews route
-
-(Page/layout transitions are disabled globally in `nuxt.config.ts` via `app.pageTransition: false` / `layoutTransition: false` — no middleware needed.)
-
-### Pages (Routing)
-
-Routes in `app/pages/`: home, products (with category/detail), blog (with category/post), cart, checkout (with success), search, account (extensive sub-routes for auth/2FA/profile/orders/favourites/reviews/subscriptions/loyalty/settings), and static content pages. See `app/pages/` for full structure.
-
-### Component Categories
-
-Components in `app/components/` organized by domain:
-- **Account** — Login/Signup forms, 2FA flows (TOTP, WebAuthn, recovery codes), email/password/sessions/providers management, settings, auth navigation
-- **Blog** — Post lists/carousels, comments (with likes), categories, tags, content renderer
-- **Cart** — Cart button (with item count), item cards
-- **Checkout** — Items list
-- **Cookie** — GDPR consent modal/control
-- **DynamicForm** — Multi-step form system
-- **Loyalty** — PointsBadge, Summary, TierSystem, ProgressHero, Transactions, Redemption
-- **Order** — Order list, card items
-- **Product** — Image/ImageModal, Reviews (List/Summary/Card), Favourites, CardSkeleton, Categories slider
-- **Products** — List, Slider, Toolbar, Sidebar, Filters (SearchInput, PriceRange, ActiveFilters, CategoryFilter, AttributeFilter, PopularityFilter, ViewCountFilter)
-- **Search** — Input, Modal, Result
-- **User** — Avatar, NotificationsBell, Account info/favourites navbar
-- **Page** — Header, Navbar, Title
-- **UI/Layout** — Pagination (PageNumber, LimitOffset, Cursor), Ordering, Rating, Quantity Selector, ReadMore, Empty state, LoadingIndicator, DesktopOnly, MobileOrTabletOnly, Socials, Anchor, ImgWithFallback, IframeModal, DemoModeMessage, Error
-- **Integrations** — StripePayment, WebAuthn LoginButton, Language Switcher, Logout Button
-
-### UI & Styling
-
-- **Tailwind CSS 4** with `@nuxt/ui` v4 theme system. Primary color: neutral, neutral: zinc. Custom CSS variables: `--ui-secondary: #003DFF`, `--ui-bg`, `--ui-liked: #FF00BD`, semantic colors (success, info, warning, error) with dark mode variants
-- `app/assets/css/main.css` — Imports `tailwindcss` with static theme + `@nuxt/ui`. Custom theme containers (`--container-main: 74.625rem`, `--container-8xl: 90rem`). `.article` typography class for blog/CMS content. Reduced-motion support.
-- `app/app.config.ts` — Component customization: extended avatar sizes (4xl-7xl), button 3xl size, chip 3xl size, secondary solid button variant, cursor-pointer defaults (button, switch, tabs, accordion), form field sizing, skeleton/breadcrumb theming, pagination/selectMenu/input/textarea full-width defaults. Icon mode: CSS with base layer.
-- Component-scoped `<i18n lang="yaml">` blocks for translations (e.g., `error.vue`)
-- Lottie animations in `app/assets/lotties/` (404)
-
-### SEO & Performance
-
-- **`@nuxtjs/seo`** suite: sitemap (dynamic via `/api/__sitemap__/urls`, auto-excludes account/cart/checkout routes, 24h cache), OG Image (7-day cache), Schema.org (minified), link checker (dev only), canonical URL redirects
-- **Route rules**: Immutable caching for `/_nuxt/**`, static assets, images, CSS/JS. CORS for `/api/**`. Custom headers for manifest, favicons. IPX image prerendering.
-- **Experimental features**: `typedPages`, `asyncContext`, `inlineRouteRules`, `crossOriginPrefetch`, `buildCache`, `viteEnvironmentApi` (disabled in test). NuxtLink prefetch on interaction (not visibility).
-- **Build-time version injection**: `runtimeConfig.public.version` is set from `process.env.npm_package_version` in `nuxt.config.ts`, exposing the `package.json` version to client and server at runtime.
-- **Nitro**: ESBuild target `esnext`, gzip + brotli compression, minification, async context. Prerendered routes for critical above-the-fold images.
-- **DNS prefetch + preconnect**: Media stream, static origin, Django, Google services
-- **Source maps**: Client-side only (server disabled for smaller production bundles)
 
 ### Nuxt Modules
 
@@ -269,7 +111,7 @@ Custom local modules:
 ### CI/CD
 
 - **GitHub Actions CI** (`.github/workflows/ci.yml`): quality (TypeScript check, dependency audit) → test (unit+nuxt with coverage) → build (with Redis 8 service, .env from GitHub vars/secrets) → release (semantic-release on `main` push — versions, CHANGELOG, GitHub Release; **no npm publishing**). All steps use Node 24.x and pnpm with frozen lockfile.
-- **Docker publish** (`.github/workflows/docker.yml`): On GitHub release `published`, builds a multi-stage Docker image (Node 24.13.0 Alpine) and pushes to Docker Hub (`gro0ve/grooveshop-storefront-ui-node-nuxt`) and GHCR. Uses Docker Buildx with GHA caching.
+- **Docker publish** (`.github/workflows/docker.yml`): On GitHub release `published`, builds a multi-stage Docker image (Node 24 Alpine) and pushes to Docker Hub (`gro0ve/grooveshop-storefront-ui-node-nuxt`) and GHCR. Uses Docker Buildx with GHA caching.
 - **Semantic release**: Conventional commits, auto-versioning, CHANGELOG generation, GitHub release with `.output` asset. Publishing to npm is disabled (`npmPublish: false`); the `@semantic-release/npm` plugin only bumps `package.json` version.
 - **Docker** (`docker/Dockerfile`): Multi-stage build. Build stage installs deps with pnpm cache mount, prepares Nuxt, builds with `NODE_OPTIONS=--max-old-space-size=8192`. Production stage copies only `.output`, runs as non-root `node` user.
 
@@ -304,61 +146,6 @@ Copy `.env.example` to `.env`. Key variables:
 - `NUXT_SITE_URL` / `NUXT_SITE_NAME` / `NUXT_SITE_DESCRIPTION` / `NUXT_SITE_DEFAULT_LOCALE` — SEO site config
 
 Google Analytics tracking id, Meta/TikTok Pixel ids, social media links, the Stripe publishable key, and the BoxNow partner id are **tenant-only** (`TenantConfig.gaTrackingId`/`metaPixelId`/`tiktokPixelId`/`socials*`/`stripePublishableKey`/`boxNowPartnerId` via `useTenantStore()`) — no platform/env fallback. Each merchant provisions its own; there is deliberately no `NUXT_PUBLIC_SCRIPTS_GOOGLE_ANALYTICS_ID`/`NUXT_PUBLIC_META_PIXEL_ID`/`NUXT_PUBLIC_TIKTOK_PIXEL_ID`/`NUXT_PUBLIC_SOCIALS_*`/`NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`/`NUXT_PUBLIC_BOXNOW_PARTNER_ID` env var. Stripe-unconfigured tenants never reach the payment UI (pay-way gating hides it); `StripePayment.vue` still degrades gracefully (shows `stripe_init_error`) if it ever runs with an empty key.
-
-## Multi-Tenant Architecture
-
-### Tenant Resolution Flow
-
-1. `server/middleware/0.tenant.ts` runs first (before all other middleware). It reads `getRequestHost(event)` (no X-Forwarded-Host, to prevent spoofing) and calls `getTenantConfig(host)`.
-2. `getTenantConfig` (in `server/utils/tenant.ts`) strips the port, checks a 5-minute in-memory cache, then proxies `GET /api/v1/tenant/resolve?domain=<host>` to Django. The response is validated with `parseDataAs(response, zTenantConfig)`.
-3. On success, `event.context.tenant` is set to the validated `TenantConfig` object.
-4. On Django 5xx: respond 503 (transient — not cached). On 404: respond 404 "Store not found" (not cached).
-5. Certain paths bypass tenant resolution entirely (see `BYPASS_PREFIXES` / `BYPASS_EXACT` in the middleware file): `/_nuxt`, `/_ipx`, `/assets`, `/api/health`, `/health`, `/favicon.ico`, `/favicon.png`, `/logo.svg`, `/robots.txt`, `/manifest.webmanifest`, `/openapi`, `/_health`.
-
-### `event.context.tenant` contract
-
-Every non-bypassed route handler can rely on `event.context.tenant` being a fully-validated `TenantConfig` object (from `shared/openapi/types.gen.ts`). Guaranteed fields include:
-
-- `schemaName` — the Django DB schema identifier (used to namespace media URLs)
-- `storeName` — human-readable store name for the PWA manifest
-- `primaryDomain` — the tenant's storefront hostname
-- `apiDomain` — the tenant's own API hostname (e.g. `api.tenant.com`); used instead of the platform `NUXT_PUBLIC_DJANGO_HOST_NAME` wherever a browser-facing request must hit the tenant's OWN Django schema (WebSocket, social-login redirect, CSP connect-src, `.well-known` OAuth metadata)
-- `assetsDomain` — the tenant's own media/image-processing hostname (e.g. `assets.tenant.com`); consumed by `useMediaStreamBaseUrl`/`useMediaStreamImage` (see Image Handling) and additively expands CSP img-src/connect-src alongside the platform `mediaStreamOrigin`
-- `staticDomain` — the tenant's own static-file hostname (e.g. `static.tenant.com`); additively expands CSP img-src/connect-src alongside the platform `staticOrigin`
-- `defaultLocale` — BCP-47 code consulted by `1.locale.ts` (priority 3 of 4)
-- `defaultCurrency` — ISO 4217 code (e.g. `'EUR'`), used in RSS and checkout
-- `accentHex` — CSS hex for PWA theme_color
-- `faviconUrl` — absolute URL for the tenant favicon (used in PWA manifest icons)
-- `loyaltyEnabled`, `blogEnabled` — feature flags
-- `metaPixelId`, `tiktokPixelId`, `gaTrackingId` — tenant-only analytics/pixel ids, no platform/env fallback (see Environment)
-
-### `tenantCacheKey` requirement
-
-Every `defineCachedEventHandler` whose data is tenant-specific MUST prefix its cache key with `tenantCacheKey(event, ...)`. Without it, Tenant A's data can be returned to Tenant B from cache (P0 data leak). Usage:
-
-```ts
-getKey: (event) => tenantCacheKey(event, `my-route:${param}`)
-```
-
-`tenantCacheKey` is defined in `server/utils/cacheKey.ts` and auto-imported.
-
-Routes that are **not** tenant-scoped (e.g. raw public data identical across all tenants) may omit it, but this must be an explicit decision — add a comment explaining why.
-
-### `useBackendFetch` vs raw `$fetch`
-
-- Server utils and middleware use raw `$fetch` with `createHeaders()` for forwarding headers (X-Forwarded-Host, Authorization). This is the standard proxy pattern.
-- `useBackendFetch` is a higher-level helper that also injects `X-Forwarded-Host`. Prefer it for new server routes over manually assembling headers.
-- Shipping routes (`server/api/shipping/`) use `createHeaders()` because they are public (no auth token forwarding needed).
-
-### `useTenantStore` Pinia hydration sequence
-
-The `tenant` plugin runs with `enforce: 'pre'` and sets `useState('tenant')` from `event.context.tenant` on the server. In the `app:created` hook (after Pinia is installed) it hydrates the store via `useTenantStore().setConfig(tenant.value)`. Never call `useTenantStore()` inside an `enforce: 'pre'` plugin body — Pinia is not yet installed at that point.
-
-Client-side composables can read `useTenantStore()` or `useTenant()` (`useState('tenant')`) interchangeably; the store exposes convenience computed refs (`schemaName`, `defaultCurrency`, `faviconUrl`, etc.).
-
-### Per-tenant runtime config
-
-Both `stripePublishableKey` and `allowedCspSources` are part of `TenantConfig`. `StripePayment.vue` reads `useTenantStore().stripePublishableKey` — tenant-only, no platform-key fallback; `server/middleware/3.csp.ts` extends `script-src`, `img-src`, `connect-src`, `frame-src` with the validated origins from `event.context.tenant?.allowedCspSources`.
 
 <!-- skilld -->
 Before modifying code, evaluate each installed skill against the current task.
