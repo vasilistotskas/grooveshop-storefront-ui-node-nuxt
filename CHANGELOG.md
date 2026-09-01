@@ -1,3 +1,11 @@
+# [3.166.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.165.2...v3.166.0) (2026-09-01)
+
+
+### Features
+
+* **categories:** carry mainImagePath through the generated contract ([bf1efc5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bf1efc569600d38ce1b3ab33d06246ec61532ea9))
+* **offers:** public offers page for the store's live promotions ([4ffa4bb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4ffa4bbc65cb1e34f98be61a33fa2fcddaf0e2c9))
+
 ## [3.165.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.165.1...v3.165.2) (2026-08-31)
 
 
