@@ -1,3 +1,10 @@
+## [3.166.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.166.0...v3.166.1) (2026-09-02)
+
+
+### Bug Fixes
+
+* **page-config:** treat an absent layout as cached data, not an error ([2378985](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2378985a06849d54ea182e425494c39a8ca2109c))
+
 # [3.166.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.165.2...v3.166.0) (2026-09-01)
 
 
