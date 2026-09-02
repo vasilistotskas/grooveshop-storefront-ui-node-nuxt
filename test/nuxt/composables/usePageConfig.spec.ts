@@ -7,6 +7,13 @@ const { mockUseFetchFn } = vi.hoisted(() => ({
 
 mockNuxtImport('useFetch', () => mockUseFetchFn)
 
+const HOME_FALLBACK = [
+  'blog_categories',
+  'hero_carousel',
+  'recently_viewed',
+  'blog_posts_list',
+]
+
 describe('usePageConfig', () => {
   beforeEach(() => {
     mockUseFetchFn.mockReset()
@@ -21,50 +28,65 @@ describe('usePageConfig', () => {
 
     mockUseFetchFn.mockReturnValue({
       data: ref({
-        id: 1,
-        uuid: 'layout-uuid',
-        pageType: 'home',
-        title: 'Homepage',
-        isPublished: true,
-        metadata: {},
-        sections,
+        layout: {
+          id: 1,
+          uuid: 'layout-uuid',
+          pageType: 'home',
+          title: 'Homepage',
+          isPublished: true,
+          metadata: {},
+          sections,
+        },
       }),
       status: ref('success'),
       error: ref(null),
     })
 
-    const { sections: result } = await usePageConfig('home')
+    const { layout, sections: result } = await usePageConfig('home')
 
+    expect(layout.value?.title).toBe('Homepage')
     expect(result.value).toHaveLength(2)
     expect(result.value![0]!.componentType).toBe('hero_carousel')
     expect(result.value![1]!.componentType).toBe('spacer')
   })
 
-  it('should return fallback sections for home when data is null', async () => {
+  it('should return the home fallback when the route reports no published layout', async () => {
+    // The route answers `{ layout: null }` — data, not an error — when the
+    // tenant has no published layout for the page type. That is the
+    // documented normal state, so `error` stays null and callers that
+    // 404 on an absent layout read `layout`, not `error`.
+    mockUseFetchFn.mockReturnValue({
+      data: ref({ layout: null }),
+      status: ref('success'),
+      error: ref(null),
+    })
+
+    const { layout, sections, error } = await usePageConfig('home')
+
+    expect(layout.value).toBeNull()
+    expect(error.value).toBeNull()
+    expect(sections.value.map(s => s.componentType)).toEqual(HOME_FALLBACK)
+  })
+
+  it('should return the home fallback when the backend is unavailable', async () => {
     mockUseFetchFn.mockReturnValue({
       data: ref(null),
       status: ref('error'),
-      error: ref(new Error('Not found')),
+      error: ref(Object.assign(new Error('Service Unavailable'), { statusCode: 503 })),
     })
 
-    const { sections } = await usePageConfig('home')
+    const { layout, sections, error } = await usePageConfig('home')
 
-    // The fallback mirrors the platform homepage exactly:
-    // blog categories rail → banner carousel → recently-viewed rail →
-    // blog posts list.
-    expect(sections.value.map(s => s.componentType)).toEqual([
-      'blog_categories',
-      'hero_carousel',
-      'recently_viewed',
-      'blog_posts_list',
-    ])
+    expect(layout.value).toBeNull()
+    expect(error.value?.statusCode).toBe(503)
+    expect(sections.value.map(s => s.componentType)).toEqual(HOME_FALLBACK)
   })
 
   it('should return empty array fallback for unknown page type', async () => {
     mockUseFetchFn.mockReturnValue({
-      data: ref(null),
-      status: ref('error'),
-      error: ref(new Error('Not found')),
+      data: ref({ layout: null }),
+      status: ref('success'),
+      error: ref(null),
     })
 
     const { sections } = await usePageConfig('unknown-page')

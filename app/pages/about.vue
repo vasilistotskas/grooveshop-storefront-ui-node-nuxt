@@ -7,14 +7,14 @@ const { t } = useI18n()
 // app/components/PageSection/variants/webside/AboutContent.vue).
 // No FALLBACK_LAYOUTS entry for 'about': a tenant without a published
 // layout renders an empty page body.
-const { data, sections, error } = await usePageConfig('about')
+const { layout, sections, error } = await usePageConfig('about')
 
 // A page whose layout is not published must fail LOUDLY. Rendering an
 // empty <main> with HTTP 200 is a soft-404: Google keeps it indexed, and
 // the footer of any tenant that links here would advertise a blank page.
 // Same normalization as app/pages/[slug].vue — a backend outage is 503,
 // a genuinely absent layout is 404.
-if (error.value || !data.value?.isPublished) {
+if (error.value || !layout.value?.isPublished) {
   const upstreamStatus = error.value?.statusCode ?? 404
   throw createError(
     upstreamStatus >= 500

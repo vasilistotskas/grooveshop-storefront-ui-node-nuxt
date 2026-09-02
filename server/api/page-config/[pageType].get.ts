@@ -1,4 +1,6 @@
-export default defineCachedEventHandler(async (event) => {
+import { FetchError } from 'ofetch'
+
+export default defineCachedEventHandler(async (event): Promise<PageConfigResponse> => {
   const config = useRuntimeConfig()
   const pageType = getRouterParam(event, 'pageType')
 
@@ -20,26 +22,42 @@ export default defineCachedEventHandler(async (event) => {
     // a warn log instead of breaking the page; the parse cost rides the
     // SWR cache below rather than every render.
     return {
-      ...layout,
-      sections: layout.sections.map((section) => {
-        const { props: safeProps, error } = parseSectionProps(
-          section.componentType,
-          section.props,
-        )
-        if (error) {
-          log.warn({
-            tag: 'page-config',
-            message: 'invalid section props — component defaults used',
-            componentType: section.componentType,
-            error,
-          })
-        }
-        return { ...section, props: safeProps }
-      }),
+      layout: {
+        ...layout,
+        sections: layout.sections.map((section) => {
+          const { props: safeProps, error } = parseSectionProps(
+            section.componentType,
+            section.props,
+          )
+          if (error) {
+            log.warn({
+              tag: 'page-config',
+              message: 'invalid section props — component defaults used',
+              componentType: section.componentType,
+              error,
+            })
+          }
+          return { ...section, props: safeProps }
+        }),
+      },
     }
   }
   catch (error) {
-    await handleError(error)
+    // Django's 404 is "no PUBLISHED layout for this page type" — the
+    // documented normal state for every page type defaults.py does not
+    // seed (products, blog, contact, feedback, and any custom [slug]).
+    // It is data, not a fault: return the absent state so the SWR cache
+    // stores it (a thrown error is never cached, so each SSR of
+    // /products and /blog cost a Django round-trip) and so the request
+    // log stops carrying a warning plus stack trace per render. Every
+    // other failure — 5xx, network, schema mismatch — still propagates:
+    // the pages that turn "no layout" into a real 404 (about.vue,
+    // [slug].vue) must be able to tell it apart from an outage.
+    // See shared/types/pageConfig.ts for why null rides inside an object.
+    if (error instanceof FetchError && error.statusCode === 404) {
+      return { layout: null }
+    }
+    return handleError(error)
   }
 }, {
   name: 'pageConfig',

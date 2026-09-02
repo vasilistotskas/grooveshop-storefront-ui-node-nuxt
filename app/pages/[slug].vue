@@ -16,9 +16,9 @@ if (!slug) {
 // WITHOUT it data/error are still null here on every server render and
 // the 404 branch fires unconditionally. Awaiting suspends setup, same
 // as every other data-driven page in app/pages/**.
-const { data, sections, error } = await usePageConfig(slug)
+const { layout, sections, error } = await usePageConfig(slug)
 
-if (error.value || !data.value?.isPublished) {
+if (error.value || !layout.value?.isPublished) {
   // Distinguish "row really absent" (404) from "backend unavailable"
   // (5xx / timeout) — same normalization as products/[id]/[slug].vue
   // and blog/post/[id]/[slug].vue.
@@ -35,10 +35,10 @@ if (error.value || !data.value?.isPublished) {
 // title source (unlike the static pages, which own dedicated i18n
 // titles inside their section variants).
 useSeoMeta({
-  title: () => data.value?.title,
+  title: () => layout.value?.title,
 })
 useHead({
-  title: () => data.value?.title,
+  title: () => layout.value?.title,
 })
 
 definePageMeta({
