@@ -13723,6 +13723,8 @@ export const zGetAcsLabelForOrderPath = z.object({
   ]),
 })
 
+export const zGetAcsLabelForOrderResponse = z.string()
+
 export const zAddOrderTrackingBody = zAddTrackingRequest
 
 export const zAddOrderTrackingPath = z.object({
@@ -13747,6 +13749,8 @@ export const zGetBoxNowLabelForOrderPath = z.object({
     z.int(),
   ]),
 })
+
+export const zGetBoxNowLabelForOrderResponse = z.string()
 
 export const zCancelOrderBody = zCancelOrderRequestRequest
 
@@ -13807,6 +13811,8 @@ export const zDownloadOrderInvoicePath = z.object({
     z.int(),
   ]),
 })
+
+export const zDownloadOrderInvoiceResponse = z.string()
 
 export const zGetOrderPaymentStatusPath = z.object({
   id: z.union([

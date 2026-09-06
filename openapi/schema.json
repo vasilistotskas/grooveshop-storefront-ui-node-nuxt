@@ -24441,6 +24441,17 @@
                             }
                         },
                         "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -24722,6 +24733,17 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "200": {
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
                                 }
                             }
                         },
@@ -25316,7 +25338,15 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "No response body"
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        },
+                        "description": ""
                     },
                     "404": {
                         "description": "No response body"
@@ -42226,7 +42256,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "application/json": {
+                            "application/pdf": {
                                 "schema": {
                                     "type": "string",
                                     "format": "binary"
@@ -42339,7 +42369,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "application/json": {
+                            "application/pdf": {
                                 "schema": {
                                     "type": "string",
                                     "format": "binary"
@@ -43023,7 +43053,7 @@
                 "responses": {
                     "200": {
                         "content": {
-                            "application/json": {
+                            "application/pdf": {
                                 "schema": {
                                     "type": "string",
                                     "format": "binary"

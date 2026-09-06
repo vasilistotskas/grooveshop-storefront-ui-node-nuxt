@@ -17936,6 +17936,12 @@ export type GetAcsLabelForOrderErrors = {
 
 export type GetAcsLabelForOrderError = GetAcsLabelForOrderErrors[keyof GetAcsLabelForOrderErrors]
 
+export type GetAcsLabelForOrderResponses = {
+  200: Blob | File
+}
+
+export type GetAcsLabelForOrderResponse = GetAcsLabelForOrderResponses[keyof GetAcsLabelForOrderResponses]
+
 export type AddOrderTrackingData = {
   body: AddTrackingRequest
   path: {
@@ -17998,6 +18004,12 @@ export type GetBoxNowLabelForOrderErrors = {
 }
 
 export type GetBoxNowLabelForOrderError = GetBoxNowLabelForOrderErrors[keyof GetBoxNowLabelForOrderErrors]
+
+export type GetBoxNowLabelForOrderResponses = {
+  200: Blob | File
+}
+
+export type GetBoxNowLabelForOrderResponse = GetBoxNowLabelForOrderResponses[keyof GetBoxNowLabelForOrderResponses]
 
 export type CancelOrderData = {
   body?: CancelOrderRequestRequest
@@ -18141,11 +18153,10 @@ export type DownloadOrderInvoiceErrors = {
 }
 
 export type DownloadOrderInvoiceResponses = {
-  /**
-     * No response body
-     */
-  200: unknown
+  200: Blob | File
 }
+
+export type DownloadOrderInvoiceResponse = DownloadOrderInvoiceResponses[keyof DownloadOrderInvoiceResponses]
 
 export type GetOrderPaymentStatusData = {
   body?: never

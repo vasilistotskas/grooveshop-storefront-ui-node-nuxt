@@ -14346,6 +14346,13 @@ paths:
       security:
         - cookieAuth: []
       responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: ''
         '400':
           content:
             application/json:
@@ -14511,6 +14518,13 @@ paths:
       security:
         - cookieAuth: []
       responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: ''
         '400':
           content:
             application/json:
@@ -14882,7 +14896,12 @@ paths:
         - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+          description: ''
         '404':
           description: No response body
   /api/v1/order/{id}/payment_status:
@@ -24899,7 +24918,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
+            application/pdf:
               schema:
                 type: string
                 format: binary
@@ -24968,7 +24987,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
+            application/pdf:
               schema:
                 type: string
                 format: binary
@@ -25383,7 +25402,7 @@ paths:
       responses:
         '200':
           content:
-            application/json:
+            application/pdf:
               schema:
                 type: string
                 format: binary
