@@ -1,3 +1,10 @@
+## [3.166.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.166.1...v3.166.2) (2026-09-06)
+
+
+### Bug Fixes
+
+* **user:** the byline no longer carries an account record, or an email ([1e9de68](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1e9de682bdbbf4cd50aa67a569efedf00f865088))
+
 ## [3.166.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.166.0...v3.166.1) (2026-09-02)
 
 
