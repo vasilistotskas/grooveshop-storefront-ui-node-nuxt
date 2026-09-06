@@ -1397,10 +1397,29 @@ export const zCreateCheckoutSessionResponse = z.object({
   provider: z.string(),
 })
 
+/**
+ * Request body for ``create_payment_intent`` and ``retry_payment``.
+ *
+ * The three named fields are declared because both views read them off
+ * ``validated_data`` — undeclared, DRF dropped them and the branches
+ * that copy them into ``payment_data`` could never fire.
+ */
 export const zCreatePaymentIntentRequestRequest = z.object({
   paymentData: z.record(z.string(), z.string().min(1).max(500)).register(z.globalRegistry, {
     description: 'Επιπλέον δεδομένα πληρωμής που απαιτούνται από τον πάροχο πληρωμών',
   }).optional(),
+  paymentMethodId: z.string().max(255).register(z.globalRegistry, {
+    description: 'Provider payment-method id to charge',
+  }).optional(),
+  customerId: z.string().max(255).register(z.globalRegistry, {
+    description: 'Provider customer id to attach the payment to',
+  }).optional(),
+  returnUrl: z.union([
+    z.url().max(500),
+    z.string().max(0),
+  ]).optional(),
+}).register(z.globalRegistry, {
+  description: 'Request body for ``create_payment_intent`` and ``retry_payment``.\n\nThe three named fields are declared because both views read them off\n``validated_data`` — undeclared, DRF dropped them and the branches\nthat copy them into ``payment_data`` could never fire.',
 })
 
 export const zCreatePaymentIntentResponse = z.object({
@@ -2148,7 +2167,6 @@ export const zOrderWriteRequest = z.object({
   city: z.string().min(1).max(255),
   phone: z.string().min(1),
   customerNotes: z.string().optional(),
-  items: z.array(zOrderItemCreateRequest),
 })
 
 export const zPageLayoutRequest = z.object({
@@ -2587,7 +2605,6 @@ export const zPatchedOrderWriteRequest = z.object({
   city: z.string().min(1).max(255).optional(),
   phone: z.string().min(1).optional(),
   customerNotes: z.string().optional(),
-  items: z.array(zOrderItemCreateRequest).optional(),
 })
 
 export const zPatchedPageLayoutRequest = z.object({
@@ -2842,7 +2859,6 @@ export const zPatchedUserSubscriptionWriteRequest = z.object({
 })
 
 export const zPatchedUserWriteRequest = z.object({
-  email: z.email().min(1).max(254).optional(),
   firstName: z.string().max(255).optional(),
   lastName: z.string().max(255).optional(),
   username: z.union([
@@ -2850,7 +2866,7 @@ export const zPatchedUserWriteRequest = z.object({
     z.string().max(0),
   ]).nullish(),
   image: z.string().nullish(),
-  phone: z.string().nullish(),
+  phone: z.string().optional(),
   city: z.string().max(255).optional(),
   zipcode: z.string().max(255).optional(),
   address: z.string().max(255).optional(),
@@ -2861,31 +2877,31 @@ export const zPatchedUserWriteRequest = z.object({
   twitter: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   linkedin: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   facebook: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   instagram: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   website: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   youtube: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   github: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   bio: z.string().optional(),
   languageCode: z.string().min(1).max(10).register(z.globalRegistry, {
     description: 'Προτιμώμενη γλώσσα για emails και μηνύματα διεπαφής.',
@@ -4496,8 +4512,8 @@ export const zRegionWriteRequest = z.object({
  * Serializer for releasing stock reservations.
  */
 export const zReleaseReservationsRequestRequest = z.object({
-  reservationIds: z.array(z.int()).register(z.globalRegistry, {
-    description: 'Λίστα ID δεσμεύσεων προς απελευθέρωση',
+  reservationIds: z.array(z.int()).max(100).register(z.globalRegistry, {
+    description: 'List of reservation IDs to release (at most 100)',
   }),
 }).register(z.globalRegistry, {
   description: 'Serializer for releasing stock reservations.',
@@ -6028,7 +6044,7 @@ export const zUserDetails = z.object({
     z.string().max(30).regex(/^[\w.@+#-]+$/),
     z.string().max(0),
   ]).nullish(),
-  phone: z.string().nullish(),
+  phone: z.string().optional(),
   city: z.string().max(255).optional(),
   zipcode: z.string().max(255).optional(),
   address: z.string().max(255).optional(),
@@ -6058,6 +6074,58 @@ export const zUserDetails = z.object({
   mainImagePath: z.string().readonly(),
 })
 
+export const zNotificationUserDetail = z.object({
+  id: z.int().readonly(),
+  user: zUserDetails,
+  notification: zNotification,
+  seen: z.boolean().optional(),
+  seenAt: z.iso.datetime({ offset: true }).nullish(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+})
+
+export const zPaginatedNotificationUserDetailList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zNotificationUserDetail),
+})
+
+export const zPaginatedUserDetailsList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zUserDetails),
+})
+
+/**
+ * The author identity shown to anyone, including anonymous callers.
+ */
+export const zUserPublic = z.object({
+  id: z.int().readonly(),
+  username: z.string().readonly().nullable(),
+  firstName: z.string().readonly(),
+  lastName: z.string().readonly(),
+  mainImagePath: z.string().register(z.globalRegistry, {
+    description: 'Avatar path or empty string',
+  }).readonly(),
+}).register(z.globalRegistry, {
+  description: 'The author identity shown to anyone, including anonymous callers.',
+})
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -6075,7 +6143,7 @@ export const zBlogAuthorDetail = z.object({
   }),
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
-  user: zUserDetails,
+  user: zUserPublic,
   website: z.string().max(200).readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -6106,7 +6174,7 @@ export const zBlogComment = z.object({
       content: z.string().optional(),
     }).optional(),
   }),
-  user: zUserDetails,
+  user: zUserPublic,
   contentPreview: z.string().readonly().nullable(),
   isReply: z.boolean().register(z.globalRegistry, {
     description: 'Αν αυτό το σχόλιο είναι απάντηση σε άλλο σχόλιο',
@@ -6147,7 +6215,7 @@ export const zBlogCommentDetail = z.object({
       content: z.string().optional(),
     }).optional(),
   }),
-  user: zUserDetails,
+  user: zUserPublic,
   contentPreview: z.string().readonly().nullable(),
   isReply: z.boolean().register(z.globalRegistry, {
     description: 'Αν αυτό το σχόλιο είναι απάντηση σε άλλο σχόλιο',
@@ -6251,17 +6319,6 @@ export const zBlogPostDetail = z.object({
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
-export const zNotificationUserDetail = z.object({
-  id: z.int().readonly(),
-  user: zUserDetails,
-  notification: zNotification,
-  seen: z.boolean().optional(),
-  seenAt: z.iso.datetime({ offset: true }).nullish(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-})
-
 export const zPaginatedBlogCommentList = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -6275,39 +6332,13 @@ export const zPaginatedBlogCommentList = z.object({
   results: z.array(zBlogComment),
 })
 
-export const zPaginatedNotificationUserDetailList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zNotificationUserDetail),
-})
-
-export const zPaginatedUserDetailsList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zUserDetails),
-})
-
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export const zProductReview = z.object({
   id: z.int().readonly(),
   product: zProductBrief,
-  user: zUserDetails,
+  user: zUserPublic,
   rate: zRateEnum,
   status: zReviewStatus.optional(),
   isPublished: z.boolean().optional(),
@@ -6349,7 +6380,7 @@ export const zPaginatedProductReviewList = z.object({
 export const zProductReviewDetail = z.object({
   id: z.int().readonly(),
   product: zProduct,
-  user: zUserDetails,
+  user: zUserPublic,
   rate: zRateEnum,
   status: zReviewStatus.optional(),
   isPublished: z.boolean().optional(),
@@ -6423,7 +6454,6 @@ export const zUserSubscriptionWriteRequest = z.object({
 })
 
 export const zUserWriteRequest = z.object({
-  email: z.email().min(1).max(254),
   firstName: z.string().max(255).optional(),
   lastName: z.string().max(255).optional(),
   username: z.union([
@@ -6431,7 +6461,7 @@ export const zUserWriteRequest = z.object({
     z.string().max(0),
   ]).nullish(),
   image: z.string().nullish(),
-  phone: z.string().nullish(),
+  phone: z.string().optional(),
   city: z.string().max(255).optional(),
   zipcode: z.string().max(255).optional(),
   address: z.string().max(255).optional(),
@@ -6442,31 +6472,31 @@ export const zUserWriteRequest = z.object({
   twitter: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   linkedin: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   facebook: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   instagram: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   website: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   youtube: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   github: z.union([
     z.url().max(200),
     z.string().max(0),
-  ]).nullish(),
+  ]).optional(),
   bio: z.string().optional(),
   languageCode: z.string().min(1).max(10).register(z.globalRegistry, {
     description: 'Προτιμώμενη γλώσσα για emails και μηνύματα διεπαφής.',
@@ -6474,7 +6504,7 @@ export const zUserWriteRequest = z.object({
 })
 
 export const zUsernameUpdateRequest = z.object({
-  username: z.string().min(1).max(150).register(z.globalRegistry, {
+  username: z.string().min(1).max(30).regex(/^[\w.@+#-]+$/).register(z.globalRegistry, {
     description: 'Νέο όνομα χρήστη',
   }),
 })
@@ -8436,7 +8466,7 @@ export const zUserDetailsWritable = z.object({
     z.string().max(30).regex(/^[\w.@+#-]+$/),
     z.string().max(0),
   ]).nullish(),
-  phone: z.string().nullish(),
+  phone: z.string().optional(),
   city: z.string().max(255).optional(),
   zipcode: z.string().max(255).optional(),
   address: z.string().max(255).optional(),
@@ -9096,13 +9126,13 @@ export const zListBlogCommentQuery = z.object({
     z.number(),
   ]).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -9309,13 +9339,13 @@ export const zListBlogCommentQuery = z.object({
     z.int(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   user: z.union([
     z.string().regex(/^-?\d+$/),
@@ -9338,7 +9368,9 @@ export const zListBlogCommentQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListBlogCommentResponse = zPaginatedBlogCommentList
@@ -9468,13 +9500,13 @@ export const zListBlogCommentRepliesQuery = z.object({
     z.number(),
   ]).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Opaque cursor (cursor pagination strategy)',
@@ -9681,13 +9713,13 @@ export const zListBlogCommentRepliesQuery = z.object({
     z.int(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   user: z.union([
     z.string().regex(/^-?\d+$/),
@@ -9710,7 +9742,9 @@ export const zListBlogCommentRepliesQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListBlogCommentRepliesResponse = zPaginatedBlogCommentList
@@ -9742,13 +9776,13 @@ export const zGetBlogCommentThreadQuery = z.object({
     z.number(),
   ]).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Opaque cursor (cursor pagination strategy)',
@@ -9955,13 +9989,13 @@ export const zGetBlogCommentThreadQuery = z.object({
     z.int(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   user: z.union([
     z.string().regex(/^-?\d+$/),
@@ -9984,7 +10018,9 @@ export const zGetBlogCommentThreadQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zGetBlogCommentThreadResponse = zPaginatedBlogCommentList
@@ -10022,13 +10058,13 @@ export const zListMyBlogCommentsQuery = z.object({
     z.number(),
   ]).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Opaque cursor (cursor pagination strategy)',
@@ -10235,13 +10271,13 @@ export const zListMyBlogCommentsQuery = z.object({
     z.int(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   user: z.union([
     z.string().regex(/^-?\d+$/),
@@ -10264,7 +10300,9 @@ export const zListMyBlogCommentsQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListMyBlogCommentsResponse = zPaginatedBlogCommentList
@@ -10389,7 +10427,7 @@ export const zListBlogPostQuery = z.object({
   slug: z.string().optional(),
   slug_Icontains: z.string().optional(),
   tagName: z.string().register(z.globalRegistry, {
-    description: 'Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
+    description: 'Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   tags: z.union([
     z.string().register(z.globalRegistry, {
@@ -10409,7 +10447,9 @@ export const zListBlogPostQuery = z.object({
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
   viewCount: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10650,7 +10690,7 @@ export const zListBlogPostRelatedQuery = z.object({
   slug: z.string().optional(),
   slug_Icontains: z.string().optional(),
   tagName: z.string().register(z.globalRegistry, {
-    description: 'Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
+    description: 'Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   tags: z.union([
     z.string().register(z.globalRegistry, {
@@ -10670,7 +10710,9 @@ export const zListBlogPostRelatedQuery = z.object({
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
   viewCount: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10825,7 +10867,7 @@ export const zListFeaturedBlogPostsQuery = z.object({
   slug: z.string().optional(),
   slug_Icontains: z.string().optional(),
   tagName: z.string().register(z.globalRegistry, {
-    description: 'Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
+    description: 'Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   tags: z.union([
     z.string().register(z.globalRegistry, {
@@ -10845,7 +10887,9 @@ export const zListFeaturedBlogPostsQuery = z.object({
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
   viewCount: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10986,7 +11030,7 @@ export const zListPopularBlogPostsQuery = z.object({
   slug: z.string().optional(),
   slug_Icontains: z.string().optional(),
   tagName: z.string().register(z.globalRegistry, {
-    description: 'Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
+    description: 'Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   tags: z.union([
     z.string().register(z.globalRegistry, {
@@ -11006,7 +11050,9 @@ export const zListPopularBlogPostsQuery = z.object({
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
   viewCount: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -11127,7 +11173,7 @@ export const zListTrendingBlogPostsQuery = z.object({
   slug: z.string().optional(),
   slug_Icontains: z.string().optional(),
   tagName: z.string().register(z.globalRegistry, {
-    description: 'Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
+    description: 'Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)',
   }).optional(),
   tags: z.union([
     z.string().register(z.globalRegistry, {
@@ -11147,7 +11193,9 @@ export const zListTrendingBlogPostsQuery = z.object({
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
   viewCount: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -11173,13 +11221,13 @@ export const zListBlogTagQuery = z.object({
     z.boolean(),
   ]).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -11312,6 +11360,14 @@ export const zListBlogTagQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  sortOrderMax: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrderMin: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
   translations_Name: z.string().optional(),
   translations_Name_Icontains: z.string().optional(),
   translations_Name_Istartswith: z.string().optional(),
@@ -11323,15 +11379,17 @@ export const zListBlogTagQuery = z.object({
     z.boolean(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListBlogTagResponse = zPaginatedBlogTagList
@@ -11427,13 +11485,13 @@ export const zUpdateBlogTagResponse = zBlogTagDetail
 
 export const zDestroyCartHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.',
   }).optional(),
 })
 
 export const zRetrieveCartHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.',
   }).optional(),
 })
 
@@ -11441,7 +11499,7 @@ export const zRetrieveCartResponse = zCartDetail
 
 export const zPartialUpdateCartHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.',
   }).optional(),
 })
 
@@ -11449,7 +11507,7 @@ export const zPartialUpdateCartResponse = zCartDetail
 
 export const zUpdateCartHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.',
   }).optional(),
 })
 
@@ -11457,7 +11515,7 @@ export const zUpdateCartResponse = zCartDetail
 
 export const zRemoveCartCouponHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.',
   }).optional(),
 })
 
@@ -11467,7 +11525,7 @@ export const zApplyCartCouponBody = zCouponApplyRequestRequest
 
 export const zApplyCartCouponHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.',
   }).optional(),
 })
 
@@ -11477,7 +11535,7 @@ export const zCreateCartPaymentIntentBody = zCartCreatePaymentIntentRequestReque
 
 export const zCreateCartPaymentIntentHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.',
   }).optional(),
 })
 
@@ -11521,13 +11579,13 @@ export const zListCartItemQuery = z.object({
     description: 'Φίλτρο ανά τελευταία δραστηριότητα καλαθιού πριν από ημερομηνία',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -11639,15 +11697,17 @@ export const zListCartItemQuery = z.object({
     description: 'A search term.',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
   withDiscounts: z.union([
     z.literal('true'),
     z.literal('false'),
@@ -11753,7 +11813,7 @@ export const zUpdateCartItemResponse = zCartItemDetail
 
 export const zListCartHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.',
   }).optional(),
 })
 
@@ -11766,13 +11826,13 @@ export const zListCartQuery = z.object({
     description: 'Φίλτρο ανά τύπο καλαθιού\n\n* `user` - User Cart\n* `guest` - Guest Cart\n* `anonymous` - Anonymous Cart',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -11894,13 +11954,13 @@ export const zListCartQuery = z.object({
     description: 'A search term.',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   user: z.union([
     z.string().regex(/^-?\d+$/),
@@ -11926,7 +11986,9 @@ export const zListCartQuery = z.object({
   userName: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά πλήρες όνομα χρήστη (όνομα ή επώνυμο)',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListCartResponse = zPaginatedCartList
@@ -11935,7 +11997,7 @@ export const zReleaseCartReservationsBody = zReleaseReservationsRequestRequest
 
 export const zReleaseCartReservationsHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.',
   }).optional(),
 })
 
@@ -11943,7 +12005,7 @@ export const zReleaseCartReservationsResponse = zReleaseReservationsResponse
 
 export const zReserveCartStockHeaders = z.object({
   'X-Cart-Id': z.uuid().register(z.globalRegistry, {
-    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).',
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.',
   }).optional(),
 })
 
@@ -12108,13 +12170,13 @@ export const zListCountryQuery = z.object({
     description: 'Φίλτρο ανά ήπειρο (βάσει κωδικών ISO)\n\n* `AF` - Africa\n* `AS` - Asia\n* `EU` - Europe\n* `NA` - North America\n* `OC` - Oceania\n* `SA` - South America\n* `AN` - Antarctica',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -12268,16 +12330,26 @@ export const zListCountryQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  sortOrderMax: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrderMin: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListCountryResponse = zPaginatedCountryList
@@ -12509,13 +12581,13 @@ export const zGetNotificationsByIdsResponse = z.array(zNotification)
 
 export const zListNotificationUserQuery = z.object({
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -12657,13 +12729,13 @@ export const zListNotificationUserQuery = z.object({
     z.boolean(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   user: z.union([
     z.string().regex(/^-?\d+$/),
@@ -12695,7 +12767,9 @@ export const zListNotificationUserQuery = z.object({
   userIds: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά πολλαπλά ID χρηστών (διαχωρισμένα με κόμμα)',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListNotificationUserResponse = zPaginatedNotificationUserList
@@ -12809,13 +12883,13 @@ export const zListOrderQuery = z.object({
     description: 'Φίλτρο ανά πολλαπλά ID χωρών (διαχωρισμένα με κόμμα)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -13093,13 +13167,13 @@ export const zListOrderQuery = z.object({
   }).optional(),
   trackingNumber_Icontains: z.string().optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   user: z.union([
     z.string().regex(/^-?\d+$/),
@@ -13124,7 +13198,9 @@ export const zListOrderQuery = z.object({
   userIds: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά πολλαπλά ID χρηστών (διαχωρισμένα με κόμμα)',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
   zipcode: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά Τ.Κ.',
   }).optional(),
@@ -13155,13 +13231,13 @@ export const zListOrderItemQuery = z.object({
     z.boolean(),
   ]).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -13443,15 +13519,17 @@ export const zListOrderItemQuery = z.object({
     z.int(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListOrderItemResponse = zPaginatedOrderItemList
@@ -13775,7 +13853,7 @@ export const zGetShipmentLabelForOrderPath = z.object({
   ]),
 })
 
-export const zGetShipmentLabelForOrderResponse = zOrderDetail
+export const zGetShipmentLabelForOrderResponse = z.string()
 
 export const zUpdateOrderStatusBody = zUpdateStatusRequest
 
@@ -13820,13 +13898,13 @@ export const zListMyOrdersQuery = z.object({
     description: 'Φίλτρο ανά πολλαπλά ID χωρών (διαχωρισμένα με κόμμα)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Opaque cursor (cursor pagination strategy)',
@@ -14104,13 +14182,13 @@ export const zListMyOrdersQuery = z.object({
   }).optional(),
   trackingNumber_Icontains: z.string().optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   user: z.union([
     z.string().regex(/^-?\d+$/),
@@ -14135,7 +14213,9 @@ export const zListMyOrdersQuery = z.object({
   userIds: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά πολλαπλά ID χρηστών (διαχωρισμένα με κόμμα)',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
   zipcode: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά Τ.Κ.',
   }).optional(),
@@ -14447,6 +14527,12 @@ export const zListPayWayQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
+  createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
+  }).optional(),
+  createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
+  }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
   }).optional(),
@@ -14557,7 +14643,23 @@ export const zListPayWayQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  uuid: z.uuid().optional(),
+  sortOrderMax: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrderMin: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
+  }).optional(),
+  updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
+  }).optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListPayWayResponse = zPaginatedPayWayList
@@ -14675,13 +14777,13 @@ export const zListProductQuery = z.object({
     z.int(),
   ]).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -14769,6 +14871,18 @@ export const zListProductQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
+  metadataContains: z.string().register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων όπου τα metadata περιέχουν το καθορισμένο JSON (ως συμβολοσειρά)',
+  }).optional(),
+  metadataHasAnyKeys: z.string().register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων όπου τα metadata περιέχουν οποιοδήποτε από τα καθορισμένα κλειδιά (διαχωρισμένα με κόμμα)',
+  }).optional(),
+  metadataHasKey: z.string().register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων όπου τα metadata περιέχουν το καθορισμένο κλειδί',
+  }).optional(),
+  metadataHasKeys: z.string().register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων όπου τα metadata περιέχουν όλα τα καθορισμένα κλειδιά (διαχωρισμένα με κόμμα)',
+  }).optional(),
   minDiscount: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
@@ -14838,6 +14952,9 @@ export const zListProductQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
+  privateMetadataHasKey: z.string().register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων όπου τα ιδιωτικά metadata περιέχουν το καθορισμένο κλειδί (μόνο για προσωπικό)',
+  }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -14856,15 +14973,17 @@ export const zListProductQuery = z.object({
     z.int(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
   viewCount: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -15191,13 +15310,13 @@ export const zListAttributeQuery = z.object({
     z.boolean(),
   ]).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -15264,15 +15383,17 @@ export const zListAttributeQuery = z.object({
     z.int(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListAttributeResponse = zPaginatedAttributeList
@@ -15379,13 +15500,13 @@ export const zListAttributeValueQuery = z.object({
     z.array(z.int()),
   ]).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -15444,15 +15565,17 @@ export const zListAttributeValueQuery = z.object({
     z.int(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
   value: z.string().optional(),
 })
 
@@ -15554,13 +15677,13 @@ export const zListProductCategoryQuery = z.object({
     z.number(),
   ]).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -15692,15 +15815,17 @@ export const zListProductCategoryQuery = z.object({
     z.int(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListProductCategoryResponse = zPaginatedProductCategoryList
@@ -15807,13 +15932,13 @@ export const zListAllProductCategoryQuery = z.object({
     z.number(),
   ]).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   descendantOf: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
@@ -15917,15 +16042,17 @@ export const zListAllProductCategoryQuery = z.object({
     z.int(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListAllProductCategoryResponse = z.array(zProductCategory)
@@ -16187,10 +16314,10 @@ export const zGetProductCategoryImagesByTypeResponse = z.array(zProductCategoryI
 
 export const zListProductFavouriteQuery = z.object({
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -16238,11 +16365,23 @@ export const zListProductFavouriteQuery = z.object({
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
+  sortOrder: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  sortOrderMax: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  sortOrderMin: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   user: z.union([
     z.string().regex(/^-?\d+$/),
@@ -16344,10 +16483,10 @@ export const zGetProductFavouritesByProductsBody = zProductFavouriteByProductsRe
 
 export const zGetProductFavouritesByProductsQuery = z.object({
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   id: z.union([
     z.string().regex(/^-?\d+$/),
@@ -16367,11 +16506,23 @@ export const zGetProductFavouritesByProductsQuery = z.object({
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
+  sortOrder: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  sortOrderMax: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  sortOrderMin: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   user: z.union([
     z.string().regex(/^-?\d+$/),
@@ -16719,7 +16870,9 @@ export const zListProductReviewQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
   verifiedPurchase: z.union([
     z.literal('true'),
     z.literal('false'),
@@ -16849,10 +17002,10 @@ export const zListRegionQuery = z.object({
     description: 'Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -16903,13 +17056,23 @@ export const zListRegionQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  sortOrderMax: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrderMin: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListRegionResponse = zPaginatedRegionList
@@ -17020,10 +17183,10 @@ export const zListRegionsByCountryQuery = z.object({
     description: 'Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   languageCode: z.enum([
     'de',
@@ -17061,13 +17224,23 @@ export const zListRegionsByCountryQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  sortOrderMax: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrderMin: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListRegionsByCountryResponse = zPaginatedRegionList
@@ -17403,13 +17576,13 @@ export const zListTagQuery = z.object({
     description: 'Φίλτρο ετικετών που χρησιμοποιούνται για περιεχόμενο από συγκεκριμένη εφαρμογή',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -17509,6 +17682,14 @@ export const zListTagQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
+  sortOrderMax: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  sortOrderMin: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
   translations_Label: z.string().optional(),
   translations_Label_Icontains: z.string().optional(),
   translations_Label_Istartswith: z.string().optional(),
@@ -17520,15 +17701,17 @@ export const zListTagQuery = z.object({
     z.boolean(),
   ]).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListTagResponse = zPaginatedTagList
@@ -17630,13 +17813,13 @@ export const zListTaggedItemQuery = z.object({
     description: 'Φίλτρο ανά app label τύπου περιεχομένου',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -17707,15 +17890,17 @@ export const zListTaggedItemQuery = z.object({
     description: 'Φίλτρο ανά ετικέτα (μερική αντιστοίχιση)',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListTaggedItemResponse = zPaginatedTaggedItemList
@@ -17868,20 +18053,6 @@ export const zListUserAccountQuery = z.object({
 })
 
 export const zListUserAccountResponse = zPaginatedUserDetailsList
-
-export const zCreateUserAccountBody = zUserWriteRequest
-
-export const zCreateUserAccountQuery = z.object({
-  languageCode: z.enum([
-    'de',
-    'el',
-    'en',
-  ]).register(z.globalRegistry, {
-    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
-  }).optional().default('el'),
-})
-
-export const zCreateUserAccountResponse = zUserDetails
 
 export const zRetrieveUserAccountPath = z.object({
   id: z.union([
@@ -18345,13 +18516,13 @@ export const zListUserAddressQuery = z.object({
     description: 'Φίλτρο ανά όνομα χώρας (μερική αντιστοίχιση)',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -18466,15 +18637,17 @@ export const zListUserAddressQuery = z.object({
   title: z.string().optional(),
   title_Icontains: z.string().optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
   zipcode: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά ταχυδρομικό κώδικα (μερική αντιστοίχιση)',
   }).optional(),
@@ -18590,13 +18763,13 @@ export const zDownloadUserDataExportPath = z.object({
 
 export const zListUserSubscriptionQuery = z.object({
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -18710,15 +18883,17 @@ export const zListUserSubscriptionQuery = z.object({
     description: 'Φίλτρο εγγραφών με διαγραφή πριν από αυτή την ημερομηνία',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListUserSubscriptionResponse = zPaginatedUserSubscriptionList
@@ -18852,13 +19027,13 @@ export const zListSubscriptionTopicQuery = z.object({
     description: 'Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο',
   }).optional(),
   createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created after this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   createdAt_Date: z.iso.date().optional(),
   createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
   createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
   createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items created before this date',
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
   cursor: z.string().register(z.globalRegistry, {
     description: 'Δείκτης (cursor) για σελιδοποίηση',
@@ -18946,15 +19121,17 @@ export const zListSubscriptionTopicQuery = z.object({
     description: 'Φίλτρο ανά ακριβές slug',
   }).optional(),
   updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated after this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
   updatedAt_Date: z.iso.date().optional(),
   updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
   updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
   updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
-    description: 'Filter items updated before this date',
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
   }).optional(),
-  uuid: z.uuid().optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
 })
 
 export const zListSubscriptionTopicResponse = zPaginatedSubscriptionTopicList
