@@ -615,7 +615,7 @@ export type BlogAuthorDetail = {
   }
   readonly id: number
   readonly uuid: string
-  user: UserDetails
+  user: UserPublic
   /**
      * Σύνδεσμος URL ή κενή τιμή
      */
@@ -833,7 +833,7 @@ export type BlogComment = {
       content?: string
     }
   }
-  user: UserDetails
+  user: UserPublic
   /**
      * Οι πρώτοι 150 χαρακτήρες του περιεχομένου του σχολίου
      */
@@ -888,7 +888,7 @@ export type BlogCommentDetail = {
       content?: string
     }
   }
-  user: UserDetails
+  user: UserPublic
   /**
      * Οι πρώτοι 150 χαρακτήρες του περιεχομένου του σχολίου
      */
@@ -2813,6 +2813,13 @@ export type CreateCheckoutSessionResponse = {
   provider: string
 }
 
+/**
+ * Request body for ``create_payment_intent`` and ``retry_payment``.
+ *
+ * The three named fields are declared because both views read them off
+ * ``validated_data`` — undeclared, DRF dropped them and the branches
+ * that copy them into ``payment_data`` could never fire.
+ */
 export type CreatePaymentIntentRequestRequest = {
   /**
      * Επιπλέον δεδομένα πληρωμής που απαιτούνται από τον πάροχο πληρωμών
@@ -2820,6 +2827,18 @@ export type CreatePaymentIntentRequestRequest = {
   paymentData?: {
     [key: string]: string
   }
+  /**
+     * Provider payment-method id to charge
+     */
+  paymentMethodId?: string
+  /**
+     * Provider customer id to attach the payment to
+     */
+  customerId?: string
+  /**
+     * Where the provider should send the shopper back to
+     */
+  returnUrl?: string | string
 }
 
 export type CreatePaymentIntentResponse = {
@@ -4415,7 +4434,6 @@ export type OrderWriteRequest = {
      * Σημειώσεις Πελάτη
      */
   customerNotes?: string
-  items: Array<OrderItemCreateRequest>
 }
 
 export type PageLayout = {
@@ -5293,7 +5311,6 @@ export type PatchedOrderWriteRequest = {
      * Σημειώσεις Πελάτη
      */
   customerNotes?: string
-  items?: Array<OrderItemCreateRequest>
 }
 
 export type PatchedPageLayoutRequest = {
@@ -5731,10 +5748,6 @@ export type PatchedUserSubscriptionWriteRequest = {
 
 export type PatchedUserWriteRequest = {
   /**
-     * Διεύθυνση Email
-     */
-  email?: string
-  /**
      * Όνομα
      */
   firstName?: string
@@ -5745,14 +5758,14 @@ export type PatchedUserWriteRequest = {
   /**
      * Όνομα χρήστη
      *
-     * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
+     * Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
      */
   username?: string | string | null
   /**
      * Εικόνα
      */
   image?: Blob | File | null
-  phone?: string | null
+  phone?: string
   /**
      * Πόλη
      */
@@ -5784,31 +5797,31 @@ export type PatchedUserWriteRequest = {
   /**
      * Προφίλ Twitter
      */
-  twitter?: string | string | null
+  twitter?: string | string
   /**
      * Προφίλ LinkedIn
      */
-  linkedin?: string | string | null
+  linkedin?: string | string
   /**
      * Προφίλ Facebook
      */
-  facebook?: string | string | null
+  facebook?: string | string
   /**
      * Προφίλ Instagram
      */
-  instagram?: string | string | null
+  instagram?: string | string
   /**
      * Ιστότοπος
      */
-  website?: string | string | null
+  website?: string | string
   /**
      * Προφίλ Youtube
      */
-  youtube?: string | string | null
+  youtube?: string | string
   /**
      * Προφίλ Github
      */
-  github?: string | string | null
+  github?: string | string
   /**
      * Βιογραφικό
      */
@@ -7000,7 +7013,7 @@ export type ProductPoints = {
 export type ProductReview = {
   readonly id: number
   product: ProductBrief
-  user: UserDetails
+  user: UserPublic
   /**
      * Συντ.
      */
@@ -7045,7 +7058,7 @@ export type ProductReview = {
 export type ProductReviewDetail = {
   readonly id: number
   product: Product
-  user: UserDetails
+  user: UserPublic
   /**
      * Συντ.
      */
@@ -7461,7 +7474,7 @@ export type RegionWriteRequest = {
  */
 export type ReleaseReservationsRequestRequest = {
   /**
-     * Λίστα ID δεσμεύσεων προς απελευθέρωση
+     * List of reservation IDs to release (at most 100)
      */
   reservationIds: Array<number>
 }
@@ -8512,10 +8525,10 @@ export type UserDetails = {
   /**
      * Όνομα χρήστη
      *
-     * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
+     * Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
      */
   username?: string | string | null
-  phone?: string | null
+  phone?: string
   /**
      * Πόλη
      */
@@ -8608,6 +8621,31 @@ export type UserDetails = {
   readonly mainImagePath: string
 }
 
+/**
+ * The author identity shown to anyone, including anonymous callers.
+ */
+export type UserPublic = {
+  readonly id: number
+  /**
+     * Όνομα χρήστη
+     *
+     * Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
+     */
+  readonly username: string | null
+  /**
+     * Όνομα
+     */
+  readonly firstName: string
+  /**
+     * Επώνυμο
+     */
+  readonly lastName: string
+  /**
+     * Avatar path or empty string
+     */
+  readonly mainImagePath: string
+}
+
 export type UserSubscription = {
   readonly id: number
   /**
@@ -8692,10 +8730,6 @@ export type UserSubscriptionWriteRequest = {
 
 export type UserWriteRequest = {
   /**
-     * Διεύθυνση Email
-     */
-  email: string
-  /**
      * Όνομα
      */
   firstName?: string
@@ -8706,14 +8740,14 @@ export type UserWriteRequest = {
   /**
      * Όνομα χρήστη
      *
-     * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
+     * Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
      */
   username?: string | string | null
   /**
      * Εικόνα
      */
   image?: Blob | File | null
-  phone?: string | null
+  phone?: string
   /**
      * Πόλη
      */
@@ -8745,31 +8779,31 @@ export type UserWriteRequest = {
   /**
      * Προφίλ Twitter
      */
-  twitter?: string | string | null
+  twitter?: string | string
   /**
      * Προφίλ LinkedIn
      */
-  linkedin?: string | string | null
+  linkedin?: string | string
   /**
      * Προφίλ Facebook
      */
-  facebook?: string | string | null
+  facebook?: string | string
   /**
      * Προφίλ Instagram
      */
-  instagram?: string | string | null
+  instagram?: string | string
   /**
      * Ιστότοπος
      */
-  website?: string | string | null
+  website?: string | string
   /**
      * Προφίλ Youtube
      */
-  youtube?: string | string | null
+  youtube?: string | string
   /**
      * Προφίλ Github
      */
-  github?: string | string | null
+  github?: string | string
   /**
      * Βιογραφικό
      */
@@ -11226,10 +11260,10 @@ export type UserDetailsWritable = {
   /**
      * Όνομα χρήστη
      *
-     * Required. 30 characters or fewer.Letters, digits and @/./+/-/_ only.
+     * Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
      */
   username?: string | string | null
-  phone?: string | null
+  phone?: string
   /**
      * Πόλη
      */
@@ -12258,14 +12292,14 @@ export type ListBlogCommentData = {
          */
     contentLength?: string | number
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -12430,14 +12464,14 @@ export type ListBlogCommentData = {
          */
     treeId?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     /**
@@ -12456,6 +12490,9 @@ export type ListBlogCommentData = {
          * Φίλτρο σχολίων από staff
          */
     user_IsStaff?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/blog/comment'
@@ -12668,14 +12705,14 @@ export type ListBlogCommentRepliesData = {
          */
     contentLength?: string | number
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -12840,14 +12877,14 @@ export type ListBlogCommentRepliesData = {
          */
     treeId?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     /**
@@ -12866,6 +12903,9 @@ export type ListBlogCommentRepliesData = {
          * Φίλτρο σχολίων από staff
          */
     user_IsStaff?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/blog/comment/{id}/replies'
@@ -12910,14 +12950,14 @@ export type GetBlogCommentThreadData = {
          */
     contentLength?: string | number
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -13082,14 +13122,14 @@ export type GetBlogCommentThreadData = {
          */
     treeId?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     /**
@@ -13108,6 +13148,9 @@ export type GetBlogCommentThreadData = {
          * Φίλτρο σχολίων από staff
          */
     user_IsStaff?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/blog/comment/{id}/thread'
@@ -13198,14 +13241,14 @@ export type ListMyBlogCommentsData = {
          */
     contentLength?: string | number
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -13370,14 +13413,14 @@ export type ListMyBlogCommentsData = {
          */
     treeId?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     /**
@@ -13396,6 +13439,9 @@ export type ListMyBlogCommentsData = {
          * Φίλτρο σχολίων από staff
          */
     user_IsStaff?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/blog/comment/my_comments'
@@ -13531,11 +13577,11 @@ export type ListBlogPostData = {
     slug?: string
     slug_Icontains?: string
     /**
-         * Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
+         * Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     tagName?: string
     /**
-         * Φίλτρο ανά ID ετικετών (διαχωρισμένα με κόμμα)
+         * Φίλτρο ανά ID ενεργών ετικετών (διαχωρισμένα με κόμμα)
          */
     tags?: string | Array<number>
     /**
@@ -13553,6 +13599,9 @@ export type ListBlogPostData = {
          * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
     viewCount?: string | number
     viewCount_Gte?: string | number
@@ -13865,11 +13914,11 @@ export type ListBlogPostRelatedData = {
     slug?: string
     slug_Icontains?: string
     /**
-         * Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
+         * Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     tagName?: string
     /**
-         * Φίλτρο ανά ID ετικετών (διαχωρισμένα με κόμμα)
+         * Φίλτρο ανά ID ενεργών ετικετών (διαχωρισμένα με κόμμα)
          */
     tags?: string | Array<number>
     /**
@@ -13887,6 +13936,9 @@ export type ListBlogPostRelatedData = {
          * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
     viewCount?: string | number
     viewCount_Gte?: string | number
@@ -14075,11 +14127,11 @@ export type ListFeaturedBlogPostsData = {
     slug?: string
     slug_Icontains?: string
     /**
-         * Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
+         * Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     tagName?: string
     /**
-         * Φίλτρο ανά ID ετικετών (διαχωρισμένα με κόμμα)
+         * Φίλτρο ανά ID ενεργών ετικετών (διαχωρισμένα με κόμμα)
          */
     tags?: string | Array<number>
     /**
@@ -14097,6 +14149,9 @@ export type ListFeaturedBlogPostsData = {
          * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
     viewCount?: string | number
     viewCount_Gte?: string | number
@@ -14258,11 +14313,11 @@ export type ListPopularBlogPostsData = {
     slug?: string
     slug_Icontains?: string
     /**
-         * Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
+         * Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     tagName?: string
     /**
-         * Φίλτρο ανά ID ετικετών (διαχωρισμένα με κόμμα)
+         * Φίλτρο ανά ID ενεργών ετικετών (διαχωρισμένα με κόμμα)
          */
     tags?: string | Array<number>
     /**
@@ -14280,6 +14335,9 @@ export type ListPopularBlogPostsData = {
          * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
     viewCount?: string | number
     viewCount_Gte?: string | number
@@ -14406,11 +14464,11 @@ export type ListTrendingBlogPostsData = {
     slug?: string
     slug_Icontains?: string
     /**
-         * Φίλτρο ανά ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
+         * Φίλτρο ανά ενεργή ετικέτα (χωρίς διάκριση πεζών/κεφαλαίων)
          */
     tagName?: string
     /**
-         * Φίλτρο ανά ID ετικετών (διαχωρισμένα με κόμμα)
+         * Φίλτρο ανά ID ενεργών ετικετών (διαχωρισμένα με κόμμα)
          */
     tags?: string | Array<number>
     /**
@@ -14428,6 +14486,9 @@ export type ListTrendingBlogPostsData = {
          * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
     viewCount?: string | number
     viewCount_Gte?: string | number
@@ -14461,14 +14522,14 @@ export type ListBlogTagData = {
          */
     active?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -14568,9 +14629,20 @@ export type ListBlogTagData = {
          * A search term.
          */
     search?: string
+    /**
+         * Φίλτρο ανά ακριβή σειρά
+         */
     sortOrder?: string | number
     sortOrder_Gte?: string | number
     sortOrder_Lte?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+         */
+    sortOrderMax?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+         */
+    sortOrderMin?: string | number
     translations_Name?: string
     translations_Name_Icontains?: string
     translations_Name_Istartswith?: string
@@ -14579,16 +14651,19 @@ export type ListBlogTagData = {
          */
     unused?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/blog/tag'
@@ -14757,7 +14832,7 @@ export type DestroyCartData = {
   body?: never
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
   }
@@ -14778,7 +14853,7 @@ export type RetrieveCartData = {
   body?: never
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
   }
@@ -14806,7 +14881,7 @@ export type PartialUpdateCartData = {
   body?: never
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
   }
@@ -14835,7 +14910,7 @@ export type UpdateCartData = {
   body?: never
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
   }
@@ -14864,7 +14939,7 @@ export type RemoveCartCouponData = {
   body?: never
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
   }
@@ -14893,7 +14968,7 @@ export type ApplyCartCouponData = {
   body: CouponApplyRequestRequest
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
   }
@@ -14922,7 +14997,7 @@ export type CreateCartPaymentIntentData = {
   body: CartCreatePaymentIntentRequestRequest
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
   }
@@ -14990,14 +15065,14 @@ export type ListCartItemData = {
          */
     cartLastActivityBefore?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     id?: string | number
@@ -15006,11 +15081,11 @@ export type ListCartItemData = {
          */
     id_In?: string | Array<number>
     /**
-         * Φίλτρο ειδών σε εγκαταλελειμμένα καλάθια (30+ ημέρες)
+         * Filter items in abandoned carts — idle longer than the CART_ABANDONED_HOURS store setting.
          */
     inAbandonedCarts?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Φίλτρο ειδών σε ενεργά καλάθια (24ωρο)
+         * Filter items in active carts — idle no longer than the CART_ABANDONED_HOURS store setting.
          */
     inActiveCarts?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -15096,16 +15171,19 @@ export type ListCartItemData = {
          */
     search?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
     /**
          * Φίλτρο ειδών με εκπτώσεις προϊόντος
@@ -15289,7 +15367,7 @@ export type ListCartData = {
   body?: never
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
   }
@@ -15304,14 +15382,14 @@ export type ListCartData = {
          */
     cartType?: 'anonymous' | 'guest' | 'user'
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -15336,11 +15414,11 @@ export type ListCartData = {
          */
     id_In?: string | Array<number>
     /**
-         * Φίλτρο εγκαταλελειμμένων καλαθιών (αδρανή για 30+ ημέρες)
+         * Filter abandoned carts — idle longer than the CART_ABANDONED_HOURS store setting.
          */
     isAbandoned?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Φίλτρο ενεργών/εγκαταλελειμμένων καλαθιών (βάσει 30 ημερών αδράνειας)
+         * Filter active/abandoned carts. The window is the CART_ABANDONED_HOURS store setting, not a fixed period.
          */
     isActive?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -15415,14 +15493,14 @@ export type ListCartData = {
          */
     search?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     /**
@@ -15445,6 +15523,9 @@ export type ListCartData = {
          * Φίλτρο ανά πλήρες όνομα χρήστη (όνομα ή επώνυμο)
          */
     userName?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/cart/list'
@@ -15470,7 +15551,7 @@ export type ReleaseCartReservationsData = {
   body: ReleaseReservationsRequestRequest
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
   }
@@ -15499,7 +15580,7 @@ export type ReserveCartStockData = {
   body?: never
   headers?: {
     /**
-         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel`` (M18 in MULTI_TENANT_AUDIT.md).
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
          */
     'X-Cart-Id'?: string
   }
@@ -15785,14 +15866,14 @@ export type ListCountryData = {
          */
     continent?: 'AF' | 'AN' | 'AS' | 'EU' | 'NA' | 'OC' | 'SA'
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -15903,20 +15984,34 @@ export type ListCountryData = {
          * A search term.
          */
     search?: string
+    /**
+         * Φίλτρο ανά ακριβή σειρά
+         */
     sortOrder?: string | number
     sortOrder_Gte?: string | number
     sortOrder_Lte?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+         */
+    sortOrderMax?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+         */
+    sortOrderMin?: string | number
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/country'
@@ -16440,14 +16535,14 @@ export type ListNotificationUserData = {
   path?: never
   query?: {
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -16575,14 +16670,14 @@ export type ListNotificationUserData = {
          */
     unseenOnly?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     /**
@@ -16613,6 +16708,9 @@ export type ListNotificationUserData = {
          * Φίλτρο ανά πολλαπλά ID χρηστών (διαχωρισμένα με κόμμα)
          */
     userIds?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/notification/user'
@@ -16898,14 +16996,14 @@ export type ListOrderData = {
          */
     countryIds?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -17151,14 +17249,14 @@ export type ListOrderData = {
     trackingNumber?: string
     trackingNumber_Icontains?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     /**
@@ -17185,6 +17283,9 @@ export type ListOrderData = {
          * Φίλτρο ανά πολλαπλά ID χρηστών (διαχωρισμένα με κόμμα)
          */
     userIds?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
     /**
          * Φίλτρο ανά Τ.Κ.
@@ -17247,14 +17348,14 @@ export type ListOrderItemData = {
          */
     bulkItems?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -17480,16 +17581,19 @@ export type ListOrderItemData = {
     sortOrder_Gte?: string | number
     sortOrder_Lte?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/order-items'
@@ -17832,6 +17936,12 @@ export type GetAcsLabelForOrderErrors = {
 
 export type GetAcsLabelForOrderError = GetAcsLabelForOrderErrors[keyof GetAcsLabelForOrderErrors]
 
+export type GetAcsLabelForOrderResponses = {
+  200: Blob | File
+}
+
+export type GetAcsLabelForOrderResponse = GetAcsLabelForOrderResponses[keyof GetAcsLabelForOrderResponses]
+
 export type AddOrderTrackingData = {
   body: AddTrackingRequest
   path: {
@@ -17894,6 +18004,12 @@ export type GetBoxNowLabelForOrderErrors = {
 }
 
 export type GetBoxNowLabelForOrderError = GetBoxNowLabelForOrderErrors[keyof GetBoxNowLabelForOrderErrors]
+
+export type GetBoxNowLabelForOrderResponses = {
+  200: Blob | File
+}
+
+export type GetBoxNowLabelForOrderResponse = GetBoxNowLabelForOrderResponses[keyof GetBoxNowLabelForOrderResponses]
 
 export type CancelOrderData = {
   body?: CancelOrderRequestRequest
@@ -18037,11 +18153,10 @@ export type DownloadOrderInvoiceErrors = {
 }
 
 export type DownloadOrderInvoiceResponses = {
-  /**
-     * No response body
-     */
-  200: unknown
+  200: Blob | File
 }
+
+export type DownloadOrderInvoiceResponse = DownloadOrderInvoiceResponses[keyof DownloadOrderInvoiceResponses]
 
 export type GetOrderPaymentStatusData = {
   body?: never
@@ -18163,7 +18278,7 @@ export type GetShipmentLabelForOrderErrors = {
 export type GetShipmentLabelForOrderError = GetShipmentLabelForOrderErrors[keyof GetShipmentLabelForOrderErrors]
 
 export type GetShipmentLabelForOrderResponses = {
-  200: OrderDetail
+  200: Blob | File
 }
 
 export type GetShipmentLabelForOrderResponse = GetShipmentLabelForOrderResponses[keyof GetShipmentLabelForOrderResponses]
@@ -18227,14 +18342,14 @@ export type ListMyOrdersData = {
          */
     countryIds?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -18480,14 +18595,14 @@ export type ListMyOrdersData = {
     trackingNumber?: string
     trackingNumber_Icontains?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     /**
@@ -18514,6 +18629,9 @@ export type ListMyOrdersData = {
          * Φίλτρο ανά πολλαπλά ID χρηστών (διαχωρισμένα με κόμμα)
          */
     userIds?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
     /**
          * Φίλτρο ανά Τ.Κ.
@@ -18925,6 +19043,14 @@ export type ListPayWayData = {
          */
     costMin?: string | number
     /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
+         */
+    createdAfter?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
+         */
+    createdBefore?: string
+    /**
          * Δείκτης (cursor) για σελιδοποίηση
          */
     cursor?: string
@@ -19007,9 +19133,31 @@ export type ListPayWayData = {
          * Φίλτρο μεθόδων πληρωμής συμβατών με τον δεδομένο μεταφορέα αποστολής. Κάθε μεταφορέας διαθέτει τους δικούς του κανόνες συμβατότητας — το BoxNow (``boxnow``) υποστηρίζει αντικαταβολή σε lockers μέσω PAY ON THE GO και έτσι περνά κανονικά· η ACS περνά αμετάβλητη. Συνδυάστε με το ``shippingKind``.
          */
     shippingProviderCode?: string
+    /**
+         * Φίλτρο ανά ακριβή σειρά
+         */
     sortOrder?: string | number
     sortOrder_Gte?: string | number
     sortOrder_Lte?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+         */
+    sortOrderMax?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+         */
+    sortOrderMin?: string | number
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
+         */
+    updatedAfter?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
+         */
+    updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/pay_way'
@@ -19204,14 +19352,14 @@ export type ListProductData = {
          */
     categoryId?: string | number
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -19275,6 +19423,22 @@ export type ListProductData = {
          */
     maxWeight?: string | number
     /**
+         * Φίλτρο αντικειμένων όπου τα metadata περιέχουν το καθορισμένο JSON (ως συμβολοσειρά)
+         */
+    metadataContains?: string
+    /**
+         * Φίλτρο αντικειμένων όπου τα metadata περιέχουν οποιοδήποτε από τα καθορισμένα κλειδιά (διαχωρισμένα με κόμμα)
+         */
+    metadataHasAnyKeys?: string
+    /**
+         * Φίλτρο αντικειμένων όπου τα metadata περιέχουν το καθορισμένο κλειδί
+         */
+    metadataHasKey?: string
+    /**
+         * Φίλτρο αντικειμένων όπου τα metadata περιέχουν όλα τα καθορισμένα κλειδιά (διαχωρισμένα με κόμμα)
+         */
+    metadataHasKeys?: string
+    /**
          * Minimum discount value amount
          */
     minDiscount?: string | number
@@ -19334,6 +19498,10 @@ export type ListProductData = {
     price_Gte?: string | number
     price_Lte?: string | number
     /**
+         * Φίλτρο αντικειμένων όπου τα ιδιωτικά metadata περιέχουν το καθορισμένο κλειδί (μόνο για προσωπικό)
+         */
+    privateMetadataHasKey?: string
+    /**
          * A search term.
          */
     search?: string
@@ -19343,16 +19511,19 @@ export type ListProductData = {
     stock_Gte?: string | number
     stock_Lte?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
     viewCount?: string | number
     viewCount_Gte?: string | number
@@ -19857,14 +20028,14 @@ export type ListAttributeData = {
   query?: {
     active?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -19919,16 +20090,19 @@ export type ListAttributeData = {
          */
     sortOrderMin?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/product/attribute'
@@ -20104,14 +20278,14 @@ export type ListAttributeValueData = {
          */
     attribute_In?: string | Array<number>
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -20164,16 +20338,19 @@ export type ListAttributeValueData = {
          */
     sortOrderMin?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
     value?: string
   }
@@ -20349,14 +20526,14 @@ export type ListProductCategoryData = {
          */
     ancestorOf?: string | number
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -20465,16 +20642,19 @@ export type ListProductCategoryData = {
          */
     sortOrderMin?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/product/category'
@@ -20649,14 +20829,14 @@ export type ListAllProductCategoryData = {
          */
     ancestorOf?: string | number
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -20741,16 +20921,19 @@ export type ListAllProductCategoryData = {
          */
     sortOrderMin?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/product/category/all'
@@ -21125,11 +21308,11 @@ export type ListProductFavouriteData = {
   path?: never
   query?: {
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -21168,11 +21351,23 @@ export type ListProductFavouriteData = {
          */
     search?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο ανά ακριβή σειρά
+         */
+    sortOrder?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+         */
+    sortOrderMax?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+         */
+    sortOrderMin?: string | number
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     user?: string | number
@@ -21371,11 +21566,11 @@ export type GetProductFavouritesByProductsData = {
   path?: never
   query?: {
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     id?: string | number
@@ -21390,11 +21585,23 @@ export type GetProductFavouritesByProductsData = {
          */
     search?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο ανά ακριβή σειρά
+         */
+    sortOrder?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+         */
+    sortOrderMax?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+         */
+    sortOrderMin?: string | number
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
     user?: string | number
@@ -21817,6 +22024,9 @@ export type ListProductReviewData = {
          * Φίλτρο χρηστών με ελάχιστο αριθμό αξιολογήσεων
          */
     userReviewCountMin?: string | number
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
     /**
          * Φίλτρο αξιολογήσεων από επαληθευμένες αγορές
@@ -22076,11 +22286,11 @@ export type ListRegionData = {
          */
     countryName?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -22119,17 +22329,31 @@ export type ListRegionData = {
          * A search term.
          */
     search?: string
+    /**
+         * Φίλτρο ανά ακριβή σειρά
+         */
     sortOrder?: string | number
     sortOrder_Gte?: string | number
     sortOrder_Lte?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+         */
+    sortOrderMax?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+         */
+    sortOrderMin?: string | number
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/region'
@@ -22343,11 +22567,11 @@ export type ListRegionsByCountryData = {
          */
     countryName?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -22374,17 +22598,31 @@ export type ListRegionsByCountryData = {
          * A search term.
          */
     search?: string
+    /**
+         * Φίλτρο ανά ακριβή σειρά
+         */
     sortOrder?: string | number
     sortOrder_Gte?: string | number
     sortOrder_Lte?: string | number
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+         */
+    sortOrderMax?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+         */
+    sortOrderMin?: string | number
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/region/{alpha}/get_regions_by_country_alpha_2'
@@ -23139,14 +23377,14 @@ export type ListTagData = {
          */
     contentType_AppLabel?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -23222,9 +23460,20 @@ export type ListTagData = {
          * A search term.
          */
     search?: string
+    /**
+         * Φίλτρο ανά ακριβή σειρά
+         */
     sortOrder?: string | number
     sortOrder_Gte?: string | number
     sortOrder_Lte?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μικρότερη ή ίση με
+         */
+    sortOrderMax?: string | number
+    /**
+         * Φίλτρο αντικειμένων με σειρά ταξινόμησης μεγαλύτερη ή ίση με
+         */
+    sortOrderMin?: string | number
     translations_Label?: string
     translations_Label_Icontains?: string
     translations_Label_Istartswith?: string
@@ -23233,16 +23482,19 @@ export type ListTagData = {
          */
     unused?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/tag'
@@ -23420,14 +23672,14 @@ export type ListTaggedItemData = {
          */
     contentType_AppLabel?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -23488,16 +23740,19 @@ export type ListTaggedItemData = {
          */
     tag_Label?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/tagged-item'
@@ -23765,34 +24020,6 @@ export type ListUserAccountResponses = {
 
 export type ListUserAccountResponse = ListUserAccountResponses[keyof ListUserAccountResponses]
 
-export type CreateUserAccountData = {
-  body: UserWriteRequest
-  path?: never
-  query?: {
-    /**
-         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
-         */
-    languageCode?: 'de' | 'el' | 'en'
-  }
-  url: '/api/v1/user/account'
-}
-
-export type CreateUserAccountErrors = {
-  400: ErrorResponse
-  401: ErrorResponse
-  403: ErrorResponse
-  404: ErrorResponse
-  500: ErrorResponse
-}
-
-export type CreateUserAccountError = CreateUserAccountErrors[keyof CreateUserAccountErrors]
-
-export type CreateUserAccountResponses = {
-  201: UserDetails
-}
-
-export type CreateUserAccountResponse = CreateUserAccountResponses[keyof CreateUserAccountResponses]
-
 export type RetrieveUserAccountData = {
   body?: never
   path: {
@@ -23853,7 +24080,7 @@ export type PartialUpdateUserAccountResponses = {
 export type PartialUpdateUserAccountResponse = PartialUpdateUserAccountResponses[keyof PartialUpdateUserAccountResponses]
 
 export type UpdateUserAccountData = {
-  body: UserWriteRequest
+  body?: UserWriteRequest
   path: {
     id: string | number
   }
@@ -24431,14 +24658,14 @@ export type ListUserAddressData = {
          */
     countryName?: string
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -24545,16 +24772,19 @@ export type ListUserAddressData = {
     title?: string
     title_Icontains?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
     /**
          * Φίλτρο ανά ταχυδρομικό κώδικα (μερική αντιστοίχιση)
@@ -24785,14 +25015,14 @@ export type ListUserSubscriptionData = {
   path?: never
   query?: {
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -24908,16 +25138,19 @@ export type ListUserSubscriptionData = {
          */
     unsubscribedBefore?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/user/subscription'
@@ -25185,14 +25418,14 @@ export type ListSubscriptionTopicData = {
          */
     category?: 'ACCOUNT' | 'MARKETING' | 'NEWSLETTER' | 'OTHER' | 'PRODUCT' | 'PROMOTIONAL' | 'SYSTEM'
     /**
-         * Filter items created after this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
          */
     createdAfter?: string
     createdAt_Date?: string
     createdAt_Gte?: string
     createdAt_Lte?: string
     /**
-         * Filter items created before this date
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
          */
     createdBefore?: string
     /**
@@ -25266,16 +25499,19 @@ export type ListSubscriptionTopicData = {
          */
     slugExact?: string
     /**
-         * Filter items updated after this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
          */
     updatedAfter?: string
     updatedAt_Date?: string
     updatedAt_Gte?: string
     updatedAt_Lte?: string
     /**
-         * Filter items updated before this date
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
          */
     updatedBefore?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
     uuid?: string
   }
   url: '/api/v1/user/subscription/topic'

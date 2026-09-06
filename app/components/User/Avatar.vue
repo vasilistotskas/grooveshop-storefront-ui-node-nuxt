@@ -2,8 +2,13 @@
 import type { PropType } from 'vue'
 
 const props = defineProps({
+  // `UserDetails | UserPublic`: the API serves the full account only on
+  // "my account" surfaces. Review and comment bylines carry `UserPublic`
+  // — id, username, firstName, lastName, mainImagePath and nothing else
+  // — because the account serializer was leaking every reviewer's email,
+  // phone and address to anonymous readers.
   userAccount: {
-    type: Object as PropType<UserDetails>,
+    type: Object as PropType<UserDetails | UserPublic>,
     required: true,
   },
   showName: {
@@ -89,7 +94,11 @@ const avatarSrc = computed(() => {
 
 const avatarAlt = computed(() => {
   if (!props.userAccount?.firstName && !props.userAccount?.lastName) {
-    return props.userAccount?.email
+    // `username`, not `email`. This renders as the byline on public
+    // review and comment cards, so falling back to the address showed a
+    // reviewer's email to anonymous readers — and `UserPublic` does not
+    // carry one at all.
+    return props.userAccount?.username ?? ''
   }
   return `${props.userAccount?.firstName} ${props.userAccount?.lastName}`
 })
