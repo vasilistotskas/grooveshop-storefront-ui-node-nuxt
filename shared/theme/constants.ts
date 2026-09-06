@@ -46,6 +46,12 @@ export const FONT_ALLOWLIST: Record<string, string> = {
   'manrope': '"Manrope", ui-sans-serif, system-ui, sans-serif',
   'playfair-display': '"Playfair Display", ui-serif, Georgia, serif',
   'source-serif-4': '"Source Serif 4", ui-serif, Georgia, serif',
+  // Engineered/technical pairing. Both ship a Greek subset — most
+  // technical faces do not (IBM Plex Mono and Plex Condensed have
+  // none), which is why the mono half is JetBrains Mono rather than
+  // Plex's own. Mirrored in Django's tenant/validators.py.
+  'ibm-plex-sans': '"IBM Plex Sans", ui-sans-serif, system-ui, sans-serif',
+  'jetbrains-mono': '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
 }
 
 /** Google Fonts family names for the pre-bundled entries above. */
@@ -62,6 +68,22 @@ export const FONT_FAMILY_NAMES: Record<string, string> = {
   'manrope': 'Manrope',
   'playfair-display': 'Playfair Display',
   'source-serif-4': 'Source Serif 4',
+  'ibm-plex-sans': 'IBM Plex Sans',
+  'jetbrains-mono': 'JetBrains Mono',
+}
+
+/**
+ * Per-family weight overrides for the ``@nuxt/fonts`` declarations in
+ * ``nuxt.config.ts``. Families absent here take the global default
+ * ([400, 500, 600, 700]).
+ *
+ * Every declared face costs bytes in the render-blocking entry.css
+ * (the unconstrained cross product once reached 472 @font-face rules /
+ * 169KB — see the fonts comment in nuxt.config.ts), so a face used only
+ * for numerics and code declares just the weights the design uses.
+ */
+export const FONT_WEIGHTS: Record<string, number[]> = {
+  'jetbrains-mono': [400, 500],
 }
 
 /**

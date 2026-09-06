@@ -198,6 +198,15 @@ export function buildTenantThemeCss(
     }
   }
 
+  // Monospace face — metadata-only, same contract as fontDisplay.
+  // main.css leaves --font-mono on Tailwind's stack when unset.
+  if (metadata.fontMono) {
+    const monoStack = FONT_ALLOWLIST[metadata.fontMono]
+    if (monoStack) {
+      shared.push(`--font-mono: ${monoStack}`)
+    }
+  }
+
   // --- Custom scale escape hatch (metadata.colors/darkColors) -------
   const SCALE_TOKENS = [
     ['primaryScale', 'primary'],

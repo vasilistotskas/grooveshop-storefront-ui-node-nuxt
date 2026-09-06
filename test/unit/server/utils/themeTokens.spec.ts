@@ -233,6 +233,25 @@ describe('buildTenantThemeCss', () => {
     expect(css).toContain('--font-display: "Source Serif 4"')
   })
 
+  it('emits --font-mono only when fontMono is set', () => {
+    expect(buildTenantThemeCss({}).css).not.toContain('--font-mono')
+    const { css } = buildTenantThemeCss({
+      themeMetadata: { fontSans: 'ibm-plex-sans', fontMono: 'jetbrains-mono' },
+    })
+    expect(css).toContain('--font-sans: "IBM Plex Sans"')
+    expect(css).toContain('--font-mono: "JetBrains Mono"')
+  })
+
+  it('drops an unknown fontMono without dropping the rest', () => {
+    const { css, metadataError } = buildTenantThemeCss({
+      themeMetadata: { fontSans: 'ibm-plex-sans', fontMono: 'comic-sans' },
+    })
+    // Invalid metadata degrades to the preset wholesale — the contract
+    // documented on buildTenantThemeCss — and reports why.
+    expect(metadataError).toBeTruthy()
+    expect(css).not.toContain('--font-mono')
+  })
+
   it('emits --ui-liked from likedHex in both modes', () => {
     const { css } = buildTenantThemeCss({
       themeMetadata: { likedHex: '#b3694b' },

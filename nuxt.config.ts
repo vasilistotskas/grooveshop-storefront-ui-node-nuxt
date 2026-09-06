@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { DEFAULT_LOCALE } from './i18n/locales'
 import { version } from './package.json'
 import { PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES } from './shared/constants/prerender'
-import { FONT_FAMILY_NAMES } from './shared/theme/constants'
+import { FONT_FAMILY_NAMES, FONT_WEIGHTS } from './shared/theme/constants'
 
 // Style-ish module ids must never be captured by a codeSplitting group:
 // folding them into a named JS chunk makes Nuxt emit that chunk's CSS as
@@ -690,10 +690,13 @@ export default defineNuxtConfig({
       styles: ['normal'],
       subsets: ['latin', 'latin-ext', 'greek'],
     },
-    families: Object.values(FONT_FAMILY_NAMES).map(name => ({
+    families: Object.entries(FONT_FAMILY_NAMES).map(([key, name]) => ({
       name,
       provider: 'google',
       global: true,
+      // Families listed in FONT_WEIGHTS declare fewer faces than the
+      // global default — see the byte-cost note above.
+      ...(FONT_WEIGHTS[key] ? { weights: FONT_WEIGHTS[key] } : {}),
     })),
   },
   i18n: {

@@ -53,6 +53,12 @@ export const zThemeMetadata = z
     fontDisplay: z
       .enum(Object.keys(FONT_ALLOWLIST) as [string, ...string[]])
       .optional(),
+    // Monospace face (--font-mono). Drives numeric/spec typography and
+    // `code`; defaults to Tailwind's stack in main.css, so only tenants
+    // that pick one diverge.
+    fontMono: z
+      .enum(Object.keys(FONT_ALLOWLIST) as [string, ...string[]])
+      .optional(),
     container: z
       .enum(Object.keys(CONTAINER_MAP) as [string, ...string[]])
       .optional(),

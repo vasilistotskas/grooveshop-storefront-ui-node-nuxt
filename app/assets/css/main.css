@@ -28,6 +28,12 @@
      Default = the system stack the platform always used; the injected
      tenant style overrides it per request. */
   --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  /* Tenant-selectable monospace face (same allowlist). Default = the
+     Tailwind stack, so tenants that never set metadata.fontMono are
+     byte-identical to before; the injected tenant style overrides it
+     per request. Drives the `font-mono` utility, so numeric/spec
+     typography and `code` follow the tenant face together. */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   --ui-success: var(--color-success-600);
   --ui-info: var(--color-info-600);
   --ui-warning: var(--color-warning-600);
