@@ -48,9 +48,24 @@ const FALLBACK_LAYOUTS: Record<string, PageSection[]> = {
  * read ``error`` (5xx/network) — an absent layout never sets it.
  */
 export async function usePageConfig(pageType: string) {
+  // Section titles and props are operator-authored JSON resolved
+  // per-locale by Django (`page_config/localization.py`), not parler
+  // translations the client picks from — so the locale has to travel
+  // with the request AND be part of the payload key, or /en reuses the
+  // Greek copy already cached under a locale-less key.
+  //
+  // `useNuxtApp().$i18n` rather than `useI18n()`: this composable is
+  // AWAITED by its callers, so it is not guaranteed to be at the top of
+  // a `setup()` — vue-i18n's composable throws "Must be called at the
+  // top of a `setup` function" there. `$i18n` is the documented global
+  // Composer on the Nuxt app context and needs no component instance.
+  const { locale } = useNuxtApp().$i18n
   const { data, status, error } = await useFetch<PageConfigResponse>(
     `/api/page-config/${pageType}`,
-    { key: `page-config-${pageType}` },
+    {
+      key: () => `page-config-${pageType}-${locale.value}`,
+      query: { locale },
+    },
   )
 
   const layout = computed<PageLayout | null>(() => data.value?.layout ?? null)

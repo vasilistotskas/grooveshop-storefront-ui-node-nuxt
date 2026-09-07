@@ -105,8 +105,30 @@ describe('usePageConfig', () => {
 
     expect(mockUseFetchFn).toHaveBeenCalledWith(
       '/api/page-config/products',
-      expect.objectContaining({ key: 'page-config-products' }),
+      expect.objectContaining({ key: expect.any(Function) }),
       expect.anything(),
     )
+  })
+
+  it('sends the locale and keys the payload on it', async () => {
+    // Section titles and props are resolved per-locale by Django, so the
+    // locale has to reach the route AND separate the payload keys —
+    // sharing one key across locales served /en the Greek copy that the
+    // default-locale route had already cached.
+    mockUseFetchFn.mockReturnValue({
+      data: ref(null),
+      status: ref('pending'),
+      error: ref(null),
+    })
+
+    await usePageConfig('products')
+
+    const options = mockUseFetchFn.mock.calls[0]![1] as {
+      key: () => string
+      query: { locale: { value: string } }
+    }
+    const locale = options.query.locale.value
+    expect(locale).toBeTruthy()
+    expect(options.key()).toBe(`page-config-products-${locale}`)
   })
 })

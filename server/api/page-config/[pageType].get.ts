@@ -3,6 +3,9 @@ import { FetchError } from 'ofetch'
 export default defineCachedEventHandler(async (event): Promise<PageConfigResponse> => {
   const config = useRuntimeConfig()
   const pageType = getRouterParam(event, 'pageType')
+  // Already clamped to the tenant's locales by server/middleware/1.locale.ts,
+  // which reads this route's own ?locale= as its first priority.
+  const locale = requestLocale(event)
 
   try {
     // useBackendFetch: page_config rows are PER-TENANT tables — a raw
@@ -11,7 +14,7 @@ export default defineCachedEventHandler(async (event): Promise<PageConfigRespons
     // MULTI_TENANT_AUDIT.md).
     const response = await useBackendFetch()(
       `${config.apiBaseUrl}/page-config/${pageType}`,
-      { method: 'GET' },
+      { method: 'GET', query: { locale } },
     )
     const layout = await parseDataAs(response, zPageLayout)
     // Admin-authored section props are validated per componentType and
@@ -66,6 +69,12 @@ export default defineCachedEventHandler(async (event): Promise<PageConfigRespons
   swr: true,
   getKey: (event) => {
     const pageType = getRouterParam(event, 'pageType')
-    return tenantCacheKey(event, `page-config:${pageType}`)
+    // The locale belongs in the key: Django resolves section titles and
+    // props for it, so one cached entry per tenant would serve whichever
+    // language warmed the cache to every other one.
+    return tenantCacheKey(
+      event,
+      `page-config:${pageType}:${requestLocale(event)}`,
+    )
   },
 })

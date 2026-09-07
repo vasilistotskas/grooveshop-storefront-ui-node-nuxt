@@ -3457,6 +3457,12 @@ export type NavigationMenu = {
      * header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL.
      */
   items?: unknown
+  /**
+     * Locale Overrides
+     *
+     * Per-locale menus, e.g. {"en": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above.
+     */
+  i18n?: unknown
 }
 
 export type NavigationMenuRequest = {
@@ -3467,6 +3473,12 @@ export type NavigationMenuRequest = {
      * header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL.
      */
   items?: unknown
+  /**
+     * Locale Overrides
+     *
+     * Per-locale menus, e.g. {"en": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above.
+     */
+  i18n?: unknown
 }
 
 /**
@@ -5238,6 +5250,12 @@ export type PatchedNavigationMenuRequest = {
      * header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL.
      */
   items?: unknown
+  /**
+     * Locale Overrides
+     *
+     * Per-locale menus, e.g. {"en": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above.
+     */
+  i18n?: unknown
 }
 
 export type PatchedNotificationUserWriteRequest = {
@@ -18732,7 +18750,12 @@ export type ApiV1PageConfigRetrieveData = {
   path: {
     pageType: string
   }
-  query?: never
+  query?: {
+    /**
+         * Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. Unknown or omitted means the store's default language.
+         */
+    locale?: string
+  }
   url: '/api/v1/page-config/{page_type}'
 }
 
@@ -18883,7 +18906,12 @@ export type ApiV1PageConfigAdminUpdateResponse = ApiV1PageConfigAdminUpdateRespo
 export type ApiV1PageConfigNavigationRetrieveData = {
   body?: never
   path?: never
-  query?: never
+  query?: {
+    /**
+         * Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. Unknown or omitted means the store's default language.
+         */
+    locale?: string
+  }
   url: '/api/v1/page-config/navigation'
 }
 

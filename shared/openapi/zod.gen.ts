@@ -5024,12 +5024,18 @@ export const zNavigationMenu = z.object({
   items: z.unknown().register(z.globalRegistry, {
     description: 'header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. \'to\' must be an internal path starting with \'/\', \'href\' an https URL.',
   }).optional(),
+  i18n: z.unknown().register(z.globalRegistry, {
+    description: 'Per-locale menus, e.g. {"en": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above.',
+  }).optional(),
 })
 
 export const zNavigationMenuRequest = z.object({
   slot: zSlotEnum,
   items: z.unknown().register(z.globalRegistry, {
     description: 'header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. \'to\' must be an internal path starting with \'/\', \'href\' an https URL.',
+  }).optional(),
+  i18n: z.unknown().register(z.globalRegistry, {
+    description: 'Per-locale menus, e.g. {"en": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above.',
   }).optional(),
 })
 
@@ -5050,6 +5056,9 @@ export const zPatchedNavigationMenuRequest = z.object({
   slot: zSlotEnum.optional(),
   items: z.unknown().register(z.globalRegistry, {
     description: 'header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. \'to\' must be an internal path starting with \'/\', \'href\' an https URL.',
+  }).optional(),
+  i18n: z.unknown().register(z.globalRegistry, {
+    description: 'Per-locale menus, e.g. {"en": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above.',
   }).optional(),
 })
 
@@ -14264,6 +14273,12 @@ export const zApiV1PageConfigRetrievePath = z.object({
   pageType: z.string(),
 })
 
+export const zApiV1PageConfigRetrieveQuery = z.object({
+  locale: z.string().register(z.globalRegistry, {
+    description: 'Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. Unknown or omitted means the store\'s default language.',
+  }).optional(),
+})
+
 export const zApiV1PageConfigRetrieveResponse = zPageLayout
 
 export const zApiV1PageConfigAdminListQuery = z.object({
@@ -14390,6 +14405,12 @@ export const zApiV1PageConfigAdminUpdateQuery = z.object({
 })
 
 export const zApiV1PageConfigAdminUpdateResponse = zPageLayout
+
+export const zApiV1PageConfigNavigationRetrieveQuery = z.object({
+  locale: z.string().register(z.globalRegistry, {
+    description: 'Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. Unknown or omitted means the store\'s default language.',
+  }).optional(),
+})
 
 /**
  * Navigation items keyed by slot (header/footer/mobile). Missing slots mean 'use the storefront's built-in menu'.

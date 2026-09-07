@@ -574,13 +574,28 @@ export default defineNuxtConfig({
   //     IndexNow. Enable only when scaled to 1 replica or when migrating to
   //     shared storage (D1 / LibSQL / Turso).
   aiReady: {
-    // Single-locale site (only ``el``). nuxt-ai-ready v1.3 ``autoI18n`` emits
-    // an HTTP ``link: </>; rel="alternate"; hreflang="el-GR"`` header with a
-    // **relative** href (see ``node_modules/nuxt-ai-ready/dist/runtime/server/
-    // utils/link-header.js`` — never joins with site.url), which Lighthouse
-    // rejects as "Relative href value" in the hreflang audit. With one locale
-    // the alternate is pointing at itself anyway, so the header is pure noise.
-    // Re-enable if a second locale ships AND upstream fixes the URL building.
+    // Keep DISABLED — but not for the reasons this comment used to give,
+    // both of which are now void (re-verified against the installed
+    // 2.0.1, 2026-09-07):
+    //
+    //   * The v1.3 relative-href bug IS fixed. ``link-header.js`` now
+    //     routes every href through ``resolveHeaderUrl`` -> ``resolveUrl``,
+    //     which joins with site.url; live confirmation on the platform
+    //     host is ``link: <https://webside.gr/>; rel="alternate"``.
+    //   * A second locale HAS shipped (``en``, see i18n/locales.ts).
+    //
+    // The blocker is now multi-tenancy. ``detectI18n`` (dist/shared/
+    // nuxt-ai-ready.*.mjs) resolves locales from the BUILD-TIME
+    // @nuxtjs/i18n config, which is platform-wide, whereas locale
+    // availability is PER-TENANT (``Tenant.available_locales``). Enabling
+    // this would emit ``hreflang`` alternates pointing at ``/en/**`` on
+    // Greek-only tenants — exactly the URLs
+    // ``app/middleware/locale-available.global.ts`` 404s, so we would be
+    // advertising dead links to crawlers.
+    //
+    // Same shape as the gate in server/middleware/1.ai-ready-gate.ts:
+    // re-enable once the module can take a per-REQUEST locale set rather
+    // than a build-time one.
     autoI18n: false,
     // ``contentSignal`` (Cloudflare's Content Signals Policy, CC0 — not RFC
     // 9309) would emit ``Content-Signal:`` / ``Content-Usage:`` lines into

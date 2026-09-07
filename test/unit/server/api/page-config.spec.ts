@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { FetchError } from 'ofetch'
 import { tenantCacheKey } from '../../../../server/utils/cacheKey'
+import { requestLocale } from '../../../../server/utils/locale'
 import { parseDataAs } from '../../../../server/utils/parser'
 import { zPageLayout } from '../../../../shared/openapi/zod.gen'
 import type { PageConfigResponse } from '../../../../shared/types/pageConfig'
@@ -14,6 +15,9 @@ vi.stubGlobal('defineCachedEventHandler', (fn: unknown, options?: { getKey?: (ev
   return fn
 })
 vi.stubGlobal('tenantCacheKey', tenantCacheKey)
+// The REAL resolver: the route and its cache key must read the locale
+// the same way, and that agreement is what these tests pin.
+vi.stubGlobal('requestLocale', requestLocale)
 vi.stubGlobal('useRuntimeConfig', () => ({ apiBaseUrl: 'http://django/api/v1' }))
 
 const routerParamMock = vi.fn()
@@ -85,7 +89,10 @@ describe('GET /api/page-config/[pageType]', () => {
 
     expect(backendFetchMock).toHaveBeenCalledWith(
       'http://django/api/v1/page-config/products',
-      expect.objectContaining({ method: 'GET' }),
+      expect.objectContaining({
+        method: 'GET',
+        query: { locale: 'el' },
+      }),
     )
     expect(result.layout?.pageType).toBe('products')
     expect(result.layout?.sections).toHaveLength(1)
@@ -158,5 +165,20 @@ describe('GET /api/page-config/[pageType] cache key', () => {
     const keyBlog = handler.getKey({})
 
     expect(keyProducts).not.toBe(keyBlog)
+  })
+
+  it('differentiates keys for two locales of the same page', () => {
+    // Django resolves the section copy for the locale, so one entry per
+    // tenant+pageType would hand every language whichever one warmed
+    // the cache.
+    routerParamMock.mockReturnValue('home')
+    hostMock.mockReturnValue('tenant-a.example')
+
+    const greek = handler.getKey({ context: { locale: 'el' } })
+    const english = handler.getKey({ context: { locale: 'en' } })
+
+    expect(greek).not.toBe(english)
+    expect(greek.startsWith('tenant-a.example:page-config:home:el')).toBe(true)
+    expect(english.startsWith('tenant-a.example:page-config:home:en')).toBe(true)
   })
 })

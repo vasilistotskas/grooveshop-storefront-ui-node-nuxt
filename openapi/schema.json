@@ -27330,6 +27330,14 @@
                 "operationId": "api_v1_page_config_retrieve",
                 "parameters": [
                     {
+                        "in": "query",
+                        "name": "locale",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. Unknown or omitted means the store's default language."
+                    },
+                    {
                         "in": "path",
                         "name": "pageType",
                         "schema": {
@@ -27781,7 +27789,17 @@
         "/api/v1/page-config/navigation": {
             "get": {
                 "operationId": "api_v1_page_config_navigation_retrieve",
-                "description": "All configured navigation menus for the current tenant, keyed by\nslot. Slots without a row are OMITTED — the storefront renders its\ncode-level menus for those, so an unconfigured tenant keeps the\nplatform chrome untouched.",
+                "description": "All configured navigation menus for the current tenant, keyed by\nslot. Slots without a row are OMITTED — the storefront renders its\ncode-level menus for those, so an unconfigured tenant keeps the\nplatform chrome untouched.\n\nA slot whose ``i18n`` has no entry for the requested locale answers\nwith its default-locale menu, so a partially translated store keeps\na working header rather than losing one.",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "locale",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "description": "Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. Unknown or omitted means the store's default language."
+                    }
+                ],
                 "tags": [
                     "Page Config"
                 ],
@@ -58818,6 +58836,10 @@
                     "items": {
                         "title": "Είδη",
                         "description": "header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL."
+                    },
+                    "i18n": {
+                        "title": "Locale Overrides",
+                        "description": "Per-locale menus, e.g. {\"en\": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above."
                     }
                 },
                 "required": [
@@ -58833,6 +58855,10 @@
                     "items": {
                         "title": "Είδη",
                         "description": "header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL."
+                    },
+                    "i18n": {
+                        "title": "Locale Overrides",
+                        "description": "Per-locale menus, e.g. {\"en\": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above."
                     }
                 },
                 "required": [
@@ -63339,6 +63365,10 @@
                     "items": {
                         "title": "Είδη",
                         "description": "header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL."
+                    },
+                    "i18n": {
+                        "title": "Locale Overrides",
+                        "description": "Per-locale menus, e.g. {\"en\": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above."
                     }
                 }
             },
