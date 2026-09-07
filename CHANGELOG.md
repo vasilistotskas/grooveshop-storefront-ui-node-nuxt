@@ -1,3 +1,10 @@
+# [3.175.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.174.0...v3.175.0) (2026-09-07)
+
+
+### Features
+
+* **sections:** the Εμπειρία band ([339115c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/339115c9b5b015d0bc2cffef7b393b25b67941e3))
+
 # [3.174.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.173.0...v3.174.0) (2026-09-07)
 
 
