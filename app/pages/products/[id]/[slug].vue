@@ -675,6 +675,7 @@ useSchemaOrg([
 ])
 
 definePageMeta({
+  middleware: ['catalogue-enabled'],
   layout: 'default',
 })
 </script>

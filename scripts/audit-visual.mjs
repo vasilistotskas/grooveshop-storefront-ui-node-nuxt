@@ -23,16 +23,25 @@ const OUT = process.env.AUDIT_OUT ?? 'audit'
 const ONLY = process.env.AUDIT_ONLY
 
 const ROUTES = [
+  // The pages the design draws, in both locales.
   '/', '/en',
-  '/contact', '/en/contact',
-  '/info/eidikefsi', '/en/info/eidikefsi',
-  '/info/drastiriotites', '/info/synergates',
+  '/deset', '/en/deset',
+  '/eidikefsi', '/en/eidikefsi',
+  '/drastiriotites', '/en/drastiriotites',
+  '/synergates', '/en/synergates',
   '/blog', '/en/blog',
+  '/contact', '/en/contact',
+  // Legal — platform pages, still reachable and still ours to keep
+  // rendering.
+  '/privacy-policy', '/terms-of-use', '/cookies-policy', '/return-policy',
+  // Surfaces the design does NOT have. Listed so the audit says
+  // whether they are still reachable, which is the point.
   '/products/category/1/deset',
   '/products/2/deset-invt-tm750',
   '/blog/post/48/siragges-asprovaltas',
-  '/privacy-policy', '/terms-of-use', '/cookies-policy', '/return-policy',
   '/search', '/offers',
+  // Retired: the prose pages the four above replaced.
+  '/info/eidikefsi',
 ]
 
 const VIEWPORTS = [
@@ -73,8 +82,19 @@ const probe = () => {
     break
   }
   header ??= document.querySelector('header')
+  // PAGE bands only. An overlay — the cookie banner is one — is also
+  // a tall <section>, and counting it flagged every correct light page
+  // as a seam because the banner is light while the chrome is not yet.
+  // A band spans the viewport and sits in normal flow; an overlay does
+  // not do both.
   const bands = [...document.querySelectorAll('section')]
-    .filter(s => s.getBoundingClientRect().height > 80)
+    .filter((s) => {
+      const box = s.getBoundingClientRect()
+      const position = getComputedStyle(s).position
+      return box.height > 80
+        && box.width >= window.innerWidth - 2
+        && (position === 'static' || position === 'relative')
+    })
   const main = document.querySelector('main') ?? document.body
   return {
     body: getComputedStyle(document.body).backgroundColor,

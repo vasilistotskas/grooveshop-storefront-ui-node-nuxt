@@ -8,6 +8,7 @@ defineRouteRules({
 })
 
 definePageMeta({
+  middleware: ['catalogue-enabled'],
   layout: 'default',
 })
 
