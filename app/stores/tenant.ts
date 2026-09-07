@@ -52,6 +52,7 @@ export const useTenantStore = defineStore('tenant', () => {
     discord: config.value?.socialsDiscord ?? '',
     facebook: config.value?.socialsFacebook ?? '',
     instagram: config.value?.socialsInstagram ?? '',
+    linkedin: config.value?.socialsLinkedin ?? '',
     pinterest: config.value?.socialsPinterest ?? '',
     reddit: config.value?.socialsReddit ?? '',
     tiktok: config.value?.socialsTiktok ?? '',

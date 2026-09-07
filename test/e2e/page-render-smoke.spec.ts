@@ -31,12 +31,25 @@ import { validTenantConfig } from '../fixtures/tenantConfig'
 
 const TENANT_HOST = 'render-smoke.localhost'
 
+/**
+ * A second host resolving to the `delta_sigma` schema, so the SAME
+ * server can be asked whether the per-tenant chrome seam still fires.
+ * The tenant's navbar and footer are lazy components looked up by
+ * schema in `chromeRegistry`; if the key drifts or `schemaName` is not
+ * populated during SSR, they silently never render and the tenant is
+ * served the platform's chrome instead — a failure that looks like a
+ * design regression, not an error, and that no other test would catch.
+ */
+const VARIANT_HOST = 'delta-sigma-smoke.localhost'
+const VARIANT_SCHEMA = 'delta_sigma'
+
 function requestWithHost(
   path: string,
+  host: string = TENANT_HOST,
 ): Promise<{ statusCode: number, body: string }> {
   return new Promise((resolve, reject) => {
     const target = new URL(url(path))
-    const req = httpRequest(target, { headers: { Host: TENANT_HOST } }, (res) => {
+    const req = httpRequest(target, { headers: { Host: host } }, (res) => {
       let body = ''
       res.on('data', (chunk: Buffer) => { body += chunk.toString() })
       res.on('end', () =>
@@ -66,6 +79,10 @@ describe('every public page renders', async () => {
           // The whole point of the /en assertions below.
           availableLocales: ['el', 'en'],
           blogEnabled: true,
+          // ...and of the chrome-variant assertions at the end.
+          schemaName: domain.startsWith('delta-sigma')
+            ? VARIANT_SCHEMA
+            : 'test',
         })))
         return
       }
@@ -185,5 +202,25 @@ describe('every public page renders', async () => {
       `lang="${lang}"`,
     )
     expect(body).not.toContain('"statusCode":500')
+  }, 60000)
+
+  it('serves a tenant with a chrome variant its OWN navbar and footer', async () => {
+    const { statusCode, body } = await requestWithHost('/', VARIANT_HOST)
+
+    expect(statusCode, body.slice(0, 900)).toBe(200)
+    // The lockup caption and the brand teal are in the variant
+    // components and nowhere in the platform chrome, so their presence
+    // proves `resolveChromeComponent` matched and the layout rendered
+    // what it returned.
+    expect(body, 'the tenant navbar/footer lockup did not render')
+      .toContain('Consulting · Engineering')
+    expect(body).toContain('#5BC4C4')
+  }, 60000)
+
+  it('leaves a tenant without one on the platform chrome', async () => {
+    const { statusCode, body } = await requestWithHost('/')
+
+    expect(statusCode).toBe(200)
+    expect(body).not.toContain('Consulting · Engineering')
   }, 60000)
 })

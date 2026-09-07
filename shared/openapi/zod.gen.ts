@@ -5297,6 +5297,7 @@ export const zTenantConfig = z.object({
   socialsPinterest: z.string().readonly(),
   socialsReddit: z.string().readonly(),
   socialsTiktok: z.string().readonly(),
+  socialsLinkedin: z.string().readonly(),
   socialsTwitter: z.string().readonly(),
   socialsYoutube: z.string().readonly(),
   boxNowPartnerId: z.string().readonly(),

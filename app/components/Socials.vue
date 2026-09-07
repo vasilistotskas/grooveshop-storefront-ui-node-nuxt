@@ -79,6 +79,13 @@ const socials = computed<SocialItem[]>(() => [
     colorClass: 'hover:text-[#E60023] focus-visible:text-[#E60023]',
   },
   {
+    key: 'linkedin',
+    to: socialUrl('linkedin'),
+    icon: 'i-mdi-linkedin',
+    label: t('linkedin'),
+    colorClass: 'hover:text-[#0A66C2] focus-visible:text-[#0A66C2]',
+  },
+  {
     key: 'facebook',
     to: socialUrl('facebook'),
     icon: 'i-mdi-facebook',
@@ -123,6 +130,7 @@ const visible = computed(() => socials.value.filter(s => !!s.to))
 <i18n lang="yaml">
 el:
   instagram: Instagram
+  linkedin: LinkedIn
   tiktok: TikTok
   reddit: Reddit
   youtube: YouTube
@@ -131,6 +139,7 @@ el:
   discord: Discord
 en:
   instagram: Instagram
+  linkedin: LinkedIn
   tiktok: TikTok
   reddit: Reddit
   youtube: YouTube

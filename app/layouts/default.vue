@@ -7,6 +7,17 @@ defineSlots<{
 
 const { t } = useI18n()
 const { isMobileOrTablet } = useDevice()
+const tenantStore = useTenantStore()
+
+// Per-tenant chrome. Resolved by schema, exactly as the page builder
+// resolves section variants; `undefined` for every tenant without one,
+// which is the platform default path below.
+const tenantNavbar = computed(() =>
+  resolveChromeComponent('navbar', tenantStore.schemaName),
+)
+const tenantFooter = computed(() =>
+  resolveChromeComponent('footer', tenantStore.schemaName),
+)
 const { $routeBaseName } = useNuxtApp()
 const route = useRoute()
 const { user, loggedIn } = useUserSession()
@@ -65,7 +76,15 @@ const footerClass = computed(() =>
       {{ t('a11y.skipToContent') }}
     </a>
     <slot name="header">
-      <PageHeader>
+      <!-- A tenant whose design specifies its own header ships it as a
+           chrome variant (see app/utils/chromeRegistry.ts) — the same
+           seam the page builder already has for sections. Everyone
+           else gets the platform's. -->
+      <component
+        :is="tenantNavbar"
+        v-if="tenantNavbar"
+      />
+      <PageHeader v-else>
         <PageNavbar />
       </PageHeader>
     </slot>
@@ -143,24 +162,34 @@ const footerClass = computed(() =>
     </UMain>
     <slot name="footer">
       <div :class="footerClass">
-        <MobileOrTabletOnly>
-          <div
-            class="
-              my-6 flex flex-wrap items-center justify-center
-              md:hidden
-            "
-          >
-            <Socials />
-          </div>
-        </MobileOrTabletOnly>
-        <LazyFooterMobile
-          v-if="isMobileOrTablet"
-          hydrate-on-visible
+        <!-- A tenant footer replaces the platform's WHOLE footer
+             region, the mobile social row included: a variant exists
+             because the tenant's design specifies its own, and the row
+             would otherwise float above it unstyled. -->
+        <component
+          :is="tenantFooter"
+          v-if="tenantFooter"
         />
-        <LazyFooterDesktop
-          v-else
-          hydrate-on-visible
-        />
+        <template v-else>
+          <MobileOrTabletOnly>
+            <div
+              class="
+                my-6 flex flex-wrap items-center justify-center
+                md:hidden
+              "
+            >
+              <Socials />
+            </div>
+          </MobileOrTabletOnly>
+          <LazyFooterMobile
+            v-if="isMobileOrTablet"
+            hydrate-on-visible
+          />
+          <LazyFooterDesktop
+            v-else
+            hydrate-on-visible
+          />
+        </template>
       </div>
     </slot>
     <MobileBottomNav

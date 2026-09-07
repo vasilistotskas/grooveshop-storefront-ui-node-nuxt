@@ -61,6 +61,7 @@ export function validTenantConfig(
     socialsDiscord: '',
     socialsFacebook: '',
     socialsInstagram: '',
+    socialsLinkedin: '',
     socialsPinterest: '',
     socialsReddit: '',
     socialsTiktok: '',

@@ -69706,6 +69706,10 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "socialsLinkedin": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "socialsTwitter": {
                         "type": "string",
                         "readOnly": true
@@ -69752,6 +69756,7 @@
                     "socialsDiscord",
                     "socialsFacebook",
                     "socialsInstagram",
+                    "socialsLinkedin",
                     "socialsPinterest",
                     "socialsReddit",
                     "socialsTiktok",
