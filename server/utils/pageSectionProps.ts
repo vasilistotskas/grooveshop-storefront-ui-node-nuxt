@@ -166,6 +166,50 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     })
     .partial()
     .strip(),
+  page_hero: z
+    .object({
+      // The top of an inner page. `callout.tone` is an ENUM, not a
+      // colour: the storefront decides what "warning" looks like from
+      // its own tokens, so a page cannot carry a hex.
+      eyebrow: z.string().max(100),
+      heading: z.string().max(200),
+      standfirst: z.string().max(300),
+      body: z.string().max(1000),
+      ctaText: z.string().max(100),
+      ctaLink: zLink,
+      secondaryCtaText: z.string().max(100),
+      secondaryCtaLink: zLink,
+      stats: z
+        .array(
+          z
+            .object({
+              value: z.string().min(1).max(12),
+              label: z.string().min(1).max(80),
+            })
+            .strip(),
+        )
+        .max(4),
+      callout: z
+        .object({
+          tone: z.enum(['info', 'warning', 'success']).optional(),
+          title: z.string().min(1).max(100),
+          text: z.string().max(400).optional(),
+          note: z.string().max(160).optional(),
+        })
+        .strip(),
+      facts: z
+        .array(
+          z
+            .object({
+              label: z.string().min(1).max(40),
+              value: z.string().min(1).max(60),
+            })
+            .strip(),
+        )
+        .max(6),
+    })
+    .partial()
+    .strip(),
   reference_cards: z
     .object({
       // A curated few of something a longer page lists in full. The

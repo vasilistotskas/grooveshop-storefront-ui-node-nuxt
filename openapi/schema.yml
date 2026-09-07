@@ -34660,6 +34660,7 @@ components:
         - partner_strip
         - pull_quote
         - reference_cards
+        - page_hero
       type: string
       description: |-
         * `hero_banner` - Hero Banner
@@ -34695,6 +34696,7 @@ components:
         * `partner_strip` - Partner Strip
         * `pull_quote` - Pull Quote
         * `reference_cards` - Reference Cards
+        * `page_hero` - Page Hero
     ConfirmAgentPaymentRequestRequest:
       type: object
       properties:
