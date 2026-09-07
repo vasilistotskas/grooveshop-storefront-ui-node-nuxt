@@ -215,13 +215,19 @@ describe('every public page renders', async () => {
     const { statusCode, body } = await requestWithHost('/', VARIANT_HOST)
 
     expect(statusCode, body.slice(0, 900)).toBe(200)
-    // The lockup caption and the brand teal are in the variant
+    // The lockup caption and the ΔΣ mark's own path are in the variant
     // components and nowhere in the platform chrome, so their presence
     // proves `resolveChromeComponent` matched and the layout rendered
     // what it returned.
+    //
+    // MARKUP, not styling: this asserted the brand hex until the
+    // variants moved onto semantic tokens, at which point a correct
+    // refactor failed a test that was pinning how the colour was
+    // spelled rather than whether the component rendered.
     expect(body, 'the tenant navbar/footer lockup did not render')
       .toContain('Consulting · Engineering')
-    expect(body).toContain('#5BC4C4')
+    expect(body, 'the ΔΣ mark did not render')
+      .toContain('M11 3 L20 27 L2 27 Z')
   }, 60000)
 
   it('leaves a tenant without one on the platform chrome', async () => {
