@@ -1,3 +1,10 @@
+# [3.169.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.168.0...v3.169.0) (2026-09-07)
+
+
+### Features
+
+* **page-config:** send the locale with the layout and menu requests ([9e1e2a8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9e1e2a8b1f207f50907c297ba7681915793ca120))
+
 # [3.168.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.167.0...v3.168.0) (2026-09-07)
 
 
