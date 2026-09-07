@@ -1,3 +1,10 @@
+## [3.170.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.170.1...v3.170.2) (2026-09-07)
+
+
+### Bug Fixes
+
+* **i18n:** read the locale from the route in the middleware, not useI18n ([69ce59b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/69ce59b60b5a8c9bc555b64995e4246b0a0183a8))
+
 ## [3.170.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.170.0...v3.170.1) (2026-09-07)
 
 
