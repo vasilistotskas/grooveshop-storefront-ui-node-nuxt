@@ -24,8 +24,38 @@ interface RedisDriverOptions {
   host: string
   port: number
   ttl: number
+  /**
+   * Redis key prefix. Carries the BUILD ID, so a deploy cannot read
+   * the previous build's entries — see `cacheNamespace`.
+   */
+  base: string
   db?: number
   password?: string
+}
+
+/**
+ * The Redis key prefix for this build's cache entries.
+ *
+ * A cached SSR render embeds the asset URLs of the build that produced
+ * it (`/_nuxt/entry.<hash>.css`), and those files do not exist in the
+ * next image. With one fixed prefix, a deploy inherited the previous
+ * build's HTML and served pages that referenced 404s — no CSS, no JS,
+ * and at 390px no layout either — for as long as the entry lived. The
+ * prerendered routes carry `s-maxage=3600`, so that was up to an hour
+ * of unstyled pages after every deploy, on the pages least likely to
+ * be noticed. Found by `pnpm audit:visual` on 2026-09-07, on
+ * /privacy-policy, /terms-of-use, /cookies-policy, /return-policy and
+ * /contact at once.
+ *
+ * Namespacing by build id makes it structurally impossible: the new
+ * build reads and writes its own keyspace and the old entries expire
+ * unread on their existing TTL. No purge step to remember, and no
+ * window where a stale entry can win.
+ */
+function cacheNamespace(buildId: string | undefined): string {
+  // `app.buildId` is a per-build uuid in Nuxt; the fallback keeps the
+  // prefix stable (and the old behaviour) if it is ever absent.
+  return buildId ? `${CACHE_MOUNT_POINT}:${buildId}` : CACHE_MOUNT_POINT
 }
 
 /**
@@ -70,9 +100,9 @@ export function withoutNonPositiveTtlWrites(driver: Driver): Driver {
  * Creates a Redis driver with ioredis configuration optimized for graceful error handling.
  * The unstorage redis driver uses ioredis internally.
  */
-function createRedisDriver({ host, port, ttl, db, password }: RedisDriverOptions): Driver {
+function createRedisDriver({ host, port, ttl, base, db, password }: RedisDriverOptions): Driver {
   return withoutNonPositiveTtlWrites(redisDriver({
-    base: CACHE_MOUNT_POINT,
+    base,
     host,
     port,
     ttl,
@@ -175,10 +205,11 @@ export default defineNitroPlugin(async (nitroApp) => {
   // Nitro's cached handlers already tolerate cache-layer errors.
   void testRedisConnection(redisHost, redisPort, redisDB, redisPassword).then(async (isConnected) => {
     if (isConnected) {
-      const driver = createRedisDriver({ host: redisHost, port: redisPort, ttl: redisTTL, db: redisDB, password: redisPassword })
+      const base = cacheNamespace(config.app?.buildId)
+      const driver = createRedisDriver({ host: redisHost, port: redisPort, ttl: redisTTL, base, db: redisDB, password: redisPassword })
       await storage.unmount(CACHE_MOUNT_POINT).catch(() => {})
       storage.mount(CACHE_MOUNT_POINT, driver)
-      log.info('cache', `Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort} db=${redisDB}, TTL: ${redisTTL}s)`)
+      log.info('cache', `Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort} db=${redisDB}, TTL: ${redisTTL}s, keyspace: ${base})`)
     }
     else {
       log.warn('cache', `Redis unavailable, keeping memory driver (not shared across pods!)`)
