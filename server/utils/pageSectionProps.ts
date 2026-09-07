@@ -166,6 +166,17 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     })
     .partial()
     .strip(),
+  pull_quote: z
+    .object({
+      // A stated principle with the reason under it — not a
+      // testimonial, which is somebody else's words and needs an
+      // attribution to mean anything.
+      quote: z.string().max(300),
+      text: z.string().max(1000),
+      attribution: z.string().max(120),
+    })
+    .partial()
+    .strip(),
   features_grid: z
     .object({
       heading: z.string().max(200),
@@ -181,6 +192,19 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
         )
         .max(12),
       columns: z.number().int().min(1).max(4),
+      // The band's own link, on the heading's baseline rather than
+      // under the grid, and the cell that answers "what if mine is not
+      // one of these?".
+      ctaText: z.string().max(100),
+      ctaLink: zLink,
+      prompt: z
+        .object({
+          title: z.string().min(1).max(100),
+          text: z.string().max(300).optional(),
+          ctaText: z.string().max(100).optional(),
+          ctaLink: zLink.optional(),
+        })
+        .strip(),
       decor: z.enum(['none', 'gradient_tiles']),
     })
     .partial()
@@ -250,6 +274,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
   story_timeline: z
     .object({
       heading: z.string().max(200),
+      subheading: z.string().max(500),
       items: z
         .array(
           z

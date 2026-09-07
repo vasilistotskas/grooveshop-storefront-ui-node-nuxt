@@ -40,11 +40,18 @@ const props = defineProps<{
 const { t, tm, rt } = useI18n()
 
 /**
- * The heading's last line is teal in the artboards — the turn from
+ * The heading's last LINE is teal in the artboards — the turn from
  * what the company builds to the promise about it ("…with the key in
- * your hand."). Split on the last sentence rather than at a fixed
+ * your hand."). Split on the last clause rather than at a fixed
  * character count so the emphasis lands on a clause in both languages
  * and however the operator rewrites it.
+ *
+ * The accent renders as a BLOCK, so it starts a line of its own
+ * however the lead wraps — the structural half of the artboard's
+ * device, and the half that survives translation. Where the LEAD's
+ * own line breaks fall is left to the browser: the artboard's are
+ * hand-set and no single max-width reproduces them (its lead wraps as
+ * though the column were 470px while its accent line needs 563).
  */
 const headingParts = computed(() => {
   const text = (props.heading ?? '').trim()
@@ -168,7 +175,7 @@ const station = computed(() => stations.value[active.value])
         >
           {{ headingParts.lead }}<span
             v-if="headingParts.accent"
-            class="text-[#5BC4C4]"
+            class="block text-[#5BC4C4]"
           >{{ headingParts.accent }}</span>
         </h2>
 
@@ -295,8 +302,9 @@ const station = computed(() => stations.value[active.value])
               role="tab"
               :aria-selected="index === active"
               class="
-                rounded-t-md border border-b-0 px-4 py-2.5 font-mono
-                text-[11px] tracking-[0.12em] uppercase transition-colors
+                rounded-t-md border border-b-0 px-4 py-2 font-mono
+                text-[11px] leading-none tracking-[0.12em] uppercase
+                transition-colors
               "
               :class="index === active
                 ? 'border-[#1E293B] text-[#5BC4C4]'
@@ -309,15 +317,19 @@ const station = computed(() => stations.value[active.value])
 
           <div
             class="
-              mt-5 flex flex-col gap-4 border-b border-[#1E293B] pb-5
+              mt-4 flex flex-col gap-4 border-b border-[#1E293B] pb-4
               sm:flex-row sm:items-start sm:justify-between
             "
           >
             <div>
-              <p class="text-[17px] font-semibold text-white">
+              <p class="text-[17px] leading-tight font-semibold text-white">
                 {{ station.name }}
               </p>
-              <p class="mt-1.5 font-mono text-[12px] text-[#64748B]">
+              <p
+                class="
+                  mt-1.5 font-mono text-[12px] leading-none text-[#64748B]
+                "
+              >
                 {{ station.code }}
               </p>
             </div>
@@ -338,14 +350,14 @@ const station = computed(() => stations.value[active.value])
 
           <div
             class="
-              mt-5 grid grid-cols-2 border-t border-l border-[#1E293B]
+              mt-4 grid grid-cols-2 border-t border-l border-[#1E293B]
               sm:grid-cols-3
             "
           >
             <div
               v-for="metric in metrics"
               :key="metric.label"
-              class="border-r border-b border-[#1E293B] px-4 py-3.5"
+              class="border-r border-b border-[#1E293B] px-4 py-3"
             >
               <p
                 class="
@@ -372,7 +384,7 @@ const station = computed(() => stations.value[active.value])
             <div
               class="
                 flex items-center justify-between gap-3 border-b
-                border-[#1E293B] bg-[#020617] px-4 py-2.5
+                border-[#1E293B] bg-[#020617] px-4 py-2
               "
             >
               <span
@@ -388,7 +400,7 @@ const station = computed(() => stations.value[active.value])
             <div
               v-for="(signal, index) in signals"
               :key="signal.name"
-              class="flex items-center justify-between gap-3 px-4 py-2.5"
+              class="flex items-center justify-between gap-3 px-4 py-2"
               :class="index > 0 ? 'border-t border-[#1E293B]' : ''"
             >
               <span

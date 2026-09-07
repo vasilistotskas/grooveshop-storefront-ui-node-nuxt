@@ -14,11 +14,17 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * phone numbers in monospace 12.5px/1.8 at `#CBD5E1`, a teal email, a
  * 44px gap to the inner rule and a 22px-padded legal row at 12.5px.
  *
- * The artboard's identity column carries NO blurb — the lockup and the
- * Γ.Ε.ΜΗ. number, nothing else — and its legal row carries only the
- * copyright and LinkedIn. Both are omissions by design, not gaps. The
- * legal pages stay reachable the way the platform already allows an
- * operator-configured footer to reach them: as a `NavigationMenu` row.
+ * The artboards disagree about this footer in one place, and the HOME
+ * one wins: it carries the standfirst under the lockup and two link
+ * columns beside the contact column, where a later inner-page board
+ * shows neither. A footer is global, so the fuller board is the one
+ * that can be built — an inner page cannot have a different footer.
+ *
+ * What both boards agree on is the legal row: the copyright and
+ * LinkedIn, nothing else. Terms and privacy are not in it. They stay
+ * reachable the way the platform already lets an operator-configured
+ * footer reach them — as a `NavigationMenu` row — rather than as
+ * chrome this design does not have.
  *
  * Everything that reads as content is DATA, not markup: the link
  * columns come from the tenant's `NavigationMenu` footer rows (per
@@ -55,6 +61,9 @@ const year = new Date().getFullYear()
     >
       <div class="flex w-full max-w-[320px] flex-col gap-4">
         <ChromeVariantsDeltaSigmaLogo :show-caption="true" />
+        <p class="text-[13.5px] leading-[1.7] text-[#475569]">
+          {{ t('blurb') }}
+        </p>
         <p
           v-if="identity?.registrationNumber"
           class="font-mono text-[11.5px] leading-none text-[#475569]"
@@ -159,10 +168,12 @@ const year = new Date().getFullYear()
 
 <i18n lang="yaml">
 el:
+  blurb: Βιομηχανική πληροφορική, αυτοματισμός, ηλεκτρονική, ηλεκτρολογικά έργα και συμβουλευτικές υπηρεσίες.
   gemi: Γ.Ε.ΜΗ.
   contact: Επικοινωνία
   rights: Με επιφύλαξη παντός δικαιώματος.
 en:
+  blurb: Industrial informatics, automation, electronics, electrical works and consulting services.
   gemi: GEMI
   contact: Contact
   rights: All rights reserved.

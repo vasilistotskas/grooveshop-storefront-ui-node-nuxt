@@ -80,6 +80,10 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'hero_banner@delta_sigma': eagerSection(() => import('~/components/PageSection/variants/delta_sigma/Hero.vue')),
   'partner_strip@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/PartnerStrip.vue')),
   'media_text@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/MediaText.vue')),
+  'features_grid@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/FeaturesGrid.vue')),
+  'story_timeline@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/StoryTimeline.vue')),
+  'cta_banner@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/CtaBanner.vue')),
+  'pull_quote@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/PullQuote.vue')),
 
   // webside tenant variants — full-page marketing/content sections with
   // no props. Base (non-variant) entries deliberately do NOT exist for
