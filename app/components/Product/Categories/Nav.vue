@@ -59,4 +59,6 @@ const items = computed(() => categories.value?.results ?? [])
 <i18n lang="yaml">
 el:
   label: Κατηγορίες προϊόντων
+en:
+  label: Product categories
 </i18n>

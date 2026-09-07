@@ -44,4 +44,6 @@ defineProps({
 <i18n lang="yaml">
 el:
   error: Παρουσιάστηκε σφάλμα, δοκίμασε αργότερα.
+en:
+  error: An error occurred — please try again later.
 </i18n>

@@ -129,4 +129,12 @@ el:
   pinterest: Pinterest
   facebook: Facebook
   discord: Discord
+en:
+  instagram: Instagram
+  tiktok: TikTok
+  reddit: Reddit
+  youtube: YouTube
+  pinterest: Pinterest
+  facebook: Facebook
+  discord: Discord
 </i18n>

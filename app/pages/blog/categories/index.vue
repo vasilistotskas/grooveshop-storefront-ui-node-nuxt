@@ -40,4 +40,9 @@ el:
   seo:
     title: Κατηγορίες άρθρων και οδηγών
     description: Περιήγηση στις κατηγορίες του blog — βρες γρήγορα τα άρθρα και τους οδηγούς που σε ενδιαφέρουν, ταξινομημένα ανά θέμα.
+en:
+  title: Categories
+  seo:
+    title: Article and guide categories
+    description: Browse the blog categories — find the articles and guides you are looking for, sorted by subject.
 </i18n>

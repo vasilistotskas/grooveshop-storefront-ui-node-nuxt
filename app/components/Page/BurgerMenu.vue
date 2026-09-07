@@ -376,4 +376,10 @@ el:
   loading: Φόρτωση
   hello_user: Γεια σου, {name}
   cookie_settings: Ρυθμίσεις cookies
+en:
+  menu: Menu
+  navigation: Navigation
+  loading: Loading
+  hello_user: Hello, {name}
+  cookie_settings: Cookie settings
 </i18n>

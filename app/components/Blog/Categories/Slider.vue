@@ -127,4 +127,9 @@ el:
   see_all: Δές τες όλες
   carousel:
     categories: Κατηγορίες
+en:
+  all: All
+  see_all: See them all
+  carousel:
+    categories: Categories
 </i18n>

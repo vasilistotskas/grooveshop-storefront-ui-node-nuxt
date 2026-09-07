@@ -36,4 +36,6 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Πολιτική Επιστροφών
+en:
+  title: Returns Policy
 </i18n>

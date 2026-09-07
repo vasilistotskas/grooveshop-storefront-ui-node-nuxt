@@ -299,4 +299,8 @@ el:
   empty:
     title: Δεν υπάρχουν άρθρα ακόμη
     description: Σύντομα θα βρείτε εδώ τα νέα και τις ιστορίες μας.
+en:
+  empty:
+    title: No articles yet
+    description: Our news and stories will appear here soon.
 </i18n>

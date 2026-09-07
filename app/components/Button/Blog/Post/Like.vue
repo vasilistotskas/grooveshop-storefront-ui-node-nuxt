@@ -149,4 +149,10 @@ el:
   like: Like
   added: Προστέθηκε στα αγαπημένα
   removed: Αφαιρέθηκε από τα αγαπημένα
+en:
+  not_authenticated: You have to be signed in to like this
+  liked: Liked
+  like: Like
+  added: Added to your favourites
+  removed: Removed from your favourites
 </i18n>

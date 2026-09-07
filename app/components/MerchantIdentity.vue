@@ -65,4 +65,8 @@ el:
   gemi: ΓΕΜΗ
   vat_id: ΑΦΜ
   in_liquidation: Υπό εκκαθάριση
+en:
+  gemi: GEMI
+  vat_id: VAT number
+  in_liquidation: In liquidation
 </i18n>

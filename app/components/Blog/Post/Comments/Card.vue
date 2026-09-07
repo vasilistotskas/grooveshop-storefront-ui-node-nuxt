@@ -590,4 +590,15 @@ el:
     replies: Απόκρυψη
   more:
     replies: Δεν υπάρχουν απαντήσεις | 1 Απάντηση | {count} Απαντήσεις
+en:
+  add:
+    success: Your comment was created and will appear once approved
+    error: The comment could not be created
+  reply:
+    login: Sign in to reply
+    placeholder: Write something...
+  hide:
+    replies: Hide
+  more:
+    replies: No replies | 1 reply | {count} replies
 </i18n>

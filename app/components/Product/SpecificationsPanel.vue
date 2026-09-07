@@ -48,4 +48,6 @@ const { t } = useI18n()
 <i18n lang="yaml">
 el:
   no_specifications_available: Δεν υπάρχουν διαθέσιμες προδιαγραφές
+en:
+  no_specifications_available: No specifications available
 </i18n>

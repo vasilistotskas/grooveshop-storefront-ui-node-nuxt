@@ -146,4 +146,8 @@ el:
   minimum_views: Προβολές
   view_count_slider: Ρυθμιστικό προβολών
   min_views: "Τουλάχιστον {count} προβολές"
+en:
+  minimum_views: Views
+  view_count_slider: Views slider
+  min_views: "At least {count} views"
 </i18n>

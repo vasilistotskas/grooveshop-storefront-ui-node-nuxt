@@ -322,4 +322,11 @@ el:
   last_page: Τελευταία σελίδα
   go_to_page: Μετάβαση στη σελίδα {page}
   you_are_on_last_page: Είστε στην τελευταία σελίδα
+en:
+  previous_page: Previous page
+  next_page: Next page
+  first_page: First page
+  last_page: Last page
+  go_to_page: Go to page {page}
+  you_are_on_last_page: You are on the last page
 </i18n>

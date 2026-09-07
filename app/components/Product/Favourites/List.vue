@@ -64,4 +64,7 @@ const { t } = useI18n()
 el:
   total:
     count: Κανένα Αγαπημένο | 1 Αγαπημένο | {count} Αγαπημένα
+en:
+  total:
+    count: No favourites | 1 favourite | {count} favourites
 </i18n>

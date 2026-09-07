@@ -98,4 +98,13 @@ el:
     items:
       blog:
         label: Blog
+en:
+  title: Blog
+  seo:
+    title: "Blog: articles, news and guides"
+  description: Articles, guides and news from our team — practical advice, analysis and answers to the questions we are asked most.
+  breadcrumb:
+    items:
+      blog:
+        label: Blog
 </i18n>

@@ -144,4 +144,6 @@ async function onSelect(axisId: number, rawValue: unknown) {
 <i18n lang="yaml">
 el:
   from: από
+en:
+  from: from
 </i18n>

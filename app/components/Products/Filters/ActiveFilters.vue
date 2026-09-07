@@ -188,6 +188,20 @@ el:
     most_viewed: Προβολές
     newest: Νεότερα
     default: Προεπιλογή
+en:
+  active_filters: Active filters
+  clear_all: Clear all
+  remove_filter: "Remove the {filter} filter"
+  up_to: "Up to {price}"
+  min_likes: "{count}+ likes"
+  min_views: "{count}+ views"
+  sort:
+    price_asc: Price ↑
+    price_desc: Price ↓
+    popularity: Popular
+    most_viewed: Views
+    newest: Newest
+    default: Default
 </i18n>
 
 <style scoped>

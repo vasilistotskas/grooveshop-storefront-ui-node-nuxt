@@ -47,4 +47,7 @@ const { t } = useI18n()
 el:
   reviews:
     summary: Δεν υπάρχουν Αξιολογήσεις | 1 Αξιολόγηση | {n} Αξιολογήσεις
+en:
+  reviews:
+    summary: No reviews | 1 review | {n} reviews
 </i18n>

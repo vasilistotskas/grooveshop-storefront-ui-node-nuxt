@@ -362,4 +362,40 @@ el:
     new: Νέα συνομιλία
     disclaimer: Ο βοηθός μπορεί να κάνει λάθη — έλεγξε το καλάθι πριν την
       παραγγελία.
+en:
+  chat:
+    title: Shopping assistant
+    subtitle: AI assistant · replies instantly
+    close: Close the assistant
+    welcome:
+      title: Hello! I am the shopping assistant.
+      text: Ask me about products, availability, shipping or your order —
+        and I can put your basket together.
+    suggestions:
+      trending: What is popular right now?
+      gift: I am looking for gift ideas
+      shipping: How much is shipping?
+      track: Where is my order?
+    cartUpdated: Your basket was updated.
+    viewCart: View the basket
+    thinking: Thinking…
+    tools:
+      searchProducts: Searching products
+      getProduct: Opening the product
+      listCategories: Store categories
+      trending: Trending searches
+      reviews: Product reviews
+      shipping: Checking shipping
+      pickupPoints: Finding collection points
+      payment: Payment methods
+      cart: Updating the basket
+      checkoutLink: Checkout link
+      trackOrder: Tracking the order
+      alert: Setting an alert
+      checkout: Preparing the order
+      generic: Processing the request
+    placeholder: Ask me about products…
+    new: New conversation
+    disclaimer: The assistant can make mistakes — check your basket before
+      you order.
 </i18n>

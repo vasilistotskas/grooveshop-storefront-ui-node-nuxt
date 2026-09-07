@@ -355,4 +355,52 @@ el:
       title: "Η ειδοποίηση τιμής είναι ενεργή"
       description: "Θα σε ειδοποιήσουμε μόλις η τιμή πέσει."
       description_with_target: "Θα σε ειδοποιήσουμε μόλις η τιμή φτάσει στα {amount} € ή χαμηλότερα."
+en:
+  email_label: "Email"
+  email_placeholder: "you{'@'}example.com"
+  logged_in_hint: "We will send the alert to {email}."
+  cancel: "Cancel"
+  submit: "Turn the alert on"
+  conflict:
+    title: "You already have an active alert"
+    description: "Your earlier sign-up still stands — we will let you know when the condition is met."
+  error:
+    title: "The alert could not be turned on"
+    description: "Try again shortly or get in touch with us."
+  active:
+    cancel: "Turn the alert off"
+  cancel_success:
+    title: "The alert is off"
+    description: "We will not email you about this alert."
+  cancel_error:
+    title: "The alert could not be turned off"
+    description: "Try again shortly."
+  restock:
+    cta: "Notify me when it is back"
+    modal_title: "Back-in-stock alert"
+    modal_description: "We will email you as soon as the product is available again."
+    success:
+      title: "The alert is on"
+      description: "We will let you know as soon as the product is back in stock."
+    active:
+      title: "Your back-in-stock alert is on"
+      description: "We will let you know as soon as the product is available again."
+  price_drop:
+    cta: "Notify me when the price drops"
+    modal_title: "Price-drop alert"
+    modal_description: "Give us the price you are after. We will email you when the product reaches it or goes below."
+    target_price_label: "Target price"
+    target_price_help: "It has to be lower than the current price."
+    target_price_placeholder: "e.g. 19.99"
+    success:
+      title: "The price alert is on"
+      description: "We will let you know as soon as the price reaches your target."
+    validation:
+      required: "Give a target price."
+      positive: "The price has to be greater than 0."
+      below_current: "The target price has to be lower than the current one."
+    active:
+      title: "Your price alert is on"
+      description: "We will let you know as soon as the price drops."
+      description_with_target: "We will let you know as soon as the price reaches {amount} € or lower."
 </i18n>

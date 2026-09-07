@@ -150,4 +150,8 @@ el:
   title: Κατηγορία
   page:
     title: "{name} — Αγορά online"
+en:
+  title: Category
+  page:
+    title: "{name} — buy online"
 </i18n>

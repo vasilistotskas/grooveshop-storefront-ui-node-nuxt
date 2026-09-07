@@ -162,4 +162,6 @@ const carouselUI = {
 <i18n lang="yaml">
 el:
   title: "Είδες Πρόσφατα"
+en:
+  title: "Recently viewed"
 </i18n>

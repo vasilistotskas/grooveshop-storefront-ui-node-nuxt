@@ -297,4 +297,18 @@ el:
       cookies-policy:
         label: Πολιτική Cookies
         icon: i-heroicons-shield-check
+en:
+  title: Cookie Policy
+  legal:
+    headline: Legal
+    lastUpdated: 'Last updated: {date}'
+    toc:
+      title: On this page
+    cookies:
+      description: How we use cookies on our site and how you can control them.
+  breadcrumb:
+    items:
+      cookies-policy:
+        label: Cookie Policy
+        icon: i-heroicons-shield-check
 </i18n>

@@ -33,4 +33,6 @@ const hasHtml = computed(() => sanitizedHtml.value.trim().length > 0)
 <i18n lang="yaml">
 el:
   no_description_available: Δεν υπάρχει διαθέσιμη περιγραφή
+en:
+  no_description_available: No description available
 </i18n>

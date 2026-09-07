@@ -288,4 +288,27 @@ el:
     title: Δεν υπάρχουν ενεργές προσφορές
     description: Έλεγξε ξανά σύντομα — προσθέτουμε νέες προσφορές τακτικά.
     cta: Δες τα προϊόντα
+en:
+  title: Offers
+  description: Every active offer in the store, in one place.
+  code_label: Code
+  automatic: Applied automatically at the basket
+  benefit:
+    percentage: -{value}%
+    fixed: -{amount}
+    free_shipping: Free shipping
+    bxgy_free: '{buy}+{get} free'
+    bxgy_discounted: '{buy}+{get} at -{value}%'
+    free_gift: Gift
+  condition:
+    min_subtotal: On orders from {amount}
+    min_quantity: On {count} items or more
+    max_discount: Maximum discount {amount}
+    first_order: On your first order only
+    no_sale_items: Does not apply to products already on sale
+    not_stackable: Cannot be combined with other offers
+  empty:
+    title: No active offers
+    description: Check back soon — we add new offers regularly.
+    cta: Browse the products
 </i18n>

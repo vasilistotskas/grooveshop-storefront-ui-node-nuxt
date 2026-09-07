@@ -88,4 +88,8 @@ el:
   carousel:
     banner: Κύριο banner
     bannerLink: Άνοιγμα συνδέσμου banner
+en:
+  carousel:
+    banner: Main banner
+    bannerLink: Open banner link
 </i18n>

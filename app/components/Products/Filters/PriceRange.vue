@@ -236,4 +236,12 @@ el:
   maximum: Έως
   price_min: Ελάχιστη τιμή
   price_max: Μέγιστη τιμή
+en:
+  selected_range: Range
+  price_range: Price range
+  price_range_value: "{min} to {max}"
+  minimum: From
+  maximum: To
+  price_min: Minimum price
+  price_max: Maximum price
 </i18n>

@@ -224,4 +224,18 @@ el:
       terms-of-use:
         label: Όροι Χρήσης
         icon: i-heroicons-user-group
+en:
+  title: Terms of Use
+  legal:
+    headline: Legal
+    lastUpdated: 'Last updated: {date}'
+    toc:
+      title: On this page
+    terms:
+      description: The terms and conditions that govern the use of {siteHost}.
+  breadcrumb:
+    items:
+      terms-of-use:
+        label: Terms of Use
+        icon: i-heroicons-user-group
 </i18n>

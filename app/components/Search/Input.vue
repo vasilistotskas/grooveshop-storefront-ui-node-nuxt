@@ -107,4 +107,7 @@ defineShortcuts({
 el:
   search:
     placeholder: Αναζήτηση...
+en:
+  search:
+    placeholder: Search...
 </i18n>

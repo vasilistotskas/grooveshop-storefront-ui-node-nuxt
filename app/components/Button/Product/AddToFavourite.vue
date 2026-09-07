@@ -182,4 +182,10 @@ el:
   removed: Αφαιρέθηκε από τα αγαπημένα
   add: Προσθήκη στα αγαπημένα
   remove: Αφαίρεση από τα αγαπημένα
+en:
+  not_authenticated: You have to be signed in to add favourites
+  added: Added to your favourites
+  removed: Removed from your favourites
+  add: Add to favourites
+  remove: Remove from favourites
 </i18n>

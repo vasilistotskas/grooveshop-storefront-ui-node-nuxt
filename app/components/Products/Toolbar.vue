@@ -200,4 +200,27 @@ el:
     twenty: '20 ανά σελίδα'
     twentyFour: '24 ανά σελίδα'
     fortyEight: '48 ανά σελίδα'
+en:
+  resultsCount: '{count} products'
+  sortBy: 'Sort'
+  show: 'Show'
+  filters: 'Filters'
+  toolbar:
+    aria:
+      browsing_controls: 'Product browsing controls'
+      toggle_filters: 'Toggle filters'
+      sort_products: 'Sort products'
+      items_per_page: 'Items per page'
+  sort:
+    recommended: 'Recommended'
+    newest: 'Newest'
+    priceAsc: 'Price (low to high)'
+    priceDesc: 'Price (high to low)'
+    popularity: 'Popular'
+    mostViewed: 'Most viewed'
+  itemsPerPage:
+    twelve: '12 per page'
+    twenty: '20 per page'
+    twentyFour: '24 per page'
+    fortyEight: '48 per page'
 </i18n>

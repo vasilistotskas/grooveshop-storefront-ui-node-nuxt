@@ -92,4 +92,7 @@ const openCookieModal = () => {
 el:
   all_rights_reserved: All rights reserved
   cookie_settings: Ρυθμίσεις cookies
+en:
+  all_rights_reserved: All rights reserved
+  cookie_settings: Cookie settings
 </i18n>

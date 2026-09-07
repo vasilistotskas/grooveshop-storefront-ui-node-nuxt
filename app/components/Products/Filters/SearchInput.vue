@@ -65,4 +65,8 @@ el:
   placeholder: Αναζήτηση προϊόντων...
   aria_label: Αναζήτηση προϊόντων
   clear: Καθαρισμός αναζήτησης
+en:
+  placeholder: Search products...
+  aria_label: Search products
+  clear: Clear the search
 </i18n>

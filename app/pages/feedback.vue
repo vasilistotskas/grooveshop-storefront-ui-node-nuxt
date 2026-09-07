@@ -60,4 +60,6 @@ const { sections: brandSections } = await usePageConfig('feedback')
 <i18n lang="yaml">
 el:
   title: Σχόλια & Παρατηρήσεις
+en:
+  title: Feedback & Comments
 </i18n>

@@ -85,4 +85,17 @@ el:
     fri: Παρασκευή
     sat: Σάββατο
     sun: Κυριακή
+en:
+  title: Opening hours
+  open_now: Open now
+  closed_now: Closed now
+  closed: Closed
+  days:
+    mon: Monday
+    tue: Tuesday
+    wed: Wednesday
+    thu: Thursday
+    fri: Friday
+    sat: Saturday
+    sun: Sunday
 </i18n>

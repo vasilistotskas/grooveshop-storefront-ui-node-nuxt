@@ -418,4 +418,8 @@ el:
   navigation: Πλοήγηση
   user:
     profile: Προφίλ
+en:
+  navigation: Navigation
+  user:
+    profile: Profile
 </i18n>

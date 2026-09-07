@@ -134,4 +134,8 @@ el:
   not_authenticated: Πρέπει να είσαι συνδεδεμένος για να κάνεις like
   liked: Άρεσε
   like: Like
+en:
+  not_authenticated: You have to be signed in to like this
+  liked: Liked
+  like: Like
 </i18n>

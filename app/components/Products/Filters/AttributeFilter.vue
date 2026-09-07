@@ -216,4 +216,7 @@ const isValueDisabled = (valueId: string) => {
 el:
   products: προϊόντα
   no_attributes: Δεν υπάρχουν διαθέσιμα χαρακτηριστικά
+en:
+  products: products
+  no_attributes: No attributes available
 </i18n>

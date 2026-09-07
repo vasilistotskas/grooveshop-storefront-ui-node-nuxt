@@ -549,4 +549,29 @@ el:
     shortcuts:
       focus_search: "Εστίαση στην αναζήτηση"
       clear_search: "Εκκαθάριση αναζήτησης"
+en:
+  page:
+    title: "Search"
+    search_query: "Search {query}"
+    search_placeholder: "Type to search..."
+    results_count: "{count} results for \"{query}\""
+    relaxed_notice: "— showing results for \"{query}\""
+    per_page: "Per page"
+    breadcrumb:
+      home: "Home"
+      search: "Search"
+    tabs:
+      all: "All"
+      products_label: "Products"
+      blog_posts_label: "Articles"
+    empty:
+      title: "Start your search"
+      description: "Use the search box above to find the products and articles you are interested in"
+    no_results:
+      title: "No results found"
+      description: "No results were found for \"{query}\". Try different search terms"
+      clear_search: "Clear the search"
+    shortcuts:
+      focus_search: "Focus the search"
+      clear_search: "Clear the search"
 </i18n>

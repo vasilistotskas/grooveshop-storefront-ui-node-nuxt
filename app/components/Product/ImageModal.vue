@@ -491,4 +491,17 @@ el:
   swipeHint: Σύρετε για πλοήγηση • Πιέστε για μεγέθυνση
   hoverToMagnify: Κλικ για μεγέθυνση
   close: Κλείσιμο
+en:
+  first: First
+  last: Last
+  productImage: Image of {product}
+  navigate: Navigate
+  jump: Jump to
+  imageNumber: Image {number}
+  viewImage: View image {number}
+  previous: Previous
+  next: Next
+  swipeHint: Swipe to navigate • tap to zoom
+  hoverToMagnify: Click to zoom
+  close: Close
 </i18n>

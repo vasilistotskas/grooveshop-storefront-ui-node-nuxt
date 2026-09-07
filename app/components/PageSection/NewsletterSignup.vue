@@ -41,4 +41,8 @@ el:
   newsletter:
     placeholder: Email
     subscribe: Εγγραφή
+en:
+  newsletter:
+    placeholder: Email
+    subscribe: Subscribe
 </i18n>

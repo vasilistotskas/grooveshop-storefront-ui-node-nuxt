@@ -257,4 +257,36 @@ el:
     general: Κάτι πήγε στραβά, δοκιμάστε ξανά
   debug:
     info: Πληροφορίες αποσφαλμάτωσης
+en:
+  go:
+    back: Go back
+  home: Home
+  error:
+    page:
+      title: Error 404
+    message: Error message
+    data: Error data
+  helpful:
+    tips: Helpful tips
+  status:
+    not:
+      found: The page you are looking for was not found.
+    server: Something went wrong — please try again shortly.
+    generic: An error occurred.
+  tip:
+    check:
+      url: Check that the URL is correct
+    use:
+      search: Use the search to find what you are looking for
+    go:
+      home: Go back to the home page
+    server:
+      error: A server error occurred
+    try:
+      again: Try again in a few minutes
+    contact:
+      support: Contact support if the problem persists
+    general: Something went wrong — please try again
+  debug:
+    info: Debug information
 </i18n>

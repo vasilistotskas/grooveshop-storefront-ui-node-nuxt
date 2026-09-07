@@ -440,4 +440,23 @@ el:
     more: Φόρτωσε περισσότερα
     error: Σφάλμα φόρτωσης σχολίων
   submit: Υποβολή
+en:
+  title: Comments
+  summary:
+    comments: No comments | 1 comment | {count} comments
+  empty:
+    title: Write a comment
+    title_guest: Sign in to write a comment
+    description: Be the first to comment
+    description_guest: Sign in to comment
+  add:
+    error: The comment could not be created
+    success: Your comment was created and will appear once approved
+  reply:
+    login: Sign in to reply
+    placeholder: Write something...
+  load:
+    more: Load more
+    error: The comments could not be loaded
+  submit: Submit
 </i18n>

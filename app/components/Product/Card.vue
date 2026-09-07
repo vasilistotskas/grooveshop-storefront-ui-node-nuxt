@@ -362,6 +362,17 @@ el:
   low_stock: Τελευταία κομμάτια
   only_n_left: Μόνο {count} απέμεινε | Μόνο {count} απέμειναν
   view_product: Προβολή προϊόντος
+en:
+  price: Price
+  vat_percent: VAT rate
+  vat_included: VAT included
+  total_price: Final price
+  share: Share
+  add_to_cart: Buy
+  out_of_stock: Out of stock
+  low_stock: Last few left
+  only_n_left: Only {count} left | Only {count} left
+  view_product: View product
 </i18n>
 
 <style scoped>

@@ -88,4 +88,8 @@ el:
   read:
     more: Διάβασε περισσότερα
     less: Διάβασε λιγότερα
+en:
+  read:
+    more: Read more
+    less: Read less
 </i18n>

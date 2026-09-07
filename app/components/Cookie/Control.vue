@@ -272,4 +272,12 @@ el:
     title: "\U0001F36A Γεια. Αυτός ο ιστότοπος χρησιμοποιεί Cookies \U0001F36A"
   decline: Απόρριψη
   manage_cookies: Ρυθμίσεις cookies
+en:
+  title: Cookies
+  accept: Accept
+  banner:
+    description: "We use cookies and similar technologies to personalise content and offer a better experience. You can customise them by clicking the customise button."
+    title: "\U0001F36A Hi. This site uses cookies \U0001F36A"
+  decline: Decline
+  manage_cookies: Cookie settings
 </i18n>

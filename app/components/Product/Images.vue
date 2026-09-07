@@ -219,6 +219,13 @@ el:
   imageNumber: Εικόνα {number}
   selectImage: Επιλογή εικόνας {number}
   doubleTapHint: Διπλό πάτημα στη μικρογραφία για πλήρη οθόνη
+en:
+  viewFullscreen: View full screen
+  viewFullSizeImage: View the image at full size
+  photosCount: '{count} images'
+  imageNumber: Image {number}
+  selectImage: Select image {number}
+  doubleTapHint: Double-tap a thumbnail for full screen
 </i18n>
 
 <style scoped>

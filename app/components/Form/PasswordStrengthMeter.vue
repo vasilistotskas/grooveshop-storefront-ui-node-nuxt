@@ -96,4 +96,16 @@ el:
     weak: Αδύναμος κωδικός
     medium: Μέτριος κωδικός
     strong: Ισχυρός κωδικός
+en:
+  requirements:
+    title: Password requirements
+    length: At least 8 characters
+    number: At least 1 number
+    lowercase: At least 1 lowercase letter
+    uppercase: At least 1 uppercase letter
+  strength:
+    none: Enter a password
+    weak: Weak password
+    medium: Medium-strength password
+    strong: Strong password
 </i18n>

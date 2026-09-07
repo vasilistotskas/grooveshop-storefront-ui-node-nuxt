@@ -53,4 +53,6 @@ const showMap = computed(() => Boolean(props.embedUrl))
 <i18n lang="yaml">
 el:
   title: Τοποθεσία καταστήματος
+en:
+  title: Store location
 </i18n>

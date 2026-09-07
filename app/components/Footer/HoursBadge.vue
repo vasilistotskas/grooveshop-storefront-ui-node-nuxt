@@ -30,4 +30,8 @@ el:
   open_now: Ανοιχτά τώρα
   closed_now: Κλειστά τώρα
   today: Σήμερα
+en:
+  open_now: Open now
+  closed_now: Closed now
+  today: Today
 </i18n>

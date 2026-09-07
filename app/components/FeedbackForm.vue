@@ -220,4 +220,28 @@ el:
     description: Λάβαμε τα σχόλιά σου και θα τα λάβουμε υπόψη.
   error:
     default: Κάτι πήγε στραβά. Δοκίμασε ξανά.
+en:
+  rating: How satisfied are you?
+  message: Your comments
+  message_placeholder: Tell us what you think — what you liked, or what we could do better.
+  name: Name (optional)
+  name_placeholder: Your name
+  email:
+    label: Email (optional)
+    placeholder: Your email, if you would like us to get back to you
+  category:
+    label: Category
+    placeholder: Choose a category
+    general: General
+    website: Site & experience
+    products: Products
+    delivery: Delivery
+    support: Customer service
+    other: Other
+  submit: Send feedback
+  success:
+    title: Thank you for your feedback!
+    description: We have received your comments and will take them into account.
+  error:
+    default: Something went wrong. Please try again.
 </i18n>

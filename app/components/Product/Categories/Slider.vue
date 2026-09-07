@@ -140,6 +140,9 @@ const categoryResults = computed(() => {
 el:
   all: Όλες
   see_all: Δές τες όλες
+en:
+  all: All
+  see_all: See them all
 </i18n>
 
 <style scoped>

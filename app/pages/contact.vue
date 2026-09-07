@@ -55,4 +55,6 @@ const { sections: brandSections } = await usePageConfig('contact')
 <i18n lang="yaml">
 el:
   title: Επικοινωνήστε μαζί μας
+en:
+  title: Contact us
 </i18n>

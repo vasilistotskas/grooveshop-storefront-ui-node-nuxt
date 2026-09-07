@@ -177,4 +177,7 @@ const footerClass = computed(() =>
 el:
   a11y:
     skipToContent: Μετάβαση στο κύριο περιεχόμενο
+en:
+  a11y:
+    skipToContent: Skip to the main content
 </i18n>

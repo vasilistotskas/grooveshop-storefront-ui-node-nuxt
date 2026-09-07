@@ -548,4 +548,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
 el:
   previous: Προηγούμενο
   next: Επόμενο
+en:
+  previous: Previous
+  next: Next
 </i18n>

@@ -147,4 +147,7 @@ watch(
 el:
   discover:
     more: Κανένα Άρθρο | Ανακάλυψε 1 Άρθρο | Ανακάλυψε και τα {count} Άρθρα
+en:
+  discover:
+    more: No articles | Discover 1 article | Discover all {count} articles
 </i18n>

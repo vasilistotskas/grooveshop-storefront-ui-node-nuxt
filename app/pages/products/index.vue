@@ -154,4 +154,11 @@ el:
     # instruments nor anything like them.
     title: "Προϊόντα: Όλη η συλλογή"
     description: Δες όλα τα προϊόντα μας, με φίλτρα κατηγορίας, τιμής και χαρακτηριστικών για να βρεις γρήγορα αυτό που ψάχνεις.
+en:
+  title: Products
+  skip_to_content: Skip to the content
+  skip_to_filters: Skip to the filters
+  seo:
+    title: "Products: the whole range"
+    description: Browse all of our products, with category, price and attribute filters to find what you are looking for quickly.
 </i18n>

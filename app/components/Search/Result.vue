@@ -118,4 +118,7 @@ const resultUrl = (result: SearchResult) => {
 el:
   product: Προϊόν
   article: Άρθρο
+en:
+  product: Product
+  article: Article
 </i18n>

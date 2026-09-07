@@ -86,4 +86,10 @@ el:
     close: Κλείσιμο βοηθού αγορών
     title: Βοηθός αγορών
     description: Ρώτησέ με για προϊόντα, διαθεσιμότητα και την παραγγελία σου.
+en:
+  chat:
+    open: Open the shopping assistant
+    close: Close the shopping assistant
+    title: Shopping assistant
+    description: Ask me about products, availability and your order.
 </i18n>

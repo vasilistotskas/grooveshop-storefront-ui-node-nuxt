@@ -579,4 +579,16 @@ el:
   carousel:
     banner: Κύριο banner
     bannerLink: Δείτε το Mini Powerbank 5000mAh
+en:
+  author: Author
+  published: Published
+  related:
+    sections: Related sections
+  breadcrumb:
+    items:
+      blog:
+        label: Blog
+  carousel:
+    banner: Main banner
+    bannerLink: See the Mini Powerbank 5000mAh
 </i18n>

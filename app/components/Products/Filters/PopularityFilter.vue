@@ -146,4 +146,8 @@ el:
   minimum_likes: Likes
   popularity_slider: Ρυθμιστικό δημοτικότητας
   min_likes: "Τουλάχιστον {count} likes"
+en:
+  minimum_likes: Likes
+  popularity_slider: Popularity slider
+  min_likes: "At least {count} likes"
 </i18n>

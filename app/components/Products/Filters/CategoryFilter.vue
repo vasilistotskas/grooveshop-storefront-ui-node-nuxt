@@ -186,4 +186,9 @@ el:
   clear_search: Καθαρισμός αναζήτησης
   no_categories: Δεν βρέθηκαν κατηγορίες
   products: προϊόντα
+en:
+  search_categories: Search categories
+  clear_search: Clear the search
+  no_categories: No categories found
+  products: products
 </i18n>

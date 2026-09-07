@@ -269,4 +269,16 @@ el:
   save: Αποθήκευση
   settings:
     unsaved: Έχεις μη αποθηκευμένες αλλαγές
+en:
+  title: Cookies
+  accept: Accept
+  accept_all: Accept all
+  modal:
+    title: Customise
+    description: "We use different types of cookies to optimise your experience on our site. Click the categories below to learn more about what each is for. You can choose which types of cookies are allowed and change your preferences later. Remember that blocking cookies may affect your experience."
+  close: Close
+  decline_all: Decline all
+  save: Save
+  settings:
+    unsaved: You have unsaved changes
 </i18n>

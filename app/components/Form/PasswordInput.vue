@@ -39,4 +39,8 @@ el:
   password:
     show: Δείξε τον κωδικό
     hide: Κρύψε τον κωδικό
+en:
+  password:
+    show: Show the password
+    hide: Hide the password
 </i18n>

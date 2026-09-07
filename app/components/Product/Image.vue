@@ -55,4 +55,7 @@ const alt = computed(() => {
 el:
   image:
     product_fallback: Εικόνα προϊόντος
+en:
+  image:
+    product_fallback: Product image
 </i18n>

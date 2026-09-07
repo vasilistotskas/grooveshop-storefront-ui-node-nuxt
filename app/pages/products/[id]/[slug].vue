@@ -1111,4 +1111,28 @@ el:
   low_stock: Χαμηλό απόθεμα ({count})
   in_stock: Διαθέσιμο
   vat_included: Περιλαμβάνει ΦΠΑ
+en:
+  breadcrumb:
+    items:
+      products:
+        label: Products
+  product_id: Product ID
+  qty: Quantity
+  share: Share it
+  max_quantity_reached: Maximum quantity reached
+  must_be_logged_in: You have to sign in
+  update_review: Update the review
+  write_review: Write a review
+  reviews:
+    title: Reviews
+  weight: Weight
+  description: Description
+  specifications: Specifications
+  no_description_available: No description available
+  no_specifications_available: No specifications available
+  add_to_cart: Buy
+  out_of_stock: Unavailable
+  low_stock: Low stock ({count})
+  in_stock: In stock
+  vat_included: VAT included
 </i18n>

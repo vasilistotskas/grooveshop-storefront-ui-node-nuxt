@@ -126,4 +126,9 @@ el:
   toast:
     added_title: Προστέθηκε στο καλάθι
     added_description: Το προϊόν "{name}" προστέθηκε στο καλάθι.
+en:
+  unavailable: Unavailable
+  toast:
+    added_title: Added to your basket
+    added_description: '"{name}" was added to your basket.'
 </i18n>

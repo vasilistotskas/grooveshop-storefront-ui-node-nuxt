@@ -102,4 +102,7 @@ const { t, locale } = useI18n()
 el:
   favourites:
     count: Κανένα Αγαπημένο | 1 Αγαπημένο | {count} Αγαπημένα
+en:
+  favourites:
+    count: No favourites | 1 favourite | {count} favourites
 </i18n>

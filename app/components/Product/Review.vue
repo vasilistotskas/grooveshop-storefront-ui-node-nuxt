@@ -623,4 +623,33 @@ el:
   comment:
     placeholder: Μοιράσου την εμπειρία σου...
     label: Σχόλιο
+en:
+  write_review: Write a review
+  update_review: Update the review
+  delete_review: Delete the review
+  must_be_logged_in: You have to sign in to write a review
+  write_review_for_product: Write a review of {product}
+  add:
+    error: The review could not be created
+    must_purchase_first: You can only review products you have bought
+    success: Your review was created
+  update:
+    error: The review could not be updated
+    success: Your review was updated
+  delete:
+    success: Your review was deleted
+    error: Something went wrong while deleting it
+  rating:
+    title: Rating
+    aria_label: Rating (0-10)
+    bad: Bad
+    not_that_good: Not that good
+    meh: Meh
+    its_ok: It is OK
+    good: Good
+    very_good: Very good
+    perfect: Perfect!
+  comment:
+    placeholder: Share your experience...
+    label: Comment
 </i18n>

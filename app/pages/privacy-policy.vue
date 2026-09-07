@@ -210,4 +210,18 @@ el:
       privacy-policy:
         label: Πολιτική Απορρήτου
         icon: i-heroicons-clipboard-document-list
+en:
+  title: Privacy Policy
+  legal:
+    headline: Legal
+    lastUpdated: 'Last updated: {date}'
+    toc:
+      title: On this page
+    privacy:
+      description: How we collect, use and protect your personal data.
+  breadcrumb:
+    items:
+      privacy-policy:
+        label: Privacy Policy
+        icon: i-heroicons-clipboard-document-list
 </i18n>

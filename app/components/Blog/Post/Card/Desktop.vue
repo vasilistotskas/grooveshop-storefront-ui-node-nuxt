@@ -208,4 +208,10 @@ el:
   comments:
     count: "{count} σχόλια"
   share: Κοινοποίηση
+en:
+  image:
+    of: "{title}"
+  comments:
+    count: "{count} comments"
+  share: Share
 </i18n>

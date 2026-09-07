@@ -498,4 +498,22 @@ el:
     try_different: Δοκίμασς διαφορετικούς όρους αναζήτησης
     load_more: Φόρτωση περισσότερων
     view_all_results: Προβολή όλων
+en:
+  search:
+    title: Search
+    description: Search
+    modal_placeholder: Search...
+    tabs:
+      all: All
+      products: Products ({count})
+      blog_posts: Articles ({count})
+    start_typing: Start typing to search
+    recent: Recent searches
+    trending: Trending searches
+    clear: Clear
+    no_results: No results found
+    relaxed_notice: Showing results for "{query}"
+    try_different: Try different search terms
+    load_more: Load more
+    view_all_results: View all
 </i18n>

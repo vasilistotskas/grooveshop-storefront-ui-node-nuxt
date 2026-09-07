@@ -308,6 +308,22 @@ el:
     apply: Εφαρμογή
     show_results: Εμφάνιση αποτελεσμάτων
     active_count: "{count} ενεργά φίλτρα"
+en:
+  search:
+    products: Search products
+  filters:
+    title: Filters
+    description: Filter the products
+    price: Price
+    popularity: Popularity
+    view_count: Views
+    categories: Categories
+    attributes: Attributes
+    clear: Clear
+    clear_all: Clear all
+    apply: Apply
+    show_results: Show results
+    active_count: "{count} active filters"
 </i18n>
 
 <style scoped>

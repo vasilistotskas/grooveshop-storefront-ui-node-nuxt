@@ -72,4 +72,6 @@ const shouldShow = computed(() => enabled.value && estimatedPoints.value > 0)
 <i18n lang="yaml">
 el:
   earn: "Κέρδισε {points} πόντους — Εγγραφή δωρεάν"
+en:
+  earn: "Earn {points} points — sign up free"
 </i18n>

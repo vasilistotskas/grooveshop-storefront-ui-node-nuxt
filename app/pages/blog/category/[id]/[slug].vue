@@ -288,4 +288,12 @@ el:
       blog:
         categories:
           label: Κατηγορίες
+en:
+  page:
+    title: "{name}: articles and guides"
+  breadcrumb:
+    items:
+      blog:
+        categories:
+          label: Categories
 </i18n>
