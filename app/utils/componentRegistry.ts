@@ -70,6 +70,16 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'story_timeline': lazySection(() => import('~/components/PageSection/StoryTimeline.vue')),
   'faq': lazySection(() => import('~/components/PageSection/Faq.vue')),
 
+  // Δelta Σigma tenant variants — the redesign's bands. Each replaces
+  // the generic rendering of a section type the layout already
+  // carries, so the layout DATA stays portable and only the
+  // presentation is per-tenant. `partner_strip` has no base entry yet:
+  // it is a real section type with a props contract, but the only
+  // design that asks for one is this tenant's, and a platform-generic
+  // logo strip nobody renders would be speculative.
+  'hero_banner@delta_sigma': eagerSection(() => import('~/components/PageSection/variants/delta_sigma/Hero.vue')),
+  'partner_strip@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/PartnerStrip.vue')),
+
   // webside tenant variants — full-page marketing/content sections with
   // no props. Base (non-variant) entries deliberately do NOT exist for
   // these componentTypes: a tenant without a published layout for them

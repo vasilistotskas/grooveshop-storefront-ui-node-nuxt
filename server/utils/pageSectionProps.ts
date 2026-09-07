@@ -37,6 +37,18 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
       secondaryCtaLink: zLink,
       overlayOpacity: z.number().min(0).max(1),
       decor: z.enum(['none', 'orbs', 'gradient']),
+      // The proof row under the copy. `value` is TEXT, not a number:
+      // the row prints "50+" and "1.842" as readily as a bare integer.
+      stats: z
+        .array(
+          z
+            .object({
+              value: z.string().min(1).max(12),
+              label: z.string().min(1).max(80),
+            })
+            .strip(),
+        )
+        .max(4),
     })
     .partial()
     .strip(),
@@ -135,6 +147,22 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
       lat: z.number().min(-90).max(90),
       lng: z.number().min(-180).max(180),
       address: z.string().max(300),
+    })
+    .partial()
+    .strip(),
+  partner_strip: z
+    .object({
+      label: z.string().max(80),
+      items: z
+        .array(
+          z
+            .object({
+              name: z.string().min(1).max(60),
+              href: zLink.optional(),
+            })
+            .strip(),
+        )
+        .max(12),
     })
     .partial()
     .strip(),

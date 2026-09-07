@@ -34,34 +34,17 @@ useSeoMeta({
 </script>
 
 <template>
-  <PageWrapper>
-    <!-- Every page owns exactly one h1. The homepage's is the store
-         name — the same text the navbar logo's h1 carried before it
-         stopped being a heading. Visually hidden: the hero sections
-         own the visible top of the page. -->
-    <PageTitle
-      v-if="!sectionsProvideHeading(sections)"
-      :text="appTitle"
-      class="sr-only"
-    />
-    <section
-      class="
-        grid gap-4 pt-4
-        md:flex md:flex-col md:gap-8
-      "
-    >
-      <div
-        class="
-          grid gap-4
-          md:gap-8
-        "
-      >
-        <PageSectionRenderer
-          v-for="section in sections"
-          :key="section.uuid"
-          :section="section"
-        />
-      </div>
-    </section>
-  </PageWrapper>
+  <PageSectionsShell :sections="sections">
+    <template #title>
+      <!-- Every page owns exactly one h1. The homepage's is the store
+           name — the same text the navbar logo's h1 carried before it
+           stopped being a heading. Visually hidden: the hero sections
+           own the visible top of the page. -->
+      <PageTitle
+        v-if="!sectionsProvideHeading(sections)"
+        :text="appTitle"
+        class="sr-only"
+      />
+    </template>
+  </PageSectionsShell>
 </template>

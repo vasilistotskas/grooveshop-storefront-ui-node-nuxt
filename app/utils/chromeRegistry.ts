@@ -43,6 +43,26 @@ export const chromeRegistry: Record<
 }
 
 /**
+ * Tenants whose page design is a STACK OF FULL-BLEED BANDS rather than
+ * cards inside the platform's container.
+ *
+ * The platform's page shell puts every section inside a `UContainer`
+ * with a gap between them, which is right for a shop's homepage and
+ * wrong for a design whose bands each own the full width, their own
+ * background and a 1px rule against their neighbour: inside that shell
+ * the bands would be inset cards with white space between them, which
+ * is most of what made the redesign read as "not even close".
+ *
+ * A set rather than a component: the difference is the SHELL, not a
+ * replacement component, so there is nothing to look up.
+ */
+const FULL_BLEED_BANDS = new Set(['delta_sigma'])
+
+export function hasFullBleedBands(tenantSchema?: string | null) {
+  return !!tenantSchema && FULL_BLEED_BANDS.has(tenantSchema)
+}
+
+/**
  * The tenant's chrome component for `slot`, or `undefined` when it has
  * none — in which case the caller renders the platform's own.
  */

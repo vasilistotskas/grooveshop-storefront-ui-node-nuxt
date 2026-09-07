@@ -1,0 +1,518 @@
+<script lang="ts" setup>
+import type { RouteLocationNamedI18n } from 'vue-router'
+
+/**
+ * Δelta Σigma's hero band, measured off the artboards.
+ *
+ * Two columns on an 80px lattice: the copy left, a live-looking
+ * telemetry panel right, a proof row underneath. Read from the
+ * reference render at 1440px — an 80px gutter, a 1280px track, two
+ * 592px columns with a 96px gap, 88px of band padding, a 56px/65px
+ * display heading whose LAST line is brand teal, a 17px/1.7 body at
+ * `#94A3B8`, a 46px-tall CTA pair and a 25px monospace stat row.
+ *
+ * Two accents, used consistently and not interchangeably: `#5BC4C4`
+ * is the brand (eyebrow, the heading's last line, buttons, protocol
+ * names) and `#34D399` is LIVE (the panel's status dot, its in-spec
+ * frequency, the signal dots). Written as arbitrary values because
+ * this is one tenant's band, not a new set of platform tokens — the
+ * same call as `Chrome/variants/delta_sigma`.
+ *
+ * The copy, the CTAs and the stats are DATA (`hero_banner` props, per
+ * locale). The telemetry panel is not: it is an illustration of what
+ * DeSET reports, labelled "indicative data" in the artboards, built
+ * from technical strings (`CB_MAIN_STATUS`, `kVAr`, `IEC 60870-5-104`)
+ * that are the same in both languages. It lives in this component's
+ * own i18n block, which is where the platform already keeps
+ * variant-specific marketing copy (`PageSection/variants/webside/*`).
+ */
+const props = defineProps<{
+  eyebrow?: string
+  heading?: string
+  subheading?: string
+  ctaText?: string
+  ctaLink?: string
+  secondaryCtaText?: string
+  secondaryCtaLink?: string
+  stats?: { value: string, label: string }[]
+}>()
+
+const { t, tm, rt } = useI18n()
+
+/**
+ * The heading's last line is teal in the artboards — the turn from
+ * what the company builds to the promise about it ("…with the key in
+ * your hand."). Split on the last sentence rather than at a fixed
+ * character count so the emphasis lands on a clause in both languages
+ * and however the operator rewrites it.
+ */
+const headingParts = computed(() => {
+  const text = (props.heading ?? '').trim()
+  if (!text) return { lead: '', accent: '' }
+  // Greek and English both end the lead clause on a comma here; fall
+  // back to the whole string as the lead when there is none, which
+  // renders an all-white heading rather than an arbitrary split.
+  const cut = text.lastIndexOf(', ')
+  if (cut === -1) return { lead: text, accent: '' }
+  return { lead: `${text.slice(0, cut + 1)} `, accent: text.slice(cut + 2) }
+})
+
+interface Station {
+  tab: string
+  name: string
+  code: string
+  status: string
+}
+interface Metric {
+  label: string
+  value: string
+  unit?: string
+  live?: boolean
+}
+interface Signal {
+  name: string
+  value: string
+  live?: boolean
+}
+
+// `tm` returns the raw message tree; `rt` resolves each leaf. Objects
+// in an <i18n> block come back as compiled message functions, not
+// plain strings, so every field has to go through `rt`.
+const stations = computed<Station[]>(() =>
+  (tm('panel.stations') as unknown[]).map((raw) => {
+    const entry = raw as Record<string, unknown>
+    return {
+      tab: rt(entry.tab as string),
+      name: rt(entry.name as string),
+      code: rt(entry.code as string),
+      status: rt(entry.status as string),
+    }
+  }),
+)
+
+const metrics = computed<Metric[]>(() =>
+  (tm('panel.metrics') as unknown[]).map((raw) => {
+    const entry = raw as Record<string, unknown>
+    return {
+      label: rt(entry.label as string),
+      value: rt(entry.value as string),
+      unit: entry.unit ? rt(entry.unit as string) : undefined,
+      live: entry.live === true,
+    }
+  }),
+)
+
+const signals = computed<Signal[]>(() =>
+  (tm('panel.signals') as unknown[]).map((raw) => {
+    const entry = raw as Record<string, unknown>
+    return {
+      name: rt(entry.name as string),
+      value: rt(entry.value as string),
+      live: entry.live === true,
+    }
+  }),
+)
+
+const active = ref(0)
+const station = computed(() => stations.value[active.value])
+</script>
+
+<template>
+  <section
+    class="
+      relative border-b border-[#1E293B] bg-[#020617] px-5 py-14
+      lg:px-20 lg:py-22
+    "
+  >
+    <!-- The 80px lattice. Anchored to the band's own top-left, which
+         is where the artboard's lines start, and drawn at ~4.5% of a
+         slate so it reads as graph paper rather than a table. -->
+    <div
+      aria-hidden="true"
+      class="
+        pointer-events-none absolute inset-0
+        bg-[linear-gradient(to_right,rgba(148,163,184,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.045)_1px,transparent_1px)]
+        bg-[size:80px_80px]
+      "
+    />
+
+    <div
+      class="
+        relative mx-auto grid max-w-[1280px] items-start gap-12
+        lg:grid-cols-2 lg:gap-24
+      "
+    >
+      <div>
+        <p
+          v-if="eyebrow"
+          class="flex items-center gap-3"
+        >
+          <span
+            aria-hidden="true"
+            class="block h-px w-6 bg-[#5BC4C4]"
+          />
+          <span
+            class="
+              font-mono text-[10px] tracking-[0.2em] text-[#5BC4C4] uppercase
+            "
+          >{{ eyebrow }}</span>
+        </p>
+
+        <h2
+          v-if="heading"
+          class="
+            mt-7 text-[40px] leading-[1.16] font-bold tracking-[-0.02em]
+            text-white
+            lg:text-[56px]
+          "
+        >
+          {{ headingParts.lead }}<span
+            v-if="headingParts.accent"
+            class="text-[#5BC4C4]"
+          >{{ headingParts.accent }}</span>
+        </h2>
+
+        <p
+          v-if="subheading"
+          class="
+            mt-7 max-w-[540px] text-[16px] leading-[1.7] text-[#94A3B8]
+            lg:text-[17px]
+          "
+        >
+          {{ subheading }}
+        </p>
+
+        <div
+          v-if="ctaText || secondaryCtaText"
+          class="
+            mt-9 flex flex-col gap-3
+            sm:flex-row
+          "
+        >
+          <NuxtLinkLocale
+            v-if="ctaText"
+            :to="(ctaLink ?? '/contact') as RouteLocationNamedI18n"
+            class="
+              flex h-[46px] items-center justify-center gap-2 rounded-md
+              bg-[#5BC4C4] px-6 text-[14px] font-semibold text-[#020617]
+              transition-colors
+              hover:bg-[#8EDBDA]
+            "
+          >
+            {{ ctaText }}
+            <UIcon
+              name="i-lucide:arrow-right"
+              class="size-4"
+            />
+          </NuxtLinkLocale>
+          <NuxtLinkLocale
+            v-if="secondaryCtaText"
+            :to="(secondaryCtaLink ?? '/contact') as RouteLocationNamedI18n"
+            class="
+              flex h-[46px] items-center justify-center rounded-md border
+              border-[#1E293B] px-6 text-[14px] font-medium text-[#E2E8F0]
+              transition-colors
+              hover:border-[#334155] hover:bg-[#0F172A]
+            "
+          >
+            {{ secondaryCtaText }}
+          </NuxtLinkLocale>
+        </div>
+
+        <dl
+          v-if="stats?.length"
+          class="
+            mt-14 flex flex-wrap gap-x-6 gap-y-6
+            sm:gap-x-8
+          "
+        >
+          <div
+            v-for="stat in stats"
+            :key="stat.label"
+          >
+            <dt class="sr-only">
+              {{ stat.label }}
+            </dt>
+            <dd>
+              <span
+                class="
+                  block font-mono text-[25px] leading-none font-medium
+                  text-white
+                "
+              >{{ stat.value }}</span>
+              <span
+                aria-hidden="true"
+                class="mt-2.5 block text-[12.5px] text-[#64748B]"
+              >{{ stat.label }}</span>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <!-- The telemetry illustration. `aria-hidden` on the numbers
+           only: a screen reader is told what the panel IS (its
+           caption) and spared four dozen indicative readings. -->
+      <div
+        class="
+          overflow-hidden rounded-xl border border-[#1E293B] bg-[#0F172A]
+        "
+      >
+        <div
+          class="
+            flex items-center justify-between gap-3 border-b border-[#1E293B]
+            bg-[#020617] px-5 py-3.5
+          "
+        >
+          <span class="flex items-center gap-2.5">
+            <span
+              aria-hidden="true"
+              class="block size-2 rounded-full bg-[#34D399]"
+            />
+            <span
+              class="
+                font-mono text-[11px] tracking-[0.12em] text-[#94A3B8]
+              "
+            >{{ t('panel.title') }}</span>
+          </span>
+          <span
+            class="font-mono text-[11px] text-[#475569]"
+          >{{ t('panel.note') }}</span>
+        </div>
+
+        <div
+          v-if="station"
+          class="px-5 pt-4 pb-5"
+        >
+          <div
+            class="flex flex-wrap"
+            role="tablist"
+            :aria-label="t('panel.stationsLabel')"
+          >
+            <button
+              v-for="(entry, index) in stations"
+              :key="entry.code"
+              type="button"
+              role="tab"
+              :aria-selected="index === active"
+              class="
+                rounded-t-md border border-b-0 px-4 py-2.5 font-mono
+                text-[11px] tracking-[0.12em] uppercase transition-colors
+              "
+              :class="index === active
+                ? 'border-[#1E293B] text-[#5BC4C4]'
+                : 'border-transparent text-[#64748B] hover:text-[#94A3B8]'"
+              @click="active = index"
+            >
+              {{ entry.tab }}
+            </button>
+          </div>
+
+          <div
+            class="
+              mt-5 flex flex-col gap-4 border-b border-[#1E293B] pb-5
+              sm:flex-row sm:items-start sm:justify-between
+            "
+          >
+            <div>
+              <p class="text-[17px] font-semibold text-white">
+                {{ station.name }}
+              </p>
+              <p class="mt-1.5 font-mono text-[12px] text-[#64748B]">
+                {{ station.code }}
+              </p>
+            </div>
+            <span
+              class="
+                flex shrink-0 items-center gap-2 rounded-full border
+                border-[#34D399]/30 px-3.5 py-1.5 font-mono text-[11px]
+                tracking-[0.12em] text-[#34D399] uppercase
+              "
+            >
+              <span
+                aria-hidden="true"
+                class="block size-1.5 rounded-full bg-[#34D399]"
+              />
+              {{ station.status }}
+            </span>
+          </div>
+
+          <div
+            class="
+              mt-5 grid grid-cols-2 border-t border-l border-[#1E293B]
+              sm:grid-cols-3
+            "
+          >
+            <div
+              v-for="metric in metrics"
+              :key="metric.label"
+              class="border-r border-b border-[#1E293B] px-4 py-3.5"
+            >
+              <p
+                class="
+                  font-mono text-[10px] tracking-[0.12em] text-[#475569]
+                  uppercase
+                "
+              >
+                {{ metric.label }}
+              </p>
+              <p class="mt-2 flex items-baseline gap-1">
+                <span
+                  class="font-mono text-[23px] leading-none font-medium"
+                  :class="metric.live ? 'text-[#34D399]' : 'text-white'"
+                >{{ metric.value }}</span>
+                <span
+                  v-if="metric.unit"
+                  class="font-mono text-[10px] text-[#64748B]"
+                >{{ metric.unit }}</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-4 rounded-md border border-[#1E293B]">
+            <div
+              class="
+                flex items-center justify-between gap-3 border-b
+                border-[#1E293B] bg-[#020617] px-4 py-2.5
+              "
+            >
+              <span
+                class="
+                  font-mono text-[10px] tracking-[0.12em] text-[#64748B]
+                  uppercase
+                "
+              >{{ t('panel.signalsLabel') }}</span>
+              <span
+                class="font-mono text-[10px] text-[#5BC4C4]"
+              >{{ t('panel.protocol') }}</span>
+            </div>
+            <div
+              v-for="(signal, index) in signals"
+              :key="signal.name"
+              class="flex items-center justify-between gap-3 px-4 py-2.5"
+              :class="index > 0 ? 'border-t border-[#1E293B]' : ''"
+            >
+              <span
+                class="font-mono text-[11.5px] text-[#94A3B8]"
+              >{{ signal.name }}</span>
+              <span class="flex items-center gap-2.5">
+                <span
+                  class="font-mono text-[11.5px] text-[#E2E8F0]"
+                >{{ signal.value }}</span>
+                <span
+                  aria-hidden="true"
+                  class="block size-1.5 rounded-full"
+                  :class="signal.live ? 'bg-[#34D399]' : 'bg-[#475569]'"
+                />
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<i18n lang="yaml">
+el:
+  panel:
+    title: DeSET · ΤΗΛΕΠΟΠΤΕΙΑ
+    note: ενδεικτικά δεδομένα
+    stationsLabel: Σταθμοί
+    signalsLabel: Σήματα προς SCADA/DMS ΔΕΔΔΗΕ
+    protocol: IEC 60870-5-104
+    stations:
+      - tab: Αμπελώνας
+        name: Μονάδα βιοαερίου, Αμπελώνας Λαρίσης
+        code: DS-EL-1042 · Βιοαέριο
+        status: Σε λειτουργία
+      - tab: Κάρυστος
+        name: Αιολικό πάρκο, Κάρυστος Ευβοίας
+        code: DS-EL-0871 · Αιολικό
+        status: Σε λειτουργία
+      - tab: Ν. Τένεδος
+        name: Φωτοβολταϊκός σταθμός, Ν. Τένεδος Σερρών
+        code: DS-EL-1310 · Φωτοβολταϊκό
+        status: Σε λειτουργία
+    metrics:
+      - label: Ενεργός ισχύς
+        value: '1.842'
+        unit: kW
+      - label: Άεργος ισχύς
+        value: '214'
+        unit: kVAr
+      - label: Τάση L1-L2
+        value: '20.4'
+        unit: kV
+      - label: Συχνότητα
+        value: '50.01'
+        unit: Hz
+        live: true
+      - label: Συν φ
+        value: '0.99'
+      - label: Ημερ. παραγωγή
+        value: '38.7'
+        unit: MWh
+    signals:
+      - name: CB_MAIN_STATUS
+        value: CLOSED
+        live: true
+      - name: SETPOINT_P_LIMIT
+        value: 100 %
+        live: true
+      - name: REMOTE_CTRL_ENABLE
+        value: 'TRUE'
+        live: true
+      - name: LOCAL_ALARM
+        value: NONE
+en:
+  panel:
+    title: DeSET · TELECONTROL
+    note: indicative data
+    stationsLabel: Stations
+    signalsLabel: Signals to the DEDDIE SCADA/DMS
+    protocol: IEC 60870-5-104
+    stations:
+      - tab: Ampelonas
+        name: Biogas plant, Ampelonas Larissa
+        code: DS-EL-1042 · Biogas
+        status: In service
+      - tab: Karystos
+        name: Wind farm, Karystos Evia
+        code: DS-EL-0871 · Wind
+        status: In service
+      - tab: N. Tenedos
+        name: Solar plant, N. Tenedos Serres
+        code: DS-EL-1310 · Solar
+        status: In service
+    metrics:
+      - label: Active power
+        value: '1,842'
+        unit: kW
+      - label: Reactive power
+        value: '214'
+        unit: kVAr
+      - label: Voltage L1-L2
+        value: '20.4'
+        unit: kV
+      - label: Frequency
+        value: '50.01'
+        unit: Hz
+        live: true
+      - label: Power factor
+        value: '0.99'
+      - label: Daily output
+        value: '38.7'
+        unit: MWh
+    signals:
+      - name: CB_MAIN_STATUS
+        value: CLOSED
+        live: true
+      - name: SETPOINT_P_LIMIT
+        value: 100 %
+        live: true
+      - name: REMOTE_CTRL_ENABLE
+        value: 'TRUE'
+        live: true
+      - name: LOCAL_ALARM
+        value: NONE
+</i18n>

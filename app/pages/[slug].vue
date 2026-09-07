@@ -56,25 +56,5 @@ definePageMeta({
 </script>
 
 <template>
-  <PageWrapper>
-    <section
-      class="
-        grid gap-4 pt-4
-        md:flex md:flex-col md:gap-8
-      "
-    >
-      <div
-        class="
-          grid gap-4
-          md:gap-8
-        "
-      >
-        <PageSectionRenderer
-          v-for="section in sections"
-          :key="section.uuid"
-          :section="section"
-        />
-      </div>
-    </section>
-  </PageWrapper>
+  <PageSectionsShell :sections="sections" />
 </template>
