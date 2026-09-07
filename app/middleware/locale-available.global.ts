@@ -22,14 +22,19 @@ export default defineNuxtRouteMiddleware((to) => {
   // Not resolved yet (or resolution failed) — fail open.
   if (!tenantStore.config) return
 
-  const allowed = tenantStore.availableLocales
+  const allowed = tenantAllowedLocales(tenantStore.config)
   if (!allowed.length) return
 
-  // `locale` is the route's resolved locale; the default locale is
-  // unprefixed under the `prefix_except_default` strategy, so a tenant
-  // whose allow-list omits its own default would 404 its entire site.
-  // Tenant.clean() forbids that, but be defensive here too.
+  // The route's locale comes from its URL prefix under
+  // `prefix_except_default`, so this only fires for a prefix that was
+  // typed or crawled — `server/middleware/1.locale.ts` already clamps
+  // DETECTION to the tenant's set, so no legitimate visitor is routed
+  // here. That is also why a 404 is safe rather than a redirect: a
+  // redirect would bounce against the i18n cookie.
   const current = String(locale.value || defaultLocale)
+
+  // A tenant whose allow-list omitted its own default locale would 404
+  // its entire site. Tenant.clean() forbids that; be defensive anyway.
   if (current === defaultLocale && !allowed.includes(current)) return
 
   if (!allowed.includes(current)) {

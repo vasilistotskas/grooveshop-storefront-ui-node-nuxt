@@ -1,6 +1,7 @@
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import { defineVitestProject } from '@nuxt/test-utils/config'
+import { DEFAULT_LOCALE } from './i18n/locales'
 
 export default defineConfig({
   resolve: {
@@ -82,6 +83,19 @@ export default defineConfig({
                 },
                 robots: {
                   enabled: false,
+                },
+                // Pin the locale. jsdom reports `navigator.language` as
+                // en-US, so once a second platform locale existed
+                // @nuxtjs/i18n resolved `en` in the harness — which
+                // flipped every translated assertion in test/nuxt to
+                // English (loyalty tier names, breadcrumb labels, badge
+                // snapshots) and prefixed every href with /en under
+                // `prefix_except_default`. These specs assert
+                // PLATFORM-DEFAULT behaviour, so browser detection has
+                // no business in the harness.
+                i18n: {
+                  defaultLocale: DEFAULT_LOCALE,
+                  detectBrowserLanguage: false,
                 },
                 // Load test-only i18n fallback plugin so useNuxtApp().$i18n and
                 // useI18n() work even when the real @nuxtjs/i18n module fails to

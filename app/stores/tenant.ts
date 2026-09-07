@@ -21,11 +21,9 @@ export const useTenantStore = defineStore('tenant', () => {
   // i18n routes exist for every platform locale regardless (build
   // time); this list is what makes one REACHABLE. See
   // middleware/locale-available.global.ts.
-  const availableLocales = computed<string[]>(() => {
-    const listed = config.value?.availableLocales ?? []
-    if (listed.length) return [...listed]
-    return defaultLocale.value ? [defaultLocale.value] : []
-  })
+  const availableLocales = computed<string[]>(() =>
+    config.value ? tenantAllowedLocales(config.value) : [],
+  )
   const isMultilingual = computed(() => availableLocales.value.length > 1)
   const defaultCurrency = computed(() => config.value?.defaultCurrency ?? 'EUR')
   const loyaltyEnabled = computed(() => config.value?.loyaltyEnabled ?? false)
