@@ -1,3 +1,10 @@
+# [3.173.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.172.0...v3.173.0) (2026-09-07)
+
+
+### Features
+
+* **sections:** Δelta Σigma's DeSET band ([b8847d6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b8847d665c171508bc9fad3870013ceaac139fab))
+
 # [3.172.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.171.0...v3.172.0) (2026-09-07)
 
 
