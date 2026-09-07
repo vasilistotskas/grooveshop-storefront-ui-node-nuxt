@@ -1,3 +1,10 @@
+## [3.176.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.176.0...v3.176.1) (2026-09-07)
+
+
+### Bug Fixes
+
+* **i18n:** /en was unreachable for a browser that prefers Greek ([fff61a7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fff61a751241a1207652bc10d039d72c539b5fa7))
+
 # [3.176.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.175.0...v3.176.0) (2026-09-07)
 
 
