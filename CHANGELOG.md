@@ -1,3 +1,10 @@
+# [3.172.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.171.0...v3.172.0) (2026-09-07)
+
+
+### Features
+
+* **sections:** Δelta Σigma hero and partner strip, on a full-bleed shell ([f30deb9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f30deb959670076f16b36a3bf024297a97ac679e))
+
 # [3.171.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.170.2...v3.171.0) (2026-09-07)
 
 
