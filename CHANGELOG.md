@@ -1,3 +1,10 @@
+# [3.176.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.175.0...v3.176.0) (2026-09-07)
+
+
+### Features
+
+* **sections:** the mobile artboards' own treatments ([1a161e6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1a161e6778c1e0c374f26b7eb9bbdac55b358b83))
+
 # [3.175.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.174.0...v3.175.0) (2026-09-07)
 
 
