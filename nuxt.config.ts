@@ -733,7 +733,23 @@ export default defineNuxtConfig({
     restructureDir: 'i18n',
     detectBrowserLanguage: {
       useCookie: true,
-      redirectOn: 'all',
+      // ``root``, the module default and its documented
+      // recommendation — NOT ``all``. Under ``all`` the module
+      // redirects on EVERY path whenever the detected locale differs
+      // from the route's, which makes an explicitly requested locale
+      // URL unreachable: on a Greek-preferring browser
+      // ``/en`` answered 302 → ``/`` and
+      // ``/en/info/eidikefsi`` → ``/info/eidikefsi``, so clicking EN
+      // bounced straight back to EL and every /en URL was a redirect
+      // for a crawler. ``root`` keeps detection where it belongs — a
+      // first-time visitor landing on ``/`` still gets their language
+      // — and honours a link, a bookmark and a crawl of ``/en/**``.
+      //
+      // This was invisible to the route checks because curl sends no
+      // ``Accept-Language``: with no detected locale there is nothing
+      // to redirect to, so ``/en`` answered 200. The e2e smoke test
+      // now sends the header (see page-render-smoke.spec.ts).
+      redirectOn: 'root',
       cookieKey: 'i18n_redirected',
       alwaysRedirect: false,
       cookieCrossOrigin: true,

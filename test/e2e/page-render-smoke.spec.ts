@@ -46,14 +46,21 @@ const VARIANT_SCHEMA = 'delta_sigma'
 function requestWithHost(
   path: string,
   host: string = TENANT_HOST,
-): Promise<{ statusCode: number, body: string }> {
+  headers: Record<string, string> = {},
+): Promise<{ statusCode: number, body: string, location?: string }> {
   return new Promise((resolve, reject) => {
     const target = new URL(url(path))
-    const req = httpRequest(target, { headers: { Host: host } }, (res) => {
+    const req = httpRequest(target, {
+      headers: { Host: host, ...headers },
+    }, (res) => {
       let body = ''
       res.on('data', (chunk: Buffer) => { body += chunk.toString() })
       res.on('end', () =>
-        resolve({ statusCode: res.statusCode ?? 0, body }),
+        resolve({
+          statusCode: res.statusCode ?? 0,
+          body,
+          location: res.headers.location,
+        }),
       )
     })
     req.on('error', reject)
@@ -222,5 +229,46 @@ describe('every public page renders', async () => {
 
     expect(statusCode).toBe(200)
     expect(body).not.toContain('Consulting · Engineering')
+  }, 60000)
+
+  // `Accept-Language`, which nothing here sent before — and that is
+  // exactly why this shipped. `detectBrowserLanguage` only redirects
+  // when it DETECTS a locale, and with no header there is nothing to
+  // detect, so every check answered 200 while a real Greek-preferring
+  // browser was bounced off every /en URL:
+  // `redirectOn: 'all'` sent `/en` → `/` and
+  // `/en/products` → `/products`, so clicking EN went straight back to
+  // EL and each /en URL was a redirect to a crawler.
+  const GREEK_BROWSER = { 'Accept-Language': 'el-GR,el;q=0.9,en;q=0.8' }
+
+  it.each([
+    ['/en'],
+    ['/en/products'],
+    ['/en/blog'],
+  ])('serves %s to a browser that prefers Greek', async (path) => {
+    const { statusCode, body, location } = await requestWithHost(
+      path,
+      TENANT_HOST,
+      GREEK_BROWSER,
+    )
+
+    expect(
+      statusCode,
+      `${path} redirected to ${location ?? '(no location)'}`,
+    ).toBe(200)
+    expect(body).toContain('lang="en-US"')
+  }, 60000)
+
+  it('still detects the browser language at the ROOT', async () => {
+    // The other half of `redirectOn: 'root'`: detection has to keep
+    // working where it belongs, or an English visitor lands on Greek.
+    const { statusCode, location } = await requestWithHost(
+      '/',
+      TENANT_HOST,
+      { 'Accept-Language': 'en-US,en;q=0.9' },
+    )
+
+    expect([200, 302]).toContain(statusCode)
+    if (statusCode === 302) expect(location).toContain('/en')
   }, 60000)
 })
