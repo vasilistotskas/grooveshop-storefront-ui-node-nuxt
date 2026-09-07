@@ -1,3 +1,15 @@
+# [3.168.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.167.0...v3.168.0) (2026-09-07)
+
+
+### Bug Fixes
+
+* **i18n:** clamp locale DETECTION to the tenant, not the platform list ([0c7baed](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0c7baedc3c1e65ac0c0c8fca505c3ffc6f587cce))
+
+
+### Features
+
+* **i18n:** enable English, gated per tenant ([c3d9b90](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c3d9b90dc843593e4c9daf99920e263115f7d3e2))
+
 # [3.167.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.166.2...v3.167.0) (2026-09-07)
 
 
