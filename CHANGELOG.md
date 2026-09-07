@@ -1,3 +1,15 @@
+# [3.178.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.177.0...v3.178.0) (2026-09-07)
+
+
+### Bug Fixes
+
+* **cache:** namespace the route cache by build id ([33a1379](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/33a1379910aed8f33b633212fd3a7cb21373ec92))
+
+
+### Features
+
+* **sections:** the DeSET page's four bands ([1096427](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1096427a10755f9b5ccce65fa6b31ccd4a2b63ed))
+
 # [3.177.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.176.2...v3.177.0) (2026-09-07)
 
 
