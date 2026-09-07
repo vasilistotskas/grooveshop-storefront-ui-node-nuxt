@@ -1,3 +1,10 @@
+# [3.177.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.176.2...v3.177.0) (2026-09-07)
+
+
+### Features
+
+* **sections:** the page hero every inner page opens with ([82da405](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/82da4055a02f5ad970b34c22267be41666fde7e5))
+
 ## [3.176.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.176.1...v3.176.2) (2026-09-07)
 
 
