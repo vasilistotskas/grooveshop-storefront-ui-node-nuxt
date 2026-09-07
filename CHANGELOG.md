@@ -1,3 +1,10 @@
+# [3.171.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.170.2...v3.171.0) (2026-09-07)
+
+
+### Features
+
+* **chrome:** per-tenant navbar and footer, built to Δelta Σigma's artboards ([ee13654](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ee13654575e0a85d2a46eb0746cba0faac2f97de)), closes [#1E293B](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/1E293B) [#94A3B8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/94A3B8)
+
 ## [3.170.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.170.1...v3.170.2) (2026-09-07)
 
 
