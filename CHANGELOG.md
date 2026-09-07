@@ -1,3 +1,11 @@
+## [3.170.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.170.0...v3.170.1) (2026-09-07)
+
+
+### Bug Fixes
+
+* **sitemap:** read the locale prefix the same way in both gates ([7c00f0f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7c00f0f3eee82dd23811fe7d7718a5fa179ee59d))
+* **sitemap:** stop advertising locales a tenant does not serve ([666ad9a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/666ad9a6b3e2b98b6ae74faedf7c25ea3cd2c4d7))
+
 # [3.170.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.169.0...v3.170.0) (2026-09-07)
 
 
