@@ -1,3 +1,10 @@
+## [3.176.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.176.1...v3.176.2) (2026-09-07)
+
+
+### Bug Fixes
+
+* **cart:** stop bootstrapping a cart on stores that have none ([108d604](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/108d6041d4eea1c862d72893efae812b3db94156))
+
 ## [3.176.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.176.0...v3.176.1) (2026-09-07)
 
 
