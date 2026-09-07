@@ -34661,6 +34661,10 @@ components:
         - pull_quote
         - reference_cards
         - page_hero
+        - feature_lists
+        - option_selector
+        - comparison_table
+        - flow_steps
       type: string
       description: |-
         * `hero_banner` - Hero Banner
@@ -34697,6 +34701,10 @@ components:
         * `pull_quote` - Pull Quote
         * `reference_cards` - Reference Cards
         * `page_hero` - Page Hero
+        * `feature_lists` - Feature Lists
+        * `option_selector` - Option Selector
+        * `comparison_table` - Comparison Table
+        * `flow_steps` - Flow Steps
     ConfirmAgentPaymentRequestRequest:
       type: object
       properties:

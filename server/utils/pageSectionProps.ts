@@ -166,6 +166,104 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     })
     .partial()
     .strip(),
+  feature_lists: z
+    .object({
+      // Cards of "what it is / what it does", with one shared
+      // footnote. `emphasis` is a SUBSTRING of `note`, not markup —
+      // the same device `media_text` uses.
+      heading: z.string().max(200),
+      note: z.string().max(1000),
+      emphasis: z.string().max(120),
+      items: z
+        .array(
+          z
+            .object({
+              title: z.string().min(1).max(100),
+              icon: z.string().max(100).regex(/^i-[a-z0-9:-]+$/).optional(),
+              bullets: z.array(z.string().min(1).max(300)).max(8).optional(),
+            })
+            .strip(),
+        )
+        .max(4),
+    })
+    .partial()
+    .strip(),
+  option_selector: z
+    .object({
+      heading: z.string().max(200),
+      standfirst: z.string().max(400),
+      rowsLabel: z.string().max(60),
+      rationaleLabel: z.string().max(60),
+      options: z
+        .array(
+          z
+            .object({
+              name: z.string().min(1).max(60),
+              label: z.string().max(40).optional(),
+              model: z.string().max(120).optional(),
+              title: z.string().max(120).optional(),
+              rationale: z.string().max(600).optional(),
+              note: z.string().max(400).optional(),
+              ctaText: z.string().max(100).optional(),
+              ctaLink: zLink.optional(),
+              rows: z
+                .array(
+                  z
+                    .object({
+                      label: z.string().min(1).max(60),
+                      value: z.string().min(1).max(120),
+                    })
+                    .strip(),
+                )
+                .max(12)
+                .optional(),
+            })
+            .strip(),
+        )
+        .max(4),
+    })
+    .partial()
+    .strip(),
+  comparison_table: z
+    .object({
+      // One characteristic per row, one option per column. Django
+      // refuses a ragged row; the storefront filters one out rather
+      // than print a value under the wrong heading.
+      heading: z.string().max(200),
+      rowLabel: z.string().max(60),
+      note: z.string().max(600),
+      columns: z.array(z.string().min(1).max(60)).min(1).max(4),
+      rows: z
+        .array(
+          z
+            .object({
+              label: z.string().min(1).max(60),
+              values: z.array(z.string().max(120)).min(1).max(4),
+            })
+            .strip(),
+        )
+        .max(24),
+    })
+    .partial()
+    .strip(),
+  flow_steps: z
+    .object({
+      heading: z.string().max(200),
+      body: z.string().max(600),
+      items: z
+        .array(
+          z
+            .object({
+              title: z.string().min(1).max(100),
+              label: z.string().max(60).optional(),
+              lines: z.array(z.string().min(1).max(120)).max(8).optional(),
+            })
+            .strip(),
+        )
+        .max(4),
+    })
+    .partial()
+    .strip(),
   page_hero: z
     .object({
       // The top of an inner page. `callout.tone` is an ENUM, not a

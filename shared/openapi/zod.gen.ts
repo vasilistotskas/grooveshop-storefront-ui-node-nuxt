@@ -1094,6 +1094,10 @@ export const zCompartmentSizeEnum = z.union([
  * * `pull_quote` - Pull Quote
  * * `reference_cards` - Reference Cards
  * * `page_hero` - Page Hero
+ * * `feature_lists` - Feature Lists
+ * * `option_selector` - Option Selector
+ * * `comparison_table` - Comparison Table
+ * * `flow_steps` - Flow Steps
  */
 export const zComponentTypeEnum = z.enum([
   'hero_banner',
@@ -1130,8 +1134,12 @@ export const zComponentTypeEnum = z.enum([
   'pull_quote',
   'reference_cards',
   'page_hero',
+  'feature_lists',
+  'option_selector',
+  'comparison_table',
+  'flow_steps',
 ]).register(z.globalRegistry, {
-  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_categories` - Blog Categories Rail\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `blog_posts_list` - Blog Posts List\n* `recently_viewed` - Recently Viewed Rail\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `about_content` - About Content\n* `vision_content` - Vision Content\n* `what_is_microlearning` - What Is Microlearning\n* `why_microlearning` - Why Microlearning\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar\n* `business_hours` - Business Hours\n* `location_map` - Location Map\n* `features_grid` - Features Grid\n* `media_text` - Media + Text\n* `image_gallery` - Image Gallery\n* `story_timeline` - Story Timeline\n* `faq` - FAQ Accordion\n* `partner_strip` - Partner Strip\n* `pull_quote` - Pull Quote\n* `reference_cards` - Reference Cards\n* `page_hero` - Page Hero',
+  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_categories` - Blog Categories Rail\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `blog_posts_list` - Blog Posts List\n* `recently_viewed` - Recently Viewed Rail\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `about_content` - About Content\n* `vision_content` - Vision Content\n* `what_is_microlearning` - What Is Microlearning\n* `why_microlearning` - Why Microlearning\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar\n* `business_hours` - Business Hours\n* `location_map` - Location Map\n* `features_grid` - Features Grid\n* `media_text` - Media + Text\n* `image_gallery` - Image Gallery\n* `story_timeline` - Story Timeline\n* `faq` - FAQ Accordion\n* `partner_strip` - Partner Strip\n* `pull_quote` - Pull Quote\n* `reference_cards` - Reference Cards\n* `page_hero` - Page Hero\n* `feature_lists` - Feature Lists\n* `option_selector` - Option Selector\n* `comparison_table` - Comparison Table\n* `flow_steps` - Flow Steps',
 })
 
 export const zConfirmAgentPaymentRequestRequest = z.object({

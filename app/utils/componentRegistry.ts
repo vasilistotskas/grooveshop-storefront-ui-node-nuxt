@@ -87,6 +87,10 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'reference_cards@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/ReferenceCards.vue')),
   // Eager: a page hero is the LCP of every inner page.
   'page_hero@delta_sigma': eagerSection(() => import('~/components/PageSection/variants/delta_sigma/PageHero.vue')),
+  'feature_lists@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/FeatureLists.vue')),
+  'option_selector@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/OptionSelector.vue')),
+  'comparison_table@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/ComparisonTable.vue')),
+  'flow_steps@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/FlowSteps.vue')),
 
   // webside tenant variants — full-page marketing/content sections with
   // no props. Base (non-variant) entries deliberately do NOT exist for
