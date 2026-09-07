@@ -1,7 +1,15 @@
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vitest/config'
 import { defineVitestProject } from '@nuxt/test-utils/config'
-import { DEFAULT_LOCALE } from './i18n/locales'
+// Extension is load-bearing, not style. Vite's `configLoader: 'native'`
+// hands the config to the runtime's own ESM loader, which does not do
+// bundler-style extension resolution — an extensionless relative import
+// makes the config unloadable there. `native` is slated to become the
+// default in a future Vite major, and 8.x already warns about it on
+// every run ("Add the file extension"). TypeScript accepts the
+// specifier because Nuxt's generated tsconfig sets
+// `allowImportingTsExtensions` with `moduleResolution: Bundler`.
+import { DEFAULT_LOCALE } from './i18n/locales.ts'
 
 export default defineConfig({
   resolve: {

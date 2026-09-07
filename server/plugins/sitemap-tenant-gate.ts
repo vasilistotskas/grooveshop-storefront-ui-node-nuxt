@@ -1,5 +1,9 @@
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '~~/i18n/locales'
+import { tenantAllowedLocales } from '~~/shared/i18n/tenantLocales'
+
 /**
- * Drop feature-gated static routes from a tenant's sitemap.
+ * Drop what a tenant's sitemap must not advertise: feature-gated routes
+ * it has switched off, and locales it does not serve.
  *
  * @nuxtjs/sitemap discovers static pages from the route manifest, a
  * build-time pass with no tenant context — so every tenant's sitemap
@@ -8,11 +12,30 @@
  * while `LOYALTY_ENABLED` was false (Ahrefs: "4XX page in sitemap",
  * "404 page").
  *
- * `sitemap.exclude` cannot express this: it is a static path filter
- * applied to the final URL set, so it would also drop the route for the
- * tenants that legitimately have the feature on. The `sitemap:resolved`
- * hook is the only place that sees both the resolved URL list AND the
- * request, which is what tenant resolution needs.
+ * The locale half is the same defect one layer up. `sitemaps: false`
+ * suppresses the per-locale sitemap SPLIT and nothing else: read in
+ * @nuxtjs/sitemap 8.3.4's `dist/module.mjs`, `canI18nMap` goes false
+ * for it while `resolvedAutoI18n` is still auto-populated from the
+ * build-time @nuxtjs/i18n config, and it is that object which adds the
+ * locale-prefixed entries and their `hreflang` alternates inside the
+ * single urlset. Locale availability is PER TENANT
+ * (`Tenant.available_locales`), so the moment `en` shipped every
+ * tenant's sitemap began advertising `/en/**` — including the four
+ * that serve Greek only, where `app/middleware/
+ * locale-available.global.ts` answers 404.
+ *
+ * `sitemap.autoI18n: false` would fix that by removing locales from
+ * the sitemap for EVERYONE, including the tenant that legitimately has
+ * two. Gating here instead keeps a bilingual tenant's `/en/**` listed
+ * with correct alternates, and is the same trade the plan-flag gate
+ * below already makes.
+ *
+ * `sitemap.exclude` cannot express either half: it is a static path
+ * filter applied to the final URL set, so it would also drop the route
+ * for the tenants that legitimately have the feature — or the locale —
+ * on. The `sitemap:resolved` hook is the only place that sees both the
+ * resolved URL list AND the request, which is what tenant resolution
+ * needs.
  *
  * The dynamic half of the sitemap (`server/api/__sitemap__/urls.ts`)
  * already gates blog URLs on `tenant.blogEnabled`; this closes the same
@@ -43,17 +66,58 @@ const GATED_ROUTES: readonly GatedRoute[] = [
   },
 ]
 
+// `/en`, `/en/`, `/en/products`, `/en-us/products` — the home page of a
+// prefixed locale carries no further segment, which a `(?=\/)` lookahead
+// would miss.
+const LOCALE_PREFIX_RE = /^\/([a-z]{2})(?:-[a-z]{2})?(?=\/|$)/i
+
 /**
  * Drop a leading locale segment so the path can be matched literally.
  *
- * Only `el` is active today and it is the default locale, so
- * @nuxtjs/i18n emits unprefixed paths. Activating a second locale adds
- * `/en/...` variants to the sitemap, and a gate that matched only the
- * bare path would silently start leaking the 404 again.
+ * `el` is the default locale, so @nuxtjs/i18n emits its paths
+ * unprefixed under `prefix_except_default`; `en` adds `/en/...`
+ * variants, and a gate that matched only the bare path would silently
+ * start leaking the 404 again.
  */
 function stripLocalePrefix(path: string): string {
   const withoutTrailingSlash = path.replace(/\/$/, '') || '/'
-  return withoutTrailingSlash.replace(/^\/[a-z]{2}(-[a-z]{2})?(?=\/)/i, '')
+  return withoutTrailingSlash.replace(LOCALE_PREFIX_RE, '') || '/'
+}
+
+/**
+ * The locale a sitemap path is for.
+ *
+ * Checked against `SUPPORTED_LOCALES` rather than trusted as "any two
+ * letters": a real top-level route that happens to be two characters
+ * long would otherwise read as a locale prefix and be gated as one.
+ * No prefix means the default locale, which is what
+ * `prefix_except_default` emits.
+ */
+function localeOf(path: string): string {
+  const candidate = path.match(LOCALE_PREFIX_RE)?.[1]?.toLowerCase()
+  return candidate
+    && (SUPPORTED_LOCALES as readonly string[]).includes(candidate)
+    ? candidate
+    : DEFAULT_LOCALE
+}
+
+/**
+ * The language an `hreflang` names, or the default locale for
+ * `x-default` — which points at the default-locale URL and is therefore
+ * always served.
+ */
+function languageOf(hreflang: string | undefined): string {
+  const tag = (hreflang ?? '').toLowerCase()
+  if (!tag || tag === 'x-default') return DEFAULT_LOCALE
+  return tag.split('-')[0] ?? DEFAULT_LOCALE
+}
+
+function pathOf(loc: string | URL | undefined): string {
+  const raw = typeof loc === 'string' ? loc : loc?.toString() ?? ''
+  if (!raw) return ''
+  // `loc` is still a path here (normaliseEntry absolutizes AFTER this
+  // hook), but tolerate an absolute one either way.
+  return raw.startsWith('http') ? new URL(raw).pathname : raw
 }
 
 async function isSettingEnabled(
@@ -113,15 +177,31 @@ export default defineNitroPlugin((nitroApp) => {
     const blocked = new Set(
       GATED_ROUTES.filter((_, i) => !allowed[i]).map(route => route.path),
     )
-    if (!blocked.size) return
+    const locales = new Set(tenantAllowedLocales(tenant))
+    // Nothing gated and every platform locale served: leave the list as
+    // the module built it.
+    if (!blocked.size && locales.size === SUPPORTED_LOCALES.length) return
 
-    ctx.urls = ctx.urls.filter((url) => {
-      const loc = typeof url === 'string' ? url : url.loc
-      if (!loc) return true
-      // `loc` is still a path here (normaliseEntry absolutizes AFTER this
-      // hook), but tolerate an absolute one either way.
-      const path = loc.startsWith('http') ? new URL(loc).pathname : loc
-      return !blocked.has(stripLocalePrefix(path))
+    ctx.urls = ctx.urls.flatMap((url) => {
+      const path = pathOf(typeof url === 'string' ? url : url.loc)
+      if (!path) return [url]
+      if (blocked.has(stripLocalePrefix(path))) return []
+      if (!locales.has(localeOf(path))) return []
+      if (typeof url === 'string' || !url.alternatives?.length) return [url]
+
+      // An alternate for a locale this tenant does not serve points at
+      // the same 404 the entry itself would have. And a single-language
+      // tenant has nothing to alternate WITH — `hreflang` on a lone
+      // self-referential URL is noise, so drop the list outright.
+      //
+      // Filtered on `hreflang`, not on the href's path prefix: the
+      // hreflang is what the alternate CLAIMS to be, so it needs no
+      // guessing, whereas `/de/x` and a real two-letter route `/eu/x`
+      // are structurally identical.
+      const alternatives = locales.size < 2
+        ? undefined
+        : url.alternatives.filter(alt => locales.has(languageOf(alt.hreflang)))
+      return [{ ...url, alternatives }]
     })
   })
 })

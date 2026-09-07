@@ -133,4 +133,100 @@ describe('sitemap-tenant-gate', () => {
 
     expect(locs).toEqual(ALL_URLS.map(u => u.loc))
   })
+
+  describe('locale gate', () => {
+    /**
+     * `sitemaps: false` only suppresses the per-locale sitemap SPLIT —
+     * @nuxtjs/sitemap still adds the locale-prefixed entries and their
+     * hreflang alternates from the BUILD-TIME i18n config, which is
+     * platform-wide. Availability is per tenant, so a Greek-only store
+     * would advertise the `/en/**` URLs its own route guard 404s.
+     */
+    async function runLocales(
+      tenant: Record<string, unknown>,
+      urls: Array<Record<string, unknown>>,
+    ) {
+      const ctx = {
+        urls: [...urls],
+        sitemapName: 'sitemap',
+        event: { context: { tenant: { loyaltyEnabled: false, ...tenant } } },
+      }
+      await resolvedHook!(ctx)
+      return ctx.urls as Array<Record<string, any>>
+    }
+
+    const GREEK_ONLY = { defaultLocale: 'el', availableLocales: [] }
+    const BILINGUAL = { defaultLocale: 'el', availableLocales: ['el', 'en'] }
+
+    it('drops the prefixed locale a single-language tenant does not serve', async () => {
+      const urls = await runLocales(GREEK_ONLY, [
+        { loc: '/' },
+        { loc: '/products' },
+        { loc: '/en' },
+        { loc: '/en/products' },
+      ])
+
+      expect(urls.map(u => u.loc)).toEqual(['/', '/products'])
+    })
+
+    it('keeps both locales for a bilingual tenant', async () => {
+      const urls = await runLocales(BILINGUAL, [
+        { loc: '/products' },
+        { loc: '/en/products' },
+      ])
+
+      expect(urls.map(u => u.loc)).toEqual(['/products', '/en/products'])
+    })
+
+    it('drops an alternate that points at an unserved locale', async () => {
+      const urls = await runLocales({
+        defaultLocale: 'el',
+        availableLocales: ['el', 'en'],
+      }, [
+        {
+          loc: '/products',
+          alternatives: [
+            { hreflang: 'el-GR', href: '/products' },
+            { hreflang: 'en-US', href: '/en/products' },
+            { hreflang: 'de-DE', href: '/de/products' },
+            { hreflang: 'x-default', href: '/products' },
+          ],
+        },
+      ])
+
+      expect(urls[0]!.alternatives.map((a: any) => a.hreflang)).toEqual([
+        'el-GR',
+        'en-US',
+        'x-default',
+      ])
+    })
+
+    it('drops the alternates entirely for a single-language tenant', async () => {
+      // A lone self-referential hreflang says nothing; it is noise in
+      // every crawler's eyes.
+      const urls = await runLocales(GREEK_ONLY, [
+        {
+          loc: '/products',
+          alternatives: [
+            { hreflang: 'el-GR', href: '/products' },
+            { hreflang: 'en-US', href: '/en/products' },
+          ],
+        },
+      ])
+
+      expect(urls).toHaveLength(1)
+      expect(urls[0]!.alternatives).toBeUndefined()
+    })
+
+    it('does not mistake a two-letter route for a locale prefix', async () => {
+      // `/eu` is a path, not a locale. Matching "any two letters" would
+      // gate a legitimate page out of every single-language sitemap.
+      const urls = await runLocales(GREEK_ONLY, [
+        { loc: '/eu' },
+        { loc: '/eu/policy' },
+      ])
+
+      expect(urls.map(u => u.loc)).toEqual(['/eu', '/eu/policy'])
+    })
+  })
 })
