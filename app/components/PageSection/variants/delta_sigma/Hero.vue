@@ -229,8 +229,8 @@ const station = computed(() => stations.value[active.value])
         <dl
           v-if="stats?.length"
           class="
-            mt-14 flex flex-wrap gap-x-6 gap-y-6
-            sm:gap-x-8
+            mt-12 grid grid-cols-3 gap-x-4 gap-y-6
+            sm:mt-14 sm:flex sm:flex-wrap sm:gap-x-8
           "
         >
           <div
@@ -380,7 +380,17 @@ const station = computed(() => stations.value[active.value])
             </div>
           </div>
 
-          <div class="mt-4 rounded-md border border-[#1E293B]">
+          <!-- The mobile artboard drops the signal table: its rows
+               are `NAME … VALUE ●` pairs that cannot narrow without
+               either truncating a signal name or wrapping every row
+               into two. The metric tiles reflow to two columns and
+               carry the reading a phone visitor came for. -->
+          <div
+            class="
+              mt-4 hidden rounded-md border border-[#1E293B]
+              sm:block
+            "
+          >
             <div
               class="
                 flex items-center justify-between gap-3 border-b

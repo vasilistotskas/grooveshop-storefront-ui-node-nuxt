@@ -16,6 +16,11 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * renders `media_text` body as text, and an HTML prop would be an
  * injection surface for one bold phrase. Split into three text nodes
  * here, so the worst a bad value can do is not match.
+ *
+ * On a phone the mobile artboard collapses each card to ONE ROW —
+ * the system's name and model on the left, its headline figure right
+ * — because a six-row table in a 350px column is a wall. The full
+ * table is the same markup, revealed from `sm` up.
  */
 const props = defineProps<{
   eyebrow?: string
@@ -173,19 +178,40 @@ const bodyParts = computed(() => {
           >
             {{ card.label }}
           </p>
-          <p class="mt-2.5 text-[19px] leading-none font-semibold text-white">
-            {{ card.name }}
-          </p>
-          <p
-            v-if="card.subtitle"
-            class="mt-2 font-mono text-[11.5px] leading-[1.4] text-[#64748B]"
-          >
-            {{ card.subtitle }}
-          </p>
+          <div class="flex items-baseline justify-between gap-3">
+            <div>
+              <p
+                class="
+                  mt-2.5 text-[19px] leading-none font-semibold text-white
+                "
+              >
+                {{ card.name }}
+              </p>
+              <p
+                v-if="card.subtitle"
+                class="
+                  mt-2 font-mono text-[11.5px] leading-[1.4] text-[#64748B]
+                "
+              >
+                {{ card.subtitle }}
+              </p>
+            </div>
+            <!-- The one figure the collapsed row carries. -->
+            <p
+              v-if="card.rows?.length"
+              class="
+                shrink-0 font-mono text-[12.5px] text-[#E2E8F0]
+                sm:hidden
+              "
+            >
+              {{ card.rows[0]?.value }}
+            </p>
+          </div>
           <dl
             v-if="card.rows?.length"
             class="
-              mt-4 flex flex-col gap-[11px] border-t border-[#1E293B] pt-4
+              mt-4 hidden flex-col gap-[11px] border-t border-[#1E293B] pt-4
+              sm:flex
             "
           >
             <div

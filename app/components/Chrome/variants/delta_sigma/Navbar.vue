@@ -180,8 +180,17 @@ async function pick(code: string) {
           />
         </NuxtLinkLocale>
 
-        <!-- Mobile: the artboard shows the locale code and a bordered
-             burger square, nothing else. -->
+        <!-- Mobile: the artboard shows the current locale as plain
+             text — not the switch pill, which needs both codes and the
+             separator to read as one — then a bordered burger square,
+             and nothing else. -->
+        <span
+          v-if="locales.length > 1"
+          class="
+            font-mono text-[11.5px] text-[#94A3B8] uppercase
+            sm:hidden
+          "
+        >{{ locale }}</span>
         <button
           type="button"
           class="

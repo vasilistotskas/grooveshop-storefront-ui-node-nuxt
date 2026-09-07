@@ -14,6 +14,14 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  *
  * The prompt cell drops the tile and the ordinal and pins its link to
  * the bottom, so it lines up with the row however tall the row grows.
+ *
+ * On a phone the mobile artboard shows the same seven fields as a
+ * NUMBERED LIST instead — one bordered box, a row per field, the
+ * ordinal in dim monospace and a chevron at the end, no tiles and no
+ * body copy. Seven cards each carrying an icon tile and three lines
+ * of description is most of a phone screen per field; the list is the
+ * same information at a glance. Both are rendered from the same
+ * `items`, one hidden per breakpoint.
  */
 const props = defineProps<{
   title?: string
@@ -94,10 +102,44 @@ const hasHeader = computed(() => !!(props.title || props.heading))
         </NuxtLinkLocale>
       </div>
 
+      <!-- Phone: the numbered list. -->
+      <ul
+        class="
+          mt-8 divide-y divide-[#1E293B] overflow-hidden rounded-lg border
+          border-[#1E293B] bg-[#0F172A]
+          sm:hidden
+        "
+      >
+        <li
+          v-for="(item, index) in items"
+          :key="`row-${item.title}`"
+        >
+          <NuxtLinkLocale
+            :to="(ctaLink ?? '/contact') as RouteLocationNamedI18n"
+            class="flex items-center gap-4 px-5 py-4"
+          >
+            <span
+              aria-hidden="true"
+              class="shrink-0 font-mono text-[11px] text-[#334155]"
+            >{{ ordinal(index) }}</span>
+            <span
+              class="
+                flex-1 text-[14px] leading-[1.35] font-semibold text-white
+              "
+            >{{ item.title }}</span>
+            <UIcon
+              name="i-lucide:chevron-right"
+              class="size-4 shrink-0 text-[#334155]"
+              aria-hidden="true"
+            />
+          </NuxtLinkLocale>
+        </li>
+      </ul>
+
       <div
         class="
-          mt-11 grid gap-6
-          sm:grid-cols-2
+          mt-11 hidden gap-6
+          sm:grid sm:grid-cols-2
           lg:grid-cols-4
         "
       >
