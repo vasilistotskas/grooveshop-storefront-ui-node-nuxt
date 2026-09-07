@@ -1,0 +1,122 @@
+{
+  "breadcrumb": {
+    "items": {
+      "index": {
+        "label": "Home",
+        "icon": "i-heroicons-home"
+      },
+      "about": {
+        "label": "About",
+        "icon": "i-heroicons-information-circle"
+      },
+      "account": {
+        "label": "Account",
+        "icon": "i-heroicons-user-circle"
+      },
+      "account-login": {
+        "label": "Sign in",
+        "icon": "i-heroicons-arrow-right-on-rectangle"
+      },
+      "account-login-code": {
+        "label": "Sign in with a Code",
+        "icon": "i-heroicons-envelope"
+      },
+      "account-login-code-confirm": {
+        "label": "Confirm Code",
+        "icon": "i-heroicons-check-circle"
+      },
+      "account-signup": {
+        "label": "Sign up",
+        "icon": "i-heroicons-user-plus"
+      },
+      "account-signup-passkey": {
+        "label": "Passkey",
+        "icon": "i-heroicons-finger-print"
+      },
+      "account-signup-passkey-create": {
+        "label": "Create a Passkey",
+        "icon": "i-heroicons-plus-circle"
+      },
+      "account-password-reset": {
+        "label": "Reset Password",
+        "icon": "i-heroicons-lock-closed"
+      },
+      "account-password-reset-key": {
+        "label": "Confirm Reset",
+        "icon": "i-heroicons-key"
+      },
+      "account-verify-email": {
+        "label": "Verify Email",
+        "icon": "i-heroicons-envelope-open"
+      },
+      "account-verify-email-key": {
+        "label": "Confirm Email",
+        "icon": "i-heroicons-check-badge"
+      },
+      "account-2fa-authenticate-totp": {
+        "label": "Authenticator Verification",
+        "icon": "i-heroicons-device-phone-mobile"
+      },
+      "account-2fa-authenticate-webauthn": {
+        "label": "Passkey Verification",
+        "icon": "i-heroicons-finger-print"
+      },
+      "account-2fa-authenticate-recovery-codes": {
+        "label": "Recovery Codes",
+        "icon": "i-heroicons-key"
+      },
+      "blog": {
+        "label": "Blog",
+        "icon": "i-heroicons-newspaper"
+      },
+      "blog-categories": {
+        "label": "Categories",
+        "icon": "i-heroicons-rectangle-stack"
+      },
+      "products": {
+        "label": "Products",
+        "icon": "i-heroicons-shopping-bag"
+      },
+      "contact": {
+        "label": "Contact",
+        "icon": "i-heroicons-envelope"
+      },
+      "feedback": {
+        "label": "Feedback",
+        "icon": "i-heroicons-chat-bubble-left-right"
+      },
+      "loyalty_program": {
+        "label": "Loyalty Programme",
+        "icon": "i-heroicons-star"
+      },
+      "vision": {
+        "label": "Vision",
+        "icon": "i-heroicons-eye"
+      },
+      "what-is-microlearning": {
+        "label": "What Is Microlearning",
+        "icon": "i-heroicons-academic-cap"
+      },
+      "why-microlearning": {
+        "label": "Why Microlearning",
+        "icon": "i-heroicons-question-mark-circle"
+      },
+      "cookies-policy": {
+        "label": "Cookie Policy",
+        "icon": "i-heroicons-cake"
+      },
+      "privacy-policy": {
+        "label": "Privacy Policy",
+        "icon": "i-heroicons-shield-check"
+      },
+      "return-policy": {
+        "label": "Returns Policy",
+        "icon": "i-heroicons-arrow-uturn-left"
+      },
+      "terms-of-use": {
+        "label": "Terms of Use",
+        "icon": "i-heroicons-document-text"
+      }
+    }
+  }
+}

@@ -8163,6 +8163,7 @@ export type TenantConfig = {
   readonly themePreset: string
   readonly themeMetadata: unknown
   readonly defaultLocale: string
+  availableLocales?: Array<string>
   readonly defaultCurrency: string
   readonly primaryDomain: string
   readonly apiDomain: string
@@ -11130,6 +11131,17 @@ export type TaggedItemWriteRequestWritable = {
   tagId: number
   contentType: number
   objectId: number
+}
+
+/**
+ * Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
+ *
+ * Only fields that are safe to expose to unauthenticated callers should
+ * appear here.  Secrets and billing-sensitive data belong exclusively in
+ * TenantAdminSerializer.
+ */
+export type TenantConfigWritable = {
+  availableLocales?: Array<string>
 }
 
 export type UserAddressWritable = {

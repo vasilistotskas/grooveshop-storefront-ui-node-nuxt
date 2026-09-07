@@ -5260,6 +5260,7 @@ export const zTenantConfig = z.object({
   themePreset: z.string().readonly(),
   themeMetadata: z.unknown(),
   defaultLocale: z.string().readonly(),
+  availableLocales: z.array(z.string()).optional(),
   defaultCurrency: z.string().readonly(),
   primaryDomain: z.string().readonly(),
   apiDomain: z.string().readonly(),
@@ -8397,6 +8398,19 @@ export const zTaggedItemWriteRequestWritable = z.object({
   }),
   contentType: z.int(),
   objectId: z.int().gte(0).lte(2147483647),
+})
+
+/**
+ * Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.
+ *
+ * Only fields that are safe to expose to unauthenticated callers should
+ * appear here.  Secrets and billing-sensitive data belong exclusively in
+ * TenantAdminSerializer.
+ */
+export const zTenantConfigWritable = z.object({
+  availableLocales: z.array(z.string()).optional(),
+}).register(z.globalRegistry, {
+  description: 'Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.\n\nOnly fields that are safe to expose to unauthenticated callers should\nappear here.  Secrets and billing-sensitive data belong exclusively in\nTenantAdminSerializer.',
 })
 
 export const zUserAddressWritable = z.object({

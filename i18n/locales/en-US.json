@@ -1,0 +1,376 @@
+{
+  "id": "ID",
+  "type": "Type",
+  "favourites": "Favourites",
+  "notifications": "Notifications",
+  "subscriptions": "Subscriptions",
+  "loyalty": "Loyalty Programme",
+  "gift_cards": "Gift Cards",
+  "offers": "Offers",
+  "business_account": "Business account",
+  "error": {
+    "default": "Error",
+    "rate_limited": "Too many requests. Please try again shortly.",
+    "service": {
+      "unavailable": "The service is temporarily unavailable. Please try again shortly."
+    },
+    "page": {
+      "not": {
+        "found": "Page not found"
+      }
+    }
+  },
+  "chat": {
+    "error": {
+      "generic": "The conversation was interrupted — please try again.",
+      "conversationFull": "This conversation has ended — start a new one."
+    }
+  },
+  "subscription_notifications": {
+    "subscribe": {
+      "success_title": "Subscribed",
+      "success_description": "You have been subscribed to this notification topic",
+      "error_title": "Subscription error",
+      "error_description": "You could not be subscribed. Please try again."
+    },
+    "unsubscribe": {
+      "success_title": "Unsubscribed",
+      "success_description": "You have been unsubscribed from this notification topic",
+      "error_title": "Unsubscribe error",
+      "error_description": "You could not be unsubscribed. Please try again."
+    },
+    "bulk_subscribe": {
+      "success_title": "Bulk subscription complete",
+      "success_description": "You have been subscribed to all selected topics"
+    },
+    "bulk_unsubscribe": {
+      "success_title": "Bulk unsubscribe complete",
+      "success_description": "You have been unsubscribed from all selected topics"
+    },
+    "bulk_operation": {
+      "error_title": "Bulk operation error",
+      "error_description": "The operation could not be carried out. Please try again."
+    }
+  },
+  "settings": "Settings",
+  "addresses": "Addresses",
+  "orders": "Orders",
+  "reviews": "Reviews",
+  "help": "Help",
+  "cart": {
+    "title": "Basket"
+  },
+  "cancel": "Cancel",
+  "error_occurred": "An error occurred",
+  "add_to_cart": "Buy",
+  "cart_empty": "Your basket is empty",
+  "submit": "Submit",
+  "share": "Share",
+  "confirm": "Confirm",
+  "entry": "Entry",
+  "loading": "Loading...",
+  "message": "Message",
+  "out_of_stock": "Out of Stock",
+  "limited_stock": "Only {stock} items available (you have {quantity} in your basket)",
+  "comments": {
+    "count": "No comments | 1 comment | {count} comments"
+  },
+  "ordering": {
+    "created_at": "Date created",
+    "updated_at": "Date updated",
+    "published_at": "Date published",
+    "price": "Price",
+    "status": "Status",
+    "title": "Title"
+  },
+  "login": "Sign in",
+  "register": "Sign up",
+  "continue": "Continue",
+  "deactivate": "Deactivate",
+  "passkey": "passkey",
+  "security_key": "Security key",
+  "success": {
+    "title": "Success"
+  },
+  "empty": {
+    "title": "Empty",
+    "description": "There are no results",
+    "button": "Back to Home"
+  },
+  "delete": {
+    "title": "Delete"
+  },
+  "reauthenticate": {
+    "recovery_code": "Enter a recovery code",
+    "totp": "Enter your multi-factor code"
+  },
+  "authenticate": {
+    "recovery_code": "Enter a recovery code",
+    "totp": "Enter your multi-factor code"
+  },
+  "activate": "Activate",
+  "generate": "Generate",
+  "view": "View",
+  "regenerate": "Regenerate",
+  "menu": "Menu",
+  "password": {
+    "title": "Password",
+    "change": "Change password",
+    "current": "Current password",
+    "new": "New password",
+    "confirm": "Confirm password",
+    "reset": {
+      "request": {
+        "success": "A password reset email has been sent to you"
+      },
+      "success": "Your password was reset successfully"
+    }
+  },
+  "enter_password": "Enter your password",
+  "home": "Home",
+  "account": "Account",
+  "save": "Save",
+  "actions": "Actions",
+  "results": "Results",
+  "edit": {
+    "title": "Edit"
+  },
+  "upload": "Upload",
+  "theme": "Theme",
+  "tags": "Tags",
+  "read_less": "Read less",
+  "read_more": "Read more",
+  "search": {
+    "title": "Search"
+  },
+  "filters": {
+    "title": "Filters",
+    "clear": "Clear",
+    "active": "Active",
+    "apply": "Apply",
+    "clear_all": "Clear All",
+    "categories": "Categories",
+    "price": "Price",
+    "price_min": "Minimum price",
+    "price_max": "Maximum price",
+    "minimum_price": "Minimum Price",
+    "maximum_price": "Maximum Price",
+    "selected_range": "Selected Range",
+    "min_placeholder": "Min",
+    "max_placeholder": "Max",
+    "popularity": "Popularity",
+    "view_count": "Views",
+    "min_likes": "At least {count} likes",
+    "min_views": "At least {count} views",
+    "search": "Search",
+    "sort": "Sort",
+    "remove_filter": "Remove {filter} filter",
+    "price_range": "Price Range",
+    "price_range_value": "€{min} - €{max}",
+    "popularity_slider": "Minimum Popularity",
+    "view_count_slider": "Minimum Views"
+  },
+  "sort": {
+    "default": "Default",
+    "price_asc": "Price (Low to High)",
+    "price_desc": "Price (High to Low)",
+    "popularity": "Popular",
+    "most_viewed": "Most Viewed",
+    "newest": "Newest"
+  },
+  "pagination": {
+    "page_info": "Page {current} of {total}",
+    "navigation": "Product page navigation"
+  },
+  "products": {
+    "results_count": "no products | {count} product | {count} products",
+    "per_page": "Per page",
+    "count": "{count} products",
+    "no_results": {
+      "title": "No products found",
+      "description": "Try changing your filters",
+      "clear_filters": "Clear filters",
+      "no_filters": "We could not find any products. Please check back later or browse our categories.",
+      "try_different_search": "Try different search terms or check your spelling.",
+      "try_broader_price": "Try adjusting the price range to see more products.",
+      "try_different_category": "Try selecting different categories or remove the category filters.",
+      "try_lower_popularity": "Try lowering the minimum popularity threshold.",
+      "try_lower_views": "Try lowering the minimum views threshold.",
+      "try_different_attributes": "Try selecting different attributes or remove the attribute filters."
+    }
+  },
+  "categories": "Categories",
+  "load": {
+    "more": "More"
+  },
+  "logout": "Sign out",
+  "shop": "Shop",
+  "blog": "Blog",
+  "email": {
+    "added": "The email was added, but it must be verified",
+    "removed": "The email was removed",
+    "title": "Email",
+    "add": "Add email",
+    "mark_as_primary": "Set as primary",
+    "remove": "Remove email",
+    "request_verification": "Request verification",
+    "verification_requested": "A verification email has been sent to you",
+    "marked_as_primary": "The email was set as primary",
+    "verification": {
+      "requested": "A verification email has been sent to you",
+      "too_many_requests": "Too many verification requests",
+      "marked_as_primary": "A verification email has been sent to you"
+    }
+  },
+  "primary": "Primary",
+  "verified": "Verified",
+  "unknown": {
+    "error": "Unknown error"
+  },
+  "next": "Next",
+  "previous": "Previous",
+  "items": "Items",
+  "like": "Like",
+  "reply": "Reply",
+  "floor": "Floor",
+  "location_type": "Location type",
+  "phone": "Phone",
+  "notes": "Notes",
+  "code": "Code",
+  "disconnect": "Disconnect",
+  "add": {
+    "title": "Add",
+    "email": "Add email"
+  },
+  "used": "Used",
+  "unused": "Unused",
+  "last_used_at": "Last used",
+  "social_accounts": "Social accounts",
+  "sessions": "Sessions",
+  "two_factor": {
+    "authentication": "Two-factor authentication (2FA)",
+    "activate": "Enable 2FA",
+    "deactivate": "Disable 2FA",
+    "webauthn": {
+      "title": "Security keys",
+      "manage": "Manage security keys",
+      "add": {
+        "title": "Add a security key"
+      }
+    },
+    "recovery_codes": {
+      "title": "Recovery codes",
+      "generate": "Generate recovery codes",
+      "view": "View recovery codes"
+    },
+    "totp": "Multi-factor code"
+  },
+  "name": "Name",
+  "display": "Display",
+  "uid": "UID",
+  "reset": "Reset",
+  "back": "Back",
+  "twitter": "X",
+  "instagram": "Instagram",
+  "facebook": "Facebook",
+  "reddit": "Reddit",
+  "pinterest": "Pinterest",
+  "tiktok": "TikTok",
+  "youtube": "YouTube",
+  "discord": "Discord",
+  "ip_address": "IP address",
+  "user_agent": "Browser",
+  "payment_methods": {
+    "CREDIT_CARD": "Card Payment",
+    "PAY_ON_DELIVERY": "Cash on Delivery",
+    "PAY_ON_STORE": "Pay in Store",
+    "PAY_PAL": "PayPal",
+    "STRIPE": "Stripe",
+    "VIVA_WALLET": "Viva Wallet",
+    "BANK_TRANSFER": "Bank Transfer",
+    "APPLE_PAY": "Apple Pay",
+    "GOOGLE_PAY": "Google Pay",
+    "fee": "{method} fee"
+  },
+  "tracking": {
+    "boxnow": {
+      "title": "BOX NOW tracking",
+      "voucher": "Voucher number",
+      "locker": "Collection locker",
+      "last_update": "Last update",
+      "open_tracking": "Open in BOX NOW",
+      "label_download": "Download label",
+      "no_events": "There are no tracking events yet",
+      "state": {
+        "pending_creation": "Awaiting creation",
+        "new": "Registered",
+        "in_depot": "At a BOX NOW depot",
+        "final_destination": "In the locker, ready for collection",
+        "delivered": "Delivered",
+        "returned": "Returned",
+        "expired": "Expired",
+        "canceled": "Cancelled",
+        "accepted_for_return": "Accepted for return",
+        "accepted_to_locker": "In transit",
+        "missing": "Not found",
+        "lost": "Lost"
+      },
+      "notification": {
+        "at_locker_title": "Your parcel has arrived!",
+        "at_locker_body": "Your parcel is waiting in the locker at {address}. Voucher: {voucher}",
+        "delivered_title": "Parcel collected",
+        "delivered_body": "You collected your parcel from the BOX NOW locker"
+      }
+    },
+    "acs": {
+      "title": "ACS tracking",
+      "voucher": "Voucher number",
+      "station": "Collection point",
+      "last_update": "Last update",
+      "open_tracking": "Open in ACS",
+      "label_download": "Download label",
+      "no_events": "There are no tracking events yet",
+      "state": {
+        "pending_creation": "Awaiting voucher creation",
+        "new": "Registered",
+        "in_transit": "In transit",
+        "at_destination": "At the destination branch",
+        "out_for_delivery": "Out for delivery",
+        "delivered": "Delivered",
+        "attempted": "Delivery attempt failed",
+        "returned": "Returned",
+        "canceled": "Cancelled",
+        "lost": "Not found"
+      },
+      "notification": {
+        "out_for_delivery_title": "Your parcel is on its way",
+        "out_for_delivery_body": "Voucher: {voucher}. The courier will be in touch shortly.",
+        "delivered_title": "Parcel collected",
+        "delivered_body": "You collected your parcel from ACS"
+      }
+    }
+  },
+  "footer": {
+    "about_us": "About us",
+    "about": {
+      "us": "About us",
+      "site": "What is {storeName}"
+    },
+    "vision": "Vision",
+    "microlearning": {
+      "title": "Microlearning",
+      "what": "What is Microlearning",
+      "why": "Why Microlearning"
+    },
+    "terms_conditions": "Terms and Conditions",
+    "term_of_use": "Terms of Use",
+    "privacy_policy": "Privacy Policy",
+    "cookies_policy": "Cookie Policy",
+    "help_center": "Help centre",
+    "pages": "Pages",
+    "contact": {
+      "us": "Contact"
+    },
+    "feedback": "Feedback & Comments"
+  }
+}

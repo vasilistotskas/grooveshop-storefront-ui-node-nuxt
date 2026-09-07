@@ -1,0 +1,48 @@
+{
+  "auth": {
+    "session_expired_title": "Session expired",
+    "session_expired_description": "Your session has expired. Please sign in again to continue.",
+    "login": {
+      "success": "Signed in successfully",
+      "error": {
+        "title": "Sign-in error",
+        "verify_email": "A verification email has been sent to you"
+      },
+      "loading": "Loading..."
+    },
+    "password": {
+      "change": {
+        "success": "Password changed successfully"
+      }
+    },
+    "signup": {
+      "success": "Registration completed successfully",
+      "error": {
+        "title": "Registration error",
+        "action1": "Resend verification",
+        "verify_email": "A verification email has been sent to you"
+      }
+    },
+    "pending": {
+      "mfa_authenticate": "You need to verify your account"
+    },
+    "mfa": {
+      "required": "Multi-factor authentication must be enabled"
+    },
+    "providers": {
+      "empty": "You are not connected to any provider"
+    },
+    "email": {
+      "verify": "Verify email",
+      "verified": "Email verified"
+    },
+    "error": {
+      "session": {
+        "expired": "Your session has expired"
+      },
+      "verify_email": "Verify your email",
+      "mfa_authenticate": "You need to verify your account",
+      "not_authenticated": "You are not authorised"
+    }
+  }
+}

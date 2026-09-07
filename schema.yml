@@ -44462,6 +44462,10 @@ components:
         defaultLocale:
           type: string
           readOnly: true
+        availableLocales:
+          type: array
+          items:
+            type: string
         defaultCurrency:
           type: string
           readOnly: true

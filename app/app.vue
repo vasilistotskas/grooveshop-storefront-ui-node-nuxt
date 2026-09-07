@@ -1,13 +1,8 @@
 <script lang="ts" setup>
-// Import ONLY the locales in SUPPORTED_LOCALES (i18n/locales.ts) — the
-// former namespace import (`import * as uiLocales`) bundled all 62 of
-// @nuxt/ui's locale files into the entry chunk of every page: 129KB of
-// the entry's 324KB minified (40%), measured in the 2026-08-29
-// entry-chunk sourcemap audit. Activating a new locale means adding its
-// import here.
-import { el } from '@nuxt/ui/locale'
-
-const uiLocales = { el } as const
+// The Nuxt UI locale bundles live in `app/utils/uiLocales.ts` so
+// `UApp` here and `ULocaleSelect` in Language/Switcher.vue read one
+// map — activating a locale is a single edit. That file also documents
+// why they are imported by name rather than as a namespace.
 
 setupPageHeader()
 setupGoogleAnalyticsConsent()
@@ -181,7 +176,7 @@ useHead({
   <NuxtRouteAnnouncer />
   <LoadingIndicator />
   <UApp
-    :locale="uiLocales[locale]"
+    :locale="UI_LOCALES[locale]"
     :toaster="{
       position: 'top-right',
       duration: 5000,

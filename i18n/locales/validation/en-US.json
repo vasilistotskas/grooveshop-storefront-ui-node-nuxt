@@ -1,0 +1,86 @@
+{
+  "validation": {
+    "min": "This field must be at least {min} characters",
+    "max": "This field must be at most {max} characters",
+    "required": "Required",
+    "too_many_attempts": "Too many attempts",
+    "passwords_not_same": "The passwords do not match",
+    "must_not_be_same": "This field must not be the same as {field}",
+    "must_match": "{field} must match {other}",
+    "api": {
+      "invalid_login": "Incorrect password",
+      "email_password_mismatch": "Incorrect password",
+      "enter_current_password": "Please enter your current password.",
+      "incorrect_code": "Incorrect code",
+      "password_too_short": "The password is too short — at least 8 characters",
+      "password_too_common": "The password is too common — choose something less predictable",
+      "password_entirely_numeric": "The password cannot consist of numbers only",
+      "password_too_similar": "The password is too similar to your personal details"
+    },
+    "password": {
+      "must_not_be_same": "The new password must not be the same as the current one",
+      "entirely_numeric": "The password cannot consist of numbers only"
+    },
+    "email": {
+      "required": "Email is required",
+      "valid": "The email must be valid",
+      "invalid": "The email is not valid"
+    },
+    "first_name": {
+      "required": "First name is required",
+      "min": "The first name must be at least {min} characters"
+    },
+    "last_name": {
+      "required": "Last name is required",
+      "min": "The last name must be at least {min} characters"
+    },
+    "street": {
+      "required": "Street is required",
+      "min": "The street must be at least {min} characters"
+    },
+    "street_number": {
+      "required": "Street number is required",
+      "min": "The street number must be at least {min} characters"
+    },
+    "zipcode": {
+      "required": "Postcode is required",
+      "min": "The postcode must be at least {min} characters long"
+    },
+    "place": {
+      "required": "Area is required",
+      "min": "The area must be at least {min} characters"
+    },
+    "city": {
+      "required": "City is required",
+      "min": "The city must be at least {min} characters"
+    },
+    "phone": {
+      "required": "Phone is required",
+      "min": "The phone number must be at least {min} characters",
+      "invalid": "Enter a valid phone number (e.g. 6912345678 or 2101234567)"
+    },
+    "date": {
+      "required_error": "Choose a date and time",
+      "invalid_type_error": "That is not an appointment!"
+    },
+    "country": {
+      "required": "Country is required"
+    },
+    "region": {
+      "required": "Region is required"
+    },
+    "string": {
+      "invalid": "Invalid value"
+    },
+    "message": {
+      "min_words": "The message must be at least {min} words"
+    },
+    "payment_method": {
+      "required": "Choose a payment method"
+    },
+    "billing_vat": {
+      "invalid": "The VAT number must have 9 digits (optionally prefixed with EL or GR)",
+      "checksum": "The VAT number is not valid — check the digits."
+    }
+  }
+}

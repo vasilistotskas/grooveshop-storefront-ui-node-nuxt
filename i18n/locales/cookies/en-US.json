@@ -1,0 +1,24 @@
+{
+  "cookies": {
+    "optional": "Optional cookies",
+    "optional_links": {
+      "privacy_policy": "Privacy Policy"
+    },
+    "necessary": "Necessary Cookies",
+    "necessary_description": "Necessary cookies help make a website usable by enabling basic functions such as page navigation and access to secure areas of the site. The website cannot function properly without these cookies.",
+    "ad_storage": "Advertising Cookies",
+    "ad_storage_description": "Used to display relevant advertising.",
+    "ad_user_data": "Advertising User Data",
+    "ad_user_data_description": "Allows your data to be used for advertising purposes.",
+    "ad_personalization": "Ad Personalisation",
+    "ad_personalization_description": "Shows advertising tailored to your interests.",
+    "analytics_storage": "Analytics Cookies",
+    "analytics_storage_description": "Collects statistics to improve your experience.",
+    "functionality_storage": "Functional Cookies",
+    "functionality_storage_description": "Stores preferences to improve the functionality of the website.",
+    "personalization_storage": "Content Personalisation",
+    "personalization_storage_description": "Adapts content according to your preferences.",
+    "security_storage": "Security Cookies",
+    "security_storage_description": "Ensures the security and integrity of the website."
+  }
+}

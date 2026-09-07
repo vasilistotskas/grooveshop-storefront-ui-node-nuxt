@@ -1,0 +1,199 @@
+{
+  "continue": "Continue",
+  "title": "Checkout",
+  "payOnDelivery": "Cash on delivery",
+  "cardPayment": "Card payment",
+  "personal_information": "Personal Details",
+  "delivery_address": "Delivery Address",
+  "validation_error": "Validation error",
+  "back": "Back",
+  "place_order": "Place Order",
+  "complete_payment": "Complete Payment",
+  "order_created_complete_payment": "Your order has been created. Complete the payment to finalise it.",
+  "order_created_payment_required": "Order created",
+  "complete_payment_to_finish": "Complete the payment to finalise your order",
+  "back_to_form": "Back",
+  "order_summary": "Order Summary",
+  "order_number": "Order number",
+  "total_amount": "Total amount",
+  "payment_successful": "Payment completed successfully",
+  "order_completed_successfully": "Your order was completed successfully",
+  "payment_failed": "Payment failed",
+  "redirecting": "Redirecting to the payment page",
+  "stock_reserved": "Stock reserved",
+  "stock_reserved_description": "Your items are reserved for 15 minutes",
+  "stock_released": "Stock released",
+  "stock_released_description": "The items are now available to other customers",
+  "retrying": "Retrying",
+  "creating_new_reservation": "Creating a new reservation...",
+  "payment_intent_created": "Payment prepared",
+  "payment_intent_created_description": "Your payment is ready to be processed",
+  "payment_intent_error": "Payment error",
+  "payment_intent_error_description": "The payment could not be created. Please try again.",
+  "saved_address_invalid_title": "Check the address",
+  "saved_address_invalid_description": "Your saved address has a region that is no longer valid. Please choose the region again to continue.",
+  "payment_canceled": "Payment cancelled",
+  "payment_canceled_description": "The payment was not completed. You can choose a different payment method or try again.",
+  "payment_error_title": "Payment error",
+  "payment_error_description": "An error occurred while processing your payment. Please try again or contact us.",
+  "retry": "Try Again",
+  "stock_error": {
+    "title": "Insufficient Stock",
+    "description": "Some items in your basket do not have enough stock to complete the order.",
+    "requested_vs_available": "Requested: {requested} | Available: {available}",
+    "shortage": "-{count}",
+    "update_cart": "Update Basket",
+    "retry": "Try Again"
+  },
+  "steps": {
+    "info_and_address": "Details & Address",
+    "payment": "Payment"
+  },
+  "shipping": {
+    "method": {
+      "title": "Delivery Method",
+      "subtitle": "Choose how you would like to receive your order",
+      "home_delivery": {
+        "label": "Delivery to your address",
+        "description": "Courier delivery to the address you provided"
+      },
+      "boxnow": {
+        "label": "BOX NOW Lockers",
+        "tagline": "Fast delivery, 24/7",
+        "description": "Collect your order from any BOX NOW locker, at any time",
+        "unconfigured_title": "BOX NOW is temporarily unavailable",
+        "unconfigured_description": "The integration with the BOX NOW network is not complete yet. Please choose delivery to your address."
+      },
+      "acs_smartpoint": {
+        "label": "ACS Smartpoint Lockers",
+        "tagline": "Collect in your own time",
+        "description": "Collect your order from any ACS Smartpoint locker, based on the delivery postcode."
+      }
+    },
+    "boxnow": {
+      "select_locker": "Choose a Locker",
+      "change_locker": "Change Locker",
+      "modal_title": "Choose a BOX NOW Locker",
+      "iframe_loading": "Loading map...",
+      "required_error": "Please choose a locker to continue",
+      "selected_locker": {
+        "title": "Selected Locker",
+        "id_label": "Locker ID"
+      }
+    },
+    "acs": {
+      "select_locker": "Choose an ACS Smartpoint",
+      "change_locker": "Change Smartpoint",
+      "modal_title": "Choose an ACS Smartpoint",
+      "select": "Select",
+      "postal_code": "Postcode",
+      "postal_code_placeholder": "e.g. 11525",
+      "city": "City / Area",
+      "city_placeholder": "e.g. Athens",
+      "required_error": "Please choose a Smartpoint to continue",
+      "search_error": "Smartpoints could not be searched. Please try again.",
+      "empty_title": "No Smartpoints found",
+      "empty_description": "Try a different postcode or area.",
+      "idle_title": "Search for a Smartpoint",
+      "idle_description": "Enter a postcode to see available ACS Smartpoint lockers.",
+      "selected_locker": {
+        "title": "Selected Smartpoint",
+        "id_label": "Smartpoint ID"
+      },
+      "address_suggestion": {
+        "title": "Did you mean this address?",
+        "apply": "Apply",
+        "checking": "Checking address..."
+      }
+    },
+    "price": {
+      "free": "Free",
+      "free_over": "Free on orders over {amount}"
+    },
+    "locker_picker": {
+      "modal_title": "Choose a {carrier} collection point",
+      "choose": "Choose a {carrier} collection point",
+      "change": "Change",
+      "id_label": "ID",
+      "postal_placeholder": "Postcode",
+      "city_placeholder": "City (optional)",
+      "loading": "Loading collection points",
+      "error_title": "Error",
+      "error": "Collection points could not be searched. Please try again.",
+      "empty_title": "No collection points found",
+      "empty_description": "Try a different postcode or city.",
+      "search_prompt_title": "Search for a collection point",
+      "search_prompt_description": "Enter your postcode to see available points.",
+      "unsupported": "This carrier does not support collection point search.",
+      "tab_list": "List",
+      "tab_map": "Map",
+      "geolocate": "Find me",
+      "geolocate_denied": "Allow location access in your browser settings.",
+      "cluster_aria_label": "{count} collection points in this area",
+      "skip_to_list": "Skip the map — go to the list",
+      "no_results_in_area": "No collection points found in this area"
+    }
+  },
+  "form": {
+    "select_placeholder": "Select",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "email": "Email",
+    "phone": "Phone",
+    "city": "City",
+    "zipcode": "Postcode",
+    "country": "Country",
+    "region": "Region",
+    "street": "Street",
+    "street_number": "Street Number",
+    "customer_notes": "Notes",
+    "customer_notes_help": "Optional delivery instructions printed on the courier voucher (e.g. \"ring twice\", \"leave with the concierge\").",
+    "payment_method": "Payment method",
+    "invoice": {
+      "toggle_label": "I need an invoice (B2B)",
+      "toggle_description": "Select this if you need a sales invoice instead of a retail receipt.",
+      "vat_label": "VAT number",
+      "vat_help": "9 digits without the EL/GR prefix (the prefix is removed automatically if you include it).",
+      "company_label": "Company name",
+      "tax_office_label": "Tax office",
+      "activity_label": "Business activity",
+      "activity_help": "The business activity as it appears in the company register.",
+      "billing_same_label": "The registered office is the same as the delivery address",
+      "billing_same_description": "If the invoice must be issued to a different registered address, untick this to fill it in.",
+      "billing_street_label": "Registered office street",
+      "billing_street_number_label": "Number",
+      "billing_city_label": "City",
+      "billing_zipcode_label": "Postcode"
+    },
+    "submit": {
+      "success": "Your order was created successfully",
+      "address_saved_title": "Address saved",
+      "address_saved_description": "You will find it under address management in your account.",
+      "address_save_failed_title": "Saving the address failed",
+      "address_save_failed_description": "Your order completed normally, but the address could not be saved.",
+      "error": {
+        "general": "Error creating the order",
+        "inventory": "Insufficient stock available",
+        "insufficient_stock": "Insufficient stock",
+        "insufficient_stock_description": "{product} has only {available} items available",
+        "payment_failed": "Payment failed",
+        "payment_failed_description": "The payment was not completed. Please try again.",
+        "invalid_order_data": "Invalid order data",
+        "invalid_order_data_description": "The order data is not valid. Please check your details.",
+        "reservation_expired": "The reservation expired",
+        "reservation_expired_description": "The stock reservation expired. Please try again.",
+        "max_retries": "Too many attempts",
+        "stock_reservation": "Stock reservation error",
+        "stock_reservation_description": "The stock could not be reserved. Please try again.",
+        "payment_verification": "Payment verification error",
+        "payment_verification_description": "Payment verification failed. Please contact support.",
+        "invalid_coupon": "Invalid coupon",
+        "invalid_coupon_description": "This coupon cannot be applied to this order.",
+        "invalid_gift_card": "Invalid gift card",
+        "invalid_gift_card_description": "This gift card cannot be used for this order.",
+        "loyalty_requires_authentication": "Sign in to redeem points",
+        "loyalty_redemption_invalid": "Point redemption is not available"
+      }
+    }
+  }
+}

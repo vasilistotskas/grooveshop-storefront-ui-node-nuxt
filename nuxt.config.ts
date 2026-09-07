@@ -739,6 +739,20 @@ export default defineNuxtConfig({
         language: 'el-GR',
         flag: '🇬🇷',
       },
+      {
+        code: 'en',
+        name: 'English',
+        files: [
+          'en-US.json',
+          'auth/en-US.json',
+          'breadcrumb/en-US.json',
+          'checkout/en-US.json',
+          'cookies/en-US.json',
+          'validation/en-US.json',
+        ],
+        language: 'en-US',
+        flag: '🇬🇧',
+      },
     ],
     compilation: {
       strictMessage: false,

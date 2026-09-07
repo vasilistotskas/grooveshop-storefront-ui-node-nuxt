@@ -15,6 +15,18 @@ export const useTenantStore = defineStore('tenant', () => {
   const logoDarkUrl = computed(() => config.value?.logoDarkUrl ?? '')
   const faviconUrl = computed(() => config.value?.faviconUrl ?? '')
   const defaultLocale = computed(() => config.value?.defaultLocale ?? '')
+  // Locales this tenant serves. The API returns [] for a
+  // single-language store, which is the default — normalise that to
+  // just the default locale so consumers never special-case empty.
+  // i18n routes exist for every platform locale regardless (build
+  // time); this list is what makes one REACHABLE. See
+  // middleware/locale-available.global.ts.
+  const availableLocales = computed<string[]>(() => {
+    const listed = config.value?.availableLocales ?? []
+    if (listed.length) return [...listed]
+    return defaultLocale.value ? [defaultLocale.value] : []
+  })
+  const isMultilingual = computed(() => availableLocales.value.length > 1)
   const defaultCurrency = computed(() => config.value?.defaultCurrency ?? 'EUR')
   const loyaltyEnabled = computed(() => config.value?.loyaltyEnabled ?? false)
   const blogEnabled = computed(() => config.value?.blogEnabled ?? true)
@@ -69,6 +81,8 @@ export const useTenantStore = defineStore('tenant', () => {
     logoDarkUrl,
     faviconUrl,
     defaultLocale,
+    availableLocales,
+    isMultilingual,
     defaultCurrency,
     loyaltyEnabled,
     blogEnabled,
