@@ -166,6 +166,30 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     })
     .partial()
     .strip(),
+  reference_cards: z
+    .object({
+      // A curated few of something a longer page lists in full. The
+      // attribution's LABEL belongs to the band ("On behalf of") and
+      // its value to the card.
+      heading: z.string().max(200),
+      metaLabel: z.string().max(40),
+      ctaText: z.string().max(100),
+      ctaLink: zLink,
+      items: z
+        .array(
+          z
+            .object({
+              title: z.string().min(1).max(160),
+              label: z.string().max(60).optional(),
+              text: z.string().max(300).optional(),
+              meta: z.string().max(80).optional(),
+            })
+            .strip(),
+        )
+        .max(6),
+    })
+    .partial()
+    .strip(),
   pull_quote: z
     .object({
       // A stated principle with the reason under it — not a
