@@ -1,3 +1,10 @@
+# [3.179.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.178.0...v3.179.0) (2026-09-07)
+
+
+### Features
+
+* **middleware:** gate the catalogue surface ([7036fc4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7036fc453022bfd0f0fb6c27e00fa38683937ee6))
+
 # [3.178.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.177.0...v3.178.0) (2026-09-07)
 
 
