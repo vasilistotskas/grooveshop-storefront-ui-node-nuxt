@@ -1,3 +1,10 @@
+# [3.167.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.166.2...v3.167.0) (2026-09-07)
+
+
+### Features
+
+* **theme:** add a fontMono token and the IBM Plex Sans / JetBrains Mono faces ([05482fa](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/05482fad43080a5224f8a543c1592a7082b3f52b))
+
 ## [3.166.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.166.1...v3.166.2) (2026-09-06)
 
 
