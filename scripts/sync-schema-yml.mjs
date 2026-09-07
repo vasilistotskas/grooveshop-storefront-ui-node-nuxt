@@ -58,9 +58,9 @@ try {
   writeFileSync(yamlOpenApiPath, yamlContent, 'utf-8')
   writeFileSync(yamlRootPath, yamlContent, 'utf-8')
 
-  console.log('schema.yml files synced successfully') // eslint-disable-line no-console
+  console.log('schema.yml files synced successfully')
 }
 catch (error) {
-  console.error('Error syncing schema.yml files:', error.message) // eslint-disable-line no-console
+  console.error('Error syncing schema.yml files:', error.message)
   process.exitCode = 1
 }

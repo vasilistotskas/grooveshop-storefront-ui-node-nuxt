@@ -54,3 +54,4 @@ public/.well-known
 
 # Skilld references (recreated by `skilld install`)
 .skilld
+audit/

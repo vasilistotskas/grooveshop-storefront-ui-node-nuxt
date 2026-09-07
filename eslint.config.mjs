@@ -133,6 +133,16 @@ export default withNuxt(
     },
   },
   {
+    // A CLI script REPORTS to stdout — that is what it is for, so
+    // `no-console` there only buys a disable comment per line (the
+    // two older scripts each carry several). Scoped to `scripts/`, so
+    // nothing shipped to a browser is covered.
+    files: ['scripts/**/*.{js,mjs,ts}'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+  {
     settings: {
       'better-tailwindcss': {
         entryPoint: 'app/assets/css/main.css',
