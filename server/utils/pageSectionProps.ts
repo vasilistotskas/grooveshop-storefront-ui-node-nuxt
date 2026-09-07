@@ -189,6 +189,39 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     .object({
       heading: z.string().max(200),
       body: z.string().max(5000),
+      // A label above the heading, a footnote under the body, a
+      // checklist, and comparison cards for the side of the band that
+      // carries no image. `emphasis` is a SUBSTRING of `body` to set
+      // in the emphasis weight — body renders as text, and an HTML
+      // prop would be an injection surface for one bold phrase.
+      eyebrow: z.string().max(100),
+      note: z.string().max(200),
+      emphasis: z.string().max(120),
+      bullets: z
+        .array(z.object({ text: z.string().min(1).max(300) }).strip())
+        .max(6),
+      specs: z
+        .array(
+          z
+            .object({
+              label: z.string().max(40).optional(),
+              name: z.string().min(1).max(60),
+              subtitle: z.string().max(120).optional(),
+              rows: z
+                .array(
+                  z
+                    .object({
+                      label: z.string().min(1).max(40),
+                      value: z.string().min(1).max(80),
+                    })
+                    .strip(),
+                )
+                .max(8)
+                .optional(),
+            })
+            .strip(),
+        )
+        .max(4),
       imageUrl: z.string().max(1000),
       imagePosition: z.enum(['left', 'right']),
       ctaText: z.string().max(100),

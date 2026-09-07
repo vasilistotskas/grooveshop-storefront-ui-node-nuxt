@@ -79,6 +79,7 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   // logo strip nobody renders would be speculative.
   'hero_banner@delta_sigma': eagerSection(() => import('~/components/PageSection/variants/delta_sigma/Hero.vue')),
   'partner_strip@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/PartnerStrip.vue')),
+  'media_text@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/MediaText.vue')),
 
   // webside tenant variants — full-page marketing/content sections with
   // no props. Base (non-variant) entries deliberately do NOT exist for
