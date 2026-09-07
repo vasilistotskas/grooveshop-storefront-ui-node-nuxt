@@ -19,6 +19,15 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * one). The registration number is NOT a prop: it is the same
  * merchant identity the footer prints, and a second copy in a section
  * prop is a second copy to go stale.
+ *
+ * COLOUR IS TOKENS, NOT LITERALS. Every value the artboards use turned
+ * out to be a step on the tenant's own ramps — `#020617` is
+ * `--ui-bg` in dark, `#1E293B` is `--ui-border`, `#94A3B8` is
+ * `--ui-text-muted`, and `#5BC4C4` is `--ui-primary` exactly — so this
+ * band is written in `bg-default` / `bg-muted` / `border-default` /
+ * `text-muted` / `text-primary` and inverts for light mode on its own.
+ * The hexes below are the MEASUREMENT that established the mapping,
+ * not what the markup says.
  */
 defineProps<{
   label?: string
@@ -33,7 +42,7 @@ const { identity } = useMerchantIdentity()
   <section
     v-if="items?.length"
     class="
-      border-b border-[#1E293B] bg-[#091121] px-5 py-6
+      border-b border-default bg-muted px-5 py-6
       lg:px-20
     "
   >
@@ -46,7 +55,7 @@ const { identity } = useMerchantIdentity()
       <p
         v-if="label"
         class="
-          font-mono text-[11px] tracking-[0.16em] text-[#334155] uppercase
+          font-mono text-[11px] tracking-[0.16em] text-dimmed uppercase
         "
       >
         {{ label }}
@@ -60,12 +69,12 @@ const { identity } = useMerchantIdentity()
         <li
           v-for="item in items"
           :key="item.name"
-          class="text-[16px] font-semibold text-[#475569] lg:text-[18px]"
+          class="text-[16px] font-semibold text-dimmed lg:text-[18px]"
         >
           <NuxtLinkLocale
             v-if="item.href"
             :to="item.href as RouteLocationNamedI18n"
-            class="transition-colors hover:text-[#94A3B8]"
+            class="transition-colors hover:text-muted"
           >
             {{ item.name }}
           </NuxtLinkLocale>
@@ -77,7 +86,7 @@ const { identity } = useMerchantIdentity()
       <p
         v-if="identity?.registrationNumber"
         class="
-          font-mono text-[11px] text-[#334155]
+          font-mono text-[11px] text-dimmed
           lg:justify-self-end
         "
       >

@@ -24,6 +24,15 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * `NavigationMenu` rows through `useNavigation()`, per locale. The
  * design's shape is imposed on that data rather than hardcoded — the
  * `/contact` entry becomes the CTA, and `Αρχική` leads.
+ *
+ * COLOUR IS TOKENS, NOT LITERALS. Every value the artboards use turned
+ * out to be a step on the tenant's own ramps — `#020617` is
+ * `--ui-bg` in dark, `#1E293B` is `--ui-border`, `#94A3B8` is
+ * `--ui-text-muted`, and `#5BC4C4` is `--ui-primary` exactly — so this
+ * band is written in `bg-default` / `bg-muted` / `border-default` /
+ * `text-muted` / `text-primary` and inverts for light mode on its own.
+ * The hexes below are the MEASUREMENT that established the mapping,
+ * not what the markup says.
  */
 const { locale, t } = useI18n()
 const route = useRoute()
@@ -76,7 +85,7 @@ async function pick(code: string) {
 <template>
   <div
     class="
-      sticky top-0 z-50 border-b border-[#1E293B] bg-[#020617]/85
+      sticky top-0 z-50 border-b border-default bg-default/85
       backdrop-blur-md
     "
   >
@@ -102,8 +111,8 @@ async function pick(code: string) {
           to="index"
           class="text-[13.5px] transition-colors"
           :class="isActive('/')
-            ? 'font-medium text-white'
-            : 'text-[#94A3B8] hover:text-white'"
+            ? 'font-medium text-highlighted'
+            : 'text-muted hover:text-highlighted'"
           :aria-current="isActive('/') ? 'page' : undefined"
         >
           {{ t('home') }}
@@ -114,8 +123,8 @@ async function pick(code: string) {
           :to="(item.to ?? '/') as RouteLocationNamedI18n"
           class="text-[13.5px] transition-colors"
           :class="isActive(item.to)
-            ? 'font-medium text-white'
-            : 'text-[#94A3B8] hover:text-white'"
+            ? 'font-medium text-highlighted'
+            : 'text-muted hover:text-highlighted'"
           :aria-current="isActive(item.to) ? 'page' : undefined"
         >
           {{ item.label }}
@@ -136,8 +145,8 @@ async function pick(code: string) {
           v-if="locales.length > 1"
           class="
             hidden h-[30px] items-center gap-1.5 rounded-md border
-            border-[#1E293B] px-2 font-mono text-[11.5px] leading-none
-            text-[#64748B]
+            border-default px-2 font-mono text-[11.5px] leading-none
+            text-dimmed
             sm:flex
           "
         >
@@ -153,8 +162,8 @@ async function pick(code: string) {
               type="button"
               class="uppercase transition-colors"
               :class="code === locale
-                ? 'text-[#E2E8F0]'
-                : 'hover:text-[#E2E8F0]'"
+                ? 'text-default'
+                : 'hover:text-default'"
               :aria-current="code === locale ? 'true' : undefined"
               @click="pick(code)"
             >
@@ -167,9 +176,9 @@ async function pick(code: string) {
           v-if="cta"
           :to="(cta.to ?? CONTACT_PATH) as RouteLocationNamedI18n"
           class="
-            hidden h-[34px] items-center gap-1.5 rounded-md bg-[#5BC4C4] px-4
-            text-[13px] font-semibold text-[#020617] transition-colors
-            hover:bg-[#8EDBDA]
+            hidden h-[34px] items-center gap-1.5 rounded-md bg-primary px-4
+            text-[13px] font-semibold text-inverted transition-colors
+            hover:bg-primary/85
             sm:inline-flex
           "
         >
@@ -187,7 +196,7 @@ async function pick(code: string) {
         <span
           v-if="locales.length > 1"
           class="
-            font-mono text-[11.5px] text-[#94A3B8] uppercase
+            font-mono text-[11.5px] text-muted uppercase
             sm:hidden
           "
         >{{ locale }}</span>
@@ -195,7 +204,7 @@ async function pick(code: string) {
           type="button"
           class="
             flex size-10 items-center justify-center rounded-md border
-            border-[#1E293B] text-[#E2E8F0]
+            border-default text-default
             lg:hidden
           "
           :aria-label="t('menu')"
@@ -212,7 +221,7 @@ async function pick(code: string) {
 
     <div
       v-if="mobileOpen"
-      class="border-t border-[#1E293B] px-5 pb-5 lg:hidden"
+      class="border-t border-default px-5 pb-5 lg:hidden"
     >
       <nav
         class="flex flex-col gap-1 pt-3"
@@ -220,7 +229,7 @@ async function pick(code: string) {
       >
         <NuxtLinkLocale
           to="index"
-          class="py-2 text-[15px] text-[#E2E8F0]"
+          class="py-2 text-[15px] text-default"
           @click="mobileOpen = false"
         >
           {{ t('home') }}
@@ -229,7 +238,7 @@ async function pick(code: string) {
           v-for="item in links"
           :key="item.label"
           :to="(item.to ?? '/') as RouteLocationNamedI18n"
-          class="py-2 text-[15px] text-[#E2E8F0]"
+          class="py-2 text-[15px] text-default"
           @click="mobileOpen = false"
         >
           {{ item.label }}
@@ -239,7 +248,7 @@ async function pick(code: string) {
           :to="(cta.to ?? CONTACT_PATH) as RouteLocationNamedI18n"
           class="
             mt-3 flex items-center justify-center gap-1.5 rounded-md
-            bg-[#5BC4C4] px-4 py-3 text-[15px] font-semibold text-[#020617]
+            bg-primary px-4 py-3 text-[15px] font-semibold text-inverted
           "
           @click="mobileOpen = false"
         >
@@ -258,7 +267,7 @@ async function pick(code: string) {
             :key="code"
             type="button"
             class="uppercase"
-            :class="code === locale ? 'text-[#E2E8F0]' : 'text-[#64748B]'"
+            :class="code === locale ? 'text-default' : 'text-dimmed'"
             @click="pick(code)"
           >
             {{ code }}

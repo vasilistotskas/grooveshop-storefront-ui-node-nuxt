@@ -21,6 +21,15 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * the system's name and model on the left, its headline figure right
  * — because a six-row table in a 350px column is a wall. The full
  * table is the same markup, revealed from `sm` up.
+ *
+ * COLOUR IS TOKENS, NOT LITERALS. Every value the artboards use turned
+ * out to be a step on the tenant's own ramps — `#020617` is
+ * `--ui-bg` in dark, `#1E293B` is `--ui-border`, `#94A3B8` is
+ * `--ui-text-muted`, and `#5BC4C4` is `--ui-primary` exactly — so this
+ * band is written in `bg-default` / `bg-muted` / `border-default` /
+ * `text-muted` / `text-primary` and inverts for light mode on its own.
+ * The hexes below are the MEASUREMENT that established the mapping,
+ * not what the markup says.
  */
 const props = defineProps<{
   eyebrow?: string
@@ -57,7 +66,7 @@ const bodyParts = computed(() => {
 <template>
   <section
     class="
-      border-b border-[#1E293B] bg-[#0F172A] px-5 py-16
+      border-b border-default bg-muted px-5 py-16
       lg:px-20 lg:py-24
     "
   >
@@ -72,16 +81,16 @@ const bodyParts = computed(() => {
           v-if="eyebrow"
           class="
             inline-flex items-center gap-2.5 rounded-full border
-            border-[#334155] px-3.5 py-1.5
+            border-accented px-3.5 py-1.5
           "
         >
           <span
             aria-hidden="true"
-            class="block size-1.5 rounded-full bg-[#FBBF24]"
+            class="block size-1.5 rounded-full bg-warning"
           />
           <span
             class="
-              font-mono text-[10.5px] tracking-[0.14em] text-[#FBBF24]
+              font-mono text-[10.5px] tracking-[0.14em] text-warning
               uppercase
             "
           >{{ eyebrow }}</span>
@@ -91,7 +100,7 @@ const bodyParts = computed(() => {
           v-if="heading"
           class="
             mt-7 text-[30px] leading-[1.15] font-bold tracking-[-0.02em]
-            text-white
+            text-highlighted
             lg:text-[40px]
           "
         >
@@ -100,19 +109,19 @@ const bodyParts = computed(() => {
 
         <p
           v-if="body"
-          class="mt-7 text-[16px] leading-[1.7] text-[#94A3B8]"
+          class="mt-7 text-[16px] leading-[1.7] text-muted"
         >
           {{ bodyParts.before }}<span
             v-if="bodyParts.mark"
-            class="font-semibold text-white"
+            class="font-semibold text-highlighted"
           >{{ bodyParts.mark }}</span>{{ bodyParts.after }}
         </p>
 
         <p
           v-if="note"
           class="
-            mt-7 border-l-2 border-[#334155] pl-4 font-mono text-[12px]
-            text-[#64748B]
+            mt-7 border-l-2 border-accented pl-4 font-mono text-[12px]
+            text-dimmed
           "
         >
           {{ note }}
@@ -129,11 +138,11 @@ const bodyParts = computed(() => {
           >
             <UIcon
               name="i-lucide:check"
-              class="mt-0.5 size-4 shrink-0 text-[#5BC4C4]"
+              class="mt-0.5 size-4 shrink-0 text-primary"
               aria-hidden="true"
             />
             <span
-              class="text-[15px] leading-[1.55] text-[#94A3B8]"
+              class="text-[15px] leading-[1.55] text-muted"
             >{{ bullet.text }}</span>
           </li>
         </ul>
@@ -143,9 +152,9 @@ const bodyParts = computed(() => {
           :to="(ctaLink ?? '/contact') as RouteLocationNamedI18n"
           class="
             mt-8 flex h-[46px] w-full items-center justify-center gap-2
-            rounded-md bg-[#5BC4C4] px-6 text-[14px] font-semibold
-            text-[#020617] transition-colors
-            hover:bg-[#8EDBDA]
+            rounded-md bg-primary px-6 text-[14px] font-semibold
+            text-inverted transition-colors
+            hover:bg-primary/85
             sm:inline-flex sm:w-auto
           "
         >
@@ -167,12 +176,12 @@ const bodyParts = computed(() => {
         <div
           v-for="card in specs"
           :key="card.name"
-          class="rounded-lg border border-[#1E293B] bg-[#020617] p-5"
+          class="rounded-lg border border-default bg-default p-5"
         >
           <p
             v-if="card.label"
             class="
-              font-mono text-[10.5px] tracking-[0.14em] text-[#5BC4C4]
+              font-mono text-[10.5px] tracking-[0.14em] text-primary
               uppercase
             "
           >
@@ -182,7 +191,7 @@ const bodyParts = computed(() => {
             <div>
               <p
                 class="
-                  mt-2.5 text-[19px] leading-none font-semibold text-white
+                  mt-2.5 text-[19px] leading-none font-semibold text-highlighted
                 "
               >
                 {{ card.name }}
@@ -190,7 +199,7 @@ const bodyParts = computed(() => {
               <p
                 v-if="card.subtitle"
                 class="
-                  mt-2 font-mono text-[11.5px] leading-[1.4] text-[#64748B]
+                  mt-2 font-mono text-[11.5px] leading-[1.4] text-dimmed
                 "
               >
                 {{ card.subtitle }}
@@ -200,7 +209,7 @@ const bodyParts = computed(() => {
             <p
               v-if="card.rows?.length"
               class="
-                shrink-0 font-mono text-[12.5px] text-[#E2E8F0]
+                shrink-0 font-mono text-[12.5px] text-default
                 sm:hidden
               "
             >
@@ -210,7 +219,7 @@ const bodyParts = computed(() => {
           <dl
             v-if="card.rows?.length"
             class="
-              mt-4 hidden flex-col gap-[11px] border-t border-[#1E293B] pt-4
+              mt-4 hidden flex-col gap-[11px] border-t border-default pt-4
               sm:flex
             "
           >
@@ -219,12 +228,12 @@ const bodyParts = computed(() => {
               :key="row.label"
               class="flex items-baseline justify-between gap-3"
             >
-              <dt class="text-[12.5px] text-[#64748B]">
+              <dt class="text-[12.5px] text-dimmed">
                 {{ row.label }}
               </dt>
               <dd
                 class="
-                  font-mono text-[11.5px] text-right text-[#E2E8F0]
+                  font-mono text-[11.5px] text-right text-default
                 "
               >
                 {{ row.value }}

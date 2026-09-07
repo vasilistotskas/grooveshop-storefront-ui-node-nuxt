@@ -17,6 +17,15 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * decoratively rather than to mean something, which is why the cycle
  * is fixed in code here rather than being a per-card prop: three
  * cards, three accents, no editorial decision to get wrong.
+ *
+ * COLOUR IS TOKENS, NOT LITERALS. Every value the artboards use turned
+ * out to be a step on the tenant's own ramps — `#020617` is
+ * `--ui-bg` in dark, `#1E293B` is `--ui-border`, `#94A3B8` is
+ * `--ui-text-muted`, and `#5BC4C4` is `--ui-primary` exactly — so this
+ * band is written in `bg-default` / `bg-muted` / `border-default` /
+ * `text-muted` / `text-primary` and inverts for light mode on its own.
+ * The hexes below are the MEASUREMENT that established the mapping,
+ * not what the markup says.
  */
 defineProps<{
   title?: string
@@ -27,14 +36,14 @@ defineProps<{
   items?: { title: string, label?: string, text?: string, meta?: string }[]
 }>()
 
-const RULES = ['bg-[#5BC4C4]', 'bg-[#34D399]', 'bg-[#FBBF24]'] as const
+const RULES = ['bg-primary', 'bg-success', 'bg-warning'] as const
 </script>
 
 <template>
   <section
     v-if="items?.length"
     class="
-      border-b border-[#1E293B] bg-[#020617] px-5 py-16
+      border-b border-default bg-default px-5 py-16
       lg:px-20 lg:py-24
     "
   >
@@ -52,11 +61,11 @@ const RULES = ['bg-[#5BC4C4]', 'bg-[#34D399]', 'bg-[#FBBF24]'] as const
           >
             <span
               aria-hidden="true"
-              class="block h-px w-6 bg-[#5BC4C4]"
+              class="block h-px w-6 bg-primary"
             />
             <span
               class="
-                font-mono text-[10px] tracking-[0.2em] text-[#5BC4C4] uppercase
+                font-mono text-[10px] tracking-[0.2em] text-primary uppercase
               "
             >{{ title }}</span>
           </p>
@@ -64,7 +73,7 @@ const RULES = ['bg-[#5BC4C4]', 'bg-[#34D399]', 'bg-[#FBBF24]'] as const
             v-if="heading"
             class="
               mt-5 text-[26px] leading-[1.15] font-bold tracking-[-0.02em]
-              text-white
+              text-highlighted
               lg:text-[36px]
             "
           >
@@ -75,9 +84,9 @@ const RULES = ['bg-[#5BC4C4]', 'bg-[#34D399]', 'bg-[#FBBF24]'] as const
           v-if="ctaText"
           :to="(ctaLink ?? '/blog') as RouteLocationNamedI18n"
           class="
-            flex shrink-0 items-center gap-2 text-[13.5px] text-[#5BC4C4]
+            flex shrink-0 items-center gap-2 text-[13.5px] text-primary
             transition-colors
-            hover:text-[#8EDBDA]
+            hover:text-primary/80
           "
         >
           {{ ctaText }}
@@ -100,7 +109,7 @@ const RULES = ['bg-[#5BC4C4]', 'bg-[#34D399]', 'bg-[#FBBF24]'] as const
           :key="item.title"
           class="
             flex h-full flex-col overflow-hidden rounded-lg border
-            border-[#1E293B] bg-[#0F172A]
+            border-default bg-muted
           "
         >
           <span
@@ -112,7 +121,7 @@ const RULES = ['bg-[#5BC4C4]', 'bg-[#34D399]', 'bg-[#FBBF24]'] as const
             <p
               v-if="item.label"
               class="
-                font-mono text-[10.5px] tracking-[0.14em] text-[#5BC4C4]
+                font-mono text-[10.5px] tracking-[0.14em] text-primary
                 uppercase
               "
             >
@@ -120,29 +129,29 @@ const RULES = ['bg-[#5BC4C4]', 'bg-[#34D399]', 'bg-[#FBBF24]'] as const
             </p>
             <h3
               class="
-                mt-4 text-[16px] leading-[1.35] font-semibold text-white
+                mt-4 text-[16px] leading-[1.35] font-semibold text-highlighted
               "
             >
               {{ item.title }}
             </h3>
             <p
               v-if="item.text"
-              class="mt-3.5 text-[13.5px] leading-[1.6] text-[#64748B]"
+              class="mt-3.5 text-[13.5px] leading-[1.6] text-dimmed"
             >
               {{ item.text }}
             </p>
             <div
               v-if="item.meta"
-              class="mt-auto border-t border-[#1E293B] pt-4.5"
+              class="mt-auto border-t border-default pt-4.5"
             >
               <p
                 v-if="metaLabel"
-                class="text-[12px] text-[#475569]"
+                class="text-[12px] text-dimmed"
               >
                 {{ metaLabel }}
               </p>
               <p
-                class="mt-1.5 font-mono text-[12px] text-[#CBD5E1]"
+                class="mt-1.5 font-mono text-[12px] text-toned"
               >
                 {{ item.meta }}
               </p>

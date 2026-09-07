@@ -32,6 +32,15 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * phones from `STORE_OFFICES`, and the Γ.Ε.ΜΗ. and email from the
  * merchant identity. Nothing about this tenant's content is hardcoded
  * here — only its design is.
+ *
+ * COLOUR IS TOKENS, NOT LITERALS. Every value the artboards use turned
+ * out to be a step on the tenant's own ramps — `#020617` is
+ * `--ui-bg` in dark, `#1E293B` is `--ui-border`, `#94A3B8` is
+ * `--ui-text-muted`, and `#5BC4C4` is `--ui-primary` exactly — so this
+ * band is written in `bg-default` / `bg-muted` / `border-default` /
+ * `text-muted` / `text-primary` and inverts for light mode on its own.
+ * The hexes below are the MEASUREMENT that established the mapping,
+ * not what the markup says.
  */
 const { t } = useI18n()
 const { footerColumns } = useNavigation()
@@ -48,25 +57,25 @@ const year = new Date().getFullYear()
 <template>
   <footer
     class="
-      border-t border-[#1E293B] bg-[#020617] px-5 pt-14 pb-8
+      border-t border-default bg-default px-5 pt-14 pb-8
       lg:px-20
     "
   >
     <div
       class="
-        mx-auto flex max-w-[1280px] flex-col gap-10 border-b border-[#1E293B]
+        mx-auto flex max-w-[1280px] flex-col gap-10 border-b border-default
         pb-11
         lg:flex-row lg:justify-between lg:gap-15
       "
     >
       <div class="flex w-full max-w-[320px] flex-col gap-4">
         <ChromeVariantsDeltaSigmaLogo :show-caption="true" />
-        <p class="text-[13.5px] leading-[1.7] text-[#475569]">
+        <p class="text-[13.5px] leading-[1.7] text-dimmed">
           {{ t('blurb') }}
         </p>
         <p
           v-if="identity?.registrationNumber"
-          class="font-mono text-[11.5px] leading-none text-[#475569]"
+          class="font-mono text-[11.5px] leading-none text-dimmed"
         >
           {{ t('gemi') }}: {{ identity.registrationNumber }}
         </p>
@@ -80,7 +89,7 @@ const year = new Date().getFullYear()
         >
           <p
             class="
-              font-mono text-[10.5px] tracking-[0.14em] text-[#475569] uppercase
+              font-mono text-[10.5px] tracking-[0.14em] text-dimmed uppercase
             "
           >
             {{ column.label }}
@@ -90,8 +99,8 @@ const year = new Date().getFullYear()
             :key="child.label"
             :to="(child.to ?? '/') as RouteLocationNamedI18n"
             class="
-              text-[13.5px] leading-[17px] text-[#94A3B8] transition-colors
-              hover:text-white
+              text-[13.5px] leading-[17px] text-muted transition-colors
+              hover:text-highlighted
             "
           >
             {{ child.label }}
@@ -101,7 +110,7 @@ const year = new Date().getFullYear()
         <div class="flex w-full max-w-[260px] flex-col gap-3.5">
           <p
             class="
-              font-mono text-[10.5px] tracking-[0.14em] text-[#475569] uppercase
+              font-mono text-[10.5px] tracking-[0.14em] text-dimmed uppercase
             "
           >
             {{ t('contact') }}
@@ -109,13 +118,13 @@ const year = new Date().getFullYear()
           <p
             v-for="office in offices"
             :key="office.label"
-            class="text-[13.5px] leading-[1.65] text-[#94A3B8]"
+            class="text-[13.5px] leading-[1.65] text-muted"
           >
             {{ office.addressLine }}
           </p>
           <p
             v-if="phones.length"
-            class="font-mono text-[12.5px] leading-[1.8] text-[#CBD5E1]"
+            class="font-mono text-[12.5px] leading-[1.8] text-toned"
           >
             <span
               v-for="phone in phones"
@@ -127,8 +136,8 @@ const year = new Date().getFullYear()
             v-if="identity?.email"
             :href="`mailto:${identity.email}`"
             class="
-              text-[13.5px] text-[#5BC4C4] transition-colors
-              hover:text-[#8EDBDA]
+              text-[13.5px] text-primary transition-colors
+              hover:text-primary/80
             "
           >{{ identity.email }}</a>
         </div>
@@ -138,7 +147,7 @@ const year = new Date().getFullYear()
     <div
       class="
         mx-auto flex max-w-[1280px] flex-col gap-4 pt-5.5 text-[12.5px]
-        text-[#475569]
+        text-dimmed
         sm:flex-row sm:items-center sm:justify-between
       "
     >
@@ -153,7 +162,7 @@ const year = new Date().getFullYear()
         rel="noopener noreferrer"
         class="
           flex items-center gap-1.5 transition-colors
-          hover:text-[#94A3B8]
+          hover:text-muted
         "
       >
         <UIcon

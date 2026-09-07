@@ -14,6 +14,15 @@
  * The ordinal comes from the item's own `date`, which is what the
  * platform's timeline rendering puts on its axis — the same field,
  * read as a step number rather than a year.
+ *
+ * COLOUR IS TOKENS, NOT LITERALS. Every value the artboards use turned
+ * out to be a step on the tenant's own ramps — `#020617` is
+ * `--ui-bg` in dark, `#1E293B` is `--ui-border`, `#94A3B8` is
+ * `--ui-text-muted`, and `#5BC4C4` is `--ui-primary` exactly — so this
+ * band is written in `bg-default` / `bg-muted` / `border-default` /
+ * `text-muted` / `text-primary` and inverts for light mode on its own.
+ * The hexes below are the MEASUREMENT that established the mapping,
+ * not what the markup says.
  */
 defineProps<{
   title?: string
@@ -27,7 +36,7 @@ defineProps<{
   <section
     v-if="items?.length"
     class="
-      border-b border-[#1E293B] bg-[#0F172A] px-5 py-16
+      border-b border-default bg-muted px-5 py-16
       lg:px-20 lg:py-24
     "
   >
@@ -38,11 +47,11 @@ defineProps<{
       >
         <span
           aria-hidden="true"
-          class="block h-px w-6 bg-[#5BC4C4]"
+          class="block h-px w-6 bg-primary"
         />
         <span
           class="
-            font-mono text-[10px] tracking-[0.2em] text-[#5BC4C4] uppercase
+            font-mono text-[10px] tracking-[0.2em] text-primary uppercase
           "
         >{{ title }}</span>
       </p>
@@ -50,7 +59,7 @@ defineProps<{
         v-if="heading"
         class="
           mt-5 text-[26px] leading-[1.15] font-bold tracking-[-0.02em]
-          text-white
+          text-highlighted
           lg:text-[36px]
         "
       >
@@ -58,14 +67,14 @@ defineProps<{
       </h2>
       <p
         v-if="subheading"
-        class="mt-4 max-w-[720px] text-[15px] leading-[1.7] text-[#94A3B8]"
+        class="mt-4 max-w-[720px] text-[15px] leading-[1.7] text-muted"
       >
         {{ subheading }}
       </p>
 
       <ol
         class="
-          mt-12 grid border-t border-l border-[#1E293B]
+          mt-12 grid border-t border-l border-default
           sm:grid-cols-2
           lg:grid-cols-4
         "
@@ -73,25 +82,25 @@ defineProps<{
         <li
           v-for="item in items"
           :key="item.title"
-          class="border-r border-b border-[#1E293B] bg-[#020617] p-6"
+          class="border-r border-b border-default bg-default p-6"
         >
           <p
             v-if="item.date"
             aria-hidden="true"
-            class="font-mono text-[11px] text-[#5BC4C4]"
+            class="font-mono text-[11px] text-primary"
           >
             {{ item.date }}
           </p>
           <h3
             class="
-              mt-3.5 text-[15px] leading-[1.35] font-semibold text-white
+              mt-3.5 text-[15px] leading-[1.35] font-semibold text-highlighted
             "
           >
             {{ item.title }}
           </h3>
           <p
             v-if="item.text"
-            class="mt-3 text-[13px] leading-[1.55] text-[#475569]"
+            class="mt-3 text-[13px] leading-[1.55] text-dimmed"
           >
             {{ item.text }}
           </p>

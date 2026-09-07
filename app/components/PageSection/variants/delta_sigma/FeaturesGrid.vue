@@ -22,6 +22,15 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * of description is most of a phone screen per field; the list is the
  * same information at a glance. Both are rendered from the same
  * `items`, one hidden per breakpoint.
+ *
+ * COLOUR IS TOKENS, NOT LITERALS. Every value the artboards use turned
+ * out to be a step on the tenant's own ramps — `#020617` is
+ * `--ui-bg` in dark, `#1E293B` is `--ui-border`, `#94A3B8` is
+ * `--ui-text-muted`, and `#5BC4C4` is `--ui-primary` exactly — so this
+ * band is written in `bg-default` / `bg-muted` / `border-default` /
+ * `text-muted` / `text-primary` and inverts for light mode on its own.
+ * The hexes below are the MEASUREMENT that established the mapping,
+ * not what the markup says.
  */
 const props = defineProps<{
   title?: string
@@ -47,7 +56,7 @@ const hasHeader = computed(() => !!(props.title || props.heading))
   <section
     v-if="items?.length"
     class="
-      border-b border-[#1E293B] bg-[#020617] px-5 py-16
+      border-b border-default bg-default px-5 py-16
       lg:px-20 lg:py-24
     "
   >
@@ -66,11 +75,11 @@ const hasHeader = computed(() => !!(props.title || props.heading))
           >
             <span
               aria-hidden="true"
-              class="block h-px w-6 bg-[#5BC4C4]"
+              class="block h-px w-6 bg-primary"
             />
             <span
               class="
-                font-mono text-[10px] tracking-[0.2em] text-[#5BC4C4] uppercase
+                font-mono text-[10px] tracking-[0.2em] text-primary uppercase
               "
             >{{ title }}</span>
           </p>
@@ -78,7 +87,7 @@ const hasHeader = computed(() => !!(props.title || props.heading))
             v-if="heading"
             class="
               mt-5 text-[26px] leading-[1.15] font-bold tracking-[-0.02em]
-              text-white
+              text-highlighted
               lg:text-[36px]
             "
           >
@@ -89,9 +98,9 @@ const hasHeader = computed(() => !!(props.title || props.heading))
           v-if="ctaText"
           :to="(ctaLink ?? '/contact') as RouteLocationNamedI18n"
           class="
-            flex shrink-0 items-center gap-2 text-[13.5px] text-[#5BC4C4]
+            flex shrink-0 items-center gap-2 text-[13.5px] text-primary
             transition-colors
-            hover:text-[#8EDBDA]
+            hover:text-primary/80
           "
         >
           {{ ctaText }}
@@ -105,14 +114,14 @@ const hasHeader = computed(() => !!(props.title || props.heading))
       <!-- Phone: the numbered list. -->
       <ul
         class="
-          mt-8 divide-y divide-[#1E293B] overflow-hidden rounded-lg border
-          border-[#1E293B] bg-[#0F172A]
+          mt-8 overflow-hidden rounded-lg border border-default bg-muted
           sm:hidden
         "
       >
         <li
           v-for="(item, index) in items"
           :key="`row-${item.title}`"
+          :class="index > 0 ? 'border-t border-default' : ''"
         >
           <NuxtLinkLocale
             :to="(ctaLink ?? '/contact') as RouteLocationNamedI18n"
@@ -120,16 +129,16 @@ const hasHeader = computed(() => !!(props.title || props.heading))
           >
             <span
               aria-hidden="true"
-              class="shrink-0 font-mono text-[11px] text-[#334155]"
+              class="shrink-0 font-mono text-[11px] text-dimmed"
             >{{ ordinal(index) }}</span>
             <span
               class="
-                flex-1 text-[14px] leading-[1.35] font-semibold text-white
+                flex-1 text-[14px] leading-[1.35] font-semibold text-highlighted
               "
             >{{ item.title }}</span>
             <UIcon
               name="i-lucide:chevron-right"
-              class="size-4 shrink-0 text-[#334155]"
+              class="size-4 shrink-0 text-dimmed"
               aria-hidden="true"
             />
           </NuxtLinkLocale>
@@ -147,8 +156,8 @@ const hasHeader = computed(() => !!(props.title || props.heading))
           v-for="(item, index) in items"
           :key="item.title"
           class="
-            flex h-full flex-col rounded-lg border border-[#1E293B]
-            bg-[#0F172A] p-6
+            flex h-full flex-col rounded-lg border border-default
+            bg-muted p-6
           "
         >
           <div class="flex items-start justify-between gap-3">
@@ -156,30 +165,30 @@ const hasHeader = computed(() => !!(props.title || props.heading))
               v-if="item.icon"
               class="
                 flex size-9 items-center justify-center rounded-md
-                bg-[#5BC4C4]/10
+                bg-primary/10
               "
             >
               <UIcon
                 :name="item.icon"
-                class="size-4.5 text-[#5BC4C4]"
+                class="size-4.5 text-primary"
                 aria-hidden="true"
               />
             </span>
             <span
               aria-hidden="true"
-              class="font-mono text-[11px] text-[#334155]"
+              class="font-mono text-[11px] text-dimmed"
             >{{ ordinal(index) }}</span>
           </div>
           <h3
             class="
-              mt-3.5 text-[15px] leading-[1.35] font-semibold text-white
+              mt-3.5 text-[15px] leading-[1.35] font-semibold text-highlighted
             "
           >
             {{ item.title }}
           </h3>
           <p
             v-if="item.text"
-            class="mt-3 text-[13px] leading-[1.6] text-[#475569]"
+            class="mt-3 text-[13px] leading-[1.6] text-dimmed"
           >
             {{ item.text }}
           </p>
@@ -188,18 +197,18 @@ const hasHeader = computed(() => !!(props.title || props.heading))
         <div
           v-if="prompt"
           class="
-            flex h-full flex-col rounded-lg border border-[#1E293B]
-            bg-[#0F172A] p-6
+            flex h-full flex-col rounded-lg border border-default
+            bg-muted p-6
           "
         >
           <h3
-            class="text-[15px] leading-[1.35] font-semibold text-white"
+            class="text-[15px] leading-[1.35] font-semibold text-highlighted"
           >
             {{ prompt.title }}
           </h3>
           <p
             v-if="prompt.text"
-            class="mt-3.5 text-[13px] leading-[1.6] text-[#475569]"
+            class="mt-3.5 text-[13px] leading-[1.6] text-dimmed"
           >
             {{ prompt.text }}
           </p>
@@ -207,9 +216,9 @@ const hasHeader = computed(() => !!(props.title || props.heading))
             v-if="prompt.ctaText"
             :to="(prompt.ctaLink ?? '/contact') as RouteLocationNamedI18n"
             class="
-              mt-auto flex items-center gap-2 pt-6 text-[13.5px] text-[#5BC4C4]
+              mt-auto flex items-center gap-2 pt-6 text-[13.5px] text-primary
               transition-colors
-              hover:text-[#8EDBDA]
+              hover:text-primary/80
             "
           >
             {{ prompt.ctaText }}

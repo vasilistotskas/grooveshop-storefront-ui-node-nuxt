@@ -25,6 +25,15 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * that are the same in both languages. It lives in this component's
  * own i18n block, which is where the platform already keeps
  * variant-specific marketing copy (`PageSection/variants/webside/*`).
+ *
+ * COLOUR IS TOKENS, NOT LITERALS. Every value the artboards use turned
+ * out to be a step on the tenant's own ramps — `#020617` is
+ * `--ui-bg` in dark, `#1E293B` is `--ui-border`, `#94A3B8` is
+ * `--ui-text-muted`, and `#5BC4C4` is `--ui-primary` exactly — so this
+ * band is written in `bg-default` / `bg-muted` / `border-default` /
+ * `text-muted` / `text-primary` and inverts for light mode on its own.
+ * The hexes below are the MEASUREMENT that established the mapping,
+ * not what the markup says.
  */
 const props = defineProps<{
   eyebrow?: string
@@ -127,18 +136,20 @@ const station = computed(() => stations.value[active.value])
 <template>
   <section
     class="
-      relative border-b border-[#1E293B] bg-[#020617] px-5 py-14
+      relative border-b border-default bg-default px-5 py-14
       lg:px-20 lg:py-22
     "
   >
     <!-- The 80px lattice. Anchored to the band's own top-left, which
-         is where the artboard's lines start, and drawn at ~4.5% of a
-         slate so it reads as graph paper rather than a table. -->
+         is where the artboard's lines start, and drawn from
+         `--ds-lattice` (app/assets/css/main.css) so the line colour
+         follows the neutral ramp and the grid stays legible on the
+         light ground instead of vanishing into it. -->
     <div
       aria-hidden="true"
       class="
         pointer-events-none absolute inset-0
-        bg-[linear-gradient(to_right,rgba(148,163,184,0.045)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.045)_1px,transparent_1px)]
+        bg-[image:var(--ds-lattice)]
         bg-[size:80px_80px]
       "
     />
@@ -156,11 +167,11 @@ const station = computed(() => stations.value[active.value])
         >
           <span
             aria-hidden="true"
-            class="block h-px w-6 bg-[#5BC4C4]"
+            class="block h-px w-6 bg-primary"
           />
           <span
             class="
-              font-mono text-[10px] tracking-[0.2em] text-[#5BC4C4] uppercase
+              font-mono text-[10px] tracking-[0.2em] text-primary uppercase
             "
           >{{ eyebrow }}</span>
         </p>
@@ -169,20 +180,20 @@ const station = computed(() => stations.value[active.value])
           v-if="heading"
           class="
             mt-7 text-[40px] leading-[1.16] font-bold tracking-[-0.02em]
-            text-white
+            text-highlighted
             lg:text-[56px]
           "
         >
           {{ headingParts.lead }}<span
             v-if="headingParts.accent"
-            class="block text-[#5BC4C4]"
+            class="block text-primary"
           >{{ headingParts.accent }}</span>
         </h2>
 
         <p
           v-if="subheading"
           class="
-            mt-7 max-w-[540px] text-[16px] leading-[1.7] text-[#94A3B8]
+            mt-7 max-w-[540px] text-[16px] leading-[1.7] text-muted
             lg:text-[17px]
           "
         >
@@ -201,9 +212,9 @@ const station = computed(() => stations.value[active.value])
             :to="(ctaLink ?? '/contact') as RouteLocationNamedI18n"
             class="
               flex h-[46px] items-center justify-center gap-2 rounded-md
-              bg-[#5BC4C4] px-6 text-[14px] font-semibold text-[#020617]
+              bg-primary px-6 text-[14px] font-semibold text-inverted
               transition-colors
-              hover:bg-[#8EDBDA]
+              hover:bg-primary/85
             "
           >
             {{ ctaText }}
@@ -217,9 +228,9 @@ const station = computed(() => stations.value[active.value])
             :to="(secondaryCtaLink ?? '/contact') as RouteLocationNamedI18n"
             class="
               flex h-[46px] items-center justify-center rounded-md border
-              border-[#1E293B] px-6 text-[14px] font-medium text-[#E2E8F0]
+              border-default px-6 text-[14px] font-medium text-default
               transition-colors
-              hover:border-[#334155] hover:bg-[#0F172A]
+              hover:border-accented hover:bg-muted
             "
           >
             {{ secondaryCtaText }}
@@ -244,12 +255,12 @@ const station = computed(() => stations.value[active.value])
               <span
                 class="
                   block font-mono text-[25px] leading-none font-medium
-                  text-white
+                  text-highlighted
                 "
               >{{ stat.value }}</span>
               <span
                 aria-hidden="true"
-                class="mt-2.5 block text-[12.5px] text-[#64748B]"
+                class="mt-2.5 block text-[12.5px] text-dimmed"
               >{{ stat.label }}</span>
             </dd>
           </div>
@@ -261,28 +272,28 @@ const station = computed(() => stations.value[active.value])
            caption) and spared four dozen indicative readings. -->
       <div
         class="
-          overflow-hidden rounded-xl border border-[#1E293B] bg-[#0F172A]
+          overflow-hidden rounded-xl border border-default bg-muted
         "
       >
         <div
           class="
-            flex items-center justify-between gap-3 border-b border-[#1E293B]
-            bg-[#020617] px-5 py-3.5
+            flex items-center justify-between gap-3 border-b border-default
+            bg-default px-5 py-3.5
           "
         >
           <span class="flex items-center gap-2.5">
             <span
               aria-hidden="true"
-              class="block size-2 rounded-full bg-[#34D399]"
+              class="block size-2 rounded-full bg-success"
             />
             <span
               class="
-                font-mono text-[11px] tracking-[0.12em] text-[#94A3B8]
+                font-mono text-[11px] tracking-[0.12em] text-muted
               "
             >{{ t('panel.title') }}</span>
           </span>
           <span
-            class="font-mono text-[11px] text-[#475569]"
+            class="font-mono text-[11px] text-dimmed"
           >{{ t('panel.note') }}</span>
         </div>
 
@@ -307,8 +318,8 @@ const station = computed(() => stations.value[active.value])
                 transition-colors
               "
               :class="index === active
-                ? 'border-[#1E293B] text-[#5BC4C4]'
-                : 'border-transparent text-[#64748B] hover:text-[#94A3B8]'"
+                ? 'border-default text-primary'
+                : 'border-transparent text-dimmed hover:text-muted'"
               @click="active = index"
             >
               {{ entry.tab }}
@@ -317,17 +328,17 @@ const station = computed(() => stations.value[active.value])
 
           <div
             class="
-              mt-4 flex flex-col gap-4 border-b border-[#1E293B] pb-4
+              mt-4 flex flex-col gap-4 border-b border-default pb-4
               sm:flex-row sm:items-start sm:justify-between
             "
           >
             <div>
-              <p class="text-[17px] leading-tight font-semibold text-white">
+              <p class="text-[17px] leading-tight font-semibold text-highlighted">
                 {{ station.name }}
               </p>
               <p
                 class="
-                  mt-1.5 font-mono text-[12px] leading-none text-[#64748B]
+                  mt-1.5 font-mono text-[12px] leading-none text-dimmed
                 "
               >
                 {{ station.code }}
@@ -336,13 +347,13 @@ const station = computed(() => stations.value[active.value])
             <span
               class="
                 flex shrink-0 items-center gap-2 rounded-full border
-                border-[#34D399]/30 px-3.5 py-1.5 font-mono text-[11px]
-                tracking-[0.12em] text-[#34D399] uppercase
+                border-success/30 px-3.5 py-1.5 font-mono text-[11px]
+                tracking-[0.12em] text-success uppercase
               "
             >
               <span
                 aria-hidden="true"
-                class="block size-1.5 rounded-full bg-[#34D399]"
+                class="block size-1.5 rounded-full bg-success"
               />
               {{ station.status }}
             </span>
@@ -350,18 +361,18 @@ const station = computed(() => stations.value[active.value])
 
           <div
             class="
-              mt-4 grid grid-cols-2 border-t border-l border-[#1E293B]
+              mt-4 grid grid-cols-2 border-t border-l border-default
               sm:grid-cols-3
             "
           >
             <div
               v-for="metric in metrics"
               :key="metric.label"
-              class="border-r border-b border-[#1E293B] px-4 py-3"
+              class="border-r border-b border-default px-4 py-3"
             >
               <p
                 class="
-                  font-mono text-[10px] tracking-[0.12em] text-[#475569]
+                  font-mono text-[10px] tracking-[0.12em] text-dimmed
                   uppercase
                 "
               >
@@ -370,11 +381,11 @@ const station = computed(() => stations.value[active.value])
               <p class="mt-2 flex items-baseline gap-1">
                 <span
                   class="font-mono text-[23px] leading-none font-medium"
-                  :class="metric.live ? 'text-[#34D399]' : 'text-white'"
+                  :class="metric.live ? 'text-success' : 'text-highlighted'"
                 >{{ metric.value }}</span>
                 <span
                   v-if="metric.unit"
-                  class="font-mono text-[10px] text-[#64748B]"
+                  class="font-mono text-[10px] text-dimmed"
                 >{{ metric.unit }}</span>
               </p>
             </div>
@@ -387,43 +398,43 @@ const station = computed(() => stations.value[active.value])
                carry the reading a phone visitor came for. -->
           <div
             class="
-              mt-4 hidden rounded-md border border-[#1E293B]
+              mt-4 hidden rounded-md border border-default
               sm:block
             "
           >
             <div
               class="
                 flex items-center justify-between gap-3 border-b
-                border-[#1E293B] bg-[#020617] px-4 py-2
+                border-default bg-default px-4 py-2
               "
             >
               <span
                 class="
-                  font-mono text-[10px] tracking-[0.12em] text-[#64748B]
+                  font-mono text-[10px] tracking-[0.12em] text-dimmed
                   uppercase
                 "
               >{{ t('panel.signalsLabel') }}</span>
               <span
-                class="font-mono text-[10px] text-[#5BC4C4]"
+                class="font-mono text-[10px] text-primary"
               >{{ t('panel.protocol') }}</span>
             </div>
             <div
               v-for="(signal, index) in signals"
               :key="signal.name"
               class="flex items-center justify-between gap-3 px-4 py-2"
-              :class="index > 0 ? 'border-t border-[#1E293B]' : ''"
+              :class="index > 0 ? 'border-t border-default' : ''"
             >
               <span
-                class="font-mono text-[11.5px] text-[#94A3B8]"
+                class="font-mono text-[11.5px] text-muted"
               >{{ signal.name }}</span>
               <span class="flex items-center gap-2.5">
                 <span
-                  class="font-mono text-[11.5px] text-[#E2E8F0]"
+                  class="font-mono text-[11.5px] text-default"
                 >{{ signal.value }}</span>
                 <span
                   aria-hidden="true"
                   class="block size-1.5 rounded-full"
-                  :class="signal.live ? 'bg-[#34D399]' : 'bg-[#475569]'"
+                  :class="signal.live ? 'bg-success' : 'bg-accented'"
                 />
               </span>
             </div>

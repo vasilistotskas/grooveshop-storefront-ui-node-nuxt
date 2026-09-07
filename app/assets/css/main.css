@@ -12,6 +12,38 @@
 
 :root {
   --ui-bg: var(--ui-color-neutral-50);
+  /* The ALTERNATE page surface, for a design that stacks bands and
+     swaps ground and raised between them.
+
+     Nuxt UI ships `--ui-bg-muted: neutral-50` against a `--ui-bg` of
+     white; this stylesheet moved `--ui-bg` to neutral-50 and left the
+     stock value behind, so the two resolved IDENTICALLY and
+     `bg-muted` painted nothing. In dark the same edit moved `--ui-bg`
+     to neutral-950 while `--ui-bg-muted` stayed at neutral-800,
+     skipping 900 and leaving a 3-step jump. Both are fixed here by
+     keeping the pair ONE step apart in each mode, which is what makes
+     `bg-default` / `bg-muted` usable as alternating band surfaces —
+     and what a card needs to sit on either of them (`bg-muted` on a
+     default band, `bg-default` on a muted one) without a third token.
+
+     Safe to change: nothing in the app used `bg-muted` before this. */
+  --ui-bg-muted: #ffffff;
+  /* The graph-paper lattice behind a page hero. A gradient cannot be
+     expressed as a Tailwind colour utility, so it is a token: the line
+     is the neutral ramp at low alpha, which keeps it ~4.5% over the
+     dark ground the artboards use and lifts it to a legible 8% on the
+     light one, where the same alpha would disappear. */
+  --ds-lattice:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--ui-color-neutral-400) 8%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--ui-color-neutral-400) 8%, transparent) 1px,
+      transparent 1px
+    );
   --ui-liked: #FF00BD;
 
   --ui-container: var(--container-8xl);
@@ -43,6 +75,18 @@
 
 .dark {
   --ui-bg: var(--ui-color-neutral-950);
+  --ui-bg-muted: var(--ui-color-neutral-900);
+  --ds-lattice:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--ui-color-neutral-400) 4.5%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--ui-color-neutral-400) 4.5%, transparent) 1px,
+      transparent 1px
+    );
   --ui-secondary: #3364FF;
   --ui-on-secondary: #ffffff;
 

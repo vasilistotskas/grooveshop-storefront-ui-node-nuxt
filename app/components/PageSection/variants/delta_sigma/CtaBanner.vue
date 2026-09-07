@@ -14,6 +14,15 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * section prop is a second copy to go stale. Absent `STORE_OFFICES`,
  * the button stands alone — which is what the platform's own
  * `cta_banner` renders anyway.
+ *
+ * COLOUR IS TOKENS, NOT LITERALS. Every value the artboards use turned
+ * out to be a step on the tenant's own ramps — `#020617` is
+ * `--ui-bg` in dark, `#1E293B` is `--ui-border`, `#94A3B8` is
+ * `--ui-text-muted`, and `#5BC4C4` is `--ui-primary` exactly — so this
+ * band is written in `bg-default` / `bg-muted` / `border-default` /
+ * `text-muted` / `text-primary` and inverts for light mode on its own.
+ * The hexes below are the MEASUREMENT that established the mapping,
+ * not what the markup says.
  */
 defineProps<{
   heading?: string
@@ -30,7 +39,7 @@ const phone = computed(() => phones.value[0])
   <section
     v-if="heading || buttonText"
     class="
-      border-b border-[#1E293B] bg-[#020617] px-5 py-16
+      border-b border-default bg-default px-5 py-16
       lg:px-20 lg:py-24
     "
   >
@@ -44,7 +53,7 @@ const phone = computed(() => phones.value[0])
         <h2
           v-if="heading"
           class="
-            text-[26px] leading-[1.15] font-bold tracking-[-0.02em] text-white
+            text-[26px] leading-[1.15] font-bold tracking-[-0.02em] text-highlighted
             lg:text-[36px]
           "
         >
@@ -52,7 +61,7 @@ const phone = computed(() => phones.value[0])
         </h2>
         <p
           v-if="description"
-          class="mt-5 text-[15px] leading-[1.7] text-[#64748B]"
+          class="mt-5 text-[15px] leading-[1.7] text-dimmed"
         >
           {{ description }}
         </p>
@@ -69,9 +78,9 @@ const phone = computed(() => phones.value[0])
           :to="(buttonLink ?? '/contact') as RouteLocationNamedI18n"
           class="
             flex h-[46px] items-center justify-center gap-2 rounded-md
-            bg-[#5BC4C4] px-7 text-[14px] font-semibold text-[#020617]
+            bg-primary px-7 text-[14px] font-semibold text-inverted
             transition-colors
-            hover:bg-[#8EDBDA]
+            hover:bg-primary/85
           "
         >
           {{ buttonText }}
@@ -84,8 +93,8 @@ const phone = computed(() => phones.value[0])
           v-if="phone"
           :href="`tel:${phone.replace(/\s+/g, '')}`"
           class="
-            font-mono text-[12.5px] text-[#94A3B8] transition-colors
-            hover:text-white
+            font-mono text-[12.5px] text-muted transition-colors
+            hover:text-highlighted
           "
         >{{ phone }}</a>
       </div>
