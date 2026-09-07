@@ -1,3 +1,10 @@
+# [3.170.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.169.0...v3.170.0) (2026-09-07)
+
+
+### Features
+
+* **i18n:** translate the public component messages, and guard the parity ([d28fe7a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d28fe7af26e13053d2489792d50ce29deba6e8c9))
+
 # [3.169.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.168.0...v3.169.0) (2026-09-07)
 
 
