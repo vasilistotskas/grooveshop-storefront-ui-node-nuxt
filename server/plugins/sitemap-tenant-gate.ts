@@ -68,37 +68,35 @@ const GATED_ROUTES: readonly GatedRoute[] = [
 
 // `/en`, `/en/`, `/en/products`, `/en-us/products` — the home page of a
 // prefixed locale carries no further segment, which a `(?=\/)` lookahead
-// would miss.
+// alone would miss.
 const LOCALE_PREFIX_RE = /^\/([a-z]{2})(?:-[a-z]{2})?(?=\/|$)/i
 
 /**
- * Drop a leading locale segment so the path can be matched literally.
+ * Split a sitemap path into the locale it is for and the route beneath
+ * it.
  *
- * `el` is the default locale, so @nuxtjs/i18n emits its paths
- * unprefixed under `prefix_except_default`; `en` adds `/en/...`
- * variants, and a gate that matched only the bare path would silently
- * start leaking the 404 again.
+ * The prefix is checked against `SUPPORTED_LOCALES` rather than trusted
+ * as "any two letters": a genuine top-level route that happens to be
+ * two characters long (`/eu/policy`) would otherwise be read as a
+ * locale prefix — gated as the wrong locale AND matched against the
+ * gated-route table as `/policy`. No prefix means the default locale,
+ * which is what `prefix_except_default` emits.
  */
-function stripLocalePrefix(path: string): string {
+function splitLocale(path: string): { locale: string, route: string } {
   const withoutTrailingSlash = path.replace(/\/$/, '') || '/'
-  return withoutTrailingSlash.replace(LOCALE_PREFIX_RE, '') || '/'
-}
-
-/**
- * The locale a sitemap path is for.
- *
- * Checked against `SUPPORTED_LOCALES` rather than trusted as "any two
- * letters": a real top-level route that happens to be two characters
- * long would otherwise read as a locale prefix and be gated as one.
- * No prefix means the default locale, which is what
- * `prefix_except_default` emits.
- */
-function localeOf(path: string): string {
-  const candidate = path.match(LOCALE_PREFIX_RE)?.[1]?.toLowerCase()
-  return candidate
-    && (SUPPORTED_LOCALES as readonly string[]).includes(candidate)
-    ? candidate
-    : DEFAULT_LOCALE
+  const candidate = withoutTrailingSlash
+    .match(LOCALE_PREFIX_RE)?.[1]
+    ?.toLowerCase()
+  if (
+    !candidate
+    || !(SUPPORTED_LOCALES as readonly string[]).includes(candidate)
+  ) {
+    return { locale: DEFAULT_LOCALE, route: withoutTrailingSlash }
+  }
+  return {
+    locale: candidate,
+    route: withoutTrailingSlash.replace(LOCALE_PREFIX_RE, '') || '/',
+  }
 }
 
 /**
@@ -185,8 +183,9 @@ export default defineNitroPlugin((nitroApp) => {
     ctx.urls = ctx.urls.flatMap((url) => {
       const path = pathOf(typeof url === 'string' ? url : url.loc)
       if (!path) return [url]
-      if (blocked.has(stripLocalePrefix(path))) return []
-      if (!locales.has(localeOf(path))) return []
+      const { locale, route } = splitLocale(path)
+      if (blocked.has(route)) return []
+      if (!locales.has(locale)) return []
       if (typeof url === 'string' || !url.alternatives?.length) return [url]
 
       // An alternate for a locale this tenant does not serve points at

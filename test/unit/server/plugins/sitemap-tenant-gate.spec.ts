@@ -220,13 +220,20 @@ describe('sitemap-tenant-gate', () => {
 
     it('does not mistake a two-letter route for a locale prefix', async () => {
       // `/eu` is a path, not a locale. Matching "any two letters" would
-      // gate a legitimate page out of every single-language sitemap.
+      // gate a legitimate page out of every single-language sitemap AND
+      // strip the segment before the gated-route lookup, so
+      // `/eu/loyalty-program` would be dropped as `/loyalty-program`.
       const urls = await runLocales(GREEK_ONLY, [
         { loc: '/eu' },
         { loc: '/eu/policy' },
+        { loc: '/eu/loyalty-program' },
       ])
 
-      expect(urls.map(u => u.loc)).toEqual(['/eu', '/eu/policy'])
+      expect(urls.map(u => u.loc)).toEqual([
+        '/eu',
+        '/eu/policy',
+        '/eu/loyalty-program',
+      ])
     })
   })
 })
