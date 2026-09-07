@@ -1,4 +1,5 @@
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '~~/i18n/locales'
+import { splitLocale } from '~~/shared/i18n/localeFromPath'
 import { tenantAllowedLocales } from '~~/shared/i18n/tenantLocales'
 
 /**
@@ -65,39 +66,6 @@ const GATED_ROUTES: readonly GatedRoute[] = [
     settingKey: 'LOYALTY_ENABLED',
   },
 ]
-
-// `/en`, `/en/`, `/en/products`, `/en-us/products` — the home page of a
-// prefixed locale carries no further segment, which a `(?=\/)` lookahead
-// alone would miss.
-const LOCALE_PREFIX_RE = /^\/([a-z]{2})(?:-[a-z]{2})?(?=\/|$)/i
-
-/**
- * Split a sitemap path into the locale it is for and the route beneath
- * it.
- *
- * The prefix is checked against `SUPPORTED_LOCALES` rather than trusted
- * as "any two letters": a genuine top-level route that happens to be
- * two characters long (`/eu/policy`) would otherwise be read as a
- * locale prefix — gated as the wrong locale AND matched against the
- * gated-route table as `/policy`. No prefix means the default locale,
- * which is what `prefix_except_default` emits.
- */
-function splitLocale(path: string): { locale: string, route: string } {
-  const withoutTrailingSlash = path.replace(/\/$/, '') || '/'
-  const candidate = withoutTrailingSlash
-    .match(LOCALE_PREFIX_RE)?.[1]
-    ?.toLowerCase()
-  if (
-    !candidate
-    || !(SUPPORTED_LOCALES as readonly string[]).includes(candidate)
-  ) {
-    return { locale: DEFAULT_LOCALE, route: withoutTrailingSlash }
-  }
-  return {
-    locale: candidate,
-    route: withoutTrailingSlash.replace(LOCALE_PREFIX_RE, '') || '/',
-  }
-}
 
 /**
  * The language an `hreflang` names, or the default locale for

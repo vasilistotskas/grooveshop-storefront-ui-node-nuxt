@@ -54,12 +54,17 @@ export async function usePageConfig(pageType: string) {
   // with the request AND be part of the payload key, or /en reuses the
   // Greek copy already cached under a locale-less key.
   //
-  // `useNuxtApp().$i18n` rather than `useI18n()`: this composable is
-  // AWAITED by its callers, so it is not guaranteed to be at the top of
-  // a `setup()` — vue-i18n's composable throws "Must be called at the
-  // top of a `setup` function" there. `$i18n` is the documented global
-  // Composer on the Nuxt app context and needs no component instance.
-  const { locale } = useNuxtApp().$i18n
+  // `useI18n()`, NOT `useNuxtApp().$i18n`. Every page calls this at the
+  // top of its own `setup()`, which is exactly where vue-i18n's
+  // composable is valid. `$i18n` looks like the context-free
+  // alternative and is not: @nuxtjs/i18n injects it from its own setup
+  // plugin, so it can be `undefined` — the module's own
+  // `scrollBehavior` example guards with `if (nuxtApp.$i18n)`.
+  // Destructuring it unguarded threw on every page render (500s across
+  // every tenant on v3.170.1, server routes unaffected). If a caller
+  // ever needs this outside a component, give it an explicit locale
+  // argument rather than reaching for `$i18n`.
+  const { locale } = useI18n()
   const { data, status, error } = await useFetch<PageConfigResponse>(
     `/api/page-config/${pageType}`,
     {

@@ -15,7 +15,10 @@
  * parses it through `zTenantConfig` so the next schema change fails in
  * milliseconds naming the missing field.
  */
-export function validTenantConfig(domain: string) {
+export function validTenantConfig(
+  domain: string,
+  overrides: Record<string, unknown> = {},
+) {
   return {
     schemaName: 'test',
     name: domain,
@@ -64,5 +67,9 @@ export function validTenantConfig(domain: string) {
     socialsTwitter: '',
     socialsYoutube: '',
     boxNowPartnerId: '',
+    // Spread last so a caller can turn on the flags its own scenario
+    // needs (a second locale, the blog) without restating the other
+    // ~50 fields the schema requires.
+    ...overrides,
   }
 }

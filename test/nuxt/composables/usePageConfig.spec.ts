@@ -1,11 +1,36 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { mockNuxtImport } from '@nuxt/test-utils/runtime'
+import { defineComponent } from 'vue'
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 
 const { mockUseFetchFn } = vi.hoisted(() => ({
   mockUseFetchFn: vi.fn(),
 }))
 
 mockNuxtImport('useFetch', () => mockUseFetchFn)
+
+/**
+ * Call the composable from inside a component's `setup()`.
+ *
+ * It reads the locale with `useI18n()`, which is only valid there —
+ * that is where every page calls it from. Calling it bare from a test
+ * used to throw "Must be called at the top of a `setup` function", and
+ * the wrong fix for that was to change the composable to
+ * `useNuxtApp().$i18n`: that is `undefined` outside the i18n module's
+ * own setup plugin and 500'd every page render in production. The test
+ * provides the context the composable requires instead.
+ */
+async function callUsePageConfig(pageType: string) {
+  let result!: Awaited<ReturnType<typeof usePageConfig>>
+  await mountSuspended(
+    defineComponent({
+      async setup() {
+        result = await usePageConfig(pageType)
+        return () => null
+      },
+    }),
+  )
+  return result
+}
 
 const HOME_FALLBACK = [
   'blog_categories',
@@ -42,7 +67,7 @@ describe('usePageConfig', () => {
       error: ref(null),
     })
 
-    const { layout, sections: result } = await usePageConfig('home')
+    const { layout, sections: result } = await callUsePageConfig('home')
 
     expect(layout.value?.title).toBe('Homepage')
     expect(result.value).toHaveLength(2)
@@ -61,7 +86,7 @@ describe('usePageConfig', () => {
       error: ref(null),
     })
 
-    const { layout, sections, error } = await usePageConfig('home')
+    const { layout, sections, error } = await callUsePageConfig('home')
 
     expect(layout.value).toBeNull()
     expect(error.value).toBeNull()
@@ -75,7 +100,7 @@ describe('usePageConfig', () => {
       error: ref(Object.assign(new Error('Service Unavailable'), { statusCode: 503 })),
     })
 
-    const { layout, sections, error } = await usePageConfig('home')
+    const { layout, sections, error } = await callUsePageConfig('home')
 
     expect(layout.value).toBeNull()
     expect(error.value?.statusCode).toBe(503)
@@ -89,7 +114,7 @@ describe('usePageConfig', () => {
       error: ref(null),
     })
 
-    const { sections } = await usePageConfig('unknown-page')
+    const { sections } = await callUsePageConfig('unknown-page')
 
     expect(sections.value).toEqual([])
   })
@@ -101,7 +126,7 @@ describe('usePageConfig', () => {
       error: ref(null),
     })
 
-    await usePageConfig('products')
+    await callUsePageConfig('products')
 
     expect(mockUseFetchFn).toHaveBeenCalledWith(
       '/api/page-config/products',
@@ -121,7 +146,7 @@ describe('usePageConfig', () => {
       error: ref(null),
     })
 
-    await usePageConfig('products')
+    await callUsePageConfig('products')
 
     const options = mockUseFetchFn.mock.calls[0]![1] as {
       key: () => string

@@ -1,3 +1,6 @@
+import { DEFAULT_LOCALE } from '~~/i18n/locales'
+import { localeFromPath } from '~~/shared/i18n/localeFromPath'
+
 /**
  * Gate for locale prefixes the current tenant does not serve.
  *
@@ -12,11 +15,18 @@
  * single-language on `defaultLocale`, which is the default, so tenants
  * that predate the field keep exactly the behaviour they had.
  *
+ * The locale comes from the ROUTE, via `localeFromPath`, and NOT from
+ * `useI18n()`. That composable is only valid at the top of a component
+ * `setup()`; a global route middleware is not one, and calling it here
+ * threw "Must be called at the top of a `setup` function" before any
+ * component rendered — 500 on every page of every tenant, which is how
+ * this shipped in v3.168.0. Under `prefix_except_default` the URL
+ * carries the locale anyway, so no context is needed to read it.
+ *
  * Fail-open: a tenant config that has not resolved yet must not 404 a
  * legitimate page, matching `createSettingGate`.
  */
 export default defineNuxtRouteMiddleware((to) => {
-  const { locale, defaultLocale } = useI18n()
   const tenantStore = useTenantStore()
 
   // Not resolved yet (or resolution failed) — fail open.
@@ -25,17 +35,16 @@ export default defineNuxtRouteMiddleware((to) => {
   const allowed = tenantAllowedLocales(tenantStore.config)
   if (!allowed.length) return
 
-  // The route's locale comes from its URL prefix under
-  // `prefix_except_default`, so this only fires for a prefix that was
-  // typed or crawled — `server/middleware/1.locale.ts` already clamps
-  // DETECTION to the tenant's set, so no legitimate visitor is routed
-  // here. That is also why a 404 is safe rather than a redirect: a
-  // redirect would bounce against the i18n cookie.
-  const current = String(locale.value || defaultLocale)
+  // This only fires for a prefix that was typed or crawled —
+  // `server/middleware/1.locale.ts` already clamps DETECTION to the
+  // tenant's set, so no legitimate visitor is routed here. That is also
+  // why a 404 is safe rather than a redirect: a redirect would bounce
+  // against the i18n cookie.
+  const current = localeFromPath(to.path)
 
   // A tenant whose allow-list omitted its own default locale would 404
   // its entire site. Tenant.clean() forbids that; be defensive anyway.
-  if (current === defaultLocale && !allowed.includes(current)) return
+  if (current === DEFAULT_LOCALE && !allowed.includes(current)) return
 
   if (!allowed.includes(current)) {
     throw createError({
