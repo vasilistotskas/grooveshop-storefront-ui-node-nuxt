@@ -1,3 +1,10 @@
+# [3.174.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.173.0...v3.174.0) (2026-09-07)
+
+
+### Features
+
+* **sections:** Ειδίκευση, Δραστηριότητες, the principle and the ask ([853c749](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/853c7492290b7f22eac895a8b194331a81bdd267))
+
 # [3.173.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.172.0...v3.173.0) (2026-09-07)
 
 
