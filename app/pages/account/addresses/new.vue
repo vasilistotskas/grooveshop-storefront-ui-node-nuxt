@@ -170,6 +170,8 @@ defineRouteRules({
             v-model="state.title"
             :placeholder="t('form.title')"
             autocomplete="honorific-prefix"
+            icon="i-heroicons-tag"
+            size="lg"
           />
         </UFormField>
 
@@ -179,6 +181,8 @@ defineRouteRules({
             v-model="state.firstName"
             :placeholder="t('form.first_name')"
             autocomplete="given-name"
+            icon="i-heroicons-user"
+            size="lg"
           />
         </UFormField>
 
@@ -188,6 +192,8 @@ defineRouteRules({
             v-model="state.lastName"
             :placeholder="t('form.last_name')"
             autocomplete="family-name"
+            icon="i-heroicons-user"
+            size="lg"
           />
         </UFormField>
 
@@ -212,6 +218,8 @@ defineRouteRules({
             v-model="state.street"
             :placeholder="t('form.street')"
             autocomplete="address-line1"
+            icon="i-heroicons-map-pin"
+            size="lg"
           />
         </UFormField>
 
@@ -221,6 +229,8 @@ defineRouteRules({
             :placeholder="t('form.street_number')"
             autocomplete="address-line2"
             inputmode="numeric"
+            icon="i-heroicons-hashtag"
+            size="lg"
           />
         </UFormField>
 
@@ -230,6 +240,8 @@ defineRouteRules({
             :placeholder="t('form.zipcode')"
             autocomplete="postal-code"
             inputmode="numeric"
+            icon="i-heroicons-hashtag"
+            size="lg"
           />
         </UFormField>
 
@@ -238,6 +250,8 @@ defineRouteRules({
             v-model="state.city"
             :placeholder="t('form.city')"
             autocomplete="address-level2"
+            icon="i-heroicons-building-office-2"
+            size="lg"
           />
         </UFormField>
 

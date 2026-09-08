@@ -135,38 +135,17 @@ async function onSubmit() {
     <div class="w-full space-y-6">
       <UCard>
         <template #header>
-          <div class="flex items-center gap-3">
-            <div
-              class="
-                flex size-10 min-w-10 items-center justify-center rounded-full
-                bg-warning/10
-              "
-            >
-              <UIcon
-                name="i-heroicons-shield-exclamation"
-                class="size-5 text-warning"
-              />
-            </div>
-            <div>
-              <h2
-                class="
-                  text-lg font-semibold text-primary-950
-                  md:text-xl
-                  dark:text-primary-50
-                "
-              >
-                {{ hasCurrentPassword ? t('change.title') : t('set.title') }}
-              </h2>
-              <p
-                class="
-                  mt-1 text-sm text-gray-500
-                  dark:text-gray-200
-                "
-              >
-                {{ hasCurrentPassword ? t('change.description') : t('set.description') }}
-              </p>
-            </div>
-          </div>
+          <!-- The reference for every other text form on the site is
+               this header, so it is now a component and this file is
+               its first consumer — adopting it here rather than
+               leaving the original inline is what stops the two
+               drifting apart. -->
+          <FormCardHeader
+            icon="i-heroicons-shield-exclamation"
+            color="warning"
+            :title="hasCurrentPassword ? t('change.title') : t('set.title')"
+            :description="hasCurrentPassword ? t('change.description') : t('set.description')"
+          />
         </template>
 
         <UAlert

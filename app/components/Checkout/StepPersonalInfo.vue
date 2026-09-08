@@ -100,6 +100,7 @@ defineExpose({
                 size="xl"
                 autocomplete="given-name"
                 class="w-full"
+                icon="i-heroicons-user"
               />
             </UFormField>
 
@@ -109,6 +110,7 @@ defineExpose({
                 size="xl"
                 autocomplete="family-name"
                 class="w-full"
+                icon="i-heroicons-user"
               />
             </UFormField>
           </div>
@@ -158,6 +160,7 @@ defineExpose({
                 size="xl"
                 autocomplete="address-line1"
                 class="w-full"
+                icon="i-heroicons-map-pin"
               />
             </UFormField>
 
@@ -168,6 +171,7 @@ defineExpose({
                 autocomplete="address-line2"
                 inputmode="numeric"
                 class="w-full"
+                icon="i-heroicons-hashtag"
               />
             </UFormField>
           </div>
@@ -180,6 +184,7 @@ defineExpose({
                 autocomplete="postal-code"
                 inputmode="numeric"
                 class="w-full"
+                icon="i-heroicons-hashtag"
               />
             </UFormField>
 
@@ -338,6 +343,7 @@ defineExpose({
                     size="xl"
                     maxlength="255"
                     class="w-full"
+                    icon="i-heroicons-map-pin"
                   />
                 </UFormField>
                 <UFormField
@@ -350,6 +356,7 @@ defineExpose({
                     size="xl"
                     maxlength="50"
                     class="w-full"
+                    icon="i-heroicons-hashtag"
                   />
                 </UFormField>
               </div>
@@ -364,6 +371,7 @@ defineExpose({
                     size="xl"
                     maxlength="100"
                     class="w-full"
+                    icon="i-heroicons-building-office-2"
                   />
                 </UFormField>
                 <UFormField
@@ -376,6 +384,7 @@ defineExpose({
                     size="xl"
                     maxlength="20"
                     class="w-full"
+                    icon="i-heroicons-hashtag"
                   />
                 </UFormField>
               </div>

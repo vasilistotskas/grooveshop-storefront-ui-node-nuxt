@@ -333,6 +333,8 @@ watch(calendarDate, (newVal) => {
           autocomplete="given-name"
           class="w-full"
           type="text"
+          icon="i-heroicons-user"
+          size="lg"
         />
       </UFormField>
 
@@ -347,6 +349,8 @@ watch(calendarDate, (newVal) => {
           autocomplete="family-name"
           class="w-full"
           type="text"
+          icon="i-heroicons-user"
+          size="lg"
         />
       </UFormField>
 
@@ -381,6 +385,8 @@ watch(calendarDate, (newVal) => {
           autocomplete="address-level2"
           class="w-full"
           type="text"
+          icon="i-heroicons-building-office-2"
+          size="lg"
         />
       </UFormField>
 
@@ -394,6 +400,8 @@ watch(calendarDate, (newVal) => {
           autocomplete="postal-code"
           class="w-full"
           type="text"
+          icon="i-heroicons-hashtag"
+          size="lg"
         />
       </UFormField>
 
@@ -407,6 +415,8 @@ watch(calendarDate, (newVal) => {
           autocomplete="address-line1"
           class="w-full"
           type="text"
+          icon="i-heroicons-map-pin"
+          size="lg"
         />
       </UFormField>
 
@@ -420,6 +430,8 @@ watch(calendarDate, (newVal) => {
           autocomplete="address-level3"
           class="w-full"
           type="text"
+          icon="i-heroicons-map"
+          size="lg"
         />
       </UFormField>
 

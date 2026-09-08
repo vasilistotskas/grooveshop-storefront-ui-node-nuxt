@@ -110,6 +110,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
             <UInput
               v-model="state.name"
               :placeholder="t('name')"
+              icon="i-heroicons-user"
               size="lg"
               autocomplete="name"
               :ui="{
@@ -126,6 +127,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           >
             <UInput
               v-model="state.email"
+              icon="i-heroicons-envelope"
               :placeholder="t('email.title')"
               type="email"
               size="lg"
