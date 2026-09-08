@@ -316,16 +316,24 @@ const FIELD_UI = {
                 class="mt-0.5 size-4 shrink-0 text-dimmed"
                 aria-hidden="true"
               />
-              <span class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <a
-                  v-for="phone in office.phones"
+              <span class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <template
+                  v-for="(phone, index) in office.phones"
                   :key="phone"
-                  :href="`tel:${phone.replace(/\s+/g, '')}`"
-                  class="
-                    font-mono text-[13.5px] text-muted transition-colors
-                    hover:text-highlighted
-                  "
-                >{{ phone }}</a>
+                >
+                  <span
+                    v-if="index > 0"
+                    aria-hidden="true"
+                    class="font-mono text-[13.5px] text-dimmed"
+                  >·</span>
+                  <a
+                    :href="`tel:${phone.replace(/\s+/g, '')}`"
+                    class="
+                      font-mono text-[13.5px] text-muted transition-colors
+                      hover:text-highlighted
+                    "
+                  >{{ phone }}</a>
+                </template>
               </span>
             </p>
           </li>

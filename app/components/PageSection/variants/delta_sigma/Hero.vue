@@ -176,7 +176,13 @@ const station = computed(() => stations.value[active.value])
           >{{ eyebrow }}</span>
         </p>
 
-        <h2
+        <!-- The page's h1. `hero_banner` is in
+             `HEADING_SECTION_TYPES`, so `pages/index.vue` stands its
+             own PageTitle down for it — and this variant was rendering
+             an h2, which left the homepage with no h1 at all (7 h2s,
+             19 h3s, nothing above them). The platform's own
+             `HeroBanner.vue` gets this right. -->
+        <h1
           v-if="heading"
           class="
             mt-7 text-[40px] leading-[1.16] font-bold tracking-[-0.02em]
@@ -188,7 +194,7 @@ const station = computed(() => stations.value[active.value])
             v-if="headingParts.accent"
             class="block text-primary"
           >{{ headingParts.accent }}</span>
-        </h2>
+        </h1>
 
         <p
           v-if="subheading"
