@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import type { RouteLocationNamedI18n } from 'vue-router'
+import OptionSelectorRail from './OptionSelectorRail.vue'
+import OptionSelectorStrip from './OptionSelectorStrip.vue'
 
 /**
  * "Τα τρία συστήματα DeSET" — pick one, see it in full.
@@ -16,7 +18,16 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * `aria-labelledby` — so the band is operable from the keyboard and
  * announces which of the three is showing. It renders the chosen
  * option only; the others' markup is not in the DOM, which is why the
- * panel gets `aria-live="polite"`.
+ * panel gets `aria-live="polite"`. The state and the keyboard live in
+ * `useTabList`, shared with the two sibling layouts.
+ *
+ * This file is the `cards` layout — three variants of one product,
+ * each tab carrying its own model number. `layout: "strip"` (a
+ * numbered sequence) and `layout: "rail"` (a list that is the page's
+ * own subject) are different bands drawn from the same data and are
+ * delegated to their own components: they share these props and
+ * nothing else, and one file carrying all three would be three
+ * designs in one template.
  *
  * COLOUR IS TOKENS, so the band inverts for light mode on its own.
  */
@@ -30,6 +41,7 @@ interface Option {
   ctaText?: string
   ctaLink?: string
   rows?: { label: string, value: string }[]
+  bullets?: string[]
 }
 
 const props = defineProps<{
@@ -37,42 +49,44 @@ const props = defineProps<{
   standfirst?: string
   rowsLabel?: string
   rationaleLabel?: string
+  bulletsLabel?: string
+  layout?: 'cards' | 'strip' | 'rail'
   options?: Option[]
+  prompt?: {
+    title: string
+    text?: string
+    ctaText?: string
+    ctaLink?: string
+  }
 }>()
 
-const active = ref(0)
+const { active, tabs, tabId, panelId, onKeydown } = useTabList(
+  () => props.options?.length ?? 0,
+)
 const current = computed(() => props.options?.[active.value])
-const tabs = useTemplateRef<HTMLButtonElement[]>('tabs')
-
-const id = useId()
-const tabId = (index: number) => `${id}-tab-${index}`
-const panelId = `${id}-panel`
-
-/**
- * Arrow keys move between tabs, as a tablist is expected to: without
- * this a keyboard user can reach the first tab and no other.
- */
-function onKeydown(event: KeyboardEvent, index: number) {
-  const count = props.options?.length ?? 0
-  if (count < 2) return
-  const step = event.key === 'ArrowRight'
-    ? 1
-    : event.key === 'ArrowLeft' ? -1 : 0
-  const jump = event.key === 'Home' ? 0 : event.key === 'End' ? count - 1 : null
-  if (!step && jump === null) return
-  event.preventDefault()
-  const next = jump ?? (index + step + count) % count
-  active.value = next
-  tabs.value?.[next]?.focus()
-}
 </script>
 
 <template>
+  <OptionSelectorStrip
+    v-if="layout === 'strip'"
+    :heading="heading"
+    :standfirst="standfirst"
+    :bullets-label="bulletsLabel"
+    :options="options"
+  />
+  <OptionSelectorRail
+    v-else-if="layout === 'rail'"
+    :heading="heading"
+    :standfirst="standfirst"
+    :bullets-label="bulletsLabel"
+    :options="options"
+    :prompt="prompt"
+  />
   <section
-    v-if="options?.length"
+    v-else-if="options?.length"
     class="
       border-b border-default bg-default px-5 py-16
-      lg:px-20 lg:py-24
+      lg:px-20 lg:pt-20 lg:pb-24
     "
   >
     <div class="mx-auto max-w-[1280px]">

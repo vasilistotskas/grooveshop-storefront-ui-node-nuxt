@@ -196,6 +196,20 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
       standfirst: z.string().max(400),
       rowsLabel: z.string().max(60),
       rationaleLabel: z.string().max(60),
+      bulletsLabel: z.string().max(60),
+      // HOW the options are offered, and therefore where the panel
+      // goes: boxed cards for variants of one product, a numbered
+      // strip for a sequence, a rail for a list that IS the page's
+      // subject. Each is a different component; see the base one.
+      layout: z.enum(['cards', 'strip', 'rail']),
+      prompt: z
+        .object({
+          title: z.string().min(1).max(100),
+          text: z.string().max(300).optional(),
+          ctaText: z.string().max(100).optional(),
+          ctaLink: zLink.optional(),
+        })
+        .strip(),
       options: z
         .array(
           z
@@ -208,6 +222,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
               note: z.string().max(400).optional(),
               ctaText: z.string().max(100).optional(),
               ctaLink: zLink.optional(),
+              bullets: z.array(z.string().min(1).max(200)).max(10).optional(),
               rows: z
                 .array(
                   z
@@ -222,7 +237,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
             })
             .strip(),
         )
-        .max(4),
+        .max(8),
     })
     .partial()
     .strip(),
