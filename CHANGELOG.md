@@ -1,3 +1,10 @@
+## [3.182.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.4...v3.182.5) (2026-09-08)
+
+
+### Bug Fixes
+
+* **pages:** a builder page's title tag in the reader's own language ([4302437](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4302437a1239fb28db6ead8445f3ec717f40b501))
+
 ## [3.182.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.3...v3.182.4) (2026-09-08)
 
 
