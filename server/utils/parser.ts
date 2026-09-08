@@ -1,6 +1,37 @@
 import type { ZodType } from 'zod'
 import { createError } from 'h3'
 
+/**
+ * Brand for "the payload we RECEIVED failed its schema".
+ *
+ * A malformed request and a drifted response both surface as a 4xx
+ * `H3Error` carrying a `ZodError`, so `isClientError` cannot tell them
+ * apart — yet they are opposites. A malformed request is the caller's
+ * problem: every one in the 2026-09-08 production audit came from a bot
+ * probing `?page=gravitysmtp-settings`. A response that fails its schema
+ * means Django and the generated client have drifted, which is our
+ * fault, and it is often the only signal a shopper's broken page emits —
+ * the non-nullable `weightInfo` contract 422'd every add-to-cart for a
+ * zero-weight product until django v3.29.3, and both this module and
+ * the evlog level plugin reported it as client behaviour because 422
+ * is a 4xx.
+ *
+ * A symbol rather than a field on `data`: `data` is the `ZodError`
+ * itself (callers read it, and Nitro strips it from thrown responses in
+ * production), so a non-enumerable symbol cannot collide with it or
+ * leak onto the wire.
+ */
+const RESPONSE_CONTRACT = Symbol('responseContract')
+
+/** True when `error` came from {@link parseDataAs} — see {@link RESPONSE_CONTRACT}. */
+export function isResponseContractError(error: unknown): boolean {
+  return (
+    typeof error === 'object'
+    && error !== null
+    && RESPONSE_CONTRACT in error
+  )
+}
+
 const apiValidateWithSchema = <ZodSchema extends ZodType>(
   data: unknown,
   schema: ZodSchema,
@@ -11,11 +42,13 @@ const apiValidateWithSchema = <ZodSchema extends ZodType>(
     return schema.parse(data)
   }
   catch (error) {
-    throw createError({
+    const failure = createError({
       statusCode,
       statusMessage,
       data: error,
     })
+    Object.defineProperty(failure, RESPONSE_CONTRACT, { value: true })
+    throw failure
   }
 }
 

@@ -14,6 +14,13 @@
  * inside Nitro's `error` hook — which fires before the wide event is emitted
  * at request end, so the downgraded level takes effect. `isClientError` is
  * auto-imported from `server/utils/http-status`.
+ *
+ * One 4xx is exempt: a response that failed its own schema. `parseDataAs`
+ * raises those as 422, so `isClientError` matched and the wide event was
+ * downgraded — filing a Django/`shared/openapi` contract drift, which is
+ * our fault and breaks the page for the shopper, as though the shopper had
+ * sent something malformed. `isResponseContractError` is auto-imported
+ * from `server/utils/parser`.
  */
 export default defineNitroPlugin((nitroApp) => {
   nitroApp.hooks.hook('error', (error, ctx: { event?: { context?: { log?: unknown } } }) => {
@@ -21,6 +28,7 @@ export default defineNitroPlugin((nitroApp) => {
     // useLogger throws if evlog's request logger isn't initialised (an error
     // raised before the evlog plugin ran). Guard on it being present.
     if (!event?.context?.log || !isClientError(error)) return
+    if (isResponseContractError(error)) return
     useLogger(event as Parameters<typeof useLogger>[0]).setLevel('warn')
   })
 })

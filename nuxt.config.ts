@@ -837,110 +837,112 @@ export default defineNuxtConfig({
     // same-origin request to /api/_nuxt_icon/... and the server
     // proxies upstream if needed.
     fallbackToApi: 'server-only',
-    // Icon mode is `css` (app.config.ts): every SSR-rendered icon ships
-    // as a CSS mask inside the page, so the client bundle is only
-    // consulted for icons whose FIRST render happens client-side —
-    // opened menus/modals, toasts, theme toggle. The former
-    // `scan: app/**/*.vue` baked every icon named anywhere in the app
-    // into a 97KB-minified (27.7KB brotli) chunk on the eager graph of
-    // every page (2026-08-29 audit). This explicit list covers the
-    // @nuxt/ui framework icons (appConfig.ui.icons defaults) plus the
-    // interaction-first surfaces (burger menu, account menus, cookie
-    // modal, search, notifications). A missed icon degrades gracefully:
-    // `fallbackToApi: 'server-only'` fetches it once from the
-    // same-origin /api/_nuxt_icon endpoint at first client render.
+    // Icon mode is `css` (app.config.ts), so an icon paints only when
+    // its CSS mask is in the page — and @nuxt/icon builds that mask from
+    // `loadIcon`, whose only offline source, on the SERVER exactly as in
+    // the browser, is this client bundle (runtime/components/shared.js:
+    // `initClientBundle` then `getIcon`). `serverBundle` below does NOT
+    // feed SSR; it backs the /api/_nuxt_icon route the BROWSER calls.
+    // With `provider: 'server'` that route is registered as the RELATIVE
+    // path `/api/_nuxt_icon`, and the module hands it to the native
+    // fetch, which under Node throws `Invalid URL` on a relative input —
+    // so an icon outside this bundle cannot be resolved during SSR at
+    // all. It renders as a blank box that only recovers if its component
+    // later hydrates and re-requests it from the browser.
+    //
+    // Measured in production 2026-09-08 (storefront v3.180.0): 54,664
+    // `[Icon] failed to load icon` warnings in 48h across 87 icons, with
+    // the blog like/comment counters, product star ratings, share buttons
+    // and every footer social icon painting nothing — no `--svg`, no
+    // `mask-image` — because their sections never hydrate.
+    //
+    // `scan` is therefore a correctness requirement, not the size
+    // optimisation the 2026-08-29 JS-diet audit took it for, and it is
+    // what @nuxt/icon's own SSR recipe prescribes (`provider: 'server'`
+    // plus `serverBundle` plus `clientBundle.scan`). Scanning also makes
+    // SSR inline every mask into the HTML, which removes both the
+    // post-hydration icon pop-in and one /api/_nuxt_icon round trip per
+    // collection per page.
+    //
+    // `ts` joins the module's default globInclude (vue/jsx/tsx/md/yml)
+    // because icon names live in composables — useFooterLinks,
+    // useNotificationPresentation, useAccountMenus — as much as in
+    // templates. The scan is scoped to the two directories that author
+    // icons so `nuxt.config.ts` is not read back into itself, and the
+    // generated OpenAPI client is skipped: it names no icon and is ~2MB.
     clientBundle: {
+      scan: {
+        globInclude: ['app/**/*.{vue,ts}', 'shared/**/*.{vue,ts}'],
+        globExclude: ['shared/openapi/**'],
+      },
+      // Only names a source scan provably cannot see. Everything an
+      // `.vue` or `.ts` file spells out is picked up by `scan` above —
+      // listing it here too would just be a second copy to keep in sync.
       icons: [
-        // Pre-existing curated set (theme toggle, chat/feedback UI).
-        'i-lucide:moon',
-        'i-lucide:sun',
-        'i-lucide:check',
-        'i-heroicons:heart',
-        'i-fa6-solid:circle-user',
-        'i-fa6-solid:shield',
-        'i-fa6-solid:mobile',
-        'i-fa6-solid:desktop',
-        'i-fa6-solid:robot',
-        'i-fa6-solid:microchip',
-        'i-fa6-solid:globe',
-        'i-fa6-solid:network-wired',
-        'i-fa6-solid:shuffle',
-        // @nuxt/ui framework defaults (appConfig.ui.icons) — used by
-        // toasts, inputs, pagination, accordions after hydration.
+        // @nuxt/ui's own defaults (`appConfig.ui.icons`): rendered by
+        // toasts, inputs, pagination, accordions and the colour-mode
+        // button, and spelled out inside node_modules, never here.
         'i-lucide:arrow-down',
-        'i-lucide:arrow-left',
-        'i-lucide:arrow-right',
         'i-lucide:arrow-up',
-        'i-lucide:circle-alert',
-        'i-lucide:chevrons-left',
-        'i-lucide:chevrons-right',
+        'i-lucide:arrow-up-right',
         'i-lucide:chevron-down',
         'i-lucide:chevron-left',
-        'i-lucide:chevron-right',
         'i-lucide:chevron-up',
-        'i-lucide:x',
+        'i-lucide:chevrons-left',
+        'i-lucide:chevrons-right',
+        'i-lucide:circle-x',
         'i-lucide:copy',
         'i-lucide:copy-check',
-        'i-lucide:grip-vertical',
         'i-lucide:ellipsis',
-        'i-lucide:circle-x',
-        'i-lucide:arrow-up-right',
         'i-lucide:eye',
         'i-lucide:eye-off',
-        'i-lucide:info',
-        'i-lucide:loader-circle',
-        'i-lucide:menu',
-        'i-lucide:minus',
-        'i-lucide:plus',
-        'i-lucide:rotate-ccw',
-        'i-lucide:search',
-        'i-lucide:star',
-        'i-lucide:circle-check',
-        'i-lucide:monitor',
+        'i-lucide:grip-vertical',
         'i-lucide:lightbulb',
+        'i-lucide:loader-circle',
+        'i-lucide:minus',
+        'i-lucide:monitor',
+        'i-lucide:moon',
+        'i-lucide:plus',
+        'i-lucide:sun',
         'i-lucide:upload',
-        'i-lucide:triangle-alert',
-        // Interaction-first app surfaces: burger menu + account menus +
-        // notifications + cookie modal + search modal contents.
-        'i-heroicons:arrow-left-on-rectangle',
-        'i-heroicons:arrow-right',
-        'i-heroicons:arrow-right-on-rectangle',
-        'i-heroicons:bars-3',
-        'i-heroicons:bell',
-        'i-heroicons:bell-alert',
-        'i-heroicons:building-storefront',
-        'i-heroicons:camera',
-        'i-heroicons:check',
-        'i-heroicons:chevron-right',
-        'i-heroicons:clock',
-        'i-heroicons:cube',
-        'i-heroicons:document-text',
-        'i-heroicons:envelope',
-        'i-heroicons:fire',
-        'i-heroicons:gift',
-        'i-heroicons:heart',
-        'i-heroicons:home',
-        'i-heroicons:information-circle',
-        'i-heroicons:link',
-        'i-heroicons:magnifying-glass',
-        'i-heroicons:magnifying-glass-minus',
-        'i-heroicons:newspaper',
-        'i-heroicons:pencil',
-        'i-heroicons:shopping-bag',
-        'i-heroicons:shopping-cart',
-        'i-heroicons:star',
-        'i-heroicons:trophy',
-        'i-heroicons:user',
-        'i-heroicons:user-plus',
-        'i-heroicons:x-mark',
-        'i-fa6-solid:address-book',
-        'i-mdi:cog-outline',
-        'i-mdi:heart-outline',
-        'i-mdi:package-variant-closed',
-        'i-mdi:star-outline',
-        'i-unjs:cookie-es',
+        // Authored in the DATABASE, not in this repo: page_config
+        // layouts and navigation rows carry an `icon` string (see
+        // page_config/models.py, and devtools/delta_sigma.py for the
+        // engineering set). No scanner can see those, so a CMS icon has
+        // to be declared here to render server-side. Adding a genuinely
+        // new one in Django still works — the browser fetches it from
+        // /api/_nuxt_icon after hydration — it just paints late until it
+        // is listed. Keep this in step with the seeders.
+        'i-fa6-solid:desktop',
+        'i-fa6-solid:globe',
+        'i-fa6-solid:microchip',
+        'i-fa6-solid:mobile',
+        'i-fa6-solid:network-wired',
+        'i-fa6-solid:robot',
+        'i-fa6-solid:shield',
+        'i-fa6-solid:shuffle',
+        'i-heroicons:arrow-uturn-left',
+        'i-heroicons:globe-europe-africa',
+        'i-heroicons:hand-raised',
+        'i-heroicons:sun',
+        'i-lucide:battery-charging',
+        'i-lucide:code',
+        'i-lucide:cpu',
+        'i-lucide:drafting-compass',
+        'i-lucide:gauge',
+        'i-lucide:graduation-cap',
+        'i-lucide:hard-hat',
+        'i-lucide:radio',
+        'i-lucide:shield-check',
+        'i-lucide:sliders-horizontal',
+        'i-lucide:traffic-cone',
+        'i-lucide:wrench',
+        'i-lucide:zap',
       ],
-      sizeLimitKb: 128,
+      // Hard build failure, not a silent truncation, if the bundle grows
+      // past this. Sized just above the measured scan output so an
+      // accidental collection-wide import is caught in CI.
+      sizeLimitKb: 256,
     },
   },
   image: {

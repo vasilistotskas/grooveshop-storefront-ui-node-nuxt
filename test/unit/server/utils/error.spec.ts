@@ -297,7 +297,9 @@ describe('Server Utils - Error', () => {
       try { handleError(zodError) }
       catch { /* expected */ }
 
-      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation' }))
+      expect(mockLog.error).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'validation:response' }),
+      )
       expect(mockLog.warn).not.toHaveBeenCalled()
       vi.unstubAllGlobals()
     })
@@ -386,7 +388,9 @@ describe('Server Utils - Error', () => {
         // Expected to throw
       }
 
-      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation' }))
+      expect(mockLog.error).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'validation:response' }),
+      )
       vi.unstubAllGlobals()
     })
 
@@ -453,7 +457,9 @@ describe('Server Utils - Error', () => {
         // Expected to throw
       }
 
-      expect(mockLog.error).toHaveBeenCalledWith(expect.objectContaining({ action: 'validation' }))
+      expect(mockLog.error).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'validation:response' }),
+      )
       vi.unstubAllGlobals()
     })
   })

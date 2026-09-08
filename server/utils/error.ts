@@ -13,13 +13,91 @@ export function isAllAuthError(error: unknown): error is AllAuthError {
     || isNotFoundResponseError(error) || isConflictResponseError(error)
 }
 
+// A ZodError reaches us in two shapes: bare, when a route calls
+// `schema.parse` itself, and wrapped in an `H3Error.data` by h3's
+// `getValidatedQuery`/`readValidatedBody` and by our own `parseDataAs`.
+function zodErrorOf(error: unknown): ZodError | undefined {
+  if (error instanceof ZodError) return error
+  if (typeof error === 'object' && error !== null && 'data' in error) {
+    const data = (error as { data: unknown }).data
+    if (data instanceof ZodError) return data
+  }
+  return undefined
+}
+
+// Which route failed, without echoing what was sent. `event.path` carries
+// the query string and a validation failure is exactly the case where that
+// string is user- or attacker-supplied, so only the path survives. Outside
+// a request — a cached handler revalidating in the background — there is no
+// event and the fields are simply absent.
+function failingRoute(): { method?: string, route?: string } {
+  try {
+    const event = useEvent()
+    if (!event) return {}
+    return { method: event.method, route: event.path.split('?')[0] }
+  }
+  catch {
+    return {}
+  }
+}
+
+// Field, rule and reason — never the value. Zod's own messages describe the
+// constraint ("Invalid string: must match pattern /^-?\d+$/"), while an
+// issue's `received`/`values` can carry the payload itself, which for a
+// drifted RESPONSE would be customer data.
+function issueDigest(zod: ZodError) {
+  return zod.issues.map(issue => ({
+    path: issue.path.join('.'),
+    code: issue.code,
+    message: issue.message,
+  }))
+}
+
 export function handleError(
   error: unknown,
 ): never {
-  if (typeof error === 'object' && error !== null && 'data' in error) {
-    if ((error as { data: unknown }).data instanceof ZodError) {
-      log.error({ action: 'validation', error: (error as { data: ZodError }).data.message })
+  const zod = zodErrorOf(error)
+  if (zod) {
+    // Only h3 produces this shape: `getValidatedQuery`/`readValidatedBody`
+    // wrap a failed inbound parse as a 400 `H3Error` whose `data` is the
+    // ZodError. That is the REQUEST being wrong — client behaviour, the
+    // same call the FetchError and H3Error branches below already make
+    // for 4xx, and in practice almost all of it is bots: a WordPress
+    // scanner sending `?page=gravitysmtp-settings` produced every one of
+    // these in the 48h to 2026-09-08.
+    //
+    // Everything else stays at error. A branded failure is a drifted
+    // RESPONSE (see `isResponseContractError`) — our fault, and a 4xx
+    // only because `parseDataAs` defaults to 422, so it must never be
+    // filed as client behaviour: the non-nullable `weightInfo` contract
+    // broke add-to-cart for every zero-weight product and said nothing
+    // but "Data parsing failed". A BARE ZodError has no provenance at
+    // all — a route calling `schema.parse` by hand, on input or on a
+    // payload — so it is reported loudly rather than assumed benign.
+    const isInboundRequest
+      = error instanceof H3Error && !isResponseContractError(error)
+    if (isInboundRequest) {
+      log.warn({
+        action: 'validation:request',
+        ...failingRoute(),
+        issues: issueDigest(zod),
+      })
     }
+    else {
+      log.error({
+        action: 'validation:response',
+        ...failingRoute(),
+        issues: issueDigest(zod),
+      })
+    }
+    // Logged once, here. Falling through would report the same failure a
+    // second time from the H3Error branch under `action: 'h3'`.
+    if (error instanceof H3Error) throw error
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Validation error',
+      data: { issues: zod.issues },
+    })
   }
   if (error instanceof FetchError) {
     // A 4xx from Django is client behaviour (wrong password, spam-filtered
@@ -52,14 +130,6 @@ export function handleError(
       log.error({ action: 'h3', error: error.message })
     }
     throw error
-  }
-  if (error instanceof ZodError) {
-    log.error({ action: 'validation', error: error.message })
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Validation error',
-      data: { issues: error.issues },
-    })
   }
   throw createError({
     statusCode: 500,
