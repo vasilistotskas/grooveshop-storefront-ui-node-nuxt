@@ -229,6 +229,35 @@ button, a, [role="button"] {
   hr { @apply border-neutral-200 dark:border-neutral-700 my-6; }
 }
 
+/* Long-form reading size for blog post bodies.
+   ------------------------------------------------------------------
+   The site owner asked for the blog body copy two steps larger. It is
+   a modifier rather than a change to `.article` itself because
+   `.article` is also the product description panel, which is a short
+   spec block in a narrow column, not long-form prose.
+
+   `text-lg` on phones, `text-xl` from `md` up. That is not a hedge:
+   the body sits in a `max-w-2xl` (672px) measure, where 20px yields
+   roughly 60-65 characters per line — the classic readable measure.
+   The same 20px on a ~360px phone gives about 30 characters, which
+   reads worse than 18px does, so the step up lands where the column
+   is wide enough to earn it.
+
+   The two smallest `.article` headings are absolute sizes (h5 16px,
+   h6 14px). Left alone they would render SMALLER than 20px body copy
+   here, so they are pulled up to keep the hierarchy monotonic. */
+.article-lg {
+  @apply text-lg md:text-xl;
+
+  h5 {
+    @apply text-lg md:text-xl;
+  }
+
+  h6 {
+    @apply text-base md:text-lg;
+  }
+}
+
 .items-unset {
   align-items: unset;
 }

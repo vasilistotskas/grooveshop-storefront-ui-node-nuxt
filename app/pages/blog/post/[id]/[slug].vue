@@ -111,6 +111,24 @@ watch(likedPostsData, (value) => {
   }
 }, { immediate: true })
 
+// An "updated" line only earns its place when the post really changed
+// after going live. `updatedAt` is set on every save, so a
+// just-published post has the two stamps within milliseconds of each
+// other; a 60s floor keeps that noise out without hiding a genuine
+// same-day correction.
+const UPDATED_AFTER_PUBLISH_THRESHOLD_MS = 60_000
+
+const hasBeenUpdatedSincePublish = computed(() => {
+  const post = blogPost.value
+  if (!post?.publishedAt || !post?.updatedAt) return false
+
+  const published = new Date(post.publishedAt).getTime()
+  const updated = new Date(post.updatedAt).getTime()
+  if (Number.isNaN(published) || Number.isNaN(updated)) return false
+
+  return updated - published > UPDATED_AFTER_PUBLISH_THRESHOLD_MS
+})
+
 const { transformImages } = useHtmlContent()
 
 const blogPostBody = computed(() => {
@@ -462,18 +480,51 @@ definePageMeta({
               />
             </div>
 
+            <!-- These dates were `sr-only`, so a reader saw NO date on
+                 a post at all — only screen readers and the JSON-LD
+                 carried one. The site owner asked for a visible
+                 "updated on" line; showing it next to an invisible
+                 published date would have been odd, so both are now
+                 visible.
+
+                 `updatedAt` is the post's own last-modified stamp, not
+                 today's date. It is trustworthy here: `updated_at` is
+                 `auto_now`, which fires only on `Model.save()`, and
+                 the two things that touch a post most often do not
+                 use it — view counts go through a queryset `.update()`
+                 and likes are an m2m, neither of which saves the
+                 master row. -->
             <div
               v-if="blogPost.isPublished && blogPost.publishedAt"
-              class="sr-only flex gap-2"
+              class="
+                flex flex-wrap items-center gap-x-4 gap-y-1 text-sm
+                text-primary-600
+                dark:text-primary-300
+              "
             >
-              <span class="text-sm font-semibold">{{ t('published') }}: </span>
-              <NuxtTime
-                class="text-sm"
-                :locale="locale"
-                :date-style="'medium'"
-                :time-style="'medium'"
-                :datetime="blogPost.publishedAt"
-              />
+              <span class="flex gap-1.5">
+                <span class="font-semibold">{{ t('published') }}:</span>
+                <NuxtTime
+                  :locale="locale"
+                  :date-style="'long'"
+                  :datetime="blogPost.publishedAt"
+                />
+              </span>
+              <!-- Only when the content actually changed after
+                   publication. Rendering it unconditionally would put
+                   "updated" on every brand-new post, where the two
+                   stamps are the same instant. -->
+              <span
+                v-if="hasBeenUpdatedSincePublish"
+                class="flex gap-1.5"
+              >
+                <span class="font-semibold">{{ t('updated') }}:</span>
+                <NuxtTime
+                  :locale="locale"
+                  :date-style="'long'"
+                  :datetime="blogPost.updatedAt!"
+                />
+              </span>
             </div>
           </div>
 
@@ -483,7 +534,14 @@ definePageMeta({
               dark:text-primary-50
             "
           >
+            <!-- `article-lg` is applied HERE, not inside BlogContent:
+                 that component also renders CMS info pages
+                 (`/info/[slug]`), and the larger long-form size was
+                 asked for on blog posts specifically. Vue merges this
+                 onto the component's root, which already carries
+                 `.article`. -->
             <LazyBlogContent
+              class="article-lg"
               hydrate-never
               :html="blogPostBody"
             />
@@ -570,6 +628,7 @@ definePageMeta({
 el:
   author: Συντάκτης
   published: Δημοσιεύθηκε
+  updated: Ενημερώθηκε στις
   related:
     sections: Σχετικές ενότητες
   breadcrumb:
@@ -582,6 +641,7 @@ el:
 en:
   author: Author
   published: Published
+  updated: Updated on
   related:
     sections: Related sections
   breadcrumb:
