@@ -1,3 +1,10 @@
+## [3.182.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.2...v3.182.3) (2026-09-08)
+
+
+### Bug Fixes
+
+* **sections:** give the homepage its h1 back ([c709f9a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c709f9a03bc25479d890412a78977ca15bf5ae98))
+
 ## [3.182.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.1...v3.182.2) (2026-09-08)
 
 
