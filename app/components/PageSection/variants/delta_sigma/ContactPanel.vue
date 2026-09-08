@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
+import type { AttachmentError } from '~/composables/useContactAttachments'
 
 /**
  * "Πείτε μας τι πρέπει να λειτουργήσει." — the contact page, as ONE
@@ -26,18 +27,18 @@ import type { FormSubmitEvent } from '#ui/types'
  * changes per store: the copy, the subject taxonomy, the hint over the
  * form and the answer time it promises.
  *
- * Two deliberate deviations from the artboard, both flagged to the
- * operator rather than faked:
+ * The artboard's DROPZONE for tender documents is real, and it is a
+ * per-store feature: the control renders only while
+ * `CONTACT_ATTACHMENTS_ENABLED` is on, and the count, size and
+ * accepted types come from the store's own settings rather than from
+ * this file (see `useContactAttachments`). A store that does not want
+ * anonymous uploads gets the form without the row, and the endpoint
+ * 404s to match.
  *
- * * It draws a 25 MB DROPZONE for tender documents. Anonymous file
- *   upload is not something this platform has (no endpoint, no
- *   storage, no scanning), and inventing one for a marketing page is
- *   a decision for the operator, not a rendering detail. The row is
- *   rendered as what it can actually do — email the documents — and
- *   says so in one line rather than accepting a file it would drop.
- * * The consent tick is required to submit and is NOT stored: you
- *   cannot send an enquiry without it, so the enquiry IS the record,
- *   and a column that is `true` on every row states nothing.
+ * One deliberate deviation from the artboard remains: the consent tick
+ * is required to submit and is NOT stored: you cannot send an enquiry
+ * without it, so the enquiry IS the record, and a column that is
+ * `true` on every row states nothing.
  *
  * COLOUR IS TOKENS, NOT LITERALS — see the sibling bands.
  */
@@ -50,7 +51,7 @@ const props = defineProps<{
   subjects?: { label: string }[]
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
 // SSR-stable, so the radiogroup's label association survives hydration.
 const uid = useId()
@@ -58,6 +59,9 @@ const toast = useToast()
 const { offices } = useStoreOffices()
 const { identity } = useMerchantIdentity()
 const tenantStore = useTenantStore()
+const attachments = useContactAttachments()
+const filePicker = useTemplateRef<HTMLInputElement>('filePicker')
+const isDropTarget = ref(false)
 
 /**
  * The enquiry's subject, as the artboard's chips.
@@ -166,8 +170,55 @@ const state = reactive<Partial<Schema>>({
 
 const isSubmitting = ref(false)
 
+/**
+ * Refusals that never became an upload row, plus the store's own words
+ * for a rejection. Kept out of `useContactAttachments` because the
+ * wording is UI: the composable reports a CODE, the page says what it
+ * means in the visitor's language.
+ */
+function attachmentMessage(error: AttachmentError): string {
+  if (error.code === 'too-large') {
+    return t('panel.fileTooLarge', { mb: attachments.maxMegabytes.value })
+  }
+  if (error.code === 'too-many') {
+    return t('panel.fileTooMany', { count: attachments.maxCount.value })
+  }
+  if (error.code === 'throttled') return t('panel.fileThrottled')
+  if (error.code === 'busy') return t('panel.fileBusy')
+  if (error.code === 'network') return t('panel.fileNetwork')
+  return isDrfFieldErrorMap(error.data)
+    ? formatDrfFieldErrors(error.data, t)
+    : t('panel.fileRejected')
+}
+
+function onFilesPicked(files: FileList | null) {
+  if (!files?.length) return
+  for (const refusal of attachments.add(Array.from(files))) {
+    toast.add({
+      title: t('panel.fileNotAdded'),
+      description: attachmentMessage(refusal),
+      color: 'error',
+    })
+  }
+  // So picking the same file again after removing it still fires
+  // `change` — the input keeps its value otherwise.
+  if (filePicker.value) filePicker.value.value = ''
+}
+
+function onDrop(event: DragEvent) {
+  isDropTarget.value = false
+  onFilesPicked(event.dataTransfer?.files ?? null)
+}
+
 async function onSubmit(event: FormSubmitEvent<Schema>) {
   if (isSubmitting.value) return
+  // An upload still in flight has no id yet, and submitting would
+  // silently drop it. The button is disabled too; this is the guard
+  // for the Enter key.
+  if (attachments.isUploading.value) {
+    toast.add({ title: t('panel.filesUploading'), color: 'warning' })
+    return
+  }
   isSubmitting.value = true
   try {
     await $fetch('/api/contact', {
@@ -181,6 +232,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         // The chip, not a free-text field: it is one of the store's
         // own declared subjects or nothing.
         subject: subjectLabels.value[subject.value],
+        // Ids of files already uploaded and not yet claimed. Omitted
+        // entirely when there are none, so a store with attachments
+        // off never sends the field.
+        attachmentIds: attachments.attachmentIds.value.length
+          ? attachments.attachmentIds.value
+          : undefined,
       },
     })
 
@@ -191,6 +248,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     state.phone = undefined
     state.message = undefined
     state.consent = undefined
+    // The ids have been spent: each one is good for one enquiry.
+    attachments.reset()
   }
   catch (error) {
     const data = error && typeof error === 'object' && 'data' in error
@@ -547,31 +606,158 @@ const FIELD_UI = {
               />
             </UFormField>
 
-            <!-- The artboard's attachment row, as what it can do. See
-                 the note at the top of this file. -->
-            <p
-              v-if="identity?.email"
-              class="
-                flex items-start gap-3 rounded-lg border border-dashed
-                border-default px-5 py-4 text-[13px] leading-[1.6] text-dimmed
-              "
-            >
-              <UIcon
-                name="i-lucide:paperclip"
-                class="mt-0.5 size-4 shrink-0"
+            <!-- The artboard's attachment row. Rendered only while
+                 the store accepts uploads; the endpoint 404s when it
+                 does not, so there is nothing to draw.
+
+                 The input is hidden AND taken out of the tab order:
+                 the button below is the labelled control, and leaving
+                 both focusable would put an invisible stop before it
+                 for every keyboard and screen-reader user. -->
+            <div v-if="attachments.enabled.value">
+              <p
+                class="
+                  mb-2 text-[13px] text-default
+                "
+              >
+                {{ t('panel.files') }}
+              </p>
+
+              <input
+                ref="filePicker"
+                type="file"
+                class="sr-only"
+                :accept="attachments.accept.value || undefined"
+                multiple
+                tabindex="-1"
                 aria-hidden="true"
-              />
-              <span>
-                {{ t('panel.attachments') }}
-                <a
-                  :href="`mailto:${identity?.email}`"
+                @change="onFilesPicked(
+                  ($event.target as HTMLInputElement).files,
+                )"
+              >
+
+              <button
+                type="button"
+                :disabled="!attachments.canAddMore.value"
+                class="
+                  flex w-full cursor-pointer items-start gap-3 rounded-lg
+                  border border-dashed px-5 py-4 text-left text-[13px]
+                  leading-[1.6] transition-colors
+                  disabled:cursor-not-allowed disabled:opacity-60
+                "
+                :class="isDropTarget
+                  ? 'border-primary bg-primary/5 text-muted'
+                  : 'border-default text-dimmed hover:border-accented'"
+                @click="filePicker?.click()"
+                @dragover.prevent="isDropTarget = true"
+                @dragenter.prevent="isDropTarget = true"
+                @dragleave="isDropTarget = false"
+                @drop.prevent="onDrop"
+              >
+                <UIcon
+                  name="i-lucide:paperclip"
+                  class="mt-0.5 size-4 shrink-0"
+                  aria-hidden="true"
+                />
+                <span>
+                  {{ t('panel.filesPrompt') }}
+                  <span class="mt-0.5 block text-[12px] text-dimmed">
+                    {{ t('panel.filesLimit', {
+                      count: attachments.maxCount.value,
+                      mb: attachments.maxMegabytes.value,
+                    }) }}
+                    <template v-if="attachments.allowedTypes.value.length">
+                      · {{ attachments.allowedTypes.value.join(', ') }}
+                    </template>
+                  </span>
+                </span>
+              </button>
+
+              <ul
+                v-if="attachments.uploads.value.length"
+                class="mt-3 flex flex-col gap-2"
+              >
+                <li
+                  v-for="upload in attachments.uploads.value"
+                  :key="upload.key"
                   class="
-                    text-primary transition-colors
-                    hover:text-primary/80
+                    rounded-lg border border-default bg-default px-4 py-3
                   "
-                >{{ identity?.email }}</a>
-              </span>
-            </p>
+                >
+                  <p class="flex items-center gap-3">
+                    <UIcon
+                      :name="upload.status === 'done'
+                        ? 'i-lucide:check'
+                        : upload.status === 'error'
+                          ? 'i-lucide:triangle-alert'
+                          : 'i-lucide:loader-circle'"
+                      class="size-4 shrink-0"
+                      :class="upload.status === 'done'
+                        ? 'text-primary'
+                        : upload.status === 'error'
+                          ? 'text-error'
+                          : 'animate-spin text-dimmed'"
+                      aria-hidden="true"
+                    />
+                    <span
+                      class="
+                        min-w-0 flex-1 truncate text-[13px] text-highlighted
+                      "
+                    >{{ upload.name }}</span>
+                    <span class="shrink-0 font-mono text-[11px] text-dimmed">
+                      {{ formatAttachmentSize(upload.size, locale) }}
+                    </span>
+                    <button
+                      v-if="upload.status === 'error'"
+                      type="button"
+                      class="
+                        shrink-0 cursor-pointer text-[12px] text-primary
+                        transition-colors
+                        hover:text-primary/80
+                      "
+                      @click="attachments.retry(upload.key)"
+                    >
+                      {{ t('panel.fileRetry') }}
+                    </button>
+                    <button
+                      type="button"
+                      class="
+                        shrink-0 cursor-pointer text-dimmed transition-colors
+                        hover:text-highlighted
+                      "
+                      :aria-label="t('panel.fileRemove', {
+                        name: upload.name,
+                      })"
+                      @click="attachments.remove(upload.key)"
+                    >
+                      <UIcon
+                        name="i-lucide:x"
+                        class="size-4"
+                      />
+                    </button>
+                  </p>
+
+                  <!-- A determinate bar while the bytes move: a 25 MB
+                       drawing on a site connection is otherwise
+                       indistinguishable from a hung form. -->
+                  <UProgress
+                    v-if="upload.status === 'uploading'"
+                    :model-value="upload.progress"
+                    size="sm"
+                    class="mt-2.5"
+                    :aria-label="t('panel.fileUploading', {
+                      name: upload.name,
+                    })"
+                  />
+                  <p
+                    v-else-if="upload.status === 'error' && upload.error"
+                    class="mt-2 text-[12px] leading-[1.5] text-error"
+                  >
+                    {{ attachmentMessage(upload.error) }}
+                  </p>
+                </li>
+              </ul>
+            </div>
 
             <UFormField
               name="consent"
@@ -607,7 +793,7 @@ const FIELD_UI = {
               >{{ responseTime }}</span>
               <button
                 type="submit"
-                :disabled="isSubmitting"
+                :disabled="isSubmitting || attachments.isUploading.value"
                 class="
                   flex h-[46px] cursor-pointer items-center justify-center gap-2
                   rounded-md bg-primary px-7 text-[14px] font-semibold
@@ -647,7 +833,20 @@ el:
     phoneInvalid: Χρησιμοποιήστε ψηφία και + ( ) - μόνο.
     message: Περιγραφή έργου
     messagePlaceholder: Περιγράψτε την εγκατάσταση, τον υπάρχοντα εξοπλισμό και το ζητούμενο αποτέλεσμα…
-    attachments: "Τεύχη δημοπράτησης ή σχέδια: στείλτε τα στο"
+    files: Συνημμένα
+    filesPrompt: Επισυνάψτε τεύχη δημοπράτησης ή σχέδια.
+    filesLimit: Έως {count} αρχεία, {mb} MB το καθένα
+    filesUploading: Περιμένετε να ολοκληρωθεί η αποστολή των αρχείων.
+    fileRetry: Επανάληψη
+    fileRemove: "Αφαίρεση {name}"
+    fileUploading: "Αποστολή {name}"
+    fileNotAdded: Το αρχείο δεν προστέθηκε.
+    fileTooLarge: Το αρχείο ξεπερνά το όριο των {mb} MB.
+    fileTooMany: Έως {count} αρχεία ανά αίτημα.
+    fileThrottled: Πολλές αποστολές αρχείων. Δοκιμάστε σε λίγο.
+    fileBusy: Δεν μπορούμε να δεχτούμε αρχεία αυτή τη στιγμή. Δοκιμάστε σε λίγα λεπτά.
+    fileNetwork: Η αποστολή του αρχείου διακόπηκε.
+    fileRejected: Το αρχείο δεν έγινε δεκτό.
     consent: Συναινώ στην επεξεργασία των στοιχείων μου για την απάντηση στο αίτημά μου, σύμφωνα με την
     privacy: πολιτική απορρήτου
     consentRequired: Χρειαζόμαστε τη συναίνεσή σας για να απαντήσουμε.
@@ -670,7 +869,20 @@ en:
     phoneInvalid: Use digits and + ( ) - only.
     message: Project description
     messagePlaceholder: Describe the installation, the equipment already there and the result you need…
-    attachments: "Tender documents or drawings: send them to"
+    files: Attachments
+    filesPrompt: Attach tender documents or drawings.
+    filesLimit: Up to {count} files, {mb} MB each
+    filesUploading: Wait for the files to finish uploading.
+    fileRetry: Retry
+    fileRemove: "Remove {name}"
+    fileUploading: "Uploading {name}"
+    fileNotAdded: The file was not added.
+    fileTooLarge: The file is larger than the {mb} MB limit.
+    fileTooMany: Up to {count} files per enquiry.
+    fileThrottled: Too many uploads. Try again shortly.
+    fileBusy: Files cannot be accepted right now. Try again in a few minutes.
+    fileNetwork: The upload was interrupted.
+    fileRejected: The file was not accepted.
     consent: I consent to my details being processed in order to answer my enquiry, in accordance with the
     privacy: privacy policy
     consentRequired: We need your consent in order to answer.

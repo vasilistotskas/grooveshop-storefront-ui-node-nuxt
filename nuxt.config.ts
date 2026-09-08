@@ -158,6 +158,17 @@ export default defineNuxtConfig({
       },
     },
     cachePurgeToken: process.env.NUXT_CACHE_PURGE_TOKEN,
+    // Upper bound on ONE contact-attachment upload streamed through
+    // `server/api/contact/attachment.post.ts`. It bounds the SSR hop,
+    // not merchant policy: Django caps every store's own
+    // `CONTACT_ATTACHMENTS_MAX_MB` at the same 25 MB
+    // (`contact.attachments.AttachmentPolicy.MAX_BYTES_CEILING`) and
+    // re-derives the true size from the bytes it writes, so this only
+    // refuses an obviously-oversized body before it crosses the
+    // cluster. An operator who raises one raises the other.
+    contactAttachmentMaxBytes: Number(
+      process.env.NUXT_CONTACT_ATTACHMENT_MAX_BYTES || 25 * 1024 * 1024,
+    ),
     redis: {
       host: process.env.NUXT_REDIS_HOST,
       port: Number(process.env.NUXT_REDIS_PORT || 6379),

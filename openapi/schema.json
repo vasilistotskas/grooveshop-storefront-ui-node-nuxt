@@ -16108,6 +16108,91 @@
                 }
             }
         },
+        "/api/v1/contact/attachment": {
+            "post": {
+                "operationId": "createContactAttachment",
+                "description": "Upload one file to attach to a contact enquiry. Returns the id to send back in the enquiry's attachmentIds. Only available while the store accepts attachments.",
+                "summary": "Upload a contact-form attachment",
+                "tags": [
+                    "Contact"
+                ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "required": [
+                                    "file"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContactAttachment"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "413": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "503": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/api/v1/content-page": {
             "get": {
                 "operationId": "listContentPage",
@@ -56855,6 +56940,52 @@
                     "status"
                 ]
             },
+            "ContactAttachment": {
+                "type": "object",
+                "description": "One file uploaded for a contact enquiry to claim.",
+                "properties": {
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "originalName": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "contentType": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "size": {
+                        "type": "integer",
+                        "readOnly": true,
+                        "description": "Bytes."
+                    },
+                    "scanStatus": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/ScanStatusEnum"
+                            }
+                        ],
+                        "readOnly": true
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true,
+                        "title": "Δημιουργήθηκε στις"
+                    }
+                },
+                "required": [
+                    "contentType",
+                    "createdAt",
+                    "originalName",
+                    "scanStatus",
+                    "size",
+                    "uuid"
+                ]
+            },
             "ContactWrite": {
                 "type": "object",
                 "properties": {
@@ -56951,6 +57082,15 @@
                     "subject": {
                         "type": "string",
                         "maxLength": 60
+                    },
+                    "attachmentIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid"
+                        },
+                        "writeOnly": true,
+                        "maxItems": 20
                     }
                 },
                 "required": [
@@ -68469,6 +68609,17 @@
                 ],
                 "type": "string",
                 "description": "* `NEW` - Νέο\n* `TRUE` - Ναι\n* `FALSE` - Όχι"
+            },
+            "ScanStatusEnum": {
+                "enum": [
+                    "PENDING",
+                    "CLEAN",
+                    "INFECTED",
+                    "ERROR",
+                    "SKIPPED"
+                ],
+                "type": "string",
+                "description": "* `PENDING` - Pending scan\n* `CLEAN` - Clean\n* `INFECTED` - Infected\n* `ERROR` - Scan failed\n* `SKIPPED` - Not scanned"
             },
             "SearchAnalyticsResponse": {
                 "type": "object",

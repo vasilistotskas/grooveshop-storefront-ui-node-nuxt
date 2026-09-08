@@ -73,6 +73,46 @@ mockNuxtImport('useStoreOffices', () => () => ({
   hasOffices: computed(() => true),
 }))
 
+/**
+ * The upload step is stubbed here and tested on its own in
+ * `useContactAttachments.spec.ts`: what this file cares about is what
+ * the PANEL does with it — whether the control is drawn at all, and
+ * whether the ids reach the enquiry.
+ */
+const attachmentStub = vi.hoisted(() => ({
+  // Plain state, not refs: `vi.hoisted` runs BEFORE the module graph
+  // is initialised, so `ref`/`computed` are not reachable yet. The
+  // mock factory below wraps these lazily, which is enough — every
+  // test sets the state and then mounts, so nothing has to react.
+  enabled: false,
+  uploads: [] as Array<Record<string, unknown>>,
+  ids: [] as string[],
+  isUploading: false,
+  added: [] as File[][],
+  resets: { count: 0 },
+}))
+mockNuxtImport('useContactAttachments', () => () => ({
+  enabled: computed(() => attachmentStub.enabled),
+  maxCount: computed(() => 3),
+  maxMegabytes: computed(() => 25),
+  maxBytes: computed(() => 25 * 1024 * 1024),
+  allowedTypes: computed(() => ['application/pdf', 'application/zip']),
+  accept: computed(() => 'application/pdf,application/zip'),
+  uploads: computed(() => attachmentStub.uploads),
+  attachmentIds: computed(() => attachmentStub.ids),
+  isUploading: computed(() => attachmentStub.isUploading),
+  canAddMore: computed(() => attachmentStub.uploads.length < 3),
+  add: (files: File[]) => {
+    attachmentStub.added.push(files)
+    return []
+  },
+  remove: () => {},
+  retry: () => {},
+  reset: () => {
+    attachmentStub.resets.count += 1
+  },
+}))
+
 mockNuxtImport('useMerchantIdentity', () => () => ({
   identity: computed(() => ({
     email: 'contact@delta-sigma.gr',
@@ -89,6 +129,12 @@ mockNuxtImport('useMerchantIdentity', () => () => ({
 describe('delta_sigma ContactPanel', () => {
   beforeEach(() => {
     posted.length = 0
+    attachmentStub.enabled = false
+    attachmentStub.uploads = []
+    attachmentStub.ids = []
+    attachmentStub.isUploading = false
+    attachmentStub.added.length = 0
+    attachmentStub.resets.count = 0
   })
 
   it('reads the offices from the setting, with each one role and phones', async () => {
@@ -193,14 +239,99 @@ describe('delta_sigma ContactPanel', () => {
     expect(posted).toHaveLength(0)
   })
 
-  it('renders the attachment row as an email, not a dropzone', async () => {
-    // The artboard draws a 25 MB upload target. There is no anonymous
-    // upload endpoint on this platform, so the row says what it can
-    // actually do rather than accepting a file it would drop.
+  it('draws no attachment control while the store does not accept files', async () => {
+    // The endpoint 404s when the setting is off, so a control would be
+    // an affordance for something that cannot happen.
     const wrapper = await mountSuspended(ContactPanel, { props: PROPS })
 
     expect(wrapper.find('input[type="file"]').exists()).toBe(false)
-    expect(wrapper.find('[type="file"]').exists()).toBe(false)
-    expect(wrapper.text()).toContain('contact@delta-sigma.gr')
+  })
+
+  it('draws the dropzone, with the store own limits on it', async () => {
+    attachmentStub.enabled = true
+
+    const wrapper = await mountSuspended(ContactPanel, { props: PROPS })
+
+    const picker = wrapper.find('input[type="file"]')
+    expect(picker.exists()).toBe(true)
+    expect(picker.attributes('multiple')).toBeDefined()
+    // The button below is the labelled control; leaving the input
+    // focusable too would put an invisible stop before it.
+    expect(picker.attributes('tabindex')).toBe('-1')
+    expect(picker.attributes('aria-hidden')).toBe('true')
+    // The picker filter is the store's list, not a constant.
+    expect(picker.attributes('accept'))
+      .toBe('application/pdf,application/zip')
+    const text = wrapper.text()
+    expect(text).toContain('3')
+    expect(text).toContain('25')
+    expect(text).toContain('application/pdf, application/zip')
+  })
+
+  it('hands picked files to the upload step', async () => {
+    attachmentStub.enabled = true
+    const wrapper = await mountSuspended(ContactPanel, { props: PROPS })
+
+    const picker = wrapper.find('input[type="file"]')
+    const picked = new File([new Uint8Array(8)], 'tender.pdf', {
+      type: 'application/pdf',
+    })
+    Object.defineProperty(picker.element, 'files', {
+      value: [picked],
+      configurable: true,
+    })
+    await picker.trigger('change')
+
+    expect(attachmentStub.added).toHaveLength(1)
+    expect(attachmentStub.added[0]!.map(f => f.name)).toEqual(['tender.pdf'])
+  })
+
+  it('sends the uploaded ids with the enquiry, then spends them', async () => {
+    attachmentStub.enabled = true
+    attachmentStub.ids = ['id-one', 'id-two']
+    const wrapper = await mountSuspended(ContactPanel, { props: PROPS })
+
+    await fillAndSubmit(wrapper)
+
+    expect(posted).toHaveLength(1)
+    expect(posted[0]!.attachmentIds).toEqual(['id-one', 'id-two'])
+    // One id claims one enquiry; a second submit must not re-send them.
+    expect(attachmentStub.resets.count).toBe(1)
+  })
+
+  it('omits the field entirely when nothing was attached', async () => {
+    attachmentStub.enabled = true
+    const wrapper = await mountSuspended(ContactPanel, { props: PROPS })
+
+    await fillAndSubmit(wrapper)
+
+    expect(posted).toHaveLength(1)
+    expect(posted[0]!.attachmentIds).toBeUndefined()
+  })
+
+  it('will not send while bytes are still in flight', async () => {
+    // An upload that has not finished has no id yet, so submitting
+    // would silently drop the file the visitor is watching upload.
+    attachmentStub.enabled = true
+    attachmentStub.isUploading = true
+    const wrapper = await mountSuspended(ContactPanel, { props: PROPS })
+
+    await fillAndSubmit(wrapper)
+
+    expect(posted).toHaveLength(0)
+    expect(wrapper.find('button[type="submit"]').attributes('disabled'))
+      .toBeDefined()
   })
 })
+
+/** A valid enquiry, filled in and submitted. */
+async function fillAndSubmit(wrapper: Awaited<ReturnType<typeof mountSuspended>>) {
+  await wrapper.find('input[autocomplete="name"]')
+    .setValue('Κώστας Παπαδόπουλος')
+  await wrapper.find('input[type="email"]').setValue('kostas@deya.gr')
+  await wrapper.find('textarea')
+    .setValue('Το αντλιοστάσιο χρειάζεται νέο σύστημα τηλεμετρίας άμεσα.')
+  await wrapper.find('[role="checkbox"]').trigger('click')
+  await wrapper.find('form').trigger('submit')
+  await new Promise(resolve => setTimeout(resolve, 50))
+}

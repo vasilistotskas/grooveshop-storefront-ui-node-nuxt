@@ -2483,6 +2483,24 @@ export type ConfirmResponseRequest = {
   topic?: string
 }
 
+/**
+ * One file uploaded for a contact enquiry to claim.
+ */
+export type ContactAttachment = {
+  readonly uuid: string
+  readonly originalName: string
+  readonly contentType: string
+  /**
+     * Bytes.
+     */
+  readonly size: number
+  scanStatus: ScanStatusEnum
+  /**
+     * Δημιουργήθηκε στις
+     */
+  readonly createdAt: string
+}
+
 export type ContactWrite = {
   readonly id: number
   /**
@@ -7587,6 +7605,15 @@ export type ResultTypeEnum = 'product' | 'blog_post'
 export type ReviewStatus = 'NEW' | 'TRUE' | 'FALSE'
 
 /**
+ * * `PENDING` - Pending scan
+ * * `CLEAN` - Clean
+ * * `INFECTED` - Infected
+ * * `ERROR` - Scan failed
+ * * `SKIPPED` - Not scanned
+ */
+export type ScanStatusEnum = 'PENDING' | 'CLEAN' | 'INFECTED' | 'ERROR' | 'SKIPPED'
+
+/**
  * Serializer for search analytics response.
  */
 export type SearchAnalyticsResponse = {
@@ -9270,6 +9297,28 @@ export type ContactWriteWritable = {
      */
   phone?: string
   subject?: string
+}
+
+export type ContactWriteRequestWritable = {
+  /**
+     * Όνομα
+     */
+  name: string
+  email: string
+  /**
+     * Μήνυμα
+     */
+  message: string
+  /**
+     * Επωνυμία
+     */
+  company?: string
+  /**
+     * Τηλέφωνο
+     */
+  phone?: string
+  subject?: string
+  attachmentIds?: Array<string>
 }
 
 /**
@@ -15675,7 +15724,7 @@ export type ReserveCartStockResponses = {
 export type ReserveCartStockResponse = ReserveCartStockResponses[keyof ReserveCartStockResponses]
 
 export type CreateContactData = {
-  body: ContactWriteRequest
+  body: ContactWriteRequestWritable
   path?: never
   query?: never
   url: '/api/v1/contact'
@@ -15692,6 +15741,30 @@ export type CreateContactResponses = {
 }
 
 export type CreateContactResponse = CreateContactResponses[keyof CreateContactResponses]
+
+export type CreateContactAttachmentData = {
+  body?: {
+    file: Blob | File
+  }
+  path?: never
+  query?: never
+  url: '/api/v1/contact/attachment'
+}
+
+export type CreateContactAttachmentErrors = {
+  400: ErrorResponse
+  404: ErrorResponse
+  413: ErrorResponse
+  503: ErrorResponse
+}
+
+export type CreateContactAttachmentError = CreateContactAttachmentErrors[keyof CreateContactAttachmentErrors]
+
+export type CreateContactAttachmentResponses = {
+  201: ContactAttachment
+}
+
+export type CreateContactAttachmentResponse = CreateContactAttachmentResponses[keyof CreateContactAttachmentResponses]
 
 export type ListContentPageData = {
   body?: never

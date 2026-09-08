@@ -4613,6 +4613,39 @@ export const zReviewStatus = z.enum([
 })
 
 /**
+ * * `PENDING` - Pending scan
+ * * `CLEAN` - Clean
+ * * `INFECTED` - Infected
+ * * `ERROR` - Scan failed
+ * * `SKIPPED` - Not scanned
+ */
+export const zScanStatusEnum = z.enum([
+  'PENDING',
+  'CLEAN',
+  'INFECTED',
+  'ERROR',
+  'SKIPPED',
+]).register(z.globalRegistry, {
+  description: '* `PENDING` - Pending scan\n* `CLEAN` - Clean\n* `INFECTED` - Infected\n* `ERROR` - Scan failed\n* `SKIPPED` - Not scanned',
+})
+
+/**
+ * One file uploaded for a contact enquiry to claim.
+ */
+export const zContactAttachment = z.object({
+  uuid: z.uuid().readonly(),
+  originalName: z.string().readonly(),
+  contentType: z.string().readonly(),
+  size: z.int().register(z.globalRegistry, {
+    description: 'Bytes.',
+  }).readonly(),
+  scanStatus: zScanStatusEnum,
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+}).register(z.globalRegistry, {
+  description: 'One file uploaded for a contact enquiry to claim.',
+})
+
+/**
  * Payload for attributing a result click to a search query.
  */
 export const zSearchClickRequestRequest = z.object({
@@ -6985,6 +7018,16 @@ export const zContactWriteWritable = z.object({
   company: z.string().max(150).optional(),
   phone: z.string().max(30).optional(),
   subject: z.string().max(60).optional(),
+})
+
+export const zContactWriteRequestWritable = z.object({
+  name: z.string().min(1).max(100),
+  email: z.email().min(1).max(254),
+  message: z.string().min(1),
+  company: z.string().max(150).optional(),
+  phone: z.string().max(30).optional(),
+  subject: z.string().max(60).optional(),
+  attachmentIds: z.array(z.uuid()).max(20).optional(),
 })
 
 /**
@@ -12066,9 +12109,15 @@ export const zReserveCartStockHeaders = z.object({
 
 export const zReserveCartStockResponse = zReserveStockResponse
 
-export const zCreateContactBody = zContactWriteRequest
+export const zCreateContactBody = zContactWriteRequestWritable
 
 export const zCreateContactResponse = zContactWrite
+
+export const zCreateContactAttachmentBody = z.object({
+  file: z.string(),
+})
+
+export const zCreateContactAttachmentResponse = zContactAttachment
 
 export const zListContentPageQuery = z.object({
   cursor: z.string().register(z.globalRegistry, {
