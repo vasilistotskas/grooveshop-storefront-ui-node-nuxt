@@ -1,3 +1,10 @@
+# [3.182.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.181.1...v3.182.0) (2026-09-08)
+
+
+### Features
+
+* **sections:** the selector band in the two shapes the inner pages need ([32a9896](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/32a98961463cacdbfa761dfcd6e5e49e28509777))
+
 ## [3.181.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.181.0...v3.181.1) (2026-09-08)
 
 
