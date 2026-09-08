@@ -9,8 +9,10 @@
  * Measured off the register artboard at 1440px: a 1280px track inside
  * an 80px gutter, a 38px filter chip on a 9px gap, then a table whose
  * header is 10px monospace on a 20px padding and whose rows are 86px
- * apart — 24px of padding around a 16px title with a 12.5px monospace
- * technical line under it, hairline-ruled between rows. The columns
+ * apart — 20px of padding around a 16px title with a 12.5px monospace
+ * technical line under it, hairline-ruled between rows. That 86px is
+ * measured, not chosen: `py-6` around the same content came out 98px
+ * and made the register 550px longer than its board. The columns
  * are 60px of ordinal, 175px of sector pill, the title, and the
  * contracting company right-aligned to the track's edge.
  *
@@ -185,7 +187,7 @@ function toggle(key: string) {
             class="
               grid gap-y-2.5 border-t border-default py-5
               lg:grid-cols-[60px_175px_minmax(0,1fr)_auto] lg:items-baseline
-              lg:gap-y-0 lg:py-6
+              lg:gap-y-0
             "
           >
             <div
@@ -210,12 +212,16 @@ function toggle(key: string) {
             </div>
 
             <div>
-              <p class="text-[16px] leading-[1.4] font-semibold text-highlighted">
+              <p
+                class="
+                  text-[16px] leading-[1.35] font-semibold text-highlighted
+                "
+              >
                 {{ entry.title }}
               </p>
               <p
                 v-if="entry.note"
-                class="mt-1.5 font-mono text-[12.5px] leading-[1.6] text-dimmed"
+                class="mt-1 font-mono text-[12.5px] leading-[1.6] text-dimmed"
               >
                 {{ entry.note }}
               </p>

@@ -4,8 +4,8 @@
  * steps with a connector between them.
  *
  * Measured off the artboard at 1440px: a 30px heading, a 16px/1.7
- * body, then equal cards on a `#0F172A` ground with the MIDDLE one
- * bordered in teal — it is the thing the page is about, and the
+ * body, then equal `#0F172A` cards on the page's own ground with the
+ * MIDDLE one bordered in teal — it is the thing the page is about, and the
  * artboard says so by outlining it. Each card carries a monospace
  * ordinal label, a 17px title and its lines in monospace 13px/1.75.
  *
@@ -35,7 +35,7 @@ const middle = computed(() =>
   <section
     v-if="items?.length"
     class="
-      border-b border-default bg-muted px-5 py-16
+      border-b border-default bg-default px-5 py-16
       lg:px-20 lg:py-24
     "
   >
@@ -83,7 +83,7 @@ const middle = computed(() =>
             />
           </li>
           <li
-            class="flex-1 rounded-xl border bg-default p-6"
+            class="flex-1 rounded-xl border bg-muted p-6"
             :class="index === middle
               ? 'border-primary'
               : 'border-default'"

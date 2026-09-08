@@ -33,13 +33,20 @@ const width = computed(() => props.columns?.length ?? 0)
 const rows = computed(
   () => (props.rows ?? []).filter(row => row.values.length === width.value),
 )
+
+/**
+ * The board zebras the rows between the band's own raised ground and
+ * the page's, which is what makes a ten-row table scannable across
+ * four columns without vertical rules doing it.
+ */
+const zebra = (index: number) => (index % 2 === 0 ? 'bg-muted' : 'bg-default')
 </script>
 
 <template>
   <section
     v-if="width && rows.length"
     class="
-      border-b border-default bg-default px-5 py-16
+      border-b border-default bg-muted px-5 py-16
       lg:px-20 lg:py-24
     "
   >
@@ -100,9 +107,10 @@ const rows = computed(
                   border-t border-l border-default px-5 py-3.5 text-[14px]
                   font-normal text-muted
                 "
-                :class="rowIndex === rows.length - 1
-                  ? 'rounded-bl-lg border-b'
-                  : ''"
+                :class="[
+                  zebra(rowIndex),
+                  rowIndex === rows.length - 1 ? 'rounded-bl-lg border-b' : '',
+                ]"
               >
                 {{ row.label }}
               </th>
@@ -114,6 +122,7 @@ const rows = computed(
                   text-[13px] text-default
                 "
                 :class="[
+                  zebra(rowIndex),
                   index === width - 1 ? 'border-r' : '',
                   rowIndex === rows.length - 1 ? 'border-b' : '',
                   rowIndex === rows.length - 1 && index === width - 1

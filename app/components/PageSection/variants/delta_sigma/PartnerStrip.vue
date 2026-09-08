@@ -42,7 +42,7 @@ const { identity } = useMerchantIdentity()
   <section
     v-if="items?.length"
     class="
-      border-b border-default bg-muted px-5 py-6
+      border-b border-default bg-default px-5 py-6
       lg:px-20
     "
   >

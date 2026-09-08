@@ -9,10 +9,13 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * title, a standfirst, body copy, and then whichever of three
  * right-hand blocks that page needs.
  *
- * Measured off the artboards at 1440px: 96px of band padding, a 56px
- * display title on a 1.1 rhythm, a 20px standfirst, a 16px/1.7 body
- * on a 640px measure, and — where the page has one — a bordered
- * callout over a two-across grid of fact tiles.
+ * Measured off the artboards at 1440px: 80px above the eyebrow and
+ * 60px under the last line — every one of the five boards agrees, and
+ * a symmetric 96px (what this band shipped with) reads visibly airier
+ * than any of them. Then a 56px display title on a 1.1 rhythm, a 20px
+ * standfirst, a 16px/1.7 body on a 640px measure, and — where the
+ * page has one — a bordered callout over a two-across grid of fact
+ * tiles.
  *
  * `callout.tone` is an ENUM resolved to tokens here, never a colour
  * from the layout: a merchant authoring a page cannot put a hex into
@@ -66,7 +69,7 @@ const hasAside = computed(
   <section
     class="
       relative border-b border-default bg-default px-5 py-16
-      lg:px-20 lg:py-24
+      lg:px-20 lg:pt-20 lg:pb-15
     "
   >
     <div

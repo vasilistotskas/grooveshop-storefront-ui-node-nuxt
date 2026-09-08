@@ -71,7 +71,7 @@ function onKeydown(event: KeyboardEvent, index: number) {
   <section
     v-if="options?.length"
     class="
-      border-b border-default bg-muted px-5 py-16
+      border-b border-default bg-default px-5 py-16
       lg:px-20 lg:py-24
     "
   >
