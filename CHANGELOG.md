@@ -1,3 +1,10 @@
+## [3.182.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.6...v3.182.7) (2026-09-08)
+
+
+### Bug Fixes
+
+* **sections:** the closing band's padding, measured across all four boards ([bb7be5f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bb7be5f05030867f7f0a291d0677ab0fe1728de1))
+
 ## [3.182.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.5...v3.182.6) (2026-09-08)
 
 
