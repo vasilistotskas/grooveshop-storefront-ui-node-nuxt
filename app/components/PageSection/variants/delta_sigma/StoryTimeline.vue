@@ -24,21 +24,33 @@
  * The hexes below are the MEASUREMENT that established the mapping,
  * not what the markup says.
  */
-defineProps<{
+const props = defineProps<{
   title?: string
   heading?: string
   subheading?: string
   items?: { title: string, date?: string, text?: string }[]
+  surface?: 'default' | 'muted'
 }>()
+
+/**
+ * Which of the two page surfaces the band paints. Raised is what the
+ * home board shows, where this band sits among seven others; the
+ * δραστηριότητες board keeps it on the page's own ground, under the
+ * selector that shares the same eight phases.
+ */
+const ground = computed(() =>
+  props.surface === 'default' ? 'bg-default' : 'bg-muted',
+)
 </script>
 
 <template>
   <section
     v-if="items?.length"
     class="
-      border-b border-default bg-muted px-5 py-16
-      lg:px-20 lg:py-24
+      border-b border-default px-5 py-16
+      lg:px-20 lg:pt-20 lg:pb-24
     "
+    :class="ground"
   >
     <div class="mx-auto max-w-[1280px]">
       <p

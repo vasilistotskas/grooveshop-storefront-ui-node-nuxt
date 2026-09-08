@@ -545,6 +545,9 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
             .strip(),
         )
         .max(20),
+      // Which page surface the band paints — the same enum, and the
+      // same reason, as `cta_banner`.
+      surface: z.enum(['default', 'muted']),
     })
     .partial()
     .strip(),
