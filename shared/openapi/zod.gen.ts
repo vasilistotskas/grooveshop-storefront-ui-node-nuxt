@@ -5360,6 +5360,7 @@ export const zTenantConfig = z.object({
   allowedCspSources: z.array(z.string()).readonly(),
   metaPixelId: z.string().readonly(),
   tiktokPixelId: z.string().readonly(),
+  openaiPixelId: z.string().optional(),
   gaTrackingId: z.string().readonly(),
   totpIssuer: z.string().readonly(),
   socialsDiscord: z.string().readonly(),
@@ -8508,6 +8509,7 @@ export const zTaggedItemWriteRequestWritable = z.object({
  */
 export const zTenantConfigWritable = z.object({
   availableLocales: z.array(z.string()).optional(),
+  openaiPixelId: z.string().optional(),
 }).register(z.globalRegistry, {
   description: 'Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.\n\nOnly fields that are safe to expose to unauthenticated callers should\nappear here.  Secrets and billing-sensitive data belong exclusively in\nTenantAdminSerializer.',
 })

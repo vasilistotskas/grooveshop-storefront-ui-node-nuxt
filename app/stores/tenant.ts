@@ -37,6 +37,7 @@ export const useTenantStore = defineStore('tenant', () => {
   // Analytics & tracking — empty string means "use platform fallback"
   const metaPixelId = computed(() => config.value?.metaPixelId ?? '')
   const tiktokPixelId = computed(() => config.value?.tiktokPixelId ?? '')
+  const openaiPixelId = computed(() => config.value?.openaiPixelId ?? '')
   const gaTrackingId = computed(() => config.value?.gaTrackingId ?? '')
 
   // MFA — empty string means Django uses its own default issuer
@@ -92,6 +93,7 @@ export const useTenantStore = defineStore('tenant', () => {
     stripePublishableKey,
     metaPixelId,
     tiktokPixelId,
+    openaiPixelId,
     gaTrackingId,
     totpIssuer,
     boxNowPartnerId,

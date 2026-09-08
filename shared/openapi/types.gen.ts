@@ -8285,6 +8285,7 @@ export type TenantConfig = {
   readonly allowedCspSources: Array<string>
   readonly metaPixelId: string
   readonly tiktokPixelId: string
+  openaiPixelId?: string
   readonly gaTrackingId: string
   readonly totpIssuer: string
   readonly socialsDiscord: string
@@ -11294,6 +11295,7 @@ export type TaggedItemWriteRequestWritable = {
  */
 export type TenantConfigWritable = {
   availableLocales?: Array<string>
+  openaiPixelId?: string
 }
 
 export type UserAddressWritable = {

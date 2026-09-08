@@ -44763,6 +44763,8 @@ components:
         tiktokPixelId:
           type: string
           readOnly: true
+        openaiPixelId:
+          type: string
         gaTrackingId:
           type: string
           readOnly: true

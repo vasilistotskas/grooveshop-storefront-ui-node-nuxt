@@ -361,6 +361,69 @@ export function setupTikTokPixelConsent() {
 }
 
 /**
+ * Initialise the OpenAI / ChatGPT Ads conversion pixel (``oaiq``).
+ *
+ * Same consent lifecycle and client-only posture as the two pixels
+ * above; the difference is that ``@nuxt/scripts`` has no OpenAI
+ * registry entry, so this uses the generic ``useScript`` with the same
+ * ``useScriptTriggerConsent`` trigger. The script tag is injected only
+ * after the shopper grants ``ad_storage``, and revoking consent removes
+ * it — the trigger owns that lifecycle, so there is deliberately no
+ * manual ``grant()`` watcher here (an older combination of the two
+ * caused races; see the note on ``setupMetaPixelConsent``).
+ *
+ * No-op when the tenant's ``openaiPixelId`` is not provisioned, which
+ * also keeps ``bzrcdn.openai.com`` out of the CSP for stores that do
+ * not advertise on ChatGPT.
+ *
+ * ``debug`` is NOT enabled. OpenAI's own snippet ships
+ * ``debug: true``, which logs every event to the console on a live
+ * storefront.
+ */
+export function setupOpenAIPixelConsent() {
+  const tenantStore = useTenantStore()
+  // Tenant-only — no platform/env fallback (every tenant provisions its
+  // own Pixel; a shared id would mix ad accounts across merchants).
+  const pixelId = tenantStore.openaiPixelId
+  if (!pixelId) return
+  if (import.meta.server) return
+
+  const trigger = useScriptTriggerConsent({ consent: useAdStorageConsent() })
+
+  useScript(
+    {
+      // The SDK URL as OpenAI documents it. Their pasted snippet
+      // carried a stray trailing character on this URL; the tenant
+      // field validator rejects a malformed id for the same reason.
+      src: 'https://bzrcdn.openai.com/sdk/oaiq.min.js',
+      async: true,
+      crossorigin: false,
+    },
+    {
+      trigger,
+      bundle: false,
+      // The vendor snippet defines the `oaiq` command queue itself
+      // before the SDK loads, so events fired between consent and
+      // script-ready are replayed rather than lost. Recreate that
+      // queue here, since we are not using the vendor snippet.
+      beforeInit() {
+        const w = window as unknown as {
+          oaiq?: ((...args: unknown[]) => void) & { q?: unknown[] }
+        }
+        if (w.oaiq) return
+        const queue: ((...args: unknown[]) => void) & { q?: unknown[] }
+          = (...args: unknown[]) => {
+            queue.q!.push(args)
+          }
+        queue.q = []
+        w.oaiq = queue
+        queue('init', { pixelId })
+      },
+    },
+  )
+}
+
+/**
  * Telemetry hook for the cookie banner — emits two server-side wide
  * events so the team can measure banner acceptance.
  *

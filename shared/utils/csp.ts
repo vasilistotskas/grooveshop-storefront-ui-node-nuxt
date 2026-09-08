@@ -55,6 +55,8 @@ export interface CspOptions {
   metaPixelId?: string
   /** TikTok Pixel id — TikTok origins are emitted only when provisioned. */
   tiktokPixelId?: string
+  /** Tenant's ChatGPT Ads pixel id (``TenantConfig.openaiPixelId``). */
+  openaiPixelId?: string
   /**
    * Per-tenant CSP source expansion (``TenantConfig.allowedCspSources``).
    * Appended to script-src, img-src, connect-src and frame-src. The
@@ -77,6 +79,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     djangoHostName = 'localhost',
     metaPixelId,
     tiktokPixelId,
+    openaiPixelId,
     tenantSources = [],
     tenantApiDomain,
     tenantAssetsDomain,
@@ -145,6 +148,16 @@ export function buildCspDirectives(options: CspOptions): string[] {
   // additions to the tile-provider whitelist on the Django side.
   const tileOrigins = 'https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org'
 
+  // Video-embed origins for admin-authored rich text (blog bodies,
+  // product descriptions, CMS rich-text sections). Unconditional,
+  // unlike the pixel origins below: whether a post contains a video is
+  // decided by an editor at write time, so there is nothing to switch
+  // on at request time, and gating it would reintroduce the
+  // silent-blank-box failure for any deploy with the flag off.
+  const embedFrameSrc = EMBED_IFRAME_ORIGINS.length
+    ? ` ${EMBED_IFRAME_ORIGINS.join(' ')}`
+    : ''
+
   // Meta Pixel runtime origins: the script comes from
   // ``connect.facebook.net``; pixel beacons are sent to
   // ``www.facebook.com/tr`` (img + connect); the ``fbevents.js``
@@ -152,17 +165,6 @@ export function buildCspDirectives(options: CspOptions): string[] {
   // assets. Listed only when a Pixel ID is provisioned so visitors
   // of un-instrumented preview deploys don't send a needlessly
   // permissive header.
-  // Video-embed origins for admin-authored rich text (blog bodies,
-  // product descriptions, CMS rich-text sections). Unconditional, not
-  // gated on a config value like the pixel origins below: whether a
-  // post contains a video is decided by an editor at write time, so
-  // there is nothing to switch on at request time, and gating it would
-  // reintroduce the silent-blank-box failure for any deploy that
-  // happened to have the flag off.
-  const embedFrameSrc = EMBED_IFRAME_ORIGINS.length
-    ? ` ${EMBED_IFRAME_ORIGINS.join(' ')}`
-    : ''
-
   const metaScriptSrc = metaPixelId ? ' https://connect.facebook.net' : ''
   const metaImgSrc = metaPixelId
     ? ' https://www.facebook.com https://*.facebook.com'
@@ -191,6 +193,13 @@ export function buildCspDirectives(options: CspOptions): string[] {
     ? ' https://analytics.tiktok.com https://*.tiktok.com'
     : ''
 
+  // OpenAI / ChatGPT Ads. The SDK is served from ``bzrcdn.openai.com``
+  // and beacons to the same origin. Gated on the id for the same reason
+  // as Meta and TikTok: a store that does not advertise on ChatGPT
+  // should not ship a needlessly permissive header.
+  const openaiScriptSrc = openaiPixelId ? ' https://bzrcdn.openai.com' : ''
+  const openaiConnectSrc = openaiPixelId ? ' https://bzrcdn.openai.com' : ''
+
   // GA4 with Google Signals enabled fires a remarketing pixel to
   // ``www.google.<tld>/ads/ga-audiences`` (an <img>, sometimes a beacon).
   // The ccTLD follows the visitor's locale — ``.gr`` for Greek users,
@@ -204,11 +213,11 @@ export function buildCspDirectives(options: CspOptions): string[] {
 
   return [
     `default-src 'self'`,
-    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com${metaScriptSrc}${tiktokScriptSrc}${tenantExtra}${nonceScriptSrc}`,
+    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${tenantExtra}${nonceScriptSrc}`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${tileOrigins}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHostName}${tenantApiConnectSrc}${metaConnectSrc}${tiktokConnectSrc}${tenantExtra}`,
+    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHostName}${tenantApiConnectSrc}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${tenantExtra}`,
     // BoxNow widget iframe origins per their CDN: gr (primary), plus
     // cy/bg/hr regional variants (Phase 2 multi-country).
     // ``widget-v4.boxnow.gr`` is required even though we load the v5 URL:

@@ -50,6 +50,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   // server leg — separate analytics ecosystem.
   const metaPixel = useMetaPixel()
   const tiktokPixel = useTikTokPixel()
+  const openaiPixel = useOpenAIPixel()
   const ga4 = useGA4()
   const cookieControl = useCookieControl()
   const metaEventIds = reactive<{
@@ -976,6 +977,13 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         numItems: cart.value?.totalItems ?? 0,
       })
       if (eventId) metaEventIds.initiateCheckout = eventId
+
+      openaiPixel.trackInitiateCheckout({
+        currency,
+        value,
+        contentType: 'product',
+        numItems: cart.value?.items?.length ?? 0,
+      })
 
       tiktokPixel.trackInitiateCheckout({
         currency,

@@ -49,6 +49,7 @@ if (productId) {
 // (no server-side leg for any of them).
 const metaPixel = useMetaPixel()
 const tiktokPixel = useTikTokPixel()
+const openaiPixel = useOpenAIPixel()
 const ga4 = useGA4()
 const viewContentFired = ref(false)
 
@@ -183,6 +184,13 @@ onMounted(() => {
           ]
         : [],
       contentName: productName,
+    })
+    openaiPixel.trackViewContent({
+      currency: 'EUR',
+      value: price,
+      contentType: 'product',
+      contentName: productName,
+      contentId: pid ?? undefined,
     })
     tiktokPixel.trackViewContent({
       currency: 'EUR',

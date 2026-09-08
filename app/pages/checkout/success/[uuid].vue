@@ -147,6 +147,7 @@ onBeforeUnmount(() => {
 // re-invoke ``useScript*`` from outside setup context.
 const metaPixel = useMetaPixel()
 const tiktokPixel = useTikTokPixel()
+const openaiPixel = useOpenAIPixel()
 const ga4 = useGA4()
 const purchaseEventFired = ref(false)
 function tryFirePurchaseEvent() {
@@ -202,6 +203,25 @@ function tryFirePurchaseEvent() {
     // no server-side Events API leg, so no event_id dedup; the
     // ``purchaseEventFired`` guard + ``fromCheckout`` gate above
     // prevent re-fires.
+    // OpenAI's catalogue calls this ``Purchase`` (TikTok's
+    // ``Purchase`` is a separate offline event, hence
+    // ``CompletePayment`` below — the names are NOT interchangeable
+    // across providers).
+    openaiPixel.trackPurchase({
+      currency,
+      value,
+      orderId: transactionId,
+      contentType: 'product',
+      contentIds: orderItems.value
+        .map(item => item.product?.id)
+        .filter((id): id is number => typeof id === 'number')
+        .map(id => String(id)),
+      numItems: orderItems.value.reduce(
+        (sum, item) => sum + Number(item.quantity ?? 0),
+        0,
+      ),
+    })
+
     tiktokPixel.trackCompletePayment({
       currency,
       value,

@@ -76,6 +76,7 @@ export default defineEventHandler((event) => {
     djangoHostName: publicConfig.djangoHostName || requestHost || 'localhost',
     metaPixelId: tenant?.metaPixelId,
     tiktokPixelId: tenant?.tiktokPixelId,
+    openaiPixelId: tenant?.openaiPixelId,
     tenantSources: tenant?.allowedCspSources ?? [],
     tenantApiDomain: tenant?.apiDomain,
     tenantAssetsDomain: tenant?.assetsDomain,

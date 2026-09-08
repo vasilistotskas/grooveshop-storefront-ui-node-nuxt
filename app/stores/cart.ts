@@ -9,6 +9,7 @@ export const useCartStore = defineStore('cart', () => {
   // come and go).
   const metaPixel = useMetaPixel()
   const tiktokPixel = useTikTokPixel()
+  const openaiPixel = useOpenAIPixel()
   const ga4 = useGA4()
   const cart = ref<CartDetail | null>(null)
   const inFlight = reactive(new Set<string>())
@@ -121,6 +122,14 @@ export const useCartStore = defineStore('cart', () => {
             },
           ],
           contentType: 'product',
+        })
+
+        openaiPixel.trackAddToCart({
+          currency,
+          value,
+          contentType: 'product',
+          contentId: String(productId),
+          numItems: quantity,
         })
 
         tiktokPixel.trackAddToCart({
