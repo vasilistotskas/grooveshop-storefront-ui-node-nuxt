@@ -2646,47 +2646,6 @@ export const zPatchedPageLayoutRequest = z.object({
   metadata: z.unknown().optional(),
 })
 
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zPatchedPayWayWriteRequest = z.object({
-  translations: z.object({
-    el: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-  }).optional(),
-  active: z.boolean().optional(),
-  cost: z.number().gt(-1000000000).lt(1000000000).optional(),
-  freeThreshold: z.number().gt(-1000000000).lt(1000000000).optional(),
-  icon: z.string().nullish(),
-  providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
-  }).optional(),
-  isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
-  }).optional(),
-  requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
-  }).optional(),
-  configuration: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
-  }).optional(),
-}).register(z.globalRegistry, {
-  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
-})
-
 export const zPatchedProductCategoryImageBulkUpdateRequest = z.object({
   imageIds: z.array(z.int()).optional(),
   active: z.boolean().optional(),
@@ -2934,151 +2893,6 @@ export const zPatchedUserWriteRequest = z.object({
   languageCode: z.string().min(1).max(10).register(z.globalRegistry, {
     description: 'Προτιμώμενη γλώσσα για emails και μηνύματα διεπαφής.',
   }).optional(),
-})
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zPayWay = z.object({
-  translations: z.object({
-    el: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-  }),
-  id: z.int().readonly(),
-  active: z.boolean().optional(),
-  cost: z.number().gt(-1000000000).lt(1000000000),
-  freeThreshold: z.number().gt(-1000000000).lt(1000000000),
-  icon: z.url().nullish(),
-  sortOrder: z.int().readonly().nullable(),
-  mainImagePath: z.string().readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  iconFilename: z.string().readonly(),
-  providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
-  }).optional(),
-  isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
-  }).optional(),
-  requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
-  }).optional(),
-}).register(z.globalRegistry, {
-  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
-})
-
-export const zPaginatedPayWayList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zPayWay),
-})
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zPayWayDetail = z.object({
-  translations: z.object({
-    el: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-  }),
-  id: z.int().readonly(),
-  active: z.boolean().optional(),
-  cost: z.number().gt(-1000000000).lt(1000000000),
-  freeThreshold: z.number().gt(-1000000000).lt(1000000000),
-  icon: z.url().nullish(),
-  sortOrder: z.int().readonly().nullable(),
-  mainImagePath: z.string().readonly(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  iconFilename: z.string().readonly(),
-  providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
-  }).optional(),
-  isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
-  }).optional(),
-  requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
-  }).optional(),
-  configuration: z.unknown(),
-}).register(z.globalRegistry, {
-  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
-})
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zPayWayWriteRequest = z.object({
-  translations: z.object({
-    el: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-      description: z.string().optional(),
-      instructions: z.string().optional(),
-    }).optional(),
-  }),
-  active: z.boolean().optional(),
-  cost: z.number().gt(-1000000000).lt(1000000000),
-  freeThreshold: z.number().gt(-1000000000).lt(1000000000).optional(),
-  icon: z.string().nullish(),
-  providerCode: z.string().max(50).register(z.globalRegistry, {
-    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
-  }).optional(),
-  isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
-  }).optional(),
-  requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
-  }).optional(),
-  configuration: z.unknown().register(z.globalRegistry, {
-    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
-  }).optional(),
-}).register(z.globalRegistry, {
-  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
 /**
@@ -3604,6 +3418,9 @@ export const zOrder = z.object({
   paymentMethod: z.string().max(50).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
     description: 'True when the order\'s PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading \'outstanding amount\' warnings for COD orders where the shopper intentionally paid €0 at checkout.',
+  }).readonly(),
+  isCollectedOnDelivery: z.boolean().register(z.globalRegistry, {
+    description: 'True when the carrier collects the money from the shopper on delivery — courier cash-on-delivery OR payment at a carrier\'s locker terminal (BoxNow PAY ON THE GO). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green \'your order is placed, pay on delivery\' panel instead of the amber \'payment is processing\' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).',
   }).readonly(),
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
@@ -4693,6 +4510,199 @@ export const zSetting = z.object({
 export const zSettingDetail = z.object({
   name: z.string(),
   value: z.string(),
+})
+
+/**
+ * * `online` - Paid online at checkout
+ * * `courier_cash` - Cash or card to the courier on delivery
+ * * `carrier_terminal` - Card at the carrier's terminal on pickup
+ * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+ */
+export const zSettlementEnum = z.enum([
+  'online',
+  'courier_cash',
+  'carrier_terminal',
+  'offline_transfer',
+]).register(z.globalRegistry, {
+  description: '* `online` - Paid online at checkout\n* `courier_cash` - Cash or card to the courier on delivery\n* `carrier_terminal` - Card at the carrier\'s terminal on pickup\n* `offline_transfer` - Settled off-platform (e.g. bank transfer)',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zPatchedPayWayWriteRequest = z.object({
+  translations: z.object({
+    el: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+  }).optional(),
+  active: z.boolean().optional(),
+  cost: z.number().gt(-1000000000).lt(1000000000).optional(),
+  freeThreshold: z.number().gt(-1000000000).lt(1000000000).optional(),
+  icon: z.string().nullish(),
+  providerCode: z.string().max(50).register(z.globalRegistry, {
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
+  }).optional(),
+  settlement: zSettlementEnum.optional(),
+  configuration: z.unknown().register(z.globalRegistry, {
+    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
+  }).optional(),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zPayWay = z.object({
+  translations: z.object({
+    el: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+  }),
+  id: z.int().readonly(),
+  active: z.boolean().optional(),
+  cost: z.number().gt(-1000000000).lt(1000000000),
+  freeThreshold: z.number().gt(-1000000000).lt(1000000000),
+  icon: z.url().nullish(),
+  sortOrder: z.int().readonly().nullable(),
+  mainImagePath: z.string().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  iconFilename: z.string().readonly(),
+  providerCode: z.string().max(50).register(z.globalRegistry, {
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
+  }).optional(),
+  settlement: zSettlementEnum.optional(),
+  isOnlinePayment: z.boolean().register(z.globalRegistry, {
+    description: 'Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.',
+  }).optional(),
+  requiresConfirmation: z.boolean().register(z.globalRegistry, {
+    description: 'Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.',
+  }).optional(),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+export const zPaginatedPayWayList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zPayWay),
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zPayWayDetail = z.object({
+  translations: z.object({
+    el: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+  }),
+  id: z.int().readonly(),
+  active: z.boolean().optional(),
+  cost: z.number().gt(-1000000000).lt(1000000000),
+  freeThreshold: z.number().gt(-1000000000).lt(1000000000),
+  icon: z.url().nullish(),
+  sortOrder: z.int().readonly().nullable(),
+  mainImagePath: z.string().readonly(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  iconFilename: z.string().readonly(),
+  providerCode: z.string().max(50).register(z.globalRegistry, {
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
+  }).optional(),
+  settlement: zSettlementEnum.optional(),
+  isOnlinePayment: z.boolean().register(z.globalRegistry, {
+    description: 'Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.',
+  }).optional(),
+  requiresConfirmation: z.boolean().register(z.globalRegistry, {
+    description: 'Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.',
+  }).optional(),
+  configuration: z.unknown(),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zPayWayWriteRequest = z.object({
+  translations: z.object({
+    el: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      instructions: z.string().optional(),
+    }).optional(),
+  }),
+  active: z.boolean().optional(),
+  cost: z.number().gt(-1000000000).lt(1000000000),
+  freeThreshold: z.number().gt(-1000000000).lt(1000000000).optional(),
+  icon: z.string().nullish(),
+  providerCode: z.string().max(50).register(z.globalRegistry, {
+    description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
+  }).optional(),
+  settlement: zSettlementEnum.optional(),
+  configuration: z.unknown().register(z.globalRegistry, {
+    description: 'Provider-specific non-secret configuration only (display options, callback URLs, feature flags). Secrets — API keys, webhook secrets, OAuth client_secrets — live on the Tenant model fields (stripe_secret_key, viva_wallet_*, acs_*, box_now_*, meta_capi_*) so they can be scoped per-tenant and rotated independently. Keys matching common secret patterns are rejected at save time.',
+  }).optional(),
+}).register(z.globalRegistry, {
+  description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
 })
 
 /**
@@ -5894,6 +5904,9 @@ export const zOrderDetail = z.object({
   paymentMethod: z.string().max(50).optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
     description: 'True when the order\'s PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading \'outstanding amount\' warnings for COD orders where the shopper intentionally paid €0 at checkout.',
+  }).readonly(),
+  isCollectedOnDelivery: z.boolean().register(z.globalRegistry, {
+    description: 'True when the carrier collects the money from the shopper on delivery — courier cash-on-delivery OR payment at a carrier\'s locker terminal (BoxNow PAY ON THE GO). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green \'your order is placed, pay on delivery\' panel instead of the amber \'payment is processing\' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).',
   }).readonly(),
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
@@ -7743,11 +7756,12 @@ export const zPayWayWritable = z.object({
   providerCode: z.string().max(50).register(z.globalRegistry, {
     description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
+  settlement: zSettlementEnum.optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
+    description: 'Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
+    description: 'Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -7794,11 +7808,12 @@ export const zPayWayDetailWritable = z.object({
   providerCode: z.string().max(50).register(z.globalRegistry, {
     description: 'Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. \'stripe\', \'paypal\')',
   }).optional(),
+  settlement: zSettlementEnum.optional(),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
-    description: 'Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online',
+    description: 'Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.',
   }).optional(),
   requiresConfirmation: z.boolean().register(z.globalRegistry, {
-    description: 'Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)',
+    description: 'Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.',
   }).optional(),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
@@ -14746,6 +14761,14 @@ export const zListPayWayQuery = z.object({
   ]).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
+  }).optional(),
+  settlement: z.enum([
+    'carrier_terminal',
+    'courier_cash',
+    'offline_transfer',
+    'online',
+  ]).register(z.globalRegistry, {
+    description: 'Filter by how the money changes hands\n\n* `online` - Paid online at checkout\n* `courier_cash` - Cash or card to the courier on delivery\n* `carrier_terminal` - Card at the carrier\'s terminal on pickup\n* `offline_transfer` - Settled off-platform (e.g. bank transfer)',
   }).optional(),
   shippingKind: z.string().register(z.globalRegistry, {
     description: 'Συνδυάστε με το ``shippingProviderCode`` για να φιλτράρετε τις μεθόδους πληρωμής βάσει των κανόνων συμβατότητας του μεταφορέα για αυτόν τον τύπο.',

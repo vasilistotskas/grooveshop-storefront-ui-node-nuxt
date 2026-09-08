@@ -3885,6 +3885,10 @@ export type Order = {
      * True when the order's PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading 'outstanding amount' warnings for COD orders where the shopper intentionally paid €0 at checkout.
      */
   readonly isOnlinePayment: boolean
+  /**
+     * True when the carrier collects the money from the shopper on delivery — courier cash-on-delivery OR payment at a carrier's locker terminal (BoxNow PAY ON THE GO). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green 'your order is placed, pay on delivery' panel instead of the amber 'payment is processing' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).
+     */
+  readonly isCollectedOnDelivery: boolean
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
 }
@@ -4205,6 +4209,10 @@ export type OrderDetail = {
      * True when the order's PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading 'outstanding amount' warnings for COD orders where the shopper intentionally paid €0 at checkout.
      */
   readonly isOnlinePayment: boolean
+  /**
+     * True when the carrier collects the money from the shopper on delivery — courier cash-on-delivery OR payment at a carrier's locker terminal (BoxNow PAY ON THE GO). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green 'your order is placed, pay on delivery' panel instead of the amber 'payment is processing' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).
+     */
+  readonly isCollectedOnDelivery: boolean
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
   /**
@@ -5437,17 +5445,14 @@ export type PatchedPayWayWriteRequest = {
      */
   providerCode?: string
   /**
-     * Είναι online πληρωμή
+     * How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
      *
-     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
+     * * `online` - Paid online at checkout
+     * * `courier_cash` - Cash or card to the courier on delivery
+     * * `carrier_terminal` - Card at the carrier's terminal on pickup
+     * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
      */
-  isOnlinePayment?: boolean
-  /**
-     * Απαιτείται Επιβεβαίωση
-     *
-     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
-     */
-  requiresConfirmation?: boolean
+  settlement?: SettlementEnum
   /**
      * Διαμόρφωση Παρόχου
      *
@@ -5953,15 +5958,24 @@ export type PayWay = {
      */
   providerCode?: string
   /**
+     * How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+     *
+     * * `online` - Paid online at checkout
+     * * `courier_cash` - Cash or card to the courier on delivery
+     * * `carrier_terminal` - Card at the carrier's terminal on pickup
+     * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+     */
+  settlement?: SettlementEnum
+  /**
      * Είναι online πληρωμή
      *
-     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
+     * Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.
      */
   isOnlinePayment?: boolean
   /**
      * Απαιτείται Επιβεβαίωση
      *
-     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
+     * Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.
      */
   requiresConfirmation?: boolean
 }
@@ -6020,15 +6034,24 @@ export type PayWayDetail = {
      */
   providerCode?: string
   /**
+     * How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+     *
+     * * `online` - Paid online at checkout
+     * * `courier_cash` - Cash or card to the courier on delivery
+     * * `carrier_terminal` - Card at the carrier's terminal on pickup
+     * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+     */
+  settlement?: SettlementEnum
+  /**
      * Είναι online πληρωμή
      *
-     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
+     * Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.
      */
   isOnlinePayment?: boolean
   /**
      * Απαιτείται Επιβεβαίωση
      *
-     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
+     * Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.
      */
   requiresConfirmation?: boolean
   readonly configuration: unknown
@@ -6072,17 +6095,14 @@ export type PayWayWriteRequest = {
      */
   providerCode?: string
   /**
-     * Είναι online πληρωμή
+     * How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
      *
-     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
+     * * `online` - Paid online at checkout
+     * * `courier_cash` - Cash or card to the courier on delivery
+     * * `carrier_terminal` - Card at the carrier's terminal on pickup
+     * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
      */
-  isOnlinePayment?: boolean
-  /**
-     * Απαιτείται Επιβεβαίωση
-     *
-     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
-     */
-  requiresConfirmation?: boolean
+  settlement?: SettlementEnum
   /**
      * Διαμόρφωση Παρόχου
      *
@@ -7704,6 +7724,14 @@ export type SettingDetail = {
   name: string
   value: string
 }
+
+/**
+ * * `online` - Paid online at checkout
+ * * `courier_cash` - Cash or card to the courier on delivery
+ * * `carrier_terminal` - Card at the carrier's terminal on pickup
+ * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+ */
+export type SettlementEnum = 'online' | 'courier_cash' | 'carrier_terminal' | 'offline_transfer'
 
 /**
  * * `pending_creation` - Εκκρεμής δημιουργία
@@ -10491,15 +10519,24 @@ export type PayWayWritable = {
      */
   providerCode?: string
   /**
+     * How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+     *
+     * * `online` - Paid online at checkout
+     * * `courier_cash` - Cash or card to the courier on delivery
+     * * `carrier_terminal` - Card at the carrier's terminal on pickup
+     * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+     */
+  settlement?: SettlementEnum
+  /**
      * Είναι online πληρωμή
      *
-     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
+     * Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.
      */
   isOnlinePayment?: boolean
   /**
      * Απαιτείται Επιβεβαίωση
      *
-     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
+     * Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.
      */
   requiresConfirmation?: boolean
 }
@@ -10542,15 +10579,24 @@ export type PayWayDetailWritable = {
      */
   providerCode?: string
   /**
+     * How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+     *
+     * * `online` - Paid online at checkout
+     * * `courier_cash` - Cash or card to the courier on delivery
+     * * `carrier_terminal` - Card at the carrier's terminal on pickup
+     * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+     */
+  settlement?: SettlementEnum
+  /**
      * Είναι online πληρωμή
      *
-     * Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
+     * Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.
      */
   isOnlinePayment?: boolean
   /**
      * Απαιτείται Επιβεβαίωση
      *
-     * Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
+     * Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.
      */
   requiresConfirmation?: boolean
 }
@@ -19233,7 +19279,7 @@ export type ListPayWayData = {
          */
     id?: string | number
     /**
-         * Φίλτρο ανά κατάσταση online πληρωμής
+         * Deprecated — use ``settlement=online``. Removed with the column in the release after settlement lands.
          */
     isOnlinePayment?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -19277,6 +19323,15 @@ export type ListPayWayData = {
          * A search term.
          */
     search?: string
+    /**
+         * Filter by how the money changes hands
+         *
+         * * `online` - Paid online at checkout
+         * * `courier_cash` - Cash or card to the courier on delivery
+         * * `carrier_terminal` - Card at the carrier's terminal on pickup
+         * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
+         */
+    settlement?: 'carrier_terminal' | 'courier_cash' | 'offline_transfer' | 'online'
     /**
          * Συνδυάστε με το ``shippingProviderCode`` για να φιλτράρετε τις μεθόδους πληρωμής βάσει των κανόνων συμβατότητας του μεταφορέα για αυτόν τον τύπο.
          */

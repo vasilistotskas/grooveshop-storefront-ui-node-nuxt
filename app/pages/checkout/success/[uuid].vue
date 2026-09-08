@@ -74,6 +74,17 @@ const orderItems = computed(() => order.value?.items || [])
 const paymentStatus = computed(() => order.value?.paymentStatus || '')
 const isPaid = computed(() => order.value?.isPaid || false)
 
+// The carrier collects this order's money on delivery — courier
+// cash-on-delivery, or a card at a BoxNow locker terminal.
+//
+// Not `!isOnlinePayment`: that is also true of bank transfer, where the
+// shopper owes us directly and "you'll pay on delivery" would be wrong.
+// The distinction is computed on the server from the pay-way's
+// settlement, so the storefront holds no rule of its own.
+const isCollectedOnDelivery = computed(
+  () => order.value?.isCollectedOnDelivery || false,
+)
+
 const paidAmount = computed(() => order.value?.paidAmount || 0)
 const shippingPrice = computed(() => order.value?.shippingPrice || 0)
 const totalPriceItems = computed(() => order.value?.totalPriceItems || 0)
@@ -455,6 +466,28 @@ definePageMeta({
       </template>
     </UAlert>
 
+    <!-- Collect-on-delivery is checked BEFORE the generic "not paid
+         yet" branch below, because such an order is not awaiting a
+         payment confirmation at all — nothing is processing. It stays
+         PENDING by design until the carrier remits (measured ACS lag
+         ~4 days), so the amber warning below would sit on the page for
+         days telling the shopper their payment might be delayed, for
+         an order they have not been asked to pay for yet. -->
+    <UAlert
+      v-else-if="fromCheckout && sessionVerified && !isPaid && isCollectedOnDelivery"
+      color="success"
+      variant="subtle"
+      icon="i-heroicons-banknotes"
+      class="mx-auto max-w-2xl"
+    >
+      <template #title>
+        {{ t('payment.on_delivery.title') }}
+      </template>
+      <template #description>
+        {{ t('payment.on_delivery.description', { amount: $i18n.n(paidAmount, 'currency') }) }}
+      </template>
+    </UAlert>
+
     <UAlert
       v-else-if="fromCheckout && sessionVerified && !isPaid"
       color="warning"
@@ -719,6 +752,9 @@ el:
     processing:
       title: Η πληρωμή επεξεργάζεται
       description: Η παραγγελία σου καταχωρήθηκε. Η επιβεβαίωση πληρωμής μπορεί να καθυστερήσει λίγα λεπτά.
+    on_delivery:
+      title: Η παραγγελία σου καταχωρήθηκε
+      description: "Θα πληρώσεις κατά την παραλαβή. Ποσό προς πληρωμή: {amount}."
   tracking:
     number: Αριθμός Παρακολούθησης
   shipping:

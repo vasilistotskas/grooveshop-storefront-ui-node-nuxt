@@ -16828,7 +16828,7 @@ paths:
                   - '1'
                   - '0'
               - type: boolean
-          description: Φίλτρο ανά κατάσταση online πληρωμής
+          description: Deprecated — use ``settlement=online``. Removed with the column in the release after settlement lands.
         - in: query
           name: languageCode
           schema:
@@ -16914,6 +16914,22 @@ paths:
           description: A search term.
           schema:
             type: string
+        - in: query
+          name: settlement
+          schema:
+            type: string
+            enum:
+              - carrier_terminal
+              - courier_cash
+              - offline_transfer
+              - online
+          description: |-
+            Filter by how the money changes hands
+
+            * `online` - Paid online at checkout
+            * `courier_cash` - Cash or card to the courier on delivery
+            * `carrier_terminal` - Card at the carrier's terminal on pickup
+            * `offline_transfer` - Settled off-platform (e.g. bank transfer)
         - in: query
           name: shippingKind
           schema:
@@ -37016,6 +37032,10 @@ components:
           type: boolean
           readOnly: true
           description: True when the order's PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading 'outstanding amount' warnings for COD orders where the shopper intentionally paid €0 at checkout.
+        isCollectedOnDelivery:
+          type: boolean
+          readOnly: true
+          description: 'True when the carrier collects the money from the shopper on delivery — courier cash-on-delivery OR payment at a carrier''s locker terminal (BoxNow PAY ON THE GO). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green ''your order is placed, pay on delivery'' panel instead of the amber ''payment is processing'' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).'
         canBeCanceled:
           type: boolean
           readOnly: true
@@ -37042,6 +37062,7 @@ components:
         - fullAddress
         - giftCardAmount
         - id
+        - isCollectedOnDelivery
         - isOnlinePayment
         - isPaid
         - items
@@ -37500,6 +37521,10 @@ components:
           type: boolean
           readOnly: true
           description: True when the order's PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading 'outstanding amount' warnings for COD orders where the shopper intentionally paid €0 at checkout.
+        isCollectedOnDelivery:
+          type: boolean
+          readOnly: true
+          description: 'True when the carrier collects the money from the shopper on delivery — courier cash-on-delivery OR payment at a carrier''s locker terminal (BoxNow PAY ON THE GO). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green ''your order is placed, pay on delivery'' panel instead of the amber ''payment is processing'' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).'
         canBeCanceled:
           type: boolean
           readOnly: true
@@ -37688,6 +37713,7 @@ components:
         - hasInvoice
         - id
         - isCanceled
+        - isCollectedOnDelivery
         - isCompleted
         - isOnlinePayment
         - isPaid
@@ -40092,14 +40118,16 @@ components:
           title: Κωδικός παρόχου
           description: Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
           maxLength: 50
-        isOnlinePayment:
-          type: boolean
-          title: Είναι online πληρωμή
-          description: Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
-        requiresConfirmation:
-          type: boolean
-          title: Απαιτείται Επιβεβαίωση
-          description: Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
+        settlement:
+          allOf:
+            - $ref: '#/components/schemas/SettlementEnum'
+          description: |-
+            How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+
+            * `online` - Paid online at checkout
+            * `courier_cash` - Cash or card to the courier on delivery
+            * `carrier_terminal` - Card at the carrier's terminal on pickup
+            * `offline_transfer` - Settled off-platform (e.g. bank transfer)
         configuration:
           nullable: true
           title: Διαμόρφωση Παρόχου
@@ -40778,14 +40806,24 @@ components:
           title: Κωδικός παρόχου
           description: Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
           maxLength: 50
+        settlement:
+          allOf:
+            - $ref: '#/components/schemas/SettlementEnum'
+          description: |-
+            How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+
+            * `online` - Paid online at checkout
+            * `courier_cash` - Cash or card to the courier on delivery
+            * `carrier_terminal` - Card at the carrier's terminal on pickup
+            * `offline_transfer` - Settled off-platform (e.g. bank transfer)
         isOnlinePayment:
           type: boolean
           title: Είναι online πληρωμή
-          description: Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
+          description: Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.
         requiresConfirmation:
           type: boolean
           title: Απαιτείται Επιβεβαίωση
-          description: Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
+          description: Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.
       required:
         - cost
         - createdAt
@@ -40886,14 +40924,24 @@ components:
           title: Κωδικός παρόχου
           description: Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
           maxLength: 50
+        settlement:
+          allOf:
+            - $ref: '#/components/schemas/SettlementEnum'
+          description: |-
+            How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+
+            * `online` - Paid online at checkout
+            * `courier_cash` - Cash or card to the courier on delivery
+            * `carrier_terminal` - Card at the carrier's terminal on pickup
+            * `offline_transfer` - Settled off-platform (e.g. bank transfer)
         isOnlinePayment:
           type: boolean
           title: Είναι online πληρωμή
-          description: Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
+          description: Deprecated mirror of ``settlement == ONLINE``. Dropped in the release after settlement lands.
         requiresConfirmation:
           type: boolean
           title: Απαιτείται Επιβεβαίωση
-          description: Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
+          description: Deprecated mirror of ``settlement == OFFLINE_TRANSFER``. Dropped in the release after settlement lands.
         configuration:
           readOnly: true
       required:
@@ -40969,14 +41017,16 @@ components:
           title: Κωδικός παρόχου
           description: Κωδικός που χρησιμοποιείται για την αναγνώριση του παρόχου πληρωμών στο σύστημα (π.χ. 'stripe', 'paypal')
           maxLength: 50
-        isOnlinePayment:
-          type: boolean
-          title: Είναι online πληρωμή
-          description: Αν αυτή η μέθοδος πληρωμής διεκπεραιώνεται online
-        requiresConfirmation:
-          type: boolean
-          title: Απαιτείται Επιβεβαίωση
-          description: Αν αυτή η μέθοδος πληρωμής απαιτεί χειροκίνητη επιβεβαίωση (π.χ. τραπεζική κατάθεση)
+        settlement:
+          allOf:
+            - $ref: '#/components/schemas/SettlementEnum'
+          description: |-
+            How the money changes hands. This is the authoritative discriminator for the shipping layer: a carrier declares which settlements it can physically perform, and the voucher's payment mode derives from it. Do not re-derive it from the deprecated booleans below.
+
+            * `online` - Paid online at checkout
+            * `courier_cash` - Cash or card to the courier on delivery
+            * `carrier_terminal` - Card at the carrier's terminal on pickup
+            * `offline_transfer` - Settled off-platform (e.g. bank transfer)
         configuration:
           nullable: true
           title: Διαμόρφωση Παρόχου
@@ -43830,6 +43880,18 @@ components:
       required:
         - name
         - value
+    SettlementEnum:
+      enum:
+        - online
+        - courier_cash
+        - carrier_terminal
+        - offline_transfer
+      type: string
+      description: |-
+        * `online` - Paid online at checkout
+        * `courier_cash` - Cash or card to the courier on delivery
+        * `carrier_terminal` - Card at the carrier's terminal on pickup
+        * `offline_transfer` - Settled off-platform (e.g. bank transfer)
     ShipmentStateEnum:
       enum:
         - pending_creation
