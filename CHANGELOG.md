@@ -1,3 +1,10 @@
+## [3.182.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.0...v3.182.1) (2026-09-08)
+
+
+### Bug Fixes
+
+* **sections:** let the timeline paint either page surface ([1bf9134](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1bf91341917af120403b28ea8c76568e9bbc645e))
+
 # [3.182.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.181.1...v3.182.0) (2026-09-08)
 
 
