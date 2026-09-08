@@ -62,6 +62,16 @@ export default defineSitemapEventHandler(async (event) => {
   const ACTIVE_LOCALE = 'el'
 
   const blogEnabled = tenant?.blogEnabled ?? true
+  // The catalogue is a merchant SETTING, not a plan flag: a store can
+  // hold a product model and serve no shop (an engineering contractor
+  // quoting per project). Its listings and product pages 404 under
+  // `app/middleware/catalogue-enabled.ts`, so they must not be
+  // advertised here either.
+  const catalogueEnabled = await settingEnabledForHost(
+    host,
+    apiBaseUrl,
+    'CATALOGUE_ENABLED',
+  )
 
   // Fetch all data in parallel for better performance — tenant host
   // is passed so each tenant's sitemap has its own cache entry.
@@ -75,8 +85,12 @@ export default defineSitemapEventHandler(async (event) => {
     blogEnabled
       ? cachedBlogCategories(host, `${apiBaseUrl}/blog/category?languageCode=${ACTIVE_LOCALE}`)
       : Promise.resolve([]),
-    cachedProducts(host, `${apiBaseUrl}/product?languageCode=${ACTIVE_LOCALE}`),
-    cachedProductCategories(host, `${apiBaseUrl}/product/category?languageCode=${ACTIVE_LOCALE}`),
+    catalogueEnabled
+      ? cachedProducts(host, `${apiBaseUrl}/product?languageCode=${ACTIVE_LOCALE}`)
+      : Promise.resolve([]),
+    catalogueEnabled
+      ? cachedProductCategories(host, `${apiBaseUrl}/product/category?languageCode=${ACTIVE_LOCALE}`)
+      : Promise.resolve([]),
   ])
 
   return [

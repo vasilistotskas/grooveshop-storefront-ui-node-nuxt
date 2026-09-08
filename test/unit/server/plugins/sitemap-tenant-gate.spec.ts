@@ -7,6 +7,7 @@
  * plugin removes those URLs per tenant at request time.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { settingEnabledForHost } from '../../../../server/utils/tenantSetting'
 
 vi.stubGlobal('useRuntimeConfig', () => ({
   apiBaseUrl: 'https://api.example.com/api/v1',
@@ -22,6 +23,11 @@ vi.stubGlobal('$fetch', (url: string, opts: { query?: { key?: string } }) => {
   if (url.includes('/settings/get')) return settingsMock(opts?.query?.key)
   throw new Error(`unexpected $fetch: ${url}`)
 })
+
+// `settingEnabledForHost` is a Nitro auto-import in the plugin. The
+// real one is stubbed in (rather than a fake) so these tests still
+// exercise its truthiness parsing and its fail-CLOSED branch.
+vi.stubGlobal('settingEnabledForHost', settingEnabledForHost)
 
 // Capture the hook the plugin registers so we can drive it directly.
 let resolvedHook: ((ctx: any) => Promise<void>) | undefined
@@ -42,7 +48,12 @@ const ALL_URLS = [
   { loc: 'https://example.com/' },
   { loc: 'https://example.com/loyalty-program' },
   { loc: 'https://example.com/products' },
+  { loc: 'https://example.com/blog' },
+  { loc: 'https://example.com/contact' },
 ]
+
+/** A tenant with every gated surface ON, to vary one at a time. */
+const OPEN = { loyaltyEnabled: true, blogEnabled: true }
 
 async function run(tenant: Record<string, unknown> | null) {
   const ctx = {
@@ -65,19 +76,56 @@ describe('sitemap-tenant-gate', () => {
   })
 
   it('drops a gated route when the tenant plan flag is off', async () => {
-    const locs = await run({ loyaltyEnabled: false })
+    const locs = await run({ ...OPEN, loyaltyEnabled: false })
 
     expect(locs).not.toContain('https://example.com/loyalty-program')
     // Ungated URLs are untouched.
-    expect(locs).toContain('https://example.com/products')
+    expect(locs).toContain('https://example.com/contact')
     expect(locs).toContain('https://example.com/')
-    // The plan gate short-circuits before any settings lookup.
-    expect(settingsMock).not.toHaveBeenCalled()
+    // The plan gate short-circuits before ITS settings lookup.
+    expect(settingsMock).not.toHaveBeenCalledWith('LOYALTY_ENABLED')
+  })
+
+  it('drops the catalogue when the merchant setting is off', async () => {
+    // One tier, not two: a store can hold a product model and serve no
+    // shop, which is not a plan the platform sells or withholds.
+    const locs = await run(OPEN)
+
+    expect(settingsMock).toHaveBeenCalledWith('CATALOGUE_ENABLED')
+    expect(locs).not.toContain('https://example.com/products')
+  })
+
+  it('keeps the catalogue when the merchant setting is on', async () => {
+    settingsMock.mockResolvedValue({ value: 'True' })
+
+    const locs = await run(OPEN)
+
+    expect(locs).toContain('https://example.com/products')
+  })
+
+  it('drops the blog index on the plan flag alone', async () => {
+    // No extra_settings counterpart exists for the blog: the flag is
+    // the sole gate, and `middleware/blog-enabled.ts` reads it too.
+    const locs = await run({ ...OPEN, blogEnabled: false })
+
+    expect(locs).not.toContain('https://example.com/blog')
+    expect(settingsMock).not.toHaveBeenCalledWith('BLOG_ENABLED')
+  })
+
+  it('keeps the blog index without consulting any setting', async () => {
+    const ctx = {
+      urls: [{ loc: '/blog' }, { loc: '/blog/categories' }],
+      sitemapName: 'sitemap',
+      event: { context: { tenant: OPEN } },
+    }
+    await resolvedHook!(ctx)
+
+    expect(ctx.urls.map(u => u.loc)).toEqual(['/blog', '/blog/categories'])
   })
 
   it('drops a gated route when the plan flag is on but the runtime setting is false', async () => {
     // Exactly the webside.gr state that put a 404 in the sitemap.
-    const locs = await run({ loyaltyEnabled: true })
+    const locs = await run(OPEN)
 
     expect(settingsMock).toHaveBeenCalledWith('LOYALTY_ENABLED')
     expect(locs).not.toContain('https://example.com/loyalty-program')
@@ -86,7 +134,7 @@ describe('sitemap-tenant-gate', () => {
   it('keeps a gated route when both gates pass', async () => {
     settingsMock.mockResolvedValue({ value: 'True' })
 
-    const locs = await run({ loyaltyEnabled: true })
+    const locs = await run(OPEN)
 
     expect(locs).toContain('https://example.com/loyalty-program')
   })
@@ -94,7 +142,7 @@ describe('sitemap-tenant-gate', () => {
   it('fails closed when the settings lookup errors', async () => {
     settingsMock.mockRejectedValue(new Error('backend down'))
 
-    const locs = await run({ loyaltyEnabled: true })
+    const locs = await run(OPEN)
 
     expect(locs).not.toContain('https://example.com/loyalty-program')
   })
@@ -102,7 +150,7 @@ describe('sitemap-tenant-gate', () => {
   it('resolves the tenant itself when the sitemap route bypassed tenant middleware', async () => {
     getTenantConfigMock.mockResolvedValueOnce({
       type: 'ok',
-      config: { loyaltyEnabled: false },
+      config: { ...OPEN, loyaltyEnabled: false },
     })
 
     const locs = await run(null)
@@ -116,14 +164,14 @@ describe('sitemap-tenant-gate', () => {
       urls: [
         { loc: '/el/loyalty-program' },
         { loc: '/en/loyalty-program' },
-        { loc: '/products' },
+        { loc: '/contact' },
       ],
       sitemapName: 'sitemap',
-      event: { context: { tenant: { loyaltyEnabled: false } } },
+      event: { context: { tenant: { ...OPEN, loyaltyEnabled: false } } },
     }
     await resolvedHook!(ctx)
 
-    expect(ctx.urls.map(u => u.loc)).toEqual(['/products'])
+    expect(ctx.urls.map(u => u.loc)).toEqual(['/contact'])
   })
 
   it('leaves the sitemap untouched when the tenant cannot be resolved', async () => {
@@ -149,7 +197,9 @@ describe('sitemap-tenant-gate', () => {
       const ctx = {
         urls: [...urls],
         sitemapName: 'sitemap',
-        event: { context: { tenant: { loyaltyEnabled: false, ...tenant } } },
+        event: {
+          context: { tenant: { ...OPEN, loyaltyEnabled: false, ...tenant } },
+        },
       }
       await resolvedHook!(ctx)
       return ctx.urls as Array<Record<string, any>>
@@ -161,21 +211,21 @@ describe('sitemap-tenant-gate', () => {
     it('drops the prefixed locale a single-language tenant does not serve', async () => {
       const urls = await runLocales(GREEK_ONLY, [
         { loc: '/' },
-        { loc: '/products' },
+        { loc: '/contact' },
         { loc: '/en' },
-        { loc: '/en/products' },
+        { loc: '/en/contact' },
       ])
 
-      expect(urls.map(u => u.loc)).toEqual(['/', '/products'])
+      expect(urls.map(u => u.loc)).toEqual(['/', '/contact'])
     })
 
     it('keeps both locales for a bilingual tenant', async () => {
       const urls = await runLocales(BILINGUAL, [
-        { loc: '/products' },
-        { loc: '/en/products' },
+        { loc: '/contact' },
+        { loc: '/en/contact' },
       ])
 
-      expect(urls.map(u => u.loc)).toEqual(['/products', '/en/products'])
+      expect(urls.map(u => u.loc)).toEqual(['/contact', '/en/contact'])
     })
 
     it('drops an alternate that points at an unserved locale', async () => {
@@ -184,12 +234,12 @@ describe('sitemap-tenant-gate', () => {
         availableLocales: ['el', 'en'],
       }, [
         {
-          loc: '/products',
+          loc: '/contact',
           alternatives: [
-            { hreflang: 'el-GR', href: '/products' },
-            { hreflang: 'en-US', href: '/en/products' },
-            { hreflang: 'de-DE', href: '/de/products' },
-            { hreflang: 'x-default', href: '/products' },
+            { hreflang: 'el-GR', href: '/contact' },
+            { hreflang: 'en-US', href: '/en/contact' },
+            { hreflang: 'de-DE', href: '/de/contact' },
+            { hreflang: 'x-default', href: '/contact' },
           ],
         },
       ])
@@ -206,10 +256,10 @@ describe('sitemap-tenant-gate', () => {
       // every crawler's eyes.
       const urls = await runLocales(GREEK_ONLY, [
         {
-          loc: '/products',
+          loc: '/contact',
           alternatives: [
-            { hreflang: 'el-GR', href: '/products' },
-            { hreflang: 'en-US', href: '/en/products' },
+            { hreflang: 'el-GR', href: '/contact' },
+            { hreflang: 'en-US', href: '/en/contact' },
           ],
         },
       ])

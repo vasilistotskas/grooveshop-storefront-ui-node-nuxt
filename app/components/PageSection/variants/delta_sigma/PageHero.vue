@@ -50,9 +50,15 @@ const TONES = {
 
 const tone = computed(() => TONES[props.callout?.tone ?? 'info'])
 
-/** True when the page gives the hero a right-hand column at all. */
+/**
+ * True when the page gives the hero a right-hand column at all.
+ *
+ * `stats` counts: the register artboard puts its trio opposite the
+ * body rather than under it, which is the only placement any of these
+ * boards gives a hero stat row.
+ */
 const hasAside = computed(
-  () => !!props.callout || !!props.facts?.length,
+  () => !!props.callout || !!props.facts?.length || !!props.stats?.length,
 )
 </script>
 
@@ -159,12 +165,17 @@ const hasAside = computed(
             {{ secondaryCtaText }}
           </NuxtLinkLocale>
         </div>
+      </div>
 
+      <div
+        v-if="hasAside"
+        class="flex flex-col gap-4"
+      >
         <dl
           v-if="stats?.length"
           class="
-            mt-12 grid grid-cols-3 gap-x-4 gap-y-6
-            sm:flex sm:flex-wrap sm:gap-x-10
+            flex flex-wrap gap-x-10 gap-y-6
+            lg:justify-end
           "
         >
           <div
@@ -177,8 +188,9 @@ const hasAside = computed(
             <dd>
               <span
                 class="
-                  block font-mono text-[25px] leading-none font-medium
-                  text-highlighted
+                  block text-[32px] leading-none font-bold
+                  tracking-[-0.02em] text-highlighted
+                  lg:text-[36px]
                 "
               >{{ stat.value }}</span>
               <span
@@ -188,12 +200,7 @@ const hasAside = computed(
             </dd>
           </div>
         </dl>
-      </div>
 
-      <div
-        v-if="hasAside"
-        class="flex flex-col gap-4"
-      >
         <div
           v-if="callout"
           class="rounded-xl border bg-muted p-6"

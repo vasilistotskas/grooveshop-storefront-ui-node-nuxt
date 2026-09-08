@@ -91,6 +91,7 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'option_selector@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/OptionSelector.vue')),
   'comparison_table@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/ComparisonTable.vue')),
   'flow_steps@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/FlowSteps.vue')),
+  'project_register@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/ProjectRegister.vue')),
 
   // webside tenant variants — full-page marketing/content sections with
   // no props. Base (non-variant) entries deliberately do NOT exist for

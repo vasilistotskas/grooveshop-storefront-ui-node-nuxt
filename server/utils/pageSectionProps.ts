@@ -264,6 +264,40 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     })
     .partial()
     .strip(),
+  project_register: z
+    .object({
+      // A register, not a list of articles: `items` carries every row
+      // and `sectors` the taxonomy it filters by. A row's `sector` is
+      // a KEY into `sectors` — Django refuses a key that isn't
+      // declared there, and the storefront falls back to a neutral
+      // pill rather than drop the row.
+      metaLabel: z.string().max(60),
+      note: z.string().max(400),
+      sectors: z
+        .array(
+          z
+            .object({
+              key: z.string().min(1).max(40),
+              label: z.string().min(1).max(40),
+            })
+            .strip(),
+        )
+        .max(12),
+      items: z
+        .array(
+          z
+            .object({
+              sector: z.string().max(40).optional(),
+              title: z.string().min(1).max(200),
+              note: z.string().max(200).optional(),
+              meta: z.string().max(120).optional(),
+            })
+            .strip(),
+        )
+        .max(200),
+    })
+    .partial()
+    .strip(),
   page_hero: z
     .object({
       // The top of an inner page. `callout.tone` is an ENUM, not a

@@ -39,16 +39,21 @@ import { tenantAllowedLocales } from '~~/shared/i18n/tenantLocales'
  * needs.
  *
  * The dynamic half of the sitemap (`server/api/__sitemap__/urls.ts`)
- * already gates blog URLs on `tenant.blogEnabled`; this closes the same
- * hole for static routes.
+ * gates blog URLs on `tenant.blogEnabled` and product URLs on
+ * `CATALOGUE_ENABLED`; this closes the same hole for the static routes
+ * that head each of those surfaces.
  */
 interface GatedRoute {
   /** Path as it appears in the sitemap, without locale prefix. */
   path: string
-  /** Commercial gate — the tenant's plan flag. */
-  planFlag: (tenant: TenantConfig) => boolean
+  /**
+   * Commercial gate — the tenant's plan flag. Optional: a surface can
+   * be gated operationally only (the catalogue) or commercially only
+   * (the blog), and a missing tier is not a closed one.
+   */
+  planFlag?: (tenant: TenantConfig) => boolean
   /** Operational gate — the merchant's `extra_settings` key. */
-  settingKey: string
+  settingKey?: string
 }
 
 // Mirrors the two-tier gate the route's middleware applies
@@ -65,6 +70,18 @@ const GATED_ROUTES: readonly GatedRoute[] = [
     planFlag: tenant => tenant.loyaltyEnabled,
     settingKey: 'LOYALTY_ENABLED',
   },
+  // The catalogue's own two indexable static routes. `/search` is not
+  // here because it carries `robots: false` and never reaches a
+  // sitemap; the DYNAMIC product and category URLs are gated on the
+  // same setting in `server/api/__sitemap__/urls.ts`.
+  { path: '/products', settingKey: 'CATALOGUE_ENABLED' },
+  // The blog's, gated on the plan flag alone — there is no
+  // extra_settings counterpart, `middleware/blog-enabled.ts` reads the
+  // flag directly, and the dynamic post/category URLs already follow
+  // it in `urls.ts`. Without these two entries a store with no blog
+  // still advertised the index it 404s.
+  { path: '/blog', planFlag: tenant => tenant.blogEnabled },
+  { path: '/blog/categories', planFlag: tenant => tenant.blogEnabled },
 ]
 
 /**
@@ -84,32 +101,6 @@ function pathOf(loc: string | URL | undefined): string {
   // `loc` is still a path here (normaliseEntry absolutizes AFTER this
   // hook), but tolerate an absolute one either way.
   return raw.startsWith('http') ? new URL(raw).pathname : raw
-}
-
-async function isSettingEnabled(
-  host: string,
-  apiBaseUrl: string,
-  key: string,
-): Promise<boolean> {
-  try {
-    const setting = await $fetch<{ value?: string }>(
-      `${apiBaseUrl}/settings/get`,
-      {
-        method: 'GET',
-        query: { key },
-        // Django resolves the tenant schema from this header; without it
-        // every tenant would inherit the public schema's flag value.
-        headers: host ? { 'X-Forwarded-Host': host } : undefined,
-      },
-    )
-    return (setting?.value ?? 'false').toLowerCase() === 'true'
-  }
-  catch {
-    // Fail CLOSED, unlike the route middleware. A middleware that fails
-    // open costs one rendered page; a sitemap that fails open publishes
-    // a URL the same gate will 404 — the defect this exists to prevent.
-    return false
-  }
 }
 
 export default defineNitroPlugin((nitroApp) => {
@@ -135,8 +126,9 @@ export default defineNitroPlugin((nitroApp) => {
 
     const allowed = await Promise.all(
       GATED_ROUTES.map(async (route) => {
-        if (!route.planFlag(tenant)) return false
-        return isSettingEnabled(host, apiBaseUrl, route.settingKey)
+        if (route.planFlag && !route.planFlag(tenant)) return false
+        if (!route.settingKey) return true
+        return settingEnabledForHost(host, apiBaseUrl, route.settingKey)
       }),
     )
 

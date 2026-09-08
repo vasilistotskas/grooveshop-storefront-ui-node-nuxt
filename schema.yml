@@ -34665,6 +34665,7 @@ components:
         - option_selector
         - comparison_table
         - flow_steps
+        - project_register
       type: string
       description: |-
         * `hero_banner` - Hero Banner
@@ -34705,6 +34706,7 @@ components:
         * `option_selector` - Option Selector
         * `comparison_table` - Comparison Table
         * `flow_steps` - Flow Steps
+        * `project_register` - Project Register
     ConfirmAgentPaymentRequestRequest:
       type: object
       properties:

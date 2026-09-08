@@ -1,9 +1,11 @@
 /**
  * Unit tests for server/api/__sitemap__/urls.ts
  *
- * Verifies that blog URLs are excluded from the sitemap when the tenant
- * has blogEnabled=false, so disabled tenants do not leak their blog URL
- * surface in search engines.
+ * Verifies that a gated surface is excluded from the sitemap — blog
+ * URLs when the tenant has blogEnabled=false, product URLs when the
+ * merchant setting CATALOGUE_ENABLED is off — so a disabled surface
+ * does not leak its URLs into search engines and answer them with the
+ * 404 its own route middleware throws.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { extractMediaStreamPath } from '../../../../../shared/utils/mediaStream'
@@ -25,6 +27,12 @@ vi.stubGlobal('extractMediaStreamPath', extractMediaStreamPath)
 // itself via getTenantConfig() when event.context.tenant is absent.
 const getTenantConfigMock = vi.fn()
 vi.stubGlobal('getTenantConfig', getTenantConfigMock)
+
+// The catalogue gate reads an extra_setting through this Nitro
+// auto-import. Default ON, so every assertion about product URLs that
+// predates the gate still describes a store that HAS a catalogue.
+const catalogueMock = vi.fn(async (_host: string, _api: string, _key: string) => true)
+vi.stubGlobal('settingEnabledForHost', catalogueMock)
 
 // asSitemapUrl just returns its argument
 vi.stubGlobal('asSitemapUrl', (url: unknown) => url)
@@ -66,6 +74,7 @@ function makeEvent(blogEnabled: boolean) {
 describe('server/api/__sitemap__/urls — blog feature gating', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    catalogueMock.mockResolvedValue(true)
   })
 
   it('includes blog post and category URLs when blogEnabled is true', async () => {
@@ -87,9 +96,38 @@ describe('server/api/__sitemap__/urls — blog feature gating', () => {
   })
 })
 
+describe('server/api/__sitemap__/urls — catalogue gating', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    catalogueMock.mockResolvedValue(true)
+  })
+
+  it('reads CATALOGUE_ENABLED for the requesting host', async () => {
+    await handler(makeEvent(true))
+
+    expect(catalogueMock).toHaveBeenCalledWith(
+      'example.com',
+      'https://api.example.com/api/v1',
+      'CATALOGUE_ENABLED',
+    )
+  })
+
+  it('excludes product and category URLs when the catalogue is off', async () => {
+    catalogueMock.mockResolvedValue(false)
+
+    const urls = await handler(makeEvent(true)) as Array<{ loc: string }>
+    const locs = urls.map(u => u.loc)
+
+    expect(locs.some(l => l.includes('/products/'))).toBe(false)
+    // The two surfaces are gated independently.
+    expect(locs.some(l => l.includes('/blog/post/'))).toBe(true)
+  })
+})
+
 describe('server/api/__sitemap__/urls — tenant resolution (bypassed route)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    catalogueMock.mockResolvedValue(true)
   })
 
   it('resolves tenant via getTenantConfig when event.context.tenant is absent, honoring its blogEnabled', async () => {
@@ -128,6 +166,7 @@ describe('server/api/__sitemap__/urls — per-tenant image host', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
+    catalogueMock.mockResolvedValue(true)
     cachedFetcherData['products'] = [PRODUCT_WITH_IMAGE]
   })
 
