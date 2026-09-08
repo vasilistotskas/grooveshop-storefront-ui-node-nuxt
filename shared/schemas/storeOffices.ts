@@ -24,6 +24,7 @@ export const zStoreOfficeI18n = z
     street: z.string().optional(),
     area: z.string().optional(),
     city: z.string().optional(),
+    role: z.string().optional(),
   })
   .strip()
 
@@ -34,6 +35,13 @@ export const zStoreOffice = z
     area: z.string().optional(),
     postal: z.string().optional(),
     city: z.string().optional(),
+    /**
+     * The short word a design prints BESIDE an office — "ΕΔΡΑ" /
+     * "ΓΡΑΦΕΙΟ", "Head office" / "Branch". An attribute of the office,
+     * so the page that shows it and the footer that lists them cannot
+     * disagree about which one is the seat.
+     */
+    role: z.string().optional(),
     phones: z.array(z.string()).max(6).optional(),
     i18n: z.record(z.string(), zStoreOfficeI18n).optional(),
   })

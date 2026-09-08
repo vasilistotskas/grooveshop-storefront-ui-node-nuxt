@@ -101,6 +101,8 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
       buttonText: z.string().max(100),
       buttonLink: zLink,
       backgroundColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+      // WHICH page surface the band paints — an enum, not a colour.
+      surface: z.enum(['default', 'muted']),
     })
     .partial()
     .strip(),
@@ -264,6 +266,42 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     })
     .partial()
     .strip(),
+  vendor_cards: z
+    .object({
+      // A card per manufacturer: a category label, what the store does
+      // with it, and the part numbers, buses and protocols as chips.
+      note: z.string().max(400),
+      items: z
+        .array(
+          z
+            .object({
+              title: z.string().min(1).max(60),
+              label: z.string().max(60).optional(),
+              text: z.string().max(600).optional(),
+              tags: z.array(z.string().min(1).max(40)).max(8).optional(),
+            })
+            .strip(),
+        )
+        .max(8),
+    })
+    .partial()
+    .strip(),
+  contact_panel: z
+    .object({
+      // The contact page as one band. The offices are NOT here — they
+      // come from the STORE_OFFICES setting, and the form's own field
+      // labels live in the component, being UI rather than copy.
+      eyebrow: z.string().max(100),
+      heading: z.string().max(200),
+      body: z.string().max(600),
+      hint: z.string().max(400),
+      responseTime: z.string().max(120),
+      subjects: z
+        .array(z.object({ label: z.string().min(1).max(40) }).strip())
+        .max(6),
+    })
+    .partial()
+    .strip(),
   project_register: z
     .object({
       // A register, not a list of articles: `items` carries every row
@@ -380,6 +418,9 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
   features_grid: z
     .object({
       heading: z.string().max(200),
+      // A standfirst under the heading, for a grid whose cells are
+      // framed together rather than introduced one by one.
+      body: z.string().max(600),
       items: z
         .array(
           z
@@ -392,6 +433,9 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
         )
         .max(12),
       columns: z.number().int().min(1).max(4),
+      // `framed` is one bordered box of equal cells, divided by rules:
+      // the parts of a single promise rather than a numbered sequence.
+      decor: z.enum(['none', 'gradient_tiles', 'framed']),
       // The band's own link, on the heading's baseline rather than
       // under the grid, and the cell that answers "what if mine is not
       // one of these?".
@@ -405,7 +449,6 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
           ctaLink: zLink.optional(),
         })
         .strip(),
-      decor: z.enum(['none', 'gradient_tiles']),
     })
     .partial()
     .strip(),

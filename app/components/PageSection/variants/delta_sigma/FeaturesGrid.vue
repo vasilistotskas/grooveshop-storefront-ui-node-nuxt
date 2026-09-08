@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { RouteLocationNamedI18n } from 'vue-router'
+import FeaturesGridFramed from './FeaturesGridFramed.vue'
 
 /**
  * Δelta Σigma's Ειδίκευση band — the seven fields, plus the cell that
@@ -35,9 +36,11 @@ import type { RouteLocationNamedI18n } from 'vue-router'
 const props = defineProps<{
   title?: string
   heading?: string
+  body?: string
   items?: { title: string, text?: string, icon?: string }[]
   ctaText?: string
   ctaLink?: string
+  decor?: 'none' | 'gradient_tiles' | 'framed'
   prompt?: {
     title: string
     text?: string
@@ -46,6 +49,14 @@ const props = defineProps<{
   }
 }>()
 
+/**
+ * `decor: "framed"` is a DIFFERENT band drawn from the same data — one
+ * bordered frame of equal cells, no ordinals, no tiles (see the
+ * sibling component). Delegated rather than branched inside this
+ * template: the two share their props and nothing else, and a single
+ * component carrying both layouts would be two designs in one file.
+ */
+
 /** `01`…`07` — the artboard numbers the fields in the grid's order. */
 const ordinal = (index: number) => String(index + 1).padStart(2, '0')
 
@@ -53,8 +64,14 @@ const hasHeader = computed(() => !!(props.title || props.heading))
 </script>
 
 <template>
+  <FeaturesGridFramed
+    v-if="decor === 'framed'"
+    :heading="heading"
+    :body="body"
+    :items="items"
+  />
   <section
-    v-if="items?.length"
+    v-else-if="items?.length"
     class="
       border-b border-default bg-default px-5 py-16
       lg:px-20 lg:py-24

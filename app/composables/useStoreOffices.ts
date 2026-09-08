@@ -4,6 +4,8 @@ export interface StoreOffice {
   area?: string
   postal?: string
   city?: string
+  /** The short word a design prints beside an office ("ΕΔΡΑ"). */
+  role?: string
   phones: string[]
   /** See `formatOfficeAddress`. */
   addressLine: string
@@ -54,6 +56,7 @@ export function useStoreOffices() {
         area: merged.area,
         postal: merged.postal,
         city: merged.city,
+        role: merged.role,
         phones: office.phones ?? [],
         addressLine: formatOfficeAddress(merged),
       }

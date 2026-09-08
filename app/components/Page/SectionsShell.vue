@@ -20,6 +20,13 @@ defineProps<{ sections: PageSection[] }>()
 defineSlots<{
   /** The page's h1, which is a page concern, not a section's. */
   title?: (props: object) => unknown
+  /**
+   * What the page carries UNDER its sections — `/contact`'s form. In
+   * the platform shell it lands inside the container with them; in the
+   * full-bleed one it follows the last band, since there is no
+   * container to be inside.
+   */
+  after?: (props: object) => unknown
 }>()
 
 const tenantStore = useTenantStore()
@@ -34,6 +41,7 @@ const fullBleed = computed(() => hasFullBleedBands(tenantStore.schemaName))
       :key="section.uuid"
       :section="section"
     />
+    <slot name="after" />
   </div>
   <PageWrapper v-else>
     <slot name="title" />
@@ -55,6 +63,7 @@ const fullBleed = computed(() => hasFullBleedBands(tenantStore.schemaName))
           :section="section"
         />
       </div>
+      <slot name="after" />
     </section>
   </PageWrapper>
 </template>

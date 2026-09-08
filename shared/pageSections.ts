@@ -26,6 +26,13 @@
  */
 export const HEADING_SECTION_TYPES: ReadonlySet<string> = new Set([
   'hero_banner',
+  // The top of an INNER page, which is the same claim one layer down:
+  // its `heading` is that page's subject. Missing here, `/contact`
+  // served two h1s — the hero's and the page's own `PageTitle` — for
+  // every tenant whose layout opens with one.
+  'page_hero',
+  // Owns the whole contact page, heading included.
+  'contact_panel',
 ])
 
 /** Whether a rendered section list already provides the page's h1. */
@@ -34,5 +41,26 @@ export function sectionsProvideHeading(
 ): boolean {
   return (sections ?? []).some(section =>
     HEADING_SECTION_TYPES.has(section.componentType),
+  )
+}
+
+/**
+ * Section types that render a page's PRIMARY form.
+ *
+ * Same rule as the heading, one layer out: a page that ships a form of
+ * its own has to stand down when the tenant's layout already carries
+ * one, or the visitor is offered the same enquiry twice. `/contact` is
+ * the only page this applies to today.
+ */
+export const FORM_SECTION_TYPES: ReadonlySet<string> = new Set([
+  'contact_panel',
+])
+
+/** Whether a rendered section list already provides the page's form. */
+export function sectionsProvideForm(
+  sections: readonly { componentType: string }[] | undefined,
+): boolean {
+  return (sections ?? []).some(section =>
+    FORM_SECTION_TYPES.has(section.componentType),
   )
 }

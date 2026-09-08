@@ -29,15 +29,18 @@ const ROUTES = [
   '/eidikefsi', '/en/eidikefsi',
   '/drastiriotites', '/en/drastiriotites',
   '/synergates', '/en/synergates',
-  '/blog', '/en/blog',
+  '/empeiria', '/en/empeiria',
   '/contact', '/en/contact',
   // Legal — platform pages, still reachable and still ours to keep
   // rendering.
   '/privacy-policy', '/terms-of-use', '/cookies-policy', '/return-policy',
   // Surfaces the design does NOT have. Listed so the audit says
-  // whether they are still reachable, which is the point.
-  '/products/category/1/deset',
+  // whether they are still reachable, which is the point: each of
+  // these must answer 404 once the catalogue setting and the blog
+  // plan flag are off.
+  '/products', '/products/category/1/deset',
   '/products/2/deset-invt-tm750',
+  '/blog', '/blog/categories',
   '/blog/post/48/siragges-asprovaltas',
   '/search', '/offers',
   // Retired: the prose pages the four above replaced.
@@ -128,7 +131,15 @@ for (const scheme of SCHEMES) {
       const errors = []
       page.on('console', m => m.type() === 'error' && errors.push(m.text().slice(0, 120)))
       page.on('pageerror', e => errors.push(`pageerror: ${e.message.slice(0, 120)}`))
-      page.on('requestfailed', r => errors.push(`net: ${r.url().slice(-50)}`))
+      // With the REASON: a `keepalive` POST the page fires as it
+      // unloads (the cookie-consent beacon) is aborted when this
+      // script closes the page, and an ERR_ABORTED on a request the
+      // site made correctly is not a finding. Without the reason it
+      // read as "cookie-consent fails on every page", and it does
+      // not — it answers 204.
+      page.on('requestfailed', r => errors.push(
+        `net: ${r.url().slice(-46)} ${r.failure()?.errorText ?? '?'}`,
+      ))
       let status = 0
       try {
         const res = await page.goto(BASE + route, {

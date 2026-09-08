@@ -24,24 +24,36 @@ import type { RouteLocationNamedI18n } from 'vue-router'
  * The hexes below are the MEASUREMENT that established the mapping,
  * not what the markup says.
  */
-defineProps<{
+const props = defineProps<{
   heading?: string
   description?: string
   buttonText?: string
   buttonLink?: string
+  surface?: 'default' | 'muted'
 }>()
 
 const { phones } = useStoreOffices()
 const phone = computed(() => phones.value[0])
+
+/**
+ * Which of the two page surfaces the band paints. `default` is what
+ * the home and συνεργάτες boards show; the register's board raises it,
+ * because there the band above is the ground and two adjacent bands
+ * sharing a surface read as one.
+ */
+const ground = computed(() =>
+  props.surface === 'muted' ? 'bg-muted' : 'bg-default',
+)
 </script>
 
 <template>
   <section
     v-if="heading || buttonText"
     class="
-      border-b border-default bg-default px-5 py-16
+      border-b border-default px-5 py-16
       lg:px-20 lg:py-24
     "
+    :class="ground"
   >
     <div
       class="

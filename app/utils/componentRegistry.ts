@@ -92,6 +92,10 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'comparison_table@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/ComparisonTable.vue')),
   'flow_steps@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/FlowSteps.vue')),
   'project_register@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/ProjectRegister.vue')),
+  'vendor_cards@delta_sigma': lazySection(() => import('~/components/PageSection/variants/delta_sigma/VendorCards.vue')),
+  // Eager: it IS the contact page — its heading is the h1 and its
+  // form is the only thing on the route.
+  'contact_panel@delta_sigma': eagerSection(() => import('~/components/PageSection/variants/delta_sigma/ContactPanel.vue')),
 
   // webside tenant variants — full-page marketing/content sections with
   // no props. Base (non-variant) entries deliberately do NOT exist for

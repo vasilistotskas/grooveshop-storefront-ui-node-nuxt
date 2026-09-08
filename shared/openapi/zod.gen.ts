@@ -1099,6 +1099,8 @@ export const zCompartmentSizeEnum = z.union([
  * * `comparison_table` - Comparison Table
  * * `flow_steps` - Flow Steps
  * * `project_register` - Project Register
+ * * `vendor_cards` - Vendor Cards
+ * * `contact_panel` - Contact Panel
  */
 export const zComponentTypeEnum = z.enum([
   'hero_banner',
@@ -1140,8 +1142,10 @@ export const zComponentTypeEnum = z.enum([
   'comparison_table',
   'flow_steps',
   'project_register',
+  'vendor_cards',
+  'contact_panel',
 ]).register(z.globalRegistry, {
-  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_categories` - Blog Categories Rail\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `blog_posts_list` - Blog Posts List\n* `recently_viewed` - Recently Viewed Rail\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `about_content` - About Content\n* `vision_content` - Vision Content\n* `what_is_microlearning` - What Is Microlearning\n* `why_microlearning` - Why Microlearning\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar\n* `business_hours` - Business Hours\n* `location_map` - Location Map\n* `features_grid` - Features Grid\n* `media_text` - Media + Text\n* `image_gallery` - Image Gallery\n* `story_timeline` - Story Timeline\n* `faq` - FAQ Accordion\n* `partner_strip` - Partner Strip\n* `pull_quote` - Pull Quote\n* `reference_cards` - Reference Cards\n* `page_hero` - Page Hero\n* `feature_lists` - Feature Lists\n* `option_selector` - Option Selector\n* `comparison_table` - Comparison Table\n* `flow_steps` - Flow Steps\n* `project_register` - Project Register',
+  description: '* `hero_banner` - Hero Banner\n* `hero_carousel` - Hero Carousel\n* `products_slider` - Products Slider\n* `products_grid` - Products Grid\n* `featured_products` - Προβεβλημένα Προϊόντα\n* `product_categories` - Κατηγορίες προϊόντος\n* `blog_categories` - Blog Categories Rail\n* `blog_posts_carousel` - Blog Posts Carousel\n* `blog_posts_grid` - Blog Posts Grid\n* `blog_posts_list` - Blog Posts List\n* `recently_viewed` - Recently Viewed Rail\n* `rich_text` - Rich Text Block\n* `cta_banner` - Call to Action Banner\n* `newsletter_signup` - Newsletter Signup\n* `testimonials` - Testimonials\n* `about_content` - About Content\n* `vision_content` - Vision Content\n* `what_is_microlearning` - What Is Microlearning\n* `why_microlearning` - Why Microlearning\n* `spacer` - Spacer\n* `divider` - Divider\n* `loyalty_hero` - Loyalty Program Hero\n* `search_bar` - Search Bar\n* `business_hours` - Business Hours\n* `location_map` - Location Map\n* `features_grid` - Features Grid\n* `media_text` - Media + Text\n* `image_gallery` - Image Gallery\n* `story_timeline` - Story Timeline\n* `faq` - FAQ Accordion\n* `partner_strip` - Partner Strip\n* `pull_quote` - Pull Quote\n* `reference_cards` - Reference Cards\n* `page_hero` - Page Hero\n* `feature_lists` - Feature Lists\n* `option_selector` - Option Selector\n* `comparison_table` - Comparison Table\n* `flow_steps` - Flow Steps\n* `project_register` - Project Register\n* `vendor_cards` - Vendor Cards\n* `contact_panel` - Contact Panel',
 })
 
 export const zConfirmAgentPaymentRequestRequest = z.object({
@@ -1183,6 +1187,9 @@ export const zContactWrite = z.object({
   name: z.string().max(100),
   email: z.email().max(254),
   message: z.string(),
+  company: z.string().max(150).optional(),
+  phone: z.string().max(30).optional(),
+  subject: z.string().max(60).optional(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
   uuid: z.uuid().readonly(),
@@ -1192,6 +1199,9 @@ export const zContactWriteRequest = z.object({
   name: z.string().min(1).max(100),
   email: z.email().min(1).max(254),
   message: z.string().min(1),
+  company: z.string().max(150).optional(),
+  phone: z.string().max(30).optional(),
+  subject: z.string().max(60).optional(),
 })
 
 /**
@@ -6972,6 +6982,9 @@ export const zContactWriteWritable = z.object({
   name: z.string().max(100),
   email: z.email().max(254),
   message: z.string(),
+  company: z.string().max(150).optional(),
+  phone: z.string().max(30).optional(),
+  subject: z.string().max(60).optional(),
 })
 
 /**
