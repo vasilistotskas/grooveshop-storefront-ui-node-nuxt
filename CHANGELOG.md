@@ -1,3 +1,10 @@
+# [3.180.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.179.0...v3.180.0) (2026-09-08)
+
+
+### Features
+
+* **sections:** the project register, and keep a gated surface out of the sitemap ([b03fba8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b03fba87096640bebddca6a1e982b965b0b747b2))
+
 # [3.179.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.178.0...v3.179.0) (2026-09-07)
 
 
