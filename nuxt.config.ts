@@ -909,10 +909,17 @@ export default defineNuxtConfig({
         // layouts and navigation rows carry an `icon` string (see
         // page_config/models.py, and devtools/delta_sigma.py for the
         // engineering set). No scanner can see those, so a CMS icon has
-        // to be declared here to render server-side. Adding a genuinely
-        // new one in Django still works — the browser fetches it from
-        // /api/_nuxt_icon after hydration — it just paints late until it
-        // is listed. Keep this in step with the seeders.
+        // to be declared here to render server-side.
+        //
+        // Add a genuinely new one in Django and SSR cannot resolve it:
+        // the browser recovers it from /api/_nuxt_icon (relative, which
+        // works in a browser even though it cannot on the server), but
+        // only once that component hydrates — and a lazily-hydrated
+        // section may never do so, which is how the footer socials
+        // stayed permanently blank. The signal is @nuxt/icon's own
+        // `[Icon] failed to load icon \`X\`` warning: after this commit
+        // it is rare and precise, and it means "add X to this list".
+        // Keep it in step with the seeders.
         'i-fa6-solid:desktop',
         'i-fa6-solid:globe',
         'i-fa6-solid:microchip',

@@ -123,6 +123,22 @@ describe('validation log levels', () => {
     expect(JSON.stringify(logged)).not.toContain('gravitysmtp-settings')
   })
 
+  it('survives a symbol in the issue path', () => {
+    // Zod 4 types `issue.path` as `PropertyKey[]`, and
+    // `Array.prototype.join` coerces via ToString, which THROWS on a
+    // symbol. Unhandled here it would turn a 400 into a 500 and lose the
+    // very log line that explains the failure.
+    stubServerGlobals({ method: 'POST', path: '/api/cart/items' })
+    const symbolic = createError({
+      statusCode: 400,
+      statusMessage: 'Validation Error',
+      data: new ZodError([{ ...ISSUE, path: [Symbol('weird'), 'page'] }]),
+    })
+
+    expect(() => run(symbolic)).not.toThrow()
+    expect(mockLog.warn.mock.calls[0]![0].issues[0].path).toBe('Symbol(weird).page')
+  })
+
   it('reports one event per failure', () => {
     stubServerGlobals({ method: 'GET', path: '/api/blog/posts' })
 

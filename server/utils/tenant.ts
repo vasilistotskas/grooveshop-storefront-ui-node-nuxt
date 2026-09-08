@@ -96,6 +96,20 @@ export async function getTenantConfig(host: string): Promise<TenantResult> {
     // exists in Django, the very next request must resolve.
     const status = (err as { status?: number })?.status ?? 0
     if (status === 404) {
+      // Log the host, because nothing else does. Django answers this from
+      // the PUBLIC schema — no tenant resolved, so its own request log
+      // reads `schema=public domain=-` with the Host nowhere in it, and
+      // the 2026-09-08 audit found ~300 of these a day that could not be
+      // told apart: a bot sending an arbitrary Host, or a real store
+      // whose `TenantDomain` row was never added. `warn`, not `error` —
+      // refusing an unknown host is this function working correctly, and
+      // negative results are deliberately never cached, so every probe
+      // re-asks.
+      log.warn({
+        tag: 'tenant',
+        message: 'getTenantConfig: no store is registered for this host',
+        domain,
+      })
       return { type: 'not_found', config: null }
     }
     log.warn({

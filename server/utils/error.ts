@@ -43,11 +43,18 @@ function failingRoute(): { method?: string, route?: string } {
 
 // Field, rule and reason — never the value. Zod's own messages describe the
 // constraint ("Invalid string: must match pattern /^-?\d+$/"), while an
-// issue's `received`/`values` can carry the payload itself, which for a
-// drifted RESPONSE would be customer data.
+// issue's `received`/`values`/`input` can carry the payload itself, which
+// for a drifted RESPONSE would be customer data.
+//
+// `.map(String)` rather than a bare `join`: Zod 4 types `issue.path` as
+// `PropertyKey[]`, and `Array.prototype.join` coerces via ToString, which
+// THROWS on a symbol. A symbol key is rare, but the throw would happen
+// inside the error handler — turning a 400 into an unhandled 500 and
+// losing the log line that explains it. `String(symbol)` is the one
+// conversion the spec allows.
 function issueDigest(zod: ZodError) {
   return zod.issues.map(issue => ({
-    path: issue.path.join('.'),
+    path: issue.path.map(String).join('.'),
     code: issue.code,
     message: issue.message,
   }))
