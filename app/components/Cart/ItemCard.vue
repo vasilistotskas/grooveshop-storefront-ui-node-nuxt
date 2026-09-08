@@ -8,7 +8,6 @@ const props = defineProps({
 const { productUrl } = useUrls()
 const { t, locale } = useI18n()
 const { $i18n } = useNuxtApp()
-const { isMobileOrTablet } = useDevice()
 const toast = useToast()
 const cartStore = useCartStore()
 const { deleteCartItem, createCartItem } = cartStore
@@ -89,17 +88,25 @@ const formattedTotal = computed(() => {
 </script>
 
 <template>
+  <!-- Layout, per the site owner: the product title sits to the RIGHT
+       of the thumbnail, and the remove button at the BOTTOM-right of
+       the block.
+
+       Previously this was `flex-col sm:flex-row`, so on a phone the
+       image stacked full-width ABOVE the title, and the bin was
+       absolutely positioned top-right behind an `isMobileOrTablet`
+       check. Both are now plain CSS at every breakpoint, which also
+       removes a JS device branch from a component rendered on a page
+       whose SSR output is cached per `x-device-class` — one fewer
+       thing that can disagree with the cache. -->
   <div
     v-if="cartItem"
-    class="
-      flex flex-col gap-4
-      sm:flex-row sm:gap-6
-    "
+    class="flex gap-4 sm:gap-6"
   >
     <div
       class="
-        relative h-24 w-full flex-shrink-0 overflow-hidden rounded-lg
-        sm:w-24
+        relative size-20 flex-shrink-0 overflow-hidden rounded-lg
+        sm:size-24
       "
     >
       <Anchor
@@ -120,66 +127,64 @@ const formattedTotal = computed(() => {
       </Anchor>
     </div>
 
-    <div class="flex flex-1 flex-col">
-      <div
-        class="
-          relative flex flex-col gap-2
-          sm:flex-row sm:justify-between sm:gap-0
-        "
-      >
-        <div>
-          <h3 class="text-base font-medium">
-            <Anchor
-              :to="{ path: productUrl(cartItem.product.id, cartItem.product.slug) }"
-              :title="alt"
-            >
-              {{ contentShorten(alt, 50) }}
-            </Anchor>
-          </h3>
-          <div
-            class="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500"
+    <div class="flex min-w-0 flex-1 flex-col">
+      <div class="min-w-0">
+        <h3 class="text-base font-medium">
+          <Anchor
+            :to="{ path: productUrl(cartItem.product.id, cartItem.product.slug) }"
+            :title="alt"
           >
-            <span>{{ t('price') }}: {{ formattedPrice }}</span>
-            <span
-              v-if="cartItem.discountValue"
-              class="text-green-600"
-            >
-              ({{ t('save') }} {{ $i18n.n(cartItem.discountValue, 'currency') }} / {{ t('per_item') }})
-            </span>
-          </div>
+            {{ contentShorten(alt, 50) }}
+          </Anchor>
+        </h3>
+        <div
+          class="mt-1 flex flex-wrap items-center gap-2 text-sm text-gray-500"
+        >
+          <span>{{ t('price') }}: {{ formattedPrice }}</span>
+          <span
+            v-if="cartItem.discountValue"
+            class="text-green-600"
+          >
+            ({{ t('save') }} {{ $i18n.n(cartItem.discountValue, 'currency') }} / {{ t('per_item') }})
+          </span>
         </div>
-
-        <UButton
-          :class="isMobileOrTablet ? 'absolute top-0 right-0' : ''"
-          color="error"
-          variant="link"
-          icon="i-fa6-solid-trash"
-          size="sm"
-          :title="t('remove_from_cart', { name: alt })"
-          @click="deleteCartItemEvent({ cartItemId: cartItem.id })"
-        />
       </div>
 
-      <div
-        class="
-          mt-4 flex flex-col gap-4
-          sm:flex-row sm:items-center sm:justify-between sm:gap-0
-        "
-      >
-        <div
-          class="
-            w-full
-            sm:w-32
-          "
-        >
+      <!-- `mt-auto` pins this row to the bottom of the text column so
+           the remove button lands at the block's bottom-right however
+           tall the title wraps. -->
+      <div class="mt-auto flex items-end justify-between gap-3 pt-4">
+        <!-- Width is the whole of T13: this control is the SAME
+             `UInputNumber` the product page uses, and it only looked
+             like a full-width bar because its container was
+             `w-full sm:w-32`. A compact box matches the product
+             page's inline stepper.
+
+             The component itself is deliberately NOT swapped for the
+             product page's markup — this one carries the cart's
+             optimistic mirror, 400ms debounce, serialised writes and
+             revert-on-4xx, none of which the product page has (it
+             only feeds a number to add-to-cart). -->
+        <div class="w-28 shrink-0">
           <QuantitySelector
             :max="cartItem.product.stock"
             :cart-item-id="cartItem.id"
           />
         </div>
-        <p class="text-sm font-medium">
-          {{ t('total') }}: {{ formattedTotal }}
-        </p>
+
+        <div class="flex items-center gap-2">
+          <p class="text-sm font-medium">
+            {{ t('total') }}: {{ formattedTotal }}
+          </p>
+          <UButton
+            color="error"
+            variant="link"
+            icon="i-fa6-solid-trash"
+            size="sm"
+            :title="t('remove_from_cart', { name: alt })"
+            @click="deleteCartItemEvent({ cartItemId: cartItem.id })"
+          />
+        </div>
       </div>
     </div>
   </div>
