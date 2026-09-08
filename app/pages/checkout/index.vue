@@ -344,7 +344,6 @@ definePageMeta({
             :schema="step2Schema"
             :partner-id="boxnowPartnerId"
             :api-options="shippingOptions"
-            :selected-pay-way="selectedPayWay"
             @next="nextStep"
             @back="prevStep"
           />

@@ -12,11 +12,6 @@ const props = defineProps<{
   // method appears first by editing the provider rows in Django
   // admin instead of editing this component.
   apiOptions: ShippingOption[]
-  // The currently selected PayWay (from useCheckoutForm). Threaded
-  // through as a prop so we can disable the BoxNow option when the
-  // shopper has a cash-on-delivery PayWay selected — BoxNow lockers
-  // do not support COD (no POS at lockers per BoxNow policy).
-  selectedPayWay?: { id: number, isOnlinePayment?: boolean } | null
 }>()
 
 const emit = defineEmits<{
@@ -41,11 +36,24 @@ const boxnowAvailable = computed(() =>
   props.apiOptions.some(o => o.providerCode === 'boxnow'),
 )
 
-// BoxNow supports COD on lockers via PAY ON THE GO — the backend
-// wires ``paymentMode='cod'`` + ``amountToBeCollected`` onto the
-// voucher when the order's pay-way is offline (see
-// ``shipping_boxnow/carrier.py:create_shipment_row``). The row is
-// only disabled when the tenant hasn't configured a BoxNow partner id.
+// Pay-way compatibility is NOT decided here, deliberately.
+//
+// The server already filters pay-ways per (carrier, kind) — a BoxNow
+// locker offers PAY ON THE GO but never courier cash-on-delivery,
+// because a locker has no POS and takes no cash
+// (``BoxNowCarrier.supported_settlements``). ``useCheckoutForm``
+// refetches ``/api/pay-way`` whenever ``shippingMethod`` changes and
+// drops a selection the server no longer offers, so an incompatible
+// combination cannot survive a method switch in either direction.
+//
+// A client-side gate here was tried and removed (``8fb8dcbc``): it
+// keyed on "is this pay-way offline?", which is true of PAY ON THE GO
+// as well, so it disabled the very product it was meant to enable.
+// The distinction is a settlement, not a boolean — and it belongs on
+// the server, which is the only place that knows what each carrier can
+// physically collect.
+//
+// So the only thing that disables the row is a missing partner id.
 const isBoxNowDisabled = computed(() => !isBoxNowConfigured.value)
 
 // Note: ``description`` is rendered inside the custom ``#label`` slot
