@@ -1,3 +1,10 @@
+## [3.182.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.1...v3.182.2) (2026-09-08)
+
+
+### Bug Fixes
+
+* **sections:** the contact card does not print its own city twice ([6497b89](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6497b89140aff6784e31324c2fb3e5ecace6a8c3))
+
 ## [3.182.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.0...v3.182.1) (2026-09-08)
 
 
