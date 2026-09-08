@@ -1,3 +1,10 @@
+# [3.183.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.7...v3.183.0) (2026-09-08)
+
+
+### Features
+
+* **contact:** upload tender documents from the contact form ([cbd2a2e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cbd2a2e9a2c6137fe15313142bfdf0c8b916b5bf))
+
 ## [3.182.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.6...v3.182.7) (2026-09-08)
 
 
