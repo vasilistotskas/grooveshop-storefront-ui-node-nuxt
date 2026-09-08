@@ -1,3 +1,10 @@
+# [3.181.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.180.0...v3.181.0) (2026-09-08)
+
+
+### Features
+
+* **sections:** the manufacturer cards and the contact page, as one band each ([a368856](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a36885675cb1fe675605a9d2c5d49be9bd46c391))
+
 # [3.180.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.179.0...v3.180.0) (2026-09-08)
 
 
