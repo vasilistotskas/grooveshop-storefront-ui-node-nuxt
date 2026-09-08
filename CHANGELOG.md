@@ -1,3 +1,10 @@
+## [3.182.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.5...v3.182.6) (2026-09-08)
+
+
+### Bug Fixes
+
+* **audit:** read a band's ground as sRGB, not as OKLCH digits ([5852776](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5852776847718f7953ac5a89251dc865e1ee8591))
+
 ## [3.182.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.4...v3.182.5) (2026-09-08)
 
 
