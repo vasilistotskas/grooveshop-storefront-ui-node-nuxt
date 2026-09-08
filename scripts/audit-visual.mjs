@@ -65,10 +65,36 @@ function luminance(css) {
 }
 
 const probe = () => {
+  // RASTERISED through a 1x1 canvas, because a computed background
+  // can come back as `oklch(...)` or `oklab(...)` — Nuxt UI's tokens
+  // are OKLCH ramps — and luminance() reads decimal channels in
+  // order. Setting `fillStyle` is not enough: Chromium hands the
+  // modern syntax straight back. Painting it and reading the pixel is
+  // what converts it, and it composites a translucent chrome over the
+  // page's own ground the way a viewer sees it.
+  //
+  // Feeding luminance() the raw `oklch(0.984 0.003 247.858)` read as
+  // near-black, which is what nine phantom `SEAM(band)` rows were.
+  const canvas = document.createElement('canvas').getContext('2d')
+  const read = () => {
+    const [r, g, b] = canvas.getImageData(0, 0, 1, 1).data
+    return `rgb(${r}, ${g}, ${b})`
+  }
+  canvas.fillStyle = getComputedStyle(document.body).backgroundColor
+  canvas.fillRect(0, 0, 1, 1)
+  const pageGround = read()
+  const rgb = (css) => {
+    if (!css) return null
+    canvas.fillStyle = pageGround
+    canvas.fillRect(0, 0, 1, 1)
+    canvas.fillStyle = css
+    canvas.fillRect(0, 0, 1, 1)
+    return read()
+  }
   const opaque = (el) => {
     for (let n = el; n; n = n.parentElement) {
       const bg = getComputedStyle(n).backgroundColor
-      if (bg && !/rgba\(0, 0, 0, 0\)|transparent/.test(bg)) return bg
+      if (bg && !/rgba\(0, 0, 0, 0\)|transparent/.test(bg)) return rgb(bg)
     }
     return null
   }
