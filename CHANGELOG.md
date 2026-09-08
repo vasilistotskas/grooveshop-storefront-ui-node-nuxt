@@ -1,3 +1,11 @@
+## [3.182.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.3...v3.182.4) (2026-09-08)
+
+
+### Bug Fixes
+
+* **icon:** bundle the icons SSR needs, and tell the two validation faults apart ([abf7e86](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/abf7e862872de9db4b8fdc3c92fe803efe3481c4))
+* **server:** name the host that failed to resolve, and harden the issue digest ([db2e68e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/db2e68ee7b47d8d244ce3d7fc2b8096782264877))
+
 ## [3.182.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.2...v3.182.3) (2026-09-08)
 
 
