@@ -1,3 +1,10 @@
+## [3.181.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.181.0...v3.181.1) (2026-09-08)
+
+
+### Bug Fixes
+
+* **sections:** the grounds and the rhythm the artboards actually use ([0f024ff](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0f024ff4ae36bde893e688de1d538eb9462cc2cc))
+
 # [3.181.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.180.0...v3.181.0) (2026-09-08)
 
 
