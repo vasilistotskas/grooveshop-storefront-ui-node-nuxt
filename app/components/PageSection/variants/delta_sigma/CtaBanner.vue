@@ -4,10 +4,17 @@ import type { RouteLocationNamedI18n } from 'vue-router'
 /**
  * Δelta Σigma's closing band — the ask.
  *
- * Measured off the artboard at 1440px: a `#020617` ground with 96px
- * of padding, a 36px/1.15 heading and a 15px/1.7 body left, and right
- * a 46px teal button with the phone number in monospace beneath it,
- * both flush with the track's right edge.
+ * Measured off the artboards at 1440px: 88px of band padding, a
+ * 36px/1.15 heading and a 15px/1.7 body left, and right a 46px teal
+ * button with the phone number in monospace beneath it, both flush
+ * with the track's right edge.
+ *
+ * 88px is the least-wrong SINGLE value, and deliberately one value:
+ * the four boards that draw this band disagree — the home page's is
+ * 92px, the register's 83, DeSET's and δραστηριότητες' 80 — while
+ * every other band on every board sits between 88 and 100. One
+ * padding puts this band within 8px of all four; a per-page prop
+ * would encode a rhythm the boards do not actually keep.
  *
  * The phone is NOT a prop: it is the merchant's own first published
  * number, the same one the footer prints, and a second copy in a
@@ -51,7 +58,7 @@ const ground = computed(() =>
     v-if="heading || buttonText"
     class="
       border-b border-default px-5 py-16
-      lg:px-20 lg:py-24
+      lg:px-20 lg:py-22
     "
     :class="ground"
   >
