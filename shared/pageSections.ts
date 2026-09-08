@@ -45,6 +45,29 @@ export function sectionsProvideHeading(
 }
 
 /**
+ * The text of the heading a section list owns, for the page's `<title>`.
+ *
+ * `PageLayout.title` is the admin's own label for the layout and is
+ * NOT translatable, so a builder page's title tag was one language for
+ * both locales — "Μητρώο έργων" on `/en/empeiria`, and "Eidikefsi"
+ * (the slug, title-cased) on the pages whose layout predates its own
+ * naming. The heading of the section that owns the `<h1>` is the same
+ * text a reader sees at the top of the page, and it IS localised (a
+ * section's props carry a per-locale override), so it is the better
+ * title and needs no new model field.
+ */
+export function sectionsHeadingText(
+  sections: readonly { componentType: string, props?: unknown }[] | undefined,
+): string | undefined {
+  const owner = (sections ?? []).find(section =>
+    HEADING_SECTION_TYPES.has(section.componentType),
+  )
+  const props = owner?.props as { heading?: unknown } | undefined
+  const heading = typeof props?.heading === 'string' ? props.heading.trim() : ''
+  return heading || undefined
+}
+
+/**
  * Section types that render a page's PRIMARY form.
  *
  * Same rule as the heading, one layer out: a page that ships a form of

@@ -30,15 +30,21 @@ if (error.value || !layout.value?.isPublished) {
   )
 }
 
-// PageLayout.title is the admin display name for the layout — used as
-// the SEO title fallback here since a custom builder page has no other
-// title source (unlike the static pages, which own dedicated i18n
-// titles inside their section variants).
+// The heading of the section that owns the page's h1, which is both
+// what a reader sees at the top of it and the only title source here
+// that is LOCALISED — `PageLayout.title` is the admin's label for the
+// layout and is not translatable, so it served "Μητρώο έργων" on
+// `/en/empeiria` and "Eidikefsi" (the slug, title-cased) on the pages
+// whose layout predates its own naming. It stays as the fallback.
+const pageTitle = computed(
+  () => sectionsHeadingText(sections.value) ?? layout.value?.title,
+)
+
 useSeoMeta({
-  title: () => layout.value?.title,
+  title: () => pageTitle.value,
 })
 useHead({
-  title: () => layout.value?.title,
+  title: () => pageTitle.value,
 })
 
 definePageMeta({
