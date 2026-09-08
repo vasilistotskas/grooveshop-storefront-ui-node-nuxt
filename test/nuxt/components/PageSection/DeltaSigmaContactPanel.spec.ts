@@ -17,6 +17,9 @@ const OFFICES = [
     label: 'Θεσσαλονίκη',
     role: 'ΕΔΡΑ',
     street: 'Γ. Ρίτσου 7',
+    area: 'Καλαμαριά',
+    postal: '551 32',
+    city: 'Θεσσαλονίκη',
     phones: ['2310 924 440', '2310 934 169'],
     addressLine: 'Γ. Ρίτσου 7, Καλαμαριά 551 32, Θεσσαλονίκη',
   },
@@ -24,8 +27,12 @@ const OFFICES = [
     label: 'Αττική',
     role: 'ΓΡΑΦΕΙΟ',
     street: 'Ιλισίων 23',
+    area: 'Ζωγράφου',
+    postal: '157 71',
+    // Deliberately NOT the label, so the city still prints.
+    city: 'Αθήνα',
     phones: ['2311 820 329'],
-    addressLine: 'Ιλισίων 23, Ζωγράφου 157 71, Αττική',
+    addressLine: 'Ιλισίων 23, Ζωγράφου 157 71, Αθήνα',
   },
 ]
 
@@ -88,7 +95,11 @@ describe('delta_sigma ContactPanel', () => {
     const wrapper = await mountSuspended(ContactPanel, { props: PROPS })
     const text = wrapper.text()
 
-    expect(text).toContain('Γ. Ρίτσου 7, Καλαμαριά 551 32, Θεσσαλονίκη')
+    // The card's title IS the city, so the address does not repeat it.
+    expect(text).toContain('Γ. Ρίτσου 7, Καλαμαριά 551 32')
+    expect(text).not.toContain('551 32, Θεσσαλονίκη')
+    // …but a city that is not the label still prints.
+    expect(text).toContain('Ιλισίων 23, Ζωγράφου 157 71, Αθήνα')
     expect(text).toContain('ΕΔΡΑ')
     expect(text).toContain('ΓΡΑΦΕΙΟ')
     // Every published number is dialable, not just the first.

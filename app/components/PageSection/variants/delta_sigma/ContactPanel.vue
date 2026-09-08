@@ -90,6 +90,27 @@ function onChipKeydown(event: KeyboardEvent, index: number) {
 }
 
 /**
+ * The card's own title is the office's LABEL, so the address under it
+ * does not repeat it: the board prints "Γ. Ρίτσου 7, Καλαμαριά 551 32"
+ * under "Θεσσαλονίκη", not the city twice. A city that is NOT the
+ * label still prints — an office labelled "Έδρα" in a city needs it.
+ */
+function addressOf(office: {
+  label: string
+  street: string
+  area?: string
+  postal?: string
+  city?: string
+  addressLine: string
+}): string {
+  if (!office.city || office.city === office.label) {
+    const locality = [office.area, office.postal].filter(Boolean).join(' ')
+    return [office.street, locality].filter(Boolean).join(', ')
+  }
+  return office.addressLine
+}
+
+/**
  * The same contract the platform's own form posts, plus the three
  * fields Django grew for an enquiry that has a sender behind it. The
  * five-word floor mirrors Django's spam filter
@@ -283,7 +304,7 @@ const FIELD_UI = {
                 aria-hidden="true"
               />
               <span class="text-[14px] leading-[1.5] text-muted">
-                {{ office.addressLine }}
+                {{ addressOf(office) }}
               </span>
             </p>
             <p
