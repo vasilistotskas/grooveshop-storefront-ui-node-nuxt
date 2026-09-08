@@ -30,14 +30,28 @@ const items = computed<AccordionItem[]>(() =>
          `hidden="until-found"`: still collapsed, but present in the
          DOM, findable by find-in-page, and it auto-opens on
          `beforematch`. -->
+    <!-- Sizing is deliberately keyed to the DESKTOP footer's scale
+         (`text-sm` body, `size="lg"` link buttons) rather than picked
+         by eye. These bars were `text-2xl` (24px) semibold with 32px
+         leading icons — roughly twice the desktop type — so on a phone
+         the four of them read as four large blue buttons and swallowed
+         the fold, which is what the site owner reported.
+         `text-base` keeps a section header a step above its links
+         without competing with page content.
+
+         The `bg-(--ui-secondary)` fill is intentionally untouched: it
+         is a theme token shared by every tenant, so recolouring it
+         here would silently restyle other stores. If the solid blue is
+         itself the problem that is a theming decision, not a footer
+         one. -->
     <UAccordion
       :items="items"
       :unmount-on-hide="false"
       :ui="{
-        trigger: 'gap-4 bg-(--ui-secondary) p-3',
-        leadingIcon: 'size-8 text-(--ui-on-secondary)',
-        label: 'truncate text-2xl font-semibold text-(--ui-on-secondary)',
-        trailingIcon: 'text-(--ui-on-secondary)',
+        trigger: 'gap-3 bg-(--ui-secondary) px-3 py-2.5',
+        leadingIcon: 'size-5 text-(--ui-on-secondary)',
+        label: 'truncate text-base font-medium text-(--ui-on-secondary)',
+        trailingIcon: 'size-4 text-(--ui-on-secondary)',
       }"
     >
       <template #body="{ index }">
@@ -49,12 +63,17 @@ const items = computed<AccordionItem[]>(() =>
             dark:text-primary-50
           "
         >
+          <!-- `lg`, not `md`: this matches the desktop footer's link
+               size and keeps the row a comfortable tap target. Going
+               smaller trims a few pixels of type at the cost of
+               touch accessibility, which is the wrong trade on the
+               surface that is only ever rendered on phones. -->
           <UButton
             :label="link.label"
             :to="localePath(link.to as any)"
-            class="font-semibold"
+            class="font-medium"
             color="secondary"
-            size="xl"
+            size="lg"
             type="button"
             variant="link"
           />
