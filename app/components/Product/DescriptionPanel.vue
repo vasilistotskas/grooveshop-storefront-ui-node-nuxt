@@ -1,15 +1,14 @@
 <script lang="ts" setup>
-import DOMPurify from 'isomorphic-dompurify'
-
 const props = defineProps<{
   html: string | null | undefined
 }>()
 
 const { t } = useI18n()
 
-const sanitizedHtml = computed(() =>
-  props.html ? DOMPurify.sanitize(props.html) : '',
-)
+// Shares the blog body's sanitiser: product descriptions are the
+// same admin-authored TinyMCE HTML and had the same silent
+// iframe-stripping bug.
+const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
 
 const hasHtml = computed(() => sanitizedHtml.value.trim().length > 0)
 </script>

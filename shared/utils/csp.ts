@@ -12,8 +12,12 @@
  *     would disable it).
  *
  * Pure function — no Nuxt/Nitro imports — so both consumers and the unit
- * tests share the exact same output.
+ * tests share the exact same output. The one import below is a sibling
+ * constants module that is itself import-free, which keeps that
+ * property intact for the build-time consumer.
  */
+
+import { EMBED_IFRAME_ORIGINS } from './embeds'
 
 export interface CspOptions {
   /** Dev-mode relaxations (plain http/ws upstream, error-overlay iframe). */
@@ -148,6 +152,17 @@ export function buildCspDirectives(options: CspOptions): string[] {
   // assets. Listed only when a Pixel ID is provisioned so visitors
   // of un-instrumented preview deploys don't send a needlessly
   // permissive header.
+  // Video-embed origins for admin-authored rich text (blog bodies,
+  // product descriptions, CMS rich-text sections). Unconditional, not
+  // gated on a config value like the pixel origins below: whether a
+  // post contains a video is decided by an editor at write time, so
+  // there is nothing to switch on at request time, and gating it would
+  // reintroduce the silent-blank-box failure for any deploy that
+  // happened to have the flag off.
+  const embedFrameSrc = EMBED_IFRAME_ORIGINS.length
+    ? ` ${EMBED_IFRAME_ORIGINS.join(' ')}`
+    : ''
+
   const metaScriptSrc = metaPixelId ? ' https://connect.facebook.net' : ''
   const metaImgSrc = metaPixelId
     ? ' https://www.facebook.com https://*.facebook.com'
@@ -205,7 +220,13 @@ export function buildCspDirectives(options: CspOptions): string[] {
     // ``data:`` is added in dev so Nuxt's nitro error overlay (which
     // base64-encodes a stack-trace iframe) can render — production
     // never ships that overlay so the scheme stays out of prod CSP.
-    `frame-src 'self'${dev ? ' data:' : ''} https://js.stripe.com https://challenges.cloudflare.com https://accounts.google.com https://widget-v5.boxnow.gr https://widget-v5.boxnow.cy https://widget-v5.boxnow.bg https://widget-v5.boxnow.hr https://widget-v4.boxnow.gr https://widget.boxnow.gr${metaFrameSrc}${tenantExtra}`,
+    // ``embedFrameSrc`` carries the video-embed origins. They are NOT
+    // inlined here: the sanitiser that decides which iframes survive
+    // (``sanitizeRichHtml``) reads the same list, and a video allowed by
+    // one layer but not the other fails silently — blank box plus a
+    // console line, or stripped from the DOM before CSP is consulted.
+    // Both halves were broken at once; see ``shared/utils/embeds.ts``.
+    `frame-src 'self'${dev ? ' data:' : ''} https://js.stripe.com https://challenges.cloudflare.com https://accounts.google.com https://widget-v5.boxnow.gr https://widget-v5.boxnow.cy https://widget-v5.boxnow.bg https://widget-v5.boxnow.hr https://widget-v4.boxnow.gr https://widget.boxnow.gr${embedFrameSrc}${metaFrameSrc}${tenantExtra}`,
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'${metaFormAction}`,

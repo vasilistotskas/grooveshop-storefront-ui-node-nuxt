@@ -5,6 +5,71 @@
  * Works on both client (Nuxt App) and server (Nitro) due to shared/ auto-import.
  */
 
+import DOMPurify from 'isomorphic-dompurify'
+
+import {
+  EMBED_IFRAME_ATTRS,
+  isAllowedEmbedUrl,
+} from './embeds'
+
+/**
+ * DOMPurify hooks are registered on the module singleton, so this must
+ * happen exactly once per process rather than per sanitise call.
+ */
+let embedHookInstalled = false
+
+function installEmbedOriginHook(): void {
+  if (embedHookInstalled) return
+  embedHookInstalled = true
+
+  // ``afterSanitizeAttributes`` is the documented place to enforce a
+  // URI allow-list (DOMPurify's own demo does exactly this for href /
+  // action). It runs after DOMPurify has already normalised the
+  // attribute, so what we read here is what would reach the DOM.
+  //
+  // Note we do NOT use ``ALLOWED_URI_REGEXP`` for this, even though the
+  // docs mention it for iframes: that option applies to EVERY URI
+  // attribute in the document, so pinning it to the video hosts would
+  // also strip every ordinary <a href> and <img src> out of a blog
+  // post.
+  DOMPurify.addHook('afterSanitizeAttributes', (node) => {
+    if (node.nodeName !== 'IFRAME') return
+    if (!isAllowedEmbedUrl(node.getAttribute('src'))) {
+      node.remove()
+    }
+  })
+}
+
+/**
+ * Sanitise admin-authored rich text for rendering with ``v-html``.
+ *
+ * Use this for EVERY WYSIWYG field — blog bodies, product
+ * descriptions, CMS rich-text sections. A bare
+ * ``DOMPurify.sanitize(html)`` silently drops embedded video, because
+ * ``iframe`` is not in DOMPurify's default allow-list; that is why
+ * videos rendered in the Django admin's TinyMCE editor and vanished on
+ * the storefront.
+ *
+ * Video embeds are permitted, but only from
+ * ``EMBED_IFRAME_ORIGINS`` and never with ``srcdoc`` — an iframe from
+ * an arbitrary origin, or one carrying its own inline document, is the
+ * reason DOMPurify forbids the tag by default.
+ */
+export function sanitizeRichHtml(html: string | null | undefined): string {
+  if (!html) return ''
+
+  installEmbedOriginHook()
+
+  return DOMPurify.sanitize(html, {
+    ADD_TAGS: ['iframe'],
+    ADD_ATTR: [...EMBED_IFRAME_ATTRS],
+    // Belt and braces: ``srcdoc`` is not in the default allow-list and
+    // is not added above, but forbidding it explicitly means a future
+    // widening of ADD_ATTR cannot quietly let it back in.
+    FORBID_ATTR: ['srcdoc'],
+  })
+}
+
 /**
  * Configuration for image optimization in HTML content
  */

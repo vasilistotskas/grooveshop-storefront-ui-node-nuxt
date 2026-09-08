@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import DOMPurify from 'isomorphic-dompurify'
-
 /**
  * BlogContent - A wrapper component for blog post HTML content
  *
@@ -18,7 +16,10 @@ const props = defineProps<{
   html: string
 }>()
 
-const sanitizedHtml = computed(() => DOMPurify.sanitize(props.html))
+// ``sanitizeRichHtml``, not a bare ``DOMPurify.sanitize``: the bare
+// call drops embedded video, because ``iframe`` is not in
+// DOMPurify's default allow-list. See shared/utils/embeds.ts.
+const sanitizedHtml = computed(() => sanitizeRichHtml(props.html))
 </script>
 
 <template>
