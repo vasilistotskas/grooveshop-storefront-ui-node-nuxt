@@ -21,10 +21,16 @@ overrides:
   # GHSA-f88m-g3jw-g9cj — sharp, patched in 0.35.0. The old
   # "don't override sharp" note is obsolete: @nuxt/image v2
   # dropped the legacy ipx sharp 0.32.6, and the tree already
-  # ships a clean 0.35.3 branch, so collapsing the vulnerable
+  # ships a clean 0.35.x branch, so collapsing the vulnerable
   # 0.34.x branch (nuxt-og-image — module disabled anyway) onto
   # 0.35 carries no extra runtime surface.
-  'sharp@>=0.34.0 <0.35.0': '>=0.35.0'
+  #
+  # Floor raised to 0.35.4 for GHSA-rgj7-g3m4-5g8c: sharp bundles
+  # libheif, and 0.35.3 carries the vulnerable copy
+  # (GHSA-g89c-p67h-r497 + GHSA-2jg2-4ch7-h545). The whole tree was
+  # on 0.35.3, so this is a patch bump of the branch already in use
+  # rather than a new major surface.
+  'sharp@<0.35.4': '>=0.35.4'
 
   # Mar-2026 cluster: GHSA-q67f-28xg-22rw (Ed25519 forgery),
   # GHSA-ppp5-5v6c-4jwp (RSA-PKCS forgery), GHSA-5m6q-g25r-mvwx
@@ -63,7 +69,11 @@ overrides:
   # @hey-api/json-schema-ref-parser's exact js-yaml@4.2.0 pin (still
   # unpublished). Capped <5 to keep consumers off the js-yaml 5 API
   # line.
-  'js-yaml@<4.3.1': '>=4.3.1 <5'
+  #
+  # Floor raised again to 4.3.2 for CVE-2026-84375 (DoS in YAML
+  # parsing). Still capped <5: the separately-installed js-yaml 5
+  # line is unaffected and must not be dragged down a major.
+  'js-yaml@<4.3.2': '>=4.3.2 <5'
 
   # CVE-2026-48779 — ws DoS, patched in 8.21.0 on the 8.x line.
   'ws@<8.21.0': '>=8.21.0'
@@ -92,7 +102,20 @@ overrides:
   'brace-expansion@>=5.0.0 <5.0.7': '>=5.0.7'
 
   # GHSA-2p49-hgcm-8545 — svgo, patched in 4.0.2 on the 4.x line.
-  'svgo@>=4.0.0 <4.0.2': '>=4.0.2'
+  #
+  # Floor raised to 4.1.0 for CVE-2026-84370: `removeScripts` let
+  # executable links through via a namespace and control-character
+  # bypass, so the plugin that exists to strip scripts from SVG did
+  # not. Fixed releases exist per line (2.8.4 / 3.3.5 / 4.1.0); the
+  # tree is on 4.x, so the 4.x floor covers it.
+  'svgo@>=4.0.0 <4.1.0': '>=4.1.0 <5'
+
+  # GHSA-j95f-988m-3j2f — @tiptap/core, quadratic ReDoS in block and
+  # inline Markdown attribute parsing, patched in 3.30.5. Reaches the
+  # graph through the rich-text editor chain; a crafted document is
+  # exactly the shape of input this parses, so the floor is not
+  # optional. Capped <4 so a future major is a deliberate bump.
+  '@tiptap/core@<3.30.5': '>=3.30.5 <4'
 allowBuilds:
   '@intlify/vue-i18n-bridge': true
   '@intlify/vue-router-bridge': true
