@@ -213,7 +213,7 @@ async function onSubmit() {
                 type="number"
                 otp
                 :placeholder="'0'"
-                size="lg"
+                size="xl"
                 @complete="onSubmit"
               />
             </div>

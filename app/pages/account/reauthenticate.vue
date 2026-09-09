@@ -95,7 +95,7 @@ definePageMeta({
             <FormPasswordInput
               v-model="password"
               :placeholder="t('password.placeholder')"
-              size="lg"
+              size="xl"
               icon="i-heroicons-lock-closed"
               autocomplete="current-password"
               :disabled="loading"

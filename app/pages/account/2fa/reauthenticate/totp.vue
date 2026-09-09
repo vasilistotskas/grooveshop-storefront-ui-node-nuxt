@@ -93,7 +93,7 @@ definePageMeta({
                   v-model="code"
                   :length="6"
                   type="number"
-                  size="lg"
+                  size="xl"
                   otp
                   @complete="handleComplete"
                 />

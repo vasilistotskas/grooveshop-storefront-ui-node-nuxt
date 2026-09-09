@@ -111,7 +111,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               v-model="state.name"
               :placeholder="t('name')"
               icon="i-heroicons-user"
-              size="lg"
+              size="xl"
               autocomplete="name"
               :ui="{
                 root: 'w-full',
@@ -130,7 +130,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               icon="i-heroicons-envelope"
               :placeholder="t('email.title')"
               type="email"
-              size="lg"
+              size="xl"
               autocomplete="email"
               :ui="{
                 root: 'w-full',
@@ -148,7 +148,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
               v-model="state.message"
               :placeholder="t('message')"
               :rows="6"
-              size="lg"
+              size="xl"
               :ui="{
                 root: 'w-full',
               }"

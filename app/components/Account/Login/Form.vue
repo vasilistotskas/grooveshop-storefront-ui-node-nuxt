@@ -145,15 +145,16 @@ const backgroundImage = computed(() => {
               :label="t('email.label')"
               name="email"
               :required="true"
-              size="lg"
+              size="xl"
             >
               <UInput
                 v-model="state.email"
                 type="email"
                 autocomplete="email"
                 inputmode="email"
+                icon="i-heroicons-envelope"
                 class="w-full"
-                size="lg"
+                size="xl"
               />
             </UFormField>
 
@@ -161,12 +162,13 @@ const backgroundImage = computed(() => {
               :label="t('password.label')"
               name="password"
               :required="true"
-              size="lg"
+              size="xl"
             >
               <FormPasswordInput
                 v-model="state.password"
                 autocomplete="current-password"
-                size="lg"
+                icon="i-heroicons-lock-closed"
+                size="xl"
               />
             </UFormField>
 

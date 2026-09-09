@@ -171,7 +171,7 @@ defineRouteRules({
             :placeholder="t('form.title')"
             autocomplete="honorific-prefix"
             icon="i-heroicons-tag"
-            size="lg"
+            size="xl"
           />
         </UFormField>
 
@@ -182,7 +182,7 @@ defineRouteRules({
             :placeholder="t('form.first_name')"
             autocomplete="given-name"
             icon="i-heroicons-user"
-            size="lg"
+            size="xl"
           />
         </UFormField>
 
@@ -193,7 +193,7 @@ defineRouteRules({
             :placeholder="t('form.last_name')"
             autocomplete="family-name"
             icon="i-heroicons-user"
-            size="lg"
+            size="xl"
           />
         </UFormField>
 
@@ -219,7 +219,7 @@ defineRouteRules({
             :placeholder="t('form.street')"
             autocomplete="address-line1"
             icon="i-heroicons-map-pin"
-            size="lg"
+            size="xl"
           />
         </UFormField>
 
@@ -230,7 +230,7 @@ defineRouteRules({
             autocomplete="address-line2"
             inputmode="numeric"
             icon="i-heroicons-hashtag"
-            size="lg"
+            size="xl"
           />
         </UFormField>
 
@@ -241,7 +241,7 @@ defineRouteRules({
             autocomplete="postal-code"
             inputmode="numeric"
             icon="i-heroicons-hashtag"
-            size="lg"
+            size="xl"
           />
         </UFormField>
 
@@ -251,7 +251,7 @@ defineRouteRules({
             :placeholder="t('form.city')"
             autocomplete="address-level2"
             icon="i-heroicons-building-office-2"
-            size="lg"
+            size="xl"
           />
         </UFormField>
 

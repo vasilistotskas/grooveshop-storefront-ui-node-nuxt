@@ -174,7 +174,7 @@ async function onSubmit() {
               :placeholder="t('password.current')"
               autocomplete="current-password"
               icon="i-heroicons-lock-closed"
-              size="lg"
+              size="xl"
             />
           </UFormField>
 
@@ -189,7 +189,7 @@ async function onSubmit() {
               :color="state.new_password ? strengthColor : 'primary'"
               autocomplete="new-password"
               icon="i-heroicons-key"
-              size="lg"
+              size="xl"
             />
 
             <div v-if="state.new_password" class="mt-3 space-y-2">
@@ -239,7 +239,7 @@ async function onSubmit() {
               :placeholder="t('password.confirm')"
               autocomplete="new-password"
               icon="i-heroicons-check-badge"
-              size="lg"
+              size="xl"
             />
           </UFormField>
 

@@ -334,7 +334,7 @@ watch(calendarDate, (newVal) => {
           class="w-full"
           type="text"
           icon="i-heroicons-user"
-          size="lg"
+          size="xl"
         />
       </UFormField>
 
@@ -350,7 +350,7 @@ watch(calendarDate, (newVal) => {
           class="w-full"
           type="text"
           icon="i-heroicons-user"
-          size="lg"
+          size="xl"
         />
       </UFormField>
 
@@ -386,7 +386,7 @@ watch(calendarDate, (newVal) => {
           class="w-full"
           type="text"
           icon="i-heroicons-building-office-2"
-          size="lg"
+          size="xl"
         />
       </UFormField>
 
@@ -401,7 +401,7 @@ watch(calendarDate, (newVal) => {
           class="w-full"
           type="text"
           icon="i-heroicons-hashtag"
-          size="lg"
+          size="xl"
         />
       </UFormField>
 
@@ -416,7 +416,7 @@ watch(calendarDate, (newVal) => {
           class="w-full"
           type="text"
           icon="i-heroicons-map-pin"
-          size="lg"
+          size="xl"
         />
       </UFormField>
 
@@ -431,7 +431,7 @@ watch(calendarDate, (newVal) => {
           class="w-full"
           type="text"
           icon="i-heroicons-map"
-          size="lg"
+          size="xl"
         />
       </UFormField>
 

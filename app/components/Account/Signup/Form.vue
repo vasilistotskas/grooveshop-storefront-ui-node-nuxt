@@ -151,13 +151,14 @@ const backgroundImage = computed(() => {
               :label="t('email.label')"
               name="email"
               :required="true"
-              size="lg"
+              size="xl"
             >
               <UInput
                 v-model="state.email"
                 type="email"
                 autocomplete="email"
-                size="lg"
+                icon="i-heroicons-envelope"
+                size="xl"
                 class="w-full"
               />
             </UFormField>
@@ -166,12 +167,13 @@ const backgroundImage = computed(() => {
               :label="t('password1.label')"
               name="password"
               :required="true"
-              size="lg"
+              size="xl"
             >
               <FormPasswordInput
                 v-model="state.password"
                 autocomplete="new-password"
-                size="lg"
+                icon="i-heroicons-key"
+                size="xl"
               />
               <FormPasswordStrengthMeter :password="state.password ?? ''" />
             </UFormField>
@@ -180,12 +182,13 @@ const backgroundImage = computed(() => {
               :label="t('password2.label')"
               name="password2"
               :required="true"
-              size="lg"
+              size="xl"
             >
               <FormPasswordInput
                 v-model="state.password2"
                 autocomplete="new-password"
-                size="lg"
+                icon="i-heroicons-check-badge"
+                size="xl"
               />
             </UFormField>
 

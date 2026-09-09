@@ -86,7 +86,7 @@ definePageMeta({
               v-model="recoveryCode"
               type="text"
               :placeholder="t('code.placeholder')"
-              size="lg"
+              size="xl"
               icon="i-heroicons-key"
               autocomplete="off"
               class="font-mono"
