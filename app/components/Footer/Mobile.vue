@@ -87,7 +87,7 @@ const items = computed<AccordionItem[]>(() =>
          flush against the last accordion bar and ran off the bottom
          edge of the page (no bottom padding, and the fixed mobile
          bottom nav overlapped them when enabled). -->
-    <div class="flex flex-col items-center gap-2 px-4 pt-6 pb-8 text-center">
+    <div class="flex flex-col items-center gap-2 px-4 text-center">
       <MerchantIdentity />
       <FooterHoursBadge />
     </div>
