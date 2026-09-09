@@ -552,9 +552,15 @@ export async function useCheckoutForm() {
         name = getPaymentMethodName(name)
       }
 
-      const cartTotal = cart.value?.totalPrice || 0
+      // Django waives the fee on items + shipping
+      // (``OrderService.calculate_payment_method_fee`` is handed
+      // ``cart_total + shipping_cost``), so comparing the cart total
+      // alone showed a surcharge the shopper was never charged:
+      // at items 48,00 € the backend sees 50,99 € and waives, while
+      // this displayed "+2,99 €". Same base, same answer.
+      const feeBase = (cart.value?.totalPrice || 0) + shippingPrice.value
       const threshold = payWay.freeThreshold || 0
-      const displayCost = (threshold > 0 && cartTotal >= threshold) ? 0 : (payWay.cost || 0)
+      const displayCost = (threshold > 0 && feeBase >= threshold) ? 0 : (payWay.cost || 0)
       // Only show the surcharge suffix when it's a real charge — a
       // zero-cost pay-way (e.g. CREDIT_CARD) rendered as
       // ``Πληρωμή με Κάρτα (+0,00 €)`` reads as a fee the customer
@@ -565,6 +571,13 @@ export async function useCheckoutForm() {
         label: `${name ?? ''}${costSuffix}`,
         value: payWay.id,
         mainImagePath: payWay.mainImagePath,
+        // Operator-authored in Django admin (PayWay → Περιγραφή /
+        // Οδηγίες Πληρωμής). Both are TinyMCE HTML, so they are
+        // sanitised at the render site like every other WYSIWYG field.
+        // Until now nothing read them and the admin edited copy that
+        // reached no one.
+        description: extractTranslated(payWay, 'description', locale.value) ?? '',
+        instructions: extractTranslated(payWay, 'instructions', locale.value) ?? '',
       }
     }) || []
   })

@@ -1,9 +1,17 @@
 <script lang="ts" setup>
 const formState = defineModel<Record<string, any>>('formState', { required: true })
 
-defineProps<{
+const props = defineProps<{
   schema: any
-  payWayOptions: Array<{ label: string, value: number, mainImagePath?: string, isOnlinePayment?: boolean }>
+  payWayOptions: Array<{
+    label: string
+    value: number
+    mainImagePath?: string
+    isOnlinePayment?: boolean
+    /** Operator-authored TinyMCE HTML from Django admin. */
+    description?: string
+    instructions?: string
+  }>
   isSubmitting: boolean
 }>()
 
@@ -13,6 +21,22 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+// Instructions belong to ONE method — the chosen one — so they render
+// once below the group rather than inside every card. Keeping them out
+// of the radio list also keeps them out of its `overflow-y-auto`
+// container, where an expanding block fights the scroll position.
+const selectedPayWay = computed(() =>
+  props.payWayOptions.find(option => option.value === formState.value.payWay),
+)
+
+const selectedInstructions = computed(() =>
+  sanitizeRichHtml(selectedPayWay.value?.instructions),
+)
+
+const hasInstructions = computed(() =>
+  selectedInstructions.value.trim().length > 0,
+)
 
 // Expose the form's submit() so the primary CTA (now living in
 // the checkout sidebar) can trigger Zod validation + emit `submit`.
@@ -83,8 +107,34 @@ defineExpose({
               </div>
             </div>
           </template>
+
+          <!-- Operator-authored, so sanitised like every other WYSIWYG
+               field (`sanitizeRichHtml`, same helper the blog body and
+               product description use). Overriding the slot rather than
+               letting `descriptionKey` render it as plain text, which
+               would print the `<div>` wrapper TinyMCE stores. -->
+          <template #description="{ item }">
+            <div
+              v-if="item.description"
+              class="pay-way-description text-sm"
+              v-html="sanitizeRichHtml(item.description)"
+            />
+          </template>
         </URadioGroup>
       </UFormField>
+
+      <UAlert
+        v-if="hasInstructions"
+        icon="i-heroicons-information-circle"
+        color="neutral"
+        variant="soft"
+        :title="t('form.payment_instructions')"
+        :ui="{ description: 'text-sm' }"
+      >
+        <template #description>
+          <div class="pay-way-instructions" v-html="selectedInstructions" />
+        </template>
+      </UAlert>
 
       <!-- Place-order CTA lives in the checkout sidebar so it sits
            next to the order total. -->
@@ -102,11 +152,36 @@ defineExpose({
   </UCard>
 </template>
 
+<style scoped>
+/* TinyMCE stores ordered/unordered lists; without list-style they
+   render as unmarked lines and the numbered steps lose their order. */
+.pay-way-instructions :deep(ol) {
+  list-style: decimal;
+  padding-inline-start: 1.25rem;
+}
+
+.pay-way-instructions :deep(ul) {
+  list-style: disc;
+  padding-inline-start: 1.25rem;
+}
+
+.pay-way-instructions :deep(p),
+.pay-way-instructions :deep(ol),
+.pay-way-instructions :deep(ul) {
+  margin-block: 0.375rem;
+}
+
+.pay-way-instructions :deep(li) {
+  margin-block: 0.125rem;
+}
+</style>
+
 <i18n lang="yaml">
 el:
   steps:
     payment: Πληρωμή
   form:
     payment_method: Τρόπος πληρωμής
+    payment_instructions: Οδηγίες πληρωμής
   back: Πίσω
 </i18n>
