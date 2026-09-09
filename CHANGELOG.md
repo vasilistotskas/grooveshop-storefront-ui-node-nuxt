@@ -1,3 +1,10 @@
+## [3.186.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.1...v3.186.2) (2026-09-09)
+
+
+### Bug Fixes
+
+* footer UI ([69c6003](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/69c6003ae985bf4973bd2bec18f4498fc308fef3))
+
 ## [3.186.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.0...v3.186.1) (2026-09-09)
 
 
