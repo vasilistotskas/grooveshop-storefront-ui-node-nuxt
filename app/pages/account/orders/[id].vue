@@ -37,6 +37,18 @@ const TIMELINE_TITLE_KEYS: Record<string, string> = {
   REFUND: 'timeline.title.refund',
 }
 
+// The shopper's chosen payment method, resolved through the same
+// `payment_methods.*` map the checkout list uses. NOT
+// `order.paymentMethod` — that is the gateway code a payment handler
+// writes (`acs_cod`, `viva_wallet`, `stripe`), which this row showed
+// verbatim to the customer, and which is empty on a COD order until
+// the courier remits.
+const { getPaymentMethodName } = usePaymentMethod()
+
+const paymentMethodLabel = computed(() =>
+  order.value?.payWayKey ? getPaymentMethodName(order.value.payWayKey) : '',
+)
+
 const orderTimeline = computed(() => {
   if (!order.value?.orderTimeline) return []
 
@@ -1000,7 +1012,7 @@ defineRouteRules({
             <template #content>
               <div class="mt-4 space-y-4">
                 <div class="grid gap-4">
-                  <div v-if="order.paymentMethod">
+                  <div v-if="paymentMethodLabel">
                     <label
                       class="
                         text-sm font-medium text-gray-700
@@ -1015,7 +1027,7 @@ defineRouteRules({
                         dark:text-gray-100
                       "
                     >
-                      {{ order.paymentMethod }}
+                      {{ paymentMethodLabel }}
                     </p>
                   </div>
 

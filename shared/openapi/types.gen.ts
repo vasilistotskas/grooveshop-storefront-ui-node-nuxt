@@ -3874,13 +3874,28 @@ export type Order = {
      */
   paymentStatus?: PaymentStatusEnum | BlankEnum
   /**
-     * Localised label for ``payment_status`` (mirrors ``status_display``). Frontend renders this rather than the raw enum value so Greek/English/German locales all work without per-locale string maps in the UI.
+     * Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. ALWAYS GREEK, whatever the caller asks for: every route lives under ``i18n_patterns(prefix_default_language=False)``, and Django's ``LocaleMiddleware`` pins any path without a language prefix to ``settings.LANGUAGE_CODE`` — so ``Accept-Language`` and ``X-Language`` are both inert here (measured 2026-09-09). A second UI locale needs its own client-side map, the way pay-way names already work; do not add server-rendered labels expecting negotiation.
      */
   readonly paymentStatusDisplay: string
   /**
      * Μέθοδος πληρωμής
      */
   paymentMethod?: string
+  /**
+     * Which payment method the shopper chose, as the ``PayWayEnum`` key — the storefront's label for the order. Deliberately the KEY and not a rendered string: the API is pinned to Greek (see ``paymentStatusDisplay``), so a server-rendered label would lock the storefront to one locale. Snapshotted on the order, so it survives the PayWay row being deleted (``SET_NULL``) or its key renamed. EMPTY when the order has no pay way — ``allow_blank`` is load-bearing, without it the generated client schema rejects those orders outright.
+     *
+     * * `CREDIT_CARD` - Πιστωτική κάρτα
+     * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+     * * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
+     * * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+     * * `PAY_PAL` - PayPal
+     * * `STRIPE` - Stripe
+     * * `BANK_TRANSFER` - Τραπεζική μεταφορά
+     * * `APPLE_PAY` - Apple Pay
+     * * `GOOGLE_PAY` - Google Pay
+     * * `VIVA_WALLET` - Viva Wallet
+     */
+  payWayKey: PayWayKeyEnum | BlankEnum
   /**
      * True when the order's PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading 'outstanding amount' warnings for COD orders where the shopper intentionally paid €0 at checkout.
      */
@@ -4198,13 +4213,28 @@ export type OrderDetail = {
      */
   paymentStatus?: PaymentStatusEnum | BlankEnum
   /**
-     * Localised label for ``payment_status`` (mirrors ``status_display``). Frontend renders this rather than the raw enum value so Greek/English/German locales all work without per-locale string maps in the UI.
+     * Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. ALWAYS GREEK, whatever the caller asks for: every route lives under ``i18n_patterns(prefix_default_language=False)``, and Django's ``LocaleMiddleware`` pins any path without a language prefix to ``settings.LANGUAGE_CODE`` — so ``Accept-Language`` and ``X-Language`` are both inert here (measured 2026-09-09). A second UI locale needs its own client-side map, the way pay-way names already work; do not add server-rendered labels expecting negotiation.
      */
   readonly paymentStatusDisplay: string
   /**
      * Μέθοδος πληρωμής
      */
   paymentMethod?: string
+  /**
+     * Which payment method the shopper chose, as the ``PayWayEnum`` key — the storefront's label for the order. Deliberately the KEY and not a rendered string: the API is pinned to Greek (see ``paymentStatusDisplay``), so a server-rendered label would lock the storefront to one locale. Snapshotted on the order, so it survives the PayWay row being deleted (``SET_NULL``) or its key renamed. EMPTY when the order has no pay way — ``allow_blank`` is load-bearing, without it the generated client schema rejects those orders outright.
+     *
+     * * `CREDIT_CARD` - Πιστωτική κάρτα
+     * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+     * * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
+     * * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+     * * `PAY_PAL` - PayPal
+     * * `STRIPE` - Stripe
+     * * `BANK_TRANSFER` - Τραπεζική μεταφορά
+     * * `APPLE_PAY` - Apple Pay
+     * * `GOOGLE_PAY` - Google Pay
+     * * `VIVA_WALLET` - Viva Wallet
+     */
+  payWayKey: PayWayKeyEnum | BlankEnum
   /**
      * True when the order's PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading 'outstanding amount' warnings for COD orders where the shopper intentionally paid €0 at checkout.
      */
@@ -6056,6 +6086,20 @@ export type PayWayDetail = {
   requiresConfirmation?: boolean
   readonly configuration: unknown
 }
+
+/**
+ * * `CREDIT_CARD` - Πιστωτική κάρτα
+ * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+ * * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
+ * * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+ * * `PAY_PAL` - PayPal
+ * * `STRIPE` - Stripe
+ * * `BANK_TRANSFER` - Τραπεζική μεταφορά
+ * * `APPLE_PAY` - Apple Pay
+ * * `GOOGLE_PAY` - Google Pay
+ * * `VIVA_WALLET` - Viva Wallet
+ */
+export type PayWayKeyEnum = 'CREDIT_CARD' | 'PAY_ON_DELIVERY' | 'BOX_NOW_PAY_ON_THE_GO' | 'PAY_ON_STORE' | 'PAY_PAL' | 'STRIPE' | 'BANK_TRANSFER' | 'APPLE_PAY' | 'GOOGLE_PAY' | 'VIVA_WALLET'
 
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.

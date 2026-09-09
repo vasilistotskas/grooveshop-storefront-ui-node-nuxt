@@ -107,9 +107,17 @@ const shortAddress = computed(() => {
   return contentShorten(order.value.fullAddress, 0, 35)
 })
 
-const paymentMethodDisplay = computed(() => {
-  return order.value.paymentMethod || `Method ${order.value.payWay}`
-})
+// `payWayKey`, not `paymentMethod`. The latter is the GATEWAY code the
+// payment handlers write (`acs_cod`, `viva_wallet`, `stripe`) and it is
+// empty until one of them runs — so this row used to read "acs_cod",
+// or fall through to a hardcoded `Method 5`. `payWayKey` is the
+// shopper's own choice, snapshotted on the order, and resolves through
+// the same `payment_methods.*` map the checkout uses.
+const { getPaymentMethodName } = usePaymentMethod()
+
+const paymentMethodDisplay = computed(() =>
+  order.value.payWayKey ? getPaymentMethodName(order.value.payWayKey) : '',
+)
 
 const actionButtonOrientation = computed(() => {
   if (isMobileOrTablet.value) {
@@ -314,7 +322,10 @@ const customerInitials = computed(() => {
           />
         </div>
 
-        <div class="flex h-full w-full flex-col">
+        <div
+          v-if="paymentMethodDisplay"
+          class="flex h-full w-full flex-col"
+        >
           <div
             class="
               mb-2 flex items-center gap-2 text-sm text-gray-500

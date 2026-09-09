@@ -2896,6 +2896,33 @@ export const zPatchedUserWriteRequest = z.object({
 })
 
 /**
+ * * `CREDIT_CARD` - Πιστωτική κάρτα
+ * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
+ * * `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!
+ * * `PAY_ON_STORE` - Πληρωμή στο κατάστημα
+ * * `PAY_PAL` - PayPal
+ * * `STRIPE` - Stripe
+ * * `BANK_TRANSFER` - Τραπεζική μεταφορά
+ * * `APPLE_PAY` - Apple Pay
+ * * `GOOGLE_PAY` - Google Pay
+ * * `VIVA_WALLET` - Viva Wallet
+ */
+export const zPayWayKeyEnum = z.enum([
+  'CREDIT_CARD',
+  'PAY_ON_DELIVERY',
+  'BOX_NOW_PAY_ON_THE_GO',
+  'PAY_ON_STORE',
+  'PAY_PAL',
+  'STRIPE',
+  'BANK_TRANSFER',
+  'APPLE_PAY',
+  'GOOGLE_PAY',
+  'VIVA_WALLET',
+]).register(z.globalRegistry, {
+  description: '* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet',
+})
+
+/**
  * * `prepaid` - Προπληρωμένο
  * * `cod` - Αντικαταβολή
  */
@@ -3413,9 +3440,13 @@ export const zOrder = z.object({
     zBlankEnum,
   ]).optional(),
   paymentStatusDisplay: z.string().register(z.globalRegistry, {
-    description: 'Localised label for ``payment_status`` (mirrors ``status_display``). Frontend renders this rather than the raw enum value so Greek/English/German locales all work without per-locale string maps in the UI.',
+    description: 'Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. ALWAYS GREEK, whatever the caller asks for: every route lives under ``i18n_patterns(prefix_default_language=False)``, and Django\'s ``LocaleMiddleware`` pins any path without a language prefix to ``settings.LANGUAGE_CODE`` — so ``Accept-Language`` and ``X-Language`` are both inert here (measured 2026-09-09). A second UI locale needs its own client-side map, the way pay-way names already work; do not add server-rendered labels expecting negotiation.',
   }).readonly(),
   paymentMethod: z.string().max(50).optional(),
+  payWayKey: z.union([
+    zPayWayKeyEnum,
+    zBlankEnum,
+  ]),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
     description: 'True when the order\'s PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading \'outstanding amount\' warnings for COD orders where the shopper intentionally paid €0 at checkout.',
   }).readonly(),
@@ -5900,9 +5931,13 @@ export const zOrderDetail = z.object({
     zBlankEnum,
   ]).optional(),
   paymentStatusDisplay: z.string().register(z.globalRegistry, {
-    description: 'Localised label for ``payment_status`` (mirrors ``status_display``). Frontend renders this rather than the raw enum value so Greek/English/German locales all work without per-locale string maps in the UI.',
+    description: 'Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. ALWAYS GREEK, whatever the caller asks for: every route lives under ``i18n_patterns(prefix_default_language=False)``, and Django\'s ``LocaleMiddleware`` pins any path without a language prefix to ``settings.LANGUAGE_CODE`` — so ``Accept-Language`` and ``X-Language`` are both inert here (measured 2026-09-09). A second UI locale needs its own client-side map, the way pay-way names already work; do not add server-rendered labels expecting negotiation.',
   }).readonly(),
   paymentMethod: z.string().max(50).optional(),
+  payWayKey: z.union([
+    zPayWayKeyEnum,
+    zBlankEnum,
+  ]),
   isOnlinePayment: z.boolean().register(z.globalRegistry, {
     description: 'True when the order\'s PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading \'outstanding amount\' warnings for COD orders where the shopper intentionally paid €0 at checkout.',
   }).readonly(),

@@ -85,6 +85,18 @@ const isCollectedOnDelivery = computed(
   () => order.value?.isCollectedOnDelivery || false,
 )
 
+// The shopper's chosen method, resolved through the same
+// `payment_methods.*` map the checkout list uses. NOT
+// `order.paymentMethod` — that is the gateway code a payment handler
+// writes (`acs_cod`, `viva_wallet`), so this line read "acs_cod" to
+// real customers, and stayed blank on a COD order until the courier
+// remitted days later.
+const { getPaymentMethodName } = usePaymentMethod()
+
+const paymentMethodLabel = computed(() =>
+  order.value?.payWayKey ? getPaymentMethodName(order.value.payWayKey) : '',
+)
+
 const paidAmount = computed(() => order.value?.paidAmount || 0)
 const shippingPrice = computed(() => order.value?.shippingPrice || 0)
 const totalPriceItems = computed(() => order.value?.totalPriceItems || 0)
@@ -678,10 +690,10 @@ definePageMeta({
               <span class="text-highlighted">{{ $i18n.n(paidAmount, 'currency') }}</span>
             </div>
 
-            <div v-if="order?.paymentMethod" class="pt-2">
+            <div v-if="paymentMethodLabel" class="pt-2">
               <div class="flex items-center justify-between text-sm">
                 <span class="text-muted">{{ t('payment.method') }}</span>
-                <span>{{ order?.paymentMethod }}</span>
+                <span>{{ paymentMethodLabel }}</span>
               </div>
             </div>
           </div>

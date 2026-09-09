@@ -17,7 +17,15 @@ export function usePaymentMethod() {
 
     // Map provider name to i18n key
     const key = `payment_methods.${providerName}`
-    return t(key)
+    const translated = t(key)
+
+    // vue-i18n returns the key PATH when a message is missing, so an
+    // unmapped method would render `payment_methods.SOMETHING` at a
+    // customer. This map lives in the storefront while the vocabulary
+    // is seeded by Django migrations, so it will lag the day a new
+    // method is added — falling back to the bare key is ugly but it is
+    // not a leaked i18n path, and it keeps the row readable.
+    return translated === key ? providerName : translated
   }
 
   return {
