@@ -32,7 +32,16 @@ const storeName = computed(
   () => tenantStore.storeName || (config.public.appTitle as string),
 )
 
-const name = computed(() => props.routeName ?? $routeBaseName(route) ?? '')
+// `$routeBaseName` is typed as `keyof RouteMapI18n`, and that map only
+// narrows to the generated route names when @nuxtjs/i18n's typed-route
+// augmentation is in scope; otherwise it falls back to vue-router's
+// `RouteMapGeneric`, whose key became `string | symbol` in vue-router
+// 5.3. A base name is always a string at runtime, so narrow it here
+// rather than let the symbol leak into the message-key interpolation
+// below (same cast as AuthSettingsNavigation.vue).
+const name = computed(
+  () => props.routeName ?? ($routeBaseName(route) as string | undefined) ?? '',
+)
 const hasEntry = computed(
   () => !!name.value && te(`breadcrumb.items.${name.value}.label`),
 )
