@@ -229,7 +229,6 @@ defineRouteRules({
             :placeholder="t('form.street_number')"
             autocomplete="address-line2"
             inputmode="numeric"
-            icon="i-heroicons-hashtag"
             size="xl"
           />
         </UFormField>
@@ -240,7 +239,6 @@ defineRouteRules({
             :placeholder="t('form.zipcode')"
             autocomplete="postal-code"
             inputmode="numeric"
-            icon="i-heroicons-hashtag"
             size="xl"
           />
         </UFormField>

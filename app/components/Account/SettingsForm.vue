@@ -400,7 +400,6 @@ watch(calendarDate, (newVal) => {
           autocomplete="postal-code"
           class="w-full"
           type="text"
-          icon="i-heroicons-hashtag"
           size="xl"
         />
       </UFormField>

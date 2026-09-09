@@ -177,7 +177,7 @@ defineRouteRules({
         </UFormField>
 
         <UFormField :label="t('form.billing_street_number')" name="billingStreetNumber">
-          <UInput v-model="state.billingStreetNumber" inputmode="numeric" icon="i-heroicons-hashtag" />
+          <UInput v-model="state.billingStreetNumber" inputmode="numeric" />
         </UFormField>
 
         <UFormField :label="t('form.billing_city')" name="billingCity">
@@ -185,7 +185,7 @@ defineRouteRules({
         </UFormField>
 
         <UFormField :label="t('form.billing_zipcode')" name="billingZipcode">
-          <UInput v-model="state.billingZipcode" autocomplete="postal-code" inputmode="numeric" icon="i-heroicons-hashtag" />
+          <UInput v-model="state.billingZipcode" autocomplete="postal-code" inputmode="numeric" />
         </UFormField>
 
         <div class="md:col-span-2">

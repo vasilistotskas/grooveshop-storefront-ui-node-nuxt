@@ -171,7 +171,6 @@ defineExpose({
                 autocomplete="address-line2"
                 inputmode="numeric"
                 class="w-full"
-                icon="i-heroicons-hashtag"
               />
             </UFormField>
           </div>
@@ -184,7 +183,6 @@ defineExpose({
                 autocomplete="postal-code"
                 inputmode="numeric"
                 class="w-full"
-                icon="i-heroicons-hashtag"
               />
             </UFormField>
 
@@ -356,7 +354,6 @@ defineExpose({
                     size="xl"
                     maxlength="50"
                     class="w-full"
-                    icon="i-heroicons-hashtag"
                   />
                 </UFormField>
               </div>
@@ -384,7 +381,6 @@ defineExpose({
                     size="xl"
                     maxlength="20"
                     class="w-full"
-                    icon="i-heroicons-hashtag"
                   />
                 </UFormField>
               </div>

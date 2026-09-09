@@ -277,7 +277,6 @@ defineRouteRules({
         <UFormField :label="t('form.street_number')" name="streetNumber" required>
           <UInput
             v-model="state.streetNumber"
-            icon="i-heroicons-hashtag"
             :placeholder="t('form.street_number')"
             autocomplete="address-line2"
             inputmode="numeric"
@@ -287,7 +286,6 @@ defineRouteRules({
         <UFormField :label="t('form.zipcode')" name="zipcode" required>
           <UInput
             v-model="state.zipcode"
-            icon="i-heroicons-hashtag"
             :placeholder="t('form.zipcode')"
             autocomplete="postal-code"
             inputmode="numeric"
