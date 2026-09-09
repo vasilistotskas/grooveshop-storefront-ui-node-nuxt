@@ -185,12 +185,12 @@ onMounted(() => {
         : [],
       contentName: productName,
     })
-    openaiPixel.trackViewContent({
+    openaiPixel.trackContentsViewed({
       currency: 'EUR',
-      value: price,
-      contentType: 'product',
-      contentName: productName,
-      contentId: pid ?? undefined,
+      amount: price,
+      contents: pid
+        ? [{ id: pid, name: productName, contentType: 'product', quantity: 1 }]
+        : [],
     })
     tiktokPixel.trackViewContent({
       currency: 'EUR',

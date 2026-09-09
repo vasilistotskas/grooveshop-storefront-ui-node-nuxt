@@ -124,12 +124,16 @@ export const useCartStore = defineStore('cart', () => {
           contentType: 'product',
         })
 
-        openaiPixel.trackAddToCart({
+        openaiPixel.trackItemsAdded({
           currency,
-          value,
-          contentType: 'product',
-          contentId: String(productId),
-          numItems: quantity,
+          amount: value,
+          contents: [
+            {
+              id: String(productId),
+              contentType: 'product',
+              quantity,
+            },
+          ],
         })
 
         tiktokPixel.trackAddToCart({

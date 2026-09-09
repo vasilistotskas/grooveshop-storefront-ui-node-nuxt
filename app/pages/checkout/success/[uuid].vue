@@ -215,23 +215,21 @@ function tryFirePurchaseEvent() {
     // no server-side Events API leg, so no event_id dedup; the
     // ``purchaseEventFired`` guard + ``fromCheckout`` gate above
     // prevent re-fires.
-    // OpenAI's catalogue calls this ``Purchase`` (TikTok's
-    // ``Purchase`` is a separate offline event, hence
-    // ``CompletePayment`` below — the names are NOT interchangeable
-    // across providers).
-    openaiPixel.trackPurchase({
+    // OpenAI calls a completed purchase ``order_created``. The names
+    // are NOT interchangeable across providers — TikTok's ``Purchase``
+    // is a separate offline event, hence ``CompletePayment`` below,
+    // and Meta's is ``Purchase`` again. Each wrapper is named after
+    // its own vendor's taxonomy so they cannot be confused.
+    openaiPixel.trackOrderCreated({
       currency,
-      value,
-      orderId: transactionId,
-      contentType: 'product',
-      contentIds: orderItems.value
-        .map(item => item.product?.id)
-        .filter((id): id is number => typeof id === 'number')
-        .map(id => String(id)),
-      numItems: orderItems.value.reduce(
-        (sum, item) => sum + Number(item.quantity ?? 0),
-        0,
-      ),
+      amount: value,
+      contents: orderItems.value
+        .filter(item => typeof item.product?.id === 'number')
+        .map(item => ({
+          id: String(item.product!.id),
+          contentType: 'product',
+          quantity: Number(item.quantity ?? 0),
+        })),
     })
 
     tiktokPixel.trackCompletePayment({

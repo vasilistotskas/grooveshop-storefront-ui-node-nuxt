@@ -978,11 +978,14 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       })
       if (eventId) metaEventIds.initiateCheckout = eventId
 
-      openaiPixel.trackInitiateCheckout({
+      openaiPixel.trackCheckoutStarted({
         currency,
-        value,
-        contentType: 'product',
-        numItems: cart.value?.items?.length ?? 0,
+        amount: value,
+        contents: (cart.value?.items ?? []).map(item => ({
+          id: String(item.product?.id ?? ''),
+          contentType: 'product',
+          quantity: Number(item.quantity ?? 0),
+        })),
       })
 
       tiktokPixel.trackInitiateCheckout({
