@@ -1,3 +1,10 @@
+## [3.186.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.2...v3.186.3) (2026-09-09)
+
+
+### Bug Fixes
+
+* **cache:** delete the cache namespaces superseded builds leave behind ([5b6f229](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5b6f229514a9b8356647d7d5707876e7ed00ef99))
+
 ## [3.186.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.1...v3.186.2) (2026-09-09)
 
 
