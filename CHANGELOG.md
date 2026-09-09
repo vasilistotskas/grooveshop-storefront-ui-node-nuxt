@@ -1,3 +1,15 @@
+# [3.186.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.185.1...v3.186.0) (2026-09-09)
+
+
+### Bug Fixes
+
+* **order:** show the payment method the shopper chose, not the gateway code ([15d6a57](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/15d6a5772067b76f783fc73cb9a716b2d81fce2d))
+
+
+### Features
+
+* **blog:** author page, and a byline that is visible and links to it ([4503dc2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4503dc2f04c7b321ffa3ac79f25e950c81a68f44))
+
 ## [3.185.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.185.0...v3.185.1) (2026-09-09)
 
 
