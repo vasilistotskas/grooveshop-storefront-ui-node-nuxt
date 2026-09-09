@@ -157,6 +157,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
       >
         <FormPasswordInput
           v-model="newPassword1"
+          icon="i-heroicons-key"
           :color="color"
           autocomplete="new-password"
           :placeholder="t('password.placeholder')"
@@ -200,6 +201,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
       >
         <FormPasswordInput
           v-model="newPassword2"
+          icon="i-heroicons-check-badge"
           autocomplete="new-password"
           :placeholder="t('password.placeholder_confirm')"
         />

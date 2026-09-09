@@ -157,6 +157,7 @@ const reasonMessages: Record<string, string> = {
         >
           <UInput
             v-model="formState.code"
+            icon="i-heroicons-ticket"
             :placeholder="t('placeholder')"
             :disabled="submitting"
             :aria-label="t('label')"

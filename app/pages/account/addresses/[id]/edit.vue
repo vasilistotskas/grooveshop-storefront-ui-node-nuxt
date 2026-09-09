@@ -223,6 +223,7 @@ defineRouteRules({
         <UFormField :label="t('form.title')" name="title" required>
           <UInput
             v-model="state.title"
+            icon="i-heroicons-tag"
             :placeholder="t('form.title')"
             autocomplete="honorific-prefix"
           />
@@ -232,6 +233,7 @@ defineRouteRules({
         <UFormField :label="t('form.first_name')" name="firstName" required>
           <UInput
             v-model="state.firstName"
+            icon="i-heroicons-user"
             :placeholder="t('form.first_name')"
             autocomplete="given-name"
           />
@@ -241,6 +243,7 @@ defineRouteRules({
         <UFormField :label="t('form.last_name')" name="lastName" required>
           <UInput
             v-model="state.lastName"
+            icon="i-heroicons-user"
             :placeholder="t('form.last_name')"
             autocomplete="family-name"
           />
@@ -265,6 +268,7 @@ defineRouteRules({
         <UFormField :label="t('form.street')" name="street" required>
           <UInput
             v-model="state.street"
+            icon="i-heroicons-map-pin"
             :placeholder="t('form.street')"
             autocomplete="address-line1"
           />
@@ -273,6 +277,7 @@ defineRouteRules({
         <UFormField :label="t('form.street_number')" name="streetNumber" required>
           <UInput
             v-model="state.streetNumber"
+            icon="i-heroicons-hashtag"
             :placeholder="t('form.street_number')"
             autocomplete="address-line2"
             inputmode="numeric"
@@ -282,6 +287,7 @@ defineRouteRules({
         <UFormField :label="t('form.zipcode')" name="zipcode" required>
           <UInput
             v-model="state.zipcode"
+            icon="i-heroicons-hashtag"
             :placeholder="t('form.zipcode')"
             autocomplete="postal-code"
             inputmode="numeric"
@@ -291,6 +297,7 @@ defineRouteRules({
         <UFormField :label="t('form.city')" name="city" required>
           <UInput
             v-model="state.city"
+            icon="i-heroicons-building-office-2"
             :placeholder="t('form.city')"
             autocomplete="address-level2"
           />
@@ -299,6 +306,7 @@ defineRouteRules({
         <UFormField :label="t('form.region')" name="region" required>
           <USelectMenu
             v-model="state.region"
+            icon="i-heroicons-map"
             :items="regionOptions"
             :placeholder="t('form.select_placeholder')"
             :disabled="!state.country"
@@ -310,6 +318,7 @@ defineRouteRules({
         <UFormField :label="t('form.country')" name="country" required>
           <USelectMenu
             v-model="state.country"
+            icon="i-heroicons-globe-alt"
             :items="countryOptions"
             :placeholder="t('form.select_placeholder')"
             value-key="value"
@@ -321,6 +330,7 @@ defineRouteRules({
         <UFormField :label="t('form.floor')" name="floor">
           <USelectMenu
             v-model="state.floor"
+            icon="i-heroicons-building-office"
             :items="floorOptions"
             :placeholder="t('form.select_placeholder')"
             value-key="value"
@@ -332,6 +342,7 @@ defineRouteRules({
         <UFormField :label="t('form.location_type')" name="locationType">
           <USelectMenu
             v-model="state.locationType"
+            icon="i-heroicons-home"
             :items="locationTypeOptions"
             :placeholder="t('form.select_placeholder')"
             value-key="value"

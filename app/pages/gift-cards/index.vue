@@ -430,6 +430,7 @@ const confirmPayment = async () => {
           <UFormField :label="t('fields.buyer_email')" name="buyerEmail" required>
             <UInput
               v-model="formState.buyerEmail"
+              icon="i-heroicons-envelope"
               type="email"
               autocomplete="email"
             />
@@ -438,16 +439,17 @@ const confirmPayment = async () => {
           <UFormField :label="t('fields.recipient_email')" name="recipientEmail" required>
             <UInput
               v-model="formState.recipientEmail"
+              icon="i-heroicons-envelope"
               type="email"
             />
           </UFormField>
 
           <UFormField :label="t('fields.recipient_name')" name="recipientName">
-            <UInput v-model="formState.recipientName" />
+            <UInput v-model="formState.recipientName" icon="i-heroicons-user" />
           </UFormField>
 
           <UFormField :label="t('fields.sender_name')" name="senderName">
-            <UInput v-model="formState.senderName" />
+            <UInput v-model="formState.senderName" icon="i-heroicons-user" />
           </UFormField>
 
           <UFormField :label="t('fields.message')" name="message">

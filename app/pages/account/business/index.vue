@@ -136,6 +136,7 @@ defineRouteRules({
         >
           <UInput
             v-model="state.companyName"
+            icon="i-heroicons-building-office-2"
             :placeholder="t('form.company_name')"
             autocomplete="organization"
           />
@@ -144,6 +145,7 @@ defineRouteRules({
         <UFormField :label="t('form.vat_id')" :help="t('form.vat_help')" name="vatId" required>
           <UInput
             v-model="state.vatId"
+            icon="i-heroicons-identification"
             placeholder="123456789"
             inputmode="numeric"
             maxlength="12"
@@ -153,6 +155,7 @@ defineRouteRules({
         <UFormField :label="t('form.tax_office')" name="taxOffice" required>
           <UInput
             v-model="state.taxOffice"
+            icon="i-heroicons-building-library"
             :placeholder="t('form.tax_office_placeholder')"
           />
         </UFormField>
@@ -164,25 +167,25 @@ defineRouteRules({
           required
           class="md:col-span-2"
         >
-          <UInput v-model="state.activity" :placeholder="t('form.activity')" />
+          <UInput v-model="state.activity" :placeholder="t('form.activity')" icon="i-heroicons-briefcase" />
         </UFormField>
 
         <USeparator class="md:col-span-2" :label="t('form.billing_address')" />
 
         <UFormField :label="t('form.billing_street')" name="billingStreet">
-          <UInput v-model="state.billingStreet" autocomplete="address-line1" />
+          <UInput v-model="state.billingStreet" autocomplete="address-line1" icon="i-heroicons-map-pin" />
         </UFormField>
 
         <UFormField :label="t('form.billing_street_number')" name="billingStreetNumber">
-          <UInput v-model="state.billingStreetNumber" inputmode="numeric" />
+          <UInput v-model="state.billingStreetNumber" inputmode="numeric" icon="i-heroicons-hashtag" />
         </UFormField>
 
         <UFormField :label="t('form.billing_city')" name="billingCity">
-          <UInput v-model="state.billingCity" autocomplete="address-level2" />
+          <UInput v-model="state.billingCity" autocomplete="address-level2" icon="i-heroicons-building-office-2" />
         </UFormField>
 
         <UFormField :label="t('form.billing_zipcode')" name="billingZipcode">
-          <UInput v-model="state.billingZipcode" autocomplete="postal-code" inputmode="numeric" />
+          <UInput v-model="state.billingZipcode" autocomplete="postal-code" inputmode="numeric" icon="i-heroicons-hashtag" />
         </UFormField>
 
         <div class="md:col-span-2">
