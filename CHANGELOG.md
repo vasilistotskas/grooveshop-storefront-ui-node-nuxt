@@ -1,3 +1,10 @@
+## [3.186.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.4...v3.186.5) (2026-09-09)
+
+
+### Bug Fixes
+
+* **checkout:** show pay-way copy, and price the fee like the backend ([f30a2e7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f30a2e773e6fbc1b92a232a889f24a19ea243a22))
+
 ## [3.186.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.3...v3.186.4) (2026-09-09)
 
 
