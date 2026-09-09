@@ -26,6 +26,13 @@ export const useUrls = () => {
     return `/blog/category/${category.id}/${category.slug}`
   }
 
+  // No slug segment: BlogAuthor has none, on the model or in the
+  // payload, and a slug derived from a Greek display name would make
+  // the canonical URL depend on a client-side transliteration.
+  const blogAuthorUrl = (id: number): string => {
+    return `/blog/author/${id}`
+  }
+
   const productUrl = (id: number, slug: string): string => {
     return `/products/${id}/${slug}`
   }
@@ -35,6 +42,7 @@ export const useUrls = () => {
     blogCategoryUrl,
     blogCategoryUrlFromParts,
     blogCategoryAncestorUrl,
+    blogAuthorUrl,
     productUrl,
   }
 }

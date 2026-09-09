@@ -8,6 +8,7 @@ const config = useRuntimeConfig()
 const tenantStore = useTenantStore()
 const { updateLikedPosts } = userStore
 const localePath = useLocalePath()
+const { blogAuthorUrl } = useUrls()
 const { isMobileOrTablet } = useDevice()
 const img = useMediaStreamImage()
 const siteUrl = siteConfig.url
@@ -401,8 +402,27 @@ definePageMeta({
               class="size-5"
               aria-hidden="true"
             />
-            <span class="sr-only">{{ t('author') }}: </span>
-            <span class="font-medium">{{ blogAuthorFullName }}</span>
+            <!-- The label was sr-only, so sighted readers saw a bare
+                 name with no indication it was the author, and nothing
+                 linked anywhere. Both are visible now and the name
+                 leads to that author's page. -->
+            <span>{{ t('author') }}:</span>
+            <Anchor
+              v-if="blogPostAuthor?.id"
+              :to="{ path: blogAuthorUrl(blogPostAuthor.id) }"
+              :title="blogAuthorFullName"
+              class="
+                font-medium text-primary-950 underline-offset-4
+                hover:underline
+                dark:text-primary-50
+              "
+            >
+              {{ blogAuthorFullName }}
+            </Anchor>
+            <span
+              v-else
+              class="font-medium"
+            >{{ blogAuthorFullName }}</span>
           </div>
 
           <div
