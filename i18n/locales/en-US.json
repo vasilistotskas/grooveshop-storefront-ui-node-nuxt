@@ -283,6 +283,7 @@
   "payment_methods": {
     "CREDIT_CARD": "Card Payment",
     "PAY_ON_DELIVERY": "Cash on Delivery",
+    "BOX_NOW_PAY_ON_THE_GO": "BOX NOW PAY ON THE GO!",
     "PAY_ON_STORE": "Pay in Store",
     "PAY_PAL": "PayPal",
     "STRIPE": "Stripe",

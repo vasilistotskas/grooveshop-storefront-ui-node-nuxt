@@ -283,6 +283,7 @@
   "payment_methods": {
     "CREDIT_CARD": "Πληρωμή με Κάρτα",
     "PAY_ON_DELIVERY": "Αντικαταβολή",
+    "BOX_NOW_PAY_ON_THE_GO": "BOX NOW PAY ON THE GO!",
     "PAY_ON_STORE": "Πληρωμή στο Κατάστημα",
     "PAY_PAL": "PayPal",
     "STRIPE": "Stripe",

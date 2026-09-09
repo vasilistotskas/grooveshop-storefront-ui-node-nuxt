@@ -5828,7 +5828,7 @@ export type PatchedUserWriteRequest = {
   /**
      * Όνομα χρήστη
      *
-     * Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
+     * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
      */
   username?: string | string | null
   /**
@@ -8630,7 +8630,7 @@ export type UserDetails = {
   /**
      * Όνομα χρήστη
      *
-     * Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
+     * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
      */
   username?: string | string | null
   phone?: string
@@ -8734,7 +8734,7 @@ export type UserPublic = {
   /**
      * Όνομα χρήστη
      *
-     * Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
+     * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
      */
   readonly username: string | null
   /**
@@ -8845,7 +8845,7 @@ export type UserWriteRequest = {
   /**
      * Όνομα χρήστη
      *
-     * Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
+     * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
      */
   username?: string | string | null
   /**
@@ -11426,7 +11426,7 @@ export type UserDetailsWritable = {
   /**
      * Όνομα χρήστη
      *
-     * Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
+     * Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
      */
   username?: string | string | null
   phone?: string
@@ -19335,11 +19335,11 @@ export type ListPayWayData = {
          */
     settlement?: 'carrier_terminal' | 'courier_cash' | 'offline_transfer' | 'online'
     /**
-         * Συνδυάστε με το ``shippingProviderCode`` για να φιλτράρετε τις μεθόδους πληρωμής βάσει των κανόνων συμβατότητας του μεταφορέα για αυτόν τον τύπο.
+         * Filter pay ways by the shipping kind. Pair with ``shippingProviderCode`` for one carrier's rules; on its own it returns only the pay ways every carrier serving that kind accepts, which is what a provider-agnostic ``home_delivery`` checkout needs.
          */
     shippingKind?: string
     /**
-         * Φίλτρο μεθόδων πληρωμής συμβατών με τον δεδομένο μεταφορέα αποστολής. Κάθε μεταφορέας διαθέτει τους δικούς του κανόνες συμβατότητας — το BoxNow (``boxnow``) υποστηρίζει αντικαταβολή σε lockers μέσω PAY ON THE GO και έτσι περνά κανονικά· η ACS περνά αμετάβλητη. Συνδυάστε με το ``shippingKind``.
+         * Filter pay ways compatible with the given shipping carrier. Each carrier declares which settlements it can physically perform, per kind: a BoxNow locker takes a card at its terminal (PAY ON THE GO) and never courier cash, while an ACS courier is the exact opposite. Has no effect without ``shippingKind`` — the rules are per-kind, so a carrier alone says nothing.
          */
     shippingProviderCode?: string
     /**

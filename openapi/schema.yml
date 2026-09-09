@@ -16934,12 +16934,12 @@ paths:
           name: shippingKind
           schema:
             type: string
-          description: Συνδυάστε με το ``shippingProviderCode`` για να φιλτράρετε τις μεθόδους πληρωμής βάσει των κανόνων συμβατότητας του μεταφορέα για αυτόν τον τύπο.
+          description: Filter pay ways by the shipping kind. Pair with ``shippingProviderCode`` for one carrier's rules; on its own it returns only the pay ways every carrier serving that kind accepts, which is what a provider-agnostic ``home_delivery`` checkout needs.
         - in: query
           name: shippingProviderCode
           schema:
             type: string
-          description: Φίλτρο μεθόδων πληρωμής συμβατών με τον δεδομένο μεταφορέα αποστολής. Κάθε μεταφορέας διαθέτει τους δικούς του κανόνες συμβατότητας — το BoxNow (``boxnow``) υποστηρίζει αντικαταβολή σε lockers μέσω PAY ON THE GO και έτσι περνά κανονικά· η ACS περνά αμετάβλητη. Συνδυάστε με το ``shippingKind``.
+          description: 'Filter pay ways compatible with the given shipping carrier. Each carrier declares which settlements it can physically perform, per kind: a BoxNow locker takes a card at its terminal (PAY ON THE GO) and never courier cash, while an ACS courier is the exact opposite. Has no effect without ``shippingKind`` — the rules are per-kind, so a carrier alone says nothing.'
         - in: query
           name: sortOrder
           schema:
@@ -40607,7 +40607,7 @@ components:
         username:
           nullable: true
           title: Όνομα χρήστη
-          description: Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
+          description: Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
           oneOf:
             - type: string
               pattern: ^[\w.@+#-]+$
@@ -45318,7 +45318,7 @@ components:
         username:
           nullable: true
           title: Όνομα χρήστη
-          description: Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
+          description: Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
           oneOf:
             - type: string
               pattern: ^[\w.@+#-]+$
@@ -45466,7 +45466,7 @@ components:
           readOnly: true
           nullable: true
           title: Όνομα χρήστη
-          description: Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
+          description: Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
         firstName:
           type: string
           readOnly: true
@@ -45615,7 +45615,7 @@ components:
         username:
           nullable: true
           title: Όνομα χρήστη
-          description: Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.
+          description: Optional login handle — NOT the person's name, which belongs in First/Last name. Leave blank and one is generated from the email. 30 characters or fewer; letters, digits and @/./+/-/_ only (no spaces).
           oneOf:
             - type: string
               pattern: ^[\w.@+#-]+$

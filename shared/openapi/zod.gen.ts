@@ -14773,10 +14773,10 @@ export const zListPayWayQuery = z.object({
     description: 'Filter by how the money changes hands\n\n* `online` - Paid online at checkout\n* `courier_cash` - Cash or card to the courier on delivery\n* `carrier_terminal` - Card at the carrier\'s terminal on pickup\n* `offline_transfer` - Settled off-platform (e.g. bank transfer)',
   }).optional(),
   shippingKind: z.string().register(z.globalRegistry, {
-    description: 'Συνδυάστε με το ``shippingProviderCode`` για να φιλτράρετε τις μεθόδους πληρωμής βάσει των κανόνων συμβατότητας του μεταφορέα για αυτόν τον τύπο.',
+    description: 'Filter pay ways by the shipping kind. Pair with ``shippingProviderCode`` for one carrier\'s rules; on its own it returns only the pay ways every carrier serving that kind accepts, which is what a provider-agnostic ``home_delivery`` checkout needs.',
   }).optional(),
   shippingProviderCode: z.string().register(z.globalRegistry, {
-    description: 'Φίλτρο μεθόδων πληρωμής συμβατών με τον δεδομένο μεταφορέα αποστολής. Κάθε μεταφορέας διαθέτει τους δικούς του κανόνες συμβατότητας — το BoxNow (``boxnow``) υποστηρίζει αντικαταβολή σε lockers μέσω PAY ON THE GO και έτσι περνά κανονικά· η ACS περνά αμετάβλητη. Συνδυάστε με το ``shippingKind``.',
+    description: 'Filter pay ways compatible with the given shipping carrier. Each carrier declares which settlements it can physically perform, per kind: a BoxNow locker takes a card at its terminal (PAY ON THE GO) and never courier cash, while an ACS courier is the exact opposite. Has no effect without ``shippingKind`` — the rules are per-kind, so a carrier alone says nothing.',
   }).optional(),
   sortOrder: z.union([
     z.string().regex(/^-?\d+$/),
