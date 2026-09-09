@@ -1,3 +1,10 @@
+## [3.186.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.5...v3.186.6) (2026-09-09)
+
+
+### Bug Fixes
+
+* remove useless icon from form fields ([bfe583d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bfe583d4dda19b9b7a063383c5bd82651e095050))
+
 ## [3.186.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.4...v3.186.5) (2026-09-09)
 
 
