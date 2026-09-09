@@ -58,6 +58,105 @@ function cacheNamespace(buildId: string | undefined): string {
   return buildId ? `${CACHE_MOUNT_POINT}:${buildId}` : CACHE_MOUNT_POINT
 }
 
+/** The shape of `app.buildId` — a uuid, one per build. */
+const BUILD_ID_PATTERN
+  = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/** How many keys to ask Redis for, and to UNLINK, at a time. */
+const SWEEP_BATCH = 500
+
+/**
+ * Wait before sweeping so the previous build's pods can drain.
+ *
+ * A rolling deploy runs both builds at once, and the outgoing pods are
+ * still reading their own namespace. Deleting it the instant the new
+ * pod boots would make them re-render every request they have left —
+ * correct, but a pointless CPU spike on pods that are about to exit.
+ */
+const SWEEP_DELAY_MS = 60_000
+
+/**
+ * True when `key` belongs to a build namespace that is not `buildId`.
+ *
+ * Deliberately narrow. Keys are `cache:<buildId>:nitro:...`, but the
+ * same mount also holds `cache:nitro:...` (the fallback namespace used
+ * when `app.buildId` is absent) and the sweep's own lock. Requiring the
+ * second segment to be uuid-shaped means a prefix match can never take
+ * out either, nor the current build.
+ */
+export function isSupersededBuildKey(key: string, buildId: string): boolean {
+  const [mount, namespace] = key.split(':')
+  if (mount !== CACHE_MOUNT_POINT || !namespace) {
+    return false
+  }
+  if (!BUILD_ID_PATTERN.test(namespace)) {
+    return false
+  }
+  return namespace !== buildId
+}
+
+/** The minimum Redis surface the sweep needs, so tests can fake it. */
+interface SweepClient {
+  scan: (
+    cursor: string,
+    opts: { MATCH: string, COUNT: number },
+  ) => Promise<{ cursor: string | number, keys: string[] }>
+  unlink: (keys: string[]) => Promise<number>
+}
+
+/**
+ * Delete the cache namespaces of superseded builds.
+ *
+ * Namespacing by build id (see `cacheNamespace`) means a deploy cannot
+ * read the previous build's entries — but it does not delete them, so
+ * every release strands a full build's worth of SSR renders for the
+ * whole `NUXT_REDIS_TTL` (24h). Measured on production 2026-09-09,
+ * minutes after a deploy: 1241 orphaned keys, ~352 MB, against a Redis
+ * `maxmemory` of 614 MB. More than half the budget was cache no
+ * process could reach.
+ *
+ * `allkeys-lru` does evict them under memory pressure, so this was
+ * never going to OOM. The cost is on disk: the orphans inflate the
+ * dataset that AOF and RDB write out, and a full volume is what took
+ * the store down that morning.
+ *
+ * SCAN, never KEYS — this runs against the live cache of a serving
+ * store. Returns the number of keys removed.
+ */
+export async function sweepSupersededBuildCaches(
+  client: SweepClient,
+  buildId: string,
+): Promise<number> {
+  let cursor = '0'
+  let removed = 0
+  let doomed: string[] = []
+
+  do {
+    const page = await client.scan(cursor, {
+      MATCH: `${CACHE_MOUNT_POINT}:*`,
+      COUNT: SWEEP_BATCH,
+    })
+    cursor = String(page.cursor)
+
+    for (const key of page.keys) {
+      if (isSupersededBuildKey(key, buildId)) {
+        doomed.push(key)
+      }
+    }
+
+    if (doomed.length >= SWEEP_BATCH) {
+      removed += await client.unlink(doomed)
+      doomed = []
+    }
+  } while (cursor !== '0')
+
+  if (doomed.length) {
+    removed += await client.unlink(doomed)
+  }
+
+  return removed
+}
+
 /**
  * Drops cache writes whose TTL is non-positive instead of forwarding them.
  *
@@ -162,6 +261,78 @@ async function testRedisConnection(host: string, port: number, db?: number, pass
   }
 }
 
+/**
+ * Run the sweep once per deploy, in the background, on one pod.
+ *
+ * Never awaited and never able to throw into startup: an unreachable
+ * Redis or a failed SCAN must not stop a pod serving pages. The whole
+ * point is reclaiming space, which can always wait for the next boot.
+ *
+ * The `SET NX` lock keys on the build id, so the replicas of one
+ * deploy elect a single sweeper while a later deploy still gets its
+ * own turn. Its own key is not uuid-shaped, so the sweep cannot
+ * delete the lock out from under itself.
+ */
+function scheduleBuildCacheSweep(opts: {
+  buildId: string | undefined
+  host: string
+  port: number
+  db: number
+  password: string | undefined
+}): void {
+  const { buildId, host, port, db, password } = opts
+
+  // Without a build id there is no current namespace to protect, so
+  // there is no safe way to tell this build's keys from a dead one's.
+  if (!buildId) {
+    return
+  }
+
+  const timer = setTimeout(() => {
+    void (async () => {
+      const client = createClient({
+        socket: { host, port, connectTimeout: 5000, reconnectStrategy: false },
+        database: db,
+        ...(password && { password }),
+      })
+      client.on('error', () => {})
+
+      try {
+        await client.connect()
+
+        const lock = await client.set(
+          `${CACHE_MOUNT_POINT}:sweep:${buildId}`,
+          '1',
+          { NX: true, EX: 900 },
+        )
+        if (lock !== 'OK') {
+          return
+        }
+
+        const removed = await sweepSupersededBuildCaches(
+          client as unknown as SweepClient,
+          buildId,
+        )
+        if (removed > 0) {
+          log.info('cache', `Swept ${removed} key(s) from superseded build namespaces`)
+        }
+      }
+      catch (error) {
+        log.warn('cache', `Build cache sweep skipped: ${(error as Error).message}`)
+      }
+      finally {
+        try {
+          await client.disconnect()
+        }
+        catch { /* ignore disconnect errors */ }
+      }
+    })()
+  }, SWEEP_DELAY_MS)
+
+  // Do not hold the event loop open on shutdown just to wait for this.
+  timer.unref?.()
+}
+
 export default defineNitroPlugin(async (nitroApp) => {
   const storage = useStorage()
   const config = useRuntimeConfig()
@@ -210,6 +381,14 @@ export default defineNitroPlugin(async (nitroApp) => {
       await storage.unmount(CACHE_MOUNT_POINT).catch(() => {})
       storage.mount(CACHE_MOUNT_POINT, driver)
       log.info('cache', `Redis driver mounted at '${CACHE_MOUNT_POINT}' (${redisHost}:${redisPort} db=${redisDB}, TTL: ${redisTTL}s, keyspace: ${base})`)
+
+      scheduleBuildCacheSweep({
+        buildId: config.app?.buildId,
+        host: redisHost,
+        port: redisPort,
+        db: redisDB,
+        password: redisPassword,
+      })
     }
     else {
       log.warn('cache', `Redis unavailable, keeping memory driver (not shared across pods!)`)
