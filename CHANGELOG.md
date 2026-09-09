@@ -1,3 +1,11 @@
+## [3.185.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.185.0...v3.185.1) (2026-09-09)
+
+
+### Bug Fixes
+
+* **deps:** align @intlify/* with the pinned vue-i18n ([76db81c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/76db81c2d2247d836132405808b98d1733cd41ed))
+* **i18n:** narrow $routeBaseName for vue-router 5.3 symbol keys ([afbc845](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/afbc8451f9f4fb20b4162402700a6fa31c1e2918))
+
 # [3.185.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.184.0...v3.185.0) (2026-09-09)
 
 
