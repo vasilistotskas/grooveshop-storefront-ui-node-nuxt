@@ -1,3 +1,21 @@
+# [3.184.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.183.0...v3.184.0) (2026-09-09)
+
+
+### Bug Fixes
+
+* **cart:** title beside the thumbnail, remove button bottom-right ([8475275](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8475275c416bd3b9d7b4e323cd579863c025c568))
+* **checkout:** show a collect-on-delivery order a green panel, not a payment warning ([840a762](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/840a762c39c3a29acb8dde9cfbb78c5878cf4ce0))
+* **content:** render embedded video in rich text, and sanitise the one surface that never was ([8416043](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8416043ff73bb2c7b7f9a275568ab8d5dfc7ca2f))
+* **deps:** raise override floors for four HIGH advisories ([26989fe](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/26989fe032762b75e44c3b59d61cae7e8f876b83))
+* **footer:** bring the mobile accordion down to the desktop type scale ([fce964b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fce964becebab3392a11657d508131b6ef03b356))
+
+
+### Features
+
+* **analytics:** install the ChatGPT Ads conversion pixel ([cc72243](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cc72243944b57646c90194f4898d3c12787f2dcd))
+* **blog:** show the post dates, and set long-form body copy two steps larger ([da0f084](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/da0f0844a96ff20a67cbc1380bd4fa4ba54ddce0))
+* **forms:** unify text forms on the change-password pattern ([805ed06](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/805ed0603d51acaa94a7c9b1222143d5436155ae))
+
 # [3.183.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.182.7...v3.183.0) (2026-09-08)
 
 
