@@ -1,3 +1,10 @@
+## [3.186.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.0...v3.186.1) (2026-09-09)
+
+
+### Bug Fixes
+
+* **docker:** copy scripts before install, so the image actually builds ([7f7deee](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7f7deeedb24c05ebce324a5bbb84db04c759ce03))
+
 # [3.186.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.185.1...v3.186.0) (2026-09-09)
 
 
