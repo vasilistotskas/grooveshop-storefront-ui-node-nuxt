@@ -1,3 +1,10 @@
+## [3.186.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.3...v3.186.4) (2026-09-09)
+
+
+### Bug Fixes
+
+* **pixel:** send ChatGPT Ads events in the format OpenAI accepts ([9231ed7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9231ed74a2a5ffe1333d2bbb297794f7c1ce6553))
+
 ## [3.186.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.2...v3.186.3) (2026-09-09)
 
 
