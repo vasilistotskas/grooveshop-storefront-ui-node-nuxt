@@ -1,3 +1,10 @@
+# [3.185.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.184.0...v3.185.0) (2026-09-09)
+
+
+### Features
+
+* **i18n:** give BOX NOW PAY ON THE GO its own checkout label ([3dc865d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3dc865dad3f6c097f41b67843f8a15cb3fbd985c))
+
 # [3.184.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.183.0...v3.184.0) (2026-09-09)
 
 
