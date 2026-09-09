@@ -11,7 +11,15 @@ RUN npm install -g pnpm@latest
 
 WORKDIR /app
 
+# ``scripts/`` ships alongside the manifests because pnpm runs the
+# ``prepare`` lifecycle script during ``install``, and ``prepare`` now
+# starts with ``node scripts/check-lockstep-deps.mjs``. Without it the
+# install dies with "Cannot find module
+# '/app/scripts/check-lockstep-deps.mjs'" — which is exactly what broke
+# the v3.186.0 image publish, leaving a GitHub release with no image
+# behind it. 32KB that changes rarely, so the layer cache barely cares.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY scripts ./scripts
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --prefer-offline \
   && pnpm rebuild better-sqlite3
