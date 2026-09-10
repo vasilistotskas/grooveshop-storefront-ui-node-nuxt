@@ -489,7 +489,7 @@ definePageMeta({
                 :height="isMobileOrTablet ? 200 : 340"
                 :src="blogPost.mainImagePath"
                 :width="isMobileOrTablet ? 400 : 672"
-                :modifiers="{ position: 'attention', trimThreshold: 5 }"
+                :modifiers="{ position: 'attention' }"
                 :sizes="'(max-width: 640px) 400px, 672px'"
                 class="rounded-lg bg-primary-100"
                 densities="x1"

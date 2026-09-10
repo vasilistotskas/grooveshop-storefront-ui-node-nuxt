@@ -47,7 +47,7 @@ describe('buildMediaStreamUrl', () => {
 
     expect(url).not.toContain('cdn-cgi')
     expect(url).toBe(
-      'https://assets.example.gr/media_stream-image/media/x/a.png/0/0/contain/entropy/transparent/5/80.avif',
+      'https://assets.example.gr/media_stream-image/media/x/a.png/0/0/contain/entropy/transparent/0/80.avif',
     )
   })
 
@@ -55,7 +55,7 @@ describe('buildMediaStreamUrl', () => {
     expect(
       buildMediaStreamUrl('https://static.example.gr/media/x/a.png', config),
     ).toBe(
-      'https://assets.example.gr/media_stream-image/media/x/a.png/0/0/contain/entropy/transparent/5/80.avif',
+      'https://assets.example.gr/media_stream-image/media/x/a.png/0/0/contain/entropy/transparent/0/80.avif',
     )
   })
 })

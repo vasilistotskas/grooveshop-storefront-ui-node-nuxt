@@ -124,7 +124,7 @@ export const defaultHtmlImageConfig: Required<HtmlImageOptimizationConfig> = {
   fit: 'contain',
   position: 'entropy',
   background: 'transparent',
-  trimThreshold: 5,
+  trimThreshold: 0,
   addLazyLoading: true,
   addAsyncDecoding: true,
 }

@@ -72,7 +72,6 @@ const { t, locale } = useI18n()
                 :background="'transparent'"
                 :modifiers="{
                   position: 'attention',
-                  trimThreshold: 5,
                 }"
                 :alt="extractTranslated(favourite, 'title', locale)"
                 densities="x2"

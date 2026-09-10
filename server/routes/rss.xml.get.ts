@@ -208,7 +208,7 @@ async function processBlogPosts(
     // — quality first, dotted format last. The previous ``/webp/100``
     // ordering produced no-match 404s at the controller (verified
     // 2026-05-18 in the media-stream warn log).
-    const mainImageUrl = encodeURI(`${mediaStreamPath}/${post.mainImagePath}/472/311/cover/attention/transparent/5/100.webp`)
+    const mainImageUrl = encodeURI(`${mediaStreamPath}/${post.mainImagePath}/472/311/cover/attention/transparent/0/100.webp`)
     const mimeType = post.mainImagePath ? getMimeType(post.mainImagePath) : undefined
 
     let description = translation.subtitle || ''
@@ -299,7 +299,7 @@ async function processProducts(
     // Media-stream route shape: ``.../{trimThreshold}/{quality}.{format}``
     // — see blog branch above.
     const mainImageUrl = product.mainImagePath
-      ? encodeURI(`${mediaStreamPath}/${product.mainImagePath}/472/311/cover/attention/transparent/5/100.webp`)
+      ? encodeURI(`${mediaStreamPath}/${product.mainImagePath}/472/311/cover/attention/transparent/0/100.webp`)
       : ''
     const mimeType = product.mainImagePath ? getMimeType(product.mainImagePath) : undefined
 
