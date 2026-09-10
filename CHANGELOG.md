@@ -1,3 +1,10 @@
+## [3.188.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.188.1...v3.188.2) (2026-09-10)
+
+
+### Performance Improvements
+
+* **images:** stop sending trimThreshold=5 to the media stream by default ([#23](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/23)) ([6b23f10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6b23f10689ba645ec17a18af3bd7c4803b4ce77e))
+
 ## [3.188.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.188.0...v3.188.1) (2026-09-10)
 
 
