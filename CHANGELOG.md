@@ -1,3 +1,10 @@
+## [3.187.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.187.1...v3.187.2) (2026-09-10)
+
+
+### Bug Fixes
+
+* **checkout:** put payment instructions behind a disclosure ([c52cd64](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c52cd647dfc06e6f0e0c9fc0d20769c5f2d7d4a1))
+
 ## [3.187.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.187.0...v3.187.1) (2026-09-10)
 
 
