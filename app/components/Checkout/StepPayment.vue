@@ -40,6 +40,20 @@ const hasInstructions = computed(() =>
   selectedInstructions.value.trim().length > 0,
 )
 
+// Collapsed by default. The instructions are operator-authored HTML —
+// 500-700 characters with a numbered list for the methods that have
+// them — and rendering that expanded pushed the order summary and the
+// place-order CTA below the fold on a phone, for copy most shoppers
+// never need. A one-line trigger keeps it one tap away instead.
+const instructionsOpen = ref(false)
+
+// Instructions belong to the SELECTED method, so a method change makes
+// whatever is on screen wrong. Collapsing on change also avoids
+// swapping the body of an open panel underneath the reader.
+watch(() => formState.value.payWay, () => {
+  instructionsOpen.value = false
+})
+
 // Expose the form's submit() so the primary CTA (now living in
 // the checkout sidebar) can trigger Zod validation + emit `submit`.
 const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef')
@@ -131,18 +145,36 @@ defineExpose({
         </URadioGroup>
       </UFormField>
 
-      <UAlert
-        v-if="hasInstructions"
-        icon="i-heroicons-information-circle"
-        color="neutral"
-        variant="soft"
-        :title="t('form.payment_instructions')"
-        :ui="{ description: 'text-sm' }"
-      >
-        <template #description>
-          <div class="pay-way-instructions" v-html="selectedInstructions" />
+      <UCollapsible v-if="hasInstructions" v-model:open="instructionsOpen">
+        <UButton
+          class="group"
+          color="neutral"
+          variant="subtle"
+          size="md"
+          block
+          type="button"
+          leading-icon="i-heroicons-information-circle"
+          :label="t('form.payment_instructions')"
+          trailing-icon="i-heroicons-chevron-down"
+          :ui="{
+            base: 'justify-between',
+            trailingIcon: `
+              transition-transform duration-200
+              group-data-[state=open]:rotate-180
+            `,
+          }"
+        />
+
+        <template #content>
+          <div
+            class="
+              pay-way-instructions mt-2 rounded-lg border border-default
+              bg-elevated/50 p-3 text-sm
+            "
+            v-html="selectedInstructions"
+          />
         </template>
-      </UAlert>
+      </UCollapsible>
 
       <!-- Place-order CTA lives in the checkout sidebar so it sits
            next to the order total. -->
