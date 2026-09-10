@@ -1,3 +1,10 @@
+## [3.188.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.188.0...v3.188.1) (2026-09-10)
+
+
+### Bug Fixes
+
+* **head:** asset-origin preconnect hints at runtime, per tenant ([5862ea0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5862ea0c53390259a22a5153531cdbf75f2d0422))
+
 # [3.188.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.187.2...v3.188.0) (2026-09-10)
 
 
