@@ -40,6 +40,7 @@ const DEFAULT_API_OPTIONS: ShippingOption[] = [
     liveMode: true,
     priority: 5,
     metadata: {},
+    payWays: [],
   },
   {
     providerCode: 'acs',
@@ -50,6 +51,7 @@ const DEFAULT_API_OPTIONS: ShippingOption[] = [
     liveMode: true,
     priority: 10,
     metadata: {},
+    payWays: [],
   },
 ]
 
@@ -209,5 +211,61 @@ describe('Checkout/StepShipping', () => {
       await backBtn.trigger('click')
       expect(wrapper.emitted('back')).toBeTruthy()
     })
+  })
+})
+
+describe('exclusive pay ways on the delivery card', () => {
+  /**
+   * BOX NOW Αντικαταβολή can only be settled at a BoxNow locker, and
+   * the payment step comes AFTER this one — so a shopper who never
+   * picks a locker has no way to discover the method exists. The card
+   * names it, which is why the shopper picks the locker at all.
+   */
+  const withPayWays = (boxnow: string[], home: string[]): ShippingOption[] => [
+    {
+      ...DEFAULT_API_OPTIONS[0]!,
+      payWays: boxnow.map((name, i) => ({ id: i + 1, name })),
+    },
+    {
+      ...DEFAULT_API_OPTIONS[1]!,
+      payWays: home.map((name, i) => ({ id: i + 10, name })),
+    },
+  ]
+
+  it('names a method only this delivery choice can reach', async () => {
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({
+        apiOptions: withPayWays(
+          ['CREDIT_CARD', 'BOX_NOW_PAY_ON_THE_GO'],
+          ['CREDIT_CARD', 'PAY_ON_DELIVERY'],
+        ),
+      }),
+    })
+
+    const html = wrapper.html()
+    expect(html).toContain('BOX NOW PAY ON THE GO!')
+    expect(html).toContain('Αντικαταβολή')
+  })
+
+  it('stays silent about a method every row accepts', async () => {
+    // Card is available everywhere, so naming it on each card is noise
+    // that buries the one line that carries information.
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({
+        apiOptions: withPayWays(['CREDIT_CARD'], ['CREDIT_CARD']),
+      }),
+    })
+
+    expect(wrapper.html()).not.toContain('Πληρωμή με Κάρτα')
+  })
+
+  it('renders nothing when the backend sends no pay ways', async () => {
+    // Older payloads, or a failure the server swallowed — the card must
+    // just omit the line rather than render an empty label.
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({ apiOptions: withPayWays([], []) }),
+    })
+
+    expect(wrapper.html()).not.toContain('Επιπλέον τρόπος πληρωμής')
   })
 })

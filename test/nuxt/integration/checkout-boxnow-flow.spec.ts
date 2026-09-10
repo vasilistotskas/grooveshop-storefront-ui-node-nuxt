@@ -36,6 +36,7 @@ const DEFAULT_API_OPTIONS: ShippingOption[] = [
     liveMode: true,
     priority: 5,
     metadata: {},
+    payWays: [],
   },
   {
     providerCode: 'acs',
@@ -46,6 +47,7 @@ const DEFAULT_API_OPTIONS: ShippingOption[] = [
     liveMode: true,
     priority: 10,
     metadata: {},
+    payWays: [],
   },
 ]
 

@@ -20,6 +20,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const { getPaymentMethodName } = usePaymentMethod()
 
 // True when the BoxNow widget is unconfigured (tenantStore.boxNowPartnerId
 // empty — tenant hasn't set one, no platform fallback). We disable the
@@ -78,6 +79,8 @@ type ShippingOptionItemBase = {
 
 type ShippingOptionItem = ShippingOptionItemBase & {
   logo: string
+  /** Payment methods reachable ONLY by choosing this delivery row. */
+  exclusivePayWays: string[]
 }
 
 // Per-method UI metadata (i18n labels + brand assets +
@@ -125,6 +128,61 @@ const itemsByKey = computed<Record<ShippingMethodKey, ShippingOptionItemBase>>(
 // one. The first-occurrence-wins rule applies to both the row
 // identity AND the logo source, so swapping the active home-
 // delivery carrier propagates the new brand asset automatically.
+/**
+ * The pay ways each RENDERED row can settle.
+ *
+ * Django answers per (provider, kind); this component collapses every
+ * home-delivery carrier into one card, so the sets have to be folded
+ * the same way. The fold is an INTERSECTION, not a union: picking
+ * "delivery to your address" does not let the shopper pick the
+ * carrier, so only a method every collapsed carrier accepts is
+ * actually on offer — the same rule Django applies server-side when a
+ * request names a kind but no provider.
+ */
+const payWayNamesByMethod = computed(() => {
+  const byMethod = new Map<ShippingMethodKey, Set<string>>()
+  for (const option of props.apiOptions) {
+    const key = methodKeyForOption(option) as ShippingMethodKey | null
+    if (!key) continue
+    const names = new Set((option.payWays ?? []).map(p => p.name))
+    const existing = byMethod.get(key)
+    if (!existing) {
+      byMethod.set(key, names)
+      continue
+    }
+    for (const name of existing) {
+      if (!names.has(name)) existing.delete(name)
+    }
+  }
+  return byMethod
+})
+
+/**
+ * Pay ways a row is the ONLY way to reach.
+ *
+ * BOX NOW Αντικαταβολή can only be settled at a BoxNow locker, and the
+ * payment step comes AFTER this one — so a shopper who never picks a
+ * locker has no way to discover the method exists. Naming it here puts
+ * the information where the decision is made instead of leaving the
+ * payment step to explain an absence.
+ *
+ * Computed against the rendered rows rather than asked of the server,
+ * because only this component knows which rows it actually renders.
+ */
+const exclusivePayWaysByMethod = computed(() => {
+  const result = new Map<ShippingMethodKey, string[]>()
+  const all = payWayNamesByMethod.value
+  for (const [key, names] of all) {
+    const elsewhere = new Set<string>()
+    for (const [otherKey, otherNames] of all) {
+      if (otherKey === key) continue
+      for (const name of otherNames) elsewhere.add(name)
+    }
+    result.set(key, [...names].filter(name => !elsewhere.has(name)))
+  }
+  return result
+})
+
 const shippingOptions = computed(() => {
   const seen = new Set<ShippingMethodKey>()
   const ordered: ShippingOptionItem[] = []
@@ -137,6 +195,10 @@ const shippingOptions = computed(() => {
     ordered.push({
       ...baseItem,
       logo: resolveShippingLogo(option.logoUrl),
+      // Resolved through the same label map the payment step uses, so
+      // the two never disagree on what a method is called.
+      exclusivePayWays: (exclusivePayWaysByMethod.value.get(key) ?? [])
+        .map(name => getPaymentMethodName(name)),
     })
   }
   return ordered
@@ -316,6 +378,27 @@ defineExpose({ submit: onSubmit })
               </div>
               <span class="text-sm text-neutral-700 dark:text-neutral-200">
                 {{ item.descriptionText }}
+              </span>
+              <!-- A payment method this delivery choice is the only way
+                   to reach. Named here because the payment step comes
+                   next: a shopper who wants BOX NOW Αντικαταβολή would
+                   otherwise have to guess that a locker unlocks it. -->
+              <span
+                v-if="item.exclusivePayWays.length"
+                class="mt-1 flex flex-wrap items-center gap-1 text-sm"
+              >
+                <span class="text-neutral-600 dark:text-neutral-300">
+                  {{ t('delivery_unlocks_payment') }}
+                </span>
+                <UBadge
+                  v-for="payWay in item.exclusivePayWays"
+                  :key="payWay"
+                  color="success"
+                  variant="subtle"
+                  size="sm"
+                >
+                  {{ payWay }}
+                </UBadge>
               </span>
             </div>
           </div>

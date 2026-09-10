@@ -11,6 +11,8 @@ const props = defineProps<{
     /** Operator-authored TinyMCE HTML from Django admin. */
     description?: string
     instructions?: string
+    /** "Free above X" — only set while the fee is actually charged. */
+    freeThresholdHint?: string
   }>
   isSubmitting: boolean
 }>()
@@ -119,6 +121,12 @@ defineExpose({
               class="pay-way-description text-sm"
               v-html="sanitizeRichHtml(item.description)"
             />
+            <p
+              v-if="item.freeThresholdHint"
+              class="mt-1 text-sm font-medium text-success"
+            >
+              {{ item.freeThresholdHint }}
+            </p>
           </template>
         </URadioGroup>
       </UFormField>

@@ -4902,6 +4902,21 @@ export const zOrderCreateFromCartRequest = z.object({
 })
 
 /**
+ * A payment method this shipping option can settle.
+ *
+ * ``name`` is the ``PayWayEnum`` KEY, not a display string — the same
+ * contract the pay-way endpoint uses, so the storefront resolves it
+ * through the label map it already owns rather than rendering
+ * whatever language the API happened to answer in.
+ */
+export const zShippingOptionPayWay = z.object({
+  id: z.int(),
+  name: z.string(),
+}).register(z.globalRegistry, {
+  description: 'A payment method this shipping option can settle.\n\n``name`` is the ``PayWayEnum`` KEY, not a display string — the same\ncontract the pay-way endpoint uses, so the storefront resolves it\nthrough the label map it already owns rather than rendering\nwhatever language the API happened to answer in.',
+})
+
+/**
  * One row in the checkout shipping-method radio.
  *
  * Returned by :class:`shipping.views.ShippingOptionsView`.  The
@@ -4919,6 +4934,9 @@ export const zShippingOption = z.object({
   priority: z.int(),
   logoUrl: z.url().nullish(),
   metadata: z.record(z.string(), z.unknown()),
+  payWays: z.array(zShippingOptionPayWay).register(z.globalRegistry, {
+    description: 'Active payment methods this (provider, kind) can settle, by the same rules checkout applies when the shopper picks it. Stated as a fact per option rather than as \'exclusive to this row\': the storefront collapses several carriers into one home-delivery card, so only it knows which rows it actually renders and can work out what a given choice uniquely unlocks. Lets the delivery step advertise a carrier-only product — BOX NOW Αντικαταβολή is reachable ONLY via a BoxNow locker, and a shopper who never picks one has no way to discover it exists.',
+  }),
 }).register(z.globalRegistry, {
   description: 'One row in the checkout shipping-method radio.\n\nReturned by :class:`shipping.views.ShippingOptionsView`.  The\nfrontend renders one card per row; the ``kind`` value tells it\nwhether to show a locker picker, and ``provider_code`` tells it\nwhich picker variant (BoxNow widget vs ACS server-side list).',
 })

@@ -567,10 +567,21 @@ export async function useCheckoutForm() {
       // doesn't pay.
       const costSuffix = displayCost > 0 ? ` (+${n(displayCost, 'currency')})` : ''
 
+      // Only while the fee is actually being charged. Once the
+      // threshold is met the suffix disappears, and a line explaining
+      // how to remove a charge that is no longer there is noise.
+      // Answers the question the surcharge provokes — "why 2,99 €, and
+      // can I avoid it?" — next to the charge itself, rather than in a
+      // separate notice the shopper has to go find.
+      const freeThresholdHint = displayCost > 0 && threshold > 0
+        ? t('pay_way_free_above', { amount: n(threshold, 'currency') })
+        : ''
+
       return {
         label: `${name ?? ''}${costSuffix}`,
         value: payWay.id,
         mainImagePath: payWay.mainImagePath,
+        freeThresholdHint,
         // Operator-authored in Django admin (PayWay → Περιγραφή /
         // Οδηγίες Πληρωμής). Both are TinyMCE HTML, so they are
         // sanitised at the render site like every other WYSIWYG field.

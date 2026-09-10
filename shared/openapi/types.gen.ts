@@ -7823,6 +7823,23 @@ export type ShippingOption = {
   metadata: {
     [key: string]: unknown
   }
+  /**
+     * Active payment methods this (provider, kind) can settle, by the same rules checkout applies when the shopper picks it. Stated as a fact per option rather than as 'exclusive to this row': the storefront collapses several carriers into one home-delivery card, so only it knows which rows it actually renders and can work out what a given choice uniquely unlocks. Lets the delivery step advertise a carrier-only product — BOX NOW Αντικαταβολή is reachable ONLY via a BoxNow locker, and a shopper who never picks one has no way to discover it exists.
+     */
+  payWays: Array<ShippingOptionPayWay>
+}
+
+/**
+ * A payment method this shipping option can settle.
+ *
+ * ``name`` is the ``PayWayEnum`` KEY, not a display string — the same
+ * contract the pay-way endpoint uses, so the storefront resolves it
+ * through the label map it already owns rather than rendering
+ * whatever language the API happened to answer in.
+ */
+export type ShippingOptionPayWay = {
+  id: number
+  name: string
 }
 
 export type ShippingProvider = {

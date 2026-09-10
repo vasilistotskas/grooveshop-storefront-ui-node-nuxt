@@ -195,5 +195,7 @@
         "loyalty_redemption_invalid": "Η εξαργύρωση πόντων δεν είναι διαθέσιμη"
       }
     }
-  }
+  },
+  "pay_way_free_above": "Δωρεάν για παραγγελίες άνω των {amount}",
+  "delivery_unlocks_payment": "Επιπλέον τρόπος πληρωμής:"
 }
