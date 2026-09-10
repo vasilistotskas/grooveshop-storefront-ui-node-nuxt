@@ -980,7 +980,7 @@ export default defineNuxtConfig({
           fit: 'contain',
           position: 'entropy',
           background: 'transparent',
-          trimThreshold: 5,
+          trimThreshold: 0,
         },
       },
       // Pass-through provider: returns the URL untouched (no IPX/sharp

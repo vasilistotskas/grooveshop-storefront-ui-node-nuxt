@@ -102,7 +102,6 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
           fit="cover"
           :modifiers="{
             position: 'attention',
-            trimThreshold: 5,
           }"
           quality="80"
           :background="'transparent'"

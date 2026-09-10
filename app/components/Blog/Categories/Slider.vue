@@ -101,7 +101,6 @@ function deriveIconName(mainImagePath: string | null | undefined): string | null
             quality="80"
             :modifiers="{
               position: 'entropy',
-              trimThreshold: 5,
             }"
           />
         </template>

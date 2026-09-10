@@ -61,7 +61,11 @@ export default defineProvider<Partial<MediaStreamOptions>>({
     const fit = modifiers.fit || 'contain'
     const position = normalizePosition(modifiers.position)
     const background = normalizeBackground(modifiers.background)
-    const trimThreshold = modifiers.trimThreshold ?? 5
+    // 0 = no trim. Trim forces the media service to decode the source at full
+    // resolution (Sharp disables shrink-on-load for it), and against the
+    // default transparent background it never removed anything from an opaque
+    // photo anyway. Opt in per image where a real background colour is set.
+    const trimThreshold = modifiers.trimThreshold ?? 0
     const quality = modifiers.quality || 80
     const format = modifiers.format || 'avif'
 
