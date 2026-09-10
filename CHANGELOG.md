@@ -1,3 +1,10 @@
+# [3.189.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.188.2...v3.189.0) (2026-09-10)
+
+
+### Features
+
+* **product:** suggestion strips on the product page, out of stock and the cart ([44bd421](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/44bd421d6f9d7ca2e240820224e1da2bfa1f90bf))
+
 ## [3.188.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.188.1...v3.188.2) (2026-09-10)
 
 
