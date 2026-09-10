@@ -1,3 +1,10 @@
+# [3.187.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.6...v3.187.0) (2026-09-10)
+
+
+### Features
+
+* **checkout:** let the delivery step name the payment it unlocks ([6eb08b2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6eb08b2240eb882b31cca5b68832982aaeb9c685))
+
 ## [3.186.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.5...v3.186.6) (2026-09-09)
 
 
