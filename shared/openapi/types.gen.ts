@@ -3901,7 +3901,7 @@ export type Order = {
      */
   readonly isOnlinePayment: boolean
   /**
-     * True when the carrier collects the money from the shopper on delivery — courier cash-on-delivery OR payment at a carrier's locker terminal (BoxNow PAY ON THE GO). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green 'your order is placed, pay on delivery' panel instead of the amber 'payment is processing' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).
+     * True when the carrier collects the money from the shopper rather than the store — cash or card to a courier at the door, OR paid to the carrier before pickup (BOX NOW Αντικαταβολή, marketed in English as PAY ON THE GO, which sends a payment link once the parcel reaches the locker). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green 'your order is placed, pay on delivery' panel instead of the amber 'payment is processing' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).
      */
   readonly isCollectedOnDelivery: boolean
   readonly canBeCanceled: boolean
@@ -4240,7 +4240,7 @@ export type OrderDetail = {
      */
   readonly isOnlinePayment: boolean
   /**
-     * True when the carrier collects the money from the shopper on delivery — courier cash-on-delivery OR payment at a carrier's locker terminal (BoxNow PAY ON THE GO). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green 'your order is placed, pay on delivery' panel instead of the amber 'payment is processing' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).
+     * True when the carrier collects the money from the shopper rather than the store — cash or card to a courier at the door, OR paid to the carrier before pickup (BOX NOW Αντικαταβολή, marketed in English as PAY ON THE GO, which sends a payment link once the parcel reaches the locker). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green 'your order is placed, pay on delivery' panel instead of the amber 'payment is processing' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).
      */
   readonly isCollectedOnDelivery: boolean
   readonly canBeCanceled: boolean
@@ -5479,7 +5479,7 @@ export type PatchedPayWayWriteRequest = {
      *
      * * `online` - Paid online at checkout
      * * `courier_cash` - Cash or card to the courier on delivery
-     * * `carrier_terminal` - Card at the carrier's terminal on pickup
+     * * `carrier_terminal` - Paid to the carrier before pickup
      * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
      */
   settlement?: SettlementEnum
@@ -5992,7 +5992,7 @@ export type PayWay = {
      *
      * * `online` - Paid online at checkout
      * * `courier_cash` - Cash or card to the courier on delivery
-     * * `carrier_terminal` - Card at the carrier's terminal on pickup
+     * * `carrier_terminal` - Paid to the carrier before pickup
      * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
      */
   settlement?: SettlementEnum
@@ -6068,7 +6068,7 @@ export type PayWayDetail = {
      *
      * * `online` - Paid online at checkout
      * * `courier_cash` - Cash or card to the courier on delivery
-     * * `carrier_terminal` - Card at the carrier's terminal on pickup
+     * * `carrier_terminal` - Paid to the carrier before pickup
      * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
      */
   settlement?: SettlementEnum
@@ -6143,7 +6143,7 @@ export type PayWayWriteRequest = {
      *
      * * `online` - Paid online at checkout
      * * `courier_cash` - Cash or card to the courier on delivery
-     * * `carrier_terminal` - Card at the carrier's terminal on pickup
+     * * `carrier_terminal` - Paid to the carrier before pickup
      * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
      */
   settlement?: SettlementEnum
@@ -7772,7 +7772,7 @@ export type SettingDetail = {
 /**
  * * `online` - Paid online at checkout
  * * `courier_cash` - Cash or card to the courier on delivery
- * * `carrier_terminal` - Card at the carrier's terminal on pickup
+ * * `carrier_terminal` - Paid to the carrier before pickup
  * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
  */
 export type SettlementEnum = 'online' | 'courier_cash' | 'carrier_terminal' | 'offline_transfer'
@@ -10585,7 +10585,7 @@ export type PayWayWritable = {
      *
      * * `online` - Paid online at checkout
      * * `courier_cash` - Cash or card to the courier on delivery
-     * * `carrier_terminal` - Card at the carrier's terminal on pickup
+     * * `carrier_terminal` - Paid to the carrier before pickup
      * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
      */
   settlement?: SettlementEnum
@@ -10645,7 +10645,7 @@ export type PayWayDetailWritable = {
      *
      * * `online` - Paid online at checkout
      * * `courier_cash` - Cash or card to the courier on delivery
-     * * `carrier_terminal` - Card at the carrier's terminal on pickup
+     * * `carrier_terminal` - Paid to the carrier before pickup
      * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
      */
   settlement?: SettlementEnum
@@ -19391,7 +19391,7 @@ export type ListPayWayData = {
          *
          * * `online` - Paid online at checkout
          * * `courier_cash` - Cash or card to the courier on delivery
-         * * `carrier_terminal` - Card at the carrier's terminal on pickup
+         * * `carrier_terminal` - Paid to the carrier before pickup
          * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
          */
     settlement?: 'carrier_terminal' | 'courier_cash' | 'offline_transfer' | 'online'

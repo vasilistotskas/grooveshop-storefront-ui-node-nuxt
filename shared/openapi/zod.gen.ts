@@ -3451,7 +3451,7 @@ export const zOrder = z.object({
     description: 'True when the order\'s PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading \'outstanding amount\' warnings for COD orders where the shopper intentionally paid €0 at checkout.',
   }).readonly(),
   isCollectedOnDelivery: z.boolean().register(z.globalRegistry, {
-    description: 'True when the carrier collects the money from the shopper on delivery — courier cash-on-delivery OR payment at a carrier\'s locker terminal (BoxNow PAY ON THE GO). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green \'your order is placed, pay on delivery\' panel instead of the amber \'payment is processing\' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).',
+    description: 'True when the carrier collects the money from the shopper rather than the store — cash or card to a courier at the door, OR paid to the carrier before pickup (BOX NOW Αντικαταβολή, marketed in English as PAY ON THE GO, which sends a payment link once the parcel reaches the locker). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green \'your order is placed, pay on delivery\' panel instead of the amber \'payment is processing\' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).',
   }).readonly(),
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
@@ -4546,7 +4546,7 @@ export const zSettingDetail = z.object({
 /**
  * * `online` - Paid online at checkout
  * * `courier_cash` - Cash or card to the courier on delivery
- * * `carrier_terminal` - Card at the carrier's terminal on pickup
+ * * `carrier_terminal` - Paid to the carrier before pickup
  * * `offline_transfer` - Settled off-platform (e.g. bank transfer)
  */
 export const zSettlementEnum = z.enum([
@@ -4555,7 +4555,7 @@ export const zSettlementEnum = z.enum([
   'carrier_terminal',
   'offline_transfer',
 ]).register(z.globalRegistry, {
-  description: '* `online` - Paid online at checkout\n* `courier_cash` - Cash or card to the courier on delivery\n* `carrier_terminal` - Card at the carrier\'s terminal on pickup\n* `offline_transfer` - Settled off-platform (e.g. bank transfer)',
+  description: '* `online` - Paid online at checkout\n* `courier_cash` - Cash or card to the courier on delivery\n* `carrier_terminal` - Paid to the carrier before pickup\n* `offline_transfer` - Settled off-platform (e.g. bank transfer)',
 })
 
 /**
@@ -5960,7 +5960,7 @@ export const zOrderDetail = z.object({
     description: 'True when the order\'s PayWay charges the shopper online (Stripe, Viva); false for cash-on-delivery / bank transfer. Surfaced on both list + detail so both views can suppress misleading \'outstanding amount\' warnings for COD orders where the shopper intentionally paid €0 at checkout.',
   }).readonly(),
   isCollectedOnDelivery: z.boolean().register(z.globalRegistry, {
-    description: 'True when the carrier collects the money from the shopper on delivery — courier cash-on-delivery OR payment at a carrier\'s locker terminal (BoxNow PAY ON THE GO). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green \'your order is placed, pay on delivery\' panel instead of the amber \'payment is processing\' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).',
+    description: 'True when the carrier collects the money from the shopper rather than the store — cash or card to a courier at the door, OR paid to the carrier before pickup (BOX NOW Αντικαταβολή, marketed in English as PAY ON THE GO, which sends a payment link once the parcel reaches the locker). ``is_online_payment`` cannot answer this: it is false for bank transfer too, where the shopper pays us directly and nothing is owed on delivery. The storefront needs the distinction to show a collect-on-delivery order a green \'your order is placed, pay on delivery\' panel instead of the amber \'payment is processing\' warning, which would otherwise sit there for days (measured ACS remittance lag is ~4 days).',
   }).readonly(),
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
@@ -14823,7 +14823,7 @@ export const zListPayWayQuery = z.object({
     'offline_transfer',
     'online',
   ]).register(z.globalRegistry, {
-    description: 'Filter by how the money changes hands\n\n* `online` - Paid online at checkout\n* `courier_cash` - Cash or card to the courier on delivery\n* `carrier_terminal` - Card at the carrier\'s terminal on pickup\n* `offline_transfer` - Settled off-platform (e.g. bank transfer)',
+    description: 'Filter by how the money changes hands\n\n* `online` - Paid online at checkout\n* `courier_cash` - Cash or card to the courier on delivery\n* `carrier_terminal` - Paid to the carrier before pickup\n* `offline_transfer` - Settled off-platform (e.g. bank transfer)',
   }).optional(),
   shippingKind: z.string().register(z.globalRegistry, {
     description: 'Filter pay ways by the shipping kind. Pair with ``shippingProviderCode`` for one carrier\'s rules; on its own it returns only the pay ways every carrier serving that kind accepts, which is what a provider-agnostic ``home_delivery`` checkout needs.',
