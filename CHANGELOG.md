@@ -1,3 +1,10 @@
+## [3.187.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.187.0...v3.187.1) (2026-09-10)
+
+
+### Bug Fixes
+
+* **tenant:** keep the platform tenant's identity and data out of other tenants' pages ([04c7798](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/04c779825b14358a54894114f4afd888c5ea7769)), closes [#1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/1)
+
 # [3.187.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.186.6...v3.187.0) (2026-09-10)
 
 
