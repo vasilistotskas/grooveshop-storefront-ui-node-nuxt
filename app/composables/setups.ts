@@ -8,10 +8,6 @@ export function setupPageHeader() {
   const tenantStore = useTenantStore()
   const { ogImageUrl } = useTenantBranding()
   const isPlatformTenant = useIsPlatformTenant()
-  // Platform-only attribution (author, site-verification tokens) —
-  // ``null`` on every other tenant, resolved server-side from PRIVATE
-  // runtime config so the values never enter another store's payload.
-  const platformMeta = computed(() => tenantStore.platform)
 
   const siteUrl = siteConfig.url
 
@@ -84,24 +80,24 @@ export function setupPageHeader() {
     twitterImage: () => logo.value,
     twitterCard: 'summary',
     applicationName: () => title.value,
-    // author/creator/publisher and the ms-application favicon assets are
-    // PLATFORM-only content (brand attribution, platform-specific icon
-    // files) — never emit them on another tenant's storefront. Same gate
-    // as googleSiteVerification below.
-    author: () => platformMeta.value?.authorName || undefined,
-    creator: () => platformMeta.value?.authorName || undefined,
-    publisher: () => platformMeta.value?.authorName || undefined,
+    // author/creator/publisher and the site-verification tokens are
+    // per-STORE data (``Tenant.seo_author`` / ``google_site_verification``
+    // / ``pinterest_domain_verify``): a verification token grants an
+    // account ownership of whatever domain emits it, so each store
+    // carries its own and nothing falls back to another store's. The
+    // ms-application icon files are bundled platform assets, gated on
+    // the platform tenant like the favicon set below.
+    author: () => tenantStore.seoAuthor || undefined,
+    creator: () => tenantStore.seoAuthor || undefined,
+    publisher: () => tenantStore.seoAuthor || undefined,
     mobileWebAppCapable: 'yes',
     appleMobileWebAppCapable: 'yes',
     msapplicationConfig: () =>
       isPlatformTenant.value ? '/platform-favicon/browserconfig.xml' : undefined,
     msapplicationTileImage: () =>
       isPlatformTenant.value ? '/platform-favicon/ms-icon-150x150.png' : undefined,
-    // Site-verification tokens grant the PLATFORM's Search Console /
-    // Pinterest accounts ownership of whatever domain emits them —
-    // never emit them on another tenant's storefront.
     googleSiteVerification: () =>
-      platformMeta.value?.googleSiteVerification || undefined,
+      tenantStore.googleSiteVerification || undefined,
     colorScheme: colorScheme,
     ogLocale: $i18n.locale,
     ogLocaleAlternate: ogLocalesAlternate.value,
@@ -142,10 +138,10 @@ export function setupPageHeader() {
       ...tenantPreconnectLinks.value,
     ],
     meta: [...(i18nHead.value.meta || []),
-      ...(platformMeta.value?.domainVerifyId
+      ...(tenantStore.pinterestDomainVerify
         ? [{
             name: 'p:domain_verify',
-            content: platformMeta.value.domainVerifyId,
+            content: tenantStore.pinterestDomainVerify,
           }]
         : []),
     ],

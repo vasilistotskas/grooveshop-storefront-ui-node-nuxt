@@ -102,31 +102,40 @@ describe('useTenantStore — stripePublishableKey', () => {
   })
 })
 
-describe('useTenantStore — platform tenant', () => {
+describe('useTenantStore — platform storefront + SEO attribution', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
   })
 
-  it('is not the platform tenant until the plugin says so — regardless of config', () => {
+  it('counts an absent config as platform (probes, prerender, unknown-host error page)', () => {
     const store = useTenantStore()
-    expect(store.isPlatform).toBe(false)
-    store.setConfig(makeTenantConfig({ primaryDomain: 'webside.gr' }))
-    expect(store.isPlatform).toBe(false)
-    expect(store.platform).toBeNull()
+    expect(store.isPlatform).toBe(true)
   })
 
-  it('exposes the platform attribution only once setPlatform is called', () => {
+  it('is the platform ONLY when the row flag says so — never from a hostname', () => {
     const store = useTenantStore()
-    store.setPlatform({
-      authorName: 'author',
-      googleSiteVerification: 'gsv-token',
-      domainVerifyId: 'pin-token',
-    })
-    expect(store.isPlatform).toBe(true)
-    expect(store.platform?.authorName).toBe('author')
-
-    store.setPlatform(null)
+    store.setConfig(makeTenantConfig({ primaryDomain: 'store-one.example' }))
     expect(store.isPlatform).toBe(false)
+
+    store.setConfig(makeTenantConfig({ primaryDomain: 'store-one.example', isPlatformStorefront: true }))
+    expect(store.isPlatform).toBe(true)
+  })
+
+  it('exposes the per-store SEO attribution, empty when unset', () => {
+    const store = useTenantStore()
+    store.setConfig(makeTenantConfig())
+    expect(store.seoAuthor).toBe('')
+    expect(store.googleSiteVerification).toBe('')
+    expect(store.pinterestDomainVerify).toBe('')
+
+    store.setConfig(makeTenantConfig({
+      seoAuthor: 'Store Owner',
+      googleSiteVerification: 'gsv-token',
+      pinterestDomainVerify: 'pin-token',
+    }))
+    expect(store.seoAuthor).toBe('Store Owner')
+    expect(store.googleSiteVerification).toBe('gsv-token')
+    expect(store.pinterestDomainVerify).toBe('pin-token')
   })
 })
 

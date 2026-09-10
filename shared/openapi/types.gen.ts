@@ -8316,6 +8316,10 @@ export type TenantConfig = {
   readonly logoLightUrl: string
   readonly logoDarkUrl: string
   readonly faviconUrl: string
+  isPlatformStorefront?: boolean
+  seoAuthor?: string
+  googleSiteVerification?: string
+  pinterestDomainVerify?: string
   readonly primaryColor: string
   readonly neutralColor: string
   readonly accentHex: string
@@ -11355,6 +11359,10 @@ export type TaggedItemWriteRequestWritable = {
  * TenantAdminSerializer.
  */
 export type TenantConfigWritable = {
+  isPlatformStorefront?: boolean
+  seoAuthor?: string
+  googleSiteVerification?: string
+  pinterestDomainVerify?: string
   availableLocales?: Array<string>
   openaiPixelId?: string
 }

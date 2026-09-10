@@ -5379,6 +5379,10 @@ export const zTenantConfig = z.object({
   logoLightUrl: z.string().readonly(),
   logoDarkUrl: z.string().readonly(),
   faviconUrl: z.string().readonly(),
+  isPlatformStorefront: z.boolean().optional(),
+  seoAuthor: z.string().optional(),
+  googleSiteVerification: z.string().optional(),
+  pinterestDomainVerify: z.string().optional(),
   primaryColor: z.string().readonly(),
   neutralColor: z.string().readonly(),
   accentHex: z.string().readonly(),
@@ -8561,6 +8565,10 @@ export const zTaggedItemWriteRequestWritable = z.object({
  * TenantAdminSerializer.
  */
 export const zTenantConfigWritable = z.object({
+  isPlatformStorefront: z.boolean().optional(),
+  seoAuthor: z.string().optional(),
+  googleSiteVerification: z.string().optional(),
+  pinterestDomainVerify: z.string().optional(),
   availableLocales: z.array(z.string()).optional(),
   openaiPixelId: z.string().optional(),
 }).register(z.globalRegistry, {

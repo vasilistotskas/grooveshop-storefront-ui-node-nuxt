@@ -69851,6 +69851,18 @@
             "type": "string",
             "readOnly": true
           },
+          "isPlatformStorefront": {
+            "type": "boolean"
+          },
+          "seoAuthor": {
+            "type": "string"
+          },
+          "googleSiteVerification": {
+            "type": "string"
+          },
+          "pinterestDomainVerify": {
+            "type": "string"
+          },
           "primaryColor": {
             "type": "string",
             "readOnly": true

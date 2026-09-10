@@ -134,15 +134,18 @@ export function clearTenantCache(host?: string) {
 
 /**
  * Whether *tenant* IS the platform's own storefront (server-side twin
- * of `useIsPlatformTenant`). Designated by the PRIVATE
- * ``runtimeConfig.platformTenant.host`` — see
- * ``shared/utils/platformTenant.ts`` for the rule and its edge cases.
+ * of `useIsPlatformTenant`): the ``Tenant.is_platform_storefront`` row
+ * flag from the resolve payload — never a hostname comparison, and no
+ * env value names a store. An absent tenant or unset primaryDomain
+ * (probes, prerender, unknown hosts) counts as platform so those
+ * surfaces keep the bundled brand.
  */
 export function isPlatformTenantConfig(
-  tenant: { primaryDomain?: string } | null | undefined,
+  tenant:
+    | { primaryDomain?: string, isPlatformStorefront?: boolean }
+    | null
+    | undefined,
 ): boolean {
-  return isPlatformTenantHost(
-    tenant?.primaryDomain,
-    useRuntimeConfig().platformTenant?.host,
-  )
+  if (!tenant?.primaryDomain) return true
+  return tenant.isPlatformStorefront === true
 }

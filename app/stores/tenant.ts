@@ -61,24 +61,30 @@ export const useTenantStore = defineStore('tenant', () => {
     youtube: config.value?.socialsYoutube ?? '',
   }))
 
-  // Platform tenant — the store that owns the bundled brand assets and
-  // the platform's SEO attribution. Resolved server-side by the tenant
-  // plugin from PRIVATE runtime config; ``null`` on every other tenant.
-  const platform = ref<PlatformTenantMeta | null>(null)
-  const isPlatform = computed(() => platform.value !== null)
+  // The platform's own storefront — the ONE store that renders the brand
+  // assets bundled in this image (``Tenant.is_platform_storefront``, a
+  // row flag; never a hostname compared on the client). An absent
+  // config (probes, prerender, the error page of an unknown host)
+  // counts as platform so those surfaces keep the bundled brand.
+  const isPlatform = computed(() =>
+    config.value ? (config.value.isPlatformStorefront ?? false) : true,
+  )
+
+  // SEO attribution — per-store data, emitted only where set.
+  const seoAuthor = computed(() => config.value?.seoAuthor ?? '')
+  const googleSiteVerification = computed(() => config.value?.googleSiteVerification ?? '')
+  const pinterestDomainVerify = computed(() => config.value?.pinterestDomainVerify ?? '')
 
   function setConfig(tenantConfig: TenantConfig | null) {
     config.value = tenantConfig
   }
 
-  function setPlatform(meta: PlatformTenantMeta | null) {
-    platform.value = meta
-  }
-
   return {
     config,
-    platform,
     isPlatform,
+    seoAuthor,
+    googleSiteVerification,
+    pinterestDomainVerify,
     schemaName,
     storeName,
     storeDescription,
@@ -111,6 +117,5 @@ export const useTenantStore = defineStore('tenant', () => {
     boxNowPartnerId,
     socials,
     setConfig,
-    setPlatform,
   }
 })

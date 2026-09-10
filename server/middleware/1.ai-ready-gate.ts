@@ -7,10 +7,11 @@
  * origins from the tenant-less site config — so tenant B's `/llms.txt`
  * would announce tenant A's brand and enumerate tenant A's pages.
  * Until the module supports per-host indexes, these surfaces are
- * served ONLY on the platform tenant's host (PRIVATE runtime config
- * ``platformTenant.host``, see shared/utils/platformTenant.ts) and 404
- * elsewhere — including everywhere when no platform tenant is
- * configured, since the shared index would otherwise leak cross-tenant.
+ * served ONLY on the platform's own storefront (the tenant whose
+ * ``isPlatformStorefront`` flag is set — resolved here, because these
+ * paths sit in 0.tenant's bypass list) and 404 everywhere else,
+ * including when no store carries the flag: the shared index would
+ * otherwise leak cross-tenant.
  *
  * Exemptions:
  * - The `x-md-negotiation-internal` re-fetch from
@@ -24,7 +25,7 @@
  * aware) — pages rendered on tenant hosts still land in the shared
  * index; this gate only prevents their cross-tenant EXPOSURE.
  */
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   if (event.method !== 'GET') return
 
   const path = event.path
@@ -35,14 +36,9 @@ export default defineEventHandler((event) => {
   if (!isAiSurface) return
   if (getRequestHeader(event, 'x-md-negotiation-internal')) return
 
-  const platformHost = (useRuntimeConfig().platformTenant?.host ?? '')
-    .trim()
-    .replace(/:\d+$/, '')
-  const host = getRequestHost(event, { xForwardedHost: false }).replace(
-    /:\d+$/,
-    '',
-  )
-  if (!platformHost || host !== platformHost) {
+  const host = getRequestHost(event, { xForwardedHost: false })
+  const result = host ? await getTenantConfig(host) : null
+  if (result?.type !== 'ok' || result.config.isPlatformStorefront !== true) {
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })
   }
 })

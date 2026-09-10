@@ -177,24 +177,13 @@ export default defineNuxtConfig({
       // DB 0 = Django, DB 2 = media-stream, DB 3 = Nuxt (default)
       db: parseInt(process.env.NUXT_REDIS_DB ?? '3', 10),
     },
-    // The platform tenant: the ONE store that owns the brand assets
-    // bundled in this repo and the platform's SEO attribution. PRIVATE
-    // on purpose — every ``public`` key is serialized into
-    // ``window.__NUXT__.config`` on EVERY tenant's pages, which is how
-    // the first store's hostname, author and verification tokens used
-    // to appear in other tenants' DOM. The tenant plugin resolves this
-    // server-side and ships the client a boolean plus, on the platform
-    // tenant only, the attribution values. See
-    // shared/utils/platformTenant.ts.
-    platformTenant: {
-      host: process.env.NUXT_PLATFORM_TENANT_HOST,
-      authorName: process.env.NUXT_PLATFORM_TENANT_AUTHOR_NAME,
-      googleSiteVerification: process.env.NUXT_PLATFORM_TENANT_GOOGLE_SITE_VERIFICATION,
-      domainVerifyId: process.env.NUXT_PLATFORM_TENANT_DOMAIN_VERIFY_ID,
-    },
     // Every key below is serialized into every tenant's HTML. Keep each
     // one PLATFORM-neutral: these are fallbacks for a request with no
     // resolved tenant (dev, probes, prerender) — never a store's data.
+    // Which store is the platform's own storefront, and its SEO
+    // attribution, are Tenant ROW DATA (``isPlatformStorefront``,
+    // ``seoAuthor``, ``googleSiteVerification``, ``pinterestDomainVerify``
+    // on the resolve payload) — no env value names a store.
     public: {
       appTitle: process.env.NUXT_PUBLIC_APP_TITLE,
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
