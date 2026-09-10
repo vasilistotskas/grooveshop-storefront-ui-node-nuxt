@@ -1,3 +1,10 @@
+# [3.188.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.187.2...v3.188.0) (2026-09-10)
+
+
+### Features
+
+* **tenant:** platform storefront and SEO attribution come from the Tenant row, not env ([10b4b76](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/10b4b768b926426659aa631ceba90eb92b08753e))
+
 ## [3.187.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.187.1...v3.187.2) (2026-09-10)
 
 
