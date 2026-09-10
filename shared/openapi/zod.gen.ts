@@ -2081,6 +2081,8 @@ export const zNotificationUserWriteRequest = z.object({
   seen: z.boolean().optional(),
 })
 
+export const zNullEnum = z.unknown()
+
 /**
  * * `RECEIPT` - Απόδειξη
  * * `INVOICE` - Τιμολόγιο
@@ -4266,6 +4268,18 @@ export const zProductReviewWriteRequest = z.object({
 })
 
 /**
+ * * `impression` - Impression
+ * * `click` - Click
+ */
+export const zRecommendationEventRequestKindEnum = z.enum(['impression', 'click']).register(z.globalRegistry, {
+  description: '* `impression` - Impression\n* `click` - Click',
+})
+
+export const zRecommendationEventResponse = z.object({
+  detail: z.string(),
+})
+
+/**
  * Serializer for validating a points redemption request.
  */
 export const zRedeemPointsRequestRequest = z.object({
@@ -4382,6 +4396,23 @@ export const zRegionWriteRequest = z.object({
   country: z.string().min(1),
 }).register(z.globalRegistry, {
   description: 'Serializer that saves :class:`TranslatedFieldsField` automatically.',
+})
+
+/**
+ * * `similar` - Similar product
+ * * `complementary` - Goes well with
+ * * `accessory` - Accessory for
+ * * `replacement` - Replacement for
+ * * `bundle` - Bundle with
+ */
+export const zRelationTypeEnum = z.enum([
+  'similar',
+  'complementary',
+  'accessory',
+  'replacement',
+  'bundle',
+]).register(z.globalRegistry, {
+  description: '* `similar` - Similar product\n* `complementary` - Goes well with\n* `accessory` - Accessory for\n* `replacement` - Replacement for\n* `bundle` - Bundle with',
 })
 
 /**
@@ -5183,6 +5214,49 @@ export const zPatchedNavigationMenuRequest = z.object({
 })
 
 /**
+ * * `curated` - Merchant curated
+ * * `variant_group` - Same variant group
+ * * `category` - Same category
+ * * `attributes` - Shared attributes, tags and brand
+ * * `semantic` - Semantic similarity
+ * * `co_purchase` - Bought together
+ * * `co_view` - Viewed together
+ * * `popular` - Popular
+ */
+export const zStrategyEnum = z.enum([
+  'curated',
+  'variant_group',
+  'category',
+  'attributes',
+  'semantic',
+  'co_purchase',
+  'co_view',
+  'popular',
+]).register(z.globalRegistry, {
+  description: '* `curated` - Merchant curated\n* `variant_group` - Same variant group\n* `category` - Same category\n* `attributes` - Shared attributes, tags and brand\n* `semantic` - Semantic similarity\n* `co_purchase` - Bought together\n* `co_view` - Viewed together\n* `popular` - Popular',
+})
+
+export const zRecommendationEventItemRequest = z.object({
+  productId: z.int().gte(1),
+  strategy: zStrategyEnum,
+  position: z.int().gte(0).optional(),
+})
+
+export const zRecommendationReason = z.object({
+  strategy: zStrategyEnum,
+  relationType: z.union([
+    zRelationTypeEnum,
+    zNullEnum,
+  ]).nullable(),
+  score: z.number(),
+})
+
+export const zRecommendationItem = z.object({
+  product: zProduct,
+  reason: zRecommendationReason,
+})
+
+/**
  * * `ACTIVE` - Ενεργή
  * * `PENDING` - Εκκρεμεί Επιβεβαίωση
  * * `UNSUBSCRIBED` - Διαγραφή
@@ -5195,6 +5269,39 @@ export const zSubscriptionStatus = z.enum([
   'BOUNCED',
 ]).register(z.globalRegistry, {
   description: '* `ACTIVE` - Ενεργή\n* `PENDING` - Εκκρεμεί Επιβεβαίωση\n* `UNSUBSCRIBED` - Διαγραφή\n* `BOUNCED` - Επιστράφηκε',
+})
+
+/**
+ * * `pdp` - Product page
+ * * `cart` - Καλάθι
+ * * `out_of_stock` - Εξαντλημένο
+ * * `empty_cart` - Empty cart
+ * * `order_email` - Order email
+ */
+export const zSurfaceEnum = z.enum([
+  'pdp',
+  'cart',
+  'out_of_stock',
+  'empty_cart',
+  'order_email',
+]).register(z.globalRegistry, {
+  description: '* `pdp` - Product page\n* `cart` - Καλάθι\n* `out_of_stock` - Εξαντλημένο\n* `empty_cart` - Empty cart\n* `order_email` - Order email',
+})
+
+export const zRecommendationEventRequestRequest = z.object({
+  impressionId: z.uuid(),
+  surface: zSurfaceEnum,
+  kind: zRecommendationEventRequestKindEnum,
+  seedId: z.int().gte(1).optional(),
+  items: z.array(zRecommendationEventItemRequest),
+})
+
+export const zRecommendationResponse = z.object({
+  surface: zSurfaceEnum,
+  items: z.array(zRecommendationItem).readonly(),
+  impressionId: z.uuid().register(z.globalRegistry, {
+    description: 'Echo on click events so attach can be attributed.',
+  }),
 })
 
 /**
@@ -5404,6 +5511,7 @@ export const zTenantConfig = z.object({
   promotionsEnabled: z.boolean().readonly(),
   giftCardsEnabled: z.boolean().readonly(),
   b2bEnabled: z.boolean().readonly(),
+  recommendationsEnabled: z.boolean().optional(),
   agentStripeDelegatedEnabled: z.boolean().readonly(),
   agentCommerceEnabled: z.boolean().readonly(),
   productFeedsEnabled: z.boolean().readonly(),
@@ -8335,6 +8443,15 @@ export const zProductVariantsResponseWritable = z.object({
   description: 'Payload for ``GET /product/{id}/variants`` — the axes to render and the\nsibling products that fill them.',
 })
 
+export const zRecommendationItemWritable = z.record(z.string(), z.unknown())
+
+export const zRecommendationResponseWritable = z.object({
+  surface: zSurfaceEnum,
+  impressionId: z.uuid().register(z.globalRegistry, {
+    description: 'Echo on click events so attach can be attributed.',
+  }),
+})
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -8570,6 +8687,7 @@ export const zTenantConfigWritable = z.object({
   googleSiteVerification: z.string().optional(),
   pinterestDomainVerify: z.string().optional(),
   availableLocales: z.array(z.string()).optional(),
+  recommendationsEnabled: z.boolean().optional(),
   openaiPixelId: z.string().optional(),
 }).register(z.globalRegistry, {
   description: 'Public (AllowAny) serializer for the /api/v1/tenant/resolve endpoint.\n\nOnly fields that are safe to expose to unauthenticated callers should\nappear here.  Secrets and billing-sensitive data belong exclusively in\nTenantAdminSerializer.',
@@ -17194,6 +17312,38 @@ export const zGetUserProductReviewPath = z.object({
 export const zGetUserProductReviewResponse = zProductReviewDetail
 
 export const zListPublicPromotionsResponse = z.array(zPublicPromotion)
+
+export const zApiV1RecommendationsRetrieveQuery = z.object({
+  exclude: z.string().register(z.globalRegistry, {
+    description: 'Comma-separated product ids never to suggest.',
+  }).optional(),
+  limit: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  seed: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  seeds: z.string().register(z.globalRegistry, {
+    description: 'Comma-separated product ids for multi-seed surfaces (cart lines, recently viewed).',
+  }).optional(),
+  surface: z.enum([
+    'pdp',
+    'cart',
+    'out_of_stock',
+    'empty_cart',
+    'order_email',
+  ]).register(z.globalRegistry, {
+    description: 'Where the strip is rendered; selects the slot.\n\n* `pdp` - Product page\n* `cart` - Καλάθι\n* `out_of_stock` - Εξαντλημένο\n* `empty_cart` - Empty cart\n* `order_email` - Order email',
+  }).optional().default('pdp'),
+})
+
+export const zApiV1RecommendationsRetrieveResponse = zRecommendationResponse
+
+export const zApiV1RecommendationsEventsCreateBody = zRecommendationEventRequestRequest
+
+export const zApiV1RecommendationsEventsCreateResponse = zRecommendationEventResponse
 
 export const zListRegionQuery = z.object({
   alpha: z.string().register(z.globalRegistry, {

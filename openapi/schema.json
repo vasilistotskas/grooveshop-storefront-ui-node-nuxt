@@ -40466,6 +40466,189 @@
         }
       }
     },
+    "/api/v1/recommendations": {
+      "get": {
+        "operationId": "api_v1_recommendations_retrieve",
+        "description": "Products to show beside the seed product(s) on a given surface (product page, cart, out-of-stock, empty cart). Each item carries the strategy that produced it and, for merchant-curated links, the relation type. An empty list means the store has nothing worth showing here — render nothing. Report an impression event with impression_id once the strip is shown, and echo it on click events.",
+        "summary": "Suggested products for a surface",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "exclude",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated product ids never to suggest."
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^-?\\d+$"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "description": "Override the slot's limit, capped at 12."
+          },
+          {
+            "in": "query",
+            "name": "seed",
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^-?\\d+$"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "description": "The product the shopper is looking at."
+          },
+          {
+            "in": "query",
+            "name": "seeds",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Comma-separated product ids for multi-seed surfaces (cart lines, recently viewed)."
+          },
+          {
+            "in": "query",
+            "name": "surface",
+            "schema": {
+              "enum": [
+                "pdp",
+                "cart",
+                "out_of_stock",
+                "empty_cart",
+                "order_email"
+              ],
+              "type": "string",
+              "default": "pdp",
+              "minLength": 1
+            },
+            "description": "Where the strip is rendered; selects the slot.\n\n* `pdp` - Product page\n* `cart` - Καλάθι\n* `out_of_stock` - Εξαντλημένο\n* `empty_cart` - Empty cart\n* `order_email` - Order email"
+          }
+        ],
+        "tags": [
+          "Recommendations"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendationResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/v1/recommendations/events": {
+      "post": {
+        "operationId": "api_v1_recommendations_events_create",
+        "description": "Feeds the learning loop. Pass the impression_id from the suggestions response. Attach events are written server-side when an order completes and cannot be posted here.",
+        "summary": "Record a suggestion impression or click",
+        "tags": [
+          "Recommendations"
+        ],
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendationEventRequestRequest"
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendationEventRequestRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendationEventRequestRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendationEventResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
     "/api/v1/region": {
       "get": {
         "operationId": "listRegion",
@@ -59405,6 +59588,11 @@
           }
         }
       },
+      "NullEnum": {
+        "enum": [
+          null
+        ]
+      },
       "Order": {
         "type": "object",
         "properties": {
@@ -68291,6 +68479,154 @@
         "type": "integer",
         "description": "* `1` - Ένα\n* `2` - Δύο\n* `3` - Τρία\n* `4` - Τέσσερα\n* `5` - Πέντε\n* `6` - Έξι\n* `7` - Επτά\n* `8` - Οκτώ\n* `9` - Εννέα\n* `10` - Δέκα"
       },
+      "RecommendationEventItemRequest": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "strategy": {
+            "$ref": "#/components/schemas/StrategyEnum"
+          },
+          "position": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "productId",
+          "strategy"
+        ]
+      },
+      "RecommendationEventRequestKindEnum": {
+        "enum": [
+          "impression",
+          "click"
+        ],
+        "type": "string",
+        "description": "* `impression` - Impression\n* `click` - Click"
+      },
+      "RecommendationEventRequestRequest": {
+        "type": "object",
+        "properties": {
+          "impressionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "surface": {
+            "$ref": "#/components/schemas/SurfaceEnum"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/RecommendationEventRequestKindEnum"
+          },
+          "seedId": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecommendationEventItemRequest"
+            }
+          }
+        },
+        "required": [
+          "impressionId",
+          "items",
+          "kind",
+          "surface"
+        ]
+      },
+      "RecommendationEventResponse": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ]
+      },
+      "RecommendationItem": {
+        "type": "object",
+        "properties": {
+          "product": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Product"
+              }
+            ],
+            "readOnly": true
+          },
+          "reason": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RecommendationReason"
+              }
+            ],
+            "readOnly": true
+          }
+        },
+        "required": [
+          "product",
+          "reason"
+        ]
+      },
+      "RecommendationReason": {
+        "type": "object",
+        "properties": {
+          "strategy": {
+            "$ref": "#/components/schemas/StrategyEnum"
+          },
+          "relationType": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/RelationTypeEnum"
+              },
+              {
+                "$ref": "#/components/schemas/NullEnum"
+              }
+            ]
+          },
+          "score": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "required": [
+          "relationType",
+          "score",
+          "strategy"
+        ]
+      },
+      "RecommendationResponse": {
+        "type": "object",
+        "properties": {
+          "surface": {
+            "$ref": "#/components/schemas/SurfaceEnum"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RecommendationItem"
+            },
+            "readOnly": true
+          },
+          "impressionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Echo on click events so attach can be attributed."
+          }
+        },
+        "required": [
+          "impressionId",
+          "items",
+          "surface"
+        ]
+      },
       "RedeemPointsRequestRequest": {
         "type": "object",
         "description": "Serializer for validating a points redemption request.",
@@ -68559,6 +68895,17 @@
           "country",
           "translations"
         ]
+      },
+      "RelationTypeEnum": {
+        "enum": [
+          "similar",
+          "complementary",
+          "accessory",
+          "replacement",
+          "bundle"
+        ],
+        "type": "string",
+        "description": "* `similar` - Similar product\n* `complementary` - Goes well with\n* `accessory` - Accessory for\n* `replacement` - Replacement for\n* `bundle` - Bundle with"
       },
       "ReleaseReservationsRequestRequest": {
         "type": "object",
@@ -69116,6 +69463,20 @@
         "type": "string",
         "description": "* `header` - Header\n* `footer` - Footer\n* `mobile` - Mobile"
       },
+      "StrategyEnum": {
+        "enum": [
+          "curated",
+          "variant_group",
+          "category",
+          "attributes",
+          "semantic",
+          "co_purchase",
+          "co_view",
+          "popular"
+        ],
+        "type": "string",
+        "description": "* `curated` - Merchant curated\n* `variant_group` - Same variant group\n* `category` - Same category\n* `attributes` - Shared attributes, tags and brand\n* `semantic` - Semantic similarity\n* `co_purchase` - Bought together\n* `co_view` - Viewed together\n* `popular` - Popular"
+      },
       "SubscriptionStatus": {
         "enum": [
           "ACTIVE",
@@ -69406,6 +69767,17 @@
           "slug",
           "translations"
         ]
+      },
+      "SurfaceEnum": {
+        "enum": [
+          "pdp",
+          "cart",
+          "out_of_stock",
+          "empty_cart",
+          "order_email"
+        ],
+        "type": "string",
+        "description": "* `pdp` - Product page\n* `cart` - Καλάθι\n* `out_of_stock` - Εξαντλημένο\n* `empty_cart` - Empty cart\n* `order_email` - Order email"
       },
       "Tag": {
         "type": "object",
@@ -69947,6 +70319,9 @@
           "b2bEnabled": {
             "type": "boolean",
             "readOnly": true
+          },
+          "recommendationsEnabled": {
+            "type": "boolean"
           },
           "agentStripeDelegatedEnabled": {
             "type": "boolean",

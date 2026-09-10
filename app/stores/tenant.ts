@@ -31,6 +31,9 @@ export const useTenantStore = defineStore('tenant', () => {
   const promotionsEnabled = computed(() => config.value?.promotionsEnabled ?? false)
   const giftCardsEnabled = computed(() => config.value?.giftCardsEnabled ?? false)
   const b2bEnabled = computed(() => config.value?.b2bEnabled ?? false)
+  // Plan tier of the two-tier gate; the runtime half is the
+  // PRODUCT_SUGGESTIONS_ENABLED setting read where a strip is mounted.
+  const recommendationsEnabled = computed(() => config.value?.recommendationsEnabled ?? false)
   const themePreset = computed(() => config.value?.themePreset ?? 'default')
   const stripePublishableKey = computed(() => config.value?.stripePublishableKey ?? '')
 
@@ -107,6 +110,7 @@ export const useTenantStore = defineStore('tenant', () => {
     promotionsEnabled,
     giftCardsEnabled,
     b2bEnabled,
+    recommendationsEnabled,
     themePreset,
     stripePublishableKey,
     metaPixelId,

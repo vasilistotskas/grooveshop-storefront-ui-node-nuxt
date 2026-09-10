@@ -18,6 +18,16 @@ const productReviewsEnabled = useSettingFlag('PRODUCT_REVIEWS_ENABLED', {
 const productAlertsEnabled = useSettingFlag('PRODUCT_ALERTS_ENABLED', {
   fallback: true,
 })
+// Suggestion strips: plan flag AND merchant setting, fails CLOSED —
+// a commercial surface that flashes and vanishes is worse than one
+// that appears a beat late.
+const productSuggestionsEnabled = useSettingFlag('PRODUCT_SUGGESTIONS_ENABLED', {
+  fallback: false,
+})
+const tenantStore = useTenantStore()
+const suggestionsEnabled = computed(
+  () => tenantStore.recommendationsEnabled && productSuggestionsEnabled.value,
+)
 
 const { user, loggedIn } = useUserSession()
 
@@ -901,6 +911,16 @@ definePageMeta({
               kind="restock"
             />
 
+            <!-- Out of stock is a dead end: rescue it right where the
+                 shopper learns the news, with the engine's
+                 ``out_of_stock`` slot (curated replacements first). -->
+            <LazyProductSuggestions
+              v-if="suggestionsEnabled && productStock === 0 && product?.id"
+              surface="out_of_stock"
+              :seed-id="product.id"
+              hydrate-on-visible
+            />
+
             <!-- Price-drop subscribers: independent of stock — a shopper
                  may want to watch the price even for out-of-stock items.
                  Target price is validated below the current final price
@@ -959,6 +979,18 @@ definePageMeta({
             </UAccordion>
           </div>
         </div>
+
+        <!-- Product-page suggestions. SSR-rendered from a Nitro-cached
+             payload, hydrated on scroll so the impression is reported
+             only when the strip is actually seen. The out-of-stock
+             slot above replaces it for a product that cannot be bought. -->
+        <LazyProductSuggestions
+          v-if="suggestionsEnabled && productStock > 0 && product?.id"
+          surface="pdp"
+          :seed-id="product.id"
+          hydrate-on-visible
+          class="mt-10"
+        />
 
         <USeparator v-if="productReviewsEnabled" class="my-10" />
 

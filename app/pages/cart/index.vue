@@ -10,6 +10,16 @@ const {
 const { t } = useI18n()
 const { $i18n } = useNuxtApp()
 const { hasStockIssue, getStockStatusMessage } = cartStore
+// Cross-sell strip: plan flag AND merchant setting, fails CLOSED. The
+// cart payload already carries ``recommendations`` seeded with every
+// basket line, so the strip renders from the store — no extra fetch.
+const tenantStore = useTenantStore()
+const productSuggestionsEnabled = useSettingFlag('PRODUCT_SUGGESTIONS_ENABLED', {
+  fallback: false,
+})
+const suggestionsEnabled = computed(
+  () => tenantStore.recommendationsEnabled && productSuggestionsEnabled.value,
+)
 const ga4 = useGA4()
 const viewCartFired = ref(false)
 
@@ -460,6 +470,14 @@ definePageMeta({
         </UCard>
       </div>
     </div>
+
+    <LazyProductSuggestions
+      v-if="suggestionsEnabled && cart?.recommendations?.length"
+      surface="cart"
+      :items="cart.recommendations"
+      hydrate-on-visible
+      class="mt-10"
+    />
   </PageWrapper>
 </template>
 

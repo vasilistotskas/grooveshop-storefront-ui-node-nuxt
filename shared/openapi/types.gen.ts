@@ -3728,6 +3728,8 @@ export type NotificationUserWriteRequest = {
   seen?: boolean
 }
 
+export type NullEnum = never
+
 export type Order = {
   readonly id: number
   user?: number | null
@@ -7454,6 +7456,50 @@ export type PublicPromotion = {
  */
 export type RateEnum = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10
 
+export type RecommendationEventItemRequest = {
+  productId: number
+  strategy: StrategyEnum
+  position?: number
+}
+
+/**
+ * * `impression` - Impression
+ * * `click` - Click
+ */
+export type RecommendationEventRequestKindEnum = 'impression' | 'click'
+
+export type RecommendationEventRequestRequest = {
+  impressionId: string
+  surface: SurfaceEnum
+  kind: RecommendationEventRequestKindEnum
+  seedId?: number
+  items: Array<RecommendationEventItemRequest>
+}
+
+export type RecommendationEventResponse = {
+  detail: string
+}
+
+export type RecommendationItem = {
+  product: Product
+  reason: RecommendationReason
+}
+
+export type RecommendationReason = {
+  strategy: StrategyEnum
+  relationType: RelationTypeEnum | NullEnum | null
+  score: number
+}
+
+export type RecommendationResponse = {
+  surface: SurfaceEnum
+  readonly items: Array<RecommendationItem>
+  /**
+     * Echo on click events so attach can be attributed.
+     */
+  impressionId: string
+}
+
 /**
  * Serializer for validating a points redemption request.
  */
@@ -7597,6 +7643,15 @@ export type RegionWriteRequest = {
      */
   country: string
 }
+
+/**
+ * * `similar` - Similar product
+ * * `complementary` - Goes well with
+ * * `accessory` - Accessory for
+ * * `replacement` - Replacement for
+ * * `bundle` - Bundle with
+ */
+export type RelationTypeEnum = 'similar' | 'complementary' | 'accessory' | 'replacement' | 'bundle'
 
 /**
  * Serializer for releasing stock reservations.
@@ -7935,6 +7990,18 @@ export type ShopKindEnum = 1 | 2 | 3 | 4 | 5 | 7 | 8
 export type SlotEnum = 'header' | 'footer' | 'mobile'
 
 /**
+ * * `curated` - Merchant curated
+ * * `variant_group` - Same variant group
+ * * `category` - Same category
+ * * `attributes` - Shared attributes, tags and brand
+ * * `semantic` - Semantic similarity
+ * * `co_purchase` - Bought together
+ * * `co_view` - Viewed together
+ * * `popular` - Popular
+ */
+export type StrategyEnum = 'curated' | 'variant_group' | 'category' | 'attributes' | 'semantic' | 'co_purchase' | 'co_view' | 'popular'
+
+/**
  * * `ACTIVE` - Ενεργή
  * * `PENDING` - Εκκρεμεί Επιβεβαίωση
  * * `UNSUBSCRIBED` - Διαγραφή
@@ -8123,6 +8190,15 @@ export type SubscriptionTopicWriteRequest = {
      */
   requiresConfirmation?: boolean
 }
+
+/**
+ * * `pdp` - Product page
+ * * `cart` - Καλάθι
+ * * `out_of_stock` - Εξαντλημένο
+ * * `empty_cart` - Empty cart
+ * * `order_email` - Order email
+ */
+export type SurfaceEnum = 'pdp' | 'cart' | 'out_of_stock' | 'empty_cart' | 'order_email'
 
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -8341,6 +8417,7 @@ export type TenantConfig = {
   readonly promotionsEnabled: boolean
   readonly giftCardsEnabled: boolean
   readonly b2bEnabled: boolean
+  recommendationsEnabled?: boolean
   readonly agentStripeDelegatedEnabled: boolean
   readonly agentCommerceEnabled: boolean
   readonly productFeedsEnabled: boolean
@@ -11128,6 +11205,18 @@ export type ProductVariantsResponseWritable = {
   variants: Array<ProductVariantWritable>
 }
 
+export type RecommendationItemWritable = {
+  [key: string]: unknown
+}
+
+export type RecommendationResponseWritable = {
+  surface: SurfaceEnum
+  /**
+     * Echo on click events so attach can be attributed.
+     */
+  impressionId: string
+}
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -11364,6 +11453,7 @@ export type TenantConfigWritable = {
   googleSiteVerification?: string
   pinterestDomainVerify?: string
   availableLocales?: Array<string>
+  recommendationsEnabled?: boolean
   openaiPixelId?: string
 }
 
@@ -22541,6 +22631,73 @@ export type ListPublicPromotionsResponses = {
 }
 
 export type ListPublicPromotionsResponse = ListPublicPromotionsResponses[keyof ListPublicPromotionsResponses]
+
+export type ApiV1RecommendationsRetrieveData = {
+  body?: never
+  path?: never
+  query?: {
+    /**
+         * Comma-separated product ids never to suggest.
+         */
+    exclude?: string
+    /**
+         * Override the slot's limit, capped at 12.
+         */
+    limit?: string | number
+    /**
+         * The product the shopper is looking at.
+         */
+    seed?: string | number
+    /**
+         * Comma-separated product ids for multi-seed surfaces (cart lines, recently viewed).
+         */
+    seeds?: string
+    /**
+         * Where the strip is rendered; selects the slot.
+         *
+         * * `pdp` - Product page
+         * * `cart` - Καλάθι
+         * * `out_of_stock` - Εξαντλημένο
+         * * `empty_cart` - Empty cart
+         * * `order_email` - Order email
+         */
+    surface?: 'pdp' | 'cart' | 'out_of_stock' | 'empty_cart' | 'order_email'
+  }
+  url: '/api/v1/recommendations'
+}
+
+export type ApiV1RecommendationsRetrieveErrors = {
+  400: ErrorResponse
+  404: ErrorResponse
+}
+
+export type ApiV1RecommendationsRetrieveError = ApiV1RecommendationsRetrieveErrors[keyof ApiV1RecommendationsRetrieveErrors]
+
+export type ApiV1RecommendationsRetrieveResponses = {
+  200: RecommendationResponse
+}
+
+export type ApiV1RecommendationsRetrieveResponse = ApiV1RecommendationsRetrieveResponses[keyof ApiV1RecommendationsRetrieveResponses]
+
+export type ApiV1RecommendationsEventsCreateData = {
+  body: RecommendationEventRequestRequest
+  path?: never
+  query?: never
+  url: '/api/v1/recommendations/events'
+}
+
+export type ApiV1RecommendationsEventsCreateErrors = {
+  400: ErrorResponse
+  404: ErrorResponse
+}
+
+export type ApiV1RecommendationsEventsCreateError = ApiV1RecommendationsEventsCreateErrors[keyof ApiV1RecommendationsEventsCreateErrors]
+
+export type ApiV1RecommendationsEventsCreateResponses = {
+  202: RecommendationEventResponse
+}
+
+export type ApiV1RecommendationsEventsCreateResponse = ApiV1RecommendationsEventsCreateResponses[keyof ApiV1RecommendationsEventsCreateResponses]
 
 export type ListRegionData = {
   body?: never
