@@ -92,17 +92,15 @@ export default defineNuxtConfig({
         // every tenant's domain. Direct requests to the static icon
         // files are tenant-gated by server/middleware/6.tenant-favicon.ts.
         { rel: 'manifest', href: '/manifest.webmanifest' },
-        // DNS prefetch for external domains to reduce DNS lookup time
-        { rel: 'dns-prefetch', href: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003' },
-        { rel: 'dns-prefetch', href: process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000' },
-        { rel: 'dns-prefetch', href: process.env.NUXT_PUBLIC_DJANGO_URL || 'http://localhost:8000' },
+        // Asset-origin hints (media-stream, static) are PER-TENANT and
+        // rendered at runtime by ``setupPageHeader``: a tenant with its
+        // own white-label origins gets those, everyone else the platform
+        // origins from runtimeConfig. They cannot live here — this head
+        // is baked at build time, where the NUXT_PUBLIC_* env is absent,
+        // so production shipped ``http://localhost:*`` hints on every
+        // page (found 2026-09-10).
         { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com' },
         { rel: 'dns-prefetch', href: 'https://www.google-analytics.com' },
-        // Preconnect for critical resources
-        { rel: 'preconnect', href: process.env.NUXT_PUBLIC_MEDIA_STREAM_ORIGIN || 'http://localhost:3003', crossorigin: 'anonymous' },
-        { rel: 'preconnect', href: process.env.NUXT_PUBLIC_STATIC_ORIGIN || 'http://localhost:8000', crossorigin: 'anonymous' },
-        { rel: 'preconnect', href: process.env.NUXT_PUBLIC_DJANGO_URL || 'http://localhost:8000', crossorigin: 'anonymous' },
-        // Preconnect to Google services (deferred but still useful for consent flow)
         { rel: 'preconnect', href: 'https://www.googletagmanager.com', crossorigin: 'anonymous' },
         { rel: 'preconnect', href: 'https://www.google-analytics.com', crossorigin: 'anonymous' },
       ],

@@ -39,20 +39,27 @@ export function setupPageHeader() {
       : rawI18nHead.value,
   )
 
-  // Tenant-aware preconnect hints. nuxt.config.ts app.head.link already
-  // preconnects to the platform env origins (boot-time hints for the
-  // platform's own storefront); when a tenant resolves its OWN
-  // assets/static origins those are additive preconnects — the platform
-  // hints stay too since SSR-emitted assets may still reference them.
-  const tenantPreconnectLinks = computed(() => {
-    const links: { rel: 'preconnect', href: string, crossorigin: 'anonymous' }[] = []
-    if (tenantStore.assetsDomain) {
-      links.push({ rel: 'preconnect', href: `https://${tenantStore.assetsDomain}`, crossorigin: 'anonymous' })
+  // Asset-origin hints for the origins THIS page's images and static
+  // files actually load from: the tenant's own white-label origin when
+  // it has one, otherwise the platform origin from runtimeConfig — the
+  // same resolution useMediaStreamBaseUrl / the CSP builder use. Runtime
+  // on purpose: the build-time head has no env (see nuxt.config.ts).
+  const assetOriginLinks = computed(() => {
+    const origins = new Set<string>()
+    for (const origin of [
+      tenantStore.assetsDomain
+        ? `https://${tenantStore.assetsDomain}`
+        : (publicConfig.mediaStreamOrigin as string | undefined),
+      tenantStore.staticDomain
+        ? `https://${tenantStore.staticDomain}`
+        : (publicConfig.static?.origin as string | undefined),
+    ]) {
+      if (origin) origins.add(origin)
     }
-    if (tenantStore.staticDomain) {
-      links.push({ rel: 'preconnect', href: `https://${tenantStore.staticDomain}`, crossorigin: 'anonymous' })
-    }
-    return links
+    return [...origins].flatMap(href => [
+      { rel: 'dns-prefetch' as const, href },
+      { rel: 'preconnect' as const, href, crossorigin: 'anonymous' as const },
+    ])
   })
 
   const colorMode = useColorMode()
@@ -135,7 +142,7 @@ export function setupPageHeader() {
               { rel: 'apple-touch-icon' as const, href: favicon.value },
             ]
           : []),
-      ...tenantPreconnectLinks.value,
+      ...assetOriginLinks.value,
     ],
     meta: [...(i18nHead.value.meta || []),
       ...(tenantStore.pinterestDomainVerify
