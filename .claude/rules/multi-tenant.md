@@ -20,6 +20,10 @@ Tenant resolution, the event.context.tenant contract, cache keying and hydration
 4. On Django 5xx: respond 503 (transient — not cached). On 404: respond 404 "Store not found" (not cached).
 5. Certain paths bypass tenant resolution entirely (see `BYPASS_PREFIXES` / `BYPASS_EXACT` in the middleware file): `/_nuxt`, `/_ipx`, `/assets`, `/api/health`, `/health`, `/favicon.ico`, `/favicon.png`, `/logo.svg`, `/robots.txt`, `/manifest.webmanifest`, `/openapi`, `/_health`.
 
+## The platform tenant
+
+One store is the platform's own storefront: it owns the brand assets bundled under `public/` (`img/logo*.png`, `platform-favicon/**`) and the platform SEO attribution. It is designated by the **private** runtime config `platformTenant.host` (`NUXT_PLATFORM_TENANT_HOST`, a bare hostname compared with `TenantConfig.primaryDomain` by `isPlatformTenantHost` in `shared/utils/platformTenant.ts`). The tenant plugin resolves it on the server and ships the client `useState('platformTenant')`: `null` on every other tenant, the attribution values on the platform tenant. Read it through `useTenantStore().isPlatform` / `useIsPlatformTenant()` (app) or `isPlatformTenantConfig(tenant)` (server). Never compare a hostname on the client and never put a store's hostname, title, logo or tokens in `runtimeConfig.public` — every public key is serialized into every tenant's HTML.
+
 ## `event.context.tenant` contract
 
 Every non-bypassed route handler can rely on `event.context.tenant` being a fully-validated `TenantConfig` object (from `shared/openapi/types.gen.ts`). Guaranteed fields include:
@@ -27,7 +31,7 @@ Every non-bypassed route handler can rely on `event.context.tenant` being a full
 - `schemaName` — the Django DB schema identifier (used to namespace media URLs)
 - `storeName` — human-readable store name for the PWA manifest
 - `primaryDomain` — the tenant's storefront hostname
-- `apiDomain` — the tenant's own API hostname (e.g. `api.tenant.com`); used instead of the platform `NUXT_PUBLIC_DJANGO_HOST_NAME` wherever a browser-facing request must hit the tenant's OWN Django schema (WebSocket, social-login redirect, CSP connect-src, `.well-known` OAuth metadata)
+- `apiDomain` — the tenant's own API hostname (e.g. `api.tenant.com`); used instead of the platform `NUXT_PUBLIC_DJANGO_HOST_NAME` wherever a browser-facing request must hit the tenant's OWN Django schema (WebSocket, social-login redirect, CSP connect-src — which lists this host ONLY, never the platform one beside it — CMS image allowlist, `.well-known` OAuth metadata)
 - `assetsDomain` — the tenant's own media/image-processing hostname (e.g. `assets.tenant.com`); consumed by `useMediaStreamBaseUrl`/`useMediaStreamImage` (see Image Handling) and additively expands CSP img-src/connect-src alongside the platform `mediaStreamOrigin`
 - `staticDomain` — the tenant's own static-file hostname (e.g. `static.tenant.com`); additively expands CSP img-src/connect-src alongside the platform `staticOrigin`
 - `defaultLocale` — BCP-47 code consulted by `1.locale.ts` (priority 3 of 4)

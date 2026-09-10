@@ -3,13 +3,13 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 /**
- * Platform assets referenced from OUTSIDE this repo.
+ * Platform-tenant brand assets referenced only by a URL string.
  *
- * `public/img/logo.png` is the platform's Open Graph card (1200x630).
- * Nothing in this repository names it: production points at it through
- * `NUXT_PUBLIC_APP_LOGO` in the infrastructure repo's frontend-config,
- * which `useTenantBranding` reads as `config.public.appLogo` for the
- * platform tenant's `og:image`.
+ * `public/img/logo.png` is the platform tenant's Open Graph card
+ * (1200x630). No import names it: `useTenantBranding` builds
+ * `${siteConfig.url}/img/logo.png` for the platform tenant's `og:image`
+ * (it used to come from a `NUXT_PUBLIC_APP_LOGO` env value in the
+ * infrastructure repo, which was just as invisible to a grep).
  *
  * That invisibility is exactly why a dead-code sweep deleted it while
  * the config kept pointing at it — every social preview of a platform
@@ -22,7 +22,7 @@ import { describe, expect, it } from 'vitest'
 const PLATFORM_ASSETS = [
   {
     path: 'public/img/logo.png',
-    why: 'og:image / schema.org logo via NUXT_PUBLIC_APP_LOGO',
+    why: 'og:image / schema.org logo (useTenantBranding ogImageUrl)',
     minBytes: 1000,
   },
   {

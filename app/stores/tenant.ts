@@ -61,12 +61,24 @@ export const useTenantStore = defineStore('tenant', () => {
     youtube: config.value?.socialsYoutube ?? '',
   }))
 
+  // Platform tenant — the store that owns the bundled brand assets and
+  // the platform's SEO attribution. Resolved server-side by the tenant
+  // plugin from PRIVATE runtime config; ``null`` on every other tenant.
+  const platform = ref<PlatformTenantMeta | null>(null)
+  const isPlatform = computed(() => platform.value !== null)
+
   function setConfig(tenantConfig: TenantConfig | null) {
     config.value = tenantConfig
   }
 
+  function setPlatform(meta: PlatformTenantMeta | null) {
+    platform.value = meta
+  }
+
   return {
     config,
+    platform,
+    isPlatform,
     schemaName,
     storeName,
     storeDescription,
@@ -99,5 +111,6 @@ export const useTenantStore = defineStore('tenant', () => {
     boxNowPartnerId,
     socials,
     setConfig,
+    setPlatform,
   }
 })

@@ -160,20 +160,20 @@ describe('csp middleware', () => {
     expect(directive('style-src')).not.toContain('cdn.tenant.example')
   })
 
-  it('additively allows the tenant apiDomain origin (https + wss) in connect-src alongside the platform host', () => {
+  it('lists ONLY the tenant apiDomain origin (https + wss) in connect-src, never the platform host beside it', () => {
     const csp = runWith('/products/3/some-product', {
       tenant: { apiDomain: 'api.tenant.example' },
     })['Content-Security-Policy']
     const connectSrc = csp.split(';').map(d => d.trim()).find(d => d.startsWith('connect-src')) ?? ''
-    // Platform host stays present (SSR assets / dev-time fallback).
-    expect(connectSrc).toContain('https://api.webside.gr')
-    expect(connectSrc).toContain('wss://api.webside.gr')
-    // Tenant's own API host is added, not swapped in.
     expect(connectSrc).toContain('https://api.tenant.example')
     expect(connectSrc).toContain('wss://api.tenant.example')
+    // The platform host is another store's API when the platform tenant
+    // is one of the stores — a tenant's pages must not be allowed to
+    // open connections to it.
+    expect(csp).not.toContain('api.webside.gr')
   })
 
-  it('omits the tenant apiDomain from connect-src when the tenant has none (e.g. the platform tenant)', () => {
+  it('falls back to the platform host in connect-src only when the tenant has no apiDomain', () => {
     const csp = runWith('/products/3/some-product', {
       tenant: { apiDomain: '' },
     })['Content-Security-Policy']

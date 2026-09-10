@@ -125,19 +125,10 @@ export default defineEventHandler(async (event) => {
       throw createError({ statusCode: 404, statusMessage: 'Not Found' })
     }
 
-    // Whether this IS the platform's own storefront (mirrors
-    // app/composables/useIsPlatformTenant.ts server-side) — gates the
+    // Whether this IS the platform's own storefront — gates the
     // platform-only ``/screenshots/**`` fallback asset below, which does
     // not exist on another tenant's origin.
-    let isPlatformTenant = true
-    if (tenant?.primaryDomain) {
-      try {
-        isPlatformTenant = new URL(config.public.baseUrl as string).host.replace(/:\d+$/, '') === tenant.primaryDomain
-      }
-      catch {
-        isPlatformTenant = true
-      }
-    }
+    const isPlatformTenant = isPlatformTenantConfig(tenant)
     const logoImageUrl = tenant?.logoLightUrl
       || (isPlatformTenant ? `${siteConfig.url}/screenshots/1024x593.png` : undefined)
 

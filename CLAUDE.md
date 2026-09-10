@@ -134,8 +134,9 @@ Custom local modules:
 Copy `.env.example` to `.env`. Key variables:
 - `NUXT_API_BASE_URL` — Django API URL (default `http://localhost:8000/api/v1`)
 - `NUXT_DJANGO_URL` — Django base URL
-- `NUXT_PUBLIC_BASE_URL` — Frontend URL (default `http://localhost:3000`)
-- `NUXT_PUBLIC_DJANGO_HOST_NAME` — Public Django hostname (e.g. `api.webside.gr`); used as `X-Forwarded-Host` in all internal cluster `$fetch` calls so Django's `ALLOWED_HOSTS` validation passes and `request.build_absolute_uri()` constructs correct URLs. Also used for WebSocket connections.
+- `NUXT_PLATFORM_TENANT_HOST` — **private** (server-only). Bare hostname of the ONE store that is the platform's own storefront: it owns the brand assets bundled under `public/` and the platform SEO attribution (`NUXT_PLATFORM_TENANT_AUTHOR_NAME`, `NUXT_PLATFORM_TENANT_GOOGLE_SITE_VERIFICATION`, `NUXT_PLATFORM_TENANT_DOMAIN_VERIFY_ID`, all private too). The tenant plugin compares it with `TenantConfig.primaryDomain` on the server and the client only receives a boolean (`useTenantStore().isPlatform` / `useIsPlatformTenant()`). Unset = no store is the platform tenant. See `shared/utils/platformTenant.ts`.
+- `NUXT_PUBLIC_BASE_URL` — Platform-neutral storefront URL used only when no tenant is resolved (default `http://localhost:3000`). Every `NUXT_PUBLIC_*` value is serialized into every tenant's HTML, so none of them may carry a store's own hostname, title or logo — that is what put the first store's data in other tenants' DOM.
+- `NUXT_PUBLIC_DJANGO_HOST_NAME` — Platform Django hostname (production: the public-schema host `platform.grooveshop.space`); the `X-Forwarded-Host` fallback for internal cluster `$fetch` calls made outside a request context, and the CSP `connect-src` API host when no tenant is resolved. With a tenant resolved, every browser-facing use (WebSocket, social-login redirect, CSP, CMS image allowlist) takes `TenantConfig.apiDomain` instead.
 - `NUXT_PUBLIC_MEDIA_STREAM_ORIGIN` / `NUXT_PUBLIC_MEDIA_STREAM_PATH` — Media processing service
 - `NUXT_PUBLIC_STATIC_ORIGIN` — Static file origin (Django)
 - `NUXT_CACHE_PURGE_TOKEN` — shared secret for the `/api/admin/cache/purge` route (`runtimeConfig.cachePurgeToken`); Django's Cache Management admin sends it to invalidate the Nitro SSR cache

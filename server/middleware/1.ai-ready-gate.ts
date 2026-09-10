@@ -7,7 +7,10 @@
  * origins from the tenant-less site config — so tenant B's `/llms.txt`
  * would announce tenant A's brand and enumerate tenant A's pages.
  * Until the module supports per-host indexes, these surfaces are
- * served ONLY on the platform's own configured host and 404 elsewhere.
+ * served ONLY on the platform tenant's host (PRIVATE runtime config
+ * ``platformTenant.host``, see shared/utils/platformTenant.ts) and 404
+ * elsewhere — including everywhere when no platform tenant is
+ * configured, since the shared index would otherwise leak cross-tenant.
  *
  * Exemptions:
  * - The `x-md-negotiation-internal` re-fetch from
@@ -32,22 +35,14 @@ export default defineEventHandler((event) => {
   if (!isAiSurface) return
   if (getRequestHeader(event, 'x-md-negotiation-internal')) return
 
-  const config = useRuntimeConfig()
-  let platformHost: string
-  try {
-    platformHost = new URL(config.public.baseUrl as string).host.replace(
-      /:\d+$/,
-      '',
-    )
-  }
-  catch {
-    return
-  }
+  const platformHost = (useRuntimeConfig().platformTenant?.host ?? '')
+    .trim()
+    .replace(/:\d+$/, '')
   const host = getRequestHost(event, { xForwardedHost: false }).replace(
     /:\d+$/,
     '',
   )
-  if (platformHost && host !== platformHost) {
+  if (!platformHost || host !== platformHost) {
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })
   }
 })

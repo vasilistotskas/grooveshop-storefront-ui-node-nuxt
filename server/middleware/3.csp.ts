@@ -61,12 +61,12 @@ export default defineEventHandler((event) => {
   // ``allowedCspSources`` expands the four browser-facing directives
   // (the builder re-filters the schemes defensively).
   //
-  // ``djangoHostName`` stays config-first as the PLATFORM fallback: SSR
-  // assets and dev-time requests may still reference it. The WebSocket
-  // plugin and the allauth social-login redirect now prefer the tenant's
-  // OWN API host (``TenantConfig.apiDomain``) when one is resolved, so
-  // ``tenantApiDomain`` is passed additively — connect-src ends up
-  // allowing both origins rather than swapping one for the other.
+  // connect-src carries ONE API host: the tenant's own
+  // (``TenantConfig.apiDomain``) when resolved — the WebSocket plugin and
+  // the allauth social-login redirect dial that host — and the platform
+  // ``djangoHostName`` only for a request with no tenant (dev, probes).
+  // The two were once listed side by side, which let every tenant's
+  // pages open connections to the first store's API.
   const tenant = event.context.tenant
   const requestHost = getRequestHost(event, { xForwardedHost: false })
   const directives = buildCspDirectives({

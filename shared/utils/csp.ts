@@ -26,15 +26,21 @@ export interface CspOptions {
   mediaStreamOrigin?: string
   /** Public static-files origin (``NUXT_PUBLIC_STATIC_ORIGIN``). */
   staticOrigin?: string
-  /** PUBLIC Django host (``NUXT_PUBLIC_DJANGO_HOST_NAME``) — never the internal SSR upstream. */
+  /**
+   * PUBLIC platform Django host (``NUXT_PUBLIC_DJANGO_HOST_NAME``) —
+   * never the internal SSR upstream. Used for connect-src ONLY when no
+   * ``tenantApiDomain`` is resolved (dev, probes, prerender).
+   */
   djangoHostName?: string
   /**
-   * Tenant-specific API host (``TenantConfig.apiDomain``), e.g.
-   * ``api.tenant.com``. Added ADDITIVELY alongside ``djangoHostName`` in
-   * connect-src (both https:// and wss://) — the platform host stays
-   * listed too since SSR-emitted assets, the WebSocket plugin's dev-time
-   * fallback, etc. may still reference it. Omit when the tenant has no
-   * distinct API domain (e.g. the platform's own storefront).
+   * The tenant's own API host (``TenantConfig.apiDomain``), e.g.
+   * ``api.tenant.com``. REPLACES ``djangoHostName`` in connect-src (both
+   * https:// and wss://): the WebSocket plugin, the allauth social-login
+   * redirect and every proxied call already dial the tenant's own host,
+   * so nothing on a tenant's page has a reason to reach the platform API
+   * — and the platform host is another store's when the platform tenant
+   * is one of the stores, so listing both let every tenant's pages open
+   * connections to the first store's API.
    */
   tenantApiDomain?: string
   /**
@@ -116,17 +122,13 @@ export function buildCspDirectives(options: CspOptions): string[] {
   )].join(' ')
 
   // In dev the API/WebSocket use plain http/ws; in production https/wss.
+  // ONE API host: the tenant's own when resolved, else the platform
+  // fallback (see the CspOptions doc for why they are never combined).
   const httpScheme = dev ? 'http' : 'https'
   const wsScheme = dev ? 'ws' : 'wss'
-  const apiOrigin = `${httpScheme}://${djangoHostName}`
-
-  // Tenant API origin — additive alongside the platform apiOrigin (see the
-  // CspOptions doc). The WebSocket plugin and the allauth social-login
-  // redirect both dial the tenant's own API host when one is resolved, so
-  // connect-src must allow it too or those requests are CSP-blocked.
-  const tenantApiConnectSrc = tenantApiDomain
-    ? ` ${httpScheme}://${tenantApiDomain} ${wsScheme}://${tenantApiDomain}`
-    : ''
+  const apiHost = tenantApiDomain || djangoHostName
+  const apiOrigin = `${httpScheme}://${apiHost}`
+  const wsOrigin = `${wsScheme}://${apiHost}`
 
   // Per-request nonce for script-src (strict CSP). Tiered so every browser
   // generation gets the strongest policy it understands:
@@ -217,7 +219,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${tileOrigins}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsScheme}://${djangoHostName}${tenantApiConnectSrc}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${tenantExtra}`,
+    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${tenantExtra}`,
     // BoxNow widget iframe origins per their CDN: gr (primary), plus
     // cy/bg/hr regional variants (Phase 2 multi-country).
     // ``widget-v4.boxnow.gr`` is required even though we load the v5 URL:

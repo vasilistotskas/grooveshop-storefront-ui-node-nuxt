@@ -22,9 +22,9 @@ const tenantStore = useTenantStore()
 const { ogImageUrl } = useTenantBranding()
 
 // Tenant-aware SEO metadata. siteConfig is already overridden per
-// tenant by server/plugins/tenant-site-config.ts; tenantStore exposes
-// branding fields (logo, store name) that the env-level appLogo /
-// appTitle don't cover.
+// tenant by server/middleware/4.tenant-site-config.ts; tenantStore
+// exposes the branding fields (logo, store name) — the env-level
+// appTitle is only the no-tenant fallback.
 const siteName = computed(
   () => tenantStore.storeName || config.public.appTitle,
 )

@@ -1,9 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { isPlatformTenantHost } from '../../../../shared/utils/platformTenant'
 
 // Stub Nuxt auto-imports before importing the module under test.
-vi.stubGlobal('useRuntimeConfig', () => ({
+// Mutable so the isPlatformTenantConfig cases can set/unset the
+// PRIVATE platformTenant block per test.
+const runtimeConfig: Record<string, unknown> = {
   apiBaseUrl: 'http://backend/api/v1',
-}))
+}
+vi.stubGlobal('useRuntimeConfig', () => runtimeConfig)
+vi.stubGlobal('isPlatformTenantHost', isPlatformTenantHost)
 
 const fetchMock = vi.fn()
 vi.stubGlobal('$fetch', fetchMock)
@@ -49,7 +54,7 @@ const VALID_TENANT: Record<string, unknown> = {
 
 const TENANT_B_CONFIG = { ...VALID_TENANT, schemaName: 'tenant_b', storeName: 'Tenant B Store', primaryDomain: 'tenant-b.com' }
 
-const { getTenantConfig, clearTenantCache } = await import(
+const { getTenantConfig, clearTenantCache, isPlatformTenantConfig } = await import(
   '../../../../server/utils/tenant'
 )
 
@@ -215,5 +220,32 @@ describe('getTenantConfig', () => {
     expect(refreshed.type).toBe('ok')
     expect(refreshed.config).toMatchObject({ storeName: 'Webside v2' })
     expect(fetchMock).toHaveBeenCalledTimes(2)
+  })
+})
+
+describe('isPlatformTenantConfig', () => {
+  beforeEach(() => {
+    delete runtimeConfig.platformTenant
+  })
+
+  it('matches the tenant whose primaryDomain equals the PRIVATE platformTenant.host', () => {
+    runtimeConfig.platformTenant = { host: 'webside.gr' }
+    expect(isPlatformTenantConfig({ primaryDomain: 'webside.gr' })).toBe(true)
+    expect(isPlatformTenantConfig({ primaryDomain: 'delta-sigma.grooveshop.space' })).toBe(false)
+  })
+
+  it('fails CLOSED when no platform host is configured — no resolved tenant is the platform', () => {
+    expect(isPlatformTenantConfig({ primaryDomain: 'webside.gr' })).toBe(false)
+  })
+
+  it('counts an absent tenant / unset primaryDomain as platform (probes, prerender)', () => {
+    expect(isPlatformTenantConfig(undefined)).toBe(true)
+    expect(isPlatformTenantConfig(null)).toBe(true)
+    expect(isPlatformTenantConfig({ primaryDomain: '' })).toBe(true)
+  })
+
+  it('never reads the public baseUrl — the hostname must not be needed client-side', () => {
+    runtimeConfig.public = { baseUrl: 'https://webside.gr' }
+    expect(isPlatformTenantConfig({ primaryDomain: 'webside.gr' })).toBe(false)
   })
 })

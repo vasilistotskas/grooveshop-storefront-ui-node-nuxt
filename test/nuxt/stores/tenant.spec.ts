@@ -102,6 +102,34 @@ describe('useTenantStore — stripePublishableKey', () => {
   })
 })
 
+describe('useTenantStore — platform tenant', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  it('is not the platform tenant until the plugin says so — regardless of config', () => {
+    const store = useTenantStore()
+    expect(store.isPlatform).toBe(false)
+    store.setConfig(makeTenantConfig({ primaryDomain: 'webside.gr' }))
+    expect(store.isPlatform).toBe(false)
+    expect(store.platform).toBeNull()
+  })
+
+  it('exposes the platform attribution only once setPlatform is called', () => {
+    const store = useTenantStore()
+    store.setPlatform({
+      authorName: 'author',
+      googleSiteVerification: 'gsv-token',
+      domainVerifyId: 'pin-token',
+    })
+    expect(store.isPlatform).toBe(true)
+    expect(store.platform?.authorName).toBe('author')
+
+    store.setPlatform(null)
+    expect(store.isPlatform).toBe(false)
+  })
+})
+
 describe('useTenantStore — apiDomain', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
