@@ -342,10 +342,20 @@ export async function useCheckoutForm() {
   // ``shippingMethod`` UI key. The Nuxt server route's cache key
   // includes the query so each (provider, kind) combination gets
   // its own cached list.
-  watch(() => formState.shippingMethod, async (newMethod) => {
+  /**
+   * Load the pay ways valid for the CURRENT shipping method and keep
+   * the selection inside that list.
+   *
+   * Extracted from the watcher so the initial render can await it. A
+   * watcher does not run during SSR, so when the initial reconcile
+   * changes the method (below) the server would otherwise render the
+   * pay ways of the method the shopper is NOT using.
+   */
+  const applyPayWaysForShippingMethod = async () => {
     try {
-      const carrier = carrierForMethod(newMethod)
-      const kind = newMethod === 'home_delivery' ? 'home_delivery' : 'pickup_point'
+      const method = formState.shippingMethod
+      const carrier = carrierForMethod(method)
+      const kind = method === 'home_delivery' ? 'home_delivery' : 'pickup_point'
       const fresh = await $fetch<Pagination<PayWay>>('/api/pay-way', {
         method: 'GET',
         query: {
@@ -374,7 +384,36 @@ export async function useCheckoutForm() {
     catch (error) {
       log.warn({ tag: 'checkout', message: 'pay-way refetch failed', error })
     }
+  }
+
+  watch(() => formState.shippingMethod, () => {
+    void applyPayWaysForShippingMethod()
   })
+
+  /**
+   * Point ``shippingMethod`` at a method the store actually offers.
+   *
+   * The form opens on ``home_delivery`` because that is the common
+   * case, but a store can offer none — a BoxNow-only tenant serves
+   * lockers and nothing else. Nothing reconciled the two, so the
+   * shopper saw an unselected "BOX NOW Lockers" row while the form
+   * still believed home delivery, and step 3 listed that method's pay
+   * ways: cash on delivery, pre-selected, for a locker order that can
+   * never settle in cash. It disappeared only once the shopper clicked
+   * the row by hand, which many never do.
+   *
+   * Returns whether the method moved, so the caller knows the pay-way
+   * list is now stale.
+   */
+  const reconcileShippingMethod = (): boolean => {
+    const next = resolveShippingMethod(
+      shippingOptions.value,
+      formState.shippingMethod,
+    )
+    if (!next) return false
+    formState.shippingMethod = next as ShippingMethodKey
+    return true
+  }
 
   watch(() => formState.region, (newRegionAlpha) => {
     // Only clear ``regionId`` when the shopper explicitly empties the
@@ -591,6 +630,46 @@ export async function useCheckoutForm() {
         instructions: extractTranslated(payWay, 'instructions', locale.value) ?? '',
       }
     }) || []
+  })
+
+  /**
+   * Payment methods on offer for a DIFFERENT shipping method, but not
+   * for the chosen one.
+   *
+   * The pay-way list is refetched per shipping method, so an excluded
+   * method simply vanishes between step 2 and step 3 with nothing said.
+   * That is not a bug — cash to a courier cannot be collected at a
+   * locker, so ``BoxNowCarrier.supported_settlements`` omits
+   * ``courier_cash`` for pickup points — but an unexplained absence
+   * reads as one: the merchant's own first run through this flow
+   * stopped at "αντικαταβολή is enabled, why can't I see it?".
+   *
+   * Derived from the shipping-options payload, which already advertises
+   * the pay ways each option accepts (``shipping/services.py::
+   * _pay_ways_for``), so the note can never disagree with the list the
+   * shopper is looking at.
+   */
+  const unavailablePayWayNames = computed(() => {
+    const chosenKey = formState.shippingMethod
+    if (!chosenKey || !shippingOptions.value.length) return []
+
+    const namesFor = (predicate: (key: string | null) => boolean) => {
+      const names = new Set<string>()
+      for (const option of shippingOptions.value) {
+        if (!predicate(methodKeyForOption(option))) continue
+        // ``payWays`` on a shipping option carries a resolved flat
+        // name (``shipping/serializers/option.py``), not parler
+        // translations — the same field StepShipping folds over.
+        for (const payWay of option.payWays ?? []) {
+          if (payWay.name) names.add(getPaymentMethodName(payWay.name))
+        }
+      }
+      return names
+    }
+
+    const here = namesFor(key => key === chosenKey)
+    const elsewhere = namesFor(key => key !== null && key !== chosenKey)
+    return [...elsewhere].filter(name => !here.has(name))
   })
 
   // Validation schemas
@@ -918,19 +997,24 @@ export async function useCheckoutForm() {
   // main one when present (or the most-recent fallback when no main
   // is set — matches the behaviour the dedicated ``get_main`` endpoint
   // used to provide, with one fewer API call and no 404 noise).
+  // ``-isMain,-createdAt`` ordering means the first row IS the main one
+  // when a main is set, and the most recent otherwise. The comment above
+  // always claimed that fallback; the code asked for ``isMain`` alone,
+  // so a shopper whose addresses carry no main flag was dropped into the
+  // blank guest form with their saved addresses one click away and
+  // nothing selected.
   const mainAddress = savedAddresses.value.find(a => a.isMain)
+    ?? savedAddresses.value[0]
   if (mainAddress) {
     applyAddressToFormState(mainAddress)
     selectedSavedAddressId.value = mainAddress.id ?? null
     addressEntryMode.value = 'saved'
   }
 
-  // Initialize payment method
-  if (payWays.value?.results?.[0]) {
-    formState.payWay = payWays.value.results[0].id
-    formState.payWayId = payWays.value.results[0].id
-    selectedPayWay.value = payWays.value.results[0]
-  }
+  // Payment method is initialised AFTER the shipping method is settled
+  // (below) — picking it from a list fetched for a method the store
+  // does not offer is what pre-selected cash on delivery on a
+  // locker-only store.
 
   // Fall back to the first listed country for first-time / guest users
   // whose main-address prefill didn't set one. Fetch regions once the
@@ -954,6 +1038,22 @@ export async function useCheckoutForm() {
   // Hydrate shipping options once the country is known so the sidebar
   // shows the live ACS quote on first render (SSR-safe).
   await fetchShippingOptions()
+
+  // Now that the offered methods are known, settle on one the store
+  // actually serves and derive the pay ways from it. A watcher does not
+  // fire during SSR, so the refetch is awaited here rather than left to
+  // the one above.
+  if (reconcileShippingMethod()) {
+    await applyPayWaysForShippingMethod()
+  }
+
+  // Initialize the payment method against the settled list. Skipped
+  // when the refetch above already chose one.
+  if (!formState.payWayId && payWays.value?.results?.[0]) {
+    formState.payWay = payWays.value.results[0].id
+    formState.payWayId = payWays.value.results[0].id
+    selectedPayWay.value = payWays.value.results[0]
+  }
 
   /**
    * Re-fetches shipping settings from the server at submit time so the
@@ -1006,5 +1106,6 @@ export async function useCheckoutForm() {
     // (``ShippingProvider.priority`` ascending) instead of a
     // hardcoded UI sequence.
     shippingOptions,
+    unavailablePayWayNames,
   }
 }

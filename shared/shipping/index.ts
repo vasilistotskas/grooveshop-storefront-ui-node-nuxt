@@ -73,3 +73,33 @@ export function methodKeyForOption(option: {
   }
   return null
 }
+
+/**
+ * The shipping method checkout should open on, given what the store
+ * actually offers.
+ *
+ * Checkout's form state starts on ``home_delivery`` because that is the
+ * common case, but a store can offer none of it — a BoxNow-only tenant
+ * serves lockers and nothing else. Nothing reconciled the two, so the
+ * shopper saw an unselected "BOX NOW Lockers" row while the form still
+ * believed home delivery, and the payment step listed THAT method's pay
+ * ways: cash on delivery, pre-selected, for a locker order that can
+ * never settle in cash.
+ *
+ * Returns ``null`` when the current choice is already on offer (or
+ * nothing is on offer yet, e.g. a transient options failure — the
+ * flat-rate fallback still quotes home delivery, so the choice stands).
+ */
+export function resolveShippingMethod(
+  options: ReadonlyArray<{ providerCode: string, kind: string }>,
+  current: string,
+): string | null {
+  const available: string[] = []
+  for (const option of options) {
+    const key = methodKeyForOption(option)
+    if (key && !available.includes(key)) available.push(key)
+  }
+  if (!available.length) return null
+  if (available.includes(current)) return null
+  return available[0] ?? null
+}
