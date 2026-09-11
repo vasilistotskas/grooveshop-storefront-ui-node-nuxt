@@ -55105,9 +55105,9 @@
                     "imageUrl": {
                         "type": "string",
                         "format": "uri",
-                        "readOnly": true,
                         "nullable": true,
-                        "title": "URL εικόνας"
+                        "readOnly": true,
+                        "description": "Locker photo, or null when BoxNow supplies none"
                     },
                     "lat": {
                         "type": "number",
@@ -55243,9 +55243,9 @@
                     "imageUrl": {
                         "type": "string",
                         "format": "uri",
-                        "readOnly": true,
                         "nullable": true,
-                        "title": "URL εικόνας"
+                        "readOnly": true,
+                        "description": "Locker photo, or null when BoxNow supplies none"
                     },
                     "lat": {
                         "type": "number",

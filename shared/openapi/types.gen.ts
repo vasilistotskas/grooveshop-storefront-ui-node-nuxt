@@ -1394,7 +1394,7 @@ export type BoxNowLocker = {
      */
   type: TypeEnum
   /**
-     * URL εικόνας
+     * Locker photo, or null when BoxNow supplies none
      */
   readonly imageUrl: string | null
   /**
@@ -1475,7 +1475,7 @@ export type BoxNowLockerDetail = {
      */
   type: TypeEnum
   /**
-     * URL εικόνας
+     * Locker photo, or null when BoxNow supplies none
      */
   readonly imageUrl: string | null
   /**
