@@ -1,3 +1,10 @@
+## [3.194.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.1...v3.194.2) (2026-09-11)
+
+
+### Bug Fixes
+
+* **forms:** make the focus on the failing field actually stick ([2a0065b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2a0065bf7c57d8719d1873b4523da103f845dacc))
+
 ## [3.194.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.0...v3.194.1) (2026-09-11)
 
 
