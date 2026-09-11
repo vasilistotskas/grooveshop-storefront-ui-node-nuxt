@@ -92,16 +92,13 @@ const avatarSrc = computed(() => {
   return userImage.value
 })
 
-const avatarAlt = computed(() => {
-  if (!props.userAccount?.firstName && !props.userAccount?.lastName) {
-    // `username`, not `email`. This renders as the byline on public
-    // review and comment cards, so falling back to the address showed a
-    // reviewer's email to anonymous readers — and `UserPublic` does not
-    // carry one at all.
-    return props.userAccount?.username ?? ''
-  }
-  return `${props.userAccount?.firstName} ${props.userAccount?.lastName}`
-})
+// One precedence for every surface that names a person: the name, then
+// the generated handle. Never the email — this renders on public review
+// and comment cards, where an address would be exposed to anonymous
+// readers, and `UserPublic` does not carry one at all. Previously
+// duplicated here and in the comment byline, where it was written the
+// wrong way round and signed every comment with the handle.
+const avatarName = computed(() => displayUserName(props.userAccount))
 
 const handleUpload = async (file: File | null) => {
   if (!file) {
@@ -176,7 +173,7 @@ watch(uploadFile, (newFile) => {
       <UAvatar
         v-if="!avatarSrc"
         :src="'/img/default.png'"
-        :alt="avatarAlt"
+        :alt="avatarName"
         :size="size"
         :class="{
           'ring-2 ring-orange-500': enabled,
@@ -187,7 +184,7 @@ watch(uploadFile, (newFile) => {
       <UAvatar
         v-else-if="!loading"
         :src="avatarSrc"
-        :alt="avatarAlt"
+        :alt="avatarName"
         :size="size"
         :class="{
           'ring-2 ring-orange-500': enabled,
@@ -239,7 +236,7 @@ watch(uploadFile, (newFile) => {
           dark:text-primary-50
         "
       >
-        {{ userAccount?.firstName }}
+        {{ avatarName }}
       </span>
     </div>
   </UTooltip>

@@ -49,6 +49,9 @@ const { updateLikedComments } = userStore
 
 const { comment, depth, paginationType, pageSize } = toRefs(props)
 
+// The person, not the generated handle — see ``displayUserName``.
+const commenterName = computed(() => displayUserName(comment.value?.user))
+
 const showReplyForm = ref(false)
 const replies = ref<Pagination<BlogComment> | null>(null)
 const pending = ref(false)
@@ -307,7 +310,7 @@ watch(
               dark:text-primary-50
             "
           >
-            {{ comment.user?.username || comment.user?.firstName + ' ' + comment.user?.lastName }}
+            {{ commenterName }}
           </span>
         </template>
         <span class="flex items-center">
