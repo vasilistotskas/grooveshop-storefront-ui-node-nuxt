@@ -2079,6 +2079,15 @@ export type Cart = {
      */
   readonly promotionDiscount: number
   /**
+     * Per-promotion breakdown of promotion_discount: one entry per offer that actually took money off, with the coupon code that earned it when there was one. The storefront needs this to tell the shopper WHICH offers applied, and to show a coupon its OWN amount instead of the cart total.
+     */
+  readonly appliedPromotions: Array<{
+    promotionId?: number
+    name?: string
+    code?: string | null
+    amount?: number
+  }>
+  /**
      * Whether a live promotion waives the shipping cost
      */
   readonly promotionFreeShipping: boolean
@@ -2222,6 +2231,15 @@ export type CartDetail = {
      * Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices
      */
   readonly promotionDiscount: number
+  /**
+     * Per-promotion breakdown of promotion_discount: one entry per offer that actually took money off, with the coupon code that earned it when there was one. The storefront needs this to tell the shopper WHICH offers applied, and to show a coupon its OWN amount instead of the cart total.
+     */
+  readonly appliedPromotions: Array<{
+    promotionId?: number
+    name?: string
+    code?: string | null
+    amount?: number
+  }>
   /**
      * Whether a live promotion waives the shipping cost
      */

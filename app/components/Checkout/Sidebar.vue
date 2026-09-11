@@ -57,6 +57,9 @@ const shippingSummaryView = computed(() => {
 // the applied coupon) — the sidebar only renders what Django computed.
 const promotionDiscount = computed(() =>
   Number(cart.value?.promotionDiscount ?? 0))
+// Per-offer breakdown of the line above; the sidebar lists each offer
+// by name rather than one opaque total.
+const appliedPromotions = computed(() => cart.value?.appliedPromotions ?? [])
 const promotionFreeShipping = computed(() =>
   Boolean(cart.value?.promotionFreeShipping))
 
@@ -336,12 +339,27 @@ defineSlots<{
               "
             >{{ $i18n.n(payWayCost, 'currency') }}</span>
           </div>
+          <!-- One row per offer that took money off — the shopper sees
+               WHICH offers applied, and a coupon is credited only with
+               what it earned. The amounts sum to promotionDiscount. -->
           <div
-            v-if="promotionDiscount > 0"
-            class="flex items-center justify-between"
+            v-for="promo in appliedPromotions"
+            :key="`promo-${promo.promotionId}-${promo.code ?? 'auto'}`"
+            class="flex items-start justify-between gap-3"
           >
-            <span class="text-success">{{ t('promotion_discount') }}</span>
-            <span class="font-bold text-success">-{{ $i18n.n(promotionDiscount, 'currency') }}</span>
+            <span class="flex flex-wrap items-center gap-1.5 text-success">
+              {{ promo.name || t('promotion_discount') }}
+              <UBadge
+                v-if="promo.code"
+                color="success"
+                variant="soft"
+                size="sm"
+                class="font-mono"
+              >
+                {{ promo.code }}
+              </UBadge>
+            </span>
+            <span class="shrink-0 font-bold text-success">-{{ $i18n.n(Number(promo.amount ?? 0), 'currency') }}</span>
           </div>
           <CheckoutGiftItem
             v-for="gift in cart?.promotionGiftItems || []"

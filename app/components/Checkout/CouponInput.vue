@@ -31,8 +31,24 @@ const promotionsEnabled = computed(
     && promotionsRuntimeEnabled.value
     && (!b2bSuppressesCoupons.value || appliedCodes.value.length > 0),
 )
-const promotionDiscount = computed(() =>
-  Number(cart.value?.promotionDiscount ?? 0))
+// What THIS coupon earned, not what the cart saved in total.
+// `promotionDiscount` is the sum of every live promotion, so showing it
+// beside a code credited automatic offers to the coupon: a cart with
+// two automatic offers worth 34,98 € and a 5 € code read "SAVE5
+// −39,98 €". `appliedPromotions` is the per-offer breakdown, and a code
+// that lost the stacking comparison contributes no entry at all — so it
+// now reads as earning nothing instead of claiming someone else's money.
+const appliedPromotions = computed(() => cart.value?.appliedPromotions ?? [])
+
+const couponRows = computed(() => appliedCodes.value.map(code => ({
+  code,
+  amount: appliedPromotions.value
+    .filter(entry => entry.code === code)
+    .reduce((sum, entry) => sum + Number(entry.amount ?? 0), 0),
+})))
+
+const couponDiscount = computed(() =>
+  couponRows.value.reduce((sum, row) => sum + row.amount, 0))
 
 const couponSchema = z.object({
   code: z
@@ -58,11 +74,11 @@ const applyCoupon = async () => {
     formState.code = ''
     toast.add({
       title: t('applied_title'),
-      description: promotionDiscount.value > 0
+      description: couponDiscount.value > 0
         ? t('applied_description', {
-            amount: $i18n.n(promotionDiscount.value, 'currency'),
+            amount: $i18n.n(couponDiscount.value, 'currency'),
           })
-        : undefined,
+        : t('applied_no_discount'),
       color: 'success',
       icon: 'i-heroicons-check-circle',
     })
@@ -128,16 +144,26 @@ const reasonMessages: Record<string, string> = {
     >
       <template #description>
         <div class="space-y-1 text-sm">
-          <p class="flex items-center justify-between">
+          <p
+            v-for="row in couponRows"
+            :key="`coupon-${row.code}`"
+            class="flex items-center justify-between gap-3"
+          >
             <span class="font-mono font-semibold tracking-wide">
-              {{ appliedCodes.join(', ') }}
+              {{ row.code }}
             </span>
             <strong
-              v-if="promotionDiscount > 0"
-              class="text-success-700 dark:text-success-300"
+              v-if="row.amount > 0"
+              class="shrink-0 text-success-700 dark:text-success-300"
             >
-              -{{ $i18n.n(promotionDiscount, 'currency') }}
+              -{{ $i18n.n(row.amount, 'currency') }}
             </strong>
+            <span
+              v-else
+              class="shrink-0 text-xs opacity-80"
+            >
+              {{ t('no_discount_better_offer') }}
+            </span>
           </p>
         </div>
       </template>
@@ -197,6 +223,8 @@ el:
   apply: "Εφαρμογή"
   applied_title: "Το κουπόνι εφαρμόστηκε"
   applied_description: "Έκπτωση {amount}"
+  applied_no_discount: "Δεν μείωσε το σύνολο — ισχύει ήδη καλύτερη προσφορά"
+  no_discount_better_offer: "Ισχύει καλύτερη προσφορά"
   errors:
     generic: "Το κουπόνι δεν μπόρεσε να εφαρμοστεί"
     invalid: "Ο κωδικός δεν είναι έγκυρος"

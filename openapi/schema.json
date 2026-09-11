@@ -56244,6 +56244,29 @@
                         "readOnly": true,
                         "description": "Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices"
                     },
+                    "appliedPromotions": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "promotionId": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "code": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "amount": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "description": "Per-promotion breakdown of promotion_discount: one entry per offer that actually took money off, with the coupon code that earned it when there was one. The storefront needs this to tell the shopper WHICH offers applied, and to show a coupon its OWN amount instead of the cart total.",
+                        "readOnly": true
+                    },
                     "promotionFreeShipping": {
                         "type": "boolean",
                         "readOnly": true,
@@ -56351,6 +56374,7 @@
                 },
                 "required": [
                     "appliedCouponCodes",
+                    "appliedPromotions",
                     "b2bPricing",
                     "createdAt",
                     "currency",
@@ -56532,6 +56556,29 @@
                         "readOnly": true,
                         "description": "Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices"
                     },
+                    "appliedPromotions": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "promotionId": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "code": {
+                                    "type": "string",
+                                    "nullable": true
+                                },
+                                "amount": {
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "description": "Per-promotion breakdown of promotion_discount: one entry per offer that actually took money off, with the coupon code that earned it when there was one. The storefront needs this to tell the shopper WHICH offers applied, and to show a coupon its OWN amount instead of the cart total.",
+                        "readOnly": true
+                    },
                     "promotionFreeShipping": {
                         "type": "boolean",
                         "readOnly": true,
@@ -56647,6 +56694,7 @@
                 },
                 "required": [
                     "appliedCouponCodes",
+                    "appliedPromotions",
                     "b2bPricing",
                     "createdAt",
                     "currency",

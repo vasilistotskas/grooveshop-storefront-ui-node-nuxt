@@ -3240,6 +3240,14 @@ export const zCart = z.object({
   promotionDiscount: z.number().register(z.globalRegistry, {
     description: 'Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices',
   }).readonly(),
+  appliedPromotions: z.array(z.object({
+    promotionId: z.int().optional(),
+    name: z.string().optional(),
+    code: z.string().nullish(),
+    amount: z.number().optional(),
+  })).register(z.globalRegistry, {
+    description: 'Per-promotion breakdown of promotion_discount: one entry per offer that actually took money off, with the coupon code that earned it when there was one. The storefront needs this to tell the shopper WHICH offers applied, and to show a coupon its OWN amount instead of the cart total.',
+  }).readonly(),
   promotionFreeShipping: z.boolean().register(z.globalRegistry, {
     description: 'Whether a live promotion waives the shipping cost',
   }).readonly(),
@@ -3299,6 +3307,14 @@ export const zCartDetail = z.object({
   }).readonly(),
   promotionDiscount: z.number().register(z.globalRegistry, {
     description: 'Discount granted by live promotions (automatic + applied coupon), on top of any product markdown already inside the line prices',
+  }).readonly(),
+  appliedPromotions: z.array(z.object({
+    promotionId: z.int().optional(),
+    name: z.string().optional(),
+    code: z.string().nullish(),
+    amount: z.number().optional(),
+  })).register(z.globalRegistry, {
+    description: 'Per-promotion breakdown of promotion_discount: one entry per offer that actually took money off, with the coupon code that earned it when there was one. The storefront needs this to tell the shopper WHICH offers applied, and to show a coupon its OWN amount instead of the cart total.',
   }).readonly(),
   promotionFreeShipping: z.boolean().register(z.globalRegistry, {
     description: 'Whether a live promotion waives the shipping cost',

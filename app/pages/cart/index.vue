@@ -377,19 +377,38 @@ definePageMeta({
               <span>{{ t('vat') }}</span>
               <span>{{ $i18n.n(cart.totalVatValue, 'currency') }}</span>
             </div>
+            <!-- Catalogue markdown. It is ALREADY inside the line
+                 prices above and is never subtracted again, so it is
+                 styled as information, not as money coming off here. -->
             <div
               v-if="cart.totalDiscountValue > 0"
-              class="flex justify-between text-green-600"
+              class="flex justify-between text-sm opacity-75"
             >
               <span>{{ t('discount') }}</span>
               <span>-{{ $i18n.n(cart.totalDiscountValue, 'currency') }}</span>
             </div>
+            <!-- One line per offer that actually took money off, so the
+                 shopper can see WHICH offers applied instead of a
+                 single lump sum. The amounts always sum to
+                 promotionDiscount (the engine clamps each entry). -->
             <div
-              v-if="cart.promotionDiscount > 0"
-              class="flex justify-between text-green-600"
+              v-for="promo in cart.appliedPromotions || []"
+              :key="`promo-${promo.promotionId}-${promo.code ?? 'auto'}`"
+              class="flex items-start justify-between gap-3 text-green-600"
             >
-              <span>{{ t('promotion_discount') }}</span>
-              <span>-{{ $i18n.n(cart.promotionDiscount, 'currency') }}</span>
+              <span class="flex flex-wrap items-center gap-1.5">
+                {{ promo.name || t('promotion_discount') }}
+                <UBadge
+                  v-if="promo.code"
+                  color="success"
+                  variant="soft"
+                  size="sm"
+                  class="font-mono"
+                >
+                  {{ promo.code }}
+                </UBadge>
+              </span>
+              <span class="shrink-0">-{{ $i18n.n(Number(promo.amount ?? 0), 'currency') }}</span>
             </div>
             <CheckoutGiftItem
               v-for="gift in cart.promotionGiftItems || []"

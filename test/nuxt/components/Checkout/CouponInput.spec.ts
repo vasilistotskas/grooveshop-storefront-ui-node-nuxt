@@ -121,6 +121,52 @@ describe('CheckoutCouponInput', () => {
     expect(wrapper.find('form').exists()).toBe(false)
   })
 
+  it('shows the coupon its OWN amount, not the cart total', async () => {
+    // Two automatic offers worth 34,98 plus a 5,00 code. The row used
+    // to read -39,98 for SAVE5 — the cart's whole discount credited to
+    // the coupon.
+    cartRef.value = {
+      totalPrice: 100,
+      promotionDiscount: 39.98,
+      promotionFreeShipping: false,
+      appliedCouponCodes: ['SAVE5'],
+      appliedPromotions: [
+        { promotionId: 4, name: '-15% στην κατηγορία', code: null, amount: 14.99 },
+        { promotionId: 5, name: '2+1 δώρο', code: null, amount: 19.99 },
+        { promotionId: 3, name: '-5€ σε αγορές από 49€', code: 'SAVE5', amount: 5 },
+      ],
+    }
+
+    const wrapper = await mountSuspended(CouponInput)
+    await new Promise(resolve => setTimeout(resolve, 50))
+
+    const text = wrapper.text().replace(/ /g, ' ')
+    expect(text).toContain('SAVE5')
+    expect(text).toMatch(/5,00/)
+    expect(text).not.toMatch(/39,98/)
+  })
+
+  it('says a code earned nothing when a better offer won', async () => {
+    cartRef.value = {
+      totalPrice: 100,
+      promotionDiscount: 30,
+      promotionFreeShipping: false,
+      appliedCouponCodes: ['SAVE5'],
+      // The code lost the stacking comparison, so it has no entry.
+      appliedPromotions: [
+        { promotionId: 9, name: 'Μεγάλη προσφορά', code: null, amount: 30 },
+      ],
+    }
+
+    const wrapper = await mountSuspended(CouponInput)
+    await new Promise(resolve => setTimeout(resolve, 50))
+
+    const text = wrapper.text().replace(/ /g, ' ')
+    expect(text).toContain('SAVE5')
+    expect(text).toContain('καλύτερη προσφορά')
+    expect(text).not.toMatch(/30,00/)
+  })
+
   describe('B2B promotion gate', () => {
     const wholesale = (allowPromotions: boolean, appliedCouponCodes: string[] = []) => ({
       totalPrice: 100,
