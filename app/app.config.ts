@@ -42,7 +42,14 @@ export default defineAppConfig({
     },
     button: {
       slots: {
-        base: 'cursor-pointer',
+        // ``tap-press`` gives every button a pressed state on touch,
+        // where there is no hover and the platform's own tap flash is
+        // switched off by Tailwind's preflight. Defined in main.css as
+        // a plain class on purpose: a ``transition-*`` utility here
+        // would collide with the theme's own ``transition-colors`` and
+        // be merged away. Reaches buttons rendered as ``<a>`` too —
+        // the cart is one — which an element selector cannot.
+        base: 'cursor-pointer tap-press',
       },
       variants: {
         size: {

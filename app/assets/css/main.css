@@ -136,6 +136,63 @@ button, a, [role="button"] {
   touch-action: manipulation;
 }
 
+/* Tap feedback.
+
+   A phone has no hover, and Tailwind's preflight sets
+   ``-webkit-tap-highlight-color: transparent``, which switches off the
+   only cue the platform gives by itself. Measured on production: every
+   button and link resolves to a fully transparent highlight and the app
+   defines no pressed state, so a tap looked identical to no tap until
+   the next paint — long enough on a phone connection that shoppers tap
+   twice and read the site as broken. The merchant reported exactly
+   that.
+
+   Controls dip and darken while held. Navigation LINKS only darken:
+   scaling a line of text reads as a glitch rather than a press.
+
+   ``.tap-press`` is applied to every Nuxt UI button through
+   ``app.config.ts`` — a class, not a utility, because UButton already
+   carries ``transition-colors`` and a competing ``transition-*``
+   utility would be merged away by tailwind-merge. It also reaches the
+   buttons Nuxt UI renders as ``<a>`` (the cart), which an element
+   selector cannot.
+
+   The reduced-motion block above drops the durations to ~0, so the
+   state still shows instantly for anyone who asked for less motion;
+   the transform is additionally skipped for them below. */
+button,
+[role="button"],
+summary,
+.tap-press {
+  transition: transform 150ms ease-out, filter 150ms ease-out;
+}
+
+button:active,
+[role="button"]:active,
+summary:active,
+nav a:active,
+.tap-press:active {
+  filter: brightness(0.92);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  button:active,
+  [role="button"]:active,
+  summary:active,
+  .tap-press:active {
+    transform: scale(0.97);
+  }
+}
+
+/* A disabled control must not look pressable. */
+button:disabled:active,
+[role="button"][aria-disabled="true"]:active,
+.tap-press:disabled:active,
+.tap-press[aria-disabled="true"]:active {
+  transform: none;
+  filter: none;
+}
+
 .article {
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold;
