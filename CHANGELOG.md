@@ -1,3 +1,10 @@
+## [3.192.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.192.0...v3.192.1) (2026-09-11)
+
+
+### Bug Fixes
+
+* **blog:** extend short post meta descriptions with the article opening ([51d02ec](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/51d02ecc3e3627fc525cfed5f699814ac44cc262))
+
 # [3.192.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.191.0...v3.192.0) (2026-09-11)
 
 
