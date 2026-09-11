@@ -36,12 +36,19 @@ export function scrollToFirstFormError(event: FormErrorEvent): void {
     block: 'center',
   })
 
-  // Focus on the NEXT frame, with scrolling prevented so it cannot
-  // fight the scroll above. Nuxt UI disables every element in the form
-  // while a submit is in flight (`loadingAuto`), and its own docs note
-  // that this drops focus — so focusing synchronously here left the
-  // field scrolled into view but not focused, verified on production.
-  if (typeof element.focus === 'function') {
-    requestAnimationFrame(() => element.focus({ preventScroll: true }))
+  // Focus, with scrolling prevented so it cannot fight the scroll
+  // above — then assert it again once the current task drains.
+  //
+  // A failed submit re-renders the form, and a focus set while that
+  // patch is in flight is lost along with the node it was set on:
+  // measured on production, the field scrolled into view and focus fell
+  // back to <body>. The re-assert is a `setTimeout`, NOT a
+  // `requestAnimationFrame`, because animation frames never fire in a
+  // hidden tab while timers still do — and the re-assert is the half
+  // that actually lands.
+  const focusField = () => {
+    document.getElementById(firstError.id!)?.focus({ preventScroll: true })
   }
+  focusField()
+  setTimeout(focusField, 0)
 }

@@ -47,10 +47,11 @@ describe('scrollToFirstFormError', () => {
       behavior: 'smooth',
       block: 'center',
     })
-    // Focus lands a frame later — the form disables its elements during
-    // submit, which drops a synchronous focus.
-    await new Promise(resolve => requestAnimationFrame(() => resolve(null)))
     expect(email.focus).toHaveBeenCalledWith({ preventScroll: true })
+    // And again once the task drains: a failed submit re-renders the
+    // form, and a focus set mid-patch is lost with its node.
+    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(email.focus).toHaveBeenCalledTimes(2)
   })
 
   it('leaves the later fields alone', () => {
