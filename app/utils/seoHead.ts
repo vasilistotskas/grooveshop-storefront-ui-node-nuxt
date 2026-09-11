@@ -16,13 +16,18 @@
  * through untouched.
  */
 
+import { languageOfLocaleTag } from '~~/shared/i18n/localeTag'
+
 interface LocaleHeadLink {
   [key: string]: unknown
   href?: string
+  rel?: string
+  hreflang?: string
 }
 interface LocaleHeadMeta {
   [key: string]: unknown
   content?: string
+  property?: string
 }
 
 function swapOrigin(
@@ -61,5 +66,50 @@ export function rebaseLocaleHeadOrigins<T extends object>(
           ? swapOrigin(m.content, from, to)
           : m.content,
     })),
+  }
+}
+
+/**
+ * Drop the locale alternates a tenant does not serve.
+ *
+ * `useLocaleHead` builds the `hreflang` links and `og:locale:alternate`
+ * from the BUILD-time locale list, which is platform-wide, whereas
+ * locale availability is PER TENANT (`Tenant.available_locales`):
+ * `app/middleware/locale-available.global.ts` answers 404 for a prefix
+ * the tenant does not list. Left as-is, every Greek-only store
+ * advertised `/en/**` to crawlers (Ahrefs 2026-09-11: 119 "404 page"
+ * and 109 "hreflang to broken page", every one of them `/en/`).
+ *
+ * Same decisions as the sitemap gate in
+ * server/plugins/sitemap-tenant-gate.ts: an alternate for an unserved
+ * locale is dropped, and a single-language tenant emits NO alternates
+ * at all — `hreflang` on a lone self-referential URL is noise.
+ * Canonical, og:url and og:locale pass through untouched. Filtered on
+ * what the tag CLAIMS (`hreflang` / `content`), never on the href's
+ * path prefix.
+ *
+ * An empty list means the tenant has not resolved; fail open, as the
+ * middleware does, rather than strip a bilingual store's alternates.
+ */
+export function gateLocaleHeadByTenant<T extends object>(
+  head: T,
+  allowedLocales: readonly string[],
+): T {
+  if (allowedLocales.length === 0) return head
+  const multilingual = allowedLocales.length > 1
+  const serves = (tag: string | undefined) =>
+    multilingual && allowedLocales.includes(languageOfLocaleTag(tag))
+  const { link, meta } = head as {
+    link?: LocaleHeadLink[]
+    meta?: LocaleHeadMeta[]
+  }
+  return {
+    ...head,
+    link: link?.filter(
+      l => !(l.rel === 'alternate' && l.hreflang) || serves(l.hreflang),
+    ),
+    meta: meta?.filter(
+      m => m.property !== 'og:locale:alternate' || serves(m.content),
+    ),
   }
 }

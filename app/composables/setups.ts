@@ -29,14 +29,22 @@ export function setupPageHeader() {
   // i18n's baseUrl is platform-static (see the i18n block in
   // nuxt.config.ts) — rebase its canonical/hreflang/og URLs onto the
   // tenant's own origin so no tenant page carries the platform host.
+  // Its locale list is platform-static too: the alternates are then
+  // gated on the locales THIS tenant serves (`Tenant.available_locales`
+  // via tenantAllowedLocales), so a Greek-only store never advertises
+  // the `/en/**` its locale middleware answers 404 for — the same gate
+  // the sitemap applies in server/plugins/sitemap-tenant-gate.ts.
   const i18nHead = computed(() =>
-    tenantStore.primaryDomain
-      ? rebaseLocaleHeadOrigins(
-          rawI18nHead.value,
-          publicConfig.baseUrl as string,
-          `https://${tenantStore.primaryDomain}`,
-        )
-      : rawI18nHead.value,
+    gateLocaleHeadByTenant(
+      tenantStore.primaryDomain
+        ? rebaseLocaleHeadOrigins(
+            rawI18nHead.value,
+            publicConfig.baseUrl as string,
+            `https://${tenantStore.primaryDomain}`,
+          )
+        : rawI18nHead.value,
+      tenantStore.availableLocales,
+    ),
   )
 
   // Asset-origin hints for the origins THIS page's images and static
@@ -64,7 +72,6 @@ export function setupPageHeader() {
 
   const colorMode = useColorMode()
   const colorScheme = computed(() => colorMode.value === 'dark' ? 'dark light' : 'light dark')
-  const ogLocalesAlternate = computed(() => $i18n.locales.value.map(l => l.language || l.code))
   // Prefer the locale's full BCP-47 `language` (e.g. `el-GR`) so screen
   // readers + search engines get region-specific pronunciation hints.
   // Fall back to @nuxt/ui's 2-letter code when no `language` is configured
@@ -106,8 +113,10 @@ export function setupPageHeader() {
     googleSiteVerification: () =>
       tenantStore.googleSiteVerification || undefined,
     colorScheme: colorScheme,
-    ogLocale: $i18n.locale,
-    ogLocaleAlternate: ogLocalesAlternate.value,
+    // og:locale and og:locale:alternate come from the gated i18n head
+    // below (useLocaleHead emits both under its own keys, which win the
+    // dedupe against anything set here) — declaring them again here
+    // would only re-advertise the platform locale list.
   })
 
   useHead(() => ({
