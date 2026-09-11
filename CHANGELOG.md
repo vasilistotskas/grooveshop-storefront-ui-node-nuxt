@@ -1,3 +1,10 @@
+## [3.194.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.2...v3.194.3) (2026-09-11)
+
+
+### Bug Fixes
+
+* **csp:** stop blocking Google Ads conversion tracking ([215f070](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/215f0703f069c4b1c36fe5cd9faf69fdfb9147ae))
+
 ## [3.194.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.1...v3.194.2) (2026-09-11)
 
 
