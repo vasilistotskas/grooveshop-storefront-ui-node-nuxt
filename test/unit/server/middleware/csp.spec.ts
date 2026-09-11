@@ -299,4 +299,42 @@ describe('csp middleware', () => {
     expect(result.event.context.cspNonce).toBeDefined()
     expect(result['Content-Security-Policy']).toContain('nonce-')
   })
+
+  describe('Google Ads conversion tracking', () => {
+    // Linking an Ads account makes the SAME gtag.js the GA4 id loads
+    // beacon to pagead2.googlesyndication.com/ccm/collect — as a fetch
+    // first, then as an <img> fallback. Both were blocked in production,
+    // so the store paid for ads whose conversions it could not measure.
+    // Hosts are Google's documented set for these tags.
+    const directive = (csp: string, name: string) =>
+      csp.split(';').map(d => d.trim()).find(d => d.startsWith(name)) ?? ''
+
+    it('allows the conversion beacon to be fetched', () => {
+      const csp = runWith('/')['Content-Security-Policy']
+      expect(directive(csp, 'connect-src'))
+        .toContain('https://pagead2.googlesyndication.com')
+    })
+
+    it('allows the same beacon as an image fallback', () => {
+      const csp = runWith('/')['Content-Security-Policy']
+      expect(directive(csp, 'img-src'))
+        .toContain('https://pagead2.googlesyndication.com')
+    })
+
+    it('allows the tags themselves to load', () => {
+      const csp = runWith('/')['Content-Security-Policy']
+      const scriptSrc = directive(csp, 'script-src')
+      expect(scriptSrc).toContain('https://www.googleadservices.com')
+      expect(scriptSrc).toContain('https://googleads.g.doubleclick.net')
+    })
+
+    it('keeps the doubleclick measurement endpoints reachable', () => {
+      const connectSrc = directive(
+        runWith('/')['Content-Security-Policy'],
+        'connect-src',
+      )
+      expect(connectSrc).toContain('https://ad.doubleclick.net')
+      expect(connectSrc).toContain('https://stats.g.doubleclick.net')
+    })
+  })
 })

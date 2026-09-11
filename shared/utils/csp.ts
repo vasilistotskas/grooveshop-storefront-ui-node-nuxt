@@ -213,13 +213,30 @@ export function buildCspDirectives(options: CspOptions): string[] {
   // scripts from these hosts.
   const googleAdsOrigins = 'https://www.google.com https://www.google.gr'
 
+  // Google Ads conversion + remarketing, which ride the SAME gtag.js
+  // the GA4 id already loads: linking an Ads account (an ``AW-`` tag)
+  // makes it beacon to ``pagead2.googlesyndication.com/ccm/collect``,
+  // first as a fetch and then as an <img> fallback. Both were blocked
+  // in production — the store was paying for ads whose conversions it
+  // could not measure. Hosts are Google's documented set for these tags
+  // (developers.google.com/tag-platform/security/guides/csp).
+  //
+  // script-src is included because that is where the doc puts them: the
+  // conversion linker and remarketing tags are FETCHED from these hosts.
+  // It widens little in practice — the policy already allows
+  // ``googletagmanager.com`` plus ``'unsafe-inline'``, and GTM can load
+  // any Google tag it likes through that.
+  const googleConversionOrigins
+    = 'https://pagead2.googlesyndication.com https://www.googleadservices.com'
+      + ' https://googleads.g.doubleclick.net'
+
   return [
     `default-src 'self'`,
-    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com https://challenges.cloudflare.com${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${tenantExtra}${nonceScriptSrc}`,
+    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com ${googleConversionOrigins} https://js.stripe.com https://challenges.cloudflare.com${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${tenantExtra}${nonceScriptSrc}`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
-    `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${tileOrigins}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
+    `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins} ${tileOrigins}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} https://stats.g.doubleclick.net https://api.stripe.com ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${tenantExtra}`,
+    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} ${googleConversionOrigins} https://ad.doubleclick.net https://stats.g.doubleclick.net https://api.stripe.com ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${tenantExtra}`,
     // BoxNow widget iframe origins per their CDN: gr (primary), plus
     // cy/bg/hr regional variants (Phase 2 multi-country).
     // ``widget-v4.boxnow.gr`` is required even though we load the v5 URL:
