@@ -1,3 +1,21 @@
+# [3.191.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.190.0...v3.191.0) (2026-09-11)
+
+
+### Bug Fixes
+
+* **robots:** error pages answer noindex; document evlog's JSON error negotiation ([ed7d437](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ed7d43712a9b5fa5215d31aa5216e6246b256b56))
+* **seo:** emit hreflang only for the locales the tenant serves ([ece29bd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ece29bdaaa091442fea5ae52f49927b05a190a9f))
+
+
+### Features
+
+* **page-config:** apply the operator's SEO title and description ([479db08](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/479db08179065a4c2061222f47d85a551ead5293))
+
+
+### Performance Improvements
+
+* **settings:** one settings read per render, coalesced same-key fetches ([28422b7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/28422b79ac033bc713c41e7cb171be299bf23cdf))
+
 # [3.190.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.189.0...v3.190.0) (2026-09-11)
 
 
