@@ -688,6 +688,19 @@ export default defineNuxtConfig({
       stylistic: true,
     },
   },
+  // Known, upstream-owned behaviour: ``evlog/nuxt`` prepends its own
+  // Nitro error handler in front of Nuxt's (``nuxt/module.ts``,
+  // ``prependNitroErrorHandler`` — no option to opt out) and answers
+  // a page error itself as JSON whenever the request carries no HTML
+  // signal: no ``sec-fetch-mode: navigate`` / ``sec-fetch-dest:
+  // document`` and no ``text/html`` in ``Accept``
+  // (``shouldSerializeNitroErrorAsJson`` in packages/evlog/src/nitro.ts,
+  // "fetch/curl without HTML signals — preserve standalone Nitro JSON
+  // behavior"; the HTML branch came with evloghq/evlog#391). Browsers
+  // and Googlebot send ``text/html`` and get error.vue; a crawler or
+  // tool sending ``Accept: */*`` gets a JSON 404 body for a page URL.
+  // Nuxt's own rule is the opposite default (HTML unless JSON is asked
+  // for). Not worked around here — a fix belongs upstream.
   evlog: {
     env: { service: 'grooveshop-storefront' },
     include: ['/api/**'],
