@@ -154,4 +154,53 @@ describe('Checkout/BoxNowLockerPicker', () => {
       expect(wrapper.emitted('selected')).toBeFalsy()
     })
   })
+
+  describe('when the widget never loads', () => {
+    // The skeleton is opaque and covers the iframe, and only the
+    // iframe's own `load` event cleared it — so a widget that never
+    // loads left the shopper on a "loading" panel forever, which is
+    // exactly how "the lockers don't load" is reported.
+    it('surfaces a failure with a retry instead of loading forever', async () => {
+      vi.useFakeTimers()
+      try {
+        // UModal teleports to document.body and earlier mounts are not
+        // torn down, so assert against a clean body.
+        document.body.innerHTML = ''
+        await mountSuspended(BoxNowLockerPicker, {
+          props: { open: true, partnerId: '10391' },
+        })
+
+        await vi.advanceTimersByTimeAsync(15000)
+        await nextTick()
+
+        const text = document.body.innerText || document.body.textContent || ''
+        expect(text).toContain('δεν φόρτωσε')
+        expect(text).toContain('Δοκίμασε ξανά')
+      }
+      finally {
+        vi.useRealTimers()
+      }
+    })
+
+    it('keeps waiting quietly before the timeout elapses', async () => {
+      vi.useFakeTimers()
+      try {
+        // UModal teleports to document.body and earlier mounts are not
+        // torn down, so assert against a clean body.
+        document.body.innerHTML = ''
+        await mountSuspended(BoxNowLockerPicker, {
+          props: { open: true, partnerId: '10391' },
+        })
+
+        await vi.advanceTimersByTimeAsync(14000)
+        await nextTick()
+
+        const text = document.body.innerText || document.body.textContent || ''
+        expect(text).not.toContain('δεν φόρτωσε')
+      }
+      finally {
+        vi.useRealTimers()
+      }
+    })
+  })
 })

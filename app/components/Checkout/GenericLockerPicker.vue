@@ -189,7 +189,12 @@ function onClose(): void {
     v-model:open="open"
     :dismissible="!loading"
     :ui="{
-      content: 'h-screen max-w-4xl',
+      // ``dvh``, not ``h-screen``/100vh: on mobile 100vh is the
+      // viewport with the browser chrome HIDDEN, so a modal sized to
+      // it is taller than the visible area and its body — the map
+      // iframe — is pushed under the toolbar. Same unit the chat
+      // widget and the product image modal already use.
+      content: 'h-dvh max-w-4xl',
       body: 'min-h-0 flex-1 overflow-y-auto p-0',
     }"
   >
