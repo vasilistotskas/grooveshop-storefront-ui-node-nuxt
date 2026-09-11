@@ -109,6 +109,7 @@ const backgroundImage = computed(() => {
         z-10 container mx-auto px-4 !pt-12 !pb-6
         md:!p-0
       "
+      @error="scrollToFirstFormError"
       @submit="onSubmit"
     >
       <div

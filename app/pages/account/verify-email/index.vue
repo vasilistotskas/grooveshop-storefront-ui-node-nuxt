@@ -146,6 +146,7 @@ definePageMeta({
             :schema="schema"
             :state="{ key: codeString }"
             class="space-y-6"
+            @error="scrollToFirstFormError"
             @submit="onSubmit"
           >
             <UFormField

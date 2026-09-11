@@ -234,6 +234,7 @@ async function cancelAlert() {
         :schema="schema"
         :state="state"
         class="space-y-4"
+        @error="scrollToFirstFormError"
         @submit="onSubmit"
       >
         <UFormField

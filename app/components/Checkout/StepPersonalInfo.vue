@@ -62,7 +62,7 @@ defineExpose({
       </h2>
     </template>
 
-    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6" @submit="emit('next')">
+    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6" @error="scrollToFirstFormError" @submit="emit('next')">
       <!-- Saved-address picker — renders visual cards and a "new
            address" option. Only shown when the shopper actually has
            saved addresses. Guests never see this section. -->

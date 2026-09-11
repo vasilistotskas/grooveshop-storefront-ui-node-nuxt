@@ -516,6 +516,7 @@ const FIELD_UI = {
             :schema="schema"
             :state="state"
             class="flex flex-col gap-5"
+            @error="scrollToFirstFormError"
             @submit="onSubmit"
           >
             <div

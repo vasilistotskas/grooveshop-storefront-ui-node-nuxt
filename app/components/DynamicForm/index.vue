@@ -246,6 +246,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
           :state="formState"
           :schema="combinedSchema"
           class="space-y-4"
+          @error="scrollToFirstFormError"
           @submit="handleSubmit"
         >
           <div
@@ -416,6 +417,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
       :state="formState"
       :schema="combinedSchema"
       class="space-y-4"
+      @error="scrollToFirstFormError"
       @submit="handleSubmit"
     >
       <div

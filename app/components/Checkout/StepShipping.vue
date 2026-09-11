@@ -334,7 +334,7 @@ defineExpose({ submit: onSubmit })
          locker before our handler could pop the picker. The schema
          still drives inline error rendering for the locker field via
          the watcher below. -->
-    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6">
+    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6" @error="scrollToFirstFormError">
       <!-- Shipping method radio group -->
       <URadioGroup
         v-model="formState.shippingMethod"

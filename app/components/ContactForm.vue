@@ -99,6 +99,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           :schema="schema"
           :state="state"
           class="space-y-5"
+          @error="scrollToFirstFormError"
           @submit="onSubmit"
         >
           <!-- Name Field -->

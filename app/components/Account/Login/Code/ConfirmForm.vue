@@ -77,6 +77,7 @@ watch(codeString, (newCode) => {
       :schema="schema"
       :state="{ code: codeString }"
       class="space-y-6"
+      @error="scrollToFirstFormError"
       @submit="onSubmit"
     >
       <UFormField

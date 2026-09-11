@@ -126,6 +126,7 @@ defineRouteRules({
         :schema="schema"
         :state="state"
         class="grid gap-4 md:grid-cols-2"
+        @error="scrollToFirstFormError"
         @submit="onSubmit"
       >
         <UFormField

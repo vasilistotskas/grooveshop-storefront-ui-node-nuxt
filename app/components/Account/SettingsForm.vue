@@ -320,6 +320,7 @@ watch(calendarDate, (newVal) => {
         md:grid md:grid-cols-2
         dark:bg-primary-900
       "
+      @error="scrollToFirstFormError"
       @submit="onSubmit"
     >
       <UFormField

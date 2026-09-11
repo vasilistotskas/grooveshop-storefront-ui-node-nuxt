@@ -161,6 +161,7 @@ async function onSubmit() {
           :schema="schema"
           :state="state"
           class="w-full space-y-6"
+          @error="scrollToFirstFormError"
           @submit="onSubmit"
         >
           <UFormField

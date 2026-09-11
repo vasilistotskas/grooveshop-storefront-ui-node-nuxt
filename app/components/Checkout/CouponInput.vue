@@ -173,6 +173,7 @@ const reasonMessages: Record<string, string> = {
       v-else
       :state="formState"
       :schema="couponSchema"
+      @error="scrollToFirstFormError"
       @submit="applyCoupon"
     >
       <div class="flex items-start gap-2">

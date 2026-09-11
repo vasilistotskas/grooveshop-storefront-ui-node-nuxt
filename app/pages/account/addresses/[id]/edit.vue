@@ -218,7 +218,7 @@ defineRouteRules({
     </div>
 
     <UCard v-if="address">
-      <UForm :schema="schema" :state="state" class="grid gap-4 md:grid-cols-2" @submit="onSubmit">
+      <UForm :schema="schema" :state="state" class="grid gap-4 md:grid-cols-2" @error="scrollToFirstFormError" @submit="onSubmit">
         <!-- Title -->
         <UFormField :label="t('form.title')" name="title" required>
           <UInput

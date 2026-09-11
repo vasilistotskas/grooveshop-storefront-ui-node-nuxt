@@ -121,6 +121,7 @@ const applyCard = async () => {
       v-if="appliedCards.length < MAX_CARDS"
       :state="formState"
       :schema="cardSchema"
+      @error="scrollToFirstFormError"
       @submit="applyCard"
     >
       <div class="flex items-start gap-2">

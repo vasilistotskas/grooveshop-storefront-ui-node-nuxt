@@ -454,6 +454,7 @@ watch(
         ref="formRef"
         :schema="schema"
         :state="state"
+        @error="scrollToFirstFormError"
         @submit="onSubmit"
       >
         <div class="relative grid gap-6">

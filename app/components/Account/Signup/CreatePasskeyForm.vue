@@ -87,6 +87,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
       :schema="schema"
       :state="{ name: deviceName }"
       class="space-y-5"
+      @error="scrollToFirstFormError"
       @submit="onSubmit"
     >
       <UFormField

@@ -148,6 +148,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
       :schema="schema"
       :state="{ newPassword1, newPassword2, key: String(key) }"
       class="space-y-5"
+      @error="scrollToFirstFormError"
       @submit="onSubmit"
     >
       <UFormField

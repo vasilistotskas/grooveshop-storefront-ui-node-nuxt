@@ -379,6 +379,7 @@ const confirmPayment = async () => {
           :state="formState"
           :schema="purchaseSchema"
           class="space-y-4"
+          @error="scrollToFirstFormError"
           @submit="startPurchase"
         >
           <UFormField :label="t('fields.amount')" name="amount" required>

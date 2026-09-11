@@ -237,7 +237,7 @@ const clearRedemption = () => {
       </UAlert>
 
       <!-- Input and redeem button -->
-      <UForm :state="formState" :schema="redemptionSchema" @submit="handleRedeem">
+      <UForm :state="formState" :schema="redemptionSchema" @error="scrollToFirstFormError" @submit="handleRedeem">
         <div class="space-y-4">
           <!-- Number input for points -->
           <div class="space-y-2 md:space-y-0 md:flex md:items-center">
