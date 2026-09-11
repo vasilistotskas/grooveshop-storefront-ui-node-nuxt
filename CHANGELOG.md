@@ -1,3 +1,23 @@
+# [3.194.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.193.0...v3.194.0) (2026-09-11)
+
+
+### Bug Fixes
+
+* **blog:** sign comments with the person's name, not the generated handle ([f6b143c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f6b143c85c51042313330196e71c32af6e3c5baa))
+* **checkout:** locker modal height on mobile, and a way out when it never loads ([b98c9df](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b98c9df8af32cb7b8cac67876f4867c61feab9eb))
+* **checkout:** open on a shipping method the store actually offers ([6cedb32](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6cedb323945a723ba0e232bed295fb9eae70c7d8))
+
+
+### Features
+
+* **forms:** take the shopper to the first field that failed ([e6bfc7e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e6bfc7e92f4571d14e185f59d6b5d74d6c13050f))
+* **ui:** show that a tap registered ([65bdad0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/65bdad01e890590d048726e33f36a62ab669bdd2))
+
+
+### Performance Improvements
+
+* **content-pages:** report an unpublished page as absent, not as a fault ([b673d63](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b673d6351228841c20f7a75663baac130ef59cd2))
+
 # [3.193.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.192.1...v3.193.0) (2026-09-11)
 
 
