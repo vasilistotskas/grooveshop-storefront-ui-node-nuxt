@@ -195,7 +195,7 @@ const arrowButton = {
               sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 260px"
               loading="lazy"
               class="
-                size-full object-contain p-3 transition-transform duration-200
+                size-full object-contain transition-transform duration-200
                 group-hover:scale-105
               "
             />
