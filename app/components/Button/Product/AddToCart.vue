@@ -8,6 +8,14 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  // A square icon button with ``text`` as its accessible name — the
+  // compact card in the suggestion strip, where a full-width labelled
+  // button would crowd the tile. Same logic, toasts and disabled rules.
+  iconOnly: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 
 const cartStore = useCartStore()
@@ -105,6 +113,19 @@ const addToCartEvent = async () => {
 
 <template>
   <UButton
+    v-if="iconOnly"
+    icon="i-heroicons-shopping-cart"
+    size="lg"
+    square
+    :color="disabled ? 'warning' : 'success'"
+    variant="solid"
+    :disabled="disabled"
+    :aria-label="label"
+    :title="label"
+    @click.prevent="addToCartEvent"
+  />
+  <UButton
+    v-else
     icon="i-heroicons-shopping-cart"
     :label="label"
     size="xl"

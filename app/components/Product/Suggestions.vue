@@ -14,7 +14,7 @@ const props = defineProps<{
    * Already-computed suggestions — the cart payload carries its own,
    * seeded with the whole basket, so the cart page passes them here
    * instead of fetching a second time. No reason labels and no
-   * feedback events on this path (Step 2 of the engine wires attach).
+   * feedback events on this path.
    */
   items?: readonly Product[]
   /**
@@ -28,11 +28,18 @@ const props = defineProps<{
   hideTitle?: boolean
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const { productUrl } = useUrls()
 const { $i18n } = useNuxtApp()
+const { user } = useUserSession()
+const { getFavouriteIdByProductId } = useUserStore()
 
 type Tile = { product: Product, reason: RecommendationReason | null }
+
+// `Product.name` lives under `translations.<locale>`, as on every
+// parler model — the same reader as Product/Card.
+const productName = (product: Product) =>
+  extractTranslated(product, 'name', locale.value) ?? ''
 
 // SSR-rendered: Nitro caches this per (seed, surface) so the page
 // pays a cache hit, not a Django round trip. Not fetched at all when
@@ -70,7 +77,9 @@ const reasonLabel = (reason: RecommendationReason) =>
     ? t(`relation.${reason.relationType}`)
     : t(`strategy.${reason.strategy}`)
 
-// Wholesale price hydration — same client-only swap as Product/Card.
+// Wholesale price hydration — the same client-only swap as
+// Product/Card; the cached, anonymous HTML never carries a
+// per-customer price.
 const { register: registerB2BPrice, priceFor: b2bPriceFor } = useB2BPricing()
 watch(tiles, (items) => {
   registerB2BPrice(items.map(tile => tile.product.id))
@@ -81,11 +90,16 @@ const displayPrice = (product: Product) => {
     ? Number(b2b.finalPrice)
     : product.finalPrice
 }
+const isDiscounted = (product: Product) =>
+  product.price > product.finalPrice || displayPrice(product) < product.finalPrice
+const listPrice = (product: Product) =>
+  displayPrice(product) < product.finalPrice ? product.finalPrice : product.price
 
 // Feedback loop. The impression is reported from onMounted, which
 // under ``hydrate-on-visible`` fires when the strip scrolls into view
 // — "shown", not "served". The cart path has no impressionId and
-// reports nothing.
+// reports nothing. A click is any interaction with the tile — the
+// link, the image or "add to cart" — captured on the wrapper.
 const { trackImpression, trackClick } = useRecommendationTracking(props.surface, props.seedId)
 onMounted(() => {
   const response = data.value
@@ -100,19 +114,30 @@ const onTileClick = (tile: Tile, position: number) => {
   }
 }
 
-// Single mobile-first UI config, shared with Product/RecentlyViewed:
-// responsive slide widths (2 / 3 / 5 visible) and a viewport that can
-// never overrun its parent.
+// Two tiles per view on a phone (as the catalogue grid), three on a
+// tablet, four on desktop, with a peek of the next; arrows only where
+// there is a pointer, drawn inside the viewport so the page's content
+// frame is never overrun. One mobile-first config — no user-agent
+// branching, so the layout stays right in device emulation where the
+// UA says "desktop" at 375px.
 const carouselUI = {
   root: 'w-full max-w-full',
   viewport: 'overflow-hidden w-full',
-  container: 'flex w-full',
+  container: 'flex w-full items-stretch',
   item: `
-    min-w-0 shrink-0 grow-0 basis-1/2
+    min-w-0 shrink-0 grow-0 basis-1/2 h-full
     md:basis-1/3
-    lg:basis-1/5
+    lg:basis-1/4
   `,
+  prev: 'hidden md:inline-flex start-2 sm:start-2',
+  next: 'hidden md:inline-flex end-2 sm:end-2',
 }
+const arrowButton = {
+  color: 'neutral',
+  variant: 'solid',
+  size: 'lg',
+  square: true,
+} as const
 </script>
 
 <template>
@@ -120,14 +145,14 @@ const carouselUI = {
     v-if="hasItems"
     :aria-labelledby="hideTitle ? undefined : titleId"
     :aria-label="hideTitle ? t(`title.${surface}`) : undefined"
-    class="w-full max-w-full space-y-4 overflow-hidden"
+    class="w-full max-w-full space-y-4"
   >
     <header v-if="!hideTitle" class="flex items-center justify-between gap-3">
       <h2
         :id="titleId"
         class="
-          text-xl font-semibold text-primary-950
-          dark:text-primary-50
+          text-2xl font-bold text-neutral-950
+          dark:text-neutral-50
         "
       >
         {{ t(`title.${surface}`) }}
@@ -138,69 +163,136 @@ const carouselUI = {
       v-slot="{ item, index }"
       :items="tiles"
       :ui="carouselUI"
-      :arrows="false"
+      arrows
+      :prev="arrowButton"
+      :next="arrowButton"
       align="start"
-      drag-free
       contain-scroll="trimSnaps"
-      class="
-        w-full max-w-full
-        md:mx-auto
-      "
+      class="w-full max-w-full"
     >
-      <NuxtLinkLocale
-        :to="{ path: productUrl(item.product.id, item.product.slug) }"
-        class="
-          group flex h-full flex-col gap-2 rounded-lg border border-neutral-200
-          bg-white p-3 transition-shadow
-          hover:shadow-md
-          focus-visible:outline-2 focus-visible:outline-primary-500
-          dark:border-neutral-800 dark:bg-neutral-900
-        "
-        @click="onTileClick(item, index)"
+      <article
+        class="group flex h-full flex-col gap-2"
+        @click.capture="onTileClick(item, index)"
       >
-        <div class="relative aspect-square overflow-hidden rounded-md bg-neutral-50 dark:bg-neutral-800">
-          <ImgWithFallback
-            :src="item.product.mainImagePath || undefined"
-            :alt="item.product.name"
-            :width="280"
-            :height="280"
-            fit="contain"
-            :background="'ffffff'"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 200px"
-            loading="lazy"
-            class="h-full w-full object-contain transition-transform duration-200 group-hover:scale-105"
-          />
-        </div>
-        <p
+        <div
           class="
-            line-clamp-2 text-sm font-medium text-primary-950
-            dark:text-primary-50
+            relative aspect-square overflow-hidden rounded-xl bg-neutral-100
+            dark:bg-neutral-800
           "
         >
-          {{ item.product.name }}
-        </p>
-        <UBadge
+          <NuxtLinkLocale
+            :to="{ path: productUrl(item.product.id, item.product.slug) }"
+            :aria-label="`${t('view_product')}: ${productName(item.product)}`"
+            class="block size-full"
+          >
+            <ImgWithFallback
+              :src="item.product.mainImagePath || undefined"
+              :alt="productName(item.product)"
+              :width="320"
+              :height="320"
+              fit="contain"
+              :background="'transparent'"
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 260px"
+              loading="lazy"
+              class="
+                size-full object-contain p-3 transition-transform duration-200
+                group-hover:scale-105
+              "
+            />
+          </NuxtLinkLocale>
+          <div class="absolute top-2 right-2">
+            <LazyButtonProductAddToFavourite
+              :product-id="item.product.id"
+              :user-id="user?.id"
+              :favourite-id="getFavouriteIdByProductId(item.product.id)"
+              size="sm"
+            />
+          </div>
+          <div class="absolute right-0 bottom-0">
+            <LazyButtonProductAddToCart
+              :product="item.product"
+              :quantity="1"
+              :text="t('add_to_cart')"
+              icon-only
+            />
+          </div>
+        </div>
+
+        <p
           v-if="item.reason"
-          variant="soft"
-          color="neutral"
-          size="xs"
-          class="self-start"
+          class="
+            text-xs text-neutral-600
+            dark:text-neutral-400
+          "
         >
           {{ reasonLabel(item.reason) }}
-        </UBadge>
-        <p
-          v-if="item.product.finalPrice != null"
-          class="mt-auto text-sm font-semibold text-secondary-600 dark:text-secondary-400"
-        >
-          {{ $i18n.n(displayPrice(item.product), 'currency') }}
         </p>
-      </NuxtLinkLocale>
+
+        <NuxtLinkLocale
+          :to="{ path: productUrl(item.product.id, item.product.slug) }"
+          class="group/link"
+        >
+          <h3
+            class="
+              line-clamp-2 text-sm leading-snug font-semibold text-neutral-950
+              transition-colors
+              group-hover/link:text-primary-600
+              dark:text-neutral-50 dark:group-hover/link:text-primary-400
+            "
+          >
+            {{ productName(item.product) }}
+          </h3>
+        </NuxtLinkLocale>
+
+        <div
+          v-if="item.product.reviewAverage > 0"
+          class="flex items-center gap-1"
+        >
+          <UIcon
+            v-for="star in 5"
+            :key="star"
+            :name="star <= Math.round(item.product.reviewAverage / 2) ? 'i-heroicons-star-solid' : 'i-heroicons-star'"
+            class="size-3.5 text-warning"
+          />
+          <span
+            v-if="item.product.reviewCount"
+            class="
+              text-xs text-neutral-600
+              dark:text-neutral-400
+            "
+          >
+            ({{ item.product.reviewCount }})
+          </span>
+        </div>
+
+        <div class="mt-auto flex items-baseline gap-2">
+          <span
+            v-if="isDiscounted(item.product)"
+            class="
+              text-xs text-neutral-600 line-through
+              dark:text-neutral-400
+            "
+          >
+            {{ $i18n.n(listPrice(item.product), 'currency') }}
+          </span>
+          <span
+            class="
+              text-base font-bold text-neutral-950
+              dark:text-neutral-50
+            "
+          >
+            {{ $i18n.n(displayPrice(item.product), 'currency') }}
+          </span>
+        </div>
+      </article>
     </LazyUCarousel>
   </section>
 </template>
 
 <i18n lang="yaml">
 el:
+  add_to_cart: "Προσθήκη στο καλάθι"
+  view_product: "Προβολή προϊόντος"
   title:
     pdp: "Μπορεί να σου αρέσουν"
     cart: "Πρόσθεσε στην παραγγελία σου"
@@ -223,6 +315,8 @@ el:
     co_view: "Είδαν επίσης"
     popular: "Δημοφιλές"
 en:
+  add_to_cart: "Add to cart"
+  view_product: "View product"
   title:
     pdp: "You may also like"
     cart: "Complete your order"
