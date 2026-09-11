@@ -92,10 +92,13 @@ describe('Cart Store', () => {
     ],
   } as unknown as CartDetail
 
+  const IMPRESSION = '3f9c2b6e-1d5a-4c8b-9e7f-2a1b3c4d5e6f'
+
   beforeEach(() => {
     setActivePinia(createPinia())
     store = useCartStore()
     mockFetch.mockReset()
+    window.sessionStorage.clear()
   })
 
   afterEach(() => {
@@ -325,6 +328,49 @@ describe('Cart Store', () => {
         await promise.catch(() => {})
         expect(store.pending).toBe(false)
       })
+
+      it('carries the suggestion-strip impression the product was reached from', async () => {
+        useRecommendationAttribution().remember(1, IMPRESSION)
+        mockFetch.mockResolvedValueOnce({})
+        mockFetch.mockResolvedValueOnce(mockCartData)
+
+        await store.createCartItem({ product: 1, quantity: 1 })
+
+        expect(mockFetch).toHaveBeenCalledWith('/api/cart/items', {
+          method: 'POST',
+          headers: {},
+          body: { product: 1, quantity: 1, recommendationImpressionId: IMPRESSION },
+        })
+      })
+
+      it('carries the impression once — a second add of the product goes plain', async () => {
+        useRecommendationAttribution().remember(1, IMPRESSION)
+        mockFetch.mockResolvedValue(mockCartData)
+
+        await store.createCartItem({ product: 1, quantity: 1 })
+        await store.createCartItem({ product: 1, quantity: 1 })
+
+        const calls = mockFetch.mock.calls as unknown as Array<[string, { body: unknown }]>
+        const posts = calls.filter(([url]) => url === '/api/cart/items')
+        expect(posts.map(([, opts]) => opts.body)).toEqual([
+          { product: 1, quantity: 1, recommendationImpressionId: IMPRESSION },
+          { product: 1, quantity: 1 },
+        ])
+      })
+
+      it('does not carry an impression remembered for another product', async () => {
+        useRecommendationAttribution().remember(2, IMPRESSION)
+        mockFetch.mockResolvedValueOnce({})
+        mockFetch.mockResolvedValueOnce(mockCartData)
+
+        await store.createCartItem({ product: 1, quantity: 1 })
+
+        expect(mockFetch).toHaveBeenCalledWith('/api/cart/items', {
+          method: 'POST',
+          headers: {},
+          body: { product: 1, quantity: 1 },
+        })
+      })
     })
 
     describe('updateCartItem', () => {
@@ -341,6 +387,22 @@ describe('Cart Store', () => {
         expect(mockFetch).toHaveBeenCalledWith('/api/cart/items/1', {
           method: 'PUT',
           body,
+          headers: expect.any(Object),
+        })
+      })
+
+      it('carries the impression of the line\'s product on a quantity bump', async () => {
+        store.cart = mockCartData
+        // Line 1 holds product 1.
+        useRecommendationAttribution().remember(1, IMPRESSION)
+        mockFetch.mockResolvedValueOnce({})
+        mockFetch.mockResolvedValueOnce(mockCartData)
+
+        await store.updateCartItem(1, { quantity: 3 })
+
+        expect(mockFetch).toHaveBeenCalledWith('/api/cart/items/1', {
+          method: 'PUT',
+          body: { quantity: 3, recommendationImpressionId: IMPRESSION },
           headers: expect.any(Object),
         })
         expect(store.error).toBeNull()

@@ -11,6 +11,7 @@ export const useCartStore = defineStore('cart', () => {
   const tiktokPixel = useTikTokPixel()
   const openaiPixel = useOpenAIPixel()
   const ga4 = useGA4()
+  const attribution = useRecommendationAttribution()
   const cart = ref<CartDetail | null>(null)
   const inFlight = reactive(new Set<string>())
   const pending = computed(() => inFlight.size > 0)
@@ -187,10 +188,17 @@ export const useCartStore = defineStore('cart', () => {
     const opId = crypto.randomUUID()
     inFlight.add(opId)
     try {
+      // The one choke point every add-to-cart goes through (product
+      // page, card, suggestion tile): carry the strip impression the
+      // shopper reached this product from, if there is one, so the
+      // backend can attach the eventual order line to it exactly.
+      const recommendationImpressionId = attribution.take(body.product)
       await $fetch('/api/cart/items', {
         method: 'POST',
         headers: useRequestHeaders(),
-        body,
+        body: recommendationImpressionId
+          ? { ...body, recommendationImpressionId }
+          : body,
       })
       await refreshCart()
       error.value = null
@@ -240,11 +248,19 @@ export const useCartStore = defineStore('cart', () => {
     // this update tracks as add_to_cart (increase) or
     // remove_from_cart (decrease).
     const prevQuantity = Number(getCartItemById(id)?.quantity ?? 0)
+    // A quantity bump on a line the shopper just reached through a
+    // strip carries the impression the same way an add does.
+    const lineProductId = getCartItemById(id)?.product?.id
+    const recommendationImpressionId = typeof lineProductId === 'number'
+      ? attribution.take(lineProductId)
+      : undefined
     try {
       await $fetch(`/api/cart/items/${id}`, {
         method: 'PUT',
         headers: useRequestHeaders(),
-        body,
+        body: recommendationImpressionId
+          ? { ...body, recommendationImpressionId }
+          : body,
       })
       await refreshCart()
       error.value = null

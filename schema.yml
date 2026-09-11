@@ -34654,6 +34654,11 @@ components:
           maximum: 2147483647
           minimum: 0
           title: Ποσότητα
+        recommendationImpressionId:
+          type: string
+          format: uuid
+          nullable: true
+          title: Recommendation impression
       required:
         - product
     CartItemDetail:
@@ -34795,6 +34800,11 @@ components:
           maximum: 2147483647
           minimum: 0
           title: Ποσότητα
+        recommendationImpressionId:
+          type: string
+          format: uuid
+          nullable: true
+          title: Recommendation impression
     CartPaymentIntentResponse:
       type: object
       description: Response body returned by the create-payment-intent cart action.
@@ -40037,6 +40047,11 @@ components:
           maximum: 2147483647
           minimum: 0
           title: Ποσότητα
+        recommendationImpressionId:
+          type: string
+          format: uuid
+          nullable: true
+          title: Recommendation impression
     PatchedContentPageWriteRequest:
       type: object
       description: |-

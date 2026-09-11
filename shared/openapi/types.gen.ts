@@ -2320,6 +2320,10 @@ export type CartItemCreateRequest = {
      * Ποσότητα
      */
   quantity?: number
+  /**
+     * Recommendation impression
+     */
+  recommendationImpressionId?: string | null
 }
 
 export type CartItemDetail = {
@@ -2367,6 +2371,10 @@ export type CartItemUpdateRequest = {
      * Ποσότητα
      */
   quantity?: number
+  /**
+     * Recommendation impression
+     */
+  recommendationImpressionId?: string | null
 }
 
 /**
@@ -5270,6 +5278,10 @@ export type PatchedCartItemUpdateRequest = {
      * Ποσότητα
      */
   quantity?: number
+  /**
+     * Recommendation impression
+     */
+  recommendationImpressionId?: string | null
 }
 
 /**

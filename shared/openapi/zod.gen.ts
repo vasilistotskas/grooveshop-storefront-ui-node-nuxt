@@ -1020,10 +1020,12 @@ export const zCartCreatePaymentIntentRequestRequest = z.object({
 export const zCartItemCreateRequest = z.object({
   product: z.int(),
   quantity: z.int().gte(0).lte(2147483647).optional(),
+  recommendationImpressionId: z.uuid().nullish(),
 })
 
 export const zCartItemUpdateRequest = z.object({
   quantity: z.int().gte(0).lte(2147483647).optional(),
+  recommendationImpressionId: z.uuid().nullish(),
 })
 
 /**
@@ -2546,6 +2548,7 @@ export const zPatchedBlogTagWriteRequest = z.object({
 
 export const zPatchedCartItemUpdateRequest = z.object({
   quantity: z.int().gte(0).lte(2147483647).optional(),
+  recommendationImpressionId: z.uuid().nullish(),
 })
 
 /**

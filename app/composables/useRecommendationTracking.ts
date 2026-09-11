@@ -9,6 +9,8 @@
  * failures are swallowed — tracking must never affect UX.
  */
 export function useRecommendationTracking(surface: SurfaceEnum, seedId?: number) {
+  const { remember } = useRecommendationAttribution()
+
   const post = (
     kind: RecommendationEventRequestKindEnum,
     impressionId: string,
@@ -37,6 +39,9 @@ export function useRecommendationTracking(surface: SurfaceEnum, seedId?: number)
   }
 
   const trackClick = (impressionId: string, item: RecommendationItem, position: number) => {
+    // The add-to-cart that follows this click carries the impression
+    // to the backend — the exact, identity-free attach path.
+    remember(item.product.id, impressionId)
     post('click', impressionId, [{
       productId: item.product.id,
       strategy: item.reason.strategy,
