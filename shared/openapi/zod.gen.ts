@@ -2206,6 +2206,9 @@ export const zPageLayoutRequest = z.object({
   title: z.string().min(1).max(200).register(z.globalRegistry, {
     description: 'Admin display name for this layout.',
   }),
+  seoTitle: z.string().max(70).optional(),
+  seoDescription: z.string().max(300).optional(),
+  seoKeywords: z.string().max(255).optional(),
   isPublished: z.boolean().optional(),
   metadata: z.unknown().optional(),
 })
@@ -2231,6 +2234,9 @@ export const zPageLayout = z.object({
   title: z.string().max(200).register(z.globalRegistry, {
     description: 'Admin display name for this layout.',
   }),
+  seoTitle: z.string().max(70).optional(),
+  seoDescription: z.string().max(300).optional(),
+  seoKeywords: z.string().max(255).optional(),
   isPublished: z.boolean().optional(),
   metadata: z.unknown().optional(),
   sections: z.array(zPageSection).readonly(),
@@ -2644,6 +2650,9 @@ export const zPatchedPageLayoutRequest = z.object({
   title: z.string().min(1).max(200).register(z.globalRegistry, {
     description: 'Admin display name for this layout.',
   }).optional(),
+  seoTitle: z.string().max(70).optional(),
+  seoDescription: z.string().max(300).optional(),
+  seoKeywords: z.string().max(255).optional(),
   isPublished: z.boolean().optional(),
   metadata: z.unknown().optional(),
 })
@@ -4196,6 +4205,21 @@ export const zPromotionProductRef = z.object({
   mainImagePath: z.string().readonly(),
 }).register(z.globalRegistry, {
   description: 'The minimum a storefront product card needs to render.',
+})
+
+/**
+ * Every public store setting, keyed by name.
+ *
+ * Values are strings in the same encoding ``SettingDetailSerializer``
+ * uses (json-typed settings JSON-encoded, everything else ``str()``),
+ * so a consumer parses one shape whichever endpoint it reads.
+ */
+export const zPublicSettings = z.object({
+  settings: z.record(z.string(), z.string()).register(z.globalRegistry, {
+    description: 'Setting values keyed by setting name.',
+  }),
+}).register(z.globalRegistry, {
+  description: 'Every public store setting, keyed by name.\n\nValues are strings in the same encoding ``SettingDetailSerializer``\nuses (json-typed settings JSON-encoded, everything else ``str()``),\nso a consumer parses one shape whichever endpoint it reads.',
 })
 
 /**
@@ -7587,6 +7611,9 @@ export const zPageLayoutWritable = z.object({
   title: z.string().max(200).register(z.globalRegistry, {
     description: 'Admin display name for this layout.',
   }),
+  seoTitle: z.string().max(70).optional(),
+  seoDescription: z.string().max(300).optional(),
+  seoKeywords: z.string().max(255).optional(),
   isPublished: z.boolean().optional(),
   metadata: z.unknown().optional(),
 })
@@ -17730,6 +17757,8 @@ export const zApiV1SettingsGetRetrieveQuery = z.object({
 })
 
 export const zApiV1SettingsGetRetrieveResponse = zSettingDetail
+
+export const zApiV1SettingsPublicRetrieveResponse = zPublicSettings
 
 export const zValidateAcsAddressBody = zAcsAddressValidationRequestRequest
 

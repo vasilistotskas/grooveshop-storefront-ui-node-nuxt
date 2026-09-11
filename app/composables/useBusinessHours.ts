@@ -12,14 +12,10 @@
  * a visitor's local clock never shifts the badge.
  */
 export function useBusinessHours() {
-  const { data } = useFetch<{ value?: string }>('/api/settings/get', {
-    key: 'setting-json:BUSINESS_HOURS',
-    query: { key: 'BUSINESS_HOURS' },
-    default: () => ({ value: '' }),
-  })
+  const value = useSettingValue('BUSINESS_HOURS')
 
   const hours = computed<BusinessHours | null>(() => {
-    const raw = data.value?.value
+    const raw = value.value
     if (!raw) return null
     const parsed = parseBusinessHoursValue(raw)
     if (parsed === null && raw !== '{}') {

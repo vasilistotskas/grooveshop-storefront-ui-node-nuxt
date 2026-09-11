@@ -29,14 +29,10 @@ export interface StoreOffice {
  */
 export function useStoreOffices() {
   const { locale } = useI18n()
-  const { data } = useFetch<{ value?: string }>('/api/settings/get', {
-    key: 'setting-json:STORE_OFFICES',
-    query: { key: 'STORE_OFFICES' },
-    default: () => ({ value: '' }),
-  })
+  const value = useSettingValue('STORE_OFFICES')
 
   const parsed = computed(() => {
-    const raw = data.value?.value
+    const raw = value.value
     const offices = parseStoreOfficesValue(raw)
     if (offices === null && raw && raw !== '[]') {
       log.warn({

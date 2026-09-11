@@ -58,8 +58,8 @@ describe('BlogPostComments load more', () => {
     mockFetch.mockReset()
     mockFetch.mockImplementation((url: unknown) => {
       const target = String(url)
-      if (target.includes('/api/settings/get')) {
-        return Promise.resolve({ value: 'true' })
+      if (target.includes('/api/settings/public')) {
+        return Promise.resolve({ settings: { BLOG_COMMENTS_ENABLED: 'true' } })
       }
       if (target === PROXY_URL) {
         return Promise.resolve(PAGE_ONE)
@@ -87,8 +87,8 @@ describe('BlogPostComments load more', () => {
     // Switch the mock to serve page two once the "load more" click fires.
     mockFetch.mockImplementation((url: unknown) => {
       const target = String(url)
-      if (target.includes('/api/settings/get')) {
-        return Promise.resolve({ value: 'true' })
+      if (target.includes('/api/settings/public')) {
+        return Promise.resolve({ settings: { BLOG_COMMENTS_ENABLED: 'true' } })
       }
       if (target === PROXY_URL) {
         return Promise.resolve(PAGE_TWO)

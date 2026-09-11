@@ -13,23 +13,24 @@ export default defineCachedEventHandler(
       const { keys } = await getValidatedQuery(event, zLoyaltySettingsQuery.parse)
       const keyList = keys.split(',').map(k => k.trim()).filter(Boolean)
 
-      // createHeaders() injects X-Forwarded-Host so Django's
-      // TenantMainMiddleware resolves the caller's schema — without it
-      // the settings/get lookup falls back to the public schema and
-      // every tenant caches the platform-default loyalty values.
-      const headers = createHeaders()
-      const results = await Promise.all(
-        keyList.map(key =>
-          $fetch<{ name: string, value: string }>(
-            `${config.apiBaseUrl}/settings/get`,
-            { method: 'GET', query: { key }, headers },
-          ).catch(() => ({ name: key, value: '' })),
-        ),
+      // One bulk read of the store's public settings, not one Django
+      // round trip per key (eight, for the loyalty set). Every loyalty
+      // key is public, so the bulk endpoint serves them all.
+      //
+      // useBackendFetch: X-Forwarded-Host makes Django's
+      // TenantMainMiddleware resolve the caller's schema — without it
+      // the lookup falls back to the public schema and every tenant
+      // caches the platform-default loyalty values.
+      const { settings } = await useBackendFetch()<PublicSettings>(
+        `${config.apiBaseUrl}/settings/public`,
+        { method: 'GET' },
       )
 
+      // A key without a row answers '' — the client's parsers treat an
+      // empty string as "not configured", exactly as before.
       const record: Record<string, string> = {}
-      for (const item of results) {
-        record[item.name] = item.value
+      for (const key of keyList) {
+        record[key] = settings[key] ?? ''
       }
 
       return await parseDataAs(record, zLoyaltySettingsResponse)

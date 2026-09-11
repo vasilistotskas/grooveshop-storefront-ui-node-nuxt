@@ -110,40 +110,15 @@ export function useContactAttachments() {
     fallback: false,
   })
 
-  const { data: countSetting } = useFetch<{ value?: string }>(
-    '/api/settings/get',
-    {
-      key: 'setting-int:CONTACT_ATTACHMENTS_MAX_COUNT',
-      query: { key: 'CONTACT_ATTACHMENTS_MAX_COUNT' },
-      default: () => ({ value: '' }),
-    },
-  )
-  const { data: sizeSetting } = useFetch<{ value?: string }>(
-    '/api/settings/get',
-    {
-      key: 'setting-int:CONTACT_ATTACHMENTS_MAX_MB',
-      query: { key: 'CONTACT_ATTACHMENTS_MAX_MB' },
-      default: () => ({ value: '' }),
-    },
-  )
-  const { data: typesSetting } = useFetch<{ value?: string }>(
-    '/api/settings/get',
-    {
-      key: 'setting-str:CONTACT_ATTACHMENTS_TYPES',
-      query: { key: 'CONTACT_ATTACHMENTS_TYPES' },
-      default: () => ({ value: '' }),
-    },
-  )
+  const countSetting = useSettingValue('CONTACT_ATTACHMENTS_MAX_COUNT')
+  const sizeSetting = useSettingValue('CONTACT_ATTACHMENTS_MAX_MB')
+  const typesSetting = useSettingValue('CONTACT_ATTACHMENTS_TYPES')
 
-  const maxCount = computed(() =>
-    settingNumber(countSetting.value?.value, 3),
-  )
-  const maxMegabytes = computed(() =>
-    settingNumber(sizeSetting.value?.value, 10),
-  )
+  const maxCount = computed(() => settingNumber(countSetting.value, 3))
+  const maxMegabytes = computed(() => settingNumber(sizeSetting.value, 10))
   const maxBytes = computed(() => maxMegabytes.value * 1024 * 1024)
   const allowedTypes = computed(() =>
-    (typesSetting.value?.value ?? '')
+    typesSetting.value
       .split(',')
       .map(part => part.trim().toLowerCase())
       .filter(Boolean),

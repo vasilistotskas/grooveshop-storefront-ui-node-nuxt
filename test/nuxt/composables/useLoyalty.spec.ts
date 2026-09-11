@@ -151,6 +151,9 @@ describe('useLoyalty Composable', () => {
       expect(mockUseAsyncDataFn).toHaveBeenCalledWith(
         'loyalty-settings',
         expect.any(Function),
+        // Several components read the settings in one render; 'defer'
+        // coalesces them onto the pending request (see useStoreSettings).
+        expect.objectContaining({ dedupe: 'defer' }),
       )
       expect(result.data.value).toEqual(mockData.value)
     })

@@ -11,7 +11,7 @@
  */
 export function createSettingGate(key: string) {
   return defineNuxtRouteMiddleware(async () => {
-    if (await settingEnabled(key, true)) return
+    if (await settingEnabled(key, { fallback: true })) return
 
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })
   })

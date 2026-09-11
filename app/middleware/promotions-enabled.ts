@@ -21,25 +21,14 @@ export default defineNuxtRouteMiddleware(async () => {
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })
   }
 
-  // useRequestFetch forwards the incoming host during SSR (a bare
-  // $fetch stamps host: localhost and the tenant middleware 404s —
-  // see gift-cards-enabled.ts).
-  const requestFetch = useRequestFetch()
-
-  let runtimeEnabled: boolean
-  try {
-    const setting = await requestFetch<{ value?: string }>(
-      '/api/settings/get',
-      { query: { key: 'PROMOTIONS_ENABLED' } },
-    )
-    runtimeEnabled = (setting?.value ?? 'false').toLowerCase() === 'true'
-  }
-  catch {
-    // Fail OPEN on fetch failure — an unavailable extra_settings
-    // endpoint must not take the page down for stores whose plan
-    // enables it. Django still gates the data itself.
-    return
-  }
+  // Ships OFF (`fallback: false`); an unreadable settings endpoint
+  // fails OPEN (`onError: true`) — an outage must not take the page
+  // down for stores whose plan enables it. Django still gates the
+  // data itself.
+  const runtimeEnabled = await settingEnabled('PROMOTIONS_ENABLED', {
+    fallback: false,
+    onError: true,
+  })
 
   if (!runtimeEnabled) {
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })

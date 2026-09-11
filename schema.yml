@@ -25066,6 +25066,29 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+  /api/v1/settings/public:
+    get:
+      operationId: api_v1_settings_public_retrieve
+      description: Retrieve every anonymously readable store setting in one call, keyed by setting name. Only PUBLIC_SETTING_KEYS are ever included; a key without a row (or with an empty value) is omitted so the caller applies its own default.
+      summary: Get public settings
+      tags:
+        - Settings
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicSettings'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
   /api/v1/shipping/acs/address-validation:
     post:
       operationId: validateAcsAddress
@@ -38265,6 +38288,18 @@ components:
           title: Τίτλος
           description: Admin display name for this layout.
           maxLength: 200
+        seoTitle:
+          type: string
+          title: Τίτλος SEO
+          maxLength: 70
+        seoDescription:
+          type: string
+          title: Περιγραφή SEO
+          maxLength: 300
+        seoKeywords:
+          type: string
+          title: Λέξεις-κλειδιά SEO
+          maxLength: 255
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -38295,6 +38330,18 @@ components:
           title: Τίτλος
           description: Admin display name for this layout.
           maxLength: 200
+        seoTitle:
+          type: string
+          title: Τίτλος SEO
+          maxLength: 70
+        seoDescription:
+          type: string
+          title: Περιγραφή SEO
+          maxLength: 300
+        seoKeywords:
+          type: string
+          title: Λέξεις-κλειδιά SEO
+          maxLength: 255
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -40210,6 +40257,18 @@ components:
           title: Τίτλος
           description: Admin display name for this layout.
           maxLength: 200
+        seoTitle:
+          type: string
+          title: Τίτλος SEO
+          maxLength: 70
+        seoDescription:
+          type: string
+          title: Περιγραφή SEO
+          maxLength: 300
+        seoKeywords:
+          type: string
+          title: Λέξεις-κλειδιά SEO
+          maxLength: 255
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -43607,6 +43666,22 @@ components:
         - stackable
         - targetScope
         - trigger
+    PublicSettings:
+      type: object
+      description: |-
+        Every public store setting, keyed by name.
+
+        Values are strings in the same encoding ``SettingDetailSerializer``
+        uses (json-typed settings JSON-encoded, everything else ``str()``),
+        so a consumer parses one shape whichever endpoint it reads.
+      properties:
+        settings:
+          type: object
+          additionalProperties:
+            type: string
+          description: Setting values keyed by setting name.
+      required:
+        - settings
     RateEnum:
       enum:
         - 1

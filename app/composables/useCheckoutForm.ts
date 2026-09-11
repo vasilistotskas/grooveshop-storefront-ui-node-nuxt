@@ -755,80 +755,20 @@ export async function useCheckoutForm() {
   // meant the server rendered the guest UI and the client then flipped
   // to the picker on hydration, causing a visible ~1s flash.
   const [
-    shippingResult,
-    freeShippingResult,
-    boxnowShippingResult,
-    boxnowFreeShippingResult,
-    acsSmartpointEnabledResult,
-    acsShippingResult,
-    acsFreeShippingResult,
-    b2bInvoicingResult,
+    storeSettingsResult,
     b2bProfileResult,
     countriesResult,
     payWaysResult,
     savedAddressesResult,
   ] = await Promise.all([
-    useAsyncData<{ value: string } | null>(
-      'checkout:shipping-price-setting',
-      () => $fetch<{ value: string }>('/api/settings/get', {
+    // The eight checkout settings (shipping prices, free-shipping
+    // thresholds, ACS Smartpoint, B2B invoicing) in ONE read of the
+    // store's public settings — the tenant-cached Nitro route behind
+    // it answers from memory, so this is not a Django round trip.
+    useAsyncData<PublicSettings | null>(
+      'checkout:store-settings',
+      () => $fetch<PublicSettings>('/api/settings/public', {
         method: 'GET',
-        query: { key: 'CHECKOUT_SHIPPING_PRICE' },
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-    ),
-    useAsyncData<{ value: string } | null>(
-      'checkout:free-shipping-threshold-setting',
-      () => $fetch<{ value: string }>('/api/settings/get', {
-        method: 'GET',
-        query: { key: 'FREE_SHIPPING_THRESHOLD' },
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-    ),
-    useAsyncData<{ value: string } | null>(
-      'checkout:boxnow-shipping-price-setting',
-      () => $fetch<{ value: string }>('/api/settings/get', {
-        method: 'GET',
-        query: { key: 'BOXNOW_SHIPPING_PRICE' },
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-    ),
-    useAsyncData<{ value: string } | null>(
-      'checkout:boxnow-free-shipping-threshold-setting',
-      () => $fetch<{ value: string }>('/api/settings/get', {
-        method: 'GET',
-        query: { key: 'BOXNOW_FREE_SHIPPING_THRESHOLD' },
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-    ),
-    useAsyncData<{ value: string } | null>(
-      'checkout:acs-smartpoint-enabled',
-      () => $fetch<{ value: string }>('/api/settings/get', {
-        method: 'GET',
-        query: { key: 'ACS_SMARTPOINT_ENABLED' },
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-    ),
-    useAsyncData<{ value: string } | null>(
-      'checkout:acs-shipping-price-setting',
-      () => $fetch<{ value: string }>('/api/settings/get', {
-        method: 'GET',
-        query: { key: 'ACS_SHIPPING_PRICE' },
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-    ),
-    useAsyncData<{ value: string } | null>(
-      'checkout:acs-free-shipping-threshold-setting',
-      () => $fetch<{ value: string }>('/api/settings/get', {
-        method: 'GET',
-        query: { key: 'ACS_FREE_SHIPPING_THRESHOLD' },
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-    ),
-    useAsyncData<{ value: string } | null>(
-      'checkout:b2b-invoicing-enabled',
-      () => $fetch<{ value: string }>('/api/settings/get', {
-        method: 'GET',
-        query: { key: 'B2B_INVOICING_ENABLED' },
         headers: useRequestHeaders(),
       }).catch(() => null),
     ),
@@ -906,25 +846,29 @@ export async function useCheckoutForm() {
     ),
   ])
 
-  // Populate reactive refs with fetched data. ``useAsyncData`` types
-  // ``data.value`` as ``T | null | undefined``; we already awaited so
-  // ``undefined`` is impossible at runtime — the ``?? null`` collapses
-  // the type back to what the refs expect.
-  shippingSetting.value = shippingResult.data.value ?? null
-  freeShippingThresholdSetting.value = freeShippingResult.data.value ?? null
-  boxnowShippingSetting.value = boxnowShippingResult.data.value ?? null
-  boxnowFreeShippingThresholdSetting.value = boxnowFreeShippingResult.data.value ?? null
+  // Populate reactive refs with fetched data. A key without a row (or
+  // an unreachable settings endpoint) reads as ``null``, which is what
+  // the shipping-cost resolvers already treat as "not configured".
+  const storeSetting = (key: string): { value: string } | null => {
+    const raw = storeSettingsResult.data.value?.settings[key]
+    return raw === undefined ? null : { value: raw }
+  }
+  shippingSetting.value = storeSetting('CHECKOUT_SHIPPING_PRICE')
+  freeShippingThresholdSetting.value = storeSetting('FREE_SHIPPING_THRESHOLD')
+  boxnowShippingSetting.value = storeSetting('BOXNOW_SHIPPING_PRICE')
+  boxnowFreeShippingThresholdSetting.value = storeSetting('BOXNOW_FREE_SHIPPING_THRESHOLD')
   // ACS Smartpoint defaults disabled (Phase 2 progressive rollout):
   // ops flips the Setting to True after the AcsStation cache has been
   // synced and the picker is verified end-to-end.
-  acsSmartpointEnabled.value
-    = acsSmartpointEnabledResult.data.value?.value === 'True'
-  acsShippingSetting.value = acsShippingResult.data.value ?? null
-  acsFreeShippingThresholdSetting.value
-    = acsFreeShippingResult.data.value ?? null
+  acsSmartpointEnabled.value = parseSettingFlag(
+    storeSetting('ACS_SMARTPOINT_ENABLED')?.value,
+    false,
+  )
+  acsShippingSetting.value = storeSetting('ACS_SHIPPING_PRICE')
+  acsFreeShippingThresholdSetting.value = storeSetting('ACS_FREE_SHIPPING_THRESHOLD')
   // B2B defaults to ``true`` if the endpoint is unreachable so a
   // transient settings-API failure doesn't silently hide the option.
-  b2bInvoicingEnabled.value = b2bInvoicingResult.data.value?.value !== 'False'
+  b2bInvoicingEnabled.value = storeSetting('B2B_INVOICING_ENABLED')?.value !== 'False'
   if (!b2bInvoicingEnabled.value) {
     formState.documentType = zOrderCreateDocumentType.enum.RECEIPT
     formState.billingVatId = ''
@@ -1019,19 +963,16 @@ export async function useCheckoutForm() {
    * the customer commits to the order.
    */
   const refetchShippingSettings = async () => {
-    const [freshShipping, freshThreshold] = await Promise.all([
-      $fetch<{ value: string }>('/api/settings/get', {
-        query: { key: 'CHECKOUT_SHIPPING_PRICE' },
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-      $fetch<{ value: string }>('/api/settings/get', {
-        query: { key: 'FREE_SHIPPING_THRESHOLD' },
+    const [fresh] = await Promise.all([
+      $fetch<PublicSettings>('/api/settings/public', {
         headers: useRequestHeaders(),
       }).catch(() => null),
       fetchShippingOptions(),
     ])
-    if (freshShipping) shippingSetting.value = freshShipping
-    if (freshThreshold) freeShippingThresholdSetting.value = freshThreshold
+    const freshShipping = fresh?.settings.CHECKOUT_SHIPPING_PRICE
+    const freshThreshold = fresh?.settings.FREE_SHIPPING_THRESHOLD
+    if (freshShipping !== undefined) shippingSetting.value = { value: freshShipping }
+    if (freshThreshold !== undefined) freeShippingThresholdSetting.value = { value: freshThreshold }
   }
 
   return {

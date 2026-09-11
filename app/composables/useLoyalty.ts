@@ -91,6 +91,11 @@ export const useLoyalty = () => {
           }
         }
       },
+      // Read by the navbar badge, the account menu, the product and
+      // checkout CTAs in one render: 'defer' lets the later readers
+      // wait on the pending request instead of re-issuing it (the
+      // default 'cancel'). See useStoreSettings.
+      { dedupe: 'defer' },
     )
   }
 

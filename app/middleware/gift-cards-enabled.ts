@@ -7,6 +7,10 @@
  *
  * Either being false results in a hard 404 so the feature's existence is
  * not leaked to tenants/users for whom it is disabled.
+ *
+ * The runtime toggle ships OFF (`fallback: false`); an unreadable
+ * settings endpoint fails OPEN (`onError: true`) so an outage never
+ * takes the feature down for tenants whose plan enables it.
  */
 export default defineNuxtRouteMiddleware(async () => {
   const tenantStore = useTenantStore()
@@ -15,25 +19,10 @@ export default defineNuxtRouteMiddleware(async () => {
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })
   }
 
-  // Operational/runtime gate. useRequestFetch forwards the incoming
-  // host during SSR (bare $fetch stamps host: localhost and the tenant
-  // middleware 404s — see loyalty-enabled.ts).
-  const requestFetch = useRequestFetch()
-
-  let runtimeEnabled: boolean
-  try {
-    const setting = await requestFetch<{ value?: string }>(
-      '/api/settings/get',
-      { query: { key: 'GIFT_CARDS_ENABLED' } },
-    )
-    runtimeEnabled = (setting?.value ?? 'false').toLowerCase() === 'true'
-  }
-  catch {
-    // Fail OPEN on fetch failure — an unavailable extra_settings
-    // endpoint must not take the feature down for tenants whose plan
-    // enables it (loyalty-enabled.ts rationale).
-    return
-  }
+  const runtimeEnabled = await settingEnabled('GIFT_CARDS_ENABLED', {
+    fallback: false,
+    onError: true,
+  })
 
   if (!runtimeEnabled) {
     throw createError({ statusCode: 404, statusMessage: 'Not Found' })

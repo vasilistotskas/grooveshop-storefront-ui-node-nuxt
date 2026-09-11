@@ -4549,6 +4549,18 @@ export type PageLayout = {
      */
   title: string
   /**
+     * Τίτλος SEO
+     */
+  seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
+  seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
+  seoKeywords?: string
+  /**
      * Δημοσιευμένο
      */
   isPublished?: boolean
@@ -4570,6 +4582,18 @@ export type PageLayoutRequest = {
      * Admin display name for this layout.
      */
   title: string
+  /**
+     * Τίτλος SEO
+     */
+  seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
+  seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
+  seoKeywords?: string
   /**
      * Δημοσιευμένο
      */
@@ -5429,6 +5453,18 @@ export type PatchedPageLayoutRequest = {
      * Admin display name for this layout.
      */
   title?: string
+  /**
+     * Τίτλος SEO
+     */
+  seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
+  seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
+  seoKeywords?: string
   /**
      * Δημοσιευμένο
      */
@@ -7440,6 +7476,22 @@ export type PublicPromotion = {
   readonly eligibleProducts: Array<PromotionProductRef>
   readonly eligibleProductCount: number
   readonly eligibleCategories: Array<PromotionCategoryRef>
+}
+
+/**
+ * Every public store setting, keyed by name.
+ *
+ * Values are strings in the same encoding ``SettingDetailSerializer``
+ * uses (json-typed settings JSON-encoded, everything else ``str()``),
+ * so a consumer parses one shape whichever endpoint it reads.
+ */
+export type PublicSettings = {
+  /**
+     * Setting values keyed by setting name.
+     */
+  settings: {
+    [key: string]: string
+  }
 }
 
 /**
@@ -10111,6 +10163,18 @@ export type PageLayoutWritable = {
      * Admin display name for this layout.
      */
   title: string
+  /**
+     * Τίτλος SEO
+     */
+  seoTitle?: string
+  /**
+     * Περιγραφή SEO
+     */
+  seoDescription?: string
+  /**
+     * Λέξεις-κλειδιά SEO
+     */
+  seoKeywords?: string
   /**
      * Δημοσιευμένο
      */
@@ -23339,6 +23403,25 @@ export type ApiV1SettingsGetRetrieveResponses = {
 }
 
 export type ApiV1SettingsGetRetrieveResponse = ApiV1SettingsGetRetrieveResponses[keyof ApiV1SettingsGetRetrieveResponses]
+
+export type ApiV1SettingsPublicRetrieveData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/settings/public'
+}
+
+export type ApiV1SettingsPublicRetrieveErrors = {
+  500: ErrorResponse
+}
+
+export type ApiV1SettingsPublicRetrieveError = ApiV1SettingsPublicRetrieveErrors[keyof ApiV1SettingsPublicRetrieveErrors]
+
+export type ApiV1SettingsPublicRetrieveResponses = {
+  200: PublicSettings
+}
+
+export type ApiV1SettingsPublicRetrieveResponse = ApiV1SettingsPublicRetrieveResponses[keyof ApiV1SettingsPublicRetrieveResponses]
 
 export type ValidateAcsAddressData = {
   body: AcsAddressValidationRequestRequest

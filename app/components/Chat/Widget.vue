@@ -5,12 +5,12 @@ const { isMobile } = useDevice()
 const open = ref(false)
 
 // Admin kill switch — extra-setting CHAT_WIDGET_ENABLED, toggled at
-// /admin/extra_settings/setting/. Client-side only (the whole widget
-// is ClientOnly) and fail-closed: a launcher that pops in beats one
-// that flashes and vanishes when an admin has disabled it.
+// /admin/extra_settings/setting/. Fail-closed: a launcher that pops in
+// beats one that flashes and vanishes when an admin has disabled it.
+// The value rides the one per-render settings payload, so it is known
+// on the server too; the widget itself stays ClientOnly.
 const chatEnabled = useSettingFlag('CHAT_WIDGET_ENABLED', {
   fallback: false,
-  server: false,
 })
 </script>
 

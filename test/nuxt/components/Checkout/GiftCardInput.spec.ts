@@ -5,16 +5,17 @@ import GiftCardInput from '~/components/Checkout/GiftCardInput.vue'
 // useFetch routes through the mocked $fetch auto-import, so the
 // settings toggle must be answered here — a bare {} default would
 // leave the feature gate closed and nothing would render.
+const PUBLIC_SETTINGS = { settings: { GIFT_CARDS_ENABLED: 'true', PROMOTIONS_ENABLED: 'true' } }
 const defaultFetchImpl = (url: any) => {
-  if (String(url).includes('/api/settings/get')) {
-    return Promise.resolve({ value: 'true' })
+  if (String(url).includes('/api/settings/public')) {
+    return Promise.resolve(PUBLIC_SETTINGS)
   }
   return Promise.resolve({})
 }
 const { mockFetch } = vi.hoisted(() => ({
   mockFetch: vi.fn((url: any) => {
-    if (String(url).includes('/api/settings/get')) {
-      return Promise.resolve({ value: 'true' })
+    if (String(url).includes('/api/settings/public')) {
+      return Promise.resolve({ settings: { GIFT_CARDS_ENABLED: 'true', PROMOTIONS_ENABLED: 'true' } })
     }
     return Promise.resolve({})
   }),
@@ -28,8 +29,8 @@ mockNuxtImport('useTenantStore', () => {
   })
 })
 
-// Runtime toggle answered by the settings proxy.
-registerEndpoint('/api/settings/get', () => ({ value: 'true' }))
+// Runtime toggles answered by the settings proxy.
+registerEndpoint('/api/settings/public', () => PUBLIC_SETTINGS)
 
 describe('CheckoutGiftCardInput', () => {
   beforeEach(() => {

@@ -1,5 +1,6 @@
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '~~/i18n/locales'
+import { SUPPORTED_LOCALES } from '~~/i18n/locales'
 import { splitLocale } from '~~/shared/i18n/localeFromPath'
+import { languageOfLocaleTag } from '~~/shared/i18n/localeTag'
 import { tenantAllowedLocales } from '~~/shared/i18n/tenantLocales'
 
 /**
@@ -82,18 +83,16 @@ const GATED_ROUTES: readonly GatedRoute[] = [
   // still advertised the index it 404s.
   { path: '/blog', planFlag: tenant => tenant.blogEnabled },
   { path: '/blog/categories', planFlag: tenant => tenant.blogEnabled },
+  // The offers page is indexable and two-tier gated exactly like
+  // loyalty (app/middleware/promotions-enabled.ts). It was missing
+  // here, so every tenant with promotions off advertised a 404
+  // (Ahrefs 2026-09-11, "4XX page in sitemap": webside.gr/offers).
+  {
+    path: '/offers',
+    planFlag: tenant => tenant.promotionsEnabled,
+    settingKey: 'PROMOTIONS_ENABLED',
+  },
 ]
-
-/**
- * The language an `hreflang` names, or the default locale for
- * `x-default` — which points at the default-locale URL and is therefore
- * always served.
- */
-function languageOf(hreflang: string | undefined): string {
-  const tag = (hreflang ?? '').toLowerCase()
-  if (!tag || tag === 'x-default') return DEFAULT_LOCALE
-  return tag.split('-')[0] ?? DEFAULT_LOCALE
-}
 
 function pathOf(loc: string | URL | undefined): string {
   const raw = typeof loc === 'string' ? loc : loc?.toString() ?? ''
@@ -124,13 +123,27 @@ export default defineNitroPlugin((nitroApp) => {
     const config = useRuntimeConfig()
     const apiBaseUrl = config.apiBaseUrl as string
 
-    const allowed = await Promise.all(
-      GATED_ROUTES.map(async (route) => {
-        if (route.planFlag && !route.planFlag(tenant)) return false
-        if (!route.settingKey) return true
-        return settingEnabledForHost(host, apiBaseUrl, route.settingKey)
-      }),
+    const planAllows = (route: GatedRoute) =>
+      !route.planFlag || route.planFlag(tenant)
+
+    // One bulk read of the store's public settings for every route
+    // whose plan gate passed — and none at all when no route needs
+    // one. `null` (unreadable) fails CLOSED: a feed must never
+    // publish a URL its gate then 404s.
+    const needsSettings = GATED_ROUTES.some(
+      route => planAllows(route) && route.settingKey,
     )
+    const settings = needsSettings
+      ? await publicSettingsForHost(host, apiBaseUrl)
+      : null
+
+    const allowed = GATED_ROUTES.map((route) => {
+      if (!planAllows(route)) return false
+      if (!route.settingKey) return true
+      return settings
+        ? parseSettingFlag(settings[route.settingKey], false)
+        : false
+    })
 
     const blocked = new Set(
       GATED_ROUTES.filter((_, i) => !allowed[i]).map(route => route.path),
@@ -159,7 +172,7 @@ export default defineNitroPlugin((nitroApp) => {
       // are structurally identical.
       const alternatives = locales.size < 2
         ? undefined
-        : url.alternatives.filter(alt => locales.has(languageOf(alt.hreflang)))
+        : url.alternatives.filter(alt => locales.has(languageOfLocaleTag(alt.hreflang)))
       return [{ ...url, alternatives }]
     })
   })

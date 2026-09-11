@@ -32,7 +32,7 @@ export default defineNuxtPlugin({
     // `cart-enabled` and the navbar's own read of the same flag, and
     // resolved in PARALLEL with the config/session pair below so it
     // costs no wall-clock on the stores that do have a cart.
-    const cartEnabledPromise = settingEnabled('CART_ENABLED', true)
+    const cartEnabledPromise = settingEnabled('CART_ENABLED', { fallback: true })
 
     const { loggedIn } = useUserSession()
     const userStore = useUserStore()

@@ -20,6 +20,10 @@ export function useMerchantIdentity() {
     // normal state, not an error, so the failure is swallowed and the
     // block simply does not render.
     default: () => null,
+    // Several footer blocks read this in one render: 'defer' makes the
+    // later readers wait on the first request instead of re-issuing it
+    // (3x per page in the crawl logs). See useStoreSettings.
+    dedupe: 'defer',
   })
 
   /**

@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mockNuxtImport, registerEndpoint } from '@nuxt/test-utils/runtime'
-import { getQuery } from 'h3'
 
 let mockLoyaltyEnabled = false
 // Menu entries are gated on per-tenant extra-settings read through
-// useSettingFlag — the mock must be KEY-AWARE, or disabling one flag
-// in a test would disable every other gated entry with it.
+// useSettingFlag off the ONE public-settings payload — the mock
+// answers every gated key, defaulting to enabled, so disabling one
+// flag in a test never disables the others with it.
 let mockSettingValues: Record<string, string> = {}
 
 const SETTING_FLAG_KEYS = [
@@ -15,10 +15,11 @@ const SETTING_FLAG_KEYS = [
   'GIFT_CARDS_ENABLED',
 ]
 
-registerEndpoint('/api/settings/get', (event) => {
-  const key = String(getQuery(event).key ?? '')
-  return { value: mockSettingValues[key] ?? 'true' }
-})
+registerEndpoint('/api/settings/public', () => ({
+  settings: Object.fromEntries(
+    SETTING_FLAG_KEYS.map(key => [key, mockSettingValues[key] ?? 'true']),
+  ),
+}))
 
 mockNuxtImport('useLoyalty', () => {
   return () => ({
@@ -43,9 +44,7 @@ describe('useAccountMenus', () => {
     mockLoyaltyEnabled = false
     mockSettingValues = {}
     // useFetch caches by key across tests sharing the runtime app.
-    for (const key of SETTING_FLAG_KEYS) {
-      clearNuxtData(`setting-flag:${key}`)
-    }
+    clearNuxtData(STORE_SETTINGS_KEY)
   })
 
   it('includes the reviews entry by default (setting defaults to true)', async () => {

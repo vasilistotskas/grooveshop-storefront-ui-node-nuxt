@@ -4,14 +4,13 @@ defineProps<{
 }>()
 
 // Admin-toggleable rail — extra-setting RECENTLY_VIEWED_ENABLED.
-// Client-side only: the rail it gates (``ProductRecentlyViewed``)
-// reads localStorage and is client-only anyway, so keeping the flag
-// off SSR removes a blocking backend round-trip from homepage TTFB.
-// Fails CLOSED until the fetch confirms: a rail that pops in beats
-// one that flashes and vanishes when an admin has disabled it.
+// Fails CLOSED: a rail that pops in beats one that flashes and
+// vanishes when an admin has disabled it. The flag rides the one
+// per-render settings payload, so reading it on the server no longer
+// costs a round trip of its own; the rail it gates
+// (``ProductRecentlyViewed``) reads localStorage and stays client-only.
 const recentlyViewedEnabled = useSettingFlag('RECENTLY_VIEWED_ENABLED', {
   fallback: false,
-  server: false,
 })
 </script>
 

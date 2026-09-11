@@ -21,25 +21,12 @@ useSeoMeta({
   description: () => t('description'),
 })
 
-// Purchase bounds are merchant-tunable (extra_settings).
-const { data: minSetting } = useFetch<{ value?: string }>(
-  '/api/settings/get',
-  {
-    key: 'gift-cards:min-amount',
-    query: { key: 'GIFT_CARD_MIN_AMOUNT' },
-    default: () => ({ value: '10' }),
-  },
-)
-const { data: maxSetting } = useFetch<{ value?: string }>(
-  '/api/settings/get',
-  {
-    key: 'gift-cards:max-amount',
-    query: { key: 'GIFT_CARD_MAX_AMOUNT' },
-    default: () => ({ value: '500' }),
-  },
-)
-const minAmount = computed(() => Number(minSetting.value?.value ?? 10))
-const maxAmount = computed(() => Number(maxSetting.value?.value ?? 500))
+// Purchase bounds are merchant-tunable (extra_settings); an unset
+// bound keeps the platform default.
+const minSetting = useSettingValue('GIFT_CARD_MIN_AMOUNT')
+const maxSetting = useSettingValue('GIFT_CARD_MAX_AMOUNT')
+const minAmount = computed(() => Number(minSetting.value || 10))
+const maxAmount = computed(() => Number(maxSetting.value || 500))
 
 // Online providers the merchant has configured — Viva Wallet is the
 // primary provider, Stripe secondary. Derived from the pay-way list

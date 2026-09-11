@@ -17,9 +17,8 @@ const { mockFetch, settings } = vi.hoisted(() => ({
   settings: {} as Record<string, string>,
   mockFetch: vi.fn((...args: any[]) => {
     const url = String(args[0])
-    if (url.includes('/api/settings/get')) {
-      const key = args[1]?.query?.key as string
-      return Promise.resolve({ value: settings[key] ?? '' })
+    if (url.includes('/api/settings/public')) {
+      return Promise.resolve({ settings: { ...settings } })
     }
     return Promise.resolve({})
   }),

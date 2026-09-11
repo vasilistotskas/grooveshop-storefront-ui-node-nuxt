@@ -100,8 +100,9 @@ describe('every public page renders', async () => {
         return
       }
 
-      if (reqUrl.pathname.endsWith('/settings/get')) {
-        res.end(JSON.stringify({ value: 'false' }))
+      if (reqUrl.pathname.endsWith('/settings/public')) {
+        // No rows at all: every flag resolves to its caller's fallback.
+        res.end(JSON.stringify({ settings: {} }))
         return
       }
 

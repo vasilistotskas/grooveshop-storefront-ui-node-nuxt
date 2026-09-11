@@ -7,7 +7,8 @@
  * plugin removes those URLs per tenant at request time.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { settingEnabledForHost } from '../../../../server/utils/tenantSetting'
+import { publicSettingsForHost } from '../../../../server/utils/tenantSetting'
+import { parseSettingFlag } from '../../../../shared/utils/settingFlag'
 
 vi.stubGlobal('useRuntimeConfig', () => ({
   apiBaseUrl: 'https://api.example.com/api/v1',
@@ -18,16 +19,19 @@ vi.stubGlobal('getRequestHost', () => 'example.com')
 const getTenantConfigMock = vi.fn()
 vi.stubGlobal('getTenantConfig', getTenantConfigMock)
 
-const settingsMock = vi.fn(async (_key?: string) => ({ value: 'false' }))
-vi.stubGlobal('$fetch', (url: string, opts: { query?: { key?: string } }) => {
-  if (url.includes('/settings/get')) return settingsMock(opts?.query?.key)
+// The ONE bulk read the plugin makes: the store's public settings.
+const settingsMock = vi.fn(async () => ({ settings: {} as Record<string, string> }))
+vi.stubGlobal('$fetch', (url: string) => {
+  if (url.endsWith('/settings/public')) return settingsMock()
   throw new Error(`unexpected $fetch: ${url}`)
 })
 
-// `settingEnabledForHost` is a Nitro auto-import in the plugin. The
-// real one is stubbed in (rather than a fake) so these tests still
-// exercise its truthiness parsing and its fail-CLOSED branch.
-vi.stubGlobal('settingEnabledForHost', settingEnabledForHost)
+// `publicSettingsForHost` and `parseSettingFlag` are auto-imports in
+// the plugin. The real ones are stubbed in (rather than fakes) so these
+// tests still exercise the shared truthiness rule and the fail-CLOSED
+// branch.
+vi.stubGlobal('publicSettingsForHost', publicSettingsForHost)
+vi.stubGlobal('parseSettingFlag', parseSettingFlag)
 
 // Capture the hook the plugin registers so we can drive it directly.
 let resolvedHook: ((ctx: any) => Promise<void>) | undefined
@@ -49,11 +53,12 @@ const ALL_URLS = [
   { loc: 'https://example.com/loyalty-program' },
   { loc: 'https://example.com/products' },
   { loc: 'https://example.com/blog' },
+  { loc: 'https://example.com/offers' },
   { loc: 'https://example.com/contact' },
 ]
 
 /** A tenant with every gated surface ON, to vary one at a time. */
-const OPEN = { loyaltyEnabled: true, blogEnabled: true }
+const OPEN = { loyaltyEnabled: true, blogEnabled: true, promotionsEnabled: true }
 
 async function run(tenant: Record<string, unknown> | null) {
   const ctx = {
@@ -68,7 +73,9 @@ async function run(tenant: Record<string, unknown> | null) {
 describe('sitemap-tenant-gate', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    settingsMock.mockResolvedValue({ value: 'false' })
+    // Every runtime setting off — the seeded default of the commercial
+    // gates, and the webside.gr state Ahrefs reported.
+    settingsMock.mockResolvedValue({ settings: {} })
   })
 
   it('registers the sitemap:resolved hook', () => {
@@ -76,14 +83,22 @@ describe('sitemap-tenant-gate', () => {
   })
 
   it('drops a gated route when the tenant plan flag is off', async () => {
+    // The plan gate decides on its own: a runtime setting that says ON
+    // never overrides a plan that says OFF.
+    settingsMock.mockResolvedValue({ settings: { LOYALTY_ENABLED: 'True' } })
+
     const locs = await run({ ...OPEN, loyaltyEnabled: false })
 
     expect(locs).not.toContain('https://example.com/loyalty-program')
     // Ungated URLs are untouched.
     expect(locs).toContain('https://example.com/contact')
     expect(locs).toContain('https://example.com/')
-    // The plan gate short-circuits before ITS settings lookup.
-    expect(settingsMock).not.toHaveBeenCalledWith('LOYALTY_ENABLED')
+  })
+
+  it('reads the settings ONCE for every gate that needs one', async () => {
+    await run(OPEN)
+
+    expect(settingsMock).toHaveBeenCalledTimes(1)
   })
 
   it('drops the catalogue when the merchant setting is off', async () => {
@@ -91,12 +106,11 @@ describe('sitemap-tenant-gate', () => {
     // shop, which is not a plan the platform sells or withholds.
     const locs = await run(OPEN)
 
-    expect(settingsMock).toHaveBeenCalledWith('CATALOGUE_ENABLED')
     expect(locs).not.toContain('https://example.com/products')
   })
 
   it('keeps the catalogue when the merchant setting is on', async () => {
-    settingsMock.mockResolvedValue({ value: 'True' })
+    settingsMock.mockResolvedValue({ settings: { CATALOGUE_ENABLED: 'True' } })
 
     const locs = await run(OPEN)
 
@@ -109,7 +123,6 @@ describe('sitemap-tenant-gate', () => {
     const locs = await run({ ...OPEN, blogEnabled: false })
 
     expect(locs).not.toContain('https://example.com/blog')
-    expect(settingsMock).not.toHaveBeenCalledWith('BLOG_ENABLED')
   })
 
   it('keeps the blog index without consulting any setting', async () => {
@@ -125,14 +138,23 @@ describe('sitemap-tenant-gate', () => {
 
   it('drops a gated route when the plan flag is on but the runtime setting is false', async () => {
     // Exactly the webside.gr state that put a 404 in the sitemap.
+    settingsMock.mockResolvedValue({ settings: { LOYALTY_ENABLED: 'False' } })
+
     const locs = await run(OPEN)
 
-    expect(settingsMock).toHaveBeenCalledWith('LOYALTY_ENABLED')
     expect(locs).not.toContain('https://example.com/loyalty-program')
   })
 
   it('keeps a gated route when both gates pass', async () => {
-    settingsMock.mockResolvedValue({ value: 'True' })
+    settingsMock.mockResolvedValue({ settings: { LOYALTY_ENABLED: 'True' } })
+
+    const locs = await run(OPEN)
+
+    expect(locs).toContain('https://example.com/loyalty-program')
+  })
+
+  it('accepts the shared truthiness rule, not only "True"', async () => {
+    settingsMock.mockResolvedValue({ settings: { LOYALTY_ENABLED: '1' } })
 
     const locs = await run(OPEN)
 
@@ -145,6 +167,36 @@ describe('sitemap-tenant-gate', () => {
     const locs = await run(OPEN)
 
     expect(locs).not.toContain('https://example.com/loyalty-program')
+    expect(locs).not.toContain('https://example.com/products')
+    expect(locs).not.toContain('https://example.com/offers')
+    // The plan-only and ungated URLs are unaffected by the read.
+    expect(locs).toContain('https://example.com/blog')
+    expect(locs).toContain('https://example.com/contact')
+  })
+
+  it('drops the offers page when the promotions plan flag is off', async () => {
+    settingsMock.mockResolvedValue({ settings: { PROMOTIONS_ENABLED: 'True' } })
+
+    const locs = await run({ ...OPEN, promotionsEnabled: false })
+
+    expect(locs).not.toContain('https://example.com/offers')
+  })
+
+  it('drops the offers page when the plan flag is on but the runtime setting is false', async () => {
+    // The webside.gr state Ahrefs reported on 2026-09-11.
+    settingsMock.mockResolvedValue({ settings: { PROMOTIONS_ENABLED: 'False' } })
+
+    const locs = await run(OPEN)
+
+    expect(locs).not.toContain('https://example.com/offers')
+  })
+
+  it('keeps the offers page when both promotion gates pass', async () => {
+    settingsMock.mockResolvedValue({ settings: { PROMOTIONS_ENABLED: 'True' } })
+
+    const locs = await run(OPEN)
+
+    expect(locs).toContain('https://example.com/offers')
   })
 
   it('resolves the tenant itself when the sitemap route bypassed tenant middleware', async () => {
