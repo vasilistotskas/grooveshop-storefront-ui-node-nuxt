@@ -1,3 +1,10 @@
+## [3.194.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.0...v3.194.1) (2026-09-11)
+
+
+### Bug Fixes
+
+* **forms:** focus the failing field a frame later, so the focus survives ([3a05a17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3a05a17638b18592ec67286f2435aa0f361422a0))
+
 # [3.194.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.193.0...v3.194.0) (2026-09-11)
 
 
