@@ -18,29 +18,36 @@ export function useLegalPage(slug: string) {
   const { locale } = useI18n()
   const { transformImages } = useHtmlContent()
 
-  const { data } = useFetch(`/api/content-pages/${slug}`, {
-    key: `legal-page-${slug}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    // An unpublished page 404s upstream; that is the expected path for
-    // any store that has not written its own, so it must not surface.
-    default: () => null,
-  })
+  const { data } = useFetch<ContentPageResponse>(
+    `/api/content-pages/${slug}`,
+    {
+      key: `legal-page-${slug}`,
+      method: 'GET',
+      headers: useRequestHeaders(),
+      // An unpublished page is the expected path for any store that has
+      // not written its own, and the route reports it as ``page: null``
+      // rather than an error — so the probe is cached and silent
+      // instead of costing a round-trip and a stack trace per render.
+      default: () => ({ page: null }),
+    },
+  )
+
+  const page = computed(() => data.value?.page ?? null)
 
   /** True when the merchant published their own version of this page. */
   const hasMerchantPage = computed(() => {
-    if (!data.value) return false
-    const body = extractTranslated(data.value, 'body', locale.value) ?? ''
+    if (!page.value) return false
+    const body = extractTranslated(page.value, 'body', locale.value) ?? ''
     // A seeded-but-empty page must not blank out the boilerplate.
     return body.trim().length > 0
   })
 
   const title = computed(() =>
-    extractTranslated(data.value, 'title', locale.value) ?? '',
+    extractTranslated(page.value, 'title', locale.value) ?? '',
   )
 
   const body = computed(() => {
-    const raw = extractTranslated(data.value, 'body', locale.value) ?? ''
+    const raw = extractTranslated(page.value, 'body', locale.value) ?? ''
     return transformImages(raw)
   })
 
@@ -51,7 +58,7 @@ export function useLegalPage(slug: string) {
    * the moment a merchant supplies their own text — the document they
    * are publishing is not the one that date refers to.
    */
-  const updatedAt = computed(() => data.value?.updatedAt ?? null)
+  const updatedAt = computed(() => page.value?.updatedAt ?? null)
 
   return { hasMerchantPage, title, body, updatedAt }
 }

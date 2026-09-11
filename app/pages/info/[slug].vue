@@ -7,14 +7,21 @@ const { transformImages } = useHtmlContent()
 
 const slug = computed(() => route.params.slug)
 
-const { data: contentPage, error: contentPageError } = await useFetch(
-  `/api/content-pages/${slug.value}`,
-  {
-    key: `contentPage${slug.value}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-  },
-)
+// ``page: null`` is how the route reports "no published page at this
+// slug" — an absent resource, cached and quiet, rather than a thrown
+// 404 that cost a round-trip and a stack trace per render. Here it
+// still becomes a real 404 for the visitor; only a 5xx means an outage.
+const { data: contentPageResponse, error: contentPageError }
+  = await useFetch<ContentPageResponse>(
+    `/api/content-pages/${slug.value}`,
+    {
+      key: `contentPage${slug.value}`,
+      method: 'GET',
+      headers: useRequestHeaders(),
+    },
+  )
+
+const contentPage = computed(() => contentPageResponse.value?.page ?? null)
 
 if (contentPageError.value || !contentPage.value) {
   // Normalize upstream 5xx to 503 (see products/[id]/[slug].vue):

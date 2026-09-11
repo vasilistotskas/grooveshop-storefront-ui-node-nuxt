@@ -1,4 +1,6 @@
-export default defineCachedEventHandler(async (event) => {
+import { FetchError } from 'ofetch'
+
+export default defineCachedEventHandler(async (event): Promise<ContentPageResponse> => {
   const config = useRuntimeConfig()
   try {
     const params = await getValidatedRouterParams(
@@ -13,10 +15,23 @@ export default defineCachedEventHandler(async (event) => {
       `${config.apiBaseUrl}/content-page/${params.slug}`,
       { method: 'GET' },
     )
-    return await parseDataAs(response, zRetrieveContentPageResponse)
+    return { page: await parseDataAs(response, zRetrieveContentPageResponse) }
   }
   catch (error) {
-    handleError(error)
+    // Django's 404 is "no published page at this slug" — the normal
+    // state for every legal page a merchant has not written, which
+    // ``useLegalPage`` probes for on every render. It is data, not a
+    // fault: return the absent state so the SWR cache stores it (a
+    // thrown error is never cached, so each SSR of /terms-of-use,
+    // /privacy-policy and /cookies-policy cost a Django round-trip)
+    // and so the request log stops carrying a warning plus stack trace
+    // per render. Every other failure — 5xx, network, schema mismatch
+    // — still propagates, so /info/[slug] can tell a missing page apart
+    // from an outage. See shared/types/contentPage.ts.
+    if (error instanceof FetchError && error.statusCode === 404) {
+      return { page: null }
+    }
+    return handleError(error)
   }
 }, {
   name: 'ContentPageDetailViewSet',
