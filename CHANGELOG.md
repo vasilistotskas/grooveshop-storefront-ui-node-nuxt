@@ -1,3 +1,15 @@
+# [3.190.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.189.0...v3.190.0) (2026-09-11)
+
+
+### Bug Fixes
+
+* **settings:** restore server/api/settings/get, swept into the previous commit by a staged deletion ([1216bcb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1216bcb6e0636b141c4b495adaa52527fdcca048))
+
+
+### Features
+
+* **product:** suggestion strip as compact tiles, in the shape shoppers already know ([81f5246](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/81f5246e5f85daadf39cdb8a8831be0a0ddc2b9d))
+
 # [3.189.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.188.2...v3.189.0) (2026-09-10)
 
 
