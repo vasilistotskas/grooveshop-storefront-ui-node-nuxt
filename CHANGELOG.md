@@ -1,3 +1,16 @@
+# [3.193.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.192.1...v3.193.0) (2026-09-11)
+
+
+### Bug Fixes
+
+* **cart:** label the catalogue markdown line as already included in the prices ([1dd7844](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1dd7844e71dda23f4c8a94ab60b6b28104033462))
+* useless padding ([88677c6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/88677c6ea33441ab04d60403f3b63475c6ef2c30))
+
+
+### Features
+
+* **cart:** show which offers applied and credit a coupon only what it earned ([0893d38](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0893d38fad6eda572b4fc1124c5414cd07a6f6bc))
+
 ## [3.192.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.192.0...v3.192.1) (2026-09-11)
 
 
