@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent } from 'vue'
+import { injectHead } from '@unhead/vue'
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime'
 
 const { mockUseFetchFn } = vi.hoisted(() => ({
@@ -155,5 +156,93 @@ describe('usePageConfig', () => {
     const locale = options.query.locale.value
     expect(locale).toBeTruthy()
     expect(options.key()).toBe(`page-config-products-${locale}`)
+  })
+
+  describe('operator SEO', () => {
+    const layoutWith = (seo: { seoTitle?: string, seoDescription?: string }) => ({
+      data: ref({
+        layout: {
+          id: 7,
+          uuid: 'about-uuid',
+          pageType: 'about',
+          title: 'About',
+          isPublished: true,
+          metadata: {},
+          sections: [],
+          ...seo,
+        },
+      }),
+      status: ref('success'),
+      error: ref(null),
+    })
+
+    /**
+     * A page as the real ones are shaped: it awaits usePageConfig FIRST,
+     * then registers its own code defaults — the order the operator's
+     * values have to beat. The resolved head (deduped, as it renders)
+     * is read back through unhead itself rather than the DOM, which the
+     * test environment does not paint.
+     */
+    async function resolvedHead(defaults: { title: string, description: string }) {
+      let head!: ReturnType<typeof injectHead>
+      let before!: Set<number>
+      const wrapper = await mountSuspended(
+        defineComponent({
+          async setup() {
+            head = injectHead()
+            before = new Set(head.entries.keys())
+            await usePageConfig('about')
+            useSeoMeta({ title: defaults.title, description: defaults.description })
+            return () => null
+          },
+        }),
+      )
+      // Paint the head and read it back deduped and weighted exactly as
+      // a browser sees it. unhead 3's client renderer queues the DOM
+      // write, so the paint lands on the next macrotask.
+      const paint = async () => {
+        head.render()
+        await new Promise(resolve => setTimeout(resolve, 50))
+      }
+      await paint()
+      const painted = {
+        title: document.title,
+        description: document
+          .querySelector('meta[name="description"]')
+          ?.getAttribute('content'),
+      }
+      // The head is shared by the file's Nuxt app and mountSuspended's
+      // wrapper does not dispose a suspended child's entries on
+      // unmount: drop the entries THIS page registered and repaint so
+      // the next test starts clean.
+      wrapper.unmount()
+      for (const key of head.entries.keys()) {
+        if (!before.has(key)) head.entries.delete(key)
+      }
+      await paint()
+      return painted
+    }
+
+    it('wins over the page defaults registered after it', async () => {
+      mockUseFetchFn.mockReturnValue(layoutWith({
+        seoTitle: 'Τι Είναι Το Webside | Μπες στο side της τεχνολογίας',
+        seoDescription: 'Ποιοι είμαστε, τι κάνουμε και γιατί το κάνουμε.',
+      }))
+
+      const head = await resolvedHead({ title: 'Code default', description: 'Code default description' })
+
+      expect(head.title).toContain('Τι Είναι Το Webside | Μπες στο side της τεχνολογίας')
+      expect(head.title).not.toContain('Code default')
+      expect(head.description).toBe('Ποιοι είμαστε, τι κάνουμε και γιατί το κάνουμε.')
+    })
+
+    it('leaves the page defaults in place when the layout carries no SEO', async () => {
+      mockUseFetchFn.mockReturnValue(layoutWith({ seoTitle: '', seoDescription: '' }))
+
+      const head = await resolvedHead({ title: 'Code default', description: 'Code default description' })
+
+      expect(head.title).toContain('Code default')
+      expect(head.description).toBe('Code default description')
+    })
   })
 })

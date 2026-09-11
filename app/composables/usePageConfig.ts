@@ -75,6 +75,42 @@ export async function usePageConfig(pageType: string) {
 
   const layout = computed<PageLayout | null>(() => data.value?.layout ?? null)
 
+  // The operator's own <title> / meta description for the page
+  // (``PageLayout.seo_title`` / ``seo_description`` — the same
+  // ``SeoModel`` fields ContentPage, Product and BlogPost carry). Every
+  // page-config page used to inherit the store-wide description and
+  // the home page's title was the bare store name (Ahrefs "Meta
+  // description too short" / "Title too short", 2026-09-11).
+  //
+  // An unset field emits NO tag at all — not a tag with an empty value,
+  // which would still win the dedupe and then be dropped, taking the
+  // page's own default with it — so the page keeps its defaults. When
+  // set, the value must beat those defaults even though this entry
+  // registers FIRST (``usePageConfig`` is awaited at the top of every
+  // page's setup; the page's and its section variants' ``useSeoMeta``
+  // come later): unhead's dedupe keeps the entry with the LOWER weight
+  // and only falls back to "later wins" at equal weight (``dedupeTags``
+  // in packages/unhead/src/utils/resolve.ts, unhead 3.3), so
+  // ``tagPriority: 'high'`` is what makes the operator's value win.
+  // ``seo_keywords`` is deliberately not emitted, as on the content
+  // pages: search engines ignore it.
+  useHead(() => {
+    const title = layout.value?.seoTitle || ''
+    const description = layout.value?.seoDescription || ''
+    return {
+      ...(title ? { title } : {}),
+      meta: [
+        ...(title ? [{ property: 'og:title', content: title }] : []),
+        ...(description
+          ? [
+              { name: 'description', content: description },
+              { property: 'og:description', content: description },
+            ]
+          : []),
+      ],
+    }
+  }, { tagPriority: 'high' })
+
   const sections = computed<PageSection[]>(() => {
     if (layout.value?.isPublished && layout.value.sections) {
       return layout.value.sections
