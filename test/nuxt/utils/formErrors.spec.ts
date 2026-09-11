@@ -32,7 +32,7 @@ afterEach(() => {
 })
 
 describe('scrollToFirstFormError', () => {
-  it('scrolls the first failing field into view and focuses it', () => {
+  it('scrolls the first failing field into view and focuses it', async () => {
     const email = makeField('checkout-email')
     makeField('checkout-phone')
 
@@ -43,11 +43,14 @@ describe('scrollToFirstFormError', () => {
       ],
     } as never)
 
-    expect(email.focus).toHaveBeenCalledWith({ preventScroll: true })
     expect(email.scrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',
       block: 'center',
     })
+    // Focus lands a frame later — the form disables its elements during
+    // submit, which drops a synchronous focus.
+    await new Promise(resolve => requestAnimationFrame(() => resolve(null)))
+    expect(email.focus).toHaveBeenCalledWith({ preventScroll: true })
   })
 
   it('leaves the later fields alone', () => {

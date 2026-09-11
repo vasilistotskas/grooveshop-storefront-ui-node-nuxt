@@ -28,13 +28,6 @@ export function scrollToFirstFormError(event: FormErrorEvent): void {
   const element = document.getElementById(firstError.id)
   if (!element) return
 
-  // `focus` before `scrollIntoView`: focusing scrolls the element into
-  // view its own way, which would land somewhere else and then be
-  // animated from there.
-  if (typeof element.focus === 'function') {
-    element.focus({ preventScroll: true })
-  }
-
   const prefersReducedMotion
     = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
 
@@ -42,4 +35,13 @@ export function scrollToFirstFormError(event: FormErrorEvent): void {
     behavior: prefersReducedMotion ? 'auto' : 'smooth',
     block: 'center',
   })
+
+  // Focus on the NEXT frame, with scrolling prevented so it cannot
+  // fight the scroll above. Nuxt UI disables every element in the form
+  // while a submit is in flight (`loadingAuto`), and its own docs note
+  // that this drops focus — so focusing synchronously here left the
+  // field scrolled into view but not focused, verified on production.
+  if (typeof element.focus === 'function') {
+    requestAnimationFrame(() => element.focus({ preventScroll: true }))
+  }
 }
