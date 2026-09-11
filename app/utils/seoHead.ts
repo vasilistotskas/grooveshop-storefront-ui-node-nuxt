@@ -113,3 +113,63 @@ export function gateLocaleHeadByTenant<T extends object>(
     ),
   }
 }
+
+/**
+ * The length band a meta description has to land in to be useful.
+ *
+ * Below ~110 characters every site-audit tool — Ahrefs, Sitebulb,
+ * MetricSpot — reports "meta description too short", and the snippet
+ * wastes the space Google gives it. Above ~160 the tail is truncated
+ * away, so 155 leaves room for the ellipsis inside the budget.
+ */
+export const META_DESCRIPTION_MIN_LENGTH = 110
+export const META_DESCRIPTION_MAX_LENGTH = 155
+
+const SENTENCE_END_RE = /[.!?;:·…]$/
+
+function truncateAtWord(text: string, max: number): string {
+  if (text.length <= max) return text
+
+  // -1 leaves room for the ellipsis, so the result never exceeds `max`.
+  const cut = text.slice(0, max - 1)
+  const lastSpace = cut.lastIndexOf(' ')
+  // A single word longer than the budget has no boundary to fall back
+  // on; a hard cut beats returning nothing.
+  const body = lastSpace > 0 ? cut.slice(0, lastSpace) : cut
+  return `${body.replace(/[\s,;:·—–-]+$/, '')}…`
+}
+
+/**
+ * Build a meta description from the page's own copy, in priority order.
+ *
+ * The lead fragment is used alone when it already fills the band; a
+ * short one is EXTENDED with what follows rather than replaced, so
+ * hand-written copy is never thrown away. Fragments are joined as
+ * sentences — a lead that does not end in punctuation gets a full stop,
+ * which is what keeps the result reading as prose instead of two
+ * clauses run together.
+ *
+ * Returns `undefined`, never '', when there is nothing to say: an empty
+ * `content` attribute is worse than no tag, because it stops Google
+ * falling back to a generated snippet.
+ */
+export function composeMetaDescription(
+  parts: readonly (string | null | undefined)[],
+  options: { min?: number, max?: number } = {},
+): string | undefined {
+  const min = options.min ?? META_DESCRIPTION_MIN_LENGTH
+  const max = options.max ?? META_DESCRIPTION_MAX_LENGTH
+
+  const fragments = parts
+    .map(part => part?.replace(/\s+/g, ' ').trim() ?? '')
+    .filter(Boolean)
+
+  const lead = fragments[0]
+  if (!lead) return undefined
+  if (lead.length >= min) return truncateAtWord(lead, max)
+
+  const text = fragments.reduce((acc, fragment) =>
+    SENTENCE_END_RE.test(acc) ? `${acc} ${fragment}` : `${acc}. ${fragment}`,
+  )
+  return truncateAtWord(text, max)
+}

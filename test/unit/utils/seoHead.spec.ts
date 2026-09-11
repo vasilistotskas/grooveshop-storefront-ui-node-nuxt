@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { gateLocaleHeadByTenant, rebaseLocaleHeadOrigins } from '../../../app/utils/seoHead'
+import {
+  composeMetaDescription,
+  gateLocaleHeadByTenant,
+  META_DESCRIPTION_MAX_LENGTH,
+  META_DESCRIPTION_MIN_LENGTH,
+  rebaseLocaleHeadOrigins,
+} from '../../../app/utils/seoHead'
 
 // What useLocaleHead({ seo: true }) emits for a page on a platform
 // built with `el` (default) + `en`, as observed live on webside.gr.
@@ -105,5 +111,85 @@ describe('rebaseLocaleHeadOrigins', () => {
   it('no-ops when origins match or are missing', () => {
     expect(rebaseLocaleHeadOrigins(HEAD, 'https://platform.example', 'https://platform.example')).toBe(HEAD)
     expect(rebaseLocaleHeadOrigins(HEAD, '', 'https://tenant.example')).toBe(HEAD)
+  })
+})
+
+describe('composeMetaDescription', () => {
+  it('returns a lead that already fills the band untouched', () => {
+    const lead = 'A'.repeat(META_DESCRIPTION_MIN_LENGTH)
+    expect(composeMetaDescription([lead, 'body copy'])).toBe(lead)
+  })
+
+  it('extends a short lead with what follows instead of replacing it', () => {
+    expect(composeMetaDescription(['Short strapline', 'The article opens here.']))
+      .toBe('Short strapline. The article opens here.')
+  })
+
+  it('joins on the lead\'s own punctuation when it has some', () => {
+    expect(composeMetaDescription(['Ends already.', 'Next sentence.']))
+      .toBe('Ends already. Next sentence.')
+    expect(composeMetaDescription(['Ρωτάει κάτι;', 'Και απαντά.']))
+      .toBe('Ρωτάει κάτι; Και απαντά.')
+  })
+
+  it('skips empty and whitespace-only fragments', () => {
+    expect(composeMetaDescription(['Lead', '', null, undefined, '   ', 'Tail']))
+      .toBe('Lead. Tail')
+  })
+
+  it('collapses the whitespace inside a fragment', () => {
+    expect(composeMetaDescription(['  Lead\n\ncopy  ', 'Tail']))
+      .toBe('Lead copy. Tail')
+  })
+
+  it('returns undefined rather than an empty description', () => {
+    expect(composeMetaDescription([])).toBeUndefined()
+    expect(composeMetaDescription([null, undefined, '', '  '])).toBeUndefined()
+  })
+
+  it('truncates on a word boundary, inside the budget, with an ellipsis', () => {
+    const result = composeMetaDescription(['Short lead', 'word '.repeat(80)])!
+
+    expect(result.length).toBeLessThanOrEqual(META_DESCRIPTION_MAX_LENGTH)
+    expect(result.endsWith('…')).toBe(true)
+    expect(result).not.toMatch(/\s…$/)
+    // No half-word before the ellipsis.
+    expect(result.slice(0, -1).split(' ').at(-1)).toBe('word')
+  })
+
+  it('hard-cuts a single word longer than the whole budget', () => {
+    const result = composeMetaDescription(['x'.repeat(400)])!
+
+    expect(result.length).toBeLessThanOrEqual(META_DESCRIPTION_MAX_LENGTH)
+    expect(result.endsWith('…')).toBe(true)
+  })
+
+  it('truncates an over-long lead that already fills the band', () => {
+    const result = composeMetaDescription(['word '.repeat(60)])!
+
+    expect(result.length).toBeLessThanOrEqual(META_DESCRIPTION_MAX_LENGTH)
+    expect(result.endsWith('…')).toBe(true)
+  })
+
+  it('lifts a real post out of the "too short" band', () => {
+    // Post 2 on webside.gr: an 83-character subtitle, which is what
+    // Ahrefs reported as too short on 63 of the 79 live posts.
+    const subtitle
+      = 'Ένας σύντομος οδηγός σχετικά με τα mAh και την συσχέτιση που έχουνε με τα powerbank'
+    const body
+      = 'Ειδικά αν βρίσκεσαι στην αναζήτηση για powerbank, τα mAh αποτελούν τον πιο βασικό δείκτη της χωρητικότητας που θα έχεις διαθέσιμη.'
+
+    const result = composeMetaDescription([subtitle, body])!
+
+    expect(subtitle.length).toBeLessThan(META_DESCRIPTION_MIN_LENGTH)
+    expect(result.startsWith(subtitle)).toBe(true)
+    expect(result.length).toBeGreaterThanOrEqual(META_DESCRIPTION_MIN_LENGTH)
+    expect(result.length).toBeLessThanOrEqual(META_DESCRIPTION_MAX_LENGTH)
+  })
+
+  it('honours an overridden band', () => {
+    expect(composeMetaDescription(['Lead', 'Tail'], { min: 2 })).toBe('Lead')
+    expect(composeMetaDescription(['Lead copy here', 'Tail'], { min: 99, max: 10 }))
+      .toBe('Lead…')
   })
 })

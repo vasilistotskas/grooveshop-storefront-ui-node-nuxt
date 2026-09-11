@@ -169,22 +169,28 @@ const blogPostDocumentTitle = computed(() => {
     : title
 })
 
-// A post with neither an SEO description nor a subtitle used to emit
-// `<meta name="description" content>` — an empty tag is strictly worse
-// than no tag, because Google cannot fall back to generating a snippet.
-// Every post has body copy, so derive one from the article's own opening
-// text rather than shipping nothing: unique per page, and the same
-// material Google would have picked anyway. `undefined` (not '') as the
-// last resort so the tag is omitted rather than emitted empty.
+// The operator's own `seo_description` wins untouched. Failing that the
+// subtitle leads — but it is editorial copy written as a strapline, and
+// 63 of the 79 live posts have one under 110 characters, the length
+// every site-audit tool reports as "meta description too short". So a
+// short subtitle is EXTENDED with the article's opening text instead of
+// standing alone: the hand-written words stay, and the snippet fills the
+// space Google is willing to give it.
+//
+// Derived from the BODY, not `contentPreview`: the preview is the first
+// 200 characters of raw HTML, so markup and character references eat an
+// unpredictable share of it and what survives stripping can be almost
+// nothing. `undefined` (not '') as the last resort so the tag is omitted
+// rather than emitted empty — Google cannot fall back to generating a
+// snippet when the attribute is present but blank.
 const blogPostDescription = computed(() => {
   const post = blogPost.value
   if (post?.seoDescription) return post.seoDescription
-  if (blogPostSubtitle.value) return blogPostSubtitle.value
 
-  const preview = cleanHtml(post?.contentPreview ?? '')
-    .replace(/\s+/g, ' ')
-    .trim()
-  return preview ? contentShorten(preview, 0, 155) : undefined
+  const bodyText = htmlToPlainText(
+    extractTranslated(post, 'body', locale.value) ?? '',
+  )
+  return composeMetaDescription([blogPostSubtitle.value, bodyText])
 })
 
 const blogPostCategoryName = computed(() =>

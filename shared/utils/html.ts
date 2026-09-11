@@ -549,6 +549,66 @@ export function stripHtmlTags(html: string): string {
   return result
 }
 
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&',
+  lt: '<',
+  gt: '>',
+  quot: '"',
+  apos: '\'',
+  nbsp: ' ',
+  hellip: '…',
+  mdash: '—',
+  ndash: '–',
+  laquo: '«',
+  raquo: '»',
+  lsquo: '‘',
+  rsquo: '’',
+  ldquo: '“',
+  rdquo: '”',
+}
+
+const ENTITY_RE = /&(#\d{1,7}|#[xX][0-9a-fA-F]{1,6}|[a-zA-Z][a-zA-Z0-9]{1,31});/g
+
+/**
+ * Decode the HTML character references an editor's rich text leaves
+ * behind, in ONE pass over the string.
+ *
+ * A pass per entity would be wrong, not just slower: replacing `&lt;`
+ * before `&amp;` turns the literal text `&amp;lt;` into `<`. One regex
+ * with a lookup table decodes each reference exactly once, and an
+ * unknown name is left untouched rather than dropped.
+ */
+export function decodeHtmlEntities(html: string): string {
+  if (!html || !html.includes('&')) return html || ''
+
+  return html.replace(ENTITY_RE, (match, ref: string) => {
+    if (ref[0] === '#') {
+      const code = ref[1] === 'x' || ref[1] === 'X'
+        ? Number.parseInt(ref.slice(2), 16)
+        : Number.parseInt(ref.slice(1), 10)
+      // Lone surrogates and out-of-range code points would throw.
+      if (!Number.isFinite(code) || code <= 0 || code > 0x10FFFF) return match
+      if (code >= 0xD800 && code <= 0xDFFF) return match
+      return String.fromCodePoint(code)
+    }
+    return NAMED_ENTITIES[ref] ?? match
+  })
+}
+
+/**
+ * Reduce HTML content to the text a human would read — tags removed,
+ * character references decoded, whitespace collapsed.
+ *
+ * Tags are stripped BEFORE entities are decoded. The other order lets
+ * an escaped `&lt;div&gt;` in the copy become a real tag that the
+ * stripper then eats, silently deleting text the author wrote.
+ */
+export function htmlToPlainText(html: string): string {
+  if (!html) return ''
+
+  return decodeHtmlEntities(stripHtmlTags(html)).replace(/\s+/g, ' ').trim()
+}
+
 /**
  * Extract all image sources from HTML content
  * Useful for preloading or prefetching
