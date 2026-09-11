@@ -1,3 +1,10 @@
+# [3.192.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.191.0...v3.192.0) (2026-09-11)
+
+
+### Features
+
+* **recommendations:** carry the strip impression on add-to-cart ([13c1d82](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/13c1d821815afd12cbcece677d954d33c966bae7))
+
 # [3.191.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.190.0...v3.191.0) (2026-09-11)
 
 
