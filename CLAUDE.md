@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Nuxt 4 SSR e-commerce storefront (Vue 3 Composition API, TypeScript) that communicates with a Django REST API backend. Uses `@nuxt/ui` v4 for the component library, Pinia for state management, and `@nuxtjs/i18n` for internationalization (only Greek `el` locale is active). The Vue Options API is disabled — all components use `<script setup lang="ts">`.
+Nuxt 4 SSR e-commerce storefront (Vue 3 Composition API, TypeScript) that communicates with a Django REST API backend. Uses `@nuxt/ui` v4 for the component library, Pinia for state management, and `@nuxtjs/i18n` for internationalization (`el` default, plus `en`). The Vue Options API is disabled — all components use `<script setup lang="ts">`.
 
 ## Detailed guidance lives in `.claude/rules/`
 
@@ -53,7 +53,7 @@ touching its files, read the rule file directly.
 - `shared/` — Auto-imported in both app and server: types, constants, schemas (Zod), utils, OpenAPI generated code
 - `modules/` — Custom Nuxt modules (`cookies.ts` for cookie consent, `purge-comments.ts` removes HTML comments in prod)
 - `runtime/` — Runtime code for the custom cookie control module (plugin, methods, types, utils)
-- `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES`/`DEFAULT_LOCALE`), locale detector, i18n config, and translation files (el-GR primary, plus domain-specific: auth, breadcrumb, cookies, validation). Only `el` locale exists/is active
+- `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES = ['el', 'en']` and `DEFAULT_LOCALE = 'el'`), locale detector, i18n config, and a translation file set per locale (`el-GR.json` / `en-US.json`, plus domain-specific: auth, breadcrumb, checkout, cookies, validation). Routes for **both** locales are generated at build time for every tenant; whether one is *reachable* is per-tenant (`Tenant.available_locales`), enforced by `app/middleware/locale-available.global.ts`, which 404s a prefix the tenant does not list
 - `openapi/` — Schema files (`schema.json`, `schema.yml`) fetched from Django for type generation
 - `scripts/` — `fetch-schema.mjs` for downloading OpenAPI schema from Django
 

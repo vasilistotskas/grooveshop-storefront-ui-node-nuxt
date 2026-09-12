@@ -1,11 +1,11 @@
 ---
 name: i18n-string-extractor
-description: Find hardcoded user-facing strings (Greek or English) in Vue components and pages, propose i18n keys, and add translations to either component-scoped <i18n lang="yaml"> blocks or shared locale files under i18n/locales/. Use after adding/editing UI to enforce the project's "no hardcoded strings" rule. Locale el is the only active locale — do not generate en/de translations.
+description: Find hardcoded user-facing strings (Greek or English) in Vue components and pages, propose i18n keys, and add translations to either component-scoped <i18n lang="yaml"> blocks or shared locale files under i18n/locales/. Use after adding/editing UI to enforce the project's "no hardcoded strings" rule. Active locales are el and en — write both; there is no de.
 ---
 
 # i18n String Extractor
 
-Audit a Vue file (component or page) for user-facing strings that bypass `useI18n()` and either translate them inline via a component-scoped `<i18n lang="yaml">` block or move them to one of the shared locale files. Greek (`el`) is the only active locale — do not write `en` or `de` entries.
+Audit a Vue file (component or page) for user-facing strings that bypass `useI18n()` and either translate them inline via a component-scoped `<i18n lang="yaml">` block or move them to one of the shared locale files. Both `el` and `en` are active (`i18n/locales.ts`), so every key needs a Greek **and** an English entry. There is no `de` — do not write one.
 
 ## Decision tree: where does the key go?
 
@@ -104,6 +104,6 @@ The root `el-GR.json` is mostly flat with selective nesting (`error.default`, `e
 ## What NOT to do
 
 - Don't translate generated content from API responses — that's what `extractTranslated` is for.
-- Don't add `en-US.json` or `de-DE.json` entries; only `el` is active per `i18n/locales.ts`.
+- Add `el-GR.json` **and** `en-US.json` entries; both are active per `i18n/locales.ts`. Never add `de-DE.json`.
 - Don't move strings out of component scope just because they could be — components stay self-contained unless reused.
 - Don't rename existing keys without grepping for every consumer first.
