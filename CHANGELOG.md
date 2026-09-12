@@ -1,3 +1,16 @@
+## [3.194.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.3...v3.194.4) (2026-09-12)
+
+
+### Bug Fixes
+
+* **checkout:** release the removal of the shipping-choice note ([d9a4eb9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d9a4eb969e56197cd735bca21f0e6c85949f46d2))
+* **checkout:** ship the removal of the shipping-choice note ([d09af9b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d09af9b04d66a41c13a469274e682ea6b5fd2a4c))
+
+
+### Reverts
+
+* **checkout:** drop the note naming payment methods a shipping choice rules out ([cf0c28f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cf0c28f2640fd1eae2a86acd8d902cd10f5d8865))
+
 ## [3.194.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.2...v3.194.3) (2026-09-11)
 
 
