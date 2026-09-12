@@ -632,46 +632,6 @@ export async function useCheckoutForm() {
     }) || []
   })
 
-  /**
-   * Payment methods on offer for a DIFFERENT shipping method, but not
-   * for the chosen one.
-   *
-   * The pay-way list is refetched per shipping method, so an excluded
-   * method simply vanishes between step 2 and step 3 with nothing said.
-   * That is not a bug — cash to a courier cannot be collected at a
-   * locker, so ``BoxNowCarrier.supported_settlements`` omits
-   * ``courier_cash`` for pickup points — but an unexplained absence
-   * reads as one: the merchant's own first run through this flow
-   * stopped at "αντικαταβολή is enabled, why can't I see it?".
-   *
-   * Derived from the shipping-options payload, which already advertises
-   * the pay ways each option accepts (``shipping/services.py::
-   * _pay_ways_for``), so the note can never disagree with the list the
-   * shopper is looking at.
-   */
-  const unavailablePayWayNames = computed(() => {
-    const chosenKey = formState.shippingMethod
-    if (!chosenKey || !shippingOptions.value.length) return []
-
-    const namesFor = (predicate: (key: string | null) => boolean) => {
-      const names = new Set<string>()
-      for (const option of shippingOptions.value) {
-        if (!predicate(methodKeyForOption(option))) continue
-        // ``payWays`` on a shipping option carries a resolved flat
-        // name (``shipping/serializers/option.py``), not parler
-        // translations — the same field StepShipping folds over.
-        for (const payWay of option.payWays ?? []) {
-          if (payWay.name) names.add(getPaymentMethodName(payWay.name))
-        }
-      }
-      return names
-    }
-
-    const here = namesFor(key => key === chosenKey)
-    const elsewhere = namesFor(key => key !== null && key !== chosenKey)
-    return [...elsewhere].filter(name => !here.has(name))
-  })
-
   // Validation schemas
   // Min/max bounds mirror OrderCreateFromCartSerializer — Django only
   // requires these fields non-empty (plus max_length), so a stricter
@@ -1106,6 +1066,5 @@ export async function useCheckoutForm() {
     // (``ShippingProvider.priority`` ascending) instead of a
     // hardcoded UI sequence.
     shippingOptions,
-    unavailablePayWayNames,
   }
 }

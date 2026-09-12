@@ -59,7 +59,6 @@ const {
   b2bInvoicingEnabled,
   refetchShippingSettings,
   shippingOptions,
-  unavailablePayWayNames,
 } = await useCheckoutForm()
 
 const {
@@ -356,7 +355,6 @@ definePageMeta({
             v-model:form-state="formState"
             :schema="step3Schema"
             :pay-way-options="payWayOptions"
-            :unavailable-pay-way-names="unavailablePayWayNames"
             :is-submitting="isSubmitting"
             @submit="onSubmit"
             @back="prevStep"

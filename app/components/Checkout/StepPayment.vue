@@ -15,12 +15,6 @@ const props = defineProps<{
     freeThresholdHint?: string
   }>
   isSubmitting: boolean
-  /**
-   * Payment methods this shipping choice rules out. Empty for most
-   * carts; naming them turns an unexplained absence into a stated
-   * trade-off (see ``useCheckoutForm.unavailablePayWayNames``).
-   */
-  unavailablePayWayNames?: string[]
 }>()
 
 const emit = defineEmits<{
@@ -151,21 +145,6 @@ defineExpose({
         </URadioGroup>
       </UFormField>
 
-      <!-- An excluded method vanishes between the shipping step and
-           this one with nothing said, which reads as a fault rather
-           than the rule it is (cash cannot be handed to a courier at a
-           locker). Name what the shipping choice ruled out, and where
-           to get it back. -->
-      <UAlert
-        v-if="unavailablePayWayNames?.length"
-        color="neutral"
-        variant="subtle"
-        icon="i-heroicons-information-circle"
-        :description="t('form.unavailable_for_shipping', {
-          methods: unavailablePayWayNames.join(', '),
-        })"
-      />
-
       <UCollapsible v-if="hasInstructions" v-model:open="instructionsOpen">
         <UButton
           class="group"
@@ -244,6 +223,5 @@ el:
   form:
     payment_method: Τρόπος πληρωμής
     payment_instructions: Οδηγίες πληρωμής
-    unavailable_for_shipping: "Με τον τρόπο αποστολής που επέλεξες δεν είναι διαθέσιμο: {methods}. Άλλαξε τρόπο αποστολής στο προηγούμενο βήμα για να το χρησιμοποιήσεις."
   back: Πίσω
 </i18n>

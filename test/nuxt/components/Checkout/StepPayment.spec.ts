@@ -130,31 +130,4 @@ describe('Checkout/StepPayment', () => {
     })
   })
 
-  describe('methods the shipping choice rules out', () => {
-    it('names them, so the absence reads as a rule and not a fault', async () => {
-      const wrapper = await mountSuspended(StepPayment, {
-        props: makeProps({
-          unavailablePayWayNames: ['Πληρωμή κατά την παράδοση'],
-        }),
-      })
-
-      const text = wrapper.text()
-      expect(text).toContain('Πληρωμή κατά την παράδοση')
-      expect(text).toContain('τρόπο αποστολής')
-    })
-
-    it('says nothing when the shipping choice rules out nothing', async () => {
-      const wrapper = await mountSuspended(StepPayment, {
-        props: makeProps({ unavailablePayWayNames: [] }),
-      })
-
-      expect(wrapper.text()).not.toContain('τρόπο αποστολής')
-    })
-
-    it('says nothing when the caller passes no list at all', async () => {
-      const wrapper = await mountSuspended(StepPayment, { props: makeProps() })
-
-      expect(wrapper.text()).not.toContain('τρόπο αποστολής')
-    })
-  })
 })
