@@ -621,6 +621,34 @@ export default defineNuxtConfig({
     database: {
       filename: '/tmp/ai-ready/pages.db',
     },
+    // Agent Skills discovery (new in 2.3.0) is ON unless switched off:
+    // ``module.ts`` resolves ``config.agentSkills === false ? false :
+    // (config.agentSkills ?? {})``, so an absent key still scans
+    // ``<layer rootDir>/skills/<name>/SKILL.md`` (2.3.2 sources,
+    // ``src/utils/agent-skills.ts``). Each hit is published three ways —
+    // ``/.well-known/agent-skills/<name>/SKILL.md``, a
+    // ``/skills/<name>/SKILL.md`` mirror, and ``/SKILL.md`` when exactly one
+    // local skill exists — plus a fixed index at
+    // ``/.well-known/agent-skills/index.json``, served with
+    // ``Access-Control-Allow-Origin: *`` and a one-hour shared-cache TTL.
+    //
+    // Inert today: our skills sit in ``.claude/skills`` / ``.agents/skills``
+    // / ``.kiro/skills``, and a dot-prefixed parent is not ``<rootDir>/skills``,
+    // so discovery finds nothing and ``resolveAgentSkillsConfig`` returns
+    // ``Disabled`` on an empty list, registering no routes at all.
+    //
+    // Off explicitly anyway, for two reasons the default gets wrong here:
+    //   * ``server/middleware/1.ai-ready-gate.ts`` gates ``/llms*.txt`` and
+    //     every ``*.md``, which covers all three SKILL.md addresses — but NOT
+    //     a ``.json`` index, which renders from the tenant-less site config
+    //     exactly like ``/llms.txt`` does. CORS ``*`` and s-maxage make that
+    //     the worst shape for a shared surface on a multi-tenant host.
+    //   * Invalid frontmatter under the scanned dir is a hard build failure
+    //     (``agentSkillsError`` throws), so an unrelated stray file breaks CI.
+    // ``skilld`` already runs from ``prepare``; the day anything lands in a
+    // root ``skills/`` both apply with no further change. Flip this on
+    // together with the gate, not before.
+    agentSkills: false,
   },
   cookieControl: {
     isControlButtonEnabled: false,
