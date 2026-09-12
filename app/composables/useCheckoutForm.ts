@@ -842,6 +842,13 @@ export async function useCheckoutForm() {
       // explicit ``$fetch``). Initial SSR call uses the form-state's
       // default ``home_delivery``; the watcher takes over after the
       // shopper switches.
+      //
+      // The list is scoped by the carrier + kind below, so a method the
+      // chosen shipping cannot settle (cash to a courier at a locker)
+      // is simply absent from step 3. Nothing on the page names what
+      // was left out: a note listing "not available with this shipping
+      // method: …" was tried and dropped at the merchant's request
+      // (2026-09-12) — it read as an error on every locker checkout.
       () => `checkout:pay-ways:${locale.value}`,
       () => {
         const carrier = carrierForMethod(formState.shippingMethod)
