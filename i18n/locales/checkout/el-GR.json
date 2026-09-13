@@ -166,7 +166,6 @@
       "billing_zipcode_label": "Τ.Κ."
     },
     "submit": {
-      "success": "Η παραγγελία δημιουργήθηκε με επιτυχία",
       "address_saved_title": "Η διεύθυνση αποθηκεύτηκε",
       "address_saved_description": "Θα την βρίσκεις στη διαχείριση διευθύνσεων του λογαριασμού σου.",
       "address_save_failed_title": "Η αποθήκευση διεύθυνσης απέτυχε",

@@ -166,7 +166,6 @@
       "billing_zipcode_label": "Postcode"
     },
     "submit": {
-      "success": "Your order was created successfully",
       "address_saved_title": "Address saved",
       "address_saved_description": "You will find it under address management in your account.",
       "address_save_failed_title": "Saving the address failed",

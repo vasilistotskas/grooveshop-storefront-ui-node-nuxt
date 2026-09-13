@@ -510,10 +510,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
             // no Stripe confirmation step follows, so finish like the
             // offline flow: clear the cart and land on success.
             retryCount.value = 0
-            toast.add({
-              title: t('form.submit.success'),
-              color: 'success',
-            })
+            // No "order created" toast here — see the offline branch below.
             try {
               await $fetch('/api/cart/clear-session', { method: 'POST' })
             }
@@ -629,10 +626,17 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
           // Reset retry counter on success
           retryCount.value = 0
 
-          toast.add({
-            title: t('form.submit.success'),
-            color: 'success',
-          })
+          // Deliberately no "order created" toast. Toasts survive the
+          // navigation that follows, so this one landed on the success
+          // page beside the page's own confirmation AND beside the
+          // backend's live notification ("Η παραγγελία #286
+          // καταχωρήθηκε", `notify_order_created_live`) — three ways of
+          // saying the same thing, reported from production
+          // 2026-09-13. The success page is the confirmation surface;
+          // the live notification is the durable record for a
+          // signed-in shopper. A guest gets no live notification
+          // (`order.user_id is None` skips it) but still lands on the
+          // success page, which states the outcome in full.
           // Clear cart server-side after order is confirmed
           try {
             await $fetch('/api/cart/clear-session', { method: 'POST' })
