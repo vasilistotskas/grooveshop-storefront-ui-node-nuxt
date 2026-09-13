@@ -1,3 +1,10 @@
+## [3.194.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.4...v3.194.5) (2026-09-13)
+
+
+### Bug Fixes
+
+* **checkout:** drop the duplicate order-created toast ([39a3a3c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/39a3a3ce0dab9468488c3efe569628345e5c9373)), closes [#286](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/286)
+
 ## [3.194.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.3...v3.194.4) (2026-09-12)
 
 
