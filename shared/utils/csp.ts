@@ -73,6 +73,13 @@ export interface CspOptions {
    * cannot weaken the policy.
    */
   tenantSources?: string[]
+  /**
+   * Whether Google Identity Services (One Tap / Sign in with Google) may
+   * load — ``runtimeConfig.public.googleGsiEnable``. Gated for the same
+   * reason as the pixel ids: a store that does not offer Google sign-in
+   * should not ship Google's auth origins in its policy.
+   */
+  googleGsiEnabled?: boolean
   /** Per-request script nonce; omit for the nonce-free (prerender) policy. */
   nonce?: string
 }
@@ -86,6 +93,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     metaPixelId,
     tiktokPixelId,
     openaiPixelId,
+    googleGsiEnabled = false,
     tenantSources = [],
     tenantApiDomain,
     tenantAssetsDomain,
@@ -230,13 +238,50 @@ export function buildCspDirectives(options: CspOptions): string[] {
     = 'https://pagead2.googlesyndication.com https://www.googleadservices.com'
       + ' https://googleads.g.doubleclick.net'
 
+  // Google Identity Services (One Tap / "Sign in with Google").
+  // ``setupSocialLogin`` (app/composables/setups.ts) loads
+  // ``accounts.google.com/gsi/client`` as a SCRIPT, but the policy
+  // listed ``accounts.google.com`` under frame-src ONLY — so One Tap was
+  // CSP-blocked for every anonymous visitor the moment the flag was
+  // turned on, silently, with no sign-in button and no server-side
+  // trace. Found dormant: NUXT_PUBLIC_GOOGLE_GSI_ENABLE is "false" in
+  // production, so it had never fired.
+  //
+  // Google's documented set (developers.google.com/identity/gsi/web) is
+  // script-src ``/gsi/client``, connect-src + frame-src ``/gsi/``, plus
+  // ``apis.google.com/js/`` and ``/o/fedcm/`` for the FedCM migration.
+  // Path-scoped on their explicit advice to allow the PARENT url rather
+  // than individual endpoints, so a GIS update cannot break sign-in.
+  // frame-src already carries the bare ``accounts.google.com`` origin
+  // unconditionally, which covers both ``/gsi/`` and ``/o/fedcm/``.
+  const gsiScriptSrc = googleGsiEnabled
+    ? ' https://accounts.google.com/gsi/client'
+    : ''
+  const gsiConnectSrc = googleGsiEnabled
+    ? ' https://accounts.google.com/gsi/ https://apis.google.com/js/'
+    : ''
+  const gsiFrameSrc = googleGsiEnabled ? ' https://apis.google.com/js/' : ''
+
+  // Stripe.js. ``StripePayment.vue`` calls ``confirmCardPayment``, which
+  // performs 3-D Secure in an iframe served from ``hooks.stripe.com`` —
+  // absent from frame-src, so every SCA challenge was blocked. Under EU
+  // SCA that is most card payments, not an edge case. ``*.js.stripe.com``
+  // is Stripe's documented companion to ``js.stripe.com``: Elements
+  // starts frames on sibling origins for performance, and omitting the
+  // wildcard breaks those. Full set per docs.stripe.com/security/guide
+  // (Stripe.js section); unconditional, matching the existing
+  // ``js.stripe.com`` entries, because the checkout code is always shipped.
+  const stripeScriptSrc = ' https://js.stripe.com https://*.js.stripe.com'
+  const stripeFrameSrc
+    = ' https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com'
+
   return [
     `default-src 'self'`,
-    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com ${googleConversionOrigins} https://js.stripe.com https://challenges.cloudflare.com${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${tenantExtra}${nonceScriptSrc}`,
+    `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com ${googleConversionOrigins}${stripeScriptSrc} https://challenges.cloudflare.com${gsiScriptSrc}${metaScriptSrc}${tiktokScriptSrc}${openaiScriptSrc}${tenantExtra}${nonceScriptSrc}`,
     `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com`,
     `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins} ${tileOrigins}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
-    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} ${googleConversionOrigins} https://ad.doubleclick.net https://stats.g.doubleclick.net https://api.stripe.com ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${tenantExtra}`,
+    `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} ${googleConversionOrigins} https://ad.doubleclick.net https://stats.g.doubleclick.net https://api.stripe.com${gsiConnectSrc} ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${tenantExtra}`,
     // BoxNow widget iframe origins per their CDN: gr (primary), plus
     // cy/bg/hr regional variants (Phase 2 multi-country).
     // ``widget-v4.boxnow.gr`` is required even though we load the v5 URL:
@@ -254,7 +299,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     // one layer but not the other fails silently — blank box plus a
     // console line, or stripped from the DOM before CSP is consulted.
     // Both halves were broken at once; see ``shared/utils/embeds.ts``.
-    `frame-src 'self'${dev ? ' data:' : ''} https://js.stripe.com https://challenges.cloudflare.com https://accounts.google.com https://widget-v5.boxnow.gr https://widget-v5.boxnow.cy https://widget-v5.boxnow.bg https://widget-v5.boxnow.hr https://widget-v4.boxnow.gr https://widget.boxnow.gr${embedFrameSrc}${metaFrameSrc}${tenantExtra}`,
+    `frame-src 'self'${dev ? ' data:' : ''}${stripeFrameSrc} https://challenges.cloudflare.com https://accounts.google.com${gsiFrameSrc} https://widget-v5.boxnow.gr https://widget-v5.boxnow.cy https://widget-v5.boxnow.bg https://widget-v5.boxnow.hr https://widget-v4.boxnow.gr https://widget.boxnow.gr${embedFrameSrc}${metaFrameSrc}${tenantExtra}`,
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'${metaFormAction}`,

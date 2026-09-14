@@ -338,3 +338,47 @@ describe('csp middleware', () => {
     })
   })
 })
+
+describe('third-party integrations the checkout and login actually load', () => {
+  const pick = (directives: string[], name: string) =>
+    directives.find(d => d.startsWith(`${name} `)) ?? ''
+
+  it('allows the Stripe 3-D Secure iframe origin', () => {
+    // StripePayment.vue calls confirmCardPayment, which runs the SCA
+    // challenge in an iframe served from hooks.stripe.com. Without it
+    // every 3-D Secure card is blocked at the moment of payment — and
+    // under EU SCA that is most cards, not an edge case.
+    const frameSrc = pick(buildCspDirectives({ dev: false }), 'frame-src')
+    expect(frameSrc).toContain('https://hooks.stripe.com')
+  })
+
+  it('allows the sibling js.stripe.com origins Elements starts frames on', () => {
+    const directives = buildCspDirectives({ dev: false })
+    expect(pick(directives, 'script-src')).toContain('https://*.js.stripe.com')
+    expect(pick(directives, 'frame-src')).toContain('https://*.js.stripe.com')
+    // The bare origin must survive alongside the wildcard: *.js.stripe.com
+    // does NOT match js.stripe.com itself.
+    expect(pick(directives, 'script-src')).toContain('https://js.stripe.com')
+    expect(pick(directives, 'frame-src')).toContain('https://js.stripe.com')
+  })
+
+  it('allows the Google Identity Services script when One Tap is enabled', () => {
+    // setupSocialLogin loads accounts.google.com/gsi/client as a SCRIPT,
+    // while the policy listed accounts.google.com under frame-src only.
+    const directives = buildCspDirectives({ dev: false, googleGsiEnabled: true })
+    expect(pick(directives, 'script-src')).toContain('https://accounts.google.com/gsi/client')
+    expect(pick(directives, 'connect-src')).toContain('https://accounts.google.com/gsi/')
+    expect(pick(directives, 'connect-src')).toContain('https://apis.google.com/js/')
+    expect(pick(directives, 'frame-src')).toContain('https://apis.google.com/js/')
+  })
+
+  it('ships no Google auth origins when One Tap is disabled', () => {
+    // Gated like the pixel ids: a store that does not offer Google
+    // sign-in should not widen its policy for it. The script does not
+    // load in that case either, so the origins would be dead weight.
+    const directives = buildCspDirectives({ dev: false, googleGsiEnabled: false })
+    expect(pick(directives, 'script-src')).not.toContain('accounts.google.com')
+    expect(pick(directives, 'connect-src')).not.toContain('accounts.google.com')
+    expect(pick(directives, 'connect-src')).not.toContain('apis.google.com')
+  })
+})

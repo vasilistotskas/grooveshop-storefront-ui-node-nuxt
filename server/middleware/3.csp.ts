@@ -34,6 +34,7 @@ export default defineEventHandler((event) => {
     mediaStreamOrigin?: string
     static?: { origin?: string }
     djangoHostName?: string
+    googleGsiEnable?: boolean
   }
 
   const cleanPath = (path.split('?')[0] ?? '').replace(/\/+$/, '') || '/'
@@ -77,6 +78,10 @@ export default defineEventHandler((event) => {
     metaPixelId: tenant?.metaPixelId,
     tiktokPixelId: tenant?.tiktokPixelId,
     openaiPixelId: tenant?.openaiPixelId,
+    // Platform-level, not per-tenant: the GSI script is gated on the
+    // same runtime flag in ``setupSocialLogin``, so the policy widens
+    // only when the script can actually load.
+    googleGsiEnabled: publicConfig.googleGsiEnable === true,
     tenantSources: tenant?.allowedCspSources ?? [],
     tenantApiDomain: tenant?.apiDomain,
     tenantAssetsDomain: tenant?.assetsDomain,
