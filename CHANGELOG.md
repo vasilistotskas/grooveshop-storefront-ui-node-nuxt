@@ -1,3 +1,10 @@
+## [3.194.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.5...v3.194.6) (2026-09-14)
+
+
+### Bug Fixes
+
+* **csp:** allow Stripe 3-D Secure and Google One Tap ([579e071](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/579e071ed2a2d568b37320ee9485a711ac40a4e6))
+
 ## [3.194.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.4...v3.194.5) (2026-09-13)
 
 
