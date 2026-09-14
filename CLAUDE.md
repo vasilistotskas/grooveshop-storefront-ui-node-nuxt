@@ -37,12 +37,12 @@ touching its files, read the rule file directly.
 - **Run CI tests (unit + nuxt with coverage):** `pnpm test:ci`
 - **Run a single test file:** `pnpm vitest run test/unit/utils/str.spec.ts`
 - **Run a single test project:** `pnpm vitest run --project=unit` or `--project=nuxt`
-- **Generate OpenAPI types:** `pnpm openapi-ts` (requires `openapi/schema.json` — fetch with `pnpm generate:schema`)
+- **Generate OpenAPI types:** `pnpm openapi-ts` (requires `openapi/schema.json` — fetch with `pnpm generate:schema`), then **`pnpm sync:schema`, which is required, not optional** — it regenerates the derived `.yml` files and CI fails on any diff. See `.claude/rules/server-routes.md`.
 - **Prepare Nuxt types:** `pnpm prepare`
 - **Build + start production:** `pnpm build && pnpm start`
 - **Docker build:** `docker build -f docker/Dockerfile .`
 - **Analyze bundle:** `npx nuxt analyze`
-- **Package manager:** pnpm 11 (pinned in the `packageManager` field)
+- **Package manager:** pnpm — the exact version is pinned in the `packageManager` field of `package.json`; read it there rather than trusting a number written here
 
 ## Architecture
 
@@ -55,7 +55,7 @@ touching its files, read the rule file directly.
 - `runtime/` — Runtime code for the custom cookie control module (plugin, methods, types, utils)
 - `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES = ['el', 'en']` and `DEFAULT_LOCALE = 'el'`), locale detector, i18n config, and a translation file set per locale (`el-GR.json` / `en-US.json`, plus domain-specific: auth, breadcrumb, checkout, cookies, validation). Routes for **both** locales are generated at build time for every tenant; whether one is *reachable* is per-tenant (`Tenant.available_locales`), enforced by `app/middleware/locale-available.global.ts`, which 404s a prefix the tenant does not list
 - `openapi/` — Schema files (`schema.json`, `schema.yml`) fetched from Django for type generation
-- `scripts/` — `fetch-schema.mjs` for downloading OpenAPI schema from Django
+- `scripts/` — `fetch-schema.mjs` (download the OpenAPI schema from Django), `sync-schema-yml.mjs` (regenerate the derived `.yml`), `check-lockstep-deps.mjs`, `audit-visual.mjs`
 
 ### State Management
 
