@@ -1,3 +1,10 @@
+## [3.195.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.0...v3.195.1) (2026-09-15)
+
+
+### Bug Fixes
+
+* **product:** stop asking for offers a store has switched off ([2dbf427](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2dbf42752827a97a0c512f85e9a376737978d091))
+
 # [3.195.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.6...v3.195.0) (2026-09-15)
 
 
