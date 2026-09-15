@@ -27,6 +27,20 @@ mockNuxtImport('useTenantStore', () => {
   return () => ({ get promotionsEnabled() { return promotionsPlanEnabled } })
 })
 
+// The component now gates the REQUEST on the awaitable form of the flag
+// (`settingEnabled`), not just the render. Its real implementation goes
+// through `fetchStoreSettings` -> `useRequestFetch`, which has no
+// request context under mountSuspended and so always fails closed here.
+// Driving it from the same `runtimeSettings` the gate tests already
+// manipulate keeps that coverage honest rather than mocking the gate
+// open unconditionally.
+mockNuxtImport('settingEnabled', () => {
+  return async (key: string, options: { fallback: boolean }) => {
+    const raw = runtimeSettings[key]
+    return raw === undefined ? options.fallback : raw === 'true'
+  }
+})
+
 function offer(over: Record<string, any> = {}) {
   return {
     id: 1,
@@ -85,6 +99,34 @@ describe('ProductOffers', () => {
   afterEach(() => {
     wrapper?.unmount?.()
     wrapper = undefined
+  })
+
+  it('does not even ASK when promotions are off for the store', async () => {
+    // The gate used to apply to `rows` only, so a promotions-off store
+    // still fired one request per product view and Django answered 404
+    // to every one — 58 in six hours on webside.gr. Wasted round trip on
+    // the hot PDP path, and a permanent ERROR smear hiding real faults.
+    promotionsPlanEnabled = false
+    offers = [offer({ relation: 'PRODUCT' })]
+
+    await mount()
+
+    const asked = mockFetch.mock.calls.some((c: any[]) =>
+      String(c[0]).includes('/api/promotions/product/'),
+    )
+    expect(asked).toBe(false)
+  })
+
+  it('does not ask when the runtime toggle is off either', async () => {
+    runtimeSettings = { PROMOTIONS_ENABLED: 'false' }
+    offers = [offer({ relation: 'PRODUCT' })]
+
+    await mount()
+
+    const asked = mockFetch.mock.calls.some((c: any[]) =>
+      String(c[0]).includes('/api/promotions/product/'),
+    )
+    expect(asked).toBe(false)
   })
 
   it('renders nothing when no offer touches the product', async () => {
