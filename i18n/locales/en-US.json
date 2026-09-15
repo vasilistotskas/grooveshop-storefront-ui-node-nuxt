@@ -373,5 +373,57 @@
       "us": "Contact"
     },
     "feedback": "Feedback & Comments"
+  },
+  "promotion": {
+    "code_label": "Code",
+    "copy_code": "Copy code",
+    "code_copied": "Code copied",
+    "automatic": "Applied automatically at the basket",
+    "with_code": "With a code at checkout",
+    "benefit": {
+      "percentage": "-{value}%",
+      "fixed": "-{amount}",
+      "free_shipping": "Free shipping",
+      "bxgy_free": "{buy}+{get} free",
+      "bxgy_discounted": "{buy}+{get} at -{value}%",
+      "free_gift": "Gift"
+    },
+    "benefit_name": {
+      "percentage": "Percentage off",
+      "fixed": "Amount off",
+      "free_shipping": "Free shipping",
+      "bxgy": "Get more",
+      "free_gift": "Free gift"
+    },
+    "condition": {
+      "min_subtotal": "On orders from {amount}",
+      "min_quantity": "On {count} items or more",
+      "max_discount": "Maximum discount {amount}",
+      "first_order": "On your first order only",
+      "no_sale_items": "Does not apply to products already on sale",
+      "not_stackable": "Cannot be combined with other offers"
+    },
+    "relation": {
+      "PRODUCT": "For this product",
+      "REWARD": "Yours as a gift",
+      "CATEGORY": "For its category",
+      "ORDER": "Store-wide"
+    },
+    "expiry": {
+      "today": "Ends today",
+      "tomorrow": "Ends tomorrow",
+      "days": "Ends in {count} days | Ends in {count} day | Ends in {count} days",
+      "on": "Until {date}"
+    },
+    "rejection": {
+      "generic": "The coupon could not be applied",
+      "discount_code_invalid": "The code is not valid",
+      "discount_code_expired": "The offer has ended",
+      "discount_code_not_started": "The offer has not started yet",
+      "discount_code_minimum_not_met": "Your basket does not reach the offer minimum",
+      "discount_code_usage_limit_reached": "The code has been used up",
+      "discount_code_combination_disallowed": "The code cannot be combined with the active offers",
+      "discount_code_user_ineligible": "The code is not available for your account"
+    }
   }
 }

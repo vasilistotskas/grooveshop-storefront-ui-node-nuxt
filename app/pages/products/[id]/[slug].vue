@@ -821,6 +821,15 @@ definePageMeta({
                  unless the product belongs to a variant group. -->
             <ProductVariantSelector v-if="product" :product="product" />
 
+            <!-- Promotions that apply to THIS product, resolved by
+                 Django against the same scope/exclusion rules the cart
+                 engine uses. Sits with the other value messaging, right
+                 above add-to-cart: an automatic offer is otherwise
+                 invisible until the cart already qualifies for it.
+                 Renders nothing when the store has promotions off or
+                 nothing touches this product. -->
+            <ProductOffers v-if="product?.id" :product-id="product.id" />
+
             <!-- Loyalty Points Badge (logged in) / Guest CTA -->
             <LoyaltyPointsBadge
               v-if="loggedIn && product?.id"

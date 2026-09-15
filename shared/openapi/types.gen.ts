@@ -2140,6 +2140,48 @@ export type Cart = {
 }
 
 /**
+ * One coupon the checkout picker offers, with its verdict.
+ *
+ * The offer itself is NESTED rather than flattened: the storefront
+ * renders the same card here, on ``/offers`` and on the product page,
+ * so sharing the exact ``PublicPromotion`` shape is what lets one
+ * component and one headline formatter serve all three. The five
+ * fields beside it are the only cart-dependent part.
+ *
+ * ``code`` is its own field, not the promotion's: a promotion can
+ * carry many codes, and a personal coupon carries one that
+ * ``PublicPromotionSerializer.get_code`` deliberately refuses to
+ * publish. The picker is about a specific code.
+ */
+export type CartCoupon = {
+  promotion: PublicPromotion
+  /**
+     * The coupon code to apply.
+     */
+  readonly code: string
+  /**
+     * Whether applying this code to the cart as it stands would succeed. False rows carry a machine-readable reason.
+     */
+  readonly eligible: boolean
+  /**
+     * Why the code is refused, from the ACP discount vocabulary (discount_code_expired, discount_code_minimum_not_met, …). Null when the code is eligible.
+     */
+  readonly reason: string | null
+  /**
+     * What applying this code would take off the cart RIGHT NOW, after stacking is resolved against the automatic promotions. 0 is a legitimate answer for an eligible code whose products are not in the cart, or one a better automatic offer outranks.
+     */
+  readonly discountAmount: number
+  /**
+     * Whether applying this code would waive the shipping cost. False when an automatic promotion already waives it — the code adds nothing there.
+     */
+  readonly freeShipping: boolean
+  /**
+     * Whether this code is the one currently on the cart.
+     */
+  readonly applied: boolean
+}
+
+/**
  * Request body for ``POST /api/v1/cart/create-payment-intent``.
  *
  * ``shipping_kind`` is required so the view's shipping calculation
@@ -7205,6 +7247,92 @@ export type ProductPoints = {
 }
 
 /**
+ * A public offer, plus why it is relevant to one product.
+ *
+ * Everything the ``/offers`` card renders, so the storefront has ONE
+ * offer shape and one headline/conditions formatter across the offers
+ * page, the product panel and the checkout picker — plus ``relation``,
+ * which the product panel needs to phrase the claim ("this product is
+ * 20% off" vs "buy two and this one is your gift").
+ */
+export type ProductPromotion = {
+  readonly id: number
+  readonly name: string
+  readonly description: string
+  /**
+     * Automatic promotions apply to every eligible cart; code promotions require the shopper to enter a coupon code
+     *
+     * * `AUTOMATIC` - Automatic
+     * * `CODE` - Coupon code
+     */
+  trigger: TriggerEnum
+  benefitType: BenefitTypeEnum
+  /**
+     * Percent (0-100) for percentage benefits, EUR amount for fixed-amount benefits; ignored for free shipping
+     */
+  readonly benefitValue: number
+  targetScope: TargetScopeEnum
+  /**
+     * The coupon code to enter at checkout. Null for an AUTOMATIC promotion, which needs no code.
+     */
+  readonly code: string | null
+  /**
+     * Cart items total (incl. VAT) the offer requires.
+     */
+  readonly minSubtotal: number | null
+  /**
+     * Ceiling on a single application's discount.
+     */
+  readonly maxDiscountAmount: number | null
+  /**
+     * Minimum Quantity
+     *
+     * Minimum number of ELIGIBLE units (after scope and exclusions) the cart must contain
+     */
+  readonly minQuantity: number | null
+  /**
+     * BXGY: eligible units the shopper must buy per application
+     */
+  readonly buyQuantity: number | null
+  /**
+     * BXGY: units discounted per application. FREE_GIFT: gift units added to the order
+     */
+  readonly getQuantity: number | null
+  /**
+     * BXGY: discount applied to the 'get' units — 100 means free, 50 means half price
+     */
+  readonly getDiscountPercent: number
+  /**
+     * Exclude Already-discounted Products
+     *
+     * Skip products that already carry a product-level markdown (discount percent > 0)
+     */
+  readonly excludeDiscountedProducts: boolean
+  /**
+     * Apply only to customers with no previous orders. For guests this is checked against the checkout email and is best-effort.
+     */
+  readonly firstOrderOnly: boolean
+  /**
+     * Stackable promotions combine with each other; a non-stackable promotion applies alone and only when it beats the combined stackable discount. Ignored for free shipping, which always combines.
+     */
+  readonly stackable: boolean
+  readonly endsAt: string | null
+  readonly rewardProducts: Array<PromotionProductRef>
+  readonly eligibleProducts: Array<PromotionProductRef>
+  readonly eligibleProductCount: number
+  readonly eligibleCategories: Array<PromotionCategoryRef>
+  /**
+     * Why this offer is shown on the product: PRODUCT (the promotion names it), REWARD (the shopper receives it), CATEGORY (its category is targeted), ORDER (store-wide).
+     *
+     * * `PRODUCT` - Targets this product
+     * * `REWARD` - This product is the reward
+     * * `CATEGORY` - Targets this product's category
+     * * `ORDER` - Applies to the whole order
+     */
+  relation: RelationEnum
+}
+
+/**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
 export type ProductReview = {
@@ -7725,6 +7853,14 @@ export type RegionWriteRequest = {
      */
   country: string
 }
+
+/**
+ * * `PRODUCT` - Targets this product
+ * * `REWARD` - This product is the reward
+ * * `CATEGORY` - Targets this product's category
+ * * `ORDER` - Applies to the whole order
+ */
+export type RelationEnum = 'PRODUCT' | 'REWARD' | 'CATEGORY' | 'ORDER'
 
 /**
  * * `similar` - Similar product
@@ -15412,6 +15548,166 @@ export type ApplyCartCouponResponses = {
 
 export type ApplyCartCouponResponse = ApplyCartCouponResponses[keyof ApplyCartCouponResponses]
 
+export type ListCartCouponsData = {
+  body?: never
+  headers?: {
+    /**
+         * Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.
+         */
+    'X-Cart-Id'?: string
+  }
+  path?: never
+  query?: {
+    /**
+         * Φίλτρο ανά τύπο καλαθιού
+         *
+         * * `user` - User Cart
+         * * `guest` - Guest Cart
+         * * `anonymous` - Anonymous Cart
+         */
+    cartType?: 'anonymous' | 'guest' | 'user'
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία
+         */
+    createdAfter?: string
+    createdAt_Date?: string
+    createdAt_Gte?: string
+    createdAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία
+         */
+    createdBefore?: string
+    /**
+         * Φίλτρο καλαθιών αδρανών για τουλάχιστον X ημέρες
+         */
+    daysInactive?: string | number
+    /**
+         * Φίλτρο καλαθιών με/χωρίς είδη σε έκπτωση
+         */
+    hasDiscounts?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο καλαθιών με/χωρίς είδη
+         */
+    hasItems?: 'true' | 'false' | '1' | '0' | boolean
+    id?: string | number
+    /**
+         * Οι πολλαπλές τιμές πρέπει να διαχωρίζονται με κόμμα.
+         */
+    id_In?: string | Array<number>
+    /**
+         * Filter abandoned carts — idle longer than the CART_ABANDONED_HOURS store setting.
+         */
+    isAbandoned?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Filter active/abandoned carts. The window is the CART_ABANDONED_HOURS store setting, not a fixed period.
+         */
+    isActive?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο καλαθιών επισκεπτών (True) ή καλαθιών χρηστών (False)
+         */
+    isGuest?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά ακριβή ημερομηνία τελευταίας δραστηριότητας
+         */
+    lastActivity?: string
+    lastActivity_Date?: string
+    lastActivity_Gte?: string
+    lastActivity_Lte?: string
+    /**
+         * Φίλτρο καλαθιών με τελευταία δραστηριότητα μετά από αυτή την ημερομηνία
+         */
+    lastActivityAfter?: string
+    /**
+         * Φίλτρο καλαθιών με τελευταία δραστηριότητα πριν από αυτή την ημερομηνία
+         */
+    lastActivityBefore?: string
+    /**
+         * Φίλτρο καλαθιών με έως X συνολικά είδη (ποσότητα)
+         */
+    maxItems?: string | number
+    /**
+         * Φίλτρο καλαθιών με συνολική αξία έως X
+         */
+    maxTotalValue?: string | number
+    /**
+         * Φίλτρο καλαθιών με έως X μοναδικά είδη
+         */
+    maxUniqueItems?: string | number
+    /**
+         * Φίλτρο καλαθιών με τουλάχιστον X συνολικά είδη (ποσότητα)
+         */
+    minItems?: string | number
+    /**
+         * Φίλτρο καλαθιών με συνολική αξία τουλάχιστον X
+         */
+    minTotalValue?: string | number
+    /**
+         * Φίλτρο καλαθιών με τουλάχιστον X μοναδικά είδη
+         */
+    minUniqueItems?: string | number
+    /**
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, user, -user, createdAt, -createdAt, updatedAt, -updatedAt, lastActivity, -lastActivity
+         */
+    ordering?: string
+    /**
+         * A search term.
+         */
+    search?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία
+         */
+    updatedAfter?: string
+    updatedAt_Date?: string
+    updatedAt_Gte?: string
+    updatedAt_Lte?: string
+    /**
+         * Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία
+         */
+    updatedBefore?: string
+    /**
+         * Φίλτρο ανά ID χρήστη
+         */
+    user?: string | number
+    /**
+         * Φίλτρο ανά ενεργούς χρήστες
+         */
+    user_IsActive?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο καλαθιών με/χωρίς χρήστες
+         */
+    user_Isnull?: 'true' | 'false' | '1' | '0' | boolean
+    /**
+         * Φίλτρο ανά email χρήστη (μερική αντιστοίχιση)
+         */
+    userEmail?: string
+    /**
+         * Φίλτρο ανά πλήρες όνομα χρήστη (όνομα ή επώνυμο)
+         */
+    userName?: string
+    /**
+         * Φίλτρο ανά ακριβές UUID
+         */
+    uuid?: string
+  }
+  url: '/api/v1/cart/coupons'
+}
+
+export type ListCartCouponsErrors = {
+  400: ErrorResponse
+  401: ErrorResponse
+  403: ErrorResponse
+  404: ErrorResponse
+  500: ErrorResponse
+}
+
+export type ListCartCouponsError = ListCartCouponsErrors[keyof ListCartCouponsErrors]
+
+export type ListCartCouponsResponses = {
+  200: Array<CartCoupon>
+}
+
+export type ListCartCouponsResponse = ListCartCouponsResponses[keyof ListCartCouponsResponses]
+
 export type CreateCartPaymentIntentData = {
   body: CartCreatePaymentIntentRequestRequest
   headers?: {
@@ -22725,6 +23021,27 @@ export type ListPublicPromotionsResponses = {
 }
 
 export type ListPublicPromotionsResponse = ListPublicPromotionsResponses[keyof ListPublicPromotionsResponses]
+
+export type ListProductPromotionsData = {
+  body?: never
+  path: {
+    productId: string | number
+  }
+  query?: never
+  url: '/api/v1/promotion/product/{product_id}'
+}
+
+export type ListProductPromotionsErrors = {
+  404: ErrorResponse
+}
+
+export type ListProductPromotionsError = ListProductPromotionsErrors[keyof ListProductPromotionsErrors]
+
+export type ListProductPromotionsResponses = {
+  200: Array<ProductPromotion>
+}
+
+export type ListProductPromotionsResponse = ListProductPromotionsResponses[keyof ListProductPromotionsResponses]
 
 export type ApiV1RecommendationsRetrieveData = {
   body?: never

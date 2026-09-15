@@ -7,6 +7,7 @@ const tenantStore = useTenantStore()
 const cartStore = useCartStore()
 const { cart } = storeToRefs(cartStore)
 const { $i18n } = useNuxtApp()
+const { rejectionMessage } = usePromotionOffer()
 
 // Two-tier gate: tenant plan flag + merchant runtime setting (the
 // loyalty pattern) so a disabled feature never renders the widget.
@@ -86,10 +87,12 @@ const applyCoupon = async () => {
   catch (error: any) {
     // Django answers 400 with { detail, reason } — reason follows the
     // ACP discount vocabulary (discount_code_invalid, _expired, ...).
-    const reason = error?.data?.reason as string | undefined
-    couponError.value = reason && reasonMessages[reason]
-      ? reasonMessages[reason]!
-      : error?.data?.detail || t('errors.generic')
+    // The same vocabulary drives the picker's per-coupon verdicts, so
+    // both read from one translated map (``usePromotionOffer``) and a
+    // refusal says the same thing wherever the shopper meets it.
+    couponError.value = error?.data?.reason
+      ? rejectionMessage(error.data.reason)
+      : error?.data?.detail || rejectionMessage(null)
   }
   finally {
     submitting.value = false
@@ -109,16 +112,6 @@ const removeCoupon = async () => {
   finally {
     submitting.value = false
   }
-}
-
-const reasonMessages: Record<string, string> = {
-  discount_code_invalid: t('errors.invalid'),
-  discount_code_expired: t('errors.expired'),
-  discount_code_not_started: t('errors.not_started'),
-  discount_code_minimum_not_met: t('errors.minimum_not_met'),
-  discount_code_usage_limit_reached: t('errors.usage_limit'),
-  discount_code_combination_disallowed: t('errors.combination'),
-  discount_code_user_ineligible: t('errors.ineligible'),
 }
 </script>
 
@@ -213,6 +206,11 @@ const reasonMessages: Record<string, string> = {
     >
       {{ couponError }}
     </p>
+
+    <!-- The coupons this cart can actually use, pre-judged by Django.
+         Renders nothing when the store publishes none, so a store
+         without coupons keeps the plain input it always had. -->
+    <CheckoutCouponPicker @applied="() => { couponError = null }" />
   </div>
 </template>
 
@@ -226,17 +224,21 @@ el:
   applied_description: "Έκπτωση {amount}"
   applied_no_discount: "Δεν μείωσε το σύνολο — ισχύει ήδη καλύτερη προσφορά"
   no_discount_better_offer: "Ισχύει καλύτερη προσφορά"
-  errors:
-    generic: "Το κουπόνι δεν μπόρεσε να εφαρμοστεί"
-    invalid: "Ο κωδικός δεν είναι έγκυρος"
-    expired: "Η προσφορά έχει λήξει"
-    not_started: "Η προσφορά δεν έχει ξεκινήσει ακόμα"
-    minimum_not_met: "Το καλάθι δεν φτάνει το ελάχιστο ποσό της προσφοράς"
-    usage_limit: "Ο κωδικός έχει εξαντληθεί"
-    combination: "Ο κωδικός δεν συνδυάζεται με τις ενεργές προσφορές"
-    ineligible: "Ο κωδικός δεν είναι διαθέσιμος για τον λογαριασμό σας"
   validation:
     required: "Συμπληρώστε τον κωδικό"
     too_short: "Ο κωδικός είναι πολύ σύντομος"
     too_long: "Ο κωδικός είναι πολύ μεγάλος"
+en:
+  title: "Discount coupon"
+  label: "Coupon code"
+  placeholder: "e.g. WELCOME10"
+  apply: "Apply"
+  applied_title: "Coupon applied"
+  applied_description: "Discount {amount}"
+  applied_no_discount: "It did not reduce your total — a better offer already applies"
+  no_discount_better_offer: "A better offer applies"
+  validation:
+    required: "Enter the code"
+    too_short: "The code is too short"
+    too_long: "The code is too long"
 </i18n>

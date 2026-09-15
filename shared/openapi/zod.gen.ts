@@ -4442,6 +4442,21 @@ export const zRegionWriteRequest = z.object({
 })
 
 /**
+ * * `PRODUCT` - Targets this product
+ * * `REWARD` - This product is the reward
+ * * `CATEGORY` - Targets this product's category
+ * * `ORDER` - Applies to the whole order
+ */
+export const zRelationEnum = z.enum([
+  'PRODUCT',
+  'REWARD',
+  'CATEGORY',
+  'ORDER',
+]).register(z.globalRegistry, {
+  description: '* `PRODUCT` - Targets this product\n* `REWARD` - This product is the reward\n* `CATEGORY` - Targets this product\'s category\n* `ORDER` - Applies to the whole order',
+})
+
+/**
  * * `similar` - Similar product
  * * `complementary` - Goes well with
  * * `accessory` - Accessory for
@@ -5872,6 +5887,53 @@ export const zTriggerEnum = z.enum(['AUTOMATIC', 'CODE']).register(z.globalRegis
 })
 
 /**
+ * A public offer, plus why it is relevant to one product.
+ *
+ * Everything the ``/offers`` card renders, so the storefront has ONE
+ * offer shape and one headline/conditions formatter across the offers
+ * page, the product panel and the checkout picker — plus ``relation``,
+ * which the product panel needs to phrase the claim ("this product is
+ * 20% off" vs "buy two and this one is your gift").
+ */
+export const zProductPromotion = z.object({
+  id: z.int().readonly(),
+  name: z.string().readonly(),
+  description: z.string().readonly(),
+  trigger: zTriggerEnum,
+  benefitType: zBenefitTypeEnum,
+  benefitValue: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'Percent (0-100) for percentage benefits, EUR amount for fixed-amount benefits; ignored for free shipping',
+  }).readonly(),
+  targetScope: zTargetScopeEnum,
+  code: z.string().readonly().nullable(),
+  minSubtotal: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  maxDiscountAmount: z.number().gt(-1000000000).lt(1000000000).readonly().nullable(),
+  minQuantity: z.int().readonly().nullable(),
+  buyQuantity: z.int().readonly().nullable(),
+  getQuantity: z.int().readonly().nullable(),
+  getDiscountPercent: z.number().gt(-1000).lt(1000).register(z.globalRegistry, {
+    description: 'BXGY: discount applied to the \'get\' units — 100 means free, 50 means half price',
+  }).readonly(),
+  excludeDiscountedProducts: z.boolean().register(z.globalRegistry, {
+    description: 'Skip products that already carry a product-level markdown (discount percent > 0)',
+  }).readonly(),
+  firstOrderOnly: z.boolean().register(z.globalRegistry, {
+    description: 'Apply only to customers with no previous orders. For guests this is checked against the checkout email and is best-effort.',
+  }).readonly(),
+  stackable: z.boolean().register(z.globalRegistry, {
+    description: 'Stackable promotions combine with each other; a non-stackable promotion applies alone and only when it beats the combined stackable discount. Ignored for free shipping, which always combines.',
+  }).readonly(),
+  endsAt: z.iso.datetime({ offset: true }).readonly().nullable(),
+  rewardProducts: z.array(zPromotionProductRef).readonly(),
+  eligibleProducts: z.array(zPromotionProductRef).readonly(),
+  eligibleProductCount: z.int().readonly(),
+  eligibleCategories: z.array(zPromotionCategoryRef).readonly(),
+  relation: zRelationEnum,
+}).register(z.globalRegistry, {
+  description: 'A public offer, plus why it is relevant to one product.\n\nEverything the ``/offers`` card renders, so the storefront has ONE\noffer shape and one headline/conditions formatter across the offers\npage, the product panel and the checkout picker — plus ``relation``,\nwhich the product panel needs to phrase the claim ("this product is\n20% off" vs "buy two and this one is your gift").',
+})
+
+/**
  * One live, publicly-advertisable promotion.
  */
 export const zPublicPromotion = z.object({
@@ -5909,6 +5971,42 @@ export const zPublicPromotion = z.object({
   eligibleCategories: z.array(zPromotionCategoryRef).readonly(),
 }).register(z.globalRegistry, {
   description: 'One live, publicly-advertisable promotion.',
+})
+
+/**
+ * One coupon the checkout picker offers, with its verdict.
+ *
+ * The offer itself is NESTED rather than flattened: the storefront
+ * renders the same card here, on ``/offers`` and on the product page,
+ * so sharing the exact ``PublicPromotion`` shape is what lets one
+ * component and one headline formatter serve all three. The five
+ * fields beside it are the only cart-dependent part.
+ *
+ * ``code`` is its own field, not the promotion's: a promotion can
+ * carry many codes, and a personal coupon carries one that
+ * ``PublicPromotionSerializer.get_code`` deliberately refuses to
+ * publish. The picker is about a specific code.
+ */
+export const zCartCoupon = z.object({
+  promotion: zPublicPromotion,
+  code: z.string().register(z.globalRegistry, {
+    description: 'The coupon code to apply.',
+  }).readonly(),
+  eligible: z.boolean().register(z.globalRegistry, {
+    description: 'Whether applying this code to the cart as it stands would succeed. False rows carry a machine-readable reason.',
+  }).readonly(),
+  reason: z.string().readonly().nullable(),
+  discountAmount: z.number().gt(-1000000000).lt(1000000000).register(z.globalRegistry, {
+    description: 'What applying this code would take off the cart RIGHT NOW, after stacking is resolved against the automatic promotions. 0 is a legitimate answer for an eligible code whose products are not in the cart, or one a better automatic offer outranks.',
+  }).readonly(),
+  freeShipping: z.boolean().register(z.globalRegistry, {
+    description: 'Whether applying this code would waive the shipping cost. False when an automatic promotion already waives it — the code adds nothing there.',
+  }).readonly(),
+  applied: z.boolean().register(z.globalRegistry, {
+    description: 'Whether this code is the one currently on the cart.',
+  }).readonly(),
+}).register(z.globalRegistry, {
+  description: 'One coupon the checkout picker offers, with its verdict.\n\nThe offer itself is NESTED rather than flattened: the storefront\nrenders the same card here, on ``/offers`` and on the product page,\nso sharing the exact ``PublicPromotion`` shape is what lets one\ncomponent and one headline formatter serve all three. The five\nfields beside it are the only cart-dependent part.\n\n``code`` is its own field, not the promotion\'s: a promotion can\ncarry many codes, and a personal coupon carries one that\n``PublicPromotionSerializer.get_code`` deliberately refuses to\npublish. The picker is about a specific code.',
 })
 
 /**
@@ -11871,6 +11969,160 @@ export const zApplyCartCouponHeaders = z.object({
 
 export const zApplyCartCouponResponse = zCartDetail
 
+export const zListCartCouponsHeaders = z.object({
+  'X-Cart-Id': z.uuid().register(z.globalRegistry, {
+    description: 'Cart UUID for guest users. Used to identify and maintain guest cart sessions. Sequential integer IDs were enumerable metadata, so the public identifier is the UUID inherited from ``UUIDModel``.',
+  }).optional(),
+})
+
+export const zListCartCouponsQuery = z.object({
+  cartType: z.enum([
+    'anonymous',
+    'guest',
+    'user',
+  ]).register(z.globalRegistry, {
+    description: 'Φίλτρο ανά τύπο καλαθιού\n\n* `user` - User Cart\n* `guest` - Guest Cart\n* `anonymous` - Anonymous Cart',
+  }).optional(),
+  createdAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν μετά από αυτή την ημερομηνία',
+  }).optional(),
+  createdAt_Date: z.iso.date().optional(),
+  createdAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  createdAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  createdBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων που δημιουργήθηκαν πριν από αυτή την ημερομηνία',
+  }).optional(),
+  daysInactive: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  hasDiscounts: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  hasItems: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  id: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  id_In: z.union([
+    z.string().register(z.globalRegistry, {
+      description: 'Τιμές διαχωρισμένες με κόμμα',
+    }),
+    z.array(z.int()),
+  ]).optional(),
+  isAbandoned: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  isActive: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  isGuest: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  lastActivity: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβή ημερομηνία τελευταίας δραστηριότητας',
+  }).optional(),
+  lastActivity_Date: z.iso.date().optional(),
+  lastActivity_Gte: z.iso.datetime({ offset: true }).optional(),
+  lastActivity_Lte: z.iso.datetime({ offset: true }).optional(),
+  lastActivityAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Φίλτρο καλαθιών με τελευταία δραστηριότητα μετά από αυτή την ημερομηνία',
+  }).optional(),
+  lastActivityBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Φίλτρο καλαθιών με τελευταία δραστηριότητα πριν από αυτή την ημερομηνία',
+  }).optional(),
+  maxItems: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  maxTotalValue: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  maxUniqueItems: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minItems: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minTotalValue: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  minUniqueItems: z.union([
+    z.string().regex(/^-?\d+(\.\d+)?$/),
+    z.number(),
+  ]).optional(),
+  ordering: z.string().regex(/^(?:id|\-id|user|\-user|createdAt|\-createdAt|updatedAt|\-updatedAt|lastActivity|\-lastActivity)(?:,(?:id|\-id|user|\-user|createdAt|\-createdAt|updatedAt|\-updatedAt|lastActivity|\-lastActivity))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, user, -user, createdAt, -createdAt, updatedAt, -updatedAt, lastActivity, -lastActivity',
+  }).optional(),
+  search: z.string().register(z.globalRegistry, {
+    description: 'A search term.',
+  }).optional(),
+  updatedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν μετά από αυτή την ημερομηνία',
+  }).optional(),
+  updatedAt_Date: z.iso.date().optional(),
+  updatedAt_Gte: z.iso.datetime({ offset: true }).optional(),
+  updatedAt_Lte: z.iso.datetime({ offset: true }).optional(),
+  updatedBefore: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
+    description: 'Φίλτρο αντικειμένων που ενημερώθηκαν πριν από αυτή την ημερομηνία',
+  }).optional(),
+  user: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]).optional(),
+  user_IsActive: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  user_Isnull: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
+  userEmail: z.string().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά email χρήστη (μερική αντιστοίχιση)',
+  }).optional(),
+  userName: z.string().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά πλήρες όνομα χρήστη (όνομα ή επώνυμο)',
+  }).optional(),
+  uuid: z.uuid().register(z.globalRegistry, {
+    description: 'Φίλτρο ανά ακριβές UUID',
+  }).optional(),
+})
+
+export const zListCartCouponsResponse = z.array(zCartCoupon)
+
 export const zCreateCartPaymentIntentBody = zCartCreatePaymentIntentRequestRequest
 
 export const zCreateCartPaymentIntentHeaders = z.object({
@@ -17358,6 +17610,15 @@ export const zGetUserProductReviewPath = z.object({
 export const zGetUserProductReviewResponse = zProductReviewDetail
 
 export const zListPublicPromotionsResponse = z.array(zPublicPromotion)
+
+export const zListProductPromotionsPath = z.object({
+  productId: z.union([
+    z.string().regex(/^-?\d+$/),
+    z.int(),
+  ]),
+})
+
+export const zListProductPromotionsResponse = z.array(zProductPromotion)
 
 export const zApiV1RecommendationsRetrieveQuery = z.object({
   exclude: z.string().register(z.globalRegistry, {

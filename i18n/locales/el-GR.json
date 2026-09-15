@@ -373,5 +373,57 @@
       "us": "Επικοινωνία"
     },
     "feedback": "Σχόλια & Παρατηρήσεις"
+  },
+  "promotion": {
+    "code_label": "Κωδικός",
+    "copy_code": "Αντιγραφή κωδικού",
+    "code_copied": "Ο κωδικός αντιγράφηκε",
+    "automatic": "Εφαρμόζεται αυτόματα στο καλάθι",
+    "with_code": "Με κωδικό στο ταμείο",
+    "benefit": {
+      "percentage": "-{value}%",
+      "fixed": "-{amount}",
+      "free_shipping": "Δωρεάν αποστολή",
+      "bxgy_free": "{buy}+{get} δώρο",
+      "bxgy_discounted": "{buy}+{get} με -{value}%",
+      "free_gift": "Δώρο"
+    },
+    "benefit_name": {
+      "percentage": "Έκπτωση %",
+      "fixed": "Έκπτωση σε ευρώ",
+      "free_shipping": "Δωρεάν αποστολή",
+      "bxgy": "Πάρε περισσότερα",
+      "free_gift": "Δώρο"
+    },
+    "condition": {
+      "min_subtotal": "Για αγορές από {amount}",
+      "min_quantity": "Για {count} τεμάχια ή περισσότερα",
+      "max_discount": "Μέγιστη έκπτωση {amount}",
+      "first_order": "Μόνο για την πρώτη σου παραγγελία",
+      "no_sale_items": "Δεν ισχύει σε προϊόντα που είναι ήδη σε έκπτωση",
+      "not_stackable": "Δεν συνδυάζεται με άλλες προσφορές"
+    },
+    "relation": {
+      "PRODUCT": "Για αυτό το προϊόν",
+      "REWARD": "Το παίρνεις δώρο",
+      "CATEGORY": "Για την κατηγορία του",
+      "ORDER": "Σε όλο το κατάστημα"
+    },
+    "expiry": {
+      "today": "Λήγει σήμερα",
+      "tomorrow": "Λήγει αύριο",
+      "days": "Λήγει σε {count} ημέρες | Λήγει σε {count} ημέρα | Λήγει σε {count} ημέρες",
+      "on": "Έως {date}"
+    },
+    "rejection": {
+      "generic": "Το κουπόνι δεν μπορεί να εφαρμοστεί",
+      "discount_code_invalid": "Ο κωδικός δεν είναι έγκυρος",
+      "discount_code_expired": "Η προσφορά έχει λήξει",
+      "discount_code_not_started": "Η προσφορά δεν έχει ξεκινήσει ακόμα",
+      "discount_code_minimum_not_met": "Το καλάθι δεν φτάνει το ελάχιστο ποσό της προσφοράς",
+      "discount_code_usage_limit_reached": "Ο κωδικός έχει εξαντληθεί",
+      "discount_code_combination_disallowed": "Ο κωδικός δεν συνδυάζεται με τις ενεργές προσφορές",
+      "discount_code_user_ineligible": "Ο κωδικός δεν είναι διαθέσιμος για τον λογαριασμό σου"
+    }
   }
 }
