@@ -1,3 +1,15 @@
+# [3.195.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.6...v3.195.0) (2026-09-15)
+
+
+### Bug Fixes
+
+* **i18n:** drop CouponInput from the untranslated-blocks debt list ([756fa7d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/756fa7dc52a540978ba4cd87d1744cc48f6af04a))
+
+
+### Features
+
+* **promotions:** show offers on the product page and pre-judged coupons at checkout ([652128d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/652128da37c1b94fc13878d40be415620b1f0351))
+
 ## [3.194.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.194.5...v3.194.6) (2026-09-14)
 
 
