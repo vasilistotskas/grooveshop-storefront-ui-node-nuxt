@@ -30,7 +30,6 @@
   "app/components/Cart/CartButton.vue",
   "app/components/Cart/ItemCard.vue",
   "app/components/Checkout/BoxNowLockerPicker.vue",
-  "app/components/Checkout/CouponInput.vue",
   "app/components/Checkout/GenericLockerPicker.vue",
   "app/components/Checkout/GiftCardInput.vue",
   "app/components/Checkout/GiftItem.vue",
