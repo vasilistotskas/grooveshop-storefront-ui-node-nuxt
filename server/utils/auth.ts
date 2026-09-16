@@ -85,6 +85,21 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
     headers['X-Forwarded-For'] = requestHeaders['x-forwarded-for']
   }
 
+  // Proof-of-edge, forwarded verbatim. A Cloudflare Transform Rule stamps
+  // every request that passes the edge with this shared secret, and Django
+  // (`core/client_ip.py`) refuses to believe any client-IP header without
+  // it — the origin answers on its node IPs too, so `X-Real-IP` above is
+  // otherwise forgeable. SSR is the path most visitors take, so without
+  // this hop the real visitor IP would reach Django unproven and every
+  // anonymous throttle would stay keyed to one shared internal address.
+  //
+  // Safe to relay: this server is reachable only through Traefik, so a
+  // caller cannot inject a valid value — an unproxied request simply
+  // carries no header and Django falls back.
+  if (requestHeaders['x-origin-verify']) {
+    headers['X-Origin-Verify'] = requestHeaders['x-origin-verify']
+  }
+
   // Tell Django which language to render emails/responses in. The locale
   // middleware populates event.context.locale from (in order): ?locale query,
   // i18n cookies, Accept-Language. allauth's adapter + every Celery email
