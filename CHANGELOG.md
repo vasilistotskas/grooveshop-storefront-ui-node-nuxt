@@ -1,3 +1,10 @@
+## [3.195.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.1...v3.195.2) (2026-09-16)
+
+
+### Bug Fixes
+
+* **ssr:** forward the edge proof header to Django ([884be55](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/884be558fc29614e33716153fccca492a8d280ef))
+
 ## [3.195.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.0...v3.195.1) (2026-09-15)
 
 
