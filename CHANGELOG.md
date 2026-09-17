@@ -1,3 +1,10 @@
+## [3.195.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.3...v3.195.4) (2026-09-17)
+
+
+### Bug Fixes
+
+* **legal:** render the returns policy, which the redirect had orphaned ([0f0cda7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0f0cda75d19d599a1e9089e8a31f6709866e353e))
+
 ## [3.195.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.2...v3.195.3) (2026-09-17)
 
 
