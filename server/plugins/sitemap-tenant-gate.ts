@@ -275,9 +275,26 @@ export default defineNitroPlugin((nitroApp) => {
       // hreflang is what the alternate CLAIMS to be, so it needs no
       // guessing, whereas `/de/x` and a real two-letter route `/eu/x`
       // are structurally identical.
-      const alternatives = locales.size < 2
-        ? undefined
-        : url.alternatives.filter(alt => locales.has(languageOfLocaleTag(alt.hreflang)))
+      // A document the tenant serves in only ONE of its locales is the
+      // same case one layer down: dropping `/en/terms-of-use` from the
+      // url set left the surviving `/terms-of-use` still advertising an
+      // `en` alternate pointing at it, so the 404 came back as an
+      // hreflang. The locale gate above cannot catch it — the tenant
+      // genuinely serves `en`, this document just does not exist in it.
+      const kept = locales.size < 2
+        ? []
+        : url.alternatives.filter((alt) => {
+            const altLocale = languageOfLocaleTag(alt.hreflang)
+            if (!locales.has(altLocale)) return false
+            return !available || available.has(altLocale)
+          })
+
+      // An hreflang set that points at one URL says nothing — it is a
+      // page declaring itself its own alternate. Counted on distinct
+      // hrefs rather than entries because `x-default` duplicates the
+      // default locale's href by design.
+      const alternatives
+        = new Set(kept.map(alt => alt.href)).size > 1 ? kept : undefined
       return [{ ...url, alternatives }]
     })
   })

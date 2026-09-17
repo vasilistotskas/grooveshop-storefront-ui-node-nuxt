@@ -487,6 +487,53 @@ describe('sitemap-tenant-gate', () => {
         .toEqual(['https://example.com/terms-of-use'])
     })
 
+    it('drops the hreflang alternate for the untranslated locale', async () => {
+      // Dropping /en/terms-of-use from the url set is not enough: the
+      // surviving /terms-of-use still advertised an `en` alternate
+      // pointing at it, so the 404 came back as an hreflang. The
+      // locale gate cannot catch this — the tenant DOES serve `en`.
+      contentMock.mockResolvedValue({
+        results: Object.values(LEGAL_ROUTE_SLUGS)
+          .map(slug => ({ slug, translations: { el: {} } })),
+      })
+
+      const ctx = {
+        urls: [{
+          loc: 'https://example.com/terms-of-use',
+          alternatives: [
+            { hreflang: 'x-default', href: 'https://example.com/terms-of-use' },
+            { hreflang: 'el', href: 'https://example.com/terms-of-use' },
+            { hreflang: 'en', href: 'https://example.com/en/terms-of-use' },
+          ],
+        }],
+        sitemapName: 'sitemap',
+        event: { context: { tenant: { ...OPEN, availableLocales: ['el', 'en'] } } },
+      }
+      await resolvedHook!(ctx)
+
+      // Only one distinct href would remain, which is a page declaring
+      // itself its own alternate — so the set goes entirely.
+      expect(ctx.urls[0]!.alternatives).toBeUndefined()
+    })
+
+    it('keeps the alternates when the document exists in both', async () => {
+      const ctx = {
+        urls: [{
+          loc: 'https://example.com/terms-of-use',
+          alternatives: [
+            { hreflang: 'el', href: 'https://example.com/terms-of-use' },
+            { hreflang: 'en', href: 'https://example.com/en/terms-of-use' },
+          ],
+        }],
+        sitemapName: 'sitemap',
+        event: { context: { tenant: { ...OPEN, availableLocales: ['el', 'en'] } } },
+      }
+      await resolvedHook!(ctx)
+
+      expect(ctx.urls[0]!.alternatives.map((a: any) => a.hreflang))
+        .toEqual(['el', 'en'])
+    })
+
     it('keeps both locales when the document is translated', async () => {
       const ctx = {
         urls: [
