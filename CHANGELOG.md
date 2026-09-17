@@ -1,3 +1,10 @@
+## [3.195.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.7...v3.195.8) (2026-09-17)
+
+
+### Bug Fixes
+
+* **sitemap:** gate the layout-driven brand pages per tenant ([04e9e30](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/04e9e30b8cf24bcba67b9dccc75e197623dfc281))
+
 ## [3.195.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.6...v3.195.7) (2026-09-17)
 
 
