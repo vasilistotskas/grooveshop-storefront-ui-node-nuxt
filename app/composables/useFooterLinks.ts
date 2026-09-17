@@ -46,7 +46,6 @@ export function useFooterLinks() {
           to: canonical
             ? localePath(canonical)
             : localePath({ name: 'info-slug', params: { slug: page.slug } }),
-          slug: page.slug,
         }
       }),
     }
@@ -109,17 +108,11 @@ export function useFooterLinks() {
           })),
         }))
 
-    // Drop a published legal page from the Pages column when the base
-    // column set ALREADY links its route. Those routes now render the
-    // merchant's own page (see useLegalPage), so listing the slug again
-    // produced two footer links to the same document under the same
-    // label — previously one to their terms and one to the platform
-    // boilerplate, both indexable and contradicting each other.
-    //
-    // Conditioned on the base actually carrying the link rather than
-    // filtered unconditionally: an operator-configured footer may not
-    // include it, and suppressing it there would remove the ONLY route
-    // to a legally required page.
+    // Drop a ContentPage from the Pages column when the base column set
+    // ALREADY links its route, so one destination gets one footer link
+    // and the operator's own label and placement win. See
+    // dedupeFooterContentPages for why this is conditional on the base
+    // carrying the link, and why it compares locale-stripped paths.
     const pagesColumn = contentPagesColumn.value
     if (!pagesColumn) return base
 

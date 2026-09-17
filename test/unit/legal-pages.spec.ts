@@ -133,9 +133,9 @@ describe('one document, one url', () => {
   })
 })
 
-describe('the footer does not double-link a legal page', () => {
-  // The BEHAVIOUR lives in test/unit/utils/footerLinks.spec.ts. These
-  // two assertions used to check only that `LEGAL_PAGE_SLUGS` and
+describe('the footer does not double-link a page', () => {
+  // The BEHAVIOUR lives in test/unit/utils/footerLinks.spec.ts. The
+  // assertions here used to check only that `LEGAL_PAGE_SLUGS` and
   // `linkedPaths` were MENTIONED in the composable — and they stayed
   // green while all three legal routes were rendering twice in
   // webside's live footer, because mentioning a symbol says nothing
@@ -147,10 +147,10 @@ describe('the footer does not double-link a legal page', () => {
     expect(code).toContain('dedupeFooterContentPages')
   })
 
-  it('carries the ContentPage slug on each entry', () => {
-    // The dedupe keys on this. Parsing it back out of the href is what
-    // broke: the slug and the URL tail are equal only for /info/<slug>.
-    expect(code).toContain('slug: page.slug')
+  it('keeps no filtering rule of its own', () => {
+    // Two copies of the rule is how the legal-only version survived a
+    // change to the hrefs it was matching against.
+    expect(code).not.toContain('LEGAL_PAGE_SLUGS')
   })
 })
 

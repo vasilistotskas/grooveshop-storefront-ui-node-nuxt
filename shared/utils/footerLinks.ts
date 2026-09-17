@@ -1,19 +1,8 @@
-import { LEGAL_PAGE_SLUGS } from '~~/shared/utils/legalPages'
+import { splitLocale } from '~~/shared/i18n/localeFromPath'
 
 export interface FooterLink {
   label: string
   to: string
-  /**
-   * The ContentPage slug this entry came from, when it came from one.
-   *
-   * Carried rather than parsed back out of `to`. The slug and the final
-   * segment of the URL are equal only for `/info/<slug>`, so the moment
-   * a legal page began linking its canonical route (`/terms-of-use`,
-   * not `/info/terms`) a URL-derived slug stopped matching
-   * `LEGAL_PAGE_SLUGS` and every legal page appeared in the footer
-   * twice — once in the operator's own column and once in "Σελίδες".
-   */
-  slug?: string
 }
 
 export interface FooterLinkColumn {
@@ -23,15 +12,29 @@ export interface FooterLinkColumn {
 }
 
 /**
- * Drop a published legal page from the Pages column when the base
- * columns already link its route.
+ * Drop a ContentPage from the Pages column when the base columns
+ * already link its route.
  *
- * The legal routes render the merchant's own document, so listing the
- * page again puts two footer links to the SAME document under two
- * headings. Suppression is conditional on the base actually carrying
- * the link, never unconditional: an operator-configured footer may omit
- * it, and filtering blindly would remove the only route to a page the
- * law requires to be reachable.
+ * One destination, one footer link. Two entries pointing at the same
+ * path are the same page under two headings, and the operator's own
+ * column is the one that survives: it is the label and the placement
+ * they chose, where "Σελίδες" is a generated catch-all.
+ *
+ * Suppression is conditional on the base actually carrying the link,
+ * never unconditional — an operator-configured footer may omit a page
+ * entirely, and filtering blindly would remove the only route to a
+ * document the law requires to be reachable. That condition is the
+ * whole guard, which is why this no longer special-cases the legal
+ * slugs: restricting it to them left `/info/faq` and
+ * `/info/shipping-info` listed twice in demo's footer, once in the
+ * operator's "Εξυπηρέτηση" column and once in "Σελίδες".
+ *
+ * Paths are compared with the locale prefix stripped. The base carries
+ * `NavigationMenu` rows verbatim from Django while the Pages column is
+ * built with `localePath()`, so on a tenant serving a second locale
+ * `/terms-of-use` and `/en/terms-of-use` are the same destination
+ * spelled two ways, and a raw string comparison silently stops
+ * deduplicating the moment a store enables `en`.
  *
  * Pure so it can be tested without a Nuxt context — the previous
  * version lived inline in the composable and was covered only by
@@ -42,14 +45,13 @@ export function dedupeFooterContentPages(
   base: readonly FooterLinkColumn[],
   children: readonly FooterLink[],
 ): FooterLink[] {
-  const linkedPaths = new Set(
-    base.flatMap(column => column.children.map(child => child.to)),
+  const linkedRoutes = new Set(
+    base.flatMap(column =>
+      column.children.map(child => splitLocale(child.to).route),
+    ),
   )
 
-  return children.filter((child) => {
-    if (!child.slug || !LEGAL_PAGE_SLUGS.has(child.slug)) return true
-    // `to` is already the canonical route for these, so the base either
-    // links that exact path or it does not.
-    return !linkedPaths.has(child.to)
-  })
+  return children.filter(
+    child => !linkedRoutes.has(splitLocale(child.to).route),
+  )
 }
