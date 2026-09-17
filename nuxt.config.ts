@@ -1200,7 +1200,6 @@ export default defineNuxtConfig({
       '/cart',
       '/checkout',
       '/feedback',
-      '/return-policy',
     ],
     sources: [
       '/api/__sitemap__/urls',

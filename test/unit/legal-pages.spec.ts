@@ -131,6 +131,34 @@ describe('one document, one url', () => {
     // their own, which the sitemap never sourced at all before.
     expect(code).toContain('/info/')
   })
+
+  it('excludes no canonical legal route from the sitemap', () => {
+    // `/return-policy` sat in nuxt.config's sitemap `exclude` from
+    // 2024-09-27, when the page rendered an empty <div /> and had no
+    // business being indexed. It now renders the merchant's own
+    // returns policy, answers `index, follow`, and is linked from the
+    // footer of every page — so the exclusion left one indexable,
+    // internally linked legal document missing from the sitemap while
+    // its three siblings were listed.
+    const config = read('nuxt.config.ts')
+    // Anchor inside the `sitemap:` block. `nuxt.config.ts` has an
+    // earlier one-line `exclude: [` (the robots/api one at the nitro
+    // level), and slicing from the FIRST match made this assertion
+    // vacuous — it passed with '/return-policy' still excluded.
+    const sitemap = config.slice(config.indexOf('\n  sitemap: {'))
+    const start = sitemap.indexOf('exclude: [')
+    const exclude = sitemap.slice(start, sitemap.indexOf(']', start))
+
+    // Proves the anchor still points at the list this test is about,
+    // so a future reshuffle fails loudly instead of silently passing.
+    expect(exclude).toContain('\'/cart\'')
+
+    for (const route of Object.keys(LEGAL_ROUTE_SLUGS)) {
+      expect(exclude, `/${route} is excluded from the sitemap`).not.toContain(
+        `'/${route}'`,
+      )
+    }
+  })
 })
 
 describe('the footer does not double-link a page', () => {
