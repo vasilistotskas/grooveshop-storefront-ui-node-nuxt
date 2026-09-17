@@ -1,3 +1,10 @@
+## [3.195.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.6...v3.195.7) (2026-09-17)
+
+
+### Bug Fixes
+
+* **sitemap:** gate the legal routes per tenant instead of excluding them ([01cb981](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/01cb9810aa758c3c592b8d616a9987a7f4f36c0e))
+
 ## [3.195.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.5...v3.195.6) (2026-09-17)
 
 
