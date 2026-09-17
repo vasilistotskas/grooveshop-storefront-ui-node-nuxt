@@ -163,7 +163,7 @@ describe('one document, one url', () => {
     // `/return-policy` is seeded UNPUBLISHED, so most tenants 404 there.
     const code = read('server/plugins/sitemap-tenant-gate.ts')
     expect(code).toContain('contentSlug')
-    expect(code).toContain('publishedContentSlugsForHost')
+    expect(code).toContain('publishedContentLocalesForHost')
     // Derived from the map, so a new legal route cannot be added
     // without being gated.
     expect(code).toContain('Object.entries(LEGAL_ROUTE_SLUGS)')

@@ -10,7 +10,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import {
   pageTypePublishedForHost,
   publicSettingsForHost,
-  publishedContentSlugsForHost,
+  publishedContentLocalesForHost,
 } from '../../../../server/utils/tenantSetting'
 import { parseSettingFlag } from '../../../../shared/utils/settingFlag'
 import { LEGAL_ROUTE_SLUGS } from '../../../../shared/utils/legalPages'
@@ -28,10 +28,12 @@ vi.stubGlobal('getTenantConfig', getTenantConfigMock)
 // slugs of its published ContentPages (which say whether a legal route
 // resolves for this tenant at all).
 const settingsMock = vi.fn(async () => ({ settings: {} as Record<string, string> }))
+const BOTH_LOCALES = { el: {}, en: {} }
 const contentMock = vi.fn(async () => ({
-  // Default: the tenant has every legal document, so these tests vary
-  // one gate at a time like the settings ones do.
-  results: Object.values(LEGAL_ROUTE_SLUGS).map(slug => ({ slug })),
+  // Default: the tenant has every legal document, in every locale, so
+  // these tests vary one gate at a time like the settings ones do.
+  results: Object.values(LEGAL_ROUTE_SLUGS)
+    .map(slug => ({ slug, translations: BOTH_LOCALES })),
 }))
 // One read per gated pageType: Django 404s when no layout is published.
 const layoutMock = vi.fn(async (_pageType: string) => ({ isPublished: true }))
@@ -48,7 +50,7 @@ vi.stubGlobal('$fetch', (url: string) => {
 // tests still exercise the shared truthiness rule and the fail-CLOSED
 // branch.
 vi.stubGlobal('publicSettingsForHost', publicSettingsForHost)
-vi.stubGlobal('publishedContentSlugsForHost', publishedContentSlugsForHost)
+vi.stubGlobal('publishedContentLocalesForHost', publishedContentLocalesForHost)
 vi.stubGlobal('pageTypePublishedForHost', pageTypePublishedForHost)
 vi.stubGlobal('parseSettingFlag', parseSettingFlag)
 // Read at MODULE scope by the plugin (the GATED_ROUTES literal derives
@@ -372,7 +374,8 @@ describe('sitemap-tenant-gate', () => {
 
     beforeEach(() => {
       contentMock.mockResolvedValue({
-        results: Object.values(LEGAL_ROUTE_SLUGS).map(slug => ({ slug })),
+        results: Object.values(LEGAL_ROUTE_SLUGS)
+          .map(slug => ({ slug, translations: BOTH_LOCALES })),
       })
     })
 
@@ -395,7 +398,11 @@ describe('sitemap-tenant-gate', () => {
       // only the merchant can write one, so three of the four
       // production tenants answer 404 there.
       contentMock.mockResolvedValue({
-        results: [{ slug: 'terms' }, { slug: 'privacy' }, { slug: 'cookies' }],
+        results: [
+          { slug: 'terms', translations: BOTH_LOCALES },
+          { slug: 'privacy', translations: BOTH_LOCALES },
+          { slug: 'cookies', translations: BOTH_LOCALES },
+        ],
       })
 
       const locs = await runLegal(OPEN)
@@ -424,6 +431,76 @@ describe('sitemap-tenant-gate', () => {
       expect(contentMock).toHaveBeenCalledTimes(1)
     })
 
+    it('drops the locale a document is not translated into', async () => {
+      // delta-sigma's live state: it serves `el` and `en`, its legal
+      // documents exist only in Greek, and `extractTranslated` does not
+      // fall back — so /en/terms-of-use 404s while /terms-of-use is
+      // fine. Three such URLs were in its sitemap.
+      contentMock.mockResolvedValue({
+        results: Object.values(LEGAL_ROUTE_SLUGS)
+          .map(slug => ({ slug, translations: { el: {} } })),
+      })
+
+      const ctx = {
+        urls: [
+          { loc: 'https://example.com/terms-of-use' },
+          { loc: 'https://example.com/en/terms-of-use' },
+        ],
+        sitemapName: 'sitemap',
+        event: { context: { tenant: { ...OPEN, availableLocales: ['el', 'en'] } } },
+      }
+      await resolvedHook!(ctx)
+
+      expect(ctx.urls.map(u => u.loc))
+        .toEqual(['https://example.com/terms-of-use'])
+    })
+
+    it('still drops it when nothing else is gated', async () => {
+      // The early return short-circuits the whole filter when nothing
+      // is blocked and every platform locale is served. A fully
+      // configured bilingual store with ONE untranslated legal document
+      // hits exactly that combination, so the return has to account for
+      // locale-restricted routes or the 404 survives.
+      settingsMock.mockResolvedValue({
+        settings: {
+          LOYALTY_ENABLED: 'True',
+          CATALOGUE_ENABLED: 'True',
+          PROMOTIONS_ENABLED: 'True',
+        },
+      })
+      contentMock.mockResolvedValue({
+        results: Object.values(LEGAL_ROUTE_SLUGS)
+          .map(slug => ({ slug, translations: { el: {} } })),
+      })
+
+      const ctx = {
+        urls: [
+          { loc: 'https://example.com/terms-of-use' },
+          { loc: 'https://example.com/en/terms-of-use' },
+        ],
+        sitemapName: 'sitemap',
+        event: { context: { tenant: { ...OPEN, availableLocales: ['el', 'en'] } } },
+      }
+      await resolvedHook!(ctx)
+
+      expect(ctx.urls.map(u => u.loc))
+        .toEqual(['https://example.com/terms-of-use'])
+    })
+
+    it('keeps both locales when the document is translated', async () => {
+      const ctx = {
+        urls: [
+          { loc: 'https://example.com/terms-of-use' },
+          { loc: 'https://example.com/en/terms-of-use' },
+        ],
+        sitemapName: 'sitemap',
+        event: { context: { tenant: { ...OPEN, availableLocales: ['el', 'en'] } } },
+      }
+      await resolvedHook!(ctx)
+
+      expect(ctx.urls).toHaveLength(2)
+    })
+
     it('is independent of the layout gate', async () => {
       // A tenant can have its legal documents without any brand page.
       layoutMock.mockRejectedValue(new Error('404'))
@@ -435,7 +512,9 @@ describe('sitemap-tenant-gate', () => {
       // `/terms-of-use` is backed by the slug `terms`. A tenant whose
       // only page is literally named `terms-of-use` does not have the
       // document this route renders.
-      contentMock.mockResolvedValue({ results: [{ slug: 'terms-of-use' }] })
+      contentMock.mockResolvedValue({
+        results: [{ slug: 'terms-of-use', translations: BOTH_LOCALES }],
+      })
 
       expect(await runLegal(OPEN))
         .not.toContain('https://example.com/terms-of-use')

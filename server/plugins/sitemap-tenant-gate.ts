@@ -186,8 +186,8 @@ export default defineNitroPlugin((nitroApp) => {
     const needsContent = GATED_ROUTES.some(
       route => planAllows(route) && route.contentSlug,
     )
-    const publishedSlugs = needsContent
-      ? await publishedContentSlugsForHost(host, apiBaseUrl)
+    const contentLocales = needsContent
+      ? await publishedContentLocalesForHost(host, apiBaseUrl)
       : null
 
     // One read per gated pageType — there is no bulk endpoint — run in
@@ -213,7 +213,7 @@ export default defineNitroPlugin((nitroApp) => {
         if (!parseSettingFlag(settings[route.settingKey], false)) return false
       }
       if (route.contentSlug) {
-        return publishedSlugs?.has(route.contentSlug) ?? false
+        return contentLocales?.has(route.contentSlug) ?? false
       }
       if (route.pageType) {
         return layoutPublished.get(route.pageType) ?? false
@@ -224,10 +224,36 @@ export default defineNitroPlugin((nitroApp) => {
     const blocked = new Set(
       GATED_ROUTES.filter((_, i) => !allowed[i]).map(route => route.path),
     )
+
     const locales = new Set(tenantAllowedLocales(tenant))
-    // Nothing gated and every platform locale served: leave the list as
-    // the module built it.
-    if (!blocked.size && locales.size === SUPPORTED_LOCALES.length) return
+
+    // A content-backed route that survived the gate above still only
+    // resolves in the locales its document is translated into:
+    // `extractTranslated` does not fall back, so an untranslated legal
+    // page 404s on the prefixed locale while answering 200 on the
+    // default one. delta-sigma serves `el` and `en` with Greek-only
+    // legal documents, and listed three such 404s.
+    //
+    // Only routes MISSING one of the locales the tenant serves are
+    // recorded, so a fully translated store adds nothing here and the
+    // early return below still applies to it.
+    const routeLocales = new Map<string, ReadonlySet<string>>(
+      GATED_ROUTES.flatMap((route, i) => {
+        if (!allowed[i] || !route.contentSlug) return []
+        const available = contentLocales?.get(route.contentSlug)
+        if (!available) return []
+        const coversAll = [...locales].every(l => available.has(l))
+        return coversAll ? [] : [[route.path, available] as const]
+      }),
+    )
+
+    // Nothing gated, nothing locale-restricted, and every platform
+    // locale served: leave the list as the module built it.
+    if (
+      !blocked.size
+      && !routeLocales.size
+      && locales.size === SUPPORTED_LOCALES.length
+    ) return
 
     ctx.urls = ctx.urls.flatMap((url) => {
       const path = pathOf(typeof url === 'string' ? url : url.loc)
@@ -235,6 +261,9 @@ export default defineNitroPlugin((nitroApp) => {
       const { locale, route } = splitLocale(path)
       if (blocked.has(route)) return []
       if (!locales.has(locale)) return []
+      // The document exists but not in THIS language.
+      const available = routeLocales.get(route)
+      if (available && !available.has(locale)) return []
       if (typeof url === 'string' || !url.alternatives?.length) return [url]
 
       // An alternate for a locale this tenant does not serve points at

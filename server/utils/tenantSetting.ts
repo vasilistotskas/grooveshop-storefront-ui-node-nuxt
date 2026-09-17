@@ -91,7 +91,8 @@ export async function pageTypePublishedForHost(
 }
 
 /**
- * The slugs of every ContentPage this tenant has PUBLISHED.
+ * Every PUBLISHED ContentPage slug this tenant has, and the locales it
+ * exists in.
  *
  * Which legal documents a store actually has is per-tenant data, and no
  * build-time list can answer it: `/terms-of-use` and friends are static
@@ -99,21 +100,31 @@ export async function pageTypePublishedForHost(
  * ContentPage and answer 404 when there is none. Three of the four
  * production tenants have no `return-policy` page.
  *
+ * The LOCALES matter for the same reason one layer down. A page is
+ * translated per locale, `extractTranslated` does not fall back to
+ * another language, and the legal routes 404 on an empty body — so on a
+ * tenant serving two locales, `/en/terms-of-use` is a 404 whenever the
+ * merchant has written only the Greek document, which is delta-sigma's
+ * state today. The row's `translations` keys are exactly the locales
+ * that resolve.
+ *
  * The API returns only published rows to an anonymous caller, so
- * membership of this set is exactly "this route resolves for this
- * tenant". `pageSize` is explicit because the endpoint's default page
- * is 12.
+ * membership here is exactly "this route resolves for this tenant, in
+ * this locale". `pageSize` is explicit because the endpoint's default
+ * page is 12.
  *
  * Fails CLOSED like {@link publicSettingsForHost}, and for the same
  * reason — a feed that fails open publishes a URL its own gate then
  * 404s. `null` is the closed signal.
  */
-export async function publishedContentSlugsForHost(
+export async function publishedContentLocalesForHost(
   host: string,
   apiBaseUrl: string,
-): Promise<ReadonlySet<string> | null> {
+): Promise<ReadonlyMap<string, ReadonlySet<string>> | null> {
   try {
-    const { results } = await $fetch<{ results: { slug: string }[] }>(
+    const { results } = await $fetch<{
+      results: { slug: string, translations?: Record<string, unknown> | null }[]
+    }>(
       `${apiBaseUrl}/content-page`,
       {
         method: 'GET',
@@ -121,7 +132,12 @@ export async function publishedContentSlugsForHost(
         headers: host ? { 'X-Forwarded-Host': host } : undefined,
       },
     )
-    return new Set(results.map(page => page.slug))
+    return new Map(
+      results.map(page => [
+        page.slug,
+        new Set(Object.keys(page.translations ?? {})),
+      ]),
+    )
   }
   catch {
     return null
