@@ -134,17 +134,23 @@ describe('one document, one url', () => {
 })
 
 describe('the footer does not double-link a legal page', () => {
+  // The BEHAVIOUR lives in test/unit/utils/footerLinks.spec.ts. These
+  // two assertions used to check only that `LEGAL_PAGE_SLUGS` and
+  // `linkedPaths` were MENTIONED in the composable — and they stayed
+  // green while all three legal routes were rendering twice in
+  // webside's live footer, because mentioning a symbol says nothing
+  // about what it filters. What is worth asserting here is that the
+  // composable still delegates rather than growing its own copy.
   const code = stripComments(read('app/composables/useFooterLinks.ts'))
 
-  it('filters legal slugs out of the Pages column', () => {
-    expect(code).toContain('LEGAL_PAGE_SLUGS')
+  it('delegates the dedupe to the shared, tested helper', () => {
+    expect(code).toContain('dedupeFooterContentPages')
   })
 
-  it('only suppresses when the base already links that route', () => {
-    // An operator-configured footer may omit the legal link; filtering
-    // unconditionally would remove the ONLY route to a page the law
-    // requires to be reachable.
-    expect(code).toContain('linkedPaths')
+  it('carries the ContentPage slug on each entry', () => {
+    // The dedupe keys on this. Parsing it back out of the href is what
+    // broke: the slug and the URL tail are equal only for /info/<slug>.
+    expect(code).toContain('slug: page.slug')
   })
 })
 

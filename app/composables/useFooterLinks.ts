@@ -1,9 +1,3 @@
-interface FooterLinkColumn {
-  label: string
-  icon?: string
-  children: { label: string, to: string }[]
-}
-
 export function useFooterLinks() {
   const { $i18n } = useNuxtApp()
   const t = $i18n.t.bind($i18n)
@@ -52,6 +46,7 @@ export function useFooterLinks() {
           to: canonical
             ? localePath(canonical)
             : localePath({ name: 'info-slug', params: { slug: page.slug } }),
+          slug: page.slug,
         }
       }),
     }
@@ -125,22 +120,10 @@ export function useFooterLinks() {
     // filtered unconditionally: an operator-configured footer may not
     // include it, and suppressing it there would remove the ONLY route
     // to a legally required page.
-    const linkedPaths = new Set(
-      base.flatMap(column => column.children.map(child => child.to)),
-    )
     const pagesColumn = contentPagesColumn.value
     if (!pagesColumn) return base
 
-    const children = pagesColumn.children.filter((child) => {
-      const slug = child.to.split('/').pop() ?? ''
-      if (!LEGAL_PAGE_SLUGS.has(slug)) return true
-      // Object.keys widens to string[]; the named-route lookup needs
-      // the literal union, and localePath is typed against it.
-      const legalRoute = (
-        Object.keys(LEGAL_ROUTE_SLUGS) as LegalRouteName[]
-      ).find(name => LEGAL_ROUTE_SLUGS[name] === slug)
-      return !legalRoute || !linkedPaths.has(localePath(legalRoute))
-    })
+    const children = dedupeFooterContentPages(base, pagesColumn.children)
 
     return children.length ? [...base, { ...pagesColumn, children }] : base
   })
