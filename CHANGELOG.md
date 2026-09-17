@@ -1,3 +1,12 @@
+## [3.195.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.5...v3.195.6) (2026-09-17)
+
+
+### Bug Fixes
+
+* **footer:** dedupe any content page the operator already links ([30993ed](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/30993edc488359f2a05fab3c6fcfec1714b246f0))
+* **sitemap:** emit legal routes per tenant, not from static discovery ([56ed80c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/56ed80cf8db29a16e55e34cd6340936470e98275))
+* **sitemap:** stop excluding /return-policy ([04edf5a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/04edf5a55c41a3a7993ed1d8d1499e4c06033f28))
+
 ## [3.195.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.4...v3.195.5) (2026-09-17)
 
 
