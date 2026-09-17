@@ -11,14 +11,18 @@
  * indexable and mutually contradictory.
  *
  * One map, so nothing can disagree about which slug belongs to which
- * route. Four things read it now:
+ * route. Three things read it:
  *
  * - the legal routes, which render the ContentPage at their slug,
- * - the footer, which suppresses the `/info/<slug>` duplicate link,
  * - `/info/[slug]`, which permanently redirects these slugs to the
  *   canonical route rather than serving the same document at a second
  *   indexable URL,
- * - the sitemap source, which omits them for the same reason.
+ * - the sitemap source, which lists the canonical route instead of
+ *   `/info/<slug>`, and only for a tenant that actually has the page.
+ *
+ * The footer is deliberately NOT on that list. It drops a duplicate by
+ * comparing the routes it is about to render, which covers every page
+ * rather than these four — see `dedupeFooterContentPages`.
  *
  * It lives in `shared/` rather than `app/` because the last two run in
  * Nitro, where `app/utils` does not exist.
@@ -32,7 +36,14 @@ export const LEGAL_ROUTE_SLUGS = {
 
 export type LegalRouteName = keyof typeof LEGAL_ROUTE_SLUGS
 
-/** Every slug that a code-level legal route already surfaces. */
-export const LEGAL_PAGE_SLUGS: ReadonlySet<string> = new Set(
-  Object.values(LEGAL_ROUTE_SLUGS),
+/**
+ * The canonical path a legal ContentPage slug is served at.
+ *
+ * The inverse of {@link LEGAL_ROUTE_SLUGS}, derived rather than written
+ * out a second time so the two can never disagree. `.has(slug)` is also
+ * the "is this slug covered by a dedicated route" test, which is why
+ * there is no separate set of slugs beside it.
+ */
+export const LEGAL_ROUTE_BY_SLUG: ReadonlyMap<string, string> = new Map(
+  Object.entries(LEGAL_ROUTE_SLUGS).map(([route, slug]) => [slug, `/${route}`]),
 )

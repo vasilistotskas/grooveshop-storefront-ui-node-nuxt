@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { LEGAL_PAGE_SLUGS, LEGAL_ROUTE_SLUGS } from '../../shared/utils/legalPages'
+import { LEGAL_ROUTE_BY_SLUG, LEGAL_ROUTE_SLUGS } from '../../shared/utils/legalPages'
 
 /**
  * The legal routes render the tenant's own ContentPage and nothing else.
@@ -124,27 +124,30 @@ describe('one document, one url', () => {
     expect(code).toContain('redirectCode: 301')
   })
 
-  it('keeps the redirected slugs out of the sitemap', () => {
+  it('lists a legal document at its canonical route, not /info/<slug>', () => {
     const code = stripComments(read('server/api/__sitemap__/urls.ts'))
-    expect(code).toContain('LEGAL_PAGE_SLUGS')
+    expect(code).toContain('LEGAL_ROUTE_BY_SLUG')
     // ...while still listing the content pages that have no route of
     // their own, which the sitemap never sourced at all before.
     expect(code).toContain('/info/')
   })
 
-  it('excludes no canonical legal route from the sitemap', () => {
-    // `/return-policy` sat in nuxt.config's sitemap `exclude` from
-    // 2024-09-27, when the page rendered an empty <div /> and had no
-    // business being indexed. It now renders the merchant's own
-    // returns policy, answers `index, follow`, and is linked from the
-    // footer of every page — so the exclusion left one indexable,
-    // internally linked legal document missing from the sitemap while
-    // its three siblings were listed.
+  it('leaves every legal route to the tenant-aware sitemap source', () => {
+    // Static route discovery is tenant-blind: it lists a route for
+    // every store whether or not that store has the document behind it.
+    // Three of the four production tenants have no `return-policy`
+    // ContentPage and answer 404 there, so a statically-listed
+    // `/return-policy` puts a 404 in each of their sitemaps -- and
+    // `/terms-of-use` and friends are safe today only by the accident
+    // that every tenant happens to have those three pages.
+    //
+    // Excluding all four here is what makes `urls.ts` the single
+    // source: it emits each legal route from the tenant's OWN published
+    // pages, so a sitemap lists exactly the documents that exist.
     const config = read('nuxt.config.ts')
     // Anchor inside the `sitemap:` block. `nuxt.config.ts` has an
-    // earlier one-line `exclude: [` (the robots/api one at the nitro
-    // level), and slicing from the FIRST match made this assertion
-    // vacuous — it passed with '/return-policy' still excluded.
+    // earlier one-line `exclude: [` (the nitro/api one), and slicing
+    // from the FIRST match made this assertion vacuous.
     const sitemap = config.slice(config.indexOf('\n  sitemap: {'))
     const start = sitemap.indexOf('exclude: [')
     const exclude = sitemap.slice(start, sitemap.indexOf(']', start))
@@ -154,9 +157,8 @@ describe('one document, one url', () => {
     expect(exclude).toContain('\'/cart\'')
 
     for (const route of Object.keys(LEGAL_ROUTE_SLUGS)) {
-      expect(exclude, `/${route} is excluded from the sitemap`).not.toContain(
-        `'/${route}'`,
-      )
+      expect(exclude, `/${route} must not come from static discovery`)
+        .toContain(`'/${route}'`)
     }
   })
 })
@@ -192,10 +194,15 @@ describe('the route/slug map is the single source of truth', () => {
     ])
   })
 
-  it('exposes the slugs as a lookup set', () => {
-    for (const slug of Object.values(LEGAL_ROUTE_SLUGS)) {
-      expect(LEGAL_PAGE_SLUGS.has(slug)).toBe(true)
+  it('inverts to a slug -> canonical path lookup', () => {
+    // The sitemap keys on this. Derived from the map above rather than
+    // written out again, so the two cannot drift apart.
+    for (const [route, slug] of Object.entries(LEGAL_ROUTE_SLUGS)) {
+      expect(LEGAL_ROUTE_BY_SLUG.get(slug)).toBe(`/${route}`)
     }
+    expect(LEGAL_ROUTE_BY_SLUG.size).toBe(
+      Object.keys(LEGAL_ROUTE_SLUGS).length,
+    )
   })
 
   it('maps cookies-policy, which had no backing slug at all', () => {
