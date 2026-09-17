@@ -1,3 +1,10 @@
+## [3.195.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.9...v3.195.10) (2026-09-17)
+
+
+### Bug Fixes
+
+* **sitemap:** drop the hreflang alternate for an untranslated locale ([6397617](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/63976173d19ea57ee541a0cbb09d77ce82f262cd))
+
 ## [3.195.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.8...v3.195.9) (2026-09-17)
 
 
