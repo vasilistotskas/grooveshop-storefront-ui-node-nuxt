@@ -51,3 +51,41 @@ export async function settingEnabledForHost(
   const settings = await publicSettingsForHost(host, apiBaseUrl)
   return settings ? parseSettingFlag(settings[key], false) : false
 }
+
+/**
+ * The slugs of every ContentPage this tenant has PUBLISHED.
+ *
+ * Which legal documents a store actually has is per-tenant data, and no
+ * build-time list can answer it: `/terms-of-use` and friends are static
+ * routes that exist for every tenant, but they render the tenant's own
+ * ContentPage and answer 404 when there is none. Three of the four
+ * production tenants have no `return-policy` page.
+ *
+ * The API returns only published rows to an anonymous caller, so
+ * membership of this set is exactly "this route resolves for this
+ * tenant". `pageSize` is explicit because the endpoint's default page
+ * is 12.
+ *
+ * Fails CLOSED like {@link publicSettingsForHost}, and for the same
+ * reason — a feed that fails open publishes a URL its own gate then
+ * 404s. `null` is the closed signal.
+ */
+export async function publishedContentSlugsForHost(
+  host: string,
+  apiBaseUrl: string,
+): Promise<ReadonlySet<string> | null> {
+  try {
+    const { results } = await $fetch<{ results: { slug: string }[] }>(
+      `${apiBaseUrl}/content-page`,
+      {
+        method: 'GET',
+        query: { pageSize: 100 },
+        headers: host ? { 'X-Forwarded-Host': host } : undefined,
+      },
+    )
+    return new Set(results.map(page => page.slug))
+  }
+  catch {
+    return null
+  }
+}

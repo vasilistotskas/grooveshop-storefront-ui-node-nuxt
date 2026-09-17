@@ -7,8 +7,12 @@
  * plugin removes those URLs per tenant at request time.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { publicSettingsForHost } from '../../../../server/utils/tenantSetting'
+import {
+  publicSettingsForHost,
+  publishedContentSlugsForHost,
+} from '../../../../server/utils/tenantSetting'
 import { parseSettingFlag } from '../../../../shared/utils/settingFlag'
+import { LEGAL_ROUTE_SLUGS } from '../../../../shared/utils/legalPages'
 
 vi.stubGlobal('useRuntimeConfig', () => ({
   apiBaseUrl: 'https://api.example.com/api/v1',
@@ -19,10 +23,18 @@ vi.stubGlobal('getRequestHost', () => 'example.com')
 const getTenantConfigMock = vi.fn()
 vi.stubGlobal('getTenantConfig', getTenantConfigMock)
 
-// The ONE bulk read the plugin makes: the store's public settings.
+// The bulk reads the plugin makes: the store's public settings, and the
+// slugs of its published ContentPages (which say whether a legal route
+// resolves for this tenant at all).
 const settingsMock = vi.fn(async () => ({ settings: {} as Record<string, string> }))
+const contentMock = vi.fn(async () => ({
+  // Default: the tenant has every legal document, so these tests vary
+  // one gate at a time like the settings ones do.
+  results: Object.values(LEGAL_ROUTE_SLUGS).map(slug => ({ slug })),
+}))
 vi.stubGlobal('$fetch', (url: string) => {
   if (url.endsWith('/settings/public')) return settingsMock()
+  if (url.endsWith('/content-page')) return contentMock()
   throw new Error(`unexpected $fetch: ${url}`)
 })
 
@@ -31,7 +43,12 @@ vi.stubGlobal('$fetch', (url: string) => {
 // tests still exercise the shared truthiness rule and the fail-CLOSED
 // branch.
 vi.stubGlobal('publicSettingsForHost', publicSettingsForHost)
+vi.stubGlobal('publishedContentSlugsForHost', publishedContentSlugsForHost)
 vi.stubGlobal('parseSettingFlag', parseSettingFlag)
+// Read at MODULE scope by the plugin (the GATED_ROUTES literal derives
+// the legal entries from it), so this must be stubbed before the import
+// below rather than inside a test.
+vi.stubGlobal('LEGAL_ROUTE_SLUGS', LEGAL_ROUTE_SLUGS)
 
 // Capture the hook the plugin registers so we can drive it directly.
 let resolvedHook: ((ctx: any) => Promise<void>) | undefined
@@ -336,6 +353,79 @@ describe('sitemap-tenant-gate', () => {
         '/eu/policy',
         '/eu/loyalty-program',
       ])
+    })
+  })
+
+  describe('legal document gate', () => {
+    // The legal routes exist in the build-time route manifest for every
+    // tenant, but each renders that tenant's ContentPage and throws a
+    // 404 when there is none — so which of them belong in a sitemap is
+    // per-tenant data that only the API can answer.
+    const URLS = Object.keys(LEGAL_ROUTE_SLUGS)
+      .map(route => ({ loc: `https://example.com/${route}` }))
+
+    beforeEach(() => {
+      contentMock.mockResolvedValue({
+        results: Object.values(LEGAL_ROUTE_SLUGS).map(slug => ({ slug })),
+      })
+    })
+
+    async function runLegal(tenant: Record<string, unknown>) {
+      const ctx = {
+        urls: [...URLS],
+        sitemapName: 'sitemap',
+        event: { context: { tenant } },
+      }
+      await resolvedHook!(ctx)
+      return ctx.urls.map(u => u.loc)
+    }
+
+    it('keeps every legal route a tenant has published', async () => {
+      expect(await runLegal(OPEN)).toEqual(URLS.map(u => u.loc))
+    })
+
+    it('drops the returns policy a tenant has not published', async () => {
+      // The live case. `return-policy` is seeded UNPUBLISHED because
+      // only the merchant can write one, so three of the four
+      // production tenants answer 404 there.
+      contentMock.mockResolvedValue({
+        results: [{ slug: 'terms' }, { slug: 'privacy' }, { slug: 'cookies' }],
+      })
+
+      const locs = await runLegal(OPEN)
+
+      expect(locs).not.toContain('https://example.com/return-policy')
+      expect(locs).toContain('https://example.com/terms-of-use')
+    })
+
+    it('drops every legal route for a tenant with none published', async () => {
+      contentMock.mockResolvedValue({ results: [] })
+
+      expect(await runLegal(OPEN)).toEqual([])
+    })
+
+    it('fails CLOSED when the content lookup errors', async () => {
+      // Same trade as the settings gate: a sitemap that fails open
+      // publishes a URL its own gate then 404s.
+      contentMock.mockRejectedValue(new Error('upstream down'))
+
+      expect(await runLegal(OPEN)).toEqual([])
+    })
+
+    it('reads the content pages ONCE for every legal route', async () => {
+      await runLegal(OPEN)
+
+      expect(contentMock).toHaveBeenCalledTimes(1)
+    })
+
+    it('gates on the ContentPage slug, not on the route name', async () => {
+      // `/terms-of-use` is backed by the slug `terms`. A tenant whose
+      // only page is literally named `terms-of-use` does not have the
+      // document this route renders.
+      contentMock.mockResolvedValue({ results: [{ slug: 'terms-of-use' }] })
+
+      expect(await runLegal(OPEN))
+        .not.toContain('https://example.com/terms-of-use')
     })
   })
 })

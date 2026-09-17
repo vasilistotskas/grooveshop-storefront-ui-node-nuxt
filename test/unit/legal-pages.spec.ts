@@ -124,7 +124,7 @@ describe('one document, one url', () => {
     expect(code).toContain('redirectCode: 301')
   })
 
-  it('lists a legal document at its canonical route, not /info/<slug>', () => {
+  it('keeps the redirected slugs out of the sitemap', () => {
     const code = stripComments(read('server/api/__sitemap__/urls.ts'))
     expect(code).toContain('LEGAL_ROUTE_BY_SLUG')
     // ...while still listing the content pages that have no route of
@@ -132,22 +132,17 @@ describe('one document, one url', () => {
     expect(code).toContain('/info/')
   })
 
-  it('leaves every legal route to the tenant-aware sitemap source', () => {
-    // Static route discovery is tenant-blind: it lists a route for
-    // every store whether or not that store has the document behind it.
-    // Three of the four production tenants have no `return-policy`
-    // ContentPage and answer 404 there, so a statically-listed
-    // `/return-policy` puts a 404 in each of their sitemaps -- and
-    // `/terms-of-use` and friends are safe today only by the accident
-    // that every tenant happens to have those three pages.
-    //
-    // Excluding all four here is what makes `urls.ts` the single
-    // source: it emits each legal route from the tenant's OWN published
-    // pages, so a sitemap lists exactly the documents that exist.
+  it('never puts a legal route in the static sitemap exclude list', () => {
+    // `sitemap.exclude` is applied to the FINAL url set, sources
+    // included -- `resolveSitemapEntries` filters
+    // `sources.flatMap(s => s.urls)`, not just the auto-discovered
+    // routes. Excluding a legal route there drops it for EVERY tenant,
+    // including the ones that have the document, and no per-tenant
+    // source can add it back.
     const config = read('nuxt.config.ts')
-    // Anchor inside the `sitemap:` block. `nuxt.config.ts` has an
-    // earlier one-line `exclude: [` (the nitro/api one), and slicing
-    // from the FIRST match made this assertion vacuous.
+    // Anchor inside the `sitemap:` block: nuxt.config.ts has an earlier
+    // one-line `exclude: [` (the nitro/api one), and slicing from the
+    // FIRST match made this assertion vacuous.
     const sitemap = config.slice(config.indexOf('\n  sitemap: {'))
     const start = sitemap.indexOf('exclude: [')
     const exclude = sitemap.slice(start, sitemap.indexOf(']', start))
@@ -157,9 +152,21 @@ describe('one document, one url', () => {
     expect(exclude).toContain('\'/cart\'')
 
     for (const route of Object.keys(LEGAL_ROUTE_SLUGS)) {
-      expect(exclude, `/${route} must not come from static discovery`)
-        .toContain(`'/${route}'`)
+      expect(exclude, `/${route} must not be excluded statically`)
+        .not.toContain(`'/${route}'`)
     }
+  })
+
+  it('gates every legal route on the tenant having that page', () => {
+    // Which legal documents a store has is per-tenant data: the routes
+    // exist for everyone and 404 where the ContentPage is missing.
+    // `/return-policy` is seeded UNPUBLISHED, so most tenants 404 there.
+    const code = read('server/plugins/sitemap-tenant-gate.ts')
+    expect(code).toContain('contentSlug')
+    expect(code).toContain('publishedContentSlugsForHost')
+    // Derived from the map, so a new legal route cannot be added
+    // without being gated.
+    expect(code).toContain('Object.entries(LEGAL_ROUTE_SLUGS)')
   })
 })
 

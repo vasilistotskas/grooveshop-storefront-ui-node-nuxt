@@ -1200,15 +1200,12 @@ export default defineNuxtConfig({
       '/cart',
       '/checkout',
       '/feedback',
-      // The legal routes are emitted per tenant by the dynamic source
-      // below, from the ContentPages that tenant actually has. Static
-      // discovery is tenant-blind and would list all four for every
-      // store: three of the four production tenants have no
-      // `return-policy` page and answer 404 there.
-      '/terms-of-use',
-      '/privacy-policy',
-      '/cookies-policy',
-      '/return-policy',
+      // The legal routes are deliberately NOT listed here. `exclude` is
+      // applied to the FINAL url set — sources included
+      // (`resolveSitemapEntries` filters `sources.flatMap(s => s.urls)`)
+      // — so excluding them would drop them for every tenant, including
+      // the ones that have the document. They are gated per tenant in
+      // `server/plugins/sitemap-tenant-gate.ts` instead.
     ],
     sources: [
       '/api/__sitemap__/urls',

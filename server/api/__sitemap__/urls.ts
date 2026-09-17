@@ -138,29 +138,25 @@ export default defineSitemapEventHandler(async (event) => {
       priority: 0.6,
       lastmod: new Date(category.updatedAt),
     })),
-    // Content pages, each at the ONE address that serves it. A slug a
-    // dedicated legal route covers is listed at that canonical route,
-    // never at `/info/<slug>`: both render the same document and
-    // `/info/[slug]` 301s to the canonical one, so listing the latter
-    // would put a redirect in the sitemap and advertise two addresses
-    // for one page. Same map the redirect and the footer read.
+    // Content pages, minus the ones a dedicated legal route already
+    // serves. `/info/terms` and `/terms-of-use` render the same
+    // document, and `/info/[slug]` 301s to the canonical route — so
+    // listing both would put a redirect in the sitemap and advertise two
+    // addresses for one page. Same map the redirect and the footer read.
     //
-    // The legal routes are emitted HERE, from the tenant's own pages,
-    // and are excluded from nuxt.config's static route list on purpose.
-    // Static discovery is tenant-blind: it lists a route for every
-    // store whether or not that store has the document. Three of the
-    // four production tenants have no `return-policy` page and answer
-    // 404 there, so a statically-listed `/return-policy` would have put
-    // a 404 in each of their sitemaps.
-    ...allContentPages.map((page) => {
-      const canonical = LEGAL_ROUTE_BY_SLUG.get(page.slug)
-      return asSitemapUrl({
-        loc: baseUrl + (canonical ?? '/info/' + page.slug),
+    // The canonical legal routes are NOT emitted here. They come from
+    // static route discovery and are gated per tenant in
+    // `server/plugins/sitemap-tenant-gate.ts`, which drops the ones
+    // whose ContentPage that tenant has not published. Emitting them
+    // here as well would hand the module two entries for one `loc`.
+    ...allContentPages
+      .filter(page => !LEGAL_ROUTE_BY_SLUG.has(page.slug))
+      .map(page => asSitemapUrl({
+        loc: baseUrl + '/info/' + page.slug,
         changefreq: 'monthly',
-        priority: canonical ? 0.5 : 0.4,
+        priority: 0.4,
         lastmod: new Date(page.updatedAt),
-      })
-    }),
+      })),
     // Products (highest priority for e-commerce)
     ...allProducts.map(product => asSitemapUrl({
       loc: baseUrl + '/products/' + product.id + '/' + product.slug,

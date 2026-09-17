@@ -55,6 +55,15 @@ interface GatedRoute {
   planFlag?: (tenant: TenantConfig) => boolean
   /** Operational gate — the merchant's `extra_settings` key. */
   settingKey?: string
+  /**
+   * Content gate — the ContentPage slug this route renders.
+   *
+   * The legal routes exist in the route manifest for every tenant but
+   * render that tenant's own ContentPage, so they answer 404 wherever
+   * the merchant has not published one. That is not a flag or a
+   * setting, it is whether a row exists, which only the API can say.
+   */
+  contentSlug?: string
 }
 
 // Mirrors the two-tier gate the route's middleware applies
@@ -92,6 +101,19 @@ const GATED_ROUTES: readonly GatedRoute[] = [
     planFlag: tenant => tenant.promotionsEnabled,
     settingKey: 'PROMOTIONS_ENABLED',
   },
+  // The legal routes. Each renders the tenant's ContentPage at its
+  // slug and throws a 404 when there is none (see useLegalPage), so a
+  // store's sitemap must list exactly the documents that store has.
+  // `/return-policy` is the live case: it is seeded UNPUBLISHED for a
+  // new tenant, because only the merchant can write a returns policy,
+  // and three of the four production tenants answer 404 there today.
+  //
+  // Derived from LEGAL_ROUTE_SLUGS rather than typed out, so adding a
+  // legal route cannot forget to gate it.
+  ...Object.entries(LEGAL_ROUTE_SLUGS).map(([route, slug]) => ({
+    path: `/${route}`,
+    contentSlug: slug,
+  })),
 ]
 
 function pathOf(loc: string | URL | undefined): string {
@@ -137,12 +159,25 @@ export default defineNitroPlugin((nitroApp) => {
       ? await publicSettingsForHost(host, apiBaseUrl)
       : null
 
+    // Same shape for the content gate: one bulk read, and only when a
+    // route whose earlier gates passed actually needs it.
+    const needsContent = GATED_ROUTES.some(
+      route => planAllows(route) && route.contentSlug,
+    )
+    const publishedSlugs = needsContent
+      ? await publishedContentSlugsForHost(host, apiBaseUrl)
+      : null
+
     const allowed = GATED_ROUTES.map((route) => {
       if (!planAllows(route)) return false
-      if (!route.settingKey) return true
-      return settings
-        ? parseSettingFlag(settings[route.settingKey], false)
-        : false
+      if (route.settingKey) {
+        if (!settings) return false
+        if (!parseSettingFlag(settings[route.settingKey], false)) return false
+      }
+      if (route.contentSlug) {
+        return publishedSlugs?.has(route.contentSlug) ?? false
+      }
+      return true
     })
 
     const blocked = new Set(
