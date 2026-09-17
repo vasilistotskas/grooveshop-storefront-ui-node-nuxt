@@ -1,3 +1,11 @@
+## [3.195.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.2...v3.195.3) (2026-09-17)
+
+
+### Bug Fixes
+
+* **legal:** await the document before deciding it is missing ([59803fc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/59803fcff0c126c1e8f9e30b1c42a3165ed3b122))
+* **legal:** render the tenant's own document, on one url, with a real toc ([bedd40d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bedd40d3f5779679465c3d1bc95422c387804259))
+
 ## [3.195.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.1...v3.195.2) (2026-09-16)
 
 
