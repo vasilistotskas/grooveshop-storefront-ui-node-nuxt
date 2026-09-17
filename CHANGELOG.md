@@ -1,3 +1,10 @@
+## [3.195.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.8...v3.195.9) (2026-09-17)
+
+
+### Bug Fixes
+
+* **sitemap:** drop a legal URL for a locale the document lacks ([fb5e06a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fb5e06a3a6dc0c89b04bffe868ccd25b4e26ec9f))
+
 ## [3.195.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.7...v3.195.8) (2026-09-17)
 
 
