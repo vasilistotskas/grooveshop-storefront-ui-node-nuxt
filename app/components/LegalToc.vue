@@ -41,7 +41,12 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- A document with no headings gets no jump list. The links are
+       derived from the document itself (``buildLegalToc``), so "empty"
+       means the merchant wrote flat prose — rendering the heading and an
+       empty list would be chrome advertising nothing. -->
   <div
+    v-if="links.length"
     class="
       order-first
       lg:sticky lg:top-24 lg:order-last

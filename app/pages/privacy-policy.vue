@@ -1,39 +1,30 @@
 <script lang="ts" setup>
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
-const runtimeConfig = useRuntimeConfig()
-const tenantStore = useTenantStore()
-
-const storeName = computed(
-  () => tenantStore.storeName || (runtimeConfig.public.appTitle as string),
-)
-const siteHost = computed(() => {
-  if (tenantStore.primaryDomain) return tenantStore.primaryDomain
-  try {
-    return new URL(runtimeConfig.public.baseUrl).host
-  }
-  catch {
-    return useRequestURL().host
-  }
-})
-
-// Platform boilerplate is the FALLBACK. A merchant who publishes
-// their own page at this slug must see THEIR text, not ours — the
-// shipped copy makes binding commitments (governing law, dispute
-// forum) on their behalf.
-const { hasMerchantPage, title: merchantTitle, body: merchantBody, updatedAt: merchantUpdatedAt }
+// The document is the tenant's own ContentPage — see useLegalPage for
+// why this page no longer carries the platform's text as a fallback.
+const { title, body, tocLinks, updatedAt, hasDocument, error }
   = useLegalPage(LEGAL_ROUTE_SLUGS['privacy-policy'])
 
-// The platform date describes the PLATFORM text. Once a merchant
-// supplies their own, the document on screen is not the one this date
-// refers to, so their page's own timestamp takes over.
-const PLATFORM_LAST_UPDATED = '21 Μαΐου 2026'
-const LAST_UPDATED = computed(() =>
-  hasMerchantPage.value && merchantUpdatedAt.value
-    ? new Date(merchantUpdatedAt.value).toLocaleDateString('el-GR', {
+// Same normalization as app/pages/about.vue: a backend outage is a 503,
+// a genuinely absent document is a 404. Rendering an empty <main> with
+// HTTP 200 would be a soft-404 that Google keeps indexed, on a page the
+// footer links from every other page of the store.
+if (error.value || !hasDocument.value) {
+  const upstreamStatus = error.value?.statusCode ?? 404
+  throw createError(
+    upstreamStatus >= 500
+      ? { statusCode: 503, message: t('error.service.unavailable') }
+      : { statusCode: 404, message: t('error.page.not.found') },
+  )
+}
+
+const lastUpdated = computed(() =>
+  updatedAt.value
+    ? new Date(updatedAt.value).toLocaleDateString(locale.value, {
         day: 'numeric', month: 'long', year: 'numeric',
       })
-    : PLATFORM_LAST_UPDATED,
+    : '',
 )
 
 const items = computed(() => [
@@ -50,18 +41,11 @@ const items = computed(() => [
   },
 ])
 
-const tocLinks = [
-  { id: 'intro', text: 'Εισαγωγή' },
-  { id: 'data-categories', text: 'Κατηγορίες προσωπικών δεδομένων' },
-  { id: 'account-creation', text: 'Δημιουργία λογαριασμού' },
-  { id: 'marketing-communications', text: 'Ενημερώσεις και προσφορές' },
-]
-
 useSeoMeta({
-  title: t('title'),
+  title: () => title.value,
 })
 useHead({
-  title: t('title'),
+  title: () => title.value,
 })
 
 definePageMeta({
@@ -88,16 +72,19 @@ definePageMeta({
       class="relative mb-3 min-w-0"
     />
     <UPageHeader
-      :title="t('title')"
+      :title="title"
       :description="t('legal.privacy.description')"
     >
-      <template #headline>
+      <template
+        v-if="lastUpdated"
+        #headline
+      >
         <UBadge
           color="neutral"
           variant="subtle"
           icon="i-heroicons-clock"
         >
-          {{ t('legal.lastUpdated', { date: LAST_UPDATED }) }}
+          {{ t('legal.lastUpdated', { date: lastUpdated }) }}
         </UBadge>
       </template>
     </UPageHeader>
@@ -108,83 +95,14 @@ definePageMeta({
         lg:grid lg:grid-cols-[1fr_15rem] lg:items-start lg:gap-10
       "
     >
-      <!-- The merchant's own published page wins: the boilerplate below
-           makes binding commitments on their behalf. -->
       <article
-        v-if="hasMerchantPage"
-        class="article text-primary-950 dark:text-primary-50"
-      >
-        <h1 v-if="merchantTitle">
-          {{ merchantTitle }}
-        </h1>
-        <!-- eslint-disable-next-line vue/no-v-html -->
-        <div v-html="merchantBody" />
-      </article>
-      <article
-        v-else
         class="
           article text-primary-950
           dark:text-primary-50
         "
       >
-        <section id="intro">
-          <h2>Εισαγωγή</h2>
-          <p>
-            Θα θέλαμε να σας ενημερώσουμε ότι για το {{ storeName }} η προστασία των προσωπικών δεδομένων των χρηστών μας έχει
-            πρωταρχική σημασία. Για το λόγο αυτό λαμβάνουμε τα κατάλληλα μέτρα για να προστατέψουμε τα προσωπικά
-            δεδομένα που επεξεργαζόμαστε από τυχόν απώλεια, αλλοίωση, διαρροή, παράνομη διαβίβαση ή με οποιοδήποτε άλλο
-            τρόπο αθέμιτη επεξεργασία και να διασφαλίσουμε ότι η επεξεργασία των προσωπικών σας δεδομένων
-            πραγματοποιείται πάντοτε σύμφωνα με τις υποχρεώσεις που τίθενται από το νομικό πλαίσιο, τόσο από την ίδια
-            την εταιρία, όσο και από τρίτους που επεξεργάζονται προσωπικά δεδομένα για λογαριασμό της εταιρίας.
-          </p>
-          <p>
-            Τι είναι το GDPR; Ο Γενικός Κανονισμός για την Προστασία των Προσωπικών Δεδομένων (General Data Protection
-            Regulation – GDPR) αποτελεί το νέο ρυθμιστικό πλαίσιο της Ευρωπαϊκή Ένωσης (ΕΕ) στον εξεταζόμενο τομέα.
-            Αντικείμενο του Κανονισμού είναι η θέσπιση των προϋποθέσεων για την επεξεργασία δεδομένων προσωπικού
-            χαρακτήρα, προς προστασία των δικαιωμάτων και των ελευθεριών των φυσικών προσώπων και ιδίως του δικαιώματος
-            προστασίας προσωπικών δεδομένων.
-          </p>
-        </section>
-
-        <section id="data-categories">
-          <h2>Ποιες κατηγορίες προσωπικών δεδομένων επεξεργαζόμαστε;</h2>
-          <p>
-            Τα προσωπικά δεδομένα που επεξεργαζόμαστε, είναι τα απολύτως αναγκαία, απαραίτητα και κατάλληλα για την
-            επίτευξη των επιδιωκόμενων σκοπών μας και συνοψίζονται στα εξής: Προσωπικά δεδομένα, τα οποία μας παρέχετε
-            εσείς, όπως:
-          </p>
-          <ul>
-            <li>
-              Δεδομένα ταυτοποίησης προσώπου & νομιμοποίησης του υποκειμένου των συναλλαγών (ονοματεπώνυμο, ημερομηνία
-              γέννησης, κ.α.)
-            </li>
-            <li>
-              Δεδομένα επικοινωνίας (ταχυδρομική διεύθυνση (E-mail), αριθμός σταθερής ή κινητής τηλεφωνίας, διεύθυνση
-              ηλεκτρονικού ταχυδρομείου, FAX, κ.α.)
-            </li>
-          </ul>
-        </section>
-
-        <section id="account-creation">
-          <h2>Για τη δημιουργία λογαριασμού στο {{ siteHost }}</h2>
-          <p>
-            Προσωπικά δεδομένα συλλέγονται όταν δημιουργείτε λογαριασμό στον ιστότοπο του {{ storeName }} {{ siteHost }}. Κατά
-            τη δημιουργία λογαριασμού μπορεί να σας ζητηθούν περισσότερα στοιχεία, ωστόσο θα είναι τα ελάχιστα
-            απαιτούμενα για τη σύναψη και ολοκλήρωση δημιουργίας.
-          </p>
-        </section>
-
-        <section id="marketing-communications">
-          <h2>Για να σας ενημερώσουμε για τα νέα και τις προσφορές μας</h2>
-          <p>
-            Εφόσον έχετε συναινέσει σε αυτό ή καλύπτεται από το έννομο συμφέρον μας, (στις περιπτώσεις των
-            εγγεγραμένων χρηστών - πελατών) και υπό τις συγκεκριμένες προϋποθέσεις που θέτει το νομικό πλαίσιο, σας
-            αποστέλλουμε ενημερώσεις για προϊόντα, υπηρεσίες, προσφορές κλπ. μέσω E-mail αλλά και των μέσων κοινωνικής
-            δικτύωσης που διατηρούμε (Facebook/Instagram/Youtube κ.α.). Ειδικότερα, το {{ storeName }} επεξεργάζεται προσωπικά
-            δεδομένα σύμφωνα με το ισχύον κάθε φορά πλαίσιο, σας ενημερώνει για προσφορές και τα νέα μας μέσω της
-            αποστολής ενημερωτικών newsletters.
-          </p>
-        </section>
+        <!-- eslint-disable-next-line vue/no-v-html -->
+        <div v-html="body" />
       </article>
 
       <LegalToc
@@ -197,7 +115,6 @@ definePageMeta({
 
 <i18n lang="yaml">
 el:
-  title: Πολιτική Απορρήτου
   legal:
     headline: Νομικά
     lastUpdated: 'Τελευταία ενημέρωση: {date}'
@@ -211,7 +128,6 @@ el:
         label: Πολιτική Απορρήτου
         icon: i-heroicons-clipboard-document-list
 en:
-  title: Privacy Policy
   legal:
     headline: Legal
     lastUpdated: 'Last updated: {date}'

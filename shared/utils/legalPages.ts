@@ -10,9 +10,18 @@
  * at /info/terms and the platform boilerplate at /terms-of-use — both
  * indexable and mutually contradictory.
  *
- * One map, used by the routes (to prefer the merchant's page) and by
- * the footer (to suppress the duplicate), so the two can never disagree
- * about which slug belongs to which route.
+ * One map, so nothing can disagree about which slug belongs to which
+ * route. Four things read it now:
+ *
+ * - the legal routes, which render the ContentPage at their slug,
+ * - the footer, which suppresses the `/info/<slug>` duplicate link,
+ * - `/info/[slug]`, which permanently redirects these slugs to the
+ *   canonical route rather than serving the same document at a second
+ *   indexable URL,
+ * - the sitemap source, which omits them for the same reason.
+ *
+ * It lives in `shared/` rather than `app/` because the last two run in
+ * Nitro, where `app/utils` does not exist.
  */
 export const LEGAL_ROUTE_SLUGS = {
   'terms-of-use': 'terms',

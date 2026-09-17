@@ -1,64 +1,68 @@
 /**
- * Prefer a merchant's own legal page over the platform boilerplate.
+ * The tenant's own legal document, and its table of contents.
  *
- * The shipped terms/privacy/cookies pages are PLATFORM text rendered
- * under the MERCHANT's name, which is the wrong way round for anything
- * legally binding: the terms fixed exclusive jurisdiction to one city's
- * courts for every tenant, whoever and wherever they were. Every tenant
- * is already seeded a ContentPage at the matching slug, so the fix is
- * to look for it and let it win.
+ * These pages used to ship the platform's Greek legal text as markup and
+ * fall back to it whenever the tenant had published nothing at the
+ * matching slug. That made the platform the author of a document that
+ * binds the MERCHANT — the shipped terms fixed a governing law and a
+ * dispute forum on their behalf — and it meant two render paths of which
+ * only one was ever exercised. The unexercised one shipped a duplicate
+ * `h1` and a table of contents anchored to ids that existed solely in
+ * the boilerplate.
  *
- * A missing or unpublished page is the NORMAL case, not an error — the
- * boilerplate is the fallback, so the failed lookup is swallowed
- * deliberately. `useFetch` surfaces that as `error` rather than
- * throwing, which is why this never calls `createError`: a store
- * without its own terms must still render terms.
+ * So there is one path now. Every tenant is seeded the real documents,
+ * published, at provisioning (`page_config.legal_documents` on the API),
+ * and these routes render that row. An absent page is therefore a
+ * genuine 404 rather than a cue to render something else, which is what
+ * the caller does with it.
  */
 export function useLegalPage(slug: string) {
   const { locale } = useI18n()
   const { transformImages } = useHtmlContent()
 
-  const { data } = useFetch<ContentPageResponse>(
+  const { data, error } = useFetch<ContentPageResponse>(
     `/api/content-pages/${slug}`,
     {
       key: `legal-page-${slug}`,
       method: 'GET',
       headers: useRequestHeaders(),
-      // An unpublished page is the expected path for any store that has
-      // not written its own, and the route reports it as ``page: null``
-      // rather than an error — so the probe is cached and silent
-      // instead of costing a round-trip and a stack trace per render.
+      // The server route answers a missing page with `{ page: null }`
+      // rather than throwing, so absence is cached like any other
+      // response and only a real outage surfaces as `error`.
       default: () => ({ page: null }),
     },
   )
 
   const page = computed(() => data.value?.page ?? null)
 
-  /** True when the merchant published their own version of this page. */
-  const hasMerchantPage = computed(() => {
-    if (!page.value) return false
-    const body = extractTranslated(page.value, 'body', locale.value) ?? ''
-    // A seeded-but-empty page must not blank out the boilerplate.
-    return body.trim().length > 0
-  })
-
-  const title = computed(() =>
-    extractTranslated(page.value, 'title', locale.value) ?? '',
+  const title = computed(
+    () => extractTranslated(page.value, 'title', locale.value) ?? '',
   )
 
-  const body = computed(() => {
+  /**
+   * Body and contents are derived together: `buildLegalToc` guarantees
+   * an anchor target for every heading it lists, which it can only do by
+   * returning the html it may have added ids to.
+   */
+  const document = computed(() => {
     const raw = extractTranslated(page.value, 'body', locale.value) ?? ''
-    return transformImages(raw)
+    return buildLegalToc(transformImages(raw))
   })
 
-  /**
-   * The merchant's own last-modified date when their page is in use.
-   *
-   * The boilerplate carries a hardcoded platform date, which is wrong
-   * the moment a merchant supplies their own text — the document they
-   * are publishing is not the one that date refers to.
-   */
+  const body = computed(() => document.value.html)
+  const tocLinks = computed(() => document.value.links)
+
+  /** The merchant's own timestamp — it is their document. */
   const updatedAt = computed(() => page.value?.updatedAt ?? null)
 
-  return { hasMerchantPage, title, body, updatedAt }
+  /**
+   * True when there is a document to show. A row that exists with an
+   * empty body is as unusable as no row at all, and must 404 rather than
+   * render a page with a heading and nothing under it.
+   */
+  const hasDocument = computed(
+    () => body.value.replace(/<[^>]*>/g, '').trim().length > 0,
+  )
+
+  return { page, title, body, tocLinks, updatedAt, hasDocument, error }
 }

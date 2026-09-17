@@ -7,6 +7,25 @@ const { transformImages } = useHtmlContent()
 
 const slug = computed(() => route.params.slug)
 
+// One document, ONE url. Four of these slugs are also served by a
+// dedicated route (``LEGAL_ROUTE_SLUGS``), and before this redirect both
+// answered 200 with the same body and a canonical pointing at itself —
+// tenant #2 had `/privacy-policy` and `/info/privacy` competing that way
+// in production. The dedicated route is the canonical one: it is what
+// the footer links and what the sitemap lists, so this one redirects to
+// it permanently rather than advertising a second address for the same
+// text.
+const canonicalLegalRoute = (
+  Object.keys(LEGAL_ROUTE_SLUGS) as LegalRouteName[]
+).find(name => LEGAL_ROUTE_SLUGS[name] === slug.value)
+
+if (canonicalLegalRoute) {
+  await navigateTo(localePath(canonicalLegalRoute), {
+    redirectCode: 301,
+    replace: true,
+  })
+}
+
 // ``page: null`` is how the route reports "no published page at this
 // slug" — an absent resource, cached and quiet, rather than a thrown
 // 404 that cost a round-trip and a stack trace per render. Here it

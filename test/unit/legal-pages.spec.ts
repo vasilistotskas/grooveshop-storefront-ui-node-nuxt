@@ -2,23 +2,24 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { LEGAL_PAGE_SLUGS, LEGAL_ROUTE_SLUGS } from '../../app/utils/legalPages'
+import { LEGAL_PAGE_SLUGS, LEGAL_ROUTE_SLUGS } from '../../shared/utils/legalPages'
 
 /**
- * The shipped legal pages are PLATFORM text published under the
- * MERCHANT's name, which is the wrong way round for a binding document.
- * Two defects followed from that:
+ * The legal routes render the tenant's own ContentPage and nothing else.
  *
- * 1. The terms fixed exclusive jurisdiction to one city's courts for
- *    every tenant, whoever and wherever they were — and under Brussels I
- *    Recast (Reg. 1215/2012 arts. 17-19) a pre-dispute clause that
- *    deprives a consumer of their home courts has no legal force
- *    anyway.
- * 2. Every tenant is seeded a ContentPage at the matching slug, but the
- *    routes never looked for it and the footer appended published pages
- *    as an EXTRA column — so a merchant who wrote their own terms got
- *    TWO footer links under the same label, pointing at contradictory
- *    documents, both indexable.
+ * They used to ship the platform's Greek legal text as markup and fall
+ * back to it whenever the tenant had published nothing — platform text
+ * published under the merchant's name, on a binding document. Worse, the
+ * fallback meant two render paths of which only the boilerplate one was
+ * ever exercised, so the merchant path shipped a duplicate `h1` and a
+ * table of contents anchored to ids that existed solely in the
+ * boilerplate. Both were live on tenant #2's `/privacy-policy`.
+ *
+ * The text now lives in `page_config/legal_documents.py` on the API and
+ * is seeded into every tenant at provisioning, so the assertions about
+ * what the DOCUMENT must say moved there
+ * (`tests/unit/page_config/test_legal_documents.py`). What is left here
+ * is the shape of the routes that render it.
  *
  * Asserted against source rather than by rendering: the point is which
  * routes and slugs are NAMED, independent of what i18n resolves them to.
@@ -43,7 +44,7 @@ const LEGAL_PAGES = {
   'cookies-policy': 'app/pages/cookies-policy.vue',
 } as const
 
-describe('legal pages prefer the merchant\'s own content', () => {
+describe('legal pages render the tenant\'s own document', () => {
   it.each(Object.entries(LEGAL_PAGES))(
     '%s consults its ContentPage slug',
     (_route, path) => {
@@ -54,55 +55,75 @@ describe('legal pages prefer the merchant\'s own content', () => {
   )
 
   it.each(Object.entries(LEGAL_PAGES))(
-    '%s renders the merchant body instead of boilerplate when present',
+    '%s has ONE render path, with no boilerplate to fall back to',
     (_route, path) => {
-      const source = read(path)
-      expect(source).toContain('v-if="hasMerchantPage"')
-      // The boilerplate must be the ELSE branch, not rendered alongside.
-      expect(source).toContain('v-else')
+      const code = stripComments(read(path))
+      expect(code).not.toContain('hasMerchantPage')
+      expect(code).not.toContain('v-else')
+      // The tell-tale of inlined legal text: sectioned prose in the
+      // template. The document is `v-html` from the API now.
+      expect(code).not.toContain('<section id=')
     },
   )
 
   it.each(Object.entries(LEGAL_PAGES))(
-    '%s does not present the platform date as the merchant\'s',
+    '%s dates the document by the document, not by a constant',
     (_route, path) => {
-      const source = read(path)
-      expect(source).toContain('PLATFORM_LAST_UPDATED')
-      expect(source).toContain('merchantUpdatedAt')
+      const code = stripComments(read(path))
+      expect(code).not.toContain('PLATFORM_LAST_UPDATED')
+      expect(code).toContain('updatedAt')
+    },
+  )
+
+  it.each(Object.entries(LEGAL_PAGES))(
+    '%s derives its contents from the document',
+    (_route, path) => {
+      const code = stripComments(read(path))
+      // A hardcoded array is what pointed the sidebar at anchors the
+      // merchant's document never had.
+      expect(code).not.toMatch(/const tocLinks\s*=\s*\[/)
+      expect(code).toContain('tocLinks')
+    },
+  )
+
+  it.each(Object.entries(LEGAL_PAGES))(
+    '%s renders no second h1 of its own',
+    (_route, path) => {
+      // `UPageHeader :title` already renders the page heading; the
+      // article added another, so every merchant page shipped two.
+      const code = stripComments(read(path))
+      expect(code).not.toContain('<h1')
+    },
+  )
+
+  it.each(Object.entries(LEGAL_PAGES))(
+    '%s fails loudly when the document is absent',
+    (_route, path) => {
+      // Rendering an empty article with HTTP 200 is a soft-404 on a page
+      // the footer links from every other page of the store.
+      const code = stripComments(read(path))
+      expect(code).toContain('createError')
+      expect(code).toContain('hasDocument')
     },
   )
 })
 
-describe('terms name no specific forum', () => {
-  const code = stripComments(read(LEGAL_PAGES['terms-of-use']))
-
-  it('does not fix jurisdiction to one city\'s courts', () => {
-    // Pre-dispute exclusive-forum clauses have no legal force against
-    // consumers (Reg. 1215/2012 art. 19), and naming a city the
-    // merchant has no connection to is wrong on its face.
-    expect(code).not.toContain('Δικαστηρίων της Αθήνας')
-    expect(code).not.toContain('αποκλειστική αρμοδιότητα των Δικαστηρίων')
+describe('one document, one url', () => {
+  it('redirects /info/<slug> to the canonical legal route', () => {
+    // Both answered 200 with the same body and a canonical pointing at
+    // themselves — tenant #2 had /privacy-policy and /info/privacy
+    // competing that way in production.
+    const code = stripComments(read('app/pages/info/[slug].vue'))
+    expect(code).toContain('LEGAL_ROUTE_SLUGS')
+    expect(code).toContain('redirectCode: 301')
   })
 
-  it('preserves the consumer\'s mandatory protections', () => {
-    // Rome I art. 6 (governing law) and Brussels I Recast arts. 17-19
-    // (home-court right) are what a compliant clause must yield to.
-    expect(code).toContain('593/2008')
-    expect(code).toContain('1215/2012')
-  })
-
-  it('states the art. 18 forum asymmetry in BOTH directions', () => {
-    // Art 18(1) lets the consumer sue the trader in either forum, but
-    // art 18(2) lets the trader sue the consumer ONLY at the consumer's
-    // domicile. The first draft of this clause named the seller's-seat
-    // courts as competent and reserved only the consumer's right to sue
-    // at home — silent on 18(2), so a merchant would read it as licence
-    // to sue a customer in the merchant's own court. Both halves must
-    // be stated or the clause misleads the party relying on it.
-    expect(code).toMatch(/ο καταναλωτής μπορεί να στραφεί κατά του πωλητή/)
-    expect(code).toMatch(/ο πωλητής μπορεί να στραφεί κατά του καταναλωτή/)
-    // The restriction on the trader is the half that is easy to drop.
-    expect(code).toMatch(/μόνο<\/strong> στα δικαστήρια/)
+  it('keeps the redirected slugs out of the sitemap', () => {
+    const code = stripComments(read('server/api/__sitemap__/urls.ts'))
+    expect(code).toContain('LEGAL_PAGE_SLUGS')
+    // ...while still listing the content pages that have no route of
+    // their own, which the sitemap never sourced at all before.
+    expect(code).toContain('/info/')
   })
 })
 
@@ -139,5 +160,12 @@ describe('the route/slug map is the single source of truth', () => {
 
   it('maps cookies-policy, which had no backing slug at all', () => {
     expect(LEGAL_ROUTE_SLUGS['cookies-policy']).toBe('cookies')
+  })
+
+  it('lives in shared/, where Nitro can read it too', () => {
+    // The sitemap source and the redirect both run server-side; when
+    // this map lived in app/utils they could not see it, which is how
+    // the duplicate-URL hole stayed open.
+    expect(() => read('shared/utils/legalPages.ts')).not.toThrow()
   })
 })

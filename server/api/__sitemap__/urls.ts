@@ -22,6 +22,15 @@ const cachedProductCategories = createCachedFetcher<ProductCategory>(
   'sitemap:product-categories',
   SITEMAP_CACHE_AGE,
 )
+// Published ContentPages — the merchant's own policy pages. These were
+// the one indexable surface the sitemap never listed: static routes come
+// from the build-time route manifest and dynamic ones from the fetchers
+// above, and `/info/<slug>` is neither, so a merchant could publish a
+// returns policy and Google would never be told it exists.
+const cachedContentPages = createCachedFetcher<ContentPage>(
+  'sitemap:content-pages',
+  SITEMAP_CACHE_AGE,
+)
 
 export default defineSitemapEventHandler(async (event) => {
   const config = useRuntimeConfig()
@@ -78,7 +87,13 @@ export default defineSitemapEventHandler(async (event) => {
   // languageCode ensures Django returns translations for the active locale.
   // Blog data is skipped entirely when blogEnabled is false so disabled
   // tenants don't leak blog URL surface in the sitemap.
-  const [allPosts, allBlogCategories, allProducts, allProductCategories] = await Promise.all([
+  const [
+    allPosts,
+    allBlogCategories,
+    allProducts,
+    allProductCategories,
+    allContentPages,
+  ] = await Promise.all([
     blogEnabled
       ? cachedBlogPosts(host, `${apiBaseUrl}/blog/post?languageCode=${ACTIVE_LOCALE}`)
       : Promise.resolve([]),
@@ -91,6 +106,14 @@ export default defineSitemapEventHandler(async (event) => {
     catalogueEnabled
       ? cachedProductCategories(host, `${apiBaseUrl}/product/category?languageCode=${ACTIVE_LOCALE}`)
       : Promise.resolve([]),
+    // Ungated: a content page is published or it is not, and the API
+    // returns only published rows to an anonymous caller. pageSize is
+    // explicit because the endpoint's default page is 12 — a store with
+    // more policy pages than that would have silently listed a subset.
+    cachedContentPages(
+      host,
+      `${apiBaseUrl}/content-page?languageCode=${ACTIVE_LOCALE}&pageSize=100`,
+    ),
   ])
 
   return [
@@ -115,6 +138,19 @@ export default defineSitemapEventHandler(async (event) => {
       priority: 0.6,
       lastmod: new Date(category.updatedAt),
     })),
+    // Content pages, minus the ones a dedicated legal route already
+    // serves. `/info/terms` and `/terms-of-use` render the same
+    // document, and `/info/[slug]` now 301s to the canonical route — so
+    // listing both would put a redirect in the sitemap and advertise two
+    // addresses for one page. Same map the redirect and the footer read.
+    ...allContentPages
+      .filter(page => !LEGAL_PAGE_SLUGS.has(page.slug))
+      .map(page => asSitemapUrl({
+        loc: baseUrl + '/info/' + page.slug,
+        changefreq: 'monthly',
+        priority: 0.4,
+        lastmod: new Date(page.updatedAt),
+      })),
     // Products (highest priority for e-commerce)
     ...allProducts.map(product => asSitemapUrl({
       loc: baseUrl + '/products/' + product.id + '/' + product.slug,
