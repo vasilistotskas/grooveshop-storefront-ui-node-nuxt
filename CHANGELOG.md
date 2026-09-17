@@ -1,3 +1,10 @@
+## [3.195.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.4...v3.195.5) (2026-09-17)
+
+
+### Bug Fixes
+
+* **footer:** stop listing every legal page twice ([1616e94](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1616e9464925e7fddf3fd72fbdc6e37aebf885f1))
+
 ## [3.195.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.3...v3.195.4) (2026-09-17)
 
 
