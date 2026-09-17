@@ -64,6 +64,13 @@ interface GatedRoute {
    * setting, it is whether a row exists, which only the API can say.
    */
   contentSlug?: string
+  /**
+   * Layout gate — the `page_config` pageType this route renders.
+   *
+   * Same shape as `contentSlug` one layer over: the route exists for
+   * every tenant and throws a hard 404 where no layout is published.
+   */
+  pageType?: string
 }
 
 // Mirrors the two-tier gate the route's middleware applies
@@ -114,6 +121,21 @@ const GATED_ROUTES: readonly GatedRoute[] = [
     path: `/${route}`,
     contentSlug: slug,
   })),
+  // The layout-driven static routes. Each calls `usePageConfig` and
+  // throws a hard 404 when the tenant has published no layout, and only
+  // webside has any of them — `seed_brand_pages` publishes its brand
+  // pages together with the footer menu that links them. Every other
+  // tenant was advertising three or four 404s: demo and fyteia listed
+  // /vision, /what-is-microlearning and /why-microlearning; delta-sigma
+  // listed those plus /about, once per locale it serves.
+  //
+  // Only the four that 404. The other `usePageConfig` pages (home,
+  // products, blog, contact, feedback) render FALLBACK_LAYOUTS and
+  // answer 200 without one, so they belong in every sitemap.
+  { path: '/about', pageType: 'about' },
+  { path: '/vision', pageType: 'vision' },
+  { path: '/what-is-microlearning', pageType: 'what-is-microlearning' },
+  { path: '/why-microlearning', pageType: 'why-microlearning' },
 ]
 
 function pathOf(loc: string | URL | undefined): string {
@@ -168,6 +190,22 @@ export default defineNitroPlugin((nitroApp) => {
       ? await publishedContentSlugsForHost(host, apiBaseUrl)
       : null
 
+    // One read per gated pageType — there is no bulk endpoint — run in
+    // parallel, and only for the routes whose earlier gates passed.
+    const layoutRoutes = GATED_ROUTES.filter(
+      route => planAllows(route) && route.pageType,
+    )
+    const layoutPublished = new Map<string, boolean>(
+      await Promise.all(
+        layoutRoutes.map(async route =>
+          [
+            route.pageType!,
+            await pageTypePublishedForHost(host, apiBaseUrl, route.pageType!),
+          ] as const,
+        ),
+      ),
+    )
+
     const allowed = GATED_ROUTES.map((route) => {
       if (!planAllows(route)) return false
       if (route.settingKey) {
@@ -176,6 +214,9 @@ export default defineNitroPlugin((nitroApp) => {
       }
       if (route.contentSlug) {
         return publishedSlugs?.has(route.contentSlug) ?? false
+      }
+      if (route.pageType) {
+        return layoutPublished.get(route.pageType) ?? false
       }
       return true
     })

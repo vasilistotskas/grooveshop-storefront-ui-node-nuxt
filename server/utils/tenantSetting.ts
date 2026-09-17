@@ -53,6 +53,44 @@ export async function settingEnabledForHost(
 }
 
 /**
+ * Whether this tenant has a PUBLISHED page-config layout for a pageType.
+ *
+ * `/about`, `/vision`, `/what-is-microlearning` and `/why-microlearning`
+ * are static routes in the build-time manifest, so every tenant's
+ * sitemap advertised all four — but each renders a `page_config` layout
+ * and throws a hard 404 when the tenant has not published one. Only
+ * webside has them, so the other three production tenants listed three
+ * or four 404s each.
+ *
+ * Django answers 404 for "no published layout", which is the documented
+ * normal state rather than a fault (see
+ * `server/api/page-config/[pageType].get.ts`). One read per gated
+ * pageType because there is no bulk endpoint; the caller runs them in
+ * parallel and the sitemap response is cached for a day.
+ *
+ * Fails CLOSED, like its neighbours here.
+ */
+export async function pageTypePublishedForHost(
+  host: string,
+  apiBaseUrl: string,
+  pageType: string,
+): Promise<boolean> {
+  try {
+    const layout = await $fetch<{ isPublished?: boolean } | null>(
+      `${apiBaseUrl}/page-config/${pageType}`,
+      {
+        method: 'GET',
+        headers: host ? { 'X-Forwarded-Host': host } : undefined,
+      },
+    )
+    return layout?.isPublished === true
+  }
+  catch {
+    return false
+  }
+}
+
+/**
  * The slugs of every ContentPage this tenant has PUBLISHED.
  *
  * Which legal documents a store actually has is per-tenant data, and no

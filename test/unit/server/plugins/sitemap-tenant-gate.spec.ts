@@ -8,6 +8,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import {
+  pageTypePublishedForHost,
   publicSettingsForHost,
   publishedContentSlugsForHost,
 } from '../../../../server/utils/tenantSetting'
@@ -32,9 +33,13 @@ const contentMock = vi.fn(async () => ({
   // one gate at a time like the settings ones do.
   results: Object.values(LEGAL_ROUTE_SLUGS).map(slug => ({ slug })),
 }))
+// One read per gated pageType: Django 404s when no layout is published.
+const layoutMock = vi.fn(async (_pageType: string) => ({ isPublished: true }))
 vi.stubGlobal('$fetch', (url: string) => {
   if (url.endsWith('/settings/public')) return settingsMock()
   if (url.endsWith('/content-page')) return contentMock()
+  const m = url.match(/\/page-config\/([^/?]+)$/)
+  if (m) return layoutMock(m[1]!)
   throw new Error(`unexpected $fetch: ${url}`)
 })
 
@@ -44,6 +49,7 @@ vi.stubGlobal('$fetch', (url: string) => {
 // branch.
 vi.stubGlobal('publicSettingsForHost', publicSettingsForHost)
 vi.stubGlobal('publishedContentSlugsForHost', publishedContentSlugsForHost)
+vi.stubGlobal('pageTypePublishedForHost', pageTypePublishedForHost)
 vi.stubGlobal('parseSettingFlag', parseSettingFlag)
 // Read at MODULE scope by the plugin (the GATED_ROUTES literal derives
 // the legal entries from it), so this must be stubbed before the import
@@ -418,6 +424,13 @@ describe('sitemap-tenant-gate', () => {
       expect(contentMock).toHaveBeenCalledTimes(1)
     })
 
+    it('is independent of the layout gate', async () => {
+      // A tenant can have its legal documents without any brand page.
+      layoutMock.mockRejectedValue(new Error('404'))
+
+      expect(await runLegal(OPEN)).toEqual(URLS.map(u => u.loc))
+    })
+
     it('gates on the ContentPage slug, not on the route name', async () => {
       // `/terms-of-use` is backed by the slug `terms`. A tenant whose
       // only page is literally named `terms-of-use` does not have the
@@ -426,6 +439,71 @@ describe('sitemap-tenant-gate', () => {
 
       expect(await runLegal(OPEN))
         .not.toContain('https://example.com/terms-of-use')
+    })
+  })
+
+  describe('layout-driven page gate', () => {
+    // `/about`, `/vision`, `/what-is-microlearning` and
+    // `/why-microlearning` call usePageConfig and throw a hard 404 when
+    // the tenant has published no layout. Only webside has any of them,
+    // so demo and fyteia were advertising three 404s each and
+    // delta-sigma four (times two, for the locale it serves).
+    const LAYOUT_PATHS = [
+      '/about',
+      '/vision',
+      '/what-is-microlearning',
+      '/why-microlearning',
+    ]
+    const URLS = LAYOUT_PATHS.map(p => ({ loc: `https://example.com${p}` }))
+
+    beforeEach(() => {
+      layoutMock.mockResolvedValue({ isPublished: true })
+    })
+
+    async function runLayout(tenant: Record<string, unknown>) {
+      const ctx = {
+        urls: [...URLS],
+        sitemapName: 'sitemap',
+        event: { context: { tenant } },
+      }
+      await resolvedHook!(ctx)
+      return ctx.urls.map(u => u.loc)
+    }
+
+    it('keeps the pages a tenant has published a layout for', async () => {
+      expect(await runLayout(OPEN)).toEqual(URLS.map(u => u.loc))
+    })
+
+    it('drops every brand page for a tenant that has none', async () => {
+      // Django answers 404 for "no published layout" — the state of
+      // every tenant but webside.
+      layoutMock.mockRejectedValue(new Error('404 Not Found'))
+
+      expect(await runLayout(OPEN)).toEqual([])
+    })
+
+    it('drops only the unpublished one', async () => {
+      layoutMock.mockImplementation(async (pageType: string) =>
+        pageType === 'about'
+          ? { isPublished: true }
+          : Promise.reject(new Error('404 Not Found')),
+      )
+
+      expect(await runLayout(OPEN)).toEqual(['https://example.com/about'])
+    })
+
+    it('treats an unpublished layout as absent', async () => {
+      // A 200 carrying isPublished:false is the draft state, and the
+      // page 404s on it exactly like a missing row.
+      layoutMock.mockResolvedValue({ isPublished: false })
+
+      expect(await runLayout(OPEN)).toEqual([])
+    })
+
+    it('reads each pageType once, in one pass', async () => {
+      await runLayout(OPEN)
+
+      expect(layoutMock).toHaveBeenCalledTimes(LAYOUT_PATHS.length)
     })
   })
 })
