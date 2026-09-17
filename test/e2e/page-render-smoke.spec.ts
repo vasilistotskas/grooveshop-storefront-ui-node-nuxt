@@ -205,6 +205,10 @@ describe('every public page renders', async () => {
     ['/en/contact', 'en-US'],
     ['/privacy-policy', 'el-GR'],
     ['/en/privacy-policy', 'en-US'],
+    // The fourth legal route. It rendered an empty stub while sitting in
+    // LEGAL_ROUTE_SLUGS, so the /info/<slug> redirect pointed a
+    // published document at a blank page in production.
+    ['/return-policy', 'el-GR'],
   ]
 
   // Dev mode compiles routes on the FIRST request that touches them, so

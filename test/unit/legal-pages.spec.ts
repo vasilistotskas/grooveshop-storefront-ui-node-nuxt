@@ -38,10 +38,16 @@ const stripComments = (source: string) =>
     })
     .join('\n')
 
+// EVERY route in the map, not just the three that shipped boilerplate.
+// `return-policy` was in LEGAL_ROUTE_SLUGS while its page rendered an
+// empty <div />, which stayed harmless only until /info/<slug> began
+// redirecting to its canonical route — at which point the merchant's
+// published returns policy became unreachable in production.
 const LEGAL_PAGES = {
   'terms-of-use': 'app/pages/terms-of-use.vue',
   'privacy-policy': 'app/pages/privacy-policy.vue',
   'cookies-policy': 'app/pages/cookies-policy.vue',
+  'return-policy': 'app/pages/return-policy.vue',
 } as const
 
 describe('legal pages render the tenant\'s own document', () => {
@@ -160,6 +166,23 @@ describe('the route/slug map is the single source of truth', () => {
 
   it('maps cookies-policy, which had no backing slug at all', () => {
     expect(LEGAL_ROUTE_SLUGS['cookies-policy']).toBe('cookies')
+  })
+
+  it('has a page that renders the document for EVERY mapped route', () => {
+    // The redirect sends /info/<slug> here, so a route in this map that
+    // does not render its ContentPage is a dead end for a published
+    // document — not a cosmetic gap.
+    for (const route of Object.keys(LEGAL_ROUTE_SLUGS)) {
+      const source = read(`app/pages/${route}.vue`)
+      expect(source, `${route} does not render its document`).toContain(
+        'useLegalPage',
+      )
+    }
+  })
+
+  it('links the canonical route from the footer, not the redirect', () => {
+    const code = stripComments(read('app/composables/useFooterLinks.ts'))
+    expect(code).toContain('LEGAL_ROUTE_SLUGS')
   })
 
   it('lives in shared/, where Nitro can read it too', () => {

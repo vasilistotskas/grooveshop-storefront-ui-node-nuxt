@@ -39,10 +39,21 @@ export function useFooterLinks() {
     return {
       label: t('footer.pages'),
       icon: 'i-heroicons-document-text',
-      children: pages.map(page => ({
-        label: extractTranslated(page, 'title', $i18n.locale.value) ?? page.slug,
-        to: localePath({ name: 'info-slug', params: { slug: page.slug } }),
-      })),
+      children: pages.map((page) => {
+        // A slug with a dedicated route is linked at THAT route, not at
+        // /info/<slug>. Both render the same document and /info/<slug>
+        // permanently redirects to the canonical one, so linking the
+        // redirect would make every footer click a 301 for no reason.
+        const canonical = (
+          Object.keys(LEGAL_ROUTE_SLUGS) as LegalRouteName[]
+        ).find(name => LEGAL_ROUTE_SLUGS[name] === page.slug)
+        return {
+          label: extractTranslated(page, 'title', $i18n.locale.value) ?? page.slug,
+          to: canonical
+            ? localePath(canonical)
+            : localePath({ name: 'info-slug', params: { slug: page.slug } }),
+        }
+      }),
     }
   })
 
