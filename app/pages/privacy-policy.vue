@@ -4,7 +4,7 @@ const localePath = useLocalePath()
 // The document is the tenant's own ContentPage — see useLegalPage for
 // why this page no longer carries the platform's text as a fallback.
 const { title, body, tocLinks, updatedAt, hasDocument, error }
-  = useLegalPage(LEGAL_ROUTE_SLUGS['privacy-policy'])
+  = await useLegalPage(LEGAL_ROUTE_SLUGS['privacy-policy'])
 
 // Same normalization as app/pages/about.vue: a backend outage is a 503,
 // a genuinely absent document is a 404. Rendering an empty <main> with

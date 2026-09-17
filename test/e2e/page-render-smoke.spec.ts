@@ -100,6 +100,31 @@ describe('every public page renders', async () => {
         return
       }
 
+      // The legal routes render the tenant's own ContentPage and 404
+      // when there is none — an absent legal document is a real 404, not
+      // a cue to render an empty page. Every tenant is seeded these at
+      // provisioning, so the upstream always has one and the stub
+      // mirrors that. The body is sectioned because the page derives its
+      // table of contents from the document's own headings.
+      if (reqUrl.pathname.includes('/content-page/')) {
+        const slug = reqUrl.pathname.split('/').filter(Boolean).pop() ?? ''
+        const translation = {
+          title: 'Νομικό έγγραφο',
+          body: '<section id="scope"><h2>Πεδίο εφαρμογής</h2><p>Κείμενο.</p></section>',
+        }
+        res.end(JSON.stringify({
+          id: 1,
+          uuid: '00000000-0000-4000-8000-000000000000',
+          slug,
+          translations: { el: translation, en: translation },
+          isPublished: true,
+          publishedAt: '2026-01-01T00:00:00Z',
+          createdAt: '2026-01-01T00:00:00Z',
+          updatedAt: '2026-01-01T00:00:00Z',
+        }))
+        return
+      }
+
       if (reqUrl.pathname.endsWith('/settings/public')) {
         // No rows at all: every flag resolves to its caller's fallback.
         res.end(JSON.stringify({ settings: {} }))

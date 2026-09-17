@@ -16,11 +16,17 @@
  * genuine 404 rather than a cue to render something else, which is what
  * the caller does with it.
  */
-export function useLegalPage(slug: string) {
+export async function useLegalPage(slug: string) {
   const { locale } = useI18n()
   const { transformImages } = useHtmlContent()
 
-  const { data, error } = useFetch<ContentPageResponse>(
+  // AWAITED, and that is load-bearing: the caller reads `hasDocument`
+  // synchronously in setup to decide between rendering and a 404. An
+  // un-awaited useFetch has not resolved by then, so every legal page
+  // 404s on its own data before the request comes back — caught by the
+  // e2e render smoke, which is the only test that boots a real server.
+  // Same shape as `await usePageConfig('about')` in app/pages/about.vue.
+  const { data, error } = await useFetch<ContentPageResponse>(
     `/api/content-pages/${slug}`,
     {
       key: `legal-page-${slug}`,
