@@ -34,6 +34,10 @@ export const useTenantStore = defineStore('tenant', () => {
   // Plan tier of the two-tier gate; the runtime half is the
   // PRODUCT_SUGGESTIONS_ENABLED setting read where a strip is mounted.
   const recommendationsEnabled = computed(() => config.value?.recommendationsEnabled ?? false)
+  // Whether this store answers AI agents (MCP/UCP/ACP through the
+  // gateway). Read by the trust-badges band, which must not let a
+  // store advertise a surface it does not serve.
+  const agentCommerceEnabled = computed(() => config.value?.agentCommerceEnabled ?? false)
   const themePreset = computed(() => config.value?.themePreset ?? 'default')
   const stripePublishableKey = computed(() => config.value?.stripePublishableKey ?? '')
 
@@ -129,6 +133,7 @@ export const useTenantStore = defineStore('tenant', () => {
     giftCardsEnabled,
     b2bEnabled,
     recommendationsEnabled,
+    agentCommerceEnabled,
     themePreset,
     stripePublishableKey,
     metaPixelId,

@@ -1,9 +1,16 @@
 <script lang="ts" setup>
-const props = defineProps<{
+/**
+ * Photographs, with captions where the operator wrote one.
+ */
+const props = withDefaults(defineProps<{
+  /** The operator's section title, from the section row itself. */
   title?: string
   items?: Array<{ src: string, alt: string, caption?: string }>
   columns?: number
-}>()
+  surface?: 'default' | 'muted'
+}>(), {
+  columns: 3,
+})
 
 // Static class map so Tailwind sees every variant at build time.
 const COLUMN_CLASSES: Record<number, string> = {
@@ -13,14 +20,15 @@ const COLUMN_CLASSES: Record<number, string> = {
 }
 
 const columnsClass = computed(
-  () => COLUMN_CLASSES[props.columns ?? 3] ?? COLUMN_CLASSES[3],
+  () => COLUMN_CLASSES[props.columns] ?? COLUMN_CLASSES[3],
 )
 </script>
 
 <template>
-  <div
+  <PageSectionBand
     v-if="items?.length"
-    class="w-full"
+    :heading="title"
+    :surface="surface"
   >
     <div
       class="grid grid-cols-2 gap-4"
@@ -34,20 +42,20 @@ const columnsClass = computed(
         <ImgWithFallback
           :src="item.src"
           :alt="item.alt"
-          class="aspect-square w-full rounded-lg object-cover"
+          :width="600"
+          :height="600"
+          class="aspect-square w-full rounded-xl bg-elevated object-cover"
           fit="cover"
           quality="80"
+          loading="lazy"
         />
         <figcaption
           v-if="item.caption"
-          class="
-            mt-1.5 text-sm text-primary-600
-            dark:text-primary-400
-          "
+          class="mt-2 text-sm text-muted"
         >
           {{ item.caption }}
         </figcaption>
       </figure>
     </div>
-  </div>
+  </PageSectionBand>
 </template>

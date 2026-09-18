@@ -1,43 +1,61 @@
 <script lang="ts" setup>
+/**
+ * What customers said.
+ *
+ * `rating` is the five-point scale a reader expects, not `ProductReview`'s
+ * internal 1..10 — the merchant types what the stars should show.
+ * `role` is who the quote is from ("Verified buyer", "Χονδρική"), which
+ * is what gives it weight and which merchants used to smuggle into the
+ * name.
+ */
 defineProps<{
+  /** The operator's section title; `heading` wins when both are set. */
   title?: string
-  items?: Array<{ name: string, text: string, avatar?: string }>
+  heading?: string
+  items?: Array<{
+    name: string
+    text: string
+    avatar?: string
+    role?: string
+    rating?: number
+  }>
+  surface?: 'default' | 'muted'
 }>()
 </script>
 
 <template>
-  <div class="w-full">
-    <h2
-      v-if="title"
-      class="mb-4 text-2xl font-bold"
-    >
-      {{ title }}
-    </h2>
-    <div
-      v-if="items?.length"
-      class="grid gap-6 md:grid-cols-3"
-    >
-      <div
+  <PageSectionBand
+    v-if="items?.length"
+    :heading="heading || title"
+    :surface="surface"
+  >
+    <UPageGrid class="lg:grid-cols-3">
+      <UPageCard
         v-for="(item, idx) in items"
         :key="idx"
-        class="rounded-lg bg-neutral-50 p-6 dark:bg-neutral-800"
+        variant="subtle"
+        :ui="{ container: 'gap-4' }"
       >
-        <p class="testimonial-text text-neutral-600 dark:text-neutral-300">
+        <UInputRating
+          v-if="item.rating"
+          :model-value="item.rating"
+          :length="5"
+          size="xs"
+          color="warning"
+          readonly
+        />
+        <blockquote class="text-sm text-pretty text-default md:text-base">
           {{ item.text }}
-        </p>
-        <p class="mt-4 font-semibold">
-          {{ item.name }}
-        </p>
-      </div>
-    </div>
-  </div>
+        </blockquote>
+        <template #footer>
+          <UUser
+            :name="item.name"
+            :description="item.role"
+            :avatar="item.avatar ? { src: item.avatar, alt: item.name } : { text: item.name.slice(0, 1) }"
+            size="sm"
+          />
+        </template>
+      </UPageCard>
+    </UPageGrid>
+  </PageSectionBand>
 </template>
-
-<style scoped>
-.testimonial-text::before {
-  content: '\201C';
-}
-.testimonial-text::after {
-  content: '\201D';
-}
-</style>

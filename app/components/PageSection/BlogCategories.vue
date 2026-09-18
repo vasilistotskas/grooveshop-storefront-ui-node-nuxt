@@ -1,18 +1,23 @@
 <script lang="ts" setup>
+/**
+ * The blog's categories as a rail. Nothing is fetched when the tenant's
+ * blog is off — the REQUEST is what the flag gates, not just the
+ * render.
+ */
 defineProps<{
+  /** The operator's section title, from the section row itself. */
   title?: string
 }>()
 
 const tenantStore = useTenantStore()
-const { isMobileOrTablet } = useDevice()
 </script>
 
 <template>
-  <BlogCategoriesSlider
+  <PageSectionBand
     v-if="tenantStore.blogEnabled"
-    :class="[
-      'w-full',
-      isMobileOrTablet ? 'py-0!' : 'md:p-0!',
-    ]"
-  />
+    :heading="title"
+    padding="sm"
+  >
+    <BlogCategoriesSlider class="w-full p-0!" />
+  </PageSectionBand>
 </template>

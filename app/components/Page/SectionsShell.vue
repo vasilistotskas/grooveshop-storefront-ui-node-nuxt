@@ -2,39 +2,29 @@
 /**
  * The page-builder's section shell — the markup AROUND the sections.
  *
- * The platform's shell is a `UContainer` with a gap between sections:
- * right for a shop, where each band is a card on the page. A design
- * whose bands each own the full width, their own background and a 1px
- * rule against the next one needs the opposite — no container, no
- * gutter, no gap — or every band renders as an inset card floating in
- * white space, which is most of what made the Δelta Σigma redesign
- * read as nothing like its artboards.
+ * There is none. A page built from sections is a stack of full-width
+ * BANDS, and each section carries its own (`PageSection/Band.vue`):
+ * its ground, its padding and the container that holds its measure.
+ * Wrapping the stack in a container instead would make every band an
+ * inset card floating in white space, and would stop any of them from
+ * ever painting edge to edge.
  *
- * Which shell a tenant gets is `hasFullBleedBands`. Extracted here
- * rather than branched in each page because `pages/index.vue` and
- * `pages/[slug].vue` carried a byte-identical copy of the platform
- * markup, so the choice had to be made twice to be made at all.
+ * webside keeps the previous shell — a `PageWrapper` with a gap between
+ * sections — in its frozen copy of this file, because its sections are
+ * cards on a page rather than bands.
  */
 defineProps<{ sections: PageSection[] }>()
 
 defineSlots<{
   /** The page's h1, which is a page concern, not a section's. */
   title?: (props: object) => unknown
-  /**
-   * What the page carries UNDER its sections — `/contact`'s form. In
-   * the platform shell it lands inside the container with them; in the
-   * full-bleed one it follows the last band, since there is no
-   * container to be inside.
-   */
+  /** What the page carries UNDER its sections — `/contact`'s form. */
   after?: (props: object) => unknown
 }>()
-
-const tenantStore = useTenantStore()
-const fullBleed = computed(() => hasFullBleedBands(tenantStore.schemaName))
 </script>
 
 <template>
-  <div v-if="fullBleed">
+  <div>
     <slot name="title" />
     <PageSectionRenderer
       v-for="section in sections"
@@ -43,27 +33,4 @@ const fullBleed = computed(() => hasFullBleedBands(tenantStore.schemaName))
     />
     <slot name="after" />
   </div>
-  <PageWrapper v-else>
-    <slot name="title" />
-    <section
-      class="
-        grid gap-4 pt-4
-        md:flex md:flex-col md:gap-8
-      "
-    >
-      <div
-        class="
-          grid gap-4
-          md:gap-8
-        "
-      >
-        <PageSectionRenderer
-          v-for="section in sections"
-          :key="section.uuid"
-          :section="section"
-        />
-      </div>
-      <slot name="after" />
-    </section>
-  </PageWrapper>
 </template>

@@ -1,15 +1,24 @@
 <script lang="ts" setup>
 import type { TimelineItem } from '@nuxt/ui'
 
+/**
+ * How the store got here, or how an order gets to the customer.
+ *
+ * Every step renders as reached: this is a story or a process, not a
+ * progress tracker with a current position.
+ */
 const props = defineProps<{
+  /** The operator's section title; `heading` wins when both are set. */
   title?: string
   heading?: string
+  subheading?: string
   items?: Array<{
     title: string
     date?: string
     text?: string
     icon?: string
   }>
+  surface?: 'default' | 'muted'
 }>()
 
 const timelineItems = computed<TimelineItem[]>(() =>
@@ -22,28 +31,19 @@ const timelineItems = computed<TimelineItem[]>(() =>
   })),
 )
 
-// Every step rendered as "reached": this is a story/process, not a
-// progress tracker with a current position.
 const lastValue = computed(() => timelineItems.value.length - 1)
 </script>
 
 <template>
-  <div
+  <PageSectionBand
     v-if="timelineItems.length"
-    class="w-full"
+    :heading="heading || title"
+    :subheading="subheading"
+    :surface="surface"
   >
-    <h2
-      v-if="heading"
-      class="
-        font-display mb-8 text-2xl font-bold text-balance
-        md:text-3xl
-      "
-    >
-      {{ heading }}
-    </h2>
-    <!-- Flush-left with the heading above it: centered, the steps
+    <!-- Flush-left with the heading above it: centred, the steps
          started ~240px right of their own h2 and read as an unrelated
-         block. max-w keeps the measure comfortable. -->
+         block. The max width keeps the measure comfortable. -->
     <UTimeline
       :items="timelineItems"
       :default-value="lastValue"
@@ -51,9 +51,10 @@ const lastValue = computed(() => timelineItems.value.length - 1)
       size="lg"
       class="w-full max-w-2xl"
       :ui="{
-        title: 'font-display text-base font-semibold',
-        date: 'text-(--ui-secondary)',
+        title: 'font-display text-base font-semibold text-highlighted',
+        description: 'text-sm text-muted',
+        date: 'text-secondary',
       }"
     />
-  </div>
+  </PageSectionBand>
 </template>

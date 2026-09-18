@@ -15,17 +15,23 @@
  * pageTypes default to EMPTY: their pages carry their own static
  * content and the builder only ADDS branded bands above it.
  *
+ * ``surface`` alternates ground and raised down the stack: the
+ * storefront draws each section as a full-width BAND, and two
+ * neighbours on the same surface read as one. Sections that can render
+ * nothing are skipped in the count on purpose — they vanish, and the
+ * bands that remain still alternate.
+ *
  * Keep entries in lockstep with ``page_config/defaults.py`` on the
  * Django side (one entry per supported pageType).
  */
 const FALLBACK_LAYOUTS: Record<string, PageSection[]> = {
   home: [
-    { id: 0, uuid: 'fallback-product-categories', componentType: 'product_categories', title: '', isVisible: true, props: {}, sortOrder: 0 },
-    { id: 0, uuid: 'fallback-featured-products', componentType: 'featured_products', title: '', isVisible: true, props: {}, sortOrder: 1 },
-    { id: 0, uuid: 'fallback-products-slider', componentType: 'products_slider', title: '', isVisible: true, props: { ordering: 'newest' }, sortOrder: 2 },
+    { id: 0, uuid: 'fallback-product-categories', componentType: 'product_categories', title: '', isVisible: true, props: { surface: 'default' }, sortOrder: 0 },
+    { id: 0, uuid: 'fallback-featured-products', componentType: 'featured_products', title: '', isVisible: true, props: { surface: 'muted' }, sortOrder: 1 },
+    { id: 0, uuid: 'fallback-products-slider', componentType: 'products_slider', title: '', isVisible: true, props: { ordering: 'newest', surface: 'default' }, sortOrder: 2 },
     { id: 0, uuid: 'fallback-recently-viewed', componentType: 'recently_viewed', title: '', isVisible: true, props: {}, sortOrder: 3 },
-    { id: 0, uuid: 'fallback-blog-posts-grid', componentType: 'blog_posts_grid', title: '', isVisible: true, props: {}, sortOrder: 4 },
-    { id: 0, uuid: 'fallback-newsletter-signup', componentType: 'newsletter_signup', title: '', isVisible: true, props: {}, sortOrder: 5 },
+    { id: 0, uuid: 'fallback-blog-posts-grid', componentType: 'blog_posts_grid', title: '', isVisible: true, props: { surface: 'default' }, sortOrder: 4 },
+    { id: 0, uuid: 'fallback-newsletter-signup', componentType: 'newsletter_signup', title: '', isVisible: true, props: { surface: 'muted' }, sortOrder: 5 },
   ],
   products: [],
   blog: [],

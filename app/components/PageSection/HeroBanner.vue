@@ -1,182 +1,213 @@
 <script lang="ts" setup>
-const props = defineProps<{
+/**
+ * The top of a page: one picture, one promise, one ask.
+ *
+ * Two readings, chosen by whether the operator gave it artwork:
+ * - with an image, the copy sits over the photograph and `theme` says
+ *   which way it reads;
+ * - without, the band is typographic on the raised surface, and `decor`
+ *   adds the orbs or the gradient wash behind it.
+ *
+ * A phone crops a hero differently from a desk, so `mobileImageUrl` is
+ * a separate artwork rather than the same one squeezed. This is the
+ * page's LCP: the image loads eagerly at high priority and carries
+ * explicit dimensions.
+ */
+const props = withDefaults(defineProps<{
+  /** The operator's section title; `heading` wins when both are set. */
   title?: string
   heading?: string
   subheading?: string
   eyebrow?: string
   imageUrl?: string
+  mobileImageUrl?: string
+  imageAlt?: string
   ctaText?: string
   ctaLink?: string
   secondaryCtaText?: string
   secondaryCtaLink?: string
+  /** Proof under the copy — "500+ orders", "24h delivery". */
+  stats?: Array<{ value: string, label: string }>
   overlayOpacity?: number
   decor?: 'none' | 'orbs' | 'gradient'
-}>()
+  align?: 'left' | 'center'
+  theme?: 'light' | 'dark' | 'auto'
+}>(), {
+  align: 'center',
+  theme: 'auto',
+})
 
-// The photo hero keeps its original rendering; a decor choice with no
-// image switches to the typographic variant (surface, orbs/gradient,
-// display face, woven-thread underline).
-const typographic = computed(
-  () => !props.imageUrl && !!props.decor && props.decor !== 'none',
+const localePath = useLocalePath()
+const { isMobileOrTablet } = useDevice()
+
+const label = computed(() => props.heading || props.title)
+const hasImage = computed(() => !!props.imageUrl)
+
+const artwork = computed(() =>
+  (isMobileOrTablet.value && props.mobileImageUrl) || props.imageUrl,
+)
+
+/**
+ * Copy over a photograph is light by default, because the overlay
+ * darkens the artwork underneath it. `auto` on a band with no artwork
+ * means the page's own text colours.
+ */
+const inverted = computed(
+  () => props.theme === 'dark' || (props.theme === 'auto' && hasImage.value),
+)
+
+const centred = computed(() => props.align === 'center')
+
+/** A hero with neither copy nor artwork is not a band. */
+const hasContent = computed(
+  () => hasImage.value || !!label.value || !!props.subheading,
 )
 </script>
 
 <template>
-  <div
-    v-if="typographic"
-    class="
-      relative overflow-hidden rounded-lg border border-primary-200
-      bg-primary-50 px-6 py-16 text-center
-      md:py-24
-      dark:border-primary-800 dark:bg-primary-950
-    "
+  <section
+    v-if="hasContent"
+    :class="[
+      'relative isolate w-full overflow-hidden',
+      hasImage ? 'bg-inverted' : 'bg-muted',
+    ]"
   >
-    <template v-if="decor === 'orbs'">
+    <template v-if="hasImage">
+      <ImgWithFallback
+        :src="artwork"
+        :alt="imageAlt || label || ''"
+        :width="isMobileOrTablet ? 768 : 1920"
+        :height="isMobileOrTablet ? 960 : 800"
+        class="absolute inset-0 size-full object-cover"
+        fit="cover"
+        quality="80"
+        densities="x1"
+        loading="eager"
+        fetchpriority="high"
+        preload
+      />
+      <div
+        aria-hidden="true"
+        class="absolute inset-0 bg-black"
+        :style="{ opacity: overlayOpacity ?? 0.4 }"
+      />
+    </template>
+
+    <template v-else-if="decor === 'orbs'">
       <div
         aria-hidden="true"
         class="
-          absolute -top-24 -left-20 size-80 rounded-full
-          bg-(--ui-color-primary-300)/30 blur-3xl
+          absolute -top-24 -left-20 size-80 rounded-full bg-primary/20
+          blur-3xl
         "
       />
       <div
         aria-hidden="true"
         class="
-          absolute -right-16 -bottom-28 size-72 rounded-full
-          bg-(--ui-color-secondary-300)/25 blur-3xl
+          absolute -right-16 -bottom-28 size-72 rounded-full bg-secondary/20
+          blur-3xl
         "
       />
     </template>
     <div
       v-else-if="decor === 'gradient'"
       aria-hidden="true"
-      class="
-        absolute inset-0
-        bg-gradient-to-b from-(--ui-color-primary-100) to-transparent
-        dark:from-(--ui-color-primary-900)
-      "
+      class="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent"
     />
-    <div class="relative mx-auto flex max-w-2xl flex-col items-center gap-4">
+
+    <UContainer
+      :class="[
+        'relative flex flex-col gap-5 py-16 md:py-24 lg:py-28',
+        centred ? 'items-center text-center' : 'items-start text-start',
+      ]"
+    >
       <p
         v-if="eyebrow"
-        class="
-          text-sm font-bold tracking-[0.14em] text-(--ui-secondary)
-          uppercase
-        "
+        :class="[
+          'text-xs font-semibold tracking-[0.14em] uppercase',
+          inverted ? 'text-white/80' : 'text-secondary',
+        ]"
       >
         {{ eyebrow }}
       </p>
+
       <h1
-        v-if="heading"
-        class="
-          font-display text-4xl font-bold text-balance text-primary-950
-          md:text-5xl
-          dark:text-primary-50
-        "
+        v-if="label"
+        :class="[
+          `
+            font-display max-w-3xl text-4xl font-semibold tracking-tight
+            text-balance
+            md:text-5xl
+            lg:text-6xl
+          `,
+          inverted ? 'text-white' : 'text-highlighted',
+        ]"
       >
-        {{ heading }}
+        {{ label }}
       </h1>
-      <hr
-        aria-hidden="true"
-        class="woven-thread w-28"
-      >
+
       <p
         v-if="subheading"
-        class="
-          max-w-xl text-lg text-primary-700
-          dark:text-primary-200
-        "
+        :class="[
+          'max-w-2xl text-base text-pretty md:text-lg',
+          inverted ? 'text-white/85' : 'text-muted',
+        ]"
       >
         {{ subheading }}
       </p>
+
       <div
         v-if="(ctaText && ctaLink) || (secondaryCtaText && secondaryCtaLink)"
-        class="mt-2 flex flex-wrap justify-center gap-3"
+        class="mt-2 flex flex-wrap gap-3"
+        :class="centred && 'justify-center'"
       >
-        <NuxtLink
+        <UButton
           v-if="ctaText && ctaLink"
-          :to="ctaLink"
-        >
-          <UButton
-            :label="ctaText"
-            color="secondary"
-            variant="solid"
-            size="lg"
-          />
-        </NuxtLink>
-        <NuxtLink
+          :to="localePath(ctaLink)"
+          :label="ctaText"
+          color="secondary"
+          size="xl"
+        />
+        <UButton
           v-if="secondaryCtaText && secondaryCtaLink"
-          :to="secondaryCtaLink"
-        >
-          <UButton
-            :label="secondaryCtaText"
-            color="neutral"
-            variant="outline"
-            size="lg"
-          />
-        </NuxtLink>
+          :to="localePath(secondaryCtaLink)"
+          :label="secondaryCtaText"
+          color="neutral"
+          variant="outline"
+          size="xl"
+          :class="inverted && 'text-white ring-white/40 hover:bg-white/10'"
+        />
       </div>
-    </div>
-  </div>
 
-  <div
-    v-else
-    class="relative overflow-hidden rounded-lg bg-neutral-900"
-  >
-    <ImgWithFallback
-      v-if="imageUrl"
-      :src="imageUrl"
-      :alt="heading || title || ''"
-      class="h-64 w-full object-cover md:h-96"
-      fit="cover"
-      quality="80"
-    />
-    <div
-      v-if="overlayOpacity"
-      class="absolute inset-0 bg-black"
-      :style="{ opacity: overlayOpacity }"
-    />
-    <div class="absolute inset-0 flex flex-col items-center justify-center p-8 text-center text-white">
-      <p
-        v-if="eyebrow"
-        class="mb-2 text-sm font-bold tracking-[0.14em] uppercase"
+      <dl
+        v-if="stats?.length"
+        class="mt-4 flex flex-wrap gap-x-10 gap-y-4"
+        :class="centred && 'justify-center'"
       >
-        {{ eyebrow }}
-      </p>
-      <h1
-        v-if="heading"
-        class="font-display text-3xl font-bold md:text-5xl"
-      >
-        {{ heading }}
-      </h1>
-      <p
-        v-if="subheading"
-        class="mt-2 text-lg md:text-xl"
-      >
-        {{ subheading }}
-      </p>
-      <div class="mt-4 flex flex-wrap justify-center gap-3">
-        <NuxtLink
-          v-if="ctaText && ctaLink"
-          :to="ctaLink"
+        <div
+          v-for="(stat, idx) in stats"
+          :key="idx"
+          class="flex flex-col"
+          :class="centred && 'items-center'"
         >
-          <UButton
-            :label="ctaText"
-            size="lg"
-          />
-        </NuxtLink>
-        <NuxtLink
-          v-if="secondaryCtaText && secondaryCtaLink"
-          :to="secondaryCtaLink"
-        >
-          <UButton
-            :label="secondaryCtaText"
-            color="neutral"
-            variant="outline"
-            size="lg"
-          />
-        </NuxtLink>
-      </div>
-    </div>
-  </div>
+          <dt
+            :class="[
+              'font-mono text-2xl font-semibold tabular-nums md:text-3xl',
+              inverted ? 'text-white' : 'text-highlighted',
+            ]"
+          >
+            {{ stat.value }}
+          </dt>
+          <dd
+            :class="[
+              'text-xs tracking-wide uppercase',
+              inverted ? 'text-white/70' : 'text-muted',
+            ]"
+          >
+            {{ stat.label }}
+          </dd>
+        </div>
+      </dl>
+    </UContainer>
+  </section>
 </template>

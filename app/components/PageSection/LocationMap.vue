@@ -1,29 +1,36 @@
 <script lang="ts" setup>
+/**
+ * Where the shop is.
+ *
+ * Only https embeds survive the props schema, and the tenant must also
+ * carry the embed origin (e.g. `https://www.google.com`) in
+ * `allowed_csp_sources` or the browser blocks the frame — `3.csp.ts`
+ * extends `frame-src` from that field.
+ */
 const props = defineProps<{
+  /** The operator's section title, from the section row itself. */
+  title?: string
   embedUrl?: string
   lat?: number
   lng?: number
   address?: string
+  surface?: 'default' | 'muted'
 }>()
 
 const { t } = useI18n()
 
-// Only https embeds survive the props schema; the tenant must also
-// carry the embed origin (e.g. https://www.google.com) in
-// allowed_csp_sources or the browser blocks the frame (3.csp.ts
-// extends frame-src from that field).
 const showMap = computed(() => Boolean(props.embedUrl))
 </script>
 
 <template>
-  <section
+  <PageSectionBand
     v-if="showMap || address"
-    :aria-label="t('title')"
-    class="w-full"
+    :heading="title"
+    :surface="surface"
   >
     <div
       v-if="showMap"
-      class="overflow-hidden rounded-lg"
+      class="overflow-hidden rounded-xl ring ring-default"
     >
       <iframe
         :src="embedUrl"
@@ -36,18 +43,15 @@ const showMap = computed(() => Boolean(props.embedUrl))
     </div>
     <p
       v-if="address"
-      class="
-        mt-3 flex items-center gap-2 text-neutral-600
-        dark:text-neutral-300
-      "
+      class="flex items-center gap-2 text-muted"
     >
       <UIcon
         name="i-heroicons-map-pin"
-        class="size-5 shrink-0"
+        class="size-5 shrink-0 text-secondary"
       />
       {{ address }}
     </p>
-  </section>
+  </PageSectionBand>
 </template>
 
 <i18n lang="yaml">

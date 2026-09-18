@@ -1,4 +1,16 @@
 <script lang="ts" setup>
+/**
+ * The week's opening hours, with today marked and an open/closed badge.
+ *
+ * The schedule is the `BUSINESS_HOURS` merchant setting, so the section
+ * carries no props of its own beyond where it sits on the page.
+ */
+defineProps<{
+  /** The operator's section title, from the section row itself. */
+  title?: string
+  surface?: 'default' | 'muted'
+}>()
+
 const { t } = useI18n()
 const { hasData, schedule, today, isOpen } = useBusinessHours()
 
@@ -14,20 +26,19 @@ const rows = computed(() => {
 </script>
 
 <template>
-  <section
+  <PageSectionBand
     v-if="hasData"
-    :aria-label="t('title')"
-    class="w-full"
+    :surface="surface"
   >
-    <div
-      class="
-        rounded-lg bg-neutral-50 p-6
-        dark:bg-neutral-800
-      "
-    >
-      <div class="mb-4 flex items-center justify-between gap-4">
-        <h2 class="text-2xl font-bold">
-          {{ t('title') }}
+    <template #header>
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <h2
+          class="
+            font-display text-2xl font-semibold tracking-tight text-highlighted
+            md:text-3xl
+          "
+        >
+          {{ title || t('title') }}
         </h2>
         <UBadge
           :color="isOpen ? 'success' : 'error'"
@@ -41,34 +52,27 @@ const rows = computed(() => {
           {{ isOpen ? t('open_now') : t('closed_now') }}
         </UBadge>
       </div>
-      <ul class="grid gap-1">
-        <li
-          v-for="row in rows"
-          :key="row.day"
-          class="
-            flex items-center justify-between rounded-md px-3 py-2
-          "
-          :class="
-            row.isToday
-              ? `
-                bg-(--ui-color-secondary-500)/10 font-semibold
-              `
-              : ''
-          "
-        >
-          <span>{{ row.label }}</span>
-          <span
-            v-if="row.entry"
-            class="tabular-nums"
-          >{{ row.entry.opens }}–{{ row.entry.closes }}</span>
-          <span
-            v-else
-            class="text-neutral-500 dark:text-neutral-400"
-          >{{ t('closed') }}</span>
-        </li>
-      </ul>
-    </div>
-  </section>
+    </template>
+
+    <ul class="grid max-w-xl gap-1">
+      <li
+        v-for="row in rows"
+        :key="row.day"
+        class="flex items-center justify-between rounded-md px-3 py-2"
+        :class="row.isToday ? 'bg-elevated font-semibold text-highlighted' : ''"
+      >
+        <span>{{ row.label }}</span>
+        <span
+          v-if="row.entry"
+          class="font-mono tabular-nums"
+        >{{ row.entry.opens }}–{{ row.entry.closes }}</span>
+        <span
+          v-else
+          class="text-dimmed"
+        >{{ t('closed') }}</span>
+      </li>
+    </ul>
+  </PageSectionBand>
 </template>
 
 <i18n lang="yaml">

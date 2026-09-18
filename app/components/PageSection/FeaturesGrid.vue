@@ -1,11 +1,35 @@
 <script lang="ts" setup>
-const props = defineProps<{
+/**
+ * What the store promises, in cells.
+ *
+ * `decor` decides how the cells are drawn:
+ * - `framed` — one bordered box divided by rules, for parts of a single
+ *   promise rather than a list of separate ones;
+ * - `gradient_tiles` — the icon sits on a gradient tile;
+ * - `none` — the plain cell.
+ *
+ * `prompt` is the cell at the end that answers "what if mine is not one
+ * of these?", which is a link rather than a feature.
+ */
+const props = withDefaults(defineProps<{
+  /** The operator's section title; `heading` wins when both are set. */
   title?: string
   heading?: string
+  /** A standfirst under the heading. */
+  body?: string
   items?: Array<{ title: string, text?: string, icon?: string }>
   columns?: number
-  decor?: 'none' | 'gradient_tiles'
-}>()
+  decor?: 'none' | 'gradient_tiles' | 'framed'
+  ctaText?: string
+  ctaLink?: string
+  prompt?: { title: string, text?: string, ctaText?: string, ctaLink?: string }
+  surface?: 'default' | 'muted'
+}>(), {
+  columns: 3,
+  decor: 'none',
+})
+
+const localePath = useLocalePath()
 
 // Static class map so Tailwind sees every variant at build time.
 const COLUMN_CLASSES: Record<number, string> = {
@@ -16,73 +40,81 @@ const COLUMN_CLASSES: Record<number, string> = {
 }
 
 const columnsClass = computed(
-  () => COLUMN_CLASSES[props.columns ?? 3] ?? COLUMN_CLASSES[3],
+  () => COLUMN_CLASSES[props.columns] ?? COLUMN_CLASSES[3],
 )
+
+const framed = computed(() => props.decor === 'framed')
 </script>
 
 <template>
-  <div
+  <PageSectionBand
     v-if="items?.length"
-    class="w-full"
+    :heading="heading || title"
+    :subheading="body"
+    :cta-text="ctaText"
+    :cta-link="ctaLink ? localePath(ctaLink) : undefined"
+    :surface="surface"
   >
-    <h2
-      v-if="heading"
-      class="
-        font-display mb-6 text-2xl font-bold text-balance
-        md:text-3xl
-      "
-    >
-      {{ heading }}
-    </h2>
     <div
-      class="
-        grid grid-cols-1 gap-5
-        sm:grid-cols-2
-      "
-      :class="columnsClass"
+      :class="[
+        'grid grid-cols-1 gap-px sm:grid-cols-2',
+        columnsClass,
+        framed
+          ? 'overflow-hidden rounded-xl bg-accented ring ring-default'
+          : 'gap-5 bg-transparent',
+      ]"
     >
-      <div
+      <UPageFeature
         v-for="(item, idx) in items"
         :key="idx"
-        class="
-          rounded-lg border border-primary-200 bg-white p-6
-          dark:border-primary-800 dark:bg-primary-900
-        "
+        orientation="vertical"
+        :icon="item.icon"
+        :title="item.title"
+        :description="item.text"
+        :ui="{
+          root: framed
+            ? 'bg-default p-6'
+            : 'rounded-xl bg-default p-6 ring ring-default',
+          title: 'font-display text-base font-semibold text-highlighted',
+          description: 'text-sm text-muted',
+          leadingIcon: decor === 'gradient_tiles'
+            ? 'text-inverted'
+            : 'text-secondary',
+          leading: decor === 'gradient_tiles'
+            ? `
+              mb-4 flex size-11 items-center justify-center rounded-lg
+              bg-secondary
+            `
+            : 'mb-4',
+        }"
+      />
+
+      <UPageCard
+        v-if="prompt"
+        :title="prompt.title"
+        :description="prompt.text"
+        :to="prompt.ctaLink ? localePath(prompt.ctaLink) : undefined"
+        variant="soft"
+        :ui="{
+          root: framed ? 'rounded-none' : undefined,
+          title: 'font-display text-base font-semibold',
+          description: 'text-sm',
+        }"
       >
-        <div
-          v-if="item.icon"
-          class="mb-4 flex size-12 items-center justify-center rounded-lg"
-          :class="
-            decor === 'gradient_tiles'
-              ? `
-                bg-linear-135 from-(--ui-color-primary-500)
-                via-(--ui-color-secondary-500) to-(--ui-secondary)
-                text-white shadow-lg
-              `
-              : `
-                bg-primary-100 text-primary-700
-                dark:bg-primary-800 dark:text-primary-200
-              `
-          "
+        <template
+          v-if="prompt.ctaText && prompt.ctaLink"
+          #footer
         >
-          <UIcon
-            :name="item.icon"
-            class="size-6"
+          <UButton
+            :label="prompt.ctaText"
+            :to="localePath(prompt.ctaLink)"
+            color="neutral"
+            variant="link"
+            trailing-icon="i-heroicons-arrow-right"
+            class="p-0"
           />
-        </div>
-        <h3 class="font-display mb-1 text-lg font-semibold">
-          {{ item.title }}
-        </h3>
-        <p
-          v-if="item.text"
-          class="
-            text-sm text-primary-700
-            dark:text-primary-300
-          "
-        >
-          {{ item.text }}
-        </p>
-      </div>
+        </template>
+      </UPageCard>
     </div>
-  </div>
+  </PageSectionBand>
 </template>

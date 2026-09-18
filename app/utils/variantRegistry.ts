@@ -197,16 +197,19 @@ export function resolvePage(key: PageKey, tenantSchema?: string | null): Compone
 
 /**
  * Tenants whose page design is a STACK OF FULL-BLEED BANDS rather than
- * cards inside the platform's container.
+ * cards inside a container.
  *
- * The platform's section shell puts every section inside a `UContainer`
- * with a gap between them, which is right for a shop's homepage and
- * wrong for a design whose bands each own the full width, their own
- * background and a 1px rule against their neighbour: inside that shell
- * the bands would be inset cards with white space between them.
+ * ONLY THE FROZEN `webside` TREE STILL ASKS. The platform default is now
+ * a stack of bands itself — each section owns its width, its ground and
+ * its own container (`PageSection/Band.vue`) — so for everything outside
+ * `app/components/variants/webside/**` the answer is always "yes" and
+ * the question is not worth asking. webside keeps the previous shell, a
+ * `PageWrapper` with a gap between inset cards, and its frozen copies of
+ * the shell and the contact body read this to choose it.
  *
- * A set rather than a component: the difference is the SHELL, not a
- * replacement component, so there is nothing to look up.
+ * So: do not call this from new code, and do not add a schema to the
+ * set. A tenant that wants a different page frame registers
+ * `page:<key>@<schema>` like any other variant.
  */
 const FULL_BLEED_BANDS = new Set(['delta_sigma'])
 

@@ -34,7 +34,17 @@ const zIcon = z.string().regex(/^i-[a-z0-9:-]+$/)
  * than the same one twice: what the merchant curates beside what
  * arrived last.
  */
+/**
+ * WHICH of the two page surfaces a band paints. A page built from
+ * full-width bands separates two of them by alternating ground and
+ * raised, so the choice belongs to the PAGE: the same band sits last on
+ * one layout and after a raised one on another. Every section that
+ * draws a band carries it; a hero paints its own ground and does not.
+ */
+const zSurface = z.enum(['default', 'muted'])
+
 const productRailProps = (maxPageSize: number) => ({
+  surface: zSurface,
   heading: z.string().max(200),
   subheading: z.string().max(500),
   ctaText: z.string().max(100),
@@ -55,6 +65,7 @@ const productRailProps = (maxPageSize: number) => ({
 
 /** Same reasoning for the three blog rails. */
 const blogRailProps = {
+  surface: zSurface,
   heading: z.string().max(200),
   subheading: z.string().max(500),
   ctaText: z.string().max(100),
@@ -144,6 +155,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     .strip(),
   product_categories: z
     .object({
+      surface: zSurface,
       heading: z.string().max(200),
       // How the band draws them: a swipeable rail, a plain grid, or
       // image tiles.
@@ -186,7 +198,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
       buttonLink: zLink,
       backgroundColor: z.string().regex(/^#[0-9a-fA-F]{6}$/),
       // WHICH page surface the band paints — an enum, not a colour.
-      surface: z.enum(['default', 'muted']),
+      surface: zSurface,
     })
     .partial()
     .strip(),
@@ -197,12 +209,13 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
       placeholder: z.string().max(100),
       buttonText: z.string().max(60),
       // Same surface enum as `cta_banner`, for the same reason.
-      surface: z.enum(['default', 'muted']),
+      surface: zSurface,
     })
     .partial()
     .strip(),
   testimonials: z
     .object({
+      surface: zSurface,
       heading: z.string().max(200),
       items: z
         .array(
@@ -235,9 +248,10 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
   search_bar: z.object({}).partial().strip(),
   // Weekly schedule + open/closed badge — data comes from the
   // BUSINESS_HOURS extra_setting (useBusinessHours), so no props.
-  business_hours: z.object({}).partial().strip(),
+  business_hours: z.object({ surface: zSurface }).partial().strip(),
   location_map: z
     .object({
+      surface: zSurface,
       embedUrl: z.string().max(1000).regex(/^https:\/\//),
       lat: z.number().min(-90).max(90),
       lng: z.number().min(-180).max(180),
@@ -525,6 +539,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     .strip(),
   features_grid: z
     .object({
+      surface: zSurface,
       heading: z.string().max(200),
       // A standfirst under the heading, for a grid whose cells are
       // framed together rather than introduced one by one.
@@ -562,6 +577,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     .strip(),
   media_text: z
     .object({
+      surface: zSurface,
       heading: z.string().max(200),
       body: z.string().max(5000),
       // A label above the heading, a footnote under the body, a
@@ -607,6 +623,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
     .strip(),
   image_gallery: z
     .object({
+      surface: zSurface,
       items: z
         .array(
           z
@@ -640,12 +657,13 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
         .max(20),
       // Which page surface the band paints — the same enum, and the
       // same reason, as `cta_banner`.
-      surface: z.enum(['default', 'muted']),
+      surface: zSurface,
     })
     .partial()
     .strip(),
   faq: z
     .object({
+      surface: zSurface,
       heading: z.string().max(200),
       subheading: z.string().max(500),
       items: z
@@ -669,6 +687,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
   // a surface it does not serve.
   trust_badges: z
     .object({
+      surface: zSurface,
       heading: z.string().max(200),
       items: z
         .array(
@@ -700,6 +719,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
   // merchant can leave it published between campaigns.
   offers_preview: z
     .object({
+      surface: zSurface,
       heading: z.string().max(200),
       subheading: z.string().max(500),
       limit: z.number().int().min(1).max(6),
@@ -723,7 +743,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
             .strip(),
         )
         .max(4),
-      surface: z.enum(['default', 'muted']),
+      surface: zSurface,
     })
     .partial()
     .strip(),

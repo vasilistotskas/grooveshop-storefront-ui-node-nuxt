@@ -1,33 +1,52 @@
 <script lang="ts" setup>
-defineProps<{
+/**
+ * The products this visitor was just looking at.
+ *
+ * The history lives in localStorage, so the band is client-only by
+ * construction — and it must decide for ITSELF whether there is
+ * anything to show, because a band that paints its ground and its
+ * padding around an empty rail is a blank screenful on every
+ * first-time visitor.
+ *
+ * Gated by the `RECENTLY_VIEWED_ENABLED` merchant setting, which fails
+ * CLOSED: a rail that pops in beats one that flashes and vanishes when
+ * an admin has switched it off. The flag rides the one per-render
+ * settings payload, so reading it costs no round trip of its own.
+ */
+const props = defineProps<{
+  /** The operator's section title; `heading` wins when both are set. */
   title?: string
+  heading?: string
 }>()
 
-// Admin-toggleable rail — extra-setting RECENTLY_VIEWED_ENABLED.
-// Fails CLOSED: a rail that pops in beats one that flashes and
-// vanishes when an admin has disabled it. The flag rides the one
-// per-render settings payload, so reading it on the server no longer
-// costs a round trip of its own; the rail it gates
-// (``ProductRecentlyViewed``) reads localStorage and stays client-only.
+const { t } = useI18n()
+
 const recentlyViewedEnabled = useSettingFlag('RECENTLY_VIEWED_ENABLED', {
   fallback: false,
 })
+
+const { items } = useRecentlyViewed()
+
+const label = computed(() => props.heading || props.title || t('heading'))
 </script>
 
 <template>
-  <!-- Recently viewed rail: rendered client-side from localStorage
-       so returning visitors land on products they were eyeing.
-       Hidden when history is empty.
-
-       Uses the non-lazy variant — ``<LazyProductRecentlyViewed
-       hydrate-on-visible>`` combined with the component's inner
-       ``<ClientOnly>`` deadlocks: SSR renders nothing (fallback),
-       ``hydrate-on-visible`` has no DOM node to observe, and
-       hydration never fires. Plain render ships the component's
-       setup on every client load so ``useRecentlyViewed`` can
-       read localStorage and populate the carousel. -->
-  <ProductRecentlyViewed
-    v-if="recentlyViewedEnabled"
-    class="w-full md:p-0!"
-  />
+  <ClientOnly>
+    <PageSectionBand
+      v-if="recentlyViewedEnabled && items.length"
+      :heading="label"
+      surface="muted"
+    >
+      <!-- The rail's own heading would be a second one inside the
+           band's; the band already says what this is. -->
+      <ProductRecentlyViewed hide-title />
+    </PageSectionBand>
+  </ClientOnly>
 </template>
+
+<i18n lang="yaml">
+el:
+  heading: Είδες πρόσφατα
+en:
+  heading: Recently viewed
+</i18n>

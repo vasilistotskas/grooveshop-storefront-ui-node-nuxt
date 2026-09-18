@@ -50,8 +50,13 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'product_categories': lazySection(() => import('~/components/PageSection/ProductCategories.vue')),
   'blog_categories': lazySection(() => import('~/components/PageSection/BlogCategories.vue')),
   'blog_posts_carousel': lazySection(() => import('~/components/PageSection/BlogPostsCarousel.vue')),
-  'blog_posts_grid': lazySection(() => import('~/components/PageSection/BlogPostsGrid.vue')),
-  'blog_posts_list': lazySection(() => import('~/components/PageSection/BlogPostsList.vue')),
+  // One band, two section types. On a page of stacked bands a grid of
+  // posts and a list of posts are the same thing drawn from the same
+  // query — they differ only in how many the operator asks for, which
+  // each type spells with its own prop name. The paginated list belongs
+  // to `/blog`, where the route query it reads actually means something.
+  'blog_posts_grid': lazySection(() => import('~/components/PageSection/BlogPosts.vue')),
+  'blog_posts_list': lazySection(() => import('~/components/PageSection/BlogPosts.vue')),
   // SSR renders nothing (history lives in localStorage) — see idleSection.
   'recently_viewed': idleSection(() => import('~/components/PageSection/RecentlyViewed.vue')),
   'rich_text': lazySection(() => import('~/components/PageSection/RichText.vue')),
@@ -69,6 +74,12 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   'image_gallery': lazySection(() => import('~/components/PageSection/ImageGallery.vue')),
   'story_timeline': lazySection(() => import('~/components/PageSection/StoryTimeline.vue')),
   'faq': lazySection(() => import('~/components/PageSection/Faq.vue')),
+  // Shop bands. `trust_badges` and `stats_strip` render from their
+  // own props; `offers_preview` reads live promotions and renders
+  // nothing between campaigns.
+  'trust_badges': lazySection(() => import('~/components/PageSection/TrustBadges.vue')),
+  'offers_preview': lazySection(() => import('~/components/PageSection/OffersPreview.vue')),
+  'stats_strip': lazySection(() => import('~/components/PageSection/StatsStrip.vue')),
 
   // Δelta Σigma tenant variants — the redesign's bands. Each replaces
   // the generic rendering of a section type the layout already
