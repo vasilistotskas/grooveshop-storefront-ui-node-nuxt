@@ -152,8 +152,8 @@ describe('GET /api/page-config/[pageType] cache key', () => {
     const keyB = handler.getKey({})
 
     expect(keyA).not.toBe(keyB)
-    expect(keyA.startsWith('tenant-a.example:page-config:products')).toBe(true)
-    expect(keyB.startsWith('tenant-b.example:page-config:products')).toBe(true)
+    expect(keyA.startsWith('tenant-a.example__page-config:products')).toBe(true)
+    expect(keyB.startsWith('tenant-b.example__page-config:products')).toBe(true)
   })
 
   it('differentiates keys for two page types on the same tenant', () => {
@@ -178,7 +178,7 @@ describe('GET /api/page-config/[pageType] cache key', () => {
     const english = handler.getKey({ context: { locale: 'en' } })
 
     expect(greek).not.toBe(english)
-    expect(greek.startsWith('tenant-a.example:page-config:home:el')).toBe(true)
-    expect(english.startsWith('tenant-a.example:page-config:home:en')).toBe(true)
+    expect(greek.startsWith('tenant-a.example__page-config:home:el')).toBe(true)
+    expect(english.startsWith('tenant-a.example__page-config:home:en')).toBe(true)
   })
 })

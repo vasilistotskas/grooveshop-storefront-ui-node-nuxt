@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
-import { tenantCacheKey } from '../../../../server/utils/cacheKey'
+import {
+  cacheKeyBelongsToHost,
+  hashedCacheKey,
+  nitroVaryHash,
+  tenantCacheKey,
+} from '../../../../server/utils/cacheKey'
 
 // Stub Nuxt's auto-imported `getRequestHost` to an inspectable mock so
 // we can drive it per-test without standing up a full h3 event.
@@ -18,10 +23,10 @@ function nitroEscape(key: string): string {
 }
 
 describe('tenantCacheKey', () => {
-  it('starts with the request host and inner key', () => {
+  it('starts with the request host, the delimiter and the inner key', () => {
     hostMock.mockReturnValueOnce('webside.gr')
     const key = tenantCacheKey({} as any, 'product-categories:el')
-    expect(key.startsWith('webside.gr:product-categories:el')).toBe(true)
+    expect(key.startsWith('webside.gr__product-categories:el')).toBe(true)
   })
 
   it('differentiates keys for two tenants sharing the same inner key', () => {
@@ -76,22 +81,107 @@ describe('tenantCacheKey', () => {
   })
 })
 
-describe('tenant-scoped cache purge matching', () => {
-  // The admin purge endpoint scopes an otherwise host-agnostic pattern
-  // to one store by keeping only keys that .includes() the tenant host
-  // after Nitro escaping. These pin that the escaped host really is a
-  // substring of that tenant's stored key, and not of another's.
-  const purgeHostSegment = (host: string) => host.replace(/\W/g, '')
+describe('nitroVaryHash', () => {
+  // Copied from the production keyspace on 2026-09-18
+  // (`cache:<buildId>:nitro:routes:_:<path>.<hash>:host.<hash>:…`), one
+  // per live tenant. Nitro computes them in
+  // nitropack/dist/runtime/internal/hash.mjs; if a Nitro upgrade changed
+  // the recipe these would fail here instead of every tenant-scoped page
+  // purge silently matching nothing.
+  it.each([
+    ['webside.gr', 'L7PoZKHFRT'],
+    ['demo.grooveshop.space', 'uGk9nD1HSf'],
+    ['fyteia.grooveshop.space', 'QKVOqD0FHL'],
+    ['delta-sigma.grooveshop.space', 'kyxDLa4pMO'],
+  ])('reproduces the live vary token for %s', (host, token) => {
+    expect(nitroVaryHash(host)).toBe(token)
+  })
+})
 
-  it('the escaped host is contained in that tenant\'s escaped key', () => {
-    hostMock.mockReturnValueOnce('webside.gr')
-    const key = nitroEscape(tenantCacheKey({} as any, 'blog-posts:el'))
-    expect(key.includes(purgeHostSegment('webside.gr'))).toBe(true)
+describe('cacheKeyBelongsToHost', () => {
+  // Every key shape below is a live production key (2026-09-18) with
+  // only the `cache:<buildId>:` mount prefix removed, which is how the
+  // purge endpoint sees them through `useStorage('cache')`.
+  const HOST = 'webside.gr'
+
+  describe('nitro:handlers (defineCachedEventHandler + tenantCacheKey)', () => {
+    const handlerKey = (host: string, inner: string) => {
+      hostMock.mockReturnValueOnce(host)
+      return `nitro:handlers:pageConfig:${nitroEscape(tenantCacheKey({} as any, inner))}.json`
+    }
+
+    it('claims the tenant\'s own handler entry', () => {
+      expect(cacheKeyBelongsToHost(handlerKey(HOST, 'page-config:products:el'), HOST)).toBe(true)
+    })
+
+    it('leaves another store\'s entry alone', () => {
+      expect(cacheKeyBelongsToHost(handlerKey('demo.grooveshop.space', 'page-config:products:el'), HOST)).toBe(false)
+    })
+
+    it('does not let a host claim a longer host that escapes to the same prefix', () => {
+      // `shop.gr` and `shop.gr.com` both escape to `shopgr…`; only the
+      // delimiter after the host tells them apart.
+      expect(cacheKeyBelongsToHost(handlerKey('shop.gr.com', 'settings'), 'shop.gr')).toBe(false)
+      expect(cacheKeyBelongsToHost(handlerKey('shop.gr', 'settings'), 'shop.gr')).toBe(true)
+    })
+
+    it('treats a handler that never called tenantCacheKey as nobody\'s', () => {
+      expect(cacheKeyBelongsToHost('nitro:handlers:health:default.json', HOST)).toBe(false)
+    })
   })
 
-  it('a store\'s host does not match a different store\'s key', () => {
-    hostMock.mockReturnValueOnce('acme.example')
-    const key = nitroEscape(tenantCacheKey({} as any, 'blog-posts:el'))
-    expect(key.includes(purgeHostSegment('webside.gr'))).toBe(false)
+  describe('nitro:routes (route-rule cache with varies: [host, x-device-class])', () => {
+    const WEBSIDE_HOME = 'nitro:routes:_:index.5C7pMjIeqU:host.L7PoZKHFRT:xdeviceclass.aGk9AqtPuy.json'
+    const DEMO_PRODUCTS = 'nitro:routes:_:products20demosc.EnOHlnel5C:host.uGk9nD1HSf:xdeviceclass.aGk9AqtPuy.json'
+
+    it('claims a page rendered for the tenant', () => {
+      expect(cacheKeyBelongsToHost(WEBSIDE_HOME, HOST)).toBe(true)
+    })
+
+    it('leaves another tenant\'s render alone', () => {
+      expect(cacheKeyBelongsToHost(DEMO_PRODUCTS, HOST)).toBe(false)
+      expect(cacheKeyBelongsToHost(DEMO_PRODUCTS, 'demo.grooveshop.space')).toBe(true)
+    })
+
+    it('never matches the escaped host — Nitro hashes vary headers', () => {
+      // The pre-fix filter looked for `websidegr` inside the key; no
+      // route key contains it, which is why page purges matched nothing.
+      expect(WEBSIDE_HOME.includes('websidegr')).toBe(false)
+    })
+  })
+
+  describe('nitro:functions (defineCachedFunction keyed on the raw host)', () => {
+    const WEBSIDE_SITEMAP = 'nitro:functions:sitemap:products:webside.gr:http:backend-service:80:api:v1:product'
+    const FYTEIA_SITEMAP = 'nitro:functions:sitemap:products:fyteia.grooveshop.space:http:backend-service:80:api:v1:product'
+
+    it('claims the tenant\'s own feed', () => {
+      expect(cacheKeyBelongsToHost(WEBSIDE_SITEMAP, HOST)).toBe(true)
+    })
+
+    it('leaves another tenant\'s feed alone', () => {
+      expect(cacheKeyBelongsToHost(FYTEIA_SITEMAP, HOST)).toBe(false)
+    })
+
+    it('matches the host as a whole segment, so a suffix host cannot claim it', () => {
+      expect(cacheKeyBelongsToHost(WEBSIDE_SITEMAP, 'side.gr')).toBe(false)
+    })
+
+    it('matches a host that is the final segment (loyalty summary)', () => {
+      expect(cacheKeyBelongsToHost('nitro:functions:LoyaltySummaryAnon:loyalty:summary:anon:webside.gr.json', HOST)).toBe(true)
+    })
+
+    it('matches a hashed function key that keeps its query string', () => {
+      const key = `nitro:functions:cachedBlogCategory:${hashedCacheKey('webside.gr:http://backend-service:80/api/v1/blog/category/3')}.json`
+      expect(cacheKeyBelongsToHost(key, HOST)).toBe(true)
+    })
+
+    it('treats a platform-wide function entry as nobody\'s', () => {
+      expect(cacheKeyBelongsToHost('nitro:functions:i18n:messages-internal:el-054c0cf1.json', HOST)).toBe(false)
+    })
+  })
+
+  it('claims nothing outside the three Nitro families', () => {
+    expect(cacheKeyBelongsToHost('sweep:f837316a', HOST)).toBe(false)
+    expect(cacheKeyBelongsToHost('session:webside.gr:abc', HOST)).toBe(false)
   })
 })

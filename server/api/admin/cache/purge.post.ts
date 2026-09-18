@@ -11,6 +11,7 @@ import { z } from 'zod'
  *   {
  *     patterns: string[]  // glob patterns; trailing `*` is implicit when stripped
  *     dryRun?: boolean    // default false
+ *     host?: string       // scope to one tenant's keys (see bodySchema)
  *   }
  *
  * Response:
@@ -43,21 +44,15 @@ const bodySchema = z.object({
   patterns: z.array(z.string().min(1)).min(1).max(64),
   dryRun: z.boolean().optional().default(false),
   // The purging tenant's storefront host. When present, only keys
-  // belonging to that tenant are purged. Cached keys embed the request
-  // host via `tenantCacheKey` (`{host}:{key}_{hash}`), and Nitro's
-  // `escapeKey` strips every non-word char — so the host survives in the
-  // stored key as `host.replace(/\W/g, '')`. Matching that substring
-  // scopes an otherwise host-agnostic pattern (e.g. `nitro:handlers:
-  // Blog*`) to one store, so a merchant's purge no longer evicts every
-  // tenant's SSR cache. Omitted for a deliberately platform-wide purge.
+  // belonging to that tenant are purged, so a merchant's purge cannot
+  // evict another store's SSR cache. Ownership is decided by
+  // `cacheKeyBelongsToHost`, which knows the shape Nitro gives the host
+  // in each cache family (handlers, route renders, cached functions) —
+  // matching a single shape is how tenant purges once cleared the API
+  // handlers but never the rendered pages or the sitemap feeds.
+  // Omitted for a deliberately platform-wide purge.
   host: z.string().min(1).optional(),
 })
-
-/** Mirror of Nitro's `escapeKey` (`String(key).replace(/\W/g, '')`),
- * applied to the tenant host so it matches the escaped, stored key. */
-function escapedHostSegment(host: string): string {
-  return host.replace(/\W/g, '')
-}
 
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false
@@ -107,7 +102,7 @@ export default defineEventHandler(async (event) => {
 
   const body = await readValidatedBody(event, bodySchema.parse)
   const storage = useStorage('cache')
-  const hostSegment = body.host ? escapedHostSegment(body.host) : null
+  const host = body.host
 
   let matched = 0
   let deleted = 0
@@ -133,11 +128,13 @@ export default defineEventHandler(async (event) => {
 
     for (const key of keys) {
       if (visited.has(key)) continue
-      visited.add(key)
       if (regex && !regex.test(key)) continue
-      // Tenant scoping: keep only this store's keys when a host is
-      // given, so a merchant purge cannot evict another tenant's cache.
-      if (hostSegment && !key.includes(hostSegment)) {
+      // Only a key this pattern actually claims is "seen": patterns
+      // sharing a prefix (`routes:_:*index*`, `routes:_:*about*`) each
+      // list the whole family, and marking a rejected key here would let
+      // the first pattern hide it from every later one.
+      visited.add(key)
+      if (host && !cacheKeyBelongsToHost(key, host)) {
         skippedForeignTenant += 1
         continue
       }
@@ -167,7 +164,7 @@ export default defineEventHandler(async (event) => {
     tag: 'cache-purge',
     message: 'Completed',
     patterns: body.patterns,
-    host: body.host ?? null,
+    host: host ?? null,
     matched,
     deleted,
     blocked,
