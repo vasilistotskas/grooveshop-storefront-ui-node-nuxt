@@ -1,3 +1,10 @@
+## [3.196.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.196.1...v3.196.2) (2026-09-18)
+
+
+### Bug Fixes
+
+* **cache:** recognise the tenant host in every Nitro key family when purging ([3eef74c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3eef74c8860c7fb071e9963bf611d2f7002ea4fd))
+
 ## [3.196.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.196.0...v3.196.1) (2026-09-18)
 
 
