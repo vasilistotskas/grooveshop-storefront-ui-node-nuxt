@@ -1,3 +1,11 @@
+# [3.200.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.199.0...v3.200.0) (2026-09-18)
+
+
+### Features
+
+* **product:** rebuild the detail page and search, fix the buy button ([f547c88](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f547c88977e2cc5f8d557588fd86f76b11de57e7))
+* **products:** rebuild the listing, the card and the filters ([7a32e5c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7a32e5c8528e78af041a57b6cb15104e6e10932a))
+
 # [3.199.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.198.0...v3.199.0) (2026-09-18)
 
 
