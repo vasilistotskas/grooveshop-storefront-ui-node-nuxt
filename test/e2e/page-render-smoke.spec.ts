@@ -247,6 +247,23 @@ describe('every public page renders', async () => {
     expect(body).not.toContain('"statusCode":500')
   }, 60000)
 
+  // The consent banner is a per-visitor decision, and the cached routes
+  // are rendered once for everyone: a server render that included it
+  // was served to visitors who had already answered, who then watched
+  // it flash on every reload until hydration read their cookie.
+  it('never renders the cookie banner on the server', async () => {
+    const BANNER = 'Αυτός ο ιστότοπος χρησιμοποιεί Cookies'
+    const anonymous = await requestWithHost('/')
+    expect(anonymous.statusCode, anonymous.body.slice(0, 900)).toBe(200)
+    expect(anonymous.body).not.toContain(BANNER)
+
+    const decided = await requestWithHost('/', TENANT_HOST, {
+      Cookie: 'ncc_c=necessary|functionality|ad|analytics|personalization|security; ncc_e=necessary',
+    })
+    expect(decided.statusCode, decided.body.slice(0, 900)).toBe(200)
+    expect(decided.body).not.toContain(BANNER)
+  })
+
   // A legal document the merchant wrote in one language is still the
   // store's document in every language it serves. Before this it was a
   // 404 on the other locale — "your terms do not exist", which is false

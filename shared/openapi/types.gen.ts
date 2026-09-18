@@ -12225,7 +12225,7 @@ export type GetBlogAuthorPostsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
          */
     ordering?: string
     /**
@@ -12478,10 +12478,6 @@ export type ListBlogCategoryAncestorsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
-         */
-    ordering?: string
-    /**
          * Page number (pageNumber pagination strategy)
          */
     page?: string | number
@@ -12535,10 +12531,6 @@ export type ListBlogCategoryChildrenData = {
          * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
-         */
-    ordering?: string
     /**
          * Page number (pageNumber pagination strategy)
          */
@@ -12594,10 +12586,6 @@ export type ListBlogCategoryDescendantsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
-         */
-    ordering?: string
-    /**
          * Page number (pageNumber pagination strategy)
          */
     page?: string | number
@@ -12644,7 +12632,7 @@ export type ListBlogCategoryPostsData = {
   }
   query?: {
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
          */
     ordering?: string
     /**
@@ -12697,10 +12685,6 @@ export type ListBlogCategorySiblingsData = {
          * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
-         */
-    ordering?: string
     /**
          * Page number (pageNumber pagination strategy)
          */
@@ -12776,10 +12760,6 @@ export type GetBlogCategoryTreeData = {
          * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name
-         */
-    ordering?: string
     /**
          * Page number (pageNumber pagination strategy)
          */
@@ -13356,10 +13336,6 @@ export type ListBlogCommentRepliesData = {
          */
     mostReplied?: 'true' | 'false' | '1' | '0' | boolean
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved
-         */
-    ordering?: string
-    /**
          * Page number (pageNumber pagination strategy)
          */
     page?: string | number
@@ -13600,10 +13576,6 @@ export type GetBlogCommentThreadData = {
          * Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα
          */
     mostReplied?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved
-         */
-    ordering?: string
     /**
          * Page number (pageNumber pagination strategy)
          */
@@ -13891,10 +13863,6 @@ export type ListMyBlogCommentsData = {
          * Ταξινόμηση σχολίων με τις περισσότερες εγκεκριμένες απαντήσεις πρώτα
          */
     mostReplied?: 'true' | 'false' | '1' | '0' | boolean
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved
-         */
-    ordering?: string
     /**
          * Page number (pageNumber pagination strategy)
          */
@@ -14325,10 +14293,6 @@ export type ListBlogPostCommentsData = {
   }
   query?: {
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
-         */
-    ordering?: string
-    /**
          * A page number within the paginated result set.
          */
     page?: string | number
@@ -14441,10 +14405,6 @@ export type ListBlogPostRelatedData = {
          * Φίλτρο ανά ελάχιστο αριθμό προβολών
          */
     minViewCount?: string | number
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
-         */
-    ordering?: string
     /**
          * Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία
          */
@@ -14639,10 +14599,6 @@ export type ListFeaturedBlogPostsData = {
          */
     minViewCount?: string | number
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
-         */
-    ordering?: string
-    /**
          * Page number (pageNumber pagination strategy)
          */
     page?: string | number
@@ -14825,10 +14781,6 @@ export type ListPopularBlogPostsData = {
          */
     minViewCount?: string | number
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
-         */
-    ordering?: string
-    /**
          * Page number (pageNumber pagination strategy)
          */
     page?: string | number
@@ -14983,10 +14935,6 @@ export type ListTrendingBlogPostsData = {
          * Φίλτρο ανά ελάχιστο αριθμό προβολών
          */
     minViewCount?: string | number
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
-         */
-    ordering?: string
     /**
          * A page number within the paginated result set.
          */
@@ -15639,10 +15587,6 @@ export type ListCartCouponsData = {
          * Φίλτρο καλαθιών με τουλάχιστον X μοναδικά είδη
          */
     minUniqueItems?: string | number
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, user, -user, createdAt, -createdAt, updatedAt, -updatedAt, lastActivity, -lastActivity
-         */
-    ordering?: string
     /**
          * A search term.
          */
@@ -20460,10 +20404,6 @@ export type ListProductImagesData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock
-         */
-    ordering?: string
-    /**
          * A search term.
          */
     search?: string
@@ -20496,10 +20436,6 @@ export type ListProductReviewsData = {
     id: string | number
   }
   query?: {
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock
-         */
-    ordering?: string
     /**
          * A page number within the paginated result set.
          */
@@ -20549,10 +20485,6 @@ export type ListProductTagsData = {
     id: string | number
   }
   query?: {
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock
-         */
-    ordering?: string
     /**
          * A search term.
          */
@@ -21639,10 +21571,6 @@ export type ListAllProductCategoryData = {
          */
     minProductCount?: string | number
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, createdAt, -createdAt, updatedAt, -updatedAt
-         */
-    ordering?: string
-    /**
          * Filter by parent category ID
          */
     parent?: string | number
@@ -21974,10 +21902,6 @@ export type GetProductCategoryImagesByCategoryData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder
-         */
-    ordering?: string
-    /**
          * A search term.
          */
     search?: string
@@ -22027,10 +21951,6 @@ export type GetProductCategoryImagesByTypeData = {
          * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
          */
     languageCode?: 'de' | 'el' | 'en'
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder
-         */
-    ordering?: string
     /**
          * A search term.
          */
@@ -22326,10 +22246,6 @@ export type GetProductFavouritesByProductsData = {
          */
     createdBefore?: string
     id?: string | number
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, userId, -userId, productId, -productId, createdAt, -createdAt, updatedAt, -updatedAt
-         */
-    ordering?: string
     product?: string | number
     productId?: string | number
     /**
@@ -23422,10 +23338,6 @@ export type ListRegionsByCountryData = {
          * Φίλτρο ανά όνομα περιφέρειας (μερική αντιστοίχιση)
          */
     name?: string
-    /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, alpha, -alpha, sortOrder, -sortOrder
-         */
-    ordering?: string
     /**
          * A page number within the paginated result set.
          */
@@ -24983,7 +24895,7 @@ export type GetUserAccountAddressesData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, isMain, -isMain
          */
     ordering?: string
     /**
@@ -25041,7 +24953,7 @@ export type GetUserAccountBlogPostCommentsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt
          */
     ordering?: string
     /**
@@ -25124,10 +25036,6 @@ export type ListUserAccountDataExportsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
-         */
-    ordering?: string
-    /**
          * Page number (pageNumber pagination strategy)
          */
     page?: string | number
@@ -25207,7 +25115,7 @@ export type GetUserAccountFavouriteProductsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt
          */
     ordering?: string
     /**
@@ -25265,7 +25173,7 @@ export type GetUserAccountLikedBlogPostsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured
          */
     ordering?: string
     /**
@@ -25315,7 +25223,7 @@ export type GetUserAccountNotificationsData = {
   }
   query?: {
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt
          */
     ordering?: string
     /**
@@ -25369,7 +25277,7 @@ export type GetUserAccountOrdersData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paymentStatus, -paymentStatus, paidAmount, -paidAmount
          */
     ordering?: string
     /**
@@ -25427,7 +25335,7 @@ export type GetUserAccountProductReviewsData = {
          */
     languageCode?: 'de' | 'el' | 'en'
     /**
-         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, rate, -rate
          */
     ordering?: string
     /**

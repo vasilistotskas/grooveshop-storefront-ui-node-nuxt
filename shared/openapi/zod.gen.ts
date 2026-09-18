@@ -9148,8 +9148,8 @@ export const zGetBlogAuthorPostsQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|user_FirstName|\-user_FirstName|user_LastName|\-user_LastName|user_Email|\-user_Email|user_CreatedAt|\-user_CreatedAt|website|\-website))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, user_FirstName, -user_FirstName, user_LastName, -user_LastName, user_Email, -user_Email, user_CreatedAt, -user_CreatedAt, website, -website',
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured',
   }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -9319,9 +9319,6 @@ export const zListBlogCategoryAncestorsQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9365,9 +9362,6 @@ export const zListBlogCategoryChildrenQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9411,9 +9405,6 @@ export const zListBlogCategoryDescendantsQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9447,8 +9438,8 @@ export const zListBlogCategoryPostsPath = z.object({
 })
 
 export const zListBlogCategoryPostsQuery = z.object({
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name',
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured',
   }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -9490,9 +9481,6 @@ export const zListBlogCategorySiblingsQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -9533,9 +9521,6 @@ export const zGetBlogCategoryTreeQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|name|\-name))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, name, -name',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10088,9 +10073,6 @@ export const zListBlogCommentRepliesQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10364,9 +10346,6 @@ export const zGetBlogCommentThreadQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -10646,9 +10625,6 @@ export const zListMyBlogCommentsQuery = z.object({
     z.literal('0'),
     z.boolean(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|level|\-level|lft|\-lft|approved|\-approved))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, level, -level, lft, -lft, approved, -approved',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -11018,9 +10994,6 @@ export const zListBlogPostCommentsPath = z.object({
 })
 
 export const zListBlogPostCommentsQuery = z.object({
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -11127,9 +11100,6 @@ export const zListBlogPostRelatedQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured',
-  }).optional(),
   publishedAfter: z.iso.datetime({ offset: true }).register(z.globalRegistry, {
     description: 'Φίλτρο αντικειμένων που δημοσιεύθηκαν μετά από αυτή την ημερομηνία',
   }).optional(),
@@ -11286,9 +11256,6 @@ export const zListFeaturedBlogPostsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -11449,9 +11416,6 @@ export const zListPopularBlogPostsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -11602,9 +11566,6 @@ export const zListTrendingBlogPostsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -12094,9 +12055,6 @@ export const zListCartCouponsQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|user|\-user|createdAt|\-createdAt|updatedAt|\-updatedAt|lastActivity|\-lastActivity)(?:,(?:id|\-id|user|\-user|createdAt|\-createdAt|updatedAt|\-updatedAt|lastActivity|\-lastActivity))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, user, -user, createdAt, -createdAt, updatedAt, -updatedAt, lastActivity, -lastActivity',
-  }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -15757,9 +15715,6 @@ export const zListProductImagesQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock',
-  }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -15775,9 +15730,6 @@ export const zListProductReviewsPath = z.object({
 })
 
 export const zListProductReviewsQuery = z.object({
-  ordering: z.string().regex(/^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -15811,9 +15763,6 @@ export const zListProductTagsPath = z.object({
 })
 
 export const zListProductTagsQuery = z.object({
-  ordering: z.string().regex(/^(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock)(?:,(?:price|\-price|createdAt|\-createdAt|active|\-active|availabilityPriority|\-availabilityPriority|viewCount|\-viewCount|stock|\-stock))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: price, -price, createdAt, -createdAt, active, -active, availabilityPriority, -availabilityPriority, viewCount, -viewCount, stock, -stock',
-  }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -16651,9 +16600,6 @@ export const zListAllProductCategoryQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|sortOrder|\-sortOrder|level|\-level|lft|\-lft|rght|\-rght|treeId|\-treeId|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, sortOrder, -sortOrder, level, -level, lft, -lft, rght, -rght, treeId, -treeId, createdAt, -createdAt, updatedAt, -updatedAt',
-  }).optional(),
   parent: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -16896,9 +16842,6 @@ export const zGetProductCategoryImagesByCategoryQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder',
-  }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -16943,9 +16886,6 @@ export const zGetProductCategoryImagesByTypeQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|imageType|\-imageType|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, imageType, -imageType, sortOrder, -sortOrder',
-  }).optional(),
   search: z.string().register(z.globalRegistry, {
     description: 'A search term.',
   }).optional(),
@@ -17133,9 +17073,6 @@ export const zGetProductFavouritesByProductsQuery = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]).optional(),
-  ordering: z.string().regex(/^(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|userId|\-userId|productId|\-productId|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, userId, -userId, productId, -productId, createdAt, -createdAt, updatedAt, -updatedAt',
-  }).optional(),
   product: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -17879,9 +17816,6 @@ export const zListRegionsByCountryQuery = z.object({
   }).optional().default('el'),
   name: z.string().register(z.globalRegistry, {
     description: 'Φίλτρο ανά όνομα περιφέρειας (μερική αντιστοίχιση)',
-  }).optional(),
-  ordering: z.string().regex(/^(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder)(?:,(?:createdAt|\-createdAt|alpha|\-alpha|sortOrder|\-sortOrder))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: createdAt, -createdAt, alpha, -alpha, sortOrder, -sortOrder',
   }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -18817,8 +18751,8 @@ export const zGetUserAccountAddressesQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|isMain|\-isMain)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|isMain|\-isMain))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, isMain, -isMain',
   }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -18863,8 +18797,8 @@ export const zGetUserAccountBlogPostCommentsQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt',
   }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -18920,9 +18854,6 @@ export const zListUserAccountDataExportsQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
-  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -18977,8 +18908,8 @@ export const zGetUserAccountFavouriteProductsQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt',
   }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -19023,8 +18954,8 @@ export const zGetUserAccountLikedBlogPostsQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt|viewCount|\-viewCount|featured|\-featured))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt, viewCount, -viewCount, featured, -featured',
   }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -19059,8 +18990,8 @@ export const zGetUserAccountNotificationsPath = z.object({
 })
 
 export const zGetUserAccountNotificationsQuery = z.object({
-  ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt',
   }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -19102,8 +19033,8 @@ export const zGetUserAccountOrdersQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paymentStatus|\-paymentStatus|paidAmount|\-paidAmount)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|status|\-status|statusUpdatedAt|\-statusUpdatedAt|paymentStatus|\-paymentStatus|paidAmount|\-paidAmount))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, status, -status, statusUpdatedAt, -statusUpdatedAt, paymentStatus, -paymentStatus, paidAmount, -paidAmount',
   }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
@@ -19148,8 +19079,8 @@ export const zGetUserAccountProductReviewsQuery = z.object({
   ]).register(z.globalRegistry, {
     description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
   }).optional().default('el'),
-  ordering: z.string().regex(/^(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt)(?:,(?:id|\-id|email|\-email|username|\-username|createdAt|\-createdAt|updatedAt|\-updatedAt))*$/).register(z.globalRegistry, {
-    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, email, -email, username, -username, createdAt, -createdAt, updatedAt, -updatedAt',
+  ordering: z.string().regex(/^(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|rate|\-rate)(?:,(?:id|\-id|createdAt|\-createdAt|updatedAt|\-updatedAt|rate|\-rate))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, createdAt, -createdAt, updatedAt, -updatedAt, rate, -rate',
   }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
