@@ -1,18 +1,35 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-const { productUrl } = useUrls()
-const { t, locale } = useI18n()
-
+/**
+ * One product, wherever products are listed.
+ *
+ * Four things decide whether a shopper clicks: the photograph, what it
+ * is, what it costs, and whether it is worth buying. Everything else on
+ * the card competes with those, so the badges are the only other paint
+ * and they each answer a question the shopper is already asking — is it
+ * cheaper, is it new, can I still get it.
+ *
+ * The buy button is ALWAYS visible, not revealed on hover. A hover-only
+ * control does not exist on a touch screen, is invisible to a keyboard
+ * until it is focused, and hides the card's only action behind a
+ * gesture the shopper has no reason to try.
+ */
 const props = defineProps({
   product: { type: Object as PropType<Product>, required: true },
+  /**
+   * The element the card renders as. `li` inside the `<ul>`/`<ol>` of a
+   * listing, `div` inside a carousel or a grid that is not a list —
+   * an `<li>` with no list parent is invalid markup and assistive
+   * technology announces it as a list of one.
+   */
+  as: { type: String, required: false, default: 'li' },
   showAddToFavouriteButton: { type: Boolean, required: false, default: true },
   showShareButton: { type: Boolean, required: false, default: true },
   showAddToCartButton: { type: Boolean, required: false, default: true },
   imgWidth: { type: Number, required: false, default: 420 },
   imgHeight: { type: Number, required: false, default: 420 },
   showVat: { type: Boolean, required: false, default: false },
-  showStartPrice: { type: Boolean, required: false, default: false },
   showDescription: { type: Boolean, required: false, default: false },
   imgLoading: {
     type: String as PropType<ImageLoading>,
@@ -26,18 +43,25 @@ const emit = defineEmits<{
   (e: 'favourite-delete', id: number): void
 }>()
 
+/**
+ * How long a product reads as new. Long enough that a fortnightly
+ * restock is still "new" when a shopper comes back, short enough that
+ * the badge means something.
+ */
+const NEW_FOR_DAYS = 21
+
+const { productUrl } = useUrls()
+const { t, locale } = useI18n()
 const { $i18n } = useNuxtApp()
 const { user } = useUserSession()
 const userStore = useUserStore()
 const { getFavouriteIdByProductId } = userStore
-
 const { contentShorten } = useText()
 
 const { product } = toRefs(props)
 
-// Get the correct product ID for URLs and API calls
-// For search results (ProductMeiliSearchResult), use 'master' field
-// For regular Product objects, use 'id' field
+// Search results (`ProductMeiliSearchResult`) carry the product's id in
+// `master`; everything else carries it in `id`.
 const productId = computed(() => {
   if ('master' in product.value && typeof product.value.master === 'number') {
     return product.value.master
@@ -61,18 +85,56 @@ const productDescription = computed(() => {
   return extractTranslated(product.value, 'description', locale.value) || ''
 })
 
-const alt = computed(() => productName.value)
+const to = computed(() => ({ path: productUrl(productId.value, product.value.slug) }))
+
+const outOfStock = computed(() => (product.value?.stock ?? 0) <= 0)
 
 const isLowStock = computed(() => {
   const stock = product.value?.stock ?? 0
   if (stock <= 0) return false
-  const lowStockThreshold = (product.value as { lowStockThreshold?: number })?.lowStockThreshold
-  const threshold = typeof lowStockThreshold === 'number' && lowStockThreshold > 0 ? lowStockThreshold : 10
-  return stock <= threshold
+  const threshold = product.value?.lowStockThreshold
+  return stock <= (typeof threshold === 'number' && threshold > 0 ? threshold : 10)
 })
 
+const isNew = computed(() => {
+  const createdAt = (product.value as { createdAt?: string })?.createdAt
+  if (!createdAt) return false
+  const age = Date.now() - new Date(createdAt).getTime()
+  return age >= 0 && age < NEW_FOR_DAYS * 24 * 60 * 60 * 1000
+})
+
+/**
+ * The one thing worth saying about this product in a corner of its
+ * photograph, most urgent first: you cannot buy it, you almost cannot
+ * buy it, it is cheaper than usual, it is new.
+ */
+const badge = computed(() => {
+  if (outOfStock.value) {
+    return { label: t('out_of_stock'), color: 'neutral' as const }
+  }
+  if (isLowStock.value) {
+    return {
+      label: t('only_n_left', { count: product.value.stock }),
+      color: 'warning' as const,
+    }
+  }
+  if ((product.value.discountPercent ?? 0) > 0) {
+    return {
+      label: `-${Math.round(product.value.discountPercent ?? 0)}%`,
+      color: 'error' as const,
+    }
+  }
+  if (isNew.value) {
+    return { label: t('new'), color: 'secondary' as const }
+  }
+  return undefined
+})
+
+/** `reviewAverage` is the model's 1..10; stars are the 5 a reader expects. */
+const ratingOutOfFive = computed(() => (product.value.reviewAverage ?? 0) / 2)
+
 // Wholesale price hydration — client-only, retail renders first then
-// swaps (the cached/anonymous catalogue HTML must never carry a
+// swaps (the cached anonymous catalogue HTML must never carry a
 // per-customer price; see useB2BPricing).
 const { register: registerB2BPrice, priceFor: b2bPriceFor } = useB2BPricing()
 onMounted(() => {
@@ -89,6 +151,22 @@ const displayFinalPrice = computed(() =>
     : product.value.finalPrice,
 )
 
+/**
+ * What the shopper would otherwise have paid — the number to strike
+ * through.
+ *
+ * NOT `product.price`, which is the NET price: `final_price = price +
+ * vat - discount`, so on a VAT-bearing product with no discount the net
+ * is LOWER than the final and striking it showed the price going up.
+ * Pre-discount and VAT-inclusive is `finalPrice + discountValue`.
+ */
+const wasPrice = computed(() => {
+  if (isWholesalePrice.value) return product.value.finalPrice
+
+  const discount = Number(product.value.discountValue ?? 0)
+  return discount > 0 ? (product.value.finalPrice ?? 0) + discount : undefined
+})
+
 const shareOptions = computed(() => ({
   title: productName.value || '',
   text: productDescription.value,
@@ -104,236 +182,152 @@ const startShare = async () => {
   }
 }
 
-const favouriteId = computed(
-  () => getFavouriteIdByProductId(productId.value),
-)
-
+const favouriteId = computed(() => getFavouriteIdByProductId(productId.value))
 const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
 </script>
 
 <template>
-  <UCard
-    as="li"
+  <component
+    :is="as"
     class="
-      product-card group relative h-full w-full max-w-full transition-all duration-300
-      hover:shadow-xl hover:scale-[1.02]
-      focus-within:ring-1 focus-within:ring-primary focus-within:ring-offset-1
+      group relative flex h-full w-full max-w-full flex-col overflow-hidden
+      rounded-xl bg-default ring ring-default transition
+      hover:ring-accented
+      focus-within:ring-2 focus-within:ring-secondary
     "
-    :ui="{
-      root: 'w-full max-w-full',
-      body: `
-        p-0
-        sm:p-0
-      `,
-    }"
   >
-    <div
-      class="
-        relative overflow-hidden bg-white
-        dark:bg-neutral-800
-      "
-    >
-      <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
-        <UBadge
-          v-if="product.discountPercent && product.discountPercent > 0"
-          color="error"
-          variant="soft"
-          size="lg"
-          class="w-fit font-bold"
-        >
-          -{{ Math.round(product.discountPercent) }}%
-        </UBadge>
-        <UBadge
-          v-if="product.stock === 0"
-          color="neutral"
-          variant="solid"
-          size="md"
-          class="w-fit"
-        >
-          {{ t('out_of_stock') }}
-        </UBadge>
-        <UBadge
-          v-else-if="isLowStock"
-          color="warning"
-          variant="solid"
-          size="md"
-          class="w-fit"
-        >
-          {{ t('only_n_left', { count: product.stock }) }}
-        </UBadge>
-      </div>
+    <div class="relative bg-elevated">
+      <!-- ONE badge, by priority. Stacked, they competed for the same
+           corner and said two things about one product; and on a
+           freshly seeded catalogue every card was "new", which is the
+           same as none of them being. -->
+      <UBadge
+        v-if="badge"
+        v-bind="badge"
+        size="sm"
+        variant="solid"
+        class="absolute start-3 top-3 z-10"
+      />
 
-      <div class="absolute top-4 right-4 z-10 flex gap-2">
-        <ClientOnly>
+      <!-- Per-visitor controls: a cached anonymous card must not carry
+           this shopper's favourites, and Web Share support is only
+           knowable in the browser. -->
+      <ClientOnly>
+        <div class="absolute end-3 top-3 z-10 flex gap-1.5">
           <UButton
             v-if="isSupported && showShareButton"
-            :disabled="!isSupported"
             :aria-label="t('share')"
             icon="i-heroicons-share"
-            size="md"
+            size="sm"
             color="neutral"
-            square
             variant="soft"
-            :title="t('share')"
+            square
             @click.stop="startShare"
           />
-          <!-- SSR placeholder: a dimensionally-identical disabled
-               button — not a skeleton — so no CLS when Web Share
-               hydrates (support detection is client-only). -->
-          <template #fallback>
-            <UButton
-              v-if="showShareButton"
-              disabled
-              :aria-hidden="true"
-              tabindex="-1"
-              icon="i-heroicons-share"
-              size="md"
-              color="neutral"
-              square
-              variant="soft"
-            />
-          </template>
-        </ClientOnly>
-        <LazyButtonProductAddToFavourite
-          v-if="showAddToFavouriteButton"
-          :product-id="productId"
-          :user-id="user?.id"
-          :favourite-id="favouriteId"
-          size="md"
-          @favourite-delete="onFavouriteDelete"
-        />
-      </div>
-
-      <NuxtLink
-        :to="{ path: productUrl(productId, product.slug) }"
-        :aria-label="`${t('view_product')}: ${alt}`"
-        class="block"
-      >
-        <div
-          class="aspect-4/3 max-w-full overflow-hidden"
-          :class="{
-            // Dim out-of-stock products so browsing scannability
-            // reflects availability, not just the badge.
-            'opacity-60 grayscale': product.stock === 0,
-          }"
-        >
-          <ImgWithFallback
-            :loading="imgLoading"
-            class="size-full max-w-full bg-white object-contain"
-            :src="product.mainImagePath"
-            :width="imgWidth"
-            :height="imgHeight"
-            fit="contain"
-            :background="'transparent'"
-            :alt="alt"
-            quality="100"
-            densities="x1"
+          <LazyButtonProductAddToFavourite
+            v-if="showAddToFavouriteButton"
+            :product-id="productId"
+            :user-id="user?.id"
+            :favourite-id="favouriteId"
+            size="sm"
+            @favourite-delete="onFavouriteDelete"
           />
         </div>
-      </NuxtLink>
+      </ClientOnly>
+
+      <!-- Not a link of its own: the title's stretched link already
+           covers the whole card, and a second one here would be a
+           second tab stop to the same page. -->
+      <div
+        class="aspect-4/3 max-w-full overflow-hidden"
+        :class="outOfStock && 'opacity-60 grayscale'"
+      >
+        <ImgWithFallback
+          :loading="imgLoading"
+          class="
+            size-full max-w-full object-contain transition-transform
+            duration-300
+            group-hover:scale-105
+          "
+          :src="product.mainImagePath"
+          :width="imgWidth"
+          :height="imgHeight"
+          fit="contain"
+          background="transparent"
+          :alt="productName"
+          quality="90"
+          densities="x1"
+          sizes="xs:50vw md:33vw lg:25vw"
+        />
+      </div>
     </div>
 
-    <div class="flex flex-col gap-4 p-4">
-      <NuxtLink
-        :to="{ path: productUrl(productId, product.slug) }"
-        class="group/link"
-        :aria-label="`${t('view_product')}: ${productName}`"
+    <div class="flex flex-1 flex-col gap-3 p-4">
+      <p
+        v-if="product.brandName"
+        class="text-xs font-medium tracking-wide text-muted uppercase"
       >
-        <h3
-          class="
-            line-clamp-2 text-lg leading-snug font-bold text-neutral-950 min-h-12
-            transition-colors
-            group-hover/link:text-primary-600
-            dark:text-neutral-50 dark:group-hover/link:text-primary-400
-          "
-        >
+        {{ product.brandName }}
+      </p>
+
+      <NuxtLink
+        :to="to"
+        :aria-label="`${t('view_product')}: ${productName}`"
+        class="
+          text-highlighted
+          after:absolute after:inset-0
+          focus-visible:outline-2 focus-visible:outline-secondary
+        "
+      >
+        <!-- The link stretches over the whole card, so the card is one
+             target instead of three. The controls above it sit on a
+             higher layer and stay clickable. -->
+        <h3 class="line-clamp-2 text-sm font-medium text-pretty md:text-base">
           {{ productName }}
         </h3>
       </NuxtLink>
 
       <p
         v-if="showDescription"
-        class="
-          line-clamp-2 min-h-10 text-sm leading-relaxed text-neutral-700
-          dark:text-neutral-300
-        "
+        class="line-clamp-2 text-sm text-muted"
       >
         {{ contentShorten(productDescription, 0, 100) }}
       </p>
 
       <div
-        v-if="product.reviewAverage && product.reviewAverage > 0" class="
-          flex items-center gap-2
-        "
+        v-if="product.reviewCount"
+        class="flex items-center gap-1.5"
       >
-        <div v-memo="[product.reviewAverage]" class="flex items-center">
-          <UIcon
-            v-for="star in 5"
-            :key="star"
-            :name="star <= Math.round(product.reviewAverage / 2) ? 'i-heroicons-star-solid' : 'i-heroicons-star'"
-            class="size-4 text-warning"
-          />
-        </div>
-        <span
-          class="
-            flex items-center gap-1 text-sm text-neutral-700
-            dark:text-neutral-300
-          "
-        >
-          {{ product.reviewAverage.toFixed(1) }}
-          <span v-if="product.reviewCount" class="text-xs">
-            ({{ product.reviewCount }})
-          </span>
-        </span>
+        <UInputRating
+          :model-value="ratingOutOfFive"
+          :length="5"
+          :step="0.5"
+          size="xs"
+          color="warning"
+          readonly
+          :aria-label="t('rated_n', { n: ratingOutOfFive.toFixed(1) })"
+        />
+        <span class="text-xs text-muted">({{ product.reviewCount }})</span>
       </div>
 
-      <div v-else class="h-5" />
-
-      <div class="flex flex-col gap-2">
-        <div
-          v-if="isWholesalePrice
-            || (showStartPrice && product.price !== product.finalPrice)"
-          class="flex items-center gap-2"
+      <div class="mt-auto flex flex-col gap-1 pt-1">
+        <div class="flex flex-wrap items-baseline gap-x-2">
+          <span class="font-mono text-xl font-semibold tabular-nums text-highlighted">
+            {{ $i18n.n(displayFinalPrice, 'currency') }}
+          </span>
+          <span
+            v-if="wasPrice"
+            class="font-mono text-sm tabular-nums text-dimmed line-through"
+          >
+            {{ $i18n.n(wasPrice, 'currency') }}
+          </span>
+        </div>
+        <span
+          v-if="showVat && product.vatPercent"
+          class="text-xs text-dimmed"
         >
-          <span
-            class="
-              text-sm text-neutral-700 line-through
-              dark:text-neutral-300
-            "
-          >
-            {{ $i18n.n(isWholesalePrice ? product.finalPrice : product.price, 'currency') }}
-          </span>
-        </div>
-
-        <div class="flex items-baseline justify-between">
-          <div class="flex flex-col gap-1">
-            <span
-              class="
-                text-xs text-neutral-600
-                dark:text-neutral-300
-              "
-            >
-              {{ t('total_price') }}
-            </span>
-            <span
-              class="
-                text-2xl font-bold text-neutral-950
-                dark:text-neutral-50
-              "
-            >
-              {{ $i18n.n(displayFinalPrice, 'currency') }}
-            </span>
-          </div>
-          <span
-            v-if="showVat && product.vatPercent"
-            class="
-              text-xs text-neutral-600
-              dark:text-neutral-300
-            "
-          >
-            {{ t('vat_included') }} {{ product.vatPercent }}%
-          </span>
-        </div>
+          {{ t('vat_included') }} {{ product.vatPercent }}%
+        </span>
       </div>
 
       <LazyButtonProductAddToCart
@@ -341,59 +335,29 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
         :product="product"
         :quantity="1"
         :text="t('add_to_cart')"
-        class="
-          w-full transition-all duration-300
-          hover:scale-105
-        "
+        class="relative z-10 w-full"
       />
     </div>
-  </UCard>
+  </component>
 </template>
 
 <i18n lang="yaml">
 el:
-  price: Τιμή
-  vat_percent: Ποσοστό ΦΠΑ
   vat_included: ΦΠΑ περιλαμβάνεται
-  total_price: Τελική Τιμή
   share: Κοινοποίηση
-  add_to_cart: Αγορά
+  add_to_cart: Προσθήκη στο καλάθι
   out_of_stock: Εξαντλημένο
-  low_stock: Τελευταία κομμάτια
+  new: Νέο
   only_n_left: Μόνο {count} απέμεινε | Μόνο {count} απέμειναν
   view_product: Προβολή προϊόντος
+  rated_n: Βαθμολογία {n} στα 5
 en:
-  price: Price
-  vat_percent: VAT rate
   vat_included: VAT included
-  total_price: Final price
   share: Share
-  add_to_cart: Buy
+  add_to_cart: Add to cart
   out_of_stock: Out of stock
-  low_stock: Last few left
+  new: New
   only_n_left: Only {count} left | Only {count} left
   view_product: View product
+  rated_n: Rated {n} out of 5
 </i18n>
-
-<style scoped>
-/**
- * Reduced motion support for Product Card
- * Disables animations and transitions for users who prefer reduced motion
- */
-@media (prefers-reduced-motion: reduce) {
-  .product-card {
-    transition: none;
-  }
-
-  .product-card:hover {
-    transform: none;
-    scale: 1;
-  }
-
-  :deep(.transition-all),
-  :deep(.transition-colors),
-  :deep(.transition-transform) {
-    transition: none;
-  }
-}
-</style>

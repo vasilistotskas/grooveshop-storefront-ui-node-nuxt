@@ -1,43 +1,30 @@
 <script setup lang="ts">
 /**
- * Products Toolbar Component
+ * The bar above the product grid: how many, in what order, how many per
+ * page, and — on a narrow screen — the way into the filters.
  *
- * Unified control bar for sorting, view options, and filter toggle.
- * Provides results count display, sort dropdown, items per page selector,
- * and filter toggle button for mobile devices.
- *
- * @component
- */
-
-/**
- * Props interface for the Toolbar component
+ * The active filters live here too rather than inside the drawer that
+ * set them. On a phone the drawer is closed by the time the results
+ * change, so a chip list hidden inside it could not tell a shopper why
+ * they were looking at eleven products.
  */
 interface ToolbarProps {
-  /** Total number of products matching current filters */
+  /** Total number of products matching the current filters. */
   totalResults?: number
-  /** Currently selected sort option */
+  /** The sort the listing is using; empty means the store's own order. */
   currentSort?: string
-  /** Number of items displayed per page */
   itemsPerPage?: number
-  /** Whether any filters are currently active */
   hasActiveFilters?: boolean
-  /** Count of active filters */
   activeFilterCount?: number
 }
 
-/**
- * Emits interface for the Toolbar component
- */
 interface ToolbarEmits {
-  /** Emitted when sort option changes */
   (e: 'update:sort', value: string): void
-  /** Emitted when items per page changes */
   (e: 'update:itemsPerPage', value: number): void
-  /** Emitted when filter toggle button is clicked (mobile) */
+  /** The narrow-screen filter drawer. */
   (e: 'toggle-filters'): void
 }
 
-// Define props with defaults
 const props = withDefaults(defineProps<ToolbarProps>(), {
   totalResults: 0,
   currentSort: '',
@@ -46,181 +33,150 @@ const props = withDefaults(defineProps<ToolbarProps>(), {
   activeFilterCount: 0,
 })
 
-// Define emits
 const emit = defineEmits<ToolbarEmits>()
 
-// Get i18n instance for translations and number formatting
 const { t, locale } = useI18n()
 
-// Format the count with thousands separator
-const formattedCount = computed(() => {
-  return new Intl.NumberFormat(locale.value).format(props.totalResults)
-})
+const formattedCount = computed(
+  () => new Intl.NumberFormat(locale.value).format(props.totalResults),
+)
 
-// Sort options for the dropdown — values must match the Meilisearch search
-// endpoint's allowlist (``_ALLOWED_PRODUCT_SORT_FIELDS`` in the Django
-// ``search`` app): finalPrice, likesCount, viewCount, createdAt (each with an
-// optional ``-`` prefix for descending). Unknown fields are silently dropped
-// and the default order is returned, so these must stay camelCase to match the
-// backend and ``ActiveFilters.getSortLabel``.
-const sortOptions = [
+/**
+ * The values must match the Meilisearch endpoint's allowlist
+ * (`_ALLOWED_PRODUCT_SORT_FIELDS` in the Django `search` app):
+ * finalPrice, likesCount, viewCount, createdAt, each with an optional
+ * `-` for descending. An unknown field is dropped in silence and the
+ * default order comes back, so these stay camelCase to match both the
+ * backend and `ActiveFilters.getSortLabel`.
+ */
+const sortOptions = computed(() => [
   { label: t('sort.recommended'), value: 'recommended' },
   { label: t('sort.newest'), value: '-createdAt' },
   { label: t('sort.priceAsc'), value: 'finalPrice' },
   { label: t('sort.priceDesc'), value: '-finalPrice' },
   { label: t('sort.mostViewed'), value: '-viewCount' },
-]
+])
 
-// Items per page options - using component i18n translations
-const itemsPerPageOptions = [
-  { label: t('itemsPerPage.twelve'), value: 12 },
-  { label: t('itemsPerPage.twenty'), value: 20 },
-  { label: t('itemsPerPage.twentyFour'), value: 24 },
-  { label: t('itemsPerPage.fortyEight'), value: 48 },
-]
+const itemsPerPageOptions = computed(() =>
+  [12, 24, 48].map(value => ({
+    label: t('itemsPerPage.n', { n: value }),
+    value,
+  })),
+)
 
-// Handlers for user interactions
-const handleSortChange = (value: any) => {
-  if (value && typeof value === 'string') {
-    // Convert 'recommended' back to empty string for the URL
-    emit('update:sort', value === 'recommended' ? '' : value)
-  }
+const handleSortChange = (value: unknown) => {
+  if (typeof value !== 'string') return
+  // `recommended` is the absence of a sort, which is how the URL
+  // spells it: no `?sort=` at all.
+  emit('update:sort', value === 'recommended' ? '' : value)
 }
 
-const handleItemsPerPageChange = (value: any) => {
-  if (value && typeof value === 'number') {
-    emit('update:itemsPerPage', value)
-  }
-}
-
-const handleToggleFilters = () => {
-  emit('toggle-filters')
+const handleItemsPerPageChange = (value: unknown) => {
+  if (typeof value === 'number') emit('update:itemsPerPage', value)
 }
 </script>
 
 <template>
-  <div
-    class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-    role="toolbar"
-    :aria-label="t('toolbar.aria.browsing_controls')"
-  >
-    <!-- Left section: Results count and filter toggle (mobile) -->
-    <div class="flex items-center gap-3">
-      <!-- Filter toggle button (mobile only) -->
-      <UButton
-        color="neutral"
-        variant="outline"
-        icon="i-heroicons-adjustments-horizontal"
-        class="lg:hidden"
-        :aria-label="t('toolbar.aria.toggle_filters')"
-        @click="handleToggleFilters"
-      >
-        <span class="sr-only sm:not-sr-only">{{ t('filters') }}</span>
-        <UBadge
-          v-if="hasActiveFilters"
-          :label="activeFilterCount.toString()"
-          color="primary"
-          class="ml-2"
-        />
-      </UButton>
-
-      <!-- Results count -->
-      <div
-        class="text-sm text-neutral-600 dark:text-neutral-300"
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        {{ t('resultsCount', { count: formattedCount }) }}
-      </div>
-    </div>
-
-    <!-- Right section: Sort and items per page controls -->
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-      <!-- Sort control -->
-      <div class="flex items-center gap-2">
-        <label
-          for="sort-select"
-          class="text-sm text-gray-600 dark:text-gray-200 whitespace-nowrap"
+  <div class="flex flex-col gap-4">
+    <div
+      class="
+        flex flex-col gap-3
+        sm:flex-row sm:items-center sm:justify-between
+      "
+      role="toolbar"
+      :aria-label="t('toolbar.aria.browsing_controls')"
+    >
+      <div class="flex items-center gap-3">
+        <UButton
+          color="neutral"
+          variant="outline"
+          icon="i-heroicons-adjustments-horizontal"
+          :label="t('filters')"
+          class="lg:hidden"
+          :aria-label="t('toolbar.aria.toggle_filters')"
+          @click="emit('toggle-filters')"
         >
-          {{ t('sortBy') }}:
-        </label>
+          <template
+            v-if="hasActiveFilters"
+            #trailing
+          >
+            <UBadge
+              :label="String(activeFilterCount)"
+              color="secondary"
+              variant="solid"
+              size="sm"
+            />
+          </template>
+        </UButton>
+
+        <p
+          class="text-sm text-muted"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {{ t('resultsCount', { count: formattedCount }) }}
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
         <USelect
-          id="sort-select"
           :model-value="currentSort || 'recommended'"
           :items="sortOptions"
-          class="min-w-[180px]"
+          value-key="value"
+          icon="i-heroicons-bars-arrow-down"
+          class="w-48"
           :aria-label="t('toolbar.aria.sort_products')"
           @update:model-value="handleSortChange"
         />
-      </div>
-
-      <!-- Items per page control -->
-      <div class="flex items-center gap-2">
-        <label
-          for="items-per-page-select"
-          class="text-sm text-gray-600 dark:text-gray-200 whitespace-nowrap"
-        >
-          {{ t('show') }}:
-        </label>
         <USelect
-          id="items-per-page-select"
           :model-value="itemsPerPage"
           :items="itemsPerPageOptions"
-          class="min-w-[140px]"
+          value-key="value"
+          class="w-36"
           :aria-label="t('toolbar.aria.items_per_page')"
           @update:model-value="handleItemsPerPageChange"
         />
       </div>
     </div>
+
+    <ProductsFiltersActiveFilters v-if="hasActiveFilters" />
   </div>
 </template>
 
 <i18n lang="yaml">
 el:
   resultsCount: '{count} προϊόντα'
-  sortBy: 'Ταξινόμηση'
-  show: 'Εμφάνιση'
-  filters: 'Φίλτρα'
+  filters: Φίλτρα
   toolbar:
     aria:
-      browsing_controls: 'Έλεγχοι περιήγησης προϊόντων'
-      toggle_filters: 'Εναλλαγή φίλτρων'
-      sort_products: 'Ταξινόμηση προϊόντων'
-      items_per_page: 'Στοιχεία ανά σελίδα'
+      browsing_controls: Έλεγχοι περιήγησης προϊόντων
+      toggle_filters: Άνοιγμα φίλτρων
+      sort_products: Ταξινόμηση προϊόντων
+      items_per_page: Προϊόντα ανά σελίδα
   sort:
-    recommended: 'Προτεινόμενα'
-    newest: 'Νεότερα'
-    priceAsc: 'Τιμή (Χαμηλή σε Υψηλή)'
-    priceDesc: 'Τιμή (Υψηλή σε Χαμηλή)'
-    popularity: 'Δημοφιλή'
-    mostViewed: 'Περισσότερες Προβολές'
+    recommended: Προτεινόμενα
+    newest: Νεότερα
+    priceAsc: Τιμή (χαμηλή πρώτα)
+    priceDesc: Τιμή (υψηλή πρώτα)
+    mostViewed: Δημοφιλή
   itemsPerPage:
-    twelve: '12 ανά σελίδα'
-    twenty: '20 ανά σελίδα'
-    twentyFour: '24 ανά σελίδα'
-    fortyEight: '48 ανά σελίδα'
+    n: '{n} ανά σελίδα'
 en:
   resultsCount: '{count} products'
-  sortBy: 'Sort'
-  show: 'Show'
-  filters: 'Filters'
+  filters: Filters
   toolbar:
     aria:
-      browsing_controls: 'Product browsing controls'
-      toggle_filters: 'Toggle filters'
-      sort_products: 'Sort products'
-      items_per_page: 'Items per page'
+      browsing_controls: Product browsing controls
+      toggle_filters: Open filters
+      sort_products: Sort products
+      items_per_page: Products per page
   sort:
-    recommended: 'Recommended'
-    newest: 'Newest'
-    priceAsc: 'Price (low to high)'
-    priceDesc: 'Price (high to low)'
-    popularity: 'Popular'
-    mostViewed: 'Most viewed'
+    recommended: Recommended
+    newest: Newest
+    priceAsc: Price (low first)
+    priceDesc: Price (high first)
+    mostViewed: Most viewed
   itemsPerPage:
-    twelve: '12 per page'
-    twenty: '20 per page'
-    twentyFour: '24 per page'
-    fortyEight: '48 per page'
+    n: '{n} per page'
 </i18n>

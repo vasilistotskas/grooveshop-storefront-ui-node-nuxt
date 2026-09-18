@@ -14,7 +14,24 @@ const locale = computed(() => $i18n.locale.value)
 const { loggedIn, user } = useUserSession()
 const userStore = useUserStore()
 const { updateFavouriteProducts } = userStore
-const { filters, hasActiveFilters, activeFilterCount, updateFilters } = useProductFilters()
+const {
+  filters,
+  hasActiveFilters,
+  activeFilterCount,
+  updateFilters,
+  clearFilters,
+} = useProductFilters()
+
+/**
+ * One grid definition for the results and for the skeletons that stand
+ * in for them. Two copies drifted apart and the page jumped by a row
+ * when the products arrived.
+ */
+const GRID_CLASS = `
+  grid grid-cols-2 gap-4
+  lg:grid-cols-3 lg:gap-6
+  xl:grid-cols-4
+`
 const { isMobile } = useDevice()
 
 // Effective category set sent to the search API: the page's own category
@@ -99,6 +116,14 @@ watch(
   },
   { immediate: true },
 )
+
+/** The URL a page control points at, so each one is a real link. */
+const pageLink = (target: number) => {
+  const query = { ...route.query }
+  if (target === 1) delete query.page
+  else query.page = String(target)
+  return { path: route.path, query }
+}
 
 // Handle page changes - update URL only
 const handlePageChange = (newPage: number) => {
@@ -326,7 +351,6 @@ onMounted(() => {
     ref="productGridRef"
     class="flex w-full flex-col gap-6"
   >
-    <!-- Toolbar with sort, view options, and filter toggle -->
     <ProductsToolbar
       :total-results="totalResults"
       :current-sort="filters.sort"
@@ -338,15 +362,11 @@ onMounted(() => {
       @toggle-filters="emit('toggle-filters')"
     />
 
-    <!-- Loading state -->
+    <!-- Shaped like the grid it replaces, so the page does not jump
+         when the products land. -->
     <ol
       v-if="status === 'pending' && !products"
-      class="
-        grid grid-cols-1 items-center justify-center gap-4
-        sm:grid-cols-2
-        lg:grid-cols-3 lg:gap-6
-        xl:grid-cols-4
-      "
+      :class="GRID_CLASS"
     >
       <ProductCardSkeleton
         v-for="i in limit"
@@ -354,7 +374,6 @@ onMounted(() => {
       />
     </ol>
 
-    <!-- Empty state -->
     <UEmpty
       v-else-if="!products?.results?.length"
       icon="i-heroicons-magnifying-glass-minus"
@@ -363,27 +382,20 @@ onMounted(() => {
       :actions="hasActiveFilters ? [
         {
           label: t('products.no_results.clear_filters'),
-          size: 'xl',
-          color: 'primary',
+          size: 'lg',
+          color: 'secondary',
           variant: 'solid',
           leadingIcon: 'i-heroicons-arrow-path',
-          block: false,
-          onClick: () => useProductFilters().clearFilters(),
+          onClick: () => clearFilters(),
         },
       ] : undefined"
     />
 
-    <!-- Product grid -->
     <template v-else>
       <TransitionGroup
         name="product-fade"
         tag="ol"
-        class="
-          grid grid-cols-1 items-center justify-center gap-4
-          sm:grid-cols-2
-          lg:grid-cols-3 lg:gap-6
-          xl:grid-cols-4
-        "
+        :class="GRID_CLASS"
       >
         <ProductCard
           v-for="(product, index) in products.results"
@@ -393,61 +405,33 @@ onMounted(() => {
         />
       </TransitionGroup>
 
-      <!-- Pagination -->
-      <div
+      <nav
         v-if="totalPages > 1"
-        class="flex flex-col items-center gap-4 pt-8"
+        class="flex flex-col items-center gap-3 pt-6"
+        :aria-label="t('pagination.navigation')"
       >
-        <!-- Page info -->
-        <div class="text-sm text-gray-600 dark:text-gray-200">
-          {{ t('pagination.page_info', { current: page, total: totalPages }) }}
-        </div>
-
-        <!-- Pagination controls -->
+        <!-- `to` makes every page a real link, so a crawler can walk
+             the catalogue and a shopper can open page 3 in a new tab.
+             `handlePageChange` still runs for the in-page update. -->
         <UPagination
           :page="page"
           :total="totalResults"
           :items-per-page="limit"
-          :show-first="!isMobile"
-          :show-last="!isMobile"
+          :to="pageLink"
+          :sibling-count="isMobile ? 0 : 1"
           :size="isMobile ? 'lg' : 'md'"
           color="neutral"
           variant="outline"
-          active-color="primary"
+          active-color="secondary"
           active-variant="solid"
-          :sibling-count="isMobile ? 0 : 1"
-          :show-edges="false"
-          :aria-label="t('pagination.navigation')"
-          :ui="{
-            root: 'flex items-center gap-2',
-            list: 'flex items-center gap-1.5',
-            item: `
-              min-h-[44px] min-w-[44px] transition-all duration-200
-              hover:scale-105
-            `,
-            first: `
-              min-h-[44px] min-w-[44px] transition-all duration-200
-              hover:scale-105
-            `,
-            prev: `
-              min-h-[44px] min-w-[44px] transition-all duration-200
-              hover:scale-105
-            `,
-            next: `
-              min-h-[44px] min-w-[44px] transition-all duration-200
-              hover:scale-105
-            `,
-            last: `
-              min-h-[44px] min-w-[44px] transition-all duration-200
-              hover:scale-105
-            `,
-          }"
           @update:page="handlePageChange"
         />
-      </div>
+        <p class="text-sm text-muted">
+          {{ t('pagination.page_info', { current: page, total: totalPages }) }}
+        </p>
+      </nav>
     </template>
 
-    <!-- Live region for screen readers -->
     <div
       role="status"
       aria-live="polite"
@@ -460,22 +444,15 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Fade-in animation for product cards */
 .product-fade-enter-active {
-  transition: opacity 300ms ease-out, transform 300ms ease-out;
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
 }
 
 .product-fade-enter-from {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(8px);
 }
 
-.product-fade-enter-to {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   .product-fade-enter-active {
     transition: none;

@@ -77,6 +77,22 @@ const ogImage = computed(() => {
   return ogImageUrl.value
 })
 
+// The narrow-screen filter drawer, opened from the toolbar.
+const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
+
+/**
+ * The category's own children, as a row of pills. A category page whose
+ * subject has subdivisions is a signpost as much as a listing, and
+ * without these the only way down the tree was the global nav.
+ */
+const childCategories = computed(() =>
+  (category.value?.children ?? []).map(child => ({
+    id: child.id,
+    label: extractTranslated(child, 'name', locale.value) ?? child.slug,
+    to: categoryUrl(child.id, child.slug),
+  })),
+)
+
 const baseUrl = siteConfig.url
 
 // Canonical is built from the entity's OWN id+slug, never from
@@ -132,22 +148,85 @@ useSchemaOrg([
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col">
-    <PageTitle
-      :text="t('title')"
-      class="mb-4 capitalize"
-    />
-    <ProductsList v-if="categoryId" :category-id="Number(categoryId)" />
-  </PageWrapper>
+  <div>
+    <UContainer class="pt-6">
+      <PageBreadcrumb />
+    </UContainer>
+
+    <PageSectionBand padding="sm">
+      <template #header>
+        <div class="flex flex-col gap-3">
+          <!-- The category's OWN name, which is the subject of the
+               page. This said "Category" on every one of them. -->
+          <PageTitle
+            :text="categoryName || t('title')"
+            class="capitalize"
+          />
+          <ReadMore
+            v-if="categoryDescription"
+            :text="categoryDescription"
+            :max-chars="240"
+            class="max-w-3xl text-sm text-muted md:text-base"
+          />
+          <p
+            v-if="category?.recursiveProductCount"
+            class="text-sm text-dimmed"
+          >
+            {{ t('n_products', { count: category.recursiveProductCount }) }}
+          </p>
+        </div>
+      </template>
+
+      <div
+        v-if="childCategories.length"
+        class="flex flex-wrap gap-2"
+      >
+        <UButton
+          v-for="child in childCategories"
+          :key="child.id"
+          :to="child.to"
+          :label="child.label"
+          color="neutral"
+          variant="outline"
+          size="sm"
+          class="rounded-full"
+        />
+      </div>
+    </PageSectionBand>
+
+    <UContainer class="pb-16">
+      <UPage
+        :ui="{
+          left: 'lg:col-span-2',
+          center: 'lg:col-span-8',
+        }"
+      >
+        <template #left>
+          <ProductsSidebar
+            id="filters"
+            ref="sidebarRef"
+          />
+        </template>
+
+        <ProductsList
+          v-if="categoryId"
+          :category-id="Number(categoryId)"
+          @toggle-filters="sidebarRef?.toggleDrawer()"
+        />
+      </UPage>
+    </UContainer>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
   title: Κατηγορία
+  n_products: '{count} προϊόν' | '{count} προϊόντα'
   page:
     title: "{name} — Αγορά online"
 en:
   title: Category
+  n_products: '{count} product' | '{count} products'
   page:
     title: "{name} — buy online"
 </i18n>

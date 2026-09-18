@@ -1,19 +1,16 @@
 <script lang="ts" setup>
 /**
- * Products Sidebar Component
+ * The product filters.
  *
- * A modern, responsive filter sidebar for the product listing page.
- * Uses UAccordion for collapsible filter sections and USlideover for mobile.
+ * One set of controls, two frames: a sticky column beside the grid on a
+ * wide screen, and a drawer over it on a narrow one. The frames are
+ * chosen by CSS, not by the User-Agent — a desktop browser at 500px
+ * wide is a narrow screen, and the UA split meant the drawer did not
+ * exist there at all, so the filter button toggled nothing.
  *
- * Features:
- * - Accordion-based filter sections with smooth animations
- * - Responsive: Slideover on mobile/tablet, sticky sidebar on desktop
- * - Active filter count badges per section
- * - Clear all filters functionality
- * - Accessible with proper ARIA labels and keyboard navigation
- * - Reduced motion support
- *
- * @component
+ * Filtering applies immediately on both: the URL is the filter state,
+ * so an "apply" step would only add a way to lose it. The drawer's
+ * footer closes it to reveal the results it has already changed.
  */
 import type { AccordionItem } from '@nuxt/ui'
 
@@ -23,57 +20,73 @@ defineOptions({
 
 const attrs = useAttrs()
 const { t } = useI18n()
-const { isMobileOrTablet } = useDevice()
-const { hasActiveFilters, activeFilterCount, clearFilters, filterCountBySection } = useProductFilters()
+const {
+  hasActiveFilters,
+  activeFilterCount,
+  clearFilters,
+  filterCountBySection,
+} = useProductFilters()
 
-const sidebar = ref<HTMLElement | null>(null)
 const slideoverOpen = ref(false)
 
-// Reusable template for filter content (shared between mobile and desktop)
+// One definition of the controls, rendered in both frames.
 const [DefineFiltersTemplate, ReuseFiltersTemplate] = createReusableTemplate()
 
-// Accordion items configuration - using slot property for custom body content
 const accordionItems = computed<AccordionItem[]>(() => [
   {
-    label: `${t('filters.price')}${filterCountBySection.value.price > 0 ? ` (${filterCountBySection.value.price})` : ''}`,
-    icon: 'i-heroicons-currency-euro',
-    value: 'price',
-    slot: 'price' as const,
-  },
-  {
-    label: `${t('filters.popularity')}${filterCountBySection.value.popularity > 0 ? ` (${filterCountBySection.value.popularity})` : ''}`,
-    icon: 'i-heroicons-heart',
-    value: 'popularity',
-    slot: 'popularity' as const,
-  },
-  {
-    label: `${t('filters.view_count')}${filterCountBySection.value.viewCount > 0 ? ` (${filterCountBySection.value.viewCount})` : ''}`,
-    icon: 'i-heroicons-eye',
-    value: 'views',
-    slot: 'views' as const,
-  },
-  {
-    label: `${t('filters.categories')}${filterCountBySection.value.categories > 0 ? ` (${filterCountBySection.value.categories})` : ''}`,
+    label: t('filters.categories'),
     icon: 'i-heroicons-folder',
     value: 'categories',
     slot: 'categories' as const,
+    count: filterCountBySection.value.categories,
   },
   {
-    label: `${t('filters.attributes')}${filterCountBySection.value.attributes > 0 ? ` (${filterCountBySection.value.attributes})` : ''}`,
+    label: t('filters.price'),
+    icon: 'i-heroicons-currency-euro',
+    value: 'price',
+    slot: 'price' as const,
+    count: filterCountBySection.value.price,
+  },
+  {
+    label: t('filters.attributes'),
     icon: 'i-heroicons-tag',
     value: 'attributes',
     slot: 'attributes' as const,
+    count: filterCountBySection.value.attributes,
+  },
+  {
+    label: t('filters.popularity'),
+    icon: 'i-heroicons-heart',
+    value: 'popularity',
+    slot: 'popularity' as const,
+    count: filterCountBySection.value.popularity,
+  },
+  {
+    label: t('filters.view_count'),
+    icon: 'i-heroicons-eye',
+    value: 'views',
+    slot: 'views' as const,
+    count: filterCountBySection.value.viewCount,
   },
 ])
 
-// Default open sections
-const defaultOpenSections = ['price', 'categories']
+/** What a shopper opens first: what it is, then what it costs. */
+const defaultOpenSections = ['categories', 'price']
+
+const accordionUi = {
+  root: 'flex flex-col',
+  item: 'border-b border-default last:border-b-0',
+  trigger: 'cursor-pointer py-3.5 text-start font-medium text-highlighted',
+  label: 'truncate',
+  leadingIcon: 'size-4 text-muted',
+  trailingIcon: 'size-4 text-dimmed',
+  content: 'pb-4',
+  body: 'pt-1',
+}
 
 function handleClearFilters() {
   clearFilters()
-  if (isMobileOrTablet.value) {
-    slideoverOpen.value = false
-  }
+  slideoverOpen.value = false
 }
 
 function toggleDrawer() {
@@ -83,184 +96,111 @@ function toggleDrawer() {
 defineExpose({
   toggleDrawer,
 })
-
-// Sticky sidebar behavior for desktop
-onMounted(() => {
-  if (!sidebar.value) return
-  const { onScroll } = useSticky(sidebar.value, 150)
-  setTimeout(() => onScroll(), 50)
-})
-
-// Focus management for slideover
-watch(slideoverOpen, (isOpen) => {
-  if (isOpen && isMobileOrTablet.value) {
-    nextTick(() => {
-      const slideover = document.querySelector('[role="dialog"]')
-      const firstFocusable = slideover?.querySelector<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      )
-      firstFocusable?.focus()
-    })
-  }
-})
 </script>
 
 <template>
-  <!-- Reusable filter content template -->
   <DefineFiltersTemplate>
-    <div class="flex flex-col">
-      <!-- Search Input - Always visible at top -->
-      <div class="space-y-2 pb-4">
-        <ProductsFiltersSearchInput />
-      </div>
+    <div class="flex flex-col gap-3">
+      <ProductsFiltersSearchInput />
 
-      <USeparator />
-
-      <!-- Accordion Filter Sections -->
       <UAccordion
         type="multiple"
         :default-value="defaultOpenSections"
         :items="accordionItems"
-        :ui="{
-          header: 'mb-2',
-          root: 'flex flex-col gap-2 pt-2',
-          item: `
-            border-b border-neutral-200
-            last:border-b-0
-            dark:border-neutral-800
-          `,
-          trigger: `
-            -mx-2 cursor-pointer rounded-lg px-2 py-4 font-medium
-            text-neutral-900 transition-colors duration-150
-            hover:bg-neutral-50
-            dark:text-neutral-100
-            dark:hover:bg-neutral-800/50
-          `,
-          content: 'pb-4',
-          body: 'pt-2',
-          leadingIcon: 'size-5 text-primary-500',
-          trailingIcon: `
-            size-4 text-neutral-400 transition-transform duration-200
-          `,
-        }"
+        :ui="accordionUi"
       >
-        <!-- Price Range Filter - custom slot renders in body -->
-        <template #price>
-          <ProductsFiltersPriceRange />
+        <template #leading="{ item }">
+          <UIcon
+            :name="item.icon as string"
+            class="size-4 shrink-0 text-muted"
+          />
         </template>
 
-        <!-- Popularity Filter -->
-        <template #popularity>
-          <ProductsFiltersPopularityFilter />
+        <!-- The count belongs beside the section's name, not inside it:
+             appended to the label it was a parenthesis that truncation
+             could cut off mid-number. -->
+        <template #trailing="{ item, open }">
+          <div class="flex items-center gap-2">
+            <UBadge
+              v-if="(item as { count?: number }).count"
+              :label="String((item as { count?: number }).count)"
+              color="secondary"
+              variant="subtle"
+              size="sm"
+            />
+            <UIcon
+              name="i-heroicons-chevron-down"
+              class="size-4 shrink-0 text-dimmed transition-transform"
+              :class="open && 'rotate-180'"
+            />
+          </div>
         </template>
 
-        <!-- View Count Filter -->
-        <template #views>
-          <ProductsFiltersViewCountFilter />
-        </template>
-
-        <!-- Categories Filter -->
         <template #categories>
           <ProductsFiltersCategoryFilter />
         </template>
-
-        <!-- Attributes Filter -->
+        <template #price>
+          <ProductsFiltersPriceRange />
+        </template>
         <template #attributes>
           <ProductsFiltersAttributeFilter />
         </template>
+        <template #popularity>
+          <ProductsFiltersPopularityFilter />
+        </template>
+        <template #views>
+          <ProductsFiltersViewCountFilter />
+        </template>
       </UAccordion>
-
-      <USeparator v-if="hasActiveFilters" />
-
-      <!-- Active Filters Summary -->
-      <ProductsFiltersActiveFilters />
     </div>
   </DefineFiltersTemplate>
 
-  <!-- Desktop: Sticky Sidebar -->
+  <!-- Wide screens: a column that follows the grid down the page. -->
   <div
-    v-if="!isMobileOrTablet"
-    ref="sidebar"
     v-bind="attrs"
     role="region"
     :aria-label="t('filters.title')"
     class="
-      products-sidebar
-      relative h-fit w-72
-      transition-all duration-300 ease-in-out
-      shrink-0
+      hidden
+      lg:block
     "
   >
-    <UCard
-      :ui="{
-        root: 'overflow-hidden',
-        header: `
-          border-b border-neutral-200 p-2
-          sm:p-3
-          dark:border-neutral-800
-        `,
-        body: `
-          p-2
-          sm:p-4
-        `,
-      }"
-    >
-      <template #header>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div
-              class="
-                flex items-center justify-center
-                size-9 rounded-lg
-                bg-primary-100 dark:bg-primary-900/30
-              "
-            >
-              <UIcon
-                name="i-heroicons-funnel"
-                class="size-5 text-primary-600 dark:text-primary-400"
-              />
-            </div>
-            <div>
-              <h2 class="text-lg font-semibold text-neutral-900 dark:text-white">
-                {{ t('filters.title') }}
-              </h2>
-              <p
-                v-if="hasActiveFilters"
-                class="text-xs text-neutral-700 dark:text-neutral-300"
-              >
-                {{ t('filters.active_count', { count: activeFilterCount }) }}
-              </p>
-            </div>
-          </div>
+    <UPageAside>
+      <div class="flex flex-col gap-4">
+        <div class="flex items-center justify-between gap-2">
+          <h2 class="font-display text-base font-semibold text-highlighted">
+            {{ t('filters.title') }}
+          </h2>
           <UButton
             v-if="hasActiveFilters"
             color="neutral"
-            variant="ghost"
+            variant="link"
             size="sm"
-            icon="i-heroicons-x-mark"
-            :aria-label="t('filters.clear_all')"
+            :label="t('filters.clear')"
+            class="p-0"
             @click="handleClearFilters"
-          >
-            {{ t('filters.clear') }}
-          </UButton>
+          />
         </div>
-      </template>
 
-      <ReuseFiltersTemplate />
-    </UCard>
+        <ReuseFiltersTemplate />
+      </div>
+    </UPageAside>
   </div>
 
-  <!-- Mobile / Tablet: Slideover drawer. Opened via toggleDrawer() (exposed
-       above) from the Toolbar's filter button (products page wires
-       @toggle-filters -> sidebarRef.toggleDrawer()). The desktop sidebar is
-       hidden on mobile, so without this the filter button toggled state that
-       rendered nothing and filtering was unreachable on mobile/tablet. -->
+  <!-- Narrow screens: a drawer over the grid, opened from the toolbar.
+       Rendered at every width and hidden by CSS, so it exists wherever
+       the toolbar's filter button does. -->
   <USlideover
-    v-if="isMobileOrTablet"
     v-model:open="slideoverOpen"
     side="left"
     :title="t('filters.title')"
-    :ui="{ body: 'p-4' }"
+    :description="t('filters.description')"
+    class="lg:hidden"
+    :ui="{ content: `
+      w-full
+      sm:max-w-sm
+    `,
+           body: 'p-4' }"
   >
     <template #body>
       <ReuseFiltersTemplate />
@@ -272,20 +212,18 @@ watch(slideoverOpen, (isOpen) => {
           v-if="hasActiveFilters"
           color="neutral"
           variant="ghost"
-          icon="i-heroicons-x-mark"
+          :label="t('filters.clear_all')"
           @click="handleClearFilters"
-        >
-          {{ t('filters.clear_all') }}
-        </UButton>
+        />
         <UButton
-          class="ml-auto"
-          color="primary"
+          class="ms-auto"
+          color="secondary"
           variant="solid"
-          icon="i-heroicons-check"
-          @click="slideoverOpen = false"
-        >
-          {{ t('filters.show_results') }}
-        </UButton>
+          :label="hasActiveFilters
+            ? t('filters.show_results_n', { count: activeFilterCount })
+            : t('filters.show_results')"
+          @click="() => { slideoverOpen = false }"
+        />
       </div>
     </template>
   </USlideover>
@@ -305,9 +243,8 @@ el:
     attributes: Χαρακτηριστικά
     clear: Καθαρισμός
     clear_all: Καθαρισμός όλων
-    apply: Εφαρμογή
     show_results: Εμφάνιση αποτελεσμάτων
-    active_count: "{count} ενεργά φίλτρα"
+    show_results_n: Εμφάνιση αποτελεσμάτων ({count} φίλτρα)
 en:
   search:
     products: Search products
@@ -321,22 +258,6 @@ en:
     attributes: Attributes
     clear: Clear
     clear_all: Clear all
-    apply: Apply
     show_results: Show results
-    active_count: "{count} active filters"
+    show_results_n: Show results ({count} filters)
 </i18n>
-
-<style scoped>
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-  .products-sidebar {
-    transition: none;
-  }
-
-  :deep(.transition-all),
-  :deep(.transition-transform),
-  :deep(.transition-colors) {
-    transition: none;
-  }
-}
-</style>

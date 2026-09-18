@@ -61,6 +61,7 @@ const arrowButton = {
     class="-mx-2"
   >
     <ProductCard
+      as="div"
       :product="item"
       :show-add-to-cart-button="showAddToCart"
       :img-width="420"

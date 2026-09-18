@@ -1,17 +1,15 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
-const { isMobileOrTablet } = useDevice()
 const siteConfig = useSiteConfig()
 const { ogImageUrl } = useTenantBranding()
 
-// Ref to control the sidebar drawer
+// The narrow-screen filter drawer lives in the sidebar; the toolbar
+// above the grid is what opens it.
 const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
 
-// Lightweight first-page fetch for Schema.org ItemList.
-// Server-side only (server: true is the default) — this does NOT duplicate
-// the full ProductsList fetch; it fetches page-1 with a small limit purely
-// for structured-data purposes. When more locales activate, replace the
-// hardcoded 'el' with iteration over SUPPORTED_LOCALES.
+// A small page-1 fetch for the Schema.org ItemList. It does NOT
+// duplicate the listing's own fetch — different limit, different key —
+// and exists only so the collection is machine-readable.
 const { data: seoProducts } = await useFetch<ProductMeiliSearchResponse>(
   '/api/products/search',
   {
@@ -23,15 +21,13 @@ const { data: seoProducts } = await useFetch<ProductMeiliSearchResponse>(
 )
 
 useSeoMeta({
-  // seo.title, not title: `title` is also the page's h1 (see /blog).
+  // `seo.title`, not `title`: the latter is also the page's h1.
   title: () => t('seo.title'),
   description: () => t('seo.description'),
   ogTitle: () => t('seo.title'),
   ogDescription: () => t('seo.description'),
   ogType: 'website',
-  // Prefer the tenant's light-mode logo for OG meta so social previews
-  // carry the tenant's brand. ``setups.ts`` uses the same pattern
-  // (H14 in MULTI_TENANT_AUDIT.md).
+  // The tenant's own logo, so a social preview carries its brand.
   ogImage: ogImageUrl.value,
   ogImageAlt: () => t('title'),
 })
@@ -40,9 +36,9 @@ const baseUrl = siteConfig.url
 
 useSchemaOrg([
   defineWebPage({ '@type': 'CollectionPage' }),
-  // itemListElement is object-typed, so it can no longer be a getter
-  // since the @unhead/schema-org v3 definer-type rewrite — the whole
-  // node is a single computed() instead.
+  // `itemListElement` is object-typed, so it cannot be a getter since
+  // the @unhead/schema-org v3 definer-type rewrite — the whole node is
+  // one computed instead.
   defineItemList(computed(() => ({
     name: t('title'),
     itemListElement: (seoProducts.value?.results ?? []).map((p, i) => ({
@@ -54,106 +50,93 @@ useSchemaOrg([
   }))),
 ])
 
-// Handle filter toggle from Toolbar
-const handleToggleFilters = () => {
-  sidebarRef.value?.toggleDrawer()
-}
-
 // Optional per-tenant branded band above the page content — sections
-// from the published 'products' PageLayout. Fallback is EMPTY, so pages
-// without a layout render exactly as before.
+// from the published 'products' PageLayout. The fallback is EMPTY, so a
+// tenant without one gets the listing alone.
 const { sections: brandSections } = await usePageConfig('products')
 </script>
 
 <template>
-  <PageWrapper class="flex flex-col">
-    <!-- Skip Links for Keyboard Navigation -->
-    <div class="sr-only focus-within:not-sr-only">
-      <a
-        href="#main-content"
-        class="
-          skip-link
-          fixed top-4 left-4 z-50
-          bg-primary text-white
-          px-4 py-2 rounded-lg
-          font-semibold
-          transition-all
-        "
-      >
-        {{ t('skip_to_content') }}
-      </a>
-      <a
-        href="#filters"
-        class="
-          skip-link
-          fixed top-4 left-32 z-50
-          bg-primary text-white
-          px-4 py-2 rounded-lg
-          font-semibold
-          transition-all
-        "
-      >
-        {{ t('skip_to_filters') }}
-      </a>
-    </div>
-
-    <!-- Every page owns exactly one h1. Visually hidden because the
-         design has no heading slot here — the navbar logo used to
-         supply the h1, which put the store name in the h1 of several
-         unrelated URLs. -->
-    <PageTitle
-      v-if="!sectionsProvideHeading(brandSections)"
-      :text="t('title')"
-      class="sr-only"
-    />
-    <PageBreadcrumb />
-    <div
-      v-if="brandSections.length"
+  <div>
+    <a
+      href="#product-results"
       class="
-        mb-8 grid gap-6
-        md:gap-10
+        sr-only
+        focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-50
+        focus:rounded-md focus:bg-inverted focus:px-4 focus:py-2
+        focus:font-medium focus:text-inverted
       "
     >
-      <PageSectionRenderer
-        v-for="section in brandSections"
-        :key="section.uuid"
-        :section="section"
-      />
-    </div>
+      {{ t('skip_to_content') }}
+    </a>
 
-    <!-- The only internal link into /products/category/**. Without it
-         those pages sit in the sitemap with zero inbound links. -->
-    <ProductCategoriesNav />
+    <UContainer class="pt-6">
+      <PageBreadcrumb />
+    </UContainer>
 
-    <div
-      class="flex gap-6"
-      :class="{
-        'flex-col': isMobileOrTablet,
-        'flex-row': !isMobileOrTablet,
-      }"
+    <PageSectionRenderer
+      v-for="section in brandSections"
+      :key="section.uuid"
+      :section="section"
+    />
+
+    <PageSectionBand
+      padding="sm"
+      :surface="brandSections.length % 2 === 0 ? 'default' : 'muted'"
     >
-      <ProductsSidebar id="filters" ref="sidebarRef" />
-      <ProductsList id="main-content" @toggle-filters="handleToggleFilters" />
-    </div>
-  </PageWrapper>
+      <template #header>
+        <div class="flex flex-col gap-2">
+          <PageTitle
+            v-if="!sectionsProvideHeading(brandSections)"
+            :text="t('title')"
+          />
+          <p class="max-w-2xl text-sm text-muted md:text-base">
+            {{ t('seo.description') }}
+          </p>
+        </div>
+      </template>
+
+      <!-- The only internal link into /products/category/**. Without it
+           those pages sit in the sitemap with no inbound link at all. -->
+      <ProductCategoriesNav />
+    </PageSectionBand>
+
+    <UContainer class="pb-16">
+      <UPage
+        :ui="{
+          left: 'lg:col-span-2',
+          center: 'lg:col-span-8',
+        }"
+      >
+        <template #left>
+          <ProductsSidebar
+            id="filters"
+            ref="sidebarRef"
+          />
+        </template>
+
+        <div id="product-results">
+          <ProductsList @toggle-filters="sidebarRef?.toggleDrawer()" />
+        </div>
+      </UPage>
+    </UContainer>
+  </div>
 </template>
 
 <i18n lang="yaml">
 el:
   title: Προϊόντα
-  skip_to_content: Μετάβαση στο περιεχόμενο
-  skip_to_filters: Μετάβαση στα φίλτρα
+  skip_to_content: Μετάβαση στα αποτελέσματα
   seo:
     # Tenant-NEUTRAL, both of these: they ship to every storefront, so
-    # they must not name a product domain. The previous description
-    # advertised "μουσικών οργάνων" on a shop that sells neither musical
-    # instruments nor anything like them.
+    # neither may name a product domain. The previous description
+    # advertised musical instruments on a shop that sells nothing like
+    # them.
     title: "Προϊόντα: Όλη η συλλογή"
     description: Δες όλα τα προϊόντα μας, με φίλτρα κατηγορίας, τιμής και χαρακτηριστικών για να βρεις γρήγορα αυτό που ψάχνεις.
 en:
   title: Products
-  skip_to_content: Skip to the content
-  skip_to_filters: Skip to the filters
+  skip_to_content: Skip to the results
   seo:
     title: "Products: the whole range"
     description: Browse all of our products, with category, price and attribute filters to find what you are looking for quickly.

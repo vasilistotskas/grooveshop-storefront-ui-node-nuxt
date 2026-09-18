@@ -1,125 +1,62 @@
 <script lang="ts" setup>
 /**
- * Product Card Skeleton Loader
+ * The product card before its data arrives.
  *
- * Displays a loading placeholder that matches the structure of the Product Card component.
- * Features a shimmer animation to indicate loading progress.
+ * Shaped like the card it stands in for — same frame, same 4:3 image,
+ * same four rows — so the grid does not reflow when the products land.
+ * A generic box would move every card down the page the moment it was
+ * replaced.
  *
- * @component
+ * `USkeleton` brings its own pulse; the hand-rolled shimmer this
+ * carried was built on `--color-neutral-*` variables that the Tailwind
+ * v4 theme no longer defines, so it animated a transparent gradient
+ * over nothing.
  */
+defineProps({
+  as: { type: String, required: false, default: 'li' },
+})
 </script>
 
 <template>
-  <UCard
-    as="li"
-    class="relative h-full w-full max-w-full"
-    :ui="{
-      root: 'w-full max-w-full',
-      body: `
-        p-0
-        sm:p-0
-      `,
-    }"
+  <component
+    :is="as"
+    class="
+      flex h-full w-full max-w-full flex-col overflow-hidden rounded-xl
+      bg-default ring ring-default
+    "
   >
-    <!-- Image Container with Shimmer -->
-    <div class="relative overflow-hidden bg-neutral-100 dark:bg-neutral-800">
-      <!-- Top-left badges placeholder -->
-      <div class="absolute top-4 left-4 z-10 flex flex-col gap-2">
-        <USkeleton class="h-6 w-16 rounded-md" />
+    <div class="relative bg-elevated">
+      <div class="absolute start-3 top-3 z-10">
+        <USkeleton class="h-5 w-12 rounded-md" />
+      </div>
+      <div class="absolute end-3 top-3 z-10 flex gap-1.5">
+        <USkeleton class="size-7 rounded-md" />
+        <USkeleton class="size-7 rounded-md" />
       </div>
 
-      <!-- Top-right action buttons placeholder -->
-      <div class="absolute top-4 right-4 z-10 flex gap-2">
-        <USkeleton class="size-8 rounded-md" />
-        <USkeleton class="size-8 rounded-md" />
-      </div>
-
-      <!-- Product image placeholder with proper aspect ratio (4:3) -->
-      <div class="aspect-[4/3] max-w-full">
-        <USkeleton class="size-full" />
+      <div class="aspect-4/3 max-w-full">
+        <USkeleton class="size-full rounded-none" />
       </div>
     </div>
 
-    <!-- Content Container -->
-    <div class="flex flex-col gap-4 p-6">
-      <!-- Product title placeholder (2 lines) -->
-      <div class="flex flex-col gap-2">
-        <USkeleton class="h-5 w-full" />
-        <USkeleton class="h-5 w-3/4" />
+    <div class="flex flex-1 flex-col gap-3 p-4">
+      <USkeleton class="h-3 w-16" />
+
+      <div class="flex flex-col gap-1.5">
+        <USkeleton class="h-4 w-full" />
+        <USkeleton class="h-4 w-2/3" />
       </div>
 
-      <!-- Rating placeholder -->
-      <div class="flex items-center gap-2">
-        <div class="flex items-center gap-1">
-          <USkeleton
-            v-for="i in 5"
-            :key="i"
-            class="size-4 rounded-sm"
-          />
-        </div>
-        <USkeleton class="h-4 w-16" />
+      <div class="flex items-center gap-1.5">
+        <USkeleton class="h-3.5 w-20" />
+        <USkeleton class="h-3 w-8" />
       </div>
 
-      <!-- Price section placeholder -->
-      <div class="flex flex-col gap-2">
-        <div class="flex items-baseline justify-between">
-          <div class="flex flex-col gap-1">
-            <USkeleton class="h-3 w-20" />
-            <USkeleton class="h-8 w-24" />
-          </div>
-        </div>
+      <div class="mt-auto pt-1">
+        <USkeleton class="h-7 w-24" />
       </div>
 
-      <!-- Add to cart button placeholder -->
-      <USkeleton class="h-10 w-full rounded-md" />
+      <USkeleton class="h-9 w-full rounded-md" />
     </div>
-  </UCard>
+  </component>
 </template>
-
-<style scoped>
-/**
- * Shimmer animation for skeleton loaders
- * Creates a subtle moving gradient effect to indicate loading
- */
-:deep(.u-skeleton) {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(
-    90deg,
-    rgb(var(--color-neutral-200)) 0%,
-    rgb(var(--color-neutral-100)) 50%,
-    rgb(var(--color-neutral-200)) 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-}
-
-:deep(.dark .u-skeleton) {
-  background: linear-gradient(
-    90deg,
-    rgb(var(--color-neutral-800)) 0%,
-    rgb(var(--color-neutral-700)) 50%,
-    rgb(var(--color-neutral-800)) 100%
-  );
-  background-size: 200% 100%;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-/**
- * Reduced motion support
- * Disables animations for users who prefer reduced motion
- */
-@media (prefers-reduced-motion: reduce) {
-  :deep(.u-skeleton) {
-    animation: none;
-  }
-}
-</style>

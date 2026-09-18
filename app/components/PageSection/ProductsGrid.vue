@@ -50,6 +50,7 @@ const label = computed(
     :surface="surface"
   >
     <UPageGrid
+      as="ul"
       class="
         grid-cols-2
         lg:grid-cols-4
