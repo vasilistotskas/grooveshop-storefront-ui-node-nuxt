@@ -44,7 +44,14 @@ const state = reactive<Partial<Schema>>({
   password: undefined,
 })
 
-const onSubmit = async (event: FormSubmitEvent<Schema>) => {
+/**
+ * The one login path.
+ *
+ * Exposed so a caller can drive it with credentials it already has —
+ * the demo-account card on this page — without a second copy of the
+ * pending-flow handling, the cart refresh and the `next` bookkeeping.
+ */
+const performLogin = async (email: string, password: string) => {
   isSubmitting.value = true
   try {
     const currentPath = router.currentRoute.value.path
@@ -54,10 +61,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
       await router.replace({ query: { next: currentPath } })
     }
 
-    const response = await login({
-      email: event.data.email,
-      password: event.data.password,
-    })
+    const response = await login({ email, password })
 
     session.value = response?.data
   }
@@ -74,6 +78,11 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
     isSubmitting.value = false
   }
 }
+
+const onSubmit = async (event: FormSubmitEvent<Schema>) =>
+  performLogin(event.data.email, event.data.password)
+
+defineExpose({ performLogin, isSubmitting })
 
 const backgroundImage = computed(() => {
   return img(

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 const { t } = useI18n()
 const localePath = useLocalePath()
-const { isMobileOrTablet } = useDevice()
 
 const items = computed(() => [
   {
@@ -23,55 +22,46 @@ useSeoMeta({
 useHead({
   title: t('title'),
 })
+
+/**
+ * The form owns the login. The demo card hands it credentials rather
+ * than signing in itself, so there is one path through the pending
+ * two-factor flow, the cart refresh and the `next` bookkeeping.
+ */
+const form = useTemplateRef('form')
 </script>
 
 <template>
-  <PageWrapper
-    class="
-      !mt-0 flex flex-col gap-0 p-0
-      md:!mt-4
-    "
-  >
-    <PageTitle
-      :text="t('title')"
-      class="sr-only text-center capitalize"
-    />
+  <div>
+    <UContainer class="pt-6">
+      <UBreadcrumb :items="items" />
+    </UContainer>
 
-    <UBreadcrumb
-      :items="items"
-      :ui="{
-        item: isMobileOrTablet ? `
-          text-primary-950
-          dark:text-primary-50
-        ` : `
-          text-primary-950
-          dark:text-primary-50
-        `,
-        root: `
-          text-xs
-          md:text-base
-        `,
-      }"
-      class="
-        relative mx-auto w-auto max-w-(--container-xl) bg-transparent !px-4
-        !pt-2
-        md:mb-5 md:w-full md:!pt-0
-        dark:bg-transparent
-      "
-    />
-    <UCard
-      class="mx-auto w-xl max-w-full !p-0"
-      :ui="{
-        root: isMobileOrTablet? 'rounded-none ring-0' : '',
-        body: isMobileOrTablet? 'p-0' : `
-          px-4 py-5
-          sm:p-6
-        `,
-      }"
-    >
-      <AccountLoginForm />
-    </UCard>
-  </PageWrapper>
+    <PageSectionBand surface="muted">
+      <template #header>
+        <PageTitle
+          :text="t('title')"
+          class="sr-only"
+        />
+      </template>
+
+      <div class="mx-auto flex w-full max-w-md flex-col gap-6">
+        <AccountDemoAccountCard
+          :loading="form?.isSubmitting"
+          @login="({ email, password }) => form?.performLogin(email, password)"
+        />
+
+        <UPageCard
+          variant="outline" :ui="{ container: `
+            p-0
+            sm:p-0
+          ` }"
+        >
+          <AccountLoginForm ref="form" />
+        </UPageCard>
+      </div>
+    </PageSectionBand>
+  </div>
 </template>
 
 <i18n lang="yaml">
@@ -81,5 +71,12 @@ el:
     items:
       account-login:
         label: Σύνδεση
+        icon: i-heroicons-arrow-right-on-rectangle
+en:
+  title: Sign in
+  breadcrumb:
+    items:
+      account-login:
+        label: Sign in
         icon: i-heroicons-arrow-right-on-rectangle
 </i18n>
