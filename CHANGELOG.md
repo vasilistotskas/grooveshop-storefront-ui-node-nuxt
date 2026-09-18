@@ -1,3 +1,12 @@
+# [3.196.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.10...v3.196.0) (2026-09-18)
+
+
+### Features
+
+* **analytics:** Google Ads conversion tracking on the one Google tag ([3e6d2b2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3e6d2b2da8d220807439504fac097d05f2564dac))
+* **legal:** render an untranslated document in the language it exists in ([a1b16ca](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a1b16ca65cd0af09c85ad388f059a969ea38f94d))
+* **navigation:** gate operator links as the pages gate themselves ([dda1ca5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/dda1ca5d38707502b89369e9505b814465c5cddc))
+
 ## [3.195.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.9...v3.195.10) (2026-09-17)
 
 
