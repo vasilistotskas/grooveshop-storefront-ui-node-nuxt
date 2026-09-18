@@ -55,7 +55,7 @@ touching its files, read the rule file directly.
 - `runtime/` — Runtime code for the custom cookie control module (plugin, methods, types, utils)
 - `i18n/` — Locale config (`locales.ts` exports `SUPPORTED_LOCALES = ['el', 'en']` and `DEFAULT_LOCALE = 'el'`), locale detector, i18n config, and a translation file set per locale (`el-GR.json` / `en-US.json`, plus domain-specific: auth, breadcrumb, checkout, cookies, validation). Routes for **both** locales are generated at build time for every tenant; whether one is *reachable* is per-tenant (`Tenant.available_locales`), enforced by `app/middleware/locale-available.global.ts`, which 404s a prefix the tenant does not list
 - `openapi/` — Schema files (`schema.json`, `schema.yml`) fetched from Django for type generation
-- `scripts/` — `fetch-schema.mjs` (download the OpenAPI schema from Django), `sync-schema-yml.mjs` (regenerate the derived `.yml`), `check-lockstep-deps.mjs`, `audit-visual.mjs`
+- `scripts/` — `fetch-schema.mjs` (download the OpenAPI schema from Django), `sync-schema-yml.mjs` (regenerate the derived `.yml`), `check-lockstep-deps.mjs`, `audit-visual.mjs`, `capture-ssr.mjs` + `diff-ssr.mjs` (capture a tenant's SSR HTML before/after a change and diff it with build hashes, nonces, generated ids and Cloudflare rewrites normalised — the webside freeze proof; two same-build captures diff to nothing)
 
 ### State Management
 
