@@ -129,9 +129,23 @@ describe('sitemap-tenant-gate', () => {
   it('drops the catalogue when the merchant setting is off', async () => {
     // One tier, not two: a store can hold a product model and serve no
     // shop, which is not a plan the platform sells or withholds.
+    settingsMock.mockResolvedValue({ settings: { CATALOGUE_ENABLED: 'False' } })
+
     const locs = await run(OPEN)
 
     expect(locs).not.toContain('https://example.com/products')
+  })
+
+  it('keeps the catalogue when the setting was never set', async () => {
+    // `createSettingGate` fails OPEN: a store that never touched
+    // CATALOGUE_ENABLED serves its catalogue, so the sitemap lists it.
+    // The commercial gates (loyalty, offers, gift cards) fail closed on
+    // the same absence — each route's own fallback, from the shared
+    // table, not one policy for the feed.
+    const locs = await run(OPEN)
+
+    expect(locs).toContain('https://example.com/products')
+    expect(locs).not.toContain('https://example.com/loyalty-program')
   })
 
   it('keeps the catalogue when the merchant setting is on', async () => {
@@ -186,17 +200,20 @@ describe('sitemap-tenant-gate', () => {
     expect(locs).toContain('https://example.com/loyalty-program')
   })
 
-  it('fails closed when the settings lookup errors', async () => {
-    settingsMock.mockRejectedValue(new Error('backend down'))
+  it('allows the gated routes when the settings lookup errors, as the pages do', async () => {
+    // Every route middleware RENDERS on a failed lookup: settingEnabled()
+    // catches it and returns onError ?? fallback (true for
+    // createSettingGate and for promotions), and loyalty-enabled.ts
+    // returns without throwing. This feed used to fail closed here and
+    // list fewer URLs than the store was serving. The rule lives in
+    // shared/utils/gatedRoutes.ts so the two cannot drift apart again.
+    settingsMock.mockRejectedValue(new Error('upstream down'))
 
     const locs = await run(OPEN)
 
-    expect(locs).not.toContain('https://example.com/loyalty-program')
-    expect(locs).not.toContain('https://example.com/products')
-    expect(locs).not.toContain('https://example.com/offers')
-    // The plan-only and ungated URLs are unaffected by the read.
-    expect(locs).toContain('https://example.com/blog')
-    expect(locs).toContain('https://example.com/contact')
+    expect(locs).toContain('https://example.com/loyalty-program')
+    expect(locs).toContain('https://example.com/products')
+    expect(locs).toContain('https://example.com/offers')
   })
 
   it('drops the offers page when the promotions plan flag is off', async () => {

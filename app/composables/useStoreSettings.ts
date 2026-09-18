@@ -32,7 +32,7 @@ export const STORE_SETTINGS_KEY = 'store-settings'
 const EMPTY: PublicSettings = { settings: {} }
 
 export function useStoreSettings() {
-  const { data } = useFetch<PublicSettings>('/api/settings/public', {
+  const { data, error } = useFetch<PublicSettings>('/api/settings/public', {
     key: STORE_SETTINGS_KEY,
     default: () => EMPTY,
     // `dedupe` defaults to 'cancel': every further reader of the SAME
@@ -48,7 +48,13 @@ export function useStoreSettings() {
     () => data.value?.settings ?? EMPTY.settings,
   )
 
-  return { settings }
+  // "The lookup failed" is a different state from "the key is unset":
+  // every route gate renders on the former and applies its own fallback
+  // on the latter, and a menu that hides links on a failed lookup would
+  // disagree with the pages it links. `settings` alone cannot tell the
+  // two apart because the default is an empty map.
+  const unavailable = computed(() => !!error.value)
+  return { settings, unavailable }
 }
 
 /**

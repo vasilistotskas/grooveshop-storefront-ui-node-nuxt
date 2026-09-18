@@ -2,6 +2,12 @@ import { SUPPORTED_LOCALES } from '~~/i18n/locales'
 import { splitLocale } from '~~/shared/i18n/localeFromPath'
 import { languageOfLocaleTag } from '~~/shared/i18n/localeTag'
 import { tenantAllowedLocales } from '~~/shared/i18n/tenantLocales'
+import {
+  FEATURE_GATED_ROUTES,
+  featureRouteAllowed,
+  type FeatureGatedRoute,
+  type PlanFlags,
+} from '~~/shared/utils/gatedRoutes'
 
 /**
  * Drop what a tenant's sitemap must not advertise: feature-gated routes
@@ -44,17 +50,7 @@ import { tenantAllowedLocales } from '~~/shared/i18n/tenantLocales'
  * `CATALOGUE_ENABLED`; this closes the same hole for the static routes
  * that head each of those surfaces.
  */
-interface GatedRoute {
-  /** Path as it appears in the sitemap, without locale prefix. */
-  path: string
-  /**
-   * Commercial gate — the tenant's plan flag. Optional: a surface can
-   * be gated operationally only (the catalogue) or commercially only
-   * (the blog), and a missing tier is not a closed one.
-   */
-  planFlag?: (tenant: TenantConfig) => boolean
-  /** Operational gate — the merchant's `extra_settings` key. */
-  settingKey?: string
+interface GatedRoute extends FeatureGatedRoute {
   /**
    * Content gate — the ContentPage slug this route renders.
    *
@@ -73,41 +69,19 @@ interface GatedRoute {
   pageType?: string
 }
 
-// Mirrors the two-tier gate the route's middleware applies
-// (app/middleware/loyalty-enabled.ts). Any gated page that is INDEXABLE
-// needs an entry here, or its sitemap URL 404s for every tenant with the
-// feature switched off. The other gated routes — /gift-cards,
-// /gift-cards/success, /feedback — carry `defineRouteRules({ robots:
-// false })`, and the module drops non-indexable routes before this hook
-// runs, so they never reach a sitemap in the first place. Drop that
-// noindex from one of them and it belongs in this table.
+// The feature gates are the ONE table the navigation menus also read
+// (`shared/utils/gatedRoutes.ts`), so a sitemap entry and a footer
+// link can never disagree with the page they point at. Any gated page
+// that is INDEXABLE belongs in that table, or its URL 404s here for
+// every tenant with the feature off (the offers page was missing once:
+// Ahrefs 2026-09-11, "4XX page in sitemap", webside.gr/offers). The
+// table also carries noindex routes — /gift-cards, /feedback — for the
+// menus' sake; they never reach this hook, because the module drops
+// non-indexable routes before it runs. `/search` is not listed at all
+// for the same reason. The DYNAMIC product, category and blog URLs are
+// gated on the same flags in `server/api/__sitemap__/urls.ts`.
 const GATED_ROUTES: readonly GatedRoute[] = [
-  {
-    path: '/loyalty-program',
-    planFlag: tenant => tenant.loyaltyEnabled,
-    settingKey: 'LOYALTY_ENABLED',
-  },
-  // The catalogue's own two indexable static routes. `/search` is not
-  // here because it carries `robots: false` and never reaches a
-  // sitemap; the DYNAMIC product and category URLs are gated on the
-  // same setting in `server/api/__sitemap__/urls.ts`.
-  { path: '/products', settingKey: 'CATALOGUE_ENABLED' },
-  // The blog's, gated on the plan flag alone — there is no
-  // extra_settings counterpart, `middleware/blog-enabled.ts` reads the
-  // flag directly, and the dynamic post/category URLs already follow
-  // it in `urls.ts`. Without these two entries a store with no blog
-  // still advertised the index it 404s.
-  { path: '/blog', planFlag: tenant => tenant.blogEnabled },
-  { path: '/blog/categories', planFlag: tenant => tenant.blogEnabled },
-  // The offers page is indexable and two-tier gated exactly like
-  // loyalty (app/middleware/promotions-enabled.ts). It was missing
-  // here, so every tenant with promotions off advertised a 404
-  // (Ahrefs 2026-09-11, "4XX page in sitemap": webside.gr/offers).
-  {
-    path: '/offers',
-    planFlag: tenant => tenant.promotionsEnabled,
-    settingKey: 'PROMOTIONS_ENABLED',
-  },
+  ...FEATURE_GATED_ROUTES,
   // The legal routes. Each renders the tenant's ContentPage at its
   // slug and throws a 404 when there is none (see useLegalPage), so a
   // store's sitemap must list exactly the documents that store has.
@@ -167,13 +141,22 @@ export default defineNitroPlugin((nitroApp) => {
     const config = useRuntimeConfig()
     const apiBaseUrl = config.apiBaseUrl as string
 
+    const plan: PlanFlags = {
+      loyaltyEnabled: tenant.loyaltyEnabled,
+      blogEnabled: tenant.blogEnabled,
+      promotionsEnabled: tenant.promotionsEnabled,
+      giftCardsEnabled: tenant.giftCardsEnabled,
+    }
     const planAllows = (route: GatedRoute) =>
-      !route.planFlag || route.planFlag(tenant)
+      !route.planFlag || plan[route.planFlag]
 
     // One bulk read of the store's public settings for every route
     // whose plan gate passed — and none at all when no route needs
-    // one. `null` (unreadable) fails CLOSED: a feed must never
-    // publish a URL its gate then 404s.
+    // one. `null` means the lookup itself failed, and the shared rule
+    // then ALLOWS, because every route middleware renders on that
+    // failure: this feed used to fail closed there and list fewer URLs
+    // than the store was serving. What a missing KEY means is the
+    // route's own fallback, also in the table.
     const needsSettings = GATED_ROUTES.some(
       route => planAllows(route) && route.settingKey,
     )
@@ -208,9 +191,8 @@ export default defineNitroPlugin((nitroApp) => {
 
     const allowed = GATED_ROUTES.map((route) => {
       if (!planAllows(route)) return false
-      if (route.settingKey) {
-        if (!settings) return false
-        if (!parseSettingFlag(settings[route.settingKey], false)) return false
+      if (route.settingKey && !featureRouteAllowed(route, plan, settings)) {
+        return false
       }
       if (route.contentSlug) {
         return contentLocales?.has(route.contentSlug) ?? false
@@ -227,12 +209,13 @@ export default defineNitroPlugin((nitroApp) => {
 
     const locales = new Set(tenantAllowedLocales(tenant))
 
-    // A content-backed route that survived the gate above still only
-    // resolves in the locales its document is translated into:
-    // `extractTranslated` does not fall back, so an untranslated legal
-    // page 404s on the prefixed locale while answering 200 on the
-    // default one. delta-sigma serves `el` and `en` with Greek-only
-    // legal documents, and listed three such 404s.
+    // A content-backed route that survived the gate above is CANONICAL
+    // only in the locales its document is translated into. On the
+    // others the page renders the document in the language it exists
+    // in, marked as such, with its canonical pointing at that locale's
+    // URL — a non-canonical duplicate, and a sitemap lists canonical
+    // URLs only. (It was a plain 404 before the fallback shipped;
+    // delta-sigma listed three of them.)
     //
     // Only routes MISSING one of the locales the tenant serves are
     // recorded, so a fully translated store adds nothing here and the
@@ -278,9 +261,11 @@ export default defineNitroPlugin((nitroApp) => {
       // A document the tenant serves in only ONE of its locales is the
       // same case one layer down: dropping `/en/terms-of-use` from the
       // url set left the surviving `/terms-of-use` still advertising an
-      // `en` alternate pointing at it, so the 404 came back as an
-      // hreflang. The locale gate above cannot catch it — the tenant
-      // genuinely serves `en`, this document just does not exist in it.
+      // `en` alternate pointing at it — an alternate that renders the
+      // Greek document under a canonical back to this one. The locale
+      // gate above cannot catch it: the tenant genuinely serves `en`,
+      // this document just does not exist in it. The page head withholds
+      // the same alternate (`useDocumentLocales`).
       const kept = locales.size < 2
         ? []
         : url.alternatives.filter((alt) => {
