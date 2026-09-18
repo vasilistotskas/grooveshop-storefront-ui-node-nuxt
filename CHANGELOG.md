@@ -1,3 +1,10 @@
+# [3.199.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.198.0...v3.199.0) (2026-09-18)
+
+
+### Features
+
+* **page-builder:** rewrite every section as a band that hides when it is empty ([4ee8fa7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4ee8fa74bb4b2a34e3effaf796aa9516808dbc5f))
+
 # [3.198.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.197.0...v3.198.0) (2026-09-18)
 
 
