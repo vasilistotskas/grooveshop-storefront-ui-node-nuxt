@@ -33,7 +33,6 @@ coverage
 .eslintcache
 
 # AI
-.agents
 .claude/settings.local.json
 .claude/.typecheck-pending
 .claude/agent-memory/
@@ -52,6 +51,4 @@ public/.well-known
 # Other
 .unlighthouse
 
-# Skilld references (recreated by `skilld install`)
-.skilld
 audit/

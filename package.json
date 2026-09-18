@@ -17,7 +17,7 @@
     "build": "nuxt build",
     "dev": "nuxt dev",
     "dev:all": "ncu -u && npm i && npm run build && npm run lint && npm run dev",
-    "prepare": "node scripts/check-lockstep-deps.mjs && nuxt prepare && (npx skilld prepare || true)",
+    "prepare": "node scripts/check-lockstep-deps.mjs && nuxt prepare",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "start": "node .output/server/index.mjs",
