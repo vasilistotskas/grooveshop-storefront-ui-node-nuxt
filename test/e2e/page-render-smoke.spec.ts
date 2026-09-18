@@ -215,7 +215,38 @@ describe('every public page renders', async () => {
     // LEGAL_ROUTE_SLUGS, so the /info/<slug> redirect pointed a
     // published document at a blank page in production.
     ['/return-policy', 'el-GR'],
+    // A guest auth page and the cart: neither is section-driven, so they
+    // prove the plain page-body seam (app/utils/variantRegistry.ts)
+    // renders, not just the layouts that happen to have a fallback.
+    ['/account/login', 'el-GR'],
+    ['/en/account/login', 'en-US'],
+    ['/cart', 'el-GR'],
   ]
+
+  // Every page file is a shell that mounts its body through
+  // `resolvePage`; the body is where `createError(404)` is thrown. A
+  // status thrown one component down must still become the RESPONSE
+  // status — a 200 error page is a soft-404 on every unpublished layout
+  // and every unknown product.
+  it.each([
+    // No published `about` layout on the stub backend.
+    ['/about'],
+    // The catch-all [slug] route with no layout behind it.
+    ['/no-such-page'],
+    ['/products/999999/unknown-product'],
+  ])('answers 404 when the body of %s throws it', async (path) => {
+    // A browser Accept: without it the error handler answers JSON on
+    // purpose (API clients and crawlers of `.md` variants get data, not
+    // a page), which is a separate contract from the one under test.
+    const { statusCode, body } = await requestWithHost(path, TENANT_HOST, {
+      Accept: 'text/html,application/xhtml+xml',
+    })
+
+    expect(statusCode, body.slice(0, 900)).toBe(404)
+    // The error page is a real render in the visitor's locale, not a
+    // bare Nitro JSON body.
+    expect(body).toContain('lang="el-GR"')
+  }, 60000)
 
   // Dev mode compiles routes on the FIRST request that touches them, so
   // a cold hit can transiently 500 before the pipeline is ready. Warm on

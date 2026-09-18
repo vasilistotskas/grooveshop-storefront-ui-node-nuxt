@@ -79,7 +79,7 @@ Pinia stores in `app/stores/`:
 
 ### App Utilities (`app/utils/`)
 
-11 utility modules (auth, componentRegistry, error, pagination, phone, route, search, shipping-methods, sse, str, translate). Key: `auth.ts` (client-side auth helpers), `translate.ts` (`extractTranslated` for parler model translations), `error.ts` (client error handling).
+12 utility modules (auth, componentRegistry, variantRegistry, error, pagination, phone, route, search, shipping-methods, sse, str, translate). Key: `auth.ts` (client-side auth helpers), `translate.ts` (`extractTranslated` for parler model translations), `error.ts` (client error handling), `componentRegistry.ts` (page-builder sections, `<type>@<schema>` variants), `variantRegistry.ts` (`resolvePage`/`resolveChrome` — every `app/pages/**.vue` is a thin shell that mounts a body from `app/components/Storefront/` or a tenant's `app/components/variants/<schema>/`; see `.claude/rules/ui-and-pages.md`).
 
 ### Nuxt Modules
 

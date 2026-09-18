@@ -6,17 +6,19 @@ defineSlots<{
 }>()
 
 const { t } = useI18n()
-const { isMobileOrTablet } = useDevice()
 const tenantStore = useTenantStore()
 
 // Per-tenant chrome. Resolved by schema, exactly as the page builder
-// resolves section variants; `undefined` for every tenant without one,
-// which is the platform default path below.
-const tenantNavbar = computed(() =>
-  resolveChromeComponent('navbar', tenantStore.schemaName),
+// resolves section variants; the platform's own for every tenant
+// without a variant (see app/utils/variantRegistry.ts).
+const navbar = computed(() =>
+  resolveChrome('navbar', tenantStore.schemaName),
 )
-const tenantFooter = computed(() =>
-  resolveChromeComponent('footer', tenantStore.schemaName),
+const footer = computed(() =>
+  resolveChrome('footer', tenantStore.schemaName),
+)
+const mobileNav = computed(() =>
+  resolveChrome('mobile_nav', tenantStore.schemaName),
 )
 const { $routeBaseName } = useNuxtApp()
 const route = useRoute()
@@ -77,16 +79,10 @@ const footerClass = computed(() =>
     </a>
     <slot name="header">
       <!-- A tenant whose design specifies its own header ships it as a
-           chrome variant (see app/utils/chromeRegistry.ts) — the same
+           chrome variant (see app/utils/variantRegistry.ts) — the same
            seam the page builder already has for sections. Everyone
            else gets the platform's. -->
-      <component
-        :is="tenantNavbar"
-        v-if="tenantNavbar"
-      />
-      <PageHeader v-else>
-        <PageNavbar />
-      </PageHeader>
+      <component :is="navbar" />
     </slot>
     <UMain
       id="main-content"
@@ -166,33 +162,11 @@ const footerClass = computed(() =>
              region, the mobile social row included: a variant exists
              because the tenant's design specifies its own, and the row
              would otherwise float above it unstyled. -->
-        <component
-          :is="tenantFooter"
-          v-if="tenantFooter"
-        />
-        <template v-else>
-          <MobileOrTabletOnly>
-            <div
-              class="
-                my-6 flex flex-wrap items-center justify-center
-                md:hidden
-              "
-            >
-              <Socials />
-            </div>
-          </MobileOrTabletOnly>
-          <LazyFooterMobile
-            v-if="isMobileOrTablet"
-            hydrate-on-visible
-          />
-          <LazyFooterDesktop
-            v-else
-            hydrate-on-visible
-          />
-        </template>
+        <component :is="footer" />
       </div>
     </slot>
-    <MobileBottomNav
+    <component
+      :is="mobileNav"
       v-if="mobileBottomNavEnabled"
       :include-cart="!isAccountRoute"
     />

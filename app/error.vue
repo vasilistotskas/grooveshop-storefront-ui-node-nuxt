@@ -13,6 +13,12 @@ const props = defineProps({
   error: Object as () => NuxtError,
 })
 
+// The error body resolves like every page body: the platform's unless
+// the tenant ships its own (app/utils/variantRegistry.ts). Lazy either
+// way, so the entry chunk stays as thin as this shell.
+const tenantStore = useTenantStore()
+const body = computed(() => resolvePage('error', tenantStore.schemaName))
+
 // Transient SSR failures (backend readiness gaps during HPA churn —
 // prod audit 2026-07-02) reach the visitor as a 5xx error page even
 // though the backend recovers within seconds. Retry ONCE via
@@ -30,5 +36,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <LazyErrorScreen v-if="error" :error="error" />
+  <component
+    :is="body"
+    v-if="error"
+    :error="error"
+  />
 </template>

@@ -19,7 +19,9 @@ import { LEGAL_ROUTE_BY_SLUG, LEGAL_ROUTE_SLUGS } from '../../shared/utils/legal
  * is seeded into every tenant at provisioning, so the assertions about
  * what the DOCUMENT must say moved there
  * (`tests/unit/page_config/test_legal_documents.py`). What is left here
- * is the shape of the routes that render it.
+ * is the shape of the routes that render it: four thin shells that name
+ * their route, and ONE body (`Storefront/Legal.vue`) that consults the
+ * document for whichever route it is handed.
  *
  * Asserted against source rather than by rendering: the point is which
  * routes and slugs are NAMED, independent of what i18n resolves them to.
@@ -50,21 +52,39 @@ const LEGAL_PAGES = {
   'return-policy': 'app/pages/return-policy.vue',
 } as const
 
-describe('legal pages render the tenant\'s own document', () => {
+const LEGAL_BODIES = [
+  'app/components/Storefront/Legal.vue',
+]
+
+describe('legal routes hand their route to the one legal body', () => {
   it.each(Object.entries(LEGAL_PAGES))(
-    '%s consults its ContentPage slug',
+    '%s resolves the legal body with its own route',
     (route, path) => {
-      // The page names its route; the composable resolves the slug
-      // through LEGAL_ROUTE_SLUGS, so a page cannot pair itself with
-      // the wrong document.
-      const source = read(path)
-      expect(source).toContain(`useLegalPage('${route}')`)
+      const code = stripComments(read(path))
+      expect(code).toContain('resolvePage(\'legal\'')
+      expect(code).toContain(`route="${route}"`)
     },
   )
 
-  it.each(Object.entries(LEGAL_PAGES))(
+  it('covers every route in LEGAL_ROUTE_SLUGS', () => {
+    expect(Object.keys(LEGAL_PAGES).sort()).toEqual(
+      Object.keys(LEGAL_ROUTE_SLUGS).sort(),
+    )
+  })
+})
+
+describe('the legal body renders the tenant\'s own document', () => {
+  it.each(LEGAL_BODIES)('%s consults its ContentPage slug', (path) => {
+    // The body names no slug of its own; the composable resolves it
+    // through LEGAL_ROUTE_SLUGS from the route the shell passed in, so a
+    // route cannot pair itself with the wrong document.
+    const source = read(path)
+    expect(source).toContain('useLegalPage(props.route)')
+  })
+
+  it.each(LEGAL_BODIES)(
     '%s has ONE render path, with no boilerplate to fall back to',
-    (_route, path) => {
+    (path) => {
       const code = stripComments(read(path))
       expect(code).not.toContain('hasMerchantPage')
       expect(code).not.toContain('v-else')
@@ -74,46 +94,48 @@ describe('legal pages render the tenant\'s own document', () => {
     },
   )
 
-  it.each(Object.entries(LEGAL_PAGES))(
+  it.each(LEGAL_BODIES)(
     '%s dates the document by the document, not by a constant',
-    (_route, path) => {
+    (path) => {
       const code = stripComments(read(path))
       expect(code).not.toContain('PLATFORM_LAST_UPDATED')
       expect(code).toContain('updatedAt')
     },
   )
 
-  it.each(Object.entries(LEGAL_PAGES))(
-    '%s derives its contents from the document',
-    (_route, path) => {
-      const code = stripComments(read(path))
-      // A hardcoded array is what pointed the sidebar at anchors the
-      // merchant's document never had.
-      expect(code).not.toMatch(/const tocLinks\s*=\s*\[/)
-      expect(code).toContain('tocLinks')
-    },
-  )
+  it.each(LEGAL_BODIES)('%s derives its contents from the document', (path) => {
+    const code = stripComments(read(path))
+    // A hardcoded array is what pointed the sidebar at anchors the
+    // merchant's document never had.
+    expect(code).not.toMatch(/const tocLinks\s*=\s*\[/)
+    expect(code).toContain('tocLinks')
+  })
 
-  it.each(Object.entries(LEGAL_PAGES))(
-    '%s renders no second h1 of its own',
-    (_route, path) => {
-      // `UPageHeader :title` already renders the page heading; the
-      // article added another, so every merchant page shipped two.
-      const code = stripComments(read(path))
-      expect(code).not.toContain('<h1')
-    },
-  )
+  it.each(LEGAL_BODIES)('%s renders no second h1 of its own', (path) => {
+    // `UPageHeader :title` already renders the page heading; the
+    // article added another, so every merchant page shipped two.
+    const code = stripComments(read(path))
+    expect(code).not.toContain('<h1')
+  })
 
-  it.each(Object.entries(LEGAL_PAGES))(
-    '%s fails loudly when the document is absent',
-    (_route, path) => {
-      // Rendering an empty article with HTTP 200 is a soft-404 on a page
-      // the footer links from every other page of the store.
-      const code = stripComments(read(path))
-      expect(code).toContain('createError')
-      expect(code).toContain('hasDocument')
-    },
-  )
+  it.each(LEGAL_BODIES)('%s fails loudly when the document is absent', (path) => {
+    // Rendering an empty article with HTTP 200 is a soft-404 on a page
+    // the footer links from every other page of the store.
+    const code = stripComments(read(path))
+    expect(code).toContain('createError')
+    expect(code).toContain('hasDocument')
+  })
+
+  it.each(LEGAL_BODIES)('%s carries copy for every legal route', (path) => {
+    // The body picks its description and breadcrumb by route key, so a
+    // route missing from its i18n block would render a raw key.
+    // `\r?\n`: the repo checks out with CRLF on Windows.
+    const source = read(path)
+    for (const route of Object.keys(LEGAL_ROUTE_SLUGS)) {
+      expect(source).toMatch(new RegExp(`    ${route}:\\r?\\n      description:`))
+      expect(source).toMatch(new RegExp(`      ${route}:\\r?\\n        label:`))
+    }
+  })
 })
 
 describe('one document, one url', () => {
@@ -121,7 +143,7 @@ describe('one document, one url', () => {
     // Both answered 200 with the same body and a canonical pointing at
     // themselves — tenant #2 had /privacy-policy and /info/privacy
     // competing that way in production.
-    const code = stripComments(read('app/pages/info/[slug].vue'))
+    const code = stripComments(read('app/components/Storefront/Info.vue'))
     expect(code).toContain('LEGAL_ROUTE_SLUGS')
     expect(code).toContain('redirectCode: 301')
   })
@@ -225,7 +247,7 @@ describe('the route/slug map is the single source of truth', () => {
     for (const route of Object.keys(LEGAL_ROUTE_SLUGS)) {
       const source = read(`app/pages/${route}.vue`)
       expect(source, `${route} does not render its document`).toContain(
-        'useLegalPage',
+        `route="${route}"`,
       )
     }
   })

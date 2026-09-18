@@ -34,8 +34,14 @@ function vueFilesIn(dir: string): string[] {
 }
 
 describe('usePageConfig call sites', () => {
-  const pagesDir = resolve(process.cwd(), 'app/pages')
-  const callers = vueFilesIn(pagesDir)
+  // Page BODIES live under components/ (the platform default in
+  // `Storefront/`, tenant variants under `variants/<schema>/`); the
+  // files under app/pages are shells that only resolve a body. Scan
+  // every Vue file so a caller cannot escape the check by moving.
+  const callers = [
+    ...vueFilesIn(resolve(process.cwd(), 'app/pages')),
+    ...vueFilesIn(resolve(process.cwd(), 'app/components')),
+  ]
     .map(file => ({ file, source: readFileSync(file, 'utf8') }))
     .filter(({ source }) => source.includes('usePageConfig('))
 

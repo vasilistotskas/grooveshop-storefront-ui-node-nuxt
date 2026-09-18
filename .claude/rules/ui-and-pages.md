@@ -37,6 +37,21 @@ The provider's `baseURL` option is static (baked from `NUXT_PUBLIC_MEDIA_STREAM_
 
 Routes in `app/pages/`: home, products (with category/detail), blog (with category/post), cart, checkout (with success), search, account (extensive sub-routes for auth/2FA/profile/orders/favourites/reviews/subscriptions/loyalty/settings), and static content pages. See `app/pages/` for full structure.
 
+**Every public page file is a thin shell.** It keeps only what Nuxt extracts from
+page files at build time — `definePageMeta` (layout, middleware, `validate`) and
+`defineRouteRules` (`robots: false`) — and renders
+`resolvePage('<key>', tenantStore.schemaName)` from `app/utils/variantRegistry.ts`.
+The body (data fetching, 404/503 normalisation, `useSeoMeta`/`useSchemaOrg`, the
+template and its `<i18n>` block) lives in `app/components/Storefront/<Body>.vue`;
+a tenant that keeps or specifies its own design registers `page:<key>@<schema>`
+pointing at `app/components/variants/<schema>/…`. Four-of-a-kind pages share one
+body and pass the constant that told them apart as a prop (`Legal.vue` takes
+`route`, `BrandPage.vue` takes `pageType`). Chrome resolves the same way:
+`resolveChrome('navbar' | 'footer' | 'mobile_nav' | 'checkout_header', schema)`
+in the layouts. Never put `definePageMeta`/`defineRouteRules` in a body (they are
+inert outside `pages/`), and never put visitor-facing markup in a shell.
+`test/unit/page-config-await.spec.ts` scans bodies as well as pages.
+
 ## Component Categories
 
 Components in `app/components/` organized by domain:
