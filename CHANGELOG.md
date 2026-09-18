@@ -1,3 +1,10 @@
+## [3.196.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.196.3...v3.196.4) (2026-09-18)
+
+
+### Bug Fixes
+
+* **reviews:** forward the review query, drop the fetch nobody read ([94a912d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/94a912dd8dadd37cdfd9d774a7b0761e099c6930))
+
 ## [3.196.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.196.2...v3.196.3) (2026-09-18)
 
 
