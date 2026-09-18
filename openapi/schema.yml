@@ -18579,6 +18579,13 @@ paths:
               - type: integer
           description: Product ID
           required: true
+        - name: ordering
+          in: query
+          required: false
+          description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, userId, -userId, productId, -productId, rate, -rate, status, -status, isPublished, -isPublished, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt'
+          schema:
+            type: string
+            pattern: ^(?:id|\-id|userId|\-userId|productId|\-productId|rate|\-rate|status|\-status|isPublished|\-isPublished|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt)(?:,(?:id|\-id|userId|\-userId|productId|\-productId|rate|\-rate|status|\-status|isPublished|\-isPublished|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt))*$
         - name: page
           required: false
           in: query

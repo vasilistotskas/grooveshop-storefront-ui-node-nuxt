@@ -20437,6 +20437,10 @@ export type ListProductReviewsData = {
   }
   query?: {
     /**
+         * Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, userId, -userId, productId, -productId, rate, -rate, status, -status, isPublished, -isPublished, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt
+         */
+    ordering?: string
+    /**
          * A page number within the paginated result set.
          */
     page?: string | number

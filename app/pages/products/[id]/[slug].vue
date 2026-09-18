@@ -97,7 +97,7 @@ if (!product.value) {
 // Fetch images and reviews in parallel (both needed for SSR/Schema.org)
 const [
   { data: productImages },
-  { data: productReviews },
+  { data: productReviews, refresh: refreshProductReviews },
 ] = await Promise.all([
   useFetch(
     `/api/products/${product.value?.id}/images`,
@@ -253,18 +253,18 @@ const { data: userProductReview, refresh: refreshUserProductReview }
 
 const userHadReviewed = computed(() => !!userProductReview.value)
 
-const onAddExistingReview = async () => {
-  await refreshProduct()
-  await refreshUserProductReview()
+// The review widget used to refetch a list of its own that nothing
+// rendered; the list on THIS page is the one that must move.
+const onReviewChanged = async () => {
+  await Promise.all([
+    refreshProduct(),
+    refreshUserProductReview(),
+    refreshProductReviews(),
+  ])
 }
-const onUpdateExistingReview = async () => {
-  await refreshProduct()
-  await refreshUserProductReview()
-}
-const onDeleteExistingReview = async () => {
-  await refreshProduct()
-  await refreshUserProductReview()
-}
+const onAddExistingReview = onReviewChanged
+const onUpdateExistingReview = onReviewChanged
+const onDeleteExistingReview = onReviewChanged
 
 const formatProductPrice = (price?: number) => {
   return n(price || 0, 'currency')

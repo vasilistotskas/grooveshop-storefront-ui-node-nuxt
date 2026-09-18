@@ -46,24 +46,8 @@ const emit = defineEmits([
 ])
 
 const { t, locale } = useI18n()
-const route = useRoute()
 const toast = useToast()
 const { isMobileOrTablet } = useDevice()
-
-const ordering = computed(() => route.query.ordering || '-createdAt')
-
-const { refresh } = useLazyFetch(
-  `/api/products/${product.value?.id}/reviews`,
-  {
-    key: `productReviews${product.value?.id}`,
-    method: 'GET',
-    headers: useRequestHeaders(),
-    query: {
-      ordering: ordering,
-      languageCode: locale,
-    },
-  },
-)
 
 const editingLocked = ref(false)
 const reviewCountMax = 10
@@ -313,7 +297,6 @@ const createReviewEvent = async (event: Schema) => {
       if (!response.ok) {
         return
       }
-      await refresh()
       emit('add-existing-review', userProductReview?.value)
       toast.add({
         title: t('add.success'),
@@ -352,7 +335,6 @@ const updateReviewEvent = async (event: Schema) => {
       if (!response.ok) {
         return
       }
-      await refresh()
       emit('update-existing-review', userProductReview?.value)
       toast.add({
         title: t('update.success'),
@@ -380,7 +362,6 @@ const deleteReviewEvent = async () => {
         state.rate = 0
         state.comment = ''
         emit('delete-existing-review', userProductReview?.value)
-        await refresh()
         toast.add({
           title: t('delete.success'),
           color: 'success',

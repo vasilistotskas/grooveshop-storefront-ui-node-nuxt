@@ -15730,6 +15730,9 @@ export const zListProductReviewsPath = z.object({
 })
 
 export const zListProductReviewsQuery = z.object({
+  ordering: z.string().regex(/^(?:id|\-id|userId|\-userId|productId|\-productId|rate|\-rate|status|\-status|isPublished|\-isPublished|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt)(?:,(?:id|\-id|userId|\-userId|productId|\-productId|rate|\-rate|status|\-status|isPublished|\-isPublished|createdAt|\-createdAt|updatedAt|\-updatedAt|publishedAt|\-publishedAt))*$/).register(z.globalRegistry, {
+    description: 'Which field(s) to use when ordering the results. Multiple fields can be combined with commas (e.g. ``-isMain,-createdAt``). Available fields: id, -id, userId, -userId, productId, -productId, rate, -rate, status, -status, isPublished, -isPublished, createdAt, -createdAt, updatedAt, -updatedAt, publishedAt, -publishedAt',
+  }).optional(),
   page: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
