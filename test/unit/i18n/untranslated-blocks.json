@@ -51,7 +51,6 @@
   "app/components/Order/Card.vue",
   "app/components/Order/List.vue",
   "app/components/Shipping/FreeShippingNotice.vue",
-  "app/components/Storefront/Auth/Login.vue",
   "app/components/Storefront/Auth/LoginCode.vue",
   "app/components/Storefront/Auth/LoginCodeConfirm.vue",
   "app/components/Storefront/Auth/PasswordReset.vue",
