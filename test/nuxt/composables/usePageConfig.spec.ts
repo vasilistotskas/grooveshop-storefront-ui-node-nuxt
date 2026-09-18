@@ -33,11 +33,17 @@ async function callUsePageConfig(pageType: string) {
   return result
 }
 
+// A SHOP's homepage, in lockstep with DEFAULT_PAGE_LAYOUTS["home"] on
+// the Django side. Every section is data-driven and renders nothing
+// when its data or tenant flag is absent, so a store with no catalogue
+// yet gets an empty page rather than a page of empty states.
 const HOME_FALLBACK = [
-  'blog_categories',
-  'hero_carousel',
+  'product_categories',
+  'featured_products',
+  'products_slider',
   'recently_viewed',
-  'blog_posts_list',
+  'blog_posts_grid',
+  'newsletter_signup',
 ]
 
 describe('usePageConfig', () => {

@@ -23,6 +23,44 @@ import * as z from 'zod'
 
 const zInternalPath = z.string().regex(/^\//, 'must be an internal path')
 const zLink = z.union([zInternalPath, z.string().regex(/^https:\/\//)])
+const zIcon = z.string().regex(/^i-[a-z0-9:-]+$/)
+
+/**
+ * A rail of products is the same band three times over — what it is
+ * called, what it links on to, and which products it draws. Only the
+ * page-size ceiling differs.
+ *
+ * `ordering` is what makes two rails on one page different bands rather
+ * than the same one twice: what the merchant curates beside what
+ * arrived last.
+ */
+const productRailProps = (maxPageSize: number) => ({
+  heading: z.string().max(200),
+  subheading: z.string().max(500),
+  ctaText: z.string().max(100),
+  ctaLink: zLink,
+  ordering: z.enum([
+    'featured',
+    'newest',
+    'popular',
+    'discounted',
+    'rating',
+  ]),
+  // The id, not a slug: a slug is translatable, and a rename would
+  // silently empty the band.
+  categoryId: z.number().int().positive(),
+  showAddToCart: z.boolean(),
+  pageSize: z.number().int().min(1).max(maxPageSize),
+})
+
+/** Same reasoning for the three blog rails. */
+const blogRailProps = {
+  heading: z.string().max(200),
+  subheading: z.string().max(500),
+  ctaText: z.string().max(100),
+  ctaLink: zLink,
+  categoryId: z.number().int().positive(),
+}
 
 export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
   hero_banner: z
@@ -37,6 +75,14 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
       secondaryCtaLink: zLink,
       overlayOpacity: z.number().min(0).max(1),
       decor: z.enum(['none', 'orbs', 'gradient']),
+      // A hero crops to a different shape on a phone than on a desk:
+      // one artwork cannot serve both without losing its subject.
+      mobileImageUrl: z.string().max(1000),
+      imageAlt: z.string().max(200),
+      align: z.enum(['left', 'center']),
+      // Which way the copy reads over the artwork; `auto` keeps the
+      // component's own contrast choice.
+      theme: z.enum(['light', 'dark', 'auto']),
       // The proof row under the copy. `value` is TEXT, not a number:
       // the row prints "50+" and "1.842" as readily as a bare integer.
       stats: z
@@ -57,39 +103,77 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
       images: z.array(z.string().max(1000)).max(10),
       mobileImages: z.array(z.string().max(1000)).max(10),
       link: zLink,
+      // A slide owns its own copy and its own destination. The flat
+      // triple above can express one link for the whole carousel and no
+      // copy at all, so the artwork had to carry its own baked-in
+      // wording; when `slides` is present it wins.
+      slides: z
+        .array(
+          z
+            .object({
+              imageUrl: z.string().min(1).max(1000),
+              mobileImageUrl: z.string().max(1000).optional(),
+              alt: z.string().max(200).optional(),
+              eyebrow: z.string().max(100).optional(),
+              heading: z.string().max(200).optional(),
+              subheading: z.string().max(500).optional(),
+              ctaText: z.string().max(100).optional(),
+              ctaLink: zLink.optional(),
+              secondaryCtaText: z.string().max(100).optional(),
+              secondaryCtaLink: zLink.optional(),
+              theme: z.enum(['light', 'dark', 'auto']).optional(),
+            })
+            .strip(),
+        )
+        .max(8),
+      // 0 = no autoplay. The component pauses it under
+      // prefers-reduced-motion regardless.
+      autoplayMs: z.union([z.literal(0), z.number().int().min(3000).max(15000)]),
+      aspect: z.enum(['wide', 'banner', 'square']),
     })
     .partial()
     .strip(),
-  products_slider: z
-    .object({ pageSize: z.number().int().min(1).max(24) })
-    .partial()
-    .strip(),
-  products_grid: z
-    .object({ pageSize: z.number().int().min(1).max(48) })
-    .partial()
-    .strip(),
+  products_slider: z.object(productRailProps(24)).partial().strip(),
+  products_grid: z.object(productRailProps(48)).partial().strip(),
   featured_products: z
     .object({
-      pageSize: z.number().int().min(1).max(24),
+      ...productRailProps(24),
       columns: z.number().int().min(1).max(6),
     })
     .partial()
     .strip(),
-  product_categories: z.object({}).partial().strip(),
+  product_categories: z
+    .object({
+      heading: z.string().max(200),
+      // How the band draws them: a swipeable rail, a plain grid, or
+      // image tiles.
+      layout: z.enum(['slider', 'grid', 'tiles']),
+      // Draw the CHILDREN of one category instead of the tree's roots.
+      parentId: z.number().int().positive(),
+      limit: z.number().int().min(1).max(24),
+    })
+    .partial()
+    .strip(),
   blog_categories: z.object({}).partial().strip(),
   blog_posts_carousel: z
-    .object({ count: z.number().int().min(1).max(12) })
+    .object({ ...blogRailProps, count: z.number().int().min(1).max(12) })
     .partial()
     .strip(),
   blog_posts_grid: z
-    .object({ count: z.number().int().min(1).max(24) })
+    .object({ ...blogRailProps, count: z.number().int().min(1).max(24) })
     .partial()
     .strip(),
   blog_posts_list: z
-    .object({ pageSize: z.number().int().min(1).max(24) })
+    .object({
+      ...blogRailProps,
+      pageSize: z.number().int().min(1).max(24),
+    })
     .partial()
     .strip(),
-  recently_viewed: z.object({}).partial().strip(),
+  recently_viewed: z
+    .object({ heading: z.string().max(200) })
+    .partial()
+    .strip(),
   rich_text: z
     .object({ content: z.string().max(20000) })
     .partial()
@@ -111,11 +195,15 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
       heading: z.string().max(200),
       description: z.string().max(1000),
       placeholder: z.string().max(100),
+      buttonText: z.string().max(60),
+      // Same surface enum as `cta_banner`, for the same reason.
+      surface: z.enum(['default', 'muted']),
     })
     .partial()
     .strip(),
   testimonials: z
     .object({
+      heading: z.string().max(200),
       items: z
         .array(
           z
@@ -123,6 +211,11 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
               name: z.string().max(100),
               text: z.string().max(1000),
               avatar: z.string().max(1000).optional(),
+              // Who the quote is from — "Verified buyer", "Χονδρική".
+              role: z.string().max(100).optional(),
+              // Displayed as stars, so the FIVE-point scale a reader
+              // expects — not ProductReview's internal 1..10.
+              rating: z.number().int().min(1).max(5).optional(),
             })
             .strip(),
         )
@@ -554,6 +647,7 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
   faq: z
     .object({
       heading: z.string().max(200),
+      subheading: z.string().max(500),
       items: z
         .array(
           z
@@ -565,6 +659,71 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
         )
         .max(30),
       multiple: z.boolean(),
+    })
+    .partial()
+    .strip(),
+  // The row of reassurances a shop puts near its footer or under a
+  // hero: how you pay, who delivers, and — for a store that answers
+  // agents — that it is agent-readable. `kind: 'ai'` renders only where
+  // the tenant's agent-commerce flag is on, so a store cannot advertise
+  // a surface it does not serve.
+  trust_badges: z
+    .object({
+      heading: z.string().max(200),
+      items: z
+        .array(
+          z
+            .object({
+              kind: z.enum(['payment', 'shipping', 'ai', 'custom']),
+              label: z.string().min(1).max(60),
+              imageUrl: z.string().max(1000).optional(),
+              icon: zIcon.optional(),
+              href: zLink.optional(),
+            })
+            .strip()
+            // A badge with neither a logo nor an icon is a bare word in
+            // a row of marks.
+            .refine(
+              badge => !!badge.imageUrl || !!badge.icon,
+              { message: 'needs imageUrl or icon' },
+            ),
+        )
+        .max(12),
+      // A marquee is for a strip too long to fit a phone; a static row
+      // is calmer everywhere else.
+      marquee: z.boolean(),
+    })
+    .partial()
+    .strip(),
+  // Live promotions, on a page that is not /offers. Renders nothing
+  // when promotions are off for the tenant or none are running, so a
+  // merchant can leave it published between campaigns.
+  offers_preview: z
+    .object({
+      heading: z.string().max(200),
+      subheading: z.string().max(500),
+      limit: z.number().int().min(1).max(6),
+      ctaText: z.string().max(100),
+      ctaLink: zLink,
+    })
+    .partial()
+    .strip(),
+  // The proof row as a band of its own, for a page whose hero is an
+  // image or a carousel rather than `hero_banner` (which carries the
+  // same `stats` shape inline).
+  stats_strip: z
+    .object({
+      items: z
+        .array(
+          z
+            .object({
+              value: z.string().min(1).max(12),
+              label: z.string().min(1).max(80),
+            })
+            .strip(),
+        )
+        .max(4),
+      surface: z.enum(['default', 'muted']),
     })
     .partial()
     .strip(),

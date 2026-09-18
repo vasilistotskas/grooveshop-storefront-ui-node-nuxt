@@ -2497,6 +2497,9 @@ export type CompartmentSizeEnum = 1 | 2 | 3
  * * `image_gallery` - Image Gallery
  * * `story_timeline` - Story Timeline
  * * `faq` - FAQ Accordion
+ * * `trust_badges` - Trust Badges
+ * * `offers_preview` - Offers Preview
+ * * `stats_strip` - Stats Strip
  * * `partner_strip` - Partner Strip
  * * `pull_quote` - Pull Quote
  * * `reference_cards` - Reference Cards
@@ -2509,7 +2512,7 @@ export type CompartmentSizeEnum = 1 | 2 | 3
  * * `vendor_cards` - Vendor Cards
  * * `contact_panel` - Contact Panel
  */
-export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'blog_posts_list' | 'recently_viewed' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'about_content' | 'vision_content' | 'what_is_microlearning' | 'why_microlearning' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar' | 'business_hours' | 'location_map' | 'features_grid' | 'media_text' | 'image_gallery' | 'story_timeline' | 'faq' | 'partner_strip' | 'pull_quote' | 'reference_cards' | 'page_hero' | 'feature_lists' | 'option_selector' | 'comparison_table' | 'flow_steps' | 'project_register' | 'vendor_cards' | 'contact_panel'
+export type ComponentTypeEnum = 'hero_banner' | 'hero_carousel' | 'products_slider' | 'products_grid' | 'featured_products' | 'product_categories' | 'blog_categories' | 'blog_posts_carousel' | 'blog_posts_grid' | 'blog_posts_list' | 'recently_viewed' | 'rich_text' | 'cta_banner' | 'newsletter_signup' | 'testimonials' | 'about_content' | 'vision_content' | 'what_is_microlearning' | 'why_microlearning' | 'spacer' | 'divider' | 'loyalty_hero' | 'search_bar' | 'business_hours' | 'location_map' | 'features_grid' | 'media_text' | 'image_gallery' | 'story_timeline' | 'faq' | 'trust_badges' | 'offers_preview' | 'stats_strip' | 'partner_strip' | 'pull_quote' | 'reference_cards' | 'page_hero' | 'feature_lists' | 'option_selector' | 'comparison_table' | 'flow_steps' | 'project_register' | 'vendor_cards' | 'contact_panel'
 
 export type ConfirmAgentPaymentRequestRequest = {
   /**

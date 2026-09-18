@@ -4,24 +4,28 @@
  * ``FALLBACK_LAYOUTS`` is the code-level safety net rendered when a
  * tenant has no PUBLISHED layout for the pageType — the route answers
  * ``{ layout: null }`` for that (see ``shared/types/pageConfig.ts``) —
- * and when the backend is unavailable (``error`` set). ``home`` mirrors
- * the platform homepage STRUCTURE (blog categories rail → banner
- * carousel → blog posts list); banner artwork is tenant DATA
- * (hero_carousel section props — see ``seed_brand_pages``), so the
- * prop-less fallback hero renders nothing rather than another store's
- * promo. The marketing pageTypes default to EMPTY: their pages carry
- * their own static content and the builder only ADDS branded bands
- * above it.
+ * and when the backend is unavailable (``error`` set).
+ *
+ * ``home`` is a SHOP's homepage: browse the catalogue, then the content
+ * around it. Every section in it is data-driven and renders nothing
+ * when its data or its tenant flag is absent, so the stack degrades to
+ * whatever the store actually has rather than to empty cards — which is
+ * what the previous blog-first fallback did, opening a brand-new store
+ * on "no articles yet" above a carousel with no artwork. The marketing
+ * pageTypes default to EMPTY: their pages carry their own static
+ * content and the builder only ADDS branded bands above it.
  *
  * Keep entries in lockstep with ``page_config/defaults.py`` on the
  * Django side (one entry per supported pageType).
  */
 const FALLBACK_LAYOUTS: Record<string, PageSection[]> = {
   home: [
-    { id: 0, uuid: 'fallback-blog-categories', componentType: 'blog_categories', title: '', isVisible: true, props: {}, sortOrder: 0 },
-    { id: 0, uuid: 'fallback-hero-carousel', componentType: 'hero_carousel', title: '', isVisible: true, props: {}, sortOrder: 1 },
-    { id: 0, uuid: 'fallback-recently-viewed', componentType: 'recently_viewed', title: '', isVisible: true, props: {}, sortOrder: 2 },
-    { id: 0, uuid: 'fallback-blog-posts-list', componentType: 'blog_posts_list', title: '', isVisible: true, props: {}, sortOrder: 3 },
+    { id: 0, uuid: 'fallback-product-categories', componentType: 'product_categories', title: '', isVisible: true, props: {}, sortOrder: 0 },
+    { id: 0, uuid: 'fallback-featured-products', componentType: 'featured_products', title: '', isVisible: true, props: {}, sortOrder: 1 },
+    { id: 0, uuid: 'fallback-products-slider', componentType: 'products_slider', title: '', isVisible: true, props: { ordering: 'newest' }, sortOrder: 2 },
+    { id: 0, uuid: 'fallback-recently-viewed', componentType: 'recently_viewed', title: '', isVisible: true, props: {}, sortOrder: 3 },
+    { id: 0, uuid: 'fallback-blog-posts-grid', componentType: 'blog_posts_grid', title: '', isVisible: true, props: {}, sortOrder: 4 },
+    { id: 0, uuid: 'fallback-newsletter-signup', componentType: 'newsletter_signup', title: '', isVisible: true, props: {}, sortOrder: 5 },
   ],
   products: [],
   blog: [],

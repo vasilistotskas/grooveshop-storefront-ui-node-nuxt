@@ -11422,6 +11422,7 @@ paths:
         - Loyalty
       security:
         - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
@@ -35198,6 +35199,9 @@ components:
         - image_gallery
         - story_timeline
         - faq
+        - trust_badges
+        - offers_preview
+        - stats_strip
         - partner_strip
         - pull_quote
         - reference_cards
@@ -35241,6 +35245,9 @@ components:
         * `image_gallery` - Image Gallery
         * `story_timeline` - Story Timeline
         * `faq` - FAQ Accordion
+        * `trust_badges` - Trust Badges
+        * `offers_preview` - Offers Preview
+        * `stats_strip` - Stats Strip
         * `partner_strip` - Partner Strip
         * `pull_quote` - Pull Quote
         * `reference_cards` - Reference Cards
