@@ -1,3 +1,11 @@
+# [3.198.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.197.0...v3.198.0) (2026-09-18)
+
+
+### Features
+
+* **chrome:** a shop's header, footer and tab bar for the default storefront ([248834b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/248834b18c772d21f7c2eff26e70a0b15b196a27))
+* **page-builder:** mirror the shop section props and the new default home ([a72518e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a72518e4b17ac0c08f59dccdc434925fbd858af8))
+
 # [3.197.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.196.4...v3.197.0) (2026-09-18)
 
 
