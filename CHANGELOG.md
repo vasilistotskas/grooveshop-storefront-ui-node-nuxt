@@ -1,3 +1,10 @@
+# [3.197.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.196.4...v3.197.0) (2026-09-18)
+
+
+### Features
+
+* **webside:** freeze today's storefront as the webside variant ([4da4dfa](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4da4dfa2ce2d58e5ba911f815a9477fc30b877ab))
+
 ## [3.196.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.196.3...v3.196.4) (2026-09-18)
 
 
