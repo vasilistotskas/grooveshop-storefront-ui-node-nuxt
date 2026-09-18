@@ -1,3 +1,10 @@
+## [3.196.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.196.2...v3.196.3) (2026-09-18)
+
+
+### Bug Fixes
+
+* **cookies:** never render the consent banner on the server ([5ce2fbc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5ce2fbcc04a48a312a2d0bf984d9edc97d3fc061))
+
 ## [3.196.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.196.1...v3.196.2) (2026-09-18)
 
 
