@@ -202,193 +202,128 @@ useHead({
 
 <template>
   <div class="flex min-h-[calc(100dvh-200px)] flex-col">
-    <div
-      class="
-        border-b border-gray-200 bg-white
-        dark:border-gray-800 dark:bg-elevated/50
-      "
+    <!-- The field is the page. It stays at the top of the band that
+         carries it, above the counts and the tabs it drives. -->
+    <PageSectionBand
+      surface="muted"
+      padding="sm"
     >
-      <UContainer
-        class="
-          py-4
-          lg:py-8
-        "
-      >
-        <UBreadcrumb
-          :items="[
-            { label: t('page.breadcrumb.home'), to: '/' },
-            { label: t('page.breadcrumb.search') },
-          ]"
-          class="mb-6"
-        />
+      <template #header>
+        <div class="flex flex-col gap-5">
+          <UBreadcrumb
+            :items="[
+              { label: t('page.breadcrumb.home'), to: '/' },
+              { label: t('page.breadcrumb.search') },
+            ]"
+          />
 
-        <div class="mb-6">
           <h1
             class="
-              mb-4 text-4xl font-bold text-gray-900
-              dark:text-gray-100
+              font-display text-2xl font-semibold tracking-tight
+              text-highlighted
+              md:text-3xl
             "
           >
             {{ t('page.title') }}
           </h1>
 
-          <div class="relative">
-            <UInput
-              ref="inputRef"
-              v-model="query"
-              icon="i-heroicons-magnifying-glass"
-              size="xl"
-              :placeholder="t('page.search_placeholder')"
-              autofocus
-              class="w-full"
-              :ui="{
-                root: 'w-full',
-              }"
-            >
-              <template #trailing>
-                <div class="flex items-center gap-2">
-                  <UKbd
-                    v-if="!query"
-                    value="/"
-                    size="sm"
-                  />
-                  <UButton
-                    v-else
-                    icon="i-heroicons-x-mark"
-                    color="neutral"
-                    variant="ghost"
-                    size="sm"
-                    @click="() => { query = '' }"
-                  />
-                </div>
-              </template>
-            </UInput>
-          </div>
-        </div>
-
-        <div
-          v-if="query && searchResults"
-          class="
-            flex flex-col gap-4
-            md:flex-row md:items-center md:justify-between
-          "
-        >
-          <div
-            class="
-              flex items-center gap-2 text-sm text-gray-600
-              dark:text-gray-200
-            "
+          <UInput
+            ref="inputRef"
+            v-model="query"
+            icon="i-heroicons-magnifying-glass"
+            size="xl"
+            :placeholder="t('page.search_placeholder')"
+            autofocus
+            class="w-full"
+            :ui="{ root: 'w-full' }"
           >
-            <UIcon
-              name="i-heroicons-information-circle"
-              class="size-4 text-info"
-            />
-            <span>
-              {{
-                t('page.results_count', {
-                  count: totalResults,
-                  query: query,
-                })
-              }}
-            </span>
-            <span
-              v-if="relaxedQuery"
-              class="text-warning"
-              role="status"
-            >
-              {{ t('page.relaxed_notice', { query: relaxedQuery }) }}
-            </span>
-          </div>
-
-          <div class="flex items-center gap-4">
-            <UTabs
-              v-model="activeTab"
-              :items="tabItems"
-              color="neutral"
-            >
-              <template #default="{ item }">
-                <div class="flex cursor-pointer items-center gap-2">
-                  <span>{{ item.label }}</span>
-                </div>
-              </template>
-            </UTabs>
-          </div>
+            <template #trailing>
+              <UKbd
+                v-if="!query"
+                value="/"
+                size="sm"
+              />
+              <UButton
+                v-else
+                icon="i-heroicons-x-mark"
+                color="neutral"
+                variant="ghost"
+                size="sm"
+                :aria-label="t('page.no_results.clear_search')"
+                @click="() => { query = '' }"
+              />
+            </template>
+          </UInput>
         </div>
-      </UContainer>
-    </div>
+      </template>
 
-    <UContainer class="flex-1 py-8">
+      <div
+        v-if="query && searchResults"
+        class="
+          flex flex-col gap-4
+          md:flex-row md:items-center md:justify-between
+        "
+      >
+        <p
+          class="flex flex-wrap items-center gap-2 text-sm text-muted"
+          role="status"
+          aria-live="polite"
+        >
+          <span>{{ t('page.results_count', { count: totalResults, query }) }}</span>
+          <!-- Say so when the engine widened the query: the results
+               below are not the ones that were asked for. -->
+          <span
+            v-if="relaxedQuery"
+            class="text-warning"
+          >
+            {{ t('page.relaxed_notice', { query: relaxedQuery }) }}
+          </span>
+        </p>
+
+        <UTabs
+          v-model="activeTab"
+          :items="tabItems"
+          color="neutral"
+          variant="pill"
+          size="sm"
+        />
+      </div>
+    </PageSectionBand>
+
+    <UContainer class="flex-1 py-10">
       <div
         v-if="isSearching && displayResults.length === 0"
-        class="space-y-4"
+        class="flex flex-col gap-4"
       >
-        <UCard
+        <div
           v-for="i in 6"
           :key="i"
-          class="overflow-hidden"
+          class="flex gap-4 rounded-xl bg-default p-4 ring ring-default"
         >
-          <div class="flex gap-4">
-            <USkeleton class="size-32 shrink-0 rounded-lg" />
-            <div class="flex-1 space-y-3">
-              <USkeleton class="h-7 w-3/4" />
-              <USkeleton class="h-4 w-full" />
-              <USkeleton class="h-4 w-5/6" />
-              <div class="flex items-center gap-2">
-                <USkeleton class="h-5 w-20" />
-                <USkeleton class="h-5 w-24" />
-              </div>
-            </div>
+          <USkeleton class="size-28 shrink-0 rounded-lg" />
+          <div class="flex flex-1 flex-col gap-3">
+            <USkeleton class="h-6 w-3/4" />
+            <USkeleton class="h-4 w-full" />
+            <USkeleton class="h-4 w-5/6" />
           </div>
-        </UCard>
+        </div>
       </div>
 
       <div
         v-else-if="!query"
-        class="
-          flex min-h-[400px] flex-col items-center justify-center py-16
-          text-center
-        "
+        class="flex flex-col items-center gap-6 py-16"
       >
-        <div
-          class="
-            mb-6 flex size-24 items-center justify-center rounded-full
-            bg-gray-100
-            dark:bg-gray-800
-          "
-        >
-          <UIcon
-            name="i-heroicons-magnifying-glass"
-            class="
-              size-12 text-gray-400
-              dark:text-gray-600
-            "
-          />
-        </div>
-        <h2
-          class="
-            mb-2 text-2xl font-semibold text-gray-900
-            dark:text-gray-100
-          "
-        >
-          {{ t('page.empty.title') }}
-        </h2>
-        <p
-          class="
-            mb-6 max-w-md text-gray-600
-            dark:text-gray-200
-          "
-        >
-          {{ t('page.empty.description') }}
-        </p>
-
+        <UEmpty
+          icon="i-heroicons-magnifying-glass"
+          :title="t('page.empty.title')"
+          :description="t('page.empty.description')"
+          size="lg"
+        />
         <div class="flex flex-wrap items-center justify-center gap-4">
           <div
             v-for="shortcut in shortcuts"
             :key="shortcut.key"
-            class="
-              flex items-center gap-2 text-sm text-gray-500
-              dark:text-gray-500
-            "
+            class="flex items-center gap-2 text-sm text-dimmed"
           >
             <UKbd :value="shortcut.key" />
             <span>{{ shortcut.description }}</span>
@@ -396,115 +331,69 @@ useHead({
         </div>
       </div>
 
-      <div
-        v-else-if="
-          searchResults
-            && displayResults.length === 0
-            && !isSearching
-        "
-        class="
-          flex min-h-[400px] flex-col items-center justify-center py-16
-          text-center
-        "
-      >
-        <div
-          class="
-            mb-6 flex size-24 items-center justify-center rounded-full bg-red-50
-            dark:bg-red-950/20
-          "
-        >
-          <UIcon
-            name="i-heroicons-magnifying-glass-minus"
-            class="
-              size-12 text-red-400
-              dark:text-red-600
-            "
-          />
-        </div>
-        <h2
-          class="
-            mb-2 text-2xl font-semibold text-gray-900
-            dark:text-gray-100
-          "
-        >
-          {{ t('page.no_results.title') }}
-        </h2>
-        <p
-          class="
-            mb-6 max-w-md text-gray-600
-            dark:text-gray-200
-          "
-        >
-          {{ t('page.no_results.description', { query }) }}
-        </p>
-        <UButton
-          icon="i-heroicons-arrow-path"
-          color="neutral"
-          @click="() => { query = '' }"
-        >
-          {{ t('page.no_results.clear_search') }}
-        </UButton>
-      </div>
+      <UEmpty
+        v-else-if="searchResults && displayResults.length === 0 && !isSearching"
+        icon="i-heroicons-magnifying-glass-minus"
+        :title="t('page.no_results.title')"
+        :description="t('page.no_results.description', { query })"
+        size="lg"
+        class="py-16"
+        :actions="[
+          {
+            label: t('page.no_results.clear_search'),
+            icon: 'i-heroicons-arrow-path',
+            color: 'secondary',
+            size: 'lg',
+            onClick: () => { query = '' },
+          },
+        ]"
+      />
 
       <div
         v-else
-        class="space-y-6"
+        class="flex flex-col gap-8"
       >
-        <div class="space-y-4">
-          <UCard
+        <ul class="flex flex-col gap-3">
+          <li
             v-for="(result, index) in displayResults"
             :key="`${result.contentType}-${result.id}`"
             class="
-              cursor-pointer overflow-hidden transition-all
-              hover:shadow-lg hover:ring-2 hover:ring-primary-500
-              dark:hover:ring-primary-400
+              rounded-xl bg-default p-3 ring ring-default transition
+              hover:ring-accented
+              sm:p-4
             "
-            :ui="{
-              body: `
-                p-2
-                sm:p-4
-                dark:bg-elevated/50
-              `,
-            }"
           >
             <SearchResult
               :result="result"
               @click="onResultClick(result, index)"
             />
-          </UCard>
-        </div>
+          </li>
+        </ul>
 
         <div
           v-if="totalPages > 1"
-          class="flex justify-center pt-6"
+          class="flex flex-col items-center gap-4"
         >
           <UPagination
             v-model:page="page"
             :total="totalResults"
             :items-per-page="limit"
+            color="neutral"
+            variant="outline"
+            active-color="secondary"
+            active-variant="solid"
             show-edges
-            :ui="{
-              root: 'flex items-center gap-1',
-            }"
           />
-        </div>
-
-        <div class="flex items-center justify-center gap-2 text-sm">
-          <span
-            class="
-              text-gray-600
-              dark:text-gray-200
-            "
-          >
-            {{ t('page.per_page') }}
-          </span>
-          <USelectMenu
-            v-model="limit"
-            :items="[12, 24, 48, 96]"
-            size="sm"
-            class="w-20"
-            @change="page = 1"
-          />
+          <div class="flex items-center gap-2 text-sm text-muted">
+            <span>{{ t('page.per_page') }}</span>
+            <USelectMenu
+              v-model="limit"
+              :items="[12, 24, 48, 96]"
+              size="sm"
+              class="w-20"
+              @change="page = 1"
+            />
+          </div>
         </div>
       </div>
     </UContainer>

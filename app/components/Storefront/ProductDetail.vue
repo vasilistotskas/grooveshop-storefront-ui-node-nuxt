@@ -178,7 +178,9 @@ onMounted(() => {
     const price = Number(
       productData.finalPrice ?? productData.price ?? 0,
     )
-    const productName = extractTranslated(productData, 'name', locale.value)
+    // The same name the page shows, so what the pixels report and
+    // what the shopper saw are one string.
+    const reportedName = productName.value
     metaPixel.trackViewContent({
       currency: 'EUR',
       value: price,
@@ -193,25 +195,25 @@ onMounted(() => {
             },
           ]
         : [],
-      contentName: productName,
+      contentName: reportedName,
     })
     openaiPixel.trackContentsViewed({
       currency: 'EUR',
       amount: price,
       contents: pid
-        ? [{ id: pid, name: productName, contentType: 'product', quantity: 1 }]
+        ? [{ id: pid, name: reportedName, contentType: 'product', quantity: 1 }]
         : [],
     })
     tiktokPixel.trackViewContent({
       currency: 'EUR',
       value: price,
       contentType: 'product',
-      contentName: productName,
+      contentName: reportedName,
       contents: pid
         ? [
             {
               contentId: pid,
-              contentName: productName,
+              contentName: reportedName,
               quantity: 1,
               price,
             },
@@ -225,7 +227,7 @@ onMounted(() => {
         ? [
             {
               item_id: pid,
-              item_name: productName,
+              item_name: reportedName,
               price,
               quantity: 1,
             },
@@ -292,23 +294,42 @@ const displayFinalPrice = computed(() =>
     : product.value?.finalPrice,
 )
 
-const incrementQuantity = () => {
-  if (selectorQuantity.value < productStock.value) {
-    selectorQuantity.value++
-  }
-  else {
-    toast.add({
-      title: t('max_quantity_reached'),
-      color: 'error',
-    })
-  }
-}
+/**
+ * What the shopper would otherwise have paid — the number to strike
+ * through.
+ *
+ * NOT `product.price`, which is the NET price: `final_price = price +
+ * vat - discount`, so on a VAT-bearing product the net is lower than
+ * the final and striking it showed the price going UP. Pre-discount and
+ * VAT-inclusive is `finalPrice + discountValue`.
+ */
+const wasPrice = computed(() => {
+  if (isWholesalePrice.value) return product.value?.finalPrice
 
-const decrementQuantity = () => {
-  if (selectorQuantity.value > 1) {
-    selectorQuantity.value--
-  }
-}
+  const discount = Number(product.value?.discountValue ?? 0)
+  return discount > 0 ? (product.value?.finalPrice ?? 0) + discount : undefined
+})
+
+/**
+ * The product's name in the best language it EXISTS in.
+ *
+ * `extractTranslated` answers only "is there a translation in THIS
+ * locale", and a product that has not been translated yet returned
+ * `undefined` — which rendered an EMPTY `<h1>` while the `<title>` tag,
+ * which falls back to `seoTitle`, carried the name. That is a page with
+ * no heading, and it happens to every product the day a store turns on
+ * a second locale.
+ */
+const productName = computed(() =>
+  resolveTranslated(product.value, 'name', locale.value, [
+    tenantStore.defaultLocale,
+  ])?.value
+  || product.value?.seoTitle
+  || '',
+)
+
+/** `reviewAverage` is the model's 1..10; stars are the 5 a reader expects. */
+const ratingOutOfFive = computed(() => (product.value?.reviewAverage ?? 0) / 2)
 
 const openModal = () => {
   if (user?.value) {
@@ -694,441 +715,345 @@ useSchemaOrg([
 </script>
 
 <template>
-  <PageWrapper>
-    <section
-      v-if="product" id="product" class="
-        md:mb-24
-      "
-    >
+  <div v-if="product">
+    <UContainer class="pt-6">
+      <UBreadcrumb :items="items" />
+    </UContainer>
+
+    <!-- The two columns of a product page: what it looks like, and
+         everything needed to decide. -->
+    <UContainer class="pt-6 pb-12">
       <div
         class="
-          mx-auto max-w-7xl md:pb-6
-          sm:px-6
-          lg:px-8
+          grid gap-8
+          lg:grid-cols-12 lg:gap-12
         "
       >
-        <UBreadcrumb
-          :items="items"
-          :ui="{
-            item: `
-              text-primary-950
-              dark:text-primary-50
-            `,
-            root: `
-              text-xs
-              md:text-base
-            `,
-          }"
-          class="mb-5"
-        />
+        <div class="lg:col-span-7">
+          <ProductImages :product="product" />
+        </div>
 
+        <!-- min-w-0: below lg this is a grid item in an implicit `auto`
+             track, whose min-width:auto otherwise inflates the track to
+             the min-content of the non-wrapping variant carousel and
+             blows the page out sideways on a phone. -->
         <div
           class="
-            grid gap-6
-            md:gap-8
-            lg:grid-cols-2
+            flex min-w-0 flex-col gap-5
+            lg:sticky lg:top-24 lg:col-span-5 lg:self-start
           "
         >
-          <ProductImages :product="product" />
+          <div class="flex flex-col gap-2">
+            <p
+              v-if="product.brandName"
+              class="text-xs font-medium tracking-wide text-muted uppercase"
+            >
+              {{ product.brandName }}
+            </p>
 
-          <!-- min-w-0: below lg this is a grid item in an implicit ``auto``
-               track, whose min-width:auto otherwise inflates the track to the
-               min-content of the non-wrapping variant carousel (5 cards ≈
-               600px) and blows the page out sideways on mobile. Zeroing it
-               lets the carousel scroll inside the viewport instead. -->
-          <div
-            class="
-              flex min-w-0 flex-col gap-4
-              md:gap-6
-            "
-          >
-            <div>
-              <h1
-                class="
-                  text-2xl font-bold tracking-tight text-primary-950
-                  sm:text-3xl
-                  lg:text-4xl
-                  dark:text-primary-50
-                "
-              >
-                {{ extractTranslated(product, 'name', locale) }}
-              </h1>
-
-              <div class="mt-3 flex items-center gap-2">
-                <UBadge
-                  :color="stockStatus.color"
-                  :icon="stockStatus.icon"
-                  size="lg"
-                  variant="soft"
-                >
-                  {{ stockStatus.label }}
-                </UBadge>
-
-                <UBadge
-                  v-if="product.discountPercent && product.discountPercent > 0"
-                  color="info"
-                  size="lg"
-                  variant="soft"
-                >
-                  -{{ product.discountPercent }}%
-                </UBadge>
-              </div>
-            </div>
-
-            <USeparator />
-
-            <div class="flex flex-wrap items-end gap-4">
-              <div class="flex flex-col">
-                <span
-                  class="
-                    bg-gradient-to-r from-neutral-600 to-secondary-900
-                    bg-clip-text text-3xl font-bold text-transparent
-                    sm:text-4xl
-                    dark:from-neutral-400 dark:to-secondary-400
-                  "
-                >
-                  {{ formatProductPrice(displayFinalPrice) }}
-                </span>
-
-                <span
-                  v-if="isWholesalePrice
-                    || (product.discountValue && product.discountValue > 0)"
-                  class="
-                    text-lg text-gray-500 line-through
-                    dark:text-gray-200
-                  "
-                >
-                  {{ formatProductPrice(isWholesalePrice ? product?.finalPrice : product?.price) }}
-                </span>
-
-                <span
-                  class="
-                    text-xs text-gray-500
-                    dark:text-gray-400
-                  "
-                >
-                  {{ t('vat_included') }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Variant selectors (colour / memory / …). Renders nothing
-                 unless the product belongs to a variant group. -->
-            <ProductVariantSelector v-if="product" :product="product" />
-
-            <!-- Promotions that apply to THIS product, resolved by
-                 Django against the same scope/exclusion rules the cart
-                 engine uses. Sits with the other value messaging, right
-                 above add-to-cart: an automatic offer is otherwise
-                 invisible until the cart already qualifies for it.
-                 Renders nothing when the store has promotions off or
-                 nothing touches this product. -->
-            <ProductOffers v-if="product?.id" :product-id="product.id" />
-
-            <!-- Loyalty Points Badge (logged in) / Guest CTA -->
-            <LoyaltyPointsBadge
-              v-if="loggedIn && product?.id"
-              :product-id="product.id"
-            />
-            <ProductGuestLoyaltyCTA
-              v-else-if="product?.finalPrice"
-              :product-price="product.finalPrice"
-            />
-
-            <USeparator />
+            <h1
+              class="
+                font-display text-2xl font-semibold tracking-tight
+                text-highlighted text-balance
+                sm:text-3xl
+              "
+            >
+              {{ productName }}
+            </h1>
 
             <div class="flex flex-wrap items-center gap-3">
-              <ClientOnly>
-                <UButton
-                  v-if="isSupported"
-                  :disabled="!isSupported"
-                  :title="t('share')"
-                  color="neutral"
-                  variant="ghost"
-                  size="lg"
-                  icon="i-heroicons-share"
-                  @click="startShare"
-                >
-                  {{ t('share') }}
-                </UButton>
-                <template #fallback>
-                  <USkeleton class="h-9 w-full max-w-34" />
-                </template>
-              </ClientOnly>
-
-              <ButtonProductAddToFavourite
-                :favourite-id="favouriteId"
-                :product-id="product?.id"
-                :user-id="user?.id"
-              />
-            </div>
-
-            <USeparator />
-
-            <div
-              class="
-                flex items-center gap-4
-                sm:flex-row
-              "
-            >
-              <div class="flex h-full">
-                <label
-                  class="sr-only mb-2 text-sm font-medium" for="quantity"
-                >
-                  {{ t('qty') }}
-                </label>
-                <UInputNumber
-                  id="quantity"
-                  v-model="selectorQuantity"
-                  class="h-full"
-                  :min="1"
-                  :max="product?.stock"
-                  :disabled="productStock === 0"
-                  :ui="{
-                    root: 'h-full',
-                    base: 'h-full',
-                  }"
+              <a
+                v-if="product.reviewCount"
+                href="#reviews"
+                class="flex items-center gap-1.5"
+              >
+                <UInputRating
+                  :model-value="ratingOutOfFive"
+                  :length="5"
+                  :step="0.5"
+                  size="xs"
+                  color="warning"
+                  readonly
                 />
-              </div>
-
-              <div class="w-full flex h-full">
-                <label class="sr-only mb-2 block text-sm font-medium opacity-0">
-                  {{ t('add_to_cart') }}
-                </label>
-                <ButtonProductAddToCart
-                  :product="product"
-                  :quantity="selectorQuantity || 1"
-                  :text="t('add_to_cart')"
-                  class="w-full"
-                />
-              </div>
-            </div>
-
-            <ShippingFreeShippingNotice />
-
-            <!-- Out-of-stock subscribers: let the shopper opt into a
-                 restock email. The backend ProductAlert infra handles
-                 one-shot delivery + dedupe per user/email+kind. -->
-            <ProductNotifyMe
-              v-if="productAlertsEnabled && productStock === 0 && product?.id"
-              :product-id="product.id"
-              kind="restock"
-            />
-
-            <!-- Out of stock is a dead end: rescue it right where the
-                 shopper learns the news, with the engine's
-                 ``out_of_stock`` slot (curated replacements first). -->
-            <LazyProductSuggestions
-              v-if="suggestionsEnabled && productStock === 0 && product?.id"
-              surface="out_of_stock"
-              :seed-id="product.id"
-              hydrate-on-visible
-            />
-
-            <!-- Price-drop subscribers: independent of stock — a shopper
-                 may want to watch the price even for out-of-stock items.
-                 Target price is validated below the current final price
-                 so the alert doesn't fire immediately.
-                 Gated on ``product.priceDropAlertsEnabled``: admins opt
-                 individual SKUs into the feature (default off) so we
-                 don't promise an alert we can't honour for products
-                 whose pricing is too volatile or manually managed. -->
-            <ProductNotifyMe
-              v-if="productAlertsEnabled && product?.id && product?.priceDropAlertsEnabled && (product?.finalPrice ?? 0) > 0"
-              :product-id="product.id"
-              kind="price_drop"
-              :current-price="product.finalPrice"
-            />
-
-            <USeparator class="my-2" />
-
-            <!--
-              Description + specs render as tabs on desktop (more
-              content above the fold) but collapse to an accordion on
-              mobile so the two sections don't push reviews / related
-              rails off a narrow viewport. useDevice() reads the UA
-              server-side so SSR picks the right shell and avoids a
-              hydration re-render.
-            -->
-            <UTabs
-              v-if="!isMobileOrTablet"
-              :items="productTabs"
-              class="w-full"
-              color="neutral"
-            >
-              <template #description>
-                <ProductDescriptionPanel :html="sanitizedDescription" />
-              </template>
-              <template #specifications>
-                <ProductSpecificationsPanel :specifications="productSpecifications" />
-              </template>
-            </UTabs>
-            <UAccordion
-              v-else
-              :items="productAccordionItems"
-              default-value="description"
-              type="single"
-              class="w-full"
-            >
-              <template #body="{ item }">
-                <ProductDescriptionPanel
-                  v-if="item.value === 'description'"
-                  :html="sanitizedDescription"
-                />
-                <ProductSpecificationsPanel
-                  v-else-if="item.value === 'specifications'"
-                  :specifications="productSpecifications"
-                />
-              </template>
-            </UAccordion>
-          </div>
-        </div>
-
-        <!-- Product-page suggestions. SSR-rendered from a Nitro-cached
-             payload, hydrated on scroll so the impression is reported
-             only when the strip is actually seen. The out-of-stock
-             slot above replaces it for a product that cannot be bought. -->
-        <LazyProductSuggestions
-          v-if="suggestionsEnabled && productStock > 0 && product?.id"
-          surface="pdp"
-          :seed-id="product.id"
-          hydrate-on-visible
-          class="mt-10"
-        />
-
-        <USeparator v-if="productReviewsEnabled" class="my-10" />
-
-        <div
-          v-if="productReviewsEnabled"
-          id="reviews"
-          class="grid gap-6"
-        >
-          <div class="flex flex-wrap items-center justify-between gap-4">
-            <h2
-              class="
-                text-2xl font-bold tracking-tight text-primary-950
-                dark:text-primary-50
-              "
-            >
-              {{ t('reviews.title') }}
-            </h2>
-
-            <UButton
-              :label="reviewButtonText"
-              color="neutral"
-              variant="outline"
-              icon="i-heroicons-pencil-square"
-              @click="openModal"
-            />
-          </div>
-
-          <ProductReviewsList
-            :reviews="productReviews?.results ?? []"
-            :reviews-average="product.reviewAverage"
-            :reviews-count="product.reviewCount"
-            display-image-of="user"
-          />
-        </div>
-      </div>
-
-      <ProductReview
-        v-if="user && productReviewsEnabled"
-        v-model:open="isReviewModalOpen"
-        :user-product-review="userProductReview"
-        :user-had-reviewed="userHadReviewed"
-        :product="product"
-        :user="user"
-        @add-existing-review="onAddExistingReview"
-        @update-existing-review="onUpdateExistingReview"
-        @delete-existing-review="onDeleteExistingReview"
-      />
-
-      <div
-        v-if="stickyAddToCartEnabled && showStickyAddToCart"
-        class="
-          fixed right-0 bottom-18 left-0 z-40 border-t border-gray-200
-          bg-white/95 px-4 py-3 shadow-lg backdrop-blur-sm
-          md:bottom-0
-          dark:border-gray-700 dark:bg-gray-900/95
-        "
-      >
-        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          <div class="flex min-w-0 flex-1 items-center gap-3">
-            <ProductImage
-              v-if="productImages && productImages[0]"
-              :key="product?.id"
-              :image="productImages[0]"
-              :width="64"
-              :height="64"
-              class="
-                h-12 w-12 shrink-0 rounded-lg object-contain
-                md:h-16 md:w-16
-              "
-            />
-            <div class="min-w-0 flex-1">
-              <h3 class="truncate text-sm font-medium">
-                {{ productTitle }}
-              </h3>
-              <div class="flex items-center gap-2">
                 <span
                   class="
-                    text-lg font-bold text-primary-600
-                    dark:text-primary-400
+                    text-sm text-muted underline-offset-2
+                    hover:underline
                   "
                 >
-                  {{ formatProductPrice(product?.finalPrice) }}
+                  {{ t('n_reviews', { count: product.reviewCount }) }}
                 </span>
-                <UBadge
-                  v-if="productStock <= 5 && productStock > 0"
-                  :color="stockStatus.color"
-                  size="sm"
-                  variant="soft"
-                >
-                  {{ stockStatus.label }}
-                </UBadge>
-              </div>
+              </a>
+
+              <UBadge
+                :color="stockStatus.color"
+                :icon="stockStatus.icon"
+                size="sm"
+                variant="subtle"
+                :label="stockStatus.label"
+              />
             </div>
           </div>
 
-          <div class="flex items-center gap-3">
-            <div
-              class="
-                hidden items-center gap-1
-                sm:flex
-              "
-            >
-              <UButton
-                icon="i-heroicons-minus"
-                color="neutral"
-                variant="ghost"
-                size="sm"
-                :disabled="selectorQuantity <= 1"
-                @click="decrementQuantity"
-              />
-              <span class="min-w-8 text-center text-sm font-medium">
-                {{ selectorQuantity }}
+          <div class="flex flex-col gap-1">
+            <div class="flex flex-wrap items-baseline gap-x-3">
+              <span
+                class="
+                  font-mono text-3xl font-semibold tabular-nums
+                  text-highlighted
+                "
+              >
+                {{ formatProductPrice(displayFinalPrice) }}
               </span>
-              <UButton
-                icon="i-heroicons-plus"
-                color="neutral"
-                variant="ghost"
+              <span
+                v-if="wasPrice"
+                class="font-mono text-lg tabular-nums text-dimmed line-through"
+              >
+                {{ formatProductPrice(wasPrice) }}
+              </span>
+              <UBadge
+                v-if="product.discountPercent && product.discountPercent > 0"
+                color="error"
+                variant="solid"
                 size="sm"
-                :disabled="selectorQuantity >= productStock"
-                @click="incrementQuantity"
+                :label="`-${Math.round(product.discountPercent)}%`"
               />
             </div>
+            <span class="text-xs text-dimmed">{{ t('vat_included') }}</span>
+          </div>
 
+          <!-- Colour / length / capacity. Renders nothing unless the
+               product belongs to a variant group. -->
+          <ProductVariantSelector :product="product" />
+
+          <!-- Promotions that apply to THIS product, resolved by Django
+               against the same rules the cart engine uses. An automatic
+               offer is otherwise invisible until the cart already
+               qualifies for it. -->
+          <ProductOffers
+            v-if="product.id"
+            :product-id="product.id"
+          />
+
+          <LoyaltyPointsBadge
+            v-if="loggedIn && product.id"
+            :product-id="product.id"
+          />
+          <ProductGuestLoyaltyCTA
+            v-else-if="product.finalPrice"
+            :product-price="product.finalPrice"
+          />
+
+          <div class="flex items-stretch gap-3">
+            <label
+              class="sr-only"
+              for="quantity"
+            >{{ t('qty') }}</label>
+            <UInputNumber
+              id="quantity"
+              v-model="selectorQuantity"
+              :min="1"
+              :max="product.stock"
+              :disabled="productStock === 0"
+              size="xl"
+              class="w-32 shrink-0"
+            />
             <ButtonProductAddToCart
               :product="product"
               :quantity="selectorQuantity || 1"
               :text="t('add_to_cart')"
               size="xl"
+              class="w-full"
             />
           </div>
+
+          <div class="flex flex-wrap items-center gap-1">
+            <ButtonProductAddToFavourite
+              :favourite-id="favouriteId"
+              :product-id="product.id"
+              :user-id="user?.id"
+              variant="ghost"
+            />
+            <ClientOnly>
+              <UButton
+                v-if="isSupported"
+                :label="t('share')"
+                color="neutral"
+                variant="ghost"
+                icon="i-heroicons-share"
+                @click="startShare"
+              />
+            </ClientOnly>
+          </div>
+
+          <ShippingFreeShippingNotice />
+
+          <!-- Out of stock is a dead end. The restock alert is offered
+               where the shopper learns the news. -->
+          <ProductNotifyMe
+            v-if="productAlertsEnabled && productStock === 0 && product.id"
+            :product-id="product.id"
+            kind="restock"
+          />
+
+          <!-- Price-drop alerts are independent of stock, and opt-in per
+               SKU: admins choose which products can promise one. The
+               target price is validated below the current final price so
+               the alert does not fire immediately. -->
+          <ProductNotifyMe
+            v-if="productAlertsEnabled && product.id && product.priceDropAlertsEnabled && (product.finalPrice ?? 0) > 0"
+            :product-id="product.id"
+            kind="price_drop"
+            :current-price="product.finalPrice"
+          />
         </div>
       </div>
-    </section>
-  </PageWrapper>
+    </UContainer>
+
+    <!-- Below the fold the page is bands again, full width, so the
+         description and the reviews are not squeezed into the buy box's
+         column the way they were. -->
+    <PageSectionBand surface="muted">
+      <UTabs
+        v-if="!isMobileOrTablet"
+        :items="productTabs"
+        color="neutral"
+        variant="link"
+        class="w-full"
+      >
+        <template #description>
+          <ProductDescriptionPanel :html="sanitizedDescription" />
+        </template>
+        <template #specifications>
+          <ProductSpecificationsPanel :specifications="productSpecifications" />
+        </template>
+      </UTabs>
+      <UAccordion
+        v-else
+        :items="productAccordionItems"
+        default-value="description"
+        type="single"
+        class="w-full"
+      >
+        <template #body="{ item }">
+          <ProductDescriptionPanel
+            v-if="item.value === 'description'"
+            :html="sanitizedDescription"
+          />
+          <ProductSpecificationsPanel
+            v-else-if="item.value === 'specifications'"
+            :specifications="productSpecifications"
+          />
+        </template>
+      </UAccordion>
+    </PageSectionBand>
+
+    <!-- A product that cannot be bought gets replacements instead of
+         related items; the engine's own slot decides which. -->
+    <PageSectionBand v-if="suggestionsEnabled && product.id">
+      <LazyProductSuggestions
+        :surface="productStock === 0 ? 'out_of_stock' : 'pdp'"
+        :seed-id="product.id"
+        hydrate-on-visible
+      />
+    </PageSectionBand>
+
+    <PageSectionBand
+      v-if="productReviewsEnabled"
+      id="reviews"
+      surface="muted"
+    >
+      <template #header>
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <h2
+            class="
+              font-display text-2xl font-semibold tracking-tight
+              text-highlighted
+              md:text-3xl
+            "
+          >
+            {{ t('reviews.title') }}
+          </h2>
+          <UButton
+            :label="reviewButtonText"
+            color="neutral"
+            variant="outline"
+            icon="i-heroicons-pencil-square"
+            @click="openModal"
+          />
+        </div>
+      </template>
+
+      <ProductReviewsList
+        :reviews="productReviews?.results ?? []"
+        :reviews-average="product.reviewAverage"
+        :reviews-count="product.reviewCount"
+        display-image-of="user"
+      />
+    </PageSectionBand>
+
+    <ProductReview
+      v-if="user && productReviewsEnabled"
+      v-model:open="isReviewModalOpen"
+      :user-product-review="userProductReview"
+      :user-had-reviewed="userHadReviewed"
+      :product="product"
+      :user="user"
+      @add-existing-review="onAddExistingReview"
+      @update-existing-review="onUpdateExistingReview"
+      @delete-existing-review="onDeleteExistingReview"
+    />
+
+    <!-- The buy bar that follows the shopper once the real one has
+         scrolled away. Client-only: it depends on the scroll position,
+         which no cached anonymous render can know. -->
+    <ClientOnly>
+      <Transition
+        enter-active-class="transition duration-200"
+        enter-from-class="translate-y-full"
+        leave-active-class="transition duration-150"
+        leave-to-class="translate-y-full"
+      >
+        <div
+          v-if="stickyAddToCartEnabled && showStickyAddToCart"
+          class="
+            fixed inset-x-0 bottom-18 z-40 border-t border-default
+            bg-default/95 pb-[env(safe-area-inset-bottom)] backdrop-blur
+            md:bottom-0
+          "
+        >
+          <UContainer class="flex items-center gap-4 py-3">
+            <ProductImage
+              v-if="productImages && productImages[0]"
+              :key="product.id"
+              :image="productImages[0]"
+              :width="64"
+              :height="64"
+              class="
+                hidden size-12 shrink-0 rounded-lg bg-elevated object-contain
+                sm:block
+              "
+            />
+            <div class="min-w-0 flex-1">
+              <p class="truncate text-sm font-medium text-highlighted">
+                {{ productTitle }}
+              </p>
+              <p class="font-mono text-base font-semibold tabular-nums">
+                {{ formatProductPrice(displayFinalPrice) }}
+              </p>
+            </div>
+            <ButtonProductAddToCart
+              :product="product"
+              :quantity="selectorQuantity || 1"
+              :text="t('add_to_cart')"
+              size="lg"
+              class="shrink-0"
+            />
+          </UContainer>
+        </div>
+      </Transition>
+    </ClientOnly>
+  </div>
 </template>
 
 <i18n lang="yaml">
@@ -1144,6 +1069,7 @@ el:
   must_be_logged_in: Πρέπει να συνδεθείς
   update_review: Ενημέρωση κριτικής
   write_review: Γράψε κριτική
+  n_reviews: "{count} αξιολόγηση | {count} αξιολογήσεις"
   reviews:
     title: Αξιολογήσεις
   weight: Βάρος
@@ -1168,6 +1094,7 @@ en:
   must_be_logged_in: You have to sign in
   update_review: Update the review
   write_review: Write a review
+  n_reviews: "{count} review | {count} reviews"
   reviews:
     title: Reviews
   weight: Weight

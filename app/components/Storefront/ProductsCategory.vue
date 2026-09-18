@@ -221,12 +221,12 @@ useSchemaOrg([
 <i18n lang="yaml">
 el:
   title: Κατηγορία
-  n_products: '{count} προϊόν' | '{count} προϊόντα'
+  n_products: "{count} προϊόν | {count} προϊόντα"
   page:
     title: "{name} — Αγορά online"
 en:
   title: Category
-  n_products: '{count} product' | '{count} products'
+  n_products: "{count} product | {count} products"
   page:
     title: "{name} — buy online"
 </i18n>

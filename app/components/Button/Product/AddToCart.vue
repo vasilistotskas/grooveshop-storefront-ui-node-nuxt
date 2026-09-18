@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
+import type { ButtonProps } from '#ui/types'
+
 const props = defineProps({
   product: { type: Object as PropType<Product>, required: true },
   quantity: { type: Number, required: false, default: 1 },
@@ -15,6 +17,14 @@ const props = defineProps({
     type: Boolean,
     required: false,
     default: false,
+  },
+  // The caller decides how big its own CTA is — a sticky bar's button
+  // and a product page's are not the same size, and the component used
+  // to hardcode `xl` and ignore what it was told.
+  size: {
+    type: String as PropType<ButtonProps['size']>,
+    required: false,
+    default: 'lg',
   },
 })
 
@@ -112,12 +122,16 @@ const addToCartEvent = async () => {
 </script>
 
 <template>
+  <!-- The store's accent, solid: this is the shop's primary action.
+       It used to be `success` in a `subtle` variant — a pale green that
+       reads as "that worked", not "buy this", and the same colour the
+       toast uses to confirm it afterwards. -->
   <UButton
     v-if="iconOnly"
     icon="i-heroicons-shopping-cart"
-    size="lg"
+    :size="size"
     square
-    :color="disabled ? 'warning' : 'success'"
+    color="secondary"
     variant="solid"
     :disabled="disabled"
     :aria-label="label"
@@ -128,15 +142,13 @@ const addToCartEvent = async () => {
     v-else
     icon="i-heroicons-shopping-cart"
     :label="label"
-    size="xl"
-    :trailing="true"
-    :color="disabled ? 'warning' : 'success'"
-    variant="subtle"
+    :size="size"
+    trailing
+    color="secondary"
+    variant="solid"
     :disabled="disabled"
     :aria-label="disabled ? t('unavailable') : text"
-    :ui="{
-      base: 'w-full place-content-center place-items-center',
-    }"
+    :ui="{ base: 'w-full place-content-center place-items-center' }"
     @click.prevent="addToCartEvent"
   />
 </template>
