@@ -1,3 +1,10 @@
+## [3.196.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.196.0...v3.196.1) (2026-09-18)
+
+
+### Bug Fixes
+
+* **legal:** keep the request query out of the fallback canonical ([894e8c6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/894e8c66ee783633b1dd38bd34e482e5fa1c5ae9))
+
 # [3.196.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.195.10...v3.196.0) (2026-09-18)
 
 
