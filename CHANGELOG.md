@@ -1,3 +1,15 @@
+# [3.201.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.200.0...v3.201.0) (2026-09-18)
+
+
+### Bug Fixes
+
+* **i18n:** drop the login page from the untranslated-blocks debt list ([7645d75](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/7645d752e196a63cfc28a3874a6dbb7f329ebb07))
+
+
+### Features
+
+* **auth:** publish the demo store's shared account on its login page ([d082c4e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d082c4e88991afd5b6269679c8e35e393b9f5611))
+
 # [3.200.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.199.0...v3.200.0) (2026-09-18)
 
 
