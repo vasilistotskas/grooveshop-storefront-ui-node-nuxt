@@ -126,11 +126,17 @@ const POST = {
   seoKeywords: '',
 } as unknown as BlogPost
 
-/** Strip what differs between two identical renders or two file paths. */
+/**
+ * Strip what differs between two identical renders, two file paths, or
+ * two releases — generated ids, the scoped-style hash (derived from the
+ * component's path) and the app version the footer prints, which
+ * semantic-release bumps on every merge.
+ */
 function normalise(html: string) {
   return html
     .replace(/\b(id|for|aria-controls|aria-labelledby|aria-describedby|aria-owns)="((?:v-|reka-)[^"]*)"/g, '$1="ID"')
     .replace(/data-v-[0-9a-f]{6,10}/g, 'data-v-X')
+    .replace(/\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?/g, 'VERSION')
     .replace(/\r\n/g, '\n')
 }
 
