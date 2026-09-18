@@ -101,10 +101,20 @@ export const componentRegistry: Record<string, ReturnType<typeof defineAsyncComp
   // no props. Base (non-variant) entries deliberately do NOT exist for
   // these componentTypes: a tenant without a published layout for them
   // renders nothing (see usePageConfig's FALLBACK_LAYOUTS).
-  'about_content@webside': lazySection(() => import('~/components/PageSection/variants/webside/AboutContent.vue')),
-  'vision_content@webside': lazySection(() => import('~/components/PageSection/variants/webside/VisionContent.vue')),
-  'what_is_microlearning@webside': lazySection(() => import('~/components/PageSection/variants/webside/WhatIsMicrolearning.vue')),
-  'why_microlearning@webside': lazySection(() => import('~/components/PageSection/variants/webside/WhyMicrolearning.vue')),
+  'about_content@webside': lazySection(() => import('~/components/variants/webside/PageSection/AboutContent.vue')),
+  'vision_content@webside': lazySection(() => import('~/components/variants/webside/PageSection/VisionContent.vue')),
+  'what_is_microlearning@webside': lazySection(() => import('~/components/variants/webside/PageSection/WhatIsMicrolearning.vue')),
+  'why_microlearning@webside': lazySection(() => import('~/components/variants/webside/PageSection/WhyMicrolearning.vue')),
+
+  // webside's FROZEN copies of the four base sections its layouts use
+  // (home: blog_categories → hero_carousel → recently_viewed →
+  // blog_posts_list). The base entries above are the platform default
+  // and get redesigned; these keep rendering today's markup for the one
+  // tenant that must not change — see app/components/variants/webside/.
+  'blog_categories@webside': lazySection(() => import('~/components/variants/webside/PageSection/BlogCategories.vue')),
+  'hero_carousel@webside': eagerSection(() => import('~/components/variants/webside/PageSection/HeroCarousel.vue')),
+  'recently_viewed@webside': idleSection(() => import('~/components/variants/webside/PageSection/RecentlyViewed.vue')),
+  'blog_posts_list@webside': lazySection(() => import('~/components/variants/webside/PageSection/BlogPostsList.vue')),
 }
 
 /**

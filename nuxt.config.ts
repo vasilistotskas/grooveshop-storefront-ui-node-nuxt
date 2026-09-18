@@ -73,6 +73,17 @@ export default defineNuxtConfig({
     },
   },
   ssr: true,
+  // Tenant variant trees register with their own prefix so a frozen
+  // copy of a component (`variants/webside/Product/Card.vue` →
+  // `WebsideProductCard`) never collides with, or shadows, the platform
+  // default (`Product/Card.vue` → `ProductCard`). Nested directories
+  // come FIRST: the scanner skips a file an earlier entry already
+  // claimed, so the frozen files are not registered a second time under
+  // a `VariantsWebside…` name by the parent entry.
+  components: [
+    { path: '~/components/variants/webside', prefix: 'Webside' },
+    '~/components',
+  ],
   imports: {
     autoImport: true,
     dirs: [

@@ -52,6 +52,33 @@ in the layouts. Never put `definePageMeta`/`defineRouteRules` in a body (they ar
 inert outside `pages/`), and never put visitor-facing markup in a shell.
 `test/unit/page-config-await.spec.ts` scans bodies as well as pages.
 
+## The frozen `webside` tree
+
+`app/components/variants/webside/**` is the storefront webside.gr renders
+**today**, frozen byte-for-byte while the platform defaults are redesigned. It is
+registered in `nuxt.config.ts` with the auto-import prefix `Webside`, so a frozen
+component that renders `<ProductCard>` would silently pick up the NEW default —
+inside that tree every reference to another frozen component carries the prefix
+(`<WebsideProductCard>`, `<LazyWebsideSearchInput>`,
+`resolveComponent('WebsideBlogPostCardMobile')`). References to SHARED components
+(`Anchor`, `ImgWithFallback`, `TenantLogo`, `DynamicForm`, `Cookie*`, `Chat*`,
+Stripe/Viva glue, the locker/map pickers, `U*`) stay unprefixed.
+
+Rules:
+
+- **Never edit a file in that tree** except to fix a webside-only bug, and never
+  to restyle, translate or refactor it. Its output is pinned by
+  `test/nuxt/variants/webside/frozen-render.spec.ts`, whose snapshots were
+  captured before the freeze.
+- Its Greek-only `<i18n>` blocks are excluded from the translation debt list on
+  purpose (`test/unit/i18n/inline-blocks.spec.ts`): adding a locale would change
+  that store's render.
+- `test/unit/variants/webside-isolation.spec.ts` fails on an unprefixed
+  reference; `test/unit/variants/variant-registry.spec.ts` fails when a page or
+  chrome key loses its `@webside` entry, which would hand webside the redesign.
+- A tenant that wants its own design registers `page:<key>@<schema>` /
+  `chrome:<slot>@<schema>` the same way (Δelta Σigma ships only chrome).
+
 ## Component Categories
 
 Components in `app/components/` organized by domain:

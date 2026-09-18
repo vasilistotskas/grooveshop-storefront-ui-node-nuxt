@@ -1,0 +1,261 @@
+<script lang="ts" setup>
+import * as z from 'zod'
+import type { FormSubmitEvent } from '#ui/types'
+
+const emit = defineEmits(['passwordReset'])
+
+const { getPasswordReset, passwordReset } = useAllAuthAuthentication()
+const { t } = useI18n()
+const route = useRoute()
+const toast = useToast()
+const localePath = useLocalePath()
+const router = useRouter()
+
+const key = 'key' in route.params ? route.params.key : undefined
+
+if (!key) {
+  navigateTo(localePath('account-password-reset'))
+}
+
+await useAsyncData('passwordReset', () => getPasswordReset(String(key)))
+
+const hasError = ref(false)
+const isSubmitting = ref(false)
+
+function checkStrength(str: string) {
+  // Unicode property classes — ``[a-z]`` is ASCII-only and never
+  // matches Greek letters, so «Καλημέρα2024» scored 2/4 forever.
+  const requirements = [
+    { regex: /.{8,}/, text: t('password.requirements.length') },
+    { regex: /\d/, text: t('password.requirements.number') },
+    { regex: /\p{Ll}/u, text: t('password.requirements.lowercase') },
+    { regex: /\p{Lu}/u, text: t('password.requirements.uppercase') },
+  ]
+  return requirements.map(req => ({ met: req.regex.test(str), text: req.text }))
+}
+
+const newPassword1 = ref('')
+const newPassword2 = ref('')
+
+const strength = computed(() => checkStrength(newPassword1.value))
+const score = computed(() => strength.value.filter(req => req.met).length)
+
+const color = computed(() => {
+  if (score.value === 0) return 'neutral'
+  if (score.value <= 1) return 'error'
+  if (score.value <= 2) return 'warning'
+  if (score.value === 3) return 'warning'
+  return 'success'
+})
+
+const strengthText = computed(() => {
+  if (score.value === 0) return t('password.strength.none')
+  if (score.value <= 2) return t('password.strength.weak')
+  if (score.value === 3) return t('password.strength.medium')
+  return t('password.strength.strong')
+})
+
+const schema = z.object({
+  // Mirrors Django's AUTH_PASSWORD_VALIDATORS where a pure function
+  // can: MinimumLength (8) and NumericPassword. CommonPassword and
+  // UserAttributeSimilarity stay server-side and surface via the
+  // translated allauth error codes. The strength meter is advisory
+  // only — Django has no character-class rules, so it must not gate.
+  newPassword1: z.string()
+    .min(8, t('validation.min', { min: 8 }))
+    .max(255)
+    .refine(value => !/^\d+$/.test(value), {
+      error: t('validation.password.entirely_numeric'),
+    }),
+  newPassword2: z.string()
+    .min(8, t('validation.min', { min: 8 }))
+    .max(255),
+  key: z.string(),
+}).refine(data => data.newPassword1 === data.newPassword2, {
+  message: t('form.newPassword2.errors.match'),
+  path: ['newPassword2'],
+})
+
+type Schema = z.output<typeof schema>
+
+async function onSubmit(event: FormSubmitEvent<Schema>): Promise<void> {
+  if (isSubmitting.value) return
+  isSubmitting.value = true
+  try {
+    hasError.value = false
+
+    await passwordReset({
+      password: event.data.newPassword1,
+      key: event.data.key,
+    })
+
+    toast.add({
+      title: t('password.reset.success'),
+      description: t('success.description'),
+      color: 'success',
+      icon: 'i-heroicons-check-circle',
+    })
+
+    emit('passwordReset')
+
+    await router.push(localePath('account-login'))
+  }
+  catch (error) {
+    if (isAllAuthClientError(error)) {
+      if (error.data.data.status === 401) {
+        toast.add({
+          title: t('password.reset.success'),
+          color: 'success',
+        })
+        await navigateTo(localePath('account-login'))
+        return
+      }
+      const errors = 'errors' in error.data.data ? error.data.data.errors : []
+      errors.forEach((error) => {
+        toast.add({
+          title: error.message,
+          color: 'error',
+        })
+      })
+      return
+    }
+    hasError.value = true
+    toast.add({
+      title: t('error.default'),
+      color: 'error',
+    })
+  }
+  finally {
+    isSubmitting.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="space-y-6">
+    <UAlert
+      v-if="hasError"
+      color="error"
+      variant="soft"
+      icon="i-heroicons-exclamation-circle"
+      :title="t('error.title')"
+      :description="t('error.description')"
+      close
+      @update:open="hasError = false"
+    />
+
+    <UForm
+      :schema="schema"
+      :state="{ newPassword1, newPassword2, key: String(key) }"
+      class="space-y-5"
+      @error="scrollToFirstFormError"
+      @submit="onSubmit"
+    >
+      <UFormField
+        name="newPassword1"
+        :label="t('form.newPassword1.label')"
+        required
+      >
+        <WebsideFormPasswordInput
+          v-model="newPassword1"
+          icon="i-heroicons-key"
+          :color="color"
+          autocomplete="new-password"
+          :placeholder="t('password.placeholder')"
+        />
+
+        <template v-if="newPassword1" #hint>
+          <div class="mt-2 space-y-2">
+            <UProgress
+              :color="color"
+              :model-value="score"
+              :max="4"
+              size="sm"
+            />
+
+            <p class="text-xs font-medium text-muted">
+              {{ strengthText }}. {{ t('password.requirements.title') }}
+            </p>
+
+            <ul class="space-y-1">
+              <li
+                v-for="(req, index) in strength"
+                :key="index"
+                class="flex items-center gap-1"
+                :class="req.met ? 'text-success' : 'text-muted'"
+              >
+                <UIcon
+                  :name="req.met ? 'i-heroicons-check-circle' : 'i-heroicons-x-circle'"
+                  class="size-4 shrink-0"
+                />
+                <span class="text-xs">{{ req.text }}</span>
+              </li>
+            </ul>
+          </div>
+        </template>
+      </UFormField>
+
+      <UFormField
+        name="newPassword2"
+        :label="t('form.newPassword2.label')"
+        required
+      >
+        <WebsideFormPasswordInput
+          v-model="newPassword2"
+          icon="i-heroicons-check-badge"
+          autocomplete="new-password"
+          :placeholder="t('password.placeholder_confirm')"
+        />
+      </UFormField>
+
+      <UButton
+        type="submit"
+        color="neutral"
+        variant="subtle"
+        :disabled="isSubmitting"
+        :loading="isSubmitting"
+        block
+        size="lg"
+        icon="i-heroicons-check-circle"
+      >
+        {{ t('form.submit') }}
+      </UButton>
+
+      <p v-if="score < 4 && newPassword1" class="text-center text-xs text-muted">
+        {{ t('password.requirements.complete') }}
+      </p>
+    </UForm>
+  </div>
+</template>
+
+<i18n lang="yaml">
+el:
+  form:
+    newPassword1:
+      label: Κωδικός πρόσβασης
+    newPassword2:
+      label: Επιβεβαίωση κωδικού πρόσβασης
+      errors:
+        match: Η επιβεβαίωση κωδικού πρόσβασης πρέπει να ταιριάζει με τον κωδικό πρόσβασης
+    submit: Επαναφορά
+  password:
+    placeholder: Εισάγετε νέο κωδικό πρόσβασης
+    placeholder_confirm: Επιβεβαιώστε τον νέο κωδικό
+    strength:
+      none: Εισάγετε κωδικό πρόσβασης
+      weak: Αδύναμος κωδικός
+      medium: Μέτριος κωδικός
+      strong: Ισχυρός κωδικός
+    requirements:
+      title: Πρέπει να περιέχει
+      length: Τουλάχιστον 8 χαρακτήρες
+      number: Τουλάχιστον 1 αριθμό
+      lowercase: Τουλάχιστον 1 πεζό γράμμα
+      uppercase: Τουλάχιστον 1 κεφαλαίο γράμμα
+      complete: Ολοκληρώστε όλες τις απαιτήσεις για να συνεχίσετε
+  success:
+    description: Ο κωδικός σας έχει επαναφερθεί επιτυχώς.
+  error:
+    title: Σφάλμα επαναφοράς
+    description: Ο σύνδεσμος επαναφοράς μπορεί να έχει λήξει ή να είναι άκυρος.
+</i18n>

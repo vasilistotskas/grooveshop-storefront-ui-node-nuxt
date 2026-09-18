@@ -42,6 +42,9 @@ const TENANT_HOST = 'render-smoke.localhost'
  */
 const VARIANT_HOST = 'delta-sigma-smoke.localhost'
 const VARIANT_SCHEMA = 'delta_sigma'
+// Resolves to the `webside` schema, whose whole storefront is a frozen
+// variant tree (app/components/variants/webside/).
+const WEBSIDE_HOST = 'webside-smoke.localhost'
 
 function requestWithHost(
   path: string,
@@ -89,7 +92,9 @@ describe('every public page renders', async () => {
           // ...and of the chrome-variant assertions at the end.
           schemaName: domain.startsWith('delta-sigma')
             ? VARIANT_SCHEMA
-            : 'test',
+            : domain.startsWith('webside-smoke')
+              ? 'webside'
+              : 'test',
         })))
         return
       }
@@ -342,6 +347,23 @@ describe('every public page renders', async () => {
       .toContain('Consulting · Engineering')
     expect(body, 'the ΔΣ mark did not render')
       .toContain('M11 3 L20 27 L2 27 Z')
+  }, 60000)
+
+  // webside keeps today's storefront as its own variant tree
+  // (app/components/variants/webside/). Every route must still render
+  // through it; what it renders is pinned by
+  // test/nuxt/variants/webside/frozen-render.spec.ts.
+  it.each([
+    ['/', 'el-GR'],
+    ['/products', 'el-GR'],
+    ['/account/login', 'el-GR'],
+    ['/privacy-policy', 'el-GR'],
+  ])('renders %s for the webside variant host', async (path, lang) => {
+    const { statusCode, body } = await requestWithHost(path, WEBSIDE_HOST)
+
+    expect(statusCode, `${path} on webside: ${body.slice(0, 900)}`).toBe(200)
+    expect(body).toContain(`lang="${lang}"`)
+    expect(body).not.toContain('"statusCode":500')
   }, 60000)
 
   it('leaves a tenant without one on the platform chrome', async () => {

@@ -1,0 +1,817 @@
+<script lang="ts" setup>
+import type { TableColumn } from '#ui/types'
+
+const UAvatar = resolveComponent('UAvatar')
+
+const { t, locale } = useI18n()
+const tenantStore = useTenantStore()
+const route = useRoute(`checkout-success-uuid___${locale.value}`)
+const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined
+
+if (!orderUUID || typeof orderUUID !== 'string') {
+  throw createError({ statusCode: 404, statusMessage: 'Missing order UUID' })
+}
+
+const sessionId = computed(() => route.query.session_id as string | undefined)
+const vivaOrderCode = computed(() => route.query.s as string | undefined)
+const fromViva = computed(() => !!vivaOrderCode.value)
+// Offline pay-ways (COD) navigate here with ``?placed=1`` — there is no
+// provider redirect param to key on, but the purchase pixels (Meta +
+// GA4) and the cart cleanup still need the "arrived via a real
+// checkout" signal. Unlike the online params it must NOT trigger the
+// payment-status polling below: a COD order is legitimately unpaid.
+const placedOffline = computed(() => route.query.placed === '1')
+const fromCheckout = computed(
+  () => !!sessionId.value || fromViva.value || placedOffline.value,
+)
+const sessionVerified = ref(false)
+const verifyingSession = ref(false)
+const pollAttempt = ref(0)
+const isActive = ref(true)
+
+const { $i18n } = useNuxtApp()
+const localePath = useLocalePath()
+const img = useMediaStreamImage()
+
+const cartStore = useCartStore()
+const { cleanCartState } = cartStore
+
+const getImage = (mainImagePath: string) => {
+  return img(mainImagePath, { width: 96, height: 96, fit: 'cover' }, {
+    provider: 'mediaStream',
+  })
+}
+
+const { data: order, error, refresh } = await useFetch(
+  `/api/orders/uuid/${orderUUID}`,
+  {
+    key: `order${orderUUID}`,
+    method: 'GET',
+    headers: useRequestHeaders(),
+    query: {
+      languageCode: locale,
+    },
+  },
+)
+
+if (!order.value || error.value) {
+  throw createError({
+    statusCode: 404,
+    message: t('error.page.not.found'),
+  })
+}
+
+const customerName = computed(() => {
+  const firstName = order.value?.firstName
+  const lastName = order.value?.lastName
+  return `${firstName} ${lastName}`
+})
+
+const customerEmail = computed(() => order.value?.email)
+const orderNumber = computed(() => order.value?.id)
+const orderItems = computed(() => order.value?.items || [])
+
+const paymentStatus = computed(() => order.value?.paymentStatus || '')
+const isPaid = computed(() => order.value?.isPaid || false)
+
+// The carrier collects this order's money on delivery — courier
+// cash-on-delivery, or a card at a BoxNow locker terminal.
+//
+// Not `!isOnlinePayment`: that is also true of bank transfer, where the
+// shopper owes us directly and "you'll pay on delivery" would be wrong.
+// The distinction is computed on the server from the pay-way's
+// settlement, so the storefront holds no rule of its own.
+const isCollectedOnDelivery = computed(
+  () => order.value?.isCollectedOnDelivery || false,
+)
+
+// The shopper's chosen method, resolved through the same
+// `payment_methods.*` map the checkout list uses. NOT
+// `order.paymentMethod` — that is the gateway code a payment handler
+// writes (`acs_cod`, `viva_wallet`), so this line read "acs_cod" to
+// real customers, and stayed blank on a COD order until the courier
+// remitted days later.
+const { getPaymentMethodName } = usePaymentMethod()
+
+const paymentMethodLabel = computed(() =>
+  order.value?.payWayKey ? getPaymentMethodName(order.value.payWayKey) : '',
+)
+
+const paidAmount = computed(() => order.value?.paidAmount || 0)
+const shippingPrice = computed(() => order.value?.shippingPrice || 0)
+const totalPriceItems = computed(() => order.value?.totalPriceItems || 0)
+const totalPriceExtra = computed(() => order.value?.totalPriceExtra || 0)
+const discountAmount = computed(() => order.value?.discountAmount || 0)
+const loyaltyDiscountAmount = computed(() => order.value?.loyaltyDiscount || 0)
+const giftCardAmount = computed(() => order.value?.giftCardAmount || 0)
+
+const trackingNumber = computed(() => order.value?.trackingNumber)
+const shippingCarrier = computed(() => order.value?.shippingCarrier)
+
+const openTracking = () => {
+  if (!trackingNumber.value) return
+  const query = shippingCarrier.value
+    ? `${shippingCarrier.value} ${trackingNumber.value} tracking`
+    : `${trackingNumber.value} tracking`
+  window.open(`https://www.google.com/search?q=${encodeURIComponent(query)}`, '_blank', 'noopener,noreferrer')
+}
+
+// Only fetch + show recommended blog posts when the tenant has the
+// blog feature enabled — a blog-disabled store must not fire the blog
+// API or render the carousel on its success page.
+// useLazyAsyncData still executes during SSR (`lazy` only defers on
+// client navigation), so this needs the request-bound fetch: a bare
+// $fetch loses the tenant host and 404s, silently emptying the
+// carousel.
+const requestFetch = useRequestFetch()
+const { data: recommendedPosts } = useLazyAsyncData(
+  `success-recommended-posts:${locale.value}`,
+  () => tenantStore.blogEnabled
+    ? requestFetch('/api/blog/posts', {
+        query: {
+          languageCode: locale.value,
+          paginationType: 'pageNumber',
+          pageSize: 8,
+          ordering: '-featured,-publishedAt',
+        },
+      })
+    : Promise.resolve(null),
+  { default: () => null },
+)
+const recommendedPostsList = computed(() =>
+  tenantStore.blogEnabled ? (recommendedPosts.value?.results ?? []) : [],
+)
+
+onBeforeUnmount(() => {
+  isActive.value = false
+})
+
+// Meta Pixel — Purchase event. The success page is the canonical
+// browser-side firing point for Purchase. We reuse the event_id the
+// Django side stored on ``order.metaEventIds.purchase`` at order
+// creation so Meta dedups this against the server-side Conversions
+// API event for the same order. ``onMounted`` ensures we never fire
+// during prerender / SSR. The watcher is keyed on ``orderNumber``
+// to handle the live re-fetch flow (Stripe webhook flips status
+// after a 2s poll); pixel must NOT fire twice for the same order, so
+// a guard ref tracks whether we already sent it.
+// Capture once at setup so the watcher / onMounted callback don't
+// re-invoke ``useScript*`` from outside setup context.
+const metaPixel = useMetaPixel()
+const tiktokPixel = useTikTokPixel()
+const openaiPixel = useOpenAIPixel()
+const ga4 = useGA4()
+const googleAds = useGoogleAds()
+const purchaseEventFired = ref(false)
+function tryFirePurchaseEvent() {
+  if (!order.value || purchaseEventFired.value) return
+  // Purchase is only meaningful when the customer landed here via a
+  // real checkout flow (not a deep-link to /checkout/success/<uuid>
+  // from history). Gate on ``fromCheckout`` so direct revisits don't
+  // re-fire the event.
+  if (!fromCheckout.value) return
+  // Only fire after the Django side has minted an event_id (i.e.
+  // ``meta_event_ids.purchase`` exists). Without it the dedup pair
+  // is broken — better to skip the browser leg than double-count.
+  const eventId = order.value.metaEventIds?.purchase
+  if (!eventId) return
+
+  try {
+    // ``order.currency`` is a SerializerMethodField that walks the
+    // order's djmoney fields (paid_amount → total_price_items →
+    // shipping_price) and returns an ISO 4217 code. Defaulting to
+    // 'EUR' here is just paranoia — the field is always populated
+    // server-side per the project's monetary defaults.
+    const currency = order.value.currency ?? 'EUR'
+    const value = Number(paidAmount.value ?? 0)
+    const transactionId = String(order.value.id)
+
+    metaPixel.trackPurchase(
+      {
+        currency,
+        value,
+        orderId: transactionId,
+        contentType: 'product',
+        contentIds: orderItems.value
+          .map(item => item.product?.id)
+          .filter(
+            (id): id is number => typeof id === 'number',
+          )
+          .map(id => String(id)),
+        contents: orderItems.value.map(item => ({
+          id: String(item.product?.id ?? ''),
+          quantity: Number(item.quantity ?? 0),
+          itemPrice: Number(item.price ?? 0),
+        })),
+        numItems: orderItems.value.reduce(
+          (acc, item) => acc + Number(item.quantity ?? 0),
+          0,
+        ),
+      },
+      { eventID: eventId },
+    )
+
+    // TikTok: CompletePayment — TikTok's web purchase event
+    // (``Purchase`` is a separate offline/shop event). Browser-only,
+    // no server-side Events API leg, so no event_id dedup; the
+    // ``purchaseEventFired`` guard + ``fromCheckout`` gate above
+    // prevent re-fires.
+    // OpenAI calls a completed purchase ``order_created``. The names
+    // are NOT interchangeable across providers — TikTok's ``Purchase``
+    // is a separate offline event, hence ``CompletePayment`` below,
+    // and Meta's is ``Purchase`` again. Each wrapper is named after
+    // its own vendor's taxonomy so they cannot be confused.
+    openaiPixel.trackOrderCreated({
+      currency,
+      amount: value,
+      contents: orderItems.value
+        .filter(item => typeof item.product?.id === 'number')
+        .map(item => ({
+          id: String(item.product!.id),
+          contentType: 'product',
+          quantity: Number(item.quantity ?? 0),
+        })),
+    })
+
+    tiktokPixel.trackCompletePayment({
+      currency,
+      value,
+      orderId: transactionId,
+      contentType: 'product',
+      contents: orderItems.value.map(item => ({
+        contentId: String(item.product?.id ?? ''),
+        quantity: Number(item.quantity ?? 0),
+        price: Number(item.price ?? 0),
+      })),
+    })
+
+    // GA4: purchase. ``transaction_id`` is the dedup key for GA4's
+    // own server-side dedup; using the order ID here means a Stripe
+    // webhook re-poll re-rendering the success page won't double-
+    // count even if our local ``purchaseEventFired`` guard somehow
+    // misses (e.g. a hard reload).
+    ga4.trackPurchase({
+      transaction_id: transactionId,
+      currency,
+      value,
+      shipping: Number(shippingPrice.value ?? 0),
+      coupon: order.value?.appliedCouponCodes?.length
+        ? order.value.appliedCouponCodes.join(',')
+        : undefined,
+      items: orderItems.value.map(item => ({
+        item_id: String(item.product?.id ?? ''),
+        quantity: Number(item.quantity ?? 0),
+        price: Number(item.price ?? 0),
+      })),
+    })
+    // Google Ads: the purchase conversion, with the real order value and
+    // the order id as transaction_id (Google dedups on it across legs).
+    // new_customer is the API's Order.isFirstOrder — computed, as Google
+    // asks, not hardcoded.
+    googleAds.trackPurchase({
+      currency,
+      value,
+      transactionId,
+      newCustomer: order.value.isFirstOrder,
+    })
+    purchaseEventFired.value = true
+  }
+  catch (pixelErr) {
+    log.warn(
+      'success:pixelPurchase',
+      String((pixelErr as Error)?.message ?? pixelErr),
+    )
+  }
+}
+
+watch(
+  () => [orderNumber.value, isPaid.value],
+  () => {
+    if (import.meta.server) return
+    tryFirePurchaseEvent()
+  },
+)
+
+onMounted(() => {
+  tryFirePurchaseEvent()
+})
+
+// Poll order status when coming from a payment provider.
+// Viva Wallet webhooks can be delayed, so poll more aggressively.
+onMounted(async () => {
+  // Clear client-side cart state on arrival at the success page.
+  // For Viva Wallet the checkout page is unloaded before onPaymentSuccess fires
+  // (window.location.href redirect), so the Pinia cart store still holds stale
+  // data. Calling cleanCartState() here ensures the cart badge resets regardless
+  // of the payment method used. The server-side cart session is already cleared
+  // by orders/index.post.ts on order creation.
+  //
+  // Guard it to run at most ONCE per order: ``fromCheckout`` is derived
+  // from URL query params that persist in history/bookmarks, so without
+  // this a shopper who completes this order, builds a NEW cart, then
+  // reopens the success URL would have that unrelated cart's session
+  // wiped. Keyed on the order UUID and persisted in localStorage so the
+  // one-shot holds across tabs/reloads.
+  if (fromCheckout.value) {
+    const cleanedKey = `checkout_cleaned_${orderUUID}`
+    if (!localStorage.getItem(cleanedKey)) {
+      localStorage.setItem(cleanedKey, '1')
+      cleanCartState().catch(err => log.error({ action: 'success:cleanCartState', error: err }))
+    }
+  }
+
+  if (!fromCheckout.value || !order.value) return
+
+  if (order.value.isPaid || placedOffline.value) {
+    // Paid already, or a COD order that will stay unpaid until the
+    // courier remits — either way there is no session to poll.
+    sessionVerified.value = true
+    return
+  }
+
+  verifyingSession.value = true
+  // Viva webhooks can be slow; Stripe is typically fast
+  const maxAttempts = fromViva.value ? 15 : 5
+  const interval = 2000
+
+  try {
+    for (let i = 0; i < maxAttempts; i++) {
+      if (!isActive.value) break
+      pollAttempt.value = i + 1
+      await new Promise(resolve => setTimeout(resolve, interval))
+      if (!isActive.value) break
+      await refresh()
+
+      const status = order.value?.paymentStatus?.toLowerCase() || ''
+      if (
+        order.value?.isPaid
+        || ['completed', 'failed', 'canceled', 'refunded'].includes(status)
+      ) {
+        break
+      }
+    }
+    sessionVerified.value = true
+  }
+  catch (err) {
+    log.error({ action: 'checkout:verifySession', error: err })
+    sessionVerified.value = true
+  }
+  finally {
+    verifyingSession.value = false
+  }
+})
+
+const getPaymentStatusColor = (status: OrderDetail['paymentStatus']) => {
+  const colors: Record<string, 'success' | 'warning' | 'error' | 'neutral' | 'info'> = {
+    pending: 'warning',
+    processing: 'warning',
+    completed: 'success',
+    failed: 'error',
+    refunded: 'info',
+    partially_refunded: 'info',
+    canceled: 'error',
+  }
+  if (!status) return 'neutral'
+  return colors[status.toLowerCase()] || 'neutral'
+}
+
+const getPaymentStatusLabel = (status: OrderDetail['paymentStatus']) => {
+  const labels: Record<string, string> = {
+    pending: t('payment.status_label.pending'),
+    processing: t('payment.status_label.processing'),
+    completed: t('payment.status_label.completed'),
+    failed: t('payment.status_label.failed'),
+    refunded: t('payment.status_label.refunded'),
+    partially_refunded: t('payment.status_label.partially_refunded'),
+    canceled: t('payment.status_label.canceled'),
+  }
+  if (!status) return t('payment.pending')
+  return labels[status.toLowerCase()] || status
+}
+
+const orderItemColumns: TableColumn<OrderItemDetail>[] = [
+  {
+    accessorKey: 'product.mainImagePath',
+    header: t('image'),
+    cell: ({ row }) => {
+      const item = row.original
+      return h(UAvatar, {
+        src: getImage(item.product?.mainImagePath),
+        alt: `${extractTranslated(item.product, 'name', locale.value)} ${t('image')}`,
+        size: '3xl',
+        class: 'rounded-md',
+      })
+    },
+  },
+  {
+    accessorKey: 'product.name',
+    header: t('product'),
+    cell: ({ row }) => {
+      const item = row.original
+      return h('div', { class: 'space-y-1' }, [
+        h('p', { class: 'font-medium text-highlighted' },
+          extractTranslated(item.product, 'name', locale.value),
+        ),
+        item.notes && h('p', { class: 'text-sm text-muted' }, item.notes),
+      ])
+    },
+  },
+  {
+    accessorKey: 'quantity',
+    header: t('quantity'),
+    cell: ({ row }) => {
+      const item = row.original
+      return h('div', { class: 'text-center' }, [
+        h('span', { class: 'font-medium' }, item.quantity),
+        (item.refundedQuantity || 0) > 0 && h('div', { class: 'text-xs text-error' },
+          `(${item.refundedQuantity} ${t('refunded')})`,
+        ),
+      ])
+    },
+  },
+  {
+    accessorKey: 'price',
+    header: t('price.unit'),
+    cell: ({ row }) => {
+      const item = row.original
+      return h('div', { class: 'text-right space-y-1' }, [
+        h('span', { class: 'font-medium' }, $i18n.n(item.price || 0, 'currency')),
+        (item.refundedAmount || 0) > 0 && h('div', { class: 'text-xs text-error' },
+          `- ${$i18n.n(item.refundedAmount || 0, 'currency')}`,
+        ),
+      ])
+    },
+  },
+  {
+    accessorKey: 'totalPrice',
+    header: t('price.total'),
+    cell: ({ row }) => {
+      const item = row.original
+      return h('div', { class: 'text-right' }, [
+        h('span', { class: 'font-semibold text-highlighted' },
+          $i18n.n(item.totalPrice || 0, 'currency'),
+        ),
+      ])
+    },
+  },
+]
+</script>
+
+<template>
+  <WebsidePageWrapper
+    class="
+      flex flex-col gap-6
+      md:gap-8
+    "
+  >
+    <WebsidePageTitle
+      :text="t('title')"
+      class="text-center"
+    />
+
+    <UAlert
+      v-if="fromCheckout && verifyingSession"
+      color="info"
+      variant="subtle"
+      icon="i-heroicons-arrow-path"
+      class="mx-auto max-w-2xl animate-pulse"
+    >
+      <template #title>
+        {{ t('verifying.payment') }}
+      </template>
+      <template #description>
+        {{ t('verifying.description') }}
+      </template>
+    </UAlert>
+
+    <UAlert
+      v-else-if="fromCheckout && sessionVerified && isPaid"
+      color="success"
+      variant="subtle"
+      icon="i-heroicons-check-circle"
+      class="mx-auto max-w-2xl"
+    >
+      <template #title>
+        {{ t('payment.completed.title') }}
+      </template>
+      <template #description>
+        {{ t('payment.completed.description') }}
+      </template>
+    </UAlert>
+
+    <!-- Collect-on-delivery is checked BEFORE the generic "not paid
+         yet" branch below, because such an order is not awaiting a
+         payment confirmation at all — nothing is processing. It stays
+         PENDING by design until the carrier remits (measured ACS lag
+         ~4 days), so the amber warning below would sit on the page for
+         days telling the shopper their payment might be delayed, for
+         an order they have not been asked to pay for yet. -->
+    <UAlert
+      v-else-if="fromCheckout && sessionVerified && !isPaid && isCollectedOnDelivery"
+      color="success"
+      variant="subtle"
+      icon="i-heroicons-banknotes"
+      class="mx-auto max-w-2xl"
+    >
+      <template #title>
+        {{ t('payment.on_delivery.title') }}
+      </template>
+      <template #description>
+        {{ t('payment.on_delivery.description', { amount: $i18n.n(paidAmount, 'currency') }) }}
+      </template>
+    </UAlert>
+
+    <UAlert
+      v-else-if="fromCheckout && sessionVerified && !isPaid"
+      color="warning"
+      variant="subtle"
+      icon="i-heroicons-clock"
+      class="mx-auto max-w-2xl"
+    >
+      <template #title>
+        {{ t('payment.processing.title') }}
+      </template>
+      <template #description>
+        {{ t('payment.processing.description') }}
+      </template>
+    </UAlert>
+
+    <UAlert
+      v-else
+      color="success"
+      variant="subtle"
+      :title="t('main.title', { customerName })"
+      :description="t('main.subtitle')"
+      icon="i-heroicons-check-circle"
+      class="mx-auto max-w-2xl"
+    />
+
+    <div
+      class="
+        flex flex-col gap-6
+        md:grid
+        lg:grid-cols-3
+      "
+    >
+      <div
+        class="
+          space-y-6
+          lg:col-span-2
+        "
+      >
+        <UCard>
+          <template #header>
+            <div class="flex items-center">
+              <h2 class="text-xl font-semibold text-highlighted">
+                {{ t('order.items') }}
+              </h2>
+            </div>
+          </template>
+
+          <UTable
+            :data="orderItems"
+            :columns="orderItemColumns"
+            :ui="{
+              root: 'overflow-auto',
+              base: 'min-w-full overflow-auto',
+              thead: 'bg-elevated/50',
+            }"
+          />
+        </UCard>
+      </div>
+
+      <div class="space-y-6">
+        <UCard>
+          <template #header>
+            <h2 class="text-lg font-semibold text-highlighted">
+              {{ t('order.summary') }}
+            </h2>
+          </template>
+
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="text-muted">{{ t('order.number') }}</span>
+              <span class="font-mono font-medium">#{{ orderNumber }}</span>
+            </div>
+
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-muted">{{ t('customer.name') }}</span>
+                <span class="font-medium">{{ customerName }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-muted">{{ t('customer.email') }}</span>
+                <span class="text-sm">{{ customerEmail }}</span>
+              </div>
+            </div>
+
+            <USeparator />
+
+            <div class="flex items-center justify-between">
+              <span class="text-muted">{{ t('payment.status') }}</span>
+              <UBadge
+                :color="getPaymentStatusColor(paymentStatus)"
+                variant="subtle"
+              >
+                {{ getPaymentStatusLabel(paymentStatus) }}
+              </UBadge>
+            </div>
+
+            <div v-if="trackingNumber" class="space-y-2">
+              <USeparator />
+              <div class="flex items-center justify-between">
+                <span class="text-muted">{{ t('tracking.number') }}</span>
+                <span class="font-mono text-sm">{{ trackingNumber }}</span>
+              </div>
+              <div
+                v-if="shippingCarrier" class="flex items-center justify-between"
+              >
+                <span class="text-muted">{{ t('shipping.carrier') }}</span>
+                <span class="text-sm">{{ shippingCarrier }}</span>
+              </div>
+            </div>
+          </div>
+        </UCard>
+
+        <UCard>
+          <template #header>
+            <h2 class="text-lg font-semibold text-highlighted">
+              {{ t('pricing.breakdown') }}
+            </h2>
+          </template>
+
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-muted">{{ t('pricing.subtotal', orderItems.length) }}</span>
+              <span>{{ $i18n.n(totalPriceItems, 'currency') }}</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <span class="text-muted">{{ t('pricing.shipping') }}</span>
+              <span>{{ $i18n.n(shippingPrice, 'currency') }}</span>
+            </div>
+
+            <div
+              v-if="(totalPriceExtra - shippingPrice || 0) > 0" class="
+                flex items-center justify-between
+              "
+            >
+              <span class="text-muted">{{ t('pricing.extras') }}</span>
+              <span>{{ $i18n.n(totalPriceExtra - shippingPrice, 'currency') }}</span>
+            </div>
+
+            <div
+              v-if="discountAmount > 0"
+              class="flex items-center justify-between text-success"
+            >
+              <span>{{ t('pricing.discount') }}</span>
+              <span>-{{ $i18n.n(discountAmount, 'currency') }}</span>
+            </div>
+
+            <div
+              v-if="loyaltyDiscountAmount > 0"
+              class="flex items-center justify-between text-success"
+            >
+              <span>{{ t('pricing.loyalty_discount') }}</span>
+              <span>-{{ $i18n.n(loyaltyDiscountAmount, 'currency') }}</span>
+            </div>
+
+            <div
+              v-if="giftCardAmount > 0"
+              class="flex items-center justify-between text-success"
+            >
+              <span>{{ t('pricing.gift_card') }}</span>
+              <span>-{{ $i18n.n(giftCardAmount, 'currency') }}</span>
+            </div>
+
+            <USeparator />
+
+            <div class="flex items-center justify-between text-lg font-semibold">
+              <span class="text-highlighted">{{ t('pricing.total') }}</span>
+              <span class="text-highlighted">{{ $i18n.n(paidAmount, 'currency') }}</span>
+            </div>
+
+            <div v-if="paymentMethodLabel" class="pt-2">
+              <div class="flex items-center justify-between text-sm">
+                <span class="text-muted">{{ t('payment.method') }}</span>
+                <span>{{ paymentMethodLabel }}</span>
+              </div>
+            </div>
+          </div>
+        </UCard>
+
+        <UCard>
+          <div class="space-y-3">
+            <UButton
+              :to="localePath('index')"
+              color="info"
+              variant="subtle"
+              size="lg"
+              block
+              icon="i-heroicons-home"
+              :label="t('actions.home')"
+            />
+
+            <UButton
+              v-if="trackingNumber"
+              color="info"
+              variant="outline"
+              size="lg"
+              block
+              icon="i-heroicons-truck"
+              :label="t('actions.track')"
+              @click="openTracking"
+            />
+          </div>
+        </UCard>
+      </div>
+    </div>
+
+    <section
+      v-if="recommendedPostsList.length"
+      class="
+        mt-12
+        md:mt-16
+      "
+      :aria-label="t('recommended.title')"
+    >
+      <h2
+        class="
+          mb-6 text-center text-balance text-2xl font-bold text-primary-950
+          md:text-3xl
+          dark:text-primary-50
+        "
+      >
+        {{ t('recommended.title') }}
+      </h2>
+      <LazyWebsideBlogPostsCarousel :posts="recommendedPostsList" />
+    </section>
+  </WebsidePageWrapper>
+</template>
+
+<i18n lang="yaml">
+el:
+  title: Η παραγγελία δημιουργήθηκε με επιτυχία
+  main:
+    title: Σε ευχαριστούμε, {customerName}!
+    subtitle: Η παραγγελία σου δημιουργήθηκε επιτυχώς και θα λάβεις email επιβεβαίωσης σύντομα.
+  order:
+    number: Αριθμός Παραγγελίας
+    items: Προϊόντα Παραγγελίας
+    summary: Σύνοψη Παραγγελίας
+    timeline: Ιστορικό Παραγγελίας
+  customer:
+    name: Όνομα Πελάτη
+    email: Email
+  verifying:
+    payment: Επαλήθευση πληρωμής...
+    description: Παρακαλώ περίμενε ενώ επιβεβαιώνουμε την πληρωμή σου.
+  payment:
+    status: Κατάσταση Πληρωμής
+    paid: Πληρωμένη
+    pending: Εκκρεμεί
+    method: Τρόπος Πληρωμής
+    status_label:
+      pending: Εκκρεμεί
+      processing: Σε επεξεργασία
+      completed: Ολοκληρώθηκε
+      failed: Απέτυχε
+      refunded: Επεστράφη
+      partially_refunded: Μερική επιστροφή
+      canceled: Ακυρώθηκε
+    completed:
+      title: Η πληρωμή ολοκληρώθηκε
+      description: Η πληρωμή σου επιβεβαιώθηκε και θα λάβεις email επιβεβαίωσης σύντομα.
+    processing:
+      title: Η πληρωμή επεξεργάζεται
+      description: Η παραγγελία σου καταχωρήθηκε. Η επιβεβαίωση πληρωμής μπορεί να καθυστερήσει λίγα λεπτά.
+    on_delivery:
+      title: Η παραγγελία σου καταχωρήθηκε
+      description: "Θα πληρώσεις κατά την παραλαβή. Ποσό προς πληρωμή: {amount}."
+  tracking:
+    number: Αριθμός Παρακολούθησης
+  shipping:
+    carrier: Εταιρεία Αποστολής
+  pricing:
+    breakdown: Ανάλυση Κόστους
+    subtotal: Κόστος Προϊόντος | Κόστος Προϊόντων
+    shipping: Έξοδα Αποστολής
+    extras: Επιπλέον Κόστη
+    discount: Έκπτωση προσφοράς
+    loyalty_discount: Έκπτωση πόντων
+    gift_card: Δωροκάρτα
+    total: Σύνολο
+  actions:
+    cancel: Ακύρωση Παραγγελίας
+    home: Πίσω στην Αρχική
+    track: Παρακολούθηση Παραγγελίας
+  recommended:
+    title: Μέχρι να έρθει η παραγγελία σου, ρίξε μια ματιά στα άρθρα μας
+  image: Εικόνα
+  product: Προϊόν
+  quantity: Ποσότητα
+  price:
+    unit: Τιμή Μονάδας
+    total: Συνολική Τιμή
+  refunded: επιστράφηκε
+</i18n>

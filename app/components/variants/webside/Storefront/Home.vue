@@ -1,0 +1,46 @@
+<script lang="ts" setup>
+const config = useRuntimeConfig()
+const siteConfig = useSiteConfig()
+const tenantStore = useTenantStore()
+
+const appTitle = computed(() => tenantStore.storeName || (config.public.appTitle as string))
+
+// Per-tenant homepage composition: the published PageLayout ('home')
+// drives which sections render in which order; the code-level fallback
+// in usePageConfig mirrors the platform homepage exactly for tenants
+// (and pre-cutover webside) without a published layout.
+const { sections } = await usePageConfig('home')
+
+useHead({
+  titleTemplate: '%s',
+})
+
+useSeoMeta({
+  titleTemplate: '%s',
+  title: () => appTitle.value,
+  description: () => siteConfig.description,
+  ogTitle: () => appTitle.value,
+  ogDescription: () => siteConfig.description,
+  // og:url deliberately NOT set here — setupPageHeader already emits
+  // the tenant-aware `${siteConfig.url}${route.path}`; overriding it
+  // with the env-frozen platform baseUrl made every tenant's homepage
+  // unfurl as tenant #1's site.
+  ogType: 'website',
+})
+</script>
+
+<template>
+  <WebsidePageSectionsShell :sections="sections">
+    <template #title>
+      <!-- Every page owns exactly one h1. The homepage's is the store
+           name — the same text the navbar logo's h1 carried before it
+           stopped being a heading. Visually hidden: the hero sections
+           own the visible top of the page. -->
+      <WebsidePageTitle
+        v-if="!sectionsProvideHeading(sections)"
+        :text="appTitle"
+        class="sr-only"
+      />
+    </template>
+  </WebsidePageSectionsShell>
+</template>

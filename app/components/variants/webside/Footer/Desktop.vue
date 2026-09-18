@@ -1,0 +1,98 @@
+<script lang="ts" setup>
+const siteConfig = useSiteConfig()
+const localePath = useLocalePath()
+const { t } = useI18n()
+const { columns } = useFooterLinks()
+const { isModalActive } = useCookieControl()
+const runtimeConfig = useRuntimeConfig()
+
+const packageVersion = runtimeConfig.public.version
+const currentYear = new Date().getFullYear()
+
+const openCookieModal = () => {
+  isModalActive.value = true
+}
+</script>
+
+<template>
+  <UFooter
+    class="
+      mt-6 hidden border-t-2 border-primary-500 bg-primary-50
+      md:block
+      dark:bg-primary-900
+    "
+  >
+    <template #top>
+      <UContainer>
+        <UFooterColumns
+          :columns="columns"
+          :ui="{ center: 'xl:col-span-3' }"
+        />
+      </UContainer>
+    </template>
+
+    <template #left>
+      <div class="flex flex-col gap-1">
+        <!-- Seller identity: N. 4919/2022 art. 22 §4 requires it "σε
+             εμφανές σημείο"; the footer is on every page, which is also
+             what makes it "permanently accessible" under ECD art. 5. -->
+        <WebsideMerchantIdentity />
+        <WebsideFooterHoursBadge />
+        <div
+          class="
+            flex flex-wrap items-center gap-x-3 gap-y-1 text-sm
+            text-primary-950
+            dark:text-primary-100
+          "
+        >
+          <span>
+            &copy; {{ currentYear }}&nbsp;
+            <UButton
+              :label="`${siteConfig.name}™.`"
+              :to="localePath('index')"
+              class="p-0 text-primary-950 dark:text-primary-50"
+              color="neutral"
+              size="lg"
+              type="button"
+              variant="link"
+            /> {{ t('all_rights_reserved') }}.
+          </span>
+          <span aria-hidden="true" class="text-primary-400">·</span>
+          <UButton
+            :label="t('cookie_settings')"
+            icon="i-unjs:cookie-es"
+            color="neutral"
+            variant="link"
+            size="sm"
+            class="p-0"
+            @click="openCookieModal"
+          />
+        </div>
+      </div>
+    </template>
+
+    <template #right>
+      <div class="flex items-center gap-6">
+        <WebsideSocials
+          :button-size="'sm'"
+          :icon-class="'text-xl'"
+        />
+        <span
+          class="
+            text-xs text-primary-950
+            dark:text-primary-300
+          "
+        >Version: {{ packageVersion }}</span>
+      </div>
+    </template>
+  </UFooter>
+</template>
+
+<i18n lang="yaml">
+el:
+  all_rights_reserved: All rights reserved
+  cookie_settings: Ρυθμίσεις cookies
+en:
+  all_rights_reserved: All rights reserved
+  cookie_settings: Cookie settings
+</i18n>

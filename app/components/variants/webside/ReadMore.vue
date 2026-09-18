@@ -1,0 +1,95 @@
+<script lang="ts" setup>
+const { t } = useI18n()
+const props = defineProps({
+  text: {
+    type: String,
+    required: true,
+  },
+  maxChars: {
+    type: Number,
+    default: 100,
+  },
+})
+
+const uuid = useId()
+const showFullText = useState<boolean>(`${uuid}-read-more`, () => false)
+
+const toggleFullText = () => {
+  showFullText.value = !showFullText.value
+}
+
+const trimmedText = computed(() => {
+  return props.text && props.text.length > props.maxChars
+    ? props.text.substring(0, props.maxChars) + '...'
+    : props.text
+})
+</script>
+
+<template>
+  <div
+    v-if="text && text.length > maxChars"
+    class="relative flex flex-col"
+  >
+    <div
+      v-if="!showFullText"
+      class="
+        overflow-hidden text-primary-950
+        dark:text-primary-50
+      "
+    >
+      <span
+        class="
+          block text-sm
+          md:text-base
+        "
+      >
+        {{ trimmedText }}
+      </span>
+    </div>
+    <div
+      v-else
+      class="
+        overflow-hidden text-primary-950
+        dark:text-primary-50
+      "
+    >
+      <span
+        class="
+          block text-sm
+          md:text-base
+        "
+      >
+        {{ text }}
+      </span>
+    </div>
+    <div class="right-0 bottom-0 grid justify-end">
+      <UButton
+        :label="showFullText ? t('read_less') : t('read_more')"
+        size="xs"
+        color="neutral"
+        @click="toggleFullText"
+      />
+    </div>
+  </div>
+  <span
+    v-else
+    class="
+      block text-sm text-primary-950
+      md:text-base
+      dark:text-primary-50
+    "
+  >
+    {{ text }}
+  </span>
+</template>
+
+<i18n lang="yaml">
+el:
+  read:
+    more: Διάβασε περισσότερα
+    less: Διάβασε λιγότερα
+en:
+  read:
+    more: Read more
+    less: Read less
+</i18n>

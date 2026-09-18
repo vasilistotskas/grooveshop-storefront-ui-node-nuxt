@@ -1,0 +1,452 @@
+<script lang="ts" setup>
+const props = defineProps({
+  shippingPrice: { type: Number, required: true },
+  showPaymentFee: { type: Boolean, default: false },
+  loyaltyDiscount: { type: Number, default: 0 },
+  // Sum of the balances of the gift cards the shopper attached. The
+  // sidebar previews how much of the total they settle; Django's
+  // order-create redemption is the authoritative computation.
+  giftCardBalance: { type: Number, default: 0 },
+  // Selected shipping method context — surfaced as a "selected"
+  // callout on the payment step so the shopper can verify what
+  // they picked at step 2 without scrolling back. Pass ``null`` (or
+  // omit) on earlier steps to hide the alert.
+  shippingSummary: {
+    type: Object as PropType<{
+      method: ShippingMethodKey
+      lockerName?: string | null
+      lockerId?: string | null
+      lockerAddress?: string | null
+      /**
+       * Operator-uploaded logo URL from ``/api/v1/shipping/options``.
+       * Pass ``ShippingOption.logoUrl`` here so the summary mirrors
+       * the picker. Falls back to the bundled per-method default
+       * when null/undefined.
+       */
+      logoUrl?: string | null
+    } | null>,
+    default: null,
+  },
+})
+
+const { $i18n } = useNuxtApp()
+const cartStore = useCartStore()
+const { cart } = storeToRefs(cartStore)
+const payWay = useState<PayWay | null>('selectedPayWay')
+const localePath = useLocalePath()
+const { t, locale } = useI18n()
+const { getPaymentMethodName } = usePaymentMethod()
+
+const shippingSummaryView = computed(() => {
+  const summary = props.shippingSummary
+  if (!summary) return null
+  const meta = getShippingMethodMeta(summary.method)
+  const titleKey = `shipping_method_label.${summary.method}`
+  return {
+    icon: meta.icon,
+    logo: resolveShippingLogo(summary.logoUrl),
+    altText: t(meta.altKey),
+    title: t(titleKey),
+    lockerName: summary.lockerName ?? null,
+    lockerId: summary.lockerId ?? null,
+    lockerAddress: summary.lockerAddress ?? null,
+  }
+})
+
+// Promotions are server-evaluated on the cart (automatic promotions +
+// the applied coupon) — the sidebar only renders what Django computed.
+const promotionDiscount = computed(() =>
+  Number(cart.value?.promotionDiscount ?? 0))
+// Per-offer breakdown of the line above; the sidebar lists each offer
+// by name rather than one opaque total.
+const appliedPromotions = computed(() => cart.value?.appliedPromotions ?? [])
+const promotionFreeShipping = computed(() =>
+  Boolean(cart.value?.promotionFreeShipping))
+
+const effectiveShippingPrice = computed(() =>
+  promotionFreeShipping.value ? 0 : props.shippingPrice)
+
+const payWayCost = computed(() => {
+  if (!payWay?.value) return 0
+  // Mirror the backend: the free threshold is evaluated on the
+  // DISCOUNTED items total plus shipping.
+  const shipping = shippingSummaryView.value
+    ? effectiveShippingPrice.value
+    : 0
+  const subtotal = Math.max(
+    0,
+    (cart.value?.totalPrice || 0) - promotionDiscount.value + shipping,
+  )
+  const threshold = payWay.value.freeThreshold || 0
+
+  if (threshold > 0 && subtotal >= threshold) {
+    return 0
+  }
+
+  return payWay.value.cost || 0
+})
+
+const payWayName = computed(() => {
+  const name = extractTranslated(payWay.value, 'name', locale.value) ?? t('pay_way_fee')
+
+  if (name) {
+    return getPaymentMethodName(name)
+  }
+
+  // Fallback to extracting translated name from backend
+  return 'N/A'
+})
+
+// What is due BEFORE gift cards (they are payment, applied last).
+const preGiftCardTotal = computed(() => {
+  if (!cart.value) return 0
+  const paymentFee = props.showPaymentFee ? payWayCost.value : 0
+  const shipping = shippingSummaryView.value
+    ? effectiveShippingPrice.value
+    : 0
+  return Math.max(
+    0,
+    cart.value.totalPrice
+    - promotionDiscount.value
+    + shipping
+    + paymentFee
+    - props.loyaltyDiscount,
+  )
+})
+
+// Preview of the gift-card settlement, mirroring the backend plan:
+// balances cap at the amount due, and partial coverage leaves at
+// least 0.50 EUR for the provider minimum (the sliver stays on the
+// card).
+const giftCardApplied = computed(() => {
+  const balance = props.giftCardBalance
+  if (balance <= 0) return 0
+  const due = preGiftCardTotal.value
+  if (balance >= due) return due
+  const remainder = due - balance
+  if (remainder > 0 && remainder < 0.5) {
+    return Math.max(0, due - 0.5)
+  }
+  return balance
+})
+
+const checkoutTotal = computed(() =>
+  Math.max(0, preGiftCardTotal.value - giftCardApplied.value))
+
+defineSlots<{
+  'pay-ways'(props: object): any
+  'items'(props: object): any
+  'coupon'(props: object): any
+  'gift-card'(props: object): any
+  'loyalty'(props: object): any
+  'points-earned'(props: object): any
+  'button'(props: object): any
+}>()
+</script>
+
+<template>
+  <!--
+    Plain <div> (no role) — axe flagged "Aside should not be
+    contained in another landmark" because the checkout layout
+    renders this sidebar inside <UMain> (the page's <main>
+    landmark). Both <aside> and role="complementary" register as
+    landmarks, so the only way to stop the nesting violation is to
+    drop the landmark semantics entirely. The sidebar is a summary
+    of the checkout form it sits next to, not tangential content,
+    so losing the landmark role is also the right semantic call.
+  -->
+  <div id="checkout-sidebar">
+    <UCard
+      class="w-full"
+      :ui="{
+        body: `
+          py-1
+          sm:py-2
+        `,
+      }"
+    >
+      <template #header>
+        <div class="flex items-center">
+          <h3
+            class="
+              text-lg font-semibold text-primary-950
+              dark:text-primary-50
+            "
+          >
+            {{ t('title') }}
+          </h3>
+        </div>
+      </template>
+
+      <div class="space-y-4">
+        <div
+          class="
+            border-primary-200
+            dark:border-primary-800
+          "
+        >
+          <slot name="items" />
+        </div>
+
+        <!-- Selected shipping method recap. Renders on the payment
+             step so the shopper can verify their pick from step 2
+             without scrolling back. ``shippingSummary`` is null on
+             earlier steps. -->
+        <UAlert
+          v-if="shippingSummaryView"
+          color="success"
+          variant="subtle"
+          :title="shippingSummaryView.title"
+        >
+          <template #leading>
+            <ImgWithFallback
+              v-if="shippingSummaryView.logo"
+              :src="shippingSummaryView.logo"
+              :alt="shippingSummaryView.altText"
+              width="40"
+              height="28"
+              fit="contain"
+              format="webp"
+              :modifiers="{ background: 'transparent' }"
+              class="h-7 w-10 shrink-0 object-contain"
+            />
+            <UIcon
+              v-else
+              :name="shippingSummaryView.icon"
+              class="size-5"
+            />
+          </template>
+          <template
+            v-if="shippingSummaryView.lockerName || shippingSummaryView.lockerAddress"
+            #description
+          >
+            <div class="space-y-0.5 text-sm">
+              <p v-if="shippingSummaryView.lockerName" class="font-medium">
+                {{ shippingSummaryView.lockerName }}
+                <span
+                  v-if="shippingSummaryView.lockerId"
+                  class="ms-1 text-xs opacity-80"
+                >· {{ t('locker_id_short', { id: shippingSummaryView.lockerId }) }}</span>
+              </p>
+              <p
+                v-if="shippingSummaryView.lockerAddress"
+                class="text-xs opacity-80"
+              >
+                {{ shippingSummaryView.lockerAddress }}
+              </p>
+            </div>
+          </template>
+        </UAlert>
+
+        <!-- Coupon Code Slot -->
+        <template v-if="$slots.coupon">
+          <slot name="coupon" />
+        </template>
+
+        <!-- Gift Card Slot -->
+        <template v-if="$slots['gift-card']">
+          <slot name="gift-card" />
+        </template>
+
+        <!-- Loyalty Points Redemption Slot -->
+        <template v-if="$slots.loyalty">
+          <slot name="loyalty" />
+        </template>
+
+        <!-- Wholesale badge — the line prices above already carry the
+             group pricing (server-computed on the cart), this just says
+             WHY they differ from the catalogue. -->
+        <UBadge
+          v-if="cart?.b2bPricing?.applied"
+          color="info"
+          variant="subtle"
+          icon="i-heroicons-briefcase"
+          class="w-full justify-center"
+        >
+          {{ cart.b2bPricing.groupName
+            ? t('b2b_pricing_applied', { group: cart.b2bPricing.groupName })
+            : t('b2b_pricing_applied_generic') }}
+        </UBadge>
+        <UAlert
+          v-if="cart?.b2bPricing?.belowMinimum"
+          color="warning"
+          variant="subtle"
+          icon="i-heroicons-exclamation-triangle"
+          :description="t('b2b_below_minimum', {
+            minimum: $i18n.n(Number(cart.b2bPricing.minOrderValue ?? 0), 'currency'),
+          })"
+        />
+
+        <div
+          class="
+            border-t border-primary-200 pt-4
+            dark:border-primary-800
+          "
+          :class="shippingSummaryView || (showPaymentFee && payWayCost) || loyaltyDiscount > 0 || promotionDiscount > 0 || giftCardApplied > 0 ? 'space-y-3' : ''"
+        >
+          <div class="flex items-center justify-between">
+            <span
+              class="
+                text-primary-950
+                dark:text-primary-50
+              "
+            >{{ t('items_unique') }}</span>
+            <span
+              class="
+                font-bold text-primary-950
+                dark:text-primary-50
+              "
+            >{{ cart?.totalItemsUnique }}</span>
+          </div>
+          <div
+            v-if="shippingSummaryView"
+            class="flex items-center justify-between"
+          >
+            <span
+              class="
+                text-primary-950
+                dark:text-primary-50
+              "
+            >
+              {{ t('shipping') }}
+            </span>
+            <span
+              v-if="effectiveShippingPrice === 0"
+              class="font-bold text-success"
+            >{{ t('free') }}</span>
+            <span
+              v-else
+              class="
+                font-bold text-primary-950
+                dark:text-primary-50
+              "
+            >{{ $i18n.n(effectiveShippingPrice, 'currency') }}</span>
+          </div>
+          <div
+            v-if="showPaymentFee && payWayCost"
+            class="flex items-center justify-between"
+          >
+            <span
+              class="
+                text-primary-950
+                dark:text-primary-50
+              "
+            >{{ payWayName }}</span>
+            <span
+              class="
+                font-bold text-primary-950
+                dark:text-primary-50
+              "
+            >{{ $i18n.n(payWayCost, 'currency') }}</span>
+          </div>
+          <!-- One row per offer that took money off — the shopper sees
+               WHICH offers applied, and a coupon is credited only with
+               what it earned. The amounts sum to promotionDiscount. -->
+          <div
+            v-for="promo in appliedPromotions"
+            :key="`promo-${promo.promotionId}-${promo.code ?? 'auto'}`"
+            class="flex items-start justify-between gap-3"
+          >
+            <span class="flex flex-wrap items-center gap-1.5 text-success">
+              {{ promo.name || t('promotion_discount') }}
+              <UBadge
+                v-if="promo.code"
+                color="success"
+                variant="soft"
+                size="sm"
+                class="font-mono"
+              >
+                {{ promo.code }}
+              </UBadge>
+            </span>
+            <span class="shrink-0 font-bold text-success">-{{ $i18n.n(Number(promo.amount ?? 0), 'currency') }}</span>
+          </div>
+          <WebsideCheckoutGiftItem
+            v-for="gift in cart?.promotionGiftItems || []"
+            :key="`gift-${gift.promotionId}-${gift.productId}`"
+            :gift="gift"
+          />
+          <div
+            v-if="loyaltyDiscount > 0"
+            class="flex items-center justify-between"
+          >
+            <span class="text-success">{{ t('loyalty_discount') }}</span>
+            <span class="font-bold text-success">-{{ $i18n.n(loyaltyDiscount, 'currency') }}</span>
+          </div>
+          <div
+            v-if="giftCardApplied > 0"
+            class="flex items-center justify-between"
+          >
+            <span class="text-success">{{ t('gift_card') }}</span>
+            <span class="font-bold text-success">-{{ $i18n.n(giftCardApplied, 'currency') }}</span>
+          </div>
+        </div>
+
+        <!-- Points Earned Slot -->
+        <template v-if="$slots['points-earned']">
+          <slot name="points-earned" />
+        </template>
+
+        <div
+          class="
+            flex items-center justify-between border-t border-primary-200 pt-4
+            dark:border-primary-800
+          "
+        >
+          <span
+            class="
+              text-lg font-bold text-primary-950
+              dark:text-primary-50
+            "
+          >{{ t('total') }}</span>
+          <span
+            class="
+              text-xl font-bold text-primary-600
+              dark:text-primary-400
+            "
+          >{{ $i18n.n(checkoutTotal, 'currency') }}</span>
+        </div>
+      </div>
+
+      <template #footer>
+        <div class="space-y-4">
+          <slot name="button" />
+
+          <UButton
+            color="info"
+            variant="ghost"
+            size="sm"
+            icon="i-heroicons-question-mark-circle"
+            block
+            :to="localePath('contact')"
+            target="_blank"
+          >
+            {{ t('need_help') }}
+          </UButton>
+        </div>
+      </template>
+    </UCard>
+  </div>
+</template>
+
+<i18n lang="yaml">
+el:
+  title: Ολοκλήρωση αγοράς
+  items_unique: Προϊόντα
+  shipping: Μεταφορικά
+  free: Δωρεάν
+  total: Σύνολο
+  pay_way_fee: Προμήθεια Τρόπου πληρωμής
+  loyalty_discount: Έκπτωση πόντων
+  promotion_discount: Έκπτωση προσφοράς
+  gift_card: Δωροκάρτα
+  b2b_pricing_applied: 'Τιμές χονδρικής: {group}'
+  b2b_pricing_applied_generic: Τιμές χονδρικής
+  b2b_below_minimum: Η ελάχιστη αξία παραγγελίας χονδρικής είναι {minimum}. Πρόσθεσε προϊόντα για να ολοκληρώσεις την παραγγελία.
+  need_help: Χρειάζεσαι βοήθεια;
+  shipping_method_label:
+    home_delivery: Παράδοση στη διεύθυνσή σας
+    box_now_locker: BOX NOW Locker
+    acs_smartpoint: ACS Smartpoint
+  locker_id_short: 'ID {id}'
+</i18n>

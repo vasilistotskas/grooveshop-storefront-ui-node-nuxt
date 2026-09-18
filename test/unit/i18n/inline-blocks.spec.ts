@@ -57,7 +57,22 @@ interface Block {
 // way reported 7 untranslated files out of the real 140.
 const BLOCK_RE = /<i18n lang="yaml">\r?\n([\s\S]*?)<\/i18n>/
 
+/**
+ * The frozen `webside` tree is NOT translatable.
+ *
+ * `app/components/variants/webside/**` is a byte-for-byte copy of the
+ * storefront webside.gr renders today, kept while the platform defaults
+ * are redesigned. Adding a locale to one of those blocks would change
+ * that store's rendered output, which is the one thing the freeze
+ * exists to prevent. The debt is still tracked — against the DEFAULT
+ * copy of each component, which is where a translation belongs. The
+ * four `PageSection` variants that exist only in this tree are webside's
+ * own marketing pages, and that store serves Greek only.
+ */
+const FROZEN_TREE = path.join(ROOT, 'app/components/variants/webside')
+
 const BLOCKS: Block[] = vueFiles(path.join(ROOT, 'app'))
+  .filter(file => !file.startsWith(FROZEN_TREE))
   .map((file) => {
     const source = readFileSync(file, 'utf8')
     const match = source.match(BLOCK_RE)
