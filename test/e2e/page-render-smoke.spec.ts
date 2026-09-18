@@ -252,7 +252,9 @@ describe('every public page renders', async () => {
   // 404 on the other locale — "your terms do not exist", which is false
   // and left an English-speaking customer no route to them at all.
   it('renders an untranslated legal document in the language it exists in, and says so', async () => {
-    const { statusCode, body } = await requestWithHost('/en/privacy-policy')
+    // With a query on purpose: the canonical must name the document's
+    // URL, never the tracking params a visitor arrived with.
+    const { statusCode, body } = await requestWithHost('/en/privacy-policy?utm_source=proof')
 
     expect(statusCode, body.slice(0, 900)).toBe(200)
     // The UI is English; the DOCUMENT is marked Greek.
@@ -264,6 +266,7 @@ describe('every public page renders', async () => {
     const canonical = body.match(/<link[^>]*rel="canonical"[^>]*>/)?.[0] ?? ''
     expect(canonical).toMatch(/href="[^"]*\/privacy-policy"/)
     expect(canonical).not.toContain('/en/privacy-policy')
+    expect(canonical).not.toContain('utm_source')
     expect(body).not.toMatch(/hreflang="en"[^>]*privacy-policy/)
   }, 60000)
 

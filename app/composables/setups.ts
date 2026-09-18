@@ -67,7 +67,11 @@ export function setupPageHeader() {
     }
     const target
       = declared.find(code => code === tenantStore.defaultLocale) ?? declared[0]!
-    const path = switchLocalePath(target)
+    // switchLocalePath keeps the current query and hash; a canonical
+    // must not — a visitor arriving with ?utm_source=... would otherwise
+    // get a canonical that names the tracking params, which i18n's own
+    // canonical strips.
+    const path = switchLocalePath(target).split(/[?#]/)[0] ?? ''
     return path ? pointCanonicalAt(gated, `${siteUrl}${path}`) : gated
   })
 
