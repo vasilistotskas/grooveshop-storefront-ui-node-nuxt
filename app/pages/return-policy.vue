@@ -9,8 +9,18 @@ const localePath = useLocalePath()
 // moment /info/<slug> started redirecting to its canonical route, the
 // redirect landed visitors on a blank page and the merchant's published
 // returns policy became unreachable.
-const { title, body, tocLinks, updatedAt, hasDocument, error }
-  = await useLegalPage(LEGAL_ROUTE_SLUGS['return-policy'])
+const {
+  title,
+  body,
+  tocLinks,
+  updatedAt,
+  hasDocument,
+  error,
+  documentLocale,
+  isFallback,
+  fallbackLanguageName,
+}
+  = await useLegalPage('return-policy')
 
 if (error.value || !hasDocument.value) {
   const upstreamStatus = error.value?.statusCode ?? 404
@@ -93,6 +103,15 @@ definePageMeta({
       </template>
     </UPageHeader>
 
+    <UAlert
+      v-if="isFallback"
+      color="neutral"
+      variant="subtle"
+      icon="i-heroicons-language"
+      :title="t('legal.fallbackNotice', { language: fallbackLanguageName })"
+      class="mt-4"
+    />
+
     <div
       class="
         mt-6 flex flex-col gap-6
@@ -100,6 +119,7 @@ definePageMeta({
       "
     >
       <article
+        :lang="documentLocale"
         class="
           article text-primary-950
           dark:text-primary-50
@@ -121,6 +141,7 @@ definePageMeta({
 el:
   legal:
     lastUpdated: 'Τελευταία ενημέρωση: {date}'
+    fallbackNotice: 'Το έγγραφο αυτό διατίθεται μόνο στα {language}.'
     toc:
       title: Σε αυτή τη σελίδα
     returnPolicy:
@@ -133,6 +154,7 @@ el:
 en:
   legal:
     lastUpdated: 'Last updated: {date}'
+    fallbackNotice: 'This document is available in {language} only.'
     toc:
       title: On this page
     returnPolicy:

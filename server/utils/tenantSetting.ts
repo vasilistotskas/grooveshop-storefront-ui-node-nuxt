@@ -101,12 +101,12 @@ export async function pageTypePublishedForHost(
  * production tenants have no `return-policy` page.
  *
  * The LOCALES matter for the same reason one layer down. A page is
- * translated per locale, `extractTranslated` does not fall back to
- * another language, and the legal routes 404 on an empty body — so on a
- * tenant serving two locales, `/en/terms-of-use` is a 404 whenever the
- * merchant has written only the Greek document, which is delta-sigma's
- * state today. The row's `translations` keys are exactly the locales
- * that resolve.
+ * translated per locale, and on a locale it is not written in the legal
+ * route renders it in the language it exists in with a canonical
+ * pointing at THAT locale's URL — so `/en/terms-of-use` on a store with
+ * a Greek-only document is a non-canonical duplicate (delta-sigma's
+ * state), and a sitemap lists canonical URLs only. The row's
+ * `translations` keys are exactly the locales that are canonical.
  *
  * The API returns only published rows to an anonymous caller, so
  * membership here is exactly "this route resolves for this tenant, in

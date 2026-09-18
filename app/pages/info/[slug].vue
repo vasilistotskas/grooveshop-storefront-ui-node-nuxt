@@ -1,9 +1,13 @@
 <script lang="ts" setup>
+import { SUPPORTED_LOCALES, type SupportedLocale } from '~~/i18n/locales'
+
 const { t, locale } = useI18n()
 const route = useRoute(`info-slug___${locale.value}`)
 const siteConfig = useSiteConfig()
 const localePath = useLocalePath()
 const { transformImages } = useHtmlContent()
+const tenantStore = useTenantStore()
+const { declare } = useDocumentLocales()
 
 const slug = computed(() => route.params.slug)
 
@@ -53,14 +57,49 @@ if (contentPageError.value || !contentPage.value) {
   )
 }
 
-const pageTitle = computed(() =>
-  extractTranslated(contentPage.value, 'title', locale.value) ?? '',
+// The document in the visitor's language, or the language it EXISTS
+// in — the store's default first, then whatever else it serves. A row
+// with no body in this locale used to render an empty article at 200
+// (a soft-404 the legal routes were specifically fixed to stop); now it
+// renders the document it has, marked as such, and only a row with no
+// usable body in ANY language is a 404.
+const resolvedBody = computed(() =>
+  resolveTranslated(contentPage.value, 'body', locale.value, [
+    tenantStore.defaultLocale,
+    ...tenantStore.availableLocales,
+  ]),
+)
+if (!resolvedBody.value) {
+  throw createError({ statusCode: 404, message: t('error.page.not.found') })
+}
+const documentLocale = computed(() => resolvedBody.value?.locale ?? locale.value)
+const isFallback = computed(() => documentLocale.value !== locale.value)
+const fallbackLanguageName = computed(() => {
+  if (!isFallback.value) return ''
+  try {
+    return (
+      new Intl.DisplayNames([locale.value], { type: 'language' }).of(
+        documentLocale.value,
+      ) ?? documentLocale.value
+    )
+  }
+  catch {
+    return documentLocale.value
+  }
+})
+declare(
+  Object.keys(contentPage.value.translations ?? {}).filter(
+    code => !!resolveTranslated(contentPage.value, 'body', code, []),
+  ),
 )
 
-const pageBody = computed(() => {
-  const rawBody = extractTranslated(contentPage.value, 'body', locale.value) ?? ''
-  return transformImages(rawBody)
-})
+const pageTitle = computed(() =>
+  extractTranslated(contentPage.value, 'title', documentLocale.value)
+  ?? extractTranslated(contentPage.value, 'title', locale.value)
+  ?? '',
+)
+
+const pageBody = computed(() => transformImages(resolvedBody.value?.value ?? ''))
 
 const pageSeoTitle = computed(() => contentPage.value?.seoTitle || pageTitle.value)
 // `undefined`, never '': an empty value still emits
@@ -88,8 +127,21 @@ const items = computed(() => [
 
 // Canonical is built from the entity's own slug, not route.path, matching
 // blog/post and products/category — keeps a single indexable URL per page.
+// In the locale the document EXISTS in: a fallback render is a
+// non-canonical copy and must say so, or it is indexed twice. Only a
+// locale the storefront can route is a URL; a document that exists
+// solely in one it cannot keeps the current path.
+const canonicalLocale = computed(() =>
+  (SUPPORTED_LOCALES as readonly string[]).includes(documentLocale.value)
+    ? (documentLocale.value as SupportedLocale)
+    : undefined,
+)
 const canonicalUrl = computed(
-  () => `${siteConfig.url}/info/${contentPage.value?.slug}`,
+  () =>
+    `${siteConfig.url}${localePath(
+      { name: 'info-slug', params: { slug: contentPage.value?.slug ?? '' } },
+      canonicalLocale.value,
+    )}`,
 )
 
 useSeoMeta({
@@ -132,7 +184,17 @@ definePageMeta({
       class="mb-4"
     />
 
+    <UAlert
+      v-if="isFallback"
+      color="neutral"
+      variant="subtle"
+      icon="i-heroicons-language"
+      :title="t('document.fallbackNotice', { language: fallbackLanguageName })"
+      class="mb-4"
+    />
+
     <article
+      :lang="documentLocale"
       class="
         article text-primary-950
         dark:text-primary-50
@@ -145,3 +207,12 @@ definePageMeta({
     </article>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  document:
+    fallbackNotice: 'Το έγγραφο αυτό διατίθεται μόνο στα {language}.'
+en:
+  document:
+    fallbackNotice: 'This document is available in {language} only.'
+</i18n>

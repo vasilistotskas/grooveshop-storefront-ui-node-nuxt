@@ -122,6 +122,22 @@ export function gateLocaleHeadByTenant<T extends object>(
  * wastes the space Google gives it. Above ~160 the tail is truncated
  * away, so 155 leaves room for the ellipsis inside the budget.
  */
+/**
+ * Point the canonical at `href`, leaving every other link alone.
+ *
+ * Used when a page renders a document in a language other than the
+ * route's — the fallback render must not be indexed as a second copy of
+ * the same text, so its canonical names the URL of the locale the
+ * document actually exists in.
+ */
+export function pointCanonicalAt<T extends object>(head: T, href: string): T {
+  const { link } = head as { link?: LocaleHeadLink[] }
+  return {
+    ...head,
+    link: link?.map(l => (l.rel === 'canonical' ? { ...l, href } : l)),
+  }
+}
+
 export const META_DESCRIPTION_MIN_LENGTH = 110
 export const META_DESCRIPTION_MAX_LENGTH = 155
 

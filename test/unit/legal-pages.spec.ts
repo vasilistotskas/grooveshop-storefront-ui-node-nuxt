@@ -53,10 +53,12 @@ const LEGAL_PAGES = {
 describe('legal pages render the tenant\'s own document', () => {
   it.each(Object.entries(LEGAL_PAGES))(
     '%s consults its ContentPage slug',
-    (_route, path) => {
+    (route, path) => {
+      // The page names its route; the composable resolves the slug
+      // through LEGAL_ROUTE_SLUGS, so a page cannot pair itself with
+      // the wrong document.
       const source = read(path)
-      expect(source).toContain('useLegalPage')
-      expect(source).toContain('LEGAL_ROUTE_SLUGS')
+      expect(source).toContain(`useLegalPage('${route}')`)
     },
   )
 

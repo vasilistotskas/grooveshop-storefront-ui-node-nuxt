@@ -116,7 +116,13 @@ describe('every public page renders', async () => {
           id: 1,
           uuid: '00000000-0000-4000-8000-000000000000',
           slug,
-          translations: { el: translation, en: translation },
+          // `privacy` exists in Greek only — the state of a store whose
+          // merchant has not translated a document, and what the
+          // fallback assertions below render through. Everything else
+          // carries both, so the plain route table stays unaffected.
+          translations: slug === 'privacy'
+            ? { el: translation }
+            : { el: translation, en: translation },
           isPublished: true,
           publishedAt: '2026-01-01T00:00:00Z',
           createdAt: '2026-01-01T00:00:00Z',
@@ -239,6 +245,33 @@ describe('every public page renders', async () => {
       `lang="${lang}"`,
     )
     expect(body).not.toContain('"statusCode":500')
+  }, 60000)
+
+  // A legal document the merchant wrote in one language is still the
+  // store's document in every language it serves. Before this it was a
+  // 404 on the other locale — "your terms do not exist", which is false
+  // and left an English-speaking customer no route to them at all.
+  it('renders an untranslated legal document in the language it exists in, and says so', async () => {
+    const { statusCode, body } = await requestWithHost('/en/privacy-policy')
+
+    expect(statusCode, body.slice(0, 900)).toBe(200)
+    // The UI is English; the DOCUMENT is marked Greek.
+    expect(body).toContain('lang="en-US"')
+    expect(body).toMatch(/<article[^>]*\slang="el"/)
+    expect(body).toContain('This document is available in Greek only.')
+    // The fallback render is not a second copy: canonical names the
+    // locale the document is in, and no alternate claims an English one.
+    const canonical = body.match(/<link[^>]*rel="canonical"[^>]*>/)?.[0] ?? ''
+    expect(canonical).toMatch(/href="[^"]*\/privacy-policy"/)
+    expect(canonical).not.toContain('/en/privacy-policy')
+    expect(body).not.toMatch(/hreflang="en"[^>]*privacy-policy/)
+  }, 60000)
+
+  it('renders a translated legal document in the requested language, unmarked', async () => {
+    const { body } = await requestWithHost('/en/terms-of-use')
+
+    expect(body).not.toContain('This document is available in')
+    expect(body).toMatch(/<article[^>]*\slang="en"/)
   }, 60000)
 
   it('serves a tenant with a chrome variant its OWN navbar and footer', async () => {

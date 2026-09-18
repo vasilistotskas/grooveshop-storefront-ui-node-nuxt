@@ -3,8 +3,18 @@ const { t, locale } = useI18n()
 const localePath = useLocalePath()
 // The document is the tenant's own ContentPage — see useLegalPage for
 // why this page no longer carries the platform's text as a fallback.
-const { title, body, tocLinks, updatedAt, hasDocument, error }
-  = await useLegalPage(LEGAL_ROUTE_SLUGS['cookies-policy'])
+const {
+  title,
+  body,
+  tocLinks,
+  updatedAt,
+  hasDocument,
+  error,
+  documentLocale,
+  isFallback,
+  fallbackLanguageName,
+}
+  = await useLegalPage('cookies-policy')
 
 // Same normalization as app/pages/about.vue: a backend outage is a 503,
 // a genuinely absent document is a 404. Rendering an empty <main> with
@@ -89,6 +99,15 @@ definePageMeta({
       </template>
     </UPageHeader>
 
+    <UAlert
+      v-if="isFallback"
+      color="neutral"
+      variant="subtle"
+      icon="i-heroicons-language"
+      :title="t('legal.fallbackNotice', { language: fallbackLanguageName })"
+      class="mt-4"
+    />
+
     <div
       class="
         mt-6 flex flex-col gap-6
@@ -96,6 +115,7 @@ definePageMeta({
       "
     >
       <article
+        :lang="documentLocale"
         class="
           article text-primary-950
           dark:text-primary-50
@@ -118,6 +138,7 @@ el:
   legal:
     headline: Νομικά
     lastUpdated: 'Τελευταία ενημέρωση: {date}'
+    fallbackNotice: 'Το έγγραφο αυτό διατίθεται μόνο στα {language}.'
     toc:
       title: Σε αυτή τη σελίδα
     cookies:
@@ -131,6 +152,7 @@ en:
   legal:
     headline: Legal
     lastUpdated: 'Last updated: {date}'
+    fallbackNotice: 'This document is available in {language} only.'
     toc:
       title: On this page
     cookies:
