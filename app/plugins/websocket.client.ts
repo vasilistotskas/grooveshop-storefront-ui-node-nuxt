@@ -88,7 +88,11 @@ export default defineNuxtPlugin({
           // would reuse the same (dead) URL. Instead we handle reconnection
           // manually via onDisconnected so each attempt fetches a fresh ticket.
           autoReconnect: false,
-          heartbeat: { message: 'ping', interval: 30000, pongTimeout: 5000 },
+          heartbeat: {
+            message: 'ping',
+            scheduler: ping => useIntervalFn(ping, 30000, { immediate: false }),
+            pongTimeout: 5000,
+          },
           onConnected: () => {
             reconnectAttempt = 0
             log.info('ws', 'Connected')

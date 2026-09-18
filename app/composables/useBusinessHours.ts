@@ -27,7 +27,7 @@ export function useBusinessHours() {
     return parsed
   })
 
-  const now = useNow({ interval: 60_000 })
+  const now = useNow({ scheduler: update => useIntervalFn(update, 60_000) })
 
   const state = computed(() =>
     hours.value ? resolveBusinessHoursState(hours.value, now.value) : null,
