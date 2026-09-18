@@ -11,6 +11,7 @@ export const useCartStore = defineStore('cart', () => {
   const tiktokPixel = useTikTokPixel()
   const openaiPixel = useOpenAIPixel()
   const ga4 = useGA4()
+  const googleAds = useGoogleAds()
   const attribution = useRecommendationAttribution()
   const cart = ref<CartDetail | null>(null)
   const inFlight = reactive(new Set<string>())
@@ -149,6 +150,8 @@ export const useCartStore = defineStore('cart', () => {
             },
           ],
         })
+
+        googleAds.trackAddToCart({ currency, value })
 
         ga4.trackAddToCart({
           currency,

@@ -24,11 +24,6 @@
  * https://developers.google.com/analytics/devguides/collection/ga4/reference/events
  */
 
-const NOOP_PROXY = new Proxy(() => undefined, {
-  get: () => () => undefined,
-  apply: () => undefined,
-})
-
 type GA4EventName
   = | 'page_view'
     | 'view_item'
@@ -49,59 +44,20 @@ type GA4EventName
 type GA4Payload = Record<string, unknown>
 
 export function useGA4() {
-  const config = useRuntimeConfig()
-  const tenantStore = useTenantStore()
-  // Prefer per-tenant GA tracking id; fall back to platform-wide env var.
-  const measurementId
-    = tenantStore.gaTrackingId
-      || (config.public.scripts as { googleAnalytics?: { id?: string } })
-        ?.googleAnalytics?.id
-
-  // Real GA4 ids match ``G-`` followed by 8+ alphanumerics. Treat the
-  // ``G-XXXXXXXXXX`` placeholder (and any other malformed value) as
-  // unprovisioned so @nuxt/scripts never preloads ``gtag.js``.
-  const isProvisioned
-    = !!measurementId
-      && measurementId !== 'G-XXXXXXXXXX'
-      && /^G-[A-Z0-9]{8,}$/.test(measurementId)
-
-  // Same as setupGoogleAnalyticsConsent: load on idle so the GA
-  // bundle never blocks paint. Multiple ``useScriptGoogleAnalytics``
-  // calls dedup at the @nuxt/scripts registry level — they all
-  // resolve to the same global proxy.
-  //
-  // This composable is captured at Pinia-store setup (``stores/cart.ts``
-  // → ``plugins/setup.ts`` runs during the plugin phase, BEFORE
-  // ``app.vue`` setup calls ``setupGoogleAnalyticsConsent``). If this
-  // first registration omitted ``defaultConsent``, the @nuxt/scripts
-  // dedup would win with a granted-by-default consent posture and
-  // ``gtag.js`` would set ``_ga``/``_gid`` and send hits before the
-  // cookie banner is answered — the same GDPR leak already fixed for
-  // the Meta/TikTok pixels. So carry the identical denied consent block
-  // here (keep in sync with ``setupGoogleAnalyticsConsent`` in
-  // ``setups.ts``); the consent-update watcher there grants it once the
-  // visitor accepts. ``import.meta.client`` mirrors useMetaPixel /
-  // useTikTokPixel for SSR safety.
-  const proxy = isProvisioned && import.meta.client
-    ? (useScriptGoogleAnalytics({
-        id: measurementId,
-        scriptOptions: { trigger: 'onNuxtReady' },
-        defaultConsent: {
-          ad_user_data: 'denied',
-          ad_personalization: 'denied',
-          ad_storage: 'denied',
-          analytics_storage: 'denied',
-          functionality_storage: 'granted',
-          personalization_storage: 'denied',
-          security_storage: 'denied',
-          wait_for_update: 500,
-        },
-      }) as any).proxy
-    : { gtag: NOOP_PROXY }
+  // The tag is owned by useGoogleTag: one registration shape, tenant-only
+  // ids, `trigger: 'manual'` so this consumer never re-arms an early
+  // load, and the same denied-by-default consent block everywhere.
+  // Before this the composable carried its own registration with
+  // `trigger: 'onNuxtReady'` and a platform env fallback for the id —
+  // the former silently defeated the interaction/5s trigger in
+  // setupGoogleAnalyticsConsent, the latter contradicted the rule that
+  // no store-facing id falls back to the platform's.
+  const { gaId, gtag: tag } = useGoogleTag()
+  const isProvisioned = !!gaId
 
   const gtag = (name: GA4EventName, params?: GA4Payload): void => {
     if (!isProvisioned) return
-    proxy.gtag('event', name, params ?? {})
+    tag('event', name, params ?? {})
   }
 
   const trackViewItem = (data: GA4CommonData) => gtag('view_item', data)

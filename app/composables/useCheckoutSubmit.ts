@@ -52,6 +52,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   const tiktokPixel = useTikTokPixel()
   const openaiPixel = useOpenAIPixel()
   const ga4 = useGA4()
+  const googleAds = useGoogleAds()
   const cookieControl = useCookieControl()
   const metaEventIds = reactive<{
     initiateCheckout?: string
@@ -1005,6 +1006,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
             ),
           })) ?? [],
       })
+
+      googleAds.trackBeginCheckout({ currency, value })
 
       ga4.trackBeginCheckout({
         currency,

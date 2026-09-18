@@ -5228,24 +5228,30 @@ export const zSlotEnum = z.enum([
   description: '* `header` - Header\n* `footer` - Footer\n* `mobile` - Mobile',
 })
 
+/**
+ * The slot row alone.
+ *
+ * Columns and links are relational and edited in the admin; this
+ * surface used to carry the JSON menu and validate it, and that blob
+ * no longer exists on the model.
+ */
 export const zNavigationMenu = z.object({
   slot: zSlotEnum,
-  items: z.unknown().register(z.globalRegistry, {
-    description: 'header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. \'to\' must be an internal path starting with \'/\', \'href\' an https URL.',
-  }).optional(),
-  i18n: z.unknown().register(z.globalRegistry, {
-    description: 'Per-locale menus, e.g. {"en": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above.',
-  }).optional(),
+}).register(z.globalRegistry, {
+  description: 'The slot row alone.\n\nColumns and links are relational and edited in the admin; this\nsurface used to carry the JSON menu and validate it, and that blob\nno longer exists on the model.',
 })
 
+/**
+ * The slot row alone.
+ *
+ * Columns and links are relational and edited in the admin; this
+ * surface used to carry the JSON menu and validate it, and that blob
+ * no longer exists on the model.
+ */
 export const zNavigationMenuRequest = z.object({
   slot: zSlotEnum,
-  items: z.unknown().register(z.globalRegistry, {
-    description: 'header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. \'to\' must be an internal path starting with \'/\', \'href\' an https URL.',
-  }).optional(),
-  i18n: z.unknown().register(z.globalRegistry, {
-    description: 'Per-locale menus, e.g. {"en": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above.',
-  }).optional(),
+}).register(z.globalRegistry, {
+  description: 'The slot row alone.\n\nColumns and links are relational and edited in the admin; this\nsurface used to carry the JSON menu and validate it, and that blob\nno longer exists on the model.',
 })
 
 export const zPaginatedNavigationMenuList = z.object({
@@ -5261,14 +5267,17 @@ export const zPaginatedNavigationMenuList = z.object({
   results: z.array(zNavigationMenu),
 })
 
+/**
+ * The slot row alone.
+ *
+ * Columns and links are relational and edited in the admin; this
+ * surface used to carry the JSON menu and validate it, and that blob
+ * no longer exists on the model.
+ */
 export const zPatchedNavigationMenuRequest = z.object({
   slot: zSlotEnum.optional(),
-  items: z.unknown().register(z.globalRegistry, {
-    description: 'header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. \'to\' must be an internal path starting with \'/\', \'href\' an https URL.',
-  }).optional(),
-  i18n: z.unknown().register(z.globalRegistry, {
-    description: 'Per-locale menus, e.g. {"en": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above.',
-  }).optional(),
+}).register(z.globalRegistry, {
+  description: 'The slot row alone.\n\nColumns and links are relational and edited in the admin; this\nsurface used to carry the JSON menu and validate it, and that blob\nno longer exists on the model.',
 })
 
 /**
@@ -5581,6 +5590,11 @@ export const zTenantConfig = z.object({
   tiktokPixelId: z.string().readonly(),
   openaiPixelId: z.string().optional(),
   gaTrackingId: z.string().readonly(),
+  googleAdsConversionId: z.string().readonly(),
+  googleAdsPurchaseLabel: z.string().readonly(),
+  googleAdsAddToCartLabel: z.string().readonly(),
+  googleAdsBeginCheckoutLabel: z.string().readonly(),
+  googleAdsPageViewLabel: z.string().readonly(),
   totpIssuer: z.string().readonly(),
   socialsDiscord: z.string().readonly(),
   socialsFacebook: z.string().readonly(),
@@ -6277,6 +6291,9 @@ export const zOrderDetail = z.object({
   }).readonly(),
   currency: z.string().register(z.globalRegistry, {
     description: 'ISO 4217 currency code for every monetary field on the order (paidAmount, shippingPrice, totalPriceItems, …). Surfaced as a top-level field because djmoney serialises money fields as bare numbers — without this, the frontend has no way to know whether ``59.98`` is EUR or USD, which breaks ad-pixel attribution and cart totals in multi-currency reports.',
+  }).readonly(),
+  isFirstOrder: z.boolean().register(z.globalRegistry, {
+    description: 'True when the customer (account, or email for a guest) has no earlier non-canceled order. Feeds the ``new_customer`` parameter of the Google Ads purchase conversion, which Google asks to be calculated rather than hardcoded.',
   }).readonly(),
 })
 

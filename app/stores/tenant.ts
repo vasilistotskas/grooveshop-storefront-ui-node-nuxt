@@ -42,6 +42,24 @@ export const useTenantStore = defineStore('tenant', () => {
   const tiktokPixelId = computed(() => config.value?.tiktokPixelId ?? '')
   const openaiPixelId = computed(() => config.value?.openaiPixelId ?? '')
   const gaTrackingId = computed(() => config.value?.gaTrackingId ?? '')
+  // Google Ads conversion tracking — the id and one label per action
+  // the storefront reports. Consumed by useGoogleAds; '' means the
+  // action is not reported for this store.
+  const googleAdsConversionId = computed(
+    () => config.value?.googleAdsConversionId ?? '',
+  )
+  const googleAdsPurchaseLabel = computed(
+    () => config.value?.googleAdsPurchaseLabel ?? '',
+  )
+  const googleAdsAddToCartLabel = computed(
+    () => config.value?.googleAdsAddToCartLabel ?? '',
+  )
+  const googleAdsBeginCheckoutLabel = computed(
+    () => config.value?.googleAdsBeginCheckoutLabel ?? '',
+  )
+  const googleAdsPageViewLabel = computed(
+    () => config.value?.googleAdsPageViewLabel ?? '',
+  )
 
   // MFA — empty string means Django uses its own default issuer
   const totpIssuer = computed(() => config.value?.totpIssuer ?? '')
@@ -117,6 +135,11 @@ export const useTenantStore = defineStore('tenant', () => {
     tiktokPixelId,
     openaiPixelId,
     gaTrackingId,
+    googleAdsConversionId,
+    googleAdsPurchaseLabel,
+    googleAdsAddToCartLabel,
+    googleAdsBeginCheckoutLabel,
+    googleAdsPageViewLabel,
     totpIssuer,
     boxNowPartnerId,
     socials,

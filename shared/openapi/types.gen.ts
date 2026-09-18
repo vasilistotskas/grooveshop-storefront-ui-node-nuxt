@@ -3564,36 +3564,26 @@ export type MerchantLegalIdentity = {
   readonly isComplete: boolean
 }
 
+/**
+ * The slot row alone.
+ *
+ * Columns and links are relational and edited in the admin; this
+ * surface used to carry the JSON menu and validate it, and that blob
+ * no longer exists on the model.
+ */
 export type NavigationMenu = {
   slot: SlotEnum
-  /**
-     * Είδη
-     *
-     * header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL.
-     */
-  items?: unknown
-  /**
-     * Locale Overrides
-     *
-     * Per-locale menus, e.g. {"en": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above.
-     */
-  i18n?: unknown
 }
 
+/**
+ * The slot row alone.
+ *
+ * Columns and links are relational and edited in the admin; this
+ * surface used to carry the JSON menu and validate it, and that blob
+ * no longer exists on the model.
+ */
 export type NavigationMenuRequest = {
   slot: SlotEnum
-  /**
-     * Είδη
-     *
-     * header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL.
-     */
-  items?: unknown
-  /**
-     * Locale Overrides
-     *
-     * Per-locale menus, e.g. {"en": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above.
-     */
-  i18n?: unknown
 }
 
 /**
@@ -4410,6 +4400,10 @@ export type OrderDetail = {
      * ISO 4217 currency code for every monetary field on the order (paidAmount, shippingPrice, totalPriceItems, …). Surfaced as a top-level field because djmoney serialises money fields as bare numbers — without this, the frontend has no way to know whether ``59.98`` is EUR or USD, which breaks ad-pixel attribution and cart totals in multi-currency reports.
      */
   readonly currency: string
+  /**
+     * True when the customer (account, or email for a guest) has no earlier non-canceled order. Feeds the ``new_customer`` parameter of the Google Ads purchase conversion, which Google asks to be calculated rather than hardcoded.
+     */
+  readonly isFirstOrder: boolean
 }
 
 /**
@@ -5425,20 +5419,15 @@ export type PatchedCountryWriteRequest = {
   phoneCode?: number | null
 }
 
+/**
+ * The slot row alone.
+ *
+ * Columns and links are relational and edited in the admin; this
+ * surface used to carry the JSON menu and validate it, and that blob
+ * no longer exists on the model.
+ */
 export type PatchedNavigationMenuRequest = {
   slot?: SlotEnum
-  /**
-     * Είδη
-     *
-     * header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL.
-     */
-  items?: unknown
-  /**
-     * Locale Overrides
-     *
-     * Per-locale menus, e.g. {"en": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above.
-     */
-  i18n?: unknown
 }
 
 export type PatchedNotificationUserWriteRequest = {
@@ -8647,6 +8636,11 @@ export type TenantConfig = {
   readonly tiktokPixelId: string
   openaiPixelId?: string
   readonly gaTrackingId: string
+  readonly googleAdsConversionId: string
+  readonly googleAdsPurchaseLabel: string
+  readonly googleAdsAddToCartLabel: string
+  readonly googleAdsBeginCheckoutLabel: string
+  readonly googleAdsPageViewLabel: string
   readonly totpIssuer: string
   readonly socialsDiscord: string
   readonly socialsFacebook: string

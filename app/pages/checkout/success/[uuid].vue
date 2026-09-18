@@ -161,6 +161,7 @@ const metaPixel = useMetaPixel()
 const tiktokPixel = useTikTokPixel()
 const openaiPixel = useOpenAIPixel()
 const ga4 = useGA4()
+const googleAds = useGoogleAds()
 const purchaseEventFired = ref(false)
 function tryFirePurchaseEvent() {
   if (!order.value || purchaseEventFired.value) return
@@ -262,6 +263,16 @@ function tryFirePurchaseEvent() {
         quantity: Number(item.quantity ?? 0),
         price: Number(item.price ?? 0),
       })),
+    })
+    // Google Ads: the purchase conversion, with the real order value and
+    // the order id as transaction_id (Google dedups on it across legs).
+    // new_customer is the API's Order.isFirstOrder — computed, as Google
+    // asks, not hardcoded.
+    googleAds.trackPurchase({
+      currency,
+      value,
+      transactionId,
+      newCustomer: order.value.isFirstOrder,
     })
     purchaseEventFired.value = true
   }

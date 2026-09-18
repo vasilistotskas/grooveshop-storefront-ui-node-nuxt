@@ -60015,17 +60015,10 @@
             },
             "NavigationMenu": {
                 "type": "object",
+                "description": "The slot row alone.\n\nColumns and links are relational and edited in the admin; this\nsurface used to carry the JSON menu and validate it, and that blob\nno longer exists on the model.",
                 "properties": {
                     "slot": {
                         "$ref": "#/components/schemas/SlotEnum"
-                    },
-                    "items": {
-                        "title": "Είδη",
-                        "description": "header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL."
-                    },
-                    "i18n": {
-                        "title": "Locale Overrides",
-                        "description": "Per-locale menus, e.g. {\"en\": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above."
                     }
                 },
                 "required": [
@@ -60034,17 +60027,10 @@
             },
             "NavigationMenuRequest": {
                 "type": "object",
+                "description": "The slot row alone.\n\nColumns and links are relational and edited in the admin; this\nsurface used to carry the JSON menu and validate it, and that blob\nno longer exists on the model.",
                 "properties": {
                     "slot": {
                         "$ref": "#/components/schemas/SlotEnum"
-                    },
-                    "items": {
-                        "title": "Είδη",
-                        "description": "header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL."
-                    },
-                    "i18n": {
-                        "title": "Locale Overrides",
-                        "description": "Per-locale menus, e.g. {\"en\": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above."
                     }
                 },
                 "required": [
@@ -61556,6 +61542,11 @@
                         "example": "EUR",
                         "readOnly": true,
                         "description": "ISO 4217 currency code for every monetary field on the order (paidAmount, shippingPrice, totalPriceItems, …). Surfaced as a top-level field because djmoney serialises money fields as bare numbers — without this, the frontend has no way to know whether ``59.98`` is EUR or USD, which breaks ad-pixel attribution and cart totals in multi-currency reports."
+                    },
+                    "isFirstOrder": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "description": "True when the customer (account, or email for a guest) has no earlier non-canceled order. Feeds the ``new_customer`` parameter of the Google Ads purchase conversion, which Google asks to be calculated rather than hardcoded."
                     }
                 },
                 "required": [
@@ -61588,6 +61579,7 @@
                     "isCanceled",
                     "isCollectedOnDelivery",
                     "isCompleted",
+                    "isFirstOrder",
                     "isOnlinePayment",
                     "isPaid",
                     "items",
@@ -64623,17 +64615,10 @@
             },
             "PatchedNavigationMenuRequest": {
                 "type": "object",
+                "description": "The slot row alone.\n\nColumns and links are relational and edited in the admin; this\nsurface used to carry the JSON menu and validate it, and that blob\nno longer exists on the model.",
                 "properties": {
                     "slot": {
                         "$ref": "#/components/schemas/SlotEnum"
-                    },
-                    "items": {
-                        "title": "Είδη",
-                        "description": "header/mobile: [{label, to|href, icon?}]; footer: [{label, icon?, children: [{label, to|href}]}]. 'to' must be an internal path starting with '/', 'href' an https URL."
-                    },
-                    "i18n": {
-                        "title": "Locale Overrides",
-                        "description": "Per-locale menus, e.g. {\"en\": [...]}, in the same shape as Items. A menu is translated whole rather than per item, because an index-keyed overlay would retarget every label the first time the menu is reordered. Locales with no entry here get the menu above."
                     }
                 }
             },
@@ -71450,6 +71435,26 @@
                         "type": "string",
                         "readOnly": true
                     },
+                    "googleAdsConversionId": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "googleAdsPurchaseLabel": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "googleAdsAddToCartLabel": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "googleAdsBeginCheckoutLabel": {
+                        "type": "string",
+                        "readOnly": true
+                    },
+                    "googleAdsPageViewLabel": {
+                        "type": "string",
+                        "readOnly": true
+                    },
                     "totpIssuer": {
                         "type": "string",
                         "readOnly": true
@@ -71513,6 +71518,11 @@
                     "faviconUrl",
                     "gaTrackingId",
                     "giftCardsEnabled",
+                    "googleAdsAddToCartLabel",
+                    "googleAdsBeginCheckoutLabel",
+                    "googleAdsConversionId",
+                    "googleAdsPageViewLabel",
+                    "googleAdsPurchaseLabel",
                     "infoHex",
                     "logoDarkUrl",
                     "logoLightUrl",

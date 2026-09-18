@@ -34,18 +34,42 @@ export function setupPageHeader() {
   // via tenantAllowedLocales), so a Greek-only store never advertises
   // the `/en/**` its locale middleware answers 404 for — the same gate
   // the sitemap applies in server/plugins/sitemap-tenant-gate.ts.
-  const i18nHead = computed(() =>
-    gateLocaleHeadByTenant(
-      tenantStore.primaryDomain
-        ? rebaseLocaleHeadOrigins(
-            rawI18nHead.value,
-            publicConfig.baseUrl as string,
-            `https://${tenantStore.primaryDomain}`,
-          )
-        : rawI18nHead.value,
-      tenantStore.availableLocales,
-    ),
-  )
+  // A page rendering a document that exists in fewer languages than the
+  // tenant serves declares them (useDocumentLocales); the hreflang set
+  // then covers only those, and on a locale the document is NOT in the
+  // canonical names the URL of the locale it IS in — the tenant's
+  // default first, which is also the order the page itself falls back
+  // in — so the fallback render is never indexed as a second copy.
+  const { forCurrentRoute: documentLocales } = useDocumentLocales()
+  const switchLocalePath = useSwitchLocalePath()
+  const i18nHead = computed(() => {
+    const rebased = tenantStore.primaryDomain
+      ? rebaseLocaleHeadOrigins(
+          rawI18nHead.value,
+          publicConfig.baseUrl as string,
+          `https://${tenantStore.primaryDomain}`,
+        )
+      : rawI18nHead.value
+    const declared = documentLocales.value
+    const allowed = declared
+      ? tenantStore.availableLocales.filter(code =>
+          (declared as readonly string[]).includes(code),
+        )
+      : tenantStore.availableLocales
+    const gated = gateLocaleHeadByTenant(rebased, allowed)
+    const current = $i18n.locale.value as string
+    if (
+      !declared
+      || declared.length === 0
+      || (declared as readonly string[]).includes(current)
+    ) {
+      return gated
+    }
+    const target
+      = declared.find(code => code === tenantStore.defaultLocale) ?? declared[0]!
+    const path = switchLocalePath(target)
+    return path ? pointCanonicalAt(gated, `${siteUrl}${path}`) : gated
+  })
 
   // Asset-origin hints for the origins THIS page's images and static
   // files actually load from: the tenant's own white-label origin when
@@ -172,17 +196,18 @@ export function setupGoogleAnalyticsConsent() {
   const tenantStore = useTenantStore()
   // Tenant-only — no platform/env fallback (every tenant provisions its
   // own GA property; a shared id would mix analytics across merchants).
-  const id = tenantStore.gaTrackingId
-  // Skip the script entirely when the id is missing or still the
-  // placeholder. Otherwise @nuxt/scripts preloads ``gtag.js`` for
-  // every visitor and the resource sits unused (browser warns
-  // "preloaded but not used"). Real GA4 ids are ``G-`` followed by
-  // 10+ alphanumerics — ``G-XXXXXXXXXX`` is the example value.
-  if (!id || !/^G-[A-Z0-9]{8,}$/.test(id) || id === 'G-XXXXXXXXXX') {
-    return
-  }
-  const { consent } = useScriptGoogleAnalytics({
-    id,
+  // ONE Google tag serves both GA4 and Google Ads: gtag.js is loaded
+  // with whichever id the store has (GA4 first), and the other is
+  // attached with gtag('config') below. Skipped entirely when the store
+  // has neither — otherwise @nuxt/scripts preloads 173KB of gtag.js for
+  // every visitor and it sits unused. See useGoogleTag for the id rules.
+  const { gaId, adsId, tagId } = googleTagIds({
+    gaTrackingId: tenantStore.gaTrackingId,
+    googleAdsConversionId: tenantStore.googleAdsConversionId,
+  })
+  if (!tagId) return
+  const { consent, proxy } = useScriptGoogleAnalytics({
+    id: tagId,
     scriptOptions: {
       // gtag is 173KB of transfer that loads for EVERY visitor before
       // any consent (Consent Mode v2 pings), and it was the
@@ -219,17 +244,30 @@ export function setupGoogleAnalyticsConsent() {
         : 'onNuxtReady',
       warmupStrategy: 'preconnect',
     },
-    defaultConsent: {
-      ad_user_data: 'denied',
-      ad_personalization: 'denied',
-      ad_storage: 'denied',
-      analytics_storage: 'denied',
-      functionality_storage: 'granted',
-      personalization_storage: 'denied',
-      security_storage: 'denied',
-      wait_for_update: 500,
-    },
-  })
+    defaultConsent: GOOGLE_TAG_DEFAULT_CONSENT,
+  }) as any
+
+  // The second product on the same tag. Pushed onto the dataLayer right
+  // after registration, so it lands after the module's own
+  // gtag('js') + gtag('config', tagId) and before any conversion event
+  // — the order of Google's own snippet. With only an Ads id, tagId IS
+  // the Ads id and this is a no-op.
+  if (gaId && adsId) {
+    proxy.gtag('config', adsId)
+  }
+
+  // Page-view conversion, when the store has a label for it. gtag's
+  // config sends GA4's own page_view and GA4 Enhanced Measurement
+  // follows history changes on its own, so this is Ads-only: a
+  // conversion per navigation, including the first render.
+  const googleAds = useGoogleAds()
+  if (googleAds.hasConversion('page_view')) {
+    const router = useRouter()
+    googleAds.trackPageView()
+    router.afterEach((to, from) => {
+      if (to.fullPath !== from.fullPath) googleAds.trackPageView()
+    })
+  }
 
   const {
     cookiesEnabledIds,
