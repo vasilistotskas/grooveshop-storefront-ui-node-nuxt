@@ -1,3 +1,10 @@
+## [3.202.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.0...v3.202.1) (2026-09-19)
+
+
+### Bug Fixes
+
+* **page-builder:** render the hero slides the schema has always accepted ([96c9554](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/96c955457e574237ad9bd9440747f17b736c5244))
+
 # [3.202.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.201.4...v3.202.0) (2026-09-19)
 
 
