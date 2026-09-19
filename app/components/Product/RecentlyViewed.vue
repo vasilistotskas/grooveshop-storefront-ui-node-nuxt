@@ -66,7 +66,10 @@ const hasItems = computed(() => visibleItems.value.length > 0)
 const carouselUI = {
   root: 'w-full max-w-full',
   viewport: 'overflow-hidden w-full',
-  container: 'flex w-full',
+  // `items-stretch` beats the carousel's own `items-start`: the card
+  // below is `h-full`, which does nothing while its slide is free to
+  // take its natural height.
+  container: 'flex w-full items-stretch',
   item: `
     min-w-0 shrink-0 grow-0 basis-1/2
     md:basis-1/3

@@ -26,6 +26,13 @@ const { isMobileOrTablet } = useDevice()
  * button.
  */
 const carouselUi = {
+  // The carousel's own container is `items-start`, so every slide takes
+  // its natural height and the card's `h-full` resolves against it —
+  // measured on the demo homepage, cards in one row ran 422/450/474px
+  // and the buy buttons sat on three different lines. A card missing a
+  // rating row is shorter than its neighbour; that must not move the
+  // button.
+  container: 'items-stretch',
   item: `
     basis-[78%] px-2
     sm:basis-1/2

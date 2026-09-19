@@ -64,11 +64,23 @@ const priorityAttrs = computed(() =>
 
 <template>
   <!-- Unbranded non-platform tenant: text wordmark, never another
-       store's logo asset (useTenantBranding returns '' in that case). -->
+       store's logo asset (useTenantBranding returns '' in that case).
+
+       `width` is the IMG's fit box and is NOT a cap on the wordmark:
+       capping it there cut the demo store's own name down to
+       "GrooveSho…" in its own header, because 132px of box cannot hold
+       178px of "GrooveShop Demo" — and most store names are longer
+       than a logo is wide. The HEIGHT is still reserved, so the header
+       does not jump. `min-w-0` keeps `truncate` available for a flex
+       parent that really is out of room; measured at 1440/768/390 the
+       full name fits with the document no wider than the viewport. -->
   <span
     v-if="!logoLightUrl"
-    class="truncate text-xl font-bold text-primary-950 dark:text-primary-50"
-    :style="{ maxWidth: `${width}px`, lineHeight: `${height}px` }"
+    class="
+      min-w-0 truncate text-xl font-bold text-primary-950
+      dark:text-primary-50
+    "
+    :style="{ lineHeight: `${height}px` }"
   >{{ tenantStore.storeName }}</span>
   <NuxtImg
     v-else
