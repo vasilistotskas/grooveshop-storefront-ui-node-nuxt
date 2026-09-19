@@ -62,11 +62,16 @@ const label = computed(() => props.heading || props.title || t('heading'))
       v-if="layout === 'slider'"
       v-slot="{ item }"
       :items="entries"
-      :ui="{ item: `
-        basis-2/3 px-2
-        sm:basis-1/3
-        lg:basis-1/5
-      ` }"
+      :ui="{
+        // Slides are `items-start` by default, so a tile with a
+        // two-line name leaves its neighbours short.
+        container: 'items-stretch',
+        item: `
+          basis-2/3 px-2
+          sm:basis-1/3
+          lg:basis-1/5
+        `,
+      }"
       class="-mx-2"
     >
       <PageSectionCategoryTile

@@ -71,15 +71,17 @@ const priorityAttrs = computed(() =>
        "GrooveSho…" in its own header, because 132px of box cannot hold
        178px of "GrooveShop Demo" — and most store names are longer
        than a logo is wide. The HEIGHT is still reserved, so the header
-       does not jump. `min-w-0` keeps `truncate` available for a flex
-       parent that really is out of room; measured at 1440/768/390 the
-       full name fits with the document no wider than the viewport. -->
+       does not jump.
+
+       `min-w-0` is what lets `truncate` work at all: a flex item will
+       not shrink below its content unless it is allowed to, so without
+       it a long name pushes the header wider than the viewport instead
+       of ellipsing. Measured with a 46-character store name at 390px:
+       the document stays 390px and the wordmark ellipses at 218px. The
+       parent must also be shrinkable — see `Chrome/Navbar.vue`. -->
   <span
     v-if="!logoLightUrl"
-    class="
-      min-w-0 truncate text-xl font-bold text-primary-950
-      dark:text-primary-50
-    "
+    class="min-w-0 truncate text-xl font-bold text-highlighted"
     :style="{ lineHeight: `${height}px` }"
   >{{ tenantStore.storeName }}</span>
   <NuxtImg

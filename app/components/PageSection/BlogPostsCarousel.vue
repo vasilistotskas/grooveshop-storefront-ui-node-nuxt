@@ -34,6 +34,10 @@ const { posts, hasPosts } = await useBlogRail({
  * band's "all articles" link, which ends the same heading row.
  */
 const carouselUi = {
+  // Slides are `items-start` by default, so each takes its natural
+  // height and the card's `h-full` has nothing to fill — one short
+  // card and the whole row's bottom edge goes ragged.
+  container: 'items-stretch',
   item: `
     basis-[86%] px-2
     sm:basis-1/2

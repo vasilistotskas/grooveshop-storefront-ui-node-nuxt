@@ -188,12 +188,22 @@ const appTitle = computed(() => tenantStore.storeName || '')
 
         <!-- `!w-auto`: Anchor hardcodes `w-full` on its
              NuxtLinkLocale branch, which in a flex row makes the logo
-             eat the space the nav and the icon cluster need. -->
+             eat the space the nav and the icon cluster need.
+
+             `min-w-0` rather than `shrink-0`: a store with no logo
+             asset renders its NAME here, and a name long enough to
+             fill the row has to ellipse rather than push the header
+             past the viewport — which needs both this and the
+             wordmark's own `min-w-0`. An image logo is unaffected:
+             `NuxtImg` carries an explicit width, which flexbox will
+             not shrink below without `min-width: 0` on the image
+             itself — measured on fyteia at 390/768/1440, the logo
+             stays 132px either way. -->
         <Anchor
           :to="'index'"
           :aria-label="appTitle"
           class="
-            !w-auto flex shrink-0 items-center
+            !w-auto flex min-w-0 items-center
             max-lg:mx-auto
           "
         >

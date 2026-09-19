@@ -146,7 +146,6 @@ onClickOutside(dropdown, () => {
           overscroll-contain rounded-lg border border-gray-200 bg-neutral-50
           shadow-md
           md:top-14
-          lg:-right-12
           dark:border-gray-800 dark:bg-neutral-900
         "
       >

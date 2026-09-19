@@ -38,6 +38,10 @@ const BlogPostCard = computed(() =>
       v-slot="{ item }"
       :items="posts"
       :ui="{
+        // Slides are `items-start` by default, so the post card's
+        // `h-full` has nothing to fill and a two-line title leaves its
+        // neighbour short.
+        container: 'items-stretch',
         item: `
           basis-full place-items-center justify-center
           md:basis-1/2

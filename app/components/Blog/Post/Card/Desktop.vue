@@ -94,7 +94,7 @@ const likeClicked = async (event: { blogPostId: number, liked: boolean }) => {
   <Component
     :is="as"
     class="
-      container grid w-full gap-6 rounded-lg bg-primary-100 !p-0
+      container grid h-full w-full gap-6 rounded-lg bg-primary-100 !p-0
       text-primary-950
       dark:bg-primary-900 dark:text-primary-50
     "

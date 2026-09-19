@@ -39,6 +39,9 @@ const categoryResults = computed(() => {
       v-slot="{ item }"
       :items="categoryResults"
       :ui="{
+        // Slides are `items-start` by default; without this the link
+        // below cannot fill its slide and the row goes ragged.
+        container: 'items-stretch',
         item: `
           basis-full px-2
           md:basis-1/4
@@ -60,7 +63,8 @@ const categoryResults = computed(() => {
       <NuxtLink
         :to="localePath({ name: 'products-category-id-slug', params: { id: item.id, slug: item.slug } })"
         class="
-          group block rounded-xl bg-primary-100 p-6 transition-all duration-300
+          group block h-full rounded-xl bg-primary-100 p-6 transition-all
+          duration-300
           hover:scale-105 hover:shadow-lg
           dark:bg-primary-900
         "

@@ -254,6 +254,11 @@ watch(modelValue, (isOpen) => {
               }"
               :ui="{
                 root: 'flex size-full items-center',
+                // Each slide must fill the viewer's height for the
+                // `h-full` wrapper below to centre the image in it; the
+                // carousel's own `items-start` leaves the slide the
+                // height of its content and the image sits at the top.
+                container: 'items-stretch',
                 prev: `
                   left-2
                   sm:left-4
