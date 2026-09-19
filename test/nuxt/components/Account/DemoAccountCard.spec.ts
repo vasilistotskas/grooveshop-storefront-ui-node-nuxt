@@ -56,6 +56,66 @@ describe('AccountDemoAccountCard', () => {
     expect(values).toContain('GrooveDemo-2026')
   })
 
+  it('offers only the retail account when no wholesale one is set', async () => {
+    settings.value = { ...ARMED }
+    const wrapper = await mountSuspended(DemoAccountCard)
+
+    // Two fields, one button: with a single account a heading over the
+    // pair would only ask the reader what the other kind would be.
+    expect(wrapper.findAll('input')).toHaveLength(2)
+    expect(wrapper.text()).not.toContain('Χονδρική')
+  })
+
+  it('offers the wholesale account alongside the retail one', async () => {
+    settings.value = {
+      ...ARMED,
+      DEMO_ACCOUNT_B2B_EMAIL: 'demo-wholesale@grooveshop.space',
+      DEMO_ACCOUNT_B2B_PASSWORD: 'GrooveWholesale-2026',
+    }
+    const wrapper = await mountSuspended(DemoAccountCard)
+
+    const values = wrapper.findAll('input').map(i => (i.element as HTMLInputElement).value)
+    expect(values).toContain('demo@grooveshop.space')
+    expect(values).toContain('demo-wholesale@grooveshop.space')
+    expect(values).toContain('GrooveWholesale-2026')
+    // Each pair gets its own button, because one shared button cannot
+    // say which of two pairs it would use.
+    expect(wrapper.findAll('button').length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('ignores a half-configured wholesale account', async () => {
+    // Same fail-closed rule as the retail pair: a button that signs in
+    // with an empty password is worse than no second account.
+    settings.value = {
+      ...ARMED,
+      DEMO_ACCOUNT_B2B_EMAIL: 'demo-wholesale@grooveshop.space',
+      DEMO_ACCOUNT_B2B_PASSWORD: '',
+    }
+    const wrapper = await mountSuspended(DemoAccountCard)
+
+    const values = wrapper.findAll('input').map(i => (i.element as HTMLInputElement).value)
+    expect(values).not.toContain('demo-wholesale@grooveshop.space')
+    expect(values).toContain('demo@grooveshop.space')
+  })
+
+  it('signs in with the pair whose button was pressed', async () => {
+    settings.value = {
+      ...ARMED,
+      DEMO_ACCOUNT_B2B_EMAIL: 'demo-wholesale@grooveshop.space',
+      DEMO_ACCOUNT_B2B_PASSWORD: 'GrooveWholesale-2026',
+    }
+    const wrapper = await mountSuspended(DemoAccountCard)
+
+    const buttons = wrapper.findAll('button').filter(b => b.attributes('aria-label') === undefined)
+    await buttons[buttons.length - 1]!.trigger('click')
+
+    const events = wrapper.emitted('login') as Array<[{ email: string, password: string }]>
+    expect(events?.at(-1)?.[0]).toEqual({
+      email: 'demo-wholesale@grooveshop.space',
+      password: 'GrooveWholesale-2026',
+    })
+  })
+
   it('hands the credentials up rather than signing in itself', async () => {
     // One login path: the form owns the pending two-factor flow, the
     // cart refresh and the `next` bookkeeping.
