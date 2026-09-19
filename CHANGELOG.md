@@ -1,3 +1,10 @@
+## [3.201.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.201.0...v3.201.1) (2026-09-19)
+
+
+### Bug Fixes
+
+* **page-builder:** two bands painted their padding around nothing ([3d86454](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3d8645464bcf09284f4a8541c6ca325e094bdbc7))
+
 # [3.201.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.200.0...v3.201.0) (2026-09-18)
 
 
