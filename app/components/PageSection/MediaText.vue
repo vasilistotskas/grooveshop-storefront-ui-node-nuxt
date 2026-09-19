@@ -64,9 +64,13 @@ const bodyParts = computed(() => {
     v-if="heading || body || imageUrl"
     :surface="surface"
   >
+    <!-- `overflow-hidden` is load-bearing, not tidiness: the decor
+         below is an absolutely-positioned circle that hangs past this
+         box on purpose, and with nothing clipping it the DOCUMENT gets
+         wider. It scrolled a 390px phone sideways to 454px. -->
     <div
       class="
-        relative grid items-center gap-8
+        relative grid items-center gap-8 overflow-hidden
         md:grid-cols-2
         md:gap-12
       "
