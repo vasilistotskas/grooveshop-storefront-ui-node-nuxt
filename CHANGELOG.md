@@ -1,3 +1,10 @@
+## [3.202.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.1...v3.202.2) (2026-09-19)
+
+
+### Bug Fixes
+
+* **page-builder:** move the hero arrows off the copy ([9dc7c41](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9dc7c41be10ae666f61979e38f132625268d5e61))
+
 ## [3.202.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.0...v3.202.1) (2026-09-19)
 
 
