@@ -1,3 +1,10 @@
+## [3.202.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.5...v3.202.6) (2026-09-19)
+
+
+### Bug Fixes
+
+* **page-builder:** make the hero arrows visible again ([9d8df17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9d8df175579e05b1ae9197550c1cc4b080d28001))
+
 ## [3.202.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.4...v3.202.5) (2026-09-19)
 
 
