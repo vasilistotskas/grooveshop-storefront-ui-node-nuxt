@@ -1,3 +1,11 @@
+## [3.202.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.2...v3.202.3) (2026-09-19)
+
+
+### Bug Fixes
+
+* **i18n:** stop a single-locale store 404ing its own homepage ([26e7792](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/26e7792c12da0c2c7ef4d018aa634203f3bce32e))
+* **ui:** align band content with its heading and hide a one-page pager ([04eb1f6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/04eb1f630b383d37a0502d4c3370c72609e99d6b))
+
 ## [3.202.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.1...v3.202.2) (2026-09-19)
 
 
