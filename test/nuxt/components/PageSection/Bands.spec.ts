@@ -5,6 +5,8 @@ import BlogPosts from '~/components/PageSection/BlogPosts.vue'
 import CtaBanner from '~/components/PageSection/CtaBanner.vue'
 import ProductCategories from '~/components/PageSection/ProductCategories.vue'
 import ProductsSlider from '~/components/PageSection/ProductsSlider.vue'
+import BlogCategoriesSection from '~/components/PageSection/BlogCategories.vue'
+import LoyaltyHero from '~/components/PageSection/LoyaltyHero.vue'
 
 /**
  * The page-builder bands, and the three rules the redesign turns on:
@@ -18,9 +20,34 @@ import ProductsSlider from '~/components/PageSection/ProductsSlider.vue'
 
 const POSTS: any[] = []
 const PRODUCTS: any[] = []
+const BLOG_CATEGORIES: any[] = []
+
+const loggedIn = ref(false)
+mockNuxtImport('useUserSession', () => () => ({
+  loggedIn,
+  user: ref(null),
+  session: ref({}),
+  fetch: vi.fn(),
+  clear: vi.fn(),
+}))
 
 registerEndpoint('/api/blog/posts', () => ({ results: POSTS, count: POSTS.length }))
 registerEndpoint('/api/products', () => ({ results: PRODUCTS, count: PRODUCTS.length }))
+registerEndpoint('/api/blog/categories', () => ({
+  results: BLOG_CATEGORIES,
+  count: BLOG_CATEGORIES.length,
+}))
+
+// The loyalty hero fetches three of these on mount. Answering them
+// keeps the member case from throwing unhandled rejections that have
+// nothing to do with what is being asserted.
+registerEndpoint('/api/loyalty/summary', () => ({
+  points: 0,
+  tier: null,
+  pointsToNextTier: null,
+}))
+registerEndpoint('/api/loyalty/tiers', () => ({ results: [] }))
+registerEndpoint('/api/loyalty/settings', () => ({}))
 
 const categories = ref<any[]>([])
 mockNuxtImport('useCategoryMenu', () => () => ({ categories }))
@@ -36,6 +63,21 @@ const { fetchMock } = vi.hoisted(() => ({
     const path = String(url)
     if (path.includes('/api/blog/posts')) {
       return Promise.resolve({ results: POSTS, count: POSTS.length })
+    }
+    if (path.includes('/api/loyalty/summary')) {
+      return Promise.resolve({ points: 0, tier: null, pointsToNextTier: null })
+    }
+    if (path.includes('/api/loyalty/tiers')) {
+      return Promise.resolve({ results: [] })
+    }
+    if (path.includes('/api/loyalty/settings')) {
+      return Promise.resolve({})
+    }
+    if (path.includes('/api/blog/categories')) {
+      return Promise.resolve({
+        results: BLOG_CATEGORIES,
+        count: BLOG_CATEGORIES.length,
+      })
     }
     if (path.includes('/api/products')) {
       return Promise.resolve({ results: PRODUCTS, count: PRODUCTS.length })
@@ -211,5 +253,40 @@ describe('PageSection/CtaBanner', () => {
     const wrapper = await mountSuspended(CtaBanner, { props: {} })
 
     expect(wrapper.find('section').exists()).toBe(false)
+  })
+})
+
+describe('bands whose tenant flag is on but whose content is empty', () => {
+  // Both of these shipped with a `v-if` that checked only the tenant
+  // flag, which is true on a store that has the feature and nothing in
+  // it yet. On the demo store `blog_categories` is the FIRST section,
+  // so a shop with no posts opened on 80px of blank page.
+  it('draws no blog-categories band when the blog has no categories', async () => {
+    BLOG_CATEGORIES.length = 0
+    const wrapper = await mountSuspended(BlogCategoriesSection)
+
+    expect(wrapper.find('section').exists()).toBe(false)
+  })
+
+  it('draws the blog-categories band once there are categories', async () => {
+    BLOG_CATEGORIES.length = 0
+    BLOG_CATEGORIES.push({ id: 1, slug: 'news', translations: { el: { name: 'Νέα' } } })
+    const wrapper = await mountSuspended(BlogCategoriesSection)
+
+    expect(wrapper.find('section').exists()).toBe(true)
+  })
+
+  it('draws no loyalty band for a guest, however the programme is set', async () => {
+    loggedIn.value = false
+    const wrapper = await mountSuspended(LoyaltyHero)
+
+    expect(wrapper.find('section').exists()).toBe(false)
+  })
+
+  it('draws the loyalty band for a member', async () => {
+    loggedIn.value = true
+    const wrapper = await mountSuspended(LoyaltyHero)
+
+    expect(wrapper.find('section').exists()).toBe(true)
   })
 })
