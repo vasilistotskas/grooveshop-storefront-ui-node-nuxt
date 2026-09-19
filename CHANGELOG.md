@@ -1,3 +1,10 @@
+## [3.202.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.4...v3.202.5) (2026-09-19)
+
+
+### Bug Fixes
+
+* **i18n:** stop auto-redirecting the root by browser language ([fd2fa99](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fd2fa99598e6835112f9cba2a469f7f005412d00))
+
 ## [3.202.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.3...v3.202.4) (2026-09-19)
 
 
