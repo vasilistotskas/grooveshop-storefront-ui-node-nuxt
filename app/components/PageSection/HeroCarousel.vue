@@ -111,8 +111,27 @@ const carouselUi = {
   // heading — measured at 1440 and 1024, it covered both the heading
   // and the subheading. The dots sit bottom-centre, so this corner is
   // the one free edge.
-  prev: 'top-auto bottom-4 start-auto end-16 -translate-y-0',
-  next: 'top-auto bottom-4 end-4 -translate-y-0',
+  //
+  // The `sm:` twins are not decoration. UCarousel's own defaults hang
+  // the arrows OUTSIDE the box from `sm` up (`sm:-start-12`,
+  // `sm:-end-12`), and tailwind-merge does not treat a breakpoint class
+  // as conflicting with an unprefixed one — so `start-auto` alone left
+  // `sm:-start-12` standing. Above `sm` that gave the prev button
+  // `left:-48px` AND `right:64px`, stretching it into a 1889px-wide
+  // invisible strip across the hero, while next sat at `right:-48px`
+  // where `overflow-hidden` above clipped it away entirely. Measured on
+  // the demo store at 1920. Every inset set here needs its `sm:` twin
+  // or the default wins at exactly the widths that matter.
+  prev: `
+    top-auto bottom-4 -translate-y-0
+    start-auto end-16
+    sm:start-auto sm:end-16
+  `,
+  next: `
+    top-auto bottom-4 -translate-y-0
+    start-auto end-4
+    sm:start-auto sm:end-4
+  `,
 }
 </script>
 
