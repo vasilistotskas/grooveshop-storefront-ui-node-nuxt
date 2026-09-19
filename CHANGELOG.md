@@ -1,3 +1,10 @@
+# [3.202.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.201.4...v3.202.0) (2026-09-19)
+
+
+### Features
+
+* **demo:** offer the wholesale demo account beside the retail one ([089ca14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/089ca14e205880168538aafd88a69cf2dcc513f7))
+
 ## [3.201.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.201.3...v3.201.4) (2026-09-19)
 
 
