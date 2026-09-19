@@ -106,8 +106,13 @@ const carouselUi = {
   // its box, and without a clip the document takes the widest of them.
   root: 'w-full overflow-hidden',
   item: 'basis-full',
-  prev: 'start-2 sm:start-4',
-  next: 'end-2 sm:end-4',
+  // Grouped bottom-right, not on the sides. The copy is left-aligned
+  // and vertically centred, so a left arrow at mid-height lands ON the
+  // heading — measured at 1440 and 1024, it covered both the heading
+  // and the subheading. The dots sit bottom-centre, so this corner is
+  // the one free edge.
+  prev: 'top-auto bottom-4 start-auto end-16 -translate-y-0',
+  next: 'top-auto bottom-4 end-4 -translate-y-0',
 }
 </script>
 
