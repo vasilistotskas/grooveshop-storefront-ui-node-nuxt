@@ -84,7 +84,12 @@ watch(
 </script>
 
 <template>
+  <!-- One page is not a pagination. `/blog` opened on a disabled
+       first/prev/1/next/last row above its eight posts, which reads as a
+       broken control rather than as navigation. The `rel=prev/next`
+       links above are already null in that case, so nothing is lost. -->
   <UPagination
+    v-if="totalPages > 1"
     v-model:page="currentPage"
     :total="items.length"
     :items-per-page="pageSize"

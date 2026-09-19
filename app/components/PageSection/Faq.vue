@@ -7,6 +7,12 @@ import type { AccordionItem } from '@nuxt/ui'
  * The section owns the canonical Q&A data, so it also emits the
  * `FAQPage` structured data — nothing else on the page knows the
  * answers.
+ *
+ * The accordion keeps a reading measure (`max-w-3xl`) but is NOT
+ * centred. `PageSectionBand` left-aligns its heading, as every other
+ * section does, so `mx-auto` put "Συχνές ερωτήσεις" against the
+ * container edge and the questions 300px to its right — measured on the
+ * demo store at 1920: heading at x=265, first question at x=569.
  */
 const props = defineProps<{
   /** The operator's section title; `heading` wins when both are set. */
@@ -45,7 +51,7 @@ useSchemaOrg(
       :items="accordionItems"
       :type="multiple ? 'multiple' : 'single'"
       :unmount-on-hide="false"
-      class="mx-auto w-full max-w-3xl"
+      class="w-full max-w-3xl"
       :ui="{
         item: `
           border-b border-default

@@ -14,7 +14,9 @@ defineProps<{
     :heading="title"
     padding="sm"
   >
-    <div class="mx-auto w-full max-w-2xl">
+    <!-- Measured, not centred: the band left-aligns its heading, so a
+         centred field would sit away from the title above it. -->
+    <div class="w-full max-w-2xl">
       <SearchInput />
     </div>
   </PageSectionBand>
