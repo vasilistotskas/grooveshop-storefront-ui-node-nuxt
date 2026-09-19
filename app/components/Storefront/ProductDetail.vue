@@ -826,15 +826,6 @@ useSchemaOrg([
                product belongs to a variant group. -->
           <ProductVariantSelector :product="product" />
 
-          <!-- Promotions that apply to THIS product, resolved by Django
-               against the same rules the cart engine uses. An automatic
-               offer is otherwise invisible until the cart already
-               qualifies for it. -->
-          <ProductOffers
-            v-if="product.id"
-            :product-id="product.id"
-          />
-
           <LoyaltyPointsBadge
             v-if="loggedIn && product.id"
             :product-id="product.id"
@@ -885,6 +876,23 @@ useSchemaOrg([
               />
             </ClientOnly>
           </div>
+
+          <!-- Promotions that apply to THIS product, resolved by Django
+               against the same rules the cart engine uses. An automatic
+               offer is otherwise invisible until the cart already
+               qualifies for it.
+
+               BELOW the buy controls, which is where the delivery plan
+               put it. Above them it pushed "Αγορά" off a 1440×900
+               desktop entirely — on the demo store the panel opened its
+               four store-wide offers (`default-open` fires when a
+               product has none of its own) and the button landed at
+               y=975 in a 945px viewport. Nothing in the panel is worth
+               the primary action of the page. -->
+          <ProductOffers
+            v-if="product.id"
+            :product-id="product.id"
+          />
 
           <ShippingFreeShippingNotice />
 
