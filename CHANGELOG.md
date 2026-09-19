@@ -1,3 +1,10 @@
+## [3.201.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.201.2...v3.201.3) (2026-09-19)
+
+
+### Bug Fixes
+
+* **storefront:** stretch card rails and stop truncating a store's own name ([8ccaaf7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8ccaaf7c3e1fb26a7c8758f50261b78bab6b1ebb))
+
 ## [3.201.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.201.1...v3.201.2) (2026-09-19)
 
 
