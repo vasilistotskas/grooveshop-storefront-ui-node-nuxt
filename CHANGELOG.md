@@ -1,3 +1,10 @@
+## [3.201.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.201.3...v3.201.4) (2026-09-19)
+
+
+### Bug Fixes
+
+* **storefront:** finish the rail and wordmark fixes, and guard both rules ([fb84a14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fb84a14cba0da40d11542c3b4b3abbcebb970f2e))
+
 ## [3.201.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.201.2...v3.201.3) (2026-09-19)
 
 
