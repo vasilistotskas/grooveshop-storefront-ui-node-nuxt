@@ -36,18 +36,15 @@ export default defineNuxtRouteMiddleware((to) => {
   if (!allowed.length) return
 
   // This fires only for a prefix that was typed or crawled, which is
-  // why a 404 is safe rather than a redirect: a redirect would bounce
-  // against the i18n cookie.
+  // why a 404 is safe here: nothing routes a legitimate visitor to a
+  // locale their store does not serve.
   //
-  // Nothing else may route a visitor here. `server/middleware/1.locale.ts`
-  // clamps its own `event.context.locale`, but the module's browser
-  // detection matches `navigator.languages` against the BUILD-TIME
-  // locale list and ignores both — on a single-locale store it resolved
-  // a locale the store does not serve and redirected `/` onto its
-  // prefix, so an English-preferring browser met this 404 on the
-  // homepage. `app/plugins/tenant.ts` now switches that detection off
-  // for a store that serves one locale; without it this guard turns a
-  // legitimate visit into an error page.
+  // That holds because browser-language detection is off platform-wide
+  // (`detectBrowserLanguage: false` in `nuxt.config.ts`). While it was
+  // on, it matched `navigator.languages` against the BUILD-TIME locale
+  // list — which cannot see `Tenant.available_locales` — and redirected
+  // `/` onto a prefix this guard then 404s, so an English-preferring
+  // browser met an error page on the store's own homepage.
   const current = localeFromPath(to.path)
 
   // A tenant whose allow-list omitted its own default locale would 404

@@ -17,45 +17,14 @@ export default defineNuxtPlugin({
       // reads it — is race-free and fixes SSR and client in one place.
       // Same ``https://`` derivation as 4.tenant-site-config.ts: the
       // two values must compare EQUAL host-for-host.
-      const i18nConfig = (useRuntimeConfig().public as {
-        i18n?: {
-          baseUrl?: string
-          defaultLocale?: string
-          detectBrowserLanguage?: false | Record<string, unknown>
-        }
-      }).i18n
-
       const primaryDomain = tenant.value?.primaryDomain
-      if (i18nConfig && primaryDomain) {
-        i18nConfig.baseUrl = `https://${primaryDomain}`
-      }
-
-      // A store that sells in ONE language must not run i18n's browser
-      // detection. Detection matches `navigator.languages` against the
-      // BUILD-TIME locale list (`normalizedLocales` from
-      // `#build/i18n-options.mjs`), not against anything per-tenant, so
-      // on an English-preferring browser it resolved `en` and — with
-      // `redirectOn: 'root'` — redirected `/` to `/en`, which
-      // `locale-available.global.ts` 404s. Every visitor whose browser
-      // asks for a language the store does not serve met an error page
-      // instead of the homepage, on the tenant's OWN default locale.
-      // `server/middleware/1.locale.ts` clamps its own
-      // `event.context.locale` but has no say over the module.
-      //
-      // `useI18nDetection` reads `detectBrowserLanguage` off
-      // `public.i18n` and reports `enabled: !!detectBrowserLanguage`
-      // (@nuxtjs/i18n 10.6 `src/runtime/shared/utils.ts`), so clearing
-      // it on the per-event clone switches detection off for SSR and
-      // for the serialized client config at once — the same mechanism,
-      // and the same race-free window, as `baseUrl` above.
-      //
-      // Which tenants keep it is `tenantDetectsBrowserLocale`, beside
-      // the allow-list every other layer reads.
-      if (
-        i18nConfig?.detectBrowserLanguage
-        && !tenantDetectsBrowserLocale(tenant.value, i18nConfig.defaultLocale)
-      ) {
-        i18nConfig.detectBrowserLanguage = false
+      if (primaryDomain) {
+        const i18nConfig = (useRuntimeConfig().public as {
+          i18n?: { baseUrl?: string }
+        }).i18n
+        if (i18nConfig) {
+          i18nConfig.baseUrl = `https://${primaryDomain}`
+        }
       }
     }
   },

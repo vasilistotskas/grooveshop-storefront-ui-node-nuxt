@@ -374,13 +374,12 @@ describe('every public page renders', async () => {
   }, 60000)
 
   // `Accept-Language`, which nothing here sent before — and that is
-  // exactly why this shipped. `detectBrowserLanguage` only redirects
-  // when it DETECTS a locale, and with no header there is nothing to
-  // detect, so every check answered 200 while a real Greek-preferring
-  // browser was bounced off every /en URL:
-  // `redirectOn: 'all'` sent `/en` → `/` and
-  // `/en/products` → `/products`, so clicking EN went straight back to
-  // EL and each /en URL was a redirect to a crawler.
+  // exactly why this shipped. While `detectBrowserLanguage` was on it
+  // only ever acted when it DETECTED a locale, and with no header there
+  // is nothing to detect, so every check answered 200 while a real
+  // browser was being redirected. Detection is off now
+  // (`detectBrowserLanguage: false`), but the header stays here: it is
+  // the one input that told the two apart.
   const GREEK_BROWSER = { 'Accept-Language': 'el-GR,el;q=0.9,en;q=0.8' }
 
   it.each([
@@ -401,16 +400,23 @@ describe('every public page renders', async () => {
     expect(body).toContain('lang="en-US"')
   }, 60000)
 
-  it('still detects the browser language at the ROOT', async () => {
-    // The other half of `redirectOn: 'root'`: detection has to keep
-    // working where it belongs, or an English visitor lands on Greek.
-    const { statusCode, location } = await requestWithHost(
+  it('serves the ROOT in the tenant default, whatever the browser asks', async () => {
+    // No auto-redirect, for anybody. It could only ever run in the
+    // browser — `/` is SWR-cached, so a cache hit never reaches the
+    // Nuxt app — and there it fired mid-hydration, patching an English
+    // tree over Greek markup until Vue died in `insertBefore` and the
+    // visitor got an error page. The language switcher is the way
+    // across, and every `/<locale>/**` URL stays directly reachable.
+    const { statusCode, location, body } = await requestWithHost(
       '/',
       TENANT_HOST,
       { 'Accept-Language': 'en-US,en;q=0.9' },
     )
 
-    expect([200, 302]).toContain(statusCode)
-    if (statusCode === 302) expect(location).toContain('/en')
+    expect(
+      statusCode,
+      `/ redirected to ${location ?? '(no location)'}`,
+    ).toBe(200)
+    expect(body).toContain('lang="el-GR"')
   }, 60000)
 })

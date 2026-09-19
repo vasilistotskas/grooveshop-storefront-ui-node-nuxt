@@ -793,30 +793,29 @@ export default defineNuxtConfig({
     // rebasing in ``setupPageHeader`` (app/utils/seoHead.ts) stays as
     // defense in depth.
     restructureDir: 'i18n',
-    detectBrowserLanguage: {
-      useCookie: true,
-      // ``root``, the module default and its documented
-      // recommendation — NOT ``all``. Under ``all`` the module
-      // redirects on EVERY path whenever the detected locale differs
-      // from the route's, which makes an explicitly requested locale
-      // URL unreachable: on a Greek-preferring browser
-      // ``/en`` answered 302 → ``/`` and
-      // ``/en/info/eidikefsi`` → ``/info/eidikefsi``, so clicking EN
-      // bounced straight back to EL and every /en URL was a redirect
-      // for a crawler. ``root`` keeps detection where it belongs — a
-      // first-time visitor landing on ``/`` still gets their language
-      // — and honours a link, a bookmark and a crawl of ``/en/**``.
-      //
-      // This was invisible to the route checks because curl sends no
-      // ``Accept-Language``: with no detected locale there is nothing
-      // to redirect to, so ``/en`` answered 200. The e2e smoke test
-      // now sends the header (see page-render-smoke.spec.ts).
-      redirectOn: 'root',
-      cookieKey: 'i18n_redirected',
-      alwaysRedirect: false,
-      cookieCrossOrigin: true,
-      cookieSecure: true,
-    },
+    // No automatic language detection, for any tenant.
+    //
+    // The module can only act on `navigator.languages` in the BROWSER,
+    // and `/` is SWR-cached for every visitor, so the redirect could
+    // never happen server-side — it fired during hydration, patching an
+    // English tree over Greek-rendered markup. Vue logged "Hydration
+    // completed but contains mismatches" and then died in `insertBefore`,
+    // and the visitor got an error page instead of the homepage.
+    // Reproduced on the demo store 2026-09-19, three loads out of three;
+    // `/` and `/en` each hydrate cleanly on their own.
+    //
+    // Before that it was worse in a quieter way: detection matches
+    // against the BUILD-TIME locale list, which is platform-wide and
+    // cannot see `Tenant.available_locales`, so on a store that serves
+    // one language it resolved a locale the store does not have and
+    // redirected `/` onto a prefix `locale-available.global.ts` 404s.
+    //
+    // So `/` always serves the tenant's own default locale — one
+    // cacheable answer for everybody, and the auto-redirect on `/` that
+    // Google discourages is gone with it. A visitor changes language
+    // with the switcher in the header, and every `/<locale>/**` URL
+    // remains directly linkable, bookmarkable and crawlable.
+    detectBrowserLanguage: false,
     locales: [
       {
         code: 'el',

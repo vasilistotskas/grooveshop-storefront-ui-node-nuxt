@@ -33,30 +33,3 @@ export function tenantAllowedLocales(
   }
   return [...SUPPORTED_LOCALES]
 }
-
-/**
- * May @nuxtjs/i18n's browser-language detection run for this tenant?
- *
- * It must not on a store that sells in ONE language. Detection matches
- * `navigator.languages` against the BUILD-TIME locale list, which is
- * platform-wide — it cannot see `Tenant.available_locales` — so on an
- * English-preferring browser it resolved `en` for a Greek-only store
- * and, under `redirectOn: 'root'`, redirected `/` onto `/en`, which
- * `app/middleware/locale-available.global.ts` 404s. The store's own
- * homepage answered with an error page.
- *
- * A store serving a single NON-default locale still needs detection:
- * the redirect onto its prefix is the only way `/` reaches it, and the
- * guard allows that prefix. So the answer is "no" for exactly one case
- * — one locale, and it is the one that needs no prefix.
- *
- * `defaultLocale` is the module's, read from `public.i18n` rather than
- * imported, because it is what the redirect actually compares against.
- */
-export function tenantDetectsBrowserLocale(
-  tenant?: { defaultLocale?: string | null, availableLocales?: readonly string[] | null } | null,
-  defaultLocale?: string | null,
-): boolean {
-  const allowed = tenantAllowedLocales(tenant)
-  return !(allowed.length === 1 && allowed[0] === defaultLocale)
-}
