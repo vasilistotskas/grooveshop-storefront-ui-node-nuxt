@@ -1,3 +1,10 @@
+## [3.202.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.3...v3.202.4) (2026-09-19)
+
+
+### Bug Fixes
+
+* **product:** keep the buy button above the fold ([2b607d3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2b607d3f4dd090f533e0f24292e36110e3a9316c))
+
 ## [3.202.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.2...v3.202.3) (2026-09-19)
 
 
