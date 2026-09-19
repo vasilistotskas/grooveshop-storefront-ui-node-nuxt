@@ -1,3 +1,10 @@
+## [3.201.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.201.1...v3.201.2) (2026-09-19)
+
+
+### Bug Fixes
+
+* **page-builder:** clip the media-text decoration so phones stop scrolling sideways ([ca94d31](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ca94d31ae41b79c934c534523eed48a5fc920687))
+
 ## [3.201.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.201.0...v3.201.1) (2026-09-19)
 
 
