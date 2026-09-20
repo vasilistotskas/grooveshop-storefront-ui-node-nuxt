@@ -34,6 +34,15 @@ const BlogPostCard = computed(() =>
     >
       {{ title }}
     </h2>
+    <!-- `w-full min-w-0`, and it needs BOTH. This sits in a bare
+         `grid`, whose single column is sized to its content; a
+         carousel's max-content is the whole row of slides, so the
+         track resolved to 833px inside a 390px phone and the blog
+         post scrolled sideways to 849px. `min-w-0` alone lets the
+         track shrink but the element still takes its max-content
+         width; `w-full` alone cannot shrink the track. Measured on
+         the demo store: 849 -> 375 with both, at 390 and at 768.
+         `md:w-[43rem]` still wins from `md` up. -->
     <UCarousel
       v-slot="{ item }"
       :items="posts"
@@ -66,7 +75,7 @@ const BlogPostCard = computed(() =>
       arrows
       wheel-gestures
       class="
-        relative mx-auto max-w-4xl
+        relative mx-auto w-full min-w-0 max-w-4xl
         md:w-[43rem]
       "
     >
