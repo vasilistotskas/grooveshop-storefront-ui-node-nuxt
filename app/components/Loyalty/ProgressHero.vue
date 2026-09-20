@@ -49,7 +49,24 @@ const nextTierXp = computed(() => {
   return (nextTier.requiredLevel - 1) * xpPerLevel.value
 })
 
-const ready = computed(() => !loading.value && !error.value && summary.value)
+/**
+ * Ready means the fields the template DEREFERENCES are there, not
+ * merely that an object arrived.
+ *
+ * The template asserts with `!` — `summary!.totalXp.toLocaleString()` —
+ * so a successful-but-empty response (an absent-state envelope, a
+ * partial payload, a mocked `{}`) satisfied the old check and then
+ * threw `Cannot read properties of undefined (reading
+ * 'toLocaleString')` inside the render, which surfaces as an unhandled
+ * rejection and takes the band down rather than showing the skeleton.
+ */
+const ready = computed(() =>
+  !loading.value
+  && !error.value
+  && typeof summary.value?.totalXp === 'number'
+  && typeof summary.value?.level === 'number'
+  && typeof summary.value?.pointsBalance === 'number',
+)
 </script>
 
 <template>
