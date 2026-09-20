@@ -1,3 +1,10 @@
+## [3.202.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.8...v3.202.9) (2026-09-20)
+
+
+### Bug Fixes
+
+* **blog:** stop the related-posts carousel scrolling the page sideways ([6e620bf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/6e620bf3b031c3f98523811f56e50356c37c165c))
+
 ## [3.202.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.7...v3.202.8) (2026-09-20)
 
 
