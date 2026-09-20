@@ -34,6 +34,18 @@ const BlogPostCard = computed(() =>
     >
       {{ title }}
     </h2>
+    <!-- The arrows are pinned INSIDE the box. UCarousel hangs them
+         outside from sm up (sm:-start-12 / sm:-end-12), and this
+         carousel is 43rem wide inside a 43rem content box at 768 — zero
+         margin — so the prev button sat at x=-8 and the next one ended
+         at 776 in a 753px viewport. Measured on staging.webside.gr: a
+         blog post scrolled sideways on a tablet. The sm: twins are what
+         displace the library default; a negative inset is what
+         overhang-is-clipped.spec.ts forbids outright.
+
+         This is the one kind of edit the freeze allows — a webside-only
+         bug, not a restyle. The render changes only where it was
+         already broken. -->
     <UCarousel
       v-slot="{ item }"
       :items="posts"
@@ -43,11 +55,13 @@ const BlogPostCard = computed(() =>
           md:basis-1/2
         `,
         next: `
-          top-2/5
+          top-2/5 end-2
+          sm:end-2
           md:top-1/2
         `,
         prev: `
-          top-2/5
+          top-2/5 start-2
+          sm:start-2
           md:top-1/2
         `,
       }"
