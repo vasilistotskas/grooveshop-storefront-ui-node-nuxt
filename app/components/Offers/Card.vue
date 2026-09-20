@@ -39,17 +39,22 @@ const hiddenEligibleCount = computed(
     "
   >
     <div class="flex items-start justify-between gap-3">
-      <!-- The tint and the icon carry the colour; the LABEL does not.
+      <!-- The TINT and the RING carry the colour; the text does not.
            Nuxt UI's `subtle` variant paints the text in the benefit
-           colour too, and success-500 on a success/10 tint measured
-           3.08:1 — the badge is the first thing read on the card. -->
+           colour too, and that colour is a fill: success-500 on a
+           success/10 tint measured 3.08:1 in light mode and the accent
+           4.18:1 in dark, on the first thing read on the card.
+           `base`, not `label` — with no icon the default slot renders
+           straight into the root and a `label` override paints nothing,
+           which is how the first attempt at this changed the measured
+           ratio by zero. -->
       <UBadge
         :color="color(offer)"
         :icon="icon(offer)"
         variant="subtle"
         size="lg"
         class="font-bold"
-        :ui="{ label: 'text-toned' }"
+        :ui="{ base: 'text-toned' }"
       >
         {{ headline(offer) }}
       </UBadge>

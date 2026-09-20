@@ -104,7 +104,7 @@ const copyIcon = (account: DemoAccount, field: 'email' | 'password') =>
       >
         <p
           v-if="labelled"
-          class="text-xs font-semibold tracking-wide text-muted uppercase"
+          class="text-xs font-semibold tracking-wide text-toned uppercase"
         >
           {{ t(`account.${account.key}`) }}
         </p>
@@ -176,7 +176,10 @@ const copyIcon = (account: DemoAccount, field: 'email' | 'password') =>
         />
       </div>
 
-      <p class="text-center text-xs text-muted">
+      <!-- `toned`: this card is a soft UPageCard, and the muted token
+           is calibrated against `bg-default` — on that surface it
+           measured 3.06:1 in dark mode. -->
+      <p class="text-center text-xs text-toned">
         {{ t('reset_notice') }}
       </p>
     </UPageCard>

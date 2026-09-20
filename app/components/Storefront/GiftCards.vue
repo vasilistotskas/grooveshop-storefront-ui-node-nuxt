@@ -381,6 +381,11 @@ const confirmPayment = async () => {
                   grid grid-cols-3 gap-2
                 "
               >
+                <!-- The unselected preset takes its accent from the
+                     RING, not the label: `outline` paints the text in
+                     the accent too, and the accent is a fill — on the
+                     dark page background it measured 4.18:1. The chosen
+                     one is solid, so its own pairing applies. -->
                 <UButton
                   v-for="amount in suggestedAmounts"
                   :key="amount"
@@ -388,6 +393,7 @@ const confirmPayment = async () => {
                   color="secondary"
                   size="lg"
                   block
+                  :ui="formState.amount === amount ? {} : { base: 'text-highlighted' }"
                   :aria-pressed="formState.amount === amount"
                   @click="formState.amount = amount"
                 >
