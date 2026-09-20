@@ -586,4 +586,54 @@ el:
     amount_min: Ελάχιστο ποσό {min} €
     amount_max: Μέγιστο ποσό {max} €
     message_max: Το μήνυμα είναι πολύ μεγάλο
+en:
+  title: Gift Cards
+  description: Give a gift card — delivered by email and redeemed at checkout
+  form_title: Gift card details
+  continue_to_payment: Continue to payment
+  payment_title: Pay {amount}
+  pay_now: Pay {amount}
+  fields:
+    amount: Amount
+    amount_hint: From {min} to {max}
+    buyer_email: Your email
+    recipient_email: Recipient's email
+    recipient_name: Recipient's name
+    sender_name: Your name
+    message: Message
+    message_placeholder: A personal message for the recipient (optional)
+    payment_method: Payment method
+  providers:
+    viva_wallet: Viva Wallet
+    viva_wallet_hint: Card, Google Pay or IRIS through Viva
+    stripe: Card (Stripe)
+    stripe_hint: Pay by card on our own page
+  hero:
+    title: A gift that always fits
+    subtitle: They pick whatever they want from the shop — you only pick the amount.
+  benefits:
+    delivery:
+      title: Delivered by email
+      description: The gift card reaches the recipient by email as soon as the payment goes through.
+    balance:
+      title: Use it across several orders
+      description: Whatever is left stays on the card and can be used again until it runs out.
+    amount:
+      title: You choose the amount
+      description: From {min} to {max}, either a suggested amount or one of your own.
+  success:
+    title: Purchase complete
+    description: The gift card will be sent to {email} as soon as the payment is confirmed
+  errors:
+    purchase_failed: The purchase could not be started
+    payment_failed: The payment failed — please try again
+    stripe_init: The payment system could not be loaded
+    no_provider: No online payment method is available
+  validation:
+    required: This field is required
+    email: Not a valid email address
+    amount_required: Please enter an amount
+    amount_min: The minimum amount is {min} €
+    amount_max: The maximum amount is {max} €
+    message_max: That message is too long
 </i18n>

@@ -814,4 +814,68 @@ el:
     unit: Τιμή Μονάδας
     total: Συνολική Τιμή
   refunded: επιστράφηκε
+en:
+  title: Your order was placed
+  main:
+    title: Thank you, {customerName}
+    subtitle: Your order was placed successfully and a confirmation email is on its way.
+  order:
+    number: Order Number
+    items: Order Items
+    summary: Order Summary
+    timeline: Order History
+  customer:
+    name: Customer Name
+    email: Email
+  verifying:
+    payment: Verifying payment…
+    description: Please wait while we confirm your payment.
+  payment:
+    status: Payment Status
+    paid: Paid
+    pending: Pending
+    method: Payment Method
+    status_label:
+      pending: Pending
+      processing: Processing
+      completed: Completed
+      failed: Failed
+      refunded: Refunded
+      partially_refunded: Partially refunded
+      canceled: Cancelled
+    completed:
+      title: Payment complete
+      description: Your payment is confirmed and a confirmation email is on its way.
+    processing:
+      title: Payment is processing
+      description: Your order is registered. Confirming the payment can take a few minutes.
+    on_delivery:
+      title: Your order is registered
+      description: "You will pay on delivery. Amount due: {amount}."
+  tracking:
+    number: Tracking Number
+  shipping:
+    carrier: Carrier
+  pricing:
+    breakdown: Cost Breakdown
+    subtotal: "Item cost | Items cost"
+    shipping: Delivery
+    extras: Extra Costs
+    discount: Offer discount
+    loyalty_discount: Points discount
+    gift_card: Gift card
+    total: Total
+  actions:
+    cancel: Cancel Order
+    home: Back to Home
+    track: Track Order
+  recommended:
+    title: While you wait for your order, have a look at our articles
+  image: Image
+  product: Product
+  quantity: Quantity
+  price:
+    unit: Unit Price
+    total: Total Price
+  refunded: refunded
 </i18n>

@@ -516,4 +516,26 @@ el:
   cancelable: Ακυρώσιμη
   actions:
     details: Λεπτομέρειες
+en:
+  extra: "No products | 1 more product | {count} more products"
+  order_items: Order Items
+  order_status: Order Status
+  payment_status: Payment Status
+  customer_info: Customer Details
+  address: Address
+  payment_method: Payment Method
+  order_date: Order Date
+  total_price: Total
+  shipping: Delivery
+  created_at: Created
+  cancel: Cancel
+  cancel_success_title: "Order cancelled"
+  cancel_success_description: "Your order was cancelled."
+  cancel_error_title: "Could not cancel"
+  cancel_error_description: "We could not cancel that order."
+  cancel_error_conflict: "This order can no longer be cancelled."
+  paid: Paid
+  cancelable: Cancellable
+  actions:
+    details: Details
 </i18n>

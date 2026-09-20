@@ -351,4 +351,30 @@ el:
   already_have_account: Έχεις ήδη λογαριασμό?
   social:
     title: Ή εγγράψου μέσω ενός τρίτου παρόχου
+en:
+  logo_alt: "{appTitle} logo"
+  login: Sign in
+  or: or
+  passkey_login: Sign up with a one-time code
+  i_approve: I accept the
+  terms: terms of use
+  email:
+    label: Email
+    validation:
+      email: That is not a valid email address
+  password1:
+    label: Password
+    show: Show password
+    validation:
+      min: The password must be at least {min} characters long
+  password2:
+    label: Confirm password
+    show: Show password
+    validation:
+      min: The confirmation must be at least {min} characters long
+      match: The confirmation must match the password
+  submit: Sign up
+  already_have_account: Already have an account?
+  social:
+    title: Or sign up with another provider
 </i18n>

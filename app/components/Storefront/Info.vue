@@ -105,8 +105,16 @@ const pageSeoTitle = computed(() => contentPage.value?.seoTitle || pageTitle.val
 // `undefined`, never '': an empty value still emits
 // `<meta name="description" content>`, which is strictly worse than no
 // tag at all (see blog/category/[id]/[slug].vue).
+//
+// The BODY is the fallback, the way a blog post uses its own — a CMS
+// page without an operator's meta description used to get no tag at
+// all, which loses the snippet on every result listing. It is also the
+// only per-locale source there is: `seoDescription` lives on the base
+// row, not on a translation, so a store that fills it in Greek serves
+// that same Greek on `/en`.
 const pageSeoDescription = computed(
-  () => contentPage.value?.seoDescription || undefined,
+  () => contentPage.value?.seoDescription
+    || composeMetaDescription([htmlToPlainText(pageBody.value)]),
 )
 
 const items = computed(() => [

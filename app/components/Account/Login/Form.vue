@@ -318,4 +318,24 @@ el:
   or: ή
   no:
     account: Δεν έχεις λογαριασμό;
+en:
+  logo_alt: "{appTitle} logo"
+  social:
+    title: Or sign in with another provider
+  email:
+    label: Email
+    validation:
+      email: That is not a valid email address
+  password:
+    label: Password
+    toggle: Show password
+  use:
+    code: Sign in with a one-time code
+  forgot:
+    password:
+      reset: Forgot your password?
+  submit: Sign in
+  or: or
+  no:
+    account: Do not have an account?
 </i18n>

@@ -269,4 +269,30 @@ el:
   empty_state: "Δεν βρέθηκαν συναλλαγές"
   error_loading: "Αποτυχία φόρτωσης συναλλαγών"
   retry: "Δοκιμάστε ξανά"
+en:
+  title: "Transaction History"
+  filter:
+    transaction_type: "Transaction Type"
+    all_types: "All types"
+    earn: "Earned"
+    redeem: "Redeemed"
+    expire: "Expired"
+    adjust: "Adjustment"
+    bonus: "Bonus"
+    date_from: "From Date"
+    date_to: "To Date"
+  table:
+    points: "Points"
+    type: "Type"
+    description: "Description"
+    date: "Date"
+  type:
+    earn: "Earned"
+    redeem: "Redeemed"
+    expire: "Expired"
+    adjust: "Adjustment"
+    bonus: "Bonus"
+  empty_state: "No transactions found"
+  error_loading: "Could not load your transactions"
+  retry: "Try again"
 </i18n>

@@ -529,4 +529,41 @@ el:
   recovered:
     title: Καλωσόρισες πίσω!
     description: Κρατήσαμε το καλάθι σου. Έλεγξε τα προϊόντα πριν κάποια εξαντληθούν.
+en:
+  home: Home
+  payment_lookup_failed_title: Could not verify the payment
+  payment_lookup_failed_description: We could not find your order. If you were charged you will get a confirmation email — otherwise please contact support.
+  shopping_cart: Shopping Cart
+  items_in_cart: "{count} items"
+  empty:
+    title: Your cart is empty
+    description: Keep shopping
+    description_long: You have not added anything to your cart yet
+  order_summary: Order Summary
+  b2b_pricing_applied: 'Wholesale prices: {group}'
+  b2b_pricing_applied_generic: Wholesale prices
+  b2b_below_minimum: The minimum wholesale order value is {minimum}. Add more items to place the order.
+  subtotal: "Item cost | Items cost"
+  vat: VAT
+  discount: Product discount (already in the prices)
+  promotion_discount: Offer discount
+  near_miss: Add {amount} more to unlock "{name}"
+  total: Total
+  proceed_to_checkout: Checkout
+  fix_stock_issues_first: Fix the problems first
+  stock_status:
+    out_of_stock: This product is unavailable
+    limited_stock: "Only {available} in stock (you have {requested} in your cart)"
+    unavailable_title: Unavailable
+    limited_title: Limited Stock
+  stock_alert:
+    title: Stock Problems
+    description: Some items in your cart are not available in the quantity you wanted.
+    fix_button: Fix Automatically
+  stock_fix:
+    success_title: Cart updated
+    success_description: The quantities were adjusted to what is in stock.
+  recovered:
+    title: Welcome back
+    description: We kept your cart. Check the items before any of them sell out.
 </i18n>

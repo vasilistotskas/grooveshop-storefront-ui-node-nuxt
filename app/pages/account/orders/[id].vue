@@ -1378,4 +1378,99 @@ el:
     empty_description: "Τα προϊόντα αυτής της παραγγελίας δεν είναι πλέον διαθέσιμα."
     error_title: "Αποτυχία επανάληψης"
     error_description: "Δεν μπορέσαμε να προσθέσουμε τα προϊόντα στο καλάθι. Δοκίμασε ξανά."
+en:
+  back: Back
+  order: Order
+  number: Order
+  placed_on: Placed on
+  order_progress: Order Progress
+  order_placed: Placed
+  order_placed_desc: Your order was created
+  processing: Processing
+  processing_desc: The order is being processed
+  shipped: Shipped
+  shipped_desc: The order has been shipped
+  delivered: Delivered
+  delivered_desc: The order was delivered
+  completed: Completed
+  completed_desc: The order is complete
+  order_items: Order Items
+  order_summary: Order Summary
+  quantity: Quantity
+  unit_price: Unit Price
+  subtotal: Subtotal
+  reviews: reviews
+  details: Details
+  shipping: Delivery
+  synopsis: At a glance
+  products: Products
+  total: Total
+  extras: Extras
+  remaining_amount: Amount outstanding
+  shipping_information: Delivery Details
+  customer_name: Customer Name
+  email: Email
+  phone: Phone
+  shipping_address: Delivery Address
+  order_details: Order Details
+  payment_method: Payment Method
+  address: Address
+  document_type: Document Type
+  document_type_receipt: Retail receipt
+  document_type_invoice: Sales invoice
+  billing_details: Billing Details
+  billing_vat: "VAT number: {vat}"
+  billing_tax_office: "Tax office: {taxOffice}"
+  pay_way: Payment Method
+  payment_status: Payment Status
+  customer_notes: Customer Notes
+  order_uuid: Order UUID
+  tracking_information: Tracking Details
+  tracking_number: Tracking Number
+  shipping_carrier: Carrier
+  order_history: Order History
+  status_change: Status Change
+  timeline:
+    title:
+      created: Order created
+      status: Status change
+      payment: Payment
+      shipping: Shipping
+      customer: Customer details
+      items: Items
+      address: Address
+      note: Note
+      refund: Refund
+      other: Other activity
+  by: by
+  cancel_order: Cancel Order
+  track_order: Track Order
+  order_cancelled: Order Cancelled
+  order_cancelled_desc: This order has been cancelled
+  order_delivered: Order Delivered
+  order_delivered_desc: Your order was delivered
+  payment_pending: Payment Pending
+  payment_method_fee: Payment method fee
+  payment_pending_desc: There is {amount} still to pay on this order
+  invoice:
+    download: "Download invoice"
+    error_title: "Could not download the invoice"
+    error_description: "Please try again in a moment."
+    error_missing: "The invoice is not available yet."
+  cancel:
+    success_title: "Order cancelled"
+    success_description: "Your order was cancelled."
+    error_title: "Could not cancel"
+    error_description: "We could not cancel that order. Please try again."
+    error_conflict: "This order can no longer be cancelled in its current state."
+  paid: Paid
+  reorder:
+    cta: "Order again"
+    success_title: "Added to your cart"
+    success_description: "{count} items were added to your cart."
+    success_with_skipped: "{added} items were added. {skipped} were unavailable."
+    empty_title: "Nothing is available"
+    empty_description: "The products on this order are no longer available."
+    error_title: "Could not reorder"
+    error_description: "We could not add those products to your cart. Please try again."
 </i18n>

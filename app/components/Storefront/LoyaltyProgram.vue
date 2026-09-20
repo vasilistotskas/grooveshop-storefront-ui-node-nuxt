@@ -541,4 +541,84 @@ el:
     description: Κάθε αγορά σας μετράει. Ξεκινήστε να συγκεντρώνετε πόντους και απολαύστε εκπτώσεις στις επόμενες αγορές σας.
     shop_now: Αγοράστε Τώρα
     view_points: Δείτε τους Πόντους σας
+en:
+  title: Rewards Programme
+  meta_description: See how the rewards programme works. Earn points on every order and redeem them for discounts.
+  breadcrumb:
+    items:
+      loyalty_program:
+        label: Rewards Programme
+        icon: i-heroicons-star
+  intro:
+    subtitle: Earn points on every order and enjoy the discounts!
+    description: The rewards programme is how we say thank you for shopping with us. Every time you buy from our store you earn points, and those points turn into discounts on what you buy next. Simple, transparent and worth it.
+  how_it_works:
+    title: How It Works
+    step1:
+      title: 1. Earn Points
+      description: Every euro you spend earns you points. The more you shop, the more points you collect.
+    step2:
+      title: 2. Collect Points
+      description: Your points build up in your account, and you can check the balance from your profile whenever you like.
+    step3:
+      title: 3. Redeem Points
+      description: Spend your points at checkout and the discount comes straight off your total.
+  earning:
+    title: How Do I Earn Points?
+    purchases:
+      title: Product Purchases
+      description: For every {euros}€ you spend you earn {points} point. That is all there is to it — the bigger the order, the more points you collect.
+    special_events:
+      title: Special Offers & Events
+      description: From time to time we give double or triple points on selected products or categories. Keep an eye out so you do not miss them.
+    new_customer_bonus:
+      title: New Customer Bonus
+      description: Earn {points} bonus points on your very first order — a head start on your points balance.
+  redeeming:
+    title: How Do I Redeem Points?
+    description: "Redeeming is easy. At checkout you will see the option to use your points: choose how many you want to spend and the discount is applied to your order total automatically."
+    conversion:
+      title: What Points Are Worth
+      description: Every {points} points are worth {euros}€ off. For example, {examplePoints} points = {exampleEuros}€ off.
+    when:
+      title: When Can I Redeem?
+      description: You can redeem at any checkout, as long as you have at least 1 point in your account.
+    flexibility:
+      title: Redeem On Your Terms
+      description: You decide how many points to spend each time. Save them for a bigger order or use them a few at a time.
+  benefits:
+    title: Why Join?
+    save_money:
+      title: Save Money
+      description: Every order brings you closer to a discount on the next one.
+    exclusive_offers:
+      title: Exclusive Offers
+      description: Members get access to special offers and double-points promotions.
+    reward_loyalty:
+      title: Rewarded For Staying
+      description: The more you shop, the more you get back.
+      description_with_tiers: The more you shop, the more you get back. Climb to a higher tier and every order earns you even more points.
+  faq:
+    title: Frequently Asked Questions
+    q1:
+      question: Do my points expire?
+      answer_no_expiration: No. Your points never expire as long as your account stays active, so you can collect them and spend them whenever you want.
+      answer_with_expiration: Points expire {days} days after the date you earned them, so be sure to use them before then.
+    q2:
+      question: Can I combine points with other discounts?
+      answer: Yes. You can spend your points alongside other offers and discount codes to save even more.
+    q3:
+      question: Where do I see my points balance?
+      answer: Your balance is on the "Rewards Programme" page in your account at any time, along with the history of your transactions.
+    q4:
+      question: What happens if I return something?
+      answer: If you return a product, the points you earned on that purchase come back off your account. Any points you had spent on a discount are returned to you.
+    q5:
+      question: Do I need to sign up for anything?
+      answer: No. Every registered customer is in the programme automatically — just shop, and the points are added for you.
+  cta:
+    title: Start Earning Points Today
+    description: Every order counts. Start collecting points and enjoy the discounts on what you buy next.
+    shop_now: Shop Now
+    view_points: See Your Points
 </i18n>

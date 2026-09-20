@@ -684,4 +684,34 @@ el:
   menu: Μενού λογαριασμού
   yes: Ναι
   no: Όχι
+en:
+  title: Account
+  account:
+    welcome_back: Welcome back
+    manage_description: Manage your account and your preferences
+    quick_actions: Quick Actions
+    quick_actions_description: Jump straight to the things you do most often
+    user_id: User ID
+    email: Email
+    username: Username
+    full_name: Full Name
+    phone: Phone
+    phone_description: Your contact number
+    location: Location
+    location_description: Your city and country
+    menu_description:
+      account: See an overview of your account
+      account-orders: See your orders
+      account-favourites-posts: See the posts you saved
+      account-favourites-products: See the products you saved
+      account-notifications: See your notifications
+      account-subscriptions: Manage your subscriptions
+      account-addresses: Manage your addresses
+      account-loyalty: See your points and their history
+      account-gift-cards: See your gift cards and their balances
+      account-settings: Set your preferences
+      account-reviews: Manage your reviews
+  menu: Account menu
+  yes: Yes
+  no: No
 </i18n>
