@@ -55,12 +55,26 @@ const BlogPostCard = computed(() =>
           basis-full place-items-center justify-center
           md:basis-1/2
         `,
+        // Arrows INSIDE the box, at every width. UCarousel hangs
+        // them outside from sm up (sm:-start-12 / sm:-end-12), and this
+        // carousel is 43rem wide inside a 43rem content box at 768 --
+        // zero margin -- so the prev button sat at x=-8 and the page
+        // scrolled sideways to 776. Measured: 776 -> 753.
+        //
+        // Not outside-again-from-lg, which was the first attempt:
+        // overhang-is-clipped.spec.ts forbids a negative inset in a ui
+        // slot outright, and it is right to -- the same offsets
+        // scrolled the product rails by 24px at 1440. The sm: twins are
+        // what actually displace the library default, per
+        // carousel-arrow-overrides.spec.ts.
         next: `
-          top-2/5
+          end-2 top-2/5
+          sm:end-2
           md:top-1/2
         `,
         prev: `
-          top-2/5
+          start-2 top-2/5
+          sm:start-2
           md:top-1/2
         `,
       }"
