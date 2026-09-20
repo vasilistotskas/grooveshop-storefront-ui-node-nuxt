@@ -24,7 +24,7 @@ const props = defineProps<{
   productId: number
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 const { copy, isSupported: clipboardSupported } = useClipboard()
@@ -67,8 +67,12 @@ const offersEnabled
 const { data: offers } = await useFetch(
   () => `/api/promotions/product/${props.productId}`,
   {
-    key: `product-offers-${props.productId}`,
+    // Same reason as the `/offers` page: Django resolves the name and
+    // description server-side, so the locale has to travel with the
+    // request and with the cache key.
+    key: () => `product-offers-${props.productId}-${locale.value}`,
     headers: useRequestHeaders(),
+    query: { languageCode: locale },
     // Django answers 404 for a disabled store; with the gate above we
     // no longer ask. `default` still covers the enabled-but-empty case.
     default: () => [],

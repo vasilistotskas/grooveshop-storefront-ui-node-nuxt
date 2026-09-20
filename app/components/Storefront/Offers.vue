@@ -17,7 +17,7 @@
  * and the checkout coupon picker render the same Django shape. This
  * page owns only its layout and its filter.
  */
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const toast = useToast()
 const { copy, isSupported: clipboardSupported } = useClipboard()
@@ -27,9 +27,15 @@ useSeoMeta({
   description: () => t('description'),
 })
 
+// `languageCode` is not optional in practice: Django resolves an
+// offer's name and description server-side, so without it this page
+// renders the store's default language whatever locale it is on. The
+// key carries the locale too, or the first one fetched would be reused
+// for the other.
 const { data: offers } = await useFetch('/api/promotions', {
-  key: 'public-offers',
+  key: () => `public-offers-${locale.value}`,
   headers: useRequestHeaders(),
+  query: { languageCode: locale },
   default: () => [],
 })
 

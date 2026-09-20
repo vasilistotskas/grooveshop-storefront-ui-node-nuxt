@@ -16,6 +16,12 @@ vi.stubGlobal('tenantCacheKey', tenantCacheKey)
 const hostMock = vi.fn()
 vi.stubGlobal('getRequestHost', hostMock)
 
+// The key carries the language: Django resolves an offer's name and
+// description server-side, so one entry per tenant would serve
+// whichever locale asked first to everybody.
+const queryMock = vi.fn(() => ({}) as Record<string, string>)
+vi.stubGlobal('getQuery', queryMock)
+
 const handler = (await import('../../../../server/api/promotions/index.get')).default as unknown as {
   getKey: (event: unknown) => string
 }
@@ -36,8 +42,24 @@ describe('GET /api/promotions cache key', () => {
     expect(keyB).toContain('promotions:public')
   })
 
-  it('is stable for the same tenant', () => {
+  it('differentiates keys per language', () => {
+    // `/en/offers` rendered Greek cards over correct English rows
+    // because the language never reached Django; caching them together
+    // would put it back.
     hostMock.mockReturnValue('tenant-a.example')
+
+    queryMock.mockReturnValueOnce({ languageCode: 'el' })
+    const greek = handler.getKey({})
+
+    queryMock.mockReturnValueOnce({ languageCode: 'en' })
+    const english = handler.getKey({})
+
+    expect(greek).not.toBe(english)
+  })
+
+  it('is stable for the same tenant and language', () => {
+    hostMock.mockReturnValue('tenant-a.example')
+    queryMock.mockReturnValue({ languageCode: 'en' })
 
     expect(handler.getKey({})).toBe(handler.getKey({}))
   })

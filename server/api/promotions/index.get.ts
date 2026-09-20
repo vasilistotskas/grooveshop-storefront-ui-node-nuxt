@@ -11,14 +11,22 @@
  * "no offers" state instead of an error. A store with promotions
  * disabled is indistinguishable from one that never had the route.
  *
- * The endpoint takes no query parameters (the whole live set is one
- * short list), so the cache key is the tenant alone.
+ * ``languageCode`` is the ONE query parameter, and it is load-bearing.
+ * Django resolves an offer's name and description server-side rather
+ * than shipping a translations map, and with no language named it
+ * answers in the store's default — so `/en/offers` rendered Greek
+ * cards over correct English rows sitting unread in the database
+ * (found 2026-09-20 by reading the page, not the payload). It is in
+ * the cache key for the same reason: one entry per tenant would serve
+ * whichever locale asked first to everybody.
  */
-export default defineCachedEventHandler(async () => {
+export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
+    const query = await getValidatedQuery(event, zLocalizedQuery.parse)
     const response = await useBackendFetch()(`${config.apiBaseUrl}/promotion`, {
       method: 'GET',
+      query,
     })
     return await parseDataAs(response, zListPublicPromotionsResponse)
   }
@@ -35,5 +43,9 @@ export default defineCachedEventHandler(async () => {
   maxAge: 60 * 5,
   staleMaxAge: 60 * 30,
   swr: true,
-  getKey: event => tenantCacheKey(event, 'promotions:public'),
+  getKey: event =>
+    tenantCacheKey(
+      event,
+      `promotions:public:${getQuery(event).languageCode ?? ''}`,
+    ),
 })

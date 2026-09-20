@@ -16,7 +16,13 @@
  * ``zListProductPromotionsPath`` validates the router params directly
  * — the param name comes from Django's ``<int:product_id>`` converter.
  *
- * Cached per tenant AND per product: the offer set is a function of
+ * ``languageCode`` rides along for the same reason as the sibling
+ * listing: Django resolves the offer's name and description
+ * server-side, so without it the panel is monolingual whatever locale
+ * the product page is being read in.
+ *
+ * Cached per tenant, per product AND per language: the offer set is a
+ * function of
  * the promotion scopes, which change only when a merchant edits a
  * campaign. The Django ``promotions`` cache surface purges this handler
  * and the rendered ``/products`` pages on any promotion edit, so the
@@ -29,9 +35,10 @@ export default defineCachedEventHandler(async (event) => {
       event,
       zListProductPromotionsPath.parse,
     )
+    const query = await getValidatedQuery(event, zLocalizedQuery.parse)
     const response = await useBackendFetch()(
       `${config.apiBaseUrl}/promotion/product/${params.productId}`,
-      { method: 'GET' },
+      { method: 'GET', query },
     )
     return await parseDataAs(response, zListProductPromotionsResponse)
   }
@@ -49,6 +56,7 @@ export default defineCachedEventHandler(async (event) => {
   getKey: event =>
     tenantCacheKey(
       event,
-      `promotions:product:${getRouterParam(event, 'productId')}`,
+      `promotions:product:${getRouterParam(event, 'productId')}`
+      + `:${getQuery(event).languageCode ?? ''}`,
     ),
 })

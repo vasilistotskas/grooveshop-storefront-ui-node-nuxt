@@ -18,6 +18,11 @@ vi.stubGlobal('getRequestHost', hostMock)
 const paramMock = vi.fn()
 vi.stubGlobal('getRouterParam', paramMock)
 
+// The key carries the language too — the panel resolves its offer
+// names server-side, so one entry per product would be monolingual.
+const queryMock = vi.fn(() => ({}) as Record<string, string>)
+vi.stubGlobal('getQuery', queryMock)
+
 const handler = (await import('../../../../server/api/promotions/product/[productId].get')).default as unknown as {
   getKey: (event: unknown) => string
 }
@@ -52,9 +57,23 @@ describe('GET /api/promotions/product/:productId cache key', () => {
     expect(second).toContain('promotions:product:3')
   })
 
-  it('is stable for the same tenant and product', () => {
+  it('differentiates keys per language', () => {
     hostMock.mockReturnValue('tenant-a.example')
     paramMock.mockReturnValue('2')
+
+    queryMock.mockReturnValueOnce({ languageCode: 'el' })
+    const greek = handler.getKey({})
+
+    queryMock.mockReturnValueOnce({ languageCode: 'en' })
+    const english = handler.getKey({})
+
+    expect(greek).not.toBe(english)
+  })
+
+  it('is stable for the same tenant, product and language', () => {
+    hostMock.mockReturnValue('tenant-a.example')
+    paramMock.mockReturnValue('2')
+    queryMock.mockReturnValue({ languageCode: 'en' })
 
     expect(handler.getKey({})).toBe(handler.getKey({}))
   })
