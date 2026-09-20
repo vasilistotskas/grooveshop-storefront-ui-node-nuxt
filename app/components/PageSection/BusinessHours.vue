@@ -66,9 +66,13 @@ const rows = computed(() => {
           v-if="row.entry"
           class="font-mono tabular-nums"
         >{{ row.entry.opens }}–{{ row.entry.closes }}</span>
+        <!-- `toned`, not `muted`: today's row is `bg-elevated`, and the
+             muted token is calibrated against `bg-default` — on the
+             elevated surface it measured 4.39:1, which is a fail on the
+             one row a visitor looks at first. Toned is 7:1 on both. -->
         <span
           v-else
-          class="text-muted"
+          class="text-toned"
         >{{ t('closed') }}</span>
       </li>
     </ul>

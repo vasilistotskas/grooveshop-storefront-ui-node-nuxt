@@ -25,6 +25,9 @@ const root = join(import.meta.dirname, '..', '..')
 const appConfig = readFileSync(join(root, 'app/app.config.ts'), 'utf8')
 const css = readFileSync(join(root, 'app/assets/css/main.css'), 'utf8')
 
+const SOLID_WARNING
+  = /color:\s*'warning',\s*variant:\s*'solid',\s*class:\s*'([^']*)'/
+
 /** The `compoundVariants` entry pairing solid secondary with a text colour. */
 function solidSecondaryClass(component: string): string | undefined {
   const at = appConfig.indexOf(`${component}: {`)
@@ -50,6 +53,25 @@ describe('solid secondary', () => {
     // Two definitions: the `:root` block and the dark-mode one. A single
     // one would mean the other scheme falls back to Nuxt UI's default.
     const definitions = css.match(/--ui-on-secondary:/g) ?? []
+    expect(definitions.length).toBeGreaterThanOrEqual(2)
+  })
+})
+
+/**
+ * Amber is the other colour `text-inverted` gets wrong, for the opposite
+ * reason: it is LIGHT in both schemes, so the white it pairs with in
+ * light mode measured 2.94:1 on the catalogue's "Only N left" badge.
+ */
+describe('solid warning', () => {
+  it('puts --ui-on-warning on a badge', () => {
+    const at = appConfig.indexOf('badge: {')
+    const block = appConfig.slice(at, at + 2000)
+    const entry = block.match(SOLID_WARNING)
+    expect(entry?.[1]).toContain('text-(--ui-on-warning)')
+  })
+
+  it('defines that token for both colour schemes', () => {
+    const definitions = css.match(/--ui-on-warning:/g) ?? []
     expect(definitions.length).toBeGreaterThanOrEqual(2)
   })
 })

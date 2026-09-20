@@ -48,11 +48,16 @@ defineProps<{
           {{ item.text }}
         </blockquote>
         <template #footer>
+          <!-- `toned`, not the muted UUser paints a description in: the
+               card is `subtle`, and the muted token is calibrated
+               against `bg-default` — on that surface it measured 3.06:1
+               in dark mode on "Επαληθευμένη αγορά". -->
           <UUser
             :name="item.name"
             :description="item.role"
             :avatar="item.avatar ? { src: item.avatar, alt: item.name } : { text: item.name.slice(0, 1) }"
             size="sm"
+            :ui="{ description: 'text-toned' }"
           />
         </template>
       </UPageCard>

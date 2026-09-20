@@ -437,9 +437,12 @@ useHead({
               {{ t('cta.description') }}
             </p>
             <div class="flex flex-wrap justify-center gap-4">
+              <!-- The tenant accent, like every other primary CTA. A
+                   solid `success` button is white on green-500, which
+                   measured 3.22:1 — the page's main call to action. -->
               <UButton
                 size="lg"
-                color="success"
+                color="secondary"
                 :to="localePath('products')"
               >
                 {{ t('cta.shop_now') }}

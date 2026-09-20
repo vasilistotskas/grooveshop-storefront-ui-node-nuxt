@@ -52,6 +52,12 @@
   /* Text color for solid --ui-secondary surfaces. White suits the
      platform blue; tenant themes emit a luminance-picked value. */
   --ui-on-secondary: #ffffff;
+  /* Text color for solid --ui-warning surfaces, and NOT a mode-flipping
+     token. Nuxt UI pairs a solid colour with --ui-text-inverted, which
+     is white in light mode — white on amber-500 is 2.94:1, so the
+     catalogue's "Only N left" badge failed AA. Amber stays amber in
+     both schemes, so its foreground has to as well; this is 6:1. */
+  --ui-on-warning: #1f1f23;
   /* Chat widget gradient endpoint. Defaults to Tailwind violet-600 so
      the platform look is unchanged; tenant themes may override it via
      the injected <style id="tenant-theme"> block. */
@@ -89,6 +95,7 @@
     );
   --ui-secondary: #3364FF;
   --ui-on-secondary: #ffffff;
+  --ui-on-warning: #1f1f23;
 
   /* Semantic colors - lighter shades for dark mode */
   --ui-primary: var(--color-primary-100);

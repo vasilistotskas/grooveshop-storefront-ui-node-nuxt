@@ -467,7 +467,7 @@ const confirmPayment = async () => {
           <UButton
             type="submit"
             size="lg"
-            color="success"
+            color="secondary"
             block
             :loading="submitting"
           >
@@ -505,7 +505,7 @@ const confirmPayment = async () => {
 
           <UButton
             size="lg"
-            color="success"
+            color="secondary"
             block
             :loading="paying"
             :disabled="!isCardComplete"

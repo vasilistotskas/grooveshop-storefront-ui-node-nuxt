@@ -81,6 +81,15 @@ export default defineAppConfig({
           variant: 'solid',
           class: 'text-(--ui-on-secondary) bg-(--ui-secondary)',
         },
+        // Amber is the other colour `text-inverted` gets wrong, and for
+        // the opposite reason: it is LIGHT in both schemes, so the white
+        // it is paired with in light mode measured 2.94:1 on the
+        // catalogue's "Only N left" badge.
+        {
+          color: 'warning',
+          variant: 'solid',
+          class: 'text-(--ui-on-warning)',
+        },
       ],
     },
     chip: {

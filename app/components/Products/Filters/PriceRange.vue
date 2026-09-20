@@ -149,7 +149,11 @@ watch(
       <span class="text-sm text-neutral-600 dark:text-neutral-300">
         {{ t('selected_range') }} :
       </span>
-      <span class="text-sm font-semibold text-primary-600 dark:text-primary-400">
+      <!-- A semantic token, not a palette shade: `primary` is aliased
+           to neutral here, so `dark:text-primary-400` resolved to
+           zinc-400 on the filter's own translucent surface — 3.11:1
+           on the numbers that say what the filter is set to. -->
+      <span class="text-sm font-semibold text-highlighted">
         {{ n(currentPriceRange[0] ?? 0, 'currency') }} – {{ n(currentPriceRange[1] ?? 0, 'currency') }}
       </span>
     </div>

@@ -39,23 +39,32 @@ const hiddenEligibleCount = computed(
     "
   >
     <div class="flex items-start justify-between gap-3">
+      <!-- The tint and the icon carry the colour; the LABEL does not.
+           Nuxt UI's `subtle` variant paints the text in the benefit
+           colour too, and success-500 on a success/10 tint measured
+           3.08:1 — the badge is the first thing read on the card. -->
       <UBadge
         :color="color(offer)"
         :icon="icon(offer)"
         variant="subtle"
         size="lg"
         class="font-bold"
+        :ui="{ label: 'text-toned' }"
       >
         {{ headline(offer) }}
       </UBadge>
 
+      <!-- A status colour is an ICON here, never the text. The
+           semantic tokens are calibrated as FILLS: amber-500 as body
+           copy on `bg-default` is 2.81:1 and green-500 is 3.08:1, both
+           well under AA. -->
       <!-- Urgency, not trivia: "Λήγει σε 3 ημέρες" is a reason to act
            where a bare date is something to ignore. -->
       <span
         v-if="expiry(offer.endsAt)"
-        class="flex shrink-0 items-center gap-1 text-xs font-medium text-warning"
+        class="flex shrink-0 items-center gap-1 text-xs font-medium text-toned"
       >
-        <UIcon name="i-heroicons-clock" class="size-3.5" />
+        <UIcon name="i-heroicons-clock" class="size-3.5 text-warning" />
         {{ expiry(offer.endsAt) }}
       </span>
     </div>
@@ -187,9 +196,12 @@ const hiddenEligibleCount = computed(
       </div>
       <p
         v-else
-        class="flex items-center gap-1.5 text-xs text-success"
+        class="flex items-center gap-1.5 text-xs text-toned"
       >
-        <UIcon name="i-heroicons-sparkles" class="size-3.5 shrink-0" />
+        <UIcon
+          name="i-heroicons-sparkles"
+          class="size-3.5 shrink-0 text-success"
+        />
         {{ t('promotion.automatic') }}
       </p>
     </div>
