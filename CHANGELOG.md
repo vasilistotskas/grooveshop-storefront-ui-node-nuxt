@@ -1,3 +1,10 @@
+## [3.202.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.6...v3.202.7) (2026-09-20)
+
+
+### Bug Fixes
+
+* **offers:** send the reader's language to the offers endpoints ([02ee95f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/02ee95f75d34903ae8562fb3363acf408d2c551c))
+
 ## [3.202.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.5...v3.202.6) (2026-09-19)
 
 
