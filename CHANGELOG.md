@@ -1,3 +1,10 @@
+## [3.202.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.10...v3.202.11) (2026-09-20)
+
+
+### Bug Fixes
+
+* **ui:** lift every failing contrast pairing to AA and draw the store's map ([8dc2865](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8dc2865a205e0c04729bbd01fdf1d384ce1c49df))
+
 ## [3.202.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.9...v3.202.10) (2026-09-20)
 
 
