@@ -276,11 +276,25 @@ describe('bands whose tenant flag is on but whose content is empty', () => {
     expect(wrapper.find('section').exists()).toBe(true)
   })
 
+  /**
+   * The loyalty band's child is a `Lazy` component inside `ClientOnly`,
+   * so `mountSuspended` resolves while its dynamic import is still in
+   * flight. Under the full suite that import landed AFTER the test
+   * environment had been torn down and vitest reported an unhandled
+   * `EnvironmentTeardownError` — green tests, red run. Letting the
+   * import settle and unmounting keeps it inside the test.
+   */
+  async function settleLazyChild(wrapper: { unmount: () => void }) {
+    await new Promise(resolve => setTimeout(resolve, 0))
+    wrapper.unmount()
+  }
+
   it('draws no loyalty band for a guest, however the programme is set', async () => {
     loggedIn.value = false
     const wrapper = await mountSuspended(LoyaltyHero)
 
     expect(wrapper.find('section').exists()).toBe(false)
+    await settleLazyChild(wrapper)
   })
 
   it('draws the loyalty band for a member', async () => {
@@ -288,5 +302,6 @@ describe('bands whose tenant flag is on but whose content is empty', () => {
     const wrapper = await mountSuspended(LoyaltyHero)
 
     expect(wrapper.find('section').exists()).toBe(true)
+    await settleLazyChild(wrapper)
   })
 })

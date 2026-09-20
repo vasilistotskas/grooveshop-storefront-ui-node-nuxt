@@ -68,7 +68,7 @@ const rows = computed(() => {
         >{{ row.entry.opens }}–{{ row.entry.closes }}</span>
         <span
           v-else
-          class="text-dimmed"
+          class="text-muted"
         >{{ t('closed') }}</span>
       </li>
     </ul>

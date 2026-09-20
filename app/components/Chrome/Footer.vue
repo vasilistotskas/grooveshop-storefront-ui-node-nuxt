@@ -110,7 +110,7 @@ const storeName = computed(() => tenantStore.storeName || '')
           sm:flex-row
         "
       >
-        <p class="text-xs text-dimmed">
+        <p class="text-xs text-muted">
           © {{ currentYear }} {{ storeName }}
           <span class="sr-only">v{{ packageVersion }}</span>
         </p>

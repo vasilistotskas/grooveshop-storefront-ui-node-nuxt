@@ -323,7 +323,7 @@ useHead({
           <div
             v-for="shortcut in shortcuts"
             :key="shortcut.key"
-            class="flex items-center gap-2 text-sm text-dimmed"
+            class="flex items-center gap-2 text-sm text-muted"
           >
             <UKbd :value="shortcut.key" />
             <span>{{ shortcut.description }}</span>

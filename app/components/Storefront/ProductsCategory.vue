@@ -170,7 +170,7 @@ useSchemaOrg([
           />
           <p
             v-if="category?.recursiveProductCount"
-            class="text-sm text-dimmed"
+            class="text-sm text-muted"
           >
             {{ t('n_products', { count: category.recursiveProductCount }) }}
           </p>

@@ -807,7 +807,7 @@ useSchemaOrg([
               </span>
               <span
                 v-if="wasPrice"
-                class="font-mono text-lg tabular-nums text-dimmed line-through"
+                class="font-mono text-lg tabular-nums text-muted line-through"
               >
                 {{ formatProductPrice(wasPrice) }}
               </span>
@@ -819,7 +819,7 @@ useSchemaOrg([
                 :label="`-${Math.round(product.discountPercent)}%`"
               />
             </div>
-            <span class="text-xs text-dimmed">{{ t('vat_included') }}</span>
+            <span class="text-xs text-muted">{{ t('vat_included') }}</span>
           </div>
 
           <!-- Colour / length / capacity. Renders nothing unless the

@@ -317,14 +317,14 @@ const onFavouriteDelete = (id: number) => emit('favourite-delete', id)
           </span>
           <span
             v-if="wasPrice"
-            class="font-mono text-sm tabular-nums text-dimmed line-through"
+            class="font-mono text-sm tabular-nums text-muted line-through"
           >
             {{ $i18n.n(wasPrice, 'currency') }}
           </span>
         </div>
         <span
           v-if="showVat && product.vatPercent"
-          class="text-xs text-dimmed"
+          class="text-xs text-muted"
         >
           {{ t('vat_included') }} {{ product.vatPercent }}%
         </span>

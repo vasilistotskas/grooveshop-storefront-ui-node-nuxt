@@ -67,6 +67,22 @@ export default defineAppConfig({
         },
       ],
     },
+    // A solid secondary badge is the same trap the button compound
+    // variant above exists to close. Nuxt UI pairs a solid colour with
+    // ``text-inverted``, which is white in light mode but near-BLACK in
+    // dark mode — and the tenant accent stays a mid blue in both, so the
+    // dark-mode pairing measured 3.7:1 on the catalogue's "New" badge and
+    // the offers page's "Gift" one. ``--ui-on-secondary`` is white in both
+    // modes by definition, which is what the accent was chosen against.
+    badge: {
+      compoundVariants: [
+        {
+          color: 'secondary',
+          variant: 'solid',
+          class: 'text-(--ui-on-secondary) bg-(--ui-secondary)',
+        },
+      ],
+    },
     chip: {
       variants: {
         size: {

@@ -256,8 +256,7 @@ async function onSubmit() {
             />
             <UButton
               type="submit"
-              color="success"
-              variant="soft"
+              color="secondary"
               size="lg"
               icon="i-heroicons-check"
               :loading="isSubmitting"

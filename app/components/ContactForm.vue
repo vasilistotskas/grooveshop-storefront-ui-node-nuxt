@@ -160,8 +160,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
           <div class="pt-2">
             <UButton
               type="submit"
-              color="success"
-              variant="soft"
+              color="secondary"
               size="lg"
               block
               :loading="isSubmitting"

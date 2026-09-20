@@ -176,7 +176,7 @@ const copyIcon = (account: DemoAccount, field: 'email' | 'password') =>
         />
       </div>
 
-      <p class="text-center text-xs text-dimmed">
+      <p class="text-center text-xs text-muted">
         {{ t('reset_notice') }}
       </p>
     </UPageCard>

@@ -388,7 +388,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
             <UButton
               v-else
               type="submit"
-              color="info"
+              color="secondary"
               :loading="loading"
             >
               {{ buttonLabel }}
@@ -399,7 +399,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
           <div v-else class="pt-4">
             <UButton
               type="submit"
-              color="success"
+              color="secondary"
               :loading="loading"
             >
               {{ buttonLabel }}
@@ -536,7 +536,7 @@ function getSelectOptions(field: DynamicFormSchemaField): SelectOption[] {
       <div class="pt-4">
         <UButton
           type="submit"
-          color="success"
+          color="secondary"
           :loading="loading"
         >
           {{ buttonLabel }}
