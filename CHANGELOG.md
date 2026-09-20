@@ -1,3 +1,10 @@
+## [3.203.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.203.1...v3.203.2) (2026-09-20)
+
+
+### Bug Fixes
+
+* **ui:** stop using fill colours as text, and pair amber with a dark foreground ([5530321](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5530321f03aca5913765c1fe459e9180ceb99d90))
+
 ## [3.203.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.203.0...v3.203.1) (2026-09-20)
 
 
