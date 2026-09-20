@@ -1,3 +1,10 @@
+# [3.203.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.11...v3.203.0) (2026-09-20)
+
+
+### Features
+
+* **i18n:** translate the twelve blocks an English visitor actually meets ([0ac24fd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0ac24fd2b2c976bcd6bfa3e1e02cd23c8b5c7d68))
+
 ## [3.202.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.10...v3.202.11) (2026-09-20)
 
 
