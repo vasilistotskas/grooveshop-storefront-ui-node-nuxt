@@ -17,7 +17,7 @@ const props = defineProps<{
   surface?: 'default' | 'muted'
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const localePath = useLocalePath()
 const tenantStore = useTenantStore()
 const { copy, isSupported: clipboardSupported } = useClipboard()
@@ -30,9 +30,14 @@ const enabled = computed(
   () => tenantStore.promotionsEnabled && promotionsRuntimeEnabled.value,
 )
 
+// `languageCode` and a locale-keyed cache entry, for the same reason as
+// the `/offers` page: Django resolves an offer's name and description
+// server-side, so without it this band renders the store's default
+// language on every locale. It was the last Greek left on `/en`.
 const { data } = await useFetch('/api/promotions', {
-  key: 'offers-preview',
+  key: () => `offers-preview-${locale.value}`,
   dedupe: 'defer',
+  query: { languageCode: locale },
   immediate: enabled.value,
   server: enabled.value,
 })
