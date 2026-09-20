@@ -1,3 +1,10 @@
+## [3.203.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.203.2...v3.203.3) (2026-09-20)
+
+
+### Bug Fixes
+
+* **ui:** three more accent-as-text pairings the deployed sweep found ([84ebc0e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/84ebc0e0940e424c4d7db3df141fd37d8467f52e))
+
 ## [3.203.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.203.1...v3.203.2) (2026-09-20)
 
 
