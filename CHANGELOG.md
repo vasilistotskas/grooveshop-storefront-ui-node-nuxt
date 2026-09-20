@@ -1,3 +1,11 @@
+## [3.202.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.7...v3.202.8) (2026-09-20)
+
+
+### Bug Fixes
+
+* **loyalty:** do not render the progress hero on a partial summary ([b7dbd3d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b7dbd3d0a85ed63cddc5c0b8dc92f1097d8c941b))
+* **offers:** send the language from the homepage band too ([7458184](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/74581848e4be0dc6743356fad74a615e25a312ce))
+
 ## [3.202.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.6...v3.202.7) (2026-09-20)
 
 
