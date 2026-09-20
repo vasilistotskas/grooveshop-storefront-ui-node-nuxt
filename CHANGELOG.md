@@ -1,3 +1,10 @@
+## [3.203.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.203.0...v3.203.1) (2026-09-20)
+
+
+### Bug Fixes
+
+* **webside:** keep the related-posts arrows inside the carousel ([91601b7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/91601b7fd808e8dfbb34d2521aec4b35bfa258fb))
+
 # [3.203.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.202.11...v3.203.0) (2026-09-20)
 
 
