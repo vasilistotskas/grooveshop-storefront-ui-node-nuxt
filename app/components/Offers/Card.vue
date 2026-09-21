@@ -187,16 +187,23 @@ const hiddenEligibleCount = computed(
             "
           >{{ offer.code }}</code>
         </div>
-        <UButton
-          v-if="clipboardSupported"
-          color="neutral"
-          variant="subtle"
-          size="xs"
-          icon="i-heroicons-clipboard-document"
-          :label="t('promotion.copy_code')"
-          class="shrink-0"
-          @click="emit('copy', offer.code!)"
-        />
+        <!-- ClientOnly, not just the `v-if`: `isSupported` is FALSE during
+             SSR and true the moment the client evaluates it, so the button
+             appeared out of nowhere during hydration and Vue reported a
+             mismatch on every page carrying a coupon code. A capability
+             the server cannot know is exactly what ClientOnly is for. -->
+        <ClientOnly>
+          <UButton
+            v-if="clipboardSupported"
+            color="neutral"
+            variant="subtle"
+            size="xs"
+            icon="i-heroicons-clipboard-document"
+            :label="t('promotion.copy_code')"
+            class="shrink-0"
+            @click="emit('copy', offer.code!)"
+          />
+        </ClientOnly>
       </div>
       <p
         v-else

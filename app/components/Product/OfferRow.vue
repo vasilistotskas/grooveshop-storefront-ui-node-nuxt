@@ -65,15 +65,22 @@ const { headline, conditions, icon, color, expiry } = usePromotionOffer()
         <!-- ``subtle``, not ``ghost``: an icon-only ghost button beside
              a dashed code box reads as decoration on a dark card, and
              copying the code is the whole point of showing it. -->
-        <UButton
-          v-if="clipboardSupported"
-          color="neutral"
-          variant="subtle"
-          size="xs"
-          icon="i-heroicons-clipboard-document"
-          :aria-label="t('promotion.copy_code')"
-          @click="emit('copy', offer.code!)"
-        />
+        <!-- ClientOnly, not just the `v-if`: `isSupported` is FALSE during
+             SSR and true the moment the client evaluates it, so the button
+             appeared out of nowhere during hydration and Vue reported a
+             mismatch on every page carrying a coupon code. A capability
+             the server cannot know is exactly what ClientOnly is for. -->
+        <ClientOnly>
+          <UButton
+            v-if="clipboardSupported"
+            color="neutral"
+            variant="subtle"
+            size="xs"
+            icon="i-heroicons-clipboard-document"
+            :aria-label="t('promotion.copy_code')"
+            @click="emit('copy', offer.code!)"
+          />
+        </ClientOnly>
       </div>
       <p v-else class="pt-0.5 text-xs text-muted">
         {{ t('promotion.automatic') }}
