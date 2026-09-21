@@ -1,3 +1,10 @@
+## [3.204.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.0...v3.204.1) (2026-09-21)
+
+
+### Bug Fixes
+
+* **ui:** one rule for accent buttons, using the readable accent ([c0587a7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c0587a7022dd9cd450609e866bef6f54223d6b02))
+
 # [3.204.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.203.5...v3.204.0) (2026-09-21)
 
 
