@@ -1,3 +1,10 @@
+## [3.204.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.10...v3.204.11) (2026-09-21)
+
+
+### Bug Fixes
+
+* **catalogue:** make the items-per-page control actually work ([bd0d8f6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bd0d8f6f5a8214d5fe639157949d68621cab4258))
+
 ## [3.204.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.9...v3.204.10) (2026-09-21)
 
 
