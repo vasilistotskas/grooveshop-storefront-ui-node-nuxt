@@ -96,6 +96,35 @@ export default defineAppConfig({
           variant: 'solid',
           class: 'text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary)',
         },
+        // Every NON-solid accent button paints its label with the fill
+        // token, which is 4.18:1 on the dark page — measured on the
+        // gift-card amount presets and the PDP's price-drop alert.
+        // `text-accent` keeps the brand colour and is readable in both
+        // schemes; neutralising the label would have thrown the colour
+        // away to fix a dark-mode-only problem.
+        //
+        // `text-(--ui-secondary-text)` rather than the `text-accent`
+        // utility: tailwind-merge has to RECOGNISE this as a text
+        // colour to drop the variant's own `text-secondary`, and the
+        // arbitrary-property form is what the solid rule above already
+        // proves it recognises. A custom utility is not in its class
+        // map, so both would survive and source order would decide.
+        ...(['outline', 'ghost', 'soft', 'subtle'] as const).map(
+          variant => ({
+            color: 'secondary' as const,
+            variant,
+            class: 'text-(--ui-secondary-text)',
+          }),
+        ),
+        // `link` needs its STATES too: it is the one variant whose
+        // hover, active and disabled classes are text colours rather
+        // than backgrounds, so overriding the base alone would leave
+        // the pointer landing back on the unreadable fill.
+        {
+          color: 'secondary',
+          variant: 'link',
+          class: 'text-(--ui-secondary-text) hover:text-(--ui-secondary-text)/75 active:text-(--ui-secondary-text)/75 disabled:text-(--ui-secondary-text) aria-disabled:text-(--ui-secondary-text)',
+        },
       ],
     },
     // A solid secondary badge is the same trap the button compound
@@ -151,15 +180,6 @@ export default defineAppConfig({
           variant: 'solid',
           class: 'text-(--ui-on-warning)',
         },
-        // Every NON-solid accent button paints its label with the fill
-        // token, which is 4.18:1 on the dark page — measured on the
-        // gift-card amount presets and the PDP's price-drop alert.
-        // `text-accent` keeps the brand colour and is readable in both
-        // schemes; neutralising the label would have thrown the colour
-        // away to fix a dark-mode-only problem.
-        ...(['outline', 'ghost', 'link', 'soft', 'subtle'] as const).map(
-          variant => ({ color: 'secondary' as const, variant, class: 'text-accent' }),
-        ),
       ],
     },
     chip: {
