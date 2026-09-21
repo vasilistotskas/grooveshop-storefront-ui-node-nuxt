@@ -1,3 +1,10 @@
+## [3.204.14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.13...v3.204.14) (2026-09-21)
+
+
+### Bug Fixes
+
+* **account:** stop lazily loading the dropdown menu ([03f912c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/03f912c64a95a63b7de636ad8ef1ca85837ab848))
+
 ## [3.204.13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.12...v3.204.13) (2026-09-21)
 
 
