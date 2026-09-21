@@ -23,7 +23,13 @@ export default defineConfig({
       requests: true,
       responses: true,
       definitions: true,
-      metadata: true,
+      // metadata OFF on purpose. It emitted 1686
+      // `.register(z.globalRegistry, …)` calls — side effects on a
+      // shared registry, which means Rollup cannot drop a single
+      // schema: importing one retained all of them. That put the
+      // generated file in the CLIENT bundle at 561 KB, its largest
+      // module, on every page, for descriptions nothing reads.
+      metadata: false,
       dates: {
         offset: true,
       },
