@@ -128,12 +128,14 @@ onReactivated(async () => {
     "
   >
     <slot />
-    <div
-      class="
-        w-full space-y-6 overflow-auto
-        md:overflow-visible
-      "
-    >
+    <!-- `min-w-0`, not `overflow-auto`: as a flex item beside the
+         sidebar this column defaults to `min-width: auto` and cannot
+         shrink below its table's min-content, which pushed the page
+         100px past a 1280 viewport. Scrolling the whole column was
+         the wrong lever anyway — UTable's own wrapper already scrolls
+         horizontally, so the table scrolls inside the card instead of
+         dragging the page with it. -->
+    <div class="w-full min-w-0 space-y-6">
       <UCard>
         <UAlert
           color="info"
