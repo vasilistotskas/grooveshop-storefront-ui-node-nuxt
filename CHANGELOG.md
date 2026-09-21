@@ -1,3 +1,10 @@
+## [3.204.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.3...v3.204.4) (2026-09-21)
+
+
+### Bug Fixes
+
+* **ssr:** provide the SSR viewport width on the client too ([2b27fae](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2b27faef0c99c840eab62175b5688845f97f3afd))
+
 ## [3.204.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.2...v3.204.3) (2026-09-21)
 
 
