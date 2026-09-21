@@ -90,7 +90,7 @@ const openCookieModal = () => {
 
 <i18n lang="yaml">
 el:
-  all_rights_reserved: All rights reserved
+  all_rights_reserved: Με επιφύλαξη παντός δικαιώματος
   cookie_settings: Ρυθμίσεις cookies
 en:
   all_rights_reserved: All rights reserved

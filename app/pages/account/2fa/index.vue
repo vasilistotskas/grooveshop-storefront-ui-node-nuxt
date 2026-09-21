@@ -142,7 +142,7 @@ defineRouteRules({
 
 <i18n lang="yaml">
 el:
-  title: Two-Factor Authentication
+  title: Έλεγχος ταυτότητας δύο παραγόντων
   authenticator:
     app: Εφαρμογή ελέγχου ταυτότητας
   active: Η επαλήθευση με χρήση εφαρμογής ελέγχου ταυτότητας είναι ενεργή.
