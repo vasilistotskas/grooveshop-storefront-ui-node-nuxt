@@ -140,7 +140,14 @@ const footerClass = computed(() =>
                   >
                     <UserSidebar />
                   </aside>
-                  <div class="flex w-full flex-col">
+                  <!-- `min-w-0`: a flex item defaults to
+                       `min-width: auto`, so it cannot shrink below the
+                       min-content width of what it holds. The sessions
+                       table floored this column at 964px beside a 320px
+                       sidebar and pushed the page 65px past a 1280
+                       viewport — a horizontal scrollbar on every
+                       account page holding a wide table. -->
+                  <div class="flex w-full min-w-0 flex-col">
                     <slot />
                   </div>
                 </div>
