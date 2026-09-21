@@ -316,7 +316,7 @@ defineRouteRules({
 
         <!-- Submit Button -->
         <div class="md:col-span-2">
-          <UButton type="submit" color="success" block :loading="isSubmitting" :disabled="isSubmitting">
+          <UButton type="submit" color="secondary" block :loading="isSubmitting" :disabled="isSubmitting">
             {{ t('form.submit') }}
           </UButton>
         </div>

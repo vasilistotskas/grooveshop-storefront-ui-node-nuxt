@@ -41,16 +41,29 @@ export default defineAppConfig({
     formField: {
       slots: {
         error: 'text-xs',
+        // A field's helper line is `text-muted`, and muted is
+        // calibrated against `bg-default` — on a card it measured
+        // 4.43:1 on the account settings form. `toned` is the step
+        // that clears AA on both surfaces.
+        description: 'text-toned',
+        help: 'text-toned',
       },
     },
     input: {
       slots: {
         root: 'w-full',
+        placeholder: 'text-muted',
       },
     },
     selectMenu: {
       slots: {
         base: 'w-full',
+        // Nuxt UI paints a placeholder with `text-dimmed`, which is
+        // 2.51:1 on `bg-default` — the worst reading in the account
+        // area, on the word that tells you the field is unset. This
+        // comes from the component theme, so no source-level rule
+        // could have caught it.
+        placeholder: 'text-muted',
       },
     },
     textarea: {
@@ -193,7 +206,11 @@ export default defineAppConfig({
     },
     tabs: {
       slots: {
-        trigger: 'cursor-pointer',
+        // An INACTIVE trigger is `text-muted`, and a pill list sits on
+        // `bg-elevated` — the surface muted is not calibrated against.
+        // Measured 4.39:1 on the search page's and the notifications
+        // page's own filters, which are the navigation of those pages.
+        trigger: 'cursor-pointer data-[state=inactive]:text-toned',
       },
     },
     accordion: {

@@ -202,9 +202,11 @@ defineRouteRules({
             :description="t('form.reapproval_notice')"
             class="mb-4"
           />
+          <!-- The tenant accent, like every other primary submit: a
+               solid `success` button is white on green-500 at 3.22:1. -->
           <UButton
             type="submit"
-            color="success"
+            color="secondary"
             block
             :loading="isSubmitting"
             :disabled="isSubmitting"

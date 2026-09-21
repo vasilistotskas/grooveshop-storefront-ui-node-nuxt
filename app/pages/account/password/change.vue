@@ -3,6 +3,13 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const { hasCurrentPassword } = storeToRefs(authStore)
 
+// This page's title is CONDITIONAL — change it, or set one for the
+// first time — so it has no flat `title` key and the sweep that gave
+// every other account route its document title skipped it.
+useHead({
+  title: () => (hasCurrentPassword.value ? t('change.title') : t('set.title')),
+})
+
 defineRouteRules({
   robots: false,
 })

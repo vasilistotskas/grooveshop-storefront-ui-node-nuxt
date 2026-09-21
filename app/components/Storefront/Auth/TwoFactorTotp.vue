@@ -2,6 +2,10 @@
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const localePath = useLocalePath()
 const { t } = useI18n()
+// The page's document title — see the sibling auth bodies. This one
+// had no `title` string of its own, so one is authored here rather
+// than reusing a description that reads as a sentence in a tab.
+useHead({ title: () => t('title') })
 
 const items = computed(() => [
   {
@@ -82,6 +86,7 @@ if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.FLOW_UP
 
 <i18n lang="yaml">
 el:
+  title: Επαλήθευση δύο παραγόντων
   description: Εισάγετε τον κωδικό από την εφαρμογή ελέγχου ταυτότητας
   info_text: Άνοιξε την εφαρμογή authenticator (Google Authenticator, Authy, κλπ.) και εισάγαγε τον 6-ψήφιο κωδικό.
   breadcrumb:
@@ -93,6 +98,7 @@ el:
         label: TOTP
         icon: i-heroicons-lock-closed
 en:
+  title: Two-factor verification
   description: Enter the code from your authenticator app
   info_text: Open your authenticator app (Google Authenticator, Authy and so on) and enter the 6-digit code.
   breadcrumb:

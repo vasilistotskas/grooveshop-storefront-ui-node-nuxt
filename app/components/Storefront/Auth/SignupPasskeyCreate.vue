@@ -1,5 +1,9 @@
 <script lang="ts" setup>
 const { t } = useI18n()
+// The page's document title. These auth bodies are the ones that own
+// it — their page files are thin shells — and none of them set it, so
+// every step of the sign-in flow showed the store name twice.
+useHead({ title: () => t('title') })
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 

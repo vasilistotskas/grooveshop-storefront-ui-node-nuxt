@@ -6,6 +6,10 @@ const authEvent = useState<AuthChangeEventType>('authEvent')
 const authStore = useAuthStore()
 const { session } = storeToRefs(authStore)
 const { t } = useI18n()
+// The page's document title — see the sibling auth bodies. This one
+// had no `title` string of its own, so one is authored here rather
+// than reusing a description that reads as a sentence in a tab.
+useHead({ title: () => t('title') })
 const localePath = useLocalePath()
 
 const items = computed(() => [
@@ -169,6 +173,7 @@ async function onSubmit(): Promise<void> {
 
 <i18n lang="yaml">
 el:
+  title: Επαλήθευση με κλειδί ασφαλείας
   description: Χρησιμοποίησε το κλειδί ασφαλείας ή τη βιομετρική σου ταυτοποίηση
   success:
     title: Συνδέθηκες
@@ -192,6 +197,7 @@ el:
         label: Κλειδί
         icon: i-heroicons-lock-closed
 en:
+  title: Verify with your security key
   description: Use your security key or your fingerprint
   success:
     title: You are signed in

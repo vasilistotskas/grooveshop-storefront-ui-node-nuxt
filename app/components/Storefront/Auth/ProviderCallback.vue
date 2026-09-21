@@ -6,6 +6,11 @@ const authStore = useAuthStore()
 const { refreshSession } = authStore
 
 const { t, locale } = useI18n()
+
+// The page's document title — see the sibling auth bodies. Its heading
+// is conditional (still connecting, or failed), and the tab should say
+// the same thing rather than the store name twice.
+useHead({ title: () => t('title.loading') })
 const route = useRoute(`account-provider-callback___${locale.value}`)
 const localePath = useLocalePath()
 

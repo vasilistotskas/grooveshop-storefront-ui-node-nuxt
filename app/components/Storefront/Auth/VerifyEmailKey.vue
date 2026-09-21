@@ -4,6 +4,10 @@ const emit = defineEmits(['emailVerify'])
 const { emailVerify, getEmailVerify } = useAllAuthAuthentication()
 const toast = useToast()
 const { t, locale } = useI18n()
+// The page's document title. These auth bodies are the ones that own
+// it — their page files are thin shells — and none of them set it, so
+// every step of the sign-in flow showed the store name twice.
+useHead({ title: () => t('title') })
 const localePath = useLocalePath()
 const route = useRoute(`account-verify-email-key___${locale.value}`)
 const router = useRouter()

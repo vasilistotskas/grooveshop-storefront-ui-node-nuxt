@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 const authEvent = useState<AuthChangeEventType>('authEvent')
 const { t } = useI18n()
+// The page's document title — see the sibling auth bodies. This one
+// had no `title` string of its own, so one is authored here rather
+// than reusing a description that reads as a sentence in a tab.
+useHead({ title: () => t('title') })
 const localePath = useLocalePath()
 
 const items = computed(() => [
@@ -82,6 +86,7 @@ if (authEvent.value !== undefined && authEvent.value !== AuthChangeEvent.FLOW_UP
 
 <i18n lang="yaml">
 el:
+  title: Κωδικός ανάκτησης
   description: Χρησιμοποίησε έναν από τους κωδικούς ανάκτησης που αποθήκευσες
   warning:
     title: Προσοχή
@@ -95,6 +100,7 @@ el:
         label: Κωδικοί
         icon: i-heroicons-lock-closed
 en:
+  title: Recovery code
   description: Use one of the recovery codes you saved
   warning:
     title: Careful
