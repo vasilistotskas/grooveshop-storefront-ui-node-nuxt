@@ -110,7 +110,21 @@ const addToCartEvent = async () => {
     return
   }
 
-  if (failed) return
+  // A swallowed failure is worse than an error: the shopper clicks
+  // Buy, the cart badge does not move, and nothing at all says why.
+  // Measured on staging — an add that never reached the API produced
+  // no toast, no console error and no cart change. The store's own
+  // messages are surfaced above; this is the fallback for everything
+  // else, including a network that simply was not there.
+  if (failed) {
+    toast.add({
+      title: t('toast.failed_title'),
+      description: t('toast.failed_description'),
+      color: 'error',
+      icon: 'i-heroicons-exclamation-triangle',
+    })
+    return
+  }
 
   toast.add({
     title: t('toast.added_title'),
@@ -131,6 +145,7 @@ const addToCartEvent = async () => {
     icon="i-heroicons-shopping-cart"
     :size="size"
     square
+    loading-auto
     color="secondary"
     variant="solid"
     :disabled="disabled"
@@ -144,6 +159,7 @@ const addToCartEvent = async () => {
     :label="label"
     :size="size"
     trailing
+    loading-auto
     color="secondary"
     variant="solid"
     :disabled="disabled"
@@ -159,9 +175,13 @@ el:
   toast:
     added_title: Προστέθηκε στο καλάθι
     added_description: Το προϊόν "{name}" προστέθηκε στο καλάθι.
+    failed_title: Δεν προστέθηκε στο καλάθι
+    failed_description: Κάτι πήγε στραβά. Δοκίμασε ξανά σε λίγο.
 en:
   unavailable: Unavailable
   toast:
     added_title: Added to your basket
     added_description: '"{name}" was added to your basket.'
+    failed_title: Not added to your basket
+    failed_description: Something went wrong. Try again in a moment.
 </i18n>
