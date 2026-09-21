@@ -1,3 +1,10 @@
+## [3.203.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.203.4...v3.203.5) (2026-09-21)
+
+
+### Bug Fixes
+
+* **ui:** a first-class token for the accent as TEXT, and one rule for tinted badges and alerts ([82cb8d9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/82cb8d955828f2912e4b90ccecc81d35ca251499))
+
 ## [3.203.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.203.3...v3.203.4) (2026-09-21)
 
 
