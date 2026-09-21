@@ -1,3 +1,10 @@
+## [3.204.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.5...v3.204.6) (2026-09-21)
+
+
+### Bug Fixes
+
+* **offers:** the copy button is a client capability, not SSR markup ([94658eb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/94658eb13a6b0680d1b29d527de1d9f26bc75c7f))
+
 ## [3.204.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.4...v3.204.5) (2026-09-21)
 
 
