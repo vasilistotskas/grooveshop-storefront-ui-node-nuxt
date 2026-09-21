@@ -112,9 +112,6 @@ const columns: TableColumn<PointsTransaction>[] = [
         label: getTransactionTypeLabel(type),
         color,
         variant: 'subtle',
-        // The tint carries the colour; `subtle` would paint the label
-        // in it too, at 3.22:1.
-        ui: { base: 'text-toned' },
       })
     },
   },

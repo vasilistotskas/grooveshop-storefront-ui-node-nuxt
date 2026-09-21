@@ -184,7 +184,7 @@ const carouselUi = {
           v-if="item.eyebrow"
           :class="[
             'text-xs font-semibold tracking-[0.14em] uppercase',
-            inverted(item) ? 'text-white/80' : 'text-secondary',
+            inverted(item) ? 'text-white/80' : 'text-accent',
           ]"
         >
           {{ item.eyebrow }}

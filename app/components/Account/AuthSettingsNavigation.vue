@@ -59,9 +59,6 @@ const items = computed(() => {
               color: 'success',
               variant: 'soft',
               size: 'sm',
-              // The tint carries the colour; `soft` would paint the
-              // label green-500 too, at 3.08:1.
-              ui: { base: 'text-toned' },
             },
           }
         : {

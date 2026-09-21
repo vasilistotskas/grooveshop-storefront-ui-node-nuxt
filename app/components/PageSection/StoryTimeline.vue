@@ -53,7 +53,7 @@ const lastValue = computed(() => timelineItems.value.length - 1)
       :ui="{
         title: 'font-display text-base font-semibold text-highlighted',
         description: 'text-sm text-muted',
-        date: 'text-secondary',
+        date: 'text-accent',
       }"
     />
   </PageSectionBand>

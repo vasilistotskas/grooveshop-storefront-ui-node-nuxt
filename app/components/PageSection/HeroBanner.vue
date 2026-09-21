@@ -125,7 +125,7 @@ const hasContent = computed(
         v-if="eyebrow"
         :class="[
           'text-xs font-semibold tracking-[0.14em] uppercase',
-          inverted ? 'text-white/80' : 'text-secondary',
+          inverted ? 'text-white/80' : 'text-accent',
         ]"
       >
         {{ eyebrow }}

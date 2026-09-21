@@ -224,14 +224,14 @@ const backgroundImage = computed(() => {
                 <UButton
                   :label="t('use.code')"
                   :to="localePath('account-login-code')"
-                  class="p-0 font-semibold"
+                  class="p-0 font-semibold text-accent underline"
                   color="secondary"
                   size="md"
                   type="button"
                   variant="link"
                 />
                 <UButton
-                  class="p-0 font-semibold"
+                  class="p-0 font-semibold text-accent underline"
                   :label="t('forgot.password.reset')"
                   :to="localePath('account-password-reset')"
                   size="md"
@@ -249,7 +249,7 @@ const backgroundImage = computed(() => {
                   }}</span>
 
                   <UButton
-                    class="p-0 font-semibold underline"
+                    class="p-0 font-semibold text-accent underline"
                     :label="t('register')"
                     :to="localePath('account-signup')"
                     size="lg"

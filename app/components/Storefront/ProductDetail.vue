@@ -792,7 +792,6 @@ useSchemaOrg([
               <UBadge
                 :color="stockStatus.color"
                 :icon="stockStatus.icon"
-                :ui="{ label: 'text-toned' }"
                 size="sm"
                 variant="subtle"
                 :label="stockStatus.label"

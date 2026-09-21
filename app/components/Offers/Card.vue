@@ -54,7 +54,6 @@ const hiddenEligibleCount = computed(
         variant="subtle"
         size="lg"
         class="font-bold"
-        :ui="{ base: 'text-toned' }"
       >
         {{ headline(offer) }}
       </UBadge>

@@ -4,6 +4,11 @@ import type { TableColumn } from '#ui/types'
 const UAvatar = resolveComponent('UAvatar')
 
 const { t, locale } = useI18n()
+
+// The order-confirmation page shipped with the document title left at
+// the store name, twice — on the one page a customer is most likely to
+// keep open in a tab, or come back to from history.
+useHead({ title: () => t('title') })
 const tenantStore = useTenantStore()
 const route = useRoute(`checkout-success-uuid___${locale.value}`)
 const orderUUID = 'uuid' in route.params ? route.params.uuid : undefined

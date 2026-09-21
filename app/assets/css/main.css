@@ -1,6 +1,13 @@
 @import "tailwindcss" theme(static);
 @import "@nuxt/ui";
 
+/* The accent as TEXT. Never use `text-secondary` on words — that token
+   is the fill, and it fails AA in dark mode. See --ui-secondary-text.
+   `accent-text-is-not-the-fill.spec.ts` keeps this honest. */
+@utility text-accent {
+  color: var(--ui-secondary-text);
+}
+
 @theme {
   --container-main: 74.625rem;
   --container-8xl: 90rem;
@@ -52,6 +59,16 @@
   /* Text color for solid --ui-secondary surfaces. White suits the
      platform blue; tenant themes emit a luminance-picked value. */
   --ui-on-secondary: #ffffff;
+  /* The accent used AS TEXT, which is the opposite requirement from
+     --ui-on-secondary and cannot be the same value. --ui-secondary is
+     calibrated as a FILL: in light mode it reads at 6.47:1 on --ui-bg
+     and needs no help, but its dark-mode twin measured 4.18:1 — under
+     AA on every `.article` link and on the auth card's links.
+     Derived from the accent rather than hardcoded, so a tenant theme
+     that overrides --ui-secondary gets a correct value for free; a
+     fixed light blue would have been wrong for every tenant but this
+     one. */
+  --ui-secondary-text: var(--ui-secondary);
   /* Text color for solid --ui-warning surfaces, and NOT a mode-flipping
      token. Nuxt UI pairs a solid colour with --ui-text-inverted, which
      is white in light mode — white on amber-500 is 2.94:1, so the
@@ -95,6 +112,11 @@
     );
   --ui-secondary: #3364FF;
   --ui-on-secondary: #ffffff;
+  /* 80% accent / 20% white: 4.18:1 -> 6.05:1 against --ui-bg, and still
+     unmistakably the brand hue. Mixing toward white can only RAISE
+     contrast against a dark background, so a tenant with a pale accent
+     stays safe too (a light green lands at 13:1). */
+  --ui-secondary-text: color-mix(in oklab, var(--ui-secondary) 80%, white);
   --ui-on-warning: #1f1f23;
 
   /* Semantic colors - lighter shades for dark mode */
@@ -282,7 +304,7 @@ button:disabled:active,
   table { @apply w-full border-collapse my-4; }
   th, td { @apply border border-neutral-200 dark:border-neutral-700 px-3 py-2 text-sm; }
   th { @apply bg-neutral-50 dark:bg-neutral-800 font-semibold text-left; }
-  a { @apply text-secondary underline; }
+  a { @apply text-accent underline; }
   img {
     @apply max-w-full h-auto rounded-lg my-4;
     /* Browsers derive aspect-ratio from <img width="..." height="..."> when

@@ -1,3 +1,21 @@
+/**
+ * The tinted pairings whose LABEL fails AA.
+ *
+ * `success`, `warning` and the tenant accent are light enough that the
+ * `soft`/`subtle` variants — which paint the text in the status colour
+ * on a 10% tint of it — land between 2.8:1 and 4.2:1. Measured across
+ * the catalogue, the offers page, the loyalty ledger, the 2FA settings
+ * and the order confirmation.
+ *
+ * `error`, `info`, `primary` and `neutral` are NOT in this list: they
+ * measured clean, and webside — whose render is frozen — uses an error
+ * badge that passes. Narrowing to the three that fail is what keeps
+ * this a bug fix rather than a restyle of a live store.
+ */
+const TINTED = (['success', 'warning', 'secondary'] as const).flatMap(
+  color => (['soft', 'subtle'] as const).map(variant => ({ color, variant })),
+)
+
 export default defineAppConfig({
   ui: {
     colors: {
@@ -74,8 +92,38 @@ export default defineAppConfig({
     // dark-mode pairing measured 3.7:1 on the catalogue's "New" badge and
     // the offers page's "Gift" one. ``--ui-on-secondary`` is white in both
     // modes by definition, which is what the accent was chosen against.
+    // A TINTED badge paints its label in the status colour, and those
+    // colours are calibrated as FILLS: on `bg-{color}/10` they measured
+    // 2.8-4.2:1 across the catalogue, the offers page, the loyalty
+    // ledger and the order-confirmation status. The tint and the ring
+    // carry the colour; the words do not. Scoped to the tinted variants
+    // so a future `solid` badge keeps its own inverted foreground.
+    // Same rule for alerts, and same three colours. Every UAlert in the
+    // app is `soft` or `subtle`; the icon still carries the colour.
+    alert: {
+      compoundVariants: [
+        ...TINTED.map(({ color, variant }) => ({
+          color,
+          variant,
+          class: { title: 'text-toned', description: 'text-toned' },
+        })),
+      ],
+    },
     badge: {
       compoundVariants: [
+        // `base`, not `label`: with the default slot the text renders
+        // straight into the badge root and a `label` override paints
+        // nothing. The icon takes the colour back, so the badge still
+        // reads as a status at a glance.
+        ...TINTED.map(({ color, variant }) => ({
+          color,
+          variant,
+          class: {
+            base: 'text-toned',
+            leadingIcon: `text-${color}`,
+            trailingIcon: `text-${color}`,
+          },
+        })),
         {
           color: 'secondary',
           variant: 'solid',

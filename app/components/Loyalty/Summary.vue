@@ -276,7 +276,7 @@ const handleRetry = () => {
                 :animation="undefined"
                 status
                 :ui="{
-                  status: 'font-bold text-secondary',
+                  status: 'font-bold text-accent',
                 }"
               />
             </div>
