@@ -145,68 +145,82 @@ onReactivated(async () => {
           :description="t('providers.info.description')"
         />
 
-        <UTable
-          class="w-full"
-          :columns="columns"
-          :data="data"
-          :empty-state="{
-            icon: 'i-heroicons-link-slash',
-            label: t('providers.empty.title'),
-            description: t('providers.empty.description'),
-          }"
-          :loading="loading"
-        >
-          <template #name-cell="{ row }">
-            <div class="flex items-center gap-2">
-              <UIcon
-                :name="getProviderIcon(row.original.name)"
-                class="size-5"
-              />
-              <UBadge
-                :color="getProviderColor(row.original.name)"
-                variant="subtle"
-                size="sm"
-              >
-                {{ row.original.name }}
-              </UBadge>
-            </div>
-          </template>
-          <template #display-cell="{ row }">
-            <span class="font-medium">
-              {{ row.original.display }}
-            </span>
-          </template>
-          <template #uid-cell="{ row }">
-            <UTooltip :text="row.original.uid">
-              <span class="font-mono text-sm text-muted">
-                {{ row.original.uid.length > 20 ? row.original.uid.substring(0, 20) + '...' : row.original.uid }}
-              </span>
-            </UTooltip>
-          </template>
-          <template #actions-cell="{ row }">
-            <UTooltip :text="t('actions')">
-              <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
-                   `useForwardExpose` reads `t.value.$el.nodeName` after
-                   checking only that `$el` EXISTS as a key, and a Lazy
-                   component's `$el` is null until it loads — so every
-                   row threw "Cannot read properties of null (reading
-                   'nodeName')" and the page hydrated with mismatches.
-                   The lazy wrapper bought nothing either: the navbar
-                   renders UDropdownMenu eagerly on every page. -->
-              <UDropdownMenu
-                v-if="actionItems(row.original).length > 0"
-                :items="actionItems(row.original)"
-              >
-                <UButton
-                  color="neutral"
-                  icon="i-heroicons-ellipsis-horizontal-20-solid"
-                  variant="ghost"
-                  size="sm"
+        <!-- ClientOnly: this table's rows come from the auth store,
+             which `plugins/setup.ts` fills from a `watch(loggedIn)`
+             that fires when nuxt-auth-utils re-fetches the session on
+             `app:suspense:resolve` — the hydration boundary itself.
+             The server therefore renders the empty state and the
+             client renders the real rows in the same pass, which Vue
+             reports as a hydration mismatch (measured: 1 row server,
+             35 client). ClientOnly renders nothing on the server AND
+             nothing during hydration, so the first client render
+             matches by construction and the rows arrive as an
+             ordinary update. These pages are authenticated and never
+             cached or indexed, so there is no SSR content to lose. -->
+        <ClientOnly>
+          <UTable
+            class="w-full"
+            :columns="columns"
+            :data="data"
+            :empty-state="{
+              icon: 'i-heroicons-link-slash',
+              label: t('providers.empty.title'),
+              description: t('providers.empty.description'),
+            }"
+            :loading="loading"
+          >
+            <template #name-cell="{ row }">
+              <div class="flex items-center gap-2">
+                <UIcon
+                  :name="getProviderIcon(row.original.name)"
+                  class="size-5"
                 />
-              </UDropdownMenu>
-            </UTooltip>
-          </template>
-        </UTable>
+                <UBadge
+                  :color="getProviderColor(row.original.name)"
+                  variant="subtle"
+                  size="sm"
+                >
+                  {{ row.original.name }}
+                </UBadge>
+              </div>
+            </template>
+            <template #display-cell="{ row }">
+              <span class="font-medium">
+                {{ row.original.display }}
+              </span>
+            </template>
+            <template #uid-cell="{ row }">
+              <UTooltip :text="row.original.uid">
+                <span class="font-mono text-sm text-muted">
+                  {{ row.original.uid.length > 20 ? row.original.uid.substring(0, 20) + '...' : row.original.uid }}
+                </span>
+              </UTooltip>
+            </template>
+            <template #actions-cell="{ row }">
+              <UTooltip :text="t('actions')">
+                <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
+                     `useForwardExpose` reads `t.value.$el.nodeName` after
+                     checking only that `$el` EXISTS as a key, and a Lazy
+                     component's `$el` is null until it loads — so every
+                     row threw "Cannot read properties of null (reading
+                     'nodeName')" and the page hydrated with mismatches.
+                     The lazy wrapper bought nothing either: the navbar
+                     renders UDropdownMenu eagerly on every page. -->
+                <UDropdownMenu
+                  v-if="actionItems(row.original).length > 0"
+                  :items="actionItems(row.original)"
+                >
+                  <UButton
+                    color="neutral"
+                    icon="i-heroicons-ellipsis-horizontal-20-solid"
+                    variant="ghost"
+                    size="sm"
+                  />
+                </UDropdownMenu>
+              </UTooltip>
+            </template>
+          </UTable>
+        </ClientOnly>
 
         <div class="flex items-center justify-between pt-2">
           <span class="text-sm text-muted">

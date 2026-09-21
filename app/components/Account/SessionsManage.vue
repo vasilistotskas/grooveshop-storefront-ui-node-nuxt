@@ -150,104 +150,118 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
           :description="t('sessions.info.description')"
         />
 
-        <UTable
-          :data="data"
-          :columns="columns"
-          :loading="loading"
-          :empty-state="{
-            icon: 'i-heroicons-signal-slash',
-            label: t('sessions.empty.title'),
-            description: t('sessions.empty.description'),
-          }"
-          :ui="{
-            root: 'max-w-2xl',
-          }"
-        >
-          <template #is_current-cell="{ row }">
-            <UTooltip
-              :text="row.original.is_current ? t('sessions.current') : t('sessions.other')"
-            >
-              <UBadge
-                v-if="row.original.is_current"
-                color="success"
-                variant="soft"
-                size="sm"
-                icon="i-heroicons-check-circle"
+        <!-- ClientOnly: this table's rows come from the auth store,
+             which `plugins/setup.ts` fills from a `watch(loggedIn)`
+             that fires when nuxt-auth-utils re-fetches the session on
+             `app:suspense:resolve` — the hydration boundary itself.
+             The server therefore renders the empty state and the
+             client renders the real rows in the same pass, which Vue
+             reports as a hydration mismatch (measured: 1 row server,
+             35 client). ClientOnly renders nothing on the server AND
+             nothing during hydration, so the first client render
+             matches by construction and the rows arrive as an
+             ordinary update. These pages are authenticated and never
+             cached or indexed, so there is no SSR content to lose. -->
+        <ClientOnly>
+          <UTable
+            :data="data"
+            :columns="columns"
+            :loading="loading"
+            :empty-state="{
+              icon: 'i-heroicons-signal-slash',
+              label: t('sessions.empty.title'),
+              description: t('sessions.empty.description'),
+            }"
+            :ui="{
+              root: 'max-w-2xl',
+            }"
+          >
+            <template #is_current-cell="{ row }">
+              <UTooltip
+                :text="row.original.is_current ? t('sessions.current') : t('sessions.other')"
               >
-                {{ t('sessions.active') }}
-              </UBadge>
-              <div v-else class="size-2" />
-            </UTooltip>
-          </template>
-          <template #device-cell="{ row }">
-            <div class="flex items-center gap-3">
-              <UIcon
-                :name="getDeviceIcon(row.original.user_agent)"
-                class="size-5 text-muted"
-              />
-              <div class="flex flex-col">
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-medium">
-                    {{ getBrowserName(row.original.user_agent) }}
-                  </span>
-                  <span class="text-xs text-muted">•</span>
-                  <span class="text-xs text-muted">
-                    {{ getOSName(row.original.user_agent) }}
-                  </span>
-                </div>
-                <UTooltip :text="row.original.user_agent">
-                  <span class="text-xs text-muted">
-                    {{ contentShorten(row.original.user_agent, 0, 20) }}
-                  </span>
-                </UTooltip>
-              </div>
-            </div>
-          </template>
-          <template #ip-cell="{ row }">
-            <UBadge
-              color="neutral"
-              variant="subtle"
-              size="sm"
-              class="font-mono"
-            >
-              {{ row.original.ip }}
-            </UBadge>
-          </template>
-          <template #created_at-cell="{ row }">
-            <span class="text-sm text-muted">
-              <NuxtTime
-                date-style="medium"
-                :datetime="new Date(row.original.created_at * 1000)"
-                time-style="short"
-                :locale="locale"
-              />
-            </span>
-          </template>
-          <template #actions-cell="{ row }">
-            <UTooltip :text="row.original.is_current ? t('sessions.cannot_logout_current') : t('logout')">
-              <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
-                   `useForwardExpose` reads `t.value.$el.nodeName` after
-                   checking only that `$el` EXISTS as a key, and a Lazy
-                   component's `$el` is null until it loads — so every
-                   row threw "Cannot read properties of null (reading
-                   'nodeName')" and the page hydrated with mismatches.
-                   The lazy wrapper bought nothing either: the navbar
-                   renders UDropdownMenu eagerly on every page. -->
-              <UDropdownMenu
-                v-if="getActionItems(row.original).length > 0"
-                :items="getActionItems(row.original)"
-              >
-                <UButton
-                  color="neutral"
-                  icon="i-heroicons-ellipsis-horizontal-20-solid"
-                  variant="ghost"
+                <UBadge
+                  v-if="row.original.is_current"
+                  color="success"
+                  variant="soft"
                   size="sm"
-                  :disabled="row.original.is_current"
+                  icon="i-heroicons-check-circle"
+                >
+                  {{ t('sessions.active') }}
+                </UBadge>
+                <div v-else class="size-2" />
+              </UTooltip>
+            </template>
+            <template #device-cell="{ row }">
+              <div class="flex items-center gap-3">
+                <UIcon
+                  :name="getDeviceIcon(row.original.user_agent)"
+                  class="size-5 text-muted"
                 />
-              </UDropdownMenu>
-            </UTooltip>
-          </template>
-        </UTable>
+                <div class="flex flex-col">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium">
+                      {{ getBrowserName(row.original.user_agent) }}
+                    </span>
+                    <span class="text-xs text-muted">•</span>
+                    <span class="text-xs text-muted">
+                      {{ getOSName(row.original.user_agent) }}
+                    </span>
+                  </div>
+                  <UTooltip :text="row.original.user_agent">
+                    <span class="text-xs text-muted">
+                      {{ contentShorten(row.original.user_agent, 0, 20) }}
+                    </span>
+                  </UTooltip>
+                </div>
+              </div>
+            </template>
+            <template #ip-cell="{ row }">
+              <UBadge
+                color="neutral"
+                variant="subtle"
+                size="sm"
+                class="font-mono"
+              >
+                {{ row.original.ip }}
+              </UBadge>
+            </template>
+            <template #created_at-cell="{ row }">
+              <span class="text-sm text-muted">
+                <NuxtTime
+                  date-style="medium"
+                  :datetime="new Date(row.original.created_at * 1000)"
+                  time-style="short"
+                  :locale="locale"
+                />
+              </span>
+            </template>
+            <template #actions-cell="{ row }">
+              <UTooltip :text="row.original.is_current ? t('sessions.cannot_logout_current') : t('logout')">
+                <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
+                     `useForwardExpose` reads `t.value.$el.nodeName` after
+                     checking only that `$el` EXISTS as a key, and a Lazy
+                     component's `$el` is null until it loads — so every
+                     row threw "Cannot read properties of null (reading
+                     'nodeName')" and the page hydrated with mismatches.
+                     The lazy wrapper bought nothing either: the navbar
+                     renders UDropdownMenu eagerly on every page. -->
+                <UDropdownMenu
+                  v-if="getActionItems(row.original).length > 0"
+                  :items="getActionItems(row.original)"
+                >
+                  <UButton
+                    color="neutral"
+                    icon="i-heroicons-ellipsis-horizontal-20-solid"
+                    variant="ghost"
+                    size="sm"
+                    :disabled="row.original.is_current"
+                  />
+                </UDropdownMenu>
+              </UTooltip>
+            </template>
+          </UTable>
+        </ClientOnly>
 
         <div
           class="

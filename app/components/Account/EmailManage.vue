@@ -189,57 +189,71 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
       md:gap-12
     "
   >
-    <UTable
-      :columns="columns"
-      :data="data"
-    >
-      <template #actions-cell="{ row }">
-        <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
-                   `useForwardExpose` reads `t.value.$el.nodeName` after
-                   checking only that `$el` EXISTS as a key, and a Lazy
-                   component's `$el` is null until it loads — so every
-                   row threw "Cannot read properties of null (reading
-                   'nodeName')" and the page hydrated with mismatches.
-                   The lazy wrapper bought nothing either: the navbar
-                   renders UDropdownMenu eagerly on every page. -->
-        <UDropdownMenu
-          v-if="actionItems(row.original).length > 0"
-          :items="actionItems(row.original)"
-        >
-          <UButton
-            color="neutral"
-            icon="i-heroicons-ellipsis-horizontal-20-solid"
-            variant="ghost"
+    <!-- ClientOnly: this table's rows come from the auth store,
+         which `plugins/setup.ts` fills from a `watch(loggedIn)`
+         that fires when nuxt-auth-utils re-fetches the session on
+         `app:suspense:resolve` — the hydration boundary itself.
+         The server therefore renders the empty state and the
+         client renders the real rows in the same pass, which Vue
+         reports as a hydration mismatch (measured: 1 row server,
+         35 client). ClientOnly renders nothing on the server AND
+         nothing during hydration, so the first client render
+         matches by construction and the rows arrive as an
+         ordinary update. These pages are authenticated and never
+         cached or indexed, so there is no SSR content to lose. -->
+    <ClientOnly>
+      <UTable
+        :columns="columns"
+        :data="data"
+      >
+        <template #actions-cell="{ row }">
+          <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
+                     `useForwardExpose` reads `t.value.$el.nodeName` after
+                     checking only that `$el` EXISTS as a key, and a Lazy
+                     component's `$el` is null until it loads — so every
+                     row threw "Cannot read properties of null (reading
+                     'nodeName')" and the page hydrated with mismatches.
+                     The lazy wrapper bought nothing either: the navbar
+                     renders UDropdownMenu eagerly on every page. -->
+          <UDropdownMenu
+            v-if="actionItems(row.original).length > 0"
+            :items="actionItems(row.original)"
+          >
+            <UButton
+              color="neutral"
+              icon="i-heroicons-ellipsis-horizontal-20-solid"
+              variant="ghost"
+            />
+          </UDropdownMenu>
+        </template>
+        <template #verified-cell="{ row }">
+          <UIcon
+            :class="row.original.verified ? `
+              text-green-500
+              dark:text-green-400
+            ` : `
+              text-red-500
+              dark:text-red-400
+            `"
+            :name="row.original.verified ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
+            class="size-6"
           />
-        </UDropdownMenu>
-      </template>
-      <template #verified-cell="{ row }">
-        <UIcon
-          :class="row.original.verified ? `
-            text-green-500
-            dark:text-green-400
-          ` : `
-            text-red-500
-            dark:text-red-400
-          `"
-          :name="row.original.verified ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
-          class="size-6"
-        />
-      </template>
-      <template #primary-cell="{ row }">
-        <UIcon
-          :class="row.original.primary ? `
-            text-green-500
-            dark:text-green-400
-          ` : `
-            text-red-500
-            dark:text-red-400
-          `"
-          :name="row.original.primary ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
-          class="size-6"
-        />
-      </template>
-    </UTable>
+        </template>
+        <template #primary-cell="{ row }">
+          <UIcon
+            :class="row.original.primary ? `
+              text-green-500
+              dark:text-green-400
+            ` : `
+              text-red-500
+              dark:text-red-400
+            `"
+            :name="row.original.primary ? 'i-heroicons-check-20-solid' : 'i-heroicons-x-mark'"
+            class="size-6"
+          />
+        </template>
+      </UTable>
+    </ClientOnly>
 
     <div class="grid">
       <h2
