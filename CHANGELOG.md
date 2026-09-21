@@ -1,3 +1,10 @@
+## [3.204.13](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.12...v3.204.13) (2026-09-21)
+
+
+### Bug Fixes
+
+* **a11y:** name the select menus ([306e149](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/306e149141bc13d5445662955d6f6d15994d0f91))
+
 ## [3.204.12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.11...v3.204.12) (2026-09-21)
 
 
