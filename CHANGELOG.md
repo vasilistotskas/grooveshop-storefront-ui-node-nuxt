@@ -1,3 +1,10 @@
+## [3.204.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.2...v3.204.3) (2026-09-21)
+
+
+### Bug Fixes
+
+* **ui:** put the accent-button rule on `button`, and cover the link variant's states ([d2d6410](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d2d6410b0fd16e0246dff88d5c88cae8d656f4b6))
+
 ## [3.204.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.1...v3.204.2) (2026-09-21)
 
 
