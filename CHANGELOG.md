@@ -1,3 +1,10 @@
+## [3.204.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.6...v3.204.7) (2026-09-21)
+
+
+### Bug Fixes
+
+* **account:** let the content column shrink beside the sidebar ([3c7f1a9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/3c7f1a9f4cf0f136941f3c72a8101ccecf4868f4))
+
 ## [3.204.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.5...v3.204.6) (2026-09-21)
 
 
