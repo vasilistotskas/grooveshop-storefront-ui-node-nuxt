@@ -1,3 +1,10 @@
+## [3.204.15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.14...v3.204.15) (2026-09-21)
+
+
+### Bug Fixes
+
+* **i18n:** two English strings sitting in Greek translation blocks ([ebd8150](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ebd81508337657aa4b3937a413ef6662c95dc0c9))
+
 ## [3.204.14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.13...v3.204.14) (2026-09-21)
 
 
