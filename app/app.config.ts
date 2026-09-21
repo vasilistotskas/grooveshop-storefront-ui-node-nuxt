@@ -138,6 +138,15 @@ export default defineAppConfig({
           variant: 'solid',
           class: 'text-(--ui-on-warning)',
         },
+        // Every NON-solid accent button paints its label with the fill
+        // token, which is 4.18:1 on the dark page — measured on the
+        // gift-card amount presets and the PDP's price-drop alert.
+        // `text-accent` keeps the brand colour and is readable in both
+        // schemes; neutralising the label would have thrown the colour
+        // away to fix a dark-mode-only problem.
+        ...(['outline', 'ghost', 'link', 'soft', 'subtle'] as const).map(
+          variant => ({ color: 'secondary' as const, variant, class: 'text-accent' }),
+        ),
       ],
     },
     chip: {
