@@ -457,6 +457,14 @@ export async function useCheckoutForm() {
   const boxnowEnabled = computed(() =>
     shippingOptions.value.some(o => o.providerCode === 'boxnow'),
   )
+  // Same switch for ACS, and for a second reason: the address-validation
+  // proxy answers 503 "ACS is not configured" for a tenant without
+  // credentials, so asking at all meant a guaranteed-failing request on
+  // every debounced keystroke of every checkout. Measured on the demo
+  // store, which has BoxNow and the flat rate but no ACS contract.
+  const acsEnabled = computed(() =>
+    shippingOptions.value.some(o => o.providerCode === 'acs'),
+  )
   const fetchShippingOptions = async () => {
     try {
       const cartTotal = cart.value?.totalPrice || 0
@@ -1063,6 +1071,7 @@ export async function useCheckoutForm() {
     useNewAddress,
     b2bInvoicingEnabled,
     boxnowEnabled,
+    acsEnabled,
     acsSmartpointEnabled,
     acsShippingSetting,
     acsFreeShippingThresholdSetting,

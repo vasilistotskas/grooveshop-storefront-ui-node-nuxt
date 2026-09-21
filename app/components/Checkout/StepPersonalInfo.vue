@@ -18,6 +18,12 @@ const props = defineProps<{
    * Τιμολόγιο (INVOICE) toggle is hidden and orders ship as RECEIPT only.
    */
   b2bInvoicingEnabled?: boolean
+  /**
+   * Whether this tenant actually has an ACS contract — i.e. whether
+   * ``/api/v1/shipping/options`` returned an ``acs`` row. Without it
+   * the address-validation proxy can only answer 503.
+   */
+  acsEnabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -217,12 +223,15 @@ defineExpose({
           </UFormField>
 
           <!-- ACS address-validation chip (Phase 4b polish).
-               Greece-only because ACS only services GR; failures
-               are silent so a misconfigured / disabled provider
-               never blocks the form. -->
+               Greece-only because ACS only services GR, and only when
+               the tenant HAS ACS: the proxy answers 503 "not
+               configured" otherwise, so a country-only gate meant a
+               guaranteed-failing request on every debounced keystroke.
+               Failures stay silent either way — a disabled provider
+               must never block the form. -->
           <CheckoutAcsAddressSuggestion
             v-model:formState="formState"
-            :enabled="formState.country === 'GR'"
+            :enabled="formState.country === 'GR' && props.acsEnabled !== false"
           />
         </div>
       </template>
