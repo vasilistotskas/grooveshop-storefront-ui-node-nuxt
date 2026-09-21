@@ -1,3 +1,10 @@
+## [3.204.16](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.15...v3.204.16) (2026-09-21)
+
+
+### Bug Fixes
+
+* **account:** render the auth-store tables client-side only ([d3c2f14](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d3c2f14f573a45181225ebdcc962014a2fb80048))
+
 ## [3.204.15](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.14...v3.204.15) (2026-09-21)
 
 
