@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs'
 import { relative, resolve, sep, join } from 'node:path'
 import { describe, it, expect } from 'vitest'
+import { withoutComments } from '../helpers/sourceText'
 
 /**
  * `--ui-secondary` is the accent as a FILL. It is not a text colour.
@@ -27,22 +28,6 @@ const ROOT = resolve(__dirname, '../../app')
 const FILL_AS_TEXT = /\btext-secondary(?![\w-])/
 /** The line names an icon, or sizes one. */
 const ICON = /icon|size-/i
-
-/**
- * Blank out comment bodies, keeping the line count intact.
- *
- * Without this the rule fires on its own documentation: the loyalty
- * page carries a comment explaining that `.article` used to paint every
- * anchor with the fill token, and the prose of that explanation is not
- * a class attribute.
- */
-function withoutComments(source: string): string {
-  const blank = (match: string) => match.replace(/[^\r\n]/g, ' ')
-  return source
-    .replace(/<!--[\s\S]*?-->/g, blank)
-    .replace(/\/\*[\s\S]*?\*\//g, blank)
-    .replace(/(^|[^:])\/\/[^\r\n]*/g, match => match[0] + blank(match.slice(1)))
-}
 
 function vueFilesUnder(dir: string, out: string[] = []): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {

@@ -2,7 +2,7 @@
  * UA → device-class classification, shared by the ONLY two consumers
  * that must never drift apart:
  *
- * - ``app/plugins/ssr-width.server.ts`` seeds @vueuse's SSR viewport
+ * - ``app/plugins/ssr-width.ts`` seeds @vueuse's SSR viewport
  *   width from it, which drives every ``useMediaQuery``/``useDevice``
  *   branch in SSR markup (hero art, mobile bottom nav, device-aware
  *   footer).

@@ -2,7 +2,7 @@
  * Stamps the normalized device class (mobile | tablet | desktop) as a
  * synthetic ``x-device-class`` request header so the cached-SSR route
  * rules (``cache.varies`` in nuxt.config.ts) can key their entries on
- * it. SSR markup genuinely varies by this class — ``ssr-width.server.ts``
+ * it. SSR markup genuinely varies by this class — ``ssr-width.ts``
  * seeds the SSR viewport width from the SAME classifier
  * (``shared/utils/deviceClass.ts``) — so a host-only cache key replays
  * one class's HTML to the others (hydration mismatches + desktop hero
