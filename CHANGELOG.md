@@ -1,3 +1,10 @@
+## [3.203.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.203.3...v3.203.4) (2026-09-21)
+
+
+### Bug Fixes
+
+* **ui:** the defects a real page-by-page pass found, and a title for all 46 account routes ([69fc594](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/69fc59465a3f6eb3d6935e6c7bd07dd49268b79d))
+
 ## [3.203.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.203.2...v3.203.3) (2026-09-20)
 
 
