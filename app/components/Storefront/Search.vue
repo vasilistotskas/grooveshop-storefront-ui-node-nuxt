@@ -393,6 +393,7 @@ useHead({
             <span>{{ t('page.per_page') }}</span>
             <USelectMenu
               v-model="limit"
+              :aria-label="t('page.per_page')"
               :items="[12, 24, 48, 96]"
               size="sm"
               class="w-20"

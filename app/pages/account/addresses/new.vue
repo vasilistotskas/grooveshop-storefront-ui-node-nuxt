@@ -261,6 +261,7 @@ defineRouteRules({
         <UFormField :label="t('form.region')" name="region" required>
           <USelectMenu
             v-model="state.region"
+            :aria-label="t('form.region')"
             icon="i-heroicons-map"
             :items="regionOptions"
             :placeholder="t('form.select_placeholder')"
@@ -273,6 +274,7 @@ defineRouteRules({
         <UFormField :label="t('form.country')" name="country" required>
           <USelectMenu
             v-model="state.country"
+            :aria-label="t('form.country')"
             icon="i-heroicons-globe-alt"
             :items="countryOptions"
             :placeholder="t('form.select_placeholder')"
@@ -285,6 +287,7 @@ defineRouteRules({
         <UFormField :label="t('form.floor')" name="floor">
           <USelectMenu
             v-model="state.floor"
+            :aria-label="t('form.floor')"
             icon="i-heroicons-building-office"
             :items="floorOptions"
             :placeholder="t('form.select_placeholder')"
@@ -297,6 +300,7 @@ defineRouteRules({
         <UFormField :label="t('form.location_type')" name="locationType">
           <USelectMenu
             v-model="state.locationType"
+            :aria-label="t('form.location_type')"
             icon="i-heroicons-home"
             :items="locationTypeOptions"
             :placeholder="t('form.select_placeholder')"
