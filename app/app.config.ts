@@ -7,14 +7,35 @@
  * the catalogue, the offers page, the loyalty ledger, the 2FA settings
  * and the order confirmation.
  *
- * `error`, `info`, `primary` and `neutral` are NOT in this list: they
- * measured clean, and webside — whose render is frozen — uses an error
- * badge that passes. Narrowing to the three that fail is what keeps
- * this a bug fix rather than a restyle of a live store.
+ * `info`, `primary` and `neutral` are NOT in this list: they measured
+ * clean. Narrowing to the colours that fail is what keeps this a bug
+ * fix rather than a restyle of a live store.
  */
 const TINTED = (['success', 'warning', 'secondary'] as const).flatMap(
   color => (['soft', 'subtle'] as const).map(variant => ({ color, variant })),
 )
+
+/**
+ * `error` joins them for ALERTS, and only for alerts.
+ *
+ * In dark mode `--ui-error` resolves to `error-400`, and on a 10% tint
+ * of itself the account-deletion alert measured 2.78:1 on its title and
+ * all four of its bullets (`/account/settings/privacy`, 2026-09-21).
+ * Light mode passes, which is why the first pass — measured in light —
+ * recorded error as clean.
+ *
+ * The BADGE keeps its red label: webside's frozen render uses error
+ * badges that pass, and nothing measured says otherwise. `--ui-error`
+ * is a platform token, not a tenant one, so this alert fix lands
+ * identically on every store — including webside's own auth errors,
+ * which carry the same 2.78:1 today.
+ */
+const TINTED_ALERTS = [
+  ...TINTED,
+  ...(['soft', 'subtle'] as const).map(
+    variant => ({ color: 'error' as const, variant }),
+  ),
+]
 
 export default defineAppConfig({
   ui: {
@@ -140,11 +161,12 @@ export default defineAppConfig({
     // ledger and the order-confirmation status. The tint and the ring
     // carry the colour; the words do not. Scoped to the tinted variants
     // so a future `solid` badge keeps its own inverted foreground.
-    // Same rule for alerts, and same three colours. Every UAlert in the
-    // app is `soft` or `subtle`; the icon still carries the colour.
+    // Same rule for alerts, plus `error` — see TINTED_ALERTS. Every
+    // UAlert in the app is `soft` or `subtle`; the icon keeps the
+    // colour, so an error alert still reads as one at a glance.
     alert: {
       compoundVariants: [
-        ...TINTED.map(({ color, variant }) => ({
+        ...TINTED_ALERTS.map(({ color, variant }) => ({
           color,
           variant,
           class: { title: 'text-toned', description: 'text-toned' },

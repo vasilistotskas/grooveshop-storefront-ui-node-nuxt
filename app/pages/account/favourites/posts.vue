@@ -142,9 +142,9 @@ defineRouteRules({
     >
       <UIcon
         name="i-heroicons-heart"
-        class="h-16 w-16 text-gray-400"
+        class="h-16 w-16 text-dimmed"
       />
-      <p class="text-gray-600">
+      <p class="text-muted">
         {{ t('no_favourites') }}
       </p>
     </div>
