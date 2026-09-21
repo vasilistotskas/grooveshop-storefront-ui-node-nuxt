@@ -1,3 +1,10 @@
+# [3.204.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.203.5...v3.204.0) (2026-09-21)
+
+
+### Features
+
+* **i18n:** clear the inline-translation debt, and stop the login page reading as three forms ([13055b2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/13055b29bd58b2362e73ff5379a1c81b7be94b7d))
+
 ## [3.203.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.203.4...v3.203.5) (2026-09-21)
 
 
