@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+const { t } = useI18n()
+
 const props = defineProps({
   throttle: {
     type: Number,
@@ -39,7 +41,7 @@ defineExpose({
   <div
     id="nuxt-loading-indicator"
     role="progressbar"
-    aria-label="Page loading"
+    :aria-label="t('aria.loading')"
     :aria-valuenow="isLoading ? Math.round(progress) : undefined"
     aria-valuemin="0"
     aria-valuemax="100"
@@ -64,3 +66,12 @@ defineExpose({
     <slot />
   </div>
 </template>
+
+<i18n lang="yaml">
+el:
+  aria:
+    loading: Η σελίδα φορτώνει
+en:
+  aria:
+    loading: Page loading
+</i18n>

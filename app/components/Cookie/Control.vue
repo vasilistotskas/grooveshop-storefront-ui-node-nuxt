@@ -244,7 +244,7 @@ defineExpose({
       <button
         v-if="moduleOptions.isControlButtonEnabled && isConsentGiven"
         :title="t('title')"
-        aria-label="Cookie control"
+        :aria-label="t('aria.region')"
         data-testid="nuxt-cookie-control-control-button"
         type="button"
         class="
@@ -279,6 +279,8 @@ defineExpose({
 el:
   title: Cookies
   accept: Αποδοχή
+  aria:
+    region: Ρυθμίσεις cookies
   banner:
     description: "Χρησιμοποιούμε cookies και παρόμοιες τεχνολογίες για να εξατομικεύσουμε το περιεχόμενο και να προσφέρουμε καλύτερη εμπειρία. Μπορείς να επιλέξεις την προσαρμογή τους κάνοντας κλικ στο κουμπί προσαρμογής."
     title: "\U0001F36A Γεια. Αυτός ο ιστότοπος χρησιμοποιεί Cookies \U0001F36A"
@@ -287,6 +289,8 @@ el:
 en:
   title: Cookies
   accept: Accept
+  aria:
+    region: Cookie settings
   banner:
     description: "We use cookies and similar technologies to personalise content and offer a better experience. You can customise them by clicking the customise button."
     title: "\U0001F36A Hi. This site uses cookies \U0001F36A"
