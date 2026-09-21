@@ -60,4 +60,7 @@ watch(loggedIn, () => {
 el:
   title: Σύνδεση
   description: Συνδέσου για να συνεχίσεις
+en:
+  title: Sign in
+  description: Sign in to carry on
 </i18n>

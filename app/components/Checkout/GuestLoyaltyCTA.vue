@@ -94,4 +94,8 @@ el:
   title: "Κέρδισε {points} πόντους με αυτήν την παραγγελία!"
   description: "Δημιούργησε δωρεάν λογαριασμό και κέρδισε πόντους που μετατρέπονται σε εκπτώσεις."
   cta: "Εγγραφή"
+en:
+  title: "Earn {points} points on this order"
+  description: "Create a free account and turn points into discounts."
+  cta: "Sign up"
 </i18n>

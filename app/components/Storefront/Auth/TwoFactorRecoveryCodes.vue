@@ -94,4 +94,17 @@ el:
       account-2fa-authenticate-recovery-codes:
         label: Κωδικοί
         icon: i-heroicons-lock-closed
+en:
+  description: Use one of the recovery codes you saved
+  warning:
+    title: Careful
+    description: Each recovery code works only once. Keep the rest somewhere safe.
+  breadcrumb:
+    items:
+      account-login:
+        label: Sign in
+        icon: i-heroicons-arrow-right-on-rectangle
+      account-2fa-authenticate-recovery-codes:
+        label: Codes
+        icon: i-heroicons-lock-closed
 </i18n>

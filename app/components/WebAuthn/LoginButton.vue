@@ -97,4 +97,10 @@ el:
     error:
       title: Η σύνδεση απέτυχε
       description: Υπήρξε πρόβλημα με την αυθεντικοποίηση μέσω WebAuthn. Παρακαλώ προσπάθησε ξανά.
+en:
+  webauthn:
+    login: Sign in with a security key
+    error:
+      title: Sign-in failed
+      description: Something went wrong with WebAuthn. Please try again.
 </i18n>

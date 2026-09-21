@@ -107,4 +107,11 @@ el:
   empty:
     title: Δεν υπάρχουν διαθέσιμα θέματα
     description: Δεν υπάρχουν θέματα ειδοποιήσεων διαθέσιμα αυτή τη στιγμή. Παρακαλώ ελέγξτε ξανά αργότερα.
+en:
+  error:
+    title: Could not load
+    description: We could not load the notification topics. Please try again.
+  empty:
+    title: No topics available
+    description: There are no notification topics right now. Please check back later.
 </i18n>

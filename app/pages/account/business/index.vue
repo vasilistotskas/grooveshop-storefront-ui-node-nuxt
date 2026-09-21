@@ -256,4 +256,42 @@ el:
     reapproval_notice: Η αλλαγή των εταιρικών στοιχείων (επωνυμία, ΑΦΜ, ΔΟΥ, δραστηριότητα) στέλνει την αίτηση ξανά για έγκριση — μέχρι την επανέγκριση ισχύουν οι τιμές λιανικής.
     submit: Υποβολή αίτησης
     update: Ενημέρωση στοιχείων
+en:
+  title: Business account
+  intro:
+    title: Become a wholesale customer
+    description: Fill in your company details. Once the store approves them, your wholesale prices apply automatically whenever you are signed in.
+  status:
+    PENDING:
+      title: Your application is being reviewed
+      description: We will email you as soon as the store has finished checking it.
+    APPROVED:
+      title: Your business account is active
+      description: Wholesale prices are applied automatically to your cart and your orders.
+      group: "Price list: {group}"
+    REJECTED:
+      title: Your application was not approved
+      description: You can correct the details and submit it again.
+    SUSPENDED:
+      title: Your business account is suspended
+      description: Get in touch with the store for more information.
+  submit:
+    success: Your company details were saved
+    error: The details could not be saved
+  form:
+    company_name: Company name
+    vat_id: VAT number
+    vat_help: Nine digits, without the EL/GR prefix.
+    tax_office: Tax office
+    tax_office_placeholder: e.g. Athens A
+    activity: Line of business
+    activity_help: Your business activity as it appears on the register.
+    billing_address: Registered address (optional)
+    billing_street: Street
+    billing_street_number: Number
+    billing_city: City
+    billing_zipcode: Postcode
+    reapproval_notice: Changing your company details (name, VAT number, tax office, line of business) sends the application back for approval — retail prices apply until it is approved again.
+    submit: Submit application
+    update: Update details
 </i18n>

@@ -328,4 +328,23 @@ el:
     min_points: "Πρέπει να εξαργυρώσετε τουλάχιστον 1 πόντο"
     exceeds_balance: "Δεν έχετε αρκετούς πόντους"
     exceeds_products_total: "Δεν μπορείτε να εξαργυρώσετε πόντους αξίας μεγαλύτερης από το σύνολο προϊόντων"
+en:
+  title: "Redeem Points"
+  points: "points"
+  points_to_redeem: "Points to redeem"
+  enter_points: "Points"
+  redeem_all: "Redeem all"
+  redemption_info: "Your points become a discount on this order"
+  redemption_success: "Points redeemed"
+  redemption_success_description: "You redeemed {points} points for {amount} {currency} off"
+  redemption_failed: "Redemption failed"
+  redemption_error: "Your points could not be redeemed"
+  discount_applied: "Discount applied"
+  discount_amount: "Discount"
+  remaining_balance: "Balance left"
+  redeem_button: "Redeem {amount} €"
+  validation:
+    min_points: "You must redeem at least 1 point"
+    exceeds_balance: "You do not have that many points"
+    exceeds_products_total: "You cannot redeem points worth more than the items in your cart"
 </i18n>

@@ -50,4 +50,8 @@ el:
   earn_points: "Κέρδισε {points} πόντους"
   tier_bonus: "Μπόνους βαθμίδας"
   tier_bonus_tooltip: "Εφαρμόστηκε πολλαπλασιαστής βαθμίδας"
+en:
+  earn_points: "Earn {points} points"
+  tier_bonus: "Tier bonus"
+  tier_bonus_tooltip: "Your tier multiplier was applied"
 </i18n>

@@ -220,4 +220,15 @@ el:
       title: Δεν έχεις συνδεθεί με κάποιον πάροχο
       description: Σύνδεσε λογαριασμούς τρίτων για ευκολότερη σύνδεση
     total: Κανένας συνδεδεμένος πάροχος | 1 Συνδεδεμένος πάροχος | {count} συνδεδεμένοι πάροχοι
+en:
+  provider: Provider
+  account: Account
+  providers:
+    info:
+      title: Connected Providers
+      description: Manage the third-party accounts linked to yours. You can disconnect any of them at any time.
+    empty:
+      title: No providers connected
+      description: Connect a third-party account to sign in more easily
+    total: "No connected providers | 1 connected provider | {count} connected providers"
 </i18n>

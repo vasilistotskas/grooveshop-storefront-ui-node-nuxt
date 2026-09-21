@@ -259,4 +259,11 @@ el:
   main_address: Κύρια διεύθυνση
   edit: Επεξεργασία
   delete: Διαγραφή
+en:
+  success: Address deleted
+  error: The address could not be deleted
+  cant_delete_main: You cannot delete your main address — set another one as your main address and try again.
+  main_address: Main address
+  edit: Edit
+  delete: Delete
 </i18n>

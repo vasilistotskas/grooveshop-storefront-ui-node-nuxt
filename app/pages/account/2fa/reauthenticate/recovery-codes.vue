@@ -156,4 +156,21 @@ el:
     description: Αυτός ο κωδικός θα καταναλωθεί μετά τη χρήση και δεν θα μπορεί να χρησιμοποιηθεί ξανά
   info:
     description: Οι κωδικοί ανάκτησης είναι για χρήση έκτακτης ανάγκης όταν δεν έχετε πρόσβαση στην κύρια μέθοδο επαλήθευσης
+en:
+  title: Recovery Code
+  description: Enter one of the recovery codes you were given
+  code:
+    label: Recovery Code
+    placeholder: xxxx-xxxx-xxxx
+    help: Each code can be used only once
+  submit: Verify
+  success:
+    description: Verified with your recovery code
+  error:
+    invalid_code: That recovery code is not valid
+  warning:
+    title: Worth knowing
+    description: This code is used up once you submit it, and cannot be used again
+  info:
+    description: Recovery codes are for when you cannot get at your usual verification method
 </i18n>

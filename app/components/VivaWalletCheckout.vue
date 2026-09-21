@@ -159,4 +159,11 @@ el:
   checkout_session_error: Αποτυχία δημιουργίας συνεδρίας πληρωμής
   retry: Επανάληψη
   secure_redirect_notice: Θα μεταφερθείς στην ασφαλή σελίδα πληρωμής της Viva Wallet. Μην κλείσεις αυτό το παράθυρο.
+en:
+  redirecting_to_checkout: Taking you to the payment page
+  please_wait: One moment…
+  checkout_error: Checkout Error
+  checkout_session_error: The payment session could not be created
+  retry: Try again
+  secure_redirect_notice: You are being taken to Viva Wallet's secure payment page. Please do not close this window.
 </i18n>

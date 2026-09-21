@@ -126,4 +126,20 @@ el:
       account-signup-passkey-create:
         label: Κλειδί
         icon: i-heroicons-key
+en:
+  title: Create a passkey
+  description: You are about to create a passkey for your account. You can add more keys later, so give this one a name that tells them apart.
+  benefits:
+    title: Why passkeys?
+    secure: Safer than passwords
+    fast: Quicker to sign in
+    no_password: Nothing to remember
+  breadcrumb:
+    items:
+      account:
+        label: Account
+        icon: i-heroicons-user
+      account-signup-passkey-create:
+        label: Passkey
+        icon: i-heroicons-key
 </i18n>

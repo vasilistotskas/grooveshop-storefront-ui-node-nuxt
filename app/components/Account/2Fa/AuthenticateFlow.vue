@@ -109,4 +109,13 @@ el:
     totp: Χρησιμοποίησε την εφαρμογή πολλαπλών παραγόντων
     recovery_codes: Χρησιμοποίησε κωδικούς ανάκτησης
     webauthn: Χρησιμοποίησε το κλειδί ασφαλείας
+en:
+  alternative_options: Other options
+  2fa:
+    title: Two-factor verification
+    subtitle: Your account is protected by two-factor authentication
+  mfa_reauthenticate:
+    totp: Use your authenticator app
+    recovery_codes: Use a recovery code
+    webauthn: Use your security key
 </i18n>

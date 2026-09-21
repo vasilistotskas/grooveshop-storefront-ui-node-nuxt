@@ -191,4 +191,27 @@ el:
       account-2fa-authenticate-webauthn:
         label: Κλειδί
         icon: i-heroicons-lock-closed
+en:
+  description: Use your security key or your fingerprint
+  success:
+    title: You are signed in
+    description: Verification complete.
+  error:
+    title: Verification failed
+    description: We could not verify you with that security key. Please try again.
+  steps:
+    1: Press the button below
+    2: Follow the prompts on your device
+    3: Use your fingerprint or your security key
+  use:
+    security:
+      key: Use my security key
+  breadcrumb:
+    items:
+      account-login:
+        label: Sign in
+        icon: i-heroicons-arrow-right-on-rectangle
+      account-2fa-authenticate-webauthn:
+        label: Security key
+        icon: i-heroicons-lock-closed
 </i18n>

@@ -63,4 +63,6 @@ const { t } = useI18n()
 <i18n lang="yaml">
 el:
   total: Χωρίς Διευθύνσεις | 1 Διεύθυνση | {count} Διευθύνσεις
+en:
+  total: "No addresses | 1 address | {count} addresses"
 </i18n>

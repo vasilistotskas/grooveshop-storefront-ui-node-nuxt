@@ -36,4 +36,9 @@ el:
     title: Αλλαγή κωδικού πρόσβασης
   set:
     title: Όρισε έναν κωδικό πρόσβασης
+en:
+  change:
+    title: Change password
+  set:
+    title: Set a password
 </i18n>

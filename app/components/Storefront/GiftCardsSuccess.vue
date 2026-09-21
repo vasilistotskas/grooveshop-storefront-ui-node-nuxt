@@ -157,4 +157,19 @@ el:
   processing:
     title: Η πληρωμή επεξεργάζεται
     description: Η επιβεβαίωση αργεί περισσότερο από το συνηθισμένο. Μόλις ολοκληρωθεί, η δωροκάρτα θα σταλεί αυτόματα και θα λάβετε απόδειξη με email.
+en:
+  title: Gift card purchase
+  pending:
+    title: Confirming your payment…
+    description: We are confirming your payment — please do not close this page
+  paid:
+    title: Purchase complete
+    description: The gift card will be emailed to the recipient. Your receipt is on its way to you.
+  failed:
+    title: The payment did not go through
+    description: It failed or was cancelled — nothing was charged
+    retry: Try again
+  processing:
+    title: Your payment is processing
+    description: Confirmation is taking longer than usual. As soon as it clears, the gift card is sent automatically and you get a receipt by email.
 </i18n>

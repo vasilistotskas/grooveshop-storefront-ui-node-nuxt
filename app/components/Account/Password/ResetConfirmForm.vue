@@ -258,4 +258,33 @@ el:
   error:
     title: Σφάλμα επαναφοράς
     description: Ο σύνδεσμος επαναφοράς μπορεί να έχει λήξει ή να είναι άκυρος.
+en:
+  form:
+    newPassword1:
+      label: Password
+    newPassword2:
+      label: Confirm password
+      errors:
+        match: The confirmation must match the password
+    submit: Reset
+  password:
+    placeholder: Enter a new password
+    placeholder_confirm: Confirm the new password
+    strength:
+      none: Enter a password
+      weak: Weak password
+      medium: Fair password
+      strong: Strong password
+    requirements:
+      title: It must contain
+      length: At least 8 characters
+      number: At least 1 number
+      lowercase: At least 1 lowercase letter
+      uppercase: At least 1 capital letter
+      complete: Meet every requirement to continue
+  success:
+    description: Your password has been reset.
+  error:
+    title: The reset failed
+    description: The reset link may have expired or be invalid.
 </i18n>

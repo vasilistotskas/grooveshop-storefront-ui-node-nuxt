@@ -162,4 +162,9 @@ el:
     error: Αποτυχία σύνδεσης με τον πάροχο
     loading: Σύνδεση με τον πάροχο ...
   description: Κάτι πήγε στραβά.
+en:
+  title:
+    error: Could not sign in with that provider
+    loading: Signing you in…
+  description: Something went wrong.
 </i18n>

@@ -151,4 +151,19 @@ el:
   info:
     title: Γιατί χρειάζεται αυτό;
     description: Για την προστασία του λογαριασμού σας, απαιτείται επαναπιστοποίηση για ευαίσθητες ενέργειες
+en:
+  title: Confirm it is you
+  description: For security, please confirm your password
+  password:
+    label: Password
+    placeholder: Enter your password
+    show: Show password
+    hide: Hide password
+  submit: Confirm
+  success:
+    title: Confirmed
+    description: Confirmed
+  info:
+    title: Why is this needed?
+    description: To protect your account, we ask again before anything sensitive
 </i18n>

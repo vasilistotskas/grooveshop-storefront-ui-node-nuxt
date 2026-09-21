@@ -534,4 +534,23 @@ el:
     submit: Υποβολή
     success: Τα στοιχεία αποθηκεύτηκαν επιτυχώς
     error: Σφάλμα
+en:
+  form:
+    select_placeholder: Choose
+    first_name: First name
+    last_name: Last name
+    phone: Phone
+    phone_placeholder: "6912345678"
+    city: City
+    zipcode: Postcode
+    address: Address
+    place: Location
+    birth_date: Date of birth
+    country: Country
+    region: Region
+    language: Language
+    language_help: Used for emails and for the interface.
+    submit: Save
+    success: Your details were saved
+    error: That did not work
 </i18n>

@@ -152,4 +152,14 @@ el:
     unset: Δεν έχουν οριστεί κωδικοί ανάκτησης
     info: Έχεις {unused_code_count} από τους {total_code_count} κωδικούς ανάκτησης
       διαθέσιμους.
+en:
+  title: Two-Factor Authentication
+  authenticator:
+    app: Authenticator app
+  active: Authenticator-app verification is on.
+  inactive: Your authenticator app is not set up.
+  recovery-codes:
+    title: Recovery codes
+    unset: No recovery codes have been set
+    info: You have {unused_code_count} of {total_code_count} recovery codes left.
 </i18n>

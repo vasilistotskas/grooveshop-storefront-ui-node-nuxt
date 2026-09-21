@@ -302,4 +302,35 @@ el:
     description: Βεβαιώσου ότι ο κωδικός σου περιέχει τουλάχιστον 8 χαρακτήρες με συνδυασμό γραμμάτων και αριθμών
   hide_password: Απόκρυψη κωδικού πρόσβασης
   show_password: Εμφάνιση κωδικού πρόσβασης
+en:
+  password:
+    current: Current password
+    new: New password
+    confirm: Confirm password
+    requirements:
+      title: Password requirements
+      length: At least 8 characters
+      number: At least 1 number
+      lowercase: At least 1 lowercase letter
+      uppercase: At least 1 capital letter
+    strength:
+      none: Enter a password
+      weak: Weak password
+      medium: Fair password
+      strong: Strong password
+  change:
+    title: Change password
+    description: Update your password to keep your account secure
+    submit: Change password
+  set:
+    title: Change password
+    description: Create a strong password to protect your account
+    submit: Set password
+  common:
+    cancel: Cancel
+  security:
+    title: A secure password
+    description: Make sure your password is at least 8 characters and mixes letters with numbers
+  hide_password: Hide password
+  show_password: Show password
 </i18n>

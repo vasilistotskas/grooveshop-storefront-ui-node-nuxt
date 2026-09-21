@@ -360,4 +360,38 @@ el:
     country: Χώρα
     region: Περιφέρεια
     submit: Αποθήκευση
+en:
+  title: New address
+  error: The address could not be created
+  success: Address created
+  form:
+    select_placeholder: Choose
+    title: Address
+    first_name: First name
+    last_name: Last name
+    street: Street
+    street_number: Street number
+    city: City
+    zipcode: Postcode
+    phone: Phone
+    phone_placeholder: "6912345678"
+    notes: Notes
+    floor: Floor
+    floor_options:
+      BASEMENT: Basement
+      GROUND_FLOOR: Ground floor
+      FIRST_FLOOR: 1st floor
+      SECOND_FLOOR: 2nd floor
+      THIRD_FLOOR: 3rd floor
+      FOURTH_FLOOR: 4th floor
+      FIFTH_FLOOR: 5th floor
+      SIXTH_FLOOR_PLUS: 6th floor or above
+    location_type: Location
+    location_type_options:
+      HOME: Home
+      OFFICE: Office
+      OTHER: Other
+    country: Country
+    region: Region
+    submit: Save
 </i18n>

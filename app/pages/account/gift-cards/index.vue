@@ -119,4 +119,10 @@ el:
   valid_until: Ισχύει έως {date}
   empty: Δεν έχετε συνδεδεμένες δωροκάρτες στον λογαριασμό σας
   buy_one: Αγορά δωροκάρτας
+en:
+  title: My Gift Cards
+  balance: Balance
+  valid_until: Valid until {date}
+  empty: You have no gift cards linked to your account
+  buy_one: Buy a gift card
 </i18n>

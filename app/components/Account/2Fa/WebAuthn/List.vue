@@ -329,4 +329,17 @@ el:
   total_keys: Δεν υπάρχουν κλειδιά | 1 κλειδί | {count} κλειδιά
   empty:
     description: Πρόσθεσε ένα κλειδί ασφαλείας για να ξεκινήσεις
+en:
+  type_unspecified: Type not specified
+  webauthn:
+    info:
+      title: WebAuthn Security Keys
+      description: Manage the WebAuthn security keys you sign in with. You can use hardware keys or your system's own biometrics.
+  passwordless: Passwordless
+  recovery_codes: Recovery codes
+  unnamed_key: Unnamed key
+  total: Total
+  total_keys: "No keys | 1 key | {count} keys"
+  empty:
+    description: Add a security key to get started
 </i18n>

@@ -51,18 +51,22 @@ describe('AccountDemoAccountCard', () => {
     settings.value = { ...ARMED }
     const wrapper = await mountSuspended(DemoAccountCard)
 
-    const values = wrapper.findAll('input').map(i => (i.element as HTMLInputElement).value)
-    expect(values).toContain('demo@grooveshop.space')
-    expect(values).toContain('GrooveDemo-2026')
+    // Asserted on the rendered TEXT, not on input values: the card
+    // presents credentials as a copyable line rather than as form
+    // fields, because two labelled email+password pairs stacked above
+    // the real login form made the page read as three login forms.
+    // What matters is that both are legible in clear.
+    expect(wrapper.text()).toContain('demo@grooveshop.space')
+    expect(wrapper.text()).toContain('GrooveDemo-2026')
   })
 
   it('offers only the retail account when no wholesale one is set', async () => {
     settings.value = { ...ARMED }
     const wrapper = await mountSuspended(DemoAccountCard)
 
-    // Two fields, one button: with a single account a heading over the
-    // pair would only ask the reader what the other kind would be.
-    expect(wrapper.findAll('input')).toHaveLength(2)
+    // One account means no heading over it — that would only ask the
+    // reader what the other kind would be.
+    expect(wrapper.text()).toContain('demo@grooveshop.space')
     expect(wrapper.text()).not.toContain('Χονδρική')
   })
 
@@ -74,10 +78,9 @@ describe('AccountDemoAccountCard', () => {
     }
     const wrapper = await mountSuspended(DemoAccountCard)
 
-    const values = wrapper.findAll('input').map(i => (i.element as HTMLInputElement).value)
-    expect(values).toContain('demo@grooveshop.space')
-    expect(values).toContain('demo-wholesale@grooveshop.space')
-    expect(values).toContain('GrooveWholesale-2026')
+    expect(wrapper.text()).toContain('demo@grooveshop.space')
+    expect(wrapper.text()).toContain('demo-wholesale@grooveshop.space')
+    expect(wrapper.text()).toContain('GrooveWholesale-2026')
     // Each pair gets its own button, because one shared button cannot
     // say which of two pairs it would use.
     expect(wrapper.findAll('button').length).toBeGreaterThanOrEqual(2)
@@ -93,9 +96,8 @@ describe('AccountDemoAccountCard', () => {
     }
     const wrapper = await mountSuspended(DemoAccountCard)
 
-    const values = wrapper.findAll('input').map(i => (i.element as HTMLInputElement).value)
-    expect(values).not.toContain('demo-wholesale@grooveshop.space')
-    expect(values).toContain('demo@grooveshop.space')
+    expect(wrapper.text()).not.toContain('demo-wholesale@grooveshop.space')
+    expect(wrapper.text()).toContain('demo@grooveshop.space')
   })
 
   it('signs in with the pair whose button was pressed', async () => {
@@ -122,7 +124,11 @@ describe('AccountDemoAccountCard', () => {
     settings.value = { ...ARMED }
     const wrapper = await mountSuspended(DemoAccountCard)
 
-    const button = wrapper.findAll('button').at(-1)
+    // The SIGN-IN button, not merely the last one: the copy buttons sit
+    // after it now, and they carry an aria-label where it does not.
+    const button = wrapper
+      .findAll('button')
+      .find(b => b.attributes('aria-label') === undefined)
     await button?.trigger('click')
 
     expect(wrapper.emitted('login')?.[0]).toEqual([{

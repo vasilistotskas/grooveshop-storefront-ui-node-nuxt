@@ -36,4 +36,6 @@ defineRouteRules({
 <i18n lang="yaml">
 el:
   title: Συνεδρίες
+en:
+  title: Sessions
 </i18n>

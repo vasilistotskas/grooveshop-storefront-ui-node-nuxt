@@ -101,4 +101,18 @@ el:
       account-password-reset-key:
         label: Κωδικός επαναφοράς
         icon: i-heroicons-lock-closed
+en:
+  title: Reset your password
+  description: Enter your new password below.
+  breadcrumb:
+    items:
+      account-login:
+        label: Sign in
+        icon: i-heroicons-arrow-right-on-rectangle
+      account-password-reset:
+        label: Reset
+        icon: i-heroicons-lock-closed
+      account-password-reset-key:
+        label: Reset code
+        icon: i-heroicons-lock-closed
 </i18n>

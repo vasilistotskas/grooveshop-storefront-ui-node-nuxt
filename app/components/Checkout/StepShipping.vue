@@ -465,4 +465,7 @@ defineExpose({ submit: onSubmit })
 el:
   subtitle: Επιλέξτε πώς θέλετε να παραλάβετε την παραγγελία σας
   back: Πίσω
+en:
+  subtitle: Choose how you would like your order delivered
+  back: Back
 </i18n>

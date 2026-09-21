@@ -96,4 +96,8 @@ el:
   idle: Δωρεάν μεταφορικά σε αγορές άνω των {amount}
   progress: Πρόσθεσε ακόμα {amount} για δωρεάν μεταφορικά
   qualified: Έχεις δωρεάν μεταφορικά
+en:
+  idle: Free delivery on orders over {amount}
+  progress: Add {amount} more for free delivery
+  qualified: Your delivery is free
 </i18n>

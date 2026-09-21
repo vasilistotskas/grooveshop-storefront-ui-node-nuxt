@@ -39,4 +39,7 @@ defineRouteRules({
 el:
   title: Ειδοποιήσεις & Συνδρομές
   description: Διαχειριστείτε τις προτιμήσεις ειδοποιήσεών σας. Επιλέξτε τα θέματα για τα οποία θέλετε να λαμβάνετε ειδοποιήσεις.
+en:
+  title: Notifications & Subscriptions
+  description: Manage your notification preferences. Choose the topics you want to hear about.
 </i18n>

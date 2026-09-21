@@ -39,4 +39,7 @@ const checkoutHeader = computed(() =>
 el:
   a11y:
     skipToContent: Μετάβαση στο κύριο περιεχόμενο
+en:
+  a11y:
+    skipToContent: Skip to main content
 </i18n>

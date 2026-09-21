@@ -186,4 +186,7 @@ defineRouteRules({
 el:
   title: Διευθύνσεις
   button: Προσθήκη
+en:
+  title: Addresses
+  button: Add
 </i18n>

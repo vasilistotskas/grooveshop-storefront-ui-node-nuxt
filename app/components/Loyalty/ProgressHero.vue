@@ -206,4 +206,12 @@ el:
   max_tier_reached: "Μέγιστη βαθμίδα!"
   level: "Επίπεδο"
   points: "Πόντοι"
+en:
+  no_tier: "No tier"
+  level_display: "Level {level}"
+  xp_progress: "XP progress"
+  xp_to_next_tier: "{xp} XP to the next tier"
+  max_tier_reached: "Top tier reached"
+  level: "Level"
+  points: "Points"
 </i18n>

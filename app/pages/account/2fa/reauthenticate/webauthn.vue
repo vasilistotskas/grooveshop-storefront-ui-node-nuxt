@@ -178,4 +178,22 @@ el:
   info:
     title: Τι είναι το κλειδί ασφαλείας;
     description: Ένα κλειδί ασφαλείας είναι μια φυσική συσκευή που παρέχει ισχυρή επαλήθευση δύο παραγόντων
+en:
+  title: Verify With Your Security Key
+  description: Use your security key to verify it is you
+  instructions:
+    title: Follow these steps
+    step1: 1. Plug in your security key
+    step2: 2. Press the button below
+    step3: 3. Follow the prompts on your key
+  button:
+    label: Use Security Key
+  success:
+    description: Verified with your security key
+  error:
+    failed: Verification failed
+    description: Please try again, or use another method
+  info:
+    title: What is a security key?
+    description: A security key is a physical device that gives you strong two-factor verification
 </i18n>

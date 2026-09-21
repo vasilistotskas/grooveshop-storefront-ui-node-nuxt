@@ -164,4 +164,6 @@ defineRouteRules({
 <i18n lang="yaml">
 el:
   title: Κριτικές
+en:
+  title: Reviews
 </i18n>

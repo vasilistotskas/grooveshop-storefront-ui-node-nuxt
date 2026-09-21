@@ -57,4 +57,6 @@ const displayCount = computed<string | number>(() => {
 <i18n lang="yaml">
 el:
   cart: Καλάθι
+en:
+  cart: Cart
 </i18n>

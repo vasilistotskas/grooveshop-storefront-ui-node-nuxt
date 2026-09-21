@@ -203,4 +203,16 @@ el:
     undo: Αναίρεση
     undo_failed: Η αναίρεση απέτυχε
     delete_failed: Αποτυχία αφαίρεσης από το καλάθι
+en:
+  remove_from_cart: Remove {name} from the cart
+  per_item: Each
+  price: Price
+  save: You save
+  total: Total
+  toast:
+    removed_title: Removed from your cart
+    removed_description: '"{name}" was removed.'
+    undo: Undo
+    undo_failed: That could not be undone
+    delete_failed: It could not be removed from the cart
 </i18n>

@@ -47,4 +47,7 @@ const localePath = useLocalePath()
 el:
   title: Εγγραφή
   description: Έχεις λογαριασμό;
+en:
+  title: Sign up
+  description: Already have an account?
 </i18n>

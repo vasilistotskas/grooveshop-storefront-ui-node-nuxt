@@ -92,4 +92,15 @@ el:
       account-2fa-authenticate-totp:
         label: TOTP
         icon: i-heroicons-lock-closed
+en:
+  description: Enter the code from your authenticator app
+  info_text: Open your authenticator app (Google Authenticator, Authy and so on) and enter the 6-digit code.
+  breadcrumb:
+    items:
+      account-login:
+        label: Sign in
+        icon: i-heroicons-arrow-right-on-rectangle
+      account-2fa-authenticate-totp:
+        label: TOTP
+        icon: i-heroicons-lock-closed
 </i18n>

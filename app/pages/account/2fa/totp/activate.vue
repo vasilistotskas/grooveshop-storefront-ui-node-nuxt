@@ -36,4 +36,6 @@ defineRouteRules({
 <i18n lang="yaml">
 el:
   title: Ενεργοποίηση εφαρμογής ελέγχου ταυτότητας (TOTP)
+en:
+  title: Turn on your authenticator app (TOTP)
 </i18n>

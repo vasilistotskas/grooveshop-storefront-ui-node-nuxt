@@ -107,4 +107,9 @@ el:
   new_address:
     label: "Νέα διεύθυνση"
     description: "Συμπλήρωσε τα στοιχεία παράδοσης χειροκίνητα για αυτή την παραγγελία."
+en:
+  main: "Main"
+  new_address:
+    label: "New address"
+    description: "Enter the delivery details by hand for this order."
 </i18n>

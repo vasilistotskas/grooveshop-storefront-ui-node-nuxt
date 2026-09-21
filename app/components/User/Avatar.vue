@@ -252,4 +252,13 @@ el:
     updated: Η εικόνα ενημερώθηκε
     upload:
       error: Σφάλμα ανέβασμα εικόνας
+en:
+  change: Change
+  no_file_selected: No file chosen
+  file_extension_not_allowed: That file type is not allowed
+  preview_mode: Preview
+  image:
+    updated: Your picture was updated
+    upload:
+      error: The picture could not be uploaded
 </i18n>

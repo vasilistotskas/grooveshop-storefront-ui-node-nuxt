@@ -112,4 +112,11 @@ el:
   benefit2: Αποθήκευση πολλαπλών διευθύνσεων
   benefit3: Αυτόματη συμπλήρωση στοιχείων
   button: Προσθήκη Διεύθυνσης
+en:
+  title: You have no addresses yet
+  description: Add one and use it on every order from now on.
+  benefit1: Faster checkout
+  benefit2: Keep several addresses
+  benefit3: Fields filled in for you
+  button: Add an Address
 </i18n>

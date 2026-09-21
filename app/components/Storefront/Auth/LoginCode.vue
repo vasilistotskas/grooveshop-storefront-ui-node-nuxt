@@ -106,4 +106,16 @@ el:
       account-login-code:
         label: Κωδικός μίας χρήσης
         icon: i-heroicons-envelope
+en:
+  title: Send me a sign-in code
+  description: We will email you a one-time code.
+  helper_text: Check your spam folder if it has not arrived within a few minutes.
+  breadcrumb:
+    items:
+      account-login:
+        label: Sign in
+        icon: i-heroicons-arrow-right-on-rectangle
+      account-login-code:
+        label: One-time code
+        icon: i-heroicons-envelope
 </i18n>

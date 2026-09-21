@@ -297,4 +297,25 @@ el:
     security:
       title: Ασφάλεια Λογαριασμού
       description: Αν δείς συνεδρίες που δεν αναγνωρίζεις, αποσυνδέσου αμέσως και αλλάξτε τον κωδικό σου.
+en:
+  is_current: Current
+  device: Device
+  logout_all_other_sessions: Sign out of every other device
+  session:
+    logged_out: You were signed out of every other session
+  sessions:
+    info:
+      title: Active Sessions
+      description: See and manage every session you have open. You can sign out of any device for extra peace of mind.
+    active: Active
+    current: This is the session you are using now
+    other: Another device
+    cannot_logout_current: You cannot sign out of the session you are using
+    total: 'Total: {count} session(s) ({other} other)'
+    empty:
+      title: No active sessions
+      description: The devices you are signed in on will appear here
+    security:
+      title: Account Security
+      description: If you see a session you do not recognise, sign it out straight away and change your password.
 </i18n>

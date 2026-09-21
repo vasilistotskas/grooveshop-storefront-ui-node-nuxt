@@ -36,4 +36,6 @@ defineRouteRules({
 <i18n lang="yaml">
 el:
   title: Πάροχοι
+en:
+  title: Providers
 </i18n>

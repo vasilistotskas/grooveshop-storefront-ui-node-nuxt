@@ -56,4 +56,6 @@ const { t } = useI18n()
 <i18n lang="yaml">
 el:
   total: Χωρίς παραγγελίες | 1 Παραγγελία | {count} Παραγγελίες
+en:
+  total: "No orders | 1 order | {count} orders"
 </i18n>

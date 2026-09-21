@@ -137,4 +137,18 @@ el:
   login_here: Συνδέσου εδώ
   prefer_password: Προτιμάς κωδικό πρόσβασης;
   using_password: Εγγραφή με κωδικό
+en:
+  email:
+    title: Email
+  success:
+    title: Done
+    description: Your passkey was created.
+  error:
+    title: Sign-up failed
+    description: We could not sign you up with a passkey.
+  or: or
+  already_have_account: Already have an account?
+  login_here: Sign in here
+  prefer_password: Prefer a password?
+  using_password: Sign up with a password
 </i18n>

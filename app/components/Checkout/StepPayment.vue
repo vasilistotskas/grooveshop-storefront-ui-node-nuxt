@@ -224,4 +224,11 @@ el:
     payment_method: Τρόπος πληρωμής
     payment_instructions: Οδηγίες πληρωμής
   back: Πίσω
+en:
+  steps:
+    payment: Payment
+  form:
+    payment_method: Payment method
+    payment_instructions: Payment instructions
+  back: Back
 </i18n>

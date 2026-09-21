@@ -90,4 +90,13 @@ el:
     NEWSLETTER: Ενημερωτικό Δελτίο
     PROMOTIONAL: Προωθητικά
     OTHER: Άλλο
+en:
+  categories:
+    MARKETING: Marketing
+    PRODUCT: Products
+    ACCOUNT: Account
+    SYSTEM: System
+    NEWSLETTER: Newsletter
+    PROMOTIONAL: Promotions
+    OTHER: Other
 </i18n>

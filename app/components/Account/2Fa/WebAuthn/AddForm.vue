@@ -165,4 +165,19 @@ el:
     passwordless: Η επιλογή "Χωρίς κωδικό" σου επιτρέπει να συνδεθείς χωρίς κωδικό πρόσβασης
   error:
     webauthn_failed: Η διαδικασία WebAuthn απέτυχε. Δοκίμασε ξανά.
+en:
+  name_placeholder: e.g. "My YubiKey" or "Work phone"
+  add_key_title: Add a new security key
+  add_key_description: Give your key a name that tells you which one it is.
+  passwordless: Passwordless
+  alert:
+    title: What is WebAuthn?
+    description: WebAuthn lets you sign in with a security key (a YubiKey, say) or with biometrics such as your face or fingerprint.
+  tip:
+    title: Tips
+    browser: Check that your browser supports WebAuthn
+    device: Have your security key or device to hand
+    passwordless: Choosing passwordless lets you sign in without a password at all
+  error:
+    webauthn_failed: The WebAuthn step failed. Please try again.
 </i18n>

@@ -157,4 +157,20 @@ el:
   validation:
     required: Απαιτείται όνομα
     max: Το όνομα δεν μπορεί να υπερβαίνει τους {max} χαρακτήρες
+en:
+  name_label: Key name
+  name_hint: Use a name that tells you which device this is
+  name_placeholder: e.g. My iPhone, Work laptop
+  device_hint: The name helps you recognise this device when you manage your keys.
+  or: or
+  using_password: Sign up with a password
+  success:
+    title: Done
+    description: Your passkey was created.
+  error:
+    title: The key could not be created
+    description: We could not create the key. Check that your device supports passkeys.
+  validation:
+    required: A name is required
+    max: The name cannot be longer than {max} characters
 </i18n>

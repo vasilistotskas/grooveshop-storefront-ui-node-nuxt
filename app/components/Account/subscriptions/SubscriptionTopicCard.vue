@@ -121,4 +121,15 @@ el:
     NEWSLETTER: Ενημερωτικό Δελτίο
     PROMOTIONAL: Προωθητικά
     OTHER: Άλλο
+en:
+  noDescription: No description
+  requiresConfirmation: Email confirmation required
+  categories:
+    MARKETING: Marketing
+    PRODUCT: Products
+    ACCOUNT: Account
+    SYSTEM: System
+    NEWSLETTER: Newsletter
+    PROMOTIONAL: Promotions
+    OTHER: Other
 </i18n>

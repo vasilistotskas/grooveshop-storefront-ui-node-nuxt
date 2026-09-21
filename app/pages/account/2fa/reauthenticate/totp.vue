@@ -152,4 +152,18 @@ el:
   warning:
     title: Δεν έχετε πρόσβαση στην εφαρμογή;
     description: Μπορείτε να χρησιμοποιήσετε έναν κωδικό ανάκτησης ή άλλη μέθοδο επαλήθευσης
+en:
+  title: Two-factor verification
+  description: Enter the 6-digit code from your authenticator app
+  code:
+    label: Verification Code
+    hint: Open your authenticator app and enter the code
+  submit: Verify
+  success:
+    description: Verified
+  error:
+    invalid_code: That verification code is not valid
+  warning:
+    title: Cannot get at your app?
+    description: You can use a recovery code, or another verification method
 </i18n>

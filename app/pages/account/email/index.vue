@@ -30,4 +30,6 @@ defineRouteRules({
 <i18n lang="yaml">
 el:
   title: Αλλαγή email
+en:
+  title: Change email
 </i18n>

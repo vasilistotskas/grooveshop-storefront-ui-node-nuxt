@@ -98,4 +98,7 @@ const productLabel = computed(() =>
 el:
   free: Δωρεάν
   gift_reason: Δώρο από την προσφορά «{name}»
+en:
+  free: Free
+  gift_reason: A gift from the "{name}" offer
 </i18n>

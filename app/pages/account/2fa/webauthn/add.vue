@@ -31,4 +31,6 @@ defineRouteRules({
 <i18n lang="yaml">
 el:
   title: Προσθήκη κλειδιού WebAuthn
+en:
+  title: Add a WebAuthn key
 </i18n>

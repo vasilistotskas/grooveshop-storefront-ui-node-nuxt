@@ -163,4 +163,13 @@ el:
   empty:
     title: Δεν υπάρχουν παραγγελίες
     description: Ξεκινήστε τις αγορές σας
+en:
+  title: Orders
+  ordering:
+    status: Status
+    created_at: Created
+    updated_at: Updated
+  empty:
+    title: No orders yet
+    description: Start shopping
 </i18n>

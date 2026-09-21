@@ -150,4 +150,20 @@ el:
     required: Απαιτείται κωδικός
     code:
       length: Ο κωδικός πρέπει να έχει 6 ψηφία
+en:
+  code_label: Confirmation code
+  code_hint: Enter the 6-digit code from your email
+  submit: Sign in
+  logged_in: You are signed in
+  welcome_back: Welcome back
+  error:
+    title: That code is not valid
+    description: The code you entered is not valid, or it has expired.
+  separator: or
+  no_code: No code arrived?
+  resend: Send it again
+  validation:
+    required: A code is required
+    code:
+      length: The code must be 6 digits
 </i18n>

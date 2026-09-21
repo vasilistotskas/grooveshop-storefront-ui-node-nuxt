@@ -233,6 +233,11 @@ el:
     title: Ειδοποιήσεις
     no_notifications: Δεν έχεις ειδοποιήσεις
     view_all: "Δες όλες τις ειδοποιήσεις"
+en:
+  notifications:
+    title: Notifications
+    no_notifications: You have no notifications
+    view_all: "See all notifications"
 </i18n>
 
 <style scoped>

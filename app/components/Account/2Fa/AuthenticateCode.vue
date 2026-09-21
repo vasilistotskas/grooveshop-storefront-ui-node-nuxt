@@ -158,4 +158,15 @@ el:
   validation:
     code:
       length: Ο κωδικός πρέπει να έχει 6 ψηφία
+en:
+  code_label: Code
+  code_hint: Enter the 6-digit code
+  success:
+    logged_in: You are signed in
+    description: Verification complete.
+  error:
+    invalid_code: That code is not valid. Please try again.
+  validation:
+    code:
+      length: The code must be 6 digits
 </i18n>

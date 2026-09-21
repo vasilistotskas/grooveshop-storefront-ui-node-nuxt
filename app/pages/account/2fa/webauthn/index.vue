@@ -37,4 +37,6 @@ defineRouteRules({
 <i18n lang="yaml">
 el:
   title: Κλειδιά ασφαλείας
+en:
+  title: Security keys
 </i18n>

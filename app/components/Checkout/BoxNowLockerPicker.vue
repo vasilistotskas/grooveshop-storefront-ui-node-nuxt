@@ -200,4 +200,8 @@ el:
   close: Κλείσιμο
   load_failed: Ο χάρτης των lockers δεν φόρτωσε. Έλεγξε τη σύνδεσή σου και δοκίμασε ξανά.
   retry: Δοκίμασε ξανά
+en:
+  close: Close
+  load_failed: The locker map did not load. Check your connection and try again.
+  retry: Try again
 </i18n>

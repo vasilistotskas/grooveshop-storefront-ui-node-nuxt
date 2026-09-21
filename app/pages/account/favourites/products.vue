@@ -188,4 +188,6 @@ defineRouteRules({
 <i18n lang="yaml">
 el:
   title: Αγαπημένα Προϊόντα
+en:
+  title: Favourite Products
 </i18n>

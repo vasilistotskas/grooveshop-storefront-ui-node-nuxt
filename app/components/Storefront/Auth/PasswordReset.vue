@@ -110,4 +110,16 @@ el:
       account-password-reset:
         label: Επαναφορά
         icon: i-heroicons-lock-closed
+en:
+  title: Reset your password
+  description: Enter the verified email address on your account and we will send you a reset link.
+  info_text: You will get an email with instructions for resetting your password.
+  breadcrumb:
+    items:
+      account-login:
+        label: Sign in
+        icon: i-heroicons-arrow-right-on-rectangle
+      account-password-reset:
+        label: Reset
+        icon: i-heroicons-lock-closed
 </i18n>

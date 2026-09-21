@@ -31,4 +31,6 @@ defineRouteRules({
 <i18n lang="yaml">
 el:
   title: Δημιουργία Κωδικών Ανάκτησης
+en:
+  title: Generate Recovery Codes
 </i18n>

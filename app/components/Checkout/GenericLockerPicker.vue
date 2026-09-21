@@ -392,4 +392,6 @@ function onClose(): void {
 <i18n lang="yaml">
 el:
   close: Κλείσιμο
+en:
+  close: Close
 </i18n>

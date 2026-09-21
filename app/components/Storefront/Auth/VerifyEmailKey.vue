@@ -288,4 +288,28 @@ el:
       account-verify-email-key:
         label: Επιβεβαίωση
         icon: i-heroicons-check
+en:
+  title: Confirm your email address
+  please_confirm_that: Please confirm that the address
+  is_an_email_address_for_user: belongs to the user
+  invalid_verification_url: That verification link is not valid
+  unable_to_confirm_email: We could not confirm this email
+  because_it_is_already_confirmed: because it is already confirmed
+  back_to_home: Back to home
+  go_to_account: Go to my account
+  success:
+    description: Your email has been confirmed.
+  error:
+    invalid_title: Invalid link
+    invalid_description: This confirmation link is not valid, or it has expired. Please request a new one.
+  already_confirmed:
+    title: Already confirmed
+  breadcrumb:
+    items:
+      account-login:
+        label: Sign in
+        icon: i-heroicons-arrow-right-on-rectangle
+      account-verify-email-key:
+        label: Confirm
+        icon: i-heroicons-check
 </i18n>

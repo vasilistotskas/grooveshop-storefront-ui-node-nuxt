@@ -154,4 +154,7 @@ watch(
 el:
   earn_with_order: "Θα κερδίσεις {points} πόντους"
   earn_description: "Οι πόντοι πιστώνονται μετά την ολοκλήρωση της παραγγελίας"
+en:
+  earn_with_order: "You will earn {points} points"
+  earn_description: "Points are credited once the order is complete"
 </i18n>

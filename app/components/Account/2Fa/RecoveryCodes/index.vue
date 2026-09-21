@@ -454,4 +454,39 @@ el:
       title: Ο κωδικός αντιγράφηκε
     download:
       title: Οι κωδικοί έχουν ληφθεί
+en:
+  title: Recovery Codes
+  subtitle: Use these codes as a backup
+  progress:
+    label: Codes Available
+    remaining: "No codes left | {n} code left | {n} codes left"
+    used: "No code used yet | {n} code used | {n} codes used"
+  stats:
+    created: Created
+    last_used: Last Used
+  actions:
+    copy_all: Copy All
+    download: Download
+    print: Print
+  warning:
+    title: Worth Remembering
+    description: Each code works only once. Keep them somewhere safe.
+  codes:
+    title: Your Codes
+  footer:
+    reminder: Do not share these codes with anyone
+    regenerate: Generate New Ones
+  print:
+    title: Recovery Codes
+    generated: Generated
+    important: "⚠️ Important:"
+    keep_safe: Keep these codes somewhere safe. Each one can be used only once.
+  toast:
+    copy_all:
+      title: All codes copied
+      description: Keep them somewhere safe
+    copy_single:
+      title: Code copied
+    download:
+      title: Codes downloaded
 </i18n>

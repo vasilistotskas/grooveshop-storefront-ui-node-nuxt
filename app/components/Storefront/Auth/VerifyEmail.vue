@@ -219,4 +219,26 @@ el:
       account-verify-email:
         label: Επιβεβαίωση
         icon: i-heroicons-envelope-open
+en:
+  title: Confirm your email
+  description: You need to confirm your email before you can carry on.
+  key: Code
+  code_hint: Enter the 6-digit code from your email
+  info_text: No email? Check your spam folder, or ask for a new code.
+  success:
+    description: Your email has been confirmed.
+  error:
+    title: That code is not valid
+    description: The code you entered is not valid, or it has expired.
+  validation:
+    code:
+      length: The code must be 6 digits
+  breadcrumb:
+    items:
+      account-login:
+        label: Sign in
+        icon: i-heroicons-arrow-right-on-rectangle
+      account-verify-email:
+        label: Confirm
+        icon: i-heroicons-envelope-open
 </i18n>

@@ -312,4 +312,31 @@ el:
     success:
       title: Επιτυχής δημιουργία κωδικών
       description: Αποθήκευσε τους νέους κωδικούς σου
+en:
+  title: Generate New Recovery Codes
+  subtitle: Create a fresh set of backup codes
+  existing:
+    title: "You have no codes left | You have {n} code left | You have {n} codes left"
+    description: Generating new codes cancels every code you already have. The old ones will stop working.
+  no_existing:
+    title: You have no recovery codes
+    description: Generate a set to use if you are ever locked out.
+  info:
+    title: What to do
+    step1: Generate new recovery codes with the button below
+    step2: Keep them somewhere safe — a password manager, or on paper
+    step3: Use them only if you lose access to your authenticator app
+  what_happens:
+    title: What will happen
+    point1: Ten new recovery codes are generated
+    point2: Every old code is cancelled immediately
+    point3: Each new code can be used only once
+  confirmation:
+    checkbox: I understand the old codes will be cancelled and want to continue
+  action:
+    generate: Generate Codes
+  toast:
+    success:
+      title: New codes generated
+      description: Keep your new codes somewhere safe
 </i18n>

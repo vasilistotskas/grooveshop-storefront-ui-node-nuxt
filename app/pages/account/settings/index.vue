@@ -36,4 +36,6 @@ defineRouteRules({
 <i18n lang="yaml">
 el:
   title: Ρυθμίσεις
+en:
+  title: Settings
 </i18n>

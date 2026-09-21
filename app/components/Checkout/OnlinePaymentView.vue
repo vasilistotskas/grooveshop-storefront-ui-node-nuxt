@@ -109,4 +109,12 @@ el:
   order_number: Αριθμός παραγγελίας
   total_amount: Συνολικό ποσό
   redirecting: Μεταφορά στην σελίδα πληρωμής
+en:
+  complete_payment: Complete Payment
+  order_created_complete_payment: Your order was created. Complete the payment to finish it.
+  back_to_form: Back
+  order_summary: Order Summary
+  order_number: Order number
+  total_amount: Total
+  redirecting: Taking you to the payment page
 </i18n>

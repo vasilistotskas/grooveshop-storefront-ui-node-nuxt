@@ -247,4 +247,20 @@ el:
     checkbox: Κατανοώ τους κινδύνους και θέλω να συνεχίσω
   success:
     description: Η εφαρμογή ελέγχου ταυτότητας απενεργοποιήθηκε επιτυχώς
+en:
+  title: Turn off your authenticator app (TOTP)
+  subtitle: Manage your account security settings
+  warning:
+    title: Security Warning
+    description: Turning TOTP off makes your account less secure. Make sure you have another safeguard in place.
+  info:
+    paragraph1: Are you sure you want to turn off your authenticator app?
+    consequences_title: What happens if you turn TOTP off
+    consequence1: You will no longer need a verification code to sign in
+    consequence2: Your account will be less secure
+    consequence3: You will have to set TOTP up again if you turn it back on
+  confirmation:
+    checkbox: I understand the risks and want to continue
+  success:
+    description: Your authenticator app has been turned off
 </i18n>

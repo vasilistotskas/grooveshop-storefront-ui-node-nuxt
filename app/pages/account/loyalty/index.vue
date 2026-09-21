@@ -43,4 +43,6 @@ definePageMeta({
 <i18n lang="yaml">
 el:
   title: Πρόγραμμα Επιβράβευσης
+en:
+  title: Rewards Programme
 </i18n>

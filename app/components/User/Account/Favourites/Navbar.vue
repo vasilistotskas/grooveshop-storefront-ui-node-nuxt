@@ -66,4 +66,8 @@ el:
   favourite:
     products: Αγαπημένα Προϊόντα
     posts: Αγαπημένες Δημοσιεύσεις
+en:
+  favourite:
+    products: Favourite Products
+    posts: Favourite Posts
 </i18n>

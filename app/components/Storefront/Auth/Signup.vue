@@ -82,4 +82,11 @@ el:
       account-signup:
         label: Εγγραφή
         icon: i-heroicons-arrow-right-on-rectangle
+en:
+  title: Sign up
+  breadcrumb:
+    items:
+      account-signup:
+        label: Sign up
+        icon: i-heroicons-arrow-right-on-rectangle
 </i18n>

@@ -178,4 +178,17 @@ el:
   reauthenticate:
     title: Κωδικός πρόσβασης
     description: Επιβεβαιώστε την ταυτότητά σας με τον κωδικό σας
+en:
+  alternative_options: Other methods
+  current_method: Current
+  mfa_reauthenticate:
+    totp: Authenticator app
+    totp_description: Use the 6-digit code from your app
+    recovery_codes: Recovery codes
+    recovery_codes_description: Use one of your backup recovery codes
+    webauthn: Security key
+    webauthn_description: Use your security key or your biometrics
+  reauthenticate:
+    title: Password
+    description: Confirm it is you with your password
 </i18n>

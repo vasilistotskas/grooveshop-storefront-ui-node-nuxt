@@ -372,4 +372,33 @@ el:
   error:
     toggle_title: "Αποτυχία ενέργειας"
     toggle_description: "Δοκίμασε ξανά σε λίγο."
+en:
+  title: "Notifications"
+  filters:
+    all: "All"
+    unseen: "Unread"
+    seen: "Read"
+  ordering:
+    created_at: "Date"
+  mark_all:
+    cta: "Mark all as read"
+    success_title: "All notifications marked as read"
+    error_title: "That did not work"
+    error_description: "Try again in a moment."
+  badge:
+    new: "New"
+  card:
+    open: "Open"
+  actions:
+    mark_seen: "Mark as read"
+    mark_unseen: "Mark as unread"
+  empty:
+    title: "No notifications"
+    description: "They will show up here as soon as something happens."
+    unseen_title: "You are all caught up"
+    unseen_description: "Nothing new — we will let you know as soon as there is."
+    cta: "Back to home"
+  error:
+    toggle_title: "That did not work"
+    toggle_description: "Try again in a moment."
 </i18n>

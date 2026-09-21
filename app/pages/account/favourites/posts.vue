@@ -155,4 +155,7 @@ defineRouteRules({
 el:
   title: Αγαπημένες Δημοσιεύσεις
   no_favourites: Δεν έχετε αγαπημένες δημοσιεύσεις ακόμα
+en:
+  title: Favourite Posts
+  no_favourites: You have no favourite posts yet
 </i18n>

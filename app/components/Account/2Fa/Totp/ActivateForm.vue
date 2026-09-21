@@ -275,4 +275,23 @@ el:
     code_numeric: Ο κωδικός πρέπει να περιέχει μόνο αριθμούς
     failed_to_load: Αποτυχία φόρτωσης δεδομένων
     failed_to_load_description: Δεν ήταν δυνατή η φόρτωση των δεδομένων TOTP. Παρακαλώ δοκίμασε ξανά.
+en:
+  qr_code_alt: QR code for setting up two-factor authentication
+  authenticator_code: Code
+  authenticator_secret: Secret key
+  authenticator_secret_description: You can save this secret key and use it to set your authenticator app up again later.
+  setup_instructions: How to turn it on
+  setup_instructions_description: Scan the QR code with your authenticator app (Google Authenticator, Authy and so on), or enter the secret key by hand.
+  scan_qr_code: Scan the QR code
+  enter_verification_code: Enter the verification code
+  verification_code_help: Enter the 6-digit code from your app
+  copied: Copied to the clipboard
+  success:
+    totp_activated: Two-factor authentication is on
+  error:
+    validation: Verification failed
+    code_length: The code must be exactly 6 digits
+    code_numeric: The code may contain only numbers
+    failed_to_load: Could not load
+    failed_to_load_description: We could not load the TOTP data. Please try again.
 </i18n>

@@ -278,4 +278,17 @@ el:
     view_codes_desc: Δες τους κωδικούς ανάκτησής σου
     generate_codes_desc: Δημιούργησε νέους κωδικούς ανάκτησης
     privacy: Απόρρητο & Δεδομένα
+en:
+  navigation:
+    settings: Settings
+    settings_description: Manage your account and its security
+    account_security: Account & Security
+    two_factor: Two-Factor Authentication
+    recommended: Recommended
+    deactivate_totp_desc: Turn off authenticator-app verification
+    manage_keys_desc: Manage your security keys
+    add_key_desc: Add a new security key
+    view_codes_desc: See your recovery codes
+    generate_codes_desc: Generate new recovery codes
+    privacy: Privacy & Data
 </i18n>

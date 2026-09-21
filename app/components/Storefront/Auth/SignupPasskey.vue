@@ -116,4 +116,18 @@ el:
       account-signup-passkey:
         label: Κλειδί
         icon: i-heroicons-key
+en:
+  title: Sign up with a passkey
+  subtitle: Use a passkey to sign in securely
+  info:
+    title: What is a passkey?
+    description: Passkeys are safer than passwords, and they use your fingerprint, your face or your device PIN.
+  breadcrumb:
+    items:
+      account-signup:
+        label: Sign up
+        icon: i-heroicons-arrow-right-on-rectangle
+      account-signup-passkey:
+        label: Passkey
+        icon: i-heroicons-key
 </i18n>

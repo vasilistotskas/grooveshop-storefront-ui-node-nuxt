@@ -97,6 +97,15 @@ const copyIcon = (account: DemoAccount, field: 'email' | 'password') =>
         container: 'gap-4',
       }"
     >
+      <!-- The ACTION first, the credentials under it as a line to
+           read or copy — not as form fields.
+
+           Two labelled email+password pairs stacked directly above the
+           real login form made the page read as three login forms: six
+           input boxes, three submit buttons, one screen. Reported as
+           "weird and broken (duplicate content)", and it was. The card
+           only ever needed to say "here is a way in, and here are the
+           credentials if you want them". -->
       <div
         v-for="account in accounts"
         :key="account.key"
@@ -109,58 +118,6 @@ const copyIcon = (account: DemoAccount, field: 'email' | 'password') =>
           {{ t(`account.${account.key}`) }}
         </p>
 
-        <UFormField
-          :label="t('email')"
-          size="sm"
-        >
-          <UInput
-            :model-value="account.email"
-            readonly
-            class="w-full"
-            :ui="{ base: 'font-mono' }"
-          >
-            <template #trailing>
-              <UButton
-                :icon="copyIcon(account, 'email')"
-                color="neutral"
-                variant="link"
-                size="sm"
-                :aria-label="t('copy')"
-                @click="copyField(account, 'email')"
-              />
-            </template>
-          </UInput>
-        </UFormField>
-
-        <UFormField
-          :label="t('password')"
-          size="sm"
-        >
-          <!-- Shown in clear on purpose: it is published to every
-               visitor of this store, and hiding it behind a reveal
-               would only suggest it is a secret. -->
-          <UInput
-            :model-value="account.password"
-            readonly
-            class="w-full"
-            :ui="{ base: 'font-mono' }"
-          >
-            <template #trailing>
-              <UButton
-                :icon="copyIcon(account, 'password')"
-                color="neutral"
-                variant="link"
-                size="sm"
-                :aria-label="t('copy')"
-                @click="copyField(account, 'password')"
-              />
-            </template>
-          </UInput>
-        </UFormField>
-
-        <!-- Each account signs in with its own button: with two pairs
-             of fields on screen, one shared button cannot say which
-             pair it would use. -->
         <UButton
           block
           :color="account.key === 'retail' ? 'secondary' : 'neutral'"
@@ -174,6 +131,35 @@ const copyIcon = (account: DemoAccount, field: 'email' | 'password') =>
             password: account.password,
           })"
         />
+
+        <!-- Shown in clear on purpose: these are published to every
+             visitor of this store, and hiding the password behind a
+             reveal would only suggest it is a secret. -->
+        <dl
+          class="
+            grid grid-cols-[auto_1fr_auto] items-center gap-x-2 text-xs
+          "
+        >
+          <template
+            v-for="field in (['email', 'password'] as const)"
+            :key="field"
+          >
+            <dt class="text-toned">
+              {{ t(field) }}
+            </dt>
+            <dd class="truncate font-mono text-toned">
+              {{ account[field] }}
+            </dd>
+            <UButton
+              :icon="copyIcon(account, field)"
+              color="neutral"
+              variant="link"
+              size="xs"
+              :aria-label="t('copy')"
+              @click="copyField(account, field)"
+            />
+          </template>
+        </dl>
       </div>
 
       <!-- `toned`: this card is a soft UPageCard, and the muted token

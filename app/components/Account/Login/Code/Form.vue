@@ -131,4 +131,17 @@ el:
   footer:
     text: Έχεις ήδη κωδικό;
     link: Εισήγαγε τον εδώ
+en:
+  email:
+    title: Email
+  submit: Send me a code
+  success:
+    title: Email sent
+    description: Check your email for the sign-in code.
+  error:
+    title: The email could not be sent
+    description: We could not send the code.
+  footer:
+    text: Already have a code?
+    link: Enter it here
 </i18n>

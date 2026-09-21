@@ -118,4 +118,16 @@ el:
   footer:
     text: Θυμήθηκες τον κωδικό σου;
     link: Σύνδεση
+en:
+  email:
+    title: Email
+  reset: Send the link
+  success:
+    description: Check your email for instructions.
+  error:
+    title: The email could not be sent
+    description: We could not send the link. Please try again.
+  footer:
+    text: Remembered your password?
+    link: Sign in
 </i18n>

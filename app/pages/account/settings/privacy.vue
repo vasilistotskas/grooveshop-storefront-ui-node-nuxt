@@ -438,4 +438,45 @@ el:
     scheduled_description: Αποσυνδέθηκες — τα δεδομένα σου θα διαγραφούν σε λίγα δευτερόλεπτα.
     error_title: Δεν ήταν δυνατή η διαγραφή
     error_description: Δοκίμασε ξανά ή επικοινώνησε με την υποστήριξη.
+en:
+  title: Privacy & Data
+  export:
+    title: Download my data
+    description: Ask for a JSON copy of everything we hold against your account — profile, orders, favourites, reviews, comments, points purchases, notifications and subscriptions. The download link is valid for 7 days.
+    request: Request an export
+    request_again: Request a new export
+    download: Download file
+    requested_title: Your export is queued
+    requested_description: We will email you when it is ready.
+    requested_at: "Requested: {at}"
+    expires_at: "Expires: {at}"
+    error_title: The export could not be requested.
+    failed_title: The export failed
+    failed_description: Something went wrong while building the file. You can try again.
+    status:
+      pending: Pending
+      processing: Processing
+      ready: Ready
+      failed: Failed
+      expired: Expired
+  delete:
+    title: Delete account
+    description: Permanently delete your account and everything attached to it. Orders are kept in anonymised form for tax records.
+    warning_title: This cannot be undone
+    bullet_profile: Your profile, addresses, reviews, favourites, comments, loyalty points and subscriptions are deleted for good.
+    bullet_orders: Your orders are kept in anonymised form, as tax law requires.
+    bullet_irreversible: There is no way back once you confirm.
+    bullet_logout: You will be signed out of every device immediately.
+    open_modal: Delete account
+    modal_title: Confirm permanent deletion
+    modal_description: To protect your account, type DELETE below to confirm.
+    modal_alert_title: This is permanent
+    modal_alert_description: Once you confirm we cannot recover your data.
+    confirm_label: 'Type "DELETE" to confirm'
+    cancel: Cancel
+    confirm_button: Delete permanently
+    scheduled_title: Your account is being deleted
+    scheduled_description: You have been signed out — your data will be gone in a few seconds.
+    error_title: The account could not be deleted
+    error_description: Try again, or get in touch with support.
 </i18n>

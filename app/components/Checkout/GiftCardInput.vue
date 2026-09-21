@@ -190,4 +190,20 @@ el:
     required: "Συμπληρώστε τον κωδικό"
     too_short: "Ο κωδικός είναι πολύ σύντομος"
     too_long: "Ο κωδικός είναι πολύ μεγάλος"
+en:
+  title: "Gift card"
+  label: "Gift card code"
+  placeholder: "GC-XXXX-XXXX-XXXX"
+  apply: "Add"
+  balance: "Balance"
+  info: "The gift card balance comes off the amount due — whatever is left stays on the card"
+  errors:
+    invalid: "That gift card code is not valid"
+    not_redeemable: "This gift card cannot be used (inactive, expired, or empty)"
+    already_applied: "That gift card is already added"
+    too_many: "Up to {max} gift cards per order"
+  validation:
+    required: "Enter the code"
+    too_short: "That code is too short"
+    too_long: "That code is too long"
 </i18n>

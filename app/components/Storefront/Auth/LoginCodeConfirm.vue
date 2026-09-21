@@ -111,4 +111,19 @@ el:
       account-login-code-confirm:
         label: Επιβεβαίωση
         icon: i-heroicons-check-circle
+en:
+  title: Confirm your code
+  description: The code expires shortly, so be quick.
+  countdown_text: The code expires in 10 minutes.
+  breadcrumb:
+    items:
+      account-login:
+        label: Sign in
+        icon: i-heroicons-arrow-right-on-rectangle
+      account-login-code:
+        label: One-time code
+        icon: i-heroicons-envelope
+      account-login-code-confirm:
+        label: Confirm
+        icon: i-heroicons-check-circle
 </i18n>

@@ -451,4 +451,23 @@ el:
     box_now_locker: BOX NOW Locker
     acs_smartpoint: ACS Smartpoint
   locker_id_short: 'ID {id}'
+en:
+  title: Checkout
+  items_unique: Items
+  shipping: Delivery
+  free: Free
+  total: Total
+  pay_way_fee: Payment method fee
+  loyalty_discount: Points discount
+  promotion_discount: Offer discount
+  gift_card: Gift card
+  b2b_pricing_applied: 'Wholesale prices: {group}'
+  b2b_pricing_applied_generic: Wholesale prices
+  b2b_below_minimum: The minimum wholesale order value is {minimum}. Add more items to place the order.
+  need_help: Need a hand?
+  shipping_method_label:
+    home_delivery: Delivered to your address
+    box_now_locker: BOX NOW Locker
+    acs_smartpoint: ACS Smartpoint
+  locker_id_short: 'ID {id}'
 </i18n>

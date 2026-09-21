@@ -270,4 +270,11 @@ el:
   favourite:
     products: Αγαπημένα προϊόντα
   reviews: Κριτικές
+en:
+  orders: Orders
+  username:
+    empty: Your username cannot be empty
+  favourite:
+    products: Favourite products
+  reviews: Reviews
 </i18n>

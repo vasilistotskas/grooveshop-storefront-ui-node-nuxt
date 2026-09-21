@@ -438,4 +438,19 @@ el:
     title_label: "Ονομασία διεύθυνσης"
     title_placeholder: "π.χ. Σπίτι, Δουλειά"
     title_help: "Δώσε ένα σύντομο όνομα για να τη βρίσκεις εύκολα."
+en:
+  steps:
+    info_and_address: Details & Address
+  personal_information: Your Details
+  delivery_address: Delivery Address
+  saved_addresses:
+    label: "Use a saved address"
+    placeholder: "Choose an address"
+    help: "Pick one of your addresses and we will fill the fields in for you."
+  save_address:
+    label: "Save this address to my account"
+    description: "It will be there to pick from on your next order."
+    title_label: "Address name"
+    title_placeholder: "e.g. Home, Work"
+    title_help: "A short name so you can find it easily."
 </i18n>

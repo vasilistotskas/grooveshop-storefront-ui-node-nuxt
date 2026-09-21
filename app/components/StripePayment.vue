@@ -406,4 +406,23 @@ el:
   security_notice: Οι πληρωμές σου είναι ασφαλείς και κρυπτογραφημένες με SSL. Δεν αποθηκεύουμε τα στοιχεία της κάρτας σου.
   payment_3ds_failed: Η επαλήθευση ταυτότητας 3D Secure απέτυχε
   payment_3ds_incomplete: Η επαλήθευση ταυτότητας 3D Secure δεν ολοκληρώθηκε
+en:
+  loading_payment: Loading payment…
+  stripe_init_error: The payment system could not be started
+  payment_intent_error: The payment could not be set up
+  payment_confirmation_error: The payment could not be confirmed
+  payment_error: Payment Error
+  create_payment: Set Up Payment
+  confirm_payment: Confirm Payment
+  payment_intent_ready: Ready to Pay
+  ready_to_confirm: Your payment is ready. Press the button below to confirm.
+  step_enter_card: Card Details
+  step_create_intent: Setting Up
+  step_confirm: Confirm
+  step_complete: Done
+  card_valid: Card Valid
+  secure_connection: Secure Connection
+  security_notice: Your payment is secured and encrypted with SSL. We never store your card details.
+  payment_3ds_failed: 3D Secure verification failed
+  payment_3ds_incomplete: 3D Secure verification was not completed
 </i18n>
