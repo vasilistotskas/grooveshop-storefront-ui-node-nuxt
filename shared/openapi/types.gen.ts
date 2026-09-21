@@ -4041,13 +4041,26 @@ export type OrderCreateFromCartRequest = {
      */
   customerNotes?: string
   /**
-     * Αριθμός ή ένδειξη ορόφου (π.χ. FIRST_FLOOR)
+     * Floor, as a FloorChoicesEnum member (e.g. FIRST_FLOOR)
+     *
+     * * `BASEMENT` - Υπόγειο
+     * * `GROUND_FLOOR` - Ισόγειο
+     * * `FIRST_FLOOR` - 1ος όροφος
+     * * `SECOND_FLOOR` - 2ος όροφος
+     * * `THIRD_FLOOR` - 3ος όροφος
+     * * `FOURTH_FLOOR` - 4ος όροφος
+     * * `FIFTH_FLOOR` - 5ος όροφος
+     * * `SIXTH_FLOOR_PLUS` - 6ος όροφος +
      */
-  floor?: string
+  floor?: FloorEnum | BlankEnum
   /**
-     * Τύπος τοποθεσίας, π.χ. HOME ή OFFICE (προαιρετικό)
+     * Location, as a LocationChoicesEnum member (e.g. HOME)
+     *
+     * * `HOME` - Σπίτι
+     * * `OFFICE` - Γραφείο
+     * * `OTHER` - Άλλο
      */
-  locationType?: string
+  locationType?: LocationTypeEnum | BlankEnum
   /**
      * ΑΦΜ αγοραστή. Υποχρεωτικό όταν το ``document_type`` είναι INVOICE· 9 ψηφία για ελληνικό ΑΦΜ, το αρχικό πρόθεμα EL/GR αφαιρείται αυτόματα.
      */
@@ -10110,13 +10123,26 @@ export type OrderCreateFromCartRequestWritable = {
      */
   customerNotes?: string
   /**
-     * Αριθμός ή ένδειξη ορόφου (π.χ. FIRST_FLOOR)
+     * Floor, as a FloorChoicesEnum member (e.g. FIRST_FLOOR)
+     *
+     * * `BASEMENT` - Υπόγειο
+     * * `GROUND_FLOOR` - Ισόγειο
+     * * `FIRST_FLOOR` - 1ος όροφος
+     * * `SECOND_FLOOR` - 2ος όροφος
+     * * `THIRD_FLOOR` - 3ος όροφος
+     * * `FOURTH_FLOOR` - 4ος όροφος
+     * * `FIFTH_FLOOR` - 5ος όροφος
+     * * `SIXTH_FLOOR_PLUS` - 6ος όροφος +
      */
-  floor?: string
+  floor?: FloorEnum | BlankEnum
   /**
-     * Τύπος τοποθεσίας, π.χ. HOME ή OFFICE (προαιρετικό)
+     * Location, as a LocationChoicesEnum member (e.g. HOME)
+     *
+     * * `HOME` - Σπίτι
+     * * `OFFICE` - Γραφείο
+     * * `OTHER` - Άλλο
      */
-  locationType?: string
+  locationType?: LocationTypeEnum | BlankEnum
   /**
      * ΑΦΜ αγοραστή. Υποχρεωτικό όταν το ``document_type`` είναι INVOICE· 9 ψηφία για ελληνικό ΑΦΜ, το αρχικό πρόθεμα EL/GR αφαιρείται αυτόματα.
      */
@@ -22923,7 +22949,12 @@ export type GetUserProductReviewResponse = GetUserProductReviewResponses[keyof G
 export type ListPublicPromotionsData = {
   body?: never
   path?: never
-  query?: never
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
   url: '/api/v1/promotion'
 }
 
@@ -22944,7 +22975,12 @@ export type ListProductPromotionsData = {
   path: {
     productId: string | number
   }
-  query?: never
+  query?: {
+    /**
+         * Κωδικός γλώσσας για μεταφράσεις (el, en, de)
+         */
+    languageCode?: 'de' | 'el' | 'en'
+  }
   url: '/api/v1/promotion/product/{product_id}'
 }
 

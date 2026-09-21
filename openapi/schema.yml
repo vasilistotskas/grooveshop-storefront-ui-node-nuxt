@@ -24055,6 +24055,17 @@ paths:
       operationId: listPublicPromotions
       description: 'Currently-live promotions that a shopper can act on: every AUTOMATIC promotion, plus CODE promotions that have at least one publicly advertisable code. Personal coupons, single-use codes, and promotions that have reached their total usage limit are excluded. Returns 404 when the store has promotions disabled at either tier.'
       summary: List public offers
+      parameters:
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+            enum:
+              - de
+              - el
+              - en
+            default: el
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
       tags:
         - Promotions
       security:
@@ -24081,6 +24092,16 @@ paths:
       description: 'Currently-live, publicly advertisable promotions that touch this product, each carrying the RELATION that makes it relevant: the promotion names the product (PRODUCT), gives it away (REWARD), targets its category (CATEGORY), or applies to any order (ORDER). Scope and exclusions are resolved with the same rules the cart engine uses, so an excluded product never advertises the offer that skips it. Returns 404 when the store has promotions disabled at either tier, or when the product does not exist.'
       summary: List the offers that apply to a product
       parameters:
+        - in: query
+          name: languageCode
+          schema:
+            type: string
+            enum:
+              - de
+              - el
+              - en
+            default: el
+          description: Κωδικός γλώσσας για μεταφράσεις (el, en, de)
         - in: path
           name: productId
           schema:
@@ -37665,13 +37686,30 @@ components:
           description: Σημειώσεις πελάτη ή ειδικές οδηγίες
           maxLength: 500
         floor:
-          type: string
-          description: Αριθμός ή ένδειξη ορόφου (π.χ. FIRST_FLOOR)
-          maxLength: 50
+          description: |-
+            Floor, as a FloorChoicesEnum member (e.g. FIRST_FLOOR)
+
+            * `BASEMENT` - Υπόγειο
+            * `GROUND_FLOOR` - Ισόγειο
+            * `FIRST_FLOOR` - 1ος όροφος
+            * `SECOND_FLOOR` - 2ος όροφος
+            * `THIRD_FLOOR` - 3ος όροφος
+            * `FOURTH_FLOOR` - 4ος όροφος
+            * `FIFTH_FLOOR` - 5ος όροφος
+            * `SIXTH_FLOOR_PLUS` - 6ος όροφος +
+          oneOf:
+            - $ref: '#/components/schemas/FloorEnum'
+            - $ref: '#/components/schemas/BlankEnum'
         locationType:
-          type: string
-          description: Τύπος τοποθεσίας, π.χ. HOME ή OFFICE (προαιρετικό)
-          maxLength: 100
+          description: |-
+            Location, as a LocationChoicesEnum member (e.g. HOME)
+
+            * `HOME` - Σπίτι
+            * `OFFICE` - Γραφείο
+            * `OTHER` - Άλλο
+          oneOf:
+            - $ref: '#/components/schemas/LocationTypeEnum'
+            - $ref: '#/components/schemas/BlankEnum'
         billingVatId:
           type: string
           description: ΑΦΜ αγοραστή. Υποχρεωτικό όταν το ``document_type`` είναι INVOICE· 9 ψηφία για ελληνικό ΑΦΜ, το αρχικό πρόθεμα EL/GR αφαιρείται αυτόματα.

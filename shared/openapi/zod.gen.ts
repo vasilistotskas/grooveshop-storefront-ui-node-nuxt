@@ -4939,12 +4939,14 @@ export const zOrderCreateFromCartRequest = z.object({
   customerNotes: z.string().max(500).register(z.globalRegistry, {
     description: 'Σημειώσεις πελάτη ή ειδικές οδηγίες',
   }).optional(),
-  floor: z.string().max(50).register(z.globalRegistry, {
-    description: 'Αριθμός ή ένδειξη ορόφου (π.χ. FIRST_FLOOR)',
-  }).optional(),
-  locationType: z.string().max(100).register(z.globalRegistry, {
-    description: 'Τύπος τοποθεσίας, π.χ. HOME ή OFFICE (προαιρετικό)',
-  }).optional(),
+  floor: z.union([
+    zFloorEnum,
+    zBlankEnum,
+  ]).optional(),
+  locationType: z.union([
+    zLocationTypeEnum,
+    zBlankEnum,
+  ]).optional(),
   billingVatId: z.string().max(12).register(z.globalRegistry, {
     description: 'ΑΦΜ αγοραστή. Υποχρεωτικό όταν το ``document_type`` είναι INVOICE· 9 ψηφία για ελληνικό ΑΦΜ, το αρχικό πρόθεμα EL/GR αφαιρείται αυτόματα.',
   }).optional(),
@@ -7599,12 +7601,14 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   customerNotes: z.string().max(500).register(z.globalRegistry, {
     description: 'Σημειώσεις πελάτη ή ειδικές οδηγίες',
   }).optional(),
-  floor: z.string().max(50).register(z.globalRegistry, {
-    description: 'Αριθμός ή ένδειξη ορόφου (π.χ. FIRST_FLOOR)',
-  }).optional(),
-  locationType: z.string().max(100).register(z.globalRegistry, {
-    description: 'Τύπος τοποθεσίας, π.χ. HOME ή OFFICE (προαιρετικό)',
-  }).optional(),
+  floor: z.union([
+    zFloorEnum,
+    zBlankEnum,
+  ]).optional(),
+  locationType: z.union([
+    zLocationTypeEnum,
+    zBlankEnum,
+  ]).optional(),
   billingVatId: z.string().max(12).register(z.globalRegistry, {
     description: 'ΑΦΜ αγοραστή. Υποχρεωτικό όταν το ``document_type`` είναι INVOICE· 9 ψηφία για ελληνικό ΑΦΜ, το αρχικό πρόθεμα EL/GR αφαιρείται αυτόματα.',
   }).optional(),
@@ -17572,6 +17576,16 @@ export const zGetUserProductReviewPath = z.object({
 
 export const zGetUserProductReviewResponse = zProductReviewDetail
 
+export const zListPublicPromotionsQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
+})
+
 export const zListPublicPromotionsResponse = z.array(zPublicPromotion)
 
 export const zListProductPromotionsPath = z.object({
@@ -17579,6 +17593,16 @@ export const zListProductPromotionsPath = z.object({
     z.string().regex(/^-?\d+$/),
     z.int(),
   ]),
+})
+
+export const zListProductPromotionsQuery = z.object({
+  languageCode: z.enum([
+    'de',
+    'el',
+    'en',
+  ]).register(z.globalRegistry, {
+    description: 'Κωδικός γλώσσας για μεταφράσεις (el, en, de)',
+  }).optional().default('el'),
 })
 
 export const zListProductPromotionsResponse = z.array(zProductPromotion)
