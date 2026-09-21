@@ -194,7 +194,15 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
       :data="data"
     >
       <template #actions-cell="{ row }">
-        <LazyUDropdownMenu
+        <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
+                   `useForwardExpose` reads `t.value.$el.nodeName` after
+                   checking only that `$el` EXISTS as a key, and a Lazy
+                   component's `$el` is null until it loads — so every
+                   row threw "Cannot read properties of null (reading
+                   'nodeName')" and the page hydrated with mismatches.
+                   The lazy wrapper bought nothing either: the navbar
+                   renders UDropdownMenu eagerly on every page. -->
+        <UDropdownMenu
           v-if="actionItems(row.original).length > 0"
           :items="actionItems(row.original)"
         >
@@ -203,7 +211,7 @@ const actionItems = (row: { email: string, verified: boolean, primary: boolean }
             icon="i-heroicons-ellipsis-horizontal-20-solid"
             variant="ghost"
           />
-        </LazyUDropdownMenu>
+        </UDropdownMenu>
       </template>
       <template #verified-cell="{ row }">
         <UIcon

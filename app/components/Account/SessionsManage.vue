@@ -225,7 +225,15 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
           </template>
           <template #actions-cell="{ row }">
             <UTooltip :text="row.original.is_current ? t('sessions.cannot_logout_current') : t('logout')">
-              <LazyUDropdownMenu
+              <!-- `UDropdownMenu`, not `UDropdownMenu`. Reka's
+                   `useForwardExpose` reads `t.value.$el.nodeName` after
+                   checking only that `$el` EXISTS as a key, and a Lazy
+                   component's `$el` is null until it loads — so every
+                   row threw "Cannot read properties of null (reading
+                   'nodeName')" and the page hydrated with mismatches.
+                   The lazy wrapper bought nothing either: the navbar
+                   renders UDropdownMenu eagerly on every page. -->
+              <UDropdownMenu
                 v-if="getActionItems(row.original).length > 0"
                 :items="getActionItems(row.original)"
               >
@@ -236,7 +244,7 @@ const getActionItems = (session: Session): DropdownMenuItem[][] => {
                   size="sm"
                   :disabled="row.original.is_current"
                 />
-              </LazyUDropdownMenu>
+              </UDropdownMenu>
             </UTooltip>
           </template>
         </UTable>
