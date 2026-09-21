@@ -1,3 +1,10 @@
+## [3.204.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.1...v3.204.2) (2026-09-21)
+
+
+### Bug Fixes
+
+* **ui:** what the logged-in sweep found — placeholders at 2.51, tab filters, and eleven missing titles ([031cc46](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/031cc461fc63c8697649db6049b8d13f633b6e54))
+
 ## [3.204.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.0...v3.204.1) (2026-09-21)
 
 
