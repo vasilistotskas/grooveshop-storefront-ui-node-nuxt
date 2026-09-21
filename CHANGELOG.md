@@ -1,3 +1,10 @@
+## [3.204.12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.11...v3.204.12) (2026-09-21)
+
+
+### Bug Fixes
+
+* **forms:** stop showing shoppers Zod's developer wording ([c2be0a5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c2be0a5cfa92a7fcb3b5f53ae7d3153dd2572034))
+
 ## [3.204.11](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.10...v3.204.11) (2026-09-21)
 
 
