@@ -1,3 +1,16 @@
+## [3.204.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.8...v3.204.9) (2026-09-21)
+
+
+### Bug Fixes
+
+* **cart:** buying must not fail in silence ([2bae8c7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/2bae8c75b3d9ba94844afa2346299bcf89aaf353))
+* **checkout:** only ask ACS to validate an address when the store has ACS ([4eec361](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4eec361d40163a5b09052bc46672ad4f9071e8ec))
+
+
+### Performance Improvements
+
+* **openapi:** stop shipping the whole generated Zod file to the browser ([ebb8e24](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ebb8e24dc1fc75516ea0c9ea4b6a66583806bc39))
+
 ## [3.204.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.7...v3.204.8) (2026-09-21)
 
 
