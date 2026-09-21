@@ -1,3 +1,10 @@
+## [3.204.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.4...v3.204.5) (2026-09-21)
+
+
+### Bug Fixes
+
+* **ui:** the two dark-mode failures the logged-in sweep measured ([f9e73bd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f9e73bd8fcf5dd5b5f11ad388b0bd415a15d64e3))
+
 ## [3.204.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.3...v3.204.4) (2026-09-21)
 
 
