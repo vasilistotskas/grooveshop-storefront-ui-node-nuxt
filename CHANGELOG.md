@@ -1,3 +1,10 @@
+## [3.204.10](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.9...v3.204.10) (2026-09-21)
+
+
+### Bug Fixes
+
+* **a11y:** translate the three hardcoded English accessible labels ([ad42258](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ad4225808db4630d9adf47e533160b1df0fb79a6))
+
 ## [3.204.9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.8...v3.204.9) (2026-09-21)
 
 
