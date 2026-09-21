@@ -1,3 +1,10 @@
+## [3.204.8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.7...v3.204.8) (2026-09-21)
+
+
+### Bug Fixes
+
+* **account:** the table column, not the page, is what should scroll ([fbd878e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/fbd878e540814e5a4b14926042edba471a897320))
+
 ## [3.204.7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.6...v3.204.7) (2026-09-21)
 
 
