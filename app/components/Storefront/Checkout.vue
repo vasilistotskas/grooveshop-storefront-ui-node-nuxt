@@ -227,6 +227,14 @@ useSeoMeta({
 
 <template>
   <PageWrapper class="max-w-6xl">
+    <!-- The page had no heading at all — the stepper's first step
+         title was the highest-ranked text on it. Visually quiet
+         because the stepper carries the wayfinding, but a page that
+         takes someone's address and money should say what it is. -->
+    <PageTitle
+      :text="t('title')"
+      class="sr-only"
+    />
     <div class="flex flex-col gap-8 pt-2 md:pt-4 lg:flex-row">
       <!-- Main Content -->
       <div class="flex-1">
@@ -378,10 +386,13 @@ useSeoMeta({
             </template>
 
             <template #button>
+              <!-- The tenant accent, like every other primary CTA:
+                   solid `success` is white on green-500, which measured
+                   3.22:1 on the button that places the order. -->
               <UButton
                 v-if="showSidebarCta"
                 size="lg"
-                color="success"
+                color="secondary"
                 block
                 trailing
                 :icon="sidebarCtaIcon"

@@ -785,9 +785,14 @@ useSchemaOrg([
                 </span>
               </a>
 
+              <!-- The tint and the ICON carry the status; the label
+                   does not. `subtle` paints the text in the status
+                   colour too, and green-500 measured 3.08:1 on
+                   "in stock". -->
               <UBadge
                 :color="stockStatus.color"
                 :icon="stockStatus.icon"
+                :ui="{ label: 'text-toned' }"
                 size="sm"
                 variant="subtle"
                 :label="stockStatus.label"

@@ -312,7 +312,7 @@ defineSlots<{
             </span>
             <span
               v-if="effectiveShippingPrice === 0"
-              class="font-bold text-success"
+              class="font-bold text-toned"
             >{{ t('free') }}</span>
             <span
               v-else
@@ -347,7 +347,9 @@ defineSlots<{
             :key="`promo-${promo.promotionId}-${promo.code ?? 'auto'}`"
             class="flex items-start justify-between gap-3"
           >
-            <span class="flex flex-wrap items-center gap-1.5 text-success">
+            <!-- The BADGE carries the colour; the line does not.
+                 green-500 as text is 3.08:1 on `bg-default`. -->
+            <span class="flex flex-wrap items-center gap-1.5 text-toned">
               {{ promo.name || t('promotion_discount') }}
               <UBadge
                 v-if="promo.code"
@@ -359,7 +361,7 @@ defineSlots<{
                 {{ promo.code }}
               </UBadge>
             </span>
-            <span class="shrink-0 font-bold text-success">-{{ $i18n.n(Number(promo.amount ?? 0), 'currency') }}</span>
+            <span class="shrink-0 font-bold text-toned">-{{ $i18n.n(Number(promo.amount ?? 0), 'currency') }}</span>
           </div>
           <CheckoutGiftItem
             v-for="gift in cart?.promotionGiftItems || []"
@@ -370,15 +372,15 @@ defineSlots<{
             v-if="loyaltyDiscount > 0"
             class="flex items-center justify-between"
           >
-            <span class="text-success">{{ t('loyalty_discount') }}</span>
-            <span class="font-bold text-success">-{{ $i18n.n(loyaltyDiscount, 'currency') }}</span>
+            <span class="text-toned">{{ t('loyalty_discount') }}</span>
+            <span class="font-bold text-toned">-{{ $i18n.n(loyaltyDiscount, 'currency') }}</span>
           </div>
           <div
             v-if="giftCardApplied > 0"
             class="flex items-center justify-between"
           >
-            <span class="text-success">{{ t('gift_card') }}</span>
-            <span class="font-bold text-success">-{{ $i18n.n(giftCardApplied, 'currency') }}</span>
+            <span class="text-toned">{{ t('gift_card') }}</span>
+            <span class="font-bold text-toned">-{{ $i18n.n(giftCardApplied, 'currency') }}</span>
           </div>
         </div>
 

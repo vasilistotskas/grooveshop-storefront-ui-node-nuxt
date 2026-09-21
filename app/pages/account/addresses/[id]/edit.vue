@@ -3,6 +3,11 @@ import type * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 
 const { t, locale } = useI18n()
+// Every account route rendered with the document title left at the
+// store name, twice — 46 pages whose browser tab and history entry were
+// indistinguishable. The `title` string was already here and simply
+// never applied.
+useHead({ title: () => t('title') })
 const toast = useToast()
 const route = useRoute(`account-addresses-id-edit___${locale.value}`)
 const localePath = useLocalePath()

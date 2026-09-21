@@ -86,10 +86,19 @@ const columns: TableColumn<PointsTransaction>[] = [
     header: t('table.points'),
     cell: ({ row }) => {
       const points = row.getValue('points') as number
+      // Colour-coded by sign — which `Transactions.spec.ts` pins, and
+      // rightly: it is the fastest read on a ledger. But a DARKER shade
+      // than the semantic token, because `--ui-success` is green-500,
+      // calibrated as a FILL: it measured 3.22:1 on "+620", the figure
+      // this page exists to show. 700 in light, 400 in dark.
       const colorClass = points > 0
-        ? 'text-success'
-        : 'text-error'
-      return h('span', { class: `font-semibold ${colorClass}` }, formatPoints(points))
+        ? 'text-success-700 dark:text-success-400'
+        : 'text-error-700 dark:text-error-400'
+      return h(
+        'span',
+        { class: `font-semibold ${colorClass}` },
+        formatPoints(points),
+      )
     },
   },
   {
@@ -103,6 +112,9 @@ const columns: TableColumn<PointsTransaction>[] = [
         label: getTransactionTypeLabel(type),
         color,
         variant: 'subtle',
+        // The tint carries the colour; `subtle` would paint the label
+        // in it too, at 3.22:1.
+        ui: { base: 'text-toned' },
       })
     },
   },

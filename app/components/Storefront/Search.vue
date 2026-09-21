@@ -280,12 +280,17 @@ useHead({
           </span>
         </p>
 
+        <!-- The INACTIVE trigger is `text-muted`, and a pill list sits
+             on `bg-elevated` — the surface muted is not calibrated
+             against. Measured 4.39:1 on "Προϊόντα"/"Άρθρα", the labels
+             that say what else the search found. -->
         <UTabs
           v-model="activeTab"
           :items="tabItems"
           color="neutral"
           variant="pill"
           size="sm"
+          :ui="{ trigger: 'data-[state=inactive]:text-toned' }"
         />
       </div>
     </PageSectionBand>

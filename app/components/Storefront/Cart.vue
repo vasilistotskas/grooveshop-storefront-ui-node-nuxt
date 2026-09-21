@@ -430,11 +430,15 @@ useSeoMeta({
           </div>
 
           <template #footer>
+            <!-- The tenant accent, solid, like every other primary CTA.
+                 A `subtle` success button measured 3.08:1 on the single
+                 most important control on the page. The stock-issue
+                 state keeps `warning`, which is paired with a dark
+                 foreground in app.config. -->
             <UButton
               :to="localePath('checkout')"
               :disabled="hasStockIssues"
-              :color="hasStockIssues ? 'warning' : 'success'"
-              variant="subtle"
+              :color="hasStockIssues ? 'warning' : 'secondary'"
               size="xl"
               block
             >

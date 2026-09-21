@@ -313,22 +313,21 @@ watch(
             {{ commenterName }}
           </span>
         </template>
+        <!-- Semantic tokens, not a palette shade: `primary` is aliased
+             to NEUTRAL here, so `text-primary-400` resolved to zinc-400
+             and the comment timestamp measured 2.37:1 — the worst
+             reading on the blog. The bullet is decoration and can stay
+             one step lighter than the date. -->
         <span class="flex items-center">
           <span
-            class="
-              mx-2 my-0 inline-block font-bold text-primary-400
-              dark:text-primary-400
-            "
+            class="mx-2 my-0 inline-block font-bold text-muted"
           >•</span>
           <NuxtTime
             :datetime="comment.createdAt"
             :locale="locale"
             relative
             numeric="auto"
-            class="
-              w-full text-end text-xs text-primary-400
-              dark:text-primary-400
-            "
+            class="w-full text-end text-xs text-toned"
           />
         </span>
       </span>

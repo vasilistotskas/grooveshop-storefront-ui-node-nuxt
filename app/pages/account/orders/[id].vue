@@ -6,6 +6,11 @@ const orderId = 'id' in route.params
   ? route.params.id
   : undefined
 
+// The one account route with no `title` string of its own: the order
+// number IS the title here, and without this the tab read the store
+// name twice like every other account page.
+useHead({ title: () => `${t('order')} #${orderId}` })
+
 const { data: order, refresh: refreshOrder } = await useFetch<OrderDetail>(`/api/orders/${orderId}`, {
   key: `order${orderId}`,
   method: 'GET',

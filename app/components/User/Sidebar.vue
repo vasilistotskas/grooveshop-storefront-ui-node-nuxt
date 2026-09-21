@@ -26,8 +26,11 @@ const { menus } = useAccountMenus()
         :ui="{
           link: 'gap-4 p-2',
           linkLeadingIcon: 'size-6',
+          // `text-toned`: UNavigationMenu paints an inactive link in its
+          // own muted grey, which measured 4.31:1 on `bg-default` — and
+          // in this sidebar every label IS the navigation, at text-xl.
           linkLabel: `
-            text-xl font-semibold capitalize
+            text-xl font-semibold text-toned capitalize
             md:text-lg
           `,
         }"

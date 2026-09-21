@@ -12,9 +12,37 @@ const props = defineProps<{
   pageType: string
 }>()
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 
 const { layout, sections, error } = await usePageConfig(props.pageType)
+
+/**
+ * The page's own heading and document title.
+ *
+ * This body rendered its published sections and NOTHING else: no `<h1>`
+ * and no `useSeoMeta`, so `/about` shipped zero headings and a `<title>`
+ * that was the store name twice. `PageLayout.title` is not the answer —
+ * it is the ADMIN display name ("About"), which would print English on
+ * a Greek page.
+ *
+ * So: the operator's `seoTitle` when they set one, else a translated
+ * title for the page type. The `<h1>` is stood down when a section
+ * already provides the page heading, the same rule the contact page
+ * uses — two `<h1>`s is its own defect.
+ */
+const fallbackKey = computed(() => `page.${props.pageType}`)
+const pageTitle = computed(
+  () => layout.value?.seoTitle
+    || (te(fallbackKey.value) ? t(fallbackKey.value) : ''),
+)
+const showTitle = computed(
+  () => Boolean(pageTitle.value) && !sectionsProvideHeading(sections.value),
+)
+
+useSeoMeta({
+  title: () => pageTitle.value || undefined,
+  description: () => layout.value?.seoDescription || undefined,
+})
 
 // A page whose layout is not published must fail LOUDLY. Rendering an
 // empty <main> with HTTP 200 is a soft-404: Google keeps it indexed, and
@@ -36,6 +64,11 @@ if (error.value || !layout.value?.isPublished) {
        page; sections are width-agnostic and simply fill it. -->
   <PageWrapper>
     <PageBreadcrumb />
+    <PageTitle
+      v-if="showTitle"
+      :text="pageTitle"
+      class="mb-4"
+    />
     <div
       class="
         grid gap-6
@@ -50,3 +83,12 @@ if (error.value || !layout.value?.isPublished) {
     </div>
   </PageWrapper>
 </template>
+
+<i18n lang="yaml">
+el:
+  page:
+    about: Σχετικά με εμάς
+en:
+  page:
+    about: About us
+</i18n>

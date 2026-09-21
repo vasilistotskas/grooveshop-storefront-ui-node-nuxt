@@ -1,5 +1,10 @@
 <script lang="ts" setup>
 const { t, d, n } = useI18n()
+// Every account route rendered with the document title left at the
+// store name, twice — 46 pages whose browser tab and history entry were
+// indistinguishable. The `title` string was already here and simply
+// never applied.
+useHead({ title: () => t('title') })
 const toast = useToast()
 const router = useRouter()
 const localePath = useLocalePath()

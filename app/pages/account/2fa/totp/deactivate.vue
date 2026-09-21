@@ -3,6 +3,11 @@ const emit = defineEmits(['deactivateTotp'])
 
 const { deactivateTotp, totpAuthenticatorStatus } = useAllAuthAccount()
 const { t } = useI18n()
+// Every account route rendered with the document title left at the
+// store name, twice — 46 pages whose browser tab and history entry were
+// indistinguishable. The `title` string was already here and simply
+// never applied.
+useHead({ title: () => t('title') })
 const toast = useToast()
 const localePath = useLocalePath()
 
