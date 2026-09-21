@@ -72,7 +72,17 @@ const handleSortChange = (value: unknown) => {
 }
 
 const handleItemsPerPageChange = (value: unknown) => {
-  if (typeof value === 'number') emit('update:itemsPerPage', value)
+  // USelect hands back the `value-key`'d value as a STRING — Reka's
+  // select stores strings, and typing it as a number needs the
+  // `number` model modifier, which is only available through v-model;
+  // this control is bound with :model-value/@update:model-value.
+  //
+  // So `typeof value === 'number'` was never true and the control did
+  // nothing at all: picking 24 or 48 left the page at 12, and so did
+  // every query parameter. The sort select next door expects a STRING
+  // and has always worked, which is the tell.
+  const next = Number(value)
+  if (Number.isFinite(next) && next > 0) emit('update:itemsPerPage', next)
 }
 </script>
 
