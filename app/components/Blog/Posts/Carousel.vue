@@ -12,12 +12,6 @@ defineProps({
     default: undefined,
   },
 })
-
-const { isMobileOrTablet } = useDevice()
-
-const BlogPostCard = computed(() =>
-  isMobileOrTablet.value ? resolveComponent('BlogPostCardMobile') : resolveComponent('BlogPostCardDesktop'),
-)
 </script>
 
 <template>
@@ -68,13 +62,13 @@ const BlogPostCard = computed(() =>
         // what actually displace the library default, per
         // carousel-arrow-overrides.spec.ts.
         next: `
-          end-2 top-2/5
-          sm:end-2
+          inset-e-2 top-2/5
+          sm:inset-e-2
           md:top-1/2
         `,
         prev: `
-          start-2 top-2/5
-          sm:start-2
+          inset-s-2 top-2/5
+          sm:inset-s-2
           md:top-1/2
         `,
       }"
@@ -93,12 +87,10 @@ const BlogPostCard = computed(() =>
         md:w-[43rem]
       "
     >
-      <Component
-        :is="BlogPostCard"
-        :as="'div'"
+      <BlogPostCard
+        as="div"
+        :heading-level="title ? 'h3' : 'h2'"
         :post="item"
-        :img-loading="'lazy'"
-        class="container"
       />
     </UCarousel>
   </div>

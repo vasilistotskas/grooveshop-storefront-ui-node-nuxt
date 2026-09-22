@@ -58,12 +58,6 @@ const arrowButton = {
   size: 'md' as const,
   square: true,
 }
-
-const card = computed(() =>
-  isMobileOrTablet.value
-    ? resolveComponent('BlogPostCardMobile')
-    : resolveComponent('BlogPostCardDesktop'),
-)
 </script>
 
 <template>
@@ -84,10 +78,10 @@ const card = computed(() =>
       :next="arrowButton"
       class="-mx-2"
     >
-      <component
-        :is="card"
+      <BlogPostCard
+        as="div"
+        heading-level="h3"
         :post="item"
-        img-loading="lazy"
         :show-share-button="false"
       />
     </UCarousel>

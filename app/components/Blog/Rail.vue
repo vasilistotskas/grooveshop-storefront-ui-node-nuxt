@@ -14,21 +14,16 @@ defineProps<{
 </script>
 
 <template>
-  <!-- ONE card at every width. The blog's phone card sets its title in
-       white over the photograph, and on the demo store's yellow and
-       mint artwork that was unreadable at 390px; the standard card
-       keeps the title under the picture, on the page's own surface,
-       and stacks to a single column on its own. -->
   <UPageGrid
     v-if="posts.length"
     class="lg:grid-cols-3"
   >
-    <BlogPostCardDesktop
+    <BlogPostCard
       v-for="post in posts"
       :key="post.id"
       :post="post"
       as="div"
-      img-loading="lazy"
+      heading-level="h3"
       :show-share-button="false"
     />
   </UPageGrid>

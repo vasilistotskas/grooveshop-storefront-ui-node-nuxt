@@ -54,8 +54,8 @@ function templateOf(file: string) {
 
 /**
  * The name Nuxt auto-imports a component under: its path from
- * `components/`, PascalCased and joined (`Blog/Post/Card/Desktop.vue`
- * becomes `BlogPostCardDesktop`).
+ * `components/`, PascalCased and joined (`Blog/Post/Card.vue`
+ * becomes `BlogPostCard`).
  */
 function relativeSegments(file: string): string[] {
   return relative(COMPONENTS, file).split(sep)

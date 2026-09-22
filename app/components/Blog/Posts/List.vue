@@ -44,7 +44,6 @@ const { paginationType, pageSize, paginationStrategy } = toRefs(props)
 
 const route = useRoute()
 const { t, locale } = useI18n()
-const { isMobileOrTablet } = useDevice()
 const { loggedIn, user } = useUserSession()
 const cursorState = useState<CursorState>('cursor-state')
 
@@ -140,10 +139,6 @@ const showResults = computed(() => {
   return status.value !== 'pending' && allPosts.value.length
 })
 
-const BlogPostCard = computed(() =>
-  isMobileOrTablet.value ? resolveComponent('BlogPostCardMobile') : resolveComponent('BlogPostCardDesktop'),
-)
-
 const imgLoading = (index: number) => {
   if (props.eagerFirstImages && index < 3) {
     return 'eager'
@@ -231,8 +226,7 @@ watch(
             xl:grid-cols-3
           "
         >
-          <Component
-            :is="BlogPostCard"
+          <BlogPostCard
             v-for="(post, index) in allPosts"
             :key="post.id"
             :img-loading="imgLoading(index)"

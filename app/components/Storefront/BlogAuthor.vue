@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 const { locale, t } = useI18n()
 const route = useRoute()
-const { isMobileOrTablet } = useDevice()
 const img = useMediaStreamImage()
 const localePath = useLocalePath()
 
@@ -14,12 +13,6 @@ const page = computed(() => route.query.page)
 // post-specific keys the blog list offers would 400 here. Only
 // createdAt is exposed, which is the one that makes sense anyway.
 const ordering = computed(() => route.query.ordering || '-createdAt')
-const BlogPostCard = computed(() =>
-  isMobileOrTablet.value
-    ? resolveComponent('BlogPostCardMobile')
-    : resolveComponent('BlogPostCardDesktop'),
-)
-
 const pageSize = ref(15)
 const entityOrdering = ref<EntityOrdering<any>>([
   {
@@ -319,12 +312,13 @@ useHead({
           md:grid-cols-3
         "
       >
-        <Component
-          :is="BlogPostCard"
+        <BlogPostCard
           v-for="(post, index) in posts?.results"
-          :key="index"
-          :img-loading="index > 7 ? 'lazy' : 'eager'"
+          :key="post.id"
           :post="post"
+          :img-loading="index < 3 ? 'eager' : 'lazy'"
+          :img-fetch-priority="index === 0 ? 'high' : 'auto'"
+          :preload="index === 0"
         />
       </ol>
 

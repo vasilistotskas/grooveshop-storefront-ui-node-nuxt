@@ -49,11 +49,20 @@ const { blogPostLiked, addLikedPost, removeLikedPost } = userStore
 const isOpen = ref(false)
 const liked = computed(() => blogPostLiked(props.blogPostId))
 
-const defaultUI = computed(() => {
-  return {
-    base: `flex flex-col items-center gap-1 hover:bg-transparent cursor-pointer p-0 ${liked.value ? '!text-[var(--ui-liked)]' : 'text-white md:text-black dark:text-white dark:md:text-white'}`,
-  }
-})
+/**
+ * Token colours, not the page ramp. The button used to hardcode
+ * `text-white md:text-black`, which only suited the phone blog card that
+ * set it over a photograph; on any surface of its own it was white on
+ * white in light mode. A liked post keeps the store's "liked" colour.
+ * Callers still shape it through `ui` (tailwind-merge resolves the
+ * conflicts, so a caller's `flex-row p-2` beats the defaults here).
+ */
+const defaultUI = computed(() => ({
+  base: [
+    'flex flex-col items-center gap-1 p-0 cursor-pointer hover:bg-transparent',
+    liked.value ? 'text-(--ui-liked)' : 'text-muted hover:text-highlighted',
+  ].join(' '),
+}))
 
 const mergedUI = computed(() => ({
   base: `${defaultUI.value.base} ${(ui.value as Record<string, string>)?.base || ''}`.trim(),
@@ -110,8 +119,14 @@ const toggleFavourite = async () => {
   })
 }
 
+/**
+ * The accessible name carries the visible count (WCAG 2.5.3 "Label in
+ * Name"): the button SHOWS "3", so a name of just "Like" is one a
+ * voice-control user cannot say. Lighthouse's
+ * `label-content-name-mismatch` flagged every post card for it.
+ */
 const buttonAreaLabel = computed(() =>
-  liked.value ? t('liked') : t('like'),
+  t(liked.value ? 'liked' : 'like', { count: props.likesCount }),
 )
 
 const getColor = computed(() => {
@@ -145,14 +160,14 @@ const getColor = computed(() => {
 <i18n lang="yaml">
 el:
   not_authenticated: Πρέπει να είσαι συνδεδεμένος για να κάνεις like
-  liked: Άρεσε
-  like: Like
+  liked: 'Σου αρέσει ({count})'
+  like: 'Μου αρέσει ({count})'
   added: Προστέθηκε στα αγαπημένα
   removed: Αφαιρέθηκε από τα αγαπημένα
 en:
   not_authenticated: You have to be signed in to like this
-  liked: Liked
-  like: Like
+  liked: 'Liked ({count})'
+  like: 'Like ({count})'
   added: Added to your favourites
   removed: Removed from your favourites
 </i18n>
