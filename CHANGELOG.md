@@ -1,3 +1,10 @@
+## [3.204.19](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.18...v3.204.19) (2026-09-22)
+
+
+### Bug Fixes
+
+* **ui:** a solid success button is white-on-green in light mode ([b92e5a9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/b92e5a923eb5df284aad52c02285e9ddb428fcaa))
+
 ## [3.204.18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.17...v3.204.18) (2026-09-22)
 
 
