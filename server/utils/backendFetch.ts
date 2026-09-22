@@ -12,6 +12,9 @@
  *   when there's no active request context (prerender, startup hooks).
  * - `X-Language` — tenant/request locale so Django renders emails and
  *   responses in the right language.
+ * - the visitor's identity (`X-Real-IP`, `X-Origin-Verify`, `User-Agent`,
+ *   `X-Forwarded-For`) from `clientIdentityHeaders()`, so Django's
+ *   per-caller throttles see the caller rather than this pod.
  *
  * Multi-tenant note: previously this instance baked `publicHost` in at
  * module init, which sent every request to Django as if it originated
@@ -28,6 +31,7 @@
  */
 
 import { DEFAULT_LOCALE } from '~~/i18n/locales'
+import { clientIdentityHeaders } from './clientIdentity'
 
 /**
  * The `$fetch.create` instance is cached at module level, but the
@@ -108,6 +112,14 @@ export function useBackendFetch(): typeof $fetch {
         const correlationId = event ? getRequestHeader(event, 'x-correlation-id') : undefined
         if (correlationId && !options.headers.has('X-Correlation-ID')) {
           options.headers.set('X-Correlation-ID', correlationId)
+        }
+        // The visitor's IP and proof of edge, the same as `createHeaders()`
+        // sends: without them Django keyed every anonymous throttle on
+        // these routes to the Nuxt pod (see server/utils/clientIdentity.ts).
+        if (event) {
+          for (const [name, value] of Object.entries(clientIdentityHeaders(event))) {
+            if (!options.headers.has(name)) options.headers.set(name, value)
+          }
         }
       }
       catch {

@@ -1,5 +1,6 @@
 import type { H3Event } from 'h3'
 import { DEFAULT_LOCALE } from '~~/i18n/locales'
+import { clientIdentityHeaders } from './clientIdentity'
 
 // Responses that only carry session tokens in meta (no authenticated user data).
 // Used by endpoints like /auth/code/request and /auth/webauthn/login (GET).
@@ -16,7 +17,6 @@ type PartialAllAuthResponse = {
 export function createHeaders(sessionToken?: string | null, accessToken?: string | null) {
   const event = useEvent()
 
-  const requestHeaders = getRequestHeaders(event)
   const headers = {} as Record<string, string>
 
   headers['Content-Type'] = 'application/json'
@@ -62,43 +62,9 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
     headers['Authorization'] = `Bearer ${accessToken}`
   }
 
-  if (requestHeaders['user-agent']) {
-    headers['User-Agent'] = requestHeaders['user-agent']
-  }
-
-  // Real client IP for allauth session tracking. Prefer Cloudflare's
-  // CF-Connecting-IP (always set when the zone is proxied) and fall back
-  // to True-Client-IP (Cloudflare Enterprise) before h3's XFF/socket
-  // resolution. Using CF-Connecting-IP bypasses K3s klipper-lb's SNAT
-  // — it rewrites the TCP source to the Flannel gateway (10.42.0.1), so
-  // getRequestIP alone would surface that masked address in production.
-  // Django's UserAccountAdapter reads this via X-Real-IP.
-  const clientIp
-    = requestHeaders['cf-connecting-ip']
-      || requestHeaders['true-client-ip']
-      || getRequestIP(event, { xForwardedFor: true })
-  if (clientIp) {
-    headers['X-Real-IP'] = clientIp
-  }
-
-  if (requestHeaders['x-forwarded-for']) {
-    headers['X-Forwarded-For'] = requestHeaders['x-forwarded-for']
-  }
-
-  // Proof-of-edge, forwarded verbatim. A Cloudflare Transform Rule stamps
-  // every request that passes the edge with this shared secret, and Django
-  // (`core/client_ip.py`) refuses to believe any client-IP header without
-  // it — the origin answers on its node IPs too, so `X-Real-IP` above is
-  // otherwise forgeable. SSR is the path most visitors take, so without
-  // this hop the real visitor IP would reach Django unproven and every
-  // anonymous throttle would stay keyed to one shared internal address.
-  //
-  // Safe to relay: this server is reachable only through Traefik, so a
-  // caller cannot inject a valid value — an unproxied request simply
-  // carries no header and Django falls back.
-  if (requestHeaders['x-origin-verify']) {
-    headers['X-Origin-Verify'] = requestHeaders['x-origin-verify']
-  }
+  // Who the visitor is — client IP, proof of edge, user agent. Shared
+  // with `useBackendFetch()` so no backend call can drop them.
+  Object.assign(headers, clientIdentityHeaders(event))
 
   // Tell Django which language to render emails/responses in. The locale
   // middleware populates event.context.locale from (in order): ?locale query,

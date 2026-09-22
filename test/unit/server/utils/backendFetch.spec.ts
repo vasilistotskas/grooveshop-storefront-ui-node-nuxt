@@ -20,11 +20,15 @@ const fetchCreate = vi.fn((opts: { onRequest: typeof capturedInterceptor }) => {
 
 const hostMock = vi.fn()
 const eventMock = vi.fn()
+const requestHeadersMock = vi.fn((): Record<string, string> => ({}))
 
 vi.stubGlobal('useRuntimeConfig', () => runtimeConfig)
 vi.stubGlobal('$fetch', { create: fetchCreate })
 vi.stubGlobal('getRequestHost', hostMock)
 vi.stubGlobal('useEvent', eventMock)
+vi.stubGlobal('getRequestHeaders', requestHeadersMock)
+vi.stubGlobal('getRequestHeader', (_event: unknown, name: string) => requestHeadersMock()[name])
+vi.stubGlobal('getRequestIP', () => undefined)
 
 const { useBackendFetch } = await import('../../../../server/utils/backendFetch')
 
@@ -41,6 +45,9 @@ function runInterceptor(url: string) {
     proto: headers.get('X-Forwarded-Proto'),
     host: headers.get('X-Forwarded-Host'),
     language: headers.get('X-Language'),
+    realIp: headers.get('X-Real-IP'),
+    originVerify: headers.get('X-Origin-Verify'),
+    userAgent: headers.get('User-Agent'),
   }
 }
 
@@ -48,6 +55,38 @@ describe('useBackendFetch', () => {
   beforeEach(() => {
     hostMock.mockReset()
     eventMock.mockReset()
+    requestHeadersMock.mockReset()
+    requestHeadersMock.mockReturnValue({})
+  })
+
+  it('forwards the visitor IP and the proof of edge, like createHeaders()', () => {
+    // Without these Django's `trusted_client_ip` returned None and every
+    // anonymous throttle on the contact, feedback and gift-card routes
+    // keyed on the Nuxt pod — one budget for the whole store.
+    eventMock.mockReturnValue({ context: { locale: 'el' } })
+    hostMock.mockReturnValue('demo.grooveshop.space')
+    requestHeadersMock.mockReturnValue({
+      'cf-connecting-ip': '203.0.113.42',
+      'x-origin-verify': 'edge-secret',
+      'user-agent': 'Mozilla/5.0',
+    })
+
+    const { realIp, originVerify, userAgent } = runInterceptor('http://backend-service:8000/api/v1/contact')
+
+    expect(realIp).toBe('203.0.113.42')
+    expect(originVerify).toBe('edge-secret')
+    expect(userAgent).toBe('Mozilla/5.0')
+  })
+
+  it('sends no identity headers outside a request', () => {
+    eventMock.mockImplementation(() => {
+      throw new Error('no request context')
+    })
+
+    const { realIp, originVerify } = runInterceptor('http://backend-service:8000/api/v1/product')
+
+    expect(realIp).toBeNull()
+    expect(originVerify).toBeNull()
   })
 
   it('forwards the actual request host as X-Forwarded-Host', () => {
