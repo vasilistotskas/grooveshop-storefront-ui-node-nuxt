@@ -52,9 +52,14 @@ function deriveIconName(mainImagePath: string | null | undefined): string | null
 </script>
 
 <template>
+  <!-- `min-w-0`: at `md` this becomes a flex container whose carousel
+       child cannot shrink below its own min-content, so the row grew to
+       844px inside a 768px viewport and the whole homepage scrolled
+       sideways. Measured on webside 2026-09-22, and the same on
+       production; `min-width: 0` alone takes the page back to 768. -->
   <div
     class="
-      grid gap-2
+      grid min-w-0 gap-2
       md:flex
     "
   >

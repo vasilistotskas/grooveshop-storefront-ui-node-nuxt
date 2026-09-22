@@ -674,7 +674,7 @@ exports[`webside frozen render > rating 1`] = `
 `;
 
 exports[`webside frozen render > section blog_categories 1`] = `
-"<div class="grid gap-2 md:flex w-full md:p-0!">
+"<div class="grid min-w-0 gap-2 md:flex w-full md:p-0!">
   <!--v-if-->
   <!--v-if-->
 </div>"

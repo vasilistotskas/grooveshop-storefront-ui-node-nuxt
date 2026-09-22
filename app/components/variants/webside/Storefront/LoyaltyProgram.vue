@@ -131,7 +131,15 @@ useHead({
       class="mb-8 text-center"
     />
 
-    <div class="article space-y-8 md:space-y-12 xl:space-y-16">
+    <!-- NOT `.article`. That class is the prose typography for CMS
+         HTML, and one of its rules paints every anchor as an underlined
+         link — which captured every UI control this page renders as an
+         anchor. The "Αγοράστε Τώρα" CTA came out as link-coloured text
+         on a green solid button: measured 1.85:1 in dark on webside
+         2026-09-22, well under AA. This page writes its own headings
+         and cards, so it only ever wanted the spacing. The default tree
+         was fixed this way already; this frozen copy was missed. -->
+    <div class="space-y-8 md:space-y-12 xl:space-y-16">
       <!-- Introduction -->
       <section class="space-y-4">
         <div class="flex items-center justify-center">
