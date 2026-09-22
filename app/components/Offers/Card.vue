@@ -170,8 +170,10 @@ const hiddenEligibleCount = computed(
     <!-- Claim row, pinned to the bottom so cards of different heights
          line their call-to-action up. An AUTOMATIC promotion has no
          code: saying so beats an empty slot, because the shopper needs
-         to know there is nothing to enter. -->
-    <div class="mt-auto border-t border-default pt-3">
+         to know there is nothing to enter. The dashed rule is the
+         coupon's tear line: above it the offer, below it what you take
+         to checkout. -->
+    <div class="mt-auto border-t border-dashed border-accented pt-3">
       <div
         v-if="offer.code"
         class="flex items-center justify-between gap-2"
