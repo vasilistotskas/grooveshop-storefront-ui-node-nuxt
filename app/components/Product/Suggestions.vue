@@ -57,6 +57,12 @@ const { data } = useFetch(`/api/products/${props.seedId}/recommendations`, {
   },
   immediate: fetches,
   default: () => null,
+  // The strip is `hydrate-on-visible`: its setup runs after the app
+  // has finished hydrating, when Nuxt's default no longer reads the
+  // payload — so the server drew a full strip and the client started
+  // from `null` (a hydration node mismatch on every product page).
+  // See app/utils/payloadCachedData.ts.
+  getCachedData: payloadCachedData,
 })
 
 const tiles = computed<Tile[]>(() => {

@@ -67,6 +67,9 @@ export async function useProductRail(options: {
     // Two bands can resolve to the same key on one page; defer rather
     // than cancel, or each reader re-issues the request.
     dedupe: 'defer',
+    // The band hydrates when it scrolls into view, after the app has
+    // finished hydrating — see app/utils/payloadCachedData.ts.
+    getCachedData: payloadCachedData,
   })
 
   const products = computed<Product[]>(() => data.value?.results ?? [])

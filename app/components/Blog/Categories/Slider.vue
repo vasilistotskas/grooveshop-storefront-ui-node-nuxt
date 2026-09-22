@@ -24,6 +24,10 @@ const { data: categories } = useLazyFetch(`/api/blog/categories`, {
     pageSize: max,
     languageCode: locale,
   },
+  // The same key as the `blog_categories` band, which hydrates lazily;
+  // Nuxt requires every reader of one key to agree on this option.
+  // See app/utils/payloadCachedData.ts.
+  getCachedData: payloadCachedData,
 })
 const categoryResults = computed(() => categories.value?.results ?? [])
 

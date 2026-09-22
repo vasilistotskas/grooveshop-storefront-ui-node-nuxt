@@ -40,6 +40,9 @@ const { data } = await useFetch('/api/promotions', {
   query: { languageCode: locale },
   immediate: enabled.value,
   server: enabled.value,
+  // The band hydrates when it scrolls into view, after the app has
+  // finished hydrating — see app/utils/payloadCachedData.ts.
+  getCachedData: payloadCachedData,
 })
 
 const offers = computed<PublicPromotion[]>(() => {
