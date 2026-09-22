@@ -1,3 +1,10 @@
+## [3.205.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.205.0...v3.205.1) (2026-09-22)
+
+
+### Bug Fixes
+
+* **docker:** copy the pnpm patches into the install layer ([a33660b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a33660b52dbf6d2a85699f52f7f5622d74addada))
+
 # [3.205.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.20...v3.205.0) (2026-09-22)
 
 
