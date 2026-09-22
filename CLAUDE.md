@@ -41,7 +41,16 @@ touching its files, read the rule file directly.
 - **Prepare Nuxt types:** `pnpm prepare`
 - **Build + start production:** `pnpm build && pnpm start`
 - **Docker build:** `docker build -f docker/Dockerfile .`
-- **Analyze bundle:** `npx nuxt analyze`
+- **Analyze bundle:** `pnpm exec nuxt analyze`. Its `renderedLength` is the
+  module's size **before minification** ([rollup-plugin-visualizer uses
+  rollup's rendered module code](https://github.com/btd/rollup-plugin-visualizer);
+  only `sourcemap: true` gives post-minify sizes), and the treemap covers the
+  whole build graph rather than what one page downloads. Both make it a guide
+  to *what* is in the bundle, never to *how many bytes* a route costs —
+  2026-09-21 it named three modules as the product page's biggest, and none of
+  the three was on that page at all. Confirm against the deployed files before
+  acting on a number: count the page's scripts and their bytes from the
+  browser, or grep the served chunk for a marker unique to the module.
 - **Package manager:** pnpm — the exact version is pinned in the `packageManager` field of `package.json`; read it there rather than trusting a number written here
 
 ## Architecture
