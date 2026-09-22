@@ -91,16 +91,43 @@ const hasCopy = (slide: HeroSlide) =>
   !!(slide.eyebrow || slide.heading || slide.subheading || slide.ctaText)
 
 /**
- * The photograph's box. Below `lg` the panel sits under it, so the
- * phone crop is the taller of each pair; from `lg` the photograph is
- * the right column and the panel stretches to match it — or the other
- * way round when the copy is the taller of the two.
+ * The photograph's box, and the crop requested to fill it — one table so
+ * the two cannot drift. Below `lg` the panel sits under the photograph,
+ * so the phone crop is the taller of each pair; from `lg` the photograph
+ * is the right column. The pixel sizes are the crop's SHAPE at its
+ * largest 1x width: `sizes` below makes `NuxtImg` emit a width-based
+ * `srcset` from them, so a 3x phone gets a sharp image and a desktop no
+ * longer downloads 1.5x the pixels it paints (Lighthouse
+ * `image-delivery-insight`, 2026-09-22). Classes stay literal strings so
+ * Tailwind sees them.
  */
-const aspectClass = computed(() => ({
-  wide: 'aspect-4/3 lg:aspect-[16/10]',
-  banner: 'aspect-video lg:aspect-[2/1]',
-  square: 'aspect-square lg:aspect-square',
-}[props.aspect]))
+const ASPECTS = {
+  wide: { class: 'aspect-4/3 lg:aspect-[16/10]', phone: [768, 576], desk: [960, 600] },
+  banner: { class: 'aspect-video lg:aspect-[2/1]', phone: [768, 432], desk: [960, 480] },
+  square: { class: 'aspect-square lg:aspect-square', phone: [768, 768], desk: [960, 960] },
+} as const satisfies Record<NonNullable<typeof props.aspect>, {
+  class: string
+  phone: readonly [number, number]
+  desk: readonly [number, number]
+}>
+
+const aspect = computed(() => ASPECTS[props.aspect])
+
+/**
+ * The crop is a device-class choice for the same reason the artwork is:
+ * a phone and a desk frame the photograph differently (4:3 vs 16:10), a
+ * choice `srcset` cannot express. The WIDTH within that crop is the
+ * browser's, through `sizes`.
+ */
+const crop = computed(() => (isMobileOrTablet.value ? aspect.value.phone : aspect.value.desk))
+
+/**
+ * How wide the photograph renders: the full viewport on a phone, and
+ * from `lg` the 7/12 column beside the panel — or the full width again
+ * for an artwork-only slide, which has no panel.
+ */
+const imageSizes = (slide: HeroSlide) =>
+  hasCopy(slide) ? 'xs:100vw lg:59vw' : 'xs:100vw'
 
 /**
  * Autorotation is opt-in, refused under reduced motion, and only ever
@@ -187,19 +214,20 @@ const arrowButton = {
       <div
         :class="[
           'relative overflow-hidden bg-elevated',
-          aspectClass,
+          aspect.class,
           hasCopy(item) && 'lg:col-span-7 lg:order-2',
         ]"
       >
         <ImgWithFallback
           :src="artwork(item)"
           :alt="item.alt || item.heading || appTitle"
-          :width="isMobileOrTablet ? 768 : 1280"
-          :height="isMobileOrTablet ? 576 : 800"
+          :width="crop[0]"
+          :height="crop[1]"
+          :sizes="imageSizes(item)"
           class="absolute inset-0 size-full object-cover"
           fit="cover"
           quality="80"
-          densities="x1"
+          densities="x1 x2"
           :loading="index === 0 ? 'eager' : 'lazy'"
           :fetchpriority="index === 0 ? 'high' : 'auto'"
           :preload="index === 0"

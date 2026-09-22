@@ -65,6 +65,10 @@ const hasContent = computed(
 </script>
 
 <template>
+  <!-- The photograph spans the viewport, so `sizes` is the full width
+       and the browser picks its `srcset` candidate by device pixels;
+       the device class only chooses the crop (a phone frames it 4:5, a
+       desk 12:5) and the artwork (`mobileImageUrl`). -->
   <section
     v-if="hasContent"
     :class="[
@@ -76,12 +80,13 @@ const hasContent = computed(
       <ImgWithFallback
         :src="artwork"
         :alt="imageAlt || label || ''"
-        :width="isMobileOrTablet ? 768 : 1920"
-        :height="isMobileOrTablet ? 960 : 800"
+        :width="isMobileOrTablet ? 768 : 1536"
+        :height="isMobileOrTablet ? 960 : 640"
+        sizes="xs:100vw"
         class="absolute inset-0 size-full object-cover"
         fit="cover"
         quality="80"
-        densities="x1"
+        densities="x1 x2"
         loading="eager"
         fetchpriority="high"
         preload
@@ -121,11 +126,13 @@ const hasContent = computed(
         centred ? 'items-center text-center' : 'items-start text-start',
       ]"
     >
+      <!-- Sentence case, as the operator typed it — the same eyebrow
+           the carousel hero and every band use. -->
       <p
         v-if="eyebrow"
         :class="[
-          'text-xs font-semibold tracking-[0.14em] uppercase',
-          inverted ? 'text-white/80' : 'text-accent',
+          'text-sm font-medium',
+          inverted ? 'text-white/85' : 'text-accent',
         ]"
       >
         {{ eyebrow }}
@@ -184,27 +191,30 @@ const hasContent = computed(
         class="mt-4 flex flex-wrap gap-x-10 gap-y-4"
         :class="centred && 'justify-center'"
       >
+        <!-- The label is the term, the figure its description — the
+             same structure as `stats_strip`; `flex-col-reverse` puts
+             the figure on top on screen. -->
         <div
           v-for="(stat, idx) in stats"
           :key="idx"
-          class="flex flex-col"
+          class="flex flex-col-reverse"
           :class="centred && 'items-center'"
         >
           <dt
             :class="[
-              'font-mono text-2xl font-semibold tabular-nums md:text-3xl',
+              'text-sm',
+              inverted ? 'text-white/80' : 'text-muted',
+            ]"
+          >
+            {{ stat.label }}
+          </dt>
+          <dd
+            :class="[
+              'font-display text-2xl font-semibold tabular-nums md:text-3xl',
               inverted ? 'text-white' : 'text-highlighted',
             ]"
           >
             {{ stat.value }}
-          </dt>
-          <dd
-            :class="[
-              'text-xs tracking-wide uppercase',
-              inverted ? 'text-white/70' : 'text-muted',
-            ]"
-          >
-            {{ stat.label }}
           </dd>
         </div>
       </dl>

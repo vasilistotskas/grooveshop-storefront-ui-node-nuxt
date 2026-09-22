@@ -33,9 +33,20 @@ const attrs = useAttrs()
 
 const hasError = ref(false)
 
+/**
+ * A preloaded image is the page's LCP candidate — every caller preloads
+ * exactly that — so the `<link rel="preload">` carries
+ * `fetchpriority="high"` as well as the `<img>`. Without it Chrome
+ * queued the hero's preload at Low priority (Lighthouse
+ * `lcp-discovery-insight`, `priorityHinted: false`, 2026-09-22).
+ */
 const mainImageProps = computed(() => {
   const { fallback, src, preload, ...restProps } = props
-  return { ...attrs, ...restProps, preload }
+  return {
+    ...attrs,
+    ...restProps,
+    preload: preload ? { fetchPriority: 'high' as const } : false,
+  }
 })
 
 const fallbackImageProps = computed(() => {
