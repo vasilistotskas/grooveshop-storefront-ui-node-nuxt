@@ -110,7 +110,13 @@ function deriveIconName(mainImagePath: string | null | undefined): string | null
           />
         </template>
         <template #default>
-          <span class="text-primary-100">{{ contentShorten(extractTranslated(item, 'name', locale), 0, isMobileOrTablet ? 6 : 10) }}</span>
+          <!-- No `text-primary-100` here: this is a SOLID secondary
+               button, and the override replaced its own
+               `--ui-on-secondary` (white) with zinc-100. Measured on
+               webside 2026-09-22 at 4.37:1 in dark — under AA on a
+               16px label. Letting the button's foreground apply takes
+               it to 4.76:1 dark / 6.75:1 light. -->
+          <span>{{ contentShorten(extractTranslated(item, 'name', locale), 0, isMobileOrTablet ? 6 : 10) }}</span>
         </template>
       </UButton>
     </LazyUCarousel>
