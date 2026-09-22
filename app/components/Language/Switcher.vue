@@ -57,3 +57,10 @@ watch(currentLocale, async (newLocale) => {
     :aria-label="t('change_language')"
   />
 </template>
+
+<i18n lang="yaml">
+el:
+  change_language: Αλλαγή γλώσσας
+en:
+  change_language: Change language
+</i18n>

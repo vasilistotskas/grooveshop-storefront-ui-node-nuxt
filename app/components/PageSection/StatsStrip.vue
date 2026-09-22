@@ -26,12 +26,17 @@ const entries = computed(() => props.items ?? [])
         entries.length >= 4 ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-1 sm:grid-cols-3',
       ]"
     >
+      <!-- The label is the term and the figure its description, in that
+           DOM order — a `<dl>` group holds only `dt`/`dd`, and the old
+           visible label was a `<p>` beside a hidden copy of itself
+           (Lighthouse `definition-list`). `flex-col-reverse` keeps the
+           figure on top on screen. -->
       <div
         v-for="entry in entries"
         :key="entry.label"
-        class="flex flex-col gap-1"
+        class="flex flex-col-reverse gap-1"
       >
-        <dt class="sr-only">
+        <dt class="text-sm text-muted">
           {{ entry.label }}
         </dt>
         <dd
@@ -43,9 +48,6 @@ const entries = computed(() => props.items ?? [])
         >
           {{ entry.value }}
         </dd>
-        <p class="text-sm text-muted">
-          {{ entry.label }}
-        </p>
       </div>
     </dl>
   </PageSectionBand>

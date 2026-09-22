@@ -14,6 +14,11 @@ function openSearchModal() {
   isModalOpen.value = true
 }
 
+// The button's name is its visible content where it shows one
+// ("Search… Ctrl K"); an `aria-label` of just "Search…" on top of that
+// failed WCAG 2.5.3 Label in Name (Lighthouse
+// `label-content-name-mismatch`). Only the icon-only phone button
+// needs one.
 defineShortcuts({
   'meta_k': {
     handler: () => {
@@ -37,7 +42,6 @@ defineShortcuts({
     "
   >
     <UButton
-      :label="isMobileOrTablet ? undefined : t('search.placeholder')"
       color="neutral"
       :variant="isMobileOrTablet ? 'ghost' : 'outline'"
       size="md"
@@ -53,7 +57,8 @@ defineShortcuts({
         label: 'font-normal',
       }"
       class="md:max-w-md"
-      :aria-label="t('search.placeholder')"
+      :aria-label="isMobileOrTablet ? t('search.placeholder') : undefined"
+      aria-keyshortcuts="Control+K Meta+K /"
       @click="openSearchModal"
     >
       <template #default>
