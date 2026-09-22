@@ -1,3 +1,10 @@
+## [3.205.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.205.1...v3.205.2) (2026-09-22)
+
+
+### Bug Fixes
+
+* **docker:** let Tailwind see .gitignore so the build emits one stylesheet ([5defc7c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5defc7cdc671489a6c1c6ad7cdbdd2420e578f4f))
+
 ## [3.205.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.205.0...v3.205.1) (2026-09-22)
 
 
