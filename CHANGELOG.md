@@ -1,3 +1,10 @@
+## [3.204.17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.16...v3.204.17) (2026-09-22)
+
+
+### Bug Fixes
+
+* **favourites:** stop refetching an auth-only endpoint for guests ([399b01b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/399b01bdd348fd54c9fc5ff9e14640617707fb43))
+
 ## [3.204.16](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.15...v3.204.16) (2026-09-21)
 
 
