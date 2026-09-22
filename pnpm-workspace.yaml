@@ -162,3 +162,14 @@ minimumReleaseAgeExclude:
   - magic-string@1.2.0
   - happy-dom@20.14.5
   - yaml@2.9.1
+# reka-ui's RatingItemIndicator decides whether a half-step is visible by
+# comparing VueUse's `useActiveElement()` with its own element. On the
+# server both are `undefined`, so `undefined === undefined` rendered every
+# half-step with opacity 1 and the client expected 0 — a hydration style
+# mismatch on every product card and testimonial that draws stars with
+# `step: 0.5` (44 warnings on the demo homepage, 2026-09-22). Unfixed
+# through reka-ui 2.10.5. The patch requires a real element before the
+# comparison counts. Drop it the day upstream does the same; pnpm refuses
+# to install if the pinned version moves without the patch moving with it.
+patchedDependencies:
+  reka-ui@2.10.4: patches/reka-ui@2.10.4.patch

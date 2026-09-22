@@ -1,0 +1,26 @@
+diff --git a/dist/Rating/RatingItemIndicator.cjs b/dist/Rating/RatingItemIndicator.cjs
+index 5aa4d86d63ef37a8cd3154b0f69ab823eb343def..86f5a655289f805f0ada62d753976d5af7f688ea 100644
+--- a/dist/Rating/RatingItemIndicator.cjs
++++ b/dist/Rating/RatingItemIndicator.cjs
+@@ -34,7 +34,7 @@ var RatingItemIndicator_vue_vue_type_script_setup_true_lang_default = /* @__PURE
+ 			return rootContext.hoveredRating.value > 0 && props.step <= rootContext.hoveredRating.value || rootContext.hoveredRating.value === 0 && props.step <= rootContext.modelValue.value;
+ 		});
+ 		const isVisible = (0, vue.computed)(() => {
+-			return activeElement.value === currentElement.value || rootContext.step.value === 1 || props.step % 1 === 0 || props.step === rootContext.hoveredRating.value || props.step === rootContext.modelValue.value;
++			return (!!currentElement.value && activeElement.value === currentElement.value) || rootContext.step.value === 1 || props.step % 1 === 0 || props.step === rootContext.hoveredRating.value || props.step === rootContext.modelValue.value;
+ 		});
+ 		function handleMouseEnter() {
+ 			rootContext.changeHoveredRating(props.step);
+diff --git a/dist/Rating/RatingItemIndicator.js b/dist/Rating/RatingItemIndicator.js
+index c7437f4b60e0c422cb3fdaac2db02298eb3d5996..6a6e2d71e392a6cd45cba368c41c7934b9bfe875 100644
+--- a/dist/Rating/RatingItemIndicator.js
++++ b/dist/Rating/RatingItemIndicator.js
+@@ -33,7 +33,7 @@ var RatingItemIndicator_vue_vue_type_script_setup_true_lang_default = /* @__PURE
+ 			return rootContext.hoveredRating.value > 0 && props.step <= rootContext.hoveredRating.value || rootContext.hoveredRating.value === 0 && props.step <= rootContext.modelValue.value;
+ 		});
+ 		const isVisible = computed(() => {
+-			return activeElement.value === currentElement.value || rootContext.step.value === 1 || props.step % 1 === 0 || props.step === rootContext.hoveredRating.value || props.step === rootContext.modelValue.value;
++			return (!!currentElement.value && activeElement.value === currentElement.value) || rootContext.step.value === 1 || props.step % 1 === 0 || props.step === rootContext.hoveredRating.value || props.step === rootContext.modelValue.value;
+ 		});
+ 		function handleMouseEnter() {
+ 			rootContext.changeHoveredRating(props.step);
