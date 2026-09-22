@@ -40,7 +40,10 @@ ENV NODE_ENV=production \
     NODE_OPTIONS="--max-old-space-size=8192" \
     NUXT_CACHE_BASE=memory
 
-RUN pnpm run build
+# The same guard CI runs, against THIS context: `.dockerignore` decides
+# what Tailwind's source detection sees here, and that is where the
+# two-stylesheet build came from (scripts/check-build-output.mjs).
+RUN pnpm run build && pnpm run check:build
 
 FROM node:${NODE_VERSION}-alpine AS production
 

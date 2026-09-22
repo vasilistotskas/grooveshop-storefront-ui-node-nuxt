@@ -262,6 +262,12 @@ jobs:
         env:
           NODE_ENV: production
 
+      # One entry stylesheet the server also links, and one build tag on
+      # every client JS file — see scripts/check-build-output.mjs. The
+      # Docker image runs the same check against its own context.
+      - name: Check build output
+        run: pnpm run check:build
+
   schema-freshness:
     name: OpenAPI Schema Freshness
     runs-on: ubuntu-latest

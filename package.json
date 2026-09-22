@@ -36,6 +36,7 @@
     "generate:schema": "node scripts/fetch-schema.mjs",
     "sync:schema": "node scripts/sync-schema-yml.mjs",
     "check:deps": "node scripts/check-lockstep-deps.mjs",
+    "check:build": "node scripts/check-build-output.mjs",
     "trivy-scan": "trivy fs . --severity HIGH,CRITICAL --skip-dirs node_modules,dist,.output,.nuxt --exit-code 1",
     "audit:visual": "node scripts/audit-visual.mjs"
   },
