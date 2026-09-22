@@ -1,3 +1,16 @@
+# [3.205.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.20...v3.205.0) (2026-09-22)
+
+
+### Bug Fixes
+
+* **data:** let a lazily hydrated fetch read the payload it was rendered from ([34d4688](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/34d46882fbbd99383966ab1f5c715ab57f2cb803)), closes [nuxt/nuxt#32443](https://github.com/nuxt/nuxt/issues/32443) [#32447](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/32447)
+* **deps:** patch reka-ui so a half-step rating hydrates without a mismatch ([aeb2568](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/aeb256857889cfd4985ecc65c3b5da3f01cfb003))
+
+
+### Features
+
+* **home:** redraw the storefront homepage as a panel hero and three band shapes ([1dcf8c8](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1dcf8c816a7576f14170facb8c812abc3785e525))
+
 ## [3.204.20](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.19...v3.204.20) (2026-09-22)
 
 
