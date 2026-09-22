@@ -1,3 +1,10 @@
+## [3.204.18](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.17...v3.204.18) (2026-09-22)
+
+
+### Bug Fixes
+
+* **webside:** the homepage's sideways scroll and the link-blue CTA ([254c30a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/254c30a5ad8ed6fb44ce6db1c6eedcc6b9e709ff))
+
 ## [3.204.17](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.16...v3.204.17) (2026-09-22)
 
 
