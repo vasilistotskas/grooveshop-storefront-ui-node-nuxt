@@ -1,4 +1,5 @@
 import type { NuxtModule } from 'nuxt/schema'
+import { randomUUID } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { DEFAULT_LOCALE } from './i18n/locales'
 import { version } from './package.json'
@@ -15,6 +16,31 @@ function isStyleModuleId(id: string): boolean {
   return /\.(?:css|scss|sass|less|styl|pcss)(?:\?|$)/.test(id)
     || id.includes('type=style')
 }
+
+/**
+ * One tag per build, in every client JS file name.
+ *
+ * Nuxt names a chunk `_nuxt/[hash].js`, and the hash is decided BEFORE
+ * Vite writes the chunk's `__vite__mapDeps` preload list. Under
+ * `entryImportMap` a lazy chunk imports the entry as `#entry`, so the
+ * entry's hash never reaches its name, yet its preload list still spells
+ * out the entry JS and `entry.<hash>.css` by their real names. Change the
+ * global stylesheet — most deploys, with Tailwind — and the next build
+ * emits the SAME file name with DIFFERENT bytes. `/_nuxt/**` is served
+ * `immutable`, so Cloudflare kept the old bytes: on v3.205.2 the edge
+ * answered ten chunks from builds 34 minutes and 12 hours old, each one
+ * pulling its own build's 380KB stylesheet into the page, and the older
+ * stylesheet's base utilities overrode the new `lg:` ones.
+ *
+ * nuxt/nuxt#36136. Its merged fix (#36198, unreleased at 4.5.2) drops
+ * only the entry JS from the list; the stylesheet name stays, which the
+ * issue measures. A per-build tag makes a reused name impossible, at the
+ * cost of cross-deploy caching for JS (CSS keeps its content hash). The
+ * entry is tagged too: its own preload list names the other chunks.
+ * Drop this once Nuxt keeps preload lists out of hashed chunks.
+ */
+const CLIENT_BUILD_TAG = randomUUID().slice(0, 8)
+const clientJsFileNames = `_nuxt/[hash]-${CLIENT_BUILD_TAG}.js`
 
 const modules: (string | NuxtModule)[] = [
   'evlog/nuxt',
@@ -457,6 +483,9 @@ export default defineNuxtConfig({
       build: {
         rollupOptions: {
           output: {
+            // See CLIENT_BUILD_TAG. Nuxt fills these in only when unset.
+            chunkFileNames: clientJsFileNames,
+            entryFileNames: clientJsFileNames,
             codeSplitting: {
               groups: [
                 // Leaflet + the marker cluster plugin MUST share a
