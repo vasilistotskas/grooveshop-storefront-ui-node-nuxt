@@ -50,6 +50,7 @@ const emit = defineEmits<{
  */
 const NEW_FOR_DAYS = 21
 
+const localePath = useLocalePath()
 const { productUrl } = useUrls()
 const { t, locale } = useI18n()
 const { $i18n } = useNuxtApp()
@@ -85,7 +86,9 @@ const productDescription = computed(() => {
   return extractTranslated(product.value, 'description', locale.value) || ''
 })
 
-const to = computed(() => ({ path: productUrl(productId.value, product.value.slug) }))
+// `useUrls` returns locale-less route paths; the card linked every
+// English shopper to the Greek product page.
+const to = computed(() => localePath(productUrl(productId.value, product.value.slug)))
 
 const outOfStock = computed(() => (product.value?.stock ?? 0) <= 0)
 
@@ -170,7 +173,7 @@ const wasPrice = computed(() => {
 const shareOptions = computed(() => ({
   title: productName.value || '',
   text: productDescription.value,
-  url: import.meta.client ? productUrl(productId.value, product.value.slug) : '',
+  url: import.meta.client ? new URL(to.value, window.location.origin).href : '',
 }))
 const { share, isSupported } = useShare(shareOptions)
 const startShare = async () => {

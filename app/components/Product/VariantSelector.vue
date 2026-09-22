@@ -6,6 +6,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const { t, locale, n } = useI18n()
+const localePath = useLocalePath()
 const { productUrl } = useUrls()
 
 const {
@@ -52,7 +53,7 @@ async function onSelect(axisId: number, rawValue: unknown) {
   const valueId = Number(rawValue)
   if (Number.isNaN(valueId) || isCurrentValue(axisId, valueId)) return
   const target = resolveTarget(axisId, valueId)
-  if (target) await navigateTo(productUrl(target.id, target.slug))
+  if (target) await navigateTo(localePath(productUrl(target.id, target.slug)))
 }
 </script>
 

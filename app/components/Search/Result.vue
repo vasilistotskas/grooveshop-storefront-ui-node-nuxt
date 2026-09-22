@@ -9,6 +9,7 @@ const emit = defineEmits<{
   click: []
 }>()
 
+const localePath = useLocalePath()
 const { productUrl, blogPostUrl } = useUrls()
 
 const contentTypeInfo = computed(() => {
@@ -29,14 +30,16 @@ const contentTypeInfo = computed(() => {
 const displayTitle = computed(() => getDisplayTitle(props.result))
 const displaySubtitle = computed(() => getDisplaySubtitle(props.result))
 
+// `useUrls` returns locale-less route paths; a bare path under `/en`
+// sent English shoppers to the Greek page.
 const resultUrl = (result: SearchResult) => {
   if (result.contentType === 'product') {
-    return productUrl(result.master, result.slug)
+    return localePath(productUrl(result.master, result.slug))
   }
   else if (result.contentType === 'blog_post') {
-    return blogPostUrl(result.master, result.slug)
+    return localePath(blogPostUrl(result.master, result.slug))
   }
-  return '/'
+  return localePath('/')
 }
 </script>
 
