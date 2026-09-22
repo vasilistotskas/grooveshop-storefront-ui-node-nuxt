@@ -321,6 +321,14 @@ const { execute: fetchFavourites } = useLazyFetch('/api/products/favourites/favo
     productIds,
   },
   immediate: false,
+  // `watch: false` is required, not decorative: the reactive `key` and
+  // the reactive `productIds` body are auto-watched, so every change to
+  // the product list refetched this auth-required endpoint even for
+  // anonymous visitors — `immediate` only gates the FIRST call.
+  // Measured on staging: switching language on /products fired it and
+  // took a 401. Same shape as the 2026-07-04 liked-posts incident; the
+  // gated `watchEffect` below is the only thing that may trigger it.
+  watch: false,
   server: false,
   onResponse({ response }) {
     if (!response.ok) {

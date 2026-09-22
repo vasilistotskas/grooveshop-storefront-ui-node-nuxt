@@ -147,6 +147,10 @@ const { execute: fetchFavourites } = useLazyFetch('/api/products/favourites/favo
   body: {
     productIds: [Number(productId)],
   },
+  // `watch: false` for the same reason as Products/List.vue: nothing
+  // here is reactive today, but that is one edit away from refetching
+  // an auth-required endpoint for anonymous visitors.
+  watch: false,
   server: false,
   immediate: false,
   onResponse({ response }) {
