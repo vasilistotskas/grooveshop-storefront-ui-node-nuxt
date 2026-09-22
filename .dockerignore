@@ -5,8 +5,17 @@ docker-compose*
 .dockerignore
 
 # Git files
+#
+# `.gitignore` is deliberately NOT here. Tailwind's automatic source
+# detection honours it, and the build writes `.nuxt/` and `.output/`
+# while it runs. Without `.gitignore` the client and SSR environments
+# (`experimental.viteEnvironmentApi`) scanned different generated files,
+# emitted two different `entry.*.css` files, and the page loaded both:
+# the chunk-linked one landed later in `@layer utilities`, so its base
+# utilities beat the other's `lg:` ones (v3.205.1's hero stayed at its
+# phone ratio on desktop). tailwindlabs/tailwindcss#19888; the local
+# build, which has `.gitignore`, emits exactly one.
 .git
-.gitignore
 
 # Env files — never bake local/real secrets into the build stage
 .env
