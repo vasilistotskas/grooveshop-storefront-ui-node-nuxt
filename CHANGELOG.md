@@ -1,3 +1,10 @@
+## [3.204.20](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.19...v3.204.20) (2026-09-22)
+
+
+### Bug Fixes
+
+* **a11y:** let the category chips use their button's own foreground ([d31724e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d31724e3cd0f63c099eb034d227d5bf4c6ac6691))
+
 ## [3.204.19](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.204.18...v3.204.19) (2026-09-22)
 
 
