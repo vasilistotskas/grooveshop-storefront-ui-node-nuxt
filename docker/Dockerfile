@@ -18,8 +18,14 @@ WORKDIR /app
 # '/app/scripts/check-lockstep-deps.mjs'" — which is exactly what broke
 # the v3.186.0 image publish, leaving a GitHub release with no image
 # behind it. 32KB that changes rarely, so the layer cache barely cares.
+#
+# ``patches/`` for the same reason: ``pnpm-workspace.yaml`` lists
+# ``patchedDependencies``, and pnpm reads every patch file before it
+# installs anything — the v3.205.0 publish died on "Failed to read patch
+# file /app/patches/reka-ui@2.10.4.patch".
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY scripts ./scripts
+COPY patches ./patches
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --prefer-offline \
   && pnpm rebuild better-sqlite3
