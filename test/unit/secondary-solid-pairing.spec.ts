@@ -62,6 +62,31 @@ describe('solid secondary', () => {
  * reason: it is LIGHT in both schemes, so the white it pairs with in
  * light mode measured 2.94:1 on the catalogue's "Only N left" badge.
  */
+/**
+ * Green is the third one, and it fails for amber's reason: light enough
+ * in both schemes that the white `text-inverted` pairs it with measured
+ * 3.22:1 on webside's solid-success loyalty CTA in light mode. Dark was
+ * already 9.96:1, so the foreground is fixed rather than mode-flipping.
+ */
+describe('solid success', () => {
+  for (const component of ['button', 'badge']) {
+    it(`puts --ui-on-success on a ${component}`, () => {
+      const at = appConfig.indexOf(`${component}: {`)
+      const block = appConfig.slice(at, at + 4000)
+      const entry = block.match(
+        /color:\s*'success',\s*variant:\s*'solid',\s*class:\s*'([^']*)'/,
+      )
+      expect(entry?.[1], `${component} has no solid-success compound variant`)
+        .toContain('text-(--ui-on-success)')
+    })
+  }
+
+  it('defines that token for both colour schemes', () => {
+    const definitions = css.match(/--ui-on-success:/g) ?? []
+    expect(definitions.length).toBeGreaterThanOrEqual(2)
+  })
+})
+
 describe('solid warning', () => {
   it('puts --ui-on-warning on a badge', () => {
     const at = appConfig.indexOf('badge: {')

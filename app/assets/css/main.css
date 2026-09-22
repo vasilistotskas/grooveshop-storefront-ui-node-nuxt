@@ -75,6 +75,11 @@
      catalogue's "Only N left" badge failed AA. Amber stays amber in
      both schemes, so its foreground has to as well; this is 6:1. */
   --ui-on-warning: #1f1f23;
+  /* Same problem, same shape: green is light enough that the white
+     `text-inverted` pairs it with lands at 3.22:1 in LIGHT mode —
+     measured on webside's loyalty CTA, a solid success button. Green
+     stays green in both schemes, so its foreground is fixed too. */
+  --ui-on-success: #1f1f23;
   /* Chat widget gradient endpoint. Defaults to Tailwind violet-600 so
      the platform look is unchanged; tenant themes may override it via
      the injected <style id="tenant-theme"> block. */
@@ -118,6 +123,7 @@
      stays safe too (a light green lands at 13:1). */
   --ui-secondary-text: color-mix(in oklab, var(--ui-secondary) 80%, white);
   --ui-on-warning: #1f1f23;
+  --ui-on-success: #1f1f23;
 
   /* Semantic colors - lighter shades for dark mode */
   --ui-primary: var(--color-primary-100);

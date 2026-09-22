@@ -117,6 +117,16 @@ export default defineAppConfig({
           variant: 'solid',
           class: 'text-(--ui-on-secondary) bg-(--ui-secondary) hover:bg-(--ui-secondary)/75 disabled:bg-(--ui-secondary) aria-disabled:bg-(--ui-secondary) focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--ui-secondary)',
         },
+        // A solid SUCCESS button has the amber problem: green is light
+        // enough that the white `text-inverted` Nuxt UI pairs it with
+        // measured 3.22:1 in light mode on webside's loyalty CTA. Dark
+        // mode was already fine at 9.96:1, so the token is fixed in
+        // both schemes rather than flipping with them.
+        {
+          color: 'success',
+          variant: 'solid',
+          class: 'text-(--ui-on-success)',
+        },
         // Every NON-solid accent button paints its label with the fill
         // token, which is 4.18:1 on the dark page — measured on the
         // gift-card amount presets and the PDP's price-drop alert.
@@ -201,6 +211,13 @@ export default defineAppConfig({
           color: 'warning',
           variant: 'solid',
           class: 'text-(--ui-on-warning)',
+        },
+        // And green, for the same reason — measured at 3.22:1 on
+        // webside's solid-success loyalty CTA in light mode.
+        {
+          color: 'success',
+          variant: 'solid',
+          class: 'text-(--ui-on-success)',
         },
       ],
     },
