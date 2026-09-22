@@ -175,7 +175,7 @@ const hasContent = computed(
           color="neutral"
           variant="outline"
           size="xl"
-          :class="inverted && 'text-white ring-white/40 hover:bg-white/10'"
+          :class="inverted && 'bg-transparent text-white ring-white/40 hover:bg-white/10'"
         />
       </div>
 

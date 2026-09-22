@@ -11,28 +11,23 @@
 defineProps<{
   posts: BlogPost[]
 }>()
-
-const { isMobileOrTablet } = useDevice()
-
-// The blog's own card, so a post looks the same wherever it is shown;
-// the mobile one is a different composition, not a narrower copy.
-const card = computed(() =>
-  isMobileOrTablet.value
-    ? resolveComponent('BlogPostCardMobile')
-    : resolveComponent('BlogPostCardDesktop'),
-)
 </script>
 
 <template>
+  <!-- ONE card at every width. The blog's phone card sets its title in
+       white over the photograph, and on the demo store's yellow and
+       mint artwork that was unreadable at 390px; the standard card
+       keeps the title under the picture, on the page's own surface,
+       and stacks to a single column on its own. -->
   <UPageGrid
     v-if="posts.length"
     class="lg:grid-cols-3"
   >
-    <component
-      :is="card"
+    <BlogPostCardDesktop
       v-for="post in posts"
       :key="post.id"
       :post="post"
+      as="div"
       img-loading="lazy"
       :show-share-button="false"
     />

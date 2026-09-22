@@ -43,12 +43,12 @@ const localePath = useLocalePath()
       />
     </div>
 
-    <p
-      class="
-        text-sm font-medium text-default
-        group-hover:text-highlighted
-      "
-    >
+    <!-- The name is the tile's whole point — the photograph only says
+         what kind of thing — so it is set at the band's body size. No
+         arrow: the ring and the zoom already say the tile is a link,
+         and on a two-line name the arrow wrapped onto a line of its
+         own. -->
+    <p class="text-base font-medium text-highlighted">
       {{ category.label }}
     </p>
   </ULink>

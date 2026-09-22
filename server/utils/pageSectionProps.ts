@@ -117,7 +117,9 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
       // A slide owns its own copy and its own destination. The flat
       // triple above can express one link for the whole carousel and no
       // copy at all, so the artwork had to carry its own baked-in
-      // wording; when `slides` is present it wins.
+      // wording; when `slides` is present it wins. No `theme`: the copy
+      // sits on the accent panel beside the artwork, never over it, so
+      // there is no "which way does it read" to choose.
       slides: z
         .array(
           z
@@ -132,7 +134,6 @@ export const pageSectionPropsSchemas: Record<string, z.ZodTypeAny> = {
               ctaLink: zLink.optional(),
               secondaryCtaText: z.string().max(100).optional(),
               secondaryCtaLink: zLink.optional(),
-              theme: z.enum(['light', 'dark', 'auto']).optional(),
             })
             .strip(),
         )

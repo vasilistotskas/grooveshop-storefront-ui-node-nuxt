@@ -159,7 +159,6 @@ describe('a hero slide carries its own copy and destination', () => {
           heading: 'Έκπτωση 20%',
           ctaText: 'Δες τα',
           ctaLink: '/offers',
-          theme: 'dark',
         },
       ],
       autoplayMs: 6000,
@@ -168,6 +167,17 @@ describe('a hero slide carries its own copy and destination', () => {
 
     expect(error).toBeUndefined()
     expect((props.slides as unknown[])).toHaveLength(1)
+  })
+
+  it('strips the retired slide theme', () => {
+    // The copy sits beside the artwork, never over it, so a stored
+    // `theme` from before that change is dropped rather than shipped.
+    const { props, error } = parseSectionProps('hero_carousel', {
+      slides: [{ imageUrl: '/img/sale.avif', theme: 'dark' }],
+    })
+
+    expect(error).toBeUndefined()
+    expect((props.slides as Record<string, unknown>[])[0]).not.toHaveProperty('theme')
   })
 
   it('refuses a slide with no artwork', () => {

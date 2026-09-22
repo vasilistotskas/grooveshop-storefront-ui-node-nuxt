@@ -79,9 +79,11 @@ const container = computed(() =>
           "
         >
           <div class="flex flex-col gap-1.5">
+            <!-- Sentence case, as the operator typed it: a tracked
+                 capitals label is a typographic device, not a word. -->
             <p
               v-if="eyebrow"
-              class="text-xs font-medium tracking-wide text-muted uppercase"
+              class="text-sm font-medium text-accent"
             >
               {{ eyebrow }}
             </p>

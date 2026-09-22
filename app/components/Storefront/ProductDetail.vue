@@ -726,7 +726,7 @@ useSchemaOrg([
 
     <!-- The two columns of a product page: what it looks like, and
          everything needed to decide. -->
-    <UContainer class="pt-6 pb-12">
+    <UContainer class="pt-6 pb-16">
       <div
         class="
           grid gap-8

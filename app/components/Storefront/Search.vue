@@ -295,7 +295,7 @@ useHead({
       </div>
     </PageSectionBand>
 
-    <UContainer class="flex-1 py-10">
+    <UContainer class="flex-1 pt-10 pb-16">
       <div
         v-if="isSearching && displayResults.length === 0"
         class="flex flex-col gap-4"

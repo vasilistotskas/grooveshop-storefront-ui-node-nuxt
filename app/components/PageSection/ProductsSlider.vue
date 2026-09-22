@@ -41,10 +41,36 @@ const label = computed(
   () => props.heading || props.title || t(`heading.${props.ordering}`),
 )
 
-const cta = computed(() => ({
-  text: props.ctaText || t('all_products'),
-  link: props.ctaLink ? localePath(props.ctaLink) : localePath('/products'),
-}))
+/**
+ * Where "see all" goes when the operator has not said. The listing
+ * sorts by the same Meilisearch fields the rail orders by (see the
+ * allowlist in `Products/Toolbar.vue`), so a rail of new arrivals opens
+ * the listing newest-first rather than in its default order — and its
+ * link says so, which is what tells three rails on one page apart.
+ * `discounted` and `rating` have no listing sort, so they open the
+ * listing as it is, under the generic label.
+ */
+const LISTING_SORT: Partial<Record<ProductRailOrdering, string>> = {
+  featured: '-viewCount',
+  newest: '-createdAt',
+  popular: '-likesCount',
+}
+
+const cta = computed(() => {
+  if (props.ctaText || props.ctaLink) {
+    return {
+      text: props.ctaText || t('all_products'),
+      link: props.ctaLink ? localePath(props.ctaLink) : localePath('/products'),
+    }
+  }
+  const sort = LISTING_SORT[props.ordering]
+  return sort
+    ? {
+        text: t(`all.${props.ordering}`),
+        link: localePath({ path: '/products', query: { sort } }),
+      }
+    : { text: t('all_products'), link: localePath('/products') }
+})
 </script>
 
 <template>
@@ -66,6 +92,10 @@ const cta = computed(() => ({
 <i18n lang="yaml">
 el:
   all_products: Όλα τα προϊόντα
+  all:
+    featured: Όλα τα επιλεγμένα
+    newest: Όλες οι νέες αφίξεις
+    popular: Όλα τα δημοφιλή
   heading:
     featured: Επιλεγμένα προϊόντα
     newest: Νέες αφίξεις
@@ -74,6 +104,10 @@ el:
     rating: Κορυφαίες αξιολογήσεις
 en:
   all_products: All products
+  all:
+    featured: All featured
+    newest: All new arrivals
+    popular: All popular
   heading:
     featured: Featured products
     newest: New arrivals

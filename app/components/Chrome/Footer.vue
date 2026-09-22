@@ -30,7 +30,12 @@ const storeName = computed(() => tenantStore.storeName || '')
 </script>
 
 <template>
-  <footer class="mt-16 border-t border-default bg-muted">
+  <!-- No top margin of its own: a page built from bands ends on a band
+       that already carries its padding, and a margin here painted a
+       strip of bare ground between the last band and the footer. The
+       pages that are not bands pad their own bottom (the listings'
+       `pb-16`, `PageWrapper`'s `mb-12`). -->
+  <footer class="border-t border-default bg-muted">
     <UContainer class="py-10">
       <div
         class="
