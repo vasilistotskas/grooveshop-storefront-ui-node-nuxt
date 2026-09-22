@@ -1,3 +1,10 @@
+## [3.205.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.205.2...v3.205.3) (2026-09-22)
+
+
+### Bug Fixes
+
+* **build:** tag every client JS file name with the build, so a name never changes meaning ([85dd510](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/85dd510b081d41a3c956e5c0e17eee73f6dbdf98)), closes [#36198](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/36198)
+
 ## [3.205.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.205.1...v3.205.2) (2026-09-22)
 
 
