@@ -1,3 +1,10 @@
+# [3.208.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.207.0...v3.208.0) (2026-09-23)
+
+
+### Features
+
+* **newsletter:** a double opt-in signup form on the newsletter band ([63f519f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/63f519f7ce2c49408ee7073d6b7c88ff4c55f687))
+
 # [3.207.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.206.0...v3.207.0) (2026-09-23)
 
 
