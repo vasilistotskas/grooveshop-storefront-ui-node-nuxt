@@ -1,3 +1,10 @@
+## [3.208.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.208.0...v3.208.1) (2026-09-23)
+
+
+### Bug Fixes
+
+* **cache:** keep reconnecting to Redis instead of giving up ([5bdfefa](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5bdfefa89b472d2c5e0bb5d187054828bd543cbe))
+
 # [3.208.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.207.0...v3.208.0) (2026-09-23)
 
 
