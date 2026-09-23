@@ -195,9 +195,32 @@ export function withoutNonPositiveTtlWrites(driver: Driver): Driver {
   }
 }
 
+/** Longest wait between reconnect attempts, in milliseconds. */
+const RECONNECT_MAX_DELAY_MS = 2000
+
 /**
- * Creates a Redis driver with ioredis configuration optimized for graceful error handling.
- * The unstorage redis driver uses ioredis internally.
+ * ioredis `retryStrategy`: the delay before reconnect attempt `times`.
+ *
+ * It ALWAYS returns a number. ioredis treats any non-number as "stop
+ * reconnecting", after which the connection "will be lost forever"
+ * (ioredis README) — every cache read fails with "Connection is closed"
+ * until the process restarts. The previous strategy returned `null` after
+ * three attempts (~1.2 s), shorter than a Redis restart takes to reload
+ * its AOF: on 2026-09-23 a routine Redis restart left both storefront
+ * pods without a cache for 54 minutes, until a deploy replaced them.
+ *
+ * Failing fast is still the rule, but per REQUEST, not per connection:
+ * `maxRetriesPerRequest` flushes queued commands with an error, so a
+ * request falls through to an uncached render instead of waiting, while
+ * the client keeps reconnecting in the background with capped backoff.
+ */
+export function redisReconnectDelay(times: number): number {
+  return Math.min(times * 200, RECONNECT_MAX_DELAY_MS)
+}
+
+/**
+ * Creates the Redis cache driver. The unstorage redis driver passes these
+ * options to ioredis.
  */
 function createRedisDriver({ host, port, ttl, base, db, password }: RedisDriverOptions): Driver {
   return withoutNonPositiveTtlWrites(redisDriver({
@@ -207,16 +230,11 @@ function createRedisDriver({ host, port, ttl, base, db, password }: RedisDriverO
     ttl,
     ...(db !== undefined && { db }),
     ...(password && { password }),
-    // ioredis options for graceful error handling
     lazyConnect: true,
+    // Commands waiting on a dead connection fail after 3 reconnect
+    // attempts, so a request degrades to an uncached render quickly.
     maxRetriesPerRequest: 3,
-    retryStrategy: (times: number) => {
-      if (times > 3) {
-        log.warn('cache', 'ioredis: Max retries reached, giving up')
-        return null
-      }
-      return Math.min(times * 200, 2000)
-    },
+    retryStrategy: redisReconnectDelay,
     reconnectOnError: (err: Error) => {
       const recoverableErrors = ['READONLY', 'ECONNRESET']
       return recoverableErrors.some(e => err.message.includes(e))
