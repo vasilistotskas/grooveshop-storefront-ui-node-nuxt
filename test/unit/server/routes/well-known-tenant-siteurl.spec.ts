@@ -1,7 +1,7 @@
 /**
  * Unit tests for the tenant-aware `siteUrl` resolution shared by the
  * `.well-known/**` discovery routes (OAuth/OIDC metadata, api-catalog,
- * MCP server-card, agent-skills index). These routes are NOT bypassed in
+ * AI Catalog, agent-skills index). These routes are NOT bypassed in
  * 0.tenant.ts, so event.context.tenant is populated for real requests;
  * each route still falls back to getRequestHost() (prerender/edge cases)
  * and finally to the platform's runtime-config baseUrl — never to a
@@ -91,24 +91,34 @@ describe('.well-known/api-catalog.get.ts', () => {
   })
 })
 
-describe('.well-known/mcp/server-card.json.get.ts', () => {
-  it('uses the tenant storeName and primaryDomain, with no hardcoded brand string', async () => {
-    const { default: handler } = await import('../../../../server/routes/.well-known/mcp/server-card.json.get')
-    const result = handler(makeEvent({ primaryDomain: 'acme.example', storeName: 'Acme Store' })) as {
-      serverInfo: { name: string, title: string, description: string }
-      documentation: string
+describe('.well-known/ai-catalog.json.get.ts', () => {
+  it('lists the gateway Server Card at the reserved /mcp/server-card for an agent-commerce tenant', async () => {
+    const { default: handler } = await import('../../../../server/routes/.well-known/ai-catalog.json.get')
+    const result = handler(makeEvent({ primaryDomain: 'acme.example', storeName: 'Acme Store', agentCommerceEnabled: true })) as {
+      specVersion: string
+      host: { displayName: string, identifier: string }
+      entries: Array<{ identifier: string, type: string, url: string }>
     }
-    expect(result.serverInfo.name).toBe('Acme Store')
-    expect(result.serverInfo.title).toBe('Acme Store MCP')
-    expect(result.serverInfo.description).not.toContain('Webside')
-    expect(result.serverInfo.description).not.toContain('webside')
-    expect(result.documentation).toBe('https://acme.example/llms.txt')
+    expect(result.specVersion).toBe('1.0')
+    expect(result.host).toEqual({ displayName: 'Acme Store', identifier: 'acme.example' })
+    expect(result.entries).toEqual([{
+      identifier: 'urn:air:acme.example:mcp:store',
+      type: 'application/mcp-server-card+json',
+      url: 'https://acme.example/mcp/server-card',
+    }])
   })
 
-  it('falls back to the platform appTitle when no tenant storeName is set', async () => {
-    const { default: handler } = await import('../../../../server/routes/.well-known/mcp/server-card.json.get')
-    const result = handler(makeEvent(undefined)) as { serverInfo: { name: string } }
-    expect(result.serverInfo.name).toBe('Platform Default Store')
+  it('lists no entries when the tenant has agent commerce off', async () => {
+    const { default: handler } = await import('../../../../server/routes/.well-known/ai-catalog.json.get')
+    const result = handler(makeEvent({ primaryDomain: 'acme.example', agentCommerceEnabled: false })) as { entries: unknown[] }
+    expect(result.entries).toEqual([])
+  })
+
+  it('falls back to the platform baseUrl and appTitle with no tenant and no host', async () => {
+    const { default: handler } = await import('../../../../server/routes/.well-known/ai-catalog.json.get')
+    const result = handler(makeEvent(undefined)) as { host: { displayName: string, identifier: string }, entries: unknown[] }
+    expect(result.host).toEqual({ displayName: 'Platform Default Store', identifier: 'platform-default.example' })
+    expect(result.entries).toEqual([])
   })
 })
 
