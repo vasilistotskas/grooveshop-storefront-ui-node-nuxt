@@ -27875,7 +27875,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. Unknown or omitted means the store's default language."
+                        "description": "Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. A layout's SEO title, description and keywords are resolved for it too, strictly: a locale with no translation answers them empty. Unknown or omitted means the store's default language."
                     },
                     {
                         "in": "path",
@@ -28018,7 +28018,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PaginatedPageLayoutList"
+                                    "$ref": "#/components/schemas/PaginatedPageLayoutAdminDetailList"
                                 }
                             }
                         },
@@ -28051,17 +28051,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/PageLayoutRequest"
+                                "$ref": "#/components/schemas/PageLayoutAdminDetailRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/PageLayoutRequest"
+                                "$ref": "#/components/schemas/PageLayoutAdminDetailRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PageLayoutRequest"
+                                "$ref": "#/components/schemas/PageLayoutAdminDetailRequest"
                             }
                         }
                     },
@@ -28077,7 +28077,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PageLayout"
+                                    "$ref": "#/components/schemas/PageLayoutAdminDetail"
                                 }
                             }
                         },
@@ -28134,7 +28134,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PageLayout"
+                                    "$ref": "#/components/schemas/PageLayoutAdminDetail"
                                 }
                             }
                         },
@@ -28183,17 +28183,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/PageLayoutRequest"
+                                "$ref": "#/components/schemas/PageLayoutAdminDetailRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/PageLayoutRequest"
+                                "$ref": "#/components/schemas/PageLayoutAdminDetailRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PageLayoutRequest"
+                                "$ref": "#/components/schemas/PageLayoutAdminDetailRequest"
                             }
                         }
                     },
@@ -28209,7 +28209,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PageLayout"
+                                    "$ref": "#/components/schemas/PageLayoutAdminDetail"
                                 }
                             }
                         },
@@ -28258,17 +28258,17 @@
                     "content": {
                         "application/x-www-form-urlencoded": {
                             "schema": {
-                                "$ref": "#/components/schemas/PatchedPageLayoutRequest"
+                                "$ref": "#/components/schemas/PatchedPageLayoutAdminDetailRequest"
                             }
                         },
                         "multipart/form-data": {
                             "schema": {
-                                "$ref": "#/components/schemas/PatchedPageLayoutRequest"
+                                "$ref": "#/components/schemas/PatchedPageLayoutAdminDetailRequest"
                             }
                         },
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/PatchedPageLayoutRequest"
+                                "$ref": "#/components/schemas/PatchedPageLayoutAdminDetailRequest"
                             }
                         }
                     }
@@ -28283,7 +28283,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/PageLayout"
+                                    "$ref": "#/components/schemas/PageLayoutAdminDetail"
                                 }
                             }
                         },
@@ -28337,7 +28337,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. Unknown or omitted means the store's default language."
+                        "description": "Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. A layout's SEO title, description and keywords are resolved for it too, strictly: a locale with no translation answers them empty. Unknown or omitted means the store's default language."
                     }
                 ],
                 "tags": [
@@ -54757,6 +54757,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -54771,6 +54780,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -54785,6 +54803,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -54922,6 +54949,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -54936,6 +54972,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -54950,6 +54995,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -55048,21 +55102,6 @@
                     "userHasLiked": {
                         "type": "boolean",
                         "readOnly": true
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     }
                 },
                 "required": [
@@ -55219,6 +55258,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -55233,6 +55281,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -55247,6 +55304,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -55285,21 +55351,6 @@
                     "isPublished": {
                         "type": "boolean",
                         "title": "Δημοσιευμένο"
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     }
                 },
                 "required": [
@@ -57944,6 +57995,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -57955,6 +58015,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -57966,6 +58035,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -58012,7 +58090,7 @@
             },
             "ContentPageDetail": {
                 "type": "object",
-                "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
+                "description": "The detail tier. Its SEO travels in ``translations`` like every\nother translated field, so it adds nothing to the list shape.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -58034,6 +58112,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -58045,6 +58132,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -58056,6 +58152,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -58088,21 +58193,6 @@
                         "format": "date-time",
                         "readOnly": true,
                         "title": "Ενημερώθηκε στις"
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     }
                 },
                 "required": [
@@ -58125,6 +58215,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -58136,6 +58235,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -58147,6 +58255,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -58166,21 +58283,6 @@
                     "isPublished": {
                         "type": "boolean",
                         "title": "Δημοσιευμένο"
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     }
                 },
                 "required": [
@@ -61862,6 +61964,7 @@
             },
             "PageLayout": {
                 "type": "object",
+                "description": "The public, per-locale layout (``public_page_config``).\n\nPage config answers ONE locale per request (see\n``page_config.localization``), so the SEO fields travel as flat\nstrings resolved for it rather than as a ``translations`` object.",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -61885,18 +61988,112 @@
                     },
                     "seoTitle": {
                         "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
+                        "readOnly": true
                     },
                     "seoDescription": {
                         "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
+                        "readOnly": true
                     },
                     "seoKeywords": {
                         "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
+                        "readOnly": true
+                    },
+                    "isPublished": {
+                        "type": "boolean",
+                        "title": "Δημοσιευμένο"
+                    },
+                    "metadata": {
+                        "title": "Μεταδεδομένα"
+                    },
+                    "sections": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PageSection"
+                        },
+                        "readOnly": true
+                    }
+                },
+                "required": [
+                    "id",
+                    "pageType",
+                    "sections",
+                    "seoDescription",
+                    "seoKeywords",
+                    "seoTitle",
+                    "title",
+                    "uuid"
+                ]
+            },
+            "PageLayoutAdminDetail": {
+                "type": "object",
+                "description": "The staff read of a layout: every language's SEO, not one.",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "readOnly": true
+                    },
+                    "uuid": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                    },
+                    "pageType": {
+                        "type": "string",
+                        "description": "Identifier for the page (e.g. \"home\", \"products\", \"blog\").",
+                        "maxLength": 50
+                    },
+                    "title": {
+                        "type": "string",
+                        "title": "Τίτλος",
+                        "description": "Admin display name for this layout.",
+                        "maxLength": 200
+                    },
+                    "translations": {
+                        "type": "object",
+                        "properties": {
+                            "el": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "en": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "de": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
                     },
                     "isPublished": {
                         "type": "boolean",
@@ -61918,11 +62115,13 @@
                     "pageType",
                     "sections",
                     "title",
+                    "translations",
                     "uuid"
                 ]
             },
-            "PageLayoutRequest": {
+            "PageLayoutAdminDetailRequest": {
                 "type": "object",
+                "description": "The staff read of a layout: every language's SEO, not one.",
                 "properties": {
                     "pageType": {
                         "type": "string",
@@ -61937,20 +62136,52 @@
                         "description": "Admin display name for this layout.",
                         "maxLength": 200
                     },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
+                    "translations": {
+                        "type": "object",
+                        "properties": {
+                            "el": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "en": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "de": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
                     },
                     "isPublished": {
                         "type": "boolean",
@@ -61962,7 +62193,8 @@
                 },
                 "required": [
                     "pageType",
-                    "title"
+                    "title",
+                    "translations"
                 ]
             },
             "PageSection": {
@@ -63067,7 +63299,7 @@
                     }
                 }
             },
-            "PaginatedPageLayoutList": {
+            "PaginatedPageLayoutAdminDetailList": {
                 "type": "object",
                 "required": [
                     "count",
@@ -63114,7 +63346,7 @@
                     "results": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/PageLayout"
+                            "$ref": "#/components/schemas/PageLayoutAdminDetail"
                         }
                     }
                 }
@@ -64167,6 +64399,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -64181,6 +64422,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -64195,6 +64445,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -64233,21 +64492,6 @@
                     "isPublished": {
                         "type": "boolean",
                         "title": "Δημοσιευμένο"
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     }
                 }
             },
@@ -64317,6 +64561,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -64328,6 +64581,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -64339,6 +64601,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "title": {
                                         "type": "string"
                                     },
@@ -64358,21 +64629,6 @@
                     "isPublished": {
                         "type": "boolean",
                         "title": "Δημοσιευμένο"
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     }
                 }
             },
@@ -64572,8 +64828,9 @@
                     }
                 }
             },
-            "PatchedPageLayoutRequest": {
+            "PatchedPageLayoutAdminDetailRequest": {
                 "type": "object",
+                "description": "The staff read of a layout: every language's SEO, not one.",
                 "properties": {
                     "pageType": {
                         "type": "string",
@@ -64588,20 +64845,52 @@
                         "description": "Admin display name for this layout.",
                         "maxLength": 200
                     },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
+                    "translations": {
+                        "type": "object",
+                        "properties": {
+                            "el": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "en": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "de": {
+                                "type": "object",
+                                "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
                     },
                     "isPublished": {
                         "type": "boolean",
@@ -64807,6 +65096,15 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -64818,6 +65116,15 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -64828,6 +65135,15 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
                                         "type": "string"
                                     }
                                 }
@@ -64847,21 +65163,6 @@
                     "parent": {
                         "type": "integer",
                         "nullable": true
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     }
                 }
             },
@@ -64978,6 +65279,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -64989,6 +65299,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -65000,6 +65319,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -65065,21 +65393,6 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
                         "title": "Ποσοστό Έκπτωσης"
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     },
                     "active": {
                         "type": "boolean",
@@ -66146,6 +66459,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -66157,6 +66479,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -66168,6 +66499,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -66250,21 +66590,6 @@
                             "value": 1.0
                         },
                         "nullable": true
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     },
                     "discountPercent": {
                         "type": "number",
@@ -66597,6 +66922,15 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -66608,6 +66942,15 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -66618,6 +66961,15 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
                                         "type": "string"
                                     }
                                 }
@@ -66698,6 +67050,15 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -66709,6 +67070,15 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -66719,6 +67089,15 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
                                         "type": "string"
                                     }
                                 }
@@ -66777,21 +67156,6 @@
                     "recursiveProductCount": {
                         "type": "integer",
                         "readOnly": true
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     }
                 },
                 "required": [
@@ -67146,6 +67510,15 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -67157,6 +67530,15 @@
                                     },
                                     "description": {
                                         "type": "string"
+                                    },
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
                                     }
                                 }
                             },
@@ -67167,6 +67549,15 @@
                                         "type": "string"
                                     },
                                     "description": {
+                                        "type": "string"
+                                    },
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
                                         "type": "string"
                                     }
                                 }
@@ -67186,21 +67577,6 @@
                     "parent": {
                         "type": "integer",
                         "nullable": true
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     }
                 },
                 "required": [
@@ -67222,6 +67598,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -67233,6 +67618,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -67244,6 +67638,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -67326,21 +67729,6 @@
                             "value": 1.0
                         },
                         "nullable": true
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     },
                     "discountPercent": {
                         "type": "number",
@@ -67480,6 +67868,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -67491,6 +67888,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -67502,6 +67908,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -67584,21 +67999,6 @@
                             "value": 1.0
                         },
                         "nullable": true
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     },
                     "discountPercent": {
                         "type": "number",
@@ -68847,6 +69247,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -68858,6 +69267,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -68869,6 +69287,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -68979,6 +69406,15 @@
                             "el": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -68990,6 +69426,15 @@
                             "en": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -69001,6 +69446,15 @@
                             "de": {
                                 "type": "object",
                                 "properties": {
+                                    "seoTitle": {
+                                        "type": "string"
+                                    },
+                                    "seoDescription": {
+                                        "type": "string"
+                                    },
+                                    "seoKeywords": {
+                                        "type": "string"
+                                    },
                                     "name": {
                                         "type": "string"
                                     },
@@ -69066,21 +69520,6 @@
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
                         "title": "Ποσοστό Έκπτωσης"
-                    },
-                    "seoTitle": {
-                        "type": "string",
-                        "title": "Τίτλος SEO",
-                        "maxLength": 70
-                    },
-                    "seoDescription": {
-                        "type": "string",
-                        "title": "Περιγραφή SEO",
-                        "maxLength": 300
-                    },
-                    "seoKeywords": {
-                        "type": "string",
-                        "title": "Λέξεις-κλειδιά SEO",
-                        "maxLength": 255
                     },
                     "active": {
                         "type": "boolean",

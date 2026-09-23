@@ -1004,16 +1004,25 @@ export type BlogPost = {
   likes: Array<number>
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
@@ -1073,16 +1082,25 @@ export type BlogPostDetail = {
   readonly likes: Array<number>
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
@@ -1131,18 +1149,6 @@ export type BlogPostDetail = {
   readonly readingTime: number
   readonly contentPreview: string
   readonly userHasLiked: boolean
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
 }
 
 export type BlogPostLikedPostsRequestRequest = {
@@ -1203,16 +1209,25 @@ export type BlogPostMeiliSearchResult = {
 export type BlogPostWriteRequest = {
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
@@ -1230,18 +1245,6 @@ export type BlogPostWriteRequest = {
      * Δημοσιευμένο
      */
   isPublished?: boolean
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
 }
 
 /**
@@ -2633,14 +2636,23 @@ export type ContentPage = {
   slug: string
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
@@ -2664,7 +2676,8 @@ export type ContentPage = {
 }
 
 /**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ * The detail tier. Its SEO travels in ``translations`` like every
+ * other translated field, so it adds nothing to the list shape.
  */
 export type ContentPageDetail = {
   readonly id: number
@@ -2672,14 +2685,23 @@ export type ContentPageDetail = {
   slug: string
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
@@ -2700,18 +2722,6 @@ export type ContentPageDetail = {
      * Ενημερώθηκε στις
      */
   readonly updatedAt: string
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
 }
 
 /**
@@ -2731,14 +2741,23 @@ export type ContentPageDetail = {
 export type ContentPageWriteRequest = {
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
@@ -2748,18 +2767,6 @@ export type ContentPageWriteRequest = {
      * Δημοσιευμένο
      */
   isPublished?: boolean
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
 }
 
 /**
@@ -4613,6 +4620,13 @@ export type OrderWriteRequest = {
   customerNotes?: string
 }
 
+/**
+ * The public, per-locale layout (``public_page_config``).
+ *
+ * Page config answers ONE locale per request (see
+ * ``page_config.localization``), so the SEO fields travel as flat
+ * strings resolved for it rather than as a ``translations`` object.
+ */
 export type PageLayout = {
   readonly id: number
   readonly uuid: string
@@ -4626,18 +4640,9 @@ export type PageLayout = {
      * Admin display name for this layout.
      */
   title: string
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
+  readonly seoTitle: string
+  readonly seoDescription: string
+  readonly seoKeywords: string
   /**
      * Δημοσιευμένο
      */
@@ -4649,7 +4654,12 @@ export type PageLayout = {
   readonly sections: Array<PageSection>
 }
 
-export type PageLayoutRequest = {
+/**
+ * The staff read of a layout: every language's SEO, not one.
+ */
+export type PageLayoutAdminDetail = {
+  readonly id: number
+  readonly uuid: string
   /**
      * Identifier for the page (e.g. "home", "products", "blog").
      */
@@ -4660,18 +4670,65 @@ export type PageLayoutRequest = {
      * Admin display name for this layout.
      */
   title: string
+  translations: {
+    el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+    }
+    en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+    }
+    de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+    }
+  }
   /**
-     * Τίτλος SEO
+     * Δημοσιευμένο
      */
-  seoTitle?: string
+  isPublished?: boolean
   /**
-     * Περιγραφή SEO
+     * Μεταδεδομένα
      */
-  seoDescription?: string
+  metadata?: unknown
+  readonly sections: Array<PageSection>
+}
+
+/**
+ * The staff read of a layout: every language's SEO, not one.
+ */
+export type PageLayoutAdminDetailRequest = {
   /**
-     * Λέξεις-κλειδιά SEO
+     * Identifier for the page (e.g. "home", "products", "blog").
      */
-  seoKeywords?: string
+  pageType: string
+  /**
+     * Τίτλος
+     *
+     * Admin display name for this layout.
+     */
+  title: string
+  translations: {
+    el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+    }
+    en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+    }
+    de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+    }
+  }
   /**
      * Δημοσιευμένο
      */
@@ -4974,7 +5031,7 @@ export type PaginatedOrderList = {
   results: Array<Order>
 }
 
-export type PaginatedPageLayoutList = {
+export type PaginatedPageLayoutAdminDetailList = {
   links?: {
     next?: string | null
     previous?: string | null
@@ -4984,7 +5041,7 @@ export type PaginatedPageLayoutList = {
   pageSize?: number
   pageTotalResults?: number
   page?: number
-  results: Array<PageLayout>
+  results: Array<PageLayoutAdminDetail>
 }
 
 export type PaginatedPayWayList = {
@@ -5281,16 +5338,25 @@ export type PatchedBlogCommentWriteRequest = {
 export type PatchedBlogPostWriteRequest = {
   translations?: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
@@ -5308,18 +5374,6 @@ export type PatchedBlogPostWriteRequest = {
      * Δημοσιευμένο
      */
   isPublished?: boolean
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
 }
 
 /**
@@ -5371,14 +5425,23 @@ export type PatchedCartItemUpdateRequest = {
 export type PatchedContentPageWriteRequest = {
   translations?: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
@@ -5388,18 +5451,6 @@ export type PatchedContentPageWriteRequest = {
      * Δημοσιευμένο
      */
   isPublished?: boolean
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
 }
 
 /**
@@ -5519,7 +5570,10 @@ export type PatchedOrderWriteRequest = {
   customerNotes?: string
 }
 
-export type PatchedPageLayoutRequest = {
+/**
+ * The staff read of a layout: every language's SEO, not one.
+ */
+export type PatchedPageLayoutAdminDetailRequest = {
   /**
      * Identifier for the page (e.g. "home", "products", "blog").
      */
@@ -5530,18 +5584,23 @@ export type PatchedPageLayoutRequest = {
      * Admin display name for this layout.
      */
   title?: string
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
+  translations?: {
+    el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+    }
+    en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+    }
+    de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+    }
+  }
   /**
      * Δημοσιευμένο
      */
@@ -5653,14 +5712,23 @@ export type PatchedProductCategoryWriteRequest = {
     el?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
     en?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
     de?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
   }
   slug?: string
@@ -5669,18 +5737,6 @@ export type PatchedProductCategoryWriteRequest = {
      */
   active?: boolean
   parent?: number | null
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
 }
 
 export type PatchedProductFavouriteWriteRequest = {
@@ -5741,14 +5797,23 @@ export type PatchedProductReviewWriteRequest = {
 export type PatchedProductWriteRequest = {
   translations?: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
@@ -5770,18 +5835,6 @@ export type PatchedProductWriteRequest = {
      * Ποσοστό Έκπτωσης
      */
   discountPercent?: number
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
   /**
      * Ενεργή
      */
@@ -6361,14 +6414,23 @@ export type Product = {
   readonly id: number
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
@@ -6405,18 +6467,6 @@ export type Product = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
      */
@@ -6536,14 +6586,23 @@ export type ProductCategory = {
     el?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
     en?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
     de?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
   }
   slug: string
@@ -6575,14 +6634,23 @@ export type ProductCategoryDetail = {
     el?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
     en?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
     de?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
   }
   slug: string
@@ -6605,18 +6673,6 @@ export type ProductCategoryDetail = {
   readonly uuid: string
   readonly children: Array<ProductCategory>
   readonly recursiveProductCount: number
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
 }
 
 /**
@@ -6766,14 +6822,23 @@ export type ProductCategoryWriteRequest = {
     el?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
     en?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
     de?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
   }
   slug: string
@@ -6782,18 +6847,6 @@ export type ProductCategoryWriteRequest = {
      */
   active?: boolean
   parent?: number | null
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
 }
 
 /**
@@ -6803,14 +6856,23 @@ export type ProductDetail = {
   readonly id: number
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
@@ -6847,18 +6909,6 @@ export type ProductDetail = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
      */
@@ -6906,14 +6956,23 @@ export type ProductDetailResponse = {
   readonly id: number
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
@@ -6950,18 +7009,6 @@ export type ProductDetailResponse = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
      */
@@ -7458,14 +7505,23 @@ export type ProductVariant = {
   readonly id: number
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
@@ -7504,14 +7560,23 @@ export type ProductVariantsResponse = {
 export type ProductWriteRequest = {
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
@@ -7533,18 +7598,6 @@ export type ProductWriteRequest = {
      * Ποσοστό Έκπτωσης
      */
   discountPercent?: number
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
   /**
      * Ενεργή
      */
@@ -9541,16 +9594,25 @@ export type BlogPostWritable = {
   likes: Array<number>
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
@@ -9576,16 +9638,25 @@ export type BlogPostDetailWritable = {
   slug: string
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       subtitle?: string
       body?: string
@@ -9599,18 +9670,6 @@ export type BlogPostDetailWritable = {
      * Δημοσιευμένο
      */
   isPublished?: boolean
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
 }
 
 /**
@@ -9727,14 +9786,23 @@ export type ContentPageWritable = {
   slug: string
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
@@ -9746,20 +9814,30 @@ export type ContentPageWritable = {
 }
 
 /**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ * The detail tier. Its SEO travels in ``translations`` like every
+ * other translated field, so it adds nothing to the list shape.
  */
 export type ContentPageDetailWritable = {
   slug: string
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       title?: string
       body?: string
     }
@@ -9768,18 +9846,6 @@ export type ContentPageDetailWritable = {
      * Δημοσιευμένο
      */
   isPublished?: boolean
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
 }
 
 /**
@@ -10341,6 +10407,13 @@ export type OrderItemRefundResponseWritable = {
   item: OrderItemWritable
 }
 
+/**
+ * The public, per-locale layout (``public_page_config``).
+ *
+ * Page config answers ONE locale per request (see
+ * ``page_config.localization``), so the SEO fields travel as flat
+ * strings resolved for it rather than as a ``translations`` object.
+ */
 export type PageLayoutWritable = {
   /**
      * Identifier for the page (e.g. "home", "products", "blog").
@@ -10353,17 +10426,46 @@ export type PageLayoutWritable = {
      */
   title: string
   /**
-     * Τίτλος SEO
+     * Δημοσιευμένο
      */
-  seoTitle?: string
+  isPublished?: boolean
   /**
-     * Περιγραφή SEO
+     * Μεταδεδομένα
      */
-  seoDescription?: string
+  metadata?: unknown
+}
+
+/**
+ * The staff read of a layout: every language's SEO, not one.
+ */
+export type PageLayoutAdminDetailWritable = {
   /**
-     * Λέξεις-κλειδιά SEO
+     * Identifier for the page (e.g. "home", "products", "blog").
      */
-  seoKeywords?: string
+  pageType: string
+  /**
+     * Τίτλος
+     *
+     * Admin display name for this layout.
+     */
+  title: string
+  translations: {
+    el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+    }
+    en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+    }
+    de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
+    }
+  }
   /**
      * Δημοσιευμένο
      */
@@ -10634,7 +10736,7 @@ export type PaginatedOrderListWritable = {
   results: Array<OrderWritable>
 }
 
-export type PaginatedPageLayoutListWritable = {
+export type PaginatedPageLayoutAdminDetailListWritable = {
   links?: {
     next?: string | null
     previous?: string | null
@@ -10644,7 +10746,7 @@ export type PaginatedPageLayoutListWritable = {
   pageSize?: number
   pageTotalResults?: number
   page?: number
-  results: Array<PageLayoutWritable>
+  results: Array<PageLayoutAdminDetailWritable>
 }
 
 export type PaginatedPayWayListWritable = {
@@ -11003,14 +11105,23 @@ export type PayWayDetailWritable = {
 export type ProductWritable = {
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
@@ -11031,18 +11142,6 @@ export type ProductWritable = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
      */
@@ -11081,14 +11180,23 @@ export type ProductCategoryWritable = {
     el?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
     en?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
     de?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
   }
   slug: string
@@ -11107,14 +11215,23 @@ export type ProductCategoryDetailWritable = {
     el?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
     en?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
     de?: {
       name?: string
       description?: string
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
     }
   }
   slug: string
@@ -11123,18 +11240,6 @@ export type ProductCategoryDetailWritable = {
      */
   active?: boolean
   parent?: number | null
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
 }
 
 /**
@@ -11209,14 +11314,23 @@ export type ProductCategoryImageDetailWritable = {
 export type ProductDetailWritable = {
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
@@ -11237,18 +11351,6 @@ export type ProductDetailWritable = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
      */
@@ -11261,14 +11363,23 @@ export type ProductDetailWritable = {
 export type ProductDetailResponseWritable = {
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
@@ -11289,18 +11400,6 @@ export type ProductDetailResponseWritable = {
     unit?: string
     value?: number
   } | null
-  /**
-     * Τίτλος SEO
-     */
-  seoTitle?: string
-  /**
-     * Περιγραφή SEO
-     */
-  seoDescription?: string
-  /**
-     * Λέξεις-κλειδιά SEO
-     */
-  seoKeywords?: string
   /**
      * Ποσοστό Έκπτωσης
      */
@@ -11435,14 +11534,23 @@ export type ProductReviewDetailWritable = {
 export type ProductVariantWritable = {
   translations: {
     el?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     en?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
     de?: {
+      seoTitle?: string
+      seoDescription?: string
+      seoKeywords?: string
       name?: string
       description?: string
     }
@@ -19428,7 +19536,7 @@ export type ApiV1PageConfigRetrieveData = {
   }
   query?: {
     /**
-         * Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. Unknown or omitted means the store's default language.
+         * Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. A layout's SEO title, description and keywords are resolved for it too, strictly: a locale with no translation answers them empty. Unknown or omitted means the store's default language.
          */
     locale?: string
   }
@@ -19478,13 +19586,13 @@ export type ApiV1PageConfigAdminListData = {
 }
 
 export type ApiV1PageConfigAdminListResponses = {
-  200: PaginatedPageLayoutList
+  200: PaginatedPageLayoutAdminDetailList
 }
 
 export type ApiV1PageConfigAdminListResponse = ApiV1PageConfigAdminListResponses[keyof ApiV1PageConfigAdminListResponses]
 
 export type ApiV1PageConfigAdminCreateData = {
-  body: PageLayoutRequest
+  body: PageLayoutAdminDetailRequest
   path?: never
   query?: {
     /**
@@ -19496,7 +19604,7 @@ export type ApiV1PageConfigAdminCreateData = {
 }
 
 export type ApiV1PageConfigAdminCreateResponses = {
-  201: PageLayout
+  201: PageLayoutAdminDetail
 }
 
 export type ApiV1PageConfigAdminCreateResponse = ApiV1PageConfigAdminCreateResponses[keyof ApiV1PageConfigAdminCreateResponses]
@@ -19534,13 +19642,13 @@ export type ApiV1PageConfigAdminRetrieveData = {
 }
 
 export type ApiV1PageConfigAdminRetrieveResponses = {
-  200: PageLayout
+  200: PageLayoutAdminDetail
 }
 
 export type ApiV1PageConfigAdminRetrieveResponse = ApiV1PageConfigAdminRetrieveResponses[keyof ApiV1PageConfigAdminRetrieveResponses]
 
 export type ApiV1PageConfigAdminPartialUpdateData = {
-  body?: PatchedPageLayoutRequest
+  body?: PatchedPageLayoutAdminDetailRequest
   path: {
     id: string | number
   }
@@ -19554,13 +19662,13 @@ export type ApiV1PageConfigAdminPartialUpdateData = {
 }
 
 export type ApiV1PageConfigAdminPartialUpdateResponses = {
-  200: PageLayout
+  200: PageLayoutAdminDetail
 }
 
 export type ApiV1PageConfigAdminPartialUpdateResponse = ApiV1PageConfigAdminPartialUpdateResponses[keyof ApiV1PageConfigAdminPartialUpdateResponses]
 
 export type ApiV1PageConfigAdminUpdateData = {
-  body: PageLayoutRequest
+  body: PageLayoutAdminDetailRequest
   path: {
     id: string | number
   }
@@ -19574,7 +19682,7 @@ export type ApiV1PageConfigAdminUpdateData = {
 }
 
 export type ApiV1PageConfigAdminUpdateResponses = {
-  200: PageLayout
+  200: PageLayoutAdminDetail
 }
 
 export type ApiV1PageConfigAdminUpdateResponse = ApiV1PageConfigAdminUpdateResponses[keyof ApiV1PageConfigAdminUpdateResponses]
@@ -19584,7 +19692,7 @@ export type ApiV1PageConfigNavigationRetrieveData = {
   path?: never
   query?: {
     /**
-         * Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. Unknown or omitted means the store's default language.
+         * Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. A layout's SEO title, description and keywords are resolved for it too, strictly: a locale with no translation answers them empty. Unknown or omitted means the store's default language.
          */
     locale?: string
   }

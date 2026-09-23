@@ -101,12 +101,12 @@ const pageTitle = computed(() =>
 
 const pageBody = computed(() => transformImages(resolvedBody.value?.value ?? ''))
 
-const pageSeoTitle = computed(() => contentPage.value?.seoTitle || pageTitle.value)
+const pageSeoTitle = computed(() => extractTranslated(contentPage.value, 'seoTitle', documentLocale.value) || pageTitle.value)
 // `undefined`, never '': an empty value still emits
 // `<meta name="description" content>`, which is strictly worse than no
 // tag at all (see blog/category/[id]/[slug].vue).
 const pageSeoDescription = computed(
-  () => contentPage.value?.seoDescription || undefined,
+  () => extractTranslated(contentPage.value, 'seoDescription', documentLocale.value) || undefined,
 )
 
 const items = computed(() => [

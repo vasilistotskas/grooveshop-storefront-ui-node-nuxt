@@ -242,6 +242,26 @@ describe('usePageConfig', () => {
       expect(head.description).toBe('Ποιοι είμαστε, τι κάνουμε και γιατί το κάνουμε.')
     })
 
+    it('applies the SEO Django resolved for the locale it asked for', async () => {
+      // page-config answers ONE locale per request, SEO included, so the
+      // head must carry whatever the request's own ``?locale=`` got back.
+      const byLocale: Record<string, { seoTitle: string, seoDescription: string }> = {
+        el: { seoTitle: 'Σχετικά με εμάς', seoDescription: 'Ποιοι είμαστε.' },
+        en: { seoTitle: 'About us', seoDescription: 'Who we are.' },
+      }
+      let asked = ''
+      mockUseFetchFn.mockImplementation((_url: unknown, options: { query: { locale: { value: string } } }) => {
+        asked = options.query.locale.value
+        return layoutWith(byLocale[asked] ?? { seoTitle: '', seoDescription: '' })
+      })
+
+      const head = await resolvedHead({ title: 'Code default', description: 'Code default description' })
+
+      expect(byLocale[asked]).toBeDefined()
+      expect(head.title).toContain(byLocale[asked]!.seoTitle)
+      expect(head.description).toBe(byLocale[asked]!.seoDescription)
+    })
+
     it('leaves the page defaults in place when the layout carries no SEO', async () => {
       mockUseFetchFn.mockReturnValue(layoutWith({ seoTitle: '', seoDescription: '' }))
 

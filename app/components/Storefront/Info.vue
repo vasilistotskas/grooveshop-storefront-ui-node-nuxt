@@ -101,19 +101,20 @@ const pageTitle = computed(() =>
 
 const pageBody = computed(() => transformImages(resolvedBody.value?.value ?? ''))
 
-const pageSeoTitle = computed(() => contentPage.value?.seoTitle || pageTitle.value)
+// SEO in the language of the document actually shown, like its title.
+const pageSeoTitle = computed(() =>
+  extractTranslated(contentPage.value, 'seoTitle', documentLocale.value)
+  || pageTitle.value,
+)
 // `undefined`, never '': an empty value still emits
 // `<meta name="description" content>`, which is strictly worse than no
 // tag at all (see blog/category/[id]/[slug].vue).
 //
 // The BODY is the fallback, the way a blog post uses its own — a CMS
 // page without an operator's meta description used to get no tag at
-// all, which loses the snippet on every result listing. It is also the
-// only per-locale source there is: `seoDescription` lives on the base
-// row, not on a translation, so a store that fills it in Greek serves
-// that same Greek on `/en`.
+// all, which loses the snippet on every result listing.
 const pageSeoDescription = computed(
-  () => contentPage.value?.seoDescription
+  () => extractTranslated(contentPage.value, 'seoDescription', documentLocale.value)
     || composeMetaDescription([htmlToPlainText(pageBody.value)]),
 )
 

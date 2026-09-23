@@ -86,8 +86,12 @@ export async function usePageConfig(pageType: string) {
   const layout = computed<PageLayout | null>(() => data.value?.layout ?? null)
 
   // The operator's own <title> / meta description for the page
-  // (``PageLayout.seo_title`` / ``seo_description`` — the same
-  // ``SeoModel`` fields ContentPage, Product and BlogPost carry). Every
+  // (``PageLayout``'s translated ``seo_title`` / ``seo_description`` —
+  // the same per-language fields ContentPage, Product and BlogPost
+  // carry). Django resolves them for the ``?locale=`` this request sent
+  // and answers STRICTLY: a locale the operator has not translated
+  // comes back empty rather than borrowing another language's copy, so
+  // "empty" below still means "no tag" on every locale. Every
   // page-config page used to inherit the store-wide description and
   // the home page's title was the bare store name (Ahrefs "Meta
   // description too short" / "Title too short", 2026-09-11).

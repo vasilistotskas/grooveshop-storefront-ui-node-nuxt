@@ -53,7 +53,7 @@ const categoryName = computed(() =>
 // `<meta name="description" content>`, which is strictly worse than no
 // tag at all (see blog/category/[id]/[slug].vue).
 const categoryDescription = computed(() =>
-  category.value?.seoDescription
+  extractTranslated(category.value, 'seoDescription', locale.value)
   || extractTranslated(category.value, 'description', locale.value)
   || undefined,
 )
@@ -93,7 +93,8 @@ const canonicalUrl = computed(
 // category name, which on its own ("Powerbank") is too thin to describe
 // the page in a result listing.
 const categoryDocumentTitle = computed(() => {
-  if (category.value?.seoTitle) return category.value.seoTitle
+  const seoTitle = extractTranslated(category.value, 'seoTitle', locale.value)
+  if (seoTitle) return seoTitle
   return categoryName.value
     ? t('page.title', { name: categoryName.value })
     : t('title')

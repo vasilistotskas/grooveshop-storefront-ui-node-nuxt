@@ -49,6 +49,9 @@ describe('Shared Schemas - Page Config', () => {
         uuid: '550e8400-e29b-41d4-a716-446655440000',
         pageType: 'home',
         title: 'Homepage',
+        seoTitle: '',
+        seoDescription: '',
+        seoKeywords: '',
         isPublished: true,
         metadata: {},
         sections: [
@@ -74,6 +77,9 @@ describe('Shared Schemas - Page Config', () => {
         uuid: '550e8400-e29b-41d4-a716-446655440000',
         pageType: 'blog',
         title: 'Blog',
+        seoTitle: '',
+        seoDescription: '',
+        seoKeywords: '',
         isPublished: true,
         metadata: {},
         sections: [],
@@ -88,6 +94,9 @@ describe('Shared Schemas - Page Config', () => {
         uuid: '550e8400-e29b-41d4-a716-446655440000',
         pageType: 'home',
         title: 'Homepage',
+        seoTitle: '',
+        seoDescription: '',
+        seoKeywords: '',
         isPublished: false,
         metadata: { theme: 'dark', layout: 'wide' },
         sections: [],
@@ -95,6 +104,20 @@ describe('Shared Schemas - Page Config', () => {
       const result = zPageLayout.parse(data)
       expect(result.metadata).toEqual({ theme: 'dark', layout: 'wide' })
       expect(result.isPublished).toBe(false)
+    })
+
+    it('requires the SEO strings Django resolves for the locale', () => {
+      // Always present on the per-locale response: empty means "no tag".
+      const data = {
+        id: 1,
+        uuid: '550e8400-e29b-41d4-a716-446655440000',
+        pageType: 'home',
+        title: 'Homepage',
+        isPublished: true,
+        metadata: {},
+        sections: [],
+      }
+      expect(() => zPageLayout.parse(data)).toThrow()
     })
 
     it('should reject invalid data', () => {

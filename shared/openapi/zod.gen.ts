@@ -364,16 +364,25 @@ export const zBlogPost = z.object({
   likes: z.array(z.int()),
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
@@ -442,16 +451,25 @@ export const zBlogPostMeiliSearchResponse = z.object({
 export const zBlogPostWriteRequest = z.object({
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
@@ -463,9 +481,6 @@ export const zBlogPostWriteRequest = z.object({
   author: z.int(),
   featured: z.boolean().optional(),
   isPublished: z.boolean().optional(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
 })
 
 /**
@@ -937,14 +952,23 @@ export const zContentPage = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
@@ -956,7 +980,8 @@ export const zContentPage = z.object({
 })
 
 /**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ * The detail tier. Its SEO travels in ``translations`` like every
+ * other translated field, so it adds nothing to the list shape.
  */
 export const zContentPageDetail = z.object({
   id: z.int().readonly(),
@@ -964,14 +989,23 @@ export const zContentPageDetail = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
@@ -980,9 +1014,6 @@ export const zContentPageDetail = z.object({
   publishedAt: z.iso.datetime({ offset: true }).readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
 })
 
 /**
@@ -1002,23 +1033,29 @@ export const zContentPageDetail = z.object({
 export const zContentPageWriteRequest = z.object({
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
   isPublished: z.boolean().optional(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
 })
 
 /**
@@ -1759,12 +1796,29 @@ export const zOrderWriteRequest = z.object({
   customerNotes: z.string().optional(),
 })
 
-export const zPageLayoutRequest = z.object({
+/**
+ * The staff read of a layout: every language's SEO, not one.
+ */
+export const zPageLayoutAdminDetailRequest = z.object({
   pageType: z.string().min(1).max(50),
   title: z.string().min(1).max(200),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+    }).optional(),
+  }),
   isPublished: z.boolean().optional(),
   metadata: z.unknown().optional(),
 })
@@ -1779,14 +1833,51 @@ export const zPageSection = z.object({
   sortOrder: z.int().readonly().nullable(),
 })
 
+/**
+ * The public, per-locale layout (``public_page_config``).
+ *
+ * Page config answers ONE locale per request (see
+ * ``page_config.localization``), so the SEO fields travel as flat
+ * strings resolved for it rather than as a ``translations`` object.
+ */
 export const zPageLayout = z.object({
   id: z.int().readonly(),
   uuid: z.uuid().readonly(),
   pageType: z.string().max(50),
   title: z.string().max(200),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
+  seoTitle: z.string().readonly(),
+  seoDescription: z.string().readonly(),
+  seoKeywords: z.string().readonly(),
+  isPublished: z.boolean().optional(),
+  metadata: z.unknown().optional(),
+  sections: z.array(zPageSection).readonly(),
+})
+
+/**
+ * The staff read of a layout: every language's SEO, not one.
+ */
+export const zPageLayoutAdminDetail = z.object({
+  id: z.int().readonly(),
+  uuid: z.uuid().readonly(),
+  pageType: z.string().max(50),
+  title: z.string().max(200),
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+    }).optional(),
+  }),
   isPublished: z.boolean().optional(),
   metadata: z.unknown().optional(),
   sections: z.array(zPageSection).readonly(),
@@ -1955,7 +2046,7 @@ export const zPaginatedOrderItemList = z.object({
   results: z.array(zOrderItem),
 })
 
-export const zPaginatedPageLayoutList = z.object({
+export const zPaginatedPageLayoutAdminDetailList = z.object({
   links: z.object({
     next: z.url().nullish(),
     previous: z.url().nullish(),
@@ -1965,7 +2056,7 @@ export const zPaginatedPageLayoutList = z.object({
   pageSize: z.int().optional(),
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
-  results: z.array(zPageLayout),
+  results: z.array(zPageLayoutAdminDetail),
 })
 
 /**
@@ -2038,16 +2129,25 @@ export const zPatchedBlogCommentWriteRequest = z.object({
 export const zPatchedBlogPostWriteRequest = z.object({
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
@@ -2059,9 +2159,6 @@ export const zPatchedBlogPostWriteRequest = z.object({
   author: z.int().optional(),
   featured: z.boolean().optional(),
   isPublished: z.boolean().optional(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
 })
 
 /**
@@ -2104,23 +2201,29 @@ export const zPatchedCartItemUpdateRequest = z.object({
 export const zPatchedContentPageWriteRequest = z.object({
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
   }).optional(),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
   isPublished: z.boolean().optional(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
 })
 
 /**
@@ -2178,12 +2281,29 @@ export const zPatchedOrderWriteRequest = z.object({
   customerNotes: z.string().optional(),
 })
 
-export const zPatchedPageLayoutRequest = z.object({
+/**
+ * The staff read of a layout: every language's SEO, not one.
+ */
+export const zPatchedPageLayoutAdminDetailRequest = z.object({
   pageType: z.string().min(1).max(50).optional(),
   title: z.string().min(1).max(200).optional(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+    }).optional(),
+  }).optional(),
   isPublished: z.boolean().optional(),
   metadata: z.unknown().optional(),
 })
@@ -2226,22 +2346,28 @@ export const zPatchedProductCategoryWriteRequest = z.object({
     el: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
     de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
   }).optional(),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/).optional(),
   active: z.boolean().optional(),
   parent: z.int().nullish(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
 })
 
 export const zPatchedProductFavouriteWriteRequest = z.object({
@@ -2274,14 +2400,23 @@ export const zPatchedProductImageWriteRequest = z.object({
 export const zPatchedProductWriteRequest = z.object({
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -2297,9 +2432,6 @@ export const zPatchedProductWriteRequest = z.object({
     value: z.number().optional(),
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
   active: z.boolean().optional(),
 })
 
@@ -2618,14 +2750,23 @@ export const zProduct = z.object({
   id: z.int().readonly(),
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -2645,9 +2786,6 @@ export const zProduct = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   priceSavePercent: z.number().readonly(),
@@ -2972,14 +3110,23 @@ export const zProductCategory = z.object({
     el: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
     de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -3015,14 +3162,23 @@ export const zProductCategoryDetail = z.object({
     el: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
     de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -3036,9 +3192,6 @@ export const zProductCategoryDetail = z.object({
   uuid: z.uuid().readonly(),
   children: z.array(zProductCategory).readonly(),
   recursiveProductCount: z.int().readonly(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
 })
 
 /**
@@ -3156,22 +3309,28 @@ export const zProductCategoryWriteRequest = z.object({
     el: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
     de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
   active: z.boolean().optional(),
   parent: z.int().nullish(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
 })
 
 /**
@@ -3181,14 +3340,23 @@ export const zProductDetail = z.object({
   id: z.int().readonly(),
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -3208,9 +3376,6 @@ export const zProductDetail = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   priceSavePercent: z.number().readonly(),
@@ -3235,14 +3400,23 @@ export const zProductDetailResponse = z.object({
   id: z.int().readonly(),
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -3262,9 +3436,6 @@ export const zProductDetailResponse = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
   discountValue: z.number().gt(-1000000000).lt(1000000000).readonly(),
   priceSavePercent: z.number().readonly(),
@@ -3496,14 +3667,23 @@ export const zProductVariant = z.object({
   id: z.int().readonly(),
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -3524,14 +3704,23 @@ export const zProductVariant = z.object({
 export const zProductWriteRequest = z.object({
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -3547,9 +3736,6 @@ export const zProductWriteRequest = z.object({
     value: z.number().optional(),
   }).nullish(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
   active: z.boolean().optional(),
 })
 
@@ -5566,16 +5752,25 @@ export const zBlogPostDetail = z.object({
   likes: z.array(z.int()).readonly(),
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
@@ -5597,9 +5792,6 @@ export const zBlogPostDetail = z.object({
   readingTime: z.int().readonly(),
   contentPreview: z.string().readonly(),
   userHasLiked: z.boolean().readonly(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
 })
 
 export const zPaginatedBlogCommentList = z.object({
@@ -6049,16 +6241,25 @@ export const zBlogPostWritable = z.object({
   likes: z.array(z.int()),
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
@@ -6078,16 +6279,25 @@ export const zBlogPostDetailWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       subtitle: z.string().optional(),
       body: z.string().optional(),
@@ -6095,9 +6305,6 @@ export const zBlogPostDetailWritable = z.object({
   }),
   featured: z.boolean().optional(),
   isPublished: z.boolean().optional(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
 })
 
 /**
@@ -6178,14 +6385,23 @@ export const zContentPageWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
@@ -6194,28 +6410,35 @@ export const zContentPageWritable = z.object({
 })
 
 /**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ * The detail tier. Its SEO travels in ``translations`` like every
+ * other translated field, so it adds nothing to the list shape.
  */
 export const zContentPageDetailWritable = z.object({
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       title: z.string().optional(),
       body: z.string().optional(),
     }).optional(),
   }),
   isPublished: z.boolean().optional(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
 })
 
 /**
@@ -6482,12 +6705,43 @@ export const zOrderItemRefundResponseWritable = z.object({
   item: zOrderItemWritable,
 })
 
+/**
+ * The public, per-locale layout (``public_page_config``).
+ *
+ * Page config answers ONE locale per request (see
+ * ``page_config.localization``), so the SEO fields travel as flat
+ * strings resolved for it rather than as a ``translations`` object.
+ */
 export const zPageLayoutWritable = z.object({
   pageType: z.string().max(50),
   title: z.string().max(200),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
+  isPublished: z.boolean().optional(),
+  metadata: z.unknown().optional(),
+})
+
+/**
+ * The staff read of a layout: every language's SEO, not one.
+ */
+export const zPageLayoutAdminDetailWritable = z.object({
+  pageType: z.string().max(50),
+  title: z.string().max(200),
+  translations: z.object({
+    el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
+    }).optional(),
+  }),
   isPublished: z.boolean().optional(),
   metadata: z.unknown().optional(),
 })
@@ -6746,7 +7000,7 @@ export const zPaginatedOrderListWritable = z.object({
   results: z.array(zOrderWritable),
 })
 
-export const zPaginatedPageLayoutListWritable = z.object({
+export const zPaginatedPageLayoutAdminDetailListWritable = z.object({
   links: z.object({
     next: z.url().nullish(),
     previous: z.url().nullish(),
@@ -6756,7 +7010,7 @@ export const zPaginatedPageLayoutListWritable = z.object({
   pageSize: z.int().optional(),
   pageTotalResults: z.int().optional(),
   page: z.int().optional(),
-  results: z.array(zPageLayoutWritable),
+  results: z.array(zPageLayoutAdminDetailWritable),
 })
 
 export const zPaginatedPointsTransactionListWritable = z.object({
@@ -6872,14 +7126,23 @@ export const zPayWayDetailWritable = z.object({
 export const zProductWritable = z.object({
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -6894,9 +7157,6 @@ export const zProductWritable = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
 })
 
@@ -6955,14 +7215,23 @@ export const zProductCategoryWritable = z.object({
     el: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
     de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
@@ -6991,22 +7260,28 @@ export const zProductCategoryDetailWritable = z.object({
     el: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
     en: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
     de: z.object({
       name: z.string().optional(),
       description: z.string().optional(),
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
     }).optional(),
   }),
   slug: z.string().max(255).regex(/^[-a-zA-Z0-9_]+$/),
   active: z.boolean().optional(),
   parent: z.int().nullish(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
 })
 
 /**
@@ -7076,14 +7351,23 @@ export const zProductCategoryImageDetailWritable = z.object({
 export const zProductDetailWritable = z.object({
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -7098,9 +7382,6 @@ export const zProductDetailWritable = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
 })
 
@@ -7110,14 +7391,23 @@ export const zProductDetailWritable = z.object({
 export const zProductDetailResponseWritable = z.object({
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -7132,9 +7422,6 @@ export const zProductDetailResponseWritable = z.object({
     unit: z.string().optional(),
     value: z.number().optional(),
   }).nullish(),
-  seoTitle: z.string().max(70).optional(),
-  seoDescription: z.string().max(300).optional(),
-  seoKeywords: z.string().max(255).optional(),
   discountPercent: z.number().gt(-1000000000).lt(1000000000).optional(),
 })
 
@@ -7271,14 +7558,23 @@ export const zProductReviewDetailWritable = z.object({
 export const zProductVariantWritable = z.object({
   translations: z.object({
     el: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     en: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
     de: z.object({
+      seoTitle: z.string().optional(),
+      seoDescription: z.string().optional(),
+      seoKeywords: z.string().optional(),
       name: z.string().optional(),
       description: z.string().optional(),
     }).optional(),
@@ -12447,9 +12743,9 @@ export const zApiV1PageConfigAdminListQuery = z.object({
   search: z.string().optional(),
 })
 
-export const zApiV1PageConfigAdminListResponse = zPaginatedPageLayoutList
+export const zApiV1PageConfigAdminListResponse = zPaginatedPageLayoutAdminDetailList
 
-export const zApiV1PageConfigAdminCreateBody = zPageLayoutRequest
+export const zApiV1PageConfigAdminCreateBody = zPageLayoutAdminDetailRequest
 
 export const zApiV1PageConfigAdminCreateQuery = z.object({
   languageCode: z.enum([
@@ -12459,7 +12755,7 @@ export const zApiV1PageConfigAdminCreateQuery = z.object({
   ]).optional().default('el'),
 })
 
-export const zApiV1PageConfigAdminCreateResponse = zPageLayout
+export const zApiV1PageConfigAdminCreateResponse = zPageLayoutAdminDetail
 
 export const zApiV1PageConfigAdminDestroyPath = z.object({
   id: z.union([
@@ -12488,9 +12784,9 @@ export const zApiV1PageConfigAdminRetrieveQuery = z.object({
   ]).optional().default('el'),
 })
 
-export const zApiV1PageConfigAdminRetrieveResponse = zPageLayout
+export const zApiV1PageConfigAdminRetrieveResponse = zPageLayoutAdminDetail
 
-export const zApiV1PageConfigAdminPartialUpdateBody = zPatchedPageLayoutRequest
+export const zApiV1PageConfigAdminPartialUpdateBody = zPatchedPageLayoutAdminDetailRequest
 
 export const zApiV1PageConfigAdminPartialUpdatePath = z.object({
   id: z.union([
@@ -12507,9 +12803,9 @@ export const zApiV1PageConfigAdminPartialUpdateQuery = z.object({
   ]).optional().default('el'),
 })
 
-export const zApiV1PageConfigAdminPartialUpdateResponse = zPageLayout
+export const zApiV1PageConfigAdminPartialUpdateResponse = zPageLayoutAdminDetail
 
-export const zApiV1PageConfigAdminUpdateBody = zPageLayoutRequest
+export const zApiV1PageConfigAdminUpdateBody = zPageLayoutAdminDetailRequest
 
 export const zApiV1PageConfigAdminUpdatePath = z.object({
   id: z.union([
@@ -12526,7 +12822,7 @@ export const zApiV1PageConfigAdminUpdateQuery = z.object({
   ]).optional().default('el'),
 })
 
-export const zApiV1PageConfigAdminUpdateResponse = zPageLayout
+export const zApiV1PageConfigAdminUpdateResponse = zPageLayoutAdminDetail
 
 export const zApiV1PageConfigNavigationRetrieveQuery = z.object({
   locale: z.string().optional(),

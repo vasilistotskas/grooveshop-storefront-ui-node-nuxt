@@ -147,7 +147,7 @@ const blogPostSubtitle = computed(() =>
 
 const blogPostSeoTitle = computed(() => {
   const post = blogPost.value
-  return post?.seoTitle || blogPostTitle.value || ''
+  return extractTranslated(post, 'seoTitle', locale.value) || blogPostTitle.value || ''
 })
 
 // Google appends the site name to a SHORT title and leaves a long one
@@ -185,7 +185,8 @@ const blogPostDocumentTitle = computed(() => {
 // snippet when the attribute is present but blank.
 const blogPostDescription = computed(() => {
   const post = blogPost.value
-  if (post?.seoDescription) return post.seoDescription
+  const seoDescription = extractTranslated(post, 'seoDescription', locale.value)
+  if (seoDescription) return seoDescription
 
   const bodyText = htmlToPlainText(
     extractTranslated(post, 'body', locale.value) ?? '',
@@ -308,7 +309,7 @@ useSeoMeta({
   ogImage: () => ogImage.value,
   ogType: 'article',
   ogUrl: () => canonicalUrl.value,
-  twitterTitle: () => blogPost.value?.seoTitle || blogPostTitle.value,
+  twitterTitle: () => extractTranslated(blogPost.value, 'seoTitle', locale.value) || blogPostTitle.value,
   twitterDescription: () => blogPostDescription.value,
   twitterImage: () => ogImage.value,
   twitterCard: 'summary_large_image',
@@ -345,8 +346,8 @@ useSchemaOrg([
   }),
   defineArticle({
     author: { '@id': '#author' },
-    keywords: blogPost.value?.seoKeywords ? [blogPost.value?.seoKeywords] : undefined,
-    headline: () => blogPost.value?.seoTitle || blogPostTitle.value,
+    keywords: extractTranslated(blogPost.value, 'seoKeywords', locale.value) ? [extractTranslated(blogPost.value, 'seoKeywords', locale.value)] : undefined,
+    headline: () => extractTranslated(blogPost.value, 'seoTitle', locale.value) || blogPostTitle.value,
     description: () => blogPostDescription.value,
     image: () => ogImage.value || undefined,
     datePublished: () => blogPost.value?.publishedAt || undefined,

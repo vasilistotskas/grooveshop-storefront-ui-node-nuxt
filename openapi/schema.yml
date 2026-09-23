@@ -16396,7 +16396,7 @@ paths:
           name: locale
           schema:
             type: string
-          description: Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. Unknown or omitted means the store's default language.
+          description: 'Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. A layout''s SEO title, description and keywords are resolved for it too, strictly: a locale with no translation answers them empty. Unknown or omitted means the store''s default language.'
         - in: path
           name: pageType
           schema:
@@ -16484,7 +16484,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedPageLayoutList'
+                $ref: '#/components/schemas/PaginatedPageLayoutAdminDetailList'
           description: ''
     post:
       operationId: api_v1_page_config_admin_create
@@ -16505,13 +16505,13 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PageLayoutRequest'
+              $ref: '#/components/schemas/PageLayoutAdminDetailRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PageLayoutRequest'
+              $ref: '#/components/schemas/PageLayoutAdminDetailRequest'
           application/json:
             schema:
-              $ref: '#/components/schemas/PageLayoutRequest'
+              $ref: '#/components/schemas/PageLayoutAdminDetailRequest'
         required: true
       security:
         - cookieAuth: []
@@ -16520,7 +16520,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PageLayout'
+                $ref: '#/components/schemas/PageLayoutAdminDetail'
           description: ''
   /api/v1/page-config/admin/{id}:
     get:
@@ -16553,7 +16553,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PageLayout'
+                $ref: '#/components/schemas/PageLayoutAdminDetail'
           description: ''
     put:
       operationId: api_v1_page_config_admin_update
@@ -16582,13 +16582,13 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PageLayoutRequest'
+              $ref: '#/components/schemas/PageLayoutAdminDetailRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PageLayoutRequest'
+              $ref: '#/components/schemas/PageLayoutAdminDetailRequest'
           application/json:
             schema:
-              $ref: '#/components/schemas/PageLayoutRequest'
+              $ref: '#/components/schemas/PageLayoutAdminDetailRequest'
         required: true
       security:
         - cookieAuth: []
@@ -16597,7 +16597,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PageLayout'
+                $ref: '#/components/schemas/PageLayoutAdminDetail'
           description: ''
     patch:
       operationId: api_v1_page_config_admin_partial_update
@@ -16626,13 +16626,13 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedPageLayoutRequest'
+              $ref: '#/components/schemas/PatchedPageLayoutAdminDetailRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedPageLayoutRequest'
+              $ref: '#/components/schemas/PatchedPageLayoutAdminDetailRequest'
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedPageLayoutRequest'
+              $ref: '#/components/schemas/PatchedPageLayoutAdminDetailRequest'
       security:
         - cookieAuth: []
       responses:
@@ -16640,7 +16640,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PageLayout'
+                $ref: '#/components/schemas/PageLayoutAdminDetail'
           description: ''
     delete:
       operationId: api_v1_page_config_admin_destroy
@@ -16677,7 +16677,7 @@ paths:
           name: locale
           schema:
             type: string
-          description: Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. Unknown or omitted means the store's default language.
+          description: 'Language to answer operator-authored copy in. Section titles, section props and navigation labels are JSON held per store, not parler translations, so they are resolved here rather than shipped per locale. A layout''s SEO title, description and keywords are resolved for it too, strictly: a locale with no translation answers them empty. Unknown or omitted means the store''s default language.'
       tags:
         - Page Config
       security:
@@ -32848,6 +32848,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 subtitle:
@@ -32857,6 +32863,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 subtitle:
@@ -32866,6 +32878,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 subtitle:
@@ -32972,6 +32990,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 subtitle:
@@ -32981,6 +33005,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 subtitle:
@@ -32990,6 +33020,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 subtitle:
@@ -33059,18 +33095,6 @@ components:
         userHasLiked:
           type: boolean
           readOnly: true
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
       required:
         - author
         - category
@@ -33196,6 +33220,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 subtitle:
@@ -33205,6 +33235,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 subtitle:
@@ -33214,6 +33250,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 subtitle:
@@ -33239,18 +33281,6 @@ components:
         isPublished:
           type: boolean
           title: Δημοσιευμένο
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
       required:
         - author
         - category
@@ -35478,6 +35508,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 body:
@@ -35485,6 +35521,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 body:
@@ -35492,6 +35534,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 body:
@@ -35525,7 +35573,9 @@ components:
         - uuid
     ContentPageDetail:
       type: object
-      description: Serializer that saves :class:`TranslatedFieldsField` automatically.
+      description: |-
+        The detail tier. Its SEO travels in ``translations`` like every
+        other translated field, so it adds nothing to the list shape.
       properties:
         id:
           type: integer
@@ -35544,6 +35594,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 body:
@@ -35551,6 +35607,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 body:
@@ -35558,6 +35620,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 body:
@@ -35581,18 +35649,6 @@ components:
           format: date-time
           readOnly: true
           title: Ενημερώθηκε στις
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
       required:
         - createdAt
         - id
@@ -35623,6 +35679,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 body:
@@ -35630,6 +35692,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 body:
@@ -35637,6 +35705,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 body:
@@ -35649,18 +35723,6 @@ components:
         isPublished:
           type: boolean
           title: Δημοσιευμένο
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
       required:
         - slug
         - translations
@@ -38655,6 +38717,12 @@ components:
         - zipcode
     PageLayout:
       type: object
+      description: |-
+        The public, per-locale layout (``public_page_config``).
+
+        Page config answers ONE locale per request (see
+        ``page_config.localization``), so the SEO fields travel as flat
+        strings resolved for it rather than as a ``translations`` object.
       properties:
         id:
           type: integer
@@ -38674,16 +38742,82 @@ components:
           maxLength: 200
         seoTitle:
           type: string
-          title: Τίτλος SEO
-          maxLength: 70
+          readOnly: true
         seoDescription:
           type: string
-          title: Περιγραφή SEO
-          maxLength: 300
+          readOnly: true
         seoKeywords:
           type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
+          readOnly: true
+        isPublished:
+          type: boolean
+          title: Δημοσιευμένο
+        metadata:
+          title: Μεταδεδομένα
+        sections:
+          type: array
+          items:
+            $ref: '#/components/schemas/PageSection'
+          readOnly: true
+      required:
+        - id
+        - pageType
+        - sections
+        - seoDescription
+        - seoKeywords
+        - seoTitle
+        - title
+        - uuid
+    PageLayoutAdminDetail:
+      type: object
+      description: 'The staff read of a layout: every language''s SEO, not one.'
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        uuid:
+          type: string
+          format: uuid
+          readOnly: true
+        pageType:
+          type: string
+          description: Identifier for the page (e.g. "home", "products", "blog").
+          maxLength: 50
+        title:
+          type: string
+          title: Τίτλος
+          description: Admin display name for this layout.
+          maxLength: 200
+        translations:
+          type: object
+          properties:
+            el:
+              type: object
+              properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
+            en:
+              type: object
+              properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
+            de:
+              type: object
+              properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -38699,9 +38833,11 @@ components:
         - pageType
         - sections
         - title
+        - translations
         - uuid
-    PageLayoutRequest:
+    PageLayoutAdminDetailRequest:
       type: object
+      description: 'The staff read of a layout: every language''s SEO, not one.'
       properties:
         pageType:
           type: string
@@ -38714,18 +38850,36 @@ components:
           title: Τίτλος
           description: Admin display name for this layout.
           maxLength: 200
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
+        translations:
+          type: object
+          properties:
+            el:
+              type: object
+              properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
+            en:
+              type: object
+              properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
+            de:
+              type: object
+              properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -38734,6 +38888,7 @@ components:
       required:
         - pageType
         - title
+        - translations
     PageSection:
       type: object
       properties:
@@ -39539,7 +39694,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Order'
-    PaginatedPageLayoutList:
+    PaginatedPageLayoutAdminDetailList:
       type: object
       required:
         - count
@@ -39576,7 +39731,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/PageLayout'
+            $ref: '#/components/schemas/PageLayoutAdminDetail'
     PaginatedPayWayList:
       type: object
       required:
@@ -40333,6 +40488,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 subtitle:
@@ -40342,6 +40503,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 subtitle:
@@ -40351,6 +40518,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 subtitle:
@@ -40376,18 +40549,6 @@ components:
         isPublished:
           type: boolean
           title: Δημοσιευμένο
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
     PatchedBlogTagWriteRequest:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -40448,6 +40609,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 body:
@@ -40455,6 +40622,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 body:
@@ -40462,6 +40635,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 title:
                   type: string
                 body:
@@ -40474,18 +40653,6 @@ components:
         isPublished:
           type: boolean
           title: Δημοσιευμένο
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
     PatchedCountryWriteRequest:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -40632,8 +40799,9 @@ components:
         customerNotes:
           type: string
           title: Σημειώσεις Πελάτη
-    PatchedPageLayoutRequest:
+    PatchedPageLayoutAdminDetailRequest:
       type: object
+      description: 'The staff read of a layout: every language''s SEO, not one.'
       properties:
         pageType:
           type: string
@@ -40646,18 +40814,36 @@ components:
           title: Τίτλος
           description: Admin display name for this layout.
           maxLength: 200
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
+        translations:
+          type: object
+          properties:
+            el:
+              type: object
+              properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
+            en:
+              type: object
+              properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
+            de:
+              type: object
+              properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
         isPublished:
           type: boolean
           title: Δημοσιευμένο
@@ -40805,6 +40991,12 @@ components:
                   type: string
                 description:
                   type: string
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
             en:
               type: object
               properties:
@@ -40812,12 +41004,24 @@ components:
                   type: string
                 description:
                   type: string
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
             de:
               type: object
               properties:
                 name:
                   type: string
                 description:
+                  type: string
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
                   type: string
         slug:
           type: string
@@ -40830,18 +41034,6 @@ components:
         parent:
           type: integer
           nullable: true
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
     PatchedProductFavouriteWriteRequest:
       type: object
       properties:
@@ -40918,6 +41110,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -40925,6 +41123,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -40932,6 +41136,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -40980,18 +41190,6 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           title: Ποσοστό Έκπτωσης
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
         active:
           type: boolean
           title: Ενεργή
@@ -41809,6 +42007,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -41816,6 +42020,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -41823,6 +42033,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -41884,18 +42100,6 @@ components:
             unit: kg
             value: 1
           nullable: true
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
         discountPercent:
           type: number
           format: double
@@ -42164,6 +42368,12 @@ components:
                   type: string
                 description:
                   type: string
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
             en:
               type: object
               properties:
@@ -42171,12 +42381,24 @@ components:
                   type: string
                 description:
                   type: string
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
             de:
               type: object
               properties:
                 name:
                   type: string
                 description:
+                  type: string
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
                   type: string
         slug:
           type: string
@@ -42238,6 +42460,12 @@ components:
                   type: string
                 description:
                   type: string
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
             en:
               type: object
               properties:
@@ -42245,12 +42473,24 @@ components:
                   type: string
                 description:
                   type: string
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
             de:
               type: object
               properties:
                 name:
                   type: string
                 description:
+                  type: string
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
                   type: string
         slug:
           type: string
@@ -42293,18 +42533,6 @@ components:
         recursiveProductCount:
           type: integer
           readOnly: true
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
       required:
         - children
         - createdAt
@@ -42560,6 +42788,12 @@ components:
                   type: string
                 description:
                   type: string
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
             en:
               type: object
               properties:
@@ -42567,12 +42801,24 @@ components:
                   type: string
                 description:
                   type: string
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
             de:
               type: object
               properties:
                 name:
                   type: string
                 description:
+                  type: string
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
                   type: string
         slug:
           type: string
@@ -42585,18 +42831,6 @@ components:
         parent:
           type: integer
           nullable: true
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
       required:
         - slug
         - translations
@@ -42613,6 +42847,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -42620,6 +42860,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -42627,6 +42873,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -42688,18 +42940,6 @@ components:
             unit: kg
             value: 1
           nullable: true
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
         discountPercent:
           type: number
           format: double
@@ -42818,6 +43058,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -42825,6 +43071,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -42832,6 +43084,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -42893,18 +43151,6 @@ components:
             unit: kg
             value: 1
           nullable: true
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
         discountPercent:
           type: number
           format: double
@@ -43853,6 +44099,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -43860,6 +44112,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -43867,6 +44125,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -43954,6 +44218,12 @@ components:
             el:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -43961,6 +44231,12 @@ components:
             en:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -43968,6 +44244,12 @@ components:
             de:
               type: object
               properties:
+                seoTitle:
+                  type: string
+                seoDescription:
+                  type: string
+                seoKeywords:
+                  type: string
                 name:
                   type: string
                 description:
@@ -44016,18 +44298,6 @@ components:
           exclusiveMaximum: true
           exclusiveMinimum: true
           title: Ποσοστό Έκπτωσης
-        seoTitle:
-          type: string
-          title: Τίτλος SEO
-          maxLength: 70
-        seoDescription:
-          type: string
-          title: Περιγραφή SEO
-          maxLength: 300
-        seoKeywords:
-          type: string
-          title: Λέξεις-κλειδιά SEO
-          maxLength: 255
         active:
           type: boolean
           title: Ενεργή

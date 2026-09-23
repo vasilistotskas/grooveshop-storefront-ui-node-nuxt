@@ -19,8 +19,11 @@ function normalizeErrorStatus(upstreamStatus: number): number {
   return upstreamStatus >= 500 ? 503 : 404
 }
 
-function resolveSeoTitle(seoTitleField: string | undefined, translatedTitle: string): string {
-  return seoTitleField || translatedTitle
+type SeoTranslations = { translations: Record<string, { seoTitle?: string }> }
+
+// The SEO title is a translated field, read in the document's language.
+function resolveSeoTitle(page: SeoTranslations, locale: string, translatedTitle: string): string {
+  return extractTranslated(page, 'seoTitle', locale) || translatedTitle
 }
 
 describe('info/[slug].vue — 404/503 decision', () => {
@@ -51,12 +54,21 @@ describe('info/[slug].vue — upstream status normalization', () => {
 })
 
 describe('info/[slug].vue — SEO title fallback', () => {
-  it('prefers the ContentPage seoTitle when present', () => {
-    expect(resolveSeoTitle('Custom SEO Title', 'Page Title')).toBe('Custom SEO Title')
+  const page: SeoTranslations = {
+    translations: {
+      el: { seoTitle: 'Όροι Χρήσης | Κατάστημα' },
+      en: { seoTitle: 'Terms of Use | Store' },
+      de: { seoTitle: '' },
+    },
+  }
+
+  it('prefers the ContentPage seoTitle of the requested language', () => {
+    expect(resolveSeoTitle(page, 'el', 'Page Title')).toBe('Όροι Χρήσης | Κατάστημα')
+    expect(resolveSeoTitle(page, 'en', 'Page Title')).toBe('Terms of Use | Store')
   })
 
-  it('falls back to the translated title when seoTitle is empty or absent', () => {
-    expect(resolveSeoTitle('', 'Page Title')).toBe('Page Title')
-    expect(resolveSeoTitle(undefined, 'Page Title')).toBe('Page Title')
+  it('falls back to the translated title when that language has no seoTitle', () => {
+    expect(resolveSeoTitle(page, 'de', 'Page Title')).toBe('Page Title')
+    expect(resolveSeoTitle({ translations: {} }, 'en', 'Page Title')).toBe('Page Title')
   })
 })

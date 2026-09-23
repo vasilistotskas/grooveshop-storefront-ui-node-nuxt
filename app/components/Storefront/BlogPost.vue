@@ -145,10 +145,15 @@ const blogPostSubtitle = computed(() =>
   extractTranslated(blogPost.value, 'subtitle', locale.value) ?? '',
 )
 
-const blogPostSeoTitle = computed(() => {
-  const post = blogPost.value
-  return post?.seoTitle || blogPostTitle.value || ''
-})
+const blogPostSeoKeywords = computed(() =>
+  extractTranslated(blogPost.value, 'seoKeywords', locale.value) ?? '',
+)
+
+const blogPostSeoTitle = computed(() =>
+  extractTranslated(blogPost.value, 'seoTitle', locale.value)
+  || blogPostTitle.value
+  || '',
+)
 
 // Google appends the site name to a SHORT title and leaves a long one
 // alone — which is exactly why only the three shortest posts were
@@ -185,7 +190,8 @@ const blogPostDocumentTitle = computed(() => {
 // snippet when the attribute is present but blank.
 const blogPostDescription = computed(() => {
   const post = blogPost.value
-  if (post?.seoDescription) return post.seoDescription
+  const seoDescription = extractTranslated(post, 'seoDescription', locale.value)
+  if (seoDescription) return seoDescription
 
   const bodyText = htmlToPlainText(
     extractTranslated(post, 'body', locale.value) ?? '',
@@ -308,7 +314,7 @@ useSeoMeta({
   ogImage: () => ogImage.value,
   ogType: 'article',
   ogUrl: () => canonicalUrl.value,
-  twitterTitle: () => blogPost.value?.seoTitle || blogPostTitle.value,
+  twitterTitle: () => blogPostSeoTitle.value,
   twitterDescription: () => blogPostDescription.value,
   twitterImage: () => ogImage.value,
   twitterCard: 'summary_large_image',
@@ -345,8 +351,8 @@ useSchemaOrg([
   }),
   defineArticle({
     author: { '@id': '#author' },
-    keywords: blogPost.value?.seoKeywords ? [blogPost.value?.seoKeywords] : undefined,
-    headline: () => blogPost.value?.seoTitle || blogPostTitle.value,
+    keywords: blogPostSeoKeywords.value ? [blogPostSeoKeywords.value] : undefined,
+    headline: () => blogPostSeoTitle.value,
     description: () => blogPostDescription.value,
     image: () => ogImage.value || undefined,
     datePublished: () => blogPost.value?.publishedAt || undefined,

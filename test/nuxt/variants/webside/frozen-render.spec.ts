@@ -84,9 +84,6 @@ const PRODUCT = {
   lowStockThreshold: 10,
   active: true,
   weight: { unit: 'g', value: 120 },
-  seoTitle: '',
-  seoDescription: '',
-  seoKeywords: '',
   discountPercent: 10,
   discountValue: 1.49,
   priceSavePercent: 10,
@@ -121,9 +118,6 @@ const POST = {
   publishedAt: '2026-09-01T09:00:00Z',
   createdAt: '2026-09-01T09:00:00Z',
   updatedAt: '2026-09-01T09:00:00Z',
-  seoTitle: '',
-  seoDescription: '',
-  seoKeywords: '',
 } as unknown as BlogPost
 
 /**

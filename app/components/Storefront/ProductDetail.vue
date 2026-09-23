@@ -320,7 +320,7 @@ const wasPrice = computed(() => {
  * `extractTranslated` answers only "is there a translation in THIS
  * locale", and a product that has not been translated yet returned
  * `undefined` — which rendered an EMPTY `<h1>` while the `<title>` tag,
- * which falls back to `seoTitle`, carried the name. That is a page with
+ * which falls back to the SEO title, carried the name. That is a page with
  * no heading, and it happens to every product the day a store turns on
  * a second locale.
  */
@@ -328,7 +328,7 @@ const productName = computed(() =>
   resolveTranslated(product.value, 'name', locale.value, [
     tenantStore.defaultLocale,
   ])?.value
-  || product.value?.seoTitle
+  || extractTranslated(product.value, 'seoTitle', locale.value)
   || '',
 )
 
@@ -350,14 +350,14 @@ const openModal = () => {
 
 const productTitle = computed(() => {
   return capitalize(
-    product.value?.seoTitle
+    extractTranslated(product.value, 'seoTitle', locale.value)
     || extractTranslated(product?.value, 'name', locale.value)
     || '',
   )
 })
 
 const productDescription = computed(() => {
-  const seoDesc = product.value?.seoDescription
+  const seoDesc = extractTranslated(product.value, 'seoDescription', locale.value)
   if (seoDesc) return seoDesc
 
   const rawDescription = extractTranslated(product?.value, 'description', locale.value) || ''
@@ -583,7 +583,8 @@ useHead({
   meta: [
     {
       name: 'keywords',
-      content: product.value?.seoKeywords || productTitle.value,
+      content: extractTranslated(product.value, 'seoKeywords', locale.value)
+        || productTitle.value,
     },
   ],
 })
