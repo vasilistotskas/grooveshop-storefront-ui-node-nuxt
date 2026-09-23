@@ -1,3 +1,16 @@
+# [3.207.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.206.0...v3.207.0) (2026-09-23)
+
+
+### Bug Fixes
+
+* **blog:** lay the like count beside its icon, as the comment count is ([99d59e4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/99d59e49bb7a05eec24db064abd0349d6912c463))
+
+
+### Features
+
+* **seo:** AI Catalog discovery for the MCP Server Card ([48c8c7c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/48c8c7ce9ce93817ae9d77e8adefe0287e4c3be3))
+* **seo:** read SEO fields from the per-language translations ([ef9b2cd](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ef9b2cd5455c7c0d08db6435eb434086cd0953f7))
+
 # [3.206.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.205.3...v3.206.0) (2026-09-23)
 
 
