@@ -153,10 +153,14 @@ const startShare = async () => {
 
       <!-- Above the stretched link, so each control is its own target. -->
       <div class="relative z-10 mt-auto flex items-center gap-4 pt-3">
+        <!-- In a row, like the comment count beside it: the button's
+             default stacks its count under the icon, which suits the
+             post page's toolbar, not a card's footer. -->
         <ButtonBlogPostLike
           :blog-post-id="post.id"
           :likes-count="likesCount"
           size="sm"
+          :ui="{ base: 'flex-row gap-1.5' }"
           @update="onLike"
         />
         <UButton
