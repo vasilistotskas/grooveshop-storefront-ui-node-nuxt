@@ -1,0 +1,14 @@
+# Authored on Windows, built and served from Linux. Store and check out LF so
+# core.autocrlf=true never shows line-ending-only changes as modifications.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+*.zip binary
