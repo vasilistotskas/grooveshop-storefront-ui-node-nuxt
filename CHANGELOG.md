@@ -1,3 +1,23 @@
+# [3.206.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.205.3...v3.206.0) (2026-09-23)
+
+
+### Bug Fixes
+
+* **a11y:** a valid stats list, and names that match what buttons show ([9e7cdb6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/9e7cdb66288f3f26e9b31dd58e369e4a79aae98e))
+* **blog:** one post card at every width, whose images actually load ([192f34c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/192f34cc39b022e731666977b87a3e447a554ba6))
+* **i18n:** keep the locale on product links and search results ([972ff80](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/972ff803f12665f517fcede9e95df18da0f9da38))
+* **server:** send the visitor's IP and proof of edge on every backend call ([46810bf](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/46810bf8e70aea61e13834300f598d6140cfcebd))
+
+
+### Features
+
+* **home:** testimonials as quotations, and a coupon's tear line on offers ([4649590](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/46495906d87990d5f1887d0697d3f3b0a061d7a7))
+
+
+### Performance Improvements
+
+* **hero:** size the hero photo with srcset, and preload it at high priority ([91fa488](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/91fa488ea37cf797c3eff7c767119095482f54e7))
+
 ## [3.205.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.205.2...v3.205.3) (2026-09-22)
 
 
