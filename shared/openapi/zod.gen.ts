@@ -916,11 +916,6 @@ export const zConfirmResponse = z.object({
   topic: z.string().optional(),
 })
 
-export const zConfirmResponseRequest = z.object({
-  status: z.string().min(1),
-  topic: z.string().min(1).optional(),
-})
-
 export const zContactWrite = z.object({
   id: z.int().readonly(),
   name: z.string().max(100),
@@ -1570,6 +1565,23 @@ export const zMerchantLegalIdentity = z.object({
   isComplete: z.boolean().readonly(),
 })
 
+export const zNewsletterAvailability = z.object({
+  available: z.boolean().readonly(),
+})
+
+/**
+ * The storefront newsletter form.
+ *
+ * ``consent_text`` is the consent sentence exactly as the visitor saw
+ * it, in the language it was shown. The storefront server supplies it
+ * from its own messages; it is stored verbatim as the consent record.
+ */
+export const zNewsletterSubscribeRequest = z.object({
+  email: z.email().min(1).max(254),
+  consent: z.boolean(),
+  consentText: z.string().min(1).max(500),
+})
+
 /**
  * * `ORDER` - Παραγγελία
  * * `PAYMENT` - Πληρωμή
@@ -1580,7 +1592,7 @@ export const zMerchantLegalIdentity = z.object({
  * * `SECURITY` - Ασφάλεια
  * * `PROMOTION` - Προσφορά
  * * `SYSTEM` - Σύστημα
- * * `REVIEW` - Εξέταση
+ * * `REVIEW` - Κριτική
  * * `WISHLIST` - Λίστα επιθυμιών
  * * `SUPPORT` - Υποστήριξη
  * * `NEWSLETTER` - Newsletter
@@ -4891,7 +4903,7 @@ export const zTopQuery = z.object({
 /**
  * * `MARKETING` - Καμπάνιες marketing
  * * `PRODUCT` - Ενημερώσεις προϊόντων
- * * `ACCOUNT` - Λογαριασμός Ανενεργός
+ * * `ACCOUNT` - Ενημερώσεις λογαριασμού
  * * `SYSTEM` - Ειδοποιήσεις Συστήματος
  * * `NEWSLETTER` - Newsletter
  * * `PROMOTIONAL` - Προωθητικό
@@ -5186,8 +5198,8 @@ export const zCartCoupon = z.object({
 /**
  * * `apm` - APM
  * * `any_apm` - Οποιοδήποτε APM
- * * `warehouse` - Αποθήκη
- * * `depot` - Αποθήκη
+ * * `warehouse` - Αποθήκη (warehouse)
+ * * `depot` - Κέντρο διανομής (depot)
  */
 export const zTypeEnum = z.enum([
   'apm',
@@ -5876,7 +5888,7 @@ export const zProductReviewDetail = z.object({
 
 export const zUserSubscription = z.object({
   id: z.int().readonly(),
-  user: z.int().readonly(),
+  user: z.int().readonly().nullable(),
   topic: z.int(),
   topicDetails: zSubscriptionTopic,
   status: zSubscriptionStatus.optional(),
@@ -5902,7 +5914,7 @@ export const zPaginatedUserSubscriptionList = z.object({
 
 export const zUserSubscriptionDetail = z.object({
   id: z.int().readonly(),
-  user: z.int().readonly(),
+  user: z.int().readonly().nullable(),
   topic: z.int(),
   topicDetails: zSubscriptionTopic,
   status: zSubscriptionStatus.optional(),
@@ -16624,13 +16636,11 @@ export const zConfirmSubscriptionByTokenPath = z.object({
 
 export const zConfirmSubscriptionByTokenResponse = zConfirmResponse
 
-export const zApiV1UserSubscriptionConfirmCreateBody = zConfirmResponseRequest
+export const zGetNewsletterAvailabilityResponse = zNewsletterAvailability
 
-export const zApiV1UserSubscriptionConfirmCreatePath = z.object({
-  token: z.string(),
-})
+export const zSubscribeToNewsletterBody = zNewsletterSubscribeRequest
 
-export const zApiV1UserSubscriptionConfirmCreateResponse = zConfirmResponse
+export const zSubscribeToNewsletterResponse = zDetail
 
 export const zListSubscriptionTopicQuery = z.object({
   category: z.enum([

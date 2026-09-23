@@ -2552,11 +2552,6 @@ export type ConfirmResponse = {
   topic?: string
 }
 
-export type ConfirmResponseRequest = {
-  status: string
-  topic?: string
-}
-
 /**
  * One file uploaded for a contact enquiry to claim.
  */
@@ -3596,6 +3591,32 @@ export type NavigationMenuRequest = {
   slot: SlotEnum
 }
 
+export type NewsletterAvailability = {
+  /**
+     * Αν το κατάστημα έχει προεπιλεγμένο θέμα ενημερωτικού δελτίου στο οποίο μπορεί να εγγράψει η φόρμα.
+     */
+  readonly available: boolean
+}
+
+/**
+ * The storefront newsletter form.
+ *
+ * ``consent_text`` is the consent sentence exactly as the visitor saw
+ * it, in the language it was shown. The storefront server supplies it
+ * from its own messages; it is stored verbatim as the consent record.
+ */
+export type NewsletterSubscribeRequest = {
+  email: string
+  /**
+     * Ο επισκέπτης επέλεξε το πλαίσιο συγκατάθεσης. Πρέπει να είναι true.
+     */
+  consent: boolean
+  /**
+     * Η ακριβής φράση συγκατάθεσης που είδε ο επισκέπτης.
+     */
+  consentText: string
+}
+
 /**
  * Serializer that saves :class:`TranslatedFieldsField` automatically.
  */
@@ -3680,7 +3701,7 @@ export type Notification = {
  * * `SECURITY` - Ασφάλεια
  * * `PROMOTION` - Προσφορά
  * * `SYSTEM` - Σύστημα
- * * `REVIEW` - Εξέταση
+ * * `REVIEW` - Κριτική
  * * `WISHLIST` - Λίστα επιθυμιών
  * * `SUPPORT` - Υποστήριξη
  * * `NEWSLETTER` - Newsletter
@@ -5775,7 +5796,7 @@ export type PatchedProductImageWriteRequest = {
 export type PatchedProductReviewWriteRequest = {
   product?: number
   /**
-     * Συντ.
+     * Βαθμολογία
      */
   rate?: RateEnum
   translations?: {
@@ -5895,7 +5916,7 @@ export type PatchedSubscriptionTopicWriteRequest = {
      *
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
-     * * `ACCOUNT` - Λογαριασμός Ανενεργός
+     * * `ACCOUNT` - Ενημερώσεις λογαριασμού
      * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
@@ -5911,7 +5932,7 @@ export type PatchedSubscriptionTopicWriteRequest = {
   /**
      * Προεπιλεγμένη συνδρομή
      *
-     * Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
+     * Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη.
      */
   isDefault?: boolean
   /**
@@ -7392,7 +7413,7 @@ export type ProductReview = {
   product: ProductBrief
   user: UserPublic
   /**
-     * Συντ.
+     * Βαθμολογία
      */
   rate: RateEnum
   /**
@@ -7437,7 +7458,7 @@ export type ProductReviewDetail = {
   product: Product
   user: UserPublic
   /**
-     * Συντ.
+     * Βαθμολογία
      */
   rate: RateEnum
   /**
@@ -7480,7 +7501,7 @@ export type ProductReviewDetail = {
 export type ProductReviewWriteRequest = {
   product: number
   /**
-     * Συντ.
+     * Βαθμολογία
      */
   rate: RateEnum
   translations: {
@@ -8316,7 +8337,7 @@ export type SubscriptionTopic = {
      *
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
-     * * `ACCOUNT` - Λογαριασμός Ανενεργός
+     * * `ACCOUNT` - Ενημερώσεις λογαριασμού
      * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
@@ -8332,7 +8353,7 @@ export type SubscriptionTopic = {
   /**
      * Προεπιλεγμένη συνδρομή
      *
-     * Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
+     * Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη.
      */
   isDefault?: boolean
   /**
@@ -8375,7 +8396,7 @@ export type SubscriptionTopicDetail = {
      *
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
-     * * `ACCOUNT` - Λογαριασμός Ανενεργός
+     * * `ACCOUNT` - Ενημερώσεις λογαριασμού
      * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
@@ -8391,7 +8412,7 @@ export type SubscriptionTopicDetail = {
   /**
      * Προεπιλεγμένη συνδρομή
      *
-     * Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
+     * Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη.
      */
   isDefault?: boolean
   /**
@@ -8440,7 +8461,7 @@ export type SubscriptionTopicWriteRequest = {
      *
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
-     * * `ACCOUNT` - Λογαριασμός Ανενεργός
+     * * `ACCOUNT` - Ενημερώσεις λογαριασμού
      * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
@@ -8456,7 +8477,7 @@ export type SubscriptionTopicWriteRequest = {
   /**
      * Προεπιλεγμένη συνδρομή
      *
-     * Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
+     * Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη.
      */
   isDefault?: boolean
   /**
@@ -8748,7 +8769,7 @@ export type TopQuery = {
 /**
  * * `MARKETING` - Καμπάνιες marketing
  * * `PRODUCT` - Ενημερώσεις προϊόντων
- * * `ACCOUNT` - Λογαριασμός Ανενεργός
+ * * `ACCOUNT` - Ενημερώσεις λογαριασμού
  * * `SYSTEM` - Ειδοποιήσεις Συστήματος
  * * `NEWSLETTER` - Newsletter
  * * `PROMOTIONAL` - Προωθητικό
@@ -8811,8 +8832,8 @@ export type TriggerEnum = 'AUTOMATIC' | 'CODE'
 /**
  * * `apm` - APM
  * * `any_apm` - Οποιοδήποτε APM
- * * `warehouse` - Αποθήκη
- * * `depot` - Αποθήκη
+ * * `warehouse` - Αποθήκη (warehouse)
+ * * `depot` - Κέντρο διανομής (depot)
  */
 export type TypeEnum = 'apm' | 'any_apm' | 'warehouse' | 'depot'
 
@@ -9179,7 +9200,7 @@ export type UserSubscription = {
   /**
      * Χρήστης
      */
-  readonly user: number
+  readonly user: number | null
   topic: number
   topicDetails: SubscriptionTopic
   /**
@@ -9215,7 +9236,7 @@ export type UserSubscriptionDetail = {
   /**
      * Χρήστης
      */
-  readonly user: number
+  readonly user: number | null
   topic: number
   topicDetails: SubscriptionTopic
   /**
@@ -11473,7 +11494,7 @@ export type ProductImageDetailWritable = {
  */
 export type ProductReviewWritable = {
   /**
-     * Συντ.
+     * Βαθμολογία
      */
   rate: RateEnum
   /**
@@ -11502,7 +11523,7 @@ export type ProductReviewWritable = {
  */
 export type ProductReviewDetailWritable = {
   /**
-     * Συντ.
+     * Βαθμολογία
      */
   rate: RateEnum
   /**
@@ -11657,7 +11678,7 @@ export type SubscriptionTopicWritable = {
      *
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
-     * * `ACCOUNT` - Λογαριασμός Ανενεργός
+     * * `ACCOUNT` - Ενημερώσεις λογαριασμού
      * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
@@ -11673,7 +11694,7 @@ export type SubscriptionTopicWritable = {
   /**
      * Προεπιλεγμένη συνδρομή
      *
-     * Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
+     * Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη.
      */
   isDefault?: boolean
   /**
@@ -11713,7 +11734,7 @@ export type SubscriptionTopicDetailWritable = {
      *
      * * `MARKETING` - Καμπάνιες marketing
      * * `PRODUCT` - Ενημερώσεις προϊόντων
-     * * `ACCOUNT` - Λογαριασμός Ανενεργός
+     * * `ACCOUNT` - Ενημερώσεις λογαριασμού
      * * `SYSTEM` - Ειδοποιήσεις Συστήματος
      * * `NEWSLETTER` - Newsletter
      * * `PROMOTIONAL` - Προωθητικό
@@ -11729,7 +11750,7 @@ export type SubscriptionTopicDetailWritable = {
   /**
      * Προεπιλεγμένη συνδρομή
      *
-     * Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
+     * Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη.
      */
   isDefault?: boolean
   /**
@@ -26021,7 +26042,7 @@ export type ListUserSubscriptionData = {
          *
          * * `MARKETING` - Καμπάνιες marketing
          * * `PRODUCT` - Ενημερώσεις προϊόντων
-         * * `ACCOUNT` - Λογαριασμός Ανενεργός
+         * * `ACCOUNT` - Ενημερώσεις λογαριασμού
          * * `SYSTEM` - Ειδοποιήσεις Συστήματος
          * * `NEWSLETTER` - Newsletter
          * * `PROMOTIONAL` - Προωθητικό
@@ -26247,6 +26268,7 @@ export type ConfirmUserSubscriptionErrors = {
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse
+  410: ErrorResponse
   500: ErrorResponse
 }
 
@@ -26292,6 +26314,7 @@ export type ConfirmSubscriptionByTokenData = {
 
 export type ConfirmSubscriptionByTokenErrors = {
   400: ErrorResponse
+  410: ErrorResponse
 }
 
 export type ConfirmSubscriptionByTokenError = ConfirmSubscriptionByTokenErrors[keyof ConfirmSubscriptionByTokenErrors]
@@ -26302,20 +26325,45 @@ export type ConfirmSubscriptionByTokenResponses = {
 
 export type ConfirmSubscriptionByTokenResponse = ConfirmSubscriptionByTokenResponses[keyof ConfirmSubscriptionByTokenResponses]
 
-export type ApiV1UserSubscriptionConfirmCreateData = {
-  body: ConfirmResponseRequest
-  path: {
-    token: string
-  }
+export type GetNewsletterAvailabilityData = {
+  body?: never
+  path?: never
   query?: never
-  url: '/api/v1/user/subscription/confirm/{token}'
+  url: '/api/v1/user/subscription/newsletter'
 }
 
-export type ApiV1UserSubscriptionConfirmCreateResponses = {
-  200: ConfirmResponse
+export type GetNewsletterAvailabilityErrors = {
+  404: ErrorResponse
 }
 
-export type ApiV1UserSubscriptionConfirmCreateResponse = ApiV1UserSubscriptionConfirmCreateResponses[keyof ApiV1UserSubscriptionConfirmCreateResponses]
+export type GetNewsletterAvailabilityError = GetNewsletterAvailabilityErrors[keyof GetNewsletterAvailabilityErrors]
+
+export type GetNewsletterAvailabilityResponses = {
+  200: NewsletterAvailability
+}
+
+export type GetNewsletterAvailabilityResponse = GetNewsletterAvailabilityResponses[keyof GetNewsletterAvailabilityResponses]
+
+export type SubscribeToNewsletterData = {
+  body: NewsletterSubscribeRequest
+  path?: never
+  query?: never
+  url: '/api/v1/user/subscription/newsletter'
+}
+
+export type SubscribeToNewsletterErrors = {
+  400: ErrorResponse
+  404: ErrorResponse
+  429: ErrorResponse
+}
+
+export type SubscribeToNewsletterError = SubscribeToNewsletterErrors[keyof SubscribeToNewsletterErrors]
+
+export type SubscribeToNewsletterResponses = {
+  202: Detail
+}
+
+export type SubscribeToNewsletterResponse = SubscribeToNewsletterResponses[keyof SubscribeToNewsletterResponses]
 
 export type ListSubscriptionTopicData = {
   body?: never
@@ -26328,7 +26376,7 @@ export type ListSubscriptionTopicData = {
          *
          * * `MARKETING` - Καμπάνιες marketing
          * * `PRODUCT` - Ενημερώσεις προϊόντων
-         * * `ACCOUNT` - Λογαριασμός Ανενεργός
+         * * `ACCOUNT` - Ενημερώσεις λογαριασμού
          * * `SYSTEM` - Ειδοποιήσεις Συστήματος
          * * `NEWSLETTER` - Newsletter
          * * `PROMOTIONAL` - Προωθητικό

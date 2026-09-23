@@ -29690,7 +29690,7 @@ paths:
 
             * `MARKETING` - Καμπάνιες marketing
             * `PRODUCT` - Ενημερώσεις προϊόντων
-            * `ACCOUNT` - Λογαριασμός Ανενεργός
+            * `ACCOUNT` - Ενημερώσεις λογαριασμού
             * `SYSTEM` - Ειδοποιήσεις Συστήματος
             * `NEWSLETTER` - Newsletter
             * `PROMOTIONAL` - Προωθητικό
@@ -30181,6 +30181,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
         '500':
           content:
             application/json:
@@ -30246,14 +30252,24 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
   /api/v1/user/subscription/confirm/{token}:
-    get:
+    post:
       operationId: confirmSubscriptionByToken
       description: |-
-        Public endpoint for the confirmation link emailed to new subscribers.
+        Public endpoint behind the storefront confirmation page.
 
-        The confirmation token itself is 64 chars of random entropy (sufficient
-        authorization); no login required. Accepts both GET (user clicks the
-        link in a mail client) and POST (for programmatic confirmation).
+        The confirmation token itself is 64 chars of random entropy
+        (sufficient authorization); no login required. POST only: the
+        emailed link opens a storefront page whose button POSTs here, so a
+        mail link scanner that prefetches the link confirms nothing. What
+        counts as a valid confirmation — PENDING, matching token, link no
+        older than ``CONFIRMATION_TTL`` (else 410) — is
+        ``UserSubscription.confirm``, the same rule the signed-in confirm
+        applies.
+
+        Deliberately not gated on ``NEWSLETTER_ENABLED``: links in emails
+        already sent must keep working after the feature is turned off.
+        Tokens are rows in the tenant's own schema, so one issued by another
+        store is simply unknown here.
       summary: Επιβεβαίωση εκκρεμούς εγγραφής μέσω token email
       parameters:
         - in: path
@@ -30276,40 +30292,80 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
           description: ''
-    post:
-      operationId: api_v1_user_subscription_confirm_create
-      description: |-
-        Public endpoint for the confirmation link emailed to new subscribers.
-
-        The confirmation token itself is 64 chars of random entropy (sufficient
-        authorization); no login required. Accepts both GET (user clicks the
-        link in a mail client) and POST (for programmatic confirmation).
-      parameters:
-        - in: path
-          name: token
-          schema:
-            type: string
-          required: true
+        '410':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/v1/user/subscription/newsletter:
+    get:
+      operationId: getNewsletterAvailability
+      description: True when the store has a default newsletter topic, i.e. when a newsletter form submission can be honoured.
+      summary: Αν μπορεί να προσφερθεί η φόρμα ενημερωτικού δελτίου
       tags:
-        - api
-      requestBody:
-        content:
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/ConfirmResponseRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/ConfirmResponseRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ConfirmResponseRequest'
-        required: true
+        - User Subscriptions
+      security:
+        - cookieAuth: []
+        - {}
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfirmResponse'
+                $ref: '#/components/schemas/NewsletterAvailability'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+    post:
+      operationId: subscribeToNewsletter
+      description: 'Subscribes an email address to the store''s default newsletter topic. Always answers 202: a confirmation email is sent unless the address is already confirmed or one was sent in the last 10 minutes.'
+      summary: Εγγραφή μιας διεύθυνσης email στο ενημερωτικό δελτίο
+      tags:
+        - User Subscriptions
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NewsletterSubscribeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NewsletterSubscribeRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewsletterSubscribeRequest'
+        required: true
+      security:
+        - cookieAuth: []
+        - {}
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Detail'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
           description: ''
   /api/v1/user/subscription/topic:
     get:
@@ -30335,7 +30391,7 @@ paths:
 
             * `MARKETING` - Καμπάνιες marketing
             * `PRODUCT` - Ενημερώσεις προϊόντων
-            * `ACCOUNT` - Λογαριασμός Ανενεργός
+            * `ACCOUNT` - Ενημερώσεις λογαριασμού
             * `SYSTEM` - Ειδοποιήσεις Συστήματος
             * `NEWSLETTER` - Newsletter
             * `PROMOTIONAL` - Προωθητικό
@@ -35353,17 +35409,6 @@ components:
           type: string
       required:
         - status
-    ConfirmResponseRequest:
-      type: object
-      properties:
-        status:
-          type: string
-          minLength: 1
-        topic:
-          type: string
-          minLength: 1
-      required:
-        - status
     ContactAttachment:
       type: object
       description: One file uploaded for a contact enquiry to claim.
@@ -37056,6 +37101,41 @@ components:
           $ref: '#/components/schemas/SlotEnum'
       required:
         - slot
+    NewsletterAvailability:
+      type: object
+      properties:
+        available:
+          type: boolean
+          readOnly: true
+          description: Αν το κατάστημα έχει προεπιλεγμένο θέμα ενημερωτικού δελτίου στο οποίο μπορεί να εγγράψει η φόρμα.
+      required:
+        - available
+    NewsletterSubscribeRequest:
+      type: object
+      description: |-
+        The storefront newsletter form.
+
+        ``consent_text`` is the consent sentence exactly as the visitor saw
+        it, in the language it was shown. The storefront server supplies it
+        from its own messages; it is stored verbatim as the consent record.
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        consent:
+          type: boolean
+          description: Ο επισκέπτης επέλεξε το πλαίσιο συγκατάθεσης. Πρέπει να είναι true.
+        consentText:
+          type: string
+          minLength: 1
+          description: Η ακριβής φράση συγκατάθεσης που είδε ο επισκέπτης.
+          maxLength: 500
+      required:
+        - consent
+        - consentText
+        - email
     Notification:
       type: object
       description: Serializer that saves :class:`TranslatedFieldsField` automatically.
@@ -37183,7 +37263,7 @@ components:
         * `SECURITY` - Ασφάλεια
         * `PROMOTION` - Προσφορά
         * `SYSTEM` - Σύστημα
-        * `REVIEW` - Εξέταση
+        * `REVIEW` - Κριτική
         * `WISHLIST` - Λίστα επιθυμιών
         * `SUPPORT` - Υποστήριξη
         * `NEWSLETTER` - Newsletter
@@ -41079,7 +41159,7 @@ components:
         rate:
           allOf:
             - $ref: '#/components/schemas/RateEnum'
-          title: Συντ.
+          title: Βαθμολογία
           minimum: 0
           maximum: 32767
         translations:
@@ -41267,7 +41347,7 @@ components:
 
             * `MARKETING` - Καμπάνιες marketing
             * `PRODUCT` - Ενημερώσεις προϊόντων
-            * `ACCOUNT` - Λογαριασμός Ανενεργός
+            * `ACCOUNT` - Ενημερώσεις λογαριασμού
             * `SYSTEM` - Ειδοποιήσεις Συστήματος
             * `NEWSLETTER` - Newsletter
             * `PROMOTIONAL` - Προωθητικό
@@ -41279,7 +41359,7 @@ components:
         isDefault:
           type: boolean
           title: Προεπιλεγμένη συνδρομή
-          description: Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
+          description: 'Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη.'
         requiresConfirmation:
           type: boolean
           title: Απαιτείται Επιβεβαίωση
@@ -43915,7 +43995,7 @@ components:
         rate:
           allOf:
             - $ref: '#/components/schemas/RateEnum'
-          title: Συντ.
+          title: Βαθμολογία
           minimum: 0
           maximum: 32767
         status:
@@ -43991,7 +44071,7 @@ components:
         rate:
           allOf:
             - $ref: '#/components/schemas/RateEnum'
-          title: Συντ.
+          title: Βαθμολογία
           minimum: 0
           maximum: 32767
         status:
@@ -44058,7 +44138,7 @@ components:
         rate:
           allOf:
             - $ref: '#/components/schemas/RateEnum'
-          title: Συντ.
+          title: Βαθμολογία
           minimum: 0
           maximum: 32767
         translations:
@@ -45408,7 +45488,7 @@ components:
 
             * `MARKETING` - Καμπάνιες marketing
             * `PRODUCT` - Ενημερώσεις προϊόντων
-            * `ACCOUNT` - Λογαριασμός Ανενεργός
+            * `ACCOUNT` - Ενημερώσεις λογαριασμού
             * `SYSTEM` - Ειδοποιήσεις Συστήματος
             * `NEWSLETTER` - Newsletter
             * `PROMOTIONAL` - Προωθητικό
@@ -45420,7 +45500,7 @@ components:
         isDefault:
           type: boolean
           title: Προεπιλεγμένη συνδρομή
-          description: Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
+          description: 'Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη.'
         requiresConfirmation:
           type: boolean
           title: Απαιτείται Επιβεβαίωση
@@ -45483,7 +45563,7 @@ components:
 
             * `MARKETING` - Καμπάνιες marketing
             * `PRODUCT` - Ενημερώσεις προϊόντων
-            * `ACCOUNT` - Λογαριασμός Ανενεργός
+            * `ACCOUNT` - Ενημερώσεις λογαριασμού
             * `SYSTEM` - Ειδοποιήσεις Συστήματος
             * `NEWSLETTER` - Newsletter
             * `PROMOTIONAL` - Προωθητικό
@@ -45495,7 +45575,7 @@ components:
         isDefault:
           type: boolean
           title: Προεπιλεγμένη συνδρομή
-          description: Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
+          description: 'Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη.'
         requiresConfirmation:
           type: boolean
           title: Απαιτείται Επιβεβαίωση
@@ -45564,7 +45644,7 @@ components:
 
             * `MARKETING` - Καμπάνιες marketing
             * `PRODUCT` - Ενημερώσεις προϊόντων
-            * `ACCOUNT` - Λογαριασμός Ανενεργός
+            * `ACCOUNT` - Ενημερώσεις λογαριασμού
             * `SYSTEM` - Ειδοποιήσεις Συστήματος
             * `NEWSLETTER` - Newsletter
             * `PROMOTIONAL` - Προωθητικό
@@ -45576,7 +45656,7 @@ components:
         isDefault:
           type: boolean
           title: Προεπιλεγμένη συνδρομή
-          description: Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα
+          description: 'Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη.'
         requiresConfirmation:
           type: boolean
           title: Απαιτείται Επιβεβαίωση
@@ -46182,7 +46262,7 @@ components:
       description: |-
         * `MARKETING` - Καμπάνιες marketing
         * `PRODUCT` - Ενημερώσεις προϊόντων
-        * `ACCOUNT` - Λογαριασμός Ανενεργός
+        * `ACCOUNT` - Ενημερώσεις λογαριασμού
         * `SYSTEM` - Ειδοποιήσεις Συστήματος
         * `NEWSLETTER` - Newsletter
         * `PROMOTIONAL` - Προωθητικό
@@ -46259,8 +46339,8 @@ components:
       description: |-
         * `apm` - APM
         * `any_apm` - Οποιοδήποτε APM
-        * `warehouse` - Αποθήκη
-        * `depot` - Αποθήκη
+        * `warehouse` - Αποθήκη (warehouse)
+        * `depot` - Κέντρο διανομής (depot)
     UnsubscribeResponse:
       type: object
       properties:
@@ -46790,6 +46870,7 @@ components:
         user:
           type: integer
           readOnly: true
+          nullable: true
           title: Χρήστης
         topic:
           type: integer
@@ -46843,6 +46924,7 @@ components:
         user:
           type: integer
           readOnly: true
+          nullable: true
           title: Χρήστης
         topic:
           type: integer

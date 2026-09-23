@@ -50168,7 +50168,7 @@
                                 "SYSTEM"
                             ]
                         },
-                        "description": "Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                        "description": "Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Ενημερώσεις λογαριασμού\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
                     },
                     {
                         "in": "query",
@@ -50988,6 +50988,16 @@
                             }
                         },
                         "description": ""
+                    },
+                    "410": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
             }
@@ -51090,9 +51100,9 @@
             }
         },
         "/api/v1/user/subscription/confirm/{token}": {
-            "get": {
+            "post": {
                 "operationId": "confirmSubscriptionByToken",
-                "description": "Public endpoint for the confirmation link emailed to new subscribers.\n\nThe confirmation token itself is 64 chars of random entropy (sufficient\nauthorization); no login required. Accepts both GET (user clicks the\nlink in a mail client) and POST (for programmatic confirmation).",
+                "description": "Public endpoint behind the storefront confirmation page.\n\nThe confirmation token itself is 64 chars of random entropy\n(sufficient authorization); no login required. POST only: the\nemailed link opens a storefront page whose button POSTs here, so a\nmail link scanner that prefetches the link confirms nothing. What\ncounts as a valid confirmation — PENDING, matching token, link no\nolder than ``CONFIRMATION_TTL`` (else 410) — is\n``UserSubscription.confirm``, the same rule the signed-in confirm\napplies.\n\nDeliberately not gated on ``NEWSLETTER_ENABLED``: links in emails\nalready sent must keep working after the feature is turned off.\nTokens are rows in the tenant's own schema, so one issued by another\nstore is simply unknown here.",
                 "summary": "Επιβεβαίωση εκκρεμούς εγγραφής μέσω token email",
                 "parameters": [
                     {
@@ -51127,51 +51137,126 @@
                             }
                         },
                         "description": ""
+                    },
+                    "410": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
                     }
                 }
-            },
-            "post": {
-                "operationId": "api_v1_user_subscription_confirm_create",
-                "description": "Public endpoint for the confirmation link emailed to new subscribers.\n\nThe confirmation token itself is 64 chars of random entropy (sufficient\nauthorization); no login required. Accepts both GET (user clicks the\nlink in a mail client) and POST (for programmatic confirmation).",
-                "parameters": [
-                    {
-                        "in": "path",
-                        "name": "token",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "required": true
-                    }
-                ],
+            }
+        },
+        "/api/v1/user/subscription/newsletter": {
+            "get": {
+                "operationId": "getNewsletterAvailability",
+                "description": "True when the store has a default newsletter topic, i.e. when a newsletter form submission can be honoured.",
+                "summary": "Αν μπορεί να προσφερθεί η φόρμα ενημερωτικού δελτίου",
                 "tags": [
-                    "api"
+                    "User Subscriptions"
                 ],
-                "requestBody": {
-                    "content": {
-                        "application/x-www-form-urlencoded": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ConfirmResponseRequest"
-                            }
-                        },
-                        "multipart/form-data": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ConfirmResponseRequest"
-                            }
-                        },
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ConfirmResponseRequest"
-                            }
-                        }
+                "security": [
+                    {
+                        "cookieAuth": []
                     },
-                    "required": true
-                },
+                    {}
+                ],
                 "responses": {
                     "200": {
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ConfirmResponse"
+                                    "$ref": "#/components/schemas/NewsletterAvailability"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    }
+                }
+            },
+            "post": {
+                "operationId": "subscribeToNewsletter",
+                "description": "Subscribes an email address to the store's default newsletter topic. Always answers 202: a confirmation email is sent unless the address is already confirmed or one was sent in the last 10 minutes.",
+                "summary": "Εγγραφή μιας διεύθυνσης email στο ενημερωτικό δελτίο",
+                "tags": [
+                    "User Subscriptions"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NewsletterSubscribeRequest"
+                            }
+                        },
+                        "multipart/form-data": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NewsletterSubscribeRequest"
+                            }
+                        },
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/NewsletterSubscribeRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "security": [
+                    {
+                        "cookieAuth": []
+                    },
+                    {}
+                ],
+                "responses": {
+                    "202": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Detail"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                }
+                            }
+                        },
+                        "description": ""
+                    },
+                    "429": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
                                 }
                             }
                         },
@@ -51202,7 +51287,7 @@
                                 "SYSTEM"
                             ]
                         },
-                        "description": "Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                        "description": "Φίλτρο ανά κατηγορία θέματος\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Ενημερώσεις λογαριασμού\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
                     },
                     {
                         "in": "query",
@@ -57796,22 +57881,6 @@
                     "status"
                 ]
             },
-            "ConfirmResponseRequest": {
-                "type": "object",
-                "properties": {
-                    "status": {
-                        "type": "string",
-                        "minLength": 1
-                    },
-                    "topic": {
-                        "type": "string",
-                        "minLength": 1
-                    }
-                },
-                "required": [
-                    "status"
-                ]
-            },
             "ContactAttachment": {
                 "type": "object",
                 "description": "One file uploaded for a contact enquiry to claim.",
@@ -59953,6 +60022,46 @@
                     "slot"
                 ]
             },
+            "NewsletterAvailability": {
+                "type": "object",
+                "properties": {
+                    "available": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "description": "Αν το κατάστημα έχει προεπιλεγμένο θέμα ενημερωτικού δελτίου στο οποίο μπορεί να εγγράψει η φόρμα."
+                    }
+                },
+                "required": [
+                    "available"
+                ]
+            },
+            "NewsletterSubscribeRequest": {
+                "type": "object",
+                "description": "The storefront newsletter form.\n\n``consent_text`` is the consent sentence exactly as the visitor saw\nit, in the language it was shown. The storefront server supplies it\nfrom its own messages; it is stored verbatim as the consent record.",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1,
+                        "maxLength": 254
+                    },
+                    "consent": {
+                        "type": "boolean",
+                        "description": "Ο επισκέπτης επέλεξε το πλαίσιο συγκατάθεσης. Πρέπει να είναι true."
+                    },
+                    "consentText": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Η ακριβής φράση συγκατάθεσης που είδε ο επισκέπτης.",
+                        "maxLength": 500
+                    }
+                },
+                "required": [
+                    "consent",
+                    "consentText",
+                    "email"
+                ]
+            },
             "Notification": {
                 "type": "object",
                 "description": "Serializer that saves :class:`TranslatedFieldsField` automatically.",
@@ -60093,7 +60202,7 @@
                     "RECOMMENDATION"
                 ],
                 "type": "string",
-                "description": "* `ORDER` - Παραγγελία\n* `PAYMENT` - Πληρωμή\n* `SHIPPING` - Μεταφορικά\n* `CART` - Καλάθι\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SECURITY` - Ασφάλεια\n* `PROMOTION` - Προσφορά\n* `SYSTEM` - Σύστημα\n* `REVIEW` - Εξέταση\n* `WISHLIST` - Λίστα επιθυμιών\n* `SUPPORT` - Υποστήριξη\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Σύσταση"
+                "description": "* `ORDER` - Παραγγελία\n* `PAYMENT` - Πληρωμή\n* `SHIPPING` - Μεταφορικά\n* `CART` - Καλάθι\n* `PRODUCT` - Προϊόν\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SECURITY` - Ασφάλεια\n* `PROMOTION` - Προσφορά\n* `SYSTEM` - Σύστημα\n* `REVIEW` - Κριτική\n* `WISHLIST` - Λίστα επιθυμιών\n* `SUPPORT` - Υποστήριξη\n* `NEWSLETTER` - Newsletter\n* `RECOMMENDATION` - Σύσταση"
             },
             "NotificationCountResponse": {
                 "type": "object",
@@ -65234,7 +65343,7 @@
                                 "$ref": "#/components/schemas/RateEnum"
                             }
                         ],
-                        "title": "Συντ.",
+                        "title": "Βαθμολογία",
                         "minimum": 0,
                         "maximum": 32767
                     },
@@ -65502,7 +65611,7 @@
                             }
                         ],
                         "title": "Κατηγορία",
-                        "description": "Κατηγορία του θέματος εγγραφής\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                        "description": "Κατηγορία του θέματος εγγραφής\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Ενημερώσεις λογαριασμού\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -65512,7 +65621,7 @@
                     "isDefault": {
                         "type": "boolean",
                         "title": "Προεπιλεγμένη συνδρομή",
-                        "description": "Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα"
+                        "description": "Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη."
                     },
                     "requiresConfirmation": {
                         "type": "boolean",
@@ -68986,7 +69095,7 @@
                                 "$ref": "#/components/schemas/RateEnum"
                             }
                         ],
-                        "title": "Συντ.",
+                        "title": "Βαθμολογία",
                         "minimum": 0,
                         "maximum": 32767
                     },
@@ -69098,7 +69207,7 @@
                                 "$ref": "#/components/schemas/RateEnum"
                             }
                         ],
-                        "title": "Συντ.",
+                        "title": "Βαθμολογία",
                         "minimum": 0,
                         "maximum": 32767
                     },
@@ -69193,7 +69302,7 @@
                                 "$ref": "#/components/schemas/RateEnum"
                             }
                         ],
-                        "title": "Συντ.",
+                        "title": "Βαθμολογία",
                         "minimum": 0,
                         "maximum": 32767
                     },
@@ -70879,7 +70988,7 @@
                             }
                         ],
                         "title": "Κατηγορία",
-                        "description": "Κατηγορία του θέματος εγγραφής\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                        "description": "Κατηγορία του θέματος εγγραφής\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Ενημερώσεις λογαριασμού\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -70889,7 +70998,7 @@
                     "isDefault": {
                         "type": "boolean",
                         "title": "Προεπιλεγμένη συνδρομή",
-                        "description": "Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα"
+                        "description": "Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη."
                     },
                     "requiresConfirmation": {
                         "type": "boolean",
@@ -70973,7 +71082,7 @@
                             }
                         ],
                         "title": "Κατηγορία",
-                        "description": "Κατηγορία του θέματος εγγραφής\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                        "description": "Κατηγορία του θέματος εγγραφής\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Ενημερώσεις λογαριασμού\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -70983,7 +71092,7 @@
                     "isDefault": {
                         "type": "boolean",
                         "title": "Προεπιλεγμένη συνδρομή",
-                        "description": "Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα"
+                        "description": "Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη."
                     },
                     "requiresConfirmation": {
                         "type": "boolean",
@@ -71073,7 +71182,7 @@
                             }
                         ],
                         "title": "Κατηγορία",
-                        "description": "Κατηγορία του θέματος εγγραφής\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                        "description": "Κατηγορία του θέματος εγγραφής\n\n* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Ενημερώσεις λογαριασμού\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
                     },
                     "isActive": {
                         "type": "boolean",
@@ -71083,7 +71192,7 @@
                     "isDefault": {
                         "type": "boolean",
                         "title": "Προεπιλεγμένη συνδρομή",
-                        "description": "Αν οι νέοι χρήστες εγγράφονται αυτόματα σε αυτό το θέμα"
+                        "description": "Θέματα λογαριασμού και συστήματος: οι νέοι χρήστες εγγράφονται αυτόματα. Θέμα ενημερωτικού δελτίου: αυτό στο οποίο εγγράφει τους επισκέπτες η φόρμα ενημερωτικού δελτίου του καταστήματος (το πολύ ένα ενεργό). Θέματα κάθε άλλης κατηγορίας δεν εγγράφουν ποτέ αυτόματα — απαιτούν τη συγκατάθεση του παραλήπτη."
                     },
                     "requiresConfirmation": {
                         "type": "boolean",
@@ -71862,7 +71971,7 @@
                     "OTHER"
                 ],
                 "type": "string",
-                "description": "* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Λογαριασμός Ανενεργός\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
+                "description": "* `MARKETING` - Καμπάνιες marketing\n* `PRODUCT` - Ενημερώσεις προϊόντων\n* `ACCOUNT` - Ενημερώσεις λογαριασμού\n* `SYSTEM` - Ειδοποιήσεις Συστήματος\n* `NEWSLETTER` - Newsletter\n* `PROMOTIONAL` - Προωθητικό\n* `OTHER` - Άλλο"
             },
             "TransactionTypeEnum": {
                 "enum": [
@@ -71939,7 +72048,7 @@
                     "depot"
                 ],
                 "type": "string",
-                "description": "* `apm` - APM\n* `any_apm` - Οποιοδήποτε APM\n* `warehouse` - Αποθήκη\n* `depot` - Αποθήκη"
+                "description": "* `apm` - APM\n* `any_apm` - Οποιοδήποτε APM\n* `warehouse` - Αποθήκη (warehouse)\n* `depot` - Κέντρο διανομής (depot)"
             },
             "UnsubscribeResponse": {
                 "type": "object",
@@ -72631,6 +72740,7 @@
                     "user": {
                         "type": "integer",
                         "readOnly": true,
+                        "nullable": true,
                         "title": "Χρήστης"
                     },
                     "topic": {
@@ -72703,6 +72813,7 @@
                     "user": {
                         "type": "integer",
                         "readOnly": true,
+                        "nullable": true,
                         "title": "Χρήστης"
                     },
                     "topic": {

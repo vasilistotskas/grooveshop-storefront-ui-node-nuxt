@@ -69,6 +69,7 @@ export type PageKey
     | '2fa-authenticate-totp'
     | '2fa-authenticate-webauthn'
     | '2fa-authenticate-recovery-codes'
+    | 'newsletter-confirm'
 
 type Loader = () => Promise<{ default: Component }>
 
@@ -121,6 +122,9 @@ const pageDefaults: Record<PageKey, Component> = {
   '2fa-authenticate-totp': lazy(() => import('~/components/Storefront/Auth/TwoFactorTotp.vue')),
   '2fa-authenticate-webauthn': lazy(() => import('~/components/Storefront/Auth/TwoFactorWebauthn.vue')),
   '2fa-authenticate-recovery-codes': lazy(() => import('~/components/Storefront/Auth/TwoFactorRecoveryCodes.vue')),
+  // Newer than the webside freeze, so there is no frozen copy to keep:
+  // webside renders this default like every other tenant.
+  'newsletter-confirm': lazy(() => import('~/components/Storefront/NewsletterConfirm.vue')),
 }
 
 /**
