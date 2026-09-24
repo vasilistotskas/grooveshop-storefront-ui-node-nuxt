@@ -1,3 +1,10 @@
+## [3.210.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.210.0...v3.210.1) (2026-09-24)
+
+
+### Performance Improvements
+
+* **server:** resolve the runtime config once, not on every request ([1172b4c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/1172b4c2319d068243e90078e958d824adde4bae))
+
 # [3.210.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.209.0...v3.210.0) (2026-09-24)
 
 
