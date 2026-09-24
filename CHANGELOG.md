@@ -1,3 +1,10 @@
+# [3.209.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.208.1...v3.209.0) (2026-09-24)
+
+
+### Features
+
+* **notifications:** open a notification link in the viewer's locale ([8eb25e9](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8eb25e9230e50b145947cff0ec7cf6951c4869a5))
+
 ## [3.208.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.208.0...v3.208.1) (2026-09-23)
 
 
