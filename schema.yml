@@ -37171,7 +37171,7 @@ components:
           type: string
           nullable: true
           maxLength: 200
-          description: Σύνδεσμος URL ή κενή τιμή
+          description: Διαδρομή του καταστήματος χωρίς γλώσσα (π.χ. /account/orders/42) ή κενή τιμή· ανοίγει στη γλώσσα του αναγνώστη
           readOnly: true
         kind:
           allOf:

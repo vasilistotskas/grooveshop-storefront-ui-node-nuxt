@@ -96,18 +96,10 @@ const onRowClick = async (row: NotificationUserDetail) => {
     await markAsSeen([row.id])
     await Promise.all([refresh(), setupNotifications()])
   }
+  // A locale-neutral storefront path; open it in the viewer's locale.
   const link = row.notification?.link ?? ''
   if (!link) return
-  if (link.startsWith('http://') || link.startsWith('https://')) {
-    const origin = typeof window !== 'undefined' ? window.location.origin : ''
-    if (origin && link.startsWith(origin)) {
-      await navigateTo(link.slice(origin.length) || '/')
-      return
-    }
-    window.open(link, '_blank', 'noopener,noreferrer')
-    return
-  }
-  await navigateTo(link)
+  await navigateTo(localePath(link))
 }
 
 const onToggleSeen = async (row: NotificationUserDetail) => {

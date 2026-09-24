@@ -54,36 +54,18 @@ const userNotifications = computed(() => {
   return notifications.value?.results ?? []
 })
 
-type ResolvedLink = { to: string, external: boolean } | null
-
-const resolveLink = (link?: string | null): ResolvedLink => {
-  if (!link) return null
-  if (link.startsWith('http://') || link.startsWith('https://')) {
-    const origin = typeof window !== 'undefined' ? window.location.origin : ''
-    if (origin && link.startsWith(origin)) {
-      return { to: link.slice(origin.length) || '/', external: false }
-    }
-    return { to: link, external: true }
-  }
-  return { to: link, external: false }
-}
-
+// ``link`` is a locale-neutral storefront path (``/account/orders/42``):
+// the API stores no host and no locale prefix, so the viewer's current
+// locale is applied here.
 const onNotificationClick = async (
   notificationUserId: number,
   link?: string | null,
 ) => {
   isDropdownVisible.value = false
-  const resolved = resolveLink(link)
-  if (resolved?.external) {
+  if (link) {
     markAsSeen([notificationUserId]).catch(() => {})
     setupNotifications().catch(() => {})
-    window.open(resolved.to, '_blank', 'noopener,noreferrer')
-    return
-  }
-  if (resolved) {
-    markAsSeen([notificationUserId]).catch(() => {})
-    setupNotifications().catch(() => {})
-    await navigateTo(resolved.to)
+    await navigateTo(localePath(link))
     return
   }
   await markAsSeen([notificationUserId])

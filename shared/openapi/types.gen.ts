@@ -3637,7 +3637,7 @@ export type Notification = {
   }
   readonly id: number
   /**
-     * Σύνδεσμος URL ή κενή τιμή
+     * Διαδρομή του καταστήματος χωρίς γλώσσα (π.χ. /account/orders/42) ή κενή τιμή· ανοίγει στη γλώσσα του αναγνώστη
      */
   readonly link: string | null
   /**
