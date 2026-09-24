@@ -382,6 +382,10 @@ export default defineNuxtConfig({
   },
   compatibilityDate: 'latest',
   nitro: {
+    // Plugins listed here run BEFORE every module's server plugin (modules
+    // append to this list, scanned server/plugins/ come after both). Only
+    // what must see a request first belongs here; see the file.
+    plugins: ['~~/server/early-plugins/runtime-config'],
     // Dev only (ignored in production builds): same-origin `/chat` is
     // served by the agent gateway — Traefik path-routes it on the
     // storefront host in production — so proxy it to a locally running

@@ -44,6 +44,7 @@ Numeric prefixes order execution. Request logging is via evlog (there is no `log
 
 - `http-agent.ts` — Undici Agent for connection pooling (100 connections, pipelining 10, keep-alive 30s) — reduces latency for internal API calls
 - `storage.ts` — Configurable cache backend: tests Redis connectivity, falls back to memory driver if unavailable
+- `server/early-plugins/runtime-config.ts` — NOT in `server/plugins/`: registered via `nitro.plugins` in `nuxt.config.ts` so it runs before every module's plugin. Seeds each request's `useRuntimeConfig(event)` with a clone of the boot-resolved config, skipping Nitro 2's per-request env re-walk (63% of a trivial request's CPU, ~19% of a page render). Keep it first; a copy built by an earlier `request` hook makes it a no-op.
 - `startup-validation.ts` — Validates required env vars (`NUXT_SESSION_PASSWORD` >= 32 chars, `NUXT_SECRET_KEY`) at startup; fails hard on misconfiguration
 
 ## Structured Logging (evlog)
