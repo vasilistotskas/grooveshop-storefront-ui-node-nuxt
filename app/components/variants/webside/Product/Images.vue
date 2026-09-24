@@ -11,7 +11,7 @@ const props = defineProps({
 const { product } = toRefs(props)
 const { t, locale } = useI18n()
 
-const { data: images } = await useFetch(
+const { data: images } = await useApi(
   `/api/products/${product.value.id}/images`,
   {
     key: `productImages${product.value.id}`,

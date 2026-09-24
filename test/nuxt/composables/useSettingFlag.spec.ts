@@ -17,7 +17,11 @@ const { mockFetch, publicSettings } = vi.hoisted(() => {
     }),
   }
 })
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
+// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
+// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
+// builds `$api` from `$fetch.create()` while the app boots.
+mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
 
 const settingsCalls = () =>
   mockFetch.mock.calls.filter(call => String(call[0]).includes('/api/settings/public'))

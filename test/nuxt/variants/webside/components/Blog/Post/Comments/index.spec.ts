@@ -8,7 +8,11 @@ import BlogPostComments from '~/components/variants/webside/Blog/Post/Comments/i
 const { mockFetch } = vi.hoisted(() => ({
   mockFetch: vi.fn((_url: unknown, ..._rest: unknown[]) => Promise.resolve({} as any)),
 }))
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
+// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
+// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
+// builds `$api` from `$fetch.create()` while the app boots.
+mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
 mockNuxtImport('useUserSession', () => () => ({
   loggedIn: ref(false),
   user: ref(null),

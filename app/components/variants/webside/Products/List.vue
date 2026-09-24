@@ -140,7 +140,7 @@ watch(page, () => {
 const {
   data: products,
   status,
-} = await useFetch<ProductMeiliSearchResponse>(
+} = await useApi<ProductMeiliSearchResponse>(
   '/api/products/search',
   {
     query: {
@@ -289,7 +289,7 @@ watch(
 // would stay grey forever on F5. Triggering in ``onMounted`` guarantees
 // the first client render matches SSR; the subsequent store update
 // patches the DOM normally through the usual reactive update path.
-const { execute: fetchFavourites } = useLazyFetch('/api/products/favourites/favourites-by-products', {
+const { execute: fetchFavourites } = useLazyApi('/api/products/favourites/favourites-by-products', {
   key: computed(() => `favouritesByProducts-${user.value?.id}-${productIds.value.join(',')}`),
   method: 'POST',
   body: {

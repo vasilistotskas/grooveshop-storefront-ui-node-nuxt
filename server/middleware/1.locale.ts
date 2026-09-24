@@ -1,63 +1,39 @@
-import { getCookie } from 'h3'
-import { DEFAULT_LOCALE } from '~~/i18n/locales'
-import { tenantAllowedLocales } from '~~/shared/i18n/tenantLocales'
+import { localeFromPath } from '~~/shared/i18n/localeFromPath'
+import { servedLocale } from '~~/shared/i18n/tenantLocales'
 
+/**
+ * `event.context.locale`: the language of the page the visitor is on.
+ *
+ * Everything downstream reads it — the `X-Language` sent to Django
+ * (`createHeaders`, `useBackendFetch`, the `forwarded-proto` plugin),
+ * `requestLocale()`, and every Nitro cache key (`tenantCacheKey`) — so
+ * it must be the language the response is rendered for, and nothing
+ * else.
+ *
+ * - A page request: the locale of its path. Under `prefix_except_default`
+ *   the URL itself carries it (`splitLocale`), and it is exactly what
+ *   @nuxtjs/i18n renders.
+ * - An `/api` request: `X-Language`, which the app's one fetcher sets to
+ *   the page's locale (`pageLocaleHeader`, app/utils/api.ts). A browser
+ *   `/api` call does not carry the page path, and an SSR sub-request is
+ *   a new event that inherits the page's headers but not its context.
+ *
+ * Either way the candidate is clamped by `servedLocale`, the rule the
+ * route guard uses too, so a missing, unknown or unserved value gets the
+ * locale the unprefixed page renders.
+ *
+ * No cookie, `Accept-Language` or `?locale=` source: with
+ * `detectBrowserLanguage: false` the URL is the truth, and a stale
+ * `i18n_redirected` cookie from before that change must not decide the
+ * language of a page whose URL says otherwise.
+ */
 export default defineEventHandler((event) => {
   if (event.path.startsWith('/_nuxt') || event.path.startsWith('/_ipx') || event.path.startsWith('/assets')) return
 
-  // Candidates are validated against the TENANT's locales, not the
-  // platform-wide list. Validating against the platform list would let
-  // an `en` cookie or an English Accept-Language header select a locale
-  // a Greek-only store does not serve — i18n would then redirect that
-  // visitor to /en/**, which the route guard 404s. Clamping here is
-  // what keeps legitimate traffic on the tenant's own language.
-  const tenant = event.context.tenant as TenantConfig | undefined
-  const allowed = tenantAllowedLocales(tenant)
-  const isAllowed = (code: string | undefined | null): boolean =>
-    !!code && allowed.includes(code)
+  const path = event.path.split('?', 1)[0] ?? '/'
+  const candidate = path.startsWith('/api/')
+    ? getHeader(event, 'x-language')
+    : localeFromPath(path)
 
-  let locale: string = allowed.includes(DEFAULT_LOCALE)
-    ? DEFAULT_LOCALE
-    : (allowed[0] ?? DEFAULT_LOCALE)
-
-  // Priority 1: Query parameter — explicit user choice (e.g., ?locale=en)
-  const query = getQuery(event)
-  if (query.locale && typeof query.locale === 'string' && isAllowed(query.locale)) {
-    locale = query.locale
-  }
-  else {
-    // Priority 2: i18n cookies — returning user's previously selected locale
-    const i18nRedirected = getCookie(event, 'i18n_redirected')
-    const i18nLocale = getCookie(event, 'i18n_locale')
-
-    if (isAllowed(i18nRedirected)) {
-      locale = i18nRedirected as string
-    }
-    else if (isAllowed(i18nLocale)) {
-      locale = i18nLocale as string
-    }
-    else {
-      // Priority 3: Tenant default locale — the store owner's configured language.
-      // This runs after cookies so that a returning user's explicit language choice
-      // (set via the language picker and persisted in a cookie) is still honoured.
-      // Note: event.context.tenant is set by middleware 0.tenant.ts which runs
-      // before this middleware (lower number = higher priority).
-      const tenantLocale = tenant?.defaultLocale
-      if (isAllowed(tenantLocale)) {
-        locale = tenantLocale as string
-      }
-      else {
-        // Priority 4: Accept-Language header — browser/OS default
-        const acceptLanguage = getHeader(event, 'accept-language')
-        if (acceptLanguage) {
-          const firstLang = acceptLanguage.split(',')[0]?.split('-')[0]?.toLowerCase()
-          if (isAllowed(firstLang)) {
-            locale = firstLang as string
-          }
-        }
-      }
-    }
-  }
-
-  event.context.locale = locale
+  event.context.locale = servedLocale(candidate, event.context.tenant as TenantConfig | undefined)
 })

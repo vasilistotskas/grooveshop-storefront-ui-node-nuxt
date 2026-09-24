@@ -13,7 +13,7 @@ const { t, locale } = useI18n()
 const { filters, updateFilters } = useProductFilters()
 
 // Fetch facet stats for likes count during SSR
-const { data: searchResults } = await useFetch('/api/products/search', {
+const { data: searchResults } = await useApi('/api/products/search', {
   query: {
     facets: 'likes_count',
     limit: 1,

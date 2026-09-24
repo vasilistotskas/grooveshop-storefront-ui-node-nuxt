@@ -55,7 +55,7 @@ export function useAcsAddressValidation() {
     errorMessage.value = null
 
     try {
-      const response = await $fetch<ResolvedAddress>(
+      const response = await $api<ResolvedAddress>(
         '/api/shipping/acs/address-validation',
         {
           method: 'POST',

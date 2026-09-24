@@ -25,7 +25,7 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: category, status: categoryStatus, error } = await useFetch(
+const { data: category, status: categoryStatus, error } = await useApi(
   `/api/blog/categories/${categoryId}`,
   {
     key: `blogCategory${categoryId}`,
@@ -47,7 +47,7 @@ if (error.value || !category.value) {
 const {
   data: posts,
   status: postStatus,
-} = useLazyFetch(
+} = useLazyApi(
   `/api/blog/categories/${categoryId}/posts`,
   {
     key: `blogCategoryPosts${categoryId}`,

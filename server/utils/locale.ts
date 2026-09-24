@@ -4,11 +4,11 @@ import { DEFAULT_LOCALE } from '~~/i18n/locales'
 /**
  * The locale this request is being answered in.
  *
- * `server/middleware/1.locale.ts` resolves it once per request —
- * `?locale=` first, then the i18n cookies, the tenant default and
- * `Accept-Language` — and clamps the result to the locales the TENANT
- * serves. Read it from the context rather than re-deriving it, so a
- * route, its cache key and the header sent upstream cannot disagree.
+ * `server/middleware/1.locale.ts` resolves it once per request — the
+ * page path's locale, or the `X-Language` the app's fetcher states on an
+ * `/api` call — clamped by `servedLocale`. Read it from the context
+ * rather than re-deriving it, so a route, its cache key and the header
+ * sent upstream cannot disagree.
  */
 export function requestLocale(event: H3Event): string {
   // Optional chaining, as in `server/utils/auth.ts`: the middleware is

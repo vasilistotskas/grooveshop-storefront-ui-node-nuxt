@@ -22,11 +22,40 @@ function nitroEscape(key: string): string {
   return key.replace(/\W/g, '')
 }
 
+/** An event whose request locale is `locale` (`event.context.locale`). */
+function onLocale(locale?: string): any {
+  return { context: locale ? { locale } : {} }
+}
+
 describe('tenantCacheKey', () => {
-  it('starts with the request host, the delimiter and the inner key', () => {
+  it('starts with the request host, the locale, the delimiters and the inner key', () => {
     hostMock.mockReturnValueOnce('webside.gr')
-    const key = tenantCacheKey({} as any, 'product-categories:el')
-    expect(key.startsWith('webside.gr__product-categories:el')).toBe(true)
+    const key = tenantCacheKey(onLocale('en'), 'product-detail:7')
+    expect(key.startsWith('webside.gr__en__product-detail:7')).toBe(true)
+  })
+
+  it('keys the same route per locale, so an en entry is never served to el', () => {
+    // Django answers in the X-Language it is sent and returns flat text
+    // in it (product attributes, variant axes): one entry per language.
+    hostMock.mockReturnValue('webside.gr')
+    const el = tenantCacheKey(onLocale('el'), 'product-detail:7')
+    const en = tenantCacheKey(onLocale('en'), 'product-detail:7')
+    expect(nitroEscape(el)).not.toBe(nitroEscape(en))
+  })
+
+  it('uses the default locale when the context has none', () => {
+    hostMock.mockReturnValue('webside.gr')
+    expect(tenantCacheKey(onLocale(), 'settings'))
+      .toBe(tenantCacheKey(onLocale('el'), 'settings'))
+  })
+
+  it('keeps the host first, so a store-scoped purge still matches every locale', () => {
+    hostMock.mockReturnValue('webside.gr')
+    for (const locale of ['el', 'en']) {
+      const stored = `nitro:handlers:ProductDetailViewSet:${nitroEscape(tenantCacheKey(onLocale(locale), 'product-detail:7'))}.json`
+      expect(cacheKeyBelongsToHost(stored, 'webside.gr')).toBe(true)
+      expect(cacheKeyBelongsToHost(stored, 'other.gr')).toBe(false)
+    }
   })
 
   it('differentiates keys for two tenants sharing the same inner key', () => {

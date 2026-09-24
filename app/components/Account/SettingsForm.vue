@@ -144,7 +144,7 @@ const label = computed(() => {
     : t('form.birth_date')
 })
 
-const { data: countries } = await useFetch('/api/countries', {
+const { data: countries } = await useApi('/api/countries', {
   key: 'countries',
   method: 'GET',
   headers: useRequestHeaders(),
@@ -178,7 +178,7 @@ const fetchRegions = async () => {
   }
 
   try {
-    regions.value = await $fetch<ListRegionResponse>('/api/regions', {
+    regions.value = await $api<ListRegionResponse>('/api/regions', {
       method: 'GET',
       query: {
         country: state.country,
@@ -246,7 +246,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   const previousLanguage = locale.value
   const nextLanguage = values.languageCode || DEFAULT_LOCALE
 
-  await $fetch(`/api/user/account/${userId}`, {
+  await $api(`/api/user/account/${userId}`, {
     method: 'PUT',
     body: {
       email: values.email,

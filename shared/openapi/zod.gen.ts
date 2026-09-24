@@ -1709,6 +1709,54 @@ export const zNullEnum = z.unknown()
 export const zOrderCreateDocumentType = z.enum(['RECEIPT', 'INVOICE'])
 
 /**
+ * * `insufficient_stock` - Insufficient stock
+ * * `cart_invalid` - Cart not ready for checkout
+ * * `reservation_unavailable` - Stock reservation no longer valid
+ * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
+ * * `invalid_coupon` - Invalid coupon
+ * * `invalid_gift_card` - Invalid gift card
+ * * `payment_not_found` - Δεν βρέθηκε πληρωμή
+ * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
+ * * `payment_amount_mismatch` - Payment amount mismatch
+ * * `payment_currency_mismatch` - Payment currency mismatch
+ */
+export const zOrderCreateErrorType = z.enum([
+  'insufficient_stock',
+  'cart_invalid',
+  'reservation_unavailable',
+  'invalid_order_data',
+  'invalid_coupon',
+  'invalid_gift_card',
+  'payment_not_found',
+  'payment_verification',
+  'payment_amount_mismatch',
+  'payment_currency_mismatch',
+])
+
+export const zOrderCreateErrorDetail = z.object({
+  type: zOrderCreateErrorType,
+  productId: z.int().optional(),
+  available: z.int().optional(),
+  requested: z.int().optional(),
+  code: z.string().optional(),
+  reason: z.string().optional(),
+})
+
+/**
+ * The 400 body of ``POST /order``.
+ *
+ * A refusal the order service understands carries ``error.type``; a
+ * malformed payload is DRF's field-error map instead (``{field:
+ * [messages]}``), which is why every key here is optional.
+ */
+export const zOrderCreateError = z.object({
+  detail: z.string().optional(),
+  error: zOrderCreateErrorDetail.optional(),
+  cart: z.array(z.string()).optional(),
+  fieldErrors: z.record(z.string(), z.array(z.string())).optional(),
+})
+
+/**
  * * `RECEIPT` - Απόδειξη
  * * `INVOICE` - Τιμολόγιο
  * * `PROFORMA` - Προτιμολόγιο

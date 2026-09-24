@@ -16,7 +16,7 @@ const { contentShorten } = useText()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 
-const { data: categories } = useLazyFetch(`/api/blog/categories`, {
+const { data: categories } = useLazyApi(`/api/blog/categories`, {
   key: 'blogCategories-slider',
   method: 'GET',
   headers: useRequestHeaders(),

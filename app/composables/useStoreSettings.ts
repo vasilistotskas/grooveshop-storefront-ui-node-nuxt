@@ -32,7 +32,7 @@ export const STORE_SETTINGS_KEY = 'store-settings'
 const EMPTY: PublicSettings = { settings: {} }
 
 export function useStoreSettings() {
-  const { data, error } = useFetch<PublicSettings>('/api/settings/public', {
+  const { data, error } = useApi<PublicSettings>('/api/settings/public', {
     key: STORE_SETTINGS_KEY,
     default: () => EMPTY,
     // `dedupe` defaults to 'cancel': every further reader of the SAME
@@ -72,5 +72,5 @@ export function useStoreSettings() {
 export async function fetchStoreSettings(): Promise<PublicSettings> {
   const cached = useNuxtData<PublicSettings>(STORE_SETTINGS_KEY).data.value
   if (cached) return cached
-  return await useRequestFetch()<PublicSettings>('/api/settings/public')
+  return await useRequestApi()<PublicSettings>('/api/settings/public')
 }

@@ -15,7 +15,7 @@ export function useSubscriptionTopics() {
   // silently, because callers fall back to a default. Declared in setup
   // scope: useRequestFetch reads the request event through useNuxtApp(),
   // which is unavailable past an await boundary.
-  const requestFetch = useRequestFetch()
+  const requestFetch = useRequestApi()
 
   /**
    * Fetch all subscription topics

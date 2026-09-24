@@ -9,9 +9,9 @@ import { newsletterConsentText } from '~~/shared/i18n/newsletterConsent'
  * module the form label renders (`shared/i18n/newsletterConsent.ts`) —
  * a consent record the client composed would be only as trustworthy as
  * the client. The client calls this
- * route with `?locale=` set to the locale it rendered the label in, so
- * `1.locale.ts` resolves the same one and the stored sentence is the
- * one that was on screen.
+ * route through `$api`, which states the page's locale — the one the
+ * label was rendered in — in `X-Language`; `1.locale.ts` resolves the
+ * same one, so the stored sentence is the one that was on screen.
  *
  * `createHeaders()`: Django records the visitor's IP and user agent as
  * part of the consent, and keys its per-caller throttle on the IP — both

@@ -26,7 +26,7 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: addresses, status, error } = await useFetch(
+const { data: addresses, status, error } = await useApi(
   `/api/user/account/${user.value?.id}/addresses`,
   {
     key: `userAddresses${user.value?.id}`,
@@ -42,7 +42,7 @@ const { data: addresses, status, error } = await useFetch(
 
 const refreshAddresses = async () => {
   status.value = 'pending'
-  const addresses = await $fetch(
+  const addresses = await $api(
     `/api/user/account/${user.value?.id}/addresses`,
     {
       method: 'GET',

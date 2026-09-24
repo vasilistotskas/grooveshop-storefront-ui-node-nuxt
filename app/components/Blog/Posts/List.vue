@@ -64,7 +64,7 @@ const allPosts = shallowRef<BlogPost[]>([])
 const {
   data: posts,
   status,
-} = await useFetch(
+} = await useApi(
   '/api/blog/posts',
   {
     key: `blogPosts${paginationType.value}`,
@@ -102,7 +102,7 @@ const shouldFetchLikedPosts = computed(() => loggedIn.value && postIds.value.len
 // otherwise auto-refetch on every pagination change even for
 // anonymous visitors (`immediate` only gates the first call),
 // spamming the auth-required endpoint with 401s.
-const { execute: fetchLikedPosts } = await useFetch(
+const { execute: fetchLikedPosts } = await useApi(
   '/api/blog/posts/liked-posts',
   {
     key: `likedBlogPosts${user.value?.id}`,

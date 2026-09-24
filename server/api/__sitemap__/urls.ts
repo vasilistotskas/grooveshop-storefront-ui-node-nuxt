@@ -4,8 +4,8 @@ const SITEMAP_CACHE_AGE = 60 * 60
 // fetcher exactly once — calling ``createCachedFetcher`` inside the
 // handler meant every sitemap request re-registered the same name
 // into Nitro's cache registry (harmless, but wasteful + fragile).
-// Callers pass the request host as the first arg for per-tenant
-// cache scoping.
+// Callers pass the request host and locale for per-tenant,
+// per-language cache scoping.
 const cachedBlogPosts = createCachedFetcher<BlogPost>(
   'sitemap:blog-posts',
   SITEMAP_CACHE_AGE,
@@ -35,6 +35,7 @@ const cachedContentPages = createCachedFetcher<ContentPage>(
 export default defineSitemapEventHandler(async (event) => {
   const config = useRuntimeConfig()
   const host = getRequestHost(event, { xForwardedHost: false })
+  const locale = requestLocale(event)
 
   // This route is bypassed in server/middleware/0.tenant.ts (hit by
   // @nuxtjs/sitemap at build/SWR time without a real tenant Host), so
@@ -95,16 +96,16 @@ export default defineSitemapEventHandler(async (event) => {
     allContentPages,
   ] = await Promise.all([
     blogEnabled
-      ? cachedBlogPosts(host, `${apiBaseUrl}/blog/post?languageCode=${ACTIVE_LOCALE}`)
+      ? cachedBlogPosts(host, locale, `${apiBaseUrl}/blog/post?languageCode=${ACTIVE_LOCALE}`)
       : Promise.resolve([]),
     blogEnabled
-      ? cachedBlogCategories(host, `${apiBaseUrl}/blog/category?languageCode=${ACTIVE_LOCALE}`)
+      ? cachedBlogCategories(host, locale, `${apiBaseUrl}/blog/category?languageCode=${ACTIVE_LOCALE}`)
       : Promise.resolve([]),
     catalogueEnabled
-      ? cachedProducts(host, `${apiBaseUrl}/product?languageCode=${ACTIVE_LOCALE}`)
+      ? cachedProducts(host, locale, `${apiBaseUrl}/product?languageCode=${ACTIVE_LOCALE}`)
       : Promise.resolve([]),
     catalogueEnabled
-      ? cachedProductCategories(host, `${apiBaseUrl}/product/category?languageCode=${ACTIVE_LOCALE}`)
+      ? cachedProductCategories(host, locale, `${apiBaseUrl}/product/category?languageCode=${ACTIVE_LOCALE}`)
       : Promise.resolve([]),
     // Ungated: a content page is published or it is not, and the API
     // returns only published rows to an anonymous caller. pageSize is
@@ -112,6 +113,7 @@ export default defineSitemapEventHandler(async (event) => {
     // more policy pages than that would have silently listed a subset.
     cachedContentPages(
       host,
+      locale,
       `${apiBaseUrl}/content-page?languageCode=${ACTIVE_LOCALE}&pageSize=100`,
     ),
   ])

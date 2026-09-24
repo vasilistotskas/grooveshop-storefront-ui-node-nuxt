@@ -12,7 +12,7 @@ const { mockFetch, mockUseAsyncDataFn } = vi.hoisted(() => ({
 }))
 
 // Mock Nuxt composables using mockNuxtImport
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 mockNuxtImport('useAsyncData', () => mockUseAsyncDataFn)
 mockNuxtImport('useRequestHeaders', () => () => ({}))
 

@@ -85,7 +85,11 @@ const { fetchMock } = vi.hoisted(() => ({
     return Promise.resolve({})
   }),
 }))
-mockNuxtImport('$fetch', () => fetchMock)
+mockNuxtImport('$api', () => fetchMock)
+// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
+// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
+// builds `$api` from `$fetch.create()` while the app boots.
+mockNuxtImport('$fetch', () => Object.assign(fetchMock, { create: () => fetchMock }))
 
 function setPosts(next: any[]) {
   POSTS.length = 0

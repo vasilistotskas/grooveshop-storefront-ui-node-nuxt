@@ -27,7 +27,7 @@ useSeoMeta({
   description: () => t('description'),
 })
 
-const { data: offers } = await useFetch('/api/promotions', {
+const { data: offers } = await useApi('/api/promotions', {
   key: 'public-offers',
   headers: useRequestHeaders(),
   default: () => [],

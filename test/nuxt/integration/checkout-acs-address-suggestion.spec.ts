@@ -19,7 +19,7 @@ import AcsAddressSuggestion from '~/components/Checkout/AcsAddressSuggestion.vue
 // mocked via mockNuxtImport like any other auto-import.
 const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
 
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 
 // ACS proxy stub — every test that exercises the watcher swaps in
 // the desired response via the `addressValidationResponse` ref so

@@ -32,7 +32,7 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: orders, status, error, refresh: refreshOrders } = await useFetch(
+const { data: orders, status, error, refresh: refreshOrders } = await useApi(
   `/api/orders/my-orders`,
   {
     key: `userOrders${user.value?.id}`,

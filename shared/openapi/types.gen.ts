@@ -3851,6 +3851,9 @@ export type Order = {
      * Κατάσταση
      */
   status?: OrderStatus
+  /**
+     * Label for ``status``, rendered by the frontend instead of the raw enum value. In the request's language: ``X-Language``, then ``X-Locale``, then ``Accept-Language``, falling back to the default language (``core.middleware.locale.RequestLanguageMiddleware``).
+     */
   readonly statusDisplay: string
   /**
      * Κατάσταση ενημερώθηκε στις
@@ -3965,7 +3968,7 @@ export type Order = {
      */
   paymentStatus?: PaymentStatusEnum | BlankEnum
   /**
-     * Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. ALWAYS GREEK, whatever the caller asks for: every route lives under ``i18n_patterns(prefix_default_language=False)``, and Django's ``LocaleMiddleware`` pins any path without a language prefix to ``settings.LANGUAGE_CODE`` — so ``Accept-Language`` and ``X-Language`` are both inert here (measured 2026-09-09). A second UI locale needs its own client-side map, the way pay-way names already work; do not add server-rendered labels expecting negotiation.
+     * Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. In the request's language: ``X-Language``, then ``X-Locale``, then ``Accept-Language``, falling back to the default language (``core.middleware.locale.RequestLanguageMiddleware``).
      */
   readonly paymentStatusDisplay: string
   /**
@@ -3973,7 +3976,7 @@ export type Order = {
      */
   paymentMethod?: string
   /**
-     * Which payment method the shopper chose, as the ``PayWayEnum`` key — the storefront's label for the order. Deliberately the KEY and not a rendered string: the API is pinned to Greek (see ``paymentStatusDisplay``), so a server-rendered label would lock the storefront to one locale. Snapshotted on the order, so it survives the PayWay row being deleted (``SET_NULL``) or its key renamed. EMPTY when the order has no pay way — ``allow_blank`` is load-bearing, without it the generated client schema rejects those orders outright.
+     * Which payment method the shopper chose, as the ``PayWayEnum`` key — the storefront's label for the order. Deliberately the KEY and not a rendered string: the storefront owns the label map for payment methods, so the key is stable across languages and the label follows the page. Snapshotted on the order, so it survives the PayWay row being deleted (``SET_NULL``) or its key renamed. EMPTY when the order has no pay way — ``allow_blank`` is load-bearing, without it the generated client schema rejects those orders outright.
      *
      * * `CREDIT_CARD` - Πιστωτική κάρτα
      * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
@@ -4004,6 +4007,77 @@ export type Order = {
  * * `INVOICE` - Τιμολόγιο
  */
 export type OrderCreateDocumentType = 'RECEIPT' | 'INVOICE'
+
+/**
+ * The 400 body of ``POST /order``.
+ *
+ * A refusal the order service understands carries ``error.type``; a
+ * malformed payload is DRF's field-error map instead (``{field:
+ * [messages]}``), which is why every key here is optional.
+ */
+export type OrderCreateError = {
+  detail?: string
+  error?: OrderCreateErrorDetail
+  /**
+     * ``insufficient_stock`` / ``cart_invalid`` from the cart check: one message per problem, for display.
+     */
+  cart?: Array<string>
+  fieldErrors?: {
+    [key: string]: Array<string>
+  }
+}
+
+export type OrderCreateErrorDetail = {
+  /**
+     * Stable code for why the order was refused. Branch on this, never on ``detail`` or ``cart``, which are in the request's language.
+     *
+     * * `insufficient_stock` - Insufficient stock
+     * * `cart_invalid` - Cart not ready for checkout
+     * * `reservation_unavailable` - Stock reservation no longer valid
+     * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
+     * * `invalid_coupon` - Invalid coupon
+     * * `invalid_gift_card` - Invalid gift card
+     * * `payment_not_found` - Δεν βρέθηκε πληρωμή
+     * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
+     * * `payment_amount_mismatch` - Payment amount mismatch
+     * * `payment_currency_mismatch` - Payment currency mismatch
+     */
+  type: OrderCreateErrorType
+  /**
+     * ``insufficient_stock`` only.
+     */
+  productId?: number
+  /**
+     * ``insufficient_stock`` only.
+     */
+  available?: number
+  /**
+     * ``insufficient_stock`` only.
+     */
+  requested?: number
+  /**
+     * ``invalid_coupon`` only.
+     */
+  code?: string
+  /**
+     * ``invalid_coupon`` / ``invalid_gift_card`` only.
+     */
+  reason?: string
+}
+
+/**
+ * * `insufficient_stock` - Insufficient stock
+ * * `cart_invalid` - Cart not ready for checkout
+ * * `reservation_unavailable` - Stock reservation no longer valid
+ * * `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας
+ * * `invalid_coupon` - Invalid coupon
+ * * `invalid_gift_card` - Invalid gift card
+ * * `payment_not_found` - Δεν βρέθηκε πληρωμή
+ * * `payment_verification` - Η επαλήθευση πληρωμής απέτυχε
+ * * `payment_amount_mismatch` - Payment amount mismatch
+ * * `payment_currency_mismatch` - Payment currency mismatch
+ */
+export type OrderCreateErrorType = 'insufficient_stock' | 'cart_invalid' | 'reservation_unavailable' | 'invalid_order_data' | 'invalid_coupon' | 'invalid_gift_card' | 'payment_not_found' | 'payment_verification' | 'payment_amount_mismatch' | 'payment_currency_mismatch'
 
 /**
  * Serializer for creating orders from cart (dual-flow payment architecture).
@@ -4203,6 +4277,9 @@ export type OrderDetail = {
      * Κατάσταση
      */
   status?: OrderStatus
+  /**
+     * Label for ``status``, rendered by the frontend instead of the raw enum value. In the request's language: ``X-Language``, then ``X-Locale``, then ``Accept-Language``, falling back to the default language (``core.middleware.locale.RequestLanguageMiddleware``).
+     */
   readonly statusDisplay: string
   /**
      * Κατάσταση ενημερώθηκε στις
@@ -4317,7 +4394,7 @@ export type OrderDetail = {
      */
   paymentStatus?: PaymentStatusEnum | BlankEnum
   /**
-     * Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. ALWAYS GREEK, whatever the caller asks for: every route lives under ``i18n_patterns(prefix_default_language=False)``, and Django's ``LocaleMiddleware`` pins any path without a language prefix to ``settings.LANGUAGE_CODE`` — so ``Accept-Language`` and ``X-Language`` are both inert here (measured 2026-09-09). A second UI locale needs its own client-side map, the way pay-way names already work; do not add server-rendered labels expecting negotiation.
+     * Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. In the request's language: ``X-Language``, then ``X-Locale``, then ``Accept-Language``, falling back to the default language (``core.middleware.locale.RequestLanguageMiddleware``).
      */
   readonly paymentStatusDisplay: string
   /**
@@ -4325,7 +4402,7 @@ export type OrderDetail = {
      */
   paymentMethod?: string
   /**
-     * Which payment method the shopper chose, as the ``PayWayEnum`` key — the storefront's label for the order. Deliberately the KEY and not a rendered string: the API is pinned to Greek (see ``paymentStatusDisplay``), so a server-rendered label would lock the storefront to one locale. Snapshotted on the order, so it survives the PayWay row being deleted (``SET_NULL``) or its key renamed. EMPTY when the order has no pay way — ``allow_blank`` is load-bearing, without it the generated client schema rejects those orders outright.
+     * Which payment method the shopper chose, as the ``PayWayEnum`` key — the storefront's label for the order. Deliberately the KEY and not a rendered string: the storefront owns the label map for payment methods, so the key is stable across languages and the label follows the page. Snapshotted on the order, so it survives the PayWay row being deleted (``SET_NULL``) or its key renamed. EMPTY when the order has no pay way — ``allow_blank`` is load-bearing, without it the generated client schema rejects those orders outright.
      *
      * * `CREDIT_CARD` - Πιστωτική κάρτα
      * * `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση
@@ -18159,7 +18236,7 @@ export type CreateOrderData = {
 }
 
 export type CreateOrderErrors = {
-  400: ErrorResponse
+  400: OrderCreateError
   401: ErrorResponse
   403: ErrorResponse
   404: ErrorResponse

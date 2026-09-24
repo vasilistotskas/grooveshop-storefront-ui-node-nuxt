@@ -18,7 +18,7 @@
  */
 
 export const useFreeShippingInfo = () => {
-  return useFetch('/api/shipping/free-shipping-info', {
+  return useApi('/api/shipping/free-shipping-info', {
     key: 'shipping:free-shipping-info',
     method: 'GET',
     headers: useRequestHeaders(),

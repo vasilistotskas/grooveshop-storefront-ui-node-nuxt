@@ -64,7 +64,7 @@ const loadExports = async () => {
   if (!uid.value) return
   fetchingExports.value = true
   try {
-    const res = await $fetch(`/api/user/account/${uid.value}/data-exports`)
+    const res = await $api(`/api/user/account/${uid.value}/data-exports`)
     exports.value = (res?.results ?? []) as UserDataExport[]
   }
   catch (error) {
@@ -95,7 +95,7 @@ const requestExport = async () => {
   if (!uid.value || requesting.value) return
   requesting.value = true
   try {
-    await $fetch(`/api/user/account/${uid.value}/request-data-export`, {
+    await $api(`/api/user/account/${uid.value}/request-data-export`, {
       method: 'POST',
     })
     toast.add({
@@ -144,7 +144,7 @@ const onConfirmDelete = async () => {
   if (!uid.value || !canConfirmDelete.value) return
   deleting.value = true
   try {
-    await $fetch(`/api/user/account/${uid.value}/delete-account`, {
+    await $api(`/api/user/account/${uid.value}/delete-account`, {
       method: 'POST',
       body: { confirmation: 'DELETE' },
     })

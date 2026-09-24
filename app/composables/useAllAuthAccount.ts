@@ -1,14 +1,14 @@
 export default function () {
   const API_ACCOUNT_BASE_URL = ALLAUTH_ACCOUNT_URL
   async function getUserAccount(id: number) {
-    return $fetch(`/api/user/account/${id}`, {
+    return $api(`/api/user/account/${id}`, {
       method: 'GET',
       headers: useRequestHeaders(),
     })
   }
 
   async function getEmailAddresses() {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -21,7 +21,7 @@ export default function () {
   }
 
   async function addEmailAddress(body: EmailPostBody) {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -35,7 +35,7 @@ export default function () {
   }
 
   async function requestEmailVerification(body: EmailPutBody) {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'PUT',
       headers: useRequestHeaders(),
       body,
@@ -49,7 +49,7 @@ export default function () {
   }
 
   async function changePrimaryEmailAddress(body: EmailPatchBody) {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'PATCH',
       headers: useRequestHeaders(),
       body,
@@ -63,7 +63,7 @@ export default function () {
   }
 
   async function removeEmailAddress(body: EmailDeleteBody) {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/email`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/email`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
       body,
@@ -77,7 +77,7 @@ export default function () {
   }
 
   async function changePassword(body: PasswordChangeBody) {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/password/change`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/password/change`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -91,7 +91,7 @@ export default function () {
   }
 
   async function connectedThirdPartyProviderAccounts() {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/providers`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/providers`, {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -104,7 +104,7 @@ export default function () {
   }
 
   async function disconnectThirdPartyProviderAccount(body: ProvidersDeleteBody) {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/providers`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/providers`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
       body,
@@ -118,7 +118,7 @@ export default function () {
   }
 
   async function getAuthenticators() {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/authenticators`, {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -131,7 +131,7 @@ export default function () {
   }
 
   async function totpAuthenticatorStatus() {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/totp/svg`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/authenticators/totp/svg`, {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -144,7 +144,7 @@ export default function () {
   }
 
   async function activateTotp(body: TotpPostBody) {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/totp`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/authenticators/totp`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -158,7 +158,7 @@ export default function () {
   }
 
   async function deactivateTotp() {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/totp`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/authenticators/totp`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -171,7 +171,7 @@ export default function () {
   }
 
   async function getRecoveryCodes() {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/recovery-codes`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/authenticators/recovery-codes`, {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -184,7 +184,7 @@ export default function () {
   }
 
   async function generateRecoveryCodes() {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/recovery-codes`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/authenticators/recovery-codes`, {
       method: 'POST',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -197,7 +197,7 @@ export default function () {
   }
 
   async function getWebAuthnCreateOptions(passwordless: boolean) {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
       method: 'GET',
       headers: useRequestHeaders(),
       query: {
@@ -213,7 +213,7 @@ export default function () {
   }
 
   async function addWebAuthnCredential(body: WebAuthnPostBody) {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -227,7 +227,7 @@ export default function () {
   }
 
   async function deleteWebAuthnCredential(body: WebAuthnDeleteBody) {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
       body,
@@ -241,7 +241,7 @@ export default function () {
   }
 
   async function updateWebAuthnCredential(body: WebAuthnPutBody) {
-    return $fetch(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
+    return $api(`${API_ACCOUNT_BASE_URL}/authenticators/webauthn`, {
       method: 'PUT',
       headers: useRequestHeaders(),
       body,

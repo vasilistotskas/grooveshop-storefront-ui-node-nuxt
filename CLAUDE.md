@@ -133,7 +133,8 @@ Custom local modules:
 - **Releases**: Semantic release on `main` branch with conventional commits (e.g., `feat:`, `fix:`, `chore:`)
 - **API route pattern**: Validate input with Zod → `$fetch` to Django → `parseDataAs` response → `handleError` in catch. `handleError` always throws — code after it is unreachable. Use `throw createError(...)` not `return createError(...)`.
 - **Zod version**: Zod 4 (import from `zod`, schemas prefixed with `z`)
-- **Store actions**: Must use `$fetch`, not `useFetch` (which is a setup-scope composable). `useLazyFetch` should not be `await`ed in `<script setup>` — it defeats lazy loading.
+- **App fetchers**: the app calls its own `/api` ONLY through `$api` (for `$fetch`), `useApi` / `useLazyApi` (for `useFetch` / `useLazyFetch`) and `useRequestApi` (for `useRequestFetch`) — `app/utils/api.ts`, `app/plugins/api.ts`, `app/composables/useApi.ts`. They state the page's locale in `X-Language` (`pageLocaleHeader`), which is the language Django answers in and what the Nitro caches key on; an ESLint `no-restricted-syntax` rule fails a raw `$fetch` / `useFetch` / `useLazyFetch` / `useRequestFetch` in `app/**`. Tests mock `$api` / `useApi` with `mockNuxtImport`.
+- **Store actions**: Must use `$api`, not `useApi` (which is a setup-scope composable). `useLazyApi` should not be `await`ed in `<script setup>` — it defeats lazy loading.
 - **SSR safety**: Use VueUse `useEventListener` instead of manual `window.addEventListener`/`removeEventListener`. Guard bare `window`/`document` access with `import.meta.client` or `onMounted`.
 - **Lifecycle hooks**: Vue does not await async lifecycle hooks. Use fire-and-forget with `.catch()` for cleanup work in `onBeforeUnmount`.
 - **i18n**: All user-facing strings must use `t()` from `useI18n()` or component-scoped `<i18n lang="yaml">` blocks — no hardcoded Greek or English strings. Use `extractTranslated(obj, field, locale)` for API model translations.

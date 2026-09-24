@@ -11,29 +11,29 @@ const RSS_CACHE_AGE = 60 * 60
 // generated artifacts disagree structurally on this one point — the value
 // is identical at runtime, so the cast is safe.
 const cachedBlogCategory = defineCachedFunction(
-  async (tenantKey: string, url: string): Promise<BlogCategoryDetail> => {
-    // Forward the tenant host explicitly — relying on the global $fetch
-    // patch breaks under SWR revalidation where useEvent() is absent
-    // and the patch falls back to the platform host.
-    const raw = await $fetch(url, { method: 'GET', headers: { 'X-Forwarded-Host': tenantKey } })
+  async (tenantKey: string, locale: string, url: string): Promise<BlogCategoryDetail> => {
+    // Forward the tenant host and locale explicitly — relying on the
+    // global $fetch patch breaks under SWR revalidation where useEvent()
+    // is absent and the patch falls back to the platform host.
+    const raw = await $fetch(url, { method: 'GET', headers: { 'X-Forwarded-Host': tenantKey, 'X-Language': locale } })
     return await parseDataAs(raw, zBlogCategoryDetail) as BlogCategoryDetail
   },
   {
     maxAge: RSS_CACHE_AGE,
     name: 'cachedBlogCategory',
-    getKey: (tenantKey: string, url: string) => `${tenantKey}:${url}`,
+    getKey: (tenantKey: string, locale: string, url: string) => `${tenantKey}:${locale}:${url}`,
   },
 )
 
 const cachedProductCategoryDetail = defineCachedFunction(
-  async (tenantKey: string, url: string): Promise<ProductCategoryDetail> => {
-    const raw = await $fetch(url, { method: 'GET', headers: { 'X-Forwarded-Host': tenantKey } })
+  async (tenantKey: string, locale: string, url: string): Promise<ProductCategoryDetail> => {
+    const raw = await $fetch(url, { method: 'GET', headers: { 'X-Forwarded-Host': tenantKey, 'X-Language': locale } })
     return await parseDataAs(raw, zProductCategoryDetail) as ProductCategoryDetail
   },
   {
     maxAge: RSS_CACHE_AGE,
     name: 'cachedProductCategoryDetail',
-    getKey: (tenantKey: string, url: string) => `${tenantKey}:${url}`,
+    getKey: (tenantKey: string, locale: string, url: string) => `${tenantKey}:${locale}:${url}`,
   },
 )
 
@@ -66,8 +66,8 @@ const generateRssFeed = defineCachedFunction(
     const cachedProducts = createCachedFetcher<Product>('rss:products', RSS_CACHE_AGE)
 
     const [allPosts, allProducts] = await Promise.all([
-      cachedBlogPosts(tenantKey, `${apiBaseUrl}/blog/post`),
-      cachedProducts(tenantKey, `${apiBaseUrl}/product`),
+      cachedBlogPosts(tenantKey, locale, `${apiBaseUrl}/blog/post`),
+      cachedProducts(tenantKey, locale, `${apiBaseUrl}/product`),
     ])
 
     const blogPosts = allPosts.map(post => zBlogPost.parse(post))
@@ -187,7 +187,7 @@ async function processBlogPosts(
   // Pre-fetch all unique category IDs in parallel
   const uniqueCategoryIds = [...new Set(blogPosts.map(p => p.category).filter(Boolean))]
   const categoryResults = await Promise.allSettled(
-    uniqueCategoryIds.map(id => cachedBlogCategory(tenantKey, `${apiBaseUrl}/blog/category/${id}`)),
+    uniqueCategoryIds.map(id => cachedBlogCategory(tenantKey, locale, `${apiBaseUrl}/blog/category/${id}`)),
   )
   const categoryMap = new Map(
     uniqueCategoryIds.map((id, i) => {
@@ -279,7 +279,7 @@ async function processProducts(
   // Pre-fetch all unique category IDs in parallel
   const uniqueCategoryIds = [...new Set(products.map(p => p.category).filter(Boolean))]
   const categoryResults = await Promise.allSettled(
-    uniqueCategoryIds.map(id => cachedProductCategoryDetail(tenantKey, `${apiBaseUrl}/product/category/${id}`)),
+    uniqueCategoryIds.map(id => cachedProductCategoryDetail(tenantKey, locale, `${apiBaseUrl}/product/category/${id}`)),
   )
   const categoryMap = new Map(
     uniqueCategoryIds.map((id, i) => {

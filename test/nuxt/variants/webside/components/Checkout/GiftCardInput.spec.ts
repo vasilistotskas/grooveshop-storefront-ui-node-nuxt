@@ -20,7 +20,7 @@ const { mockFetch } = vi.hoisted(() => ({
     return Promise.resolve({})
   }),
 }))
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 
 mockNuxtImport('useTenantStore', () => {
   return () => ({

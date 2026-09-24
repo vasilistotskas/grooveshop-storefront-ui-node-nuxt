@@ -54,7 +54,7 @@ onMounted(async () => {
     try {
       loading.value = true
       // Fetch tokens securely from server session (not URL)
-      const oauthParams = await $fetch('/api/auth/oauth-params')
+      const oauthParams = await $api('/api/auth/oauth-params')
       const token: ProviderToken = {
         client_id: String(oauthParams.client_id),
       }

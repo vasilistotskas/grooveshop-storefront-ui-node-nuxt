@@ -64,7 +64,7 @@ const isLoadingMore = ref(false)
 
 const refreshLikedComments = async (ids: number[]) => {
   if (!loggedIn.value) return
-  return await $fetch('/api/blog/comments/liked-comments', {
+  return await $api('/api/blog/comments/liked-comments', {
     method: 'POST',
     body: {
       commentIds: ids,
@@ -83,7 +83,7 @@ const {
   data: comments,
   status,
   refresh,
-} = await useFetch(
+} = await useApi(
   `/api/blog/posts/${blogPostId.value}/comments`,
   {
     key: `comments${blogPostId.value}`,
@@ -131,7 +131,7 @@ const loadMoreComments = async () => {
     // its pagination query params are reusable; the request itself must go
     // through the Nuxt proxy route, never straight to Django.
     const query = Object.fromEntries(new URL(nextUrl).searchParams)
-    const response = await $fetch<PaginatedBlogCommentList>(
+    const response = await $api<PaginatedBlogCommentList>(
       `/api/blog/posts/${blogPostId.value}/comments`,
       { query },
     )
@@ -210,7 +210,7 @@ const addCommentFormSchema: DynamicFormSchema = {
 }
 
 async function onAddCommentSubmit(values: Record<string, any>) {
-  await $fetch('/api/blog/comments', {
+  await $api('/api/blog/comments', {
     method: 'POST',
     body: {
       post: Number(blogPostId.value),

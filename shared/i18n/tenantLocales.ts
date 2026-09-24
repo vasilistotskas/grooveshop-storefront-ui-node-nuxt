@@ -1,4 +1,4 @@
-import { SUPPORTED_LOCALES } from '../../i18n/locales'
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '../../i18n/locales'
 
 /**
  * The locales a given tenant may actually be served in.
@@ -32,4 +32,34 @@ export function tenantAllowedLocales(
     return [fallback]
   }
   return [...SUPPORTED_LOCALES]
+}
+
+/**
+ * The locale a page for `candidate` is actually rendered in on this
+ * tenant — the ONE rule the server locale middleware and the route
+ * guard (`app/middleware/locale-available.global.ts`) share.
+ *
+ * `candidate` is the page's locale: its path prefix for a page request,
+ * or the `X-Language` the app's fetcher states for an `/api` request. A
+ * locale the tenant serves is rendered as itself. Anything else — a
+ * prefix the tenant does not list (the guard 404s that page), a missing
+ * or unknown value — resolves to `DEFAULT_LOCALE`, because the
+ * unprefixed path is what renders then.
+ *
+ * `DEFAULT_LOCALE` is always served, listed or not. It is the BUILD-time
+ * `i18n.defaultLocale` that `prefix_except_default` gives the unprefixed
+ * routes, so `/` renders in it on every tenant: a store whose
+ * `default_locale` is `en` still gets `el` on `/`, and this follows
+ * what renders rather than the tenant setting. Serving a per-store
+ * default on the unprefixed routes is a routing change, deliberately
+ * out of scope here.
+ */
+export function servedLocale(
+  candidate: string | null | undefined,
+  tenant?: Parameters<typeof tenantAllowedLocales>[0],
+): string {
+  if (!candidate || candidate === DEFAULT_LOCALE) return DEFAULT_LOCALE
+  return tenantAllowedLocales(tenant).includes(candidate)
+    ? candidate
+    : DEFAULT_LOCALE
 }

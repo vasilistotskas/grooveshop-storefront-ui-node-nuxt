@@ -11,7 +11,8 @@ import { newsletterConsent, newsletterConsentText } from '~~/shared/i18n/newslet
  * - consent is an unticked box the visitor must tick, labelled with
  *   the sentence from `shared/i18n/newsletterConsent.ts` (the module
  *   the server route stores as proof, so they cannot drift);
- * - the request names the locale the label was rendered in;
+ * - the locale the label was rendered in travels in `$api`'s page-locale
+ *   header (`pageLocaleHeader`, tested separately), not in the request;
  * - its four states: idle, submitting, sent, error (429 → "later").
  */
 const flags = vi.hoisted(() => ({ newsletterEnabled: true, available: true }))
@@ -20,14 +21,14 @@ mockNuxtImport('useSettingFlag', () => (key: string, options: { fallback: boolea
   computed(() => (key === 'NEWSLETTER_ENABLED' ? flags.newsletterEnabled : options.fallback)),
 )
 
-mockNuxtImport('useFetch', () => () =>
+mockNuxtImport('useApi', () => () =>
   Promise.resolve({ data: ref({ available: flags.available }) }),
 )
 
 const { mockFetch } = vi.hoisted(() => ({
   mockFetch: vi.fn((_url: unknown, _opts?: unknown) => Promise.resolve({})),
 }))
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 
 async function fillAndSubmit(
   wrapper: Awaited<ReturnType<typeof mountSuspended>>,
@@ -101,16 +102,17 @@ describe('NewsletterSignup', () => {
     expect(wrapper.find('form').exists()).toBe(true)
   })
 
-  it('posts email + consent with the rendered locale, then shows "check your inbox"', async () => {
+  it('posts email + consent through $api, then shows "check your inbox"', async () => {
     const wrapper = await mountSuspended(NewsletterSignup, { props: {} })
 
     await fillAndSubmit(wrapper)
 
     const calls = postCalls()
     expect(calls).toHaveLength(1)
-    const opts = calls[0]![1] as { method: string, query: Record<string, string>, body: Record<string, unknown> }
+    const opts = calls[0]![1] as { method: string, query?: unknown, body: Record<string, unknown> }
     expect(opts.method).toBe('POST')
-    expect(opts.query).toEqual({ locale: 'el' })
+    // The locale travels in `$api`'s page-locale header, not the query.
+    expect(opts).not.toHaveProperty('query')
     expect(opts.body).toEqual({ email: 'visitor@example.com', consent: true })
     // The browser never supplies the consent sentence: the server does.
     expect(opts.body).not.toHaveProperty('consentText')
@@ -119,7 +121,7 @@ describe('NewsletterSignup', () => {
     expect(wrapper.find('[role="status"]').exists()).toBe(true)
   })
 
-  it('on /en shows the English sentence and asks the server for English', async () => {
+  it('on /en shows the English sentence and sends no locale query', async () => {
     const { $i18n } = useNuxtApp()
     $i18n.locale.value = 'en'
     try {
@@ -128,8 +130,8 @@ describe('NewsletterSignup', () => {
       expect(wrapper.find('form').text()).toContain(newsletterConsentText('en'))
       await fillAndSubmit(wrapper)
 
-      const opts = postCalls()[0]![1] as { query: Record<string, string> }
-      expect(opts.query).toEqual({ locale: 'en' })
+      const opts = postCalls()[0]![1] as { query?: unknown }
+      expect(opts).not.toHaveProperty('query')
     }
     finally {
       $i18n.locale.value = 'el'

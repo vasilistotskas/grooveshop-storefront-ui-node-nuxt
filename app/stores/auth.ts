@@ -51,7 +51,7 @@ export const useAuthStore = defineStore('auth', () => {
   const setupConfig = async () => {
     try {
       status.value.config = 'pending'
-      const data = await $fetch<ConfigResponse>(
+      const data = await $api<ConfigResponse>(
         ALLAUTH_CONFIG_URL,
         {
           method: 'GET',

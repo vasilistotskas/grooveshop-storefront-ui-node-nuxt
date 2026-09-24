@@ -22600,7 +22600,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ErrorResponse"
+                                    "$ref": "#/components/schemas/OrderCreateError"
                                 }
                             }
                         },
@@ -60481,7 +60481,8 @@
                     },
                     "statusDisplay": {
                         "type": "string",
-                        "readOnly": true
+                        "readOnly": true,
+                        "description": "Label for ``status``, rendered by the frontend instead of the raw enum value. In the request's language: ``X-Language``, then ``X-Locale``, then ``Accept-Language``, falling back to the default language (``core.middleware.locale.RequestLanguageMiddleware``)."
                     },
                     "statusUpdatedAt": {
                         "type": "string",
@@ -60705,7 +60706,7 @@
                     "paymentStatusDisplay": {
                         "type": "string",
                         "readOnly": true,
-                        "description": "Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. ALWAYS GREEK, whatever the caller asks for: every route lives under ``i18n_patterns(prefix_default_language=False)``, and Django's ``LocaleMiddleware`` pins any path without a language prefix to ``settings.LANGUAGE_CODE`` — so ``Accept-Language`` and ``X-Language`` are both inert here (measured 2026-09-09). A second UI locale needs its own client-side map, the way pay-way names already work; do not add server-rendered labels expecting negotiation."
+                        "description": "Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. In the request's language: ``X-Language``, then ``X-Locale``, then ``Accept-Language``, falling back to the default language (``core.middleware.locale.RequestLanguageMiddleware``)."
                     },
                     "paymentMethod": {
                         "type": "string",
@@ -60714,7 +60715,7 @@
                     },
                     "payWayKey": {
                         "readOnly": true,
-                        "description": "Which payment method the shopper chose, as the ``PayWayEnum`` key — the storefront's label for the order. Deliberately the KEY and not a rendered string: the API is pinned to Greek (see ``paymentStatusDisplay``), so a server-rendered label would lock the storefront to one locale. Snapshotted on the order, so it survives the PayWay row being deleted (``SET_NULL``) or its key renamed. EMPTY when the order has no pay way — ``allow_blank`` is load-bearing, without it the generated client schema rejects those orders outright.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet",
+                        "description": "Which payment method the shopper chose, as the ``PayWayEnum`` key — the storefront's label for the order. Deliberately the KEY and not a rendered string: the storefront owns the label map for payment methods, so the key is stable across languages and the label follows the page. Snapshotted on the order, so it survives the PayWay row being deleted (``SET_NULL``) or its key renamed. EMPTY when the order has no pay way — ``allow_blank`` is load-bearing, without it the generated client schema rejects those orders outright.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet",
                         "oneOf": [
                             {
                                 "$ref": "#/components/schemas/PayWayKeyEnum"
@@ -60795,6 +60796,86 @@
                 ],
                 "type": "string",
                 "description": "* `RECEIPT` - Απόδειξη\n* `INVOICE` - Τιμολόγιο"
+            },
+            "OrderCreateError": {
+                "type": "object",
+                "description": "The 400 body of ``POST /order``.\n\nA refusal the order service understands carries ``error.type``; a\nmalformed payload is DRF's field-error map instead (``{field:\n[messages]}``), which is why every key here is optional.",
+                "properties": {
+                    "detail": {
+                        "type": "string"
+                    },
+                    "error": {
+                        "$ref": "#/components/schemas/OrderCreateErrorDetail"
+                    },
+                    "cart": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "``insufficient_stock`` / ``cart_invalid`` from the cart check: one message per problem, for display."
+                    },
+                    "fieldErrors": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "OrderCreateErrorDetail": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/OrderCreateErrorType"
+                            }
+                        ],
+                        "description": "Stable code for why the order was refused. Branch on this, never on ``detail`` or ``cart``, which are in the request's language.\n\n* `insufficient_stock` - Insufficient stock\n* `cart_invalid` - Cart not ready for checkout\n* `reservation_unavailable` - Stock reservation no longer valid\n* `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας\n* `invalid_coupon` - Invalid coupon\n* `invalid_gift_card` - Invalid gift card\n* `payment_not_found` - Δεν βρέθηκε πληρωμή\n* `payment_verification` - Η επαλήθευση πληρωμής απέτυχε\n* `payment_amount_mismatch` - Payment amount mismatch\n* `payment_currency_mismatch` - Payment currency mismatch"
+                    },
+                    "productId": {
+                        "type": "integer",
+                        "description": "``insufficient_stock`` only."
+                    },
+                    "available": {
+                        "type": "integer",
+                        "description": "``insufficient_stock`` only."
+                    },
+                    "requested": {
+                        "type": "integer",
+                        "description": "``insufficient_stock`` only."
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "``invalid_coupon`` only."
+                    },
+                    "reason": {
+                        "type": "string",
+                        "description": "``invalid_coupon`` / ``invalid_gift_card`` only."
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            },
+            "OrderCreateErrorType": {
+                "enum": [
+                    "insufficient_stock",
+                    "cart_invalid",
+                    "reservation_unavailable",
+                    "invalid_order_data",
+                    "invalid_coupon",
+                    "invalid_gift_card",
+                    "payment_not_found",
+                    "payment_verification",
+                    "payment_amount_mismatch",
+                    "payment_currency_mismatch"
+                ],
+                "type": "string",
+                "description": "* `insufficient_stock` - Insufficient stock\n* `cart_invalid` - Cart not ready for checkout\n* `reservation_unavailable` - Stock reservation no longer valid\n* `invalid_order_data` - Μη έγκυρα δεδομένα παραγγελίας\n* `invalid_coupon` - Invalid coupon\n* `invalid_gift_card` - Invalid gift card\n* `payment_not_found` - Δεν βρέθηκε πληρωμή\n* `payment_verification` - Η επαλήθευση πληρωμής απέτυχε\n* `payment_amount_mismatch` - Payment amount mismatch\n* `payment_currency_mismatch` - Payment currency mismatch"
             },
             "OrderCreateFromCartRequest": {
                 "type": "object",
@@ -61104,7 +61185,8 @@
                     },
                     "statusDisplay": {
                         "type": "string",
-                        "readOnly": true
+                        "readOnly": true,
+                        "description": "Label for ``status``, rendered by the frontend instead of the raw enum value. In the request's language: ``X-Language``, then ``X-Locale``, then ``Accept-Language``, falling back to the default language (``core.middleware.locale.RequestLanguageMiddleware``)."
                     },
                     "statusUpdatedAt": {
                         "type": "string",
@@ -61329,7 +61411,7 @@
                     "paymentStatusDisplay": {
                         "type": "string",
                         "readOnly": true,
-                        "description": "Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. ALWAYS GREEK, whatever the caller asks for: every route lives under ``i18n_patterns(prefix_default_language=False)``, and Django's ``LocaleMiddleware`` pins any path without a language prefix to ``settings.LANGUAGE_CODE`` — so ``Accept-Language`` and ``X-Language`` are both inert here (measured 2026-09-09). A second UI locale needs its own client-side map, the way pay-way names already work; do not add server-rendered labels expecting negotiation."
+                        "description": "Label for ``payment_status`` (mirrors ``status_display``), rendered by the frontend instead of the raw enum value. In the request's language: ``X-Language``, then ``X-Locale``, then ``Accept-Language``, falling back to the default language (``core.middleware.locale.RequestLanguageMiddleware``)."
                     },
                     "paymentMethod": {
                         "type": "string",
@@ -61338,7 +61420,7 @@
                     },
                     "payWayKey": {
                         "readOnly": true,
-                        "description": "Which payment method the shopper chose, as the ``PayWayEnum`` key — the storefront's label for the order. Deliberately the KEY and not a rendered string: the API is pinned to Greek (see ``paymentStatusDisplay``), so a server-rendered label would lock the storefront to one locale. Snapshotted on the order, so it survives the PayWay row being deleted (``SET_NULL``) or its key renamed. EMPTY when the order has no pay way — ``allow_blank`` is load-bearing, without it the generated client schema rejects those orders outright.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet",
+                        "description": "Which payment method the shopper chose, as the ``PayWayEnum`` key — the storefront's label for the order. Deliberately the KEY and not a rendered string: the storefront owns the label map for payment methods, so the key is stable across languages and the label follows the page. Snapshotted on the order, so it survives the PayWay row being deleted (``SET_NULL``) or its key renamed. EMPTY when the order has no pay way — ``allow_blank`` is load-bearing, without it the generated client schema rejects those orders outright.\n\n* `CREDIT_CARD` - Πιστωτική κάρτα\n* `PAY_ON_DELIVERY` - Πληρωμή κατά την παράδοση\n* `BOX_NOW_PAY_ON_THE_GO` - BOX NOW PAY ON THE GO!\n* `PAY_ON_STORE` - Πληρωμή στο κατάστημα\n* `PAY_PAL` - PayPal\n* `STRIPE` - Stripe\n* `BANK_TRANSFER` - Τραπεζική μεταφορά\n* `APPLE_PAY` - Apple Pay\n* `GOOGLE_PAY` - Google Pay\n* `VIVA_WALLET` - Viva Wallet",
                         "oneOf": [
                             {
                                 "$ref": "#/components/schemas/PayWayKeyEnum"

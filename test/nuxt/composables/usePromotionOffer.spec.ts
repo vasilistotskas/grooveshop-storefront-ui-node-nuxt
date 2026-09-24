@@ -15,7 +15,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 const { mockFetch } = vi.hoisted(() => ({
   mockFetch: vi.fn((..._args: any[]) => Promise.resolve({})),
 }))
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 
 function offer(over: Record<string, any> = {}) {
   return {

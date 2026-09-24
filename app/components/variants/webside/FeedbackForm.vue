@@ -58,7 +58,7 @@ async function onSubmit(values: FeedbackValues) {
   if (loading.value) return
   loading.value = true
   try {
-    await $fetch('/api/feedback', {
+    await $api('/api/feedback', {
       method: 'POST',
       body: values,
     })

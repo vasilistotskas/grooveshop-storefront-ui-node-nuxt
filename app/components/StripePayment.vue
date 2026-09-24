@@ -140,7 +140,7 @@ const createPaymentIntent = async () => {
   currentStep.value = 'create'
 
   try {
-    const response = await $fetch(`/api/orders/${props.order.id}/create-payment-intent`, {
+    const response = await $api(`/api/orders/${props.order.id}/create-payment-intent`, {
       method: 'POST',
       body: {},
       query: props.order.uuid ? { uuid: props.order.uuid } : undefined,

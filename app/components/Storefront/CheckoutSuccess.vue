@@ -47,7 +47,7 @@ const getImage = (mainImagePath: string) => {
   })
 }
 
-const { data: order, error, refresh } = await useFetch(
+const { data: order, error, refresh } = await useApi(
   `/api/orders/uuid/${orderUUID}`,
   {
     key: `order${orderUUID}`,
@@ -128,7 +128,7 @@ const openTracking = () => {
 // client navigation), so this needs the request-bound fetch: a bare
 // $fetch loses the tenant host and 404s, silently emptying the
 // carousel.
-const requestFetch = useRequestFetch()
+const requestFetch = useRequestApi()
 const { data: recommendedPosts } = useLazyAsyncData(
   `success-recommended-posts:${locale.value}`,
   () => tenantStore.blogEnabled

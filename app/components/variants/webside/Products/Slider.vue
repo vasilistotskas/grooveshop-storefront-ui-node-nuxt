@@ -18,7 +18,7 @@ const { pageSize } = toRefs(props)
 const { locale } = useI18n()
 const { isMobileOrTablet } = useDevice()
 
-const { data: products } = await useFetch(`/api/products`, {
+const { data: products } = await useApi(`/api/products`, {
   key: 'productsSlider',
   method: 'GET',
   headers: useRequestHeaders(),

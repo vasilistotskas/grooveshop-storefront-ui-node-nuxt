@@ -20,7 +20,7 @@ export const useLoyalty = () => {
   // silently, because every caller falls back to a default. It still
   // omits the headers that would break Nuxt's payload-cache hash
   // (range, if-none-match) and the hop-by-hop ones.
-  const requestFetch = useRequestFetch()
+  const requestFetch = useRequestApi()
 
   /**
    * Fetch loyalty system configuration settings

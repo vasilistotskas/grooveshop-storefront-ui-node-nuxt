@@ -22,7 +22,7 @@ export function useFooterLinks() {
   // are always safe to link unconditionally — unlike the removed
   // brand-only routes above, every entry here is a row that actually
   // exists and is published for THIS tenant, so it can never 404.
-  const { data: contentPagesData } = useFetch('/api/content-pages', {
+  const { data: contentPagesData } = useApi('/api/content-pages', {
     key: 'footer-content-pages',
     query: { pageSize: 50, ordering: 'slug' },
   })

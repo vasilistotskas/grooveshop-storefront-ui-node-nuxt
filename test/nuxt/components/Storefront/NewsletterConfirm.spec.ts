@@ -23,7 +23,7 @@ mockNuxtImport('useRoute', () => () => ({
 const { mockFetch } = vi.hoisted(() => ({
   mockFetch: vi.fn((_url: unknown, _opts?: unknown) => Promise.resolve({})),
 }))
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 
 const CONFIRM_URL = `/api/subscriptions/confirm/${TOKEN}`
 

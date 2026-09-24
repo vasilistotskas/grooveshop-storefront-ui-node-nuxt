@@ -65,7 +65,7 @@ const { mockFetch, posted } = vi.hoisted(() => {
     }),
   }
 })
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 
 mockNuxtImport('useStoreOffices', () => () => ({
   offices: computed(() => OFFICES),

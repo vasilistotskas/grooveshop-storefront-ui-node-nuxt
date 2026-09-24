@@ -67,7 +67,7 @@ const fetchAllProductPoints = async () => {
     const results = await Promise.all(
       uniqueProductIds.map(async (productId) => {
         try {
-          const data = await $fetch<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
+          const data = await $api<ProductPoints>(`/api/loyalty/product/${productId}/points`, {
             method: 'GET',
           })
           return { productId, points: data.potentialPoints }

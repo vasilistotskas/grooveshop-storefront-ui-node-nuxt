@@ -7,7 +7,7 @@ export const useCheckout = () => {
    */
   const reserveStock = async (cartId: string | number): Promise<number[]> => {
     try {
-      const response = await $fetch('/api/cart/reserve-stock', {
+      const response = await $api('/api/cart/reserve-stock', {
         method: 'POST',
         body: { cartId },
       })
@@ -57,7 +57,7 @@ export const useCheckout = () => {
    */
   const releaseReservations = async (reservationIds: number[]): Promise<void> => {
     try {
-      await $fetch('/api/cart/release-reservations', {
+      await $api('/api/cart/release-reservations', {
         method: 'POST',
         body: { reservationIds },
       })
@@ -83,7 +83,7 @@ export const useCheckout = () => {
     idempotencyKey?: string,
   ): Promise<{ clientSecret: string, paymentIntentId: string }> => {
     try {
-      const response = await $fetch<{
+      const response = await $api<{
         clientSecret: string
         paymentIntentId: string
         amount: number

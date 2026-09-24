@@ -18,7 +18,7 @@ const { mockFetch } = vi.hoisted(() => ({
   mockFetch: vi.fn(() => Promise.resolve({})),
 }))
 
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 
 function sseResponse(body: string, chunkSize = 8): Response {
   const encoder = new TextEncoder()

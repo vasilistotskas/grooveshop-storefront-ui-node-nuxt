@@ -15,7 +15,7 @@ const { mockFetch } = vi.hoisted(() => ({
     return Promise.resolve({})
   }),
 }))
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 
 // The bootstrap plugin chain calls this too, so the mock has to carry
 // the whole surface — a thin one crashes setup and i18n never installs

@@ -14,7 +14,7 @@
  * shoppers.
  */
 export function useMerchantIdentity() {
-  const { data } = useFetch('/api/tenant/legal-identity', {
+  const { data } = useApi('/api/tenant/legal-identity', {
     key: 'tenant-legal-identity',
     // A store mid-onboarding has published nothing yet; that is the
     // normal state, not an error, so the failure is swallowed and the

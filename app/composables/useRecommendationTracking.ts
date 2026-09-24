@@ -17,7 +17,7 @@ export function useRecommendationTracking(surface: SurfaceEnum, seedId?: number)
     items: RecommendationEventItemRequest[],
   ) => {
     if (!import.meta.client || items.length === 0) return
-    $fetch('/api/analytics/recommendation-event', {
+    $api('/api/analytics/recommendation-event', {
       method: 'POST',
       body: {
         impressionId,

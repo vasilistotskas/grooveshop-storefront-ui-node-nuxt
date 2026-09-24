@@ -49,7 +49,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   if (isSubmitting.value) return
   isSubmitting.value = true
   try {
-    await $fetch('/api/contact', {
+    await $api('/api/contact', {
       method: 'POST',
       body: event.data,
     })

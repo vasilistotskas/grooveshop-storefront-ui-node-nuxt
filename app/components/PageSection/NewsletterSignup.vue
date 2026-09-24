@@ -12,8 +12,9 @@
  * The consent box is never pre-ticked, and its label is the consent
  * sentence from `shared/i18n/newsletterConsent.ts` — the module the
  * server route also reads, so the sentence Django stores as proof of
- * consent is the sentence this label showed. The request names the
- * locale the label was rendered in (`?locale=`) for the same reason.
+ * consent is the sentence this label showed. `$api` states the page's
+ * locale on the request (`pageLocaleHeader`) — the locale this label
+ * was rendered in — so the server picks the same sentence.
  *
  * Rendered only when the store can honour a submission: the merchant
  * toggle is on AND the store has a default newsletter topic.
@@ -46,7 +47,7 @@ const newsletterEnabled = useSettingFlag('NEWSLETTER_ENABLED', {
 
 // The request itself is gated, not just the render: Django 404s it
 // while the toggle is off.
-const { data: availability } = await useFetch('/api/subscriptions/newsletter', {
+const { data: availability } = await useApi('/api/subscriptions/newsletter', {
   key: 'newsletter-availability',
   dedupe: 'defer',
   immediate: newsletterEnabled.value,
@@ -85,9 +86,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   submitting.value = true
   errorMessage.value = ''
   try {
-    await $fetch('/api/subscriptions/newsletter', {
+    await $api('/api/subscriptions/newsletter', {
       method: 'POST',
-      query: { locale: locale.value },
       body: event.data,
     })
     sent.value = true

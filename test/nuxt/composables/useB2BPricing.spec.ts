@@ -21,7 +21,7 @@ function setLoggedIn(value: boolean) {
   }
 }
 
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 mockNuxtImport('useUserSession', () => {
   session.state ??= reactive({ loggedIn: false })
   const state = session.state

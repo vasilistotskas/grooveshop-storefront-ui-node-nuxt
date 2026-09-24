@@ -24,7 +24,7 @@ const {
   data: categories,
   status,
   refresh,
-} = await useFetch(
+} = await useApi(
   '/api/blog/categories',
   {
     key: 'blogCategories',

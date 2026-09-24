@@ -1,104 +1,91 @@
 /**
  * Unit tests for server/middleware/1.locale.ts
  *
- * Tests priority order:
- *   1. query param → 2. cookie → 3. tenant default → 4. Accept-Language → DEFAULT
+ * The locale is the PAGE's: a page request's path prefix, or the
+ * `X-Language` the app's fetcher states on an `/api` request — clamped
+ * by `servedLocale`. Cookies, `Accept-Language` and `?locale=` are no
+ * longer sources.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
-// Mock h3's getCookie (explicitly imported in locale.ts) before loading the module
-vi.mock('h3', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('h3')>()
-  return {
-    ...actual,
-    getCookie: vi.fn().mockReturnValue(undefined),
-  }
-})
-
-// Stubs for h3/Nuxt auto-imported helpers used in locale.ts
-const getQueryMock = vi.fn().mockReturnValue({})
-vi.stubGlobal('getQuery', getQueryMock)
-
-const getHeaderMock = vi.fn()
-vi.stubGlobal('getHeader', getHeaderMock)
-
+const headers = vi.hoisted(() => ({ value: {} as Record<string, string> }))
+vi.stubGlobal('getHeader', (_event: unknown, name: string) => headers.value[name.toLowerCase()])
 vi.stubGlobal('defineEventHandler', (fn: (event: unknown) => unknown) => fn)
-
-// Import getCookie after mock is set up so we can drive it per-test
-const { getCookie: getCookieMock } = await import('h3') as { getCookie: ReturnType<typeof vi.fn> }
 
 const module = await import('../../../../server/middleware/1.locale')
 const handler = (module.default ?? module) as unknown as (event: unknown) => void
 
-function makeEvent(path: string, tenant?: { defaultLocale?: string }): { path: string, context: Record<string, unknown> } {
-  return { path, context: tenant ? { tenant } : {} }
+type Tenant = { defaultLocale?: string, availableLocales?: string[] }
+
+function run(path: string, tenant?: Tenant, requestHeaders: Record<string, string> = {}): unknown {
+  headers.value = requestHeaders
+  const event = { path, context: tenant ? { tenant } : {} as Record<string, unknown> }
+  handler(event)
+  return (event.context as Record<string, unknown>).locale
 }
+
+const BILINGUAL: Tenant = { defaultLocale: 'el', availableLocales: ['el', 'en'] }
 
 describe('1.locale middleware', () => {
   beforeEach(() => {
-    vi.mocked(getCookieMock).mockReset().mockReturnValue(undefined)
-    getQueryMock.mockReset().mockReturnValue({})
-    getHeaderMock.mockReset().mockReturnValue(undefined)
+    headers.value = {}
   })
 
   it('skips locale detection for /_nuxt paths', () => {
-    const event = makeEvent('/_nuxt/chunk.js')
-    handler(event)
-    expect((event as any).context.locale).toBeUndefined()
+    expect(run('/_nuxt/chunk.js')).toBeUndefined()
   })
 
-  it('falls back to DEFAULT_LOCALE when nothing is set', () => {
-    const event = makeEvent('/')
-    handler(event)
-    // DEFAULT_LOCALE is 'el' per i18n/locales.ts
-    expect((event as any).context.locale).toBe('el')
+  describe('page requests take the locale from the path', () => {
+    it('/ renders the default locale', () => {
+      expect(run('/', BILINGUAL)).toBe('el')
+    })
+
+    it('/en/... renders en', () => {
+      expect(run('/en/products/1', BILINGUAL)).toBe('en')
+      expect(run('/en', BILINGUAL)).toBe('en')
+    })
+
+    it('ignores the query string when reading the prefix', () => {
+      expect(run('/en?utm_source=x', BILINGUAL)).toBe('en')
+    })
+
+    it('a prefix the tenant does not serve is not rendered as itself', () => {
+      expect(run('/en/products', { defaultLocale: 'el' })).toBe('el')
+    })
+
+    it('an en-default store still renders `/` in el — what the page actually renders', () => {
+      expect(run('/', { defaultLocale: 'en', availableLocales: ['en'] })).toBe('el')
+    })
   })
 
-  it('priority 1: query param overrides tenant default', () => {
-    getQueryMock.mockReturnValue({ locale: 'el' })
-    const event = makeEvent('/', { defaultLocale: 'de' })
-    handler(event)
-    expect((event as any).context.locale).toBe('el')
+  describe('/api requests take the locale from X-Language', () => {
+    it('uses the stated page locale', () => {
+      expect(run('/api/products/1', BILINGUAL, { 'x-language': 'en' })).toBe('en')
+    })
+
+    it('a missing header gets the clamp\'s answer', () => {
+      expect(run('/api/products/1', BILINGUAL)).toBe('el')
+    })
+
+    it('an unknown or unserved header gets the clamp\'s answer', () => {
+      expect(run('/api/products/1', BILINGUAL, { 'x-language': 'fr' })).toBe('el')
+      expect(run('/api/products/1', { defaultLocale: 'el' }, { 'x-language': 'en' })).toBe('el')
+    })
   })
 
-  it('priority 2: i18n_redirected cookie overrides tenant default and Accept-Language', () => {
-    getQueryMock.mockReturnValue({})
-    vi.mocked(getCookieMock).mockImplementation((_event: unknown, name: string) =>
-      name === 'i18n_redirected' ? 'el' : undefined,
-    )
-    getHeaderMock.mockReturnValue('de') // Accept-Language — not used
-    const event = makeEvent('/', { defaultLocale: 'de' })
-    handler(event)
-    expect((event as any).context.locale).toBe('el')
-  })
+  describe('former sources no longer decide', () => {
+    it('a stale i18n cookie does not override the path', () => {
+      expect(run('/', BILINGUAL, { cookie: 'i18n_redirected=en; i18n_locale=en' })).toBe('el')
+    })
 
-  it('priority 4: Accept-Language used when query/cookie/tenant all absent', () => {
-    getQueryMock.mockReturnValue({})
-    vi.mocked(getCookieMock).mockReturnValue(undefined)
-    getHeaderMock.mockReturnValue('el,en-US;q=0.9')
-    const event = makeEvent('/')
-    handler(event)
-    expect((event as any).context.locale).toBe('el')
-  })
+    it('Accept-Language does not override the path or the header', () => {
+      expect(run('/', BILINGUAL, { 'accept-language': 'en-US,en;q=0.9' })).toBe('el')
+      expect(run('/api/products/1', BILINGUAL, { 'accept-language': 'en-US', 'x-language': 'el' })).toBe('el')
+    })
 
-  it('tenant defaultLocale wins over Accept-Language when no cookie/query', () => {
-    getQueryMock.mockReturnValue({})
-    vi.mocked(getCookieMock).mockReturnValue(undefined)
-    // Use unsupported locales in Accept-Language to confirm tenant wins
-    getHeaderMock.mockReturnValue('fr,de;q=0.9')
-    const event = makeEvent('/', { defaultLocale: 'el' })
-    handler(event)
-    expect((event as any).context.locale).toBe('el')
-  })
-
-  it('ignores unsupported tenant defaultLocale and falls through to Accept-Language', () => {
-    getQueryMock.mockReturnValue({})
-    vi.mocked(getCookieMock).mockReturnValue(undefined)
-    getHeaderMock.mockReturnValue('el')
-    // 'de' is not in SUPPORTED_LOCALES (only 'el' is active)
-    const event = makeEvent('/', { defaultLocale: 'de' })
-    handler(event)
-    // Falls through to Accept-Language ('el')
-    expect((event as any).context.locale).toBe('el')
+    it('?locale= does not override the path or the header', () => {
+      expect(run('/?locale=en', BILINGUAL)).toBe('el')
+      expect(run('/api/subscriptions/newsletter?locale=en', BILINGUAL)).toBe('el')
+    })
   })
 })

@@ -16,7 +16,7 @@ interface SearchResultClick {
 export function useSearchClickTracking() {
   const trackResultClick = (click: SearchResultClick) => {
     if (!import.meta.client || !click.queryId) return
-    $fetch('/api/search/click', {
+    $api('/api/search/click', {
       method: 'POST',
       body: {
         queryId: click.queryId,

@@ -67,7 +67,7 @@ const applyCoupon = async () => {
   couponError.value = null
   submitting.value = true
   try {
-    await $fetch('/api/cart/coupon', {
+    await $api('/api/cart/coupon', {
       method: 'POST',
       body: { code: formState.code.trim() },
     })
@@ -102,7 +102,7 @@ const applyCoupon = async () => {
 const removeCoupon = async () => {
   submitting.value = true
   try {
-    await $fetch('/api/cart/coupon', { method: 'DELETE' })
+    await $api('/api/cart/coupon', { method: 'DELETE' })
     await cartStore.refreshCart()
     couponError.value = null
   }

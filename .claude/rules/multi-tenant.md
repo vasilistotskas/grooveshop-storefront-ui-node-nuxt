@@ -34,7 +34,7 @@ Every non-bypassed route handler can rely on `event.context.tenant` being a full
 - `apiDomain` — the tenant's own API hostname (e.g. `api.tenant.com`); used instead of the platform `NUXT_PUBLIC_DJANGO_HOST_NAME` wherever a browser-facing request must hit the tenant's OWN Django schema (WebSocket, social-login redirect, CSP connect-src — which lists this host ONLY, never the platform one beside it — CMS image allowlist, `.well-known` OAuth metadata)
 - `assetsDomain` — the tenant's own media/image-processing hostname (e.g. `assets.tenant.com`); consumed by `useMediaStreamBaseUrl`/`useMediaStreamImage` (see Image Handling) and additively expands CSP img-src/connect-src alongside the platform `mediaStreamOrigin`
 - `staticDomain` — the tenant's own static-file hostname (e.g. `static.tenant.com`); additively expands CSP img-src/connect-src alongside the platform `staticOrigin`
-- `defaultLocale` — BCP-47 code consulted by `1.locale.ts` (priority 3 of 4)
+- `defaultLocale` — the store's configured language. NOT what `/` renders: the unprefixed routes render the build-time `DEFAULT_LOCALE` on every tenant, and `1.locale.ts` follows what renders (`servedLocale`)
 - `defaultCurrency` — ISO 4217 code (e.g. `'EUR'`), used in RSS and checkout
 - `accentHex` — CSS hex for PWA theme_color
 - `faviconUrl` — absolute URL for the tenant favicon (used in PWA manifest icons)
@@ -43,7 +43,7 @@ Every non-bypassed route handler can rely on `event.context.tenant` being a full
 
 ## `tenantCacheKey` requirement
 
-Every `defineCachedEventHandler` whose data is tenant-specific MUST prefix its cache key with `tenantCacheKey(event, ...)`. Without it, Tenant A's data can be returned to Tenant B from cache (P0 data leak). Usage:
+Every `defineCachedEventHandler` whose data is tenant-specific MUST prefix its cache key with `tenantCacheKey(event, ...)`. Without it, Tenant A's data can be returned to Tenant B from cache (P0 data leak). It also carries the request locale (`host__locale__key`): Django answers in the `X-Language` it is sent, so an English entry must never serve a Greek page. `defineCachedFunction`s have no event, so callers pass the host AND `requestLocale(event)` and the function sends `X-Language` itself (`createCachedFetcher`). Usage:
 
 ```ts
 getKey: (event) => tenantCacheKey(event, `my-route:${param}`)

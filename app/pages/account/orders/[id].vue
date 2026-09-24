@@ -11,7 +11,7 @@ const orderId = 'id' in route.params
 // name twice like every other account page.
 useHead({ title: () => `${t('order')} #${orderId}` })
 
-const { data: order, refresh: refreshOrder } = await useFetch<OrderDetail>(`/api/orders/${orderId}`, {
+const { data: order, refresh: refreshOrder } = await useApi<OrderDetail>(`/api/orders/${orderId}`, {
   key: `order${orderId}`,
   method: 'GET',
   headers: useRequestHeaders(),
@@ -367,7 +367,7 @@ async function handleDownloadInvoice() {
   if (!order.value?.id || isFetchingInvoice.value) return
   isFetchingInvoice.value = true
   try {
-    const data = await $fetch(`/api/orders/${order.value.id}/invoice`, {
+    const data = await $api(`/api/orders/${order.value.id}/invoice`, {
       method: 'GET',
       headers: useRequestHeaders(),
     })
@@ -406,7 +406,7 @@ async function handleReorder() {
   if (!order.value?.id || isReordering.value) return
   isReordering.value = true
   try {
-    const result = await $fetch<ReorderResponse>(`/api/orders/${order.value.id}/reorder`, {
+    const result = await $api<ReorderResponse>(`/api/orders/${order.value.id}/reorder`, {
       method: 'POST',
       headers: useRequestHeaders(),
     })

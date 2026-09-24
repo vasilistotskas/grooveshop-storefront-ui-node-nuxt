@@ -21,7 +21,14 @@ const { mockFetch, mockUseAsyncDataFn, mockRefreshNuxtDataFn, mockUseToastFn } =
 // Mock Nuxt composables using mockNuxtImport
 // Note: Do NOT mock useNuxtApp — it breaks the Nuxt test environment.
 // $i18n is provided by the test-fixtures/plugins/mock-i18n.ts plugin.
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
+// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
+// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
+// builds `$api` from `$fetch.create()` while the app boots.
+mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
+// The composable fetches through `useRequestApi`; its page-locale
+// header is tested in test/nuxt/utils/api.spec.ts.
+mockNuxtImport('useRequestApi', () => () => mockFetch)
 mockNuxtImport('useAsyncData', () => mockUseAsyncDataFn)
 mockNuxtImport('useRequestHeaders', () => () => ({}))
 mockNuxtImport('refreshNuxtData', () => mockRefreshNuxtDataFn)

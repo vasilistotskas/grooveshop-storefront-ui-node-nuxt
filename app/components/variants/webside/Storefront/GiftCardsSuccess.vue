@@ -28,7 +28,7 @@ const timedOut = computed(() =>
 const poll = async () => {
   if (!purchaseUuid.value || !isActive.value) return
   try {
-    const response = await $fetch<{ purchaseUuid: string, status: string }>(
+    const response = await $api<{ purchaseUuid: string, status: string }>(
       '/api/giftcard/purchase-status',
       { query: { uuid: purchaseUuid.value } },
     )

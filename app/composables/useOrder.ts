@@ -1,6 +1,6 @@
 export const useOrder = () => {
   const cancelOrder = async (orderId: number, reason?: string) => {
-    return await $fetch<OrderDetail>(`/api/orders/${orderId}/cancel`, {
+    return await $api<OrderDetail>(`/api/orders/${orderId}/cancel`, {
       method: 'POST',
       headers: useRequestHeaders(),
       body: reason ? { reason } : {},

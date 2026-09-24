@@ -64,7 +64,7 @@ const offersEnabled
       onError: false,
     }))
 
-const { data: offers } = await useFetch(
+const { data: offers } = await useApi(
   () => `/api/promotions/product/${props.productId}`,
   {
     key: `product-offers-${props.productId}`,

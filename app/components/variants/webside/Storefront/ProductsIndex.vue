@@ -12,7 +12,7 @@ const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
 // the full ProductsList fetch; it fetches page-1 with a small limit purely
 // for structured-data purposes. When more locales activate, replace the
 // hardcoded 'el' with iteration over SUPPORTED_LOCALES.
-const { data: seoProducts } = await useFetch<ProductMeiliSearchResponse>(
+const { data: seoProducts } = await useApi<ProductMeiliSearchResponse>(
   '/api/products/search',
   {
     key: 'products-index-seo',

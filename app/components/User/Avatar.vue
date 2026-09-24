@@ -129,7 +129,7 @@ const handleUpload = async (file: File | null) => {
     return
   }
 
-  await $fetch(`/api/user/account/${props.userAccount.id}`, {
+  await $api(`/api/user/account/${props.userAccount.id}`, {
     method: 'PATCH',
     body: formData,
     async onResponse({ response }) {

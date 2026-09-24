@@ -94,6 +94,36 @@ export default withNuxt(
     },
   },
   {
+    // One set of fetchers for the storefront's own `/api`: `$api`,
+    // `useApi`, `useLazyApi`, `useRequestApi` (app/utils/api.ts,
+    // app/composables/useApi.ts). They state the PAGE's locale on every
+    // request (`pageLocaleHeader`), which is how Django answers in the
+    // language the visitor is reading and how the Nitro caches key on
+    // it. A raw `$fetch` / `useFetch` / `useLazyFetch` /
+    // `useRequestFetch` sends no locale, so the server would answer in
+    // the default language — and cache that answer for everyone.
+    //
+    // `$fetch` is deliberately not globally configurable (Nuxt 4 "Custom
+    // useFetch" recipe), so this cannot be fixed underneath the call
+    // sites; it has to be kept out of them. The plugin that builds the
+    // instance and the composables that wrap Nuxt's fetchers are the
+    // only places allowed to touch them.
+    files: ['app/**/*.{ts,vue}'],
+    ignores: ['app/plugins/api.ts', 'app/composables/useApi.ts'],
+    rules: {
+      'no-restricted-syntax': ['error',
+        {
+          selector: 'CallExpression[callee.name=/^(\\$fetch|useFetch|useLazyFetch|useRequestFetch)$/]',
+          message: 'Use $api / useApi / useLazyApi / useRequestApi — they send the page locale. See app/utils/api.ts.',
+        },
+        {
+          selector: 'MemberExpression[object.name="$fetch"]',
+          message: 'Use $api — it sends the page locale. See app/utils/api.ts.',
+        },
+      ],
+    },
+  },
+  {
     rules: {
       ...eslintPluginBetterTailwindcss.configs['recommended-warn'].rules,
       'better-tailwindcss/no-unknown-classes': ['warn', {

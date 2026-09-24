@@ -34,7 +34,7 @@ const enabled = computed(
 // the `/offers` page: Django resolves an offer's name and description
 // server-side, so without it this band renders the store's default
 // language on every locale. It was the last Greek left on `/en`.
-const { data } = await useFetch('/api/promotions', {
+const { data } = await useApi('/api/promotions', {
   key: () => `offers-preview-${locale.value}`,
   dedupe: 'defer',
   query: { languageCode: locale },

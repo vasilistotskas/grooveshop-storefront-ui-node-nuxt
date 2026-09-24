@@ -66,10 +66,12 @@ export function createHeaders(sessionToken?: string | null, accessToken?: string
   // with `useBackendFetch()` so no backend call can drop them.
   Object.assign(headers, clientIdentityHeaders(event))
 
-  // Tell Django which language to render emails/responses in. The locale
-  // middleware populates event.context.locale from (in order): ?locale query,
-  // i18n cookies, Accept-Language. allauth's adapter + every Celery email
-  // task reads this header to capture/override user language.
+  // Tell Django which language to render emails/responses in.
+  // `server/middleware/1.locale.ts` sets event.context.locale to the
+  // page's locale (the path prefix of a page request, or the X-Language
+  // the app's fetchers state on an /api request), clamped to the tenant.
+  // allauth's adapter + every Celery email task reads this header to
+  // capture/override user language.
   const locale = (event?.context?.locale as string | undefined) || DEFAULT_LOCALE
   headers['X-Language'] = locale
 

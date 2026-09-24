@@ -50,7 +50,7 @@ export async function useProductRail(options: {
   const ordering = computed(() => toValue(options.ordering))
   const categoryId = computed(() => toValue(options.categoryId))
 
-  const { data } = await useFetch('/api/products', {
+  const { data } = await useApi('/api/products', {
     // The key carries everything that changes the answer; a constant
     // one is what made two rails show the same products.
     key: computed(

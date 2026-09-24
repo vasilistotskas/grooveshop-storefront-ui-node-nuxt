@@ -1,7 +1,7 @@
 export default function () {
   const API_BASE_URL = ALLAUTH_AUTH_URL
   async function getSessions() {
-    return $fetch(`${API_BASE_URL}/sessions`, {
+    return $api(`${API_BASE_URL}/sessions`, {
       method: 'GET',
       headers: useRequestHeaders(),
       async onResponse({ response }) {
@@ -14,7 +14,7 @@ export default function () {
   }
 
   async function deleteSession(body: SessionsDeleteBody) {
-    return $fetch(`${API_BASE_URL}/sessions`, {
+    return $api(`${API_BASE_URL}/sessions`, {
       method: 'DELETE',
       body,
       async onResponse({ response }) {

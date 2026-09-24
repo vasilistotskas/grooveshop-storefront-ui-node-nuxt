@@ -44,10 +44,13 @@ function rebaseNextLink(next: string, baseUrl: string): string {
 /**
  * Creates a cached fetcher for paginated data.
  *
- * Django resolves the tenant from X-Forwarded-Host, so the same URL returns
- * different data per tenant. Callers MUST pass a tenant discriminator (host
- * or schema name) as the first argument so cache entries don't bleed across
- * tenants.
+ * Django resolves the tenant from X-Forwarded-Host and answers in the
+ * X-Language it is sent, so the same URL returns different data per tenant
+ * and per language. Callers pass the request host and the request locale
+ * (`requestLocale(event)`); both are sent upstream AND keyed on, so cache
+ * entries bleed neither across tenants nor across languages. The locale
+ * is its own `:`-delimited segment, after the host, so a store-scoped
+ * purge (`cacheKeyBelongsToHost`, `functions` family) still matches.
  *
  * @param name - The unique name for the cache entry.
  * @param maxAge - The maximum age (in seconds) for the cached data.
@@ -56,18 +59,19 @@ function rebaseNextLink(next: string, baseUrl: string): string {
 export function createCachedFetcher<T>(
   name: string,
   maxAge: number,
-): (tenantKey: string, url: string) => Promise<T[]> {
+): (tenantKey: string, locale: string, url: string) => Promise<T[]> {
   return defineCachedFunction(
-    async (tenantKey: string, url: string): Promise<T[]> => {
+    async (tenantKey: string, locale: string, url: string): Promise<T[]> => {
       // Forward the caller's storefront host as X-Forwarded-Host so
       // Django's TenantMainMiddleware resolves the right schema. Without
       // it the fetch falls back to the public schema and every tenant's
       // sitemap/RSS would be built from public-schema data (then cached
       // under the tenant key, so the wrong data sticks). The tenantKey
       // IS the request host (callers pass getRequestHost(event)).
-      const headers = tenantKey
-        ? { 'X-Forwarded-Host': tenantKey }
-        : undefined
+      const headers = {
+        ...(tenantKey ? { 'X-Forwarded-Host': tenantKey } : {}),
+        'X-Language': locale,
+      }
 
       const fetchAll = async (
         currentUrl: string,
@@ -107,8 +111,8 @@ export function createCachedFetcher<T>(
       // characters — without the hash suffix, punctuation-equivalent
       // tenant hosts/urls would share one cache entry (cross-tenant
       // leak). Same rationale as tenantCacheKey.
-      getKey: (tenantKey: string, url: string) =>
-        hashedCacheKey(`${tenantKey}:${url}`),
+      getKey: (tenantKey: string, locale: string, url: string) =>
+        hashedCacheKey(`${tenantKey}:${locale}:${url}`),
     },
   )
 }

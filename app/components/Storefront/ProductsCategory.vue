@@ -9,7 +9,7 @@ const categoryId = 'id' in route.params
   ? route.params.id
   : undefined
 
-const { data: category, error: categoryError } = await useFetch<ProductCategoryDetail>(
+const { data: category, error: categoryError } = await useApi<ProductCategoryDetail>(
   `/api/products/categories/${categoryId}`,
   {
     key: `category${categoryId}`,
@@ -35,7 +35,7 @@ if (!category.value) {
 // Lightweight first-page fetch for Schema.org ItemList.
 // Server-side only — does NOT duplicate the full ProductsList fetch.
 // When more locales activate, replace hardcoded 'el' with SUPPORTED_LOCALES iteration.
-const { data: seoProducts } = await useFetch<ProductMeiliSearchResponse>(
+const { data: seoProducts } = await useApi<ProductMeiliSearchResponse>(
   '/api/products/search',
   {
     key: `category-seo-products-${categoryId}`,

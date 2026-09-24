@@ -30,9 +30,9 @@ export function useProductSearchData() {
   // inbound headers, so Nitro stamps host: "localhost" and
   // server/middleware/0.tenant.ts answers 404 "Store not found" — the
   // whole filter sidebar then renders from its empty defaults. Hoisted
-  // here because useRequestFetch() reads the request event via
+  // here because useRequestApi() reads the request event via
   // useNuxtApp(), which is only available in setup scope.
-  const requestFetch = useRequestFetch()
+  const requestFetch = useRequestApi()
 
   // ============================================
   // PRICE STATISTICS (for PriceRange slider bounds)

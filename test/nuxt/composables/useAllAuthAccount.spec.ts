@@ -6,7 +6,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime'
 // mocked via mockNuxtImport like any other auto-import.
 const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
 
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 
 describe('useAllAuthAccount', () => {
   let mockUseRequestHeaders: ReturnType<typeof vi.fn>

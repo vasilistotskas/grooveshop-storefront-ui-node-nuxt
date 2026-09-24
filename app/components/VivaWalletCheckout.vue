@@ -37,7 +37,7 @@ const createCheckoutSession = async () => {
       name: 'checkout',
     })}?canceled=true`
 
-    const response = await $fetch(
+    const response = await $api(
       `/api/orders/${props.order.id}/create-checkout-session`,
       {
         method: 'POST',

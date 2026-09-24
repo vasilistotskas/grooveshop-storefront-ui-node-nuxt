@@ -15,7 +15,7 @@ const { locale, t } = useI18n()
 const { isMobileOrTablet } = useDevice()
 const localePath = useLocalePath()
 
-const { data: categories } = await useFetch(`/api/products/categories`, {
+const { data: categories } = await useApi(`/api/products/categories`, {
   key: 'productCategories',
   method: 'GET',
   headers: useRequestHeaders(),

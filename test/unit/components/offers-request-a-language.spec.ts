@@ -35,13 +35,13 @@ function vueFilesUnder(dir: string, out: string[] = []): string[] {
   return out
 }
 
-/** The `useFetch(...)` call wrapping an `/api/promotions` URL. */
+/** The `useApi(...)` call wrapping an `/api/promotions` URL. */
 function offersCalls(source: string): string[] {
   const calls: string[] = []
   const marker = '/api/promotions'
   let at = source.indexOf(marker)
   while (at !== -1) {
-    const open = source.lastIndexOf('useFetch(', at)
+    const open = source.lastIndexOf('useApi(', at)
     if (open !== -1) {
       // To the matching close: the options object always ends with
       // `})` at the call's indentation, so take a generous window and

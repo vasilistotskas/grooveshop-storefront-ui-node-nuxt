@@ -50,7 +50,7 @@ const { mockFetch, recommendations } = vi.hoisted(() => {
     }),
   }
 })
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 mockNuxtImport('useB2BPricing', () => () => ({
   register: vi.fn(),
   priceFor: () => undefined,

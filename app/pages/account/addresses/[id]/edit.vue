@@ -28,7 +28,7 @@ const schema = zUserAddressWriteRequest.extend({
 type Schema = z.output<typeof schema>
 
 // Fetch existing address
-const { data: address } = await useFetch(`/api/user/addresses/${addressId}`, {
+const { data: address } = await useApi(`/api/user/addresses/${addressId}`, {
   key: `address-${addressId}`,
   method: 'GET',
   headers: useRequestHeaders(),
@@ -58,7 +58,7 @@ const state = reactive<Partial<Schema>>({
 })
 
 // Countries data
-const { data: countries } = await useFetch('/api/countries', {
+const { data: countries } = await useApi('/api/countries', {
   key: 'countries',
   method: 'GET',
   headers: useRequestHeaders(),
@@ -77,7 +77,7 @@ const countryOptions = computed(() => {
 })
 
 // Regions data
-const { data: regions, execute: fetchRegions } = await useFetch<Pagination<Region>>(
+const { data: regions, execute: fetchRegions } = await useApi<Pagination<Region>>(
   '/api/regions',
   {
     immediate: !!state.country,
@@ -132,7 +132,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   if (isSubmitting.value) return
   isSubmitting.value = true
   try {
-    await $fetch(`/api/user/addresses/${addressId}`, {
+    await $api(`/api/user/addresses/${addressId}`, {
       method: 'PUT',
       headers: useRequestHeaders(),
       body: {
@@ -162,7 +162,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 // Set as main address
 async function onSetMain() {
   try {
-    await $fetch(`/api/user/addresses/${addressId}/set-main`, {
+    await $api(`/api/user/addresses/${addressId}/set-main`, {
       method: 'POST',
       headers: useRequestHeaders(),
     })

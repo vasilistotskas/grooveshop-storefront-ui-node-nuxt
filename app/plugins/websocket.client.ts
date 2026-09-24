@@ -47,7 +47,7 @@ export default defineNuxtPlugin({
         // Single-use 60s ticket — see server/api/websocket/user/ticket.get.ts.
         // Never put the Knox access token in the URL; it is logged by
         // every proxy layer and lives for 7 days.
-        const response = await $fetch<{ ticket: string, expiresIn: number }>('/api/websocket/user/ticket', {
+        const response = await $api<{ ticket: string, expiresIn: number }>('/api/websocket/user/ticket', {
           method: 'GET',
         })
         if (!response?.ticket) {

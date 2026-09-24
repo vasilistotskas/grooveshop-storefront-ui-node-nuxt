@@ -64,7 +64,11 @@ let coupons: any[] = []
 const { mockFetch } = vi.hoisted(() => ({
   mockFetch: vi.fn((..._args: any[]) => Promise.resolve({})),
 }))
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
+// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
+// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
+// builds `$api` from `$fetch.create()` while the app boots.
+mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
 registerEndpoint('/api/settings/public', () => PUBLIC_SETTINGS)
 
 const cartRef = ref<any>({

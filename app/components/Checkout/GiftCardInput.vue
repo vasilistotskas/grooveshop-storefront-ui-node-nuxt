@@ -59,7 +59,7 @@ const applyCard = async () => {
   }
   submitting.value = true
   try {
-    const check = await $fetch<{
+    const check = await $api<{
       code: string
       balance: string | number
       currency: string

@@ -32,7 +32,7 @@ useSeoMeta({
 // renders the store's default language whatever locale it is on. The
 // key carries the locale too, or the first one fetched would be reused
 // for the other.
-const { data: offers } = await useFetch('/api/promotions', {
+const { data: offers } = await useApi('/api/promotions', {
   key: () => `public-offers-${locale.value}`,
   headers: useRequestHeaders(),
   query: { languageCode: locale },

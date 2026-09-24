@@ -18,7 +18,7 @@ definePageMeta({
 
 // useRequestFetch: SSR must forward the incoming host or the tenant
 // middleware resolves localhost and 404s (useLoyalty.ts precedent).
-const requestFetch = useRequestFetch()
+const requestFetch = useRequestApi()
 const { data, status } = await useAsyncData(
   'my-gift-cards',
   () => requestFetch<PaginatedGiftCardList>('/api/giftcard/mine'),

@@ -39,7 +39,7 @@ const state = reactive<Partial<Schema>>({
 })
 
 // 404 = no profile yet — the form starts blank and the banner hides.
-const { data: profile, refresh } = await useFetch('/api/b2b/profile', {
+const { data: profile, refresh } = await useApi('/api/b2b/profile', {
   key: 'account:b2b-profile',
   headers: useRequestHeaders(),
 })
@@ -71,7 +71,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   if (isSubmitting.value) return
   isSubmitting.value = true
   try {
-    await $fetch('/api/b2b/profile', {
+    await $api('/api/b2b/profile', {
       method: 'PUT',
       headers: useRequestHeaders(),
       body: event.data,

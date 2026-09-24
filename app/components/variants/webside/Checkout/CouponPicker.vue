@@ -31,7 +31,7 @@ const submitting = ref<string | null>(null)
  * verdicts into a shared payload — the same reason the route itself is
  * uncached. Nothing renders until the list lands.
  */
-const { data: coupons, refresh: refreshCoupons } = await useFetch(
+const { data: coupons, refresh: refreshCoupons } = await useApi(
   '/api/cart/coupons',
   {
     key: 'cart-coupons',
@@ -73,7 +73,7 @@ function savingLabel(row: CartCoupon): string | null {
 async function applyCoupon(row: CartCoupon) {
   submitting.value = row.code
   try {
-    await $fetch('/api/cart/coupon', {
+    await $api('/api/cart/coupon', {
       method: 'POST',
       body: { code: row.code },
     })

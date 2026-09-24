@@ -37,7 +37,7 @@ describe('GET /api/products/[id]/variants cache key', () => {
     expect(keyA).not.toBe(keyB)
     // tenantCacheKey appends a word-safe hash suffix (survives Nitro's
     // \W-stripping) — assert on the readable prefix, not exact equality.
-    expect(keyA.startsWith('tenant-a.example__product-variants:42')).toBe(true)
-    expect(keyB.startsWith('tenant-b.example__product-variants:42')).toBe(true)
+    expect(keyA.startsWith('tenant-a.example__el__product-variants:42')).toBe(true)
+    expect(keyB.startsWith('tenant-b.example__el__product-variants:42')).toBe(true)
   })
 })

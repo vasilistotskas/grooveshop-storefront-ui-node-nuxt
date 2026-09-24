@@ -68,7 +68,7 @@ const viewContentFired = ref(false)
 // without re-fetching on homepage/PDP rails.
 const recentlyViewed = useRecentlyViewed()
 
-const { data: product, error: productError, refresh: refreshProduct } = await useFetch<ProductDetail>(
+const { data: product, error: productError, refresh: refreshProduct } = await useApi<ProductDetail>(
   `/api/products/${productId}`,
   {
     key: `product${productId}`,
@@ -99,7 +99,7 @@ const [
   { data: productImages },
   { data: productReviews, refresh: refreshProductReviews },
 ] = await Promise.all([
-  useFetch(
+  useApi(
     `/api/products/${product.value?.id}/images`,
     {
       key: `productImages${product.value?.id}`,
@@ -110,7 +110,7 @@ const [
       },
     },
   ),
-  useFetch(
+  useApi(
     `/api/products/${productId}/reviews`,
     {
       key: `productReviewsSchema${productId}`,
@@ -141,7 +141,7 @@ const shouldFetchFavouriteProducts = computed(() => {
 // not rectify in production**. Triggering after mount keeps SSR and the
 // initial client render identical, so the subsequent store update
 // flows through the normal reactive patch path.
-const { execute: fetchFavourites } = useLazyFetch('/api/products/favourites/favourites-by-products', {
+const { execute: fetchFavourites } = useLazyApi('/api/products/favourites/favourites-by-products', {
   key: `favouritesByProducts${user.value?.id}`,
   method: 'POST',
   body: {
@@ -248,7 +248,7 @@ onMounted(() => {
 
 // User-specific data: client-side only
 const { data: userProductReview, refresh: refreshUserProductReview }
-  = useLazyFetch(`/api/products/reviews/${productId}/user-product-review`, {
+  = useLazyApi(`/api/products/reviews/${productId}/user-product-review`, {
     key: `productReviews${productId}${user.value?.id}`,
     method: 'GET',
     immediate: loggedIn.value,

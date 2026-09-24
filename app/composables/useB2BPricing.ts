@@ -83,7 +83,7 @@ export function useB2BPricing() {
       fetched.value[id] = true
     }
     try {
-      const rows = await $fetch('/api/b2b/prices', {
+      const rows = await $api('/api/b2b/prices', {
         query: { ids: ids.join(',') },
       })
       for (const row of rows ?? []) {

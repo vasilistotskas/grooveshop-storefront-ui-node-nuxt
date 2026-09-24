@@ -33,7 +33,7 @@ async function confirm() {
   if (confirming.value) return
   confirming.value = true
   try {
-    const response = await $fetch(
+    const response = await $api(
       `/api/subscriptions/confirm/${encodeURIComponent(route.params.token)}`,
       { method: 'POST' },
     )

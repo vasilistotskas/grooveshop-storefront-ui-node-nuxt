@@ -1,4 +1,3 @@
-import { DEFAULT_LOCALE } from '~~/i18n/locales'
 import { localeFromPath } from '~~/shared/i18n/localeFromPath'
 
 /**
@@ -32,9 +31,6 @@ export default defineNuxtRouteMiddleware((to) => {
   // Not resolved yet (or resolution failed) — fail open.
   if (!tenantStore.config) return
 
-  const allowed = tenantAllowedLocales(tenantStore.config)
-  if (!allowed.length) return
-
   // This fires only for a prefix that was typed or crawled, which is
   // why a 404 is safe here: nothing routes a legitimate visitor to a
   // locale their store does not serve.
@@ -47,11 +43,10 @@ export default defineNuxtRouteMiddleware((to) => {
   // browser met an error page on the store's own homepage.
   const current = localeFromPath(to.path)
 
-  // A tenant whose allow-list omitted its own default locale would 404
-  // its entire site. Tenant.clean() forbids that; be defensive anyway.
-  if (current === DEFAULT_LOCALE && !allowed.includes(current)) return
-
-  if (!allowed.includes(current)) {
+  // `servedLocale` is the rule the server locale middleware applies too:
+  // a prefix the tenant does not serve is not rendered as itself, and
+  // the unprefixed default always is.
+  if (servedLocale(current, tenantStore.config) !== current) {
     throw createError({
       statusCode: 404,
       statusMessage: 'Not Found',

@@ -7,7 +7,7 @@ import { setActivePinia, createPinia } from 'pinia'
 // mocked via mockNuxtImport like any other auto-import.
 const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
 
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 
 describe('useAllAuthAuthentication', () => {
   let mockUseRequestHeaders: ReturnType<typeof vi.fn>

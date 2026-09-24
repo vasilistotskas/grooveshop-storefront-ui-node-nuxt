@@ -5,7 +5,7 @@ import FooterMobile from '~/components/Footer/Mobile.vue'
 const { mockFetch } = vi.hoisted(() => ({
   mockFetch: vi.fn(() => Promise.resolve({})),
 }))
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 
 mockNuxtImport('useFooterLinks', () => {
   return () => ({

@@ -32,7 +32,7 @@ const submit = async () => {
 
   isDeleting.value = true
 
-  await $fetch(`/api/user/addresses/${address?.value.id}`, {
+  await $api(`/api/user/addresses/${address?.value.id}`, {
     method: 'DELETE',
     onResponse({ response }) {
       if (!response.ok) {

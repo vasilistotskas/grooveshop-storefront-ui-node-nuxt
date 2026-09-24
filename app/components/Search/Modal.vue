@@ -14,7 +14,7 @@ const router = useRouter()
 const { t, locale } = useI18n()
 const history = useSearchHistory()
 
-const trending = useLazyFetch<{
+const trending = useLazyApi<{
   windowHours: number
   contentType: string
   languageCode: string | null
@@ -59,7 +59,7 @@ const {
   data: searchResults,
   status,
   execute,
-} = useLazyFetch<SearchResponse>('/api/search', {
+} = useLazyApi<SearchResponse>('/api/search', {
   query: {
     query: debouncedQuery,
     languageCode: locale,

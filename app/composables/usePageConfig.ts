@@ -75,11 +75,10 @@ export async function usePageConfig(pageType: string) {
   // ever needs this outside a component, give it an explicit locale
   // argument rather than reaching for `$i18n`.
   const { locale } = useI18n()
-  const { data, status, error } = await useFetch<PageConfigResponse>(
+  const { data, status, error } = await useApi<PageConfigResponse>(
     `/api/page-config/${pageType}`,
     {
       key: () => `page-config-${pageType}-${locale.value}`,
-      query: { locale },
     },
   )
 
@@ -88,7 +87,7 @@ export async function usePageConfig(pageType: string) {
   // The operator's own <title> / meta description for the page
   // (``PageLayout``'s translated ``seo_title`` / ``seo_description`` —
   // the same per-language fields ContentPage, Product and BlogPost
-  // carry). Django resolves them for the ``?locale=`` this request sent
+  // carry). Django resolves them for the page locale this request states
   // and answers STRICTLY: a locale the operator has not translated
   // comes back empty rather than borrowing another language's copy, so
   // "empty" below still means "no tag" on every locale. Every

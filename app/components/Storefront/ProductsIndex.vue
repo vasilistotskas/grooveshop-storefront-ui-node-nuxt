@@ -10,7 +10,7 @@ const sidebarRef = ref<{ toggleDrawer: () => void } | null>(null)
 // A small page-1 fetch for the Schema.org ItemList. It does NOT
 // duplicate the listing's own fetch — different limit, different key —
 // and exists only so the collection is machine-readable.
-const { data: seoProducts } = await useFetch<ProductMeiliSearchResponse>(
+const { data: seoProducts } = await useApi<ProductMeiliSearchResponse>(
   '/api/products/search',
   {
     key: 'products-index-seo',

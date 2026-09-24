@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import type { H3Event } from 'h3'
+import { requestLocale } from './locale'
 
 /**
  * 32-bit FNV-1a. Used (twice, differently seeded) to disambiguate
@@ -25,11 +26,21 @@ function fnv1a(str: string, seed: number): number {
 const TENANT_KEY_DELIMITER = '__'
 
 /**
- * Prefix a cache key with the tenant host to prevent cross-tenant
- * cache contamination. Use in every `getKey` of `defineCachedEventHandler`.
+ * Prefix a cache key with the tenant host and the request locale. Use in
+ * every `getKey` of `defineCachedEventHandler`.
+ *
+ * The host prevents cross-tenant contamination. The locale
+ * (`event.context.locale`, the page's language) prevents cross-language
+ * contamination: Django answers in the `X-Language` it is sent, and much
+ * of what it returns is flat text in that language — product attribute
+ * names and values, variant axes, choice labels — so an entry filled by
+ * an English page would otherwise be served to a Greek one. Keying every
+ * handler here, rather than each route deciding whether its body can
+ * vary, is what keeps a route from getting it wrong. The host stays
+ * first, so `cacheKeyBelongsToHost` still scopes a purge to one store.
  *
  * The returned key ends with a word-character-only hash of the raw
- * `host__key` string. This is load-bearing: nitropack passes custom
+ * `host__locale__key` string. This is load-bearing: nitropack passes custom
  * keys through `escapeKey` (`String(key).replace(/\W/g, '')`), which
  * deletes every dot, colon, hyphen, `=` and `&`. Without the hash,
  * punctuation-equivalent inputs collide AFTER escaping — e.g.
@@ -40,7 +51,9 @@ const TENANT_KEY_DELIMITER = '__'
  */
 export function tenantCacheKey(event: H3Event, key: string): string {
   const host = getRequestHost(event, { xForwardedHost: false })
-  return hashedCacheKey(`${host}${TENANT_KEY_DELIMITER}${key}`)
+  return hashedCacheKey(
+    `${host}${TENANT_KEY_DELIMITER}${requestLocale(event)}${TENANT_KEY_DELIMITER}${key}`,
+  )
 }
 
 /**

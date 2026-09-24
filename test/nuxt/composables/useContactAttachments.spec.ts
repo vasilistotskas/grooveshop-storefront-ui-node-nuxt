@@ -23,7 +23,11 @@ const { mockFetch, settings } = vi.hoisted(() => ({
     return Promise.resolve({})
   }),
 }))
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
+// `useApi` / `useLazyApi` and `useRequestFetch` still run on Nuxt's own
+// `$fetch`, so it is mocked too. `create`, because app/plugins/api.ts
+// builds `$api` from `$fetch.create()` while the app boots.
+mockNuxtImport('$fetch', () => Object.assign(mockFetch, { create: () => mockFetch }))
 
 /** One canned XHR exchange, driven by the test rather than a server. */
 class FakeXhr {

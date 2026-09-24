@@ -123,7 +123,7 @@ export async function useCheckoutForm() {
   // creates an internal request Nitro stamps with host: "localhost", so
   // tenant resolution 404s and the shopper gets an EMPTY region
   // dropdown on first paint plus an error toast.
-  const requestFetch = useRequestFetch()
+  const requestFetch = useRequestApi()
 
   // Functions
   const fetchRegions = async () => {
@@ -356,7 +356,7 @@ export async function useCheckoutForm() {
       const method = formState.shippingMethod
       const carrier = carrierForMethod(method)
       const kind = method === 'home_delivery' ? 'home_delivery' : 'pickup_point'
-      const fresh = await $fetch<Pagination<PayWay>>('/api/pay-way', {
+      const fresh = await $api<Pagination<PayWay>>('/api/pay-way', {
         method: 'GET',
         query: {
           languageCode: locale.value,
@@ -472,7 +472,7 @@ export async function useCheckoutForm() {
       const country = formState.countryId
         ? String(formState.countryId).toUpperCase()
         : undefined
-      shippingOptions.value = await $fetch<ShippingOption[]>(
+      shippingOptions.value = await $api<ShippingOption[]>(
         '/api/shipping/options',
         {
           method: 'GET',
@@ -814,7 +814,7 @@ export async function useCheckoutForm() {
     // it answers from memory, so this is not a Django round trip.
     useAsyncData<PublicSettings | null>(
       'checkout:store-settings',
-      () => $fetch<PublicSettings>('/api/settings/public', {
+      () => $api<PublicSettings>('/api/settings/public', {
         method: 'GET',
         headers: useRequestHeaders(),
       }).catch(() => null),
@@ -828,7 +828,7 @@ export async function useCheckoutForm() {
         if (!loggedIn.value || !tenantStore.b2bEnabled) {
           return Promise.resolve(null)
         }
-        return $fetch<BusinessProfile>('/api/b2b/profile', {
+        return $api<BusinessProfile>('/api/b2b/profile', {
           method: 'GET',
           headers: useRequestHeaders(),
         }).catch(() => null)
@@ -836,7 +836,7 @@ export async function useCheckoutForm() {
     ),
     useAsyncData<Pagination<Country> | null>(
       () => `checkout:countries:${locale.value}`,
-      () => $fetch<Pagination<Country>>('/api/countries', {
+      () => $api<Pagination<Country>>('/api/countries', {
         method: 'GET',
         query: { languageCode: locale.value },
         headers: useRequestHeaders(),
@@ -863,7 +863,7 @@ export async function useCheckoutForm() {
         const kind = formState.shippingMethod === 'home_delivery'
           ? 'home_delivery'
           : 'pickup_point'
-        return $fetch<Pagination<PayWay>>('/api/pay-way', {
+        return $api<Pagination<PayWay>>('/api/pay-way', {
           method: 'GET',
           query: {
             languageCode: locale.value,
@@ -879,7 +879,7 @@ export async function useCheckoutForm() {
       async () => {
         if (!loggedIn.value) return []
         try {
-          const response = await $fetch<Pagination<UserAddressDetail>>(
+          const response = await $api<Pagination<UserAddressDetail>>(
             '/api/user/addresses',
             {
               method: 'GET',
@@ -1039,7 +1039,7 @@ export async function useCheckoutForm() {
    */
   const refetchShippingSettings = async () => {
     const [fresh] = await Promise.all([
-      $fetch<PublicSettings>('/api/settings/public', {
+      $api<PublicSettings>('/api/settings/public', {
         headers: useRequestHeaders(),
       }).catch(() => null),
       fetchShippingOptions(),

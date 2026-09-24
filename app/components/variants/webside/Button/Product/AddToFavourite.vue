@@ -62,7 +62,7 @@ const toggleFavourite = async () => {
   try {
     isLoading.value = true
     if (!props.favouriteId) {
-      await $fetch(`/api/products/favourites`, {
+      await $api(`/api/products/favourites`, {
         method: 'POST',
         body: {
           product: props.productId,
@@ -96,7 +96,7 @@ const toggleFavourite = async () => {
     }
     else {
       const id = props.favouriteId
-      await $fetch(`/api/products/favourites/${id}`, {
+      await $api(`/api/products/favourites/${id}`, {
         method: 'DELETE',
         onRequestError({ error }) {
           toast.add({

@@ -32,7 +32,7 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: favourites, status } = useFetch(
+const { data: favourites, status } = useApi(
   `/api/user/account/${user.value?.id}/liked-blog-posts`,
   {
     key: `likedBlogPosts${user.value?.id}`,
@@ -48,7 +48,7 @@ const { data: favourites, status } = useFetch(
 
 const refreshFavourites = async () => {
   status.value = 'pending'
-  const favourites = await $fetch(
+  const favourites = await $api(
     `/api/user/account/${user.value?.id}/liked-blog-posts`,
     {
       method: 'GET',

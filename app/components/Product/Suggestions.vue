@@ -49,7 +49,7 @@ const fetches = props.items === undefined && typeof props.seedId === 'number'
 // routes resolve the response type from it, which a URL function
 // would not. The seed is fixed for the component's lifetime — the
 // page remounts it per product.
-const { data } = useFetch(`/api/products/${props.seedId}/recommendations`, {
+const { data } = useApi(`/api/products/${props.seedId}/recommendations`, {
   key: `recommendations:${props.surface}:${props.seedId}:${props.limit ?? ''}`,
   query: {
     surface: props.surface,

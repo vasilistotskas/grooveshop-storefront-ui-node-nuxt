@@ -68,7 +68,7 @@ const {
 const mockCartHolder = { value: null as any }
 
 // ── Nuxt auto-import mocks ─────────────────────────────────────────────────
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 mockNuxtImport('useToast', () => () => ({ add: mockToastAdd }))
 mockNuxtImport('useRequestHeaders', () => () => ({}))
 mockNuxtImport('useLocalePath', () => () => (route: any) => route)
@@ -472,6 +472,56 @@ describe('useCheckoutSubmit', () => {
       expect(mockCleanCartState).not.toHaveBeenCalled()
     })
 
+    /** Submit once against a Django 400 body and return the toast shown. */
+    async function toastFor(body: Record<string, unknown>) {
+      const codPayWay = makePayWay('cod')
+      mockReserveStock.mockResolvedValue([5])
+      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
+        opts?.onResponseError?.({ response: { status: 400, ok: false, _data: body } })
+        return Promise.resolve(undefined)
+      })
+      const { onSubmit } = useCheckoutSubmit({
+        formState: makeFormState(),
+        selectedPayWay: ref<PayWay | null>(codPayWay),
+        payWays: makePayWaysRef(codPayWay),
+      })
+      await onSubmit()
+      return mockToastAdd.mock.calls.at(-1)?.[0] as { title: string, description?: string }
+    }
+
+    it('classifies a cart stock shortfall by error.type, whatever language the message is in', async () => {
+      // Django answers in the page's language now: a Greek message must
+      // still read as insufficient stock, which text matching never did.
+      const message = "Το προϊόν 'Shirt' έχει ανεπαρκές απόθεμα. Διαθέσιμο: 1, Ζητήθηκε: 3"
+      const toast = await toastFor({
+        detail: 'Το καλάθι δεν μπορεί να ολοκληρωθεί.',
+        cart: [message],
+        error: { type: 'insufficient_stock' },
+      })
+
+      expect(toast.title).toBe(useNuxtApp().$i18n.t('form.submit.error.insufficient_stock'))
+      expect(toast.description).toContain(message)
+    })
+
+    it('shows any other cart problem (cart_invalid) as an inventory error', async () => {
+      const toast = await toastFor({
+        detail: 'The cart cannot be checked out.',
+        cart: ["Product 'Shirt' is no longer available"],
+        error: { type: 'cart_invalid' },
+      })
+
+      expect(toast.title).toBe(useNuxtApp().$i18n.t('form.submit.error.inventory'))
+      expect(toast.description).toContain("Product 'Shirt' is no longer available")
+    })
+
+    it('no longer reads the stock condition from message text', async () => {
+      // An English "insufficient stock" message with no code is just a
+      // cart problem: the code is the contract, the text is display.
+      const toast = await toastFor({ cart: ['Product has insufficient stock.'] })
+
+      expect(toast.title).toBe(useNuxtApp().$i18n.t('form.submit.error.inventory'))
+    })
+
     it('DRF field errors (e.g. phone) surface field detail in the toast', async () => {
       const codPayWay = makePayWay('cod')
       const selectedPayWay = ref<PayWay | null>(codPayWay)
@@ -548,11 +598,13 @@ describe('useCheckoutSubmit', () => {
     // path had zero coverage — these tests are that coverage, so the
     // deadlock cannot return silently.
 
+    // Django's shape for a hold that lapsed mid-checkout: the stable
+    // code, with a `detail` in the page's language that nothing parses.
     const RETRYABLE_RESPONSE = {
-      status: 409,
+      status: 400,
       _data: {
-        error: { type: 'invalid_order_data' },
-        detail: 'Reservation expired',
+        error: { type: 'reservation_unavailable' },
+        detail: 'Η δέσμευση αποθέματος δεν ισχύει πλέον.',
       },
     }
 

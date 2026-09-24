@@ -25,7 +25,7 @@ const maxAmount = computed(() => Number(maxSetting.value || 500))
 // so a merchant who disables a provider hides it here too.
 const { data: payWays } = useLazyAsyncData(
   'gift-cards:pay-ways',
-  () => $fetch<Pagination<PayWay>>('/api/pay-way', {
+  () => $api<Pagination<PayWay>>('/api/pay-way', {
     method: 'GET',
     headers: useRequestHeaders(),
   }).catch(() => null),
@@ -130,7 +130,7 @@ const startPurchase = async () => {
   purchaseError.value = null
   submitting.value = true
   try {
-    const response = await $fetch<{
+    const response = await $api<{
       purchaseUuid: string
       provider: string
       clientSecret?: string

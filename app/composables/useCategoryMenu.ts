@@ -38,7 +38,7 @@ export function useCategoryMenu() {
     fallback: true,
   })
 
-  const { data } = useFetch('/api/products/categories/all', {
+  const { data } = useApi('/api/products/categories/all', {
     key: 'category-menu',
     // Several readers share this key (the header, the mobile menu);
     // the default 'cancel' would re-issue the request per reader.

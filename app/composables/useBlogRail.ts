@@ -19,7 +19,7 @@ export async function useBlogRail(options: {
   const categoryId = computed(() => toValue(options.categoryId))
   const enabled = tenantStore.blogEnabled
 
-  const { data } = await useFetch('/api/blog/posts', {
+  const { data } = await useApi('/api/blog/posts', {
     key: computed(
       () => `blog-rail-${count.value}-${categoryId.value ?? 'all'}-${locale.value}`,
     ),

@@ -102,6 +102,27 @@ describe('POST /api/subscriptions/newsletter', () => {
     expect(result).toEqual({ detail: 'Check your inbox.' })
   })
 
+  it('stores the English sentence when the app states en in X-Language', async () => {
+    // The whole path the form takes: `$api` sends the page locale in
+    // X-Language, `1.locale.ts` turns it into `event.context.locale`,
+    // and the route picks the consent sentence the label showed.
+    vi.stubGlobal('getHeader', (event: { headers: Record<string, string> }, name: string) =>
+      event.headers[name.toLowerCase()])
+    const localeMiddleware = (await import('../../../../server/middleware/1.locale')).default as unknown as (event: unknown) => void
+    const event = {
+      path: '/api/subscriptions/newsletter',
+      headers: { 'x-language': 'en' } as Record<string, string>,
+      context: { tenant: { defaultLocale: 'el', availableLocales: ['el', 'en'] } } as Record<string, unknown>,
+    }
+    localeMiddleware(event)
+    fetchMock.mockResolvedValue({ detail: 'ok' })
+
+    await subscribe(event)
+
+    const [, opts] = fetchMock.mock.calls[0] as [string, { body: { consentText: string } }]
+    expect(opts.body.consentText).toBe(newsletterConsentText('en'))
+  })
+
   it('uses the Greek sentence on a Greek request', async () => {
     fetchMock.mockResolvedValue({ detail: 'ok' })
 

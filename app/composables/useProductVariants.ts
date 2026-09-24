@@ -18,7 +18,7 @@ export const useProductVariants = async (
 ) => {
   const id = computed(() => toValue(productId))
 
-  const { data, status, error } = await useFetch<ProductVariantsResponse>(
+  const { data, status, error } = await useApi<ProductVariantsResponse>(
     () => `/api/products/${id.value}/variants`,
     {
       key: () => `product-variants-${id.value}`,

@@ -165,32 +165,42 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         contentType: response?.headers?.get?.('content-type'),
       })
     }
-    const errorType = errorData?.error?.type
+    // Branch on Django's stable `error.type` (`OrderCreateErrorType` in
+    // the OpenAPI contract), never on `detail` / `cart` TEXT: Django
+    // answers in the page's language, so a message match works in one
+    // language at most.
+    const errorType = errorData?.error?.type as OrderCreateErrorType | undefined
+    const cartMessages = Array.isArray(errorData?.cart) ? errorData.cart.join('. ') : ''
 
-    // Handle structured error types
-    if (errorType === 'invalid_order_data') {
-      const detail = errorData?.detail || ''
+    if (errorType === 'reservation_unavailable') {
+      errorTitle = t('form.submit.error.reservation_expired')
+      errorDescription = t('form.submit.error.reservation_expired_description')
 
-      // Check if it's an expired reservation error
-      if (detail.includes('expired') || detail.includes('Reservation')) {
-        errorTitle = t('form.submit.error.reservation_expired')
-        errorDescription = t('form.submit.error.reservation_expired_description')
-
-        // Clear expired reservations
-        reservationIds.value = []
-        return { title: errorTitle, description: errorDescription, shouldRetry: true }
-      }
-
+      // Clear expired reservations
+      reservationIds.value = []
+      return { title: errorTitle, description: errorDescription, shouldRetry: true }
+    }
+    else if (errorType === 'invalid_order_data') {
       errorTitle = t('form.submit.error.invalid_order_data')
-      errorDescription = detail || t('form.submit.error.invalid_order_data_description')
+      errorDescription = errorData?.detail || t('form.submit.error.invalid_order_data_description')
     }
     else if (errorType === 'insufficient_stock') {
       errorTitle = t('form.submit.error.insufficient_stock')
-      errorDescription = errorData?.detail || t('form.submit.error.insufficient_stock_description')
+      errorDescription = cartMessages || errorData?.detail || t('form.submit.error.insufficient_stock_description')
+    }
+    else if (errorType === 'cart_invalid') {
+      errorTitle = t('form.submit.error.inventory')
+      errorDescription = cartMessages || errorData?.detail
     }
     else if (errorType === 'payment_not_found' || errorType === 'payment_verification') {
       errorTitle = t('form.submit.error.payment_verification')
       errorDescription = errorData?.detail || t('form.submit.error.payment_verification_description')
+    }
+    // The paid intent no longer matches the order Django priced: the
+    // cart or its prices changed after the intent was created.
+    else if (errorType === 'payment_amount_mismatch' || errorType === 'payment_currency_mismatch') {
+      errorTitle = t('form.submit.error.payment_mismatch')
+      errorDescription = errorData?.detail || t('form.submit.error.payment_mismatch_description')
     }
     else if (errorType === 'invalid_coupon') {
       errorTitle = t('form.submit.error.invalid_coupon')
@@ -200,20 +210,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       errorTitle = t('form.submit.error.invalid_gift_card')
       errorDescription = errorData?.detail || t('form.submit.error.invalid_gift_card_description')
     }
-    // Handle ValidationError with cart field
-    else if (errorData?.cart && Array.isArray(errorData.cart)) {
-      const cartErrors = errorData.cart
-      if (cartErrors.length > 0) {
-        const errorMsg = cartErrors[0]
-        if (errorMsg.includes('insufficient stock') || errorMsg.includes('Insufficient stock')) {
-          errorTitle = t('form.submit.error.insufficient_stock')
-          errorDescription = errorMsg
-        }
-        else {
-          errorTitle = t('form.submit.error.inventory')
-          errorDescription = cartErrors.join('. ')
-        }
-      }
+    // A cart that is missing or empty: DRF's field error under `cart`
+    else if (cartMessages) {
+      errorTitle = t('form.submit.error.inventory')
+      errorDescription = cartMessages
     }
     // DRF serializer field errors: { field: ["msg", ...] } — e.g.
     // {"phone": ["Enter a valid phone number."]}. Surface every message
@@ -338,7 +338,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       region: formState.region,
     }
 
-    $fetch('/api/user/addresses', {
+    $api('/api/user/addresses', {
       method: 'POST',
       headers: useRequestHeaders(),
       body,
@@ -491,7 +491,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
           : {}),
       } as OrderCreateFromCartRequest
 
-      await $fetch('/api/orders', {
+      await $api('/api/orders', {
         method: 'POST',
         headers: {
           ...useRequestHeaders(),
@@ -513,7 +513,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
             retryCount.value = 0
             // No "order created" toast here — see the offline branch below.
             try {
-              await $fetch('/api/cart/clear-session', { method: 'POST' })
+              await $api('/api/cart/clear-session', { method: 'POST' })
             }
             catch (err) {
               log.error({ action: 'checkout:clearCart', error: err })
@@ -569,7 +569,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
 
     let handledByResponseError = false
     try {
-      await $fetch('/api/orders', {
+      await $api('/api/orders', {
         method: 'POST',
         headers: useRequestHeaders(),
         body: orderBody,
@@ -614,7 +614,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     if (!orderBody) return
 
     try {
-      await $fetch('/api/orders', {
+      await $api('/api/orders', {
         method: 'POST',
         headers: useRequestHeaders(),
         body: orderBody,
@@ -640,7 +640,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
           // success page, which states the outcome in full.
           // Clear cart server-side after order is confirmed
           try {
-            await $fetch('/api/cart/clear-session', { method: 'POST' })
+            await $api('/api/cart/clear-session', { method: 'POST' })
           }
           catch (err) {
             log.error({ action: 'checkout:clearCart', error: err })
@@ -812,7 +812,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     // Clear cart server-side only after payment is confirmed so a failed
     // Stripe confirmation doesn't wipe the cart before we know it succeeded.
     try {
-      await $fetch('/api/cart/clear-session', { method: 'POST' })
+      await $api('/api/cart/clear-session', { method: 'POST' })
     }
     catch (err) {
       log.error({ action: 'checkout:clearCart', error: err })

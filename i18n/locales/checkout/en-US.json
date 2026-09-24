@@ -186,6 +186,8 @@
         "stock_reservation_description": "The stock could not be reserved. Please try again.",
         "payment_verification": "Payment verification error",
         "payment_verification_description": "Payment verification failed. Please contact support.",
+        "payment_mismatch": "Your order total changed",
+        "payment_mismatch_description": "The payment does not match your current order. Please review your order and try again.",
         "invalid_coupon": "Invalid coupon",
         "invalid_coupon_description": "This coupon cannot be applied to this order.",
         "invalid_gift_card": "Invalid gift card",

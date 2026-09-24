@@ -44,7 +44,7 @@ export function useUserLanguage() {
       try {
         const form = new FormData()
         form.append('languageCode', code)
-        await $fetch(`/api/user/account/${user.value.id}`, {
+        await $api(`/api/user/account/${user.value.id}`, {
           method: 'PATCH',
           body: form,
         })

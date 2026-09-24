@@ -58,7 +58,7 @@ const query = computed(() => ({
   ...(seenQuery.value !== undefined ? { seen: seenQuery.value } : {}),
 }))
 
-const { data: notifications, status, error, refresh } = await useFetch(
+const { data: notifications, status, error, refresh } = await useApi(
   `/api/user/account/${user.value?.id}/notifications`,
   {
     key: `userNotifications${user.value?.id}`,

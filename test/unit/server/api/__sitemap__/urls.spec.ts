@@ -18,6 +18,7 @@ vi.stubGlobal('useRuntimeConfig', () => ({
 }))
 
 vi.stubGlobal('getRequestHost', () => 'example.com')
+vi.stubGlobal('requestLocale', () => 'el')
 
 // The real path extractor is used by the route to reuse the fixed media
 // path segment against the tenant's own asset origin.
@@ -51,7 +52,7 @@ const PRODUCT_CATEGORY = { id: 200, slug: 'electronics', updatedAt: new Date().t
 const cachedFetcherData: Record<string, unknown[]> = {}
 
 vi.stubGlobal('createCachedFetcher', (_name: string, _ttl: number) => {
-  return async (tenantKey: string, url: string) => {
+  return async (tenantKey: string, locale: string, url: string) => {
     if (url.includes('/blog/post')) return cachedFetcherData['posts'] ?? [BLOG_POST]
     if (url.includes('/blog/category')) return cachedFetcherData['categories'] ?? [BLOG_CATEGORY]
     if (url.includes('/product/category')) return cachedFetcherData['productCategories'] ?? [PRODUCT_CATEGORY]

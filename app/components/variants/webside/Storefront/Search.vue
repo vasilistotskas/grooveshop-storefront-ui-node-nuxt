@@ -26,7 +26,7 @@ const offset = computed(() => (page.value - 1) * limit.value)
 const {
   data: searchResults,
   status,
-} = await useFetch<SearchResponse>('/api/search', {
+} = await useApi<SearchResponse>('/api/search', {
   key: computed(() => `search-${query.value}-${limit.value}-${offset.value}`),
   query: {
     query,
@@ -42,7 +42,7 @@ const isAllTab = computed(() => activeTab.value === 'all')
 const {
   data: federatedResults,
   status: federatedStatus,
-} = await useFetch<FederatedSearchResponse>('/api/search/federated', {
+} = await useApi<FederatedSearchResponse>('/api/search/federated', {
   key: computed(
     () => `search-federated-${query.value}-${limit.value}-${offset.value}`,
   ),

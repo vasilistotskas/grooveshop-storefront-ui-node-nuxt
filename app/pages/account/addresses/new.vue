@@ -43,7 +43,7 @@ const state = reactive<Partial<Schema>>({
 })
 
 // Countries data
-const { data: countries } = await useFetch('/api/countries', {
+const { data: countries } = await useApi('/api/countries', {
   key: 'countries',
   method: 'GET',
   headers: useRequestHeaders(),
@@ -62,7 +62,7 @@ const countryOptions = computed(() => {
 })
 
 // Regions data
-const { data: regions, execute: fetchRegions } = await useFetch<Pagination<Region>>(
+const { data: regions, execute: fetchRegions } = await useApi<Pagination<Region>>(
   '/api/regions',
   {
     immediate: false,
@@ -117,7 +117,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   if (isSubmitting.value) return
   isSubmitting.value = true
   try {
-    await $fetch('/api/user/addresses', {
+    await $api('/api/user/addresses', {
       method: 'POST',
       headers: useRequestHeaders(),
       body: {

@@ -1,7 +1,9 @@
 export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  // Already clamped to the tenant's locales by server/middleware/1.locale.ts,
-  // which reads this route's own ?locale= as its first priority.
+  // The page's locale, clamped to the tenant's by
+  // server/middleware/1.locale.ts (from the X-Language the app states).
+  // Sent to Django as `?locale=`, which page_config reads to pick the
+  // menu's language (page_config/localization.py).
   const locale = requestLocale(event)
 
   try {

@@ -52,7 +52,10 @@ vi.stubGlobal('$fetch', mockFetch)
 // tenant resolution 404s. On the client useRequestFetch returns plain
 // $fetch, so returning the same mock keeps these tests exercising the
 // real call path.
-vi.stubGlobal('useRequestFetch', () => mockFetch)
+// Through `useRequestApi`, the app's page-locale wrapper around it
+// (app/composables/useApi.ts; its header is tested in
+// test/nuxt/utils/api.spec.ts).
+vi.stubGlobal('useRequestApi', () => mockFetch)
 
 describe('useUserSubscriptions - Property: Mutation Cache Invalidation', () => {
   beforeEach(() => {

@@ -32,7 +32,7 @@ const entityOrdering = ref<EntityOrdering<any>>([
   },
 ])
 
-const { data: favourites, refresh: refreshFavourites, status, error } = await useFetch(
+const { data: favourites, refresh: refreshFavourites, status, error } = await useApi(
   `/api/user/account/${user.value?.id}/favourite-products`,
   {
     key: `favouriteProducts${user.value?.id}`,
@@ -58,7 +58,7 @@ const productIds = computed(() => {
   )
 })
 
-const { refresh: refreshFavouriteProducts } = await useFetch('/api/products/favourites/favourites-by-products', {
+const { refresh: refreshFavouriteProducts } = await useApi('/api/products/favourites/favourites-by-products', {
   key: `favouritesByProducts${user.value?.id}`,
   method: 'POST',
   headers: useRequestHeaders(),

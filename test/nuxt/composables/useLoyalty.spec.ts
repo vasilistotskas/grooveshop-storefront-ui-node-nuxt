@@ -11,7 +11,7 @@ const { mockFetch, mockUseAsyncDataFn, mockRefreshNuxtDataFn } = vi.hoisted(() =
 // Mock Nuxt composables using mockNuxtImport. Since Nuxt 4.5 `$fetch` is a
 // real auto-import in user code, so `vi.stubGlobal('$fetch', ...)` no longer
 // intercepts it — it must be mocked via mockNuxtImport like any other import.
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 mockNuxtImport('useAsyncData', () => mockUseAsyncDataFn)
 mockNuxtImport('refreshNuxtData', () => mockRefreshNuxtDataFn)
 mockNuxtImport('useRequestHeaders', () => () => ({}))

@@ -7,7 +7,7 @@ const { mockUseFetchFn } = vi.hoisted(() => ({
   mockUseFetchFn: vi.fn(),
 }))
 
-mockNuxtImport('useFetch', () => mockUseFetchFn)
+mockNuxtImport('useApi', () => mockUseFetchFn)
 
 /**
  * Call the composable from inside a component's `setup()`.
@@ -157,11 +157,14 @@ describe('usePageConfig', () => {
 
     const options = mockUseFetchFn.mock.calls[0]![1] as {
       key: () => string
-      query: { locale: { value: string } }
+      query?: unknown
     }
-    const locale = options.query.locale.value
+    const locale = useNuxtApp().$i18n.locale.value
     expect(locale).toBeTruthy()
     expect(options.key()).toBe(`page-config-products-${locale}`)
+    // The locale reaches the route in X-Language (useApi's hook), not
+    // in a query the server no longer reads.
+    expect(options.query).toBeUndefined()
   })
 
   describe('operator SEO', () => {
@@ -244,14 +247,14 @@ describe('usePageConfig', () => {
 
     it('applies the SEO Django resolved for the locale it asked for', async () => {
       // page-config answers ONE locale per request, SEO included, so the
-      // head must carry whatever the request's own ``?locale=`` got back.
+      // head must carry whatever the request's own locale got back.
       const byLocale: Record<string, { seoTitle: string, seoDescription: string }> = {
         el: { seoTitle: 'Σχετικά με εμάς', seoDescription: 'Ποιοι είμαστε.' },
         en: { seoTitle: 'About us', seoDescription: 'Who we are.' },
       }
       let asked = ''
-      mockUseFetchFn.mockImplementation((_url: unknown, options: { query: { locale: { value: string } } }) => {
-        asked = options.query.locale.value
+      mockUseFetchFn.mockImplementation((_url: unknown, options: { key: () => string }) => {
+        asked = options.key().split('-').pop() ?? ''
         return layoutWith(byLocale[asked] ?? { seoTitle: '', seoDescription: '' })
       })
 

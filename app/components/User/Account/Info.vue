@@ -48,7 +48,7 @@ const changeUserName = async () => {
   }
 
   try {
-    const response = await $fetch(`/api/user/account/${account.value.id}/change-username`, {
+    const response = await $api(`/api/user/account/${account.value.id}/change-username`, {
       method: 'POST',
       body: { username: username.value },
     })

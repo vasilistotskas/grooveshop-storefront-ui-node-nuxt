@@ -35,7 +35,7 @@ if (canonicalLegalRoute) {
 // 404 that cost a round-trip and a stack trace per render. Here it
 // still becomes a real 404 for the visitor; only a 5xx means an outage.
 const { data: contentPageResponse, error: contentPageError }
-  = await useFetch<ContentPageResponse>(
+  = await useApi<ContentPageResponse>(
     `/api/content-pages/${slug.value}`,
     {
       key: `contentPage${slug.value}`,

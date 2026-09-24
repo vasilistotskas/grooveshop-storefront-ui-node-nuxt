@@ -890,7 +890,6 @@ export default defineNuxtConfig({
       runtimeOnly: true,
     },
     experimental: {
-      localeDetector: 'localeDetector.ts',
       httpCacheDuration: 86400,
       typedPages: true,
       preload: true,

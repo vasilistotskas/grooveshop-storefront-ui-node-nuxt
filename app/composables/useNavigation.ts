@@ -52,11 +52,10 @@ export function useNavigation() {
   const serving = (link: NavLink) =>
     !link.to || !isFeaturePathBlocked(link.to, blocked.value)
 
-  const { data } = useFetch<Record<string, unknown[]>>(
+  const { data } = useApi<Record<string, unknown[]>>(
     '/api/page-config/navigation',
     {
       key: () => `page-config-navigation-${locale.value}`,
-      query: { locale },
       // Read by the header, the burger menu and the footer in the same
       // render: with the default 'cancel' each reader re-issued the
       // request (3x per page in the crawl logs). See useStoreSettings.

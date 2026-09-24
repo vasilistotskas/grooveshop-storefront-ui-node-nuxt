@@ -36,7 +36,7 @@ if (!blogPostId.value) {
   })
 }
 
-const { data: blogPost, refresh, error: blogPostError } = await useFetch(
+const { data: blogPost, refresh, error: blogPostError } = await useApi(
   `/api/blog/posts/${blogPostId.value}`,
   {
     key: `blogPost${blogPostId.value}`,
@@ -67,7 +67,7 @@ const [
   { data: blogPostCategory },
   { data: blogPostAuthor },
 ] = await Promise.all([
-  useFetch(`/api/blog/categories/${blogPost.value.category.id}`, {
+  useApi(`/api/blog/categories/${blogPost.value.category.id}`, {
     key: `blogCategory-${blogPost.value.category.id}`,
     method: 'GET',
     headers: useRequestHeaders(),
@@ -76,7 +76,7 @@ const [
     },
     pick: ['id', 'translations'],
   }),
-  useFetch(`/api/blog/authors/${blogPost.value.author.id}`, {
+  useApi(`/api/blog/authors/${blogPost.value.author.id}`, {
     key: `blogAuthor${blogPost.value.author.id}`,
     method: 'GET',
     headers: useRequestHeaders(),
@@ -87,7 +87,7 @@ const [
 ])
 
 // Non-critical data: defer to client-side (doesn't block FCP/LCP)
-const { data: likedPostsData } = await useFetch('/api/blog/posts/liked-posts', {
+const { data: likedPostsData } = await useApi('/api/blog/posts/liked-posts', {
   key: `likedPosts${blogPostId.value}`,
   method: 'POST',
   body: {
@@ -98,7 +98,7 @@ const { data: likedPostsData } = await useFetch('/api/blog/posts/liked-posts', {
 })
 
 // Below-the-fold content: use useLazyFetch to not block navigation
-const { data: relatedPosts, status: relatedPostsStatus } = useLazyFetch(`/api/blog/posts/${blogPostId.value}/related-posts`, {
+const { data: relatedPosts, status: relatedPostsStatus } = useLazyApi(`/api/blog/posts/${blogPostId.value}/related-posts`, {
   key: `relatedPosts${blogPostId.value}`,
   method: 'GET',
 })

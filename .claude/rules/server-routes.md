@@ -33,7 +33,7 @@ Numeric prefixes order execution. Request logging is via evlog (there is no `log
 - `0.redirects.ts` — 301 redirect from `www.` to non-www
 - `0.tenant.ts` — resolves `event.context.tenant` from the request host (runs first; see Multi-Tenant Architecture)
 - `1.ai-ready-gate.ts` — gates the on-demand `.md`/llms routes
-- `1.locale.ts` — Locale detection: query param → i18n cookies → Accept-Language header → tenant defaultLocale → `event.context.locale`
+- `1.locale.ts` — `event.context.locale` = the page's locale: the path prefix of a page request, or the `X-Language` the app's fetchers state on an `/api` request, clamped by `servedLocale` (`shared/i18n/tenantLocales.ts`). No cookie, `Accept-Language` or `?locale=` source. It is sent to Django as `X-Language` and is part of every `tenantCacheKey`
 - `2.evlog-auth.ts` — attaches the auth session user id to the wide event (`useLogger`)
 - `3.csp.ts` — per-tenant Content-Security-Policy (extends src lists with the tenant's `allowedCspSources`)
 - `4.tenant-site-config.ts` — sets per-tenant `@nuxtjs/seo` site config (url/name)

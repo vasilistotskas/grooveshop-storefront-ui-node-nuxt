@@ -15,13 +15,13 @@ describe('Search/Modal Component - Data Fetching Migration', () => {
       expect(componentSource).not.toContain('onMounted (')
     })
 
-    it('should use useLazyFetch for data fetching', async () => {
+    it('should use useLazyApi for data fetching', async () => {
       // Read the component source code
       const componentPath = join(process.cwd(), 'app/components/Search/Modal.vue')
       const componentSource = await readFile(componentPath, 'utf-8')
 
-      // Verify that useLazyFetch is used
-      expect(componentSource).toContain('useLazyFetch')
+      // Verify that useLazyApi is used
+      expect(componentSource).toContain('useLazyApi')
       
       // Verify that immediate: false is set (lazy loading)
       expect(componentSource).toContain('immediate: false')
@@ -71,17 +71,17 @@ describe('Search/Modal Component - Data Fetching Migration', () => {
       // Verify no onMounted with data fetching
       expect(componentSource).not.toContain('onMounted')
       
-      // Verify useLazyFetch is used at setup level
-      expect(componentSource).toContain('useLazyFetch')
+      // Verify useLazyApi is used at setup level
+      expect(componentSource).toContain('useLazyApi')
     })
 
     it('validates Requirement 4.2: Client-side only data fetching uses server: false', async () => {
       const componentPath = join(process.cwd(), 'app/components/Search/Modal.vue')
       const componentSource = await readFile(componentPath, 'utf-8')
 
-      // Search is client-side only, but useLazyFetch defaults to server: false
-      // so we just verify it's using useLazyFetch with immediate: false
-      expect(componentSource).toContain('useLazyFetch')
+      // Search is client-side only, but useLazyApi defaults to server: false
+      // so we just verify it's using useLazyApi with immediate: false
+      expect(componentSource).toContain('useLazyApi')
       expect(componentSource).toContain('immediate: false')
     })
 
@@ -89,7 +89,7 @@ describe('Search/Modal Component - Data Fetching Migration', () => {
       const componentPath = join(process.cwd(), 'app/components/Search/Modal.vue')
       const componentSource = await readFile(componentPath, 'utf-8')
 
-      // Verify that the component destructures the result from useLazyFetch
+      // Verify that the component destructures the result from useLazyApi
       expect(componentSource).toContain('data: searchResults')
       expect(componentSource).toContain('status')
       expect(componentSource).toContain('execute')

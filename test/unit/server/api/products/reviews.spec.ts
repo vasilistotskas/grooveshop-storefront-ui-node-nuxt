@@ -65,6 +65,6 @@ describe('GET /api/products/[id]/reviews', () => {
     const descending = handler.getKey({})
 
     expect(ascending).not.toBe(descending)
-    expect(ascending.startsWith('webside.gr__product-reviews:42:')).toBe(true)
+    expect(ascending.startsWith('webside.gr__el__product-reviews:42:')).toBe(true)
   })
 })

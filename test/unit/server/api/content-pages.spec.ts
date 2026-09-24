@@ -43,8 +43,8 @@ describe('GET /api/content-pages/[slug] cache key', () => {
     expect(keyA).not.toBe(keyB)
     // tenantCacheKey appends a word-safe hash suffix (survives Nitro's
     // \W-stripping) — assert on the readable prefix, not exact equality.
-    expect(keyA.startsWith('tenant-a.example__content-page:about-us')).toBe(true)
-    expect(keyB.startsWith('tenant-b.example__content-page:about-us')).toBe(true)
+    expect(keyA.startsWith('tenant-a.example__el__content-page:about-us')).toBe(true)
+    expect(keyB.startsWith('tenant-b.example__el__content-page:about-us')).toBe(true)
   })
 
   it('differentiates keys for two slugs on the same tenant', () => {
@@ -71,8 +71,8 @@ describe('GET /api/content-pages cache key', () => {
     const keyB = listHandler.getKey({})
 
     expect(keyA).not.toBe(keyB)
-    expect(keyA.startsWith('tenant-a.example__content-pages:')).toBe(true)
-    expect(keyB.startsWith('tenant-b.example__content-pages:')).toBe(true)
+    expect(keyA.startsWith('tenant-a.example__el__content-pages:')).toBe(true)
+    expect(keyB.startsWith('tenant-b.example__el__content-pages:')).toBe(true)
   })
 
   it('differentiates keys for different ordering query params', () => {

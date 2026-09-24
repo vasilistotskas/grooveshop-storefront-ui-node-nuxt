@@ -26,7 +26,7 @@ export const useViewCount = () => {
       : `/api/blog/posts/${entityId}/update-view-count`
 
     if (import.meta.client) {
-      $fetch(endpoint, { method: 'POST' }).catch(error =>
+      $api(endpoint, { method: 'POST' }).catch(error =>
         log.error({ action: `viewCount:${entityType}`, error }),
       )
     }

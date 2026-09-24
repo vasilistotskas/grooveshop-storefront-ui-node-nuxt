@@ -68,14 +68,15 @@ describe('Server Utils - API', () => {
       vi.stubGlobal('$fetch', vi.fn().mockResolvedValue(mockData))
 
       const fetcher = createCachedFetcher<any>('test', 60)
-      const result = await fetcher('webside.gr', 'https://api.example.com/data')
+      const result = await fetcher('webside.gr', 'el', 'https://api.example.com/data')
 
       expect(result).toEqual([{ id: 1 }, { id: 2 }])
       // The tenantKey is forwarded as X-Forwarded-Host so Django resolves
-      // the caller's schema (otherwise sitemap/RSS hit the public schema).
+      // the caller's schema (otherwise sitemap/RSS hit the public schema),
+      // and the locale as X-Language so Django answers in it.
       expect($fetch).toHaveBeenCalledWith('https://api.example.com/data', {
         method: 'GET',
-        headers: { 'X-Forwarded-Host': 'webside.gr' },
+        headers: { 'X-Forwarded-Host': 'webside.gr', 'X-Language': 'el' },
       })
     })
 
@@ -95,7 +96,7 @@ describe('Server Utils - API', () => {
         .mockResolvedValueOnce(page2))
 
       const fetcher = createCachedFetcher<any>('test', 60)
-      const result = await fetcher('webside.gr', 'https://api.example.com/data')
+      const result = await fetcher('webside.gr', 'el', 'https://api.example.com/data')
 
       expect(result).toEqual([
         { id: 1 },
@@ -124,6 +125,7 @@ describe('Server Utils - API', () => {
       const fetcher = createCachedFetcher<any>('test-rebase', 60)
       const result = await fetcher(
         'tenant-a.example',
+        'el',
         'http://backend-service:80/api/v1/blog/post?languageCode=el',
       )
 
@@ -146,7 +148,7 @@ describe('Server Utils - API', () => {
       vi.stubGlobal('$fetch', vi.fn().mockResolvedValue(mockData))
 
       const fetcher = createCachedFetcher<any>('test', 60)
-      const result = await fetcher('webside.gr', 'https://api.example.com/data')
+      const result = await fetcher('webside.gr', 'el', 'https://api.example.com/data')
 
       expect(result).toEqual([])
     })
@@ -159,15 +161,16 @@ describe('Server Utils - API', () => {
       vi.stubGlobal('$fetch', vi.fn().mockResolvedValue(mockData))
 
       const fetcher = createCachedFetcher<any>('test', 60)
-      const result = await fetcher('webside.gr', 'https://api.example.com/data')
+      const result = await fetcher('webside.gr', 'el', 'https://api.example.com/data')
 
       expect(result).toEqual([])
     })
 
-    it('should derive cache key from tenantKey + url', () => {
-      // The function passed to defineCachedFunction receives (tenantKey, url)
-      // and the cache key generator must combine them — otherwise tenant A
-      // and tenant B would collide on the same URL.
+    it('should derive cache key from tenantKey + locale + url', () => {
+      // The function passed to defineCachedFunction receives
+      // (tenantKey, locale, url) and the cache key generator must combine
+      // them — otherwise tenant A and tenant B, or an English and a Greek
+      // request, would collide on the same URL.
       let capturedOptions: any = null
       vi.stubGlobal('defineCachedFunction', (fn: Function, options: any) => {
         capturedOptions = options
@@ -178,14 +181,20 @@ describe('Server Utils - API', () => {
 
       expect(capturedOptions).not.toBeNull()
       expect(capturedOptions.getKey).toBeDefined()
-      const key = capturedOptions.getKey('tenant-a.com', '/product')
+      const key = capturedOptions.getKey('tenant-a.com', 'el', '/product')
       // Tenant host is part of the key so two tenants fetching the
       // same URL do NOT share a cache slot.
       expect(key).toContain('tenant-a.com')
       expect(key).toContain('/product')
 
-      const otherKey = capturedOptions.getKey('tenant-b.com', '/product')
+      const otherKey = capturedOptions.getKey('tenant-b.com', 'el', '/product')
       expect(otherKey).not.toBe(key)
+
+      const englishKey = capturedOptions.getKey('tenant-a.com', 'en', '/product')
+      expect(englishKey).not.toBe(key)
+      // The locale is its own `:` segment after the host, so the
+      // store-scoped purge (`functions` family) still finds the entry.
+      expect(`:${englishKey}:`).toContain(':tenant-a.com:')
     })
   })
 })

@@ -25,7 +25,7 @@ export default defineNuxtRouteMiddleware(async () => {
   // answers 404, and the catch below would turn that into a hard 404 for
   // the page — so this route was unreachable for every tenant that had
   // loyalty switched on.
-  const requestFetch = useRequestFetch()
+  const requestFetch = useRequestApi()
 
   let runtimeEnabled: boolean
   try {

@@ -510,7 +510,7 @@ export function setupCookieConsentTracking() {
   const { isConsentGiven, cookiesEnabledIds, moduleOptions } = useCookieControl()
 
   const post = (body: CookieConsentEventBody) =>
-    $fetch('/api/analytics/cookie-consent', {
+    $api('/api/analytics/cookie-consent', {
       method: 'POST',
       body,
       // ``keepalive`` lets the browser flush the request even if the

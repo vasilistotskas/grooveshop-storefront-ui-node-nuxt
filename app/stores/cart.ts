@@ -196,7 +196,7 @@ export const useCartStore = defineStore('cart', () => {
       // shopper reached this product from, if there is one, so the
       // backend can attach the eventual order line to it exactly.
       const recommendationImpressionId = attribution.take(body.product)
-      await $fetch('/api/cart/items', {
+      await $api('/api/cart/items', {
         method: 'POST',
         headers: useRequestHeaders(),
         body: recommendationImpressionId
@@ -258,7 +258,7 @@ export const useCartStore = defineStore('cart', () => {
       ? attribution.take(lineProductId)
       : undefined
     try {
-      await $fetch(`/api/cart/items/${id}`, {
+      await $api(`/api/cart/items/${id}`, {
         method: 'PUT',
         headers: useRequestHeaders(),
         body: recommendationImpressionId
@@ -299,7 +299,7 @@ export const useCartStore = defineStore('cart', () => {
     // miss the row entirely (it's gone).
     const removedItem = cart.value?.items?.find(item => item.id === id)
     try {
-      await $fetch(`/api/cart/items/${id}`, {
+      await $api(`/api/cart/items/${id}`, {
         method: 'DELETE',
         headers: useRequestHeaders(),
       })
@@ -332,7 +332,7 @@ export const useCartStore = defineStore('cart', () => {
     const opId = crypto.randomUUID()
     inFlight.add(opId)
     try {
-      const data = await $fetch('/api/cart', {
+      const data = await $api('/api/cart', {
         method: 'GET',
         headers,
       })
@@ -350,7 +350,7 @@ export const useCartStore = defineStore('cart', () => {
 
   async function refreshCart() {
     try {
-      const data = await $fetch('/api/cart', {
+      const data = await $api('/api/cart', {
         method: 'GET',
         headers: useRequestHeaders(),
       })
@@ -366,7 +366,7 @@ export const useCartStore = defineStore('cart', () => {
 
   async function cleanCartState() {
     try {
-      await $fetch('/api/cart/clear-session', { method: 'POST' })
+      await $api('/api/cart/clear-session', { method: 'POST' })
       cart.value = null
       inFlight.clear()
       error.value = null

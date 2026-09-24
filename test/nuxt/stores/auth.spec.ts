@@ -8,7 +8,7 @@ import { useAuthStore } from '~/stores/auth'
 // mocked via mockNuxtImport like any other auto-import.
 const { mockFetch } = vi.hoisted(() => ({ mockFetch: vi.fn() }))
 
-mockNuxtImport('$fetch', () => mockFetch)
+mockNuxtImport('$api', () => mockFetch)
 
 vi.mock('#app', async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>()

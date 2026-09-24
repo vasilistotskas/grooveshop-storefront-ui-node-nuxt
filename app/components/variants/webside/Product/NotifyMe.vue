@@ -88,7 +88,7 @@ const {
   async () => {
     if (!loggedIn.value) return null
     try {
-      const response = await $fetch('/api/products/alerts', {
+      const response = await $api('/api/products/alerts', {
         method: 'GET',
         headers: useRequestHeaders(),
         query: {
@@ -114,7 +114,7 @@ async function onSubmit() {
   if (submitting.value) return
   submitting.value = true
   try {
-    await $fetch('/api/products/alerts', {
+    await $api('/api/products/alerts', {
       method: 'POST',
       body: {
         kind: props.kind,
@@ -160,7 +160,7 @@ async function cancelAlert() {
   if (!existingAlert.value?.id || canceling.value) return
   canceling.value = true
   try {
-    await $fetch(`/api/products/alerts/${existingAlert.value.id}`, {
+    await $api(`/api/products/alerts/${existingAlert.value.id}`, {
       method: 'DELETE',
       headers: useRequestHeaders(),
     })

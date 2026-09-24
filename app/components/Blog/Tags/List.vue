@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 const { t, locale } = useI18n()
 
-const { data: blogTags } = await useFetch(
+const { data: blogTags } = await useApi(
   '/api/blog/tags',
   {
     key: 'blogTags',

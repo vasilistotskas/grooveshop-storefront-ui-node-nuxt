@@ -21,7 +21,7 @@ const { locale } = useI18n()
 const tenantStore = useTenantStore()
 const enabled = tenantStore.blogEnabled
 
-const { data } = await useFetch('/api/blog/categories', {
+const { data } = await useApi('/api/blog/categories', {
   key: 'blogCategories-slider',
   query: { pageSize: 10, languageCode: locale },
   dedupe: 'defer',
