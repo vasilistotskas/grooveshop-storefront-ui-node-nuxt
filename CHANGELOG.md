@@ -1,3 +1,10 @@
+# [3.210.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.209.0...v3.210.0) (2026-09-24)
+
+
+### Features
+
+* **i18n:** every API call states the page's language ([25817d1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/25817d1772bcd747b51f010a5d9d9c2ac6e77682))
+
 # [3.209.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.208.1...v3.209.0) (2026-09-24)
 
 
