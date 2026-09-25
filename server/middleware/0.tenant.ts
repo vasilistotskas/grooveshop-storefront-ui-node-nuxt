@@ -134,4 +134,12 @@ export default defineEventHandler(async (event) => {
   }
 
   event.context.tenant = result.config
+  // The store on every wide event, so a slow page or a failing route can
+  // be traced to its tenant. Set on the request logger, not in an
+  // `evlog:enrich` hook: evlog prints the event when it is emitted and
+  // enrichers run only after that, for drains, so enriched fields never
+  // reach the stdout line Vector ships (evlog 2.29 `logger.ts`
+  // emitWideEvent; its docs: "after they are emitted, before they reach
+  // your drain adapters").
+  useLogger(event).set({ tenantSchema: result.config.schemaName, tenantName: result.config.name })
 })

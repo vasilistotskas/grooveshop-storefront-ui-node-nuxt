@@ -31,6 +31,10 @@ vi.stubGlobal('getTenantConfig', getTenantConfigMock)
 // defineEventHandler — execute the handler directly
 vi.stubGlobal('defineEventHandler', (fn: (event: unknown) => unknown) => fn)
 
+// useLogger — the wide event of the request (evlog)
+const loggerSet = vi.fn()
+vi.stubGlobal('useLogger', () => ({ set: loggerSet }))
+
 // ---- Import module under test ----
 const module = await import('../../../../server/middleware/0.tenant')
 const handler = (module.default ?? module) as unknown as (event: unknown) => Promise<void>
@@ -131,6 +135,13 @@ describe('0.tenant middleware', () => {
     const event = makeEvent('/')
     await handler(event)
     expect(event.context.tenant).toBe(tenant)
+  })
+
+  it('puts the store on the request wide event', async () => {
+    loggerSet.mockClear()
+    getTenantConfigMock.mockResolvedValueOnce({ type: 'ok', config: { schemaName: 'webside', name: 'Webside' } })
+    await handler(makeEvent('/'))
+    expect(loggerSet).toHaveBeenCalledWith({ tenantSchema: 'webside', tenantName: 'Webside' })
   })
 
   // --- 404 (unknown domain) ---

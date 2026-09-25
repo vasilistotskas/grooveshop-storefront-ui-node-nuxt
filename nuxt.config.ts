@@ -779,13 +779,15 @@ export default defineNuxtConfig({
     // used to leave no trace but the internal /api calls it made, and the
     // duration keep rule (see $production) now catches the render itself.
     // Excluded: build assets, images, fonts and icons the browser pulls
-    // per page view (the prefixes the rendered HTML and CSS reference),
+    // per page view (the prefixes the rendered HTML and CSS reference, and
+    // the locale messages the client loads, seen in production logs),
     // the probes, and Nuxt's internal `/__nuxt_error` re-render, which
     // would log every error page twice. Exclusions win over `include`.
     exclude: [
       '/_nuxt/**',
       '/_ipx/**',
       '/_fonts/**',
+      '/_i18n/**',
       '/img/**',
       '/platform-favicon/**',
       '/__nuxt_error**',

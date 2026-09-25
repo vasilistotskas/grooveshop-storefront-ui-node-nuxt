@@ -12,14 +12,10 @@ export default defineNitroPlugin((nitroApp) => {
     createRequestSizeEnricher(),
     createTraceContextEnricher(),
   ]
+  // Enrichers run after an event is emitted and reach drains only; the
+  // stdout line (what Vector ships) is printed before them. The tenant is
+  // therefore set on the request logger in server/middleware/0.tenant.ts.
   nitroApp.hooks.hook('evlog:enrich', (ctx) => {
     for (const enricher of enrichers) enricher(ctx)
-
-    // Add tenant context to wide events
-    const tenant = ctx.event?.context?.tenant
-    if (tenant) {
-      ctx.wide.tenantSchema = tenant.schemaName
-      ctx.wide.tenantName = tenant.name
-    }
   })
 })
