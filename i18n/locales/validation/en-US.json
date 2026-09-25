@@ -36,15 +36,19 @@
     },
     "street": {
       "required": "Street is required",
-      "min": "The street must be at least {min} characters"
+      "min": "The street must be at least {min} characters",
+      "no_letter": "Enter the street name here — the number goes in Street Number"
     },
     "street_number": {
       "required": "Street number is required",
-      "min": "The street number must be at least {min} characters"
+      "min": "The street number must be at least {min} characters",
+      "looks_like_postcode": "This looks like a postcode — enter the street number here and the postcode under Postcode"
     },
     "zipcode": {
       "required": "Postcode is required",
-      "min": "The postcode must be at least {min} characters long"
+      "min": "The postcode must be at least {min} characters long",
+      "invalid": "Enter a valid postcode",
+      "invalid_example": "Enter a valid postcode, e.g. {example}"
     },
     "place": {
       "required": "Area is required",

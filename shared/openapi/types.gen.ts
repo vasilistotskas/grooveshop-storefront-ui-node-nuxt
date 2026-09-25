@@ -2796,6 +2796,14 @@ export type Country = {
      */
   phoneCode?: number | null
   /**
+     * Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+     */
+  postalCodePattern?: string
+  /**
+     * A valid postcode shown to shoppers, e.g. 151 24.
+     */
+  postalCodeExample?: string
+  /**
      * Σειρά ταξινόμησης
      */
   readonly sortOrder: number | null
@@ -2842,6 +2850,14 @@ export type CountryDetail = {
      * Κωδικός κλήσης
      */
   phoneCode?: number | null
+  /**
+     * Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+     */
+  postalCodePattern?: string
+  /**
+     * A valid postcode shown to shoppers, e.g. 151 24.
+     */
+  postalCodeExample?: string
   /**
      * Σειρά ταξινόμησης
      */
@@ -2890,6 +2906,14 @@ export type CountryWriteRequest = {
      * Κωδικός κλήσης
      */
   phoneCode?: number | null
+  /**
+     * Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+     */
+  postalCodePattern?: string
+  /**
+     * A valid postcode shown to shoppers, e.g. 151 24.
+     */
+  postalCodeExample?: string
 }
 
 /**
@@ -4117,13 +4141,13 @@ export type OrderCreateFromCartRequest = {
   /**
      * Αριθμός οδού
      */
-  streetNumber?: string
+  streetNumber: string
   /**
      * Όνομα πόλης
      */
   city: string
   /**
-     * Ταχυδρομικός κώδικας
+     * Postal/ZIP code. Must match the country's ``postal_code_pattern``; stored normalised (trimmed, upper-case, single spaces).
      */
   zipcode: string
   /**
@@ -5582,6 +5606,14 @@ export type PatchedCountryWriteRequest = {
      * Κωδικός κλήσης
      */
   phoneCode?: number | null
+  /**
+     * Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+     */
+  postalCodePattern?: string
+  /**
+     * A valid postcode shown to shoppers, e.g. 151 24.
+     */
+  postalCodeExample?: string
 }
 
 /**
@@ -9977,6 +10009,14 @@ export type CountryWritable = {
      * Κωδικός κλήσης
      */
   phoneCode?: number | null
+  /**
+     * Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+     */
+  postalCodePattern?: string
+  /**
+     * A valid postcode shown to shoppers, e.g. 151 24.
+     */
+  postalCodeExample?: string
 }
 
 /**
@@ -10010,6 +10050,14 @@ export type CountryDetailWritable = {
      * Κωδικός κλήσης
      */
   phoneCode?: number | null
+  /**
+     * Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+     */
+  postalCodePattern?: string
+  /**
+     * A valid postcode shown to shoppers, e.g. 151 24.
+     */
+  postalCodeExample?: string
 }
 
 export type FeedbackWriteWritable = {
@@ -10261,13 +10309,13 @@ export type OrderCreateFromCartRequestWritable = {
   /**
      * Αριθμός οδού
      */
-  streetNumber?: string
+  streetNumber: string
   /**
      * Όνομα πόλης
      */
   city: string
   /**
-     * Ταχυδρομικός κώδικας
+     * Postal/ZIP code. Must match the country's ``postal_code_pattern``; stored normalised (trimmed, upper-case, single spaces).
      */
   zipcode: string
   /**

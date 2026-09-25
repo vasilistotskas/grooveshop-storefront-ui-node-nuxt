@@ -561,6 +561,95 @@ describe('useCheckoutSubmit', () => {
       }))
     })
 
+    it('address-step field errors send the shopper back to that step, one error per input', async () => {
+      const codPayWay = makePayWay('cod')
+      mockReserveStock.mockResolvedValue([5])
+      // Prod order #316's shape, as Django now rejects it (camelCased).
+      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
+        opts?.onResponseError?.({
+          response: {
+            status: 400,
+            ok: false,
+            _data: {
+              zipcode: ['Enter a valid postcode, e.g. 151 24.'],
+              streetNumber: ['This looks like a postcode.'],
+              countryId: ['Select a valid country.'],
+            },
+          },
+        })
+        return Promise.resolve(undefined)
+      })
+
+      const { onSubmit, currentStep, addressStepErrors, nextStep } = useCheckoutSubmit({
+        formState: makeFormState(),
+        selectedPayWay: ref<PayWay | null>(codPayWay),
+        payWays: makePayWaysRef(codPayWay),
+      })
+      currentStep.value = 2
+
+      await onSubmit()
+
+      expect(currentStep.value).toBe(0)
+      expect(addressStepErrors.value).toEqual([
+        { name: 'zipcode', message: 'Enter a valid postcode, e.g. 151 24.' },
+        { name: 'streetNumber', message: 'This looks like a postcode.' },
+        { name: 'country', message: 'Select a valid country.' },
+      ])
+      // The toast still lists them, for a shopper scrolled elsewhere.
+      expect(mockToastAdd).toHaveBeenCalledWith(expect.objectContaining({
+        color: 'error',
+        description: expect.stringContaining('Enter a valid postcode, e.g. 151 24.'),
+      }))
+
+      // Passing the address step again answers them.
+      await nextStep()
+      expect(addressStepErrors.value).toEqual([])
+    })
+
+    it('a field error the address step does not own leaves the step alone', async () => {
+      const codPayWay = makePayWay('cod')
+      mockReserveStock.mockResolvedValue([5])
+      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
+        opts?.onResponseError?.({
+          response: {
+            status: 400,
+            ok: false,
+            _data: { boxnowLockerId: ['Locker ID required.'] },
+          },
+        })
+        return Promise.resolve(undefined)
+      })
+
+      const { onSubmit, currentStep, addressStepErrors } = useCheckoutSubmit({
+        formState: makeFormState(),
+        selectedPayWay: ref<PayWay | null>(codPayWay),
+        payWays: makePayWaysRef(codPayWay),
+      })
+      currentStep.value = 2
+
+      await onSubmit()
+
+      expect(currentStep.value).toBe(2)
+      expect(addressStepErrors.value).toEqual([])
+    })
+
+    it('sends the postcode normalised, as Django stores it', async () => {
+      const codPayWay = makePayWay('cod')
+      mockReserveStock.mockResolvedValue([5])
+      mockFetch.mockResolvedValue(undefined)
+
+      const { onSubmit } = useCheckoutSubmit({
+        formState: makeFormState({ zipcode: ' 703  00 ' }),
+        selectedPayWay: ref<PayWay | null>(codPayWay),
+        payWays: makePayWaysRef(codPayWay),
+      })
+
+      await onSubmit()
+
+      const orderCall = mockFetch.mock.calls.find(([url]) => url === '/api/orders')
+      expect(orderCall?.[1].body.zipcode).toBe('703 00')
+    })
+
     it('insufficient_stock from reserve-stock sets typed stockError state', async () => {
       const codPayWay = makePayWay('cod')
       const selectedPayWay = ref<PayWay | null>(codPayWay)

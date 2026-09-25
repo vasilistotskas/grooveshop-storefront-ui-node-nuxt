@@ -118,6 +118,14 @@ export async function useCheckoutForm() {
   const countries = ref<Pagination<Country> | null>(null)
   const payWays = ref<Pagination<PayWay> | null>(null)
 
+  // The selected country's row carries its postcode format
+  // (``postalCodePattern`` / ``postalCodeExample``) — the same row
+  // Django validates the order against, so the inline check and the
+  // server's agree.
+  const selectedCountry = computed(() =>
+    countries.value?.results?.find(c => c.alpha2 === formState.country))
+  const postcodeExample = computed(() => selectedCountry.value?.postalCodeExample || '')
+
   // useRequestFetch forwards the incoming host during SSR. fetchRegions
   // is awaited in the SSR init path below, and a bare $fetch there
   // creates an internal request Nitro stamps with host: "localhost", so
@@ -188,26 +196,34 @@ export async function useCheckoutForm() {
   }
 
   /**
-   * Verify that the address's region exists in the loaded ``regions``
-   * list for the address's country. Saved addresses can carry stale or
-   * invalid alphas (legacy data, region renamed/removed upstream). If
-   * the region is invalid we surface the issue to the shopper instead
-   * of leaving them stuck on a hidden validation error: switch to
-   * ``new`` mode so the form fields are visible, and add a toast
-   * explaining why. Pre-filled values stay so the shopper only needs
-   * to fix the region (and any other invalid field) before continuing.
+   * Verify an applied saved address before checkout relies on it.
+   * Saved addresses can carry a stale region alpha (region renamed or
+   * removed upstream) or predate the delivery-address rules (a postcode
+   * typed into the street-number field — prod order #316). Either way
+   * we surface it instead of leaving the shopper stuck on a hidden
+   * validation error: switch to ``new`` mode so the fields are
+   * visible, and toast why. Pre-filled values stay so the shopper only
+   * fixes what is wrong; the stored address is not rewritten.
    */
-  const validateAppliedAddressRegion = () => {
+  const validateAppliedAddress = () => {
     const region = formState.region
-    if (!region) return
     const validAlphas = regions.value?.results?.map(r => r.alpha) ?? []
-    if (validAlphas.length && !validAlphas.includes(region)) {
+    if (region && validAlphas.length && !validAlphas.includes(region)) {
       formState.region = ''
       formState.regionId = undefined
       addressEntryMode.value = 'new'
       toast.add({
         title: t('saved_address_invalid_title'),
         description: t('saved_address_invalid_description'),
+        color: 'warning',
+      })
+      return
+    }
+    if (addressIssues(selectedCountry.value, formState).length) {
+      addressEntryMode.value = 'new'
+      toast.add({
+        title: t('saved_address_invalid_title'),
+        description: t('saved_address_invalid_fields_description'),
         color: 'warning',
       })
     }
@@ -229,7 +245,7 @@ export async function useCheckoutForm() {
     applyAddressToFormState(address)
     addressEntryMode.value = 'saved'
     await fetchRegions()
-    validateAppliedAddressRegion()
+    validateAppliedAddress()
   }
 
   /**
@@ -669,6 +685,7 @@ export async function useCheckoutForm() {
     city: z.string({ error: t('validation.required') }).min(1, {
       error: t('validation.required'),
     }).max(100, { error: t('validation.max', { max: 100 }) }),
+    // Format checked per country in ``superRefine`` below.
     zipcode: z.string({ error: t('validation.required') }).min(1, {
       error: t('validation.required'),
     }).max(20, { error: t('validation.max', { max: 20 }) }),
@@ -702,6 +719,14 @@ export async function useCheckoutForm() {
     billingCity: z.string().max(100).optional(),
     billingZipcode: z.string().max(20).optional(),
   }).superRefine((data, ctx) => {
+    // Postcode format + street/number mix-ups, against the selected
+    // country's row — mirrors Django's ``core/validators/address.py``.
+    refineAddress(
+      ctx,
+      countries.value?.results?.find(c => c.alpha2 === data.country),
+      data,
+      t,
+    )
     if (data.saveAddress && !(data.addressTitle ?? '').trim()) {
       ctx.addIssue({
         path: ['addressTitle'],
@@ -1005,9 +1030,9 @@ export async function useCheckoutForm() {
 
   // After regions have loaded, verify the prefilled main address has a
   // valid region. Same intent as ``selectSavedAddress`` — see notes on
-  // ``validateAppliedAddressRegion`` for the failure mode this prevents.
+  // ``validateAppliedAddress`` for the failure mode this prevents.
   if (mainAddress) {
-    validateAppliedAddressRegion()
+    validateAppliedAddress()
   }
 
   // Hydrate shipping options once the country is known so the sidebar
@@ -1058,6 +1083,7 @@ export async function useCheckoutForm() {
     payWays,
     shippingPrice,
     countryOptions,
+    postcodeExample,
     regionOptions,
     payWayOptions,
     step1Schema,

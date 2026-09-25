@@ -17,12 +17,14 @@ const isSubmitting = ref(false)
 const addressId = 'id' in route.params ? route.params.id : undefined
 
 // Auto-generated contract schema, tightened with the same client-side
-// phone plausibility check checkout applies — the OpenAPI schema can't
-// express phonenumber_field rules, and Django still re-validates.
+// phone plausibility check and delivery-address rules checkout applies
+// — the OpenAPI schema can't express either, and Django re-validates.
 const schema = zUserAddressWriteRequest.extend({
   phone: zUserAddressWriteRequest.shape.phone.refine(isPlausiblePhone, {
     error: t('validation.phone.invalid'),
   }),
+}).superRefine((data, ctx) => {
+  refineAddress(ctx, selectedCountry(data.country), data, t)
 })
 
 type Schema = z.output<typeof schema>
@@ -66,6 +68,12 @@ const { data: countries } = await useApi('/api/countries', {
     languageCode: locale,
   },
 })
+
+// The row carrying the country's postcode format — the one Django
+// validates the address against.
+function selectedCountry(alpha2: string | undefined) {
+  return countries.value?.results?.find(country => country.alpha2 === alpha2)
+}
 
 const countryOptions = computed(() => {
   return (
@@ -138,6 +146,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       body: {
         ...event.data,
         phone: normalizeGreekPhone(event.data.phone),
+        // Canonical form, the same one Django stores.
+        zipcode: normalizePostcode(event.data.zipcode),
       },
     })
 
@@ -283,8 +293,6 @@ defineRouteRules({
           <UInput
             v-model="state.streetNumber"
             :placeholder="t('form.street_number')"
-            autocomplete="address-line2"
-            inputmode="numeric"
           />
         </UFormField>
 

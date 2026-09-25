@@ -1072,6 +1072,8 @@ export const zCountry = z.object({
   alpha3: z.string().max(3).regex(/^[A-Z]{3}$/),
   isoCc: z.int().gte(0).lte(32767).nullish(),
   phoneCode: z.int().gte(0).lte(32767).nullish(),
+  postalCodePattern: z.string().max(1000).optional(),
+  postalCodeExample: z.string().max(50).optional(),
   sortOrder: z.int().readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -1098,6 +1100,8 @@ export const zCountryDetail = z.object({
   alpha3: z.string().max(3).regex(/^[A-Z]{3}$/),
   isoCc: z.int().gte(0).lte(32767).nullish(),
   phoneCode: z.int().gte(0).lte(32767).nullish(),
+  postalCodePattern: z.string().max(1000).optional(),
+  postalCodeExample: z.string().max(50).optional(),
   sortOrder: z.int().readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -1125,6 +1129,8 @@ export const zCountryWriteRequest = z.object({
   alpha3: z.string().min(1).max(3).regex(/^[A-Z]{3}$/),
   isoCc: z.int().gte(0).lte(32767).nullish(),
   phoneCode: z.int().gte(0).lte(32767).nullish(),
+  postalCodePattern: z.string().max(1000).optional(),
+  postalCodeExample: z.string().max(50).optional(),
 })
 
 /**
@@ -2305,6 +2311,8 @@ export const zPatchedCountryWriteRequest = z.object({
   alpha3: z.string().min(1).max(3).regex(/^[A-Z]{3}$/).optional(),
   isoCc: z.int().gte(0).lte(32767).nullish(),
   phoneCode: z.int().gte(0).lte(32767).nullish(),
+  postalCodePattern: z.string().max(1000).optional(),
+  postalCodeExample: z.string().max(50).optional(),
 })
 
 export const zPatchedNotificationUserWriteRequest = z.object({
@@ -4374,7 +4382,7 @@ export const zOrderCreateFromCartRequest = z.object({
   lastName: z.string().min(1).max(150),
   email: z.email().min(1),
   street: z.string().min(1).max(255),
-  streetNumber: z.string().max(50).optional(),
+  streetNumber: z.string().min(1).max(50),
   city: z.string().min(1).max(100),
   zipcode: z.string().min(1).max(20),
   countryId: z.string().min(1),
@@ -6520,6 +6528,8 @@ export const zCountryWritable = z.object({
   alpha3: z.string().max(3).regex(/^[A-Z]{3}$/),
   isoCc: z.int().gte(0).lte(32767).nullish(),
   phoneCode: z.int().gte(0).lte(32767).nullish(),
+  postalCodePattern: z.string().max(1000).optional(),
+  postalCodeExample: z.string().max(50).optional(),
 })
 
 /**
@@ -6541,6 +6551,8 @@ export const zCountryDetailWritable = z.object({
   alpha3: z.string().max(3).regex(/^[A-Z]{3}$/),
   isoCc: z.int().gte(0).lte(32767).nullish(),
   phoneCode: z.int().gte(0).lte(32767).nullish(),
+  postalCodePattern: z.string().max(1000).optional(),
+  postalCodeExample: z.string().max(50).optional(),
 })
 
 export const zFeedbackWriteWritable = z.object({
@@ -6637,7 +6649,7 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   lastName: z.string().min(1).max(150),
   email: z.email().min(1),
   street: z.string().min(1).max(255),
-  streetNumber: z.string().max(50).optional(),
+  streetNumber: z.string().min(1).max(50),
   city: z.string().min(1).max(100),
   zipcode: z.string().min(1).max(20),
   countryId: z.string().min(1),

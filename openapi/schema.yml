@@ -35815,6 +35815,14 @@ components:
           minimum: 0
           nullable: true
           title: Κωδικός κλήσης
+        postalCodePattern:
+          type: string
+          description: Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+          maxLength: 1000
+        postalCodeExample:
+          type: string
+          description: A valid postcode shown to shoppers, e.g. 151 24.
+          maxLength: 50
         sortOrder:
           type: integer
           readOnly: true
@@ -35890,6 +35898,14 @@ components:
           minimum: 0
           nullable: true
           title: Κωδικός κλήσης
+        postalCodePattern:
+          type: string
+          description: Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+          maxLength: 1000
+        postalCodeExample:
+          type: string
+          description: A valid postcode shown to shoppers, e.g. 151 24.
+          maxLength: 50
         sortOrder:
           type: integer
           readOnly: true
@@ -35974,6 +35990,14 @@ components:
           minimum: 0
           nullable: true
           title: Κωδικός κλήσης
+        postalCodePattern:
+          type: string
+          description: Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+          maxLength: 1000
+        postalCodeExample:
+          type: string
+          description: A valid postcode shown to shoppers, e.g. 151 24.
+          maxLength: 50
       required:
         - alpha2
         - alpha3
@@ -37884,6 +37908,7 @@ components:
           maxLength: 255
         streetNumber:
           type: string
+          minLength: 1
           description: Αριθμός οδού
           maxLength: 50
         city:
@@ -37894,7 +37919,7 @@ components:
         zipcode:
           type: string
           minLength: 1
-          description: Ταχυδρομικός κώδικας
+          description: Postal/ZIP code. Must match the country's ``postal_code_pattern``; stored normalised (trimmed, upper-case, single spaces).
           maxLength: 20
         countryId:
           type: string
@@ -38054,6 +38079,7 @@ components:
         - payWayId
         - phone
         - street
+        - streetNumber
         - zipcode
     OrderDetail:
       type: object
@@ -40865,6 +40891,14 @@ components:
           minimum: 0
           nullable: true
           title: Κωδικός κλήσης
+        postalCodePattern:
+          type: string
+          description: Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+          maxLength: 1000
+        postalCodeExample:
+          type: string
+          description: A valid postcode shown to shoppers, e.g. 151 24.
+          maxLength: 50
     PatchedNavigationMenuRequest:
       type: object
       description: |-

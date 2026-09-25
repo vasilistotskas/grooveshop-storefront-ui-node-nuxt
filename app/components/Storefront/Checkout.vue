@@ -46,6 +46,7 @@ const {
   payWays,
   shippingPrice,
   countryOptions,
+  postcodeExample,
   regionOptions,
   payWayOptions,
   step1Schema,
@@ -64,6 +65,7 @@ const {
 
 const {
   currentStep,
+  addressStepErrors,
   createdOrder,
   isSubmitting,
   loyaltyDiscount,
@@ -287,6 +289,8 @@ useSeoMeta({
             v-model:form-state="formState"
             :schema="step1Schema"
             :country-options="countryOptions"
+            :postcode-example="postcodeExample"
+            :server-errors="addressStepErrors"
             :region-options="regionOptions"
             :saved-addresses="savedAddresses"
             :selected-saved-address-id="selectedSavedAddressId"

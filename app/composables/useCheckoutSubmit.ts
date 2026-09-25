@@ -1,3 +1,30 @@
+import type { FormError } from '@nuxt/ui'
+
+// Django's order-create field names (camelCased by the API) that live
+// on the address step, mapped to that step's ``UFormField`` names.
+const ADDRESS_STEP_FIELDS: Record<string, string> = {
+  firstName: 'firstName',
+  lastName: 'lastName',
+  email: 'email',
+  phone: 'phone',
+  countryId: 'country',
+  regionId: 'region',
+  city: 'city',
+  zipcode: 'zipcode',
+  street: 'street',
+  streetNumber: 'streetNumber',
+  customerNotes: 'customerNotes',
+  documentType: 'documentType',
+  billingVatId: 'billingVatId',
+  billingCompanyName: 'billingCompanyName',
+  billingTaxOffice: 'billingTaxOffice',
+  billingActivity: 'billingActivity',
+  billingStreet: 'billingStreet',
+  billingStreetNumber: 'billingStreetNumber',
+  billingCity: 'billingCity',
+  billingZipcode: 'billingZipcode',
+}
+
 export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchShippingSettings }: {
   // The reactive form-state object from ``useCheckoutForm`` —
   // its inferred shape isn't exported, so we accept a permissive
@@ -41,6 +68,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   // Cleared on success or on non-retryable errors so a fresh attempt
   // (e.g. user corrects a validation error) gets a new key.
   const idempotencyKey = ref<string | null>(null)
+  // Django field errors for the address step, handed to its ``UForm``
+  // (``setErrors``) when a rejected order sends the shopper back there.
+  const addressStepErrors = ref<FormError[]>([])
 
   // Meta Pixel event_ids for browser↔server deduplication. Minted at
   // the moment the customer enters checkout (InitiateCheckout) and
@@ -224,6 +254,16 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     else if (isDrfFieldErrorMap(errorData)) {
       errorTitle = t('form.submit.error.invalid_order_data')
       errorDescription = formatDrfFieldErrors(errorData, t)
+      // A field the address step owns: go back there and show each
+      // message under its own input, not only in the toast.
+      const stepErrors = Object.entries(errorData).flatMap(([field, messages]) => {
+        const name = ADDRESS_STEP_FIELDS[field]
+        return name ? messages.map(message => ({ name, message })) : []
+      })
+      if (stepErrors.length) {
+        addressStepErrors.value = stepErrors
+        currentStep.value = 0
+      }
     }
     // Fallback to detail
     else if (errorData?.detail) {
@@ -264,7 +304,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       street: formState.street,
       streetNumber: formState.streetNumber,
       city: formState.city,
-      zipcode: formState.zipcode,
+      // Canonical form, the same one Django stores.
+      zipcode: normalizePostcode(formState.zipcode),
       // The phone UInput displays a sticky "+30" leading badge and users
       // type their Greek local number (e.g. 6912345678). Django's
       // phonenumber_field expects E.164, so normalize to "+30<local>"
@@ -333,7 +374,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       street: formState.street,
       streetNumber: formState.streetNumber,
       city: formState.city,
-      zipcode: formState.zipcode,
+      zipcode: normalizePostcode(formState.zipcode),
       country: formState.country,
       region: formState.region,
     }
@@ -898,6 +939,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
 
   const nextStep = async () => {
     if (currentStep.value < 2) {
+      // Leaving the address step means it validated: any server errors
+      // it was showing are answered.
+      if (currentStep.value === 0) addressStepErrors.value = []
       currentStep.value++
       // Meta Pixel: AddPaymentInfo + GA4: add_payment_info both fire
       // once when the customer enters the payment step. Browser-only
@@ -1052,6 +1096,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
 
   return {
     currentStep,
+    addressStepErrors,
     checkoutMode,
     useHostedCheckout,
     createdOrder,

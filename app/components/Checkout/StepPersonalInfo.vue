@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import type { FormError } from '@nuxt/ui'
+
 const formState = defineModel<Record<string, any>>('formState', { required: true })
 
 const props = defineProps<{
@@ -18,6 +20,16 @@ const props = defineProps<{
    * Τιμολόγιο (INVOICE) toggle is hidden and orders ship as RECEIPT only.
    */
   b2bInvoicingEnabled?: boolean
+  /**
+   * The selected country's ``postalCodeExample`` (e.g. ``151 24``),
+   * shown as the postcode placeholder.
+   */
+  postcodeExample?: string
+  /**
+   * Django's field errors from a rejected order, shown under their
+   * inputs through ``UForm``'s ``setErrors``.
+   */
+  serverErrors?: FormError[]
   /**
    * Whether this tenant actually has an ACS contract — i.e. whether
    * ``/api/v1/shipping/options`` returned an ``acs`` row. Without it
@@ -54,10 +66,21 @@ function onUseNew() {
 // Expose the form's submit() so the primary CTA (now living in
 // the checkout sidebar) can trigger Zod validation + emit `next`
 // just like the in-card button used to.
-const formRef = useTemplateRef<{ submit: () => Promise<void> }>('formRef')
+const formRef = useTemplateRef<{
+  submit: () => Promise<void>
+  setErrors: (errors: FormError[]) => void
+}>('formRef')
 defineExpose({
   submit: () => formRef.value?.submit(),
 })
+
+// The step mounts after a rejected order sends the shopper back here,
+// so apply on mount as well as on change.
+function applyServerErrors() {
+  if (props.serverErrors?.length) formRef.value?.setErrors(props.serverErrors)
+}
+onMounted(applyServerErrors)
+watch(() => props.serverErrors, applyServerErrors)
 </script>
 
 <template>
@@ -165,6 +188,7 @@ defineExpose({
                 v-model="formState.street"
                 size="xl"
                 autocomplete="address-line1"
+                :placeholder="t('form.street_placeholder')"
                 class="w-full"
                 icon="i-heroicons-map-pin"
               />
@@ -174,8 +198,7 @@ defineExpose({
               <UInput
                 v-model="formState.streetNumber"
                 size="xl"
-                autocomplete="address-line2"
-                inputmode="numeric"
+                :placeholder="t('form.street_number_placeholder')"
                 class="w-full"
               />
             </UFormField>
@@ -188,6 +211,7 @@ defineExpose({
                 size="xl"
                 autocomplete="postal-code"
                 inputmode="numeric"
+                :placeholder="postcodeExample ? t('form.zipcode_placeholder', { example: postcodeExample }) : undefined"
                 class="w-full"
               />
             </UFormField>
