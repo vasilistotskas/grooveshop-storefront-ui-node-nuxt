@@ -18,7 +18,9 @@ function withPageLocale(nuxtApp: NuxtApp, callerHooks: unknown) {
 
 /**
  * `useFetch` for the storefront's own `/api`, stating the page's locale
- * (see `pageLocaleHeader` in app/utils/api.ts).
+ * (see `pageLocaleHeader` in app/utils/api.ts). On the server a key is
+ * fetched once per render however many readers it has
+ * (`serverRenderCachedData`).
  *
  * The hook is added as an `onRequest` option rather than by handing
  * `useFetch` the `$api` instance: an explicit `$fetch` option makes
@@ -30,11 +32,13 @@ function withPageLocale(nuxtApp: NuxtApp, callerHooks: unknown) {
  * (https://nuxt.com/docs/4.x/api/composables/create-use-fetch).
  */
 export const useApi = createUseFetch(callerOptions => ({
+  ...serverRenderCachedData(callerOptions),
   onRequest: withPageLocale(useNuxtApp(), callerOptions.onRequest),
 }))
 
 /** `useLazyFetch` for the storefront's own `/api`. See {@link useApi}. */
 export const useLazyApi = createUseFetch(callerOptions => ({
+  ...serverRenderCachedData(callerOptions),
   lazy: true,
   onRequest: withPageLocale(useNuxtApp(), callerOptions.onRequest),
 }))

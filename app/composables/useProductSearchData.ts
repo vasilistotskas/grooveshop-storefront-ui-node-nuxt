@@ -33,6 +33,12 @@ export function useProductSearchData() {
   // here because useRequestApi() reads the request event via
   // useNuxtApp(), which is only available in setup scope.
   const requestFetch = useRequestApi()
+  // Four filter components read these keys in one render. 'defer' joins
+  // a reader to the fetch in flight (the default 'cancel' aborts and
+  // re-issues it per reader), and the server-render rule answers a
+  // reader that arrives after it settled; together, one request per key
+  // (measured 2026-09-25: 12-13 duplicate requests per /products render).
+  const shared = { dedupe: 'defer', ...serverRenderCachedData() } as const
 
   // ============================================
   // PRICE STATISTICS (for PriceRange slider bounds)
@@ -51,6 +57,7 @@ export function useProductSearchData() {
       },
     }),
     {
+      dedupe: 'defer',
       // Use cached data if available (prevents refetch on client)
       getCachedData: key => useNuxtApp().payload.data[key] || useNuxtApp().static.data[key],
     },
@@ -101,7 +108,7 @@ export function useProductSearchData() {
   const { data: facetData } = useAsyncData(
     () => `search:facets:${facetKey.value}`,
     () => requestFetch('/api/products/search', { query: facetQuery.value }),
-    { watch: [facetKey, facetQuery] },
+    { ...shared, watch: [facetKey, facetQuery] },
   )
 
   const categoryFacets = computed(() => {
@@ -112,14 +119,9 @@ export function useProductSearchData() {
   // ============================================
   // ALL CATEGORIES (shared between CategoryFilter and ActiveFilters)
   // ============================================
-  // Fetch all categories using the dedicated unpaginated endpoint
-  // This is needed for both CategoryFilter (list display) and ActiveFilters (name lookup)
-  // The /all endpoint returns a flat array without pagination wrapper
-  const { data: allCategories, status: categoriesStatus } = useAsyncData(
-    () => `all-categories-${$i18n.locale.value}`,
-    () => requestFetch('/api/products/categories/all'),
-    { watch: [$i18n.locale] },
-  )
+  // The same entry the header's category menu reads (useAllCategories).
+  // Needed for both CategoryFilter (list display) and ActiveFilters (name lookup)
+  const { data: allCategories, status: categoriesStatus } = useAllCategories()
 
   // Computed category name map - derives from allCategories data
   // This ensures the map is always in sync with the fetched data
@@ -152,7 +154,7 @@ export function useProductSearchData() {
   const { data: allAttributes, status: attributesStatus } = useAsyncData(
     () => `all-attributes-${$i18n.locale.value}`,
     () => requestFetch('/api/products/attributes', { query: { languageCode: $i18n.locale.value } }),
-    { watch: [$i18n.locale] },
+    { ...shared, watch: [$i18n.locale] },
   )
 
   // ============================================
@@ -189,7 +191,7 @@ export function useProductSearchData() {
   const { data: attributeFacetData } = useAsyncData(
     () => `search:facets:${attributeFacetKey.value}`,
     () => requestFetch('/api/products/search', { query: attributeFacetQuery.value }),
-    { watch: [attributeFacetKey, attributeFacetQuery] },
+    { ...shared, watch: [attributeFacetKey, attributeFacetQuery] },
   )
 
   const attributeValueFacets = computed(() => {
@@ -204,7 +206,7 @@ export function useProductSearchData() {
   const { data: allAttributeValues, status: attributeValuesStatus } = useAsyncData(
     () => `all-attribute-values-${$i18n.locale.value}`,
     () => requestFetch('/api/products/attributes/values', { query: { languageCode: $i18n.locale.value } }),
-    { watch: [$i18n.locale] },
+    { ...shared, watch: [$i18n.locale] },
   )
 
   // Computed attribute value name map - derives from allAttributeValues data

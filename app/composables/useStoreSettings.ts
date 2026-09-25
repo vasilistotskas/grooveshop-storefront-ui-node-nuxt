@@ -31,8 +31,9 @@ export const STORE_SETTINGS_KEY = 'store-settings'
 
 const EMPTY: PublicSettings = { settings: {} }
 
-export function useStoreSettings() {
-  const { data, error } = useApi<PublicSettings>('/api/settings/public', {
+/** Every reader, component or middleware, registers the SAME entry. */
+function useStoreSettingsFetch() {
+  return useApi<PublicSettings>('/api/settings/public', {
     key: STORE_SETTINGS_KEY,
     default: () => EMPTY,
     // `dedupe` defaults to 'cancel': every further reader of the SAME
@@ -43,6 +44,10 @@ export function useStoreSettings() {
     // however many readers.
     dedupe: 'defer',
   })
+}
+
+export function useStoreSettings() {
+  const { data, error } = useStoreSettingsFetch()
 
   const settings = computed<Readonly<Record<string, string>>>(
     () => data.value?.settings ?? EMPTY.settings,
@@ -61,16 +66,17 @@ export function useStoreSettings() {
  * The same payload for code that runs OUTSIDE a component — a route
  * middleware deciding a 404, a plugin priming a store.
  *
- * On the client the payload already holds the entry from the server
- * render, so a navigation costs nothing. On the server the entry does
- * not exist yet (middleware precedes every component), so this is one
- * internal request to the tenant-cached Nitro route — not a Django
- * round trip. ``useRequestFetch`` forwards the incoming host, which
- * Django needs to resolve the tenant schema (the N1 pattern in
- * MULTI_TENANT_AUDIT.md).
+ * It registers the same entry as the components (Nuxt supports this
+ * outside a component, in plugins and route middleware), so the first
+ * reader of a render issues the one request and every later reader, a
+ * middleware or the components after it, reuses its answer. It used to
+ * issue its own request each call without storing it, which is how the
+ * gates in front of a page each cost one. On the client the entry is
+ * already there from the server render. Throws when the lookup failed,
+ * so each gate applies its own `onError`.
  */
 export async function fetchStoreSettings(): Promise<PublicSettings> {
-  const cached = useNuxtData<PublicSettings>(STORE_SETTINGS_KEY).data.value
-  if (cached) return cached
-  return await useRequestApi()<PublicSettings>('/api/settings/public')
+  const { data, error } = await useStoreSettingsFetch()
+  if (error.value) throw error.value
+  return data.value
 }

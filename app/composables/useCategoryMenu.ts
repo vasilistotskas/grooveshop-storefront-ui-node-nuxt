@@ -9,10 +9,8 @@ import type { ProductCategory } from '~~/shared/openapi/types.gen'
  * deep catalogue would pay for its depth on every route while a shopper
  * reads at most one screenful of it. "All categories" carries the rest.
  *
- * The REQUEST is gated, not just the render: a store with the catalogue
- * switched off must not fetch a category list at all (see
- * `.claude/rules/ui-and-pages.md` — a flag on a computed still fires
- * the fetch).
+ * The list comes from `useAllCategories`, which gates the REQUEST on
+ * the catalogue flag; the flag here only empties the menu.
  */
 
 /** Roots, and how many children each may contribute. */
@@ -38,14 +36,7 @@ export function useCategoryMenu() {
     fallback: true,
   })
 
-  const { data } = useApi('/api/products/categories/all', {
-    key: 'category-menu',
-    // Several readers share this key (the header, the mobile menu);
-    // the default 'cancel' would re-issue the request per reader.
-    dedupe: 'defer',
-    immediate: catalogueEnabled.value,
-    server: catalogueEnabled.value,
-  })
+  const { data } = useAllCategories()
 
   const entries = computed<CategoryMenuEntry[]>(() => {
     if (!catalogueEnabled.value) return []
