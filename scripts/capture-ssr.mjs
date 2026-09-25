@@ -27,6 +27,8 @@
  * plus `<out>/manifest.json` listing every capture.
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import http from 'node:http'
+import https from 'node:https'
 import { join } from 'node:path'
 
 const args = parseArgs(process.argv.slice(2))
@@ -114,15 +116,11 @@ for (const locale of LOCALES) {
       let body
       let kept
       try {
-        const response = await fetch(url, {
-          headers: { ...headers, 'user-agent': USER_AGENTS[device] ?? USER_AGENTS.desktop },
-          redirect: 'manual',
-        })
+        const response = await get(url, { ...headers, 'user-agent': USER_AGENTS[device] ?? USER_AGENTS.desktop })
         status = response.status
-        finalUrl = response.url
-        body = await response.text()
+        body = response.body
         kept = Object.fromEntries(
-          KEPT_HEADERS.map(name => [name, response.headers.get(name)]).filter(([, v]) => v !== null),
+          KEPT_HEADERS.map(name => [name, response.headers[name]]).filter(([, v]) => v !== undefined),
         )
       }
       catch (error) {
@@ -140,6 +138,37 @@ for (const locale of LOCALES) {
 }
 writeFileSync(join(OUT, 'manifest.json'), `${JSON.stringify({ base: BASE, host: HOST, capturedAt: new Date().toISOString(), captures: manifest }, null, 2)}\n`)
 console.log(`\n${manifest.length} captures written to ${OUT}`)
+if (!manifest.some(capture => capture.status === 200)) {
+  // Nothing rendered (wrong host, tenant unresolved, server down): a
+  // diff of this against anything proves nothing, so do not pass.
+  console.error('capture-ssr: no route answered 200')
+  process.exit(1)
+}
+
+/**
+ * One GET, redirects not followed. Deliberately `node:http(s)`, not
+ * `fetch`: `Host` is a forbidden header in the Fetch standard, so
+ * undici's `fetch` drops it without a word, and `--host` aimed at any
+ * `--base` other than the tenant's own hostname (a local server, a pod
+ * port-forward) captured the platform's "Store not found" page for every
+ * route. Two such captures diff to nothing, which reads as success.
+ */
+function get(url, requestHeaders) {
+  const client = url.protocol === 'https:' ? https : http
+  return new Promise((resolve, reject) => {
+    const request = client.get(url, { headers: requestHeaders }, (response) => {
+      const chunks = []
+      response.on('data', chunk => chunks.push(chunk))
+      response.on('end', () => resolve({
+        status: response.statusCode,
+        headers: response.headers,
+        body: Buffer.concat(chunks).toString('utf8'),
+      }))
+      response.on('error', reject)
+    })
+    request.on('error', reject)
+  })
+}
 
 function localise(route, locale, defaultLocale) {
   if (locale === defaultLocale) return route
