@@ -1,3 +1,10 @@
+## [3.211.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.211.0...v3.211.1) (2026-09-25)
+
+
+### Bug Fixes
+
+* **logging:** the store is on every log line ([01ed601](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/01ed601806eb70b76439e93776267be407c777ae))
+
 # [3.211.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.210.1...v3.211.0) (2026-09-25)
 
 
