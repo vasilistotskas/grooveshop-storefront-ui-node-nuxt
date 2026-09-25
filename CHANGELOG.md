@@ -1,3 +1,20 @@
+# [3.211.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.210.1...v3.211.0) (2026-09-25)
+
+
+### Bug Fixes
+
+* **scripts:** capture-ssr sends the Host it is given ([cd56977](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/cd56977faf0423b3decdb75127ae0470f2110ef0))
+
+
+### Features
+
+* **logging:** page renders are wide events too ([47dab0b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/47dab0ba1a6090885b1475a0e3ff1afcb2aa5af6))
+
+
+### Performance Improvements
+
+* **ssr:** fetch each key once per server render ([ad19a77](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ad19a778ec1daf8e34ad65d8dc2ac6d23b968a1b))
+
 ## [3.210.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.210.0...v3.210.1) (2026-09-24)
 
 
