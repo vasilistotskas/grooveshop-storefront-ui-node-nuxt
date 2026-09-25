@@ -1,3 +1,11 @@
+# [3.212.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.211.1...v3.212.0) (2026-09-25)
+
+
+### Features
+
+* **checkout:** check the address against the country's postcode format ([335a59c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/335a59cbab64daea0fc059f7b42f60eb4fcc7cbb))
+* **deploy:** warm the page cache of a new build ([ec5f7b7](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ec5f7b79b117b24c7bac81bc8daf223c7ebd9b84))
+
 ## [3.211.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.211.0...v3.211.1) (2026-09-25)
 
 
