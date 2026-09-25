@@ -775,8 +775,24 @@ export default defineNuxtConfig({
   // for). Not worked around here — a fix belongs upstream.
   evlog: {
     env: { service: 'grooveshop-storefront' },
-    include: ['/api/**'],
-    exclude: ['/api/_nuxt_icon/**', '/api/_alive', '/api/__sitemap__/**'],
+    // Every request is a wide event, page renders included: a slow page
+    // used to leave no trace but the internal /api calls it made, and the
+    // duration keep rule (see $production) now catches the render itself.
+    // Excluded: build assets, images, fonts and icons the browser pulls
+    // per page view (the prefixes the rendered HTML and CSS reference),
+    // the probes, and Nuxt's internal `/__nuxt_error` re-render, which
+    // would log every error page twice. Exclusions win over `include`.
+    exclude: [
+      '/_nuxt/**',
+      '/_ipx/**',
+      '/_fonts/**',
+      '/img/**',
+      '/platform-favicon/**',
+      '/__nuxt_error**',
+      '/api/_nuxt_icon/**',
+      '/api/_alive',
+      '/api/__sitemap__/**',
+    ],
     transport: { enabled: true },
   },
   fonts: {
