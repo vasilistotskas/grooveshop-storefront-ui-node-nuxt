@@ -1,3 +1,10 @@
+# [3.216.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.215.0...v3.216.0) (2026-09-26)
+
+
+### Features
+
+* **edge:** let Cloudflare cache the pages Nitro serves from its page cache ([8a78575](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8a78575985d29249be58ee8f5a11c17b6331fbb8))
+
 # [3.215.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.214.0...v3.215.0) (2026-09-26)
 
 
