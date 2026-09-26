@@ -28,7 +28,7 @@ describe('2.evlog-client middleware', () => {
 
   it('logs the browser by name and major version, the OS by name', () => {
     const fields = run({ 'user-agent': CHROME, 'x-device-class': 'desktop', 'cf-ipcountry': 'GR' })
-    expect(fields).toEqual({ client: { browser: 'Chrome 141', os: 'Windows', deviceClass: 'desktop', bot: false, country: 'GR', cacheWarm: false } })
+    expect(fields).toEqual({ client: { browser: 'Chrome 141', os: 'Windows', deviceClass: 'desktop', bot: false, country: 'GR', cacheWarm: false, edgeDeviceClass: undefined } })
   })
 
   it('never carries the raw User-Agent', () => {
@@ -48,6 +48,12 @@ describe('2.evlog-client middleware', () => {
   it('logs nothing without a User-Agent (a render\'s internal /api requests), rather than a wrong device class', () => {
     run({ 'x-device-class': 'desktop' })
     expect(loggerSet).not.toHaveBeenCalled()
+  })
+
+  it('records the device class Cloudflare sent beside ours, without using it', () => {
+    const client = run({ 'user-agent': IPAD, 'x-device-class': 'tablet', 'cf-device-type': 'mobile' }).client
+    expect(client.deviceClass).toBe('tablet')
+    expect(client.edgeDeviceClass).toBe('mobile')
   })
 
   it('omits the country when Cloudflare sent none', () => {

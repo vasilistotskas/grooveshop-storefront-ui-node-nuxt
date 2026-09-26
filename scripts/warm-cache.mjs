@@ -43,9 +43,8 @@ import { pathToFileURL } from 'node:url'
 
 /**
  * One User-Agent per device class, each classified by
- * `shared/utils/deviceClass.ts` into its class (the unit test asserts it).
- * The tablet one is an Android tablet: an iPad's UA contains "Mobile" and
- * is served the mobile render.
+ * `shared/utils/deviceClass.ts` (Cloudflare's rules) into its class; the
+ * unit test asserts it.
  */
 /**
  * Sent with every warm-up request so the storefront's logs can tell these

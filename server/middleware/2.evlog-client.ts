@@ -14,8 +14,8 @@ const geoEnricher = createGeoEnricher()
 /**
  * Who is asking, on the request's wide event: browser (name and major
  * version), OS (name only), the device class the page was rendered for,
- * whether it is a bot, the country, and whether it is the post-deploy
- * cache warm-up. Enough to tell a crawler burst or the warm-up from real
+ * whether it is a bot, the country, whether it is the post-deploy cache
+ * warm-up, and the device class Cloudflare computed, when it sent one. Enough to tell a crawler burst or the warm-up from real
  * shoppers, or one browser's failures from everyone's.
  *
  * Set on the request logger, not in an `evlog:enrich` hook, because evlog
@@ -62,6 +62,10 @@ export default defineEventHandler((event) => {
       bot: userAgent?.device?.type === 'bot',
       country,
       cacheWarm: getRequestHeader(event, CACHE_WARM_HEADER) === '1',
+      // Cloudflare's own class when it caches by device type. Never used
+      // to render (shared/utils/deviceClass.ts); logged so a change in
+      // Cloudflare's rules shows as edgeDeviceClass != deviceClass.
+      edgeDeviceClass: getRequestHeader(event, 'cf-device-type'),
     },
   })
 })
