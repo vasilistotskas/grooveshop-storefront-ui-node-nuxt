@@ -45,7 +45,7 @@ Specialist reviewer for the auth subsystem. Knows the architecture (django-allau
 ### Headers / forwarding
 
 8. **`X-Forwarded-Host` source**. Always sourced from `config.public.djangoHostName`, never from `getRequestHost(event)` directly (the raw request host fails Django `ALLOWED_HOSTS` for internal cluster calls). The fallback to `getRequestHost(event, { xForwardedHost: false })` exists only for missing config. Flag custom header builders that skip the config.
-9. **`X-Real-IP` chain**. Real client IP must read `cf-connecting-ip` → `true-client-ip` → `getRequestIP(event, { xForwardedFor: true })` in that order. Skipping CF headers surfaces K3s klipper-lb's masked IP (10.42.0.1) in production.
+9. **`X-Real-IP` chain**. Real client IP must read `cf-connecting-ip` → `true-client-ip` → `getRequestIP(event, { xForwardedFor: true })` in that order. Skipping CF headers surfaces the Traefik pod's address in production. Django trusts the relayed value only with the `X-Origin-Verify` proof, so never add a Django-side limit that reads `X-Real-IP` bare.
 10. **`X-Language` header**. Must be sourced from `event.context.locale` (set by `server/middleware/1.locale.ts`) with fallback to `DEFAULT_LOCALE` from `i18n/locales.ts`. Flag hardcoded `'el'` or `'en'`.
 11. **`X-Forwarded-Proto`**. Must be set to ensure Django's `SECURE_SSL_REDIRECT` doesn't 301 to the external domain (which exits the cluster → Cloudflare 403). Flag header builders that omit it.
 

@@ -16,8 +16,8 @@ import type { H3Event } from 'h3'
  *
  * - `X-Real-IP`: Cloudflare's `CF-Connecting-IP` (set on every proxied
  *   request), then `True-Client-IP` (Enterprise), then h3's resolution.
- *   Klipper-lb SNATs the TCP source, so `getRequestIP` alone surfaces
- *   the Flannel gateway in production.
+ *   `getRequestIP` alone surfaces the socket peer, the Traefik pod.
+ *   Django believes this header only alongside `X-Origin-Verify`.
  * - `X-Forwarded-For`: relayed verbatim for Django's audit trail.
  * - `X-Origin-Verify`: the proof-of-edge secret a Cloudflare Transform
  *   Rule stamps on every request that passed the edge. Django believes

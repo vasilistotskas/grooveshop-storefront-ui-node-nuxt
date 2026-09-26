@@ -22,11 +22,11 @@ export default defineEventHandler(async (event) => {
     //
     // Production traffic flows Cloudflare → Traefik → Nuxt → Django,
     // so the *real* client IP lives in ``CF-Connecting-IP`` (always
-    // set when the zone is proxied). h3's ``getRequestIP`` reads
-    // X-Forwarded-For, which would otherwise surface K3s klipper-lb's
-    // SNAT address (10.42.0.1) under default settings. Falls back to
-    // ``True-Client-IP`` (CF Enterprise) and finally to XFF/socket so
-    // local dev still works.
+    // set when the zone is proxied). h3's ``getRequestIP`` would
+    // otherwise surface the socket address, the Traefik pod. Falls back
+    // to ``True-Client-IP`` (CF Enterprise) and finally to XFF/socket so
+    // local dev still works. Meta's event matching is its only reader,
+    // so a forged value spoils only the forger's own attribution.
     const cookieHeader = getRequestHeader(event, 'cookie')
     const { fbp, fbc } = parseFbpFbcFromCookieHeader(cookieHeader)
     const userAgent = getRequestHeader(event, 'user-agent') ?? undefined
