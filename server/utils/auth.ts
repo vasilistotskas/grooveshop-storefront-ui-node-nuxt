@@ -104,6 +104,28 @@ export async function processAllAuthSession(response: AllAuthResponse | PartialA
   }
 }
 
+/**
+ * Whether the request carries a session, WITHOUT creating one.
+ *
+ * `getUserSession` on a request with no session mints one and sends it
+ * back as a `Set-Cookie` (h3 `getSession`: "creating a new session if one
+ * doesn't exist"), so reading it just to find out turns every anonymous
+ * request into a sealed cookie write, and a response that sets a cookie is
+ * never cached at the edge. h3 takes the sealed session from the
+ * `x-<name>-session` header first, then the `<name>` cookie; both names
+ * come from the same `runtimeConfig.session` nuxt-auth-utils uses.
+ */
+export function requestHasSession(event: H3Event): boolean {
+  const { name, sessionHeader } = useRuntimeConfig(event).session
+  // nuxt-auth-utils defaults it (`nuxt-session`); absent means the module is not configured.
+  if (!name) throw new Error('runtimeConfig.session.name is not set')
+  if (sessionHeader !== false) {
+    const header = typeof sessionHeader === 'string' ? sessionHeader : `x-${name.toLowerCase()}-session`
+    if (getRequestHeader(event, header)) return true
+  }
+  return Boolean(getCookie(event, name))
+}
+
 export async function getAllAuthHeaders() {
   const session = await getUserSession(useEvent())
   const sessionToken = session.secure?.sessionToken
