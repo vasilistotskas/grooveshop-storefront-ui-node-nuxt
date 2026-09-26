@@ -1,3 +1,10 @@
+# [3.213.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.212.0...v3.213.0) (2026-09-26)
+
+
+### Features
+
+* **logging:** browser, OS, device class, bot and country on page events ([8bc0fae](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/8bc0faeec8598ade3fdd44401ba0cbff1857c7e4))
+
 # [3.212.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.211.1...v3.212.0) (2026-09-25)
 
 
