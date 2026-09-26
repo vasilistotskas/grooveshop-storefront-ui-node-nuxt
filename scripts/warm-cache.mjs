@@ -102,9 +102,12 @@ export function payloadPath(pathname, buildId) {
   return `${pathname.replace(/\/+$/, '')}/_payload.json?_b=${encodeURIComponent(buildId)}`
 }
 
-/** A cached (SWR) route answers with `s-maxage`; an uncached one does not. */
+/**
+ * A page Nitro served from its page cache carries the edge directive
+ * (`server/plugins/edge-cache.ts`); an uncached page does not.
+ */
 export function isCachedResponse(headers) {
-  return /(?:^|[\s,])s-maxage=\d+/.test(String(headers['cache-control'] ?? ''))
+  return Boolean(headers['cloudflare-cdn-cache-control'])
 }
 
 /** Pages in warm-up order: shallow first (home and listings serve the most), then as listed. */

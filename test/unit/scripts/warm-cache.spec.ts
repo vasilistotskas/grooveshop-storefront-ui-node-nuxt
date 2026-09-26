@@ -70,10 +70,10 @@ describe('payloadPath', () => {
 })
 
 describe('isCachedResponse', () => {
-  it('recognises the SWR route rules by s-maxage', () => {
-    expect(isCachedResponse({ 'cache-control': 's-maxage=300, stale-while-revalidate' })).toBe(true)
+  it('recognises a cached page by the edge directive the storefront adds to it', () => {
+    expect(isCachedResponse({ 'cache-control': 'no-cache', 'cloudflare-cdn-cache-control': 'max-age=60, stale-while-revalidate=86400' })).toBe(true)
     expect(isCachedResponse({ 'cache-control': 'no-cache' })).toBe(false)
-    expect(isCachedResponse({ 'cache-control': 'public, max-age=60' })).toBe(false)
+    expect(isCachedResponse({ 'cache-control': 's-maxage=300, stale-while-revalidate' })).toBe(false)
     expect(isCachedResponse({})).toBe(false)
   })
 })
