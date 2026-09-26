@@ -1,3 +1,10 @@
+# [3.214.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.213.1...v3.214.0) (2026-09-26)
+
+
+### Features
+
+* **logging:** tell the cache warm-up's renders from visitors' ([002c01c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/002c01c9e910904ff71d158155c68520a50edd73))
+
 ## [3.213.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.213.0...v3.213.1) (2026-09-26)
 
 
