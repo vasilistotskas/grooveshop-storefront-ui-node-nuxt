@@ -1,3 +1,10 @@
+## [3.213.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.213.0...v3.213.1) (2026-09-26)
+
+
+### Bug Fixes
+
+* **session:** anonymous visitors get no session cookie ([bd3635c](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/bd3635cf8eaa83947b669126f2182caf04306e8d))
+
 # [3.213.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.212.0...v3.213.0) (2026-09-26)
 
 
