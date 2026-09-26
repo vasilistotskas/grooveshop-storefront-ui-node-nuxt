@@ -1,3 +1,10 @@
+# [3.215.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.214.0...v3.215.0) (2026-09-26)
+
+
+### Features
+
+* **device-class:** classify User-Agents exactly as Cloudflare does ([ee0c5a3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ee0c5a31ba3d70ea11259a941fb72ba1c0f03ce5))
+
 # [3.214.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.213.1...v3.214.0) (2026-09-26)
 
 
