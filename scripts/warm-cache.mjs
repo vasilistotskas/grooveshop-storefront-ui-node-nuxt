@@ -47,6 +47,16 @@ import { pathToFileURL } from 'node:url'
  * The tablet one is an Android tablet: an iPad's UA contains "Mobile" and
  * is served the mobile render.
  */
+/**
+ * Sent with every warm-up request so the storefront's logs can tell these
+ * renders from visitors' (`server/middleware/2.evlog-client.ts` records it
+ * as `client.cacheWarm`). A header rather than a word in the User-Agent:
+ * nothing renders or caches differently on it, where a "bot" User-Agent
+ * could reach any module that special-cases crawlers and put that render
+ * in the cache every visitor shares.
+ */
+export const CACHE_WARM_HEADER = 'x-grooveshop-cache-warm'
+
 export const DEVICE_USER_AGENTS = {
   desktop: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0 Safari/537.36 grooveshop-cache-warm',
   mobile: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1 grooveshop-cache-warm',
@@ -156,7 +166,7 @@ async function main() {
     throw new Error('WARM_TARGET, WARM_SERVICE, WARM_CONCURRENCY and WARM_TIMEOUT_MS are required')
   }
   const get = (path, host, accept, userAgent = DEVICE_USER_AGENTS.desktop) =>
-    request(new URL(path, target), { headers: { host, accept, 'user-agent': userAgent }, timeoutMs })
+    request(new URL(path, target), { headers: { host, accept, 'user-agent': userAgent, [CACHE_WARM_HEADER]: '1' }, timeoutMs })
 
   const { namespace, ingresses } = await listIngresses()
   const candidates = storefrontHosts(ingresses, serviceName)
@@ -169,13 +179,20 @@ async function main() {
     throw new Error(`this image is build ${ownBuild} but ${serviceName} serves ${servedBuild ?? `HTTP ${served.status}`}: the hook's image tag is not the Deployment's`)
   }
 
-  // Canonical pages per store, from each candidate host's own sitemap.
+  // Canonical pages per store, from each candidate host's own sitemap. A
+  // host that redirects (a `www.` twin to its store) has no pages of its
+  // own; its store's sitemap is read under the store's host.
   const pages = new Map()
+  const redirectingHosts = []
   for (const host of candidates) {
     const queue = ['/sitemap.xml']
     while (queue.length) {
       const path = queue.shift()
       const response = await get(path, host, 'application/xml')
+      if (response.status >= 300 && response.status < 400) {
+        redirectingHosts.push(host)
+        continue
+      }
       if (response.status !== 200) {
         log('warn', 'sitemap not served', { host, path, status: response.status })
         continue
@@ -227,6 +244,7 @@ async function main() {
     namespace,
     build: ownBuild,
     hosts: [...new Set([...pages.values()].map(page => page.host))],
+    redirectingHosts,
     ...summary,
     seconds: Math.round((performance.now() - started) / 1000),
   })

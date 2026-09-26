@@ -1,14 +1,22 @@
 import type { WideEvent } from 'evlog'
 import { createGeoEnricher, createUserAgentEnricher } from 'evlog/enrichers'
 
+/**
+ * Marks the post-deploy cache warm-up's own requests (`CACHE_WARM_HEADER`
+ * in scripts/warm-cache.mjs; a unit test keeps the two names equal), so a
+ * query for slow renders can leave them out.
+ */
+export const CACHE_WARM_HEADER = 'x-grooveshop-cache-warm'
+
 const userAgentEnricher = createUserAgentEnricher()
 const geoEnricher = createGeoEnricher()
 
 /**
  * Who is asking, on the request's wide event: browser (name and major
  * version), OS (name only), the device class the page was rendered for,
- * whether it is a bot, and the country. Enough to tell a crawler burst
- * from real shoppers, or one browser's failures from everyone's.
+ * whether it is a bot, the country, and whether it is the post-deploy
+ * cache warm-up. Enough to tell a crawler burst or the warm-up from real
+ * shoppers, or one browser's failures from everyone's.
  *
  * Set on the request logger, not in an `evlog:enrich` hook, because evlog
  * prints the line when it emits and runs enrichers only afterwards, for
@@ -53,6 +61,7 @@ export default defineEventHandler((event) => {
       deviceClass: getRequestHeader(event, 'x-device-class'),
       bot: userAgent?.device?.type === 'bot',
       country,
+      cacheWarm: getRequestHeader(event, CACHE_WARM_HEADER) === '1',
     },
   })
 })

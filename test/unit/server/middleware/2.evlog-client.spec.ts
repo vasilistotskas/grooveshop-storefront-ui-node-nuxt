@@ -11,7 +11,8 @@ vi.stubGlobal('defineEventHandler', (fn: unknown) => fn)
 vi.stubGlobal('getRequestHeader', (_event: unknown, name: string) => requestHeaders[name])
 vi.stubGlobal('useLogger', () => ({ set: loggerSet }))
 
-const { default: handler } = await import('../../../../server/middleware/2.evlog-client')
+const { default: handler, CACHE_WARM_HEADER } = await import('../../../../server/middleware/2.evlog-client')
+const { CACHE_WARM_HEADER: SCRIPT_CACHE_WARM_HEADER } = await import('../../../../scripts/warm-cache.mjs')
 const run = (headers: Record<string, string | undefined>) => {
   requestHeaders = headers
   ;(handler as unknown as (event: unknown) => void)({})
@@ -27,7 +28,7 @@ describe('2.evlog-client middleware', () => {
 
   it('logs the browser by name and major version, the OS by name', () => {
     const fields = run({ 'user-agent': CHROME, 'x-device-class': 'desktop', 'cf-ipcountry': 'GR' })
-    expect(fields).toEqual({ client: { browser: 'Chrome 141', os: 'Windows', deviceClass: 'desktop', bot: false, country: 'GR' } })
+    expect(fields).toEqual({ client: { browser: 'Chrome 141', os: 'Windows', deviceClass: 'desktop', bot: false, country: 'GR', cacheWarm: false } })
   })
 
   it('never carries the raw User-Agent', () => {
@@ -51,5 +52,10 @@ describe('2.evlog-client middleware', () => {
 
   it('omits the country when Cloudflare sent none', () => {
     expect(run({ 'user-agent': CHROME, 'x-device-class': 'desktop' }).client.country).toBeUndefined()
+  })
+
+  it('marks the cache warm-up, using the header name the warm-up script sends', () => {
+    expect(CACHE_WARM_HEADER).toBe(SCRIPT_CACHE_WARM_HEADER)
+    expect(run({ 'user-agent': CHROME, 'x-device-class': 'desktop', [CACHE_WARM_HEADER]: '1' }).client.cacheWarm).toBe(true)
   })
 })
