@@ -43,6 +43,7 @@ onMounted(() => {
 const {
   formState,
   selectedPayWay,
+  selectedCountry,
   payWays,
   shippingPrice,
   countryOptions,
@@ -58,7 +59,9 @@ const {
   addressEntryMode,
   useNewAddress,
   b2bInvoicingEnabled,
-  refetchShippingSettings,
+  refetchShippingOptions,
+  shippingOptionsError,
+  retryShippingOptions,
   shippingOptions,
 } = await useCheckoutForm()
 
@@ -86,7 +89,7 @@ const {
   onGiftCardApplied,
   onGiftCardRemoved,
   fireInitiateCheckout,
-} = useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchShippingSettings })
+} = useCheckoutSubmit({ formState, selectedPayWay, payWays, selectedCountry, refetchShippingOptions })
 
 // Meta Pixel: InitiateCheckout fires once when the customer lands on
 // the checkout page. The eventID is stashed inside useCheckoutSubmit
@@ -281,6 +284,7 @@ useSeoMeta({
             :schema="step1Schema"
             :country-options="countryOptions"
             :postcode-example="postcodeExample"
+            :selected-country="selectedCountry"
             :server-errors="addressStepErrors"
             :region-options="regionOptions"
             :saved-addresses="savedAddresses"
@@ -300,8 +304,10 @@ useSeoMeta({
             :schema="step2Schema"
             :partner-id="boxnowPartnerId"
             :api-options="shippingOptions"
+            :options-error="shippingOptionsError"
             @next="nextStep"
             @back="prevStep"
+            @retry-options="retryShippingOptions"
           />
 
           <!-- Step 2: Payment -->

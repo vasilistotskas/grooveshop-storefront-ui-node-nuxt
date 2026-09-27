@@ -26,6 +26,12 @@ const props = defineProps<{
    */
   postcodeExample?: string
   /**
+   * The full ``Country`` row matching ``formState.country`` — drives
+   * the phone dial-code badge and whether the region field applies
+   * (``hasRegions``).
+   */
+  selectedCountry?: Country | null
+  /**
    * Django's field errors from a rejected order, shown under their
    * inputs through ``UForm``'s ``setErrors``.
    */
@@ -166,8 +172,8 @@ watch(() => props.serverErrors, applyServerErrors)
                 inputmode="tel"
                 class="w-full"
               >
-                <template #leading>
-                  <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">+30</span>
+                <template v-if="dialCodeLabel(selectedCountry)" #leading>
+                  <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ dialCodeLabel(selectedCountry) }}</span>
                 </template>
               </UInput>
             </UFormField>
@@ -227,13 +233,17 @@ watch(() => props.serverErrors, applyServerErrors)
             </UFormField>
           </div>
 
-          <UFormField :label="t('form.region')" name="region" required>
+          <UFormField
+            :label="t('form.region')"
+            name="region"
+            :required="selectedCountry?.hasRegions !== false"
+          >
             <USelect
               v-model="formState.region"
               :items="regionOptions"
               size="xl"
               class="w-full"
-              :disabled="!regionOptions.length"
+              :disabled="!regionOptions.length || selectedCountry?.hasRegions === false"
             />
           </UFormField>
 

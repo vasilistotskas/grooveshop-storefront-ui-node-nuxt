@@ -103,17 +103,13 @@ export async function useCheckoutForm() {
   const selectedPayWay = useState<PayWay | null>('selectedPayWay', () => null)
 
   // Declare refs for fetched data (populated after await)
-  const shippingSetting = ref<{ value: string } | null>(null)
-  const freeShippingThresholdSetting = ref<{ value: string } | null>(null)
-  const boxnowShippingSetting = ref<{ value: string } | null>(null)
-  const boxnowFreeShippingThresholdSetting = ref<{ value: string } | null>(null)
   // Per-kind toggle for ACS Smartpoint pickup. Backend returns the
   // ACS_SMARTPOINT_ENABLED Setting value as a string ("True"/"False");
   // the StepShipping component coerces to boolean before gating the
-  // radio row.
+  // radio row. (Pricing itself is no longer a Setting — see
+  // ``shippingPrice`` below, which reads the live ``ShippingRate`` the
+  // options endpoint already resolved.)
   const acsSmartpointEnabled = ref(false)
-  const acsShippingSetting = ref<{ value: string } | null>(null)
-  const acsFreeShippingThresholdSetting = ref<{ value: string } | null>(null)
   const b2bInvoicingEnabled = ref(true)
   const countries = ref<Pagination<Country> | null>(null)
   const payWays = ref<Pagination<PayWay> | null>(null)
@@ -205,7 +201,30 @@ export async function useCheckoutForm() {
    * visible, and toast why. Pre-filled values stay so the shopper only
    * fixes what is wrong; the stored address is not rewritten.
    */
-  const validateAppliedAddress = () => {
+  const validateAppliedAddress = async () => {
+    // Countries here are already filtered to ``shippable: true``
+    // (see the countries fetch above), so a saved address whose
+    // country isn't in that list belongs to a country this store no
+    // longer ships to (dropped country, or a store that never enabled
+    // it). Fall back to the first shippable country and the blank
+    // new-address form instead of leaving the shopper stuck in
+    // ``saved`` mode with a country dropdown that can't represent
+    // their stored value.
+    if (formState.country && !selectedCountry.value) {
+      const fallbackCountry = countries.value?.results?.[0]
+      formState.country = fallbackCountry?.alpha2 ?? ''
+      formState.countryId = fallbackCountry?.alpha2
+      formState.region = ''
+      formState.regionId = undefined
+      addressEntryMode.value = 'new'
+      if (formState.country) await fetchRegions()
+      toast.add({
+        title: t('saved_address_invalid_title'),
+        description: t('saved_address_country_unavailable_description'),
+        color: 'warning',
+      })
+      return
+    }
     const region = formState.region
     const validAlphas = regions.value?.results?.map(r => r.alpha) ?? []
     if (region && validAlphas.length && !validAlphas.includes(region)) {
@@ -245,7 +264,7 @@ export async function useCheckoutForm() {
     applyAddressToFormState(address)
     addressEntryMode.value = 'saved'
     await fetchRegions()
-    validateAppliedAddress()
+    await validateAppliedAddress()
   }
 
   /**
@@ -307,6 +326,17 @@ export async function useCheckoutForm() {
     () => formState.country,
     async (newCountry, oldCountry) => {
       if (newCountry === oldCountry) return
+      // A picked locker belongs to the PREVIOUS country's network —
+      // BoxNow's widget and ACS's Smartpoint catalogue are both
+      // per-country, so a locker id from one means nothing against
+      // the other's map. Clear every carrier's locker state so the
+      // shipping step can never submit a locker that doesn't match
+      // the new delivery country.
+      formState.boxnowLockerId = ''
+      formState.boxnowLocker = null
+      formState.acsStationExternalId = ''
+      formState.acsStationBranch = ''
+      formState.acsStation = null
       if (newCountry && countries.value?.results) {
         const selectedCountry = countries.value.results.find(
           c => c.alpha2 === newCountry,
@@ -453,18 +483,14 @@ export async function useCheckoutForm() {
   })
 
   // Computed properties (also before await).
-  // Live shipping options from the backend — the authoritative source
-  // of truth for per-(provider, kind) pricing. When ``ACS_DYNAMIC_
-  // PRICING_ENABLED`` is on, ACS rows already reflect the live tariff
-  // bucketed against the cart's actual weight; the displayed Μεταφορικά
-  // therefore match what the voucher mint will charge.
-  //
-  // Keyed on (country, total, weight) so the cache invalidates when
-  // the shopper changes country or adds/removes items. The
-  // ``extra_settings`` flat-rate Settings (``shippingSetting`` /
-  // ``boxnowShippingSetting`` / ``acsShippingSetting``) act as a
-  // fallback when this fetch errors so checkout never blocks on a
-  // transient API failure — see ``shippingPrice`` below.
+  // Live shipping options from the backend — the SOLE source of truth
+  // for per-(provider, kind) pricing (a resolved ``ShippingRate``, or
+  // a live carrier quote when dynamic pricing is on). Keyed on
+  // (country, total, weight) so the cache invalidates when the
+  // shopper changes country or adds/removes items. A fetch failure
+  // sets ``shippingOptionsError`` — there is no local flat-rate
+  // fallback price anymore, so the step blocks advancing instead of
+  // silently pricing wrong. See ``shippingPrice`` below.
   const shippingOptions = ref<ShippingOption[]>([])
   // BoxNow visibility — true when the backend's
   // ``ShippingProvider(code='boxnow').is_active`` flag is set, which
@@ -481,6 +507,12 @@ export async function useCheckoutForm() {
   const acsEnabled = computed(() =>
     shippingOptions.value.some(o => o.providerCode === 'acs'),
   )
+  // Set when the live options fetch fails — StepShipping renders a
+  // full-width error + retry in place of the picker and the step
+  // cannot advance while this is true, because there is no longer any
+  // local fallback price to fall back to (pricing lives only in
+  // ``ShippingRate`` now).
+  const shippingOptionsError = ref(false)
   const fetchShippingOptions = async () => {
     try {
       const cartTotal = cart.value?.totalPrice || 0
@@ -488,6 +520,13 @@ export async function useCheckoutForm() {
       const country = formState.countryId
         ? String(formState.countryId).toUpperCase()
         : undefined
+      if (!country) {
+        // The options endpoint requires a country — nothing to quote
+        // yet (guest whose country hasn't resolved). Not an error.
+        shippingOptions.value = []
+        shippingOptionsError.value = false
+        return
+      }
       shippingOptions.value = await $api<ShippingOption[]>(
         '/api/shipping/options',
         {
@@ -505,18 +544,21 @@ export async function useCheckoutForm() {
           headers: useRequestHeaders(),
         },
       )
+      shippingOptionsError.value = false
     }
     catch (error: unknown) {
       log.warn({
         tag: 'checkout/shippingOptions',
-        message: 'Failed to fetch live options — falling back to flat-rate settings',
+        message: 'Failed to fetch live shipping options',
         // Whole error object — getErrorDetail is user-facing copy and
         // returns undefined for transport errors, which starved this log.
         error,
       })
       shippingOptions.value = []
+      shippingOptionsError.value = true
     }
   }
+  const retryShippingOptions = () => fetchShippingOptions()
 
   // Re-fetch whenever a dep that affects the price changes. Cart total
   // and weight cover line-item edits; country covers the address step.
@@ -556,41 +598,17 @@ export async function useCheckoutForm() {
     return shippingOptions.value.find(o => o.kind === 'home_delivery')
   })
 
-  // Shipping cost — prefers the live backend quote, falls back to
-  // the local ``extra_settings`` flat rate when the fetch hasn't
-  // populated or returned no row for this provider.
-  const shippingPrice = computed(() => {
+  // Shipping cost is the live backend quote — a resolved
+  // ``ShippingRate`` price, a live carrier quote, or 0 when the rate's
+  // free-shipping threshold is met (``ShippingService.quote``). There
+  // is no local fallback price to fall back to: pricing is per-country
+  // rate data now, not a store-wide Setting, so a null here means
+  // "not priced yet" (options still loading, or the fetch failed —
+  // see ``shippingOptionsError``) and the sidebar shows "—" rather
+  // than a misleading 0,00 €.
+  const shippingPrice = computed<number | null>(() => {
     const live = matchedShippingOption.value
-    if (live && typeof live.price === 'number') {
-      return live.price
-    }
-
-    const cartTotal = cart.value?.totalPrice || 0
-    const method = formState.shippingMethod
-
-    let priceSetting: typeof shippingSetting
-    let thresholdSetting: typeof freeShippingThresholdSetting
-
-    if (method === 'box_now_locker') {
-      priceSetting = boxnowShippingSetting
-      thresholdSetting = boxnowFreeShippingThresholdSetting
-    }
-    else if (method === 'acs_smartpoint') {
-      priceSetting = acsShippingSetting
-      thresholdSetting = acsFreeShippingThresholdSetting
-    }
-    else {
-      priceSetting = shippingSetting
-      thresholdSetting = freeShippingThresholdSetting
-    }
-
-    if (!priceSetting.value) return 0
-    const baseShippingCost = parseFloat(priceSetting.value.value)
-    const freeShippingThreshold = thresholdSetting.value
-      ? parseFloat(thresholdSetting.value.value)
-      : Number.POSITIVE_INFINITY
-
-    return cartTotal >= freeShippingThreshold ? 0 : baseShippingCost
+    return typeof live?.price === 'number' ? live.price : null
   })
 
   const countryOptions = computed(() => {
@@ -669,19 +687,22 @@ export async function useCheckoutForm() {
       error: t('validation.required'),
     }).max(150, { error: t('validation.max', { max: 150 }) }),
     email: z.email({ error: t('validation.email.valid') }),
-    // Validated on the value that actually gets submitted
-    // (normalizeGreekPhone output) so the inline error fires here, at
-    // the step where the field lives — not as a Django 400 on the
-    // final "Ολοκλήρωση Παραγγελίας" click.
-    phone: z.string({ error: t('validation.required') }).refine(isPlausiblePhone, {
-      error: t('validation.phone.invalid'),
+    // Plausibility (against the selected country's ``phoneMetadata``)
+    // is checked in ``superRefine`` below, on the value that actually
+    // gets submitted (``normalizePhone`` output) — so the inline error
+    // fires here, at the step where the field lives, not as a Django
+    // 400 on the final "Ολοκλήρωση Παραγγελίας" click.
+    phone: z.string({ error: t('validation.required') }).min(1, {
+      error: t('validation.required'),
     }),
     country: z.string({ error: t('validation.required') }).min(1, {
       error: t('validation.required'),
     }),
-    region: z.string({ error: t('validation.required') }).min(1, {
-      error: t('validation.required'),
-    }),
+    // Required only when the selected country actually has regions
+    // (``Country.hasRegions``) — checked in ``superRefine`` below,
+    // where the country row is available. Optional at the field level
+    // so a regionless country's blank value doesn't fail here first.
+    region: z.string().optional(),
     city: z.string({ error: t('validation.required') }).min(1, {
       error: t('validation.required'),
     }).max(100, { error: t('validation.max', { max: 100 }) }),
@@ -719,14 +740,30 @@ export async function useCheckoutForm() {
     billingCity: z.string().max(100).optional(),
     billingZipcode: z.string().max(20).optional(),
   }).superRefine((data, ctx) => {
+    const country = countries.value?.results?.find(c => c.alpha2 === data.country)
     // Postcode format + street/number mix-ups, against the selected
     // country's row — mirrors Django's ``core/validators/address.py``.
-    refineAddress(
-      ctx,
-      countries.value?.results?.find(c => c.alpha2 === data.country),
-      data,
-      t,
-    )
+    refineAddress(ctx, country, data, t)
+    // Region is only meaningful for a country that actually has them
+    // (``Country.hasRegions``) — Cyprus and Greece both do, but a
+    // future country without a region breakdown must not be blocked
+    // on an empty dropdown it has no rows for.
+    if (country?.hasRegions !== false && !(data.region ?? '').trim()) {
+      ctx.addIssue({
+        path: ['region'],
+        code: 'custom',
+        message: t('validation.required'),
+      })
+    }
+    if (!isPlausiblePhone(data.phone, country)) {
+      ctx.addIssue({
+        path: ['phone'],
+        code: 'custom',
+        message: country?.phoneMetadata?.exampleMobile
+          ? t('validation.phone.invalid_example', { example: country.phoneMetadata.exampleMobile })
+          : t('validation.phone.invalid'),
+      })
+    }
     if (data.saveAddress && !(data.addressTitle ?? '').trim()) {
       ctx.addIssue({
         path: ['addressTitle'],
@@ -861,9 +898,13 @@ export async function useCheckoutForm() {
     ),
     useAsyncData<Pagination<Country> | null>(
       () => `checkout:countries:${locale.value}`,
+      // Only the countries this store actually has an active
+      // ``ShippingRate`` for — the same filter the address book uses.
+      // A country the store doesn't ship to would otherwise be
+      // selectable here and then 400 at order-create.
       () => $api<Pagination<Country>>('/api/countries', {
         method: 'GET',
-        query: { languageCode: locale.value },
+        query: { languageCode: locale.value, shippable: true },
         headers: useRequestHeaders(),
       }).catch(() => null),
     ),
@@ -926,16 +967,11 @@ export async function useCheckoutForm() {
   ])
 
   // Populate reactive refs with fetched data. A key without a row (or
-  // an unreachable settings endpoint) reads as ``null``, which is what
-  // the shipping-cost resolvers already treat as "not configured".
+  // an unreachable settings endpoint) reads as ``null``.
   const storeSetting = (key: string): { value: string } | null => {
     const raw = storeSettingsResult.data.value?.settings[key]
     return raw === undefined ? null : { value: raw }
   }
-  shippingSetting.value = storeSetting('CHECKOUT_SHIPPING_PRICE')
-  freeShippingThresholdSetting.value = storeSetting('FREE_SHIPPING_THRESHOLD')
-  boxnowShippingSetting.value = storeSetting('BOXNOW_SHIPPING_PRICE')
-  boxnowFreeShippingThresholdSetting.value = storeSetting('BOXNOW_FREE_SHIPPING_THRESHOLD')
   // ACS Smartpoint defaults disabled (Phase 2 progressive rollout):
   // ops flips the Setting to True after the AcsStation cache has been
   // synced and the picker is verified end-to-end.
@@ -943,8 +979,6 @@ export async function useCheckoutForm() {
     storeSetting('ACS_SMARTPOINT_ENABLED')?.value,
     false,
   )
-  acsShippingSetting.value = storeSetting('ACS_SHIPPING_PRICE')
-  acsFreeShippingThresholdSetting.value = storeSetting('ACS_FREE_SHIPPING_THRESHOLD')
   // B2B defaults to ``true`` if the endpoint is unreachable so a
   // transient settings-API failure doesn't silently hide the option.
   b2bInvoicingEnabled.value = storeSetting('B2B_INVOICING_ENABLED')?.value !== 'False'
@@ -1032,7 +1066,7 @@ export async function useCheckoutForm() {
   // valid region. Same intent as ``selectSavedAddress`` — see notes on
   // ``validateAppliedAddress`` for the failure mode this prevents.
   if (mainAddress) {
-    validateAppliedAddress()
+    await validateAppliedAddress()
   }
 
   // Hydrate shipping options once the country is known so the sidebar
@@ -1056,30 +1090,23 @@ export async function useCheckoutForm() {
   }
 
   /**
-   * Re-fetches shipping settings from the server at submit time so the
-   * displayed shipping cost is always current even if the page was loaded
-   * hours ago. Also re-fetches the per-(provider, kind) options so any
-   * ACS tariff change since page load is reflected in the sidebar before
-   * the customer commits to the order.
+   * Re-fetches the live shipping options at submit time so the priced
+   * total the customer commits to matches the latest rate — a rate
+   * edited (or an ACS tariff change, when dynamic pricing is on) since
+   * page load is reflected in the sidebar before the order is created.
    */
-  const refetchShippingSettings = async () => {
-    const [fresh] = await Promise.all([
-      $api<PublicSettings>('/api/settings/public', {
-        headers: useRequestHeaders(),
-      }).catch(() => null),
-      fetchShippingOptions(),
-    ])
-    const freshShipping = fresh?.settings.CHECKOUT_SHIPPING_PRICE
-    const freshThreshold = fresh?.settings.FREE_SHIPPING_THRESHOLD
-    if (freshShipping !== undefined) shippingSetting.value = { value: freshShipping }
-    if (freshThreshold !== undefined) freeShippingThresholdSetting.value = { value: freshThreshold }
-  }
+  const refetchShippingOptions = () => fetchShippingOptions()
 
   return {
     formState,
     regions,
     selectedPayWay,
     countries,
+    // The full ``Country`` row matching ``formState.country`` — carries
+    // ``phoneCode``/``phoneMetadata`` (phone badge + validation) and
+    // ``hasRegions`` (whether the region field applies). Exposed so
+    // ``StepPersonalInfo`` doesn't need its own copy of the lookup.
+    selectedCountry,
     payWays,
     shippingPrice,
     countryOptions,
@@ -1099,9 +1126,11 @@ export async function useCheckoutForm() {
     boxnowEnabled,
     acsEnabled,
     acsSmartpointEnabled,
-    acsShippingSetting,
-    acsFreeShippingThresholdSetting,
-    refetchShippingSettings,
+    refetchShippingOptions,
+    // Set when the live options fetch fails; StepShipping renders a
+    // full error + retry in its place and blocks advancing.
+    shippingOptionsError,
+    retryShippingOptions,
     // Live, priority-sorted carrier options from
     // ``/api/v1/shipping/options``. Exposed so the StepShipping
     // component can render rows in the backend's declared order

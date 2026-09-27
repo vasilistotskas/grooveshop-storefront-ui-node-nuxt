@@ -25,6 +25,10 @@ export default defineCachedEventHandler(async (event) => {
     const keyParts = [
       query.pageSize || '250',
       query.languageCode || 'el',
+      // Distinct cache entry for the shippable-only list (checkout,
+      // address book) vs. the full list (account profile) — same
+      // query params otherwise, different response bodies.
+      query.shippable ?? 'all',
     ]
     return tenantCacheKey(event, `countries:${keyParts.join(':')}`)
   },
