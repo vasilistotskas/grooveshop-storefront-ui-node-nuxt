@@ -288,10 +288,9 @@ export function buildCspDirectives(options: CspOptions): string[] {
     // hop of a frame's redirect chain against frame-src, so the
     // redirect origins must be listed even though
     // ``buildBoxNowIframeUrl`` never targets them directly. Single
-    // source of truth: ``shared/utils/boxnow-widget.ts`` — keep
-    // ``BOXNOW_ALLOWED_ORIGINS`` in
-    // ``app/composables/useBoxNowWidget.ts`` in sync (it derives from
-    // the same list).
+    // source of truth: ``shared/utils/boxnow-widget.ts`` — its own
+    // ``BOXNOW_ALLOWED_ORIGINS`` (postMessage trust) derives from the
+    // same ``BOXNOW_FRAME_ORIGINS`` list, so the two can't drift.
     // ``data:`` is added in dev so Nuxt's nitro error overlay (which
     // base64-encodes a stack-trace iframe) can render — production
     // never ships that overlay so the scheme stays out of prod CSP.
