@@ -680,6 +680,7 @@ describe('useCheckoutSubmit', () => {
 
       try {
         const { onSubmit } = useCheckoutSubmit({
+          selectedCountry: noCountry,
           formState: makeFormState(),
           selectedPayWay: ref<PayWay | null>(codPayWay),
           payWays: makePayWaysRef(codPayWay),
@@ -707,6 +708,7 @@ describe('useCheckoutSubmit', () => {
       mockFetch.mockResolvedValue(undefined)
 
       const { onSubmit } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay: ref<PayWay | null>(codPayWay),
         payWays: makePayWaysRef(codPayWay),
