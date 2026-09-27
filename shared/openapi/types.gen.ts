@@ -2831,6 +2831,10 @@ export type Country = {
      */
   phoneMetadata: PhoneMetadata | null
   /**
+     * Whether this country has any Region rows. Most of the full ISO 3166-1 seed doesn't — the storefront uses this to decide whether the address form's region field is shown at all for the selected country, rather than unconditionally requiring one.
+     */
+  readonly hasRegions: boolean
+  /**
      * Σειρά ταξινόμησης
      */
   readonly sortOrder: number | null
@@ -2893,6 +2897,10 @@ export type CountryDetail = {
      * Phone-number validation shape for this country, derived from Django's own ``phonenumbers`` dependency — never stored. Null only for a placeholder/reserved alpha-2 code ``phonenumbers`` has no metadata for.
      */
   phoneMetadata: PhoneMetadata | null
+  /**
+     * Whether this country has any Region rows. Most of the full ISO 3166-1 seed doesn't — the storefront uses this to decide whether the address form's region field is shown at all for the selected country, rather than unconditionally requiring one.
+     */
+  readonly hasRegions: boolean
   /**
      * Σειρά ταξινόμησης
      */
@@ -6255,7 +6263,7 @@ export type PatchedUserAddressWriteRequest = {
   /**
      * Κωδικός περιφέρειας
      */
-  region?: string
+  region?: string | null
 }
 
 export type PatchedUserSubscriptionWriteRequest = {
@@ -9309,7 +9317,7 @@ export type UserAddressWriteRequest = {
   /**
      * Κωδικός περιφέρειας
      */
-  region: string
+  region?: string | null
 }
 
 /**

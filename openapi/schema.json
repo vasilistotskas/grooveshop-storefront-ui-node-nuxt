@@ -58464,6 +58464,11 @@
             "readOnly": true,
             "description": "Phone-number validation shape for this country, derived from Django's own ``phonenumbers`` dependency — never stored. Null only for a placeholder/reserved alpha-2 code ``phonenumbers`` has no metadata for."
           },
+          "hasRegions": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "Whether this country has any Region rows. Most of the full ISO 3166-1 seed doesn't — the storefront uses this to decide whether the address form's region field is shown at all for the selected country, rather than unconditionally requiring one."
+          },
           "sortOrder": {
             "type": "integer",
             "readOnly": true,
@@ -58496,6 +58501,7 @@
           "alpha2",
           "alpha3",
           "createdAt",
+          "hasRegions",
           "mainImagePath",
           "phoneMetadata",
           "sortOrder",
@@ -58585,6 +58591,11 @@
             "readOnly": true,
             "description": "Phone-number validation shape for this country, derived from Django's own ``phonenumbers`` dependency — never stored. Null only for a placeholder/reserved alpha-2 code ``phonenumbers`` has no metadata for."
           },
+          "hasRegions": {
+            "type": "boolean",
+            "readOnly": true,
+            "description": "Whether this country has any Region rows. Most of the full ISO 3166-1 seed doesn't — the storefront uses this to decide whether the address form's region field is shown at all for the selected country, rather than unconditionally requiring one."
+          },
           "sortOrder": {
             "type": "integer",
             "readOnly": true,
@@ -58625,6 +58636,7 @@
           "alpha2",
           "alpha3",
           "createdAt",
+          "hasRegions",
           "mainImagePath",
           "phoneMetadata",
           "regions",
@@ -65961,7 +65973,8 @@
           "region": {
             "type": "string",
             "minLength": 1,
-            "title": "Κωδικός περιφέρειας"
+            "title": "Κωδικός περιφέρειας",
+            "nullable": true
           }
         }
       },
@@ -72661,7 +72674,8 @@
           "region": {
             "type": "string",
             "minLength": 1,
-            "title": "Κωδικός περιφέρειας"
+            "title": "Κωδικός περιφέρειας",
+            "nullable": true
           }
         },
         "required": [
@@ -72670,7 +72684,6 @@
           "firstName",
           "lastName",
           "phone",
-          "region",
           "street",
           "streetNumber",
           "title",

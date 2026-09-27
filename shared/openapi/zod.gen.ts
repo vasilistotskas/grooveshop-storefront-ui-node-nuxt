@@ -2572,7 +2572,7 @@ export const zPatchedUserAddressWriteRequest = z.object({
   notes: z.string().max(255).optional(),
   isMain: z.boolean().optional().default(false),
   country: z.string().min(1).optional(),
-  region: z.string().min(1).optional(),
+  region: z.string().min(1).nullish(),
 })
 
 export const zPatchedUserSubscriptionWriteRequest = z.object({
@@ -2755,6 +2755,7 @@ export const zCountry = z.object({
   postalCodePattern: z.string().max(1000).optional(),
   postalCodeExample: z.string().max(50).optional(),
   phoneMetadata: zPhoneMetadata.nullable(),
+  hasRegions: z.boolean().readonly(),
   sortOrder: z.int().readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -2784,6 +2785,7 @@ export const zCountryDetail = z.object({
   postalCodePattern: z.string().max(1000).optional(),
   postalCodeExample: z.string().max(50).optional(),
   phoneMetadata: zPhoneMetadata.nullable(),
+  hasRegions: z.boolean().readonly(),
   sortOrder: z.int().readonly().nullable(),
   createdAt: z.iso.datetime({ offset: true }).readonly(),
   updatedAt: z.iso.datetime({ offset: true }).readonly(),
@@ -5686,7 +5688,7 @@ export const zUserAddressWriteRequest = z.object({
   notes: z.string().max(255).optional(),
   isMain: z.boolean().optional().default(false),
   country: z.string().min(1),
-  region: z.string().min(1),
+  region: z.string().min(1).nullish(),
 })
 
 /**
