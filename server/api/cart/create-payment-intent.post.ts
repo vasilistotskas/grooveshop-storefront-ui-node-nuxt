@@ -1,14 +1,12 @@
 /**
  * Create a Stripe payment intent from cart for online payment checkout.
  *
- * Forwards the chosen shipping provider/kind so the PaymentIntent
- * amount is computed against the SAME per-carrier free-shipping
- * threshold the order-create verification step uses. Without these
- * fields, the backend silently falls back to the generic
- * ``FREE_SHIPPING_THRESHOLD`` / ``CHECKOUT_SHIPPING_PRICE`` pair —
- * disagreeing with the carrier adapters whenever the thresholds
- * differ and raising ``PaymentAmountMismatchError`` at order-create
- * time.
+ * Forwards the destination country (required — a ``ShippingRate`` is
+ * per-country, so there is no priceable shipping option without one)
+ * and the chosen shipping provider/kind, so the PaymentIntent amount is
+ * computed against the SAME rate the order-create verification step
+ * resolves. A mismatch here raises ``PaymentAmountMismatchError`` at
+ * order-create time.
  */
 const bodySchema = zCartCreatePaymentIntentRequestRequest
 
