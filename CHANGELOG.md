@@ -1,3 +1,10 @@
+## [3.216.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.216.0...v3.216.1) (2026-09-27)
+
+
+### Performance Improvements
+
+* **cache:** cache the English pages like the Greek ones ([803ae03](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/803ae035ac8002ee9c607da85246d2711fc6f67b))
+
 # [3.216.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.215.0...v3.216.0) (2026-09-26)
 
 
