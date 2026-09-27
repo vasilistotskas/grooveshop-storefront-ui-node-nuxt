@@ -455,6 +455,12 @@ export type AgentProfile = {
 }
 
 /**
+ * * `ucp` - ucp
+ * * `acp` - acp
+ */
+export type AgentProtocolEnum = 'ucp' | 'acp'
+
+/**
  * Serializer for Attribute with translations.
  */
 export type Attribute = {
@@ -2463,6 +2469,19 @@ export type CartPaymentIntentResponse = {
 }
 
 /**
+ * * `gclid` - gclid
+ * * `gbraid` - gbraid
+ * * `wbraid` - wbraid
+ * * `msclkid` - msclkid
+ * * `ttclid` - ttclid
+ * * `twclid` - twclid
+ * * `li_fat_id` - li_fat_id
+ * * `epik` - epik
+ * * `fbclid` - fbclid
+ */
+export type ClickIdsEnum = 'gclid' | 'gbraid' | 'wbraid' | 'msclkid' | 'ttclid' | 'twclid' | 'li_fat_id' | 'epik' | 'fbclid'
+
+/**
  * * `1` - Μικρό
  * * `2` - Μεσαίο
  * * `3` - Μεγάλο
@@ -2796,11 +2815,15 @@ export type Country = {
      */
   phoneCode?: number | null
   /**
-     * Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+     * Μορφή ταχυδρομικού κώδικα
+     *
+     * Κανονική έκφραση με την οποία πρέπει να ταιριάζει ολόκληρος ο ταχυδρομικός κώδικας, π.χ. \d{3} ?\d{2} για την Ελλάδα. Κενό απενεργοποιεί τον έλεγχο μορφής.
      */
   postalCodePattern?: string
   /**
-     * A valid postcode shown to shoppers, e.g. 151 24.
+     * Παράδειγμα ταχυδρομικού κώδικα
+     *
+     * Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.
      */
   postalCodeExample?: string
   /**
@@ -2851,11 +2874,15 @@ export type CountryDetail = {
      */
   phoneCode?: number | null
   /**
-     * Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+     * Μορφή ταχυδρομικού κώδικα
+     *
+     * Κανονική έκφραση με την οποία πρέπει να ταιριάζει ολόκληρος ο ταχυδρομικός κώδικας, π.χ. \d{3} ?\d{2} για την Ελλάδα. Κενό απενεργοποιεί τον έλεγχο μορφής.
      */
   postalCodePattern?: string
   /**
-     * A valid postcode shown to shoppers, e.g. 151 24.
+     * Παράδειγμα ταχυδρομικού κώδικα
+     *
+     * Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.
      */
   postalCodeExample?: string
   /**
@@ -2907,11 +2934,15 @@ export type CountryWriteRequest = {
      */
   phoneCode?: number | null
   /**
-     * Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+     * Μορφή ταχυδρομικού κώδικα
+     *
+     * Κανονική έκφραση με την οποία πρέπει να ταιριάζει ολόκληρος ο ταχυδρομικός κώδικας, π.χ. \d{3} ?\d{2} για την Ελλάδα. Κενό απενεργοποιεί τον έλεγχο μορφής.
      */
   postalCodePattern?: string
   /**
-     * A valid postcode shown to shoppers, e.g. 151 24.
+     * Παράδειγμα ταχυδρομικού κώδικα
+     *
+     * Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.
      */
   postalCodeExample?: string
 }
@@ -4024,6 +4055,68 @@ export type Order = {
   readonly isCollectedOnDelivery: boolean
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
+  /**
+     * Where the shopper came from. Null for an order placed before attribution was recorded.
+     */
+  attribution: OrderAttribution | null
+}
+
+/**
+ * Where the order came from, as ``order.attribution.classify`` named it.
+ */
+export type OrderAttribution = {
+  /**
+     * Τύπος πηγής
+     */
+  sourceType: OrderSourceType
+  /**
+     * Πηγή παραγγελίας
+     *
+     * Το κλειδί ενός γνωστού καναλιού (π.χ. ``instagram``), ο ιστότοπος παραπομπής ή το ``utm_source`` όπως ήρθε. Κενό για απευθείας επίσκεψη.
+     */
+  readonly source: string
+  /**
+     * Μέσο επισκεψιμότητας
+     */
+  readonly medium: string
+  /**
+     * Όνομα καμπάνιας
+     */
+  readonly campaign: string
+}
+
+/**
+ * The acquisition signals the storefront captured for this tab.
+ *
+ * Untrusted analytics — anyone can type a UTM — so nothing here is
+ * rejected for its content, only for its shape: a checkout must never
+ * fail over a strange referrer. Overlong strings are cut to their
+ * column in ``order.attribution.classify``, the referrer is reduced to
+ * its host there, and click ids are parameter NAMES, never values.
+ */
+export type OrderAttributionInputRequest = {
+  utmSource?: string
+  utmMedium?: string
+  utmCampaign?: string
+  /**
+     * Τα ονόματα των παραμέτρων click-id διαφημίσεων που είχε η διεύθυνση προσγείωσης. Οι τιμές τους δεν αποστέλλονται ποτέ.
+     */
+  clickIds?: Array<ClickIdsEnum>
+  /**
+     * Το ``document.referrer`` της σελίδας προσγείωσης. Κρατείται μόνο ο ιστότοπος, και καθόλου όταν είναι ένα από τα domain του ίδιου του καταστήματος.
+     */
+  referrer?: string
+  /**
+     * Η διαδρομή της πρώτης σελίδας, χωρίς τις παραμέτρους της.
+     */
+  landingPath?: string
+  /**
+     * Ορίζεται από το agent gateway για παραγγελία που έκανε πράκτορας AI μέσω UCP ή ACP.
+     *
+     * * `ucp` - ucp
+     * * `acp` - acp
+     */
+  agentProtocol?: AgentProtocolEnum
 }
 
 /**
@@ -4451,6 +4544,10 @@ export type OrderDetail = {
   readonly canBeCanceled: boolean
   readonly isPaid: boolean
   /**
+     * Where the shopper came from. Null for an order placed before attribution was recorded.
+     */
+  attribution: OrderAttribution | null
+  /**
      * Order status timeline and history
      */
   readonly orderTimeline: Array<{
@@ -4676,6 +4773,17 @@ export type OrderItemWriteRequest = {
      */
   notes?: string
 }
+
+/**
+ * * `direct` - Απευθείας
+ * * `campaign` - Καμπάνια
+ * * `paid` - Διαφήμιση
+ * * `social` - Κοινωνικά δίκτυα
+ * * `search` - Αναζήτηση
+ * * `referral` - Παραπομπή
+ * * `agent` - Πράκτορας AI
+ */
+export type OrderSourceType = 'direct' | 'campaign' | 'paid' | 'social' | 'search' | 'referral' | 'agent'
 
 /**
  * * `PENDING` - Εκκρεμεί
@@ -5607,11 +5715,15 @@ export type PatchedCountryWriteRequest = {
      */
   phoneCode?: number | null
   /**
-     * Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+     * Μορφή ταχυδρομικού κώδικα
+     *
+     * Κανονική έκφραση με την οποία πρέπει να ταιριάζει ολόκληρος ο ταχυδρομικός κώδικας, π.χ. \d{3} ?\d{2} για την Ελλάδα. Κενό απενεργοποιεί τον έλεγχο μορφής.
      */
   postalCodePattern?: string
   /**
-     * A valid postcode shown to shoppers, e.g. 151 24.
+     * Παράδειγμα ταχυδρομικού κώδικα
+     *
+     * Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.
      */
   postalCodeExample?: string
 }
@@ -10010,11 +10122,15 @@ export type CountryWritable = {
      */
   phoneCode?: number | null
   /**
-     * Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+     * Μορφή ταχυδρομικού κώδικα
+     *
+     * Κανονική έκφραση με την οποία πρέπει να ταιριάζει ολόκληρος ο ταχυδρομικός κώδικας, π.χ. \d{3} ?\d{2} για την Ελλάδα. Κενό απενεργοποιεί τον έλεγχο μορφής.
      */
   postalCodePattern?: string
   /**
-     * A valid postcode shown to shoppers, e.g. 151 24.
+     * Παράδειγμα ταχυδρομικού κώδικα
+     *
+     * Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.
      */
   postalCodeExample?: string
 }
@@ -10051,11 +10167,15 @@ export type CountryDetailWritable = {
      */
   phoneCode?: number | null
   /**
-     * Regular expression a whole postcode must match, e.g. \d{3} ?\d{2} for Greece. Blank disables the format check.
+     * Μορφή ταχυδρομικού κώδικα
+     *
+     * Κανονική έκφραση με την οποία πρέπει να ταιριάζει ολόκληρος ο ταχυδρομικός κώδικας, π.χ. \d{3} ?\d{2} για την Ελλάδα. Κενό απενεργοποιεί τον έλεγχο μορφής.
      */
   postalCodePattern?: string
   /**
-     * A valid postcode shown to shoppers, e.g. 151 24.
+     * Παράδειγμα ταχυδρομικού κώδικα
+     *
+     * Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.
      */
   postalCodeExample?: string
 }
@@ -10441,6 +10561,7 @@ export type OrderCreateFromCartRequestWritable = {
   meta?: {
     [key: string]: unknown
   } | null
+  attribution?: OrderAttributionInputRequest
 }
 
 export type OrderDetailWritable = {
@@ -18160,6 +18281,24 @@ export type ListOrderData = {
          */
     shippingPriceMin?: string | number
     /**
+         * Φίλτρο ανά πηγή προέλευσης, π.χ. ``instagram`` ή ιστότοπο παραπομπής (χωρίς διάκριση πεζών-κεφαλαίων)
+         */
+    source?: string
+    /**
+         * Τύπος πηγής
+         *
+         * Φίλτρο ανά τύπο πηγής προέλευσης
+         *
+         * * `direct` - Απευθείας
+         * * `campaign` - Καμπάνια
+         * * `paid` - Διαφήμιση
+         * * `social` - Κοινωνικά δίκτυα
+         * * `search` - Αναζήτηση
+         * * `referral` - Παραπομπή
+         * * `agent` - Πράκτορας AI
+         */
+    sourceType?: 'agent' | 'campaign' | 'direct' | 'paid' | 'referral' | 'search' | 'social'
+    /**
          * Κατάσταση
          *
          * Φίλτρο ανά κατάσταση παραγγελίας
@@ -19505,6 +19644,24 @@ export type ListMyOrdersData = {
          * Φίλτρο ανά ελάχιστα έξοδα αποστολής
          */
     shippingPriceMin?: string | number
+    /**
+         * Φίλτρο ανά πηγή προέλευσης, π.χ. ``instagram`` ή ιστότοπο παραπομπής (χωρίς διάκριση πεζών-κεφαλαίων)
+         */
+    source?: string
+    /**
+         * Τύπος πηγής
+         *
+         * Φίλτρο ανά τύπο πηγής προέλευσης
+         *
+         * * `direct` - Απευθείας
+         * * `campaign` - Καμπάνια
+         * * `paid` - Διαφήμιση
+         * * `social` - Κοινωνικά δίκτυα
+         * * `search` - Αναζήτηση
+         * * `referral` - Παραπομπή
+         * * `agent` - Πράκτορας AI
+         */
+    sourceType?: 'agent' | 'campaign' | 'direct' | 'paid' | 'referral' | 'search' | 'social'
     /**
          * Κατάσταση
          *
