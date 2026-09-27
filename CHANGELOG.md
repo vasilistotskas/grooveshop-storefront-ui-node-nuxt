@@ -1,3 +1,10 @@
+## [3.216.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.216.2...v3.216.3) (2026-09-27)
+
+
+### Bug Fixes
+
+* **cache:** no route rule for /info, which has no index page ([c7d6bd0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c7d6bd000446b9fe210a331abacc5891a0ae70ee))
+
 ## [3.216.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.216.1...v3.216.2) (2026-09-27)
 
 
