@@ -16,12 +16,26 @@ const isSubmitting = ref(false)
 // Auto-generated contract schema, tightened with the same client-side
 // phone plausibility check and delivery-address rules checkout applies
 // — the OpenAPI schema can't express either, and Django re-validates.
+// Region is required only when the selected country actually has
+// regions (``Country.hasRegions``) — the field itself stays optional
+// at the shape level (mirrors Django's ``UserAddressWriteSerializer``).
 const schema = zUserAddressWriteRequest.extend({
-  phone: zUserAddressWriteRequest.shape.phone.refine(isPlausiblePhone, {
-    error: t('validation.phone.invalid'),
-  }),
+  region: zUserAddressWriteRequest.shape.region.optional(),
 }).superRefine((data, ctx) => {
-  refineAddress(ctx, selectedCountry(data.country), data, t)
+  const country = selectedCountry(data.country)
+  refineAddress(ctx, country, data, t)
+  if (country?.hasRegions !== false && !(data.region ?? '').trim()) {
+    ctx.addIssue({ path: ['region'], code: 'custom', message: t('validation.required') })
+  }
+  if (!isPlausiblePhone(data.phone, country)) {
+    ctx.addIssue({
+      path: ['phone'],
+      code: 'custom',
+      message: country?.phoneMetadata?.exampleMobile
+        ? t('validation.phone.invalid_example', { example: country.phoneMetadata.exampleMobile })
+        : t('validation.phone.invalid'),
+    })
+  }
 })
 
 type Schema = z.output<typeof schema>
@@ -44,13 +58,15 @@ const state = reactive<Partial<Schema>>({
   locationType: undefined,
 })
 
-// Countries data
+// Countries data — shippable only: a country this store doesn't ship
+// to would 400 at submit either way.
 const { data: countries } = await useApi('/api/countries', {
-  key: 'countries',
+  key: 'countries-shippable',
   method: 'GET',
   headers: useRequestHeaders(),
   query: {
     languageCode: locale,
+    shippable: true,
   },
 })
 
@@ -130,9 +146,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       headers: useRequestHeaders(),
       body: {
         ...event.data,
-        // Phone input shows a sticky "+30" badge and users type their
-        // Greek local number — normalize to E.164 before sending.
-        phone: normalizeGreekPhone(event.data.phone),
+        // Phone input shows a sticky dial-code badge for this form's
+        // own country and users type their local number — normalize
+        // to E.164 before sending.
+        phone: normalizePhone(event.data.phone, selectedCountry(event.data.country)),
         // Canonical form, the same one Django stores.
         zipcode: normalizePostcode(event.data.zipcode),
       },
@@ -212,7 +229,7 @@ defineRouteRules({
           />
         </UFormField>
 
-        <!-- Phone (Greek number; +30 prefix applied on submit) -->
+        <!-- Phone — dial-code badge follows this form's own country -->
         <UFormField :label="t('form.phone')" name="phone" required>
           <UInput
             v-model="state.phone"
@@ -221,8 +238,8 @@ defineRouteRules({
             autocomplete="tel-national"
             inputmode="tel"
           >
-            <template #leading>
-              <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">+30</span>
+            <template v-if="dialCodeLabel(selectedCountry(state.country))" #leading>
+              <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ dialCodeLabel(selectedCountry(state.country)) }}</span>
             </template>
           </UInput>
         </UFormField>
@@ -266,14 +283,18 @@ defineRouteRules({
           />
         </UFormField>
 
-        <UFormField :label="t('form.region')" name="region" required>
+        <UFormField
+          :label="t('form.region')"
+          name="region"
+          :required="selectedCountry(state.country)?.hasRegions !== false"
+        >
           <USelectMenu
             v-model="state.region"
             :aria-label="t('form.region')"
             icon="i-heroicons-map"
             :items="regionOptions"
             :placeholder="t('form.select_placeholder')"
-            :disabled="!state.country"
+            :disabled="!state.country || selectedCountry(state.country)?.hasRegions === false"
             value-key="value"
             autocomplete="address-level1"
           />

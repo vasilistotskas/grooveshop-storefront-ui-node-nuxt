@@ -19,12 +19,26 @@ const addressId = 'id' in route.params ? route.params.id : undefined
 // Auto-generated contract schema, tightened with the same client-side
 // phone plausibility check and delivery-address rules checkout applies
 // — the OpenAPI schema can't express either, and Django re-validates.
+// Region is required only when the selected country actually has
+// regions (``Country.hasRegions``) — the field itself stays optional
+// at the shape level (mirrors Django's ``UserAddressWriteSerializer``).
 const schema = zUserAddressWriteRequest.extend({
-  phone: zUserAddressWriteRequest.shape.phone.refine(isPlausiblePhone, {
-    error: t('validation.phone.invalid'),
-  }),
+  region: zUserAddressWriteRequest.shape.region.optional(),
 }).superRefine((data, ctx) => {
-  refineAddress(ctx, selectedCountry(data.country), data, t)
+  const country = selectedCountry(data.country)
+  refineAddress(ctx, country, data, t)
+  if (country?.hasRegions !== false && !(data.region ?? '').trim()) {
+    ctx.addIssue({ path: ['region'], code: 'custom', message: t('validation.required') })
+  }
+  if (!isPlausiblePhone(data.phone, country)) {
+    ctx.addIssue({
+      path: ['phone'],
+      code: 'custom',
+      message: country?.phoneMetadata?.exampleMobile
+        ? t('validation.phone.invalid_example', { example: country.phoneMetadata.exampleMobile })
+        : t('validation.phone.invalid'),
+    })
+  }
 })
 
 type Schema = z.output<typeof schema>
@@ -39,6 +53,25 @@ const { data: address } = await useApi(`/api/user/addresses/${addressId}`, {
   },
 })
 
+// Countries data — shippable only: a country this store doesn't ship
+// to would 400 at submit either way. Fetched before ``state`` so the
+// phone display below can already resolve this address's dial code.
+const { data: countries } = await useApi('/api/countries', {
+  key: 'countries-shippable',
+  method: 'GET',
+  headers: useRequestHeaders(),
+  query: {
+    languageCode: locale,
+    shippable: true,
+  },
+})
+
+// The row carrying the country's postcode format — the one Django
+// validates the address against.
+function selectedCountry(alpha2: string | undefined) {
+  return countries.value?.results?.find(country => country.alpha2 === alpha2)
+}
+
 // Form state - populate with existing address data
 const state = reactive<Partial<Schema>>({
   title: address.value?.title,
@@ -49,8 +82,9 @@ const state = reactive<Partial<Schema>>({
   city: address.value?.city,
   zipcode: address.value?.zipcode,
   // Address.phone is stored as E.164 (e.g. "+306912345678"); strip the
-  // +30 so the visible "+30" leading badge on the input doesn't double up.
-  phone: stripGreekPrefixForDisplay(address.value?.phone),
+  // dial code so the visible leading badge on the input doesn't
+  // double up.
+  phone: stripDialCodeForDisplay(address.value?.phone, selectedCountry(address.value?.country)),
   notes: address.value?.notes,
   isMain: address.value?.isMain,
   country: address.value?.country,
@@ -58,22 +92,6 @@ const state = reactive<Partial<Schema>>({
   floor: address.value?.floor,
   locationType: address.value?.locationType,
 })
-
-// Countries data
-const { data: countries } = await useApi('/api/countries', {
-  key: 'countries',
-  method: 'GET',
-  headers: useRequestHeaders(),
-  query: {
-    languageCode: locale,
-  },
-})
-
-// The row carrying the country's postcode format — the one Django
-// validates the address against.
-function selectedCountry(alpha2: string | undefined) {
-  return countries.value?.results?.find(country => country.alpha2 === alpha2)
-}
 
 const countryOptions = computed(() => {
   return (
@@ -145,7 +163,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       headers: useRequestHeaders(),
       body: {
         ...event.data,
-        phone: normalizeGreekPhone(event.data.phone),
+        phone: normalizePhone(event.data.phone, selectedCountry(event.data.country)),
         // Canonical form, the same one Django stores.
         zipcode: normalizePostcode(event.data.zipcode),
       },
@@ -264,7 +282,7 @@ defineRouteRules({
           />
         </UFormField>
 
-        <!-- Phone (Greek number; +30 prefix applied on submit) -->
+        <!-- Phone — dial-code badge follows this form's own country -->
         <UFormField :label="t('form.phone')" name="phone" required>
           <UInput
             v-model="state.phone"
@@ -273,8 +291,8 @@ defineRouteRules({
             autocomplete="tel-national"
             inputmode="tel"
           >
-            <template #leading>
-              <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">+30</span>
+            <template v-if="dialCodeLabel(selectedCountry(state.country))" #leading>
+              <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ dialCodeLabel(selectedCountry(state.country)) }}</span>
             </template>
           </UInput>
         </UFormField>
@@ -314,14 +332,18 @@ defineRouteRules({
           />
         </UFormField>
 
-        <UFormField :label="t('form.region')" name="region" required>
+        <UFormField
+          :label="t('form.region')"
+          name="region"
+          :required="selectedCountry(state.country)?.hasRegions !== false"
+        >
           <USelectMenu
             v-model="state.region"
             :aria-label="t('form.region')"
             icon="i-heroicons-map"
             :items="regionOptions"
             :placeholder="t('form.select_placeholder')"
-            :disabled="!state.country"
+            :disabled="!state.country || selectedCountry(state.country)?.hasRegions === false"
             value-key="value"
             autocomplete="address-level1"
           />
