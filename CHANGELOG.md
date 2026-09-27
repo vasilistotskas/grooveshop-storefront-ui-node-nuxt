@@ -1,3 +1,10 @@
+## [3.216.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.216.1...v3.216.2) (2026-09-27)
+
+
+### Performance Improvements
+
+* **cache:** cache /offers, /loyalty-program and the /info CMS pages ([04263bc](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/04263bcc703246633f10e52e2256c38dd2997803))
+
 ## [3.216.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.216.0...v3.216.1) (2026-09-27)
 
 
