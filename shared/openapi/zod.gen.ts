@@ -770,7 +770,7 @@ export const zCartCreatePaymentIntentRequestRequest = z.object({
   payWayId: z.int().gte(1),
   shippingKind: zCartCreatePaymentIntentRequestShippingKindEnum,
   shippingProviderCode: z.string().max(32).optional(),
-  countryId: z.string().max(2).optional(),
+  countryId: z.string().min(1).max(2),
   regionId: z.string().max(16).optional(),
   email: z.union([
     z.email(),
@@ -1080,63 +1080,6 @@ export const zContentPageWriteRequest = z.object({
   }),
   slug: z.string().min(1).max(255).regex(/^[-a-zA-Z0-9_]+$/),
   isPublished: z.boolean().optional(),
-})
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zCountry = z.object({
-  translations: z.object({
-    el: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-    }).optional(),
-  }),
-  alpha2: z.string().max(2).regex(/^[A-Z]{2}$/),
-  alpha3: z.string().max(3).regex(/^[A-Z]{3}$/),
-  isoCc: z.int().gte(0).lte(32767).nullish(),
-  phoneCode: z.int().gte(0).lte(32767).nullish(),
-  postalCodePattern: z.string().max(1000).optional(),
-  postalCodeExample: z.string().max(50).optional(),
-  sortOrder: z.int().readonly().nullable(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  mainImagePath: z.string().readonly(),
-})
-
-/**
- * Serializer that saves :class:`TranslatedFieldsField` automatically.
- */
-export const zCountryDetail = z.object({
-  translations: z.object({
-    el: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    en: z.object({
-      name: z.string().optional(),
-    }).optional(),
-    de: z.object({
-      name: z.string().optional(),
-    }).optional(),
-  }),
-  alpha2: z.string().max(2).regex(/^[A-Z]{2}$/),
-  alpha3: z.string().max(3).regex(/^[A-Z]{3}$/),
-  isoCc: z.int().gte(0).lte(32767).nullish(),
-  phoneCode: z.int().gte(0).lte(32767).nullish(),
-  postalCodePattern: z.string().max(1000).optional(),
-  postalCodeExample: z.string().max(50).optional(),
-  sortOrder: z.int().readonly().nullable(),
-  createdAt: z.iso.datetime({ offset: true }).readonly(),
-  updatedAt: z.iso.datetime({ offset: true }).readonly(),
-  uuid: z.uuid().readonly(),
-  mainImagePath: z.string().readonly(),
-  regions: z.array(z.string()).readonly(),
 })
 
 /**
@@ -2124,19 +2067,6 @@ export const zPaginatedContentPageList = z.object({
   results: z.array(zContentPage),
 })
 
-export const zPaginatedCountryList = z.object({
-  links: z.object({
-    next: z.url().nullish(),
-    previous: z.url().nullish(),
-  }).optional(),
-  count: z.int(),
-  totalPages: z.int().optional(),
-  pageSize: z.int().optional(),
-  pageTotalResults: z.int().optional(),
-  page: z.int().optional(),
-  results: z.array(zCountry),
-})
-
 export const zPaginatedGiftCardList = z.object({
   links: z.object({
     next: z.url().nullish(),
@@ -2786,6 +2716,93 @@ export const zPaymentStatusResponse = z.object({
 export const zPerformanceMetrics = z.object({
   avgProcessingTimeMs: z.number(),
   avgResultsCount: z.number(),
+})
+
+/**
+ * Read-only phone-number shape derived from ``phonenumbers``.
+ *
+ * Never a model field — see ``country.phone`` for why. Nested rather
+ * than flattened onto ``CountrySerializer`` so a country with no
+ * metadata (see ``get_phone_metadata``) can answer ``null`` for the
+ * whole group instead of four separately-nullable fields.
+ */
+export const zPhoneMetadata = z.object({
+  nationalNumberPattern: z.string(),
+  possibleLengths: z.array(z.int()),
+  nationalPrefixForParsing: z.string().nullable(),
+  exampleMobile: z.string().nullable(),
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zCountry = z.object({
+  translations: z.object({
+    el: z.object({
+      name: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      name: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      name: z.string().optional(),
+    }).optional(),
+  }),
+  alpha2: z.string().max(2).regex(/^[A-Z]{2}$/),
+  alpha3: z.string().max(3).regex(/^[A-Z]{3}$/),
+  isoCc: z.int().gte(0).lte(32767).nullish(),
+  phoneCode: z.int().gte(0).lte(32767).nullish(),
+  postalCodePattern: z.string().max(1000).optional(),
+  postalCodeExample: z.string().max(50).optional(),
+  phoneMetadata: zPhoneMetadata.nullable(),
+  sortOrder: z.int().readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  mainImagePath: z.string().readonly(),
+})
+
+/**
+ * Serializer that saves :class:`TranslatedFieldsField` automatically.
+ */
+export const zCountryDetail = z.object({
+  translations: z.object({
+    el: z.object({
+      name: z.string().optional(),
+    }).optional(),
+    en: z.object({
+      name: z.string().optional(),
+    }).optional(),
+    de: z.object({
+      name: z.string().optional(),
+    }).optional(),
+  }),
+  alpha2: z.string().max(2).regex(/^[A-Z]{2}$/),
+  alpha3: z.string().max(3).regex(/^[A-Z]{3}$/),
+  isoCc: z.int().gte(0).lte(32767).nullish(),
+  phoneCode: z.int().gte(0).lte(32767).nullish(),
+  postalCodePattern: z.string().max(1000).optional(),
+  postalCodeExample: z.string().max(50).optional(),
+  phoneMetadata: zPhoneMetadata.nullable(),
+  sortOrder: z.int().readonly().nullable(),
+  createdAt: z.iso.datetime({ offset: true }).readonly(),
+  updatedAt: z.iso.datetime({ offset: true }).readonly(),
+  uuid: z.uuid().readonly(),
+  mainImagePath: z.string().readonly(),
+  regions: z.array(z.string()).readonly(),
+})
+
+export const zPaginatedCountryList = z.object({
+  links: z.object({
+    next: z.url().nullish(),
+    previous: z.url().nullish(),
+  }).optional(),
+  count: z.int(),
+  totalPages: z.int().optional(),
+  pageSize: z.int().optional(),
+  pageTotalResults: z.int().optional(),
+  page: z.int().optional(),
+  results: z.array(zCountry),
 })
 
 /**
@@ -4441,6 +4458,7 @@ export const zFreeShippingInfo = z.object({
   minThreshold: z.number().gt(-1000000000).lt(1000000000).nullable(),
   maxThreshold: z.number().gt(-1000000000).lt(1000000000).nullable(),
   currency: z.string().max(3),
+  countryCode: z.string().max(2).nullable(),
 })
 
 /**
@@ -4525,10 +4543,13 @@ export const zShippingOption = z.object({
   providerCode: z.string(),
   providerName: z.string(),
   kind: zShippingKind,
-  price: z.number().gt(-1000000000).lt(1000000000).nullable(),
+  price: z.number().gt(-1000000000).lt(1000000000),
   currency: z.string().max(3),
   liveMode: z.boolean(),
   priority: z.int(),
+  countryCode: z.string().max(2),
+  maxWeightGrams: z.int().nullable(),
+  exceedsMaxWeight: z.boolean(),
   logoUrl: z.url().nullish(),
   metadata: z.record(z.string(), z.unknown()),
   payWays: z.array(zShippingOptionPayWay),
@@ -11309,6 +11330,13 @@ export const zListCountryQuery = z.object({
     z.int(),
   ]).optional(),
   search: z.string().optional(),
+  shippable: z.union([
+    z.literal('true'),
+    z.literal('false'),
+    z.literal('1'),
+    z.literal('0'),
+    z.boolean(),
+  ]).optional(),
   sortOrder: z.union([
     z.string().regex(/^-?\d+$/),
     z.int(),
@@ -15648,7 +15676,7 @@ export const zGetFreeShippingInfoQuery = z.object({
 export const zGetFreeShippingInfoResponse = zFreeShippingInfo
 
 export const zListShippingOptionsQuery = z.object({
-  countryCode: z.string().optional(),
+  countryCode: z.string(),
   currency: z.string().optional(),
   orderValueAmount: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),

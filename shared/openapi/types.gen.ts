@@ -2221,9 +2221,9 @@ export type CartCreatePaymentIntentRequestRequest = {
      */
   shippingProviderCode?: string
   /**
-     * Προαιρετικός κωδικός χώρας ISO 3166-1 alpha-2 — καθορίζει τον συντελεστή αποστολής σε επίπεδο χώρας. Πρέπει να ταιριάζει με αυτόν που θα φέρει το αίτημα δημιουργίας παραγγελίας.
+     * ISO 3166-1 alpha-2 country code — required because a ``ShippingRate`` is per-country, so there is no priceable shipping option without a destination. Match what the order-create body will carry.
      */
-  countryId?: string
+  countryId: string
   /**
      * Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.
      */
@@ -2827,6 +2827,10 @@ export type Country = {
      */
   postalCodeExample?: string
   /**
+     * Phone-number validation shape for this country, derived from Django's own ``phonenumbers`` dependency — never stored. Null only for a placeholder/reserved alpha-2 code ``phonenumbers`` has no metadata for.
+     */
+  phoneMetadata: PhoneMetadata | null
+  /**
      * Σειρά ταξινόμησης
      */
   readonly sortOrder: number | null
@@ -2885,6 +2889,10 @@ export type CountryDetail = {
      * Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.
      */
   postalCodeExample?: string
+  /**
+     * Phone-number validation shape for this country, derived from Django's own ``phonenumbers`` dependency — never stored. Null only for a placeholder/reserved alpha-2 code ``phonenumbers`` has no metadata for.
+     */
+  phoneMetadata: PhoneMetadata | null
   /**
      * Σειρά ταξινόμησης
      */
@@ -3289,6 +3297,10 @@ export type FreeShippingInfo = {
      */
   maxThreshold: number | null
   currency: string
+  /**
+     * The country these thresholds were resolved for — the caller's ``country_code`` when given, else the first shippable country, matching the rule checkout uses for its initial country. Null only when the store has no active shipping rate anywhere yet.
+     */
+  countryCode: string | null
 }
 
 /**
@@ -6615,6 +6627,33 @@ export type PerformanceMetrics = {
 }
 
 /**
+ * Read-only phone-number shape derived from ``phonenumbers``.
+ *
+ * Never a model field — see ``country.phone`` for why. Nested rather
+ * than flattened onto ``CountrySerializer`` so a country with no
+ * metadata (see ``get_phone_metadata``) can answer ``null`` for the
+ * whole group instead of four separately-nullable fields.
+ */
+export type PhoneMetadata = {
+  /**
+     * Regular expression the whole national number (no country code, no leading zero) must match for this country.
+     */
+  nationalNumberPattern: string
+  /**
+     * Valid national-number lengths for this country.
+     */
+  possibleLengths: Array<number>
+  /**
+     * Digits a local number is written with but that are not part of the E.164 number (e.g. Germany's leading '0'). Null when the country has none — most don't.
+     */
+  nationalPrefixForParsing: string | null
+  /**
+     * A real-shaped example mobile number, national format (e.g. GR '6912345678', CY '96123456').
+     */
+  exampleMobile: string | null
+}
+
+/**
  * Serializer for points transaction history records.
  */
 export type PointsTransaction = {
@@ -8383,12 +8422,24 @@ export type ShippingOption = {
   providerName: string
   kind: ShippingKind
   /**
-     * Null όταν ο πάροχος παραπέμπει στη γενική πάγια χρέωση.
+     * The resolved ``ShippingRate`` price (or a live provider quote, or 0 when the rate's free-shipping threshold is met).
      */
-  price: number | null
+  price: number
   currency: string
   liveMode: boolean
   priority: number
+  /**
+     * The destination this option was priced for.
+     */
+  countryCode: string
+  /**
+     * The rate's weight cap, or null when it has none. Compare against the cart weight the caller already knows — this row does not repeat it.
+     */
+  maxWeightGrams: number | null
+  /**
+     * True when the caller's ``weight_grams`` exceeds ``max_weight_grams``. The option is still returned rather than hidden — the storefront shows it disabled with a reason, so a heavy cart never sees a checkout step with one fewer option and no explanation.
+     */
+  exceedsMaxWeight: boolean
   /**
      * Απόλυτο URL για το λογότυπο μάρκας που ανέβασε ο χειριστής, υπολογισμένο ανά (πάροχο, τύπο) ώστε η γραμμή κατ' οίκον παράδοσης και η γραμμή σημείου παραλαβής του ίδιου μεταφορέα να μπορούν να εμφανίζουν διαφορετικές εικόνες. Null όταν δεν έχει μεταφορτωθεί λογότυπο — το κατάστημα τότε επιστρέφει στην ενσωματωμένη προεπιλογή του. Το ``settings.MEDIA_URL`` είναι απόλυτο σε κάθε περιβάλλον, οπότε αυτό είναι πάντα πλήρες URL όταν υπάρχει.
      */
@@ -8476,7 +8527,7 @@ export type ShippingProvider = {
   /**
      * Μεταδεδομένα
      *
-     * Διαμόρφωση ειδική για τον πάροχο (υποστηριζόμενες χώρες, σημαίες λειτουργιών, υποδείξεις branding).
+     * Provider-specific configuration (feature flags, branding hints, locker/map chrome). Which countries this provider ships to is a ``ShippingRate`` question, not a metadata key — see the Rates inline below.
      */
   readonly metadata: unknown
   /**
@@ -17066,6 +17117,10 @@ export type ListCountryData = {
          */
     search?: string
     /**
+         * Filter to countries the current store has an active ShippingRate for. On the platform host — which has no store, so no rates — this always returns none.
+         */
+    shippable?: 'true' | 'false' | '1' | '0' | boolean
+    /**
          * Φίλτρο ανά ακριβή σειρά
          */
     sortOrder?: string | number
@@ -24091,7 +24146,7 @@ export type ApiV1SettingsGetRetrieveData = {
   path?: never
   query: {
     /**
-         * Όνομα κλειδιού ρύθμισης (π.χ. CHECKOUT_SHIPPING_PRICE)
+         * Setting key name (e.g., GIFT_CARD_MIN_AMOUNT)
          */
     key: string
   }
@@ -24540,11 +24595,11 @@ export type GetFreeShippingInfoResponse = GetFreeShippingInfoResponses[keyof Get
 export type ListShippingOptionsData = {
   body?: never
   path?: never
-  query?: {
+  query: {
     /**
-         * ISO 3166-1 alpha-2 country code (e.g. 'GR').
+         * ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` is per-country.
          */
-    countryCode?: string
+    countryCode: string
     /**
          * ISO 4217 currency code (default 'EUR').
          */

@@ -10475,6 +10475,18 @@ paths:
           schema:
             type: string
         - in: query
+          name: shippable
+          schema:
+            oneOf:
+              - type: string
+                enum:
+                  - 'true'
+                  - 'false'
+                  - '1'
+                  - '0'
+              - type: boolean
+          description: Filter to countries the current store has an active ShippingRate for. On the platform host — which has no store, so no rates — this always returns none.
+        - in: query
           name: sortOrder
           schema:
             oneOf:
@@ -25357,7 +25369,7 @@ paths:
           name: key
           schema:
             type: string
-          description: Όνομα κλειδιού ρύθμισης (π.χ. CHECKOUT_SHIPPING_PRICE)
+          description: Setting key name (e.g., GIFT_CARD_MIN_AMOUNT)
           required: true
       tags:
         - Settings
@@ -25988,7 +26000,8 @@ paths:
           name: countryCode
           schema:
             type: string
-          description: ISO 3166-1 alpha-2 country code (e.g. 'GR').
+          description: ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` is per-country.
+          required: true
         - in: query
           name: currency
           schema:
@@ -34785,7 +34798,8 @@ components:
           maxLength: 32
         countryId:
           type: string
-          description: Προαιρετικός κωδικός χώρας ISO 3166-1 alpha-2 — καθορίζει τον συντελεστή αποστολής σε επίπεδο χώρας. Πρέπει να ταιριάζει με αυτόν που θα φέρει το αίτημα δημιουργίας παραγγελίας.
+          minLength: 1
+          description: ISO 3166-1 alpha-2 country code — required because a ``ShippingRate`` is per-country, so there is no priceable shipping option without a destination. Match what the order-create body will carry.
           maxLength: 2
         regionId:
           type: string
@@ -34812,6 +34826,7 @@ components:
           nullable: true
           description: Loyalty points the shopper will redeem at order creation. The intent amount subtracts the resulting discount so the provider captures what the customer was shown. Pass the same value in the order-create body. Requires an authenticated request.
       required:
+        - countryId
         - payWayId
         - shippingKind
     CartCreatePaymentIntentRequestShippingKindEnum:
@@ -35911,6 +35926,12 @@ components:
           title: Παράδειγμα ταχυδρομικού κώδικα
           description: Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.
           maxLength: 50
+        phoneMetadata:
+          allOf:
+            - $ref: '#/components/schemas/PhoneMetadata'
+          nullable: true
+          readOnly: true
+          description: Phone-number validation shape for this country, derived from Django's own ``phonenumbers`` dependency — never stored. Null only for a placeholder/reserved alpha-2 code ``phonenumbers`` has no metadata for.
         sortOrder:
           type: integer
           readOnly: true
@@ -35938,6 +35959,7 @@ components:
         - alpha3
         - createdAt
         - mainImagePath
+        - phoneMetadata
         - sortOrder
         - translations
         - updatedAt
@@ -35996,6 +36018,12 @@ components:
           title: Παράδειγμα ταχυδρομικού κώδικα
           description: Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.
           maxLength: 50
+        phoneMetadata:
+          allOf:
+            - $ref: '#/components/schemas/PhoneMetadata'
+          nullable: true
+          readOnly: true
+          description: Phone-number validation shape for this country, derived from Django's own ``phonenumbers`` dependency — never stored. Null only for a placeholder/reserved alpha-2 code ``phonenumbers`` has no metadata for.
         sortOrder:
           type: integer
           readOnly: true
@@ -36029,6 +36057,7 @@ components:
         - alpha3
         - createdAt
         - mainImagePath
+        - phoneMetadata
         - regions
         - sortOrder
         - translations
@@ -36586,7 +36615,13 @@ components:
         currency:
           type: string
           maxLength: 3
+        countryCode:
+          type: string
+          nullable: true
+          description: The country these thresholds were resolved for — the caller's ``country_code`` when given, else the first shippable country, matching the rule checkout uses for its initial country. Null only when the store has no active shipping rate anywhere yet.
+          maxLength: 2
       required:
+        - countryCode
         - currency
         - maxThreshold
         - minThreshold
@@ -42336,6 +42371,37 @@ components:
       required:
         - avgProcessingTimeMs
         - avgResultsCount
+    PhoneMetadata:
+      type: object
+      description: |-
+        Read-only phone-number shape derived from ``phonenumbers``.
+
+        Never a model field — see ``country.phone`` for why. Nested rather
+        than flattened onto ``CountrySerializer`` so a country with no
+        metadata (see ``get_phone_metadata``) can answer ``null`` for the
+        whole group instead of four separately-nullable fields.
+      properties:
+        nationalNumberPattern:
+          type: string
+          description: Regular expression the whole national number (no country code, no leading zero) must match for this country.
+        possibleLengths:
+          type: array
+          items:
+            type: integer
+          description: Valid national-number lengths for this country.
+        nationalPrefixForParsing:
+          type: string
+          nullable: true
+          description: Digits a local number is written with but that are not part of the E.164 number (e.g. Germany's leading '0'). Null when the country has none — most don't.
+        exampleMobile:
+          type: string
+          nullable: true
+          description: A real-shaped example mobile number, national format (e.g. GR '6912345678', CY '96123456').
+      required:
+        - exampleMobile
+        - nationalNumberPattern
+        - nationalPrefixForParsing
+        - possibleLengths
     PointsTransaction:
       type: object
       description: Serializer for points transaction history records.
@@ -45549,8 +45615,7 @@ components:
           minimum: -1000000000
           exclusiveMaximum: true
           exclusiveMinimum: true
-          nullable: true
-          description: Null όταν ο πάροχος παραπέμπει στη γενική πάγια χρέωση.
+          description: The resolved ``ShippingRate`` price (or a live provider quote, or 0 when the rate's free-shipping threshold is met).
         currency:
           type: string
           maxLength: 3
@@ -45558,6 +45623,17 @@ components:
           type: boolean
         priority:
           type: integer
+        countryCode:
+          type: string
+          description: The destination this option was priced for.
+          maxLength: 2
+        maxWeightGrams:
+          type: integer
+          nullable: true
+          description: The rate's weight cap, or null when it has none. Compare against the cart weight the caller already knows — this row does not repeat it.
+        exceedsMaxWeight:
+          type: boolean
+          description: True when the caller's ``weight_grams`` exceeds ``max_weight_grams``. The option is still returned rather than hidden — the storefront shows it disabled with a reason, so a heavy cart never sees a checkout step with one fewer option and no explanation.
         logoUrl:
           type: string
           format: uri
@@ -45572,9 +45648,12 @@ components:
             $ref: '#/components/schemas/ShippingOptionPayWay'
           description: 'Active payment methods this (provider, kind) can settle, by the same rules checkout applies when the shopper picks it. Stated as a fact per option rather than as ''exclusive to this row'': the storefront collapses several carriers into one home-delivery card, so only it knows which rows it actually renders and can work out what a given choice uniquely unlocks. Lets the delivery step advertise a carrier-only product — BOX NOW Αντικαταβολή is reachable ONLY via a BoxNow locker, and a shopper who never picks one has no way to discover it exists.'
       required:
+        - countryCode
         - currency
+        - exceedsMaxWeight
         - kind
         - liveMode
+        - maxWeightGrams
         - metadata
         - payWays
         - price
@@ -45664,7 +45743,7 @@ components:
         metadata:
           readOnly: true
           title: Μεταδεδομένα
-          description: Διαμόρφωση ειδική για τον πάροχο (υποστηριζόμενες χώρες, σημαίες λειτουργιών, υποδείξεις branding).
+          description: Provider-specific configuration (feature flags, branding hints, locker/map chrome). Which countries this provider ships to is a ``ShippingRate`` question, not a metadata key — see the Rates inline below.
         createdAt:
           type: string
           format: date-time
