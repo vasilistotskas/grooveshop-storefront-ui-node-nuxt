@@ -15,6 +15,12 @@ const buildResponse = (overrides: Record<string, unknown> = {}) => ({
   minThreshold: 30,
   maxThreshold: 30,
   currency: 'EUR',
+  // Echoes the country ``free_shipping_info`` resolved for (the
+  // caller's ``country_code``, else the first shippable country) —
+  // FreeShippingNotice doesn't read it (no delivery country is known
+  // this early on the PDP/cart), but the fixture mirrors the real
+  // response shape.
+  countryCode: 'GR',
   ...overrides,
 })
 
