@@ -146,11 +146,22 @@ const state = reactive<Partial<Schema>>({
 // while it's still the unselected placeholder. Referenced by the
 // ``phone`` refine above; the closure resolves it lazily at
 // validation time, by when this is already initialised.
-const phoneCountry = computed(() => resolvePhoneCountry(
-  countries.value?.results,
-  state.country !== defaultSelectOptionChoose ? state.country : undefined,
-  { fallbackToFirst: true },
-))
+//
+// A plain ref updated via watch() — not a computed reading
+// state.country directly — because a computed's initializer touching
+// state (typed Partial<Schema>) closes a cycle back through the
+// schema's own phone refine (schema -> phoneCountry -> state ->
+// Schema -> schema, TS2456). Explicitly typing this ref breaks it: the
+// watch callback below still reads state.country, but that's a
+// separate statement, not part of phoneCountry's own type.
+const phoneCountry = ref<Country | undefined>(initialPhoneCountry)
+watch(() => state.country, (newCountry) => {
+  phoneCountry.value = resolvePhoneCountry(
+    countries.value?.results,
+    newCountry !== defaultSelectOptionChoose ? newCountry : undefined,
+    { fallbackToFirst: true },
+  )
+})
 
 const languageOptions = computed(() => {
   const names = new Intl.DisplayNames([locale.value], { type: 'language' })

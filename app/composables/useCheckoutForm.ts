@@ -639,7 +639,7 @@ export async function useCheckoutForm() {
       // alone showed a surcharge the shopper was never charged:
       // at items 48,00 € the backend sees 50,99 € and waives, while
       // this displayed "+2,99 €". Same base, same answer.
-      const feeBase = (cart.value?.totalPrice || 0) + shippingPrice.value
+      const feeBase = (cart.value?.totalPrice || 0) + (shippingPrice.value ?? 0)
       const threshold = payWay.freeThreshold || 0
       const displayCost = (threshold > 0 && feeBase >= threshold) ? 0 : (payWay.cost || 0)
       // Only show the surcharge suffix when it's a real charge — a

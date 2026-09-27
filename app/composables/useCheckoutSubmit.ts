@@ -480,7 +480,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
               payWayId: orderValues.payWayId,
               shippingKind: orderValues.shippingKind as CartCreatePaymentIntentRequestShippingKindEnum,
               shippingProviderCode: orderValues.shippingProviderCode || undefined,
-              countryId: orderValues.countryId || undefined,
+              // Required now — a ShippingRate is per-country, so the
+              // PI amount can't be computed without a destination.
+              countryId: orderValues.countryId,
               regionId: orderValues.regionId || undefined,
               // Identity + gift cards keep the intent amount in
               // lockstep with the order-create verification: promotion

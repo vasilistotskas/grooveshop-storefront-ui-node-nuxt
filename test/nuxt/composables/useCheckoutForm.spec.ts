@@ -22,8 +22,10 @@ import { flushPromises } from '@vue/test-utils'
 const { mockFetch, mockToastAdd } = vi.hoisted(() => ({
   // Default resolves {} so Nuxt's own bootstrap plugins (i18n, auth,
   // cart) don't crash the app-setup chain before each test's own
-  // mockImplementation takes over — see testing.md.
-  mockFetch: vi.fn(() => Promise.resolve({})),
+  // mockImplementation takes over — see testing.md. Typed with the
+  // (url, options) shape every test's own mockImplementation uses, so
+  // TS doesn't lock the mock to the zero-arg default's signature.
+  mockFetch: vi.fn((_url: string, _options?: any) => Promise.resolve({} as any)),
   mockToastAdd: vi.fn(),
 }))
 

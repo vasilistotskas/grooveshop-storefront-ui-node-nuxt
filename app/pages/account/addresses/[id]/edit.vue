@@ -19,12 +19,11 @@ const addressId = 'id' in route.params ? route.params.id : undefined
 // Auto-generated contract schema, tightened with the same client-side
 // phone plausibility check and delivery-address rules checkout applies
 // — the OpenAPI schema can't express either, and Django re-validates.
-// Region is required only when the selected country actually has
-// regions (``Country.hasRegions``) — the field itself stays optional
-// at the shape level (mirrors Django's ``UserAddressWriteSerializer``).
-const schema = zUserAddressWriteRequest.extend({
-  region: zUserAddressWriteRequest.shape.region.optional(),
-}).superRefine((data, ctx) => {
+// ``region`` is already ``.nullish()`` on the generated schema
+// (mirrors ``UserAddressWriteSerializer.region`` being optional); the
+// superRefine below adds it back as required only when the selected
+// country actually has regions (``Country.hasRegions``).
+const schema = zUserAddressWriteRequest.superRefine((data, ctx) => {
   const country = selectedCountry(data.country)
   refineAddress(ctx, country, data, t)
   if (country?.hasRegions !== false && !(data.region ?? '').trim()) {
@@ -72,8 +71,12 @@ function selectedCountry(alpha2: string | undefined) {
   return countries.value?.results?.find(country => country.alpha2 === alpha2)
 }
 
-// Form state - populate with existing address data
-const state = reactive<Partial<Schema>>({
+// Form state - populate with existing address data. ``region``
+// narrowed to drop ``null`` — the generated schema allows it (Django's
+// serializer accepts a blank region), but this form only ever assigns
+// it a string or leaves it undefined, and USelectMenu's v-model
+// doesn't accept null.
+const state = reactive<Partial<Omit<Schema, 'region'>> & { region?: string }>({
   title: address.value?.title,
   firstName: address.value?.firstName,
   lastName: address.value?.lastName,
@@ -88,7 +91,7 @@ const state = reactive<Partial<Schema>>({
   notes: address.value?.notes,
   isMain: address.value?.isMain,
   country: address.value?.country,
-  region: address.value?.region,
+  region: address.value?.region ?? undefined,
   floor: address.value?.floor,
   locationType: address.value?.locationType,
 })

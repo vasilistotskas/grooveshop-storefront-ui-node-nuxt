@@ -16,12 +16,11 @@ const isSubmitting = ref(false)
 // Auto-generated contract schema, tightened with the same client-side
 // phone plausibility check and delivery-address rules checkout applies
 // — the OpenAPI schema can't express either, and Django re-validates.
-// Region is required only when the selected country actually has
-// regions (``Country.hasRegions``) — the field itself stays optional
-// at the shape level (mirrors Django's ``UserAddressWriteSerializer``).
-const schema = zUserAddressWriteRequest.extend({
-  region: zUserAddressWriteRequest.shape.region.optional(),
-}).superRefine((data, ctx) => {
+// ``region`` is already ``.nullish()`` on the generated schema
+// (mirrors ``UserAddressWriteSerializer.region`` being optional); the
+// superRefine below adds it back as required only when the selected
+// country actually has regions (``Country.hasRegions``).
+const schema = zUserAddressWriteRequest.superRefine((data, ctx) => {
   const country = selectedCountry(data.country)
   refineAddress(ctx, country, data, t)
   if (country?.hasRegions !== false && !(data.region ?? '').trim()) {
@@ -40,8 +39,11 @@ const schema = zUserAddressWriteRequest.extend({
 
 type Schema = z.output<typeof schema>
 
-// Form state
-const state = reactive<Partial<Schema>>({
+// Form state. ``region`` narrowed to drop ``null`` — the generated
+// schema allows it (Django's serializer accepts a blank region), but
+// this form only ever assigns it a string or leaves it undefined, and
+// USelectMenu's v-model doesn't accept null.
+const state = reactive<Partial<Omit<Schema, 'region'>> & { region?: string }>({
   title: undefined,
   firstName: undefined,
   lastName: undefined,
