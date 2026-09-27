@@ -1,3 +1,10 @@
+# [3.217.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.216.3...v3.217.0) (2026-09-27)
+
+
+### Features
+
+* **checkout:** send where the shopper came from with the order ([4a2a08e](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/4a2a08eb2e744b1e3e3efaad413ee10da20a5d8c))
+
 ## [3.216.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.216.2...v3.216.3) (2026-09-27)
 
 
