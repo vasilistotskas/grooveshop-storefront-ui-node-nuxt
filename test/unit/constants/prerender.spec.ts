@@ -54,8 +54,11 @@ describe('isCachedSsrRoute', () => {
   it('keeps the bare path alongside each glob', () => {
     // A Nitro glob does not match its own prefix, so `/blog/**` alone
     // would leave `/blog` uncached while every child was cached.
+    // `/info` has no index page — only `/info/<slug>` — and a rule for it
+    // would put a 404 into the sitemap, which lists route-rule paths.
+    const familiesWithoutIndex = new Set(['/info/**'])
     for (const pattern of Object.keys(SWR_ROUTE_PATTERN_RULES)) {
-      if (!pattern.endsWith('/**')) continue
+      if (!pattern.endsWith('/**') || familiesWithoutIndex.has(pattern)) continue
       const bare = pattern.slice(0, -'/**'.length)
       expect(SWR_ROUTE_PATTERN_RULES, bare).toHaveProperty(bare)
       expect(CACHED_SSR_ROUTES_SET.has(bare), bare).toBe(true)
@@ -74,6 +77,11 @@ describe('cached routes in a prefixed locale', () => {
     for (const path of ['/en/cart', '/en/checkout', '/en/account/orders', '/en/search']) {
       expect(isCachedSsrRoute(path), path).toBe(false)
     }
+  })
+
+  it('adds no rule for a family without an index page', () => {
+    expect(SWR_ROUTE_PATTERN_RULES).not.toHaveProperty('/info')
+    expect(SWR_ROUTE_PATTERN_RULES).toHaveProperty('/info/**')
   })
 
   it('does not strip the default locale, which prefix_except_default never emits', () => {

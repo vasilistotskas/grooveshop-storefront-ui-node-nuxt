@@ -114,8 +114,9 @@ export const SWR_ROUTE_PATTERN_RULES: Readonly<Record<string, number>> = {
   '/products': CATALOG_SWR_TTL,
   '/products/**': CATALOG_SWR_TTL,
   // Merchant CMS pages (FAQ, shipping info); ``page_config`` purges them
-  // when a content page is saved.
-  '/info': CONTENT_SWR_TTL,
+  // when a content page is saved. No bare ``/info``: there is no index page
+  // (only ``pages/info/[slug].vue``), and @nuxtjs/sitemap lists route-rule
+  // paths, so a bare rule put a 404 into every store's sitemap.
   '/info/**': CONTENT_SWR_TTL,
 }
 
