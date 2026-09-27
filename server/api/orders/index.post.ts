@@ -53,7 +53,10 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch(`${config.apiBaseUrl}/order`, {
       method: 'POST',
       body: enrichedBody,
-      headers: cartHeaders,
+      // The shopper's identity (User-Agent, X-Real-IP, proof of edge),
+      // not the Nuxt pod's: Django's order attribution reads the
+      // User-Agent for in-app browsers. No key overlaps cartHeaders.
+      headers: { ...cartHeaders, ...clientIdentityHeaders(event) },
     })
 
     const parsedData = await parseDataAs(response, zCreateOrderResponse)

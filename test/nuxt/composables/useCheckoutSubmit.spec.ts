@@ -650,6 +650,57 @@ describe('useCheckoutSubmit', () => {
       expect(orderCall?.[1].body.zipcode).toBe('703 00')
     })
 
+    it('sends the landing attribution captured in this tab', async () => {
+      window.sessionStorage.setItem('order-attribution', JSON.stringify({
+        utmSource: 'ig',
+        utmMedium: 'social',
+        clickIds: ['fbclid'],
+        landingPath: '/products/42',
+      }))
+      const codPayWay = makePayWay('cod')
+      mockReserveStock.mockResolvedValue([5])
+      mockFetch.mockResolvedValue(undefined)
+
+      try {
+        const { onSubmit } = useCheckoutSubmit({
+          formState: makeFormState(),
+          selectedPayWay: ref<PayWay | null>(codPayWay),
+          payWays: makePayWaysRef(codPayWay),
+        })
+
+        await onSubmit()
+
+        const orderCall = mockFetch.mock.calls.find(([url]) => url === '/api/orders')
+        expect(orderCall?.[1].body.attribution).toEqual({
+          utmSource: 'ig',
+          utmMedium: 'social',
+          clickIds: ['fbclid'],
+          landingPath: '/products/42',
+        })
+      }
+      finally {
+        window.sessionStorage.removeItem('order-attribution')
+      }
+    })
+
+    it('omits attribution when nothing was captured', async () => {
+      window.sessionStorage.removeItem('order-attribution')
+      const codPayWay = makePayWay('cod')
+      mockReserveStock.mockResolvedValue([5])
+      mockFetch.mockResolvedValue(undefined)
+
+      const { onSubmit } = useCheckoutSubmit({
+        formState: makeFormState(),
+        selectedPayWay: ref<PayWay | null>(codPayWay),
+        payWays: makePayWaysRef(codPayWay),
+      })
+
+      await onSubmit()
+
+      const orderCall = mockFetch.mock.calls.find(([url]) => url === '/api/orders')
+      expect(orderCall?.[1].body).not.toHaveProperty('attribution')
+    })
+
     it('insufficient_stock from reserve-stock sets typed stockError state', async () => {
       const codPayWay = makePayWay('cod')
       const selectedPayWay = ref<PayWay | null>(codPayWay)

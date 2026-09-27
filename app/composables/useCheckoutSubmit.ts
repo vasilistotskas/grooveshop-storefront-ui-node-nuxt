@@ -48,6 +48,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   const tenantStore = useTenantStore()
 
   const { reserveStock, releaseReservations, createPaymentIntentFromCart } = useCheckout()
+  const orderAttribution = useOrderAttribution()
 
   // State management
   const currentStep = ref(0)
@@ -293,6 +294,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
     const carrierPayload = carrier?.buildOrderPayload?.(formState) ?? {}
 
     const metaPayload = buildMetaPayload()
+    // Where this tab's visit came from, captured on landing by
+    // ``plugins/attribution.client.ts``; Django classifies the source.
+    const attribution = orderAttribution.read()
 
     return {
       payWayId: formState.payWayId,
@@ -350,6 +354,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       shippingKind,
       ...carrierPayload,
       ...(metaPayload ? { meta: metaPayload } : {}),
+      ...(attribution ? { attribution } : {}),
     } as OrderCreateFromCartRequest
   }
 

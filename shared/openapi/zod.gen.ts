@@ -93,6 +93,12 @@ export const zAgentProfile = z.object({
 })
 
 /**
+ * * `ucp` - ucp
+ * * `acp` - acp
+ */
+export const zAgentProtocolEnum = z.enum(['ucp', 'acp'])
+
+/**
  * Serializer for Attribute with translations.
  */
 export const zAttribute = z.object({
@@ -794,6 +800,29 @@ export const zCartPaymentIntentResponse = z.object({
   amount: z.number().gt(-10000000000).lt(10000000000),
   currency: z.string().max(3),
 })
+
+/**
+ * * `gclid` - gclid
+ * * `gbraid` - gbraid
+ * * `wbraid` - wbraid
+ * * `msclkid` - msclkid
+ * * `ttclid` - ttclid
+ * * `twclid` - twclid
+ * * `li_fat_id` - li_fat_id
+ * * `epik` - epik
+ * * `fbclid` - fbclid
+ */
+export const zClickIdsEnum = z.enum([
+  'gclid',
+  'gbraid',
+  'wbraid',
+  'msclkid',
+  'ttclid',
+  'twclid',
+  'li_fat_id',
+  'epik',
+  'fbclid',
+])
 
 /**
  * * `1` - Μικρό
@@ -1709,6 +1738,25 @@ export const zNotificationUserWriteRequest = z.object({
 export const zNullEnum = z.unknown()
 
 /**
+ * The acquisition signals the storefront captured for this tab.
+ *
+ * Untrusted analytics — anyone can type a UTM — so nothing here is
+ * rejected for its content, only for its shape: a checkout must never
+ * fail over a strange referrer. Overlong strings are cut to their
+ * column in ``order.attribution.classify``, the referrer is reduced to
+ * its host there, and click ids are parameter NAMES, never values.
+ */
+export const zOrderAttributionInputRequest = z.object({
+  utmSource: z.string().optional(),
+  utmMedium: z.string().optional(),
+  utmCampaign: z.string().optional(),
+  clickIds: z.array(zClickIdsEnum).optional(),
+  referrer: z.string().optional(),
+  landingPath: z.string().optional(),
+  agentProtocol: zAgentProtocolEnum.optional(),
+})
+
+/**
  * * `RECEIPT` - Απόδειξη
  * * `INVOICE` - Τιμολόγιο
  */
@@ -1816,6 +1864,35 @@ export const zOrderItemWriteRequest = z.object({
   product: z.int(),
   quantity: z.int().gte(-2147483648).lte(2147483647).optional(),
   notes: z.string().optional(),
+})
+
+/**
+ * * `direct` - Απευθείας
+ * * `campaign` - Καμπάνια
+ * * `paid` - Διαφήμιση
+ * * `social` - Κοινωνικά δίκτυα
+ * * `search` - Αναζήτηση
+ * * `referral` - Παραπομπή
+ * * `agent` - Πράκτορας AI
+ */
+export const zOrderSourceType = z.enum([
+  'direct',
+  'campaign',
+  'paid',
+  'social',
+  'search',
+  'referral',
+  'agent',
+])
+
+/**
+ * Where the order came from, as ``order.attribution.classify`` named it.
+ */
+export const zOrderAttribution = z.object({
+  sourceType: zOrderSourceType,
+  source: z.string().readonly(),
+  medium: z.string().readonly(),
+  campaign: z.string().readonly(),
 })
 
 /**
@@ -3105,6 +3182,7 @@ export const zOrder = z.object({
   isCollectedOnDelivery: z.boolean().readonly(),
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
+  attribution: zOrderAttribution.nullable(),
 })
 
 export const zPaginatedCartItemList = z.object({
@@ -5419,6 +5497,7 @@ export const zOrderDetail = z.object({
   isCollectedOnDelivery: z.boolean().readonly(),
   canBeCanceled: z.boolean().readonly(),
   isPaid: z.boolean().readonly(),
+  attribution: zOrderAttribution.nullable(),
   orderTimeline: z.array(z.object({
     changeType: z.string().optional(),
     timestamp: z.string().optional(),
@@ -6688,6 +6767,7 @@ export const zOrderCreateFromCartRequestWritable = z.object({
   acsChargeType: zAcsChargeType.optional(),
   acsItemQuantity: z.int().gte(1).lte(20).optional(),
   meta: z.record(z.string(), z.unknown()).nullish(),
+  attribution: zOrderAttributionInputRequest.optional(),
 })
 
 export const zOrderItemWritable = z.object({
@@ -11861,6 +11941,16 @@ export const zListOrderQuery = z.object({
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
   ]).optional(),
+  source: z.string().optional(),
+  sourceType: z.enum([
+    'agent',
+    'campaign',
+    'direct',
+    'paid',
+    'referral',
+    'search',
+    'social',
+  ]).optional(),
   status: z.enum([
     'CANCELED',
     'COMPLETED',
@@ -12715,6 +12805,16 @@ export const zListMyOrdersQuery = z.object({
   shippingPriceMin: z.union([
     z.string().regex(/^-?\d+(\.\d+)?$/),
     z.number(),
+  ]).optional(),
+  source: z.string().optional(),
+  sourceType: z.enum([
+    'agent',
+    'campaign',
+    'direct',
+    'paid',
+    'referral',
+    'search',
+    'social',
   ]).optional(),
   status: z.enum([
     'CANCELED',
