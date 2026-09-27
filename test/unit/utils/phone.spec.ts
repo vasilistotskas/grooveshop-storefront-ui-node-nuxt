@@ -103,6 +103,42 @@ describe('Phone Utilities', () => {
     })
   })
 
+  describe('normalizePhone — IT (a leading 0 that belongs to the number)', () => {
+    // Real ``phonenumbers`` metadata for Italy: no national prefix, and
+    // landlines start with 0 as part of the national number.
+    const IT: PhoneCountry = {
+      phoneCode: 39,
+      phoneMetadata: {
+        nationalNumberPattern: '0\\d{5,11}|1\\d{8,10}|3(?:[0-8]\\d{7,10}|9\\d{7,8})|(?:43|55|70)\\d{8}|8\\d{5}(?:\\d{2,4})?',
+        possibleLengths: [6, 7, 8, 9, 10, 11, 12],
+        nationalPrefixForParsing: null,
+        exampleMobile: '3123456789',
+      },
+    }
+
+    it('keeps the leading 0 of a Milan landline', () => {
+      expect(normalizePhone('02 1234 5678', IT)).toBe('+390212345678')
+      expect(isPlausiblePhone('02 1234 5678', IT)).toBe(true)
+    })
+  })
+
+  describe('normalizePhone — GB (a national prefix that is a pattern)', () => {
+    const GB: PhoneCountry = {
+      phoneCode: 44,
+      phoneMetadata: {
+        nationalNumberPattern: '[1-357-9]\\d{9}|[18]\\d{8}|8\\d{6}',
+        possibleLengths: [7, 9, 10],
+        nationalPrefixForParsing: '0|180020',
+        exampleMobile: '7400123456',
+      },
+    }
+
+    it('strips the 0 trunk prefix matched by the pattern', () => {
+      expect(normalizePhone('0121 234 5678', GB)).toBe('+441212345678')
+      expect(isPlausiblePhone('0121 234 5678', GB)).toBe(true)
+    })
+  })
+
   describe('normalizePhone — DE (nationalPrefixForParsing)', () => {
     it('strips the leading "0" national prefix before prepending the dial code', () => {
       expect(normalizePhone('015123456789', DE)).toBe('+4915123456789')

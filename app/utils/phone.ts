@@ -57,11 +57,14 @@ export function resolvePhoneCountry<T extends { alpha2: string }>(
  *
  * - An already-international ``+…`` number passes through unchanged.
  * - ``00…`` becomes ``+…``.
- * - Otherwise the country's national prefix
- *   (``phoneMetadata.nationalPrefixForParsing``, e.g. Germany's
- *   leading ``0``) is stripped — or, when the country has none, a
- *   single leading ``0`` is stripped as the generic domestic-dialling
- *   guard — then the dial code is prepended.
+ * - Otherwise the country's national prefix is stripped — a pattern
+ *   in libphonenumber (``phoneMetadata.nationalPrefixForParsing``:
+ *   Germany's ``0``, the UK's ``0|180020``) — and the dial code is
+ *   prepended. A country without one keeps its digits, except a
+ *   leading ``0`` the number is only valid without — the habit of
+ *   writing a Greek number as ``0211…``. The country's own pattern
+ *   decides, so an Italian landline, whose leading ``0`` is part of the
+ *   number, is left alone.
  * - Exception: if what's left after stripping already starts with the
  *   country's own dial code AND the remainder is one of its valid
  *   national lengths, the input was typed as the dial code without a
@@ -96,11 +99,22 @@ export function normalizePhone(
 
   const dialCodeStr = String(dialCode)
   const nationalPrefix = country?.phoneMetadata?.nationalPrefixForParsing
-  const stripped = nationalPrefix && cleaned.startsWith(nationalPrefix)
-    ? cleaned.slice(nationalPrefix.length)
-    : cleaned.replace(/^0/, '')
-
   const possibleLengths = country?.phoneMetadata?.possibleLengths ?? []
+  const pattern = country?.phoneMetadata?.nationalNumberPattern
+  const isNational = (digits: string) => Boolean(pattern)
+    && possibleLengths.includes(digits.length)
+    && new RegExp(`^(?:${pattern})$`).test(digits)
+  const isNationalOrDialled = (digits: string) => isNational(digits)
+    || (digits.startsWith(dialCodeStr) && isNational(digits.slice(dialCodeStr.length)))
+
+  let stripped = cleaned
+  if (nationalPrefix) {
+    stripped = cleaned.replace(new RegExp(`^(?:${nationalPrefix})`), '')
+  }
+  else if (cleaned.startsWith('0') && !isNational(cleaned) && isNationalOrDialled(cleaned.slice(1))) {
+    stripped = cleaned.slice(1)
+  }
+
   if (stripped.startsWith(dialCodeStr)) {
     const rest = stripped.slice(dialCodeStr.length)
     if (possibleLengths.includes(rest.length)) {
