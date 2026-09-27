@@ -70,6 +70,12 @@ export const PRERENDERED_ROUTES_SET: ReadonlySet<string>
  */
 export const SWR_ROUTE_RULES: Readonly<Record<string, number>> = {
   '/': 300,
+  // The public offers listing: prices, so the catalogue's TTL. Django's
+  // ``promotions`` surface purges it on a promotion edit.
+  '/offers': 300,
+  // The programme's rules from the tenant's loyalty settings; the
+  // visitor's own points live in the account pages, never here.
+  '/loyalty-program': 600,
 }
 
 /**
@@ -98,6 +104,7 @@ export const SWR_ROUTE_RULES: Readonly<Record<string, number>> = {
  *    surfaces purge these route keys (``core/cache/surfaces.py``).
  */
 const BLOG_SWR_TTL = 600
+const CONTENT_SWR_TTL = 600
 const CATALOG_SWR_TTL = 300
 
 export const SWR_ROUTE_PATTERN_RULES: Readonly<Record<string, number>> = {
@@ -106,6 +113,10 @@ export const SWR_ROUTE_PATTERN_RULES: Readonly<Record<string, number>> = {
   '/blog/**': BLOG_SWR_TTL,
   '/products': CATALOG_SWR_TTL,
   '/products/**': CATALOG_SWR_TTL,
+  // Merchant CMS pages (FAQ, shipping info); ``page_config`` purges them
+  // when a content page is saved.
+  '/info': CONTENT_SWR_TTL,
+  '/info/**': CONTENT_SWR_TTL,
 }
 
 /**

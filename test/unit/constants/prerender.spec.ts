@@ -8,7 +8,7 @@ import {
 
 describe('isCachedSsrRoute', () => {
   it('matches the exact cached routes', () => {
-    for (const path of ['/', '/about', '/contact', '/blog', '/products']) {
+    for (const path of ['/', '/about', '/contact', '/blog', '/products', '/offers', '/loyalty-program']) {
       expect(isCachedSsrRoute(path), path).toBe(true)
     }
   })
@@ -25,6 +25,8 @@ describe('isCachedSsrRoute', () => {
       '/blog/post/42/mnhmh-ram-ti-einai',
       '/products/3/some-product',
       '/products/category/2/Powerbank',
+      '/info/faq',
+      '/info/shipping-info',
     ]) {
       expect(isCachedSsrRoute(path), path).toBe(true)
     }
