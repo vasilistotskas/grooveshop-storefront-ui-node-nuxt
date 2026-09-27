@@ -73,12 +73,22 @@ const boxnowCarrier: ShippingCarrier = {
         boxnowLockerAddressLine2?: unknown
         boxnowLockerPostalCode?: unknown
         boxnowLockerNote?: unknown
+        boxnowLockerCountryCode?: unknown
       }
       | null
       | undefined
     if (!stored || typeof stored !== 'object') return null
     const id = stored.boxnowLockerId
     if (typeof id !== 'string' || id.length === 0) return null
+    // The widget's own postMessage tells us which country's map the
+    // shopper picked from (see ``boxnowLockerCountryCode`` on
+    // ``BoxNowSelectedLocker``); fall back to the checkout's delivery
+    // country when the widget didn't send a recognised value — the two
+    // agree in practice since the iframe is built FROM that country.
+    const deliveryCountry = formState.country
+    const countryCode = (typeof stored.boxnowLockerCountryCode === 'string' && stored.boxnowLockerCountryCode)
+      || (typeof deliveryCountry === 'string' && deliveryCountry)
+      || ''
     return {
       id,
       name: typeof stored.boxnowLockerName === 'string' ? stored.boxnowLockerName : id,
@@ -86,7 +96,7 @@ const boxnowCarrier: ShippingCarrier = {
       addressLine2: typeof stored.boxnowLockerAddressLine2 === 'string' ? stored.boxnowLockerAddressLine2 : null,
       city: '',
       postalCode: typeof stored.boxnowLockerPostalCode === 'string' ? stored.boxnowLockerPostalCode : '',
-      countryCode: 'GR',
+      countryCode,
       lat: null,
       lng: null,
       workingHours: typeof stored.boxnowLockerNote === 'string' ? stored.boxnowLockerNote : null,

@@ -105,6 +105,7 @@ function onSelected(selected: BoxNowSelectedLocker) {
     <CheckoutBoxNowLockerPicker
       v-model:open="pickerOpen"
       :partner-id="props.partnerId"
+      :country-code="formState.country"
       @selected="onSelected"
     />
   </div>

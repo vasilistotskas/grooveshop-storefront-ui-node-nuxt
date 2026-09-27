@@ -86,16 +86,23 @@ export function methodKeyForOption(option: {
  * ways: cash on delivery, pre-selected, for a locker order that can
  * never settle in cash.
  *
+ * Options over the carrier's weight cap (``exceedsMaxWeight``) are
+ * excluded from "available" here — they still render in the picker
+ * (disabled, with a reason), but auto-selecting a method the current
+ * cart can't actually use would silently strand the shopper on a
+ * step they can't advance past.
+ *
  * Returns ``null`` when the current choice is already on offer (or
  * nothing is on offer yet, e.g. a transient options failure — the
- * flat-rate fallback still quotes home delivery, so the choice stands).
+ * previously selected method stands).
  */
 export function resolveShippingMethod(
-  options: ReadonlyArray<{ providerCode: string, kind: string }>,
+  options: ReadonlyArray<{ providerCode: string, kind: string, exceedsMaxWeight?: boolean }>,
   current: string,
 ): string | null {
   const available: string[] = []
   for (const option of options) {
+    if (option.exceedsMaxWeight) continue
     const key = methodKeyForOption(option)
     if (key && !available.includes(key)) available.push(key)
   }
