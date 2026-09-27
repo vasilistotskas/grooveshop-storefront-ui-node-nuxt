@@ -86,17 +86,19 @@ describe('account/addresses/new', () => {
   })
 
   describe('region field follows Country.hasRegions', () => {
-    const REQUIRED_MARK_CLASS = 'after:content-[\'*\']'
-
-    it('is required for a country with regions (GR, the default)', async () => {
+    it('renders, required, for a country with regions (GR)', async () => {
       const wrapper = await mountSuspended(NewAddressPage)
+      await flushPromises()
+      const vm = wrapper.vm as unknown as { state: Record<string, unknown> }
+      vm.state.country = 'GR'
       await flushPromises()
 
       const regionLabel = wrapper.findAll('label').find(l => l.text().includes('Περιφέρεια'))
-      expect(regionLabel?.classes().join(' ')).toContain(REQUIRED_MARK_CLASS)
+      expect(regionLabel).toBeDefined()
+      expect(regionLabel?.classes().join(' ')).toContain('after:content-[\'*\']')
     })
 
-    it('is not required once a regionless country is selected', async () => {
+    it('is not rendered at all once a regionless country is selected', async () => {
       countriesResponse = { count: 2, next: null, previous: null, results: [GR, REGIONLESS] }
       registerEndpoint('/api/countries', () => countriesResponse)
 
@@ -108,7 +110,7 @@ describe('account/addresses/new', () => {
       await flushPromises()
 
       const regionLabel = wrapper.findAll('label').find(l => l.text().includes('Περιφέρεια'))
-      expect(regionLabel?.classes().join(' ')).not.toContain(REQUIRED_MARK_CLASS)
+      expect(regionLabel).toBeUndefined()
     })
   })
 })

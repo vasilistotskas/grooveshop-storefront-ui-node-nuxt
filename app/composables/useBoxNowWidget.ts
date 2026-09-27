@@ -2,8 +2,18 @@
  * BoxNow locker-picker widget utilities.
  *
  * All exports are pure functions (no useFetch, no useState, no DOM access).
- * They are unit-testable in a plain Node environment.
+ * They are unit-testable in a plain Node environment — the explicit
+ * import below (rather than relying on Nuxt auto-import) is what keeps
+ * that true: ``test/unit/**`` loads this file directly, with no
+ * auto-import transform in front of it. Mirrors ``shared/utils/csp.ts``,
+ * which explicitly imports its own sibling constants module for the
+ * same reason.
  */
+import {
+  BOXNOW_FRAME_ORIGINS,
+  boxNowWidgetCountry,
+  boxNowAlpha2FromPostMessageName,
+} from '#shared/utils/boxnow-widget'
 
 // ---------------------------------------------------------------------------
 // Types

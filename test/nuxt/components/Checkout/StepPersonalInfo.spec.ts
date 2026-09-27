@@ -101,13 +101,7 @@ describe('Checkout/StepPersonalInfo address fields', () => {
   })
 
   describe('region field follows Country.hasRegions', () => {
-    // UFormField's ``required`` only ever renders as an asterisk on the
-    // label (Nuxt UI v4 does not propagate it to the control's ARIA/
-    // native ``required`` on its own) — that asterisk is the reliable
-    // signal to assert against.
-    const REQUIRED_MARK_CLASS = 'after:content-[\'*\']'
-
-    it('is required and enabled for a country with regions (GR)', async () => {
+    it('renders (required, enabled) for a country with regions (GR)', async () => {
       const wrapper = await mountSuspended(StepPersonalInfo, {
         props: makeProps({
           selectedCountry: { alpha2: 'GR', hasRegions: true },
@@ -116,12 +110,13 @@ describe('Checkout/StepPersonalInfo address fields', () => {
       })
 
       const regionLabel = wrapper.findAll('label').find(l => l.text() === 'Περιφέρεια')
-      expect(regionLabel?.classes().join(' ')).toContain(REQUIRED_MARK_CLASS)
+      expect(regionLabel).toBeDefined()
+      expect(regionLabel?.classes().join(' ')).toContain('after:content-[\'*\']')
       const regionSelect = wrapper.find('[role="combobox"]#' + regionLabel?.attributes('for'))
       expect(regionSelect.attributes('disabled')).toBeUndefined()
     })
 
-    it('is optional and disabled for a country without regions', async () => {
+    it('is not rendered at all for a country without regions', async () => {
       const wrapper = await mountSuspended(StepPersonalInfo, {
         props: makeProps({
           selectedCountry: { alpha2: 'XX', hasRegions: false },
@@ -130,9 +125,7 @@ describe('Checkout/StepPersonalInfo address fields', () => {
       })
 
       const regionLabel = wrapper.findAll('label').find(l => l.text() === 'Περιφέρεια')
-      expect(regionLabel?.classes().join(' ')).not.toContain(REQUIRED_MARK_CLASS)
-      const regionSelect = wrapper.find('[role="combobox"]#' + regionLabel?.attributes('for'))
-      expect(regionSelect.attributes('disabled')).toBeDefined()
+      expect(regionLabel).toBeUndefined()
     })
   })
 })

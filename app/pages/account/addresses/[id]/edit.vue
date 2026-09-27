@@ -333,9 +333,10 @@ defineRouteRules({
         </UFormField>
 
         <UFormField
+          v-if="selectedCountry(state.country)?.hasRegions !== false"
           :label="t('form.region')"
           name="region"
-          :required="selectedCountry(state.country)?.hasRegions !== false"
+          required
         >
           <USelectMenu
             v-model="state.region"
@@ -343,7 +344,7 @@ defineRouteRules({
             icon="i-heroicons-map"
             :items="regionOptions"
             :placeholder="t('form.select_placeholder')"
-            :disabled="!state.country || selectedCountry(state.country)?.hasRegions === false"
+            :disabled="!state.country"
             value-key="value"
             autocomplete="address-level1"
           />

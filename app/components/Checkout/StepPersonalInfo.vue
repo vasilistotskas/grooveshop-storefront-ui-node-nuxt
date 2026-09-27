@@ -234,16 +234,17 @@ watch(() => props.serverErrors, applyServerErrors)
           </div>
 
           <UFormField
+            v-if="selectedCountry?.hasRegions !== false"
             :label="t('form.region')"
             name="region"
-            :required="selectedCountry?.hasRegions !== false"
+            required
           >
             <USelect
               v-model="formState.region"
               :items="regionOptions"
               size="xl"
               class="w-full"
-              :disabled="!regionOptions.length || selectedCountry?.hasRegions === false"
+              :disabled="!regionOptions.length"
             />
           </UFormField>
 
