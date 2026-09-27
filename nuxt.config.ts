@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { fileURLToPath } from 'node:url'
 import { DEFAULT_LOCALE } from './i18n/locales'
 import { version } from './package.json'
-import { PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES } from './shared/constants/prerender'
+import { PRERENDERED_ROUTES, SWR_ROUTE_PATTERN_RULES, SWR_ROUTE_RULES, withLocalePrefixes } from './shared/constants/prerender'
 import { FONT_FAMILY_NAMES, FONT_WEIGHTS } from './shared/theme/constants'
 
 // Style-ish module ids must never be captured by a codeSplitting group:
@@ -338,7 +338,7 @@ export default defineNuxtConfig({
     // (hydration mismatches; desktop hero served to phones — found live
     // 2026-08-28).
     ...Object.fromEntries(
-      PRERENDERED_ROUTES.map(route => [route, {
+      PRERENDERED_ROUTES.flatMap(withLocalePrefixes).map(route => [route, {
         swr: 3600,
         cache: { varies: ['host', 'x-device-class'] },
       }]),
@@ -348,7 +348,9 @@ export default defineNuxtConfig({
     // shared/constants/prerender.ts for the rationale and the contract
     // that keeps user data out of the shared cache.
     ...Object.fromEntries(
-      Object.entries(SWR_ROUTE_RULES).map(([route, ttl]) => [route, {
+      Object.entries(SWR_ROUTE_RULES).flatMap(([route, ttl]) =>
+        withLocalePrefixes(route).map(localized => [localized, ttl] as const),
+      ).map(([route, ttl]) => [route, {
         swr: ttl,
         cache: { varies: ['host', 'x-device-class'] },
       }]),
@@ -358,7 +360,9 @@ export default defineNuxtConfig({
     // (BlogPostCardMobile vs Desktop), so x-device-class is load-bearing,
     // not decoration.
     ...Object.fromEntries(
-      Object.entries(SWR_ROUTE_PATTERN_RULES).map(([route, ttl]) => [route, {
+      Object.entries(SWR_ROUTE_PATTERN_RULES).flatMap(([route, ttl]) =>
+        withLocalePrefixes(route).map(localized => [localized, ttl] as const),
+      ).map(([route, ttl]) => [route, {
         swr: ttl,
         cache: { varies: ['host', 'x-device-class'] },
       }]),

@@ -1,3 +1,6 @@
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from '../../i18n/locales'
+import { splitLocale } from '../i18n/localeFromPath'
+
 /**
  * Brand-bearing static routes cached per tenant host (see ``routeRules``
  * in ``nuxt.config.ts``, which derives its ``swr`` + ``varies: ['host']``
@@ -21,6 +24,31 @@ export const PRERENDERED_ROUTES = [
   '/what-is-microlearning',
   '/why-microlearning',
 ] as const
+
+/**
+ * The locales whose pages carry a path prefix (`prefix_except_default`).
+ */
+const PREFIXED_LOCALES = SUPPORTED_LOCALES.filter(
+  locale => locale !== DEFAULT_LOCALE,
+)
+
+/**
+ * A cached route and its counterpart under every prefixed locale:
+ * `/products/**` → `/products/**`, `/en/products/**`; `/` → `/`, `/en`.
+ *
+ * The route rules in `nuxt.config.ts` are built through this, so an
+ * English page is cached exactly like its Greek one. Before, only the
+ * unprefixed paths had rules and every `/en/**` page was rendered in full
+ * on each request — at the origin and, since nothing marked it, never at
+ * the Cloudflare edge either.
+ */
+export function withLocalePrefixes(route: string): string[] {
+  return [
+    route,
+    ...PREFIXED_LOCALES.map(locale =>
+      route === '/' ? `/${locale}` : `/${locale}${route}`),
+  ]
+}
 
 export const PRERENDERED_ROUTES_SET: ReadonlySet<string>
   = new Set(PRERENDERED_ROUTES)
@@ -119,7 +147,13 @@ export const CACHED_SSR_ROUTES_SET: ReadonlySet<string>
  * policy while every uncached SSR route gets nonce + ``strict-dynamic``.
  */
 export function isCachedSsrRoute(path: string): boolean {
-  const clean = path.replace(/\/+$/, '') || '/'
+  // `/en/products` is the same cached page as `/products`, in English.
+  // Only a NON-default prefix is stripped: `prefix_except_default` never
+  // emits `/el/...`, so that path is not a page this list describes.
+  const { locale, route } = splitLocale(path)
+  const clean = locale === DEFAULT_LOCALE
+    ? path.replace(/\/+$/, '') || '/'
+    : route
   if (CACHED_SSR_ROUTES_SET.has(clean)) return true
   return SWR_PATTERN_PREFIXES.some(
     prefix => clean === prefix || clean.startsWith(`${prefix}/`),

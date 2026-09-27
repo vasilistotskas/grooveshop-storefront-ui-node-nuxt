@@ -3,6 +3,7 @@ import {
   CACHED_SSR_ROUTES_SET,
   SWR_ROUTE_PATTERN_RULES,
   isCachedSsrRoute,
+  withLocalePrefixes,
 } from '../../../shared/constants/prerender'
 
 describe('isCachedSsrRoute', () => {
@@ -57,5 +58,30 @@ describe('isCachedSsrRoute', () => {
       expect(SWR_ROUTE_PATTERN_RULES, bare).toHaveProperty(bare)
       expect(CACHED_SSR_ROUTES_SET.has(bare), bare).toBe(true)
     }
+  })
+})
+
+describe('cached routes in a prefixed locale', () => {
+  it('treats an English page as the same cached route as its Greek one', () => {
+    for (const path of ['/en', '/en/', '/en/about', '/en/blog', '/en/blog/post/42/x', '/en/products', '/en/products/3/some-product']) {
+      expect(isCachedSsrRoute(path), path).toBe(true)
+    }
+  })
+
+  it('does not cache an English page the Greek site does not cache either', () => {
+    for (const path of ['/en/cart', '/en/checkout', '/en/account/orders', '/en/search']) {
+      expect(isCachedSsrRoute(path), path).toBe(false)
+    }
+  })
+
+  it('does not strip the default locale, which prefix_except_default never emits', () => {
+    expect(isCachedSsrRoute('/el/products')).toBe(false)
+    expect(isCachedSsrRoute('/el')).toBe(false)
+  })
+
+  it('expands a route into its URL in every locale, the home page without a trailing path', () => {
+    expect(withLocalePrefixes('/')).toEqual(['/', '/en'])
+    expect(withLocalePrefixes('/about')).toEqual(['/about', '/en/about'])
+    expect(withLocalePrefixes('/blog/**')).toEqual(['/blog/**', '/en/blog/**'])
   })
 })
