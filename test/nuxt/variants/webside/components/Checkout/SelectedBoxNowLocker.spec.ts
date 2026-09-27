@@ -36,6 +36,15 @@ function populatedFormState() {
   }
 }
 
+function cyFormState() {
+  return {
+    shippingMethod: 'box_now_locker',
+    country: 'CY',
+    boxnowLockerId: '',
+    boxnowLocker: null,
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -142,6 +151,18 @@ describe('Checkout/SelectedBoxNowLocker', () => {
       // The component writes back to the formState model
       expect(state.boxnowLockerId).toBe('7')
       expect(state.boxnowLocker).toEqual(newLocker)
+    })
+  })
+
+  describe('country-code forwarding', () => {
+    it('passes formState.country down to the nested picker', async () => {
+      const wrapper = await mountSuspended(SelectedBoxNowLocker, {
+        props: { formState: cyFormState(), partnerId: '10391' },
+      })
+
+      const picker = wrapper.findComponent({ name: 'CheckoutBoxNowLockerPicker' })
+      expect(picker.exists()).toBe(true)
+      expect(picker.props('countryCode')).toBe('CY')
     })
   })
 })

@@ -116,7 +116,7 @@ beforeAll(() => {
     if (method === 'acs_smartpoint') return { code: 'acs' }
     return null
   })
-  vi.stubGlobal('normalizeGreekPhone', (phone: string) => phone)
+  vi.stubGlobal('normalizePhone', (phone: string) => phone)
 })
 
 afterAll(() => {
@@ -170,6 +170,12 @@ function makePayWaysRef(payWay: PayWay): Ref<Pagination<PayWay> | null | undefin
   } as unknown as Pagination<PayWay>)
 }
 
+// ``normalizePhone`` is stubbed to identity below, so no test here
+// actually exercises country-specific normalization — this stands in
+// for "no country resolved yet", which is a valid real-world state
+// (guest checkout before the countries fetch settles).
+const noCountry = ref<Country | undefined>(undefined)
+
 // ── per-test reset ─────────────────────────────────────────────────────────
 beforeEach(() => {
   mockFetch.mockReset()
@@ -221,6 +227,7 @@ describe('useCheckoutSubmit', () => {
       })
 
       const { onSubmit } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay,
         payWays,
@@ -271,6 +278,7 @@ describe('useCheckoutSubmit', () => {
       })
 
       const { onSubmit, backToForm } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay,
         payWays,
@@ -334,6 +342,7 @@ describe('useCheckoutSubmit', () => {
       })
 
       const { onSubmit } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay,
         payWays,
@@ -366,6 +375,7 @@ describe('useCheckoutSubmit', () => {
       mockFetch.mockResolvedValueOnce(undefined)
 
       const { onSubmit } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay,
         payWays,
@@ -408,6 +418,7 @@ describe('useCheckoutSubmit', () => {
       })
 
       const { onSubmit, isSubmitting } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay,
         payWays,
@@ -457,6 +468,7 @@ describe('useCheckoutSubmit', () => {
       })
 
       const { onSubmit } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay,
         payWays,
@@ -481,6 +493,7 @@ describe('useCheckoutSubmit', () => {
         return Promise.resolve(undefined)
       })
       const { onSubmit } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay: ref<PayWay | null>(codPayWay),
         payWays: makePayWaysRef(codPayWay),
@@ -544,6 +557,7 @@ describe('useCheckoutSubmit', () => {
       })
 
       const { onSubmit } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay,
         payWays,
@@ -581,6 +595,7 @@ describe('useCheckoutSubmit', () => {
       })
 
       const { onSubmit, currentStep, addressStepErrors, nextStep } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay: ref<PayWay | null>(codPayWay),
         payWays: makePayWaysRef(codPayWay),
@@ -621,6 +636,7 @@ describe('useCheckoutSubmit', () => {
       })
 
       const { onSubmit, currentStep, addressStepErrors } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay: ref<PayWay | null>(codPayWay),
         payWays: makePayWaysRef(codPayWay),
@@ -639,6 +655,7 @@ describe('useCheckoutSubmit', () => {
       mockFetch.mockResolvedValue(undefined)
 
       const { onSubmit } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState({ zipcode: ' 703  00 ' }),
         selectedPayWay: ref<PayWay | null>(codPayWay),
         payWays: makePayWaysRef(codPayWay),
@@ -715,6 +732,7 @@ describe('useCheckoutSubmit', () => {
       mockReserveStock.mockRejectedValue(stockErr)
 
       const { onSubmit, stockError } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay,
         payWays,
@@ -782,6 +800,7 @@ describe('useCheckoutSubmit', () => {
       const callCount = failOnce()
 
       const { onSubmit, isSubmitting, createdOrder } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay,
         payWays,
@@ -825,6 +844,7 @@ describe('useCheckoutSubmit', () => {
       const callCount = failOnce(false) // every attempt fails retryable
 
       const { onSubmit, isSubmitting } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay,
         payWays,
@@ -871,6 +891,7 @@ describe('useCheckoutSubmit', () => {
       const callCount = failOnce()
 
       const { onSubmit, isSubmitting } = useCheckoutSubmit({
+        selectedCountry: noCountry,
         formState: makeFormState(),
         selectedPayWay,
         payWays,

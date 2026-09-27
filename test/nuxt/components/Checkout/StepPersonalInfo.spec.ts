@@ -72,4 +72,67 @@ describe('Checkout/StepPersonalInfo address fields', () => {
     expect(html).toContain('Εισήγαγε έγκυρο ταχυδρομικό κώδικα, π.χ. 151 24')
     expect(html).toContain('Αυτό μοιάζει με ταχυδρομικό κώδικα')
   })
+
+  describe('phone dial-code badge follows the selected country', () => {
+    it('shows +30 for Greece', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({ selectedCountry: { alpha2: 'GR', phoneCode: 30 } }),
+      })
+
+      expect(wrapper.html()).toContain('+30')
+    })
+
+    it('shows +357 for Cyprus', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({ selectedCountry: { alpha2: 'CY', phoneCode: 357 } }),
+      })
+
+      expect(wrapper.html()).toContain('+357')
+    })
+
+    it('renders no badge when no country is selected yet', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({ selectedCountry: null }),
+      })
+
+      expect(wrapper.html()).not.toContain('+30')
+      expect(wrapper.html()).not.toContain('+357')
+    })
+  })
+
+  describe('region field follows Country.hasRegions', () => {
+    // UFormField's ``required`` only ever renders as an asterisk on the
+    // label (Nuxt UI v4 does not propagate it to the control's ARIA/
+    // native ``required`` on its own) — that asterisk is the reliable
+    // signal to assert against.
+    const REQUIRED_MARK_CLASS = 'after:content-[\'*\']'
+
+    it('is required and enabled for a country with regions (GR)', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({
+          selectedCountry: { alpha2: 'GR', hasRegions: true },
+          regionOptions: [{ label: 'Αττική', value: 'ATTIKI' }],
+        }),
+      })
+
+      const regionLabel = wrapper.findAll('label').find(l => l.text() === 'Περιφέρεια')
+      expect(regionLabel?.classes().join(' ')).toContain(REQUIRED_MARK_CLASS)
+      const regionSelect = wrapper.find('[role="combobox"]#' + regionLabel?.attributes('for'))
+      expect(regionSelect.attributes('disabled')).toBeUndefined()
+    })
+
+    it('is optional and disabled for a country without regions', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({
+          selectedCountry: { alpha2: 'XX', hasRegions: false },
+          regionOptions: [],
+        }),
+      })
+
+      const regionLabel = wrapper.findAll('label').find(l => l.text() === 'Περιφέρεια')
+      expect(regionLabel?.classes().join(' ')).not.toContain(REQUIRED_MARK_CLASS)
+      const regionSelect = wrapper.find('[role="combobox"]#' + regionLabel?.attributes('for'))
+      expect(regionSelect.attributes('disabled')).toBeDefined()
+    })
+  })
 })

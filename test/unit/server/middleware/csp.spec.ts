@@ -382,3 +382,34 @@ describe('third-party integrations the checkout and login actually load', () => 
     expect(pick(directives, 'connect-src')).not.toContain('apis.google.com')
   })
 })
+
+describe('BoxNow widget frame-src (shared/utils/boxnow-widget.ts)', () => {
+  const pick = (directives: string[], name: string) =>
+    directives.find(d => d.startsWith(`${name} `)) ?? ''
+
+  it('allows every verified BoxNow widget host and CDN redirect origin', () => {
+    const frameSrc = pick(buildCspDirectives({ dev: false }), 'frame-src')
+    expect(frameSrc).toContain('https://widget-v5.boxnow.gr')
+    expect(frameSrc).toContain('https://widget-v5.boxnow.cy')
+    // BoxNow's CDN redirects the v5 iframe to these hosts mid-flight;
+    // CSP validates every hop of a frame's redirect chain.
+    expect(frameSrc).toContain('https://widget-v4.boxnow.gr')
+    expect(frameSrc).toContain('https://widget.boxnow.gr')
+  })
+
+  it('drops the unverified bg/hr origins', () => {
+    // Only GR and CY are confirmed live BoxNow markets for this store
+    // (verified 2026-09-27) — bg/hr were unverified guesses.
+    const frameSrc = pick(buildCspDirectives({ dev: false }), 'frame-src')
+    expect(frameSrc).not.toContain('boxnow.bg')
+    expect(frameSrc).not.toContain('boxnow.hr')
+  })
+
+  it('matches shared/utils/boxnow-widget.ts exactly — single source of truth', async () => {
+    const { BOXNOW_FRAME_ORIGINS } = await import('../../../../shared/utils/boxnow-widget')
+    const frameSrc = pick(buildCspDirectives({ dev: false }), 'frame-src')
+    for (const origin of BOXNOW_FRAME_ORIGINS) {
+      expect(frameSrc).toContain(origin)
+    }
+  })
+})
