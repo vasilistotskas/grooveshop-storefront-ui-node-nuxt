@@ -10485,7 +10485,7 @@ paths:
                   - '1'
                   - '0'
               - type: boolean
-          description: Filter to countries the current store has an active ShippingRate for. On the platform host — which has no store, so no rates — this always returns none.
+          description: Φίλτρο για τις χώρες στις οποίες το τρέχον κατάστημα έχει ενεργή τιμή αποστολής (ShippingRate). Στον host της πλατφόρμας — που δεν έχει κατάστημα, άρα ούτε τιμές — δεν επιστρέφει ποτέ καμία.
         - in: query
           name: sortOrder
           schema:
@@ -25369,7 +25369,7 @@ paths:
           name: key
           schema:
             type: string
-          description: Setting key name (e.g., GIFT_CARD_MIN_AMOUNT)
+          description: Όνομα κλειδιού ρύθμισης (π.χ. GIFT_CARD_MIN_AMOUNT)
           required: true
       tags:
         - Settings
@@ -34799,7 +34799,7 @@ components:
         countryId:
           type: string
           minLength: 1
-          description: ISO 3166-1 alpha-2 country code — required because a ``ShippingRate`` is per-country, so there is no priceable shipping option without a destination. Match what the order-create body will carry.
+          description: Κωδικός χώρας ISO 3166-1 alpha-2 — υποχρεωτικός, επειδή η τιμή αποστολής (``ShippingRate``) ορίζεται ανά χώρα και χωρίς προορισμό δεν τιμολογείται καμία επιλογή. Πρέπει να συμφωνεί με τη χώρα του αιτήματος δημιουργίας παραγγελίας.
           maxLength: 2
         regionId:
           type: string
@@ -35931,11 +35931,11 @@ components:
             - $ref: '#/components/schemas/PhoneMetadata'
           nullable: true
           readOnly: true
-          description: Phone-number validation shape for this country, derived from Django's own ``phonenumbers`` dependency — never stored. Null only for a placeholder/reserved alpha-2 code ``phonenumbers`` has no metadata for.
+          description: Η μορφή επικύρωσης τηλεφώνου για αυτή τη χώρα, όπως προκύπτει από τη βιβλιοθήκη ``phonenumbers`` που χρησιμοποιεί το Django — δεν αποθηκεύεται ποτέ. Null μόνο για δεσμευμένο κωδικό alpha-2 για τον οποίο η ``phonenumbers`` δεν έχει δεδομένα.
         hasRegions:
           type: boolean
           readOnly: true
-          description: Whether this country has any Region rows. Most of the full ISO 3166-1 seed doesn't — the storefront uses this to decide whether the address form's region field is shown at all for the selected country, rather than unconditionally requiring one.
+          description: Αν η χώρα έχει καταχωρισμένες περιοχές. Οι περισσότερες χώρες της πλήρους λίστας ISO 3166-1 δεν έχουν — το κατάστημα το χρησιμοποιεί για να αποφασίσει αν θα εμφανίσει καθόλου το πεδίο περιοχής στη φόρμα διεύθυνσης, αντί να το ζητά πάντα.
         sortOrder:
           type: integer
           readOnly: true
@@ -36028,11 +36028,11 @@ components:
             - $ref: '#/components/schemas/PhoneMetadata'
           nullable: true
           readOnly: true
-          description: Phone-number validation shape for this country, derived from Django's own ``phonenumbers`` dependency — never stored. Null only for a placeholder/reserved alpha-2 code ``phonenumbers`` has no metadata for.
+          description: Η μορφή επικύρωσης τηλεφώνου για αυτή τη χώρα, όπως προκύπτει από τη βιβλιοθήκη ``phonenumbers`` που χρησιμοποιεί το Django — δεν αποθηκεύεται ποτέ. Null μόνο για δεσμευμένο κωδικό alpha-2 για τον οποίο η ``phonenumbers`` δεν έχει δεδομένα.
         hasRegions:
           type: boolean
           readOnly: true
-          description: Whether this country has any Region rows. Most of the full ISO 3166-1 seed doesn't — the storefront uses this to decide whether the address form's region field is shown at all for the selected country, rather than unconditionally requiring one.
+          description: Αν η χώρα έχει καταχωρισμένες περιοχές. Οι περισσότερες χώρες της πλήρους λίστας ISO 3166-1 δεν έχουν — το κατάστημα το χρησιμοποιεί για να αποφασίσει αν θα εμφανίσει καθόλου το πεδίο περιοχής στη φόρμα διεύθυνσης, αντί να το ζητά πάντα.
         sortOrder:
           type: integer
           readOnly: true
@@ -36628,7 +36628,7 @@ components:
         countryCode:
           type: string
           nullable: true
-          description: The country these thresholds were resolved for — the caller's ``country_code`` when given, else the first shippable country, matching the rule checkout uses for its initial country. Null only when the store has no active shipping rate anywhere yet.
+          description: Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα του checkout. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.
           maxLength: 2
       required:
         - countryCode
@@ -42394,20 +42394,20 @@ components:
       properties:
         nationalNumberPattern:
           type: string
-          description: Regular expression the whole national number (no country code, no leading zero) must match for this country.
+          description: Κανονική έκφραση που πρέπει να ταιριάζει ολόκληρος ο εθνικός αριθμός (χωρίς κωδικό χώρας και αρχικό μηδέν) για αυτή τη χώρα.
         possibleLengths:
           type: array
           items:
             type: integer
-          description: Valid national-number lengths for this country.
+          description: Έγκυρα μήκη εθνικού αριθμού για αυτή τη χώρα.
         nationalPrefixForParsing:
           type: string
           nullable: true
-          description: Digits a local number is written with but that are not part of the E.164 number (e.g. Germany's leading '0'). Null when the country has none — most don't.
+          description: Ψηφία με τα οποία γράφεται ένας τοπικός αριθμός αλλά δεν αποτελούν μέρος του αριθμού E.164 (π.χ. το αρχικό «0» της Γερμανίας). Null όταν η χώρα δεν έχει — οι περισσότερες δεν έχουν.
         exampleMobile:
           type: string
           nullable: true
-          description: A real-shaped example mobile number, national format (e.g. GR '6912345678', CY '96123456').
+          description: Ένα ρεαλιστικό παράδειγμα αριθμού κινητού σε εθνική μορφή (π.χ. GR «6912345678», CY «96123456»).
       required:
         - exampleMobile
         - nationalNumberPattern
@@ -45626,7 +45626,7 @@ components:
           minimum: -1000000000
           exclusiveMaximum: true
           exclusiveMinimum: true
-          description: The resolved ``ShippingRate`` price (or a live provider quote, or 0 when the rate's free-shipping threshold is met).
+          description: Η τιμή της ``ShippingRate`` που ισχύει (ή η ζωντανή τιμή του παρόχου, ή 0 όταν καλύπτεται το όριο δωρεάν μεταφορικών).
         currency:
           type: string
           maxLength: 3
@@ -45636,15 +45636,15 @@ components:
           type: integer
         countryCode:
           type: string
-          description: The destination this option was priced for.
+          description: Ο προορισμός για τον οποίο τιμολογήθηκε αυτή η επιλογή.
           maxLength: 2
         maxWeightGrams:
           type: integer
           nullable: true
-          description: The rate's weight cap, or null when it has none. Compare against the cart weight the caller already knows — this row does not repeat it.
+          description: Το όριο βάρους της τιμής αποστολής, ή null όταν δεν έχει. Συγκρίνετέ το με το βάρος του καλαθιού που ήδη γνωρίζετε — αυτή η εγγραφή δεν το επαναλαμβάνει.
         exceedsMaxWeight:
           type: boolean
-          description: True when the caller's ``weight_grams`` exceeds ``max_weight_grams``. The option is still returned rather than hidden — the storefront shows it disabled with a reason, so a heavy cart never sees a checkout step with one fewer option and no explanation.
+          description: True όταν το ``weight_grams`` του αιτήματος ξεπερνά το ``max_weight_grams``. Η επιλογή επιστρέφεται κανονικά αντί να κρύβεται — το κατάστημα τη δείχνει απενεργοποιημένη με την αιτία, ώστε ένα βαρύ καλάθι να μη βλέπει ποτέ μια επιλογή λιγότερη χωρίς εξήγηση.
         logoUrl:
           type: string
           format: uri
@@ -45754,7 +45754,7 @@ components:
         metadata:
           readOnly: true
           title: Μεταδεδομένα
-          description: Provider-specific configuration (feature flags, branding hints, locker/map chrome). Which countries this provider ships to is a ``ShippingRate`` question, not a metadata key — see the Rates inline below.
+          description: Ρυθμίσεις ειδικές για τον πάροχο (διακόπτες λειτουργιών, στοιχεία εμφάνισης, ρυθμίσεις χάρτη lockers). Σε ποιες χώρες αποστέλλει ο πάροχος ορίζεται από τις τιμές αποστολής (``ShippingRate``), όχι από κλειδί εδώ — δείτε τον πίνακα «Τιμές αποστολής» παρακάτω.
         createdAt:
           type: string
           format: date-time

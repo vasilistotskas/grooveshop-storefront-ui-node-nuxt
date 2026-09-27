@@ -2221,7 +2221,7 @@ export type CartCreatePaymentIntentRequestRequest = {
      */
   shippingProviderCode?: string
   /**
-     * ISO 3166-1 alpha-2 country code — required because a ``ShippingRate`` is per-country, so there is no priceable shipping option without a destination. Match what the order-create body will carry.
+     * Κωδικός χώρας ISO 3166-1 alpha-2 — υποχρεωτικός, επειδή η τιμή αποστολής (``ShippingRate``) ορίζεται ανά χώρα και χωρίς προορισμό δεν τιμολογείται καμία επιλογή. Πρέπει να συμφωνεί με τη χώρα του αιτήματος δημιουργίας παραγγελίας.
      */
   countryId: string
   /**
@@ -2827,11 +2827,11 @@ export type Country = {
      */
   postalCodeExample?: string
   /**
-     * Phone-number validation shape for this country, derived from Django's own ``phonenumbers`` dependency — never stored. Null only for a placeholder/reserved alpha-2 code ``phonenumbers`` has no metadata for.
+     * Η μορφή επικύρωσης τηλεφώνου για αυτή τη χώρα, όπως προκύπτει από τη βιβλιοθήκη ``phonenumbers`` που χρησιμοποιεί το Django — δεν αποθηκεύεται ποτέ. Null μόνο για δεσμευμένο κωδικό alpha-2 για τον οποίο η ``phonenumbers`` δεν έχει δεδομένα.
      */
   phoneMetadata: PhoneMetadata | null
   /**
-     * Whether this country has any Region rows. Most of the full ISO 3166-1 seed doesn't — the storefront uses this to decide whether the address form's region field is shown at all for the selected country, rather than unconditionally requiring one.
+     * Αν η χώρα έχει καταχωρισμένες περιοχές. Οι περισσότερες χώρες της πλήρους λίστας ISO 3166-1 δεν έχουν — το κατάστημα το χρησιμοποιεί για να αποφασίσει αν θα εμφανίσει καθόλου το πεδίο περιοχής στη φόρμα διεύθυνσης, αντί να το ζητά πάντα.
      */
   readonly hasRegions: boolean
   /**
@@ -2894,11 +2894,11 @@ export type CountryDetail = {
      */
   postalCodeExample?: string
   /**
-     * Phone-number validation shape for this country, derived from Django's own ``phonenumbers`` dependency — never stored. Null only for a placeholder/reserved alpha-2 code ``phonenumbers`` has no metadata for.
+     * Η μορφή επικύρωσης τηλεφώνου για αυτή τη χώρα, όπως προκύπτει από τη βιβλιοθήκη ``phonenumbers`` που χρησιμοποιεί το Django — δεν αποθηκεύεται ποτέ. Null μόνο για δεσμευμένο κωδικό alpha-2 για τον οποίο η ``phonenumbers`` δεν έχει δεδομένα.
      */
   phoneMetadata: PhoneMetadata | null
   /**
-     * Whether this country has any Region rows. Most of the full ISO 3166-1 seed doesn't — the storefront uses this to decide whether the address form's region field is shown at all for the selected country, rather than unconditionally requiring one.
+     * Αν η χώρα έχει καταχωρισμένες περιοχές. Οι περισσότερες χώρες της πλήρους λίστας ISO 3166-1 δεν έχουν — το κατάστημα το χρησιμοποιεί για να αποφασίσει αν θα εμφανίσει καθόλου το πεδίο περιοχής στη φόρμα διεύθυνσης, αντί να το ζητά πάντα.
      */
   readonly hasRegions: boolean
   /**
@@ -3306,7 +3306,7 @@ export type FreeShippingInfo = {
   maxThreshold: number | null
   currency: string
   /**
-     * The country these thresholds were resolved for — the caller's ``country_code`` when given, else the first shippable country, matching the rule checkout uses for its initial country. Null only when the store has no active shipping rate anywhere yet.
+     * Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα του checkout. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.
      */
   countryCode: string | null
 }
@@ -6644,19 +6644,19 @@ export type PerformanceMetrics = {
  */
 export type PhoneMetadata = {
   /**
-     * Regular expression the whole national number (no country code, no leading zero) must match for this country.
+     * Κανονική έκφραση που πρέπει να ταιριάζει ολόκληρος ο εθνικός αριθμός (χωρίς κωδικό χώρας και αρχικό μηδέν) για αυτή τη χώρα.
      */
   nationalNumberPattern: string
   /**
-     * Valid national-number lengths for this country.
+     * Έγκυρα μήκη εθνικού αριθμού για αυτή τη χώρα.
      */
   possibleLengths: Array<number>
   /**
-     * Digits a local number is written with but that are not part of the E.164 number (e.g. Germany's leading '0'). Null when the country has none — most don't.
+     * Ψηφία με τα οποία γράφεται ένας τοπικός αριθμός αλλά δεν αποτελούν μέρος του αριθμού E.164 (π.χ. το αρχικό «0» της Γερμανίας). Null όταν η χώρα δεν έχει — οι περισσότερες δεν έχουν.
      */
   nationalPrefixForParsing: string | null
   /**
-     * A real-shaped example mobile number, national format (e.g. GR '6912345678', CY '96123456').
+     * Ένα ρεαλιστικό παράδειγμα αριθμού κινητού σε εθνική μορφή (π.χ. GR «6912345678», CY «96123456»).
      */
   exampleMobile: string | null
 }
@@ -8430,22 +8430,22 @@ export type ShippingOption = {
   providerName: string
   kind: ShippingKind
   /**
-     * The resolved ``ShippingRate`` price (or a live provider quote, or 0 when the rate's free-shipping threshold is met).
+     * Η τιμή της ``ShippingRate`` που ισχύει (ή η ζωντανή τιμή του παρόχου, ή 0 όταν καλύπτεται το όριο δωρεάν μεταφορικών).
      */
   price: number
   currency: string
   liveMode: boolean
   priority: number
   /**
-     * The destination this option was priced for.
+     * Ο προορισμός για τον οποίο τιμολογήθηκε αυτή η επιλογή.
      */
   countryCode: string
   /**
-     * The rate's weight cap, or null when it has none. Compare against the cart weight the caller already knows — this row does not repeat it.
+     * Το όριο βάρους της τιμής αποστολής, ή null όταν δεν έχει. Συγκρίνετέ το με το βάρος του καλαθιού που ήδη γνωρίζετε — αυτή η εγγραφή δεν το επαναλαμβάνει.
      */
   maxWeightGrams: number | null
   /**
-     * True when the caller's ``weight_grams`` exceeds ``max_weight_grams``. The option is still returned rather than hidden — the storefront shows it disabled with a reason, so a heavy cart never sees a checkout step with one fewer option and no explanation.
+     * True όταν το ``weight_grams`` του αιτήματος ξεπερνά το ``max_weight_grams``. Η επιλογή επιστρέφεται κανονικά αντί να κρύβεται — το κατάστημα τη δείχνει απενεργοποιημένη με την αιτία, ώστε ένα βαρύ καλάθι να μη βλέπει ποτέ μια επιλογή λιγότερη χωρίς εξήγηση.
      */
   exceedsMaxWeight: boolean
   /**
@@ -8535,7 +8535,7 @@ export type ShippingProvider = {
   /**
      * Μεταδεδομένα
      *
-     * Provider-specific configuration (feature flags, branding hints, locker/map chrome). Which countries this provider ships to is a ``ShippingRate`` question, not a metadata key — see the Rates inline below.
+     * Ρυθμίσεις ειδικές για τον πάροχο (διακόπτες λειτουργιών, στοιχεία εμφάνισης, ρυθμίσεις χάρτη lockers). Σε ποιες χώρες αποστέλλει ο πάροχος ορίζεται από τις τιμές αποστολής (``ShippingRate``), όχι από κλειδί εδώ — δείτε τον πίνακα «Τιμές αποστολής» παρακάτω.
      */
   readonly metadata: unknown
   /**
@@ -17125,7 +17125,7 @@ export type ListCountryData = {
          */
     search?: string
     /**
-         * Filter to countries the current store has an active ShippingRate for. On the platform host — which has no store, so no rates — this always returns none.
+         * Φίλτρο για τις χώρες στις οποίες το τρέχον κατάστημα έχει ενεργή τιμή αποστολής (ShippingRate). Στον host της πλατφόρμας — που δεν έχει κατάστημα, άρα ούτε τιμές — δεν επιστρέφει ποτέ καμία.
          */
     shippable?: 'true' | 'false' | '1' | '0' | boolean
     /**
@@ -24154,7 +24154,7 @@ export type ApiV1SettingsGetRetrieveData = {
   path?: never
   query: {
     /**
-         * Setting key name (e.g., GIFT_CARD_MIN_AMOUNT)
+         * Όνομα κλειδιού ρύθμισης (π.χ. GIFT_CARD_MIN_AMOUNT)
          */
     key: string
   }
