@@ -102,7 +102,12 @@ useEventListener(
     if (!isBoxNowAllowedOrigin(event.origin)) return
 
     const locker = parseBoxNowSelectedLocker(event.data)
-    if (locker === null) return
+    // A locker from another country's map can't serve this delivery
+    // address; the widget always names the map it came from.
+    if (locker === null
+      || locker.boxnowLockerCountryCode !== props.countryCode.toUpperCase()) {
+      return
+    }
 
     emit('selected', locker)
     open.value = false

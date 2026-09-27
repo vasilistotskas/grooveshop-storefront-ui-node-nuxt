@@ -160,7 +160,7 @@ describe('BoxNow adapter contract', () => {
     expect(boxnow.readSelectedLocker(form)?.countryCode).toBe('CY')
   })
 
-  it('readSelectedLocker falls back to the delivery country when the widget sent none', () => {
+  it('readSelectedLocker refuses a stored locker whose map country is unknown', () => {
     const boxnow = getCarrier('boxnow')!
     const form: Record<string, any> = {
       country: 'GR',
@@ -172,7 +172,7 @@ describe('BoxNow adapter contract', () => {
         boxnowLockerPostalCode: '15234',
       },
     }
-    expect(boxnow.readSelectedLocker(form)?.countryCode).toBe('GR')
+    expect(boxnow.readSelectedLocker(form)).toBeNull()
   })
 })
 

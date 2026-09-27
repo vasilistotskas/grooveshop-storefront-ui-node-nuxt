@@ -20,6 +20,8 @@ const VALID_LOCKER_PAYLOAD = {
   boxnowLockerPostalCode: '15234',
   boxnowLockerAddressLine1: 'Λεωφ. Πεντέλης 125',
   boxnowLockerName: 'Χαλάνδρι ΟΠΑΠ Play',
+  // The widget names the map the locker was picked from.
+  boxnowCountry: 'greece',
 }
 
 // ---------------------------------------------------------------------------
@@ -105,6 +107,49 @@ describe('Checkout/BoxNowLockerPicker', () => {
       expect(emittedLocker.boxnowLockerId).toBe('4')
       expect(emittedLocker.boxnowLockerPostalCode).toBe('15234')
       expect(emittedLocker.boxnowLockerAddressLine1).toBe('Λεωφ. Πεντέλης 125')
+    })
+
+    it('does NOT emit "selected" for a locker from a map of another country', async () => {
+      const wrapper = await mountSuspended(BoxNowLockerPicker, {
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
+      })
+
+      dispatchBoxNowMessage('https://widget-v5.boxnow.cy', {
+        ...VALID_LOCKER_PAYLOAD,
+        boxnowLockerPostalCode: '2008',
+        boxnowCountry: 'cyprus',
+      })
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.emitted('selected')).toBeFalsy()
+    })
+
+    it('does NOT emit "selected" when the widget does not name its map', async () => {
+      const wrapper = await mountSuspended(BoxNowLockerPicker, {
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
+      })
+
+      const { boxnowCountry: _omitted, ...withoutCountry } = VALID_LOCKER_PAYLOAD
+      dispatchBoxNowMessage('https://widget-v5.boxnow.gr', withoutCountry)
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.emitted('selected')).toBeFalsy()
+    })
+
+    it('emits a Cypriot locker on the Cyprus map', async () => {
+      const wrapper = await mountSuspended(BoxNowLockerPicker, {
+        props: { open: true, partnerId: '10391', countryCode: 'CY' },
+      })
+
+      dispatchBoxNowMessage('https://widget-v5.boxnow.cy', {
+        ...VALID_LOCKER_PAYLOAD,
+        boxnowLockerPostalCode: '2008',
+        boxnowCountry: 'Cyprus',
+      })
+      await wrapper.vm.$nextTick()
+
+      const locker = wrapper.emitted('selected')![0]![0] as Record<string, string>
+      expect(locker.boxnowLockerCountryCode).toBe('CY')
     })
 
     it('does NOT emit "selected" for a postMessage from an untrusted origin', async () => {
