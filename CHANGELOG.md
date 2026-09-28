@@ -1,3 +1,22 @@
+# [3.219.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.218.0...v3.219.0) (2026-09-28)
+
+
+### Bug Fixes
+
+* **boxnow:** accept only a locker from the delivery country's map ([4419707](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/44197075ecd1a4c794331d5bd401d647a9f8df65))
+* **checkout:** apply only the latest shipping-options response ([e4dc6e0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e4dc6e0903ce2de31c4510de5e6ab4de25b31238))
+* **checkout:** hide the region field entirely for a country with no regions ([e44e9ed](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e44e9ed2190b18d7a6a8cdc18834a03486442044))
+* **checkout:** never submit or price a shipping choice that is not available ([a9f4317](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/a9f431783b53ccf18aa0918621bf0520e5bf8e65))
+* **phone:** strip national prefixes the way the metadata defines them ([84791b5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/84791b56ce8d06a92c36f050d350a395a4cc38e2))
+* **typecheck:** resolve nuxt typecheck errors from the region/pricing changes ([267387b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/267387b0b4301f635c21e3a5edf0b1e9d59ad7df))
+
+
+### Features
+
+* **boxnow:** make the locker widget and carrier registry country-aware ([123911b](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/123911b75e3ef4077db201353af7518d14c0ad05))
+* **checkout:** price shipping from live ShippingRate options, not settings ([5034283](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/503428347ec8ce1806da893768c3ca4ef362e366))
+* **phone:** validate phone numbers against the country row, not Greece ([d42b921](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/d42b921a74e0f93dcf97aa49261e3abcfeab527c))
+
 # [3.218.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.217.1...v3.218.0) (2026-09-28)
 
 
