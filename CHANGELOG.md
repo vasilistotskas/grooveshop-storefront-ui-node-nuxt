@@ -1,3 +1,10 @@
+## [3.217.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.217.0...v3.217.1) (2026-09-28)
+
+
+### Bug Fixes
+
+* **blog:** render the author bio's paragraphs ([e6903fe](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e6903fecd0ab01bf620e03bad64eb47eb45fcfd6))
+
 # [3.217.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.216.3...v3.217.0) (2026-09-27)
 
 
