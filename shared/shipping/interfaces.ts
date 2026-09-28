@@ -71,26 +71,6 @@ export interface LockerQuery {
   signal?: AbortSignal
 }
 
-/** Provider metadata mirror — typed shape of
- *  ``ShippingProvider.metadata`` as exposed by
- *  ``GET /api/v1/shipping/options``. ALL fields optional because
- *  any subset can be missing on a fresh seed; consumers fall back
- *  to component-level defaults. */
-export interface CarrierProviderMetadata {
-  lockerPickerKind?: 'boxnow_widget' | 'acs_db_picker' | string
-  taglineKey?: string
-  taglineColor?: 'info' | 'success' | 'warning' | 'error' | 'primary' | 'neutral'
-  logo?: string
-  /** Phase-0 keys (``ShippingProvider.metadata`` on the backend). */
-  shopKindsByCountry?: Record<string, number[]>
-  nearestLimit?: number
-  minWeightKg?: string | number
-  maxWeightKg?: string | number
-  defaultMapCenter?: [number, number]
-  defaultMapZoom?: number
-  usesGenericPicker?: boolean
-}
-
 /** Strategy contract — every carrier (ACS, BoxNow, future ELTA…)
  *  ships an instance of this. Unimplemented hooks are optional;
  *  the registry never crashes for a missing capability. */

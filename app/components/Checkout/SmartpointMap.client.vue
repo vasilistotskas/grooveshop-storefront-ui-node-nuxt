@@ -30,9 +30,6 @@ const props = defineProps<{
   lockers: Locker[]
   /** Optional pre-selected locker (from form state). */
   selectedId?: string | null
-  /** Optional map centre + zoom from carrier metadata. */
-  defaultCenter?: [number, number] | null
-  defaultZoom?: number | null
   /** ``true`` while the parent is fetching the catalogue. */
   loading?: boolean
 }>()
@@ -46,8 +43,9 @@ const colorMode = useColorMode()
 const reducedMotion = usePreferredReducedMotion()
 const runtimeConfig = useRuntimeConfig()
 
-// Stable fallback — only used when no initial centre is computed
-// from the lockers themselves.
+// Stable fallback — only used when the carrier has no lockers to
+// derive a centre from (e.g. a brand-new courier with an empty
+// catalogue).
 const FALLBACK_CENTER: [number, number] = [37.9838, 23.7275] // Athens
 const FALLBACK_ZOOM = 11
 
@@ -66,16 +64,14 @@ const lockersWithCoords = computed(() =>
 )
 
 const center = computed<[number, number]>(() => {
-  if (props.defaultCenter) return props.defaultCenter
-  // If carrier metadata didn't ship a centre, derive from the
-  // bounding box of the loaded lockers — the map will look
-  // sensible even for a brand-new courier.
+  // Derive the centre from the first loaded locker — the map will
+  // look sensible without any carrier-supplied hint.
   const first = lockersWithCoords.value[0]
   if (first) return [first.lat, first.lng]
   return FALLBACK_CENTER
 })
 
-const zoom = ref(props.defaultZoom ?? FALLBACK_ZOOM)
+const zoom = ref(FALLBACK_ZOOM)
 
 // LMap component ref — needed to access ``leafletObject`` (the
 // underlying ``L.Map`` instance) when wiring marker clusters and
