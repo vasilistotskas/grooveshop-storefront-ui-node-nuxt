@@ -1,3 +1,10 @@
+## [3.219.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.219.2...v3.219.3) (2026-09-28)
+
+
+### Bug Fixes
+
+* **checkout:** accept the BoxNow locker country as the ISO code the widget sends ([#30](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/30)) ([e13ca1d](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e13ca1d05528d81cfc82012ec516cf2e34d77a7c))
+
 ## [3.219.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.219.1...v3.219.2) (2026-09-28)
 
 
