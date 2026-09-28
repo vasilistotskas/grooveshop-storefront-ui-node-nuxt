@@ -45,12 +45,13 @@ describe('isAllowedEmbedUrl', () => {
 
 describe('sanitizeRichHtml', () => {
   it('keeps an FAQ item exactly as the editor saves it', () => {
-    // The TinyMCE accordion plugin's output, saved closed. `.article`
-    // styles it as the mobile footer's accordion (assets/css/main.css).
+    // What the editor saves, measured on staging: closed, the answer as
+    // the element's own children. `.article` styles it as the mobile
+    // footer's accordion (assets/css/main.css).
     const html
-      = '<details class="mce-accordion">'
-        + '<summary class="mce-accordion-summary">Πόσο κρατά η μπαταρία;</summary>'
-        + '<div class="mce-accordion-body"><p>Περίπου <strong>2 μέρες</strong>.</p></div>'
+      = '<details class="mce-accordion">\n'
+        + '<summary>Πόσο κρατά η μπαταρία;</summary>\n'
+        + '<p>Περίπου <strong>2 μέρες</strong> σε κανονική χρήση.</p>\n'
         + '</details>'
 
     expect(sanitizeRichHtml(html)).toBe(html)
