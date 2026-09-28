@@ -338,6 +338,78 @@ button:disabled:active,
    The two smallest `.article` headings are absolute sizes (h5 16px,
    h6 14px). Left alone they would render SMALLER than 20px body copy
    here, so they are pulled up to keep the hierarchy monotonic. */
+/* FAQ items in rich text: the editor's accordion plugin writes
+   <details class="mce-accordion"> with a <summary> question and a
+   .mce-accordion-body answer, saved closed.
+   ------------------------------------------------------------------
+   Native <details>, not UAccordion: a blog body renders hydrate-never
+   (Blog/BlogContent.vue), so no Vue component can mount inside it, and
+   <details> opens and closes with no JavaScript at all.
+
+   The look is the mobile footer's accordion
+   (variants/webside/Footer/Mobile.vue): a solid secondary bar, medium
+   `text-base` label in the on-secondary colour, `px-3 py-2.5`, `gap-3`,
+   `rounded-md`, a `size-4` chevron that turns 180° in 200ms ease-out,
+   and a `border-default` rule between items. The chevron is drawn here
+   (a lucide chevron-down mask), because an icon class typed into CMS
+   HTML has no CSS behind it. Tokens, not colours, so every store's
+   theme carries over. */
+.article details.mce-accordion {
+  @apply border-b border-default;
+  interpolate-size: allow-keywords;
+
+  &:last-of-type {
+    @apply border-b-0;
+  }
+
+  & > summary {
+    @apply flex cursor-pointer list-none items-center gap-3 rounded-md
+      bg-(--ui-secondary) px-3 py-2.5 text-base font-medium
+      text-(--ui-on-secondary);
+
+    &::-webkit-details-marker {
+      display: none;
+    }
+
+    &::after {
+      @apply ms-auto size-4 shrink-0 bg-current;
+      content: "";
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+      transition: rotate 200ms ease-out;
+    }
+  }
+
+  &[open] > summary::after {
+    rotate: 180deg;
+  }
+
+  & > .mce-accordion-body {
+    @apply px-3 pt-2 pb-3.5;
+  }
+
+  /* The footer's slide, where the browser can animate to `auto`
+     (`::details-content` + `interpolate-size`); elsewhere the answer
+     simply appears. */
+  &::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size 200ms ease-out,
+      content-visibility 200ms allow-discrete;
+  }
+
+  &[open]::details-content {
+    block-size: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    & > summary::after,
+    &::details-content {
+      transition: none;
+    }
+  }
+}
+
 .article-lg {
   @apply text-lg md:text-xl;
 
