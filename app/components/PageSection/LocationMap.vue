@@ -13,7 +13,11 @@
  *   extends `frame-src` from that field.
  *
  * With neither, the band is one line of address, so it does not render
- * at all unless the operator asked for the address on its own.
+ * at all unless the operator asked for the address on its own. The
+ * canvas also needs the platform's `cartoBasemapsKey`
+ * (`shared/utils/carto-basemaps.ts`) — without one, CARTO's tiles come
+ * back watermarked, so the canvas is treated the same as a missing
+ * `lat`/`lng`: falls through to the address line, or renders nothing.
  */
 const props = defineProps<{
   /** The operator's section title, from the section row itself. */
@@ -26,6 +30,7 @@ const props = defineProps<{
 }>()
 
 const { t } = useI18n()
+const runtimeConfig = useRuntimeConfig()
 
 const showEmbed = computed(() => Boolean(props.embedUrl))
 
@@ -33,7 +38,8 @@ const showEmbed = computed(() => Boolean(props.embedUrl))
 const showCanvas = computed(
   () => !showEmbed.value
     && typeof props.lat === 'number'
-    && typeof props.lng === 'number',
+    && typeof props.lng === 'number'
+    && Boolean(runtimeConfig.public.cartoBasemapsKey),
 )
 </script>
 

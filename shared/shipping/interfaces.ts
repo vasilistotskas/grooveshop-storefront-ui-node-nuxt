@@ -88,21 +88,7 @@ export interface CarrierProviderMetadata {
   maxWeightKg?: string | number
   defaultMapCenter?: [number, number]
   defaultMapZoom?: number
-  tileProvider?: {
-    light?: TileLayerSpec
-    dark?: TileLayerSpec
-  }
   usesGenericPicker?: boolean
-}
-
-/** A Leaflet TileLayer constructor args, exposed verbatim from
- *  the backend so swapping CARTO ↔ Stadia ↔ MapTiler is one DB
- *  row update. */
-export interface TileLayerSpec {
-  url: string
-  attribution: string
-  maxZoom?: number
-  subdomains?: string
 }
 
 /** Strategy contract — every carrier (ACS, BoxNow, future ELTA…)

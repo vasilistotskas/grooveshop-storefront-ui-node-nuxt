@@ -150,13 +150,13 @@ export function buildCspDirectives(options: CspOptions): string[] {
   //   - CSP1: falls back to 'unsafe-inline' + hosts (previous behavior).
   const nonceScriptSrc = nonce ? ` 'nonce-${nonce}' 'strict-dynamic'` : ''
 
-  // OpenStreetMap-based tile providers used by the checkout
-  // locker map (``CheckoutSmartpointMap.client.vue``). Both
-  // ``cartocdn.com`` (CARTO Positron / Dark Matter) and
-  // ``tile.openstreetmap.org`` are listed so an operator can swap
-  // ``ShippingProvider.metadata.tile_provider.url`` to either
-  // without redeploying. Keep this list in sync with any
-  // additions to the tile-provider whitelist on the Django side.
+  // OpenStreetMap-based tile origins used by the checkout locker map
+  // (``SmartpointMap.client.vue``) and the store-location section
+  // (``LocationCanvas.client.vue``), both built from
+  // ``shared/utils/carto-basemaps.ts``. ``tile.openstreetmap.org`` is
+  // kept alongside ``cartocdn.com`` even though nothing currently
+  // requests it, as a low-cost allowance for a future non-CARTO tile
+  // source — it carries no key and needs no CSP change to adopt.
   const tileOrigins = 'https://*.basemaps.cartocdn.com https://*.tile.openstreetmap.org'
 
   // Video-embed origins for admin-authored rich text (blog bodies,

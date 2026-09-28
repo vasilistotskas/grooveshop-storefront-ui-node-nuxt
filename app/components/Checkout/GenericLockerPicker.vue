@@ -20,13 +20,13 @@ const props = defineProps<{
   countryCode?: string
   /** Optional pre-fetched provider metadata (from the
    *  ``/api/v1/shipping/options`` response). When supplied, the
-   *  map view uses ``defaultMapCenter`` / ``defaultMapZoom`` /
-   *  ``tileProvider``; otherwise the map falls back to its
-   *  built-in Athens centre + CARTO tiles. */
+   *  map view uses ``defaultMapCenter`` / ``defaultMapZoom``;
+   *  otherwise it falls back to its built-in Athens centre. Tiles
+   *  themselves always come from the platform's CARTO basemaps key
+   *  (``shared/utils/carto-basemaps.ts``), never carrier metadata. */
   providerMetadata?: {
     defaultMapCenter?: [number, number] | null
     defaultMapZoom?: number | null
-    tileProvider?: { light?: TileLayerSpec, dark?: TileLayerSpec } | null
   } | null
 }>()
 
@@ -241,7 +241,6 @@ function onClose(): void {
                   :lockers="mapLockers"
                   :default-center="providerMetadata?.defaultMapCenter ?? null"
                   :default-zoom="providerMetadata?.defaultMapZoom ?? null"
-                  :tile-provider="providerMetadata?.tileProvider ?? null"
                   :loading="mapLoading"
                   @selected="(locker) => selectLocker(locker)"
                 />

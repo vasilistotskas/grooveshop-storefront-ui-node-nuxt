@@ -149,6 +149,7 @@ Copy `.env.example` to `.env`. Key variables:
 - `NUXT_PUBLIC_DJANGO_HOST_NAME` — Platform Django hostname (production: the public-schema host `platform.grooveshop.space`); the `X-Forwarded-Host` fallback for internal cluster `$fetch` calls made outside a request context, and the CSP `connect-src` API host when no tenant is resolved. With a tenant resolved, every browser-facing use (WebSocket, social-login redirect, CSP, CMS image allowlist) takes `TenantConfig.apiDomain` instead.
 - `NUXT_PUBLIC_MEDIA_STREAM_ORIGIN` / `NUXT_PUBLIC_MEDIA_STREAM_PATH` — Media processing service
 - `NUXT_PUBLIC_STATIC_ORIGIN` — Static file origin (Django)
+- `NUXT_PUBLIC_CARTO_BASEMAPS_KEY` — one platform key for CARTO's basemap tiles (checkout locker map, store-location section; `shared/utils/carto-basemaps.ts`). Public by design (CARTO restricts it by Referer, not secrecy), never per-tenant. Empty means no map renders — CARTO serves a watermarked tile for a keyless request, so there is no fallback.
 - `NUXT_CACHE_PURGE_TOKEN` — shared secret for the `/api/admin/cache/purge` route (`runtimeConfig.cachePurgeToken`); Django's Cache Management admin sends it to invalidate the Nitro SSR cache
 - `NUXT_CACHE_BASE` — `redis` or `memory`
 - `NUXT_REDIS_HOST` / `NUXT_REDIS_PORT` / `NUXT_REDIS_TTL` — Redis config

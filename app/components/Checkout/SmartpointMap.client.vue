@@ -8,10 +8,12 @@
  * component only on the client. Wrapping callers should still use
  * ``<ClientOnly>`` for clean hydration boundaries.
  *
- * Tile providers come from carrier metadata (``ShippingProvider.metadata
- * .tile_provider`` on the backend). When metadata is missing or
- * malformed we fall back to CARTO Positron / Dark Matter — both
- * free, both no-API-key, attribution baked in.
+ * Tiles are CARTO Positron / Dark Matter, built by
+ * ``shared/utils/carto-basemaps.ts`` from the platform's
+ * ``cartoBasemapsKey`` runtime config. With no key configured the map
+ * itself does not render — CARTO now serves a watermarked tile for a
+ * keyless request, so there is no fallback; the picker's list/search
+ * tab keeps working regardless.
  */
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -31,11 +33,6 @@ const props = defineProps<{
   /** Optional map centre + zoom from carrier metadata. */
   defaultCenter?: [number, number] | null
   defaultZoom?: number | null
-  /** Tile-layer specs from carrier metadata (light + dark). */
-  tileProvider?: {
-    light?: TileLayerSpec
-    dark?: TileLayerSpec
-  } | null
   /** ``true`` while the parent is fetching the catalogue. */
   loading?: boolean
 }>()
@@ -47,26 +44,19 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const colorMode = useColorMode()
 const reducedMotion = usePreferredReducedMotion()
+const runtimeConfig = useRuntimeConfig()
 
-// Stable fallbacks — only used when metadata is missing AND no
-// initial centre is computed from the lockers themselves.
+// Stable fallback — only used when no initial centre is computed
+// from the lockers themselves.
 const FALLBACK_CENTER: [number, number] = [37.9838, 23.7275] // Athens
 const FALLBACK_ZOOM = 11
 
-const FALLBACK_TILES: { light: TileLayerSpec, dark: TileLayerSpec } = {
-  light: {
-    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    maxZoom: 19,
-    subdomains: 'abcd',
-  },
-  dark: {
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    maxZoom: 19,
-    subdomains: 'abcd',
-  },
-}
+// `null` when `cartoBasemapsKey` is empty — see the component
+// docstring and `buildCartoBasemap`'s own doc for why there is no
+// keyless fallback.
+const activeTile = computed<TileLayerSpec | null>(() =>
+  buildCartoBasemap(colorMode.value === 'dark' ? 'dark' : 'light', runtimeConfig.public.cartoBasemapsKey),
+)
 
 const lockersWithCoords = computed(() =>
   props.lockers.filter(
@@ -86,12 +76,6 @@ const center = computed<[number, number]>(() => {
 })
 
 const zoom = ref(props.defaultZoom ?? FALLBACK_ZOOM)
-
-const activeTile = computed<TileLayerSpec>(() => {
-  const isDark = colorMode.value === 'dark'
-  const fromProps = isDark ? props.tileProvider?.dark : props.tileProvider?.light
-  return fromProps ?? (isDark ? FALLBACK_TILES.dark : FALLBACK_TILES.light)
-})
 
 // LMap component ref — needed to access ``leafletObject`` (the
 // underlying ``L.Map`` instance) when wiring marker clusters and
@@ -369,72 +353,88 @@ async function geolocate(): Promise<void> {
     :aria-label="t('shipping.locker_picker.modal_title', { carrier: '' })"
     class="relative size-full"
   >
-    <!-- Skip-to-list link for keyboard users; the parent picker
-         renders the same lockers as a list (WCAG 1.3.1 fallback). -->
-    <a
-      href="#locker-list"
-      class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-1 focus:text-sm focus:font-semibold focus:shadow"
-    >
-      {{ t('shipping.locker_picker.skip_to_list') }}
-    </a>
+    <template v-if="activeTile">
+      <!-- Skip-to-list link for keyboard users; the parent picker
+           renders the same lockers as a list (WCAG 1.3.1 fallback). -->
+      <a
+        href="#locker-list"
+        class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-1 focus:text-sm focus:font-semibold focus:shadow"
+      >
+        {{ t('shipping.locker_picker.skip_to_list') }}
+      </a>
 
-    <LMap
-      ref="mapRef"
-      :zoom="zoom"
-      :center="center"
-      :use-global-leaflet="true"
-      class="size-full"
-      :options="{
-        scrollWheelZoom: true,
-        zoomControl: true,
-        attributionControl: true,
-      }"
-      @ready="onMapReady"
-    >
-      <LTileLayer
-        :url="activeTile.url"
-        :attribution="activeTile.attribution"
+      <LMap
+        ref="mapRef"
+        :zoom="zoom"
+        :center="center"
+        :use-global-leaflet="true"
+        class="size-full"
         :options="{
-          maxZoom: activeTile.maxZoom ?? 19,
-          subdomains: activeTile.subdomains ?? 'abcd',
+          scrollWheelZoom: true,
+          zoomControl: true,
+          attributionControl: true,
         }"
-        layer-type="base"
-      />
-    </LMap>
+        @ready="onMapReady"
+      >
+        <LTileLayer
+          :url="activeTile.url"
+          :attribution="activeTile.attribution"
+          :options="{
+            maxZoom: activeTile.maxZoom ?? 19,
+            subdomains: activeTile.subdomains ?? 'abcd',
+          }"
+          layer-type="base"
+        />
+      </LMap>
 
-    <!-- Geolocate-me button. Sits over the map; respects
-         keyboard focus. -->
-    <UButton
-      class="absolute right-3 top-3 z-[400] shadow-lg"
-      color="neutral"
-      variant="solid"
-      size="md"
-      icon="i-lucide-locate-fixed"
-      :loading="geolocating"
-      :aria-label="t('shipping.locker_picker.geolocate')"
-      @click="geolocate"
-    >
-      {{ t('shipping.locker_picker.geolocate') }}
-    </UButton>
+      <!-- Geolocate-me button. Sits over the map; respects
+           keyboard focus. -->
+      <UButton
+        class="absolute right-3 top-3 z-[400] shadow-lg"
+        color="neutral"
+        variant="solid"
+        size="md"
+        icon="i-lucide-locate-fixed"
+        :loading="geolocating"
+        :aria-label="t('shipping.locker_picker.geolocate')"
+        @click="geolocate"
+      >
+        {{ t('shipping.locker_picker.geolocate') }}
+      </UButton>
 
-    <!-- Geolocate error toast — surfaces denial / timeout instead
-         of leaving the user with a button that "did nothing". -->
-    <p
-      v-if="geolocateError"
-      role="alert"
-      class="absolute right-3 top-16 z-[400] max-w-xs rounded bg-white/95 px-3 py-2 text-xs shadow-lg dark:bg-neutral-900/95"
-    >
-      {{ geolocateError }}
-    </p>
+      <!-- Geolocate error toast — surfaces denial / timeout instead
+           of leaving the user with a button that "did nothing". -->
+      <p
+        v-if="geolocateError"
+        role="alert"
+        class="absolute right-3 top-16 z-[400] max-w-xs rounded bg-white/95 px-3 py-2 text-xs shadow-lg dark:bg-neutral-900/95"
+      >
+        {{ geolocateError }}
+      </p>
 
-    <!-- Empty state — overlay rather than swap so attribution stays. -->
+      <!-- Empty state — overlay rather than swap so attribution stays. -->
+      <div
+        v-if="!loading && lockersWithCoords.length === 0"
+        class="absolute inset-x-0 top-1/2 z-[300] mx-auto w-fit -translate-y-1/2 rounded-lg bg-white/90 px-4 py-3 text-center shadow-lg backdrop-blur dark:bg-neutral-900/90"
+      >
+        <UIcon name="i-lucide-map-pin-off" class="mx-auto size-8 text-neutral-400" />
+        <p class="mt-1 text-sm font-medium">
+          {{ t('shipping.locker_picker.no_results_in_area') }}
+        </p>
+      </div>
+    </template>
+
+    <!-- No CARTO key configured — CARTO now watermarks keyless tiles,
+         so we render nothing rather than a broken map. The list tab
+         in the parent picker still works. -->
     <div
-      v-if="!loading && lockersWithCoords.length === 0"
-      class="absolute inset-x-0 top-1/2 z-[300] mx-auto w-fit -translate-y-1/2 rounded-lg bg-white/90 px-4 py-3 text-center shadow-lg backdrop-blur dark:bg-neutral-900/90"
+      v-else
+      role="status"
+      class="flex size-full flex-col items-center justify-center gap-2 p-4 text-center"
     >
-      <UIcon name="i-lucide-map-pin-off" class="mx-auto size-8 text-neutral-400" />
-      <p class="mt-1 text-sm font-medium">
-        {{ t('shipping.locker_picker.no_results_in_area') }}
+      <UIcon name="i-lucide-map-pin-off" class="size-10 text-neutral-400" />
+      <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200">
+        {{ t('shipping.locker_picker.map_unavailable') }}
       </p>
     </div>
   </div>
