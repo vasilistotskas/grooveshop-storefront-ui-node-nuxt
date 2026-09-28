@@ -130,23 +130,34 @@ export async function useCheckoutForm() {
   const requestFetch = useRequestApi()
 
   // Functions
-  const fetchRegions = async () => {
+  // Switching country quickly can leave an older country's regions
+  // request finishing last and overwriting the newer country's list —
+  // the dropdown then offered Greek regions for a Cypriot address. Only
+  // the latest request may write, and it resolves whether it did.
+  let regionsRequest = 0
+  const fetchRegions = async (): Promise<boolean> => {
+    const request = ++regionsRequest
     try {
       const countryValue = formState.country
-      regions.value = await requestFetch<ListRegionResponse>('/api/regions', {
+      const result = await requestFetch<ListRegionResponse>('/api/regions', {
         method: 'GET',
         query: {
           country: countryValue || undefined,
           languageCode: locale.value,
         },
       })
+      if (request !== regionsRequest) return false
+      regions.value = result
+      return true
     }
     catch {
+      if (request !== regionsRequest) return false
       toast.add({
         title: t('error.default'),
         description: t('error_occurred'),
         color: 'error',
       })
+      return true
     }
   }
 
@@ -345,7 +356,9 @@ export async function useCheckoutForm() {
           formState.countryId = selectedCountry.alpha2
         }
       }
-      await fetchRegions()
+      // Superseded by a newer country change, whose own run validates
+      // the region against the list it fetched.
+      if (!(await fetchRegions())) return
       // Only clear ``region`` if the previously selected value is no
       // longer valid for the new country. Unconditionally clearing here
       // breaks saved-address prefill (which sets ``country`` and

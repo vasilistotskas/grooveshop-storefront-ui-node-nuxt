@@ -355,6 +355,42 @@ describe('useCheckoutForm', () => {
     })
   })
 
+  describe('switching country quickly', () => {
+    it('keeps the regions of the country selected last when an older response lands last', async () => {
+      const { formState, regionOptions } = await useCheckoutForm()
+      await flushPromises()
+      // Every in-flight regions request, oldest first.
+      const pending: Array<{ country: string, resolve: (value: unknown) => void }> = []
+      mockFetch.mockImplementation((url: string, options: any) => {
+        if (url === '/api/regions') {
+          return new Promise((resolve) => {
+            pending.push({ country: options?.query?.country, resolve })
+          })
+        }
+        return Promise.resolve(defaultDispatch(url, options))
+      })
+
+      // The form starts on GR; go to CY and straight back.
+      formState.country = 'CY'
+      await nextTick()
+      await flushPromises()
+      formState.country = 'GR'
+      await nextTick()
+      await flushPromises()
+
+      const newest = pending.at(-1)!
+      const older = pending[0]!
+      expect(older.country).toBe('CY')
+      expect(newest.country).toBe('GR')
+      newest.resolve(paginated([{ alpha: 'GR-14', name: 'Αττική' }]))
+      await flushPromises()
+      older.resolve(paginated([{ alpha: 'CY-01', name: 'Λευκωσία' }]))
+      await flushPromises()
+
+      expect(regionOptions.value.map(o => o.value)).toEqual(['GR-14'])
+    })
+  })
+
   describe('saved address in a non-shippable country', () => {
     it('falls back to the new-address form and toasts a warning', async () => {
       mockUserSession.loggedIn.value = true
