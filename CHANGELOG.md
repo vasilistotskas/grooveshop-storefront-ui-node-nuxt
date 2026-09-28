@@ -1,3 +1,11 @@
+## [3.219.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.219.0...v3.219.1) (2026-09-28)
+
+
+### Bug Fixes
+
+* **blog:** space an FAQ answer as the editor saves it ([49f6894](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/49f68947c5d2884deffec2ffd1a0cf516b911203))
+* **blog:** the FAQ question shows the footer's keyboard focus ring ([462117f](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/462117f7c84d9c32c7720a5b6b8eb197a6194118))
+
 # [3.219.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.218.0...v3.219.0) (2026-09-28)
 
 
