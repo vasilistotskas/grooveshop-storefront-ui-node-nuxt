@@ -568,17 +568,22 @@ export async function useCheckoutForm() {
       cart.value?.totalWeightGrams,
       formState.countryId,
     ],
-    () => {
-      void fetchShippingOptions()
+    async () => {
+      await fetchShippingOptions()
+      // A new country or a heavier cart can drop the method the
+      // shopper picked (a locker network that does not serve the
+      // country, a carrier over its cap): move to one still offered.
+      if (reconcileShippingMethod()) {
+        await applyPayWaysForShippingMethod()
+      }
     },
     { immediate: false },
   )
 
   /** Match the live option row for the selected ``shippingMethod``.
-   *  Returns ``undefined`` if the live fetch hasn't populated yet or
-   *  the row is missing — caller falls back to the flat-rate
-   *  ``extra_settings`` Setting so the sidebar never shows a stale
-   *  or empty Μεταφορικά. */
+   *  ``undefined`` while the live fetch hasn't populated, or when the
+   *  method is not offered for this country — there is no price to
+   *  show then, and ``shippingPrice`` reads ``null``. */
   const matchedShippingOption = computed<ShippingOption | undefined>(() => {
     const method = formState.shippingMethod
     if (!shippingOptions.value.length) return undefined
@@ -592,10 +597,14 @@ export async function useCheckoutForm() {
         o => o.providerCode === 'acs' && o.kind === 'pickup_point',
       )
     }
-    // Home delivery: pick the ACS row when present (ACS supports
-    // home_delivery in the registry); otherwise let the flat-rate
-    // fallback handle it.
-    return shippingOptions.value.find(o => o.kind === 'home_delivery')
+    // Home delivery collapses every home-delivery carrier into one
+    // choice. The options arrive in priority order, and the server
+    // routes a cart to the first carrier whose weight cap it fits
+    // (``resolve_home_delivery_provider``), so price the same one.
+    const homeDelivery = shippingOptions.value.filter(
+      o => o.kind === 'home_delivery',
+    )
+    return homeDelivery.find(o => !o.exceedsMaxWeight) ?? homeDelivery[0]
   })
 
   // Shipping cost is the live backend quote — a resolved
@@ -1095,7 +1104,16 @@ export async function useCheckoutForm() {
    * edited (or an ACS tariff change, when dynamic pricing is on) since
    * page load is reflected in the sidebar before the order is created.
    */
-  const refetchShippingOptions = () => fetchShippingOptions()
+  const refetchShippingOptions = async (): Promise<boolean> => {
+    await fetchShippingOptions()
+    // Resolves ``true`` only when the selected method still has a live,
+    // selectable price — otherwise submitting would charge a shipping
+    // cost the shopper never saw in the total.
+    const option = matchedShippingOption.value
+    return !shippingOptionsError.value
+      && option !== undefined
+      && !option.exceedsMaxWeight
+  }
 
   return {
     formState,

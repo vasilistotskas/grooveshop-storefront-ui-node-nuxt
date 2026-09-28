@@ -212,7 +212,14 @@ const shippingOptions = computed(() => {
     // Over-cap options stay VISIBLE (never hidden) — a heavy cart
     // must never silently lose a shipping step. They render disabled
     // with a reason instead.
-    const overCap = option.exceedsMaxWeight
+    // One row can stand for several carriers (every home-delivery
+    // carrier collapses into one card), so it is over the cap only
+    // when EVERY carrier behind it is: the server routes a heavy cart
+    // to a carrier that fits.
+    const sameMethod = props.apiOptions.filter(
+      o => methodKeyForOption(o) === key,
+    )
+    const overCap = sameMethod.every(o => o.exceedsMaxWeight)
     const boxNowCountryUnsupported = key === 'box_now_locker'
       && isBoxNowConfigured.value
       && !isBoxNowCountrySupported.value
@@ -226,7 +233,7 @@ const shippingOptions = computed(() => {
       disabled: baseItem.disabled || overCap,
       disabledReason: overCap
         ? t('shipping.method.exceeds_max_weight', {
-            maxKg: (option.maxWeightGrams ?? 0) / 1000,
+            maxKg: Math.max(...sameMethod.map(o => o.maxWeightGrams ?? 0)) / 1000,
           })
         : boxNowCountryUnsupported
           ? t('shipping.method.boxnow.country_unsupported')
@@ -337,6 +344,13 @@ function onSubmit() {
   // sidebar CTA proxies through this same ``submit()``, so this guard
   // is what stops IT from advancing too.
   if (props.optionsError) return
+  // A method that is no longer offered, or whose row is disabled (over
+  // every carrier's weight cap, a country BoxNow does not serve), must
+  // not advance to payment on a stale selection.
+  const selected = shippingOptions.value.find(
+    item => item.value === formState.value.shippingMethod,
+  )
+  if (!selected || selected.disabled) return
   // Continue clicked without picking a locker → pop the picker
   // instead of silently failing. The previous UX disabled the button
   // entirely, which gave no signal about what was missing — a real

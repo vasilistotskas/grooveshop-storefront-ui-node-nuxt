@@ -36,7 +36,8 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
   payWays: Ref<Pagination<PayWay> | null | undefined>
   /** The ``Country`` row matching ``formState.country`` — drives phone normalization. */
   selectedCountry: Ref<Country | undefined>
-  refetchShippingOptions?: () => Promise<void>
+  /** Resolves whether the selected method still has a live price. */
+  refetchShippingOptions?: () => Promise<boolean>
 }) {
   const { fetch } = useUserSession()
   const localePath = useLocalePath()
@@ -796,12 +797,25 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
         }
       }
 
-      // Step 2a: Refetch live shipping options to ensure the sidebar
-      // total reflects the latest server-side cost before order creation.
-      if (refetchShippingOptions) {
-        await refetchShippingOptions().catch(err =>
-          log.warn({ tag: 'checkout', message: 'shipping refetch failed, using cached value', err }),
-        )
+      // Step 2a: Refetch live shipping options so the total reflects
+      // the latest server-side cost before order creation. Without a
+      // live price for the selected method (the fetch failed, the
+      // method is no longer offered, the cart is over its cap) the
+      // order would be charged a shipping cost the shopper never saw,
+      // so send them back to the shipping step instead.
+      if (refetchShippingOptions && !(await refetchShippingOptions())) {
+        log.warn({
+          tag: 'checkout',
+          message: 'submit:shipping-unavailable',
+          shippingMethod: formState.shippingMethod,
+        })
+        toast.add({
+          title: t('form.submit.error.shipping_unavailable'),
+          description: t('form.submit.error.shipping_unavailable_description'),
+          color: 'error',
+        })
+        currentStep.value = 1
+        return
       }
 
       // Step 2b: Set selected payment way

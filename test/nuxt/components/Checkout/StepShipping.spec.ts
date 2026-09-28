@@ -298,6 +298,64 @@ describe('over-cap options (weight exceeds the carrier max)', () => {
   })
 })
 
+describe('one row standing for several home-delivery carriers', () => {
+  const flatRate: ShippingOption = {
+    ...DEFAULT_API_OPTIONS[1]!,
+    providerCode: 'flat_rate',
+    providerName: 'Standard delivery',
+    priority: 20,
+  }
+
+  function homeItem(wrapper: Awaited<ReturnType<typeof mountSuspended>>) {
+    const radioGroup = wrapper.findComponent({ name: 'URadioGroup' })
+    return (radioGroup.props('items') as Array<{ value: string, disabled?: boolean }>)
+      .find(item => item.value === 'home_delivery')
+  }
+
+  it('stays selectable while one carrier behind it still fits the cart', async () => {
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({
+        apiOptions: [
+          DEFAULT_API_OPTIONS[0]!,
+          { ...DEFAULT_API_OPTIONS[1]!, maxWeightGrams: 2000, exceedsMaxWeight: true },
+          flatRate,
+        ],
+      }),
+    })
+
+    expect(homeItem(wrapper)?.disabled).toBeFalsy()
+  })
+
+  it('is disabled only when every carrier behind it is over its cap', async () => {
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({
+        apiOptions: [
+          DEFAULT_API_OPTIONS[0]!,
+          { ...DEFAULT_API_OPTIONS[1]!, maxWeightGrams: 2000, exceedsMaxWeight: true },
+          { ...flatRate, maxWeightGrams: 3000, exceedsMaxWeight: true },
+        ],
+      }),
+    })
+
+    expect(homeItem(wrapper)?.disabled).toBe(true)
+  })
+
+  it('does not advance on a selection whose row is disabled', async () => {
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({
+        apiOptions: [
+          DEFAULT_API_OPTIONS[0]!,
+          { ...DEFAULT_API_OPTIONS[1]!, maxWeightGrams: 2000, exceedsMaxWeight: true },
+        ],
+      }),
+    })
+
+    ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+
+    expect(wrapper.emitted('next')).toBeFalsy()
+  })
+})
+
 describe('BoxNow disabled for a delivery country with no widget mapping', () => {
   it('disables the BoxNow row for a country BoxNow does not serve', async () => {
     const bgOptions: ShippingOption[] = [

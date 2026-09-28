@@ -649,6 +649,27 @@ describe('useCheckoutSubmit', () => {
       expect(addressStepErrors.value).toEqual([])
     })
 
+    it('goes back to the shipping step when the shipping price cannot be confirmed', async () => {
+      const codPayWay = makePayWay('cod')
+      mockReserveStock.mockResolvedValue([5])
+      mockFetch.mockResolvedValue(undefined)
+
+      const { onSubmit, currentStep } = useCheckoutSubmit({
+        selectedCountry: noCountry,
+        formState: makeFormState(),
+        selectedPayWay: ref<PayWay | null>(codPayWay),
+        payWays: makePayWaysRef(codPayWay),
+        // The refetch failed, or the method is no longer offered.
+        refetchShippingOptions: () => Promise.resolve(false),
+      })
+      currentStep.value = 2
+
+      await onSubmit()
+
+      expect(currentStep.value).toBe(1)
+      expect(mockFetch.mock.calls.find(([url]) => url === '/api/orders')).toBeUndefined()
+    })
+
     it('sends the postcode normalised, as Django stores it', async () => {
       const codPayWay = makePayWay('cod')
       mockReserveStock.mockResolvedValue([5])

@@ -170,6 +170,51 @@ describe('useCheckoutForm', () => {
       expect(shippingPrice.value).toBe(2.99)
     })
 
+    it('prices home delivery from the first carrier that can carry the cart', async () => {
+      const home = (providerCode: string, price: number, exceedsMaxWeight: boolean) => ({
+        providerCode,
+        providerName: providerCode,
+        kind: 'home_delivery',
+        price,
+        currency: 'EUR',
+        liveMode: true,
+        priority: 1,
+        countryCode: 'GR',
+        maxWeightGrams: exceedsMaxWeight ? 2000 : null,
+        exceedsMaxWeight,
+        metadata: {},
+        payWays: [],
+      })
+      mockFetch.mockImplementation((url: string, options: any) => {
+        if (url === '/api/shipping/options') {
+          return Promise.resolve([home('acs', 2.99, true), home('flat_rate', 3.5, false)])
+        }
+        return Promise.resolve(defaultDispatch(url, options))
+      })
+
+      const { shippingPrice } = await useCheckoutForm()
+
+      // The server routes the heavy cart to flat_rate, so that is the
+      // price the shopper must see.
+      expect(shippingPrice.value).toBe(3.5)
+    })
+
+    it('refetchShippingOptions reports whether the selected method has a live price', async () => {
+      let fail = false
+      mockFetch.mockImplementation((url: string, options: any) => {
+        if (url === '/api/shipping/options' && fail) return Promise.reject(new Error('network'))
+        return Promise.resolve(defaultDispatch(url, options))
+      })
+
+      const { formState, refetchShippingOptions } = await useCheckoutForm()
+      formState.shippingMethod = 'box_now_locker'
+      await nextTick()
+      expect(await refetchShippingOptions()).toBe(true)
+
+      fail = true
+      expect(await refetchShippingOptions()).toBe(false)
+    })
+
     it('is null (not 0) when the live options fetch fails, and sets shippingOptionsError', async () => {
       mockFetch.mockImplementation((url: string, options: any) => {
         if (url === '/api/shipping/options') return Promise.reject(new Error('network'))

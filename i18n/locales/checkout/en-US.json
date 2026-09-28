@@ -190,6 +190,8 @@
         "invalid_order_data_description": "The order data is not valid. Please check your details.",
         "reservation_expired": "The reservation expired",
         "reservation_expired_description": "The stock reservation expired. Please try again.",
+        "shipping_unavailable": "Shipping is unavailable",
+        "shipping_unavailable_description": "We could not confirm the shipping cost for your choice. Check the delivery method and try again.",
         "max_retries": "Too many attempts",
         "stock_reservation": "Stock reservation error",
         "stock_reservation_description": "The stock could not be reserved. Please try again.",
