@@ -1,3 +1,10 @@
+## [3.219.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.219.1...v3.219.2) (2026-09-28)
+
+
+### Bug Fixes
+
+* **checkout:** keep the regions list and saved-address checks on the selected country ([#29](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/29)) ([242f6ad](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/242f6ad4c6951b65370c1eaf2b4fdfd7d2d313d3))
+
 ## [3.219.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.219.0...v3.219.1) (2026-09-28)
 
 
