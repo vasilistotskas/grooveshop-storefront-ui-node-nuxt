@@ -2221,9 +2221,9 @@ export type CartCreatePaymentIntentRequestRequest = {
      */
   shippingProviderCode?: string
   /**
-     * Προαιρετικός κωδικός χώρας ISO 3166-1 alpha-2 — καθορίζει τον συντελεστή αποστολής σε επίπεδο χώρας. Πρέπει να ταιριάζει με αυτόν που θα φέρει το αίτημα δημιουργίας παραγγελίας.
+     * Κωδικός χώρας ISO 3166-1 alpha-2 — υποχρεωτικός, επειδή η τιμή αποστολής (``ShippingRate``) ορίζεται ανά χώρα και χωρίς προορισμό δεν τιμολογείται καμία επιλογή. Πρέπει να συμφωνεί με τη χώρα του αιτήματος δημιουργίας παραγγελίας.
      */
-  countryId?: string
+  countryId: string
   /**
      * Προαιρετικός κωδικός περιφέρειας — καθορίζει την προσαρμογή αποστολής σε επίπεδο περιφέρειας.
      */
@@ -2827,6 +2827,14 @@ export type Country = {
      */
   postalCodeExample?: string
   /**
+     * Η μορφή επικύρωσης τηλεφώνου για αυτή τη χώρα, όπως προκύπτει από τη βιβλιοθήκη ``phonenumbers`` που χρησιμοποιεί το Django — δεν αποθηκεύεται ποτέ. Null μόνο για δεσμευμένο κωδικό alpha-2 για τον οποίο η ``phonenumbers`` δεν έχει δεδομένα.
+     */
+  phoneMetadata: PhoneMetadata | null
+  /**
+     * Αν η χώρα έχει καταχωρισμένες περιοχές. Οι περισσότερες χώρες της πλήρους λίστας ISO 3166-1 δεν έχουν — το κατάστημα το χρησιμοποιεί για να αποφασίσει αν θα εμφανίσει καθόλου το πεδίο περιοχής στη φόρμα διεύθυνσης, αντί να το ζητά πάντα.
+     */
+  readonly hasRegions: boolean
+  /**
      * Σειρά ταξινόμησης
      */
   readonly sortOrder: number | null
@@ -2885,6 +2893,14 @@ export type CountryDetail = {
      * Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.
      */
   postalCodeExample?: string
+  /**
+     * Η μορφή επικύρωσης τηλεφώνου για αυτή τη χώρα, όπως προκύπτει από τη βιβλιοθήκη ``phonenumbers`` που χρησιμοποιεί το Django — δεν αποθηκεύεται ποτέ. Null μόνο για δεσμευμένο κωδικό alpha-2 για τον οποίο η ``phonenumbers`` δεν έχει δεδομένα.
+     */
+  phoneMetadata: PhoneMetadata | null
+  /**
+     * Αν η χώρα έχει καταχωρισμένες περιοχές. Οι περισσότερες χώρες της πλήρους λίστας ISO 3166-1 δεν έχουν — το κατάστημα το χρησιμοποιεί για να αποφασίσει αν θα εμφανίσει καθόλου το πεδίο περιοχής στη φόρμα διεύθυνσης, αντί να το ζητά πάντα.
+     */
+  readonly hasRegions: boolean
   /**
      * Σειρά ταξινόμησης
      */
@@ -3289,6 +3305,10 @@ export type FreeShippingInfo = {
      */
   maxThreshold: number | null
   currency: string
+  /**
+     * Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα του checkout. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.
+     */
+  countryCode: string | null
 }
 
 /**
@@ -6243,7 +6263,7 @@ export type PatchedUserAddressWriteRequest = {
   /**
      * Κωδικός περιφέρειας
      */
-  region?: string
+  region?: string | null
 }
 
 export type PatchedUserSubscriptionWriteRequest = {
@@ -6612,6 +6632,33 @@ export type PerformanceMetrics = {
      * Average number of results returned per search
      */
   avgResultsCount: number
+}
+
+/**
+ * Read-only phone-number shape derived from ``phonenumbers``.
+ *
+ * Never a model field — see ``country.phone`` for why. Nested rather
+ * than flattened onto ``CountrySerializer`` so a country with no
+ * metadata (see ``get_phone_metadata``) can answer ``null`` for the
+ * whole group instead of four separately-nullable fields.
+ */
+export type PhoneMetadata = {
+  /**
+     * Κανονική έκφραση που πρέπει να ταιριάζει ολόκληρος ο εθνικός αριθμός (χωρίς κωδικό χώρας και αρχικό μηδέν) για αυτή τη χώρα.
+     */
+  nationalNumberPattern: string
+  /**
+     * Έγκυρα μήκη εθνικού αριθμού για αυτή τη χώρα.
+     */
+  possibleLengths: Array<number>
+  /**
+     * Ψηφία με τα οποία γράφεται ένας τοπικός αριθμός αλλά δεν αποτελούν μέρος του αριθμού E.164 (π.χ. το αρχικό «0» της Γερμανίας). Null όταν η χώρα δεν έχει — οι περισσότερες δεν έχουν.
+     */
+  nationalPrefixForParsing: string | null
+  /**
+     * Ένα ρεαλιστικό παράδειγμα αριθμού κινητού σε εθνική μορφή (π.χ. GR «6912345678», CY «96123456»).
+     */
+  exampleMobile: string | null
 }
 
 /**
@@ -8383,12 +8430,24 @@ export type ShippingOption = {
   providerName: string
   kind: ShippingKind
   /**
-     * Null όταν ο πάροχος παραπέμπει στη γενική πάγια χρέωση.
+     * Η τιμή της ``ShippingRate`` που ισχύει (ή η ζωντανή τιμή του παρόχου, ή 0 όταν καλύπτεται το όριο δωρεάν μεταφορικών).
      */
-  price: number | null
+  price: number
   currency: string
   liveMode: boolean
   priority: number
+  /**
+     * Ο προορισμός για τον οποίο τιμολογήθηκε αυτή η επιλογή.
+     */
+  countryCode: string
+  /**
+     * Το όριο βάρους της τιμής αποστολής, ή null όταν δεν έχει. Συγκρίνετέ το με το βάρος του καλαθιού που ήδη γνωρίζετε — αυτή η εγγραφή δεν το επαναλαμβάνει.
+     */
+  maxWeightGrams: number | null
+  /**
+     * True όταν το ``weight_grams`` του αιτήματος ξεπερνά το ``max_weight_grams``. Η επιλογή επιστρέφεται κανονικά αντί να κρύβεται — το κατάστημα τη δείχνει απενεργοποιημένη με την αιτία, ώστε ένα βαρύ καλάθι να μη βλέπει ποτέ μια επιλογή λιγότερη χωρίς εξήγηση.
+     */
+  exceedsMaxWeight: boolean
   /**
      * Απόλυτο URL για το λογότυπο μάρκας που ανέβασε ο χειριστής, υπολογισμένο ανά (πάροχο, τύπο) ώστε η γραμμή κατ' οίκον παράδοσης και η γραμμή σημείου παραλαβής του ίδιου μεταφορέα να μπορούν να εμφανίζουν διαφορετικές εικόνες. Null όταν δεν έχει μεταφορτωθεί λογότυπο — το κατάστημα τότε επιστρέφει στην ενσωματωμένη προεπιλογή του. Το ``settings.MEDIA_URL`` είναι απόλυτο σε κάθε περιβάλλον, οπότε αυτό είναι πάντα πλήρες URL όταν υπάρχει.
      */
@@ -8476,7 +8535,7 @@ export type ShippingProvider = {
   /**
      * Μεταδεδομένα
      *
-     * Διαμόρφωση ειδική για τον πάροχο (υποστηριζόμενες χώρες, σημαίες λειτουργιών, υποδείξεις branding).
+     * Ρυθμίσεις ειδικές για τον πάροχο (διακόπτες λειτουργιών, στοιχεία εμφάνισης, ρυθμίσεις χάρτη lockers). Σε ποιες χώρες αποστέλλει ο πάροχος ορίζεται από τις τιμές αποστολής (``ShippingRate``), όχι από κλειδί εδώ — δείτε τον πίνακα «Τιμές αποστολής» παρακάτω.
      */
   readonly metadata: unknown
   /**
@@ -9258,7 +9317,7 @@ export type UserAddressWriteRequest = {
   /**
      * Κωδικός περιφέρειας
      */
-  region: string
+  region?: string | null
 }
 
 /**
@@ -17066,6 +17125,10 @@ export type ListCountryData = {
          */
     search?: string
     /**
+         * Φίλτρο για τις χώρες στις οποίες το τρέχον κατάστημα έχει ενεργή τιμή αποστολής (ShippingRate). Στον host της πλατφόρμας — που δεν έχει κατάστημα, άρα ούτε τιμές — δεν επιστρέφει ποτέ καμία.
+         */
+    shippable?: 'true' | 'false' | '1' | '0' | boolean
+    /**
          * Φίλτρο ανά ακριβή σειρά
          */
     sortOrder?: string | number
@@ -24091,7 +24154,7 @@ export type ApiV1SettingsGetRetrieveData = {
   path?: never
   query: {
     /**
-         * Όνομα κλειδιού ρύθμισης (π.χ. CHECKOUT_SHIPPING_PRICE)
+         * Όνομα κλειδιού ρύθμισης (π.χ. GIFT_CARD_MIN_AMOUNT)
          */
     key: string
   }
@@ -24540,11 +24603,11 @@ export type GetFreeShippingInfoResponse = GetFreeShippingInfoResponses[keyof Get
 export type ListShippingOptionsData = {
   body?: never
   path?: never
-  query?: {
+  query: {
     /**
-         * ISO 3166-1 alpha-2 country code (e.g. 'GR').
+         * ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` is per-country.
          */
-    countryCode?: string
+    countryCode: string
     /**
          * ISO 4217 currency code (default 'EUR').
          */

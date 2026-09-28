@@ -12,11 +12,18 @@ const props = defineProps<{
   // method appears first by editing the provider rows in Django
   // admin instead of editing this component.
   apiOptions: ShippingOption[]
+  /**
+   * Set when the live ``/api/v1/shipping/options`` fetch failed.
+   * There is no local flat-rate fallback price anymore, so the whole
+   * step renders a retry prompt instead of a picker with no prices.
+   */
+  optionsError?: boolean
 }>()
 
 const emit = defineEmits<{
-  next: []
-  back: []
+  'next': []
+  'back': []
+  'retry-options': []
 }>()
 
 const { t } = useI18n()
@@ -28,6 +35,12 @@ const { getPaymentMethodName } = usePaymentMethod()
 // which would throw "partnerId is required" from buildBoxNowIframeUrl
 // and bubble up as the generic checkout error toast.
 const isBoxNowConfigured = computed(() => Boolean(props.partnerId))
+
+// BoxNow has no country-agnostic widget host — a country outside
+// ``BOXNOW_WIDGET_COUNTRIES`` (shared/utils/boxnow-widget.ts) has
+// nothing to embed, distinct from "partnerId not configured" above.
+const isBoxNowCountrySupported = computed(() =>
+  !!boxNowWidgetCountry(formState.value.country))
 
 // Mirrors the visibility decision in ``useCheckoutForm`` so the
 // "BoxNow is unconfigured" alert below only renders when the
@@ -54,8 +67,10 @@ const boxnowAvailable = computed(() =>
 // the server, which is the only place that knows what each carrier can
 // physically collect.
 //
-// So the only thing that disables the row is a missing partner id.
-const isBoxNowDisabled = computed(() => !isBoxNowConfigured.value)
+// So the only thing that disables the row is a missing partner id or
+// an unsupported delivery country.
+const isBoxNowDisabled = computed(() =>
+  !isBoxNowConfigured.value || !isBoxNowCountrySupported.value)
 
 // Note: ``description`` is rendered inside the custom ``#label`` slot
 // below — we deliberately omit it from the item objects so URadioGroup
@@ -81,6 +96,8 @@ type ShippingOptionItem = ShippingOptionItemBase & {
   logo: string
   /** Payment methods reachable ONLY by choosing this delivery row. */
   exclusivePayWays: string[]
+  /** Why the row is disabled, shown inline next to the description. */
+  disabledReason?: string
 }
 
 // Per-method UI metadata (i18n labels + brand assets +
@@ -192,6 +209,20 @@ const shippingOptions = computed(() => {
     const baseItem = itemsByKey.value[key]
     if (!baseItem) continue
     seen.add(key)
+    // Over-cap options stay VISIBLE (never hidden) — a heavy cart
+    // must never silently lose a shipping step. They render disabled
+    // with a reason instead.
+    // One row can stand for several carriers (every home-delivery
+    // carrier collapses into one card), so it is over the cap only
+    // when EVERY carrier behind it is: the server routes a heavy cart
+    // to a carrier that fits.
+    const sameMethod = props.apiOptions.filter(
+      o => methodKeyForOption(o) === key,
+    )
+    const overCap = sameMethod.every(o => o.exceedsMaxWeight)
+    const boxNowCountryUnsupported = key === 'box_now_locker'
+      && isBoxNowConfigured.value
+      && !isBoxNowCountrySupported.value
     ordered.push({
       ...baseItem,
       logo: resolveShippingLogo(option.logoUrl),
@@ -199,6 +230,14 @@ const shippingOptions = computed(() => {
       // the two never disagree on what a method is called.
       exclusivePayWays: (exclusivePayWaysByMethod.value.get(key) ?? [])
         .map(name => getPaymentMethodName(name)),
+      disabled: baseItem.disabled || overCap,
+      disabledReason: overCap
+        ? t('shipping.method.exceeds_max_weight', {
+            maxKg: Math.max(...sameMethod.map(o => o.maxWeightGrams ?? 0)) / 1000,
+          })
+        : boxNowCountryUnsupported
+          ? t('shipping.method.boxnow.country_unsupported')
+          : undefined,
     })
   }
   return ordered
@@ -300,6 +339,18 @@ watch(
 )
 
 function onSubmit() {
+  // The step renders the retry prompt (not the form) while options
+  // failed to load — nothing to validate or advance past yet. The
+  // sidebar CTA proxies through this same ``submit()``, so this guard
+  // is what stops IT from advancing too.
+  if (props.optionsError) return
+  // A method that is no longer offered, or whose row is disabled (over
+  // every carrier's weight cap, a country BoxNow does not serve), must
+  // not advance to payment on a stale selection.
+  const selected = shippingOptions.value.find(
+    item => item.value === formState.value.shippingMethod,
+  )
+  if (!selected || selected.disabled) return
   // Continue clicked without picking a locker → pop the picker
   // instead of silently failing. The previous UX disabled the button
   // entirely, which gave no signal about what was missing — a real
@@ -328,13 +379,29 @@ defineExpose({ submit: onSubmit })
       </p>
     </template>
 
+    <!-- Live options failed to load — there is no local price to fall
+         back to, so retry is the only path forward; the sidebar CTA
+         (which proxies through ``submit()``) is blocked the same way. -->
+    <UAlert
+      v-if="optionsError"
+      color="error"
+      variant="subtle"
+      icon="i-heroicons-exclamation-triangle"
+      :title="t('shipping.method.options_error_title')"
+      :description="t('shipping.method.options_error_description')"
+      :actions="[
+        { label: t('retry'), color: 'neutral', variant: 'outline', onClick: () => emit('retry-options') },
+        { label: t('back'), color: 'neutral', variant: 'ghost', onClick: () => emit('back') },
+      ]"
+    />
+
     <!-- ``@submit`` is intentionally absent: the Continue button uses
          ``type="button"`` + ``@click`` because the Zod
          ``superRefine`` would otherwise abort submit on a missing
          locker before our handler could pop the picker. The schema
          still drives inline error rendering for the locker field via
          the watcher below. -->
-    <UForm ref="formRef" :state="formState" :schema="schema" class="space-y-6" @error="scrollToFirstFormError">
+    <UForm v-else ref="formRef" :state="formState" :schema="schema" class="space-y-6" @error="scrollToFirstFormError">
       <!-- Shipping method radio group -->
       <URadioGroup
         v-model="formState.shippingMethod"
@@ -399,6 +466,17 @@ defineExpose({ submit: onSubmit })
                 >
                   {{ payWay }}
                 </UBadge>
+              </span>
+              <!-- Why this row can't be picked right now — an
+                   over-cap cart, or (BoxNow only) a delivery country
+                   the widget has no map for. Kept separate from the
+                   "unconfigured" alert below, which only covers a
+                   missing partner id. -->
+              <span
+                v-if="item.disabledReason"
+                class="mt-1 text-sm text-error"
+              >
+                {{ item.disabledReason }}
               </span>
             </div>
           </div>
@@ -465,7 +543,9 @@ defineExpose({ submit: onSubmit })
 el:
   subtitle: Επιλέξτε πώς θέλετε να παραλάβετε την παραγγελία σας
   back: Πίσω
+  retry: Δοκιμάστε ξανά
 en:
   subtitle: Choose how you would like your order delivered
   back: Back
+  retry: Try again
 </i18n>

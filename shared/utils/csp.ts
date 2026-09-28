@@ -18,6 +18,7 @@
  */
 
 import { EMBED_IFRAME_ORIGINS } from './embeds'
+import { BOXNOW_FRAME_ORIGINS } from './boxnow-widget'
 
 export interface CspOptions {
   /** Dev-mode relaxations (plain http/ws upstream, error-overlay iframe). */
@@ -282,14 +283,14 @@ export function buildCspDirectives(options: CspOptions): string[] {
     `img-src 'self' data: blob: ${assetOrigins} https://www.googletagmanager.com https://*.google-analytics.com ${googleAdsOrigins} ${googleConversionOrigins} ${tileOrigins}${metaImgSrc}${tiktokImgSrc}${tenantExtra}`,
     `font-src 'self' https://fonts.gstatic.com`,
     `connect-src 'self' ${assetOrigins} ${apiOrigin} https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com ${googleAdsOrigins} ${googleConversionOrigins} https://ad.doubleclick.net https://stats.g.doubleclick.net https://api.stripe.com${gsiConnectSrc} ${wsOrigin}${metaConnectSrc}${tiktokConnectSrc}${openaiConnectSrc}${tenantExtra}`,
-    // BoxNow widget iframe origins per their CDN: gr (primary), plus
-    // cy/bg/hr regional variants (Phase 2 multi-country).
-    // ``widget-v4.boxnow.gr`` is required even though we load the v5 URL:
-    // BoxNow's CDN HTTP-redirects ``widget-v5.boxnow.gr/iframe.html`` to
-    // widget-v4, and CSP validates every hop of a frame's redirect chain
-    // against frame-src — without it the checkout locker modal is blocked.
-    // Keep in sync with ``BOXNOW_ALLOWED_ORIGINS`` in
-    // ``app/composables/useBoxNowWidget.ts``.
+    // BoxNow widget iframe origins — one per verified live market
+    // (GR, CY) plus the CDN's known redirect hops. CSP validates every
+    // hop of a frame's redirect chain against frame-src, so the
+    // redirect origins must be listed even though
+    // ``buildBoxNowIframeUrl`` never targets them directly. Single
+    // source of truth: ``shared/utils/boxnow-widget.ts`` — its own
+    // ``BOXNOW_ALLOWED_ORIGINS`` (postMessage trust) derives from the
+    // same ``BOXNOW_FRAME_ORIGINS`` list, so the two can't drift.
     // ``data:`` is added in dev so Nuxt's nitro error overlay (which
     // base64-encodes a stack-trace iframe) can render — production
     // never ships that overlay so the scheme stays out of prod CSP.
@@ -299,7 +300,7 @@ export function buildCspDirectives(options: CspOptions): string[] {
     // one layer but not the other fails silently — blank box plus a
     // console line, or stripped from the DOM before CSP is consulted.
     // Both halves were broken at once; see ``shared/utils/embeds.ts``.
-    `frame-src 'self'${dev ? ' data:' : ''}${stripeFrameSrc} https://challenges.cloudflare.com https://accounts.google.com${gsiFrameSrc} https://widget-v5.boxnow.gr https://widget-v5.boxnow.cy https://widget-v5.boxnow.bg https://widget-v5.boxnow.hr https://widget-v4.boxnow.gr https://widget.boxnow.gr${embedFrameSrc}${metaFrameSrc}${tenantExtra}`,
+    `frame-src 'self'${dev ? ' data:' : ''}${stripeFrameSrc} https://challenges.cloudflare.com https://accounts.google.com${gsiFrameSrc} ${BOXNOW_FRAME_ORIGINS.join(' ')}${embedFrameSrc}${metaFrameSrc}${tenantExtra}`,
     `object-src 'none'`,
     `base-uri 'self'`,
     `form-action 'self'${metaFormAction}`,

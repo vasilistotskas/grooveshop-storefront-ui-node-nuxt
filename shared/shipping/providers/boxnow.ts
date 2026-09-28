@@ -37,6 +37,7 @@ const boxnowCarrier: ShippingCarrier = {
       boxnowLockerAddressLine2: locker.addressLine2 ?? '',
       boxnowLockerPostalCode: locker.postalCode,
       boxnowLockerNote: locker.workingHours ?? '',
+      boxnowLockerCountryCode: locker.countryCode,
     }
   },
 
@@ -73,12 +74,18 @@ const boxnowCarrier: ShippingCarrier = {
         boxnowLockerAddressLine2?: unknown
         boxnowLockerPostalCode?: unknown
         boxnowLockerNote?: unknown
+        boxnowLockerCountryCode?: unknown
       }
       | null
       | undefined
     if (!stored || typeof stored !== 'object') return null
     const id = stored.boxnowLockerId
     if (typeof id !== 'string' || id.length === 0) return null
+    // The country of the widget map the locker was picked from; the
+    // picker only accepts a locker whose map matches the delivery
+    // country, so a stored locker without one is not a valid selection.
+    const countryCode = stored.boxnowLockerCountryCode
+    if (typeof countryCode !== 'string' || countryCode.length === 0) return null
     return {
       id,
       name: typeof stored.boxnowLockerName === 'string' ? stored.boxnowLockerName : id,
@@ -86,7 +93,7 @@ const boxnowCarrier: ShippingCarrier = {
       addressLine2: typeof stored.boxnowLockerAddressLine2 === 'string' ? stored.boxnowLockerAddressLine2 : null,
       city: '',
       postalCode: typeof stored.boxnowLockerPostalCode === 'string' ? stored.boxnowLockerPostalCode : '',
-      countryCode: 'GR',
+      countryCode,
       lat: null,
       lng: null,
       workingHours: typeof stored.boxnowLockerNote === 'string' ? stored.boxnowLockerNote : null,

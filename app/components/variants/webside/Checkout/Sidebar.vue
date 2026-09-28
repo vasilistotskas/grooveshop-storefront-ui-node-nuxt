@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 const props = defineProps({
-  shippingPrice: { type: Number, required: true },
+  // ``null`` while the live options haven't priced this method yet
+  // (loading, or ``shippingOptionsError``) — there is no local
+  // flat-rate fallback anymore, so the sidebar shows "—" rather than
+  // a misleading 0,00 €.
+  shippingPrice: { type: [Number, null] as PropType<number | null>, required: true },
   showPaymentFee: { type: Boolean, default: false },
   loyaltyDiscount: { type: Number, default: 0 },
   // Sum of the balances of the gift cards the shopper attached. The
@@ -63,15 +67,18 @@ const appliedPromotions = computed(() => cart.value?.appliedPromotions ?? [])
 const promotionFreeShipping = computed(() =>
   Boolean(cart.value?.promotionFreeShipping))
 
-const effectiveShippingPrice = computed(() =>
+const effectiveShippingPrice = computed<number | null>(() =>
   promotionFreeShipping.value ? 0 : props.shippingPrice)
 
 const payWayCost = computed(() => {
   if (!payWay?.value) return 0
   // Mirror the backend: the free threshold is evaluated on the
-  // DISCOUNTED items total plus shipping.
+  // DISCOUNTED items total plus shipping. Not-yet-priced (``null``,
+  // loading or ``shippingOptionsError``) is treated as 0 here — the
+  // checkout step already blocks advancing in that state, so this
+  // total is never the one actually charged.
   const shipping = shippingSummaryView.value
-    ? effectiveShippingPrice.value
+    ? (effectiveShippingPrice.value ?? 0)
     : 0
   const subtotal = Math.max(
     0,
@@ -102,7 +109,7 @@ const preGiftCardTotal = computed(() => {
   if (!cart.value) return 0
   const paymentFee = props.showPaymentFee ? payWayCost.value : 0
   const shipping = shippingSummaryView.value
-    ? effectiveShippingPrice.value
+    ? (effectiveShippingPrice.value ?? 0)
     : 0
   return Math.max(
     0,
@@ -311,7 +318,14 @@ defineSlots<{
               {{ t('shipping') }}
             </span>
             <span
-              v-if="effectiveShippingPrice === 0"
+              v-if="effectiveShippingPrice === null"
+              class="
+                font-bold text-primary-950
+                dark:text-primary-50
+              "
+            >—</span>
+            <span
+              v-else-if="effectiveShippingPrice === 0"
               class="font-bold text-success"
             >{{ t('free') }}</span>
             <span

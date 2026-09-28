@@ -19,12 +19,25 @@ const addressId = 'id' in route.params ? route.params.id : undefined
 // Auto-generated contract schema, tightened with the same client-side
 // phone plausibility check and delivery-address rules checkout applies
 // — the OpenAPI schema can't express either, and Django re-validates.
-const schema = zUserAddressWriteRequest.extend({
-  phone: zUserAddressWriteRequest.shape.phone.refine(isPlausiblePhone, {
-    error: t('validation.phone.invalid'),
-  }),
-}).superRefine((data, ctx) => {
-  refineAddress(ctx, selectedCountry(data.country), data, t)
+// ``region`` is already ``.nullish()`` on the generated schema
+// (mirrors ``UserAddressWriteSerializer.region`` being optional); the
+// superRefine below adds it back as required only when the selected
+// country actually has regions (``Country.hasRegions``).
+const schema = zUserAddressWriteRequest.superRefine((data, ctx) => {
+  const country = selectedCountry(data.country)
+  refineAddress(ctx, country, data, t)
+  if (country?.hasRegions !== false && !(data.region ?? '').trim()) {
+    ctx.addIssue({ path: ['region'], code: 'custom', message: t('validation.required') })
+  }
+  if (!isPlausiblePhone(data.phone, country)) {
+    ctx.addIssue({
+      path: ['phone'],
+      code: 'custom',
+      message: country?.phoneMetadata?.exampleMobile
+        ? t('validation.phone.invalid_example', { example: country.phoneMetadata.exampleMobile })
+        : t('validation.phone.invalid'),
+    })
+  }
 })
 
 type Schema = z.output<typeof schema>
@@ -39,33 +52,16 @@ const { data: address } = await useApi(`/api/user/addresses/${addressId}`, {
   },
 })
 
-// Form state - populate with existing address data
-const state = reactive<Partial<Schema>>({
-  title: address.value?.title,
-  firstName: address.value?.firstName,
-  lastName: address.value?.lastName,
-  street: address.value?.street,
-  streetNumber: address.value?.streetNumber,
-  city: address.value?.city,
-  zipcode: address.value?.zipcode,
-  // Address.phone is stored as E.164 (e.g. "+306912345678"); strip the
-  // +30 so the visible "+30" leading badge on the input doesn't double up.
-  phone: stripGreekPrefixForDisplay(address.value?.phone),
-  notes: address.value?.notes,
-  isMain: address.value?.isMain,
-  country: address.value?.country,
-  region: address.value?.region,
-  floor: address.value?.floor,
-  locationType: address.value?.locationType,
-})
-
-// Countries data
+// Countries data — shippable only: a country this store doesn't ship
+// to would 400 at submit either way. Fetched before ``state`` so the
+// phone display below can already resolve this address's dial code.
 const { data: countries } = await useApi('/api/countries', {
-  key: 'countries',
+  key: 'countries-shippable',
   method: 'GET',
   headers: useRequestHeaders(),
   query: {
     languageCode: locale,
+    shippable: true,
   },
 })
 
@@ -74,6 +70,31 @@ const { data: countries } = await useApi('/api/countries', {
 function selectedCountry(alpha2: string | undefined) {
   return countries.value?.results?.find(country => country.alpha2 === alpha2)
 }
+
+// Form state - populate with existing address data. ``region``
+// narrowed to drop ``null`` — the generated schema allows it (Django's
+// serializer accepts a blank region), but this form only ever assigns
+// it a string or leaves it undefined, and USelectMenu's v-model
+// doesn't accept null.
+const state = reactive<Partial<Omit<Schema, 'region'>> & { region?: string }>({
+  title: address.value?.title,
+  firstName: address.value?.firstName,
+  lastName: address.value?.lastName,
+  street: address.value?.street,
+  streetNumber: address.value?.streetNumber,
+  city: address.value?.city,
+  zipcode: address.value?.zipcode,
+  // Address.phone is stored as E.164 (e.g. "+306912345678"); strip the
+  // dial code so the visible leading badge on the input doesn't
+  // double up.
+  phone: stripDialCodeForDisplay(address.value?.phone, selectedCountry(address.value?.country)),
+  notes: address.value?.notes,
+  isMain: address.value?.isMain,
+  country: address.value?.country,
+  region: address.value?.region ?? undefined,
+  floor: address.value?.floor,
+  locationType: address.value?.locationType,
+})
 
 const countryOptions = computed(() => {
   return (
@@ -145,7 +166,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       headers: useRequestHeaders(),
       body: {
         ...event.data,
-        phone: normalizeGreekPhone(event.data.phone),
+        phone: normalizePhone(event.data.phone, selectedCountry(event.data.country)),
         // Canonical form, the same one Django stores.
         zipcode: normalizePostcode(event.data.zipcode),
       },
@@ -264,7 +285,7 @@ defineRouteRules({
           />
         </UFormField>
 
-        <!-- Phone (Greek number; +30 prefix applied on submit) -->
+        <!-- Phone — dial-code badge follows this form's own country -->
         <UFormField :label="t('form.phone')" name="phone" required>
           <UInput
             v-model="state.phone"
@@ -273,8 +294,8 @@ defineRouteRules({
             autocomplete="tel-national"
             inputmode="tel"
           >
-            <template #leading>
-              <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">+30</span>
+            <template v-if="dialCodeLabel(selectedCountry(state.country))" #leading>
+              <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ dialCodeLabel(selectedCountry(state.country)) }}</span>
             </template>
           </UInput>
         </UFormField>
@@ -314,7 +335,12 @@ defineRouteRules({
           />
         </UFormField>
 
-        <UFormField :label="t('form.region')" name="region" required>
+        <UFormField
+          v-if="selectedCountry(state.country)?.hasRegions !== false"
+          :label="t('form.region')"
+          name="region"
+          required
+        >
           <USelectMenu
             v-model="state.region"
             :aria-label="t('form.region')"

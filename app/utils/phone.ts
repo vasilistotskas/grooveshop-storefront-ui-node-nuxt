@@ -1,115 +1,186 @@
 /**
- * Phone number utilities — Greek market.
+ * Country-aware phone-number utilities.
  *
- * The storefront's phone UInput displays a sticky "+30" leading badge
- * and users enter their local Greek number.
+ * Delivery is no longer Greece-only (BoxNow now serves Cyprus lockers
+ * too), so a phone number cannot be validated against one hardcoded
+ * country. Every helper here takes the ``Country`` row the phone
+ * belongs to instead — the caller decides which row that is:
+ * the delivery country in checkout, the address-book form's own
+ * country field, or the profile's stored country in account settings
+ * (falling back to the first listed country when none is set yet —
+ * see ``resolvePhoneCountry``).
  *
- * Django side: `PHONENUMBER_DEFAULT_REGION = "GR"` in settings.py, so
- * `phonenumber_field` would parse bare Greek numbers correctly on its
- * own. We still normalize client-side for three reasons:
- *   1. immediate feedback — we know exactly what's going to be stored
- *      before the request flies, so Zod validation and error messages
- *      stay consistent.
- *   2. defensive — foreign-prefix numbers (+44, +49, …) keep their
- *      country code instead of being mistaken for Greek locals.
- *   3. round-tripping — `stripGreekPrefixForDisplay` lets us show the
- *      local portion in inputs that are pre-populated from stored
- *      E.164 values without the "+30 +30…" double-prefix glitch.
+ * The country row carries ``phoneCode`` (the E.164 dial code) and
+ * ``phoneMetadata`` (``nationalNumberPattern`` / ``possibleLengths`` /
+ * ``nationalPrefixForParsing`` / ``exampleMobile``), derived
+ * server-side from the exact ``phonenumbers`` library Django
+ * validates with (``country/phone.py``) — so these checks stay loose
+ * enough that a real customer is never falsely rejected client-side;
+ * Django is the authoritative, final check either way. A `+`-prefixed
+ * foreign number is always accepted at face value: a Greek mobile may
+ * ship to a Cypriot locker, so a foreign country code is never
+ * treated as a typo.
  */
 
-const GREEK_PREFIX = '+30'
+/** The subset of a ``Country`` row these helpers need. */
+export interface PhoneCountry {
+  phoneCode?: number | null
+  phoneMetadata?: PhoneMetadata | null
+}
+
+/** Loose E.164 check for a number whose country we have no metadata for. */
+const FOREIGN_E164 = /^\+[1-9]\d{7,14}$/
 
 /**
- * Normalize a Greek phone-number string to E.164 (`+30...`).
- *
- * - Strips whitespace, dashes, parens
- * - If the caller already typed `+30...` or `0030...`, pass through
- *   (re-prefixed as `+30`)
- * - Otherwise, prepends `+30` to the cleaned digits
- *
- * Returns an empty string when the input is empty/falsy so the
- * downstream validator sees "missing" rather than a bare "+30".
+ * Resolve the ``Country`` row a phone should be validated against —
+ * the exact ``alpha2`` match when one is given, else (opt-in) the
+ * first row in the list. Shared by every call site so "which country
+ * governs this phone field" is answered the same way everywhere:
+ * checkout and the address book pass the field's own country with no
+ * fallback (nothing to fall back to — the field is required); the
+ * account settings form passes ``fallbackToFirst: true`` because a
+ * profile can have no country set yet.
  */
-export function normalizeGreekPhone(raw: string | null | undefined): string {
+export function resolvePhoneCountry<T extends { alpha2: string }>(
+  countries: readonly T[] | null | undefined,
+  alpha2: string | null | undefined,
+  options: { fallbackToFirst?: boolean } = {},
+): T | undefined {
+  const list = countries ?? []
+  const match = alpha2 ? list.find(country => country.alpha2 === alpha2) : undefined
+  if (match) return match
+  return options.fallbackToFirst ? list[0] : undefined
+}
+
+/**
+ * Normalize a phone number to E.164 for the given country.
+ *
+ * - An already-international ``+…`` number passes through unchanged.
+ * - ``00…`` becomes ``+…``.
+ * - Otherwise the country's national prefix is stripped — a pattern
+ *   in libphonenumber (``phoneMetadata.nationalPrefixForParsing``:
+ *   Germany's ``0``, the UK's ``0|180020``) — and the dial code is
+ *   prepended. A country without one keeps its digits, except a
+ *   leading ``0`` the number is only valid without — the habit of
+ *   writing a Greek number as ``0211…``. The country's own pattern
+ *   decides, so an Italian landline, whose leading ``0`` is part of the
+ *   number, is left alone.
+ * - Exception: if what's left after stripping already starts with the
+ *   country's own dial code AND the remainder is one of its valid
+ *   national lengths, the input was typed as the dial code without a
+ *   leading ``+`` right next to the sticky badge (e.g. "306943413781"
+ *   next to a "+30" badge) — re-prefix with ``+`` instead of
+ *   double-prefixing into "+3030…". Generalises the old Greek-only
+ *   "3030" guard to every country's own length table.
+ *
+ * Returns ``''`` for empty input so the caller sees "missing" rather
+ * than a bare dial code.
+ */
+export function normalizePhone(
+  raw: string | null | undefined,
+  country: PhoneCountry | null | undefined,
+): string {
   if (!raw) return ''
   const cleaned = String(raw).replace(/[\s\-()]/g, '').trim()
   if (!cleaned) return ''
 
-  if (cleaned.startsWith(GREEK_PREFIX)) {
-    return cleaned
+  if (cleaned.startsWith('+')) return cleaned
+  if (cleaned.startsWith('00')) return `+${cleaned.slice(2)}`
+
+  const dialCode = country?.phoneCode
+  if (dialCode == null) {
+    // No dial code on record for this country row (a placeholder /
+    // reserved alpha-2 with no phonenumbers metadata) — strip a bare
+    // leading zero and mark the number international so downstream
+    // validation sees an E.164-shaped value rather than a silently
+    // wrong one.
+    return `+${cleaned.replace(/^0+/, '')}`
   }
-  if (cleaned.startsWith('0030')) {
-    return GREEK_PREFIX + cleaned.slice(4)
+
+  const dialCodeStr = String(dialCode)
+  const nationalPrefix = country?.phoneMetadata?.nationalPrefixForParsing
+  const possibleLengths = country?.phoneMetadata?.possibleLengths ?? []
+  const pattern = country?.phoneMetadata?.nationalNumberPattern
+  const isNational = (digits: string) => Boolean(pattern)
+    && possibleLengths.includes(digits.length)
+    && new RegExp(`^(?:${pattern})$`).test(digits)
+  const isNationalOrDialled = (digits: string) => isNational(digits)
+    || (digits.startsWith(dialCodeStr) && isNational(digits.slice(dialCodeStr.length)))
+
+  let stripped = cleaned
+  if (nationalPrefix) {
+    stripped = cleaned.replace(new RegExp(`^(?:${nationalPrefix})`), '')
   }
-  if (cleaned.startsWith('+')) {
-    // Foreign international number — respect the user's prefix.
-    return cleaned
+  else if (cleaned.startsWith('0') && !isNational(cleaned) && isNationalOrDialled(cleaned.slice(1))) {
+    stripped = cleaned.slice(1)
   }
-  // Bare digits (possibly with leading 0): strip a single leading 0 if
-  // present (Greek landlines sometimes written as 0211... domestically).
-  const digits = cleaned.replace(/^0/, '')
-  // Users sometimes type the country code without "+" next to the sticky
-  // "+30" badge (e.g. "306943413781"). No Greek national number starts
-  // with 3, so "30" followed by 10 digits is unambiguously a
-  // country-code-included number — re-prefix instead of producing the
-  // invalid "+3030…".
-  if (/^30\d{10}$/.test(digits)) {
-    return `+${digits}`
+
+  if (stripped.startsWith(dialCodeStr)) {
+    const rest = stripped.slice(dialCodeStr.length)
+    if (possibleLengths.includes(rest.length)) {
+      return `+${stripped}`
+    }
   }
-  return GREEK_PREFIX + digits
+  return `+${dialCodeStr}${stripped}`
 }
 
 /**
- * Loose plausibility check for a phone number, applied to the
- * ``normalizeGreekPhone`` output — the same value that gets submitted.
+ * Loose plausibility check, applied to the ``normalizePhone`` output
+ * — the same value that gets submitted.
  *
- * Deliberately *looser* than Django's `phonenumber_field` so a real
- * customer can never be falsely rejected at checkout:
- * - Greek numbers (`+30…`) are checked against libphonenumber's own
- *   umbrella pattern for Greece (``general_desc.national_number_pattern``,
- *   verified against `phonenumbers` 9.0.36 — the exact library Django
- *   validates with). It admits every assigned range — geographic (2x),
- *   mobile (69x/68x/94x), personal (70x), toll-free/shared-cost (800/801/…,
- *   the only ranges allowed 11–12 digits), premium (90x), corporate UAN
- *   (5005000xxx) — while rejecting wrong lengths and unassigned leading
- *   digits (1, 3, 4), which covers the real typo classes (e.g. the
- *   "+3030…" double country code).
- * - Foreign numbers (any other `+…`) only get an E.164 length check.
- *
- * Django re-validates authoritatively (`PHONENUMBER_DEFAULT_REGION =
- * "GR"`); anything that slips through here surfaces as a field-level
- * DRF error in the checkout toast.
+ * When the normalized number carries the given country's own dial
+ * code, it is checked against that country's ``phoneMetadata``
+ * (national-number pattern + possible lengths) — the same
+ * ``phonenumbers`` data Django validates with. Any other
+ * international number (a different country's phone, e.g. shipping to
+ * a locker abroad) only gets a loose E.164 length check, and a
+ * country row with no ``phoneMetadata`` (data gap) falls back to the
+ * same loose check rather than rejecting a real number.
  */
-const GREEK_E164 = /^\+30(?:5005000\d{3}|8\d{9,11}|(?:[269]\d|70)\d{8})$/
-const FOREIGN_E164 = /^\+[1-9]\d{7,14}$/
-
-export function isPlausiblePhone(raw: string | null | undefined): boolean {
-  const normalized = normalizeGreekPhone(raw)
+export function isPlausiblePhone(
+  raw: string | null | undefined,
+  country: PhoneCountry | null | undefined,
+): boolean {
+  const normalized = normalizePhone(raw, country)
   if (!normalized) return false
-  if (normalized.startsWith(GREEK_PREFIX)) {
-    return GREEK_E164.test(normalized)
+
+  const dialCode = country?.phoneCode
+  const pattern = country?.phoneMetadata?.nationalNumberPattern
+  const lengths = country?.phoneMetadata?.possibleLengths
+  if (dialCode != null && pattern && lengths?.length) {
+    const prefix = `+${dialCode}`
+    if (normalized.startsWith(prefix)) {
+      const national = normalized.slice(prefix.length)
+      return lengths.includes(national.length) && new RegExp(`^(?:${pattern})$`).test(national)
+    }
   }
   return FOREIGN_E164.test(normalized)
 }
 
 /**
- * Strip a Greek E.164 prefix so a pre-populated input can show the
- * local portion next to the visible "+30" badge.
+ * Strip the country's own dial code so a pre-populated input can show
+ * the local portion next to the visible dial-code badge.
  *
- * - `+306912345678` → `6912345678`
- * - `+44 7911 123456` → `+44 7911 123456` (non-GR, returned as-is)
+ * - ``+306912345678`` next to a GR badge → ``6912345678``
+ * - ``+447911123456`` next to a GR badge → returned as-is (foreign
+ *   prefix, nothing to strip for this country)
  * - empty / undefined → empty
  */
-export function stripGreekPrefixForDisplay(
+export function stripDialCodeForDisplay(
   raw: string | null | undefined,
+  country: PhoneCountry | null | undefined,
 ): string {
   if (!raw) return ''
   const s = String(raw).trim()
-  if (s.startsWith(GREEK_PREFIX)) {
-    return s.slice(GREEK_PREFIX.length).trim()
-  }
-  if (s.startsWith('0030')) {
-    return s.slice(4).trim()
-  }
+  const dialCode = country?.phoneCode
+  if (dialCode == null) return s
+  const dialCodeStr = String(dialCode)
+  if (s.startsWith(`+${dialCodeStr}`)) return s.slice(dialCodeStr.length + 1).trim()
+  if (s.startsWith(`00${dialCodeStr}`)) return s.slice(dialCodeStr.length + 2).trim()
   return s
+}
+
+/** The sticky leading dial-code badge text (``+30``, ``+357``…) for a country row. */
+export function dialCodeLabel(country: PhoneCountry | null | undefined): string {
+  return country?.phoneCode != null ? `+${country.phoneCode}` : ''
 }

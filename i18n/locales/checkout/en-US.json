@@ -33,6 +33,7 @@
   "saved_address_invalid_title": "Check the address",
   "saved_address_invalid_description": "Your saved address has a region that is no longer valid. Please choose the region again to continue.",
   "saved_address_invalid_fields_description": "Your saved address has a street, number or postcode we cannot deliver to. Correct them to continue.",
+  "saved_address_country_unavailable_description": "We no longer ship to your saved address's country. Enter a new address to continue.",
   "payment_canceled": "Payment cancelled",
   "payment_canceled_description": "The payment was not completed. You can choose a different payment method or try again.",
   "payment_error_title": "Payment error",
@@ -63,13 +64,17 @@
         "tagline": "Fast delivery, 24/7",
         "description": "Collect your order from any BOX NOW locker, at any time",
         "unconfigured_title": "BOX NOW is temporarily unavailable",
-        "unconfigured_description": "The integration with the BOX NOW network is not complete yet. Please choose delivery to your address."
+        "unconfigured_description": "The integration with the BOX NOW network is not complete yet. Please choose delivery to your address.",
+        "country_unsupported": "BOX NOW does not serve the selected delivery country yet."
       },
       "acs_smartpoint": {
         "label": "ACS Smartpoint Lockers",
         "tagline": "Collect in your own time",
         "description": "Collect your order from any ACS Smartpoint locker, based on the delivery postcode."
-      }
+      },
+      "exceeds_max_weight": "Your cart exceeds this method's weight limit ({maxKg} kg).",
+      "options_error_title": "Shipping options could not be loaded",
+      "options_error_description": "Check your connection and try again."
     },
     "boxnow": {
       "select_locker": "Choose a Locker",
@@ -185,6 +190,8 @@
         "invalid_order_data_description": "The order data is not valid. Please check your details.",
         "reservation_expired": "The reservation expired",
         "reservation_expired_description": "The stock reservation expired. Please try again.",
+        "shipping_unavailable": "Shipping is unavailable",
+        "shipping_unavailable_description": "We could not confirm the shipping cost for your choice. Check the delivery method and try again.",
         "max_retries": "Too many attempts",
         "stock_reservation": "Stock reservation error",
         "stock_reservation_description": "The stock could not be reserved. Please try again.",

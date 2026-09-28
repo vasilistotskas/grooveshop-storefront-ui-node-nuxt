@@ -37,11 +37,12 @@ const schema = z.object({
   }),
   // Optional in Django (UserAccount.phone is blank=True) but when
   // present it must pass the same plausibility check the checkout
-  // applies — the stored value is the normalizeGreekPhone output.
+  // applies, against this form's own country field (falling back to
+  // the first listed country while it's unset — see ``phoneCountry``).
   phone: z.string({ error: issue => issue.input === undefined
     ? t('validation.required')
     : t('validation.string.invalid') }).refine(
-    value => !value || isPlausiblePhone(value),
+    value => !value || isPlausiblePhone(value, phoneCountry.value),
     { error: t('validation.phone.invalid') },
   ),
   city: z.string({ error: issue => issue.input === undefined
@@ -99,13 +100,37 @@ const userLanguage = (user.value?.languageCode && SUPPORTED_LOCALES.includes(use
   ? user.value.languageCode as typeof SUPPORTED_LOCALES[number]
   : DEFAULT_LOCALE
 
+// Countries fetched before ``state`` so the phone display below can
+// already resolve the profile's dial code. Full list (not
+// ``shippable``-filtered) — this is account data, not a delivery
+// address, so every ISO country the store's Country table carries is
+// a valid choice here.
+const { data: countries } = await useApi('/api/countries', {
+  key: 'countries',
+  method: 'GET',
+  headers: useRequestHeaders(),
+  query: {
+    languageCode: locale,
+  },
+})
+
+// One-off (non-reactive) resolution for the initial display value
+// only — the live, reactive version (``phoneCountry`` below, defined
+// after ``state`` exists) follows the form's own country field so the
+// badge updates if the shopper changes it before saving.
+const initialPhoneCountry = resolvePhoneCountry(
+  countries.value?.results,
+  user.value?.country,
+  { fallbackToFirst: true },
+)
+
 const state = reactive<Partial<Schema>>({
   email: user.value?.email || '',
   firstName: user.value?.firstName || '',
   lastName: user.value?.lastName || '',
-  // Stored as E.164 (e.g. "+306912345678"); strip the +30 for display
-  // so it pairs cleanly with the sticky "+30" leading badge.
-  phone: stripGreekPrefixForDisplay(user.value?.phone),
+  // Stored as E.164 (e.g. "+306912345678"); strip the dial code for
+  // display so it pairs cleanly with the sticky leading badge.
+  phone: stripDialCodeForDisplay(user.value?.phone, initialPhoneCountry),
   city: user.value?.city || '',
   zipcode: user.value?.zipcode || '',
   address: user.value?.address || '',
@@ -114,6 +139,28 @@ const state = reactive<Partial<Schema>>({
   country: user.value?.country || defaultSelectOptionChoose,
   region: user.value?.region || defaultSelectOptionChoose,
   languageCode: userLanguage,
+})
+
+// The country governing the phone badge + validation — the form's
+// own (live) country field, falling back to the first listed country
+// while it's still the unselected placeholder. Referenced by the
+// ``phone`` refine above; the closure resolves it lazily at
+// validation time, by when this is already initialised.
+//
+// A plain ref updated via watch() — not a computed reading
+// state.country directly — because a computed's initializer touching
+// state (typed Partial<Schema>) closes a cycle back through the
+// schema's own phone refine (schema -> phoneCountry -> state ->
+// Schema -> schema, TS2456). Explicitly typing this ref breaks it: the
+// watch callback below still reads state.country, but that's a
+// separate statement, not part of phoneCountry's own type.
+const phoneCountry = ref<Country | undefined>(initialPhoneCountry)
+watch(() => state.country, (newCountry) => {
+  phoneCountry.value = resolvePhoneCountry(
+    countries.value?.results,
+    newCountry !== defaultSelectOptionChoose ? newCountry : undefined,
+    { fallbackToFirst: true },
+  )
 })
 
 const languageOptions = computed(() => {
@@ -142,15 +189,6 @@ const label = computed(() => {
   return calendarDate.value
     ? df.format(calendarDate.value.toDate(getLocalTimeZone()))
     : t('form.birth_date')
-})
-
-const { data: countries } = await useApi('/api/countries', {
-  key: 'countries',
-  method: 'GET',
-  headers: useRequestHeaders(),
-  query: {
-    languageCode: locale,
-  },
 })
 
 const countryOptions = computed(() => {
@@ -252,7 +290,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
       email: values.email,
       firstName: values.firstName,
       lastName: values.lastName,
-      phone: normalizeGreekPhone(values.phone),
+      phone: normalizePhone(values.phone, phoneCountry.value),
       city: values.city,
       zipcode: values.zipcode,
       address: values.address,
@@ -370,8 +408,8 @@ watch(calendarDate, (newVal) => {
             base: 'ps-11',
           }"
         >
-          <template #leading>
-            <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">+30</span>
+          <template v-if="dialCodeLabel(phoneCountry)" #leading>
+            <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ dialCodeLabel(phoneCountry) }}</span>
           </template>
         </UInput>
       </UFormField>

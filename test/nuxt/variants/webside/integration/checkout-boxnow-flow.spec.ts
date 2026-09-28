@@ -35,6 +35,9 @@ const DEFAULT_API_OPTIONS: ShippingOption[] = [
     currency: 'EUR',
     liveMode: true,
     priority: 5,
+    countryCode: 'GR',
+    maxWeightGrams: null,
+    exceedsMaxWeight: false,
     metadata: {},
     payWays: [],
   },
@@ -46,8 +49,22 @@ const DEFAULT_API_OPTIONS: ShippingOption[] = [
     currency: 'EUR',
     liveMode: true,
     priority: 10,
+    countryCode: 'GR',
+    maxWeightGrams: null,
+    exceedsMaxWeight: false,
     metadata: {},
     payWays: [],
+  },
+]
+
+// The same rows, priced for a Cypriot delivery — the CY flow the
+// BoxNow Cyprus release adds.
+const CY_API_OPTIONS: ShippingOption[] = [
+  {
+    ...DEFAULT_API_OPTIONS[0]!,
+    price: 4.5,
+    countryCode: 'CY',
+    maxWeightGrams: 4000,
   },
 ]
 
@@ -99,6 +116,7 @@ describe('BoxNow Checkout Integration', () => {
     it('renders correctly in isolation with default home_delivery selection', async () => {
       const formState = {
         shippingMethod: 'home_delivery',
+        country: 'GR',
         boxnowLockerId: '',
         boxnowLocker: null,
       }
@@ -117,6 +135,7 @@ describe('BoxNow Checkout Integration', () => {
     it('transitions from home_delivery to box_now_locker shows the locker picker section', async () => {
       const formState = reactive({
         shippingMethod: 'home_delivery',
+        country: 'GR',
         boxnowLockerId: '',
         boxnowLocker: null,
       })
@@ -138,7 +157,7 @@ describe('BoxNow Checkout Integration', () => {
     it('submit() with home_delivery selected emits "next"', async () => {
       const wrapper = await mountSuspended(StepShipping, {
         props: {
-          formState: { shippingMethod: 'home_delivery', boxnowLockerId: '', boxnowLocker: null },
+          formState: { shippingMethod: 'home_delivery', country: 'GR', boxnowLockerId: '', boxnowLocker: null },
           schema: null,
           partnerId: '10391',
           apiOptions: DEFAULT_API_OPTIONS,
@@ -160,6 +179,7 @@ describe('BoxNow Checkout Integration', () => {
         props: {
           formState: {
             shippingMethod: 'box_now_locker',
+            country: 'GR',
             boxnowLockerId: '4',
             boxnowLocker: {
               boxnowLockerId: '4',
@@ -179,6 +199,85 @@ describe('BoxNow Checkout Integration', () => {
       ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
       await wrapper.vm.$nextTick()
       expect(wrapper.emitted('next')).toBeTruthy()
+    })
+  })
+
+  describe('CY BoxNow flow', () => {
+    it('renders BoxNow enabled for a Cypriot delivery, priced at the CY rate', async () => {
+      const wrapper = await mountSuspended(StepShipping, {
+        props: {
+          formState: { shippingMethod: 'home_delivery', country: 'CY', boxnowLockerId: '', boxnowLocker: null },
+          schema: null,
+          partnerId: '10391',
+          apiOptions: CY_API_OPTIONS,
+        },
+      })
+
+      const radioGroup = wrapper.findComponent({ name: 'URadioGroup' })
+      const boxNowItem = (radioGroup.props('items') as Array<{ value: string, disabled?: boolean }>)
+        .find(item => item.value === 'box_now_locker')
+      expect(boxNowItem?.disabled).toBeFalsy()
+    })
+
+    it('selecting box_now_locker for CY mounts the locker picker with countryCode=CY', async () => {
+      const formState = reactive({
+        shippingMethod: 'box_now_locker',
+        country: 'CY',
+        boxnowLockerId: '',
+        boxnowLocker: null,
+      })
+
+      const wrapper = await mountSuspended(StepShipping, {
+        props: { formState, schema: null, partnerId: '10391', apiOptions: CY_API_OPTIONS },
+      })
+
+      const selected = wrapper.findComponent({ name: 'WebsideCheckoutSelectedBoxNowLocker' })
+      expect(selected.exists()).toBe(true)
+      expect(selected.props('formState')).toMatchObject({ country: 'CY' })
+    })
+
+    it('submit() with a CY locker selected emits "next"', async () => {
+      const wrapper = await mountSuspended(StepShipping, {
+        props: {
+          formState: {
+            shippingMethod: 'box_now_locker',
+            country: 'CY',
+            boxnowLockerId: '12',
+            boxnowLocker: {
+              boxnowLockerId: '12',
+              boxnowLockerPostalCode: '1010',
+              boxnowLockerAddressLine1: 'Λεωφόρος Μακαρίου 1',
+              boxnowLockerCountryCode: 'CY',
+            },
+          },
+          schema: null,
+          partnerId: '10391',
+          apiOptions: CY_API_OPTIONS,
+        },
+      })
+
+      ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+      await wrapper.vm.$nextTick()
+      expect(wrapper.emitted('next')).toBeTruthy()
+    })
+
+    it('disables BoxNow (over-cap reason) when the CY cart exceeds the 4kg rate cap', async () => {
+      const overCapCyOptions: ShippingOption[] = [
+        { ...CY_API_OPTIONS[0]!, exceedsMaxWeight: true },
+      ]
+      const wrapper = await mountSuspended(StepShipping, {
+        props: {
+          formState: { shippingMethod: 'home_delivery', country: 'CY', boxnowLockerId: '', boxnowLocker: null },
+          schema: null,
+          partnerId: '10391',
+          apiOptions: overCapCyOptions,
+        },
+      })
+
+      const radioGroup = wrapper.findComponent({ name: 'URadioGroup' })
+      const boxNowItem = (radioGroup.props('items') as Array<{ value: string, disabled?: boolean }>)
+        .find(item => item.value === 'box_now_locker')
+      expect(boxNowItem?.disabled).toBe(true)
     })
   })
 

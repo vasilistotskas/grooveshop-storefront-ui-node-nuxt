@@ -20,6 +20,8 @@ const VALID_LOCKER_PAYLOAD = {
   boxnowLockerPostalCode: '15234',
   boxnowLockerAddressLine1: 'Λεωφ. Πεντέλης 125',
   boxnowLockerName: 'Χαλάνδρι ΟΠΑΠ Play',
+  // The widget names the map the locker was picked from.
+  boxnowCountry: 'greece',
 }
 
 // ---------------------------------------------------------------------------
@@ -44,7 +46,7 @@ describe('Checkout/BoxNowLockerPicker', () => {
   describe('modal and iframe rendering (open=true)', () => {
     it('mounts successfully', async () => {
       const wrapper = await mountSuspended(BoxNowLockerPicker, {
-        props: { open: true, partnerId: '10391' },
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
       })
 
       expect(wrapper.exists()).toBe(true)
@@ -55,7 +57,7 @@ describe('Checkout/BoxNowLockerPicker', () => {
     // query `document` directly rather than `wrapper.find()`.
     it('renders an iframe with a src matching the BoxNow widget URL pattern when open=true', async () => {
       await mountSuspended(BoxNowLockerPicker, {
-        props: { open: true, partnerId: '10391' },
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
       })
 
       const iframe = document.querySelector('iframe')
@@ -68,7 +70,7 @@ describe('Checkout/BoxNowLockerPicker', () => {
 
     it('iframe has allow="geolocation" attribute', async () => {
       await mountSuspended(BoxNowLockerPicker, {
-        props: { open: true, partnerId: '10391' },
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
       })
 
       const iframe = document.querySelector('iframe')
@@ -77,7 +79,7 @@ describe('Checkout/BoxNowLockerPicker', () => {
 
     it('iframe src contains expected default params (gps=yes, autoselect=yes, autoclose=no)', async () => {
       await mountSuspended(BoxNowLockerPicker, {
-        props: { open: true, partnerId: '10391' },
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
       })
 
       const src = document.querySelector('iframe')?.getAttribute('src') ?? ''
@@ -91,7 +93,7 @@ describe('Checkout/BoxNowLockerPicker', () => {
   describe('postMessage handling', () => {
     it('emits "selected" with parsed locker when a valid postMessage arrives from an allowed origin', async () => {
       const wrapper = await mountSuspended(BoxNowLockerPicker, {
-        props: { open: true, partnerId: '10391' },
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
       })
 
       dispatchBoxNowMessage('https://widget-v5.boxnow.gr', VALID_LOCKER_PAYLOAD)
@@ -107,9 +109,52 @@ describe('Checkout/BoxNowLockerPicker', () => {
       expect(emittedLocker.boxnowLockerAddressLine1).toBe('Λεωφ. Πεντέλης 125')
     })
 
+    it('does NOT emit "selected" for a locker from a map of another country', async () => {
+      const wrapper = await mountSuspended(BoxNowLockerPicker, {
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
+      })
+
+      dispatchBoxNowMessage('https://widget-v5.boxnow.cy', {
+        ...VALID_LOCKER_PAYLOAD,
+        boxnowLockerPostalCode: '2008',
+        boxnowCountry: 'cyprus',
+      })
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.emitted('selected')).toBeFalsy()
+    })
+
+    it('does NOT emit "selected" when the widget does not name its map', async () => {
+      const wrapper = await mountSuspended(BoxNowLockerPicker, {
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
+      })
+
+      const { boxnowCountry: _omitted, ...withoutCountry } = VALID_LOCKER_PAYLOAD
+      dispatchBoxNowMessage('https://widget-v5.boxnow.gr', withoutCountry)
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.emitted('selected')).toBeFalsy()
+    })
+
+    it('emits a Cypriot locker on the Cyprus map', async () => {
+      const wrapper = await mountSuspended(BoxNowLockerPicker, {
+        props: { open: true, partnerId: '10391', countryCode: 'CY' },
+      })
+
+      dispatchBoxNowMessage('https://widget-v5.boxnow.cy', {
+        ...VALID_LOCKER_PAYLOAD,
+        boxnowLockerPostalCode: '2008',
+        boxnowCountry: 'Cyprus',
+      })
+      await wrapper.vm.$nextTick()
+
+      const locker = wrapper.emitted('selected')![0]![0] as Record<string, string>
+      expect(locker.boxnowLockerCountryCode).toBe('CY')
+    })
+
     it('does NOT emit "selected" for a postMessage from an untrusted origin', async () => {
       const wrapper = await mountSuspended(BoxNowLockerPicker, {
-        props: { open: true, partnerId: '10391' },
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
       })
 
       dispatchBoxNowMessage('https://attacker.com', VALID_LOCKER_PAYLOAD)
@@ -120,7 +165,7 @@ describe('Checkout/BoxNowLockerPicker', () => {
 
     it('does NOT emit "selected" for a valid origin but invalid (missing required fields) payload', async () => {
       const wrapper = await mountSuspended(BoxNowLockerPicker, {
-        props: { open: true, partnerId: '10391' },
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
       })
 
       // Missing boxnowLockerPostalCode and boxnowLockerAddressLine1
@@ -134,7 +179,7 @@ describe('Checkout/BoxNowLockerPicker', () => {
 
     it('does NOT emit "selected" for a postMessage from an HTTP (not HTTPS) origin', async () => {
       const wrapper = await mountSuspended(BoxNowLockerPicker, {
-        props: { open: true, partnerId: '10391' },
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
       })
 
       dispatchBoxNowMessage('http://widget-v5.boxnow.gr', VALID_LOCKER_PAYLOAD)
@@ -145,7 +190,7 @@ describe('Checkout/BoxNowLockerPicker', () => {
 
     it('does NOT emit "selected" when payload is a string (non-object)', async () => {
       const wrapper = await mountSuspended(BoxNowLockerPicker, {
-        props: { open: true, partnerId: '10391' },
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
       })
 
       dispatchBoxNowMessage('https://widget-v5.boxnow.gr', 'some-string-payload')
@@ -167,7 +212,7 @@ describe('Checkout/BoxNowLockerPicker', () => {
         // torn down, so assert against a clean body.
         document.body.innerHTML = ''
         await mountSuspended(BoxNowLockerPicker, {
-          props: { open: true, partnerId: '10391' },
+          props: { open: true, partnerId: '10391', countryCode: 'GR' },
         })
 
         await vi.advanceTimersByTimeAsync(15000)
@@ -189,7 +234,7 @@ describe('Checkout/BoxNowLockerPicker', () => {
         // torn down, so assert against a clean body.
         document.body.innerHTML = ''
         await mountSuspended(BoxNowLockerPicker, {
-          props: { open: true, partnerId: '10391' },
+          props: { open: true, partnerId: '10391', countryCode: 'GR' },
         })
 
         await vi.advanceTimersByTimeAsync(14000)
@@ -200,6 +245,68 @@ describe('Checkout/BoxNowLockerPicker', () => {
       }
       finally {
         vi.useRealTimers()
+      }
+    })
+  })
+
+  describe('per-country widget host', () => {
+    it('resolves the CY widget host and countryCode=cy param', async () => {
+      document.body.innerHTML = ''
+      await mountSuspended(BoxNowLockerPicker, {
+        props: { open: true, partnerId: '10391', countryCode: 'CY' },
+      })
+
+      const src = document.querySelector('iframe')?.getAttribute('src') ?? ''
+      expect(src).toMatch(/^https:\/\/widget-v5\.boxnow\.cy\/iframe\.html/)
+      expect(src).toContain('countryCode=cy')
+    })
+
+    it('resolves the GR widget host and countryCode=gr param', async () => {
+      document.body.innerHTML = ''
+      await mountSuspended(BoxNowLockerPicker, {
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
+      })
+
+      const src = document.querySelector('iframe')?.getAttribute('src') ?? ''
+      expect(src).toMatch(/^https:\/\/widget-v5\.boxnow\.gr\/iframe\.html/)
+      expect(src).toContain('countryCode=gr')
+    })
+
+    it('renders no iframe (defence-in-depth) for a country with no widget mapping', async () => {
+      document.body.innerHTML = ''
+      await mountSuspended(BoxNowLockerPicker, {
+        props: { open: true, partnerId: '10391', countryCode: 'BG' },
+      })
+
+      expect(document.querySelector('iframe')).toBeNull()
+    })
+  })
+
+  describe('widget language follows the page locale', () => {
+    it('sends language=el for the default (Greek) locale', async () => {
+      document.body.innerHTML = ''
+      await mountSuspended(BoxNowLockerPicker, {
+        props: { open: true, partnerId: '10391', countryCode: 'GR' },
+      })
+
+      const src = document.querySelector('iframe')?.getAttribute('src') ?? ''
+      expect(src).toContain('language=el')
+    })
+
+    it('sends language=en when the page is browsed in English', async () => {
+      const { $i18n } = useNuxtApp()
+      $i18n.locale.value = 'en'
+      try {
+        document.body.innerHTML = ''
+        await mountSuspended(BoxNowLockerPicker, {
+          props: { open: true, partnerId: '10391', countryCode: 'GR' },
+        })
+
+        const src = document.querySelector('iframe')?.getAttribute('src') ?? ''
+        expect(src).toContain('language=en')
+      }
+      finally {
+        $i18n.locale.value = 'el'
       }
     })
   })

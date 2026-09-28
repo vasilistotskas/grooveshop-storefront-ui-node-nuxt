@@ -72,4 +72,60 @@ describe('Checkout/StepPersonalInfo address fields', () => {
     expect(html).toContain('Εισήγαγε έγκυρο ταχυδρομικό κώδικα, π.χ. 151 24')
     expect(html).toContain('Αυτό μοιάζει με ταχυδρομικό κώδικα')
   })
+
+  describe('phone dial-code badge follows the selected country', () => {
+    it('shows +30 for Greece', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({ selectedCountry: { alpha2: 'GR', phoneCode: 30 } }),
+      })
+
+      expect(wrapper.html()).toContain('+30')
+    })
+
+    it('shows +357 for Cyprus', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({ selectedCountry: { alpha2: 'CY', phoneCode: 357 } }),
+      })
+
+      expect(wrapper.html()).toContain('+357')
+    })
+
+    it('renders no badge when no country is selected yet', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({ selectedCountry: null }),
+      })
+
+      expect(wrapper.html()).not.toContain('+30')
+      expect(wrapper.html()).not.toContain('+357')
+    })
+  })
+
+  describe('region field follows Country.hasRegions', () => {
+    it('renders (required, enabled) for a country with regions (GR)', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({
+          selectedCountry: { alpha2: 'GR', hasRegions: true },
+          regionOptions: [{ label: 'Αττική', value: 'ATTIKI' }],
+        }),
+      })
+
+      const regionLabel = wrapper.findAll('label').find(l => l.text() === 'Περιφέρεια')
+      expect(regionLabel).toBeDefined()
+      expect(regionLabel?.classes().join(' ')).toContain('after:content-[\'*\']')
+      const regionSelect = wrapper.find('[role="combobox"]#' + regionLabel?.attributes('for'))
+      expect(regionSelect.attributes('disabled')).toBeUndefined()
+    })
+
+    it('is not rendered at all for a country without regions', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({
+          selectedCountry: { alpha2: 'XX', hasRegions: false },
+          regionOptions: [],
+        }),
+      })
+
+      const regionLabel = wrapper.findAll('label').find(l => l.text() === 'Περιφέρεια')
+      expect(regionLabel).toBeUndefined()
+    })
+  })
 })

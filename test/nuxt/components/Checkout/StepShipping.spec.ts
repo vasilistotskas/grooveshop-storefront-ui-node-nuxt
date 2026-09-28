@@ -18,6 +18,7 @@ import StepShipping from '~/components/Checkout/StepShipping.vue'
 function makeFormState(overrides: Record<string, unknown> = {}) {
   return {
     shippingMethod: 'home_delivery',
+    country: 'GR',
     boxnowLockerId: '',
     boxnowLocker: null,
     ...overrides,
@@ -39,6 +40,9 @@ const DEFAULT_API_OPTIONS: ShippingOption[] = [
     currency: 'EUR',
     liveMode: true,
     priority: 5,
+    countryCode: 'GR',
+    maxWeightGrams: null,
+    exceedsMaxWeight: false,
     metadata: {},
     payWays: [],
   },
@@ -50,6 +54,9 @@ const DEFAULT_API_OPTIONS: ShippingOption[] = [
     currency: 'EUR',
     liveMode: true,
     priority: 10,
+    countryCode: 'GR',
+    maxWeightGrams: null,
+    exceedsMaxWeight: false,
     metadata: {},
     payWays: [],
   },
@@ -267,5 +274,158 @@ describe('exclusive pay ways on the delivery card', () => {
     })
 
     expect(wrapper.html()).not.toContain('Επιπλέον τρόπος πληρωμής')
+  })
+})
+
+describe('over-cap options (weight exceeds the carrier max)', () => {
+  it('renders the option disabled with a reason instead of hiding it', async () => {
+    const overCapOptions: ShippingOption[] = [
+      { ...DEFAULT_API_OPTIONS[0]!, maxWeightGrams: 4000, exceedsMaxWeight: true },
+      DEFAULT_API_OPTIONS[1]!,
+    ]
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({ apiOptions: overCapOptions }),
+    })
+
+    // Still present — over-cap never hides the row.
+    expect(wrapper.html()).toContain('box_now_locker')
+    // The reason names the cap in kg (4000g -> 4kg).
+    expect(wrapper.html()).toContain('4')
+    const radioGroup = wrapper.findComponent({ name: 'URadioGroup' })
+    const boxNowItem = (radioGroup.props('items') as Array<{ value: string, disabled?: boolean }>)
+      .find(item => item.value === 'box_now_locker')
+    expect(boxNowItem?.disabled).toBe(true)
+  })
+})
+
+describe('one row standing for several home-delivery carriers', () => {
+  const flatRate: ShippingOption = {
+    ...DEFAULT_API_OPTIONS[1]!,
+    providerCode: 'flat_rate',
+    providerName: 'Standard delivery',
+    priority: 20,
+  }
+
+  function homeItem(wrapper: Awaited<ReturnType<typeof mountSuspended>>) {
+    const radioGroup = wrapper.findComponent({ name: 'URadioGroup' })
+    return (radioGroup.props('items') as Array<{ value: string, disabled?: boolean }>)
+      .find(item => item.value === 'home_delivery')
+  }
+
+  it('stays selectable while one carrier behind it still fits the cart', async () => {
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({
+        apiOptions: [
+          DEFAULT_API_OPTIONS[0]!,
+          { ...DEFAULT_API_OPTIONS[1]!, maxWeightGrams: 2000, exceedsMaxWeight: true },
+          flatRate,
+        ],
+      }),
+    })
+
+    expect(homeItem(wrapper)?.disabled).toBeFalsy()
+  })
+
+  it('is disabled only when every carrier behind it is over its cap', async () => {
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({
+        apiOptions: [
+          DEFAULT_API_OPTIONS[0]!,
+          { ...DEFAULT_API_OPTIONS[1]!, maxWeightGrams: 2000, exceedsMaxWeight: true },
+          { ...flatRate, maxWeightGrams: 3000, exceedsMaxWeight: true },
+        ],
+      }),
+    })
+
+    expect(homeItem(wrapper)?.disabled).toBe(true)
+  })
+
+  it('does not advance on a selection whose row is disabled', async () => {
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({
+        apiOptions: [
+          DEFAULT_API_OPTIONS[0]!,
+          { ...DEFAULT_API_OPTIONS[1]!, maxWeightGrams: 2000, exceedsMaxWeight: true },
+        ],
+      }),
+    })
+
+    ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+
+    expect(wrapper.emitted('next')).toBeFalsy()
+  })
+})
+
+describe('BoxNow disabled for a delivery country with no widget mapping', () => {
+  it('disables the BoxNow row for a country BoxNow does not serve', async () => {
+    const bgOptions: ShippingOption[] = [
+      { ...DEFAULT_API_OPTIONS[0]!, countryCode: 'BG' },
+      DEFAULT_API_OPTIONS[1]!,
+    ]
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({
+        apiOptions: bgOptions,
+        formState: makeFormState({ country: 'BG' }),
+      }),
+    })
+
+    const radioGroup = wrapper.findComponent({ name: 'URadioGroup' })
+    const boxNowItem = (radioGroup.props('items') as Array<{ value: string, disabled?: boolean }>)
+      .find(item => item.value === 'box_now_locker')
+    expect(boxNowItem?.disabled).toBe(true)
+  })
+
+  it('keeps BoxNow enabled for CY (a supported widget country)', async () => {
+    const cyOptions: ShippingOption[] = [
+      { ...DEFAULT_API_OPTIONS[0]!, countryCode: 'CY' },
+    ]
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({
+        apiOptions: cyOptions,
+        formState: makeFormState({ country: 'CY' }),
+      }),
+    })
+
+    const radioGroup = wrapper.findComponent({ name: 'URadioGroup' })
+    const boxNowItem = (radioGroup.props('items') as Array<{ value: string, disabled?: boolean }>)
+      .find(item => item.value === 'box_now_locker')
+    expect(boxNowItem?.disabled).toBeFalsy()
+  })
+})
+
+describe('optionsError (live options fetch failed)', () => {
+  it('renders a retry prompt instead of the picker', async () => {
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({ optionsError: true }),
+    })
+
+    expect(wrapper.findComponent({ name: 'URadioGroup' }).exists()).toBe(false)
+    const retryButtons = wrapper.findAllComponents({ name: 'UButton' })
+      .filter(btn => btn.text().includes('ξανά'))
+    expect(retryButtons.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('emits retry-options when the retry action is used', async () => {
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({ optionsError: true }),
+    })
+
+    const alert = wrapper.findComponent({ name: 'UAlert' })
+    const retryAction = (alert.props('actions') as Array<{ label: string, onClick: () => void }>)
+      .find(action => action.onClick)
+    retryAction?.onClick()
+
+    expect(wrapper.emitted('retry-options')).toBeTruthy()
+  })
+
+  it('submit() is a no-op while options failed to load', async () => {
+    const wrapper = await mountSuspended(StepShipping, {
+      props: makeProps({ optionsError: true }),
+    })
+
+    ;((wrapper.vm as unknown as { $: { exposed: { submit: () => void } } }).$.exposed).submit()
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.emitted('next')).toBeFalsy()
   })
 })

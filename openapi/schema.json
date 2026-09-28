@@ -17938,6 +17938,27 @@
                     },
                     {
                         "in": "query",
+                        "name": "shippable",
+                        "schema": {
+                            "oneOf": [
+                                {
+                                    "type": "string",
+                                    "enum": [
+                                        "true",
+                                        "false",
+                                        "1",
+                                        "0"
+                                    ]
+                                },
+                                {
+                                    "type": "boolean"
+                                }
+                            ]
+                        },
+                        "description": "Φίλτρο για τις χώρες στις οποίες το τρέχον κατάστημα έχει ενεργή τιμή αποστολής (ShippingRate). Στον host της πλατφόρμας — που δεν έχει κατάστημα, άρα ούτε τιμές — δεν επιστρέφει ποτέ καμία."
+                    },
+                    {
+                        "in": "query",
                         "name": "sortOrder",
                         "schema": {
                             "oneOf": [
@@ -42955,7 +42976,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "Όνομα κλειδιού ρύθμισης (π.χ. CHECKOUT_SHIPPING_PRICE)",
+                        "description": "Όνομα κλειδιού ρύθμισης (π.χ. GIFT_CARD_MIN_AMOUNT)",
                         "required": true
                     }
                 ],
@@ -43993,7 +44014,8 @@
                         "schema": {
                             "type": "string"
                         },
-                        "description": "ISO 3166-1 alpha-2 country code (e.g. 'GR')."
+                        "description": "ISO 3166-1 alpha-2 country code (e.g. 'GR'). Required — a ``ShippingRate`` is per-country.",
+                        "required": true
                     },
                     {
                         "in": "query",
@@ -57138,7 +57160,8 @@
                     },
                     "countryId": {
                         "type": "string",
-                        "description": "Προαιρετικός κωδικός χώρας ISO 3166-1 alpha-2 — καθορίζει τον συντελεστή αποστολής σε επίπεδο χώρας. Πρέπει να ταιριάζει με αυτόν που θα φέρει το αίτημα δημιουργίας παραγγελίας.",
+                        "minLength": 1,
+                        "description": "Κωδικός χώρας ISO 3166-1 alpha-2 — υποχρεωτικός, επειδή η τιμή αποστολής (``ShippingRate``) ορίζεται ανά χώρα και χωρίς προορισμό δεν τιμολογείται καμία επιλογή. Πρέπει να συμφωνεί με τη χώρα του αιτήματος δημιουργίας παραγγελίας.",
                         "maxLength": 2
                     },
                     "regionId": {
@@ -57177,6 +57200,7 @@
                     }
                 },
                 "required": [
+                    "countryId",
                     "payWayId",
                     "shippingKind"
                 ]
@@ -58505,6 +58529,21 @@
                         "description": "Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.",
                         "maxLength": 50
                     },
+                    "phoneMetadata": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PhoneMetadata"
+                            }
+                        ],
+                        "nullable": true,
+                        "readOnly": true,
+                        "description": "Η μορφή επικύρωσης τηλεφώνου για αυτή τη χώρα, όπως προκύπτει από τη βιβλιοθήκη ``phonenumbers`` που χρησιμοποιεί το Django — δεν αποθηκεύεται ποτέ. Null μόνο για δεσμευμένο κωδικό alpha-2 για τον οποίο η ``phonenumbers`` δεν έχει δεδομένα."
+                    },
+                    "hasRegions": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "description": "Αν η χώρα έχει καταχωρισμένες περιοχές. Οι περισσότερες χώρες της πλήρους λίστας ISO 3166-1 δεν έχουν — το κατάστημα το χρησιμοποιεί για να αποφασίσει αν θα εμφανίσει καθόλου το πεδίο περιοχής στη φόρμα διεύθυνσης, αντί να το ζητά πάντα."
+                    },
                     "sortOrder": {
                         "type": "integer",
                         "readOnly": true,
@@ -58537,7 +58576,9 @@
                     "alpha2",
                     "alpha3",
                     "createdAt",
+                    "hasRegions",
                     "mainImagePath",
+                    "phoneMetadata",
                     "sortOrder",
                     "translations",
                     "updatedAt",
@@ -58615,6 +58656,21 @@
                         "description": "Ένας έγκυρος ταχυδρομικός κώδικας που βλέπουν οι πελάτες, π.χ. 151 24.",
                         "maxLength": 50
                     },
+                    "phoneMetadata": {
+                        "allOf": [
+                            {
+                                "$ref": "#/components/schemas/PhoneMetadata"
+                            }
+                        ],
+                        "nullable": true,
+                        "readOnly": true,
+                        "description": "Η μορφή επικύρωσης τηλεφώνου για αυτή τη χώρα, όπως προκύπτει από τη βιβλιοθήκη ``phonenumbers`` που χρησιμοποιεί το Django — δεν αποθηκεύεται ποτέ. Null μόνο για δεσμευμένο κωδικό alpha-2 για τον οποίο η ``phonenumbers`` δεν έχει δεδομένα."
+                    },
+                    "hasRegions": {
+                        "type": "boolean",
+                        "readOnly": true,
+                        "description": "Αν η χώρα έχει καταχωρισμένες περιοχές. Οι περισσότερες χώρες της πλήρους λίστας ISO 3166-1 δεν έχουν — το κατάστημα το χρησιμοποιεί για να αποφασίσει αν θα εμφανίσει καθόλου το πεδίο περιοχής στη φόρμα διεύθυνσης, αντί να το ζητά πάντα."
+                    },
                     "sortOrder": {
                         "type": "integer",
                         "readOnly": true,
@@ -58655,7 +58711,9 @@
                     "alpha2",
                     "alpha3",
                     "createdAt",
+                    "hasRegions",
                     "mainImagePath",
+                    "phoneMetadata",
                     "regions",
                     "sortOrder",
                     "translations",
@@ -59375,9 +59433,16 @@
                     "currency": {
                         "type": "string",
                         "maxLength": 3
+                    },
+                    "countryCode": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Η χώρα για την οποία υπολογίστηκαν τα όρια — το ``country_code`` του αιτήματος αν δόθηκε, αλλιώς η πρώτη χώρα αποστολής, όπως και η αρχική χώρα του checkout. Null μόνο όταν το κατάστημα δεν έχει ακόμη καμία ενεργή τιμή αποστολής.",
+                        "maxLength": 2
                     }
                 },
                 "required": [
+                    "countryCode",
                     "currency",
                     "maxThreshold",
                     "minThreshold",
@@ -66101,7 +66166,8 @@
                     "region": {
                         "type": "string",
                         "minLength": 1,
-                        "title": "Κωδικός περιφέρειας"
+                        "title": "Κωδικός περιφέρειας",
+                        "nullable": true
                     }
                 }
             },
@@ -66817,6 +66883,39 @@
                 "required": [
                     "avgProcessingTimeMs",
                     "avgResultsCount"
+                ]
+            },
+            "PhoneMetadata": {
+                "type": "object",
+                "description": "Read-only phone-number shape derived from ``phonenumbers``.\n\nNever a model field — see ``country.phone`` for why. Nested rather\nthan flattened onto ``CountrySerializer`` so a country with no\nmetadata (see ``get_phone_metadata``) can answer ``null`` for the\nwhole group instead of four separately-nullable fields.",
+                "properties": {
+                    "nationalNumberPattern": {
+                        "type": "string",
+                        "description": "Κανονική έκφραση που πρέπει να ταιριάζει ολόκληρος ο εθνικός αριθμός (χωρίς κωδικό χώρας και αρχικό μηδέν) για αυτή τη χώρα."
+                    },
+                    "possibleLengths": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "description": "Έγκυρα μήκη εθνικού αριθμού για αυτή τη χώρα."
+                    },
+                    "nationalPrefixForParsing": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Ψηφία με τα οποία γράφεται ένας τοπικός αριθμός αλλά δεν αποτελούν μέρος του αριθμού E.164 (π.χ. το αρχικό «0» της Γερμανίας). Null όταν η χώρα δεν έχει — οι περισσότερες δεν έχουν."
+                    },
+                    "exampleMobile": {
+                        "type": "string",
+                        "nullable": true,
+                        "description": "Ένα ρεαλιστικό παράδειγμα αριθμού κινητού σε εθνική μορφή (π.χ. GR «6912345678», CY «96123456»)."
+                    }
+                },
+                "required": [
+                    "exampleMobile",
+                    "nationalNumberPattern",
+                    "nationalPrefixForParsing",
+                    "possibleLengths"
                 ]
             },
             "PointsTransaction": {
@@ -71031,8 +71130,7 @@
                         "minimum": -1000000000,
                         "exclusiveMaximum": true,
                         "exclusiveMinimum": true,
-                        "nullable": true,
-                        "description": "Null όταν ο πάροχος παραπέμπει στη γενική πάγια χρέωση."
+                        "description": "Η τιμή της ``ShippingRate`` που ισχύει (ή η ζωντανή τιμή του παρόχου, ή 0 όταν καλύπτεται το όριο δωρεάν μεταφορικών)."
                     },
                     "currency": {
                         "type": "string",
@@ -71043,6 +71141,20 @@
                     },
                     "priority": {
                         "type": "integer"
+                    },
+                    "countryCode": {
+                        "type": "string",
+                        "description": "Ο προορισμός για τον οποίο τιμολογήθηκε αυτή η επιλογή.",
+                        "maxLength": 2
+                    },
+                    "maxWeightGrams": {
+                        "type": "integer",
+                        "nullable": true,
+                        "description": "Το όριο βάρους της τιμής αποστολής, ή null όταν δεν έχει. Συγκρίνετέ το με το βάρος του καλαθιού που ήδη γνωρίζετε — αυτή η εγγραφή δεν το επαναλαμβάνει."
+                    },
+                    "exceedsMaxWeight": {
+                        "type": "boolean",
+                        "description": "True όταν το ``weight_grams`` του αιτήματος ξεπερνά το ``max_weight_grams``. Η επιλογή επιστρέφεται κανονικά αντί να κρύβεται — το κατάστημα τη δείχνει απενεργοποιημένη με την αιτία, ώστε ένα βαρύ καλάθι να μη βλέπει ποτέ μια επιλογή λιγότερη χωρίς εξήγηση."
                     },
                     "logoUrl": {
                         "type": "string",
@@ -71063,9 +71175,12 @@
                     }
                 },
                 "required": [
+                    "countryCode",
                     "currency",
+                    "exceedsMaxWeight",
                     "kind",
                     "liveMode",
+                    "maxWeightGrams",
                     "metadata",
                     "payWays",
                     "price",
@@ -71169,7 +71284,7 @@
                     "metadata": {
                         "readOnly": true,
                         "title": "Μεταδεδομένα",
-                        "description": "Διαμόρφωση ειδική για τον πάροχο (υποστηριζόμενες χώρες, σημαίες λειτουργιών, υποδείξεις branding)."
+                        "description": "Ρυθμίσεις ειδικές για τον πάροχο (διακόπτες λειτουργιών, στοιχεία εμφάνισης, ρυθμίσεις χάρτη lockers). Σε ποιες χώρες αποστέλλει ο πάροχος ορίζεται από τις τιμές αποστολής (``ShippingRate``), όχι από κλειδί εδώ — δείτε τον πίνακα «Τιμές αποστολής» παρακάτω."
                     },
                     "createdAt": {
                         "type": "string",
@@ -72752,7 +72867,8 @@
                     "region": {
                         "type": "string",
                         "minLength": 1,
-                        "title": "Κωδικός περιφέρειας"
+                        "title": "Κωδικός περιφέρειας",
+                        "nullable": true
                     }
                 },
                 "required": [
@@ -72761,7 +72877,6 @@
                     "firstName",
                     "lastName",
                     "phone",
-                    "region",
                     "street",
                     "streetNumber",
                     "title",

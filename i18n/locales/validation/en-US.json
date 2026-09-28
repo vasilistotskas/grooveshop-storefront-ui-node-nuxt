@@ -61,7 +61,8 @@
     "phone": {
       "required": "Phone is required",
       "min": "The phone number must be at least {min} characters",
-      "invalid": "Enter a valid phone number (e.g. 6912345678 or 2101234567)"
+      "invalid": "Enter a valid phone number (e.g. 6912345678 or 2101234567)",
+      "invalid_example": "Enter a valid phone number (e.g. {example})"
     },
     "date": {
       "required_error": "Choose a date and time",

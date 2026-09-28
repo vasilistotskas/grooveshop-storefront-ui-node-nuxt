@@ -77,7 +77,6 @@ export interface LockerQuery {
  *  any subset can be missing on a fresh seed; consumers fall back
  *  to component-level defaults. */
 export interface CarrierProviderMetadata {
-  supportedCountries?: string[]
   lockerPickerKind?: 'boxnow_widget' | 'acs_db_picker' | string
   taglineKey?: string
   taglineColor?: 'info' | 'success' | 'warning' | 'error' | 'primary' | 'neutral'

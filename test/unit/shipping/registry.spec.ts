@@ -19,6 +19,7 @@ import type { ShippingCarrier } from '../../../shared/shipping/interfaces'
 import {
   carrierForMethod,
   methodForCarrier,
+  resolveShippingMethod,
 } from '../../../shared/shipping/index'
 
 afterEach(() => __resetForTest())
@@ -142,6 +143,37 @@ describe('BoxNow adapter contract', () => {
     expect(form.boxnowLocker?.boxnowLockerId).toBe('4')
     expect(boxnow.readLockerId(form)).toBe('4')
   })
+
+  it('readSelectedLocker takes the country from the widget\'s own postMessage field', () => {
+    const boxnow = getCarrier('boxnow')!
+    const form: Record<string, any> = {
+      country: 'GR', // delivery country — CY locker below must win
+      boxnowLockerId: '9',
+      boxnowLocker: {
+        boxnowLockerId: '9',
+        boxnowLockerName: 'Λευκωσία Locker',
+        boxnowLockerAddressLine1: 'Λεωφόρος Μακαρίου 1',
+        boxnowLockerPostalCode: '1010',
+        boxnowLockerCountryCode: 'CY',
+      },
+    }
+    expect(boxnow.readSelectedLocker(form)?.countryCode).toBe('CY')
+  })
+
+  it('readSelectedLocker refuses a stored locker whose map country is unknown', () => {
+    const boxnow = getCarrier('boxnow')!
+    const form: Record<string, any> = {
+      country: 'GR',
+      boxnowLockerId: '4',
+      boxnowLocker: {
+        boxnowLockerId: '4',
+        boxnowLockerName: 'Χαλάνδρι Locker',
+        boxnowLockerAddressLine1: 'Λεωφ. Πεντέλης 125',
+        boxnowLockerPostalCode: '15234',
+      },
+    }
+    expect(boxnow.readSelectedLocker(form)).toBeNull()
+  })
 })
 
 describe('carrierForMethod', () => {
@@ -163,5 +195,32 @@ describe('carrierForMethod', () => {
     expect(methodForCarrier('boxnow')).toBe('box_now_locker')
     expect(methodForCarrier('acs')).toBe('acs_smartpoint')
     expect(methodForCarrier('elta')).toBeNull()
+  })
+})
+
+describe('resolveShippingMethod', () => {
+  it('excludes exceedsMaxWeight options from the available set', () => {
+    // A CY cart over BoxNow's 4kg cap: the only pickup option offered
+    // is over the limit, so nothing should auto-select it — the
+    // current (home_delivery) choice must stand.
+    const options = [
+      { providerCode: 'boxnow', kind: 'pickup_point', exceedsMaxWeight: true },
+    ]
+    expect(resolveShippingMethod(options, 'home_delivery')).toBeNull()
+  })
+
+  it('still resolves to a non-capped option when one exists', () => {
+    const options = [
+      { providerCode: 'boxnow', kind: 'pickup_point', exceedsMaxWeight: true },
+      { providerCode: 'acs', kind: 'pickup_point', exceedsMaxWeight: false },
+    ]
+    expect(resolveShippingMethod(options, 'home_delivery')).toBe('acs_smartpoint')
+  })
+
+  it('returns null when the current method is already on offer and not capped', () => {
+    const options = [
+      { providerCode: 'boxnow', kind: 'pickup_point', exceedsMaxWeight: false },
+    ]
+    expect(resolveShippingMethod(options, 'box_now_locker')).toBeNull()
   })
 })

@@ -25,7 +25,7 @@ const ADDRESS_STEP_FIELDS: Record<string, string> = {
   billingZipcode: 'billingZipcode',
 }
 
-export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchShippingSettings }: {
+export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selectedCountry, refetchShippingOptions }: {
   // The reactive form-state object from ``useCheckoutForm`` —
   // its inferred shape isn't exported, so we accept a permissive
   // record here. Field-level reads in ``buildOrderValues`` are
@@ -34,7 +34,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
   formState: Record<string, any>
   selectedPayWay: Ref<PayWay | null>
   payWays: Ref<Pagination<PayWay> | null | undefined>
-  refetchShippingSettings?: () => Promise<void>
+  /** The ``Country`` row matching ``formState.country`` — drives phone normalization. */
+  selectedCountry: Ref<Country | undefined>
+  /** Resolves whether the selected method still has a live price. */
+  refetchShippingOptions?: () => Promise<boolean>
 }) {
   const { fetch } = useUserSession()
   const localePath = useLocalePath()
@@ -310,11 +313,12 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       city: formState.city,
       // Canonical form, the same one Django stores.
       zipcode: normalizePostcode(formState.zipcode),
-      // The phone UInput displays a sticky "+30" leading badge and users
-      // type their Greek local number (e.g. 6912345678). Django's
-      // phonenumber_field expects E.164, so normalize to "+30<local>"
-      // unless the user already typed an international prefix.
-      phone: normalizeGreekPhone(formState.phone),
+      // The phone UInput displays a sticky dial-code badge for the
+      // delivery country and users type their local number. Django's
+      // phonenumber_field expects E.164, so normalize against that
+      // same country unless the user already typed an international
+      // prefix (e.g. a Greek mobile shipping to a Cypriot locker).
+      phone: normalizePhone(formState.phone, selectedCountry.value),
       customerNotes: formState.customerNotes,
       // B2B billing — only meaningful when documentType=INVOICE. The
       // server strips EL/GR prefix and uppercases country, but we
@@ -375,7 +379,7 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
       title,
       firstName: formState.firstName,
       lastName: formState.lastName,
-      phone: normalizeGreekPhone(formState.phone),
+      phone: normalizePhone(formState.phone, selectedCountry.value),
       street: formState.street,
       streetNumber: formState.streetNumber,
       city: formState.city,
@@ -477,7 +481,9 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
               payWayId: orderValues.payWayId,
               shippingKind: orderValues.shippingKind as CartCreatePaymentIntentRequestShippingKindEnum,
               shippingProviderCode: orderValues.shippingProviderCode || undefined,
-              countryId: orderValues.countryId || undefined,
+              // Required now — a ShippingRate is per-country, so the
+              // PI amount can't be computed without a destination.
+              countryId: orderValues.countryId,
               regionId: orderValues.regionId || undefined,
               // Identity + gift cards keep the intent amount in
               // lockstep with the order-create verification: promotion
@@ -791,12 +797,25 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, refetchS
         }
       }
 
-      // Step 2a: Refetch shipping price to ensure the sidebar total
-      // reflects the latest server-side cost before order creation.
-      if (refetchShippingSettings) {
-        await refetchShippingSettings().catch(err =>
-          log.warn({ tag: 'checkout', message: 'shipping refetch failed, using cached value', err }),
-        )
+      // Step 2a: Refetch live shipping options so the total reflects
+      // the latest server-side cost before order creation. Without a
+      // live price for the selected method (the fetch failed, the
+      // method is no longer offered, the cart is over its cap) the
+      // order would be charged a shipping cost the shopper never saw,
+      // so send them back to the shipping step instead.
+      if (refetchShippingOptions && !(await refetchShippingOptions())) {
+        log.warn({
+          tag: 'checkout',
+          message: 'submit:shipping-unavailable',
+          shippingMethod: formState.shippingMethod,
+        })
+        toast.add({
+          title: t('form.submit.error.shipping_unavailable'),
+          description: t('form.submit.error.shipping_unavailable_description'),
+          color: 'error',
+        })
+        currentStep.value = 1
+        return
       }
 
       // Step 2b: Set selected payment way
