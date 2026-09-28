@@ -199,6 +199,54 @@ describe('useCheckoutForm', () => {
       expect(shippingPrice.value).toBe(3.5)
     })
 
+    it('keeps the newer country\'s options when an older response lands last', async () => {
+      // Every in-flight request, oldest first. Changing the country
+      // also fires the composable's own refetch watcher, so which call
+      // is newest is read from this list, not assumed.
+      const pending: Array<{ country: string, resolve: (value: unknown) => void }> = []
+      const option = (countryCode: string, price: number) => ({
+        providerCode: 'boxnow',
+        providerName: 'BOX NOW',
+        kind: 'pickup_point',
+        price,
+        currency: 'EUR',
+        liveMode: true,
+        priority: 5,
+        countryCode,
+        maxWeightGrams: null,
+        exceedsMaxWeight: false,
+        metadata: {},
+        payWays: [],
+      })
+      const { formState, retryShippingOptions, shippingPrice } = await useCheckoutForm()
+      formState.shippingMethod = 'box_now_locker'
+      mockFetch.mockImplementation((url: string, options: any) => {
+        if (url === '/api/shipping/options') {
+          return new Promise((resolve) => {
+            pending.push({ country: options.query.countryCode, resolve })
+          })
+        }
+        return Promise.resolve(defaultDispatch(url, options))
+      })
+
+      formState.countryId = 'GR'
+      void retryShippingOptions()
+      formState.countryId = 'CY'
+      void retryShippingOptions()
+      await nextTick()
+
+      const newest = pending.at(-1)!
+      const oldest = pending[0]!
+      expect(newest.country).toBe('CY')
+      expect(oldest.country).toBe('GR')
+      newest.resolve([option('CY', 4.5)])
+      await flushPromises()
+      oldest.resolve([option('GR', 2.99)])
+      await flushPromises()
+
+      expect(shippingPrice.value).toBe(4.5)
+    })
+
     it('refetchShippingOptions reports whether the selected method has a live price', async () => {
       let fail = false
       mockFetch.mockImplementation((url: string, options: any) => {

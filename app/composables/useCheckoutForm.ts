@@ -513,7 +513,13 @@ export async function useCheckoutForm() {
   // local fallback price to fall back to (pricing lives only in
   // ``ShippingRate`` now).
   const shippingOptionsError = ref(false)
-  const fetchShippingOptions = async () => {
+  // Country and cart can change while a request is in flight, and the
+  // responses can arrive in any order. Only the latest request may
+  // write the options, or an older country's list would overwrite the
+  // newer one. Resolves whether THIS request's result was applied.
+  let shippingOptionsRequest = 0
+  const fetchShippingOptions = async (): Promise<boolean> => {
+    const request = ++shippingOptionsRequest
     try {
       const cartTotal = cart.value?.totalPrice || 0
       const weightGrams = cart.value?.totalWeightGrams ?? 0
@@ -525,9 +531,9 @@ export async function useCheckoutForm() {
         // yet (guest whose country hasn't resolved). Not an error.
         shippingOptions.value = []
         shippingOptionsError.value = false
-        return
+        return true
       }
-      shippingOptions.value = await $api<ShippingOption[]>(
+      const options = await $api<ShippingOption[]>(
         '/api/shipping/options',
         {
           method: 'GET',
@@ -544,9 +550,13 @@ export async function useCheckoutForm() {
           headers: useRequestHeaders(),
         },
       )
+      if (request !== shippingOptionsRequest) return false
+      shippingOptions.value = options
       shippingOptionsError.value = false
+      return true
     }
     catch (error: unknown) {
+      if (request !== shippingOptionsRequest) return false
       log.warn({
         tag: 'checkout/shippingOptions',
         message: 'Failed to fetch live shipping options',
@@ -556,6 +566,7 @@ export async function useCheckoutForm() {
       })
       shippingOptions.value = []
       shippingOptionsError.value = true
+      return true
     }
   }
   const retryShippingOptions = () => fetchShippingOptions()
@@ -569,7 +580,9 @@ export async function useCheckoutForm() {
       formState.countryId,
     ],
     async () => {
-      await fetchShippingOptions()
+      // A superseded response left the options to a newer request,
+      // which reconciles when it lands.
+      if (!(await fetchShippingOptions())) return
       // A new country or a heavier cart can drop the method the
       // shopper picked (a locker network that does not serve the
       // country, a carrier over its cap): move to one still offered.
@@ -1105,7 +1118,9 @@ export async function useCheckoutForm() {
    * page load is reflected in the sidebar before the order is created.
    */
   const refetchShippingOptions = async (): Promise<boolean> => {
-    await fetchShippingOptions()
+    // Superseded by a newer request (the cart changed mid-submit): its
+    // prices are not settled yet, so do not submit on them.
+    if (!(await fetchShippingOptions())) return false
     // Resolves ``true`` only when the selected method still has a live,
     // selectable price — otherwise submitting would charge a shipping
     // cost the shopper never saw in the total.
