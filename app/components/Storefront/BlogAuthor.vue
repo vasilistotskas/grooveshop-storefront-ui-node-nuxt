@@ -69,16 +69,19 @@ const authorInitials = computed(() => {
   return `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase()
 })
 
-const authorBio = computed(
-  () => extractTranslated(author.value, 'bio', locale.value) || '',
+// The bio is rich text (a Django `RichTextField`, like a post body):
+// sanitised for the page, reduced to plain text for meta and schema.org.
+const authorBioHtml = computed(() =>
+  sanitizeRichHtml(extractTranslated(author.value, 'bio', locale.value)),
 )
+const authorBioText = computed(() => htmlToPlainText(authorBioHtml.value))
 
 // `undefined`, never '': an empty value still emits
 // `<meta name="description" content>`, which is strictly worse than no
 // tag at all — Google cannot fall back to generating a snippet. Same
 // reasoning as the blog category page.
 const metaDescription = computed(
-  () => authorBio.value || undefined,
+  () => authorBioText.value || undefined,
 )
 
 const totalPosts = computed(() => author.value?.numberOfPosts || 0)
@@ -163,7 +166,7 @@ useSchemaOrg([
   definePerson({
     '@id': `${canonicalUrl.value}#author`,
     'name': authorName.value || undefined,
-    'description': authorBio.value || undefined,
+    'description': authorBioText.value || undefined,
     'image': ogImage.value || undefined,
     'url': canonicalUrl.value,
   }),
@@ -252,15 +255,14 @@ useHead({
           </UBadge>
         </div>
 
-        <p
-          v-if="authorBio"
+        <div
+          v-if="authorBioText"
           class="
-            max-w-2xl text-sm text-pretty text-muted
+            article max-w-2xl text-sm text-pretty text-muted
             md:text-base
           "
-        >
-          {{ authorBio }}
-        </p>
+          v-html="authorBioHtml"
+        />
 
         <UButton
           v-if="author?.website"
