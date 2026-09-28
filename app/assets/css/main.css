@@ -338,9 +338,12 @@ button:disabled:active,
    The two smallest `.article` headings are absolute sizes (h5 16px,
    h6 14px). Left alone they would render SMALLER than 20px body copy
    here, so they are pulled up to keep the hierarchy monotonic. */
-/* FAQ items in rich text: the editor's accordion plugin writes
-   <details class="mce-accordion"> with a <summary> question and a
-   .mce-accordion-body answer, saved closed.
+/* FAQ items in rich text: the editor's accordion plugin saves
+   <details class="mce-accordion"> with a <summary> question and the
+   answer as the element's other children (`<p>`, lists, …), closed.
+   Its `.mce-accordion-body` wrapper exists only while editing — the
+   editor drops it on save (measured on staging), so the answer is
+   styled as "every child but the summary".
    ------------------------------------------------------------------
    Native <details>, not UAccordion: a blog body renders hydrate-never
    (Blog/BlogContent.vue), so no Vue component can mount inside it, and
@@ -365,7 +368,7 @@ button:disabled:active,
   & > summary {
     @apply flex cursor-pointer list-none items-center gap-3 rounded-md
       bg-(--ui-secondary) px-3 py-2.5 text-base font-medium
-      text-(--ui-on-secondary);
+      text-(--ui-on-secondary) outline-primary/25 focus-visible:outline-3;
 
     &::-webkit-details-marker {
       display: none;
@@ -383,8 +386,16 @@ button:disabled:active,
     rotate: 180deg;
   }
 
-  & > .mce-accordion-body {
-    @apply px-3 pt-2 pb-3.5;
+  & > :not(summary) {
+    @apply px-3;
+  }
+
+  & > summary + * {
+    @apply mt-2;
+  }
+
+  &[open] {
+    @apply pb-3.5;
   }
 
   /* The footer's slide, where the browser can animate to `auto`
