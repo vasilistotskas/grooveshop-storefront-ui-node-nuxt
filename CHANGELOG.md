@@ -1,3 +1,10 @@
+# [3.218.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.217.1...v3.218.0) (2026-09-28)
+
+
+### Features
+
+* **blog:** FAQ items styled as the mobile footer's accordion ([5261392](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/5261392965ec0a9c24842a19978715f08d1306ea))
+
 ## [3.217.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.217.0...v3.217.1) (2026-09-28)
 
 
