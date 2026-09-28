@@ -368,7 +368,7 @@ button:disabled:active,
   & > summary {
     @apply flex cursor-pointer list-none items-center gap-3 rounded-md
       bg-(--ui-secondary) px-3 py-2.5 text-base font-medium
-      text-(--ui-on-secondary);
+      text-(--ui-on-secondary) outline-primary/25 focus-visible:outline-3;
 
     &::-webkit-details-marker {
       display: none;
