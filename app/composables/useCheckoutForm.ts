@@ -133,7 +133,10 @@ export async function useCheckoutForm() {
   // Switching country quickly can leave an older country's regions
   // request finishing last and overwriting the newer country's list —
   // the dropdown then offered Greek regions for a Cypriot address. Only
-  // the latest request may write, and it resolves whether it did.
+  // the latest request may write. It resolves whether ``regions`` now
+  // belongs to the selected country: false when a newer request
+  // superseded it or when it failed and the previous country's list is
+  // still in place, so a caller never validates a region against it.
   let regionsRequest = 0
   const fetchRegions = async (): Promise<boolean> => {
     const request = ++regionsRequest
@@ -157,7 +160,7 @@ export async function useCheckoutForm() {
         description: t('error_occurred'),
         color: 'error',
       })
-      return true
+      return false
     }
   }
 
@@ -274,7 +277,7 @@ export async function useCheckoutForm() {
     if (!address) return
     applyAddressToFormState(address)
     addressEntryMode.value = 'saved'
-    await fetchRegions()
+    if (!(await fetchRegions())) return
     await validateAppliedAddress()
   }
 
@@ -357,7 +360,8 @@ export async function useCheckoutForm() {
         }
       }
       // Superseded by a newer country change, whose own run validates
-      // the region against the list it fetched.
+      // the region against the list it fetched, or failed and left the
+      // previous country's list in place.
       if (!(await fetchRegions())) return
       // Only clear ``region`` if the previously selected value is no
       // longer valid for the new country. Unconditionally clearing here

@@ -389,6 +389,24 @@ describe('useCheckoutForm', () => {
 
       expect(regionOptions.value.map(o => o.value)).toEqual(['GR-14'])
     })
+
+    it('keeps a prefilled region when the new country\'s regions request fails', async () => {
+      const { formState } = await useCheckoutForm()
+      await flushPromises()
+      mockFetch.mockImplementation((url: string, options: any) => {
+        if (url === '/api/regions') return Promise.reject(new Error('down'))
+        return Promise.resolve(defaultDispatch(url, options))
+      })
+
+      // A saved address sets country and region together; the loaded
+      // list is still Greece's, which must not judge a Cypriot region.
+      formState.region = 'CY-01'
+      formState.country = 'CY'
+      await nextTick()
+      await flushPromises()
+
+      expect(formState.region).toBe('CY-01')
+    })
   })
 
   describe('saved address in a non-shippable country', () => {
