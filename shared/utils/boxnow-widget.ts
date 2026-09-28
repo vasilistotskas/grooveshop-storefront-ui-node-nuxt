@@ -25,9 +25,14 @@
  *   - The CY widget 302-redirects ``iframe.html`` to the same host with
  *     ``countryCode=cy`` appended — same shape as the GR redirect to
  *     ``widget-v4.boxnow.gr`` / ``widget.boxnow.gr``.
- *   - postMessage on locker selection carries ``boxnowCountry`` as the
- *     lowercase English country name (``codeToCountry()``): ``"greece"``
- *     / ``"cyprus"``.
+ *   - postMessage on locker selection (``functions/markerClicked.js``)
+ *     carries ``boxnowCountry`` as the selected locker's own ``country``
+ *     field — the ISO alpha-2 code BoxNow stores on every locker record
+ *     (``globallockersprod…/PROD/<country>/lockers/<id>.json``):
+ *     ``"GR"`` for locker 4, ``"CY"`` for locker 5795 (re-checked
+ *     2026-09-28). The lowercase names in ``codeToCountry.js``
+ *     (``"greece"``/``"cyprus"``) are only the storage PATH segment and
+ *     never reach the message.
  *   - ``functions/loadTranslations.js`` reads ``language`` verbatim into
  *     ``globalState.languageIs``, aliases it (``{el: 'gr', cy: 'gr', sl:
  *     'si'}``), and falls back to English for anything outside its
@@ -48,8 +53,6 @@ export interface BoxNowWidgetCountryConfig {
   origin: string
   /** The ``countryCode`` query param value the widget expects (lowercase alpha-2-ish: ``gr``/``cy``). */
   param: string
-  /** The lowercase English country name the widget's postMessage payload carries under ``boxnowCountry``. */
-  postMessageName: string
 }
 
 /** ISO alpha-2 → widget config, for every BoxNow market this store supports. */
@@ -57,12 +60,10 @@ export const BOXNOW_WIDGET_COUNTRIES: Record<string, BoxNowWidgetCountryConfig> 
   GR: {
     origin: 'https://widget-v5.boxnow.gr',
     param: 'gr',
-    postMessageName: 'greece',
   },
   CY: {
     origin: 'https://widget-v5.boxnow.cy',
     param: 'cy',
-    postMessageName: 'cyprus',
   },
 }
 
@@ -98,21 +99,6 @@ export const BOXNOW_FRAME_ORIGINS: readonly string[] = [
 export function boxNowWidgetCountry(alpha2: string | null | undefined): BoxNowWidgetCountryConfig | null {
   if (!alpha2) return null
   return BOXNOW_WIDGET_COUNTRIES[alpha2.toUpperCase()] ?? null
-}
-
-/**
- * Reverse-lookup: the lowercase English country name the widget's
- * postMessage payload carries (``boxnowCountry``) back to our ISO
- * alpha-2 code. Case-insensitive — the widget's own ``codeToCountry()``
- * always lowercases, but we don't rely on that holding forever.
- */
-export function boxNowAlpha2FromPostMessageName(name: string | null | undefined): string | null {
-  if (!name) return null
-  const lowered = name.toLowerCase()
-  for (const [alpha2, config] of Object.entries(BOXNOW_WIDGET_COUNTRIES)) {
-    if (config.postMessageName === lowered) return alpha2
-  }
-  return null
 }
 
 // ---------------------------------------------------------------------------
@@ -151,11 +137,10 @@ export interface BoxNowSelectedLocker {
   boxnowLockerLng?: string
   boxnowLockerImage?: string
   /**
-   * ISO alpha-2 the widget resolved the selected locker to (``GR``/``CY``),
-   * derived case-insensitively from the widget's own ``boxnowCountry``
-   * postMessage field (``"greece"``/``"cyprus"``). Absent when the
-   * widget didn't send a recognised value — callers fall back to the
-   * checkout's own delivery country in that case.
+   * ISO alpha-2 of the selected locker (``GR``/``CY``), from the
+   * widget's ``boxnowCountry`` field. Absent when the widget sent no
+   * country this store supports; the picker then rejects the locker,
+   * because it cannot tell which country's network it belongs to.
    */
   boxnowLockerCountryCode?: string
 }
@@ -211,16 +196,10 @@ export function parseBoxNowSelectedLocker(data: unknown): BoxNowSelectedLocker |
   if (typeof d.boxnowLockerImage === 'string' && d.boxnowLockerImage !== '') {
     locker.boxnowLockerImage = d.boxnowLockerImage
   }
-  // ``boxnowCountry`` — validated case-insensitively against the known
-  // widget postMessage names (``"greece"``/``"cyprus"``) and normalised
-  // to our ISO alpha-2. Absent or unrecognised → omitted, not an error:
-  // the carrier adapter falls back to the checkout's own delivery
-  // country when this is missing.
-  if (typeof d.boxnowCountry === 'string' && d.boxnowCountry !== '') {
-    const alpha2 = boxNowAlpha2FromPostMessageName(d.boxnowCountry)
-    if (alpha2) {
-      locker.boxnowLockerCountryCode = alpha2
-    }
+  // ``boxnowCountry`` is the locker's ISO alpha-2 (``"GR"``/``"CY"``);
+  // kept only when it names a country this store has a widget for.
+  if (typeof d.boxnowCountry === 'string' && boxNowWidgetCountry(d.boxnowCountry)) {
+    locker.boxnowLockerCountryCode = d.boxnowCountry.toUpperCase()
   }
 
   return locker
