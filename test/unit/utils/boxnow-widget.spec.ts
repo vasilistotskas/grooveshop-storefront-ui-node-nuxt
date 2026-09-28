@@ -421,33 +421,45 @@ describe('parseBoxNowSelectedLocker', () => {
     })
   })
 
-  describe('boxnowCountry (widget postMessage country)', () => {
-    it('normalises "greece" (case-insensitively) to GR', () => {
+  describe('boxnowCountry (the ISO alpha-2 of the locker record)', () => {
+    // Shapes copied from the live widget: ``markerClicked.js`` posts the
+    // locker record's own ``country`` field.
+    it('keeps "GR" from a Greek locker', () => {
       const result = parseBoxNowSelectedLocker({
         boxnowLockerId: '4',
         boxnowLockerPostalCode: '15234',
-        boxnowLockerAddressLine1: 'Λεωφ. Πεντέλης 125',
-        boxnowCountry: 'Greece',
+        boxnowLockerAddressLine1: 'Λεωφόρος Πεντέλης 125',
+        boxnowCountry: 'GR',
       })
       expect(result?.boxnowLockerCountryCode).toBe('GR')
     })
 
-    it('normalises "cyprus" to CY', () => {
+    it('keeps "CY" from a Cypriot locker', () => {
       const result = parseBoxNowSelectedLocker({
-        boxnowLockerId: '4',
-        boxnowLockerPostalCode: '1010',
-        boxnowLockerAddressLine1: 'Λεωφόρος Μακαρίου 1',
-        boxnowCountry: 'cyprus',
+        boxnowLockerId: '5795',
+        boxnowLockerPostalCode: '7104',
+        boxnowLockerAddressLine1: 'Λεωφόρος Κυρ. Μάτση 25',
+        boxnowCountry: 'CY',
       })
       expect(result?.boxnowLockerCountryCode).toBe('CY')
     })
 
-    it('omits the field for an unrecognised country name', () => {
+    it('upper-cases a lower-case code', () => {
+      const result = parseBoxNowSelectedLocker({
+        boxnowLockerId: '5795',
+        boxnowLockerPostalCode: '7104',
+        boxnowLockerAddressLine1: 'Λεωφόρος Κυρ. Μάτση 25',
+        boxnowCountry: 'cy',
+      })
+      expect(result?.boxnowLockerCountryCode).toBe('CY')
+    })
+
+    it.each(['BG', 'greece', ''])('omits the field for %j', (country) => {
       const result = parseBoxNowSelectedLocker({
         boxnowLockerId: '4',
         boxnowLockerPostalCode: '15234',
-        boxnowLockerAddressLine1: 'Λεωφ. Πεντέλης 125',
-        boxnowCountry: 'bulgaria',
+        boxnowLockerAddressLine1: 'Λεωφόρος Πεντέλης 125',
+        boxnowCountry: country,
       })
       expect(result?.boxnowLockerCountryCode).toBeUndefined()
     })

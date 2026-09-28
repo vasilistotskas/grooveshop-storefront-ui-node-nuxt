@@ -20,8 +20,8 @@ const VALID_LOCKER_PAYLOAD = {
   boxnowLockerPostalCode: '15234',
   boxnowLockerAddressLine1: 'Λεωφ. Πεντέλης 125',
   boxnowLockerName: 'Χαλάνδρι ΟΠΑΠ Play',
-  // The widget names the map the locker was picked from.
-  boxnowCountry: 'greece',
+  // The locker record's own ISO alpha-2, as the live widget posts it.
+  boxnowCountry: 'GR',
 }
 
 // ---------------------------------------------------------------------------
@@ -117,14 +117,14 @@ describe('Checkout/BoxNowLockerPicker', () => {
       dispatchBoxNowMessage('https://widget-v5.boxnow.cy', {
         ...VALID_LOCKER_PAYLOAD,
         boxnowLockerPostalCode: '2008',
-        boxnowCountry: 'cyprus',
+        boxnowCountry: 'CY',
       })
       await wrapper.vm.$nextTick()
 
       expect(wrapper.emitted('selected')).toBeFalsy()
     })
 
-    it('does NOT emit "selected" when the widget does not name its map', async () => {
+    it('does NOT emit "selected" when the widget sends no locker country', async () => {
       const wrapper = await mountSuspended(BoxNowLockerPicker, {
         props: { open: true, partnerId: '10391', countryCode: 'GR' },
       })
@@ -144,7 +144,7 @@ describe('Checkout/BoxNowLockerPicker', () => {
       dispatchBoxNowMessage('https://widget-v5.boxnow.cy', {
         ...VALID_LOCKER_PAYLOAD,
         boxnowLockerPostalCode: '2008',
-        boxnowCountry: 'Cyprus',
+        boxnowCountry: 'CY',
       })
       await wrapper.vm.$nextTick()
 
