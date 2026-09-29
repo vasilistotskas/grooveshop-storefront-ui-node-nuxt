@@ -1,3 +1,10 @@
+## [3.223.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.223.1...v3.223.2) (2026-09-29)
+
+
+### Bug Fixes
+
+* **account:** make the address-book country and region selects full width ([#39](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/39)) ([64d9ab6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/64d9ab6862f2ac54c3184e0e95673808a3372b32))
+
 ## [3.223.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.223.0...v3.223.1) (2026-09-29)
 
 
