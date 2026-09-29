@@ -41,10 +41,10 @@ const CY = {
   translations: { el: { name: 'Κύπρος' } },
   phoneCode: 357,
   hasRegions: true,
-  postalCodePattern: '\d{4}',
+  postalCodePattern: '\\d{4}',
   postalCodeExample: '1010',
   phoneMetadata: {
-    nationalNumberPattern: '(?:[279]\d|[58]0)\d{6}',
+    nationalNumberPattern: '(?:[279]\\d|[58]0)\\d{6}',
     possibleLengths: [8],
     nationalPrefixForParsing: null,
     exampleMobile: '96123456',
@@ -87,6 +87,9 @@ beforeEach(() => {
     const country = getQuery(event).country
     if (country === 'GR') {
       return { count: 1, next: null, previous: null, results: [{ alpha: 'ATTIKI', translations: { el: { name: 'Αττική' } } }] }
+    }
+    if (country === 'CY') {
+      return { count: 1, next: null, previous: null, results: [{ alpha: 'CY-01', translations: { el: { name: 'Λευκωσία' } } }] }
     }
     return { count: 0, next: null, previous: null, results: [] }
   })
@@ -158,11 +161,14 @@ describe('account/addresses/new', () => {
       await wrapper.find('input[type="tel"]').setValue('+30 6912345678')
       await flushPromises()
 
-      const vm = wrapper.vm as unknown as { schema: { safeParse: (data: unknown) => { error?: { issues: Array<{ path: unknown[] }> } } } }
-      const valid = vm.schema.safeParse({ ...VALID, country: 'CY', phone: '+306912345678' })
-      expect(valid.error?.issues.some(issue => issue.path[0] === 'phone') ?? false).toBe(false)
-      const invalid = vm.schema.safeParse({ ...VALID, country: 'CY', phone: '+30123' })
-      expect(invalid.error?.issues.some(issue => issue.path[0] === 'phone')).toBe(true)
+      const vm = wrapper.vm as unknown as { schema: { safeParse: (data: unknown) => { success: boolean, error?: { issues: Array<{ path: unknown[] }> } } } }
+      // A complete Cypriot address: CY postcode and district.
+      const cyprus = { ...VALID, country: 'CY', zipcode: '1010', city: 'Λευκωσία', region: 'CY-01' }
+      const valid = vm.schema.safeParse({ ...cyprus, phone: '+306912345678' })
+      expect(valid.error?.issues).toBeUndefined()
+      expect(valid.success).toBe(true)
+      const invalid = vm.schema.safeParse({ ...cyprus, phone: '+30123' })
+      expect(invalid.error?.issues.map(issue => issue.path[0])).toEqual(['phone'])
     })
 
     it('submits the E.164 the field built', async () => {
