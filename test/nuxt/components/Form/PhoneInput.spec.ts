@@ -1,12 +1,12 @@
 /**
- * Tests for Form/PhoneInput.vue — ONE phone field for every country.
+ * Tests for Form/PhoneInput.vue — a country picker joined to the number
+ * (Nuxt UI's phone-number pattern).
  *
- * A number typed without ``+code`` / ``00code`` is read against the
- * form's own country; with one it is read against the country the code
- * names. The recognised country shows as a flag + dial code INSIDE the
- * field (trailing slot, with the input's end padding widened so it can
- * never overlap the digits). The model keeps exactly what was typed;
- * E.164 is produced where it is validated and submitted.
+ * The picker holds its own country: it FOLLOWS the delivery country until
+ * the shopper picks one (or types / pastes / autofills a ``+code``), then
+ * stays. The dial code is fixed text in the input's leading slot with the
+ * start padding sized to it, so no code length can overlap the digits. The
+ * model is E.164, built from the picked country + the national digits.
  */
 
 import { describe, it, expect } from 'vitest'
@@ -28,127 +28,307 @@ function row(alpha2: string, phoneCode: number, el: string, exampleMobile: strin
   }
 }
 
+// API order (sort_order), deliberately NOT alphabetical.
 registerEndpoint('/api/countries', () => ({
-  count: 5,
+  count: 6,
   results: [
-    row('GR', 30, 'Ελλάδα', '6912345678'),
-    row('CY', 357, 'Κύπρος', '96123456'),
-    row('DE', 49, 'Γερμανία', '15123456789'),
     row('US', 1, 'ΗΠΑ', '2015550123'),
+    row('GR', 30, 'Ελλάδα', '6912345678'),
+    row('DE', 49, 'Γερμανία', '15123456789'),
+    row('CY', 357, 'Κύπρος', '96123456'),
     row('CA', 1, 'Καναδάς', '5062345678'),
+    row('AL', 355, 'Αλβανία', '672123456'),
   ],
 }))
 
+type Wrapper = Awaited<ReturnType<typeof mountField>>
+
 async function mountField(props: Record<string, unknown> = {}) {
+  // Behave like `v-model` in the parent — including for writes made while
+  // the component is still mounting (a saved number being parsed).
+  let mounted: { setProps: (props: Record<string, unknown>) => Promise<void> } | undefined
+  const early: Record<string, unknown> = {}
+  const write = (key: string) => (value: string | undefined) => {
+    if (mounted) void mounted.setProps({ [key]: value })
+    else early[key] = value
+  }
   const wrapper = await mountSuspended(PhoneInput, {
-    props: { label: 'Τηλέφωνο', name: 'phone', country: 'GR', ...props },
+    props: {
+      'label': 'Τηλέφωνο',
+      'name': 'phone',
+      'followCountry': 'GR',
+      'pinnedCountries': ['GR', 'CY'],
+      'modelValue': '',
+      'country': undefined,
+      'onUpdate:modelValue': write('modelValue'),
+      'onUpdate:country': write('country'),
+      ...props,
+    },
   })
+  mounted = wrapper
+  await wrapper.setProps(early)
   await flushPromises()
   return wrapper
 }
 
+function picker(wrapper: Wrapper) {
+  return wrapper.findComponent({ name: 'USelectMenu' })
+}
+
+function pick(wrapper: Wrapper, alpha2: string) {
+  picker(wrapper).vm.$emit('update:modelValue', alpha2)
+}
+
+async function type(wrapper: Wrapper, value: string) {
+  await wrapper.find('input').setValue(value)
+  await flushPromises()
+}
+
+const leading = (wrapper: Wrapper) => wrapper.find('input').element.parentElement!.querySelector('span.absolute')
+
 describe('Form/PhoneInput', () => {
-  it('is ONE tel input that autofill can fill with the full number', async () => {
+  it('is a country picker plus a tel input that autofill can fill with the full number', async () => {
     const wrapper = await mountField()
 
-    const inputs = wrapper.findAll('input')
+    expect(picker(wrapper).find('button').exists()).toBe(true)
+    const inputs = wrapper.findAll('input[type="tel"]')
     expect(inputs).toHaveLength(1)
-    expect(inputs[0]!.attributes('type')).toBe('tel')
     expect(inputs[0]!.attributes('inputmode')).toBe('tel')
     expect(inputs[0]!.attributes('autocomplete')).toBe('tel')
-    expect(wrapper.find('[role="combobox"]').exists()).toBe(false)
   })
 
-  it('uses the form country\'s example as the placeholder', async () => {
-    const gr = await mountField({ country: 'GR' })
-    expect(gr.find('input').attributes('placeholder')).toBe('6912345678')
+  describe('picker trigger', () => {
+    it('shows only the flag, named for assistive tech with the country and code', async () => {
+      const wrapper = await mountField({ followCountry: 'CY' })
 
-    const cy = await mountField({ country: 'CY' })
-    expect(cy.find('input').attributes('placeholder')).toBe('96123456')
+      const trigger = picker(wrapper).find('button')
+      expect(trigger.attributes('aria-label')).toBe('Κωδικός χώρας τηλεφώνου: Κύπρος (+357)')
+      expect(trigger.text()).toContain('CY')
+      expect(trigger.text()).not.toContain('+357')
+      expect(trigger.text()).not.toContain('Κύπρος')
+    })
   })
 
-  it('explains how to enter another country\'s number, and nothing about SMS or couriers', async () => {
-    const wrapper = await mountField()
+  describe('dropdown', () => {
+    it('lists the shippable countries first, then a separator, then the rest A–Z', async () => {
+      const wrapper = await mountField()
 
-    const text = wrapper.text()
-    expect(text).toContain('+30')
-    expect(text).toContain('ξεκινήστε με τον κωδικό της')
-    expect(text).not.toMatch(/SMS|κούριερ|courier/i)
+      const items = picker(wrapper).props('items') as Array<Record<string, string>>
+      // Rest by localized name: Αλβανία, Γερμανία, ΗΠΑ, Καναδάς.
+      expect(items.map(item => item.value ?? item.type)).toEqual(
+        ['GR', 'CY', 'separator', 'AL', 'DE', 'US', 'CA'],
+      )
+    })
+
+    it('labels each row with the localized name and the dial code, and searches by name, alpha-2 and code', async () => {
+      const wrapper = await mountField()
+
+      const menu = picker(wrapper)
+      const cy = (menu.props('items') as Array<Record<string, string>>).find(item => item.value === 'CY')!
+      expect(cy.label).toBe('Κύπρος')
+      expect(cy.dialCode).toBe('+357')
+      // What `filter-fields` searches: name, then alpha-2 and the code.
+      expect(menu.props('filterFields')).toEqual(['label', 'searchTerms'])
+      expect(cy.searchTerms).toContain('+357')
+      expect(cy.searchTerms).toContain('CY')
+    })
+
+    it('is virtualized, so ~250 rows stay cheap', async () => {
+      const wrapper = await mountField()
+
+      expect(picker(wrapper).props('virtualize')).toBeTruthy()
+    })
   })
 
-  it('shows no badge while empty', async () => {
-    const wrapper = await mountField()
+  describe('the number', () => {
+    it('shows the picked country\'s dial code as fixed leading text, with padding sized to it', async () => {
+      const wrapper = await mountField({ followCountry: 'CY' })
 
-    expect(wrapper.find('input').classes().join(' ')).not.toContain('pe-28')
-    expect(wrapper.text()).not.toContain('Αναγνωρίστηκε')
+      const input = wrapper.find('input')
+      expect(input.classes()).toContain('ps-(--dial-code-length)')
+      // "+357" is 4 characters, plus 1.5ch of breathing room.
+      expect(input.attributes('style') ?? wrapper.html()).toContain('--dial-code-length: 5.5ch')
+      expect(leading(wrapper)!.textContent).toContain('+357')
+      expect(leading(wrapper)!.className).toContain('pointer-events-none')
+    })
+
+    it('sizes the padding to a longer code too (+1 vs +357)', async () => {
+      const wrapper = await mountField({ followCountry: 'US' })
+
+      expect(leading(wrapper)!.textContent).toContain('+1')
+      expect(wrapper.html()).toContain('--dial-code-length: 3.5ch')
+    })
+
+    it('uses the picked country\'s example as the placeholder', async () => {
+      const wrapper = await mountField({ followCountry: 'GR' })
+      expect(wrapper.find('input').attributes('placeholder')).toBe('6912345678')
+
+      pick(wrapper, 'CY')
+      await flushPromises()
+      expect(wrapper.find('input').attributes('placeholder')).toBe('96123456')
+    })
+
+    it('has no recognised-country badge, padding hack or hint', async () => {
+      const wrapper = await mountField({ modelValue: '+35796123456' })
+
+      expect(wrapper.text()).not.toContain('Αναγνωρίστηκε')
+      expect(wrapper.text()).not.toContain('ξεκινήστε')
+      expect(wrapper.find('input').classes()).not.toContain('pe-28')
+    })
   })
 
-  it('shows the form country as the badge for a national number', async () => {
-    const wrapper = await mountField({ country: 'CY', modelValue: '96123456' })
+  describe('E.164 model', () => {
+    it('is the picked country\'s dial code + the national digits', async () => {
+      const wrapper = await mountField({ followCountry: 'GR' })
 
-    expect(wrapper.text()).toContain('+357')
-    expect(wrapper.text()).toContain('Αναγνωρίστηκε: Κύπρος (+357)')
+      await type(wrapper, '6912345678')
+
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['+306912345678'])
+    })
+
+    it('is empty while nothing is typed', async () => {
+      const wrapper = await mountField({ followCountry: 'GR' })
+
+      expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+      await type(wrapper, '69')
+      await type(wrapper, '')
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual([''])
+    })
+
+    it('parses a saved E.164 back into picker country + national digits', async () => {
+      const wrapper = await mountField({ followCountry: 'GR', modelValue: '+35796123456' })
+
+      expect(wrapper.find('input').element.value).toBe('96123456')
+      expect(picker(wrapper).props('modelValue')).toBe('CY')
+      expect(wrapper.emitted('update:country')?.at(-1)).toEqual(['CY'])
+      expect(leading(wrapper)!.textContent).toContain('+357')
+    })
+
+    it('leaves the picker following when a saved number is the delivery country\'s', async () => {
+      const wrapper = await mountField({ followCountry: 'GR', modelValue: '+306912345678' })
+
+      expect(wrapper.find('input').element.value).toBe('6912345678')
+      expect(wrapper.emitted('update:country')).toBeUndefined()
+    })
   })
 
-  it('shows the country a +code names, whatever the form country is', async () => {
-    const wrapper = await mountField({ country: 'GR', modelValue: '+35796123456' })
+  describe('typing, pasting and autofill of +code / 00code', () => {
+    it('+357 96123456 switches the picker to Cyprus and strips the code', async () => {
+      const wrapper = await mountField({ followCountry: 'GR' })
 
-    expect(wrapper.text()).toContain('+357')
-    expect(wrapper.text()).toContain('Αναγνωρίστηκε: Κύπρος (+357)')
-    expect(wrapper.text()).not.toContain('+30 ')
+      await type(wrapper, '+357 96123456')
+
+      expect(wrapper.emitted('update:country')?.at(-1)).toEqual(['CY'])
+      expect(wrapper.find('input').element.value).toBe('96123456')
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['+35796123456'])
+      expect(picker(wrapper).props('modelValue')).toBe('CY')
+    })
+
+    it('0030 691 2345678 switches the picker to Greece and strips the code', async () => {
+      const wrapper = await mountField({ followCountry: 'CY' })
+
+      await type(wrapper, '0030 691 2345678')
+
+      expect(wrapper.emitted('update:country')?.at(-1)).toEqual(['GR'])
+      expect(wrapper.find('input').element.value).toBe('6912345678')
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['+306912345678'])
+    })
+
+    it('strips a code that names the country already picked (the input never keeps it)', async () => {
+      const wrapper = await mountField({ followCountry: 'CY' })
+
+      await type(wrapper, '+357')
+
+      expect(wrapper.find('input').element.value).toBe('')
+      expect(wrapper.emitted('update:country')?.at(-1)).toEqual(['CY'])
+    })
+
+    it('keeps the picked country for a shared code (+1)', async () => {
+      const wrapper = await mountField({ followCountry: 'CA' })
+
+      await type(wrapper, '+15062345678')
+
+      expect(wrapper.emitted('update:country')?.at(-1)).toEqual(['CA'])
+    })
+
+    it('takes the first listed country for a shared code it was not following', async () => {
+      const wrapper = await mountField({ followCountry: 'GR' })
+
+      await type(wrapper, '+15062345678')
+
+      // Rest is A–Z: ΗΠΑ (US) comes before Καναδάς (CA).
+      expect(wrapper.emitted('update:country')?.at(-1)).toEqual(['US'])
+    })
+
+    it('waits for a code that names no country yet', async () => {
+      const wrapper = await mountField({ followCountry: 'GR' })
+
+      await type(wrapper, '+3')
+
+      expect(wrapper.find('input').element.value).toBe('+3')
+      expect(wrapper.emitted('update:country')).toBeUndefined()
+    })
   })
 
-  it('reads 00<code> like +<code>', async () => {
-    const wrapper = await mountField({ country: 'CY', modelValue: '00306912345678' })
+  describe('changing the picker', () => {
+    it('keeps the typed digits and only swaps the dial code', async () => {
+      const wrapper = await mountField({ followCountry: 'GR' })
+      await type(wrapper, '96123456')
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['+3096123456'])
 
-    expect(wrapper.text()).toContain('Αναγνωρίστηκε: Ελλάδα (+30)')
+      pick(wrapper, 'CY')
+      await flushPromises()
+
+      expect(wrapper.find('input').element.value).toBe('96123456')
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['+35796123456'])
+      expect(leading(wrapper)!.textContent).toContain('+357')
+    })
   })
 
-  it('keeps the form country for a shared code (+1)', async () => {
-    const wrapper = await mountField({ country: 'CA', modelValue: '+15062345678' })
-    expect(wrapper.text()).toContain('Αναγνωρίστηκε: Καναδάς (+1)')
+  describe('follow, then sticky', () => {
+    it('follows the delivery country until the shopper picks', async () => {
+      const wrapper = await mountField({ followCountry: 'GR' })
+      expect(leading(wrapper)!.textContent).toContain('+30')
 
-    const other = await mountField({ country: 'GR', modelValue: '+12015550123' })
-    expect(other.text()).toContain('Αναγνωρίστηκε: ΗΠΑ (+1)')
-  })
+      await wrapper.setProps({ followCountry: 'CY' })
+      await flushPromises()
 
-  it('updates the badge as the shopper types, and emits what was typed (not E.164)', async () => {
-    const wrapper = await mountField({ country: 'GR' })
+      expect(leading(wrapper)!.textContent).toContain('+357')
+      expect(picker(wrapper).props('modelValue')).toBe('CY')
+      // Following is not a choice: nothing is claimed as picked.
+      expect(wrapper.emitted('update:country')).toBeUndefined()
+    })
 
-    await wrapper.find('input').setValue('+35796123456')
-    await flushPromises()
+    it('stays on the shopper\'s pick when the delivery country changes later', async () => {
+      const wrapper = await mountField({ followCountry: 'GR' })
 
-    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['+35796123456'])
-    expect(wrapper.text()).toContain('Αναγνωρίστηκε: Κύπρος (+357)')
+      pick(wrapper, 'DE')
+      await flushPromises()
+      await wrapper.setProps({ followCountry: 'CY' })
+      await flushPromises()
 
-    await wrapper.find('input').setValue('6912345678')
-    await flushPromises()
+      expect(picker(wrapper).props('modelValue')).toBe('DE')
+      expect(leading(wrapper)!.textContent).toContain('+49')
+    })
 
-    expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['6912345678'])
-    expect(wrapper.text()).toContain('Αναγνωρίστηκε: Ελλάδα (+30)')
-  })
+    it('also stays after a typed +code', async () => {
+      const wrapper = await mountField({ followCountry: 'GR' })
 
-  it('reserves end padding for the badge, so a code can never overlap the digits', async () => {
-    const wrapper = await mountField({ modelValue: '+35796123456', size: 'xl' })
+      await type(wrapper, '+357 96123456')
+      await wrapper.setProps({ followCountry: 'DE' })
+      await flushPromises()
 
-    const input = wrapper.find('input')
-    // twMerge keeps the caller's `pe-28` over the size variant's `pe-11`.
-    expect(input.classes()).toContain('pe-28')
-    expect(input.classes()).not.toContain('pe-11')
+      expect(picker(wrapper).props('modelValue')).toBe('CY')
+    })
 
-    // The badge sits in the input's own trailing slot (absolute, end-aligned)
-    // and never takes pointer events from the input.
-    const trailing = wrapper.find('input').element.parentElement!.querySelector('span.absolute.end-0')
-    expect(trailing).not.toBeNull()
-    expect(trailing!.className).toContain('pointer-events-none')
-    expect(trailing!.textContent).toContain('+357')
-  })
+    it('resumes following when the parent clears the pick (a new address)', async () => {
+      const wrapper = await mountField({ followCountry: 'GR', country: 'DE' })
+      expect(picker(wrapper).props('modelValue')).toBe('DE')
 
-  it('falls back to the ISO code when a country has no flag (decorative flag, text under it)', async () => {
-    const wrapper = await mountField({ modelValue: '+35796123456' })
+      await wrapper.setProps({ country: '' })
+      await flushPromises()
 
-    const flag = wrapper.find('[aria-hidden="true"].rounded-full')
-    expect(flag.exists()).toBe(true)
-    expect(flag.text()).toContain('CY')
+      expect(picker(wrapper).props('modelValue')).toBe('GR')
+    })
   })
 })

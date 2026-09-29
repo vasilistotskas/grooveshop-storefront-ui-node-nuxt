@@ -4,7 +4,6 @@ import {
   isPlausiblePhone,
   stripDialCodeForDisplay,
   detectPhoneCountry,
-  resolveTypedPhoneCountry,
   dialCodeLabel,
   resolvePhoneCountry,
   type PhoneCountry,
@@ -302,38 +301,23 @@ describe('Phone Utilities', () => {
     })
   })
 
-  describe('resolveTypedPhoneCountry', () => {
-    const gr = { alpha2: 'GR', ...GR }
-    const cy = { alpha2: 'CY', ...CY }
-    const us = { alpha2: 'US', phoneCode: 1 }
-    const ca = { alpha2: 'CA', phoneCode: 1 }
-    const list = [gr, cy, us, ca]
-
-    it('reads a national number against the form country', () => {
-      expect(resolveTypedPhoneCountry('6943413781', list, gr)).toBe(gr)
-      expect(resolveTypedPhoneCountry('96123456', list, cy)).toBe(cy)
+  describe('E.164 from the picked country plus the national digits', () => {
+    it('uses the PICKED dial code, whatever the delivery country is', () => {
+      // A Greek mobile picked while delivering to Cyprus stays +30.
+      expect(normalizePhone('6912345678', GR)).toBe('+306912345678')
+      expect(normalizePhone('96123456', CY)).toBe('+35796123456')
     })
 
-    it('lets +<code> / 00<code> override the form country', () => {
-      expect(resolveTypedPhoneCountry('+35796123456', list, gr)).toBe(cy)
-      expect(resolveTypedPhoneCountry('0030 6943413781', list, cy)).toBe(gr)
+    it('is what detection leaves behind: national digits + the detected country', () => {
+      const list = [{ alpha2: 'GR', ...GR }, { alpha2: 'CY', ...CY }]
+      const detected = detectPhoneCountry('0030 691 234 5678', list, 'CY')
+      expect(detected?.country.alpha2).toBe('GR')
+      expect(normalizePhone(detected?.national, detected?.country)).toBe('+306912345678')
     })
 
-    it('keeps the form country when it shares the typed code', () => {
-      expect(resolveTypedPhoneCountry('+16135550123', list, ca)).toBe(ca)
-      expect(resolveTypedPhoneCountry('+16135550123', list, gr)).toBe(us)
-    })
-
-    it('falls back to the form country for an unknown code or an empty list', () => {
-      expect(resolveTypedPhoneCountry('+999123', list, gr)).toBe(gr)
-      expect(resolveTypedPhoneCountry('+306943413781', undefined, gr)).toBe(gr)
-      expect(resolveTypedPhoneCountry('6943413781', list, undefined)).toBeUndefined()
-    })
-
-    it('validates the foreign number against ITS country, not the delivery one', () => {
-      const resolved = resolveTypedPhoneCountry('+35796123456', [gr, cy], gr)
-      expect(isPlausiblePhone('+35796123456', resolved)).toBe(true)
-      expect(isPlausiblePhone('+35796123', resolveTypedPhoneCountry('+35796123', [gr, cy], gr))).toBe(false)
+    it('validates that E.164 against the picked metadata', () => {
+      expect(isPlausiblePhone('6912345678', GR)).toBe(true)
+      expect(isPlausiblePhone('6912345678', CY)).toBe(false)
     })
   })
 

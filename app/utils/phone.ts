@@ -4,12 +4,11 @@
  * Delivery is no longer Greece-only (BoxNow now serves Cyprus lockers
  * too), so a phone number cannot be validated against one hardcoded
  * country. Every helper here takes the ``Country`` row the phone
- * belongs to instead. That row is derived from what was typed
- * (``resolveTypedPhoneCountry``): the country a ``+code`` / ``00code``
- * names, else the form's own country — the delivery country in
- * checkout, the address book's country field, the profile's stored
- * country (falling back to the first listed country when none is set
- * yet — see ``resolvePhoneCountry``).
+ * belongs to instead. In checkout that is the country the shopper
+ * picked in the phone field (``FormPhoneInput``), which follows the
+ * delivery country until they pick one; the address book and account
+ * settings use their own country field (falling back to the first
+ * listed country when none is set yet — see ``resolvePhoneCountry``).
  *
  * The country row carries ``phoneCode`` (the E.164 dial code) and
  * ``phoneMetadata`` (``nationalNumberPattern`` / ``possibleLengths`` /
@@ -222,18 +221,4 @@ export function detectPhoneCountry<T extends { alpha2: string, phoneCode?: numbe
   const sameCode = matches.filter(country => String(country.phoneCode).length === longest)
   const country = sameCode.find(candidate => candidate.alpha2 === preferredAlpha2) ?? sameCode[0]!
   return { country, national: digits.slice(longest) }
-}
-
-/**
- * The country a typed phone number resolves to: the one its ``+code`` /
- * ``00code`` names (``detectPhoneCountry``, preferring ``fallback`` when
- * it shares that code), else ``fallback`` — the form's own country, which
- * a plain national number is read against.
- */
-export function resolveTypedPhoneCountry<T extends { alpha2: string, phoneCode?: number | null }>(
-  raw: string | null | undefined,
-  countries: readonly T[] | null | undefined,
-  fallback: T | undefined,
-): T | undefined {
-  return detectPhoneCountry(raw, countries ?? [], fallback?.alpha2)?.country ?? fallback
 }

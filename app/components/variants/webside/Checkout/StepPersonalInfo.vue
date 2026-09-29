@@ -159,10 +159,12 @@ watch(() => props.serverErrors, applyServerErrors)
 
             <FormPhoneInput
               v-model="formState.phone"
+              v-model:country="formState.phoneCountry"
               :label="t('form.phone')"
               name="phone"
               required
-              :country="formState.country"
+              :follow-country="formState.country"
+              :pinned-countries="countryOptions.map(option => option.value)"
               size="xl"
             />
           </div>

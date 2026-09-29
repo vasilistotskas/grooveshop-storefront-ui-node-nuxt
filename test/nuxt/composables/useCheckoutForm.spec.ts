@@ -348,20 +348,32 @@ describe('useCheckoutForm', () => {
       expect(result.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
     })
 
-    it('validates a "+code" number against the country it names, and quotes that country example', async () => {
+    it('validates the phone against the PICKED phone country, not the delivery one', async () => {
       const { step1Schema } = await useCheckoutForm()
       await flushPromises()
 
-      const address = { country: 'CY', region: 'NICOSIA' }
+      // Delivering to Cyprus with a Greek mobile: GR picked, so +30 is checked against GR.
+      const address = { country: 'CY', region: 'NICOSIA', phoneCountry: 'GR' }
       const valid = step1Schema.safeParse(baseAddress({ ...address, phone: '+306912345678' }))
       expect(valid.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
 
-      // Greek dial code, CY-length digits: wrong for GR, so the message
-      // must show GR's example (6912345678), not the delivery country's.
-      const invalid = step1Schema.safeParse(baseAddress({ ...address, phone: '0030 123' }))
+      const invalid = step1Schema.safeParse(baseAddress({ ...address, phone: '+30123' }))
       const issue = invalid.error?.issues.find(i => i.path[0] === 'phone')
       expect(issue?.message).toContain('6912345678')
       expect(issue?.message).not.toContain('96123456')
+    })
+
+    it('falls back to the delivery country while the picker is still following it', async () => {
+      const { step1Schema } = await useCheckoutForm()
+      await flushPromises()
+
+      const address = { country: 'CY', region: 'NICOSIA', phoneCountry: '' }
+      const valid = step1Schema.safeParse(baseAddress({ ...address, phone: '+35796123456' }))
+      expect(valid.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
+
+      const invalid = step1Schema.safeParse(baseAddress({ ...address, phone: '+357123' }))
+      const issue = invalid.error?.issues.find(i => i.path[0] === 'phone')
+      expect(issue?.message).toContain('96123456')
     })
   })
 
