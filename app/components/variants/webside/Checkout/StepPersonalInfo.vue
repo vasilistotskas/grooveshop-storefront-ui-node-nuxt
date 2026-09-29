@@ -157,30 +157,34 @@ watch(() => props.serverErrors, applyServerErrors)
               />
             </UFormField>
 
-            <UFormField :label="t('form.phone')" name="phone" required>
-              <UInput
-                v-model="formState.phone"
-                type="tel"
-                size="xl"
-                autocomplete="tel-national"
-                inputmode="tel"
-                class="w-full"
-              >
-                <template v-if="dialCodeLabel(selectedCountry)" #leading>
-                  <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ dialCodeLabel(selectedCountry) }}</span>
-                </template>
-              </UInput>
-            </UFormField>
+            <FormPhoneInput
+              v-model="formState.phone"
+              :label="t('form.phone')"
+              name="phone"
+              required
+              :country="formState.country"
+              size="xl"
+            />
           </div>
         </div>
 
         <USeparator />
 
-        <!-- Address fields (Greek postal norm: street → number → zipcode → city → area → region → country) -->
+        <!-- Address fields (country first — it sets the postcode format, the regions and the delivery options — then street → number → zipcode → city → region) -->
         <div class="space-y-4">
           <h3 v-if="!hasSavedAddresses" class="text-lg font-medium text-primary-900 dark:text-primary-100">
             {{ t('delivery_address') }}
           </h3>
+
+          <UFormField :label="t('form.country')" name="country" required>
+            <USelect
+              v-model="formState.country"
+              autocomplete="country"
+              :items="countryOptions"
+              size="xl"
+              class="w-full"
+            />
+          </UFormField>
 
           <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
             <UFormField :label="t('form.street')" name="street" required class="md:col-span-2">
@@ -236,18 +240,10 @@ watch(() => props.serverErrors, applyServerErrors)
             <USelect
               v-model="formState.region"
               :items="regionOptions"
+              autocomplete="address-level1"
               size="xl"
               class="w-full"
               :disabled="!regionOptions.length"
-            />
-          </UFormField>
-
-          <UFormField :label="t('form.country')" name="country" required>
-            <USelect
-              v-model="formState.country"
-              :items="countryOptions"
-              size="xl"
-              class="w-full"
             />
           </UFormField>
 

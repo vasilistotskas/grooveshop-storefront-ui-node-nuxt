@@ -4,11 +4,12 @@
  * Delivery is no longer Greece-only (BoxNow now serves Cyprus lockers
  * too), so a phone number cannot be validated against one hardcoded
  * country. Every helper here takes the ``Country`` row the phone
- * belongs to instead — the caller decides which row that is:
- * the delivery country in checkout, the address-book form's own
- * country field, or the profile's stored country in account settings
- * (falling back to the first listed country when none is set yet —
- * see ``resolvePhoneCountry``).
+ * belongs to instead. That row is derived from what was typed
+ * (``resolveTypedPhoneCountry``): the country a ``+code`` / ``00code``
+ * names, else the form's own country — the delivery country in
+ * checkout, the address book's country field, the profile's stored
+ * country (falling back to the first listed country when none is set
+ * yet — see ``resolvePhoneCountry``).
  *
  * The country row carries ``phoneCode`` (the E.164 dial code) and
  * ``phoneMetadata`` (``nationalNumberPattern`` / ``possibleLengths`` /
@@ -24,6 +25,7 @@
 
 /** The subset of a ``Country`` row these helpers need. */
 export interface PhoneCountry {
+  alpha2?: string
   phoneCode?: number | null
   phoneMetadata?: PhoneMetadata | null
 }
@@ -68,8 +70,7 @@ export function resolvePhoneCountry<T extends { alpha2: string }>(
  * - Exception: if what's left after stripping already starts with the
  *   country's own dial code AND the remainder is one of its valid
  *   national lengths, the input was typed as the dial code without a
- *   leading ``+`` right next to the sticky badge (e.g. "306943413781"
- *   next to a "+30" badge) — re-prefix with ``+`` instead of
+ *   leading ``+`` (e.g. "306943413781" for Greece) — re-prefix with ``+`` instead of
  *   double-prefixing into "+3030…". Generalises the old Greek-only
  *   "3030" guard to every country's own length table.
  *
@@ -158,6 +159,10 @@ export function isPlausiblePhone(
 }
 
 /**
+ * Temporary: the account forms (address book, profile) still show the local
+ * part next to a leading dial-code badge; PR 2 removes this once they move
+ * to ``FormPhoneInput``.
+ *
  * Strip the country's own dial code so a pre-populated input can show
  * the local portion next to the visible dial-code badge.
  *
@@ -180,7 +185,55 @@ export function stripDialCodeForDisplay(
   return s
 }
 
-/** The sticky leading dial-code badge text (``+30``, ``+357``…) for a country row. */
+/** The dial-code text (``+30``, ``+357``…) shown for a country row. */
 export function dialCodeLabel(country: PhoneCountry | null | undefined): string {
   return country?.phoneCode != null ? `+${country.phoneCode}` : ''
+}
+
+/**
+ * Read a typed or pasted ``+<code>…`` / ``00<code>…`` number: the
+ * country its dial code names and what follows it.
+ *
+ * Longest dial code wins (E.164 codes are prefix-free, but the table's
+ * own values are not guaranteed to be). Rows that share the winning
+ * code (+1, +44, +7) resolve to ``preferredAlpha2`` when it is one of
+ * them — the shopper already chose that country, and a bare code cannot
+ * tell them apart — else to the first in ``countries``, so list order
+ * decides. Returns ``null`` for anything that is not international
+ * (a plain national number) or whose code no row carries yet (``+3``
+ * on its way to ``+30``).
+ */
+export function detectPhoneCountry<T extends { alpha2: string, phoneCode?: number | null }>(
+  raw: string | null | undefined,
+  countries: readonly T[],
+  preferredAlpha2?: string | null,
+): { country: T, national: string } | null {
+  const cleaned = String(raw ?? '').replace(/[\s\-().]/g, '')
+  const digits = cleaned.startsWith('+')
+    ? cleaned.slice(1)
+    : cleaned.startsWith('00') ? cleaned.slice(2) : null
+  if (digits === null) return null
+
+  const matches = countries.filter(country =>
+    country.phoneCode != null && digits.startsWith(String(country.phoneCode)))
+  if (!matches.length) return null
+
+  const longest = Math.max(...matches.map(country => String(country.phoneCode).length))
+  const sameCode = matches.filter(country => String(country.phoneCode).length === longest)
+  const country = sameCode.find(candidate => candidate.alpha2 === preferredAlpha2) ?? sameCode[0]!
+  return { country, national: digits.slice(longest) }
+}
+
+/**
+ * The country a typed phone number resolves to: the one its ``+code`` /
+ * ``00code`` names (``detectPhoneCountry``, preferring ``fallback`` when
+ * it shares that code), else ``fallback`` — the form's own country, which
+ * a plain national number is read against.
+ */
+export function resolveTypedPhoneCountry<T extends { alpha2: string, phoneCode?: number | null }>(
+  raw: string | null | undefined,
+  countries: readonly T[] | null | undefined,
+  fallback: T | undefined,
+): T | undefined {
+  return detectPhoneCountry(raw, countries ?? [], fallback?.alpha2)?.country ?? fallback
 }

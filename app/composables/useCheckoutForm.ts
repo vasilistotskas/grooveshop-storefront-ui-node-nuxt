@@ -12,6 +12,9 @@ export async function useCheckoutForm() {
   const { getCartItems, cart } = storeToRefs(cartStore)
   const tenantStore = useTenantStore()
   const { loggedIn, user } = useUserSession()
+  // Every dial code, not only the shippable countries: a typed
+  // ``+<code>`` is validated against the country it names.
+  const { data: phoneCountries } = usePhoneCountries()
 
   // Form state
   const formState = reactive({
@@ -726,8 +729,8 @@ export async function useCheckoutForm() {
       error: t('validation.required'),
     }).max(150, { error: t('validation.max', { max: 150 }) }),
     email: z.email({ error: t('validation.email.valid') }),
-    // Plausibility (against the selected country's ``phoneMetadata``)
-    // is checked in ``superRefine`` below, on the value that actually
+    // Plausibility (against ``phoneMetadata`` of the country the number
+    // resolves to) is checked in ``superRefine`` below, on the value that actually
     // gets submitted (``normalizePhone`` output) — so the inline error
     // fires here, at the step where the field lives, not as a Django
     // 400 on the final "Ολοκλήρωση Παραγγελίας" click.
@@ -794,12 +797,13 @@ export async function useCheckoutForm() {
         message: t('validation.required'),
       })
     }
-    if (!isPlausiblePhone(data.phone, country)) {
+    const phoneCountry = resolveTypedPhoneCountry(data.phone, phoneCountries.value?.results, country)
+    if (!isPlausiblePhone(data.phone, phoneCountry)) {
       ctx.addIssue({
         path: ['phone'],
         code: 'custom',
-        message: country?.phoneMetadata?.exampleMobile
-          ? t('validation.phone.invalid_example', { example: country.phoneMetadata.exampleMobile })
+        message: phoneCountry?.phoneMetadata?.exampleMobile
+          ? t('validation.phone.invalid_example', { example: phoneCountry.phoneMetadata.exampleMobile })
           : t('validation.phone.invalid'),
       })
     }
@@ -1153,8 +1157,8 @@ export async function useCheckoutForm() {
     selectedPayWay,
     countries,
     // The full ``Country`` row matching ``formState.country`` — carries
-    // ``phoneCode``/``phoneMetadata`` (phone badge + validation) and
-    // ``hasRegions`` (whether the region field applies). Exposed so
+    // ``phoneCode``/``phoneMetadata`` (what a national phone number is
+    // validated against) and ``hasRegions`` (whether the region field applies). Exposed so
     // ``StepPersonalInfo`` doesn't need its own copy of the lookup.
     selectedCountry,
     payWays,

@@ -313,11 +313,10 @@ export function useCheckoutSubmit({ formState, selectedPayWay, payWays, selected
       city: formState.city,
       // Canonical form, the same one Django stores.
       zipcode: normalizePostcode(formState.zipcode),
-      // The phone UInput displays a sticky dial-code badge for the
-      // delivery country and users type their local number. Django's
-      // phonenumber_field expects E.164, so normalize against that
-      // same country unless the user already typed an international
-      // prefix (e.g. a Greek mobile shipping to a Cypriot locker).
+      // The phone field holds what the shopper typed: a local number, or
+      // one with its own ``+code`` / ``00code`` (a Greek mobile shipping
+      // to a Cypriot locker). Django's phonenumber_field expects E.164,
+      // so a local number is read against the delivery country.
       phone: normalizePhone(formState.phone, selectedCountry.value),
       customerNotes: formState.customerNotes,
       // B2B billing — only meaningful when documentType=INVOICE. The

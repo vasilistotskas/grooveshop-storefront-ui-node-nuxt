@@ -155,8 +155,20 @@ describe('useCheckoutForm', () => {
   it('fetches countries with shippable: true', async () => {
     await useCheckoutForm()
 
-    const countriesCall = mockFetch.mock.calls.find(([url]) => url === '/api/countries')
+    const countriesCall = mockFetch.mock.calls.find(
+      ([url, options]) => url === '/api/countries' && options?.query?.shippable,
+    )
     expect(countriesCall?.[1]?.query).toMatchObject({ shippable: true })
+  })
+
+  it('also fetches EVERY dial code, unpaginated, for the phone field', async () => {
+    await useCheckoutForm()
+
+    const phoneCall = mockFetch.mock.calls.find(
+      ([url, options]) => url === '/api/countries' && options?.query?.pagination === 'false',
+    )
+    expect(phoneCall?.[1]?.query).toMatchObject({ hasPhoneCode: true, pagination: 'false' })
+    expect(phoneCall?.[1]?.query).not.toHaveProperty('shippable')
   })
 
   describe('live shipping pricing (no local fallback)', () => {
@@ -331,6 +343,22 @@ describe('useCheckoutForm', () => {
       const { step1Schema } = await useCheckoutForm()
       const result = step1Schema.safeParse(baseAddress({ country: 'CY', region: 'NICOSIA', phone: '+306943413781' }))
       expect(result.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
+    })
+
+    it('validates a "+code" number against the country it names, and quotes that country example', async () => {
+      const { step1Schema } = await useCheckoutForm()
+      await flushPromises()
+
+      const address = { country: 'CY', region: 'NICOSIA' }
+      const valid = step1Schema.safeParse(baseAddress({ ...address, phone: '+306912345678' }))
+      expect(valid.error?.issues.some(i => i.path[0] === 'phone')).toBe(false)
+
+      // Greek dial code, CY-length digits: wrong for GR, so the message
+      // must show GR's example (6912345678), not the delivery country's.
+      const invalid = step1Schema.safeParse(baseAddress({ ...address, phone: '0030 123' }))
+      const issue = invalid.error?.issues.find(i => i.path[0] === 'phone')
+      expect(issue?.message).toContain('6912345678')
+      expect(issue?.message).not.toContain('96123456')
     })
   })
 
