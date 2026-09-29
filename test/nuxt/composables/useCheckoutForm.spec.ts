@@ -168,6 +168,9 @@ describe('useCheckoutForm', () => {
       ([url, options]) => url === '/api/countries' && options?.query?.pagination === 'false',
     )
     expect(phoneCall?.[1]?.query).toMatchObject({ hasPhoneCode: true, pagination: 'false' })
+    // Every country carries all its translations, so the list must not
+    // refetch (or answer stale) on a language switch.
+    expect(phoneCall?.[1]?.query).not.toHaveProperty('languageCode')
     expect(phoneCall?.[1]?.query).not.toHaveProperty('shippable')
   })
 
