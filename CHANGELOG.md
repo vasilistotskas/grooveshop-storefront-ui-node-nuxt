@@ -1,3 +1,10 @@
+## [3.223.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.223.0...v3.223.1) (2026-09-29)
+
+
+### Bug Fixes
+
+* **account:** match the address-book phone field size and make country/region autofillable ([#38](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/38)) ([0af25cb](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/0af25cbbb70952331cab28096c0c06ff03ea8e61))
+
 # [3.223.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.222.1...v3.223.0) (2026-09-29)
 
 
