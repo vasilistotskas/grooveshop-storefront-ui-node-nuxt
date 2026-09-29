@@ -50,7 +50,7 @@ type Schema = z.output<typeof schema>
 // Form state. ``region`` narrowed to drop ``null`` — the generated
 // schema allows it (Django's serializer accepts a blank region), but
 // this form only ever assigns it a string or leaves it undefined, and
-// USelectMenu's v-model doesn't accept null.
+// USelect's v-model doesn't accept null.
 const state = reactive<Partial<Omit<Schema, 'region'>> & { region?: string }>({
   title: undefined,
   firstName: undefined,
@@ -247,17 +247,18 @@ defineRouteRules({
           required
           :follow-country="state.country"
           :pinned-countries="shippableCountryCodes"
+          size="xl"
         />
 
         <!-- Address: country first (postcode format, regions, delivery), then street → number → zipcode → city → region -->
         <UFormField :label="t('form.country')" name="country" required>
-          <USelectMenu
+          <USelect
             v-model="state.country"
+            size="xl"
             :aria-label="t('form.country')"
             icon="i-heroicons-globe-alt"
             :items="countryOptions"
             :placeholder="t('form.select_placeholder')"
-            value-key="value"
             autocomplete="country"
           />
         </UFormField>
@@ -306,14 +307,14 @@ defineRouteRules({
           name="region"
           required
         >
-          <USelectMenu
+          <USelect
             v-model="state.region"
+            size="xl"
             :aria-label="t('form.region')"
             icon="i-heroicons-map"
             :items="regionOptions"
             :placeholder="t('form.select_placeholder')"
             :disabled="!state.country"
-            value-key="value"
             autocomplete="address-level1"
           />
         </UFormField>

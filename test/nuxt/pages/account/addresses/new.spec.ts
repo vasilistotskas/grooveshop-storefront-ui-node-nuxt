@@ -196,18 +196,30 @@ describe('account/addresses/new', () => {
       expect(names.indexOf('country')).toBeLessThan(names.indexOf('street'))
     })
 
-    it('puts autocomplete="country" and "address-level1" on the selects', async () => {
-      const { html } = await (async () => {
-        const wrapper = await mountSuspended(NewAddressPage)
-        await flushPromises()
-        const vm = wrapper.vm as unknown as { state: Record<string, unknown> }
-        vm.state.country = 'GR'
-        await flushPromises()
-        return { html: wrapper.html() }
-      })()
+    it('puts autocomplete="country" and "address-level1" on native selects autofill can fill', async () => {
+      const wrapper = await mountSuspended(NewAddressPage)
+      await flushPromises()
+      const vm = wrapper.vm as unknown as { state: Record<string, unknown> }
+      vm.state.country = 'GR'
+      await flushPromises()
 
-      expect(html).toContain('autocomplete="country"')
-      expect(html).toContain('autocomplete="address-level1"')
+      // A combobox button ignores `autocomplete`; USelect's hidden native
+      // <select> does not.
+      expect(wrapper.find('select[autocomplete="country"]').exists()).toBe(true)
+      expect(wrapper.find('select[autocomplete="address-level1"]').exists()).toBe(true)
+      expect(wrapper.find('button[autocomplete]').exists()).toBe(false)
+    })
+
+    it('renders the phone field at the same size as the other inputs', async () => {
+      const wrapper = await mountSuspended(NewAddressPage)
+      await flushPromises()
+
+      const heightClasses = (input: { classes: () => string[] }) => input.classes().filter(name => /^(?:py|px|text)-/.test(name)).sort()
+      const phone = wrapper.find('input[type="tel"]')
+      const street = wrapper.find('input[autocomplete="address-line1"]')
+      expect(heightClasses(phone)).toEqual(heightClasses(street).filter(name => !name.startsWith('ps-')))
+      // The picker button matches the input's vertical padding too.
+      expect(wrapper.findComponent({ name: 'USelectMenu' }).find('button').classes()).toContain('py-2')
     })
   })
 
