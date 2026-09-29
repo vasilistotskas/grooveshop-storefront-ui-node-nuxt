@@ -37,12 +37,15 @@ const schema = z.object({
   }),
   // Optional in Django (UserAccount.phone is blank=True) but when
   // present it must pass the same plausibility check the checkout
-  // applies, against this form's own country field (falling back to
-  // the first listed country while it's unset — see ``phoneCountry``).
+  // applies, against the country picked in the phone field (it follows
+  // this form's own country until then — see ``formCountry``).
   phone: z.string({ error: issue => issue.input === undefined
     ? t('validation.required')
     : t('validation.string.invalid') }).refine(
-    value => !value || isPlausiblePhone(value, phoneCountry.value),
+    value => !value || isPlausiblePhone(
+      value,
+      resolvePhoneCountry(countries.value?.results, phonePick.value) ?? formCountry.value,
+    ),
     { error: t('validation.phone.invalid') },
   ),
   city: z.string({ error: issue => issue.input === undefined
@@ -100,37 +103,21 @@ const userLanguage = (user.value?.languageCode && SUPPORTED_LOCALES.includes(use
   ? user.value.languageCode as typeof SUPPORTED_LOCALES[number]
   : DEFAULT_LOCALE
 
-// Countries fetched before ``state`` so the phone display below can
-// already resolve the profile's dial code. Full list (not
-// ``shippable``-filtered) — this is account data, not a delivery
-// address, so every ISO country the store's Country table carries is
-// a valid choice here.
-const { data: countries } = await useApi('/api/countries', {
-  key: 'countries',
-  method: 'GET',
-  headers: useRequestHeaders(),
-  query: {
-    languageCode: locale,
-  },
-})
+// Every country with a dial code, unpaginated (the shared phone source):
+// the account's country is not a delivery address, so it is not limited to
+// what the store ships to. (The default page holds 12 rows.)
+const { data: countries } = await usePhoneCountries()
 
-// One-off (non-reactive) resolution for the initial display value
-// only — the live, reactive version (``phoneCountry`` below, defined
-// after ``state`` exists) follows the form's own country field so the
-// badge updates if the shopper changes it before saving.
-const initialPhoneCountry = resolvePhoneCountry(
-  countries.value?.results,
-  user.value?.country,
-  { fallbackToFirst: true },
-)
+// The country picked in the phone field; empty while it follows the form's.
+const phonePick = ref('')
 
 const state = reactive<Partial<Schema>>({
   email: user.value?.email || '',
   firstName: user.value?.firstName || '',
   lastName: user.value?.lastName || '',
-  // Stored as E.164 (e.g. "+306912345678"); strip the dial code for
-  // display so it pairs cleanly with the sticky leading badge.
-  phone: stripDialCodeForDisplay(user.value?.phone, initialPhoneCountry),
+  // Stored as E.164 (e.g. "+306912345678"); the phone field parses it back
+  // into its country picker and the national digits.
+  phone: user.value?.phone || '',
   city: user.value?.city || '',
   zipcode: user.value?.zipcode || '',
   address: user.value?.address || '',
@@ -141,22 +128,26 @@ const state = reactive<Partial<Schema>>({
   languageCode: userLanguage,
 })
 
-// The country governing the phone badge + validation — the form's
-// own (live) country field, falling back to the first listed country
-// while it's still the unselected placeholder. Referenced by the
-// ``phone`` refine above; the closure resolves it lazily at
-// validation time, by when this is already initialised.
+// The form's own (live) country field, falling back to the first listed
+// country while it's still the unselected placeholder: what the phone field
+// follows, and what validates the phone until a country is picked in it.
+// Referenced by the ``phone`` refine above; the closure resolves it lazily
+// at validation time, by when this is already initialised.
 //
 // A plain ref updated via watch() — not a computed reading
 // state.country directly — because a computed's initializer touching
 // state (typed Partial<Schema>) closes a cycle back through the
-// schema's own phone refine (schema -> phoneCountry -> state ->
+// schema's own phone refine (schema -> formCountry -> state ->
 // Schema -> schema, TS2456). Explicitly typing this ref breaks it: the
 // watch callback below still reads state.country, but that's a
-// separate statement, not part of phoneCountry's own type.
-const phoneCountry = ref<Country | undefined>(initialPhoneCountry)
+// separate statement, not part of formCountry's own type.
+const formCountry = ref<Country | undefined>(resolvePhoneCountry(
+  countries.value?.results,
+  user.value?.country,
+  { fallbackToFirst: true },
+))
 watch(() => state.country, (newCountry) => {
-  phoneCountry.value = resolvePhoneCountry(
+  formCountry.value = resolvePhoneCountry(
     countries.value?.results,
     newCountry !== defaultSelectOptionChoose ? newCountry : undefined,
     { fallbackToFirst: true },
@@ -290,7 +281,7 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
       email: values.email,
       firstName: values.firstName,
       lastName: values.lastName,
-      phone: normalizePhone(values.phone, phoneCountry.value),
+      phone: values.phone,
       city: values.city,
       zipcode: values.zipcode,
       address: values.address,
@@ -393,26 +384,14 @@ watch(calendarDate, (newVal) => {
         />
       </UFormField>
 
-      <UFormField
+      <FormPhoneInput
+        v-model="state.phone"
+        v-model:country="phonePick"
         :label="t('form.phone')"
         name="phone"
-      >
-        <UInput
-          v-model="state.phone"
-          type="tel"
-          autocomplete="tel-national"
-          inputmode="tel"
-          :placeholder="t('form.phone_placeholder')"
-          class="w-full"
-          :ui="{
-            base: 'ps-11',
-          }"
-        >
-          <template v-if="dialCodeLabel(phoneCountry)" #leading>
-            <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ dialCodeLabel(phoneCountry) }}</span>
-          </template>
-        </UInput>
-      </UFormField>
+        :follow-country="formCountry?.alpha2"
+        size="xl"
+      />
 
       <UFormField
         :label="t('form.city')"
@@ -500,6 +479,7 @@ watch(calendarDate, (newVal) => {
         <USelect
           v-model="state.country"
           name="country"
+          autocomplete="country"
           value-key="value"
           :items="countryOptions"
           color="neutral"
@@ -515,6 +495,7 @@ watch(calendarDate, (newVal) => {
         <USelect
           v-model="state.region"
           name="region"
+          autocomplete="address-level1"
           :items="regionOptions"
           color="neutral"
           class="w-full"
@@ -559,7 +540,6 @@ el:
     first_name: Όνομα
     last_name: Επώνυμο
     phone: Τηλέφωνο
-    phone_placeholder: "6912345678"
     city: Πόλη
     zipcode: Ταχυδρομικός κώδικας
     address: Διεύθυνση
@@ -578,7 +558,6 @@ en:
     first_name: First name
     last_name: Last name
     phone: Phone
-    phone_placeholder: "6912345678"
     city: City
     zipcode: Postcode
     address: Address
