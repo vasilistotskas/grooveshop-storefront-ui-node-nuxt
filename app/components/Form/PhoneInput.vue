@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<{
    * mobile can receive a parcel in Cyprus, so the two are separate.
    */
   followCountry?: string | null
-  /** alpha-2 codes listed first, above a separator (the store's shippable countries). */
+  /** alpha-2 codes listed first, divided from the rest (the store's shippable countries). */
   pinnedCountries?: readonly string[]
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 }>(), {
@@ -80,15 +80,28 @@ const countryName = computed(() =>
 const dialCode = computed(() => dialCodeLabel(country.value))
 const e164 = computed(() => normalizePhone(national.value, country.value))
 
+const searchTerm = ref('')
+
+// The pinned group ends with a divider drawn by the last pinned row itself,
+// not a `{ type: 'separator' }` item: the menu is virtualized, and every row
+// is placed at an estimated fixed height, so a separator item (~9px) was
+// given a full row's slot and left a row-sized gap under the pinned
+// countries. A pseudo-element has no layout height. Only while the search is
+// empty — a filtered list has no pinned group to divide.
+const PINNED_DIVIDER = 'after:absolute after:inset-x-1 after:bottom-0 after:h-px after:bg-border'
+
 const items = computed<SelectMenuItem[]>(() => {
   const toItem = ({ country, label }: { country: Country, label: string }): PhoneCountryItem => {
     const code = dialCodeLabel(country)
     return { label, value: country.alpha2, dialCode: code, searchTerms: `${code} ${country.alpha2}` }
   }
   const { pinned, rest } = ordered.value
+  const divide = pinned.length > 0 && rest.length > 0 && !searchTerm.value
   return [
-    ...pinned.map(toItem),
-    ...(pinned.length && rest.length ? [{ type: 'separator' as const }] : []),
+    ...pinned.map((entry, index) => ({
+      ...toItem(entry),
+      ...(divide && index === pinned.length - 1 ? { class: PINNED_DIVIDER } : {}),
+    })),
     ...rest.map(toItem),
   ]
 })
@@ -155,6 +168,7 @@ watch(e164, (value) => {
     <UFieldGroup :size="size" class="w-full">
       <USelectMenu
         :id="pickerId"
+        v-model:search-term="searchTerm"
         :model-value="country?.alpha2"
         :items="items"
         value-key="value"
