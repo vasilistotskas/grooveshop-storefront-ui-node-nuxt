@@ -9,7 +9,8 @@
  * model is E.164, built from the picked country + the national digits.
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
+import { defineComponent, h, reactive } from 'vue'
 import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import { flushPromises } from '@vue/test-utils'
 import PhoneInput from '~/components/Form/PhoneInput.vue'
@@ -146,8 +147,8 @@ describe('Form/PhoneInput', () => {
 
       const input = wrapper.find('input')
       expect(input.classes()).toContain('ps-(--dial-code-length)')
-      // "+357" is 4 characters, plus 1.5ch of breathing room.
-      expect(input.attributes('style') ?? wrapper.html()).toContain('--dial-code-length: 5.5ch')
+      // "+357" is 4 characters, plus 2.5ch (1.5ch start inset + a 1ch gap).
+      expect(input.attributes('style') ?? wrapper.html()).toContain('--dial-code-length: 6.5ch')
       expect(leading(wrapper)!.textContent).toContain('+357')
       expect(leading(wrapper)!.className).toContain('pointer-events-none')
     })
@@ -156,7 +157,7 @@ describe('Form/PhoneInput', () => {
       const wrapper = await mountField({ followCountry: 'US' })
 
       expect(leading(wrapper)!.textContent).toContain('+1')
-      expect(wrapper.html()).toContain('--dial-code-length: 3.5ch')
+      expect(wrapper.html()).toContain('--dial-code-length: 4.5ch')
     })
 
     it('uses the picked country\'s example as the placeholder', async () => {
@@ -329,6 +330,100 @@ describe('Form/PhoneInput', () => {
       await flushPromises()
 
       expect(picker(wrapper).props('modelValue')).toBe('GR')
+    })
+  })
+
+  /**
+   * The exact wiring of both StepPersonalInfo copies: `v-model` and
+   * `v-model:country` on reactive form state, a reactive `followCountry`, and
+   * a pinned array that is NEW on every parent render (an inline `.map()`).
+   * That combination once looped forever when the delivery country changed
+   * (prod builds have no recursive-update guard, so the page froze).
+   */
+  describe('inside a parent that re-renders (StepPersonalInfo wiring)', () => {
+    const options = [{ value: 'GR' }, { value: 'CY' }]
+
+    function mountHost() {
+      const state = reactive({ phone: '', phoneCountry: '', country: 'GR' })
+      let renders = 0
+      const Host = defineComponent({
+        setup() {
+          return () => {
+            renders++
+            return h(PhoneInput, {
+              'label': 'Τηλέφωνο',
+              'name': 'phone',
+              'modelValue': state.phone,
+              'onUpdate:modelValue': (value: string | undefined) => { state.phone = value ?? '' },
+              'country': state.phoneCountry,
+              'onUpdate:country': (value: string | undefined) => { state.phoneCountry = value ?? '' },
+              'followCountry': state.country,
+              'pinnedCountries': options.map(option => option.value),
+            })
+          }
+        },
+      })
+      return mountSuspended(Host).then(async (wrapper) => {
+        await flushPromises()
+        return { wrapper, state, renders: () => renders }
+      })
+    }
+
+    it('re-bases the same digits on the new delivery country without looping', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const { wrapper, state, renders } = await mountHost()
+
+      await wrapper.find('input').setValue('6912345678')
+      await flushPromises()
+      expect(state.phone).toBe('+306912345678')
+
+      const before = renders()
+      state.country = 'CY'
+      await flushPromises()
+
+      // A loop trips Vue's guard in dev; in prod it never returns.
+      expect(warn.mock.calls.some(call => String(call[0]).includes('Maximum recursive updates'))).toBe(false)
+      expect(renders() - before).toBeLessThan(6)
+      // No pick was made, so the picker follows to CY and keeps the digits...
+      expect(state.phoneCountry).toBe('')
+      expect(wrapper.findComponent({ name: 'USelectMenu' }).props('modelValue')).toBe('CY')
+      expect(wrapper.find('input').element.value).toBe('6912345678')
+      // ...which makes the number invalid for CY; validation reports it.
+      expect(state.phone).toBe('+3576912345678')
+      warn.mockRestore()
+    })
+
+    it('keeps a pick when the delivery country changes', async () => {
+      const { wrapper, state } = await mountHost()
+
+      await wrapper.find('input').setValue('+306912345678')
+      await flushPromises()
+      expect(state.phoneCountry).toBe('GR')
+
+      state.country = 'CY'
+      await flushPromises()
+
+      expect(state.phoneCountry).toBe('GR')
+      expect(wrapper.findComponent({ name: 'USelectMenu' }).props('modelValue')).toBe('GR')
+      expect(state.phone).toBe('+306912345678')
+    })
+
+    it('a parent re-render with a new pinned array does not hydrate or pick', async () => {
+      const { wrapper, state, renders } = await mountHost()
+      await wrapper.find('input').setValue('6912345678')
+      await flushPromises()
+
+      const before = renders()
+      for (let i = 0; i < 5; i++) {
+        // An unrelated form field changing re-renders the parent.
+        state.phoneCountry = ''
+        state.phone = '+306912345678'
+        await flushPromises()
+      }
+
+      expect(state.phoneCountry).toBe('')
+      expect(wrapper.findComponent({ name: 'USelectMenu' }).props('modelValue')).toBe('GR')
+      expect(renders() - before).toBeLessThan(3)
     })
   })
 })

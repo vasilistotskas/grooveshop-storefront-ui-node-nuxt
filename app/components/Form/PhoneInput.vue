@@ -40,11 +40,10 @@ const { t, locale } = useI18n()
 const { data } = usePhoneCountries()
 const pickerId = useId()
 
-const INTERNATIONAL_PREFIX = /^(?:\+|00)/
-
 // The national digits as typed. Shallow so ``triggerRef`` can re-render the
-// input when a stripped ``+code`` leaves this string unchanged.
-const national = shallowRef('')
+// input when a stripped ``+code`` leaves this string unchanged. Starts as the
+// model itself: a saved number is parsed once the country list is here.
+const national = shallowRef(modelValue.value)
 
 const named = computed(() => (data.value?.results ?? [])
   .filter(country => country.phoneCode != null)
@@ -55,8 +54,12 @@ const named = computed(() => (data.value?.results ?? [])
 
 // The store's shippable countries first (in the order given), then the
 // rest A–Z by localized name. Shared dial codes resolve to the first here.
+// Keyed by a string: a caller passing a fresh array on every render (an
+// inline `.map()`) must not re-order ~250 rows, rebuild the items, or wake
+// anything that watches them.
+const pinnedKey = computed(() => props.pinnedCountries.join(','))
 const ordered = computed(() => {
-  const pinnedCodes = props.pinnedCountries
+  const pinnedCodes = pinnedKey.value ? pinnedKey.value.split(',') : []
   const pinned = pinnedCodes
     .map(alpha2 => named.value.find(entry => entry.country.alpha2 === alpha2))
     .filter(entry => entry !== undefined)
@@ -110,7 +113,7 @@ function pick(alpha2: string) {
   pickedCountry.value = alpha2
 }
 
-// Inbound: an E.164 value written from outside (saved address, reset).
+// Inbound: an E.164 value written from OUTSIDE (a saved address, a reset).
 // Its country is a choice only when it differs from the one being followed.
 function hydrate(value: string) {
   const detected = detectPhoneCountry(value, countries.value, country.value?.alpha2)
@@ -125,14 +128,25 @@ function hydrate(value: string) {
   triggerRef(national)
 }
 
-watch([modelValue, countries], () => {
-  if (modelValue.value !== e164.value) hydrate(modelValue.value)
-  // A ``+code`` that named no known country yet, before the list arrived.
-  else if (INTERNATIONAL_PREFIX.test(national.value)) onInput(national.value)
+// The last E.164 this component wrote. The model changing to that is our own
+// output coming back, not news: reading it as an external write re-parsed the
+// OLD number against the NEW follow country and made the picker sticky
+// (and, re-rendering the parent, looped).
+let lastEmitted = modelValue.value
+
+watch(modelValue, (value) => {
+  if (value !== lastEmitted) hydrate(value)
+})
+
+// The list arriving (once) is what lets a saved number, or a ``+code`` typed
+// before it, name its country. Its identity is not watched: only its size.
+watch(() => countries.value.length, (size, previous) => {
+  if (size && !previous) hydrate(modelValue.value)
 }, { immediate: true })
 
 // Outbound: the ONE place the E.164 value is produced.
 watch(e164, (value) => {
+  lastEmitted = value
   if (value !== modelValue.value) modelValue.value = value
 })
 </script>
@@ -175,7 +189,9 @@ watch(e164, (value) => {
         The dial code is fixed text in the input's own leading slot, and the
         start padding is sized to ITS length in `ch` (the pattern of Nuxt UI's
         phone-number example), so `+30`, `+357` and `+1264` can never overlap
-        the digits.
+        the digits. The slot text starts one start-inset (0.75rem, ~1.5ch) in
+        from the edge, so 1.5ch of padding beyond the code leaves NO gap; the
+        extra 1ch is the gap between the code and the digits.
       -->
       <UInput
         :model-value="national"
@@ -183,7 +199,7 @@ watch(e164, (value) => {
         inputmode="tel"
         autocomplete="tel"
         :placeholder="country?.phoneMetadata?.exampleMobile ?? ''"
-        :style="{ '--dial-code-length': `${dialCode.length + 1.5}ch` }"
+        :style="{ '--dial-code-length': `${dialCode.length + 2.5}ch` }"
         class="w-full"
         :ui="{ base: 'ps-(--dial-code-length)', leading: `
           pointer-events-none text-base text-muted
