@@ -235,6 +235,35 @@ describe('Form/PhoneInput', () => {
       expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['+306912345678'])
     })
 
+    it('drops the space typed after the code: the number never starts with one', async () => {
+      const wrapper = await mountField({ followCountry: 'GR' })
+
+      // The code is stripped the moment it is complete, then the shopper keeps typing.
+      await type(wrapper, '+357')
+      await type(wrapper, ' 96123456')
+
+      expect(wrapper.find('input').element.value).toBe('96123456')
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['+35796123456'])
+    })
+
+    it('drops it after 00<code> too, keeping the spaces inside the number', async () => {
+      const wrapper = await mountField({ followCountry: 'CY' })
+
+      await type(wrapper, '0030')
+      await type(wrapper, ' 691 234 5678')
+
+      expect(wrapper.find('input').element.value).toBe('691 234 5678')
+      expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['+306912345678'])
+    })
+
+    it('drops leading whitespace of a plain number as well', async () => {
+      const wrapper = await mountField({ followCountry: 'GR' })
+
+      await type(wrapper, '  6912345678')
+
+      expect(wrapper.find('input').element.value).toBe('6912345678')
+    })
+
     it('strips a code that names the country already picked (the input never keeps it)', async () => {
       const wrapper = await mountField({ followCountry: 'CY' })
 

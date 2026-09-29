@@ -16,6 +16,11 @@ const isSubmitting = ref(false)
 
 const addressId = 'id' in route.params ? route.params.id : undefined
 
+// Every dial code, for the phone field's country picker, and the country
+// the shopper picked there (empty while it follows the form's country).
+const { data: phoneCountries } = usePhoneCountries()
+const phonePick = ref('')
+
 // Auto-generated contract schema, tightened with the same client-side
 // phone plausibility check and delivery-address rules checkout applies
 // — the OpenAPI schema can't express either, and Django re-validates.
@@ -29,12 +34,15 @@ const schema = zUserAddressWriteRequest.superRefine((data, ctx) => {
   if (country?.hasRegions !== false && !(data.region ?? '').trim()) {
     ctx.addIssue({ path: ['region'], code: 'custom', message: t('validation.required') })
   }
-  if (!isPlausiblePhone(data.phone, country)) {
+  // The phone is E.164, built by ``FormPhoneInput`` from the country picked
+  // in the field (it follows the form's country until then).
+  const phoneCountry = resolvePhoneCountry(phoneCountries.value?.results, phonePick.value) ?? country
+  if (!isPlausiblePhone(data.phone, phoneCountry)) {
     ctx.addIssue({
       path: ['phone'],
       code: 'custom',
-      message: country?.phoneMetadata?.exampleMobile
-        ? t('validation.phone.invalid_example', { example: country.phoneMetadata.exampleMobile })
+      message: phoneCountry?.phoneMetadata?.exampleMobile
+        ? t('validation.phone.invalid_example', { example: phoneCountry.phoneMetadata.exampleMobile })
         : t('validation.phone.invalid'),
     })
   }
@@ -53,8 +61,7 @@ const { data: address } = await useApi(`/api/user/addresses/${addressId}`, {
 })
 
 // Countries data — shippable only: a country this store doesn't ship
-// to would 400 at submit either way. Fetched before ``state`` so the
-// phone display below can already resolve this address's dial code.
+// to would 400 at submit either way.
 const { data: countries } = await useApi('/api/countries', {
   key: 'countries-shippable',
   method: 'GET',
@@ -84,10 +91,9 @@ const state = reactive<Partial<Omit<Schema, 'region'>> & { region?: string }>({
   streetNumber: address.value?.streetNumber,
   city: address.value?.city,
   zipcode: address.value?.zipcode,
-  // Address.phone is stored as E.164 (e.g. "+306912345678"); strip the
-  // dial code so the visible leading badge on the input doesn't
-  // double up.
-  phone: stripDialCodeForDisplay(address.value?.phone, selectedCountry(address.value?.country)),
+  // Stored as E.164 (e.g. "+306912345678"); the phone field parses it back
+  // into its country picker and the national digits.
+  phone: address.value?.phone,
   notes: address.value?.notes,
   isMain: address.value?.isMain,
   country: address.value?.country,
@@ -104,6 +110,9 @@ const countryOptions = computed(() => {
     })) || []
   )
 })
+
+// The store's shippable countries, listed first in the phone picker.
+const shippableCountryCodes = computed(() => countryOptions.value.map(option => option.value))
 
 // Regions data
 const { data: regions, execute: fetchRegions } = await useApi<Pagination<Region>>(
@@ -166,7 +175,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       headers: useRequestHeaders(),
       body: {
         ...event.data,
-        phone: normalizePhone(event.data.phone, selectedCountry(event.data.country)),
         // Canonical form, the same one Django stores.
         zipcode: normalizePostcode(event.data.zipcode),
       },
@@ -285,22 +293,30 @@ defineRouteRules({
           />
         </UFormField>
 
-        <!-- Phone — dial-code badge follows this form's own country -->
-        <UFormField :label="t('form.phone')" name="phone" required>
-          <UInput
-            v-model="state.phone"
-            type="tel"
-            :placeholder="t('form.phone_placeholder')"
-            autocomplete="tel-national"
-            inputmode="tel"
-          >
-            <template v-if="dialCodeLabel(selectedCountry(state.country))" #leading>
-              <span class="pl-1 text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ dialCodeLabel(selectedCountry(state.country)) }}</span>
-            </template>
-          </UInput>
+        <!-- Phone — a country picker + the number; it follows this form's country until picked -->
+        <FormPhoneInput
+          v-model="state.phone"
+          v-model:country="phonePick"
+          :label="t('form.phone')"
+          name="phone"
+          required
+          :follow-country="state.country"
+          :pinned-countries="shippableCountryCodes"
+        />
+
+        <!-- Address: country first (postcode format, regions, delivery), then street → number → zipcode → city → region -->
+        <UFormField :label="t('form.country')" name="country" required>
+          <USelectMenu
+            v-model="state.country"
+            :aria-label="t('form.country')"
+            icon="i-heroicons-globe-alt"
+            :items="countryOptions"
+            :placeholder="t('form.select_placeholder')"
+            value-key="value"
+            autocomplete="country"
+          />
         </UFormField>
 
-        <!-- Address: Greek postal order (street → number → zipcode → city → region → country) -->
         <UFormField :label="t('form.street')" name="street" required>
           <UInput
             v-model="state.street"
@@ -350,18 +366,6 @@ defineRouteRules({
             :disabled="!state.country"
             value-key="value"
             autocomplete="address-level1"
-          />
-        </UFormField>
-
-        <UFormField :label="t('form.country')" name="country" required>
-          <USelectMenu
-            v-model="state.country"
-            :aria-label="t('form.country')"
-            icon="i-heroicons-globe-alt"
-            :items="countryOptions"
-            :placeholder="t('form.select_placeholder')"
-            value-key="value"
-            autocomplete="country"
           />
         </UFormField>
 
@@ -432,7 +436,6 @@ el:
     city: Πόλη
     zipcode: Ταχυδρομικός Κώδικας
     phone: Τηλέφωνο
-    phone_placeholder: "6912345678"
     notes: Σημειώσεις
     floor: Όροφος
     floor_options:
@@ -472,7 +475,6 @@ en:
     city: City
     zipcode: Postcode
     phone: Phone
-    phone_placeholder: "6912345678"
     notes: Notes
     floor: Floor
     floor_options:

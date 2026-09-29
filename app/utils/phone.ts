@@ -157,33 +157,6 @@ export function isPlausiblePhone(
   return FOREIGN_E164.test(normalized)
 }
 
-/**
- * Temporary: the account forms (address book, profile) still show the local
- * part next to a leading dial-code badge; PR 2 removes this once they move
- * to ``FormPhoneInput``.
- *
- * Strip the country's own dial code so a pre-populated input can show
- * the local portion next to the visible dial-code badge.
- *
- * - ``+306912345678`` next to a GR badge → ``6912345678``
- * - ``+447911123456`` next to a GR badge → returned as-is (foreign
- *   prefix, nothing to strip for this country)
- * - empty / undefined → empty
- */
-export function stripDialCodeForDisplay(
-  raw: string | null | undefined,
-  country: PhoneCountry | null | undefined,
-): string {
-  if (!raw) return ''
-  const s = String(raw).trim()
-  const dialCode = country?.phoneCode
-  if (dialCode == null) return s
-  const dialCodeStr = String(dialCode)
-  if (s.startsWith(`+${dialCodeStr}`)) return s.slice(dialCodeStr.length + 1).trim()
-  if (s.startsWith(`00${dialCodeStr}`)) return s.slice(dialCodeStr.length + 2).trim()
-  return s
-}
-
 /** The dial-code text (``+30``, ``+357``…) shown for a country row. */
 export function dialCodeLabel(country: PhoneCountry | null | undefined): string {
   return country?.phoneCode != null ? `+${country.phoneCode}` : ''

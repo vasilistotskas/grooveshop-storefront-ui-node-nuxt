@@ -100,12 +100,11 @@ function onInput(raw: string) {
   const detected = detectPhoneCountry(raw, countries.value, country.value?.alpha2)
   if (detected) {
     pickedCountry.value = detected.country.alpha2
-    national.value = detected.national
-    triggerRef(national)
   }
-  else {
-    national.value = raw
-  }
+  // A space typed after the code ("+357 9612…") must not become the first
+  // character of the number: the dial code is shown next to the input.
+  national.value = (detected?.national ?? raw).trimStart()
+  triggerRef(national)
 }
 
 // Changing the picker keeps the digits: only the dial code in front changes.

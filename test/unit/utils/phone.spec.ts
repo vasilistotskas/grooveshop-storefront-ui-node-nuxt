@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 import {
   normalizePhone,
   isPlausiblePhone,
-  stripDialCodeForDisplay,
   detectPhoneCountry,
   dialCodeLabel,
   resolvePhoneCountry,
@@ -224,27 +223,6 @@ describe('Phone Utilities', () => {
       const noMetadata: PhoneCountry = { phoneCode: 999 }
       expect(isPlausiblePhone('+9991234567', noMetadata)).toBe(true)
       expect(isPlausiblePhone('+1', noMetadata)).toBe(false)
-    })
-  })
-
-  describe('stripDialCodeForDisplay', () => {
-    it('strips the GR dial code for display next to the +30 badge', () => {
-      expect(stripDialCodeForDisplay('+306943413781', GR)).toBe('6943413781')
-      expect(stripDialCodeForDisplay('00306943413781', GR)).toBe('6943413781')
-    })
-
-    it('strips the CY dial code for display next to the +357 badge', () => {
-      expect(stripDialCodeForDisplay('+35796123456', CY)).toBe('96123456')
-    })
-
-    it('leaves foreign numbers and empty values untouched', () => {
-      expect(stripDialCodeForDisplay('+447911123456', GR)).toBe('+447911123456')
-      expect(stripDialCodeForDisplay('', GR)).toBe('')
-      expect(stripDialCodeForDisplay(undefined, GR)).toBe('')
-    })
-
-    it('returns the raw value when the country has no dial code on record', () => {
-      expect(stripDialCodeForDisplay('+306943413781', undefined)).toBe('+306943413781')
     })
   })
 
