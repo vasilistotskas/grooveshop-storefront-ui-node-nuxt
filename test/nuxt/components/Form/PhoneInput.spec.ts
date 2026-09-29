@@ -111,14 +111,35 @@ describe('Form/PhoneInput', () => {
   })
 
   describe('dropdown', () => {
-    it('lists the shippable countries first, then a separator, then the rest A–Z', async () => {
+    it('lists the shippable countries first, then the rest A–Z', async () => {
       const wrapper = await mountField()
 
       const items = picker(wrapper).props('items') as Array<Record<string, string>>
       // Rest by localized name: Αλβανία, Γερμανία, ΗΠΑ, Καναδάς.
-      expect(items.map(item => item.value ?? item.type)).toEqual(
-        ['GR', 'CY', 'separator', 'AL', 'DE', 'US', 'CA'],
+      expect(items.map(item => item.value)).toEqual(
+        ['GR', 'CY', 'AL', 'DE', 'US', 'CA'],
       )
+    })
+
+    it('divides the pinned group with the last pinned row, not a separator item', async () => {
+      // A separator ITEM gets a full row's slot in the virtualized list and
+      // left a row-sized gap under the pinned countries.
+      const wrapper = await mountField()
+
+      const items = picker(wrapper).props('items') as Array<Record<string, string>>
+      expect(items.some(item => item.type === 'separator')).toBe(false)
+      expect(items.filter(item => item.class).map(item => item.value)).toEqual(['CY'])
+      expect(items.find(item => item.value === 'CY')!.class).toContain('after:h-px')
+    })
+
+    it('drops the divider while searching', async () => {
+      const wrapper = await mountField()
+
+      picker(wrapper).vm.$emit('update:searchTerm', 'Αλ')
+      await flushPromises()
+
+      const items = picker(wrapper).props('items') as Array<Record<string, string>>
+      expect(items.some(item => item.class)).toBe(false)
     })
 
     it('labels each row with the localized name and the dial code, and searches by name, alpha-2 and code', async () => {
