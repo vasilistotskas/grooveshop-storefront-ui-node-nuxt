@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 import LocationMap from '~/components/PageSection/LocationMap.vue'
 
@@ -25,6 +25,15 @@ const stubs = {
 }
 
 describe('the location map band', () => {
+  // The canvas additionally requires a CARTO basemaps key
+  // (`shared/utils/carto-basemaps.ts`) — empty by default in the test
+  // env. Set one so the coordinates-alone cases below exercise the
+  // canvas path; the dedicated test further down clears it again to
+  // cover the no-key gate.
+  beforeEach(() => {
+    useRuntimeConfig().public.cartoBasemapsKey = 'test-carto-key'
+  })
+
   it('draws a canvas for coordinates alone', async () => {
     const wrapper = await mountSuspended(LocationMap, {
       props: { lat: 40.6403, lng: 22.9439 },
@@ -56,5 +65,28 @@ describe('the location map band', () => {
     })
 
     expect(wrapper.find('section').exists()).toBe(false)
+  })
+
+  it('hides the canvas when no CARTO basemaps key is configured', async () => {
+    // CARTO watermarks a keyless tile request rather than refusing it,
+    // so an empty key must hide the canvas, not render a broken one.
+    useRuntimeConfig().public.cartoBasemapsKey = ''
+    const wrapper = await mountSuspended(LocationMap, {
+      props: { lat: 40.6403, lng: 22.9439 },
+      global: { stubs },
+    })
+
+    expect(wrapper.find('section').exists()).toBe(false)
+  })
+
+  it('still shows the address line with no key and no embed', async () => {
+    useRuntimeConfig().public.cartoBasemapsKey = ''
+    const wrapper = await mountSuspended(LocationMap, {
+      props: { lat: 40.6403, lng: 22.9439, address: '12 Main St' },
+      global: { stubs },
+    })
+
+    expect(wrapper.find('[data-test="canvas"]').exists()).toBe(false)
+    expect(wrapper.text()).toContain('12 Main St')
   })
 })

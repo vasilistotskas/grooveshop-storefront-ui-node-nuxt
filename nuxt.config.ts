@@ -222,6 +222,13 @@ export default defineNuxtConfig({
     public: {
       appTitle: process.env.NUXT_PUBLIC_APP_TITLE,
       baseUrl: process.env.NUXT_PUBLIC_BASE_URL,
+      // One PLATFORM key for CARTO's basemap tiles (checkout locker map +
+      // store-location section) — never per-tenant, there is no per-tenant
+      // CARTO account. Public by design: it travels in every tile URL and
+      // CARTO restricts it server-side by Referer. Empty means "no map",
+      // never a fallback to CARTO's now-watermarked keyless tiles — see
+      // ``shared/utils/carto-basemaps.ts``.
+      cartoBasemapsKey: process.env.NUXT_PUBLIC_CARTO_BASEMAPS_KEY || '',
       djangoHostName: process.env.NUXT_PUBLIC_DJANGO_HOST_NAME,
       djangoUrl: process.env.NUXT_PUBLIC_DJANGO_URL,
       // Driven by NUXT_PUBLIC_GOOGLE_GSI_ENABLE (the infra ConfigMap
@@ -1113,8 +1120,11 @@ export default defineNuxtConfig({
   // ``useLMarkerCluster`` (broken in 1.3.2, bypassed via a direct
   // side-effect import) and imports both CSS files locally, so the
   // checkout map keeps its styles via its own chunk.
-  // Tile providers themselves come from the carrier metadata
-  // (``ShippingProvider.metadata.tile_provider``) — never hardcoded.
+  // Tile providers are CARTO basemaps built by
+  // ``shared/utils/carto-basemaps.ts`` from ``runtimeConfig.public
+  // .cartoBasemapsKey`` — carrier metadata no longer carries a
+  // ``tile_provider`` (removed 2026-09-28 when CARTO started requiring
+  // a key; see that module's docstring).
   leaflet: {
     markerCluster: false,
   },

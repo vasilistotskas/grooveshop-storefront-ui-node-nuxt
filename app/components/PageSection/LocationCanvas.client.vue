@@ -14,6 +14,13 @@
  * Client-only because Leaflet touches `window` on import; the caller
  * hydrates it on visibility so the contact page does not pay for the
  * library above the fold.
+ *
+ * Same CARTO basemaps the locker picker uses (``shared/utils
+ * /carto-basemaps.ts``). The parent (``LocationMap.vue``) only mounts
+ * this component when ``cartoBasemapsKey`` is set, so ``tile`` here is
+ * never null in practice — but the component still checks, since
+ * ``buildCartoBasemap`` never returns a keyless URL and this is the
+ * one place that would try to render one.
  */
 const props = defineProps<{
   lat: number
@@ -23,28 +30,17 @@ const props = defineProps<{
 }>()
 
 const colorMode = useColorMode()
+const runtimeConfig = useRuntimeConfig()
 
-/**
- * Same CARTO basemaps the locker picker uses — no API key, attribution
- * baked in, and one pair per colour scheme so the map does not glare
- * out of a dark page.
- */
-const TILES = {
-  light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-} as const
-const ATTRIBUTION
-  = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-
-const tileUrl = computed(() =>
-  colorMode.value === 'dark' ? TILES.dark : TILES.light,
+const tile = computed<TileLayerSpec | null>(() =>
+  buildCartoBasemap(colorMode.value === 'dark' ? 'dark' : 'light', runtimeConfig.public.cartoBasemapsKey),
 )
 
 const center = computed<[number, number]>(() => [props.lat, props.lng])
 </script>
 
 <template>
-  <div class="h-80 overflow-hidden rounded-xl ring ring-default md:h-96">
+  <div v-if="tile" class="h-80 overflow-hidden rounded-xl ring ring-default md:h-96">
     <LMap
       :zoom="15"
       :center="center"
@@ -60,9 +56,9 @@ const center = computed<[number, number]>(() => [props.lat, props.lng])
       }"
     >
       <LTileLayer
-        :url="tileUrl"
-        :attribution="ATTRIBUTION"
-        :options="{ maxZoom: 19, subdomains: 'abcd' }"
+        :url="tile.url"
+        :attribution="tile.attribution"
+        :options="{ maxZoom: tile.maxZoom ?? 19, subdomains: tile.subdomains ?? 'abcd' }"
         layer-type="base"
       />
       <LCircleMarker

@@ -137,6 +137,7 @@
       "geolocate_denied": "Allow location access in your browser settings.",
       "cluster_aria_label": "{count} collection points in this area",
       "skip_to_list": "Skip the map — go to the list",
+      "map_unavailable": "The map is currently unavailable. Use the list to find a collection point.",
       "no_results_in_area": "No collection points found in this area"
     }
   },

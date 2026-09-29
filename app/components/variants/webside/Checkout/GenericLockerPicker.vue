@@ -18,16 +18,6 @@ const props = defineProps<{
   initialPostalCode?: string
   initialCity?: string
   countryCode?: string
-  /** Optional pre-fetched provider metadata (from the
-   *  ``/api/v1/shipping/options`` response). When supplied, the
-   *  map view uses ``defaultMapCenter`` / ``defaultMapZoom`` /
-   *  ``tileProvider``; otherwise the map falls back to its
-   *  built-in Athens centre + CARTO tiles. */
-  providerMetadata?: {
-    defaultMapCenter?: [number, number] | null
-    defaultMapZoom?: number | null
-    tileProvider?: { light?: TileLayerSpec, dark?: TileLayerSpec } | null
-  } | null
 }>()
 
 const emit = defineEmits<{
@@ -239,9 +229,6 @@ function onClose(): void {
               <ClientOnly>
                 <LazyCheckoutSmartpointMap
                   :lockers="mapLockers"
-                  :default-center="providerMetadata?.defaultMapCenter ?? null"
-                  :default-zoom="providerMetadata?.defaultMapZoom ?? null"
-                  :tile-provider="providerMetadata?.tileProvider ?? null"
                   :loading="mapLoading"
                   @selected="(locker) => selectLocker(locker)"
                 />
