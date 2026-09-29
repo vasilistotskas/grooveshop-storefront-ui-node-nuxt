@@ -1,3 +1,10 @@
+## [3.223.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.223.2...v3.223.3) (2026-09-29)
+
+
+### Bug Fixes
+
+* **checkout:** no row-sized gap under the pinned countries in the phone picker ([#40](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/40)) ([39b595a](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/39b595a4a5bc83a091f9dac90cccef57499f3ceb))
+
 ## [3.223.2](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.223.1...v3.223.2) (2026-09-29)
 
 
