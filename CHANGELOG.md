@@ -1,3 +1,10 @@
+# [3.222.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.221.0...v3.222.0) (2026-09-29)
+
+
+### Features
+
+* **checkout:** pick the phone's country with a flag picker next to the number ([#33](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/33)) ([c11c820](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c11c820db6d94c7d9aa5eea81d0e617fc8910963))
+
 # [3.221.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.220.0...v3.221.0) (2026-09-29)
 
 
