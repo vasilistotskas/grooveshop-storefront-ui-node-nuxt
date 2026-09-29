@@ -121,10 +121,18 @@ describe('account/addresses/[id]/edit country first', () => {
     expect(names.indexOf('country')).toBeLessThan(names.indexOf('street'))
   })
 
-  it('puts autocomplete="country" and "address-level1" on the selects', async () => {
+  it('puts autocomplete="country" and "address-level1" on native selects autofill can fill', async () => {
     const { wrapper } = await mountPage()
 
-    expect(wrapper.html()).toContain('autocomplete="country"')
-    expect(wrapper.html()).toContain('autocomplete="address-level1"')
+    expect(wrapper.find('select[autocomplete="country"]').exists()).toBe(true)
+    expect(wrapper.find('select[autocomplete="address-level1"]').exists()).toBe(true)
+    expect(wrapper.find('button[autocomplete]').exists()).toBe(false)
+  })
+
+  it('renders the phone field at the same size as the other inputs', async () => {
+    const { wrapper } = await mountPage()
+
+    const paddingClasses = (input: { classes: () => string[] }) => input.classes().filter(name => /^(?:py|px)-/.test(name)).sort()
+    expect(paddingClasses(wrapper.find('input[type="tel"]'))).toEqual(paddingClasses(wrapper.find('input[autocomplete="address-line1"]')))
   })
 })
