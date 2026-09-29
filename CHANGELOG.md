@@ -1,3 +1,10 @@
+# [3.223.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.222.1...v3.223.0) (2026-09-29)
+
+
+### Features
+
+* **account:** use the phone flag picker in the address book and settings ([#35](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/35)) ([ac4ae87](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/ac4ae87276df8422f0e126f9828449671f3af10f))
+
 ## [3.222.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.222.0...v3.222.1) (2026-09-29)
 
 
