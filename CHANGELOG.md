@@ -1,3 +1,10 @@
+## [3.222.1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.222.0...v3.222.1) (2026-09-29)
+
+
+### Bug Fixes
+
+* **checkout:** stop the phone picker looping when the delivery country changes ([#34](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/34)) ([edf6c03](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/edf6c03ca2e966f66d976693885f3cb8c5f89bba))
+
 # [3.222.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.221.0...v3.222.0) (2026-09-29)
 
 
