@@ -1,0 +1,21 @@
+version: 2
+updates:
+  # GitHub Actions only. Minor and patch bumps arrive together in one PR;
+  # a major bump arrives on its own, because a major is where an action
+  # changes behaviour and has to be checked against these workflows.
+  # SHA-pinned actions are updated in place, trailing "# vX.Y.Z" included.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    # Let a release age a week before proposing it, so a compromised or
+    # broken action release is caught upstream before it reaches CI here.
+    cooldown:
+      default-days: 7
+    groups:
+      actions-minor-patch:
+        update-types: [minor, patch]
+    # "ci" cuts no release.
+    commit-message:
+      prefix: ci
+      include: scope
