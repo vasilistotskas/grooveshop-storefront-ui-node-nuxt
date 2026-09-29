@@ -11,8 +11,25 @@
 
 import { describe, it, expect } from 'vitest'
 import { nextTick } from 'vue'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { flushPromises } from '@vue/test-utils'
+import { mountSuspended, registerEndpoint } from '@nuxt/test-utils/runtime'
 import StepPersonalInfo from '~/components/Checkout/StepPersonalInfo.vue'
+
+// The phone field recognises a typed `+code` against every dial code.
+registerEndpoint('/api/countries', () => ({
+  count: 2,
+  results: [30, 357].map(phoneCode => ({
+    alpha2: phoneCode === 30 ? 'GR' : 'CY',
+    phoneCode,
+    translations: { el: { name: phoneCode === 30 ? 'Ελλάδα' : 'Κύπρος' } },
+    phoneMetadata: {
+      nationalNumberPattern: '\d+',
+      possibleLengths: [8, 10],
+      nationalPrefixForParsing: null,
+      exampleMobile: phoneCode === 30 ? '6912345678' : '96123456',
+    },
+  })),
+}))
 
 function makeProps(overrides: Record<string, unknown> = {}) {
   return {
@@ -73,30 +90,56 @@ describe('Checkout/StepPersonalInfo address fields', () => {
     expect(html).toContain('Αυτό μοιάζει με ταχυδρομικό κώδικα')
   })
 
-  describe('phone dial-code badge follows the selected country', () => {
-    it('shows +30 for Greece', async () => {
+  describe('phone is ONE field, read against the delivery country', () => {
+    it('is a single tel input with autocomplete="tel" and no dial-code overlay', async () => {
       const wrapper = await mountSuspended(StepPersonalInfo, {
-        props: makeProps({ selectedCountry: { alpha2: 'GR', phoneCode: 30 } }),
+        props: makeProps({ formState: { ...makeProps().formState, country: 'CY', phone: '' } }),
       })
 
-      expect(wrapper.html()).toContain('+30')
-    })
-
-    it('shows +357 for Cyprus', async () => {
-      const wrapper = await mountSuspended(StepPersonalInfo, {
-        props: makeProps({ selectedCountry: { alpha2: 'CY', phoneCode: 357 } }),
-      })
-
-      expect(wrapper.html()).toContain('+357')
-    })
-
-    it('renders no badge when no country is selected yet', async () => {
-      const wrapper = await mountSuspended(StepPersonalInfo, {
-        props: makeProps({ selectedCountry: null }),
-      })
-
-      expect(wrapper.html()).not.toContain('+30')
+      await flushPromises()
+      const phone = wrapper.find('input[type="tel"]')
+      expect(phone.exists()).toBe(true)
+      expect(phone.attributes('autocomplete')).toBe('tel')
+      expect(phone.attributes('placeholder')).toBe('96123456')
+      // No sticky `+357` in front of the digits any more.
+      expect(wrapper.find('input[type="tel"]').classes()).not.toContain('ps-11')
       expect(wrapper.html()).not.toContain('+357')
+    })
+
+    it('badges the country a typed number resolves to (inside the field)', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({ formState: { ...makeProps().formState, country: 'CY', phone: '+306912345678' } }),
+      })
+
+      await flushPromises()
+      expect(wrapper.text()).toContain('+30')
+      expect(wrapper.find('input[type="tel"]').classes()).toContain('pe-28')
+    })
+  })
+
+  describe('country comes first, with autofill tokens on the selects', () => {
+    it('lists the country field before street, and the region after the city', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({ selectedCountry: { alpha2: 'GR', hasRegions: true } }),
+      })
+
+      const names = wrapper.findAll('[name]').map(el => el.attributes('name'))
+      const country = names.indexOf('country')
+      expect(country).toBeGreaterThan(-1)
+      expect(country).toBeLessThan(names.indexOf('street'))
+      expect(names.indexOf('city')).toBeLessThan(names.indexOf('region'))
+    })
+
+    it('passes autocomplete="country" / "address-level1" to the native selects', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({
+          selectedCountry: { alpha2: 'GR', hasRegions: true },
+          regionOptions: [{ label: 'Αττική', value: 'ATTIKI' }],
+        }),
+      })
+
+      expect(wrapper.find('select[autocomplete="country"]').exists()).toBe(true)
+      expect(wrapper.find('select[autocomplete="address-level1"]').exists()).toBe(true)
     })
   })
 

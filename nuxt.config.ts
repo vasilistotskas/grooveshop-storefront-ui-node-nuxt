@@ -950,7 +950,7 @@ export default defineNuxtConfig({
     // bloat in exchange for icons that actually load under Node 24+.
     serverBundle: {
       externalizeIconsJson: false,
-      collections: ['ant-design', 'fa-solid', 'fa6-solid', 'heroicons', 'lucide', 'heroicons-solid', 'heroicons-outline', 'mdi', 'unjs'],
+      collections: ['ant-design', 'circle-flags', 'fa-solid', 'fa6-solid', 'heroicons', 'lucide', 'heroicons-solid', 'heroicons-outline', 'mdi', 'unjs'],
     },
     // Force the CDN fallback (for icons outside the installed packs) to
     // go through the Nuxt server, not the browser. Browsers talking
@@ -1067,6 +1067,16 @@ export default defineNuxtConfig({
         'i-lucide:traffic-cone',
         'i-lucide:wrench',
         'i-lucide:zap',
+        // The phone field's country badge (`Form/CountryFlag.vue`) names a
+        // flag from DATA — `i-circle-flags:<alpha2>` — so no scan sees it, and
+        // the whole collection (~250 country flags) is far over the size
+        // limit below. `circle-flags` is in `serverBundle` above, so any
+        // flag the shopper's number resolves to loads in the browser
+        // (the badge shows the ISO code until it does). Only the two
+        // countries this platform ships to are inlined, so a saved Greek or
+        // Cypriot number paints its flag in the server-rendered HTML.
+        'i-circle-flags:cy',
+        'i-circle-flags:gr',
       ],
       // Hard build failure, not a silent truncation, if the bundle grows
       // past this. Sized just above the measured scan output so an

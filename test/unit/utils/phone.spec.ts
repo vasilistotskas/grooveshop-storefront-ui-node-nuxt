@@ -3,6 +3,8 @@ import {
   normalizePhone,
   isPlausiblePhone,
   stripDialCodeForDisplay,
+  detectPhoneCountry,
+  resolveTypedPhoneCountry,
   dialCodeLabel,
   resolvePhoneCountry,
   type PhoneCountry,
@@ -247,8 +249,96 @@ describe('Phone Utilities', () => {
     })
   })
 
+  describe('detectPhoneCountry', () => {
+    // Order matters: a shared code resolves to the first row in the list.
+    const list = [
+      { alpha2: 'GR', phoneCode: 30 },
+      { alpha2: 'CY', phoneCode: 357 },
+      { alpha2: 'DE', phoneCode: 49 },
+      { alpha2: 'US', phoneCode: 1 },
+      { alpha2: 'CA', phoneCode: 1 },
+      { alpha2: 'GB', phoneCode: 44 },
+      { alpha2: 'GG', phoneCode: 44 },
+      { alpha2: 'BS', phoneCode: 1242 },
+    ]
+
+    it('reads +<code> and strips it into the national part', () => {
+      expect(detectPhoneCountry('+306943413781', list)).toMatchObject({ country: { alpha2: 'GR' }, national: '6943413781' })
+      expect(detectPhoneCountry('+357 96 123456', list)).toMatchObject({ country: { alpha2: 'CY' }, national: '96123456' })
+      expect(detectPhoneCountry('+49 (151) 234-56789', list)).toMatchObject({ country: { alpha2: 'DE' }, national: '15123456789' })
+    })
+
+    it('reads 00<code> the same way', () => {
+      expect(detectPhoneCountry('0035796123456', list)).toMatchObject({ country: { alpha2: 'CY' }, national: '96123456' })
+      expect(detectPhoneCountry('00 30 6943413781', list)).toMatchObject({ country: { alpha2: 'GR' } })
+    })
+
+    it('leaves a national number alone (read against the form country)', () => {
+      expect(detectPhoneCountry('6943413781', list)).toBeNull()
+      expect(detectPhoneCountry('0691234', list)).toBeNull()
+      expect(detectPhoneCountry('', list)).toBeNull()
+      expect(detectPhoneCountry(undefined, list)).toBeNull()
+    })
+
+    it('waits for a code that names no country yet (+3 on the way to +30)', () => {
+      expect(detectPhoneCountry('+3', list)).toBeNull()
+      expect(detectPhoneCountry('+999123', list)).toBeNull()
+    })
+
+    it('prefers the longest dial code', () => {
+      expect(detectPhoneCountry('+12421234567', list)?.country.alpha2).toBe('BS')
+      expect(detectPhoneCountry('+12025550123', list)?.country.alpha2).toBe('US')
+    })
+
+    it('resolves a shared +1 / +44 to the preferred country when it shares the code', () => {
+      expect(detectPhoneCountry('+16135550123', list, 'CA')?.country.alpha2).toBe('CA')
+      expect(detectPhoneCountry('+447911123456', list, 'GG')?.country.alpha2).toBe('GG')
+    })
+
+    it('resolves a shared code to the first in list order otherwise', () => {
+      expect(detectPhoneCountry('+16135550123', list)?.country.alpha2).toBe('US')
+      expect(detectPhoneCountry('+16135550123', list, 'GR')?.country.alpha2).toBe('US')
+      expect(detectPhoneCountry('+447911123456', list, 'DE')?.country.alpha2).toBe('GB')
+    })
+  })
+
+  describe('resolveTypedPhoneCountry', () => {
+    const gr = { alpha2: 'GR', ...GR }
+    const cy = { alpha2: 'CY', ...CY }
+    const us = { alpha2: 'US', phoneCode: 1 }
+    const ca = { alpha2: 'CA', phoneCode: 1 }
+    const list = [gr, cy, us, ca]
+
+    it('reads a national number against the form country', () => {
+      expect(resolveTypedPhoneCountry('6943413781', list, gr)).toBe(gr)
+      expect(resolveTypedPhoneCountry('96123456', list, cy)).toBe(cy)
+    })
+
+    it('lets +<code> / 00<code> override the form country', () => {
+      expect(resolveTypedPhoneCountry('+35796123456', list, gr)).toBe(cy)
+      expect(resolveTypedPhoneCountry('0030 6943413781', list, cy)).toBe(gr)
+    })
+
+    it('keeps the form country when it shares the typed code', () => {
+      expect(resolveTypedPhoneCountry('+16135550123', list, ca)).toBe(ca)
+      expect(resolveTypedPhoneCountry('+16135550123', list, gr)).toBe(us)
+    })
+
+    it('falls back to the form country for an unknown code or an empty list', () => {
+      expect(resolveTypedPhoneCountry('+999123', list, gr)).toBe(gr)
+      expect(resolveTypedPhoneCountry('+306943413781', undefined, gr)).toBe(gr)
+      expect(resolveTypedPhoneCountry('6943413781', list, undefined)).toBeUndefined()
+    })
+
+    it('validates the foreign number against ITS country, not the delivery one', () => {
+      const resolved = resolveTypedPhoneCountry('+35796123456', [gr, cy], gr)
+      expect(isPlausiblePhone('+35796123456', resolved)).toBe(true)
+      expect(isPlausiblePhone('+35796123', resolveTypedPhoneCountry('+35796123', [gr, cy], gr))).toBe(false)
+    })
+  })
+
   describe('dialCodeLabel', () => {
-    it('renders the sticky badge text for a country with a dial code', () => {
+    it('renders the badge text for a country with a dial code', () => {
       expect(dialCodeLabel(GR)).toBe('+30')
       expect(dialCodeLabel(CY)).toBe('+357')
     })

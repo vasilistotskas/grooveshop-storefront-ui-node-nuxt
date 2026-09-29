@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 export default defineCachedEventHandler(async (event) => {
   const config = useRuntimeConfig()
   try {
@@ -6,6 +8,14 @@ export default defineCachedEventHandler(async (event) => {
       method: 'GET',
       query,
     })
+    // ``pagination=false`` is how the WHOLE list arrives in one request:
+    // DRF caps a page at 100 rows (``max_page_size``) and the table has
+    // ~250, so ``pageSize`` alone cannot do it. Django then answers a
+    // bare array; it is re-wrapped so readers keep reading ``results``.
+    if (query.pagination === 'false') {
+      const results = await parseDataAs(response, z.array(zCountry))
+      return { count: results.length, results }
+    }
     return await parseDataAs(response, zListCountryResponse)
   }
   catch (error) {
@@ -29,6 +39,8 @@ export default defineCachedEventHandler(async (event) => {
       // address book) vs. the full list (account profile) — same
       // query params otherwise, different response bodies.
       query.shippable ?? 'all',
+      query.hasPhoneCode ?? 'any',
+      query.pagination ?? 'true',
     ]
     return tenantCacheKey(event, `countries:${keyParts.join(':')}`)
   },

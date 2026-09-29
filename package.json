@@ -42,6 +42,7 @@
   },
   "dependencies": {
     "@comark/nuxt": "^0.7.0",
+    "@iconify-json/circle-flags": "1.2.11",
     "@internationalized/date": "3.12.4",
     "@intlify/core": "11.4.12",
     "@intlify/core-base": "11.4.12",
