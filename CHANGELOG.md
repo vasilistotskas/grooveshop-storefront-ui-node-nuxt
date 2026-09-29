@@ -1,3 +1,10 @@
+## [3.219.4](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.219.3...v3.219.4) (2026-09-29)
+
+
+### Bug Fixes
+
+* **maps:** send the CARTO basemaps key with every tile request ([#31](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/31)) ([e721780](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/e721780ffabe9cc92c7232e023d041d202077430)), closes [grooveshop-django-api#88](https://github.com/grooveshop-django-api/issues/88)
+
 ## [3.219.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.219.2...v3.219.3) (2026-09-28)
 
 
