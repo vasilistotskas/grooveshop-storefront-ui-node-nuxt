@@ -1,3 +1,10 @@
+# [3.221.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.220.0...v3.221.0) (2026-09-29)
+
+
+### Features
+
+* **checkout:** one phone field that accepts any country, and ask for the country first ([#32](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/32)) ([c5550d1](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/c5550d14cbb74d5d87f4da1e28a30fede7e5abc3))
+
 # [3.220.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.219.4...v3.220.0) (2026-09-29)
 
 
