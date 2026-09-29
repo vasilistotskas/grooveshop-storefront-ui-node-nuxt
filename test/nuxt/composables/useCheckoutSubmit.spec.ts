@@ -256,6 +256,33 @@ describe('useCheckoutSubmit', () => {
       expect(orderOpts?.body).toMatchObject({ paymentIntentId: 'pi_abc123' })
     })
 
+    it('sends the E.164 the phone field built from the PICKED country, not the delivery one', async () => {
+      vi.stubGlobal('crypto', { randomUUID: vi.fn().mockReturnValue('idem-phone') })
+
+      const stripePayWay = makePayWay('stripe')
+      mockReserveStock.mockResolvedValue([42])
+      mockCreatePaymentIntentFromCart.mockResolvedValue({ clientSecret: 'sk', paymentIntentId: 'pi_phone' })
+      let orderOpts: any
+      mockFetch.mockImplementationOnce((_url: string, opts: any) => {
+        orderOpts = opts
+        opts?.onResponse?.({ response: { ok: true, _data: { uuid: 'order-uuid' } } })
+        return Promise.resolve({ uuid: 'order-uuid' })
+      })
+
+      // A Greek mobile (+30, picked in the phone field) delivering to Cyprus.
+      const cyprus = ref({ alpha2: 'CY', phoneCode: 357 } as unknown as Country)
+      const { onSubmit } = useCheckoutSubmit({
+        selectedCountry: cyprus,
+        formState: { ...makeFormState(), country: 'CY', phone: '+306912345678', phoneCountry: 'GR' },
+        selectedPayWay: ref<PayWay | null>(stripePayWay),
+        payWays: makePayWaysRef(stripePayWay),
+      })
+
+      await onSubmit()
+
+      expect(orderOpts?.body.phone).toBe('+306912345678')
+    })
+
     it('backToForm resets payment state, releases reservations, refreshes the cart, and a resubmit mints a FRESH intent', async () => {
       vi.stubGlobal('crypto', {
         randomUUID: vi.fn().mockReturnValue('idem-back'),

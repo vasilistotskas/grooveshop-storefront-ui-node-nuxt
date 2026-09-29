@@ -90,30 +90,45 @@ describe('Checkout/StepPersonalInfo address fields', () => {
     expect(html).toContain('Αυτό μοιάζει με ταχυδρομικό κώδικα')
   })
 
-  describe('phone is ONE field, read against the delivery country', () => {
-    it('is a single tel input with autocomplete="tel" and no dial-code overlay', async () => {
+  describe('phone: a country picker joined to the number', () => {
+    it('follows the delivery country: its flag on the picker, its code in front of the digits', async () => {
       const wrapper = await mountSuspended(StepPersonalInfo, {
-        props: makeProps({ formState: { ...makeProps().formState, country: 'CY', phone: '' } }),
+        props: makeProps({
+          formState: { ...makeProps().formState, country: 'CY', phone: '', phoneCountry: '' },
+          countryOptions: [{ label: 'Ελλάδα', value: 'GR' }, { label: 'Κύπρος', value: 'CY' }],
+        }),
       })
-
       await flushPromises()
+
+      const picker = wrapper.findComponent({ name: 'USelectMenu' })
+      expect(picker.find('button').attributes('aria-label')).toBe('Κωδικός χώρας τηλεφώνου: Κύπρος (+357)')
       const phone = wrapper.find('input[type="tel"]')
-      expect(phone.exists()).toBe(true)
       expect(phone.attributes('autocomplete')).toBe('tel')
       expect(phone.attributes('placeholder')).toBe('96123456')
-      // No sticky `+357` in front of the digits any more.
-      expect(wrapper.find('input[type="tel"]').classes()).not.toContain('ps-11')
-      expect(wrapper.html()).not.toContain('+357')
+      // The code is fixed leading text with padding sized to it — never an overlay on the digits.
+      expect(phone.classes()).toContain('ps-(--dial-code-length)')
+      expect(phone.element.parentElement!.querySelector('span.absolute')!.textContent).toContain('+357')
     })
 
-    it('badges the country a typed number resolves to (inside the field)', async () => {
+    it('a Greek number can stay +30 while delivering to Cyprus', async () => {
+      const formState = { ...makeProps().formState, country: 'CY', phone: '', phoneCountry: 'GR' }
       const wrapper = await mountSuspended(StepPersonalInfo, {
-        props: makeProps({ formState: { ...makeProps().formState, country: 'CY', phone: '+306912345678' } }),
+        props: makeProps({ formState, countryOptions: [{ label: 'Κύπρος', value: 'CY' }] }),
       })
-
       await flushPromises()
-      expect(wrapper.text()).toContain('+30')
-      expect(wrapper.find('input[type="tel"]').classes()).toContain('pe-28')
+
+      expect(wrapper.find('input[type="tel"]').attributes('placeholder')).toBe('6912345678')
+      expect(wrapper.find('input[type="tel"]').element.parentElement!.querySelector('span.absolute')!.textContent).toContain('+30')
+    })
+
+    it('has no recognised-country badge or hint', async () => {
+      const wrapper = await mountSuspended(StepPersonalInfo, {
+        props: makeProps({ formState: { ...makeProps().formState, country: 'CY', phone: '+35796123456' } }),
+      })
+      await flushPromises()
+
+      expect(wrapper.text()).not.toContain('Αναγνωρίστηκε')
+      expect(wrapper.text()).not.toContain('ξεκινήστε')
     })
   })
 

@@ -12,8 +12,8 @@ export async function useCheckoutForm() {
   const { getCartItems, cart } = storeToRefs(cartStore)
   const tenantStore = useTenantStore()
   const { loggedIn, user } = useUserSession()
-  // Every dial code, not only the shippable countries: a typed
-  // ``+<code>`` is validated against the country it names.
+  // Every dial code, not only the shippable countries: the phone is
+  // validated against the country picked in the phone field.
   const { data: phoneCountries } = usePhoneCountries()
 
   // Form state
@@ -23,6 +23,9 @@ export async function useCheckoutForm() {
     lastName: '',
     email: '',
     phone: '',
+    // The phone country the shopper picked (alpha-2); empty while the
+    // picker follows ``country``. ``phone`` itself is E.164.
+    phoneCountry: '',
     // Address
     country: '',
     countryId: undefined as string | undefined,
@@ -194,7 +197,11 @@ export async function useCheckoutForm() {
   const applyAddressToFormState = (address: UserAddressDetail) => {
     formState.firstName = address.firstName || formState.firstName
     formState.lastName = address.lastName || formState.lastName
-    formState.phone = address.phone || formState.phone
+    if (address.phone) {
+      // E.164; the phone field reads its country back out of it.
+      formState.phone = address.phone
+      formState.phoneCountry = ''
+    }
     formState.street = address.street || formState.street
     formState.streetNumber = address.streetNumber || formState.streetNumber
     formState.city = address.city || formState.city
@@ -302,6 +309,7 @@ export async function useCheckoutForm() {
     formState.firstName = ''
     formState.lastName = ''
     formState.phone = ''
+    formState.phoneCountry = ''
     formState.street = ''
     formState.streetNumber = ''
     formState.city = ''
@@ -729,8 +737,8 @@ export async function useCheckoutForm() {
       error: t('validation.required'),
     }).max(150, { error: t('validation.max', { max: 150 }) }),
     email: z.email({ error: t('validation.email.valid') }),
-    // Plausibility (against ``phoneMetadata`` of the country the number
-    // resolves to) is checked in ``superRefine`` below, on the value that actually
+    // Plausibility (against ``phoneMetadata`` of the phone field's
+    // country) is checked in ``superRefine`` below, on the value that actually
     // gets submitted (``normalizePhone`` output) — so the inline error
     // fires here, at the step where the field lives, not as a Django
     // 400 on the final "Ολοκλήρωση Παραγγελίας" click.
@@ -763,6 +771,7 @@ export async function useCheckoutForm() {
     customerNotes: z.string().max(500, {
       error: t('validation.max', { max: 500 }),
     }).optional(),
+    phoneCountry: z.string().optional(),
     saveAddress: z.boolean().optional(),
     // Optional label ("Home" / "Office" etc.) — only meaningful when
     // saveAddress is true. The pairing requirement is enforced in
@@ -797,7 +806,10 @@ export async function useCheckoutForm() {
         message: t('validation.required'),
       })
     }
-    const phoneCountry = resolveTypedPhoneCountry(data.phone, phoneCountries.value?.results, country)
+    // The phone is E.164 (built by ``FormPhoneInput`` from the picked
+    // country's dial code) and is checked against THAT country — the
+    // picker follows the delivery country until the shopper picks.
+    const phoneCountry = resolvePhoneCountry(phoneCountries.value?.results, data.phoneCountry) ?? country
     if (!isPlausiblePhone(data.phone, phoneCountry)) {
       ctx.addIssue({
         path: ['phone'],
