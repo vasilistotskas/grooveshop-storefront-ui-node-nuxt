@@ -127,6 +127,10 @@ describe('account/addresses/[id]/edit country first', () => {
     expect(wrapper.find('select[autocomplete="country"]').exists()).toBe(true)
     expect(wrapper.find('select[autocomplete="address-level1"]').exists()).toBe(true)
     expect(wrapper.find('button[autocomplete]').exists()).toBe(false)
+    // USelect is not full-width by default (unlike the inputs beside it).
+    for (const label of ['Χώρα', 'Περιφέρεια']) {
+      expect(wrapper.find(`button[aria-label="${label}"]`).classes()).toContain('w-full')
+    }
   })
 
   it('renders the phone field at the same size as the other inputs', async () => {

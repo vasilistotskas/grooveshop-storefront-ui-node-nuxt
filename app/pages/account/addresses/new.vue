@@ -260,6 +260,7 @@ defineRouteRules({
             :items="countryOptions"
             :placeholder="t('form.select_placeholder')"
             autocomplete="country"
+            class="w-full"
           />
         </UFormField>
 
@@ -316,6 +317,7 @@ defineRouteRules({
             :placeholder="t('form.select_placeholder')"
             :disabled="!state.country"
             autocomplete="address-level1"
+            class="w-full"
           />
         </UFormField>
 
