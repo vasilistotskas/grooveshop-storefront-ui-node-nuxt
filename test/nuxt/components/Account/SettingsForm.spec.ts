@@ -59,6 +59,14 @@ async function savedOk(_url: string, options: any) {
   return {}
 }
 
+/** Answers the PUT like ofetch does for a 4xx: both hooks run, then it throws. */
+async function savedRejected(_url: string, options: any) {
+  const response = { ok: false, status: 400 }
+  await options.onResponse?.({ response })
+  await options.onResponseError?.({ response })
+  throw Object.assign(new Error('Bad Request'), { statusCode: 400 })
+}
+
 beforeEach(() => {
   clearNuxtData()
   mockUser.value = {
@@ -222,6 +230,40 @@ describe('Account/SettingsForm saving', () => {
         }),
       }),
     }])
+  })
+
+  // `new Date('1990-05-15')` is UTC midnight, the evening of the 14th
+  // west of Greenwich: a visitor there saw, and re-saved, the day before.
+  // Node re-reads `TZ` when it is assigned, so these run in each zone
+  // whatever the machine's own.
+  it.each(['America/New_York', 'Pacific/Kiritimati'])('shows and saves the saved birth day unchanged in %s', async (zone) => {
+    vi.stubEnv('TZ', zone)
+    mockUser.value.birthDate = '1990-05-15'
+    const wrapper = await mountForm()
+
+    const day = new Intl.DateTimeFormat('el', { dateStyle: 'medium' }).format(new Date(1990, 4, 15))
+    const field = wrapper.findAllComponents({ name: 'UFormField' }).find(f => f.props('name') === 'birthDate')!
+    expect(field.find('button').text()).toBe(day)
+
+    await submit(wrapper)
+
+    expect(putBody()?.birthDate).toBe('1990-05-15')
+  })
+
+  it('reports a rejected save once and settles, leaving the form usable', async () => {
+    api.routes({ [ACCOUNT]: savedRejected })
+    const wrapper = await mountForm()
+    const onSubmit = wrapper.findComponent({ name: 'UForm' }).props('onSubmit')
+
+    // UForm rethrows whatever its submit handler throws, into Vue's
+    // error handler: the handler itself must not reject.
+    await expect(onSubmit({ data: { languageCode: 'el' } })).resolves.toBeUndefined()
+
+    expect(toastAdd).toHaveBeenCalledTimes(1)
+    expect(toastAdd).toHaveBeenCalledWith({ title: 'Σφάλμα', color: 'error' })
+    expect(fetchSession).not.toHaveBeenCalled()
+    await flushPromises()
+    expect(wrapper.find('button[type="submit"]').attributes('disabled')).toBeUndefined()
   })
 
   it('sends a null birth date when none is set', async () => {

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import * as z from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
-import { CalendarDate, DateFormatter, getLocalTimeZone } from '@internationalized/date'
+import { DateFormatter, getLocalTimeZone, parseDate } from '@internationalized/date'
 import type { DateValue } from '@internationalized/date'
 import { SUPPORTED_LOCALES, DEFAULT_LOCALE } from '~~/i18n/locales'
 
@@ -122,7 +122,8 @@ const state = reactive<Partial<Schema>>({
   zipcode: user.value?.zipcode || '',
   address: user.value?.address || '',
   place: user.value?.place || '',
-  birthDate: user.value?.birthDate ? new Date(user.value.birthDate) : undefined,
+  // Mirrors `calendarDate` (the watch at the end), which holds the saved day.
+  birthDate: undefined,
   country: user.value?.country || defaultSelectOptionChoose,
   region: user.value?.region || defaultSelectOptionChoose,
   languageCode: userLanguage,
@@ -164,21 +165,15 @@ const languageOptions = computed(() => {
 
 const isSubmitting = ref(false)
 
-const df = new DateFormatter('en-US', { dateStyle: 'medium' })
-
+// Django's birth date is a plain 'YYYY-MM-DD' day. Parse it as one:
+// `new Date('YYYY-MM-DD')` is UTC midnight, the day before west of UTC.
 const calendarDate = shallowRef<DateValue | null>(
-  state.birthDate && state.birthDate instanceof Date
-    ? new CalendarDate(
-        state.birthDate.getFullYear(),
-        state.birthDate.getMonth() + 1,
-        state.birthDate.getDate(),
-      )
-    : null,
+  user.value?.birthDate ? parseDate(user.value.birthDate) : null,
 )
 
 const label = computed(() => {
   return calendarDate.value
-    ? df.format(calendarDate.value.toDate(getLocalTimeZone()))
+    ? new DateFormatter(locale.value, { dateStyle: 'medium' }).format(calendarDate.value.toDate(getLocalTimeZone()))
     : t('form.birth_date')
 })
 
@@ -275,51 +270,51 @@ const onSubmit = async (event: FormSubmitEvent<Schema>) => {
   const previousLanguage = locale.value
   const nextLanguage = values.languageCode || DEFAULT_LOCALE
 
-  await $api(`/api/user/account/${userId}`, {
-    method: 'PUT',
-    body: {
-      email: values.email,
-      firstName: values.firstName,
-      lastName: values.lastName,
-      phone: values.phone,
-      city: values.city,
-      zipcode: values.zipcode,
-      address: values.address,
-      place: values.place,
-      // Serialize the picked day straight from the timezone-agnostic
-      // CalendarDate — its toString() yields 'YYYY-MM-DD' directly. Never go
-      // via Date.toISOString(), which converts local midnight to UTC and
-      // shifts the day back for UTC+ timezones (e.g. Europe/Athens),
-      // compounding one day per save.
-      birthDate: calendarDate.value ? calendarDate.value.toString() : null,
-      country: values.country,
-      region: values.region,
-      languageCode: nextLanguage,
-    },
-    async onResponse({ response }) {
-      if (!response.ok) {
-        isSubmitting.value = false
-        return
-      }
-      await fetch()
-      if (nextLanguage !== previousLanguage) {
-        // setLanguage keeps UI locale, i18n cookie, and Django's stored
-        // language_code in sync; the PUT above already wrote the new value,
-        // so this call only flips the UI locale (the subsequent PATCH is a
-        // no-op when stored === code).
-        await setLanguage(nextLanguage)
-      }
-      toast.add({
-        title: t('form.success'),
-        color: 'success',
-      })
-      isSubmitting.value = false
-    },
-    onResponseError() {
-      toast.add({ title: t('form.error'), color: 'error' })
-      isSubmitting.value = false
-    },
+  try {
+    await $api(`/api/user/account/${userId}`, {
+      method: 'PUT',
+      body: {
+        email: values.email,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        phone: values.phone,
+        city: values.city,
+        zipcode: values.zipcode,
+        address: values.address,
+        place: values.place,
+        // Serialize the picked day straight from the timezone-agnostic
+        // CalendarDate — its toString() yields 'YYYY-MM-DD' directly. Never go
+        // via Date.toISOString(), which converts local midnight to UTC and
+        // shifts the day back for UTC+ timezones (e.g. Europe/Athens),
+        // compounding one day per save.
+        birthDate: calendarDate.value ? calendarDate.value.toString() : null,
+        country: values.country,
+        region: values.region,
+        languageCode: nextLanguage,
+      },
+    })
+  }
+  catch {
+    // ofetch rejects on a 4xx/5xx; rethrown, UForm would hand it to
+    // Vue's error handler as an app error.
+    toast.add({ title: t('form.error'), color: 'error' })
+    isSubmitting.value = false
+    return
+  }
+
+  await fetch()
+  if (nextLanguage !== previousLanguage) {
+    // setLanguage keeps UI locale, i18n cookie, and Django's stored
+    // language_code in sync; the PUT above already wrote the new value,
+    // so this call only flips the UI locale (the subsequent PATCH is a
+    // no-op when stored === code).
+    await setLanguage(nextLanguage)
+  }
+  toast.add({
+    title: t('form.success'),
+    color: 'success',
   })
+  isSubmitting.value = false
 }
 
 watch(calendarDate, (newVal) => {
@@ -329,7 +324,7 @@ watch(calendarDate, (newVal) => {
   else {
     state.birthDate = undefined
   }
-})
+}, { immediate: true })
 </script>
 
 <template>
