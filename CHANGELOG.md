@@ -1,3 +1,10 @@
+# [3.224.0](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.223.3...v3.224.0) (2026-09-30)
+
+
+### Features
+
+* **checkout:** scope the pay ways to the delivery country ([#41](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/41)) ([f9ded12](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/f9ded12d12f194f9cacc9aa2f896bdf1fbad49b9))
+
 ## [3.223.3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.223.2...v3.223.3) (2026-09-29)
 
 
