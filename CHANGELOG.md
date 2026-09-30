@@ -1,3 +1,10 @@
+## [3.224.6](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.5...v3.224.6) (2026-09-30)
+
+
+### Bug Fixes
+
+* **loyalty:** read the loyalty settings with the shared truthiness rule ([#48](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/issues/48)) ([50a28e3](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/commit/50a28e3bb952bb85678384a6750487ee1b8a593a))
+
 ## [3.224.5](https://github.com/vasilistotskas/grooveshop-storefront-ui-node-nuxt/compare/v3.224.4...v3.224.5) (2026-09-30)
 
 
