@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { zTenantConfig } from '../../shared/openapi/zod.gen'
-import { validTenantConfig } from '../fixtures/tenantConfig'
+import { zTenantConfig } from '~~/shared/openapi/zod.gen'
+import { validTenantConfig } from '~~/test/fixtures/tenantConfig'
 
 /**
  * `server/middleware/0.tenant.ts` validates the upstream resolve

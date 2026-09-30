@@ -4,7 +4,7 @@ import { createServer, request as httpRequest } from 'node:http'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { setup, url, useTestContext } from '@nuxt/test-utils/e2e'
 // Shared so a TenantConfig schema change cannot leave this copy
-// stale — test/unit/tenant-config-fixture.spec.ts guards it.
+// stale — test/unit/fixtures/tenantConfig.spec.ts guards it.
 import { validTenantConfig } from '../fixtures/tenantConfig'
 
 /**
