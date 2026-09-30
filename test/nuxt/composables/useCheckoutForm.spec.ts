@@ -638,45 +638,41 @@ describe('useCheckoutForm', () => {
   })
 
   describe('pay ways follow the delivery country', () => {
-    const CARD = { id: 1, name: 'Card', providerCode: 'viva_wallet', cost: 0 }
-    const PAY_ON_THE_GO = { id: 2, name: 'PAY ON THE GO', providerCode: 'boxnow_pay_on_the_go', cost: 0 }
-    const payWayCalls = () => mockFetch.mock.calls.filter(([url]) => url === '/api/pay-way')
+    // A store can exclude a pay way for one country only: BoxNow PAY ON
+    // THE GO is offered to Greek lockers, not Cypriot ones. So the list is
+    // fetched per (method, country), and a stale answer must not win.
+    const PAY_ON_THE_GO = makePayWay({ id: 3, providerCode: 'boxnow_pay_on_the_go', settlement: 'carrier_terminal' })
+    const payWayCalls = () => api.callsTo('/api/pay-way')
+    const byCountry = (lists: Record<string, PayWay[]>) => (_url: string, options: any) =>
+      paginated(lists[options.query.country] ?? [])
 
     it('asks once, for the settled method and the delivery country', async () => {
       // The only option offered is a BoxNow locker, so the form settles
       // on it before the pay ways are fetched.
-      await useCheckoutForm()
+      await setup()
 
       expect(payWayCalls()).toHaveLength(1)
-      expect(payWayCalls()[0]![1].query).toMatchObject({ country: 'GR', shippingProviderCode: 'boxnow', shippingKind: 'pickup_point' })
+      expect(payWayCalls()[0]!.options.query).toMatchObject({ country: 'GR', shippingProviderCode: 'boxnow', shippingKind: 'pickup_point' })
     })
 
     it('refetches for the new country and drops a pay way that country excludes', async () => {
-      mockFetch.mockImplementation((url: string, options: any) => {
-        if (url === '/api/pay-way') {
-          return Promise.resolve(paginated(options.query.country === 'CY' ? [CARD] : [PAY_ON_THE_GO, CARD]))
-        }
-        return Promise.resolve(defaultDispatch(url, options))
-      })
-      const { formState, payWays } = await useCheckoutForm()
+      api.routes({ ...defaultRoutes(), '/api/pay-way': byCountry({ GR: [PAY_ON_THE_GO, CARD], CY: [CARD] }) })
+      const { formState, payWays } = await setup()
       expect(formState.payWayId).toBe(PAY_ON_THE_GO.id)
 
       formState.countryId = 'CY'
       await flushPromises()
 
-      expect(payWayCalls().at(-1)![1].query).toMatchObject({ country: 'CY' })
+      expect(payWayCalls().at(-1)!.options.query).toMatchObject({ country: 'CY' })
       expect(payWays.value?.results?.map(payWay => payWay.id)).toEqual([CARD.id])
       expect(formState.payWayId).toBe(CARD.id)
     })
 
     it('clears the selection when the new country is offered no pay way', async () => {
-      mockFetch.mockImplementation((url: string, options: any) => {
-        if (url === '/api/pay-way') {
-          return Promise.resolve(paginated(options.query.country === 'CY' ? [] : [CARD]))
-        }
-        return Promise.resolve(defaultDispatch(url, options))
-      })
-      const { formState } = await useCheckoutForm()
+      // So the step's required rule stops the shopper instead of keeping
+      // a pay way the new country does not accept.
+      api.routes({ ...defaultRoutes(), '/api/pay-way': byCountry({ GR: [CARD], CY: [] }) })
+      const { formState } = await setup()
       expect(formState.payWayId).toBe(CARD.id)
 
       formState.countryId = 'CY'
@@ -687,15 +683,14 @@ describe('useCheckoutForm', () => {
     })
 
     it('keeps the list of the latest request when an older one lands last', async () => {
-      const { formState, payWays } = await useCheckoutForm()
+      const { formState, payWays } = await setup()
       const pending: Array<{ country: string, resolve: (value: unknown) => void }> = []
-      mockFetch.mockImplementation((url: string, options: any) => {
-        if (url === '/api/pay-way') {
-          return new Promise((resolve) => {
+      api.routes({
+        ...defaultRoutes(),
+        '/api/pay-way': (_url: string, options: any) =>
+          new Promise((resolve) => {
             pending.push({ country: options.query.country, resolve })
-          })
-        }
-        return Promise.resolve(defaultDispatch(url, options))
+          }),
       })
 
       formState.countryId = 'CY'
